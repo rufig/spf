@@ -43,7 +43,7 @@ INLINEVAR
 
 0x44 CELLS DUP CONSTANT OpBuffSize
 
-CREATE OP0 HERE >T DUP , SWAP ALLOT
+CREATE OP0 HERE >T DUP , 0 , SWAP ALLOT
 
 DUP OpBuffSize + CELL- CONSTANT OPLast
 
@@ -1376,7 +1376,9 @@ M\  VARIABLE VPPP : PPPP DUP VPPP @ <> IF 0 @ THEN ;
 
 : ?EAX=RULES ( ADDR  -- ADDR' FLAG )
 
-   BEGIN  OP1 @ :-SET U< IF TRUE EXIT THEN
+   BEGIN  OP1 @ :-SET
+\ TTTT  IF ." T=" 2DUP HEX U. U. THEN
+ U< IF TRUE EXIT THEN
           OP1 @ ?ChEAX 0=
 \          OP1 @ W@ ADD|XOR|OR|AND= OR
    WHILE   M\ 0 DTST
@@ -1390,6 +1392,7 @@ M\  VARIABLE VPPP : PPPP DUP VPPP @ <> IF 0 @ THEN ;
            FALSE    M\ F1 DTST
            EXIT  
    THEN
+ M\ PPPP
    
    OP2 @ :-SET U< 0= IF  \ GOTO OP2>
    OP2 @ C@ B8 =    \  MOV     EAX , # 44444
@@ -1405,6 +1408,7 @@ M\  VARIABLE VPPP : PPPP DUP VPPP @ <> IF 0 @ THEN ;
         FALSE  -1 ALLOT M\ B0F DTST
         EXIT  
      THEN
+ M\ PPPP
      OP1 @ W@ 00C7 =  \ MOV     [EAX] , # X  
      IF   M\ C0E DTST
                    OP1 @ 2+ @
@@ -1418,6 +1422,7 @@ M\  VARIABLE VPPP : PPPP DUP VPPP @ <> IF 0 @ THEN ;
         EXIT  
      THEN
    THEN
+ M\ PPPP
 
    OP2 @ ?ChEAX 
    OP1 @ W@ 5589 XOR        \ 8955FC            MOV     FC [EBP] , EDX
@@ -1530,18 +1535,23 @@ OP0 @  C@  A1 XOR OR \ MOV     EAX , X
                 DUP @ :-SET U< R> OR
            IF   DROP FALSE TRUE
            ELSE DUP >R
-                R@  @   C@  A1 XOR    \	MOV     EAX , X
-                R>  @ 1+ @ 
-                OP0 @ 1+ @ XOR OR
-           0=   F?EAX>ECX 
+                R@ CELL- @  CELL- @
+                OP0 @ 1+ @ =   
+                IF R@  @   C@ FD AND A1 =  \	MOV    { EAX , X } | { X ,EAX }
+                     DUP
+                     IF  F?EAX>ECX 
+                     ELSE 2DROP FALSE TRUE
+                     THEN 
+                ELSE  DROP FALSE TRUE
+                THEN  RDROP
             THEN
          THEN 
-      UNTIL       
+      UNTIL
       IF   M\ F0E DTST
            CELL- \ DROP TRUE EXIT 
            BEGIN EAX>ECX0 UNTIL
            BEGIN EAX>ECX  UNTIL
-           DROP
+           DROP  ." #"
            OP1 ToOP0
            FALSE
            -5 ALLOT  M\ F0F DTST
@@ -1549,7 +1559,7 @@ OP0 @  C@  A1 XOR OR \ MOV     EAX , X
        THEN
 
    THEN
-
+ M\ PPPP
 DUP C@ C3 XOR 
 OP0 @  C@  58 XOR OR \ POP     EAX
 0= IF  OP1  \ TTTT IF ."  ?EAX>ECX" THEN
@@ -2077,7 +2087,7 @@ OP0 @ W@ 458B XOR OR \ 57DDEE 8B45FC            MOV     EAX , FC [EBP]
        EXIT   
    THEN
 
-OP4 @ :-SET U< IF TRUE EXIT THEN
+OP3 @ :-SET U< IF TRUE EXIT THEN
 
 OP3 @ C@ A1 XOR  \ 57E2D7 A108E15700  MOV     EAX , 57E108
 OP2 @ W@ 4589 XOR OR \ 57E2DC 8945EC            MOV     EC [EBP] , EAX
@@ -2093,6 +2103,20 @@ OP1 @ W@ D08B XOR OR \ 57E2DF 8BD0              MOV     EDX , EAX
    THEN
 
 
+OP3 @ C@ 58 XOR  \ 	POP     EAX 
+OP2 @ @ FFFFFF AND FF408D XOR OR \  LEA     EAX , FF [EAX] 
+OP1 @ C@ 50 XOR OR \ 	PUSH    EAX 
+\ EAX=
+0=  IF   M\ D30 DTST
+\       OP2 1 OPresize
+       240CFF OP2 @ !  \  DEC DWORD PTR  [ESP]
+       OP3 OPexcise
+       OP1 OPexcise
+       FALSE   M\ D31 DTST
+       EXIT   
+    THEN
+
+OP4 @ :-SET U< IF TRUE EXIT THEN
 OP5 @ :-SET U< IF TRUE EXIT THEN
 
 OP5 @ C@ B8 XOR  \ 596994 B812000000  MOV     EAX , # 12
@@ -2155,7 +2179,7 @@ M\ PPPP
         3 ALLOT FALSE M\ 4B DTST
        EXIT
    THEN
-
+M\ PPPP
    OP0 @ @ 3FFFFF AND
    05048D =      \ LEA  EAX, X [EAX*_]
    IF
@@ -2183,6 +2207,7 @@ M\ PPPP
        0 TO OFF-EAX
 
    THEN
+M\ PPPP
 
    OP0 @  C@ B8 =    \ MOV  EAX, # X
    IF  OFF-EAX OP0 @ 1+ +!
@@ -2738,7 +2763,9 @@ OP0 @ @ FFFFFF AND 85048B XOR OR \ 8B04851CDE5700        MOV     EAX , 57DE1C [E
    THEN
 
 M\ PPPP
-OP2 @ :-SET U< IF TRUE EXIT THEN
+OP2 @ :-SET
+\ TTTT  IF ." T=" 2DUP HEX U. U. THEN
+ U< IF TRUE EXIT THEN
 
 \ $ - DUP
     OP2 @ W@ D8F7 XOR
@@ -3119,16 +3146,6 @@ OP0 @ 2+ C@    XOR OR
 0=  IF   M\ C30 DTST
        OP1 ToOP0
        FALSE -3 ALLOT  M\ C31 DTST
-       EXIT   
-    THEN
-
-OP2 @ C@ 58 XOR  \ 	POP     EAX 
-OP1 @ @ FFFFFF AND FF408D XOR OR \  LEA     EAX , FF [EAX] 
-OP0 @ C@ 50 XOR OR \ 	PUSH    EAX 
-0=  IF   M\ D30 DTST
-       240CFF OP2 @ !  \  DEC DWORD PTR  [ESP]
-       OP2 ToOP0
-       FALSE -2 ALLOT  M\ D31 DTST
        EXIT   
     THEN
 
