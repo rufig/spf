@@ -127,7 +127,6 @@ USER uLocalsUCnt
 USER uLocalsCOMCnt
 USER uPrevCurrent
 USER uAddDepth
-USER uLatest
 USER lLocalsCnt
 USER lLocalsUCnt
 USER lLocalsCOMCnt
@@ -231,8 +230,7 @@ VERSION 400000 < [IF]
 [THEN]
 
 : LocalsStartup
-  LATEST uLatest @ <> IF
-    LATEST uLatest !
+  widLocals @ 0= IF
     ALSO vocLocalsSupport
     TEMP-WORDLIST widLocals !
     GET-CURRENT uPrevCurrent !
@@ -253,7 +251,7 @@ VERSION 400000 < [IF]
 ;
 : LocalsCleanup
   PREVIOUS PREVIOUS
-  widLocals @ ?DUP IF FREE-WORDLIST THEN
+  widLocals @ ?DUP IF FREE-WORDLIST widLocals 0! THEN
 ;
 
 : ProcessLocRec ( "name" -- u )
