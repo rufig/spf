@@ -10,8 +10,8 @@
 \       чтобы 2! ( thi tlo ) записывало в формате FILETIME 
 \ 25.Jul.2001 Wed 12:37 
 \ * diffsec берет разность по модулю.
-\ + SecondsToDateTime ( sec -- sec min hr day mt year )
-\ + DateTimeToSeconds ( sec min hr day mt year -- sec )
+\ + SecondsToTimeDate ( sec -- sec min hr day mt year )
+\ + TimeDateToSeconds ( sec min hr day mt year -- sec )
 
 \ 20.Oct.2001 Sat 21:40
 \ однако, опять поменял порядок ;)
@@ -20,13 +20,15 @@
 \ 13.Nov.2001 Tue 21:07
 \ * NowFTime дает UTC (как и нативная  дата файлов )
 \ + >UTC  UTC> ( tlo thi -- tlo1 thi1 )
-\ + DateTimeToFTime ( sec min hr day mt year -- tlo thi )
-\ + FTimeToDateTime ( tlo thi -- sec min hr day mt year )
+\ + TimeDateToFTime ( sec min hr day mt year -- tlo thi )
+\ + FTimeToTimeDate ( tlo thi -- sec min hr day mt year )
 
 \ 12.Mar.2002 Tue 02:50
 \ * NowFTime \ использовал GetSystemTimeAsFileTime,
 \              вместо GetSystemTime и SystemTimeToFileTime
 \              слово стало работать в 10 раз быстрей.
+\ 20.Jul.2002 Sat 14:00 TimeDate instead of DateTime
+\ 26.May.2003 Mon 19:20 + addsec
 
 REQUIRE [UNDEFINED] lib\include\tools.f
 
@@ -115,11 +117,16 @@ CONSTANT /SYSTEMTIME     [THEN]
   10000000 UM/MOD NIP  \ из десятых долей микросекунд в секунды
 ; \ 10 000 000
 
+: addsec ( tlo1 thi1  sec -- tlo2 thi2 )
+\ дает увеличенное ftime, на sec 
+  10000000 UM* D+
+;
+
 [DEFINED] ?C-JMP [IF]  \ for macroopt.f
 ?C-JMP
 FALSE TO ?C-JMP  [THEN]
 
-: FTimeToDateTime ( tlo thi -- sec min hr day mt year )
+: FTimeToTimeDate ( tlo thi -- sec min hr day mt year )
   SWAP SP@  ( filetime )
   /SYSTEMTIME >CELLS RALLOT DUP /SYSTEMTIME ERASE DUP >R
   SWAP
@@ -133,7 +140,7 @@ FALSE TO ?C-JMP  [THEN]
      R@ wYear   W@
   RDROP /SYSTEMTIME >CELLS RFREE
 ;
-: DateTimeToFTime ( sec min hr day mt year -- tlo thi )
+: TimeDateToFTime ( sec min hr day mt year -- tlo thi )
   /SYSTEMTIME >CELLS RALLOT DUP /SYSTEMTIME ERASE >R
      R@ wYear   W!
      R@ wMonth  W!
@@ -174,14 +181,14 @@ TO ?C-JMP        [THEN]
 \ =======================================================
 \ Слова для перевода интервалов времени, выраженных в секундах.
 
-: SecondsToDateTime ( sec -- sec min hr day mt year )
+: SecondsToTimeDate ( sec -- sec min hr day mt year )
   60  /MOD
   60  /MOD
   24  /MOD
   30  /MOD
   12  /MOD
 ;
-: DateTimeToSeconds ( sec min hr day mt year -- sec )
+: TimeDateToSeconds ( sec min hr day mt year -- sec )
   31104000 *    SWAP
   2592000  * +  SWAP
   86400    * +  SWAP

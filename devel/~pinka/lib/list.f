@@ -15,36 +15,26 @@
  ... -- body
 )
 
-: list+  ( a-elem  hList -- )  \ добавить _узел_ ( node) к списку.
+: list+  ( a-node  hList -- )  \ добавить _узел_ ( node) к списку.
 \ hList @  - адрес последнего добавленного элемента.
-  >R  R@ @  ?DUP IF  ( a-chnl a-last )
-    OVER  !  ( a-chnl )
-  THEN ( a-chnl )
-  R> !
+  DUP >R @ OVER ! R> !
 ;
-
 : ?List-ForEach  ( xt hList -- )
 \ xt ( node -- flag )  \ продолжать, пока true
-    BEGIN
-      @ DUP  
-    WHILE
-        2DUP 2>R SWAP EXECUTE 0= IF RDROP RDROP EXIT THEN 2R>
+    BEGIN  @ DUP  
+    WHILE  2DUP 2>R SWAP EXECUTE 0= IF RDROP RDROP EXIT THEN 2R>
     REPEAT 2DROP
 ;
-
 : List-ForEach  ( xt hList -- )
 \ xt ( node -- )
-    @   BEGIN
-    DUP WHILE
-    2DUP @ 2>R SWAP EXECUTE 2R>
-        REPEAT 2DROP
+    @ BEGIN  DUP WHILE 2DUP @ 2>R SWAP EXECUTE 2R> REPEAT 2DROP
 ;
 : List-Count ( list -- count )
   0 BEGIN SWAP @ DUP WHILE SWAP 1+ REPEAT DROP
 ;
 
-:NONAME  . CR ;  ( S: xt )
-: .list  ( list -- )  LITERAL  ( :da) SWAP List-ForEach ;
+:NONAME  DUP . CELL+ @ . CR ;  ( S: xt )
+: .list  ( list -- )  LITERAL SWAP List-ForEach ;
 
  ( example
 VARIABLE hList  0 hList !

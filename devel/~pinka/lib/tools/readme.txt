@@ -87,7 +87,7 @@ ______
 dll можно делать батником, типа такого
 ===== make-dll.cmd
 spf-2.exe %1.f S" %1-2.bin" SAVE BYE
-spf-2.exe %1.f exe2dll.f S" %1-2.bin" S" %1.dll" SAVE-DLL BYE >%1.log
+spf-1.exe %1.f exe2dll.f S" %1-2.bin" S" %1.dll" SAVE-DLL BYE >%1.log
 ===== 
 
 и вызывать:

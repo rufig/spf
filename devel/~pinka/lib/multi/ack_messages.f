@@ -48,6 +48,12 @@ WM_USER 0x50 + CONSTANT m_receipt
   >R SWAP PM_REMOVE -ROT  -1  R> PeekMessageA 0<>
 ;
 
+: WaitMsgAck ( -- )
+  m_receipt m_receipt 0 /MSG RALLOT
+  GetMessageA -1 = IF GetLastError THROW THEN
+  /MSG RFREE
+;
+
 : MessageWithAck@ ( msg_num_min msg_num_max --  x msg_num )
 \ получить сообщение
 \ отправить сообщение-квитанцию.
