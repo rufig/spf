@@ -127,11 +127,13 @@ USER widListFunc
   BEGIN
     @ DUP
   WHILE
-    DUP 2 CELLS - @ ASCIIZ> 2R@ COMPARE
+    DUP
+    [ VERSION 400007 > [IF] ] 2 CELLS - [ [ELSE] ] CELL- [ [THEN] ]
+    @ ASCIIZ> 2R@ COMPARE
     0= IF
       RDROP RDROP
-      NEAR_NFA
-      DROP NAME> TRUE EXIT
+      WordByAddr
+      DROP 1- NAME> TRUE EXIT
     THEN
   REPEAT DROP RDROP RDROP
   FALSE
