@@ -12,8 +12,11 @@ WINAPI: RevertToSelf            ADVAPI32.DLL
 
 USER TOKEN
 USER uAuthServer
+USER uNtAuthDebug
 
-: AuthServer uAuthServer @ ?DUP IF EXECUTE ELSE S" ." THEN ;
+: AuthServer uAuthServer @ ?DUP IF EXECUTE ELSE S" ." THEN
+  uNtAuthDebug @ IF ." AuthServer: " 2DUP TYPE SPACE THEN
+;
 
 : Logon ( S"user" S"password" S"domain" -- token ior )
   DROP >R DROP >R DROP >R
@@ -23,7 +26,7 @@ USER uAuthServer
 ;
 : LoginUser ( addr-name u-name addr-passw u-passw -- uid )
   AuthServer Logon 
-\ ?DUP IF ." Auth failed: " . EXIT ( 0) THEN
+  uNtAuthDebug @ IF DUP IF ." Auth failed: " DUP . ELSE ." Auth OK " THEN THEN
   IF EXIT ( 0) THEN
   DUP ImpersonateLoggedOnUser DROP
 ;
