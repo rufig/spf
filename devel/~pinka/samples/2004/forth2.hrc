@@ -167,8 +167,10 @@ With Help of
    <regexp match="/(\\)($)/"  region1="fthWordRem" region2="fthDelimRem"/>
 
    <!-- -- comment -->
+   <!-- (13.Aug.2004 commented for SPF4)
    <regexp match="/(\-\-\s)(.*)($)/"  region1="fthWordRem" region2="fthParsedRem" region3="fthDelimRem"/>
    <regexp match="/(\-\-)($)/"  region1="fthWordRem" region2="fthDelimRem"/>
+   -->
 
    <!-- ( comment) -->
    <block start="/(\()(\s|$)/" end="/\)/" scheme="Comment" region01="fthWordRem" region02="fthSkippedRem" region="fthParsedRem" region10="fthDelimRem"/>
@@ -324,6 +326,7 @@ With Help of
   <regexp match="/(user-create)(\s)(\s*)(\S+)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
   <regexp match="/(user-value)(\s)(\s*)(\S+)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
   <regexp match="/(user-vect)(\s)(\s*)(\S+)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(\-\-)(\s)(\s*)(\S+)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
 
   <regexp match="/(code)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
 
