@@ -13,6 +13,9 @@
 \     * исправление clear-hash - записи удал€лись, но ссылки на них оставались в таблице
 \ 01.Nov.2003 ruv
 \     * make-hash теперь new-hash - и вынесен в интерфейс.
+\ 22.Dec.2003 pig
+\     * итераторы all-hash, for-hash теперь позвол€ют вложенный вызов
+
 
 REQUIRE [UNDEFINED] lib\include\tools.f
 
@@ -158,11 +161,15 @@ EXPORT
 
 : all-hash ( xt h -- )
 \ xt ( akey ukey a|value   -- )
+  do-it >R
   >R TO do-it ['] (all-hash) R> traverse-hash 
+  R> TO do-it
 ;
 : for-hash ( h xt -- )
 \ xt ( a|value  akey ukey -- )
+  do-it >R
   TO do-it ['] (for-hash) SWAP traverse-hash 
+  R> TO do-it
 ;
 
 : hash-empty? ( h -- flag )    \ провер€ет, пуст хэш или нет
