@@ -49,6 +49,11 @@ REQUIRE STR@         ~ac/lib/str2.f
   DUP fsock CloseSocket THROW  \ лучше DROP
   FREE THROW
 ;
+: fast-fclose ( socketline -- )
+\ fixed by Sergey Shisminzev [sergey@michint.kiev.ua]
+  DUP fsock FastCloseSocket THROW  \ лучше DROP
+  FREE THROW
+;
 : fputs ( str socketline -- )
   { str sock }
   str STR@
