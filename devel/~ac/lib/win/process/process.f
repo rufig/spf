@@ -1,5 +1,15 @@
+( ~ac: изменения 25.03.2004
+   Добавлено функциональное слово StartAppWaitDir
+   S" app_path.exe cmdline" S" curr_dir" wait StartAppWaitDir THROW ." res=" .
+   Т.е. в отличие от StartApp возвращает не сишный bool, а ior
+   плюс код завершения. Код завершения валидный только в случае
+   ненулевого заданного времени ожидания wait.
+   StartApp и StartAppWait теперь определены через это слово.
+)
+
 WINAPI: CreateProcessA KERNEL32.DLL
 WINAPI: WaitForSingleObject KERNEL32.DLL
+WINAPI: GetExitCodeProcess KERNEL32.DLL
 
 0
 4 -- cb
@@ -26,7 +36,42 @@ HEX 00000100 CONSTANT STARTF_USESTDHANDLES DECIMAL
 0 VALUE SW_HIDE
 1 CONSTANT STARTF_USESHOWWINDOW
 
+USER SA_WAIT
+
+: StartAppWaitDir ( S" application.exe" S" curr_directory" wait -- exit_code ior )
+  SA_WAIT !
+  DUP IF OVER + 0 SWAP C! ELSE 2DROP 0 THEN >R
+  OVER + 0 SWAP C! >R    2R> SWAP 2>R
+  5 CELLS ALLOCATE ?DUP IF R> DROP NIP EXIT THEN
+  DUP \ process information
+  DUP 4 CELLS ERASE
+  /STARTUPINFO ALLOCATE ?DUP IF R> DROP NIP NIP EXIT THEN 
+  DUP ROT ROT \ startup info
+  DUP /STARTUPINFO ERASE
+  /STARTUPINFO OVER cb !
+  STARTF_USESHOWWINDOW OVER dwFlags !
+  SW_HIDE OVER wShowWindow !
+
+  R>    \ current dir
+  0    \ environment
+  0    \ creation flags
+  FALSE \ inherit handles
+  0 0  \ process & thread security
+  R>   \ command line
+  0    \ application
+  CreateProcessA DUP
+  ROT >R ROT >R
+  IF SA_WAIT @ R@ @ WaitForSingleObject DROP THEN
+  R@ @  0 >R RP@ OVER GetExitCodeProcess DROP R> SWAP CLOSE-FILE DROP 
+  R@ CELL+ @ CLOSE-FILE DROP
+  R> FREE DROP R> FREE DROP
+  SWAP ERR
+;
 : StartApp ( S" application.exe" -- flag )
+  S" " 0 StartAppWaitDir NIP 0= 1 AND
+;
+
+(
   OVER + 0 SWAP C! >R
   5 CELLS ALLOCATE ?DUP IF R> DROP NIP EXIT THEN
   DUP \ process information
@@ -51,7 +96,11 @@ HEX 00000100 CONSTANT STARTF_USESTDHANDLES DECIMAL
   R@ @ CLOSE-FILE DROP R@ CELL+ @ CLOSE-FILE DROP
   R> FREE DROP R> FREE DROP
 ;
+)
 : StartAppWait ( S" application.exe" -- flag )
+  S" " -1 StartAppWaitDir NIP 0= 1 AND
+;
+(
   OVER + 0 SWAP C! >R
   5 CELLS ALLOCATE ?DUP IF R> DROP NIP EXIT THEN
   DUP \ process information
@@ -76,6 +125,13 @@ HEX 00000100 CONSTANT STARTF_USESTDHANDLES DECIMAL
   R@ @ CLOSE-FILE DROP R@ CELL+ @ CLOSE-FILE DROP
   R> FREE DROP R> FREE DROP
 ;
+)
 : Visible
   1 TO SW_HIDE
 ;
+
+(
+S" G:\temp\clamav3\clamscan.exe H:\eserv2\check\vir\ibp@ibp.krasnoyarsk.su!POP3!1916726!149" S" G:\temp\clamav3" -1 StartAppWaitDir . . CR
+S" G:\temp\clamav3\clamscanz.exe" StartApp . CR
+S" G:\temp\clamav3\clamscan.exe" StartAppWait . CR
+)
