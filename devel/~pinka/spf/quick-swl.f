@@ -1,5 +1,5 @@
 \ 07.Jan.2004 ruv
-\ file: quick-swl.f
+\ $Id$
 
 ( Расширение SPF [зависит от реализации!]
    воплощает быстрый поиск по словарю за счет использования хэш-таблиц.
@@ -8,7 +8,7 @@
 
   Ограничения:
    в каждый словарь должен компилировать только один поток 
-   /для временных - создатель-владалец словаря/
+   /для временных - создатель-владелец словаря/
 
    Если будут несколько - то возможно неверное распределение 
     памяти -  хэш-таблица в хипе одного потока будет иметь
@@ -21,6 +21,8 @@
   [ в том числе, до locals.f ]
 
   Заменяет SEARCH-WORDLIST - метод поиска в стандартных словарях SPF
+  Использует ячейку "класс словаря" в заголовке словаря
+  для хранения ссылки на экстра-заголовок.
 )
 
 REQUIRE [UNDEFINED] lib\include\tools.f
@@ -54,10 +56,9 @@ CONSTANT /exth
 : WL-HASH ( wid -- hash-table )
   wid-exth .hash @
 ;
-( как используется хэш-таблица - детали реализации )
+( внутри, т.к. способ использования хэш-таблица - детали реализации )
 
 USER-VALUE hash
-
 
 : update-hash ( exth -- )
   >R
@@ -84,6 +85,24 @@ USER-VALUE hash
   \ в котором слова добавлялись в словарь
 ;
 
+: reduce-hash ( last  wid  -- )
+\ Исключить из хэш-таблицы слова от wid @ до last
+\ last должно иметь место в цепочке словаря wid
+\ ( для MARKER )
+
+  DUP wid-exth ?DUP 0= IF 2DROP EXIT THEN >R
+  @ ( l2  l )
+  OVER R@ .last  !
+  R> .hash @ TO hash
+
+  ( l2 l )          BEGIN
+  2DUP <>           WHILE
+  DUP COUNT hash -HASH
+  CDR DUP 0=        UNTIL THEN 2DROP
+;
+
+EXPORT
+
 \ SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
 
 : QuickSWL ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ SWL
@@ -100,36 +119,6 @@ USER-VALUE hash
   IF 1 ELSE -1 THEN ELSE
   0                 THEN
 ;
-
-: erase-refer ( -- )
-\ ( аналогично ERASE-IMPORTS )
-\ хэш-таблицы динамические, живут только в ОП,
-\ поэтому после запуска процесса ссылки на exth в заголовках словарей
-\ будут не действительны. Их надо обнулить. 
-  VOC-LIST @ BEGIN
-  DUP        WHILE
-  DUP CELL+ ( a wid )
-  3 CELLS + 0!  \ ячейка "класс словаря"
-  @          REPEAT  DROP
-;
-..: AT-PROCESS-STARTING erase-refer ;..
-
-: reduce-hash ( last  wid  -- )
-\ исключить из хэш-таблицы слова от wid @ до last
-\ last должно иметь место в цепочке словаря wid
-
-  DUP wid-exth ?DUP 0= IF 2DROP EXIT THEN >R
-  @ ( l2  l )
-  OVER R@ .last  !
-  R> .hash @ TO hash
-
-  ( l2 l )          BEGIN
-  2DUP <>           WHILE
-  DUP COUNT hash -HASH
-  CDR DUP 0=        UNTIL THEN 2DROP
-;
-
-EXPORT
 
 : CLEAR-WLHASH ( wid -- )
 \ очистить хэш-таблицу словаря. На случай, если она стала не адекватной..
@@ -162,11 +151,48 @@ EXPORT
 
 [THEN]
 
-[DEFINED] SEARCH-WORDLIST1                  [IF]
-' QuickSWL TO SEARCH-WORDLIST               [ELSE]
+DEFINITIONS
 
-REQUIRE REPLACE-WORD lib\ext\patch.f
+: erase-refer ( -- )
+\ ( аналогично ERASE-IMPORTS )
+\ хэш-таблицы динамические, живут только в ОП,
+\ поэтому после запуска процесса ссылки на exth в заголовках словарей
+\ будут не действительны. Их надо обнулить. 
+  VOC-LIST @ BEGIN
+  DUP        WHILE
+  DUP CELL+ ( a wid )
+  3 CELLS + 0!  \ ячейка "класс словаря"
+  @          REPEAT  DROP
+;
 
-' QuickSWL ' SEARCH-WORDLIST REPLACE-WORD   [THEN]
+: update-hashes ( -- )
+( если к стационарному словарю первым обращается коротко живущий поток,
+  то хэш инициируется из хипа этого потока... а поток потом завершается
+  и наступает облом.
+  Это слово принудительно инициирует все словари/хэш-таблицы/ при запуске.
+    Также, ситуацию можно разрешить навязывая нужный хип перед
+    распределением памяти [например, HEAP-GLOBAL для стационарных словарей]
+)
+  VOC-LIST @ BEGIN
+  DUP        WHILE
+  DUP CELL+ ( a wid )
+  wid-exth update-hash
+  @          REPEAT  DROP
+;
+
+..: AT-PROCESS-STARTING erase-refer update-hashes ;..
+
+..: AT-PROCESS-STARTING 
+    NON-OPT-WL 3 CELLS + 0!
+;.. ( обход особенности: NON-OPT-WL нету в списке словарей. 
+      Временное решение, т.к. это надо пофиксить. )
+
+EXPORT
+
+    [DEFINED] SEARCH-WORDLIST1                  [IF]
+    ' QuickSWL TO SEARCH-WORDLIST               [ELSE]
+
+    REQUIRE REPLACE-WORD lib\ext\patch.f
+    ' QuickSWL ' SEARCH-WORDLIST REPLACE-WORD   [THEN]
 
 ;MODULE
