@@ -89,6 +89,7 @@ DECIMAL
 
 : FINF FINF-ADDR F@ ;
 
+WARNING @ FALSE WARNING !
 : F!
    DF!
 ;
@@ -100,6 +101,7 @@ DECIMAL
 : F, ( F: r -- )
   DF,
 ;
+WARNING !
 
 : TNUM ( addr u -- d )       \ *
    0. 2SWAP >NUMBER 2DROP
@@ -168,9 +170,9 @@ DECIMAL
    R> SETFPUCW
 ;
 
-: SKIP1
+( : SKIP1
    1- SWAP 1+ SWAP 
-;
+;)
 
 \ Simple BNF parser ( ver. 2.2)
 
@@ -608,6 +610,7 @@ DECIMAL
 
 : FVALUE FCONSTANT ;
 
+WARNING @ FALSE WARNING !
 : NOTFOUND ( c-addr u -- )
   2DUP 2>R ['] NOTFOUND CATCH ?DUP
   IF
@@ -621,6 +624,7 @@ DECIMAL
   ELSE 2R> 2DROP
   THEN
 ;
+WARNING !
 
 ..: AT-THREAD-STARTING HIGH-FINIT ;..
 
