@@ -105,12 +105,15 @@ DUP , ( rgpMsgCert - массив указателей на включаемые сертификаты )
   SIGN_PARA CryptSignMessage 0 = IF GetLastError EXIT THEN
   mem size 0
 ;
-: IsMsgSignedBy ( addr u cert -- flag )
+: CompareCert ( cert1 cert2 -- flag ) \ 0 означает "равны", как в COMPARE
+  3 CELLS + @ SWAP 3 CELLS + @
+  X509_ASN_ENCODING PKCS_7_ASN_ENCODING OR
+  CertCompareCertificate 0=
+;
+: IsMsgSignedBy ( addr u cert -- flag ) \ true = да, подписано этим сертификатом
   >R VerifySignature IF RDROP FALSE EXIT THEN
   >R 2DROP
-  R> 3 CELLS + @ R> 3 CELLS + @
-  X509_ASN_ENCODING PKCS_7_ASN_ENCODING OR
-  CertCompareCertificate 0<>
+  2R> CompareCert 0=
 ;
 : EnumCertExtensions { context xt \ size mem -- }
 \ Массив расширений:
@@ -119,9 +122,10 @@ DUP , ( rgpMsgCert - массив указателей на включаемые сертификаты )
 \ 322F04   33 2E 31 30  00 00 00 00  00 00 00 00  00 00 00 00 3.10............
   1000 DUP -> size ALLOCATE THROW -> mem
   ^ size mem 0 context CertGetEnhancedKeyUsage 1 =
-  IF mem @ 0 ?DO
-       mem CELL+ I CELLS + @ @ ASCIIZ> xt EXECUTE
-     LOOP
+  IF mem CELL + @
+     mem @ 0 ?DO
+       DUP I CELLS + @ ASCIIZ> xt EXECUTE
+     LOOP DROP
   THEN
 ;
 
