@@ -8,29 +8,47 @@ REQUIRE {	devel\~af\lib\locals.f
 
 GET-CURRENT ALSO vocLocalsSupport DEFINITIONS
 
-VARIABLE vret
-: D>RMOVE ( D: x1 ... xn n -- R: xn ... x1 )
-  R> vret !
-  BEGIN DUP WHILE SWAP >R 1- REPEAT DROP
-  vret @ >R
+\ CODE D>RMOVE ( x1 ... xn n*4 -- R: xn ... x1 )
+\      POP  EDX \ адрес возврата
+\ @@1: 
+\      PUSH [EBP]
+\      ADD  EBP, # 4
+\      SUB  EAX, # 4
+\      JNZ  SHORT @@1
+\      MOV  EAX, [EBP]
+\      LEA  EBP, 4 [EBP]
+\      JMP  EDX
+\ END-CODE
+
+: D>RMOVE ( x1 ... xn n*4 -- R: xn ... x1 )
+\ перенести n чисел со стека данных на стек возвратов
+[ BASE @ HEX
+  5A  C,
+  4 ALIGN-NOP
+  FF  C, 75  C, 0  C,
+  83  C, C5  C, 4  C, 83  C,
+  E8  C, 4  C, 75  C, F5  C,
+  8B  C, 45  C, 0  C, 8D  C,
+  6D  C, 4  C, FF  C, E2  C,
+BASE ! ]
 ;;
 
 VERSION 400000 < [IF] \ spf3
   : CompileANSLocInit
     uPrevCurrent @ SET-CURRENT
     uLocalsCnt @ ?DUP IF
-      DUP
+      CELLS DUP
       LIT, POSTPONE D>RMOVE
-      CELLS LIT, POSTPONE >R ['] (LocalsExit) LIT, POSTPONE >R
+      LIT, POSTPONE >R ['] (LocalsExit) LIT, POSTPONE >R
     THEN
   ;;
 [ELSE] \ spf4
   : CompileANSLocInit
     uPrevCurrent @ SET-CURRENT
     uLocalsCnt @ ?DUP IF
-      DUP
+      CELLS DUP
       LIT, POSTPONE D>RMOVE
-      CELLS RLIT, ['] (LocalsExit) RLIT,
+      RLIT, ['] (LocalsExit) RLIT,
     THEN
   ;;
 [THEN]
