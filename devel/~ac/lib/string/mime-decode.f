@@ -45,13 +45,21 @@ PREVIOUS SWAP SET-CURRENT CONSTANT CHARSET-DECODERS-WL
   REPEAT DROP R> DROP
   R> BASE ! s STR@
 ;
+USER uMimeValueDecodeCnt
+VECT vDefaultMimeCharset \ кодировка входящей строки по умолчанию,
+                         \ если она не указана в самой строке =?...?
+
+: DefaultMimeCharset1 S" koi8-r" ; ' DefaultMimeCharset1 TO vDefaultMimeCharset
+
 : MimeValueDecode1 ( encoding-a encoding-u text-a text-u flag -- addr u )
 \ flag=true, если text закодирован base64
   IF debase64 ELSE dequotep THEN
   2SWAP CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN
+  uMimeValueDecodeCnt 1+!
 ;
 : MimeValueDecode { addr u \ ta tu s b -- addr2 u2 }
   "" -> s
+  uMimeValueDecodeCnt 0!
   BEGIN
     addr u S" =?" SEARCH
   WHILE
@@ -67,6 +75,11 @@ PREVIOUS SWAP SET-CURRENT CONSTANT CHARSET-DECODERS-WL
     b MimeValueDecode1 s STR+
   REPEAT                                   \ остаток текста не кодирован
   s STR+ s STR@
+  uMimeValueDecodeCnt @ 0=
+  IF \ MimeValueDecode1 не запускался, т.е. в строке не была указана кодировка
+     \ поэтому декодируем из указанной по умолчанию
+     vDefaultMimeCharset CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN
+  THEN
 ;
 : StripLwsp1 { \ s }
   "" -> s
@@ -102,4 +115,6 @@ Subject: =?windows-1251?Q?=EF=EE_=EF=EE=E2=EE=E4=F3_Eserv?=
  =?koi8-r?Q?=FE=E5__=C4=C1=D4=C1_=CD=CF=C4=C9=C6=C9=CB=C1=C3=C9=C9=3A_1?=
  =?koi8-r?Q?7=2E12=2E2003_=28=29?=
 " STR@ StripLwsp MimeValueDecode ANSI>OEM TYPE
+
+CR S" ьФП ФЕНБ Ч ЛПДЙТПЧЛЕ koi8-r ВЕЪ mime-ЛПДЙТПЧБОЙС" MimeValueDecode ANSI>OEM TYPE CR
 )
