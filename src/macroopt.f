@@ -367,7 +367,7 @@ M\ VECT DTST
       R@ CELL+ R@ OpBuffSize CELL- R> - OP0 + QCMOVE
 ;
 : ?OPlast  ( OPX -- OPX flag )
-     DUP CELL+ OP0 OpBuffSize + U> ;
+     DUP CELL+ CELL+ OP0 OpBuffSize + U> ;
 
 : XX_STEP ( OPX -- OPX+CELL FALSE | { OPX | FALSE } TRUE )
 \ Проверка на не изменение  EAX
