@@ -1,0 +1,264 @@
+REQUIRE { ~ac/lib/locals.f
+
+USER STRLAST
+
+: XCOUNT ( xs -- addr1 u1 )
+\ получить строку addr1 u1 из строки со счетчиком xs
+\ счетчик - ячейчка, а не байт, в отличие от обычного COUNT
+  DUP @ SWAP CELL+ SWAP
+;
+: S'
+  [CHAR] ' PARSE [COMPILE] SLITERAL
+; IMMEDIATE
+
+: SALLOT ( addr u -- xs )
+  DUP 5 + ALLOCATE THROW >R
+  DUP R@ ! R@ CELL+ SWAP CMOVE R>
+;
+: sALLOT
+  SALLOT CELL ALLOCATE THROW DUP >R ! R>
+;
+: s@ ( s -- xs )
+  @
+;
+: s! ( xs s -- )
+  !
+;
+: STR@ ( s -- addr u )
+  s@ XCOUNT
+;
+: STRFREE ( s -- )
+  DUP s@ FREE THROW FREE THROW
+;
+: STYPE ( s -- )
+  DUP STR@ TYPE
+  STRFREE
+;
+: STR+ { addr u s -- }
+  s s@ DUP @
+  u + 5 + RESIZE THROW DUP DUP s s!
+  XCOUNT + addr SWAP u CMOVE
+  u SWAP +!
+;
+: STR! { addr u s -- }
+  s s@
+  u 5 + RESIZE THROW DUP s s!
+  addr OVER CELL+ u CMOVE
+  u SWAP !
+;
+: S+ ( s1 s -- )
+  OVER STR@ ROT STR+ STRFREE
+;
+: "" ( -- s )
+  S" " sALLOT
+;
+
+: {eval} ( ... s -- s ) { s \ sp }
+  SP@ -> sp
+  ['] INTERPRET CATCH
+  ?DUP IF S" (Error: " s STR+
+          ABS 0 <# [CHAR] ) HOLD #S #> s STR+
+          s EXIT
+       THEN
+  sp SP@ - 
+  DUP 12 = IF DROP s STR+ s EXIT THEN
+  DUP  8 = IF DROP 0 <# #S #> s STR+ s EXIT THEN
+  DUP  4 = IF DROP s EXIT THEN
+  DROP
+  S" (Error: 2020)" s STR+
+  sp SP!
+  s
+;
+: {sn} ( ... s -- s ) { s }
+  TIB C@ [CHAR] s = IF s STR+ s EXIT THEN
+  TIB C@ [CHAR] n = IF 0 <# #S #> s STR+ s EXIT THEN
+  s {eval}
+;
+: ({...}) ( -- s ) { \ s }
+  "" -> s
+  #TIB @ 1 = IF s {sn} EXIT THEN
+  s {eval}
+;
+: {...} ( addr u -- ... )
+  ['] ({...}) EVALUATE-WITH
+;
+: ((")) ( -- s ) { \ s }
+  "" -> s
+  BEGIN
+    >IN @ #TIB @ <
+  WHILE
+    [CHAR] { PARSE
+    s STR+
+    [CHAR] } PARSE ?DUP
+    IF {...} s S+
+    ELSE DROP THEN
+  REPEAT
+  s DUP STRLAST !
+;
+: (") ( addr u -- s )
+  ['] ((")) EVALUATE-WITH
+;
+
+( вечная слава Андрею Филаткину: )
+S" {R0 @ RP@ -}" (") DUP
+STR@ ?SLITERAL
+R0 @ RP@ - - 4 + CONSTANT LOCALS_STACK_OFFSET
+STRFREE
+
+: {STR@LOCAL} ( addr u s -- ) { s }
+  OVER C@ [CHAR] $ =
+       IF 1- SWAP 1+ SWAP CONTEXT @ SEARCH-WORDLIST
+          IF >BODY @ [ ALSO vocLocalsSupport ] LocalOffs [ PREVIOUS ] LOCALS_STACK_OFFSET +
+             0 <# #S [CHAR] { HOLD #> s STR+
+             S"  RP+@ STR@}" s STR+
+          THEN
+       ELSE OVER C@ [CHAR] # =
+            IF 1- SWAP 1+ SWAP CONTEXT @ SEARCH-WORDLIST
+               IF >BODY @ [ ALSO vocLocalsSupport ] LocalOffs [ PREVIOUS ] LOCALS_STACK_OFFSET +
+                  0 <# #S [CHAR] { HOLD #> s STR+
+                  S"  RP+@}" s STR+
+               THEN
+            ELSE S" {" s STR+ s STR+ S" }" s STR+ THEN
+       THEN
+;
+: (STR@LOCAL) ( -- s ) { \ s }
+  "" -> s
+  BEGIN
+    >IN @ #TIB @ <
+  WHILE
+    [CHAR] { PARSE
+    s STR+
+    [CHAR] } PARSE ?DUP
+    IF s {STR@LOCAL}
+       \ S" {" s STR+ s STR+ S" }" s STR+
+    ELSE DROP THEN
+  REPEAT
+  s
+;
+: STR@LOCAL ( addr u -- addr u )
+  ['] (STR@LOCAL) EVALUATE-WITH STR@
+;
+
+: _STRLITERAL ( -- s )
+  R> XCOUNT 2DUP + CHAR+ >R
+  (")
+;
+: S, ( addr u -- )
+  HERE SWAP DUP ALLOT CMOVE
+;
+: STRLITERAL ( addr u -- )
+  \ похоже на SLITERAL, но длина строки не ограничена 255
+  \ и компилируемая строка при выполнении "разворачивается" по (")
+  STATE @ IF
+             ['] _STRLITERAL COMPILE,
+             DUP , S, 0 C,
+          ELSE
+             (")
+          THEN
+; IMMEDIATE
+
+: CRLF
+  LT 2
+;
+CREATE _S""" CHAR " C,
+: ''
+  _S""" 1
+;
+
+: PARSE" { \ s -- addr u }
+  "" -> s
+  BEGIN
+    [CHAR] " PARSE
+    2DUP + C@ [CHAR] " <>
+  WHILE
+    s STR+
+    CRLF s STR+
+    REFILL 0= THROW
+  REPEAT
+  s STR+
+  s STR@
+  STR@LOCAL
+;
+
+: " ( "ccc" -- )
+  PARSE" POSTPONE STRLITERAL
+; IMMEDIATE
+
+
+: FILE ( addr u -- addr1 u1 )
+  { \ f mem }
+  R/O OPEN-FILE-SHARED IF DROP S" " EXIT THEN
+   -> f
+  f FILE-SIZE THROW D>S DUP CELL+ ALLOCATE THROW -> mem
+  mem SWAP f READ-FILE THROW
+  f CLOSE-FILE THROW
+  mem SWAP
+;
+: S@ ( addr u -- addr2 u2 )
+\ вычислить {} в строке
+  (") STR@
+;
+: EVAL-FILE ( addr u -- addr1 u1 )
+  FILE S@
+;
+: S! ( addr u var_addr -- )
+  "" DUP ROT ! STR+
+;
+: LSTRFREE ( -- )
+  STRLAST @ STRFREE
+;
+
+(
+
+S" test1" sALLOT STYPE CR
+"" VALUE TEST1 S" test2" TEST1 STR+ TEST1 STYPE CR
+
+PARSE" test3" TYPE CR
+
+PARSE" test4
+test4" TYPE CR
+
+: TEST5 " test5" ; TEST5 STYPE CR
+
+: TEST6 " test6
+test6
+test6" ; TEST6 STYPE CR
+
+S" test7" 7  " test7__{n}{s}__test7" STYPE CR
+
+" test8_{5}__{S' test8'}_|{ \ nothing }|__{1 2 3}__" STYPE CR
+
+: TEST9 { \ str nn } " string" -> str 55 -> nn " __{$str}__{#nn}__" STYPE CR ; TEST9
+
+: TEST { \ s } " zzz1" -> s S" test0" s STR! s STYPE CR ; TEST
+
+
+\ : TEST { a b c } " 777{RP@ 180 DUMP HERE 0}888" STYPE ;
+
+\ HEX 77 88 99 TEST
+
+\ Тесты:
+
+: TEST S" test" ;
+" abc{TEST}123 5+5={5 5 +} Ok" STYPE CR
+
+: TEST2 " abc{TEST}123 5+5={5 5 +} Ok {ZZZ} OK!" STYPE CR ;
+TEST2
+
+" 
+  abc
+  def
+  {TEST}
+  123
+" 
+STYPE
+
+: TEST3  { \ n t k }
+  9 -> n
+  " abcd" -> t
+  3 -> k
+  " |123|{$t}|123|{#n}|123|{#k}|{S' file1.txt' EVAL-FILE}<End of file>" STYPE
+;
+TEST3
+
+)
