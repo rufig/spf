@@ -303,9 +303,14 @@ VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
     ciLink @
   REPEAT
 ;
-: ColName ( n fodbc -- addr u )
-  ColFind ?DUP
-  IF DUP ciColumnName SWAP ciNameLengthPtr @
+: ColName { n fodbc \ ci -- addr u }
+  n fodbc ColFind ?DUP
+  IF DUP -> ci ciColumnName ci ciNameLengthPtr @
+     DUP 2 < IF DROP [CHAR] f SWAP C!
+                n 0 <# #S #> DUP 1+ ci ciNameLengthPtr !
+                ci ciColumnName 1+ SWAP MOVE
+                ci ciColumnName ci ciNameLengthPtr @
+             THEN
   ELSE S" " THEN
 ;
 : ColSize ( n fodbc -- n )
@@ -348,8 +353,8 @@ VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
 \      S" SELECT * FROM sp_vendors LIMIT 50" q ExecSQL DUP . q SQL_Error
 \ S" SET NAMES 'cp1251'" q ExecSQL DUP . q SQL_Error
 
-\      S" latest_orders.sql" q ExecSQLfile q SQL_Error
-      S" test.sql" q ExecSQLfile q SQL_Error
+      S" latest_orders.sql" q ExecSQLfile q SQL_Error
+\      S" test.sql" q ExecSQLfile q SQL_Error
 
       ." Result cols: " q ResultCols  . CR
 
