@@ -45,6 +45,7 @@ M-DATE Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
   >R <<# R> #SG
 ;
 : HOLDS ( addr u -- )
+  256 MIN
   SWAP OVER + SWAP 0 ?DO DUP I - 1- C@ HOLD LOOP DROP
 ;
 

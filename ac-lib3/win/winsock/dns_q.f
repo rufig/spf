@@ -123,6 +123,7 @@ VARIABLE DnsDebug
 ;
 
 : HOLDS ( addr u -- )
+  256 MIN
   SWAP OVER + SWAP 0 ?DO DUP I - 1- C@ HOLD LOOP DROP
 ;
 
