@@ -1,10 +1,11 @@
 \ 30.12.2001 ac Исправлены ошибки с числом параметров в (ServiceControlHandler)
 \               и в (ServiceMain)
+\ 20.09.2002 ruvim: исправления в стековой нотации и исправление CreateSevice
 
 REQUIRE OpenServiceA ~ac/lib/win/service/service_struct.f
 
 WARNING @ WARNING 0!
-: DeleteService ( addr u -- ior )
+: DeleteService ( addr u -- 0 | 1 )
   2>R DELETE_SERVICE 2R> DROP
   SC_MANAGER_ALL_ACCESS 0 0 OpenSCManagerA DUP >R
   OpenServiceA DUP >R DeleteService
@@ -13,11 +14,11 @@ WARNING @ WARNING 0!
 ;
 WARNING !
 
-: CreateService ( addr u -- ior )
+: CreateService ( addr u -- 0 | handle )
   2DUP DeleteService DROP
   2>R
   0 0 0 0 0
-  0 0 ModuleName DROP
+  ModuleName DROP
   SERVICE_ERROR_NORMAL S_AUTO \ SERVICE_DEMAND_START 
   SERVICE_WIN32_OWN_PROCESS SERVICE_INTERACTIVE_PROCESS OR
   SERVICE_ALL_ACCESS
