@@ -5,6 +5,8 @@
 
 REQUIRE WINDOWS... ~yz/lib/winlib.f
 
+0 VALUE common-tooltip
+
 \ ------------------------------
 \ Полезные процедуры
 
@@ -20,7 +22,19 @@ common table control
   item -command 	\ вызов команды
   item -defcommand	\ сообщение по умолчанию
   item -updown		\ спин-симбионт
+  item -tooltip  getset \ подсказка
+  item -tooltipexists   \ флажок: есть ли подсказка
 endtable
+
+VECT common-tooltip-op
+
+:NONAME \ get-tooltip ( z ctl -- )
+  W: ttm_gettexta common-tooltip-op ;
+:NONAME \ set-tooltip ( z ctl -- )
+  DUP -tooltipexists@ 
+  OVER TRUE SWAP -tooltipexists!
+  IF W: ttm_updatetiptexta ELSE W: ttm_addtoola THEN common-tooltip-op
+; -tooltip control setitem
 
 : text-size { z ctl \ dc [ 2 CELLS ] size -- tx ty }
   ctl -hwnd@ GetDC TO dc
@@ -58,11 +72,11 @@ WINAPI: GetIconInfo USER32.DLL
 
 USER-VALUE this
 
-: create-control-exstyle { table class style exstyle -- ctl/0 }
+: create-control-exstyle-notchild { table class style exstyle -- ctl/0 }
   table new-table TO this
   0 IMAGE-BASE  0 \ child-id @ child-id 1+!
-  current-window -hwnd@
-  0 0 0 0 style W: ws_child OR "" class exstyle
+  current-window -hwnd@ 
+  0 0 0 0 style  "" class exstyle
   CreateWindowExA DUP 0= IF this del-table EXIT THEN
   DUP >R this -hwnd! this R> window!
   W: color_3dface syscolor this -bgcolor!
@@ -70,6 +84,9 @@ USER-VALUE this
   ['] NOOP this -command!
   20 20 this resize
   this ;
+
+: create-control-exstyle ( table class style exstyle -- ctl/0)
+  SWAP W: ws_child OR SWAP create-control-exstyle-notchild ;
 
 : create-control ( table class style -- ctl ) 0 create-control-exstyle ;
 
@@ -129,7 +146,9 @@ endtable
   ctl size-of-text  ctl +pads  ctl resize ;
 
 :NONAME \ set-labeltext ( z ctl -- ) 
-  TUCK set-text DUP ?invalidate adjust-size 
+  2DUP set-text DUP ?invalidate DUP adjust-size 
+  \ заставим элемент перерисоваться еще раз
+  set-text
 ; -text buttonlike storeset
 
 :NONAME \ set-font ( font ctl -- )
@@ -183,7 +202,12 @@ endtable
   R> ;
 
 : groupbox ( z -- ctl )
-  control static W: bs_groupbox create-control >R
+  control static W: bs_groupbox 0 create-control >R
+  R@ -text!
+  R> ;
+
+: groupedge ( z -- ctl )
+  control static W: bs_groupbox W: ws_ex_staticedge create-control-exstyle >R
   R@ -text!
   R> ;
 
@@ -214,7 +238,14 @@ endtable
   center -align R@ store
   R> ;
 
-: -defbutton  W: bs_defpushbutton this +style ;
+: -defbutton  ( -- ) 
+  W: bs_defpushbutton this +style 
+  this current-window -defaultbutton! ;
+
+: ok-button ( z xt -- ctl ) >R button -defbutton R> this -command! ;
+
+: cancel-button ( z -- ctl) button
+  ['] dialog-cancel this -command! ;
 
 : set-buttonicon ( hicon ctl -- )
   >R DUP icon-size R@ +pads R@ resize
@@ -299,6 +330,8 @@ endtable
     DUP -group@ CELL+ !
   THEN ;
 
+PROC: check-this-radio ( -- ) thisctl check-radio ;
+
 \ игнорируем state - радиокнопки не надо сбрасывать по одной
 : set-radio-state ( state ctl -- )
   PRESS check-radio ;
@@ -314,6 +347,8 @@ endtable
   right -align R@ store
   ['] checkbox-align -align R@ storeset
   ['] get-state ['] set-radio-state -state R@ setitem
+  check-this-radio R@ -command!
+  W: bn_clicked R@ -defcommand!
   R> ;
 
 \ -----------------------------
@@ -338,10 +373,13 @@ endtable
   R> ;
 
 : multiedit ( -- ctl)
-  control edits (* es_autohscroll es_autovscroll es_multiline ws_tabstop *) 
+  control edits 
+  (* es_autohscroll es_autovscroll es_multiline es_wantreturn ws_tabstop *) 
   W: ws_ex_clientedge create-control-exstyle >R 
   0xFFFFFF R@ -bgcolor!
   R> ;
+
+: limit-edit ( n ctl -- ) W: em_setlimittext wsend DROP ;
 
 \ ------------------------------
 \ Обработка сообщения wm_command
@@ -349,17 +387,10 @@ endtable
 :NONAME
   lparam window@ TO thisctl
   thisctl 0= IF EXIT THEN
-  wparam HIWORD ?DUP IF
-    DUP thisctl -defcommand@ = IF
-      DROP thisctl -command@ EXECUTE
-    ELSE
-      thisctl -notify@ find-in-xtable DROP
-    THEN
+  wparam HIWORD DUP thisctl -defcommand@ = IF
+    DROP thisctl -command@ EXECUTE
   ELSE
-    thisctl DUP -style@ W: bs_radiobutton AND IF
-      DUP check-radio
-    THEN
-    -command@ EXECUTE
+    thisctl -notify@ find-in-xtable DROP
   THEN
 ; TO command
 
@@ -394,6 +425,7 @@ endtable
   >R SWAP W: lb_gettext R> send DROP ;
 : lb-dir ( mask attr ctl -- )
   >R SWAP W: lb_dir R> send DROP ;
+: lb-count ( lb -- n) W: lb_getcount ?send ;
 
 \ ----------------------------------
 \ Комбинированные списки
@@ -422,6 +454,7 @@ endtable
   >R SWAP W: cb_getlbtext R> send DROP ;
 : combo-dir ( mask attr ctl -- )
   >R SWAP W: cb_dir R> send DROP ;
+: combo-count ( lb -- n) W: cb_getcount ?send ;
 
 \ --------------------------------
 \ Полосы прокрутки
@@ -514,6 +547,11 @@ WINAPI: SetScrollRange USER32.DLL
 : ctlhide ( ctl -- )
   DUP winhide
   -updown@ ?DUP IF winhide THEN ;
+
+: ctl-destroy ( ctl -- ) >R
+  R@ -tooltipexists@ IF 0 R@ W: ttm_deltoola common-tooltip-op THEN
+  R> destroy-window 
+;
 
 WINAPI: SetParent USER32.DLL
 
@@ -633,7 +671,8 @@ CELL -- :bnostretch \ не растягивать клетку
   cur-row 0! 
   === ;
 
-: -boxed ( -- ) "" groupbox cur-grid @ :gbox ! ;
+: -boxed ( -- ) "" groupbox  cur-grid @ :gbox ! ;
+: -bevel ( -- ) "" groupedge cur-grid @ :gbox ! ;
 
 : | ( ctl/grid -- )
   #binding MGETMEM DUP
@@ -660,14 +699,14 @@ CELL -- :bnostretch \ не растягивать клетку
         BEGIN
           DUP :bdweller @
             DUP grid?
-            IF del-grid ELSE destroy-window THEN
+            IF del-grid ELSE ctl-destroy THEN
           DUP :blink @ SWAP MFREEMEM
         ?DUP 0= UNTIL
       THEN
       DUP :rlink @ SWAP MFREEMEM
     ?DUP 0= UNTIL
   THEN
-  DUP :gbox @ ?DUP IF destroy-window THEN
+  DUP :gbox @ ?DUP IF ctl-destroy THEN
   MFREEMEM ; TO del-grid
 
 : traverse-grid ( xt -- )
@@ -749,10 +788,16 @@ PROC;
   restore-grid-vars ;
 
 VECT show-grid ( grid -- )
-:NONAME ['] show-grid ['] ctlshow walk-controls ; TO show-grid
+:NONAME 
+  DUP ['] show-grid ['] ctlshow walk-controls 
+  :gbox @ ?DUP IF ctlshow THEN
+; TO show-grid
 
 VECT hide-grid ( grid -- )
-:NONAME ['] hide-grid ['] ctlhide walk-controls ; TO hide-grid
+:NONAME 
+  DUP ['] hide-grid ['] ctlhide walk-controls 
+  :gbox @ ?DUP IF ctlhide THEN
+; TO hide-grid
 
 PROC: (rgrid)
   CR ." bind" cur-bind @ 20 DUMP
@@ -763,7 +808,7 @@ PROC: (ggrid)
    (rgrid) traverse-row
  PROC;
 
- : .grid ( grid -- ) >R save-grid-vars
+: .grid ( grid -- ) >R save-grid-vars
    R> cur-grid !
   (ggrid) traverse-grid
  restore-grid-vars ;
@@ -919,7 +964,8 @@ VECT add-grid-to-window
       DUP :rblink @ add-controls-in-row
       :rbacklink @
     ?DUP 0= UNTIL
-  THEN 
+  THEN
+  cur-grid @ :gbox @ ?DUP IF ctlshow THEN 
   cur-grid ! TO current-window
   ; TO add-grid-to-window
 
@@ -989,7 +1035,7 @@ PROC: map-bind { \ new-w new-h new-x new-y ww hh xm ym resize? }
     2OVER 2OVER R@ map-grid
     R> :gbox @ ?DUP IF 
       ( x y w h ctl)
-      >R ym + SWAP xm + SWAP R@ winresize
+      >R ym + SWAP xm + SWAP R@ resize
       ( x y)
       ym 2/ - SWAP xm 2/ - SWAP R> another-place
     ELSE 
@@ -1106,7 +1152,7 @@ WINAPI: GetParent  USER32.DLL
   dialog -grid!
   dialog wincenter
   dialog -hwnd@ TO modal-window
-  FALSE TO dialog-termination
+  FALSE end-dialog
   dialog winshow
   BEGIN
     0 0 0 msg GetMessageA DROP
