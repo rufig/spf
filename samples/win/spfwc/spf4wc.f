@@ -133,7 +133,7 @@ TRUE VALUE EnableEmit
     2DUP TO-LOG
     H-STDOUT 0 >
     IF  \ Если пишем в файл например...
-      WRITE-FILE THROW
+      H-STDOUT WRITE-FILE THROW
     ELSE
       OVER + SWAP
       DO I C@ conemit LOOP
