@@ -484,11 +484,21 @@ CONSTANT /RL
   R> DROP
 ;
 
+: RecvDnsReplyIdMismatch
+  DnsDebug @ 
+  IF ." QID mismatch." DNSREPLY @ HeaderID W@ >B< . 
+     QID W@ . CR
+  THEN
+;
 : RecvDnsReply
   DNSREPLY @ 0=
   IF /DNSREPLY ALLOCATE THROW DNSREPLY ! THEN
-  DNSREPLY @ /DNSREPLY ERASE
-  DNSREPLY @ /DNSREPLY BS @ ReadFrom
+  BEGIN
+    DNSREPLY @ /DNSREPLY ERASE
+    DNSREPLY @ /DNSREPLY BS @ ReadFrom
+    DNSREPLY @ HeaderID W@ >B< QID W@ =
+    DUP 0= IF RecvDnsReplyIdMismatch THEN
+  UNTIL
   DnsDebug @ 0=
   IF 2DROP DROP 
   ELSE . . DNSREPLY @ SWAP ( 23 16 *) /DNSREPLY MIN DUMP CR 
