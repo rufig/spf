@@ -154,7 +154,9 @@ With Help of
      <word name="[THEN]"/>
    </keywords>
 
-   <keywords worddiv="/[\s\[\]\{\}\(\)]/" region="forWord">
+   <!--
+   <keywords worddiv="/[\s\[\]\{\}\(\)]/" region="forWord">   -->
+   <keywords worddiv="/[\s^]/" region="forWord">
      <word name="!"/>
      <word name="#"/>
      <word name="#>"/>
