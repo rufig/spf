@@ -119,7 +119,7 @@ FALSE CONSTANT specifics  \ true to use system dependent code
   IF  ."  no"  THEN
   ."  extensions"
 ;
-: ALIGN-CACHE HERE 64 2DUP MOD DUP IF - + ELSE 2DROP THEN HERE - ALLOT ;
+: ALIGN-CACHE HERE 4096 2DUP MOD DUP IF - + ELSE 2DROP THEN HERE - ALLOT ;
 
 
 \ ********************
