@@ -104,7 +104,7 @@ USER <escape_tmp
       DUP 1 < 
       IF 2DROP S" 0" 
       ELSE &escape <escape THEN 
-I 1+ SqlQ @ ColType SQL_C_BINARY = IF DeBlob THEN
+I 1+ SqlQ @ ColType SqlIsBinary IF DeBlob THEN
       2OVER
       " <{s}>{s}</{s}>" s S+
     LOOP DROP
@@ -163,6 +163,8 @@ I 1+ SqlQ @ ColType SQL_C_BINARY = IF DeBlob THEN
 \ CR CR
 \ S" select EMAIL_TO as Email, COUNT(EMAIL_TO) as Msgs, SUM(SIZE) as Total from [200307mail-spam.txt] group by EMAIL_TO order by COUNT(EMAIL_TO)" SqlQueryXml TYPE
 \ SqlExit
-\ S" DSN=myodbc3-test" SqlInit
+\ S" DSN=FTest" SqlInit
+\ S" Driver={MySQL ODBC 3.51 Driver};server=localhost;port=3307;DB=db16009a;user=root;stmt=SET NAMES 'cp1251';" SqlInit
 \ disable-output-escaping
 \ S" latest_orders.sql" SqlQueryXmlFile TYPE
+\ S" test.sql" SqlQueryXmlFile TYPE

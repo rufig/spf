@@ -44,7 +44,10 @@ WINAPI: SQLEndTran            ODBC32.DLL
   2 CONSTANT SQL_OV_ODBC2
   3 CONSTANT SQL_OV_ODBC3
 200 CONSTANT SQL_ATTR_ODBC_VERSION
-65532 CONSTANT SQL_C_BINARY
+\ 65532 CONSTANT SQL_LONGVARBINARY \ -4
+\ 65535 CONSTANT SQL_LONGVARCHAR \ -1
+\ 65530 CONSTANT SQL_TINYINT \ -6
+: SqlIsBinary ( type -- flag ) DUP 65530 65536 WITHIN SWAP 5 = OR ;
 
 0
 4 -- odbcEnv
@@ -176,9 +179,10 @@ CONSTANT /ci
   127
   m ciColumnName
   n fodbc odbcStat @ SQLDescribeCol
-  m ciDataTypePtr @ SQL_C_BINARY = \ BLOB
+  m ciDataTypePtr @ SqlIsBinary \ BLOB
   IF m ciColumnSizePtr @ 2* m ciColumnSizePtr ! THEN
-\  m ciColumnSizePtr @ 200000 MIN m ciColumnSizePtr !
+  m ciColumnSizePtr @ DUP -1 < IF DROP 200000 THEN
+  200000 MIN m ciColumnSizePtr ! \ баги в некоторых ODBC
 ;
 : IndexResultCols ( fodbc -- )
   0 OVER odbcColsIndex !
@@ -193,7 +197,7 @@ CONSTANT /ci
   BEGIN
     DUP
   WHILE
-    DUP ciColumnSizePtr @ 
+    DUP ciColumnSizePtr @
         0 MAX \ NULL выдает размер -1
         n + -> n
     ciLink @
@@ -342,7 +346,10 @@ VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
       ." Connected" CR
 \      S" news2.sql" q ExecSQLfile DUP . q SQL_Error
 \      S" SELECT * FROM sp_vendors LIMIT 50" q ExecSQL DUP . q SQL_Error
-      S" latest_orders.sql" q ExecSQLfile DUP . q SQL_Error
+\ S" SET NAMES 'cp1251'" q ExecSQL DUP . q SQL_Error
+
+\      S" latest_orders.sql" q ExecSQLfile q SQL_Error
+      S" test.sql" q ExecSQLfile q SQL_Error
 
       ." Result cols: " q ResultCols  . CR
 
