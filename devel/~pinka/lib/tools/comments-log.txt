@@ -23,8 +23,9 @@ Unknown difference at 5468F4  Exe offset: 4CF4  Word: REFILL
 Unknown difference at 5468F5  Exe offset: 4CF5  Word: REFILL
 
   место между REFILL и NON-OPT-WL
-  выравнивание, по идее.
-  пару байт в этом padding  оказались разные
+  Словарь(заголовок): WORDLIST CONSTANT NON-OPT-WL
+   записанное значение VOC-LIST почему-то оказалось разным
+   ( но, в целевой список словарей это значение не включается).
 
 Unknown difference at 546A2A  Exe offset: 4E2A  Word: (DP)
 Unknown difference at 546A2B  Exe offset: 4E2B  Word: (DP)
@@ -35,8 +36,7 @@ Unknown difference at 546A2C  Exe offset: 4E2C  Word: (DP)
 
   т.к. locals.f подключились только в exe2dll.f
   а они создают свой словарь (стандартный), 
-  а его контент пишется в основное хранилище (!)
-
+  и его контент пишется в основное хранилище (!)
   Поэтому нельзя их там подключать.
 
 
