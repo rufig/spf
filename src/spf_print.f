@@ -176,13 +176,13 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 
 : ANSI>OEM ( addr u -- addr u )
   DUP ROT ( u u addr )
-  PAD SWAP CharToOemBuffA DROP
-  PAD SWAP
+  SYSTEM-PAD SWAP CharToOemBuffA DROP
+  SYSTEM-PAD SWAP
 ;
 : OEM>ANSI ( addr u -- addr u )
   DUP ROT ( u u addr )
-  PAD SWAP OemToCharBuffA DROP
-  PAD SWAP
+  SYSTEM-PAD SWAP OemToCharBuffA DROP
+  SYSTEM-PAD SWAP
 ;
 
 : SCREEN-LENGTH ( addr n -- n1 ) \ экранная-длина

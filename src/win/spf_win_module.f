@@ -13,8 +13,8 @@ USER CURFILE
 ;
 
 : ModuleName ( -- addr u )
-  1024 PAD 0 GetModuleFileNameA
-  PAD SWAP
+  1024 SYSTEM-PAD 0 GetModuleFileNameA
+  SYSTEM-PAD SWAP
 ;
 
 : ModuleDirName ( -- addr u )

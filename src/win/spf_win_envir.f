@@ -14,8 +14,8 @@
 \ Если системе запрашиваемые атрибуты неизвестны, возвращается флаг
 \ "ложь", иначе "истина" и i*x - запрашиваемые атрибуты определенного
 \ в таблице запросов типа.
-  1000 PAD 2OVER DROP GetEnvironmentVariableA
-  DUP IF NIP NIP PAD SWAP TRUE EXIT THEN DROP
+  1000 SYSTEM-PAD 2OVER DROP GetEnvironmentVariableA
+  DUP IF NIP NIP SYSTEM-PAD SWAP TRUE EXIT THEN DROP
   \ расширение spf370: если в windows environment есть
   \ запрашиваемая строка, то возвращаем её - c-addr u true
 
@@ -41,24 +41,24 @@
     NextWord ['] ?SLITERAL CATCH
     IF DROP S" Error while error decoding!" -1
     ELSE OVER = DUP IF 2DROP >IN 0! [CHAR] \ PARSE
-                       TUCK PAD SWAP MOVE
-                       PAD SWAP -1
+                       TUCK SYSTEM-PAD SWAP MOVE
+                       SYSTEM-PAD SWAP -1
                     THEN
     THEN IF R> STATE ! EXIT THEN
   REPEAT DROP R> STATE !
-  SOURCE TUCK PAD SWAP CMOVE \ Unknown error
-  PAD SWAP
+  SOURCE TUCK SYSTEM-PAD SWAP CMOVE \ Unknown error
+  SYSTEM-PAD SWAP
 ;
 
 : DECODE-ERROR ( n u -- c-addr u )
 \ Возвратить строку, содержащую расшифровку кода
-\ ошибки n при условии u. Использует PAD!
+\ ошибки n при условии u.
 \ Scattered Colon.
   ... DROP
   S" SPF.ERR" +ModuleDirName
   R/O OPEN-FILE-SHARED
   IF DROP DUP >R ABS 0 <# #S R> SIGN S" ERROR #" HOLDS #>
-     TUCK PAD SWAP MOVE PAD SWAP
+     TUCK SYSTEM-PAD SWAP MOVE SYSTEM-PAD SWAP
   ELSE
     DUP >R
     ['] (DECODE-ERROR) RECEIVE-WITH DROP
