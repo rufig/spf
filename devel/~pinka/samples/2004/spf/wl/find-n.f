@@ -29,8 +29,7 @@ USER WID-FOUND
 \ ===========================================
 
 : search-nfa-n ( a u nfa1 N -- a u 0|nfa2 )
-  DUP 0= IF NIP EXIT THEN
-  1- 0 ?DO
+  0 ?DO
     search-nfa DUP 0= IF UNLOOP EXIT THEN CDR
   LOOP search-nfa
 ;
@@ -47,11 +46,11 @@ USER WID-FOUND
   THEN
 ;
 : '' ( "<spaces>name" -- xt ) \ second-old word with this name in a one word-list
-  NextWord 2 SFIND-N 0=
+  NextWord 1 SFIND-N 0=
   IF -321 THROW THEN
 ;
 : ''' ( "<spaces>name" -- xt ) \ third-old word with this name in a same word-list
-  NextWord 3 SFIND-N 0=
+  NextWord 2 SFIND-N 0=
   IF -321 THROW THEN
 ;
 
