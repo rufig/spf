@@ -660,7 +660,7 @@ TRUE ?~EAX !
         THEN
   DUP 240C8B =              \ MOV     ECX , [ESP] 
         IF DROP CELL- FALSE EXIT THEN
- \ BASE @ >R HEX DUP U. R> BASE !
+\ BASE @ >R HEX DUP U. R> BASE !
   FF AND
   DUP   3B =       \ CMP
         IF DROP CELL- FALSE EXIT THEN
@@ -1551,7 +1551,7 @@ OP0 @  C@  A1 XOR OR \ MOV     EAX , X
            CELL- \ DROP TRUE EXIT 
            BEGIN EAX>ECX0 UNTIL
            BEGIN EAX>ECX  UNTIL
-           DROP  \ ." #"
+           DROP \ ." #"
            OP1 ToOP0
            FALSE
            -5 ALLOT  M\ F0F DTST
@@ -3151,8 +3151,6 @@ OP0 @ 2+ C@    XOR OR
 
 M\ PPPP
 OP0 @  W@ ADD|XOR|OR|AND=
-OP0 @  W@ 4539  = OR  \ CMP     F8 [EBP] , EAX 
-OP0 @  W@ 453B  = OR  \ CMP     EAX , F8 [EBP] 
    IF
       TRUE ?~EAX !
       OP1
@@ -3168,12 +3166,8 @@ OP0 @  W@ 453B  = OR  \ CMP     EAX , F8 [EBP]
            DROP 
            OP0 @  W@  4503 = \ TTTT AND  \ ADD     EAX , X [EBP] 
            IF   01048D OP0 @ !            ELSE   \ LEA EAX, [EAX+ECX]
-           OP0 @  W@ 4539  =                     \ CMP F8 [EBP] , EAX 
-           IF   C13B OP0 @    W! -1 ALLOT ELSE   \ CMP EAX , ECX
-           OP0 @  W@ 453B  =                     \ CMP EAX , F8 [EBP] 
-           IF   C83B OP0 @    W! -1 ALLOT ELSE   \ CMP ECX , EAX
                 0C1  OP0 @ 1+ C! -1 ALLOT        \  OR EAX,ECX 
-           THEN THEN THEN FALSE  M\ AF DTST
+           THEN FALSE  M\ AF DTST
            EXIT  
       THEN   M\ PPPP
 
