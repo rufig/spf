@@ -184,3 +184,13 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
   PAD SWAP OemToCharBuffA DROP
   PAD SWAP
 ;
+
+: SCREEN-LENGTH ( addr n -- n1 ) \ экранная-длина
+\ дать длину строки при выводе (при печати)
+\  - число знакомест, которое строка займет на экране.
+\ addr n  - строка. n1 число знакомест на экран.
+  0 -ROT OVER + SWAP ?DO
+    I C@ 9 = IF 3 RSHIFT 1+ 3 LSHIFT
+    ELSE 1+ THEN
+  LOOP
+;
