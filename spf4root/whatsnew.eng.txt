@@ -93,6 +93,22 @@ Correcting build:)
   \LIB\WIN\api-call\altwinapi.f
 + RECURSE now works in :NONAME words. ~mak
 
+16.January.2004   4.00.014
+
+! two fixes of code optimizer (~mac)
+! API-CALL uses 60 bytes stack frame instead of 64, the latter does not
+  work with some dll's (~af)
+! fixed FILE-EXIST (~ruv, ~ac)
+! THROW handles 109 correctly
+! SPF4 now correctly handles end of input stream (H-STDIN)
+  removed hangs while using http://www.codeproject.com/dialog/quickwin.asp
+* HASH dramatically improved (~day)
+* AT-PROCESS-STARTING starts after system initialization (after setting of 
+  stacks, heap, variables ans so on)
+* Optimization of CMOVE FILL(~day) 
+* NON-OPT-WL included in VOC-LIST (~day)
++ SLIT, (~ruv)
++ vectorized search via VECT, for quick-swl.f (~ruv)
 
 * - Changes
 ! - Fixed error
