@@ -16,27 +16,29 @@ REQUIRE [DEFINED]  lib\include\tools.f
 REQUIRE AddNode    ~ac\lib\list\str_list.f
 REQUIRE ON         lib\ext\onoff.f
 
-[UNDEFINED] SHEADER [IF]
-  : SHEADER ( addr u -- )
-    HERE 0 , ( cfa )
-    0 C,     ( flags )
-    ROT ROT WARNING @
-    IF 2DUP GET-CURRENT SEARCH-WORDLIST
-       IF DROP 2DUP TYPE ."  isn't unique" CR THEN
-    THEN
-    CURRENT @ +SWORD
-    ALIGN
-    HERE SWAP ! ( заполнили cfa )
+[UNDEFINED] HOLDS [IF]
+  : HOLDS ( addr u -- ) \ from eserv src
+    SWAP OVER + SWAP 0 ?DO DUP I - 1- C@ HOLD LOOP DROP
   ;
-  : CREATED ( addr u -- )
-    SHEADER
-    HERE DOES>A ! ( для DOES )
-    ['] _CREATE-CODE COMPILE,
+[THEN]
+[UNDEFINED] SEARCH-IN-LIST [IF]
+  : SEARCH-IN-LIST ( a u list -- FALSE | addr TRUE )
+    ROT ROT 2>R
+    BEGIN
+      @ DUP
+    WHILE
+      DUP CELL+ ASCIIZ> 2R@ COMPARE
+      0= IF
+        RDROP RDROP
+        CELL+ TRUE EXIT
+      THEN
+    REPEAT DROP RDROP RDROP
+    FALSE
   ;
 [THEN]
 
-\ в этом словаре хранится список dll, в которых ищется функция
-VOCABULARY API-FUNC-VOC
+\ в этом списке хранятся имена dll, в которых ищется функция
+VARIABLE DLL-LIST
 VARIABLE ANSIAPI
 ANSIAPI ON
 \ либа замедляет цикл интерпретации, поэтому нужна возможность отключать ее
@@ -48,15 +50,13 @@ API-FUNC ON
     [CHAR] " = IF [CHAR] " DUP SKIP PARSE ELSE NextWord THEN
   ELSE DROP NextWord THEN
   2DUP
-  [ ALSO API-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL
-  SEARCH-WORDLIST 0= IF
+  DLL-LIST SEARCH-IN-LIST 0= IF
     2DUP + 0 SWAP C!
     OVER LoadLibraryA 0= IF -2009 THROW THEN
-    GET-CURRENT >R ALSO API-FUNC-VOC DEFINITIONS
-    2DUP CREATED
-    1+ HERE OVER ALLOT
-    SWAP MOVE
-    PREVIOUS R> SET-CURRENT
+    GET-CURRENT >R FORTH-WORDLIST SET-CURRENT
+    HERE DLL-LIST @ , DLL-LIST ! ( связь )
+    1+ HERE SWAP DUP ALLOT MOVE
+    R> SET-CURRENT
   ELSE
     DROP 2DROP
   THEN
@@ -72,34 +72,20 @@ USER ListFunc
 
 : FreeListFunc ListFunc FreeList ;
 
-\ Почти аналогично WINAPI: но в постфиксном стиле
 : SWINAPI ( NameLibAddr addrИмяПроцедуры u -- )
-  2DUP SHEADER
-  ['] _WINAPI-CODE COMPILE,
-  HERE WINAP !
-  0 , \ address of winproc
-  0 , \ address of library name
-  0 , \ address of function name
-  [ VERSION 400007 > [IF] ] -1 , [ [THEN] ] \ # of parameters
-  HERE WINAPLINK @ , WINAPLINK ! ( связь )
-  HERE WINAP @ CELL+ CELL+ !
-  HERE SWAP DUP ALLOT MOVE 0 C, \ имя функции
-  WINAP @ CELL+ !
+  <# ROT ASCIIZ> HOLDS S"  " HOLDS HOLDS S" WINAPI: " HOLDS 0 0 #> EVALUATE
 ;
 
 \ Поиск функции, имя которой лежит в PAD, в подключенных длльках
 : SEARCH-FUNC ( -- NameLibAddr ProcAddr t | f )
-  [ ALSO API-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL
-  @
+  DLL-LIST
   BEGIN
-    DUP
+    @ ?DUP
   WHILE
-    DUP NAME> EXECUTE DUP LoadLibraryA DUP 0= IF -2009 THROW THEN
+    DUP CELL+ LoadLibraryA DUP 0= IF -2009 THROW THEN
     PAD SWAP GetProcAddress
-    ?DUP IF ROT DROP TRUE EXIT THEN
-    DROP CDR
+    ?DUP IF SWAP CELL+ SWAP TRUE EXIT THEN
   REPEAT
-  DROP
   FALSE
 ;
 
