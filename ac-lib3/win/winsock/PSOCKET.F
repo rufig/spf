@@ -34,10 +34,11 @@ REQUIRE STR@         ~ac/lib/str2.f
 ;
 : fsockopen ( server port -- socketline )
   { server port \ sock ip }
-  CreateSocket THROW -> sock
-  600000 sock SetSocketTimeout THROW
   server STR@ GetHostIP THROW -> ip
-  ip port sock ConnectSocket THROW
+  CreateSocket THROW -> sock
+  60000 sock SetSocketTimeout THROW
+  ip port sock ConnectSocket 
+  ?DUP IF sock CloseSocket DROP THROW THEN
   sock SocketLine
 ;
 \ : fclose ( socketline -- )
@@ -53,12 +54,19 @@ REQUIRE STR@         ~ac/lib/str2.f
   str STR@
   sock fsock WriteSocket THROW
 ;
-: fgets ( socketline -- str )
+\ : fgets ( socketline -- str )
+\   { sock \ str }
+\   "" -> str
+\   sock SocketReadLine str STR!
+\   str
+\ ;
+: fgets ( socketline -- str ) \ ~ruv 13.02.2002
   { sock \ str }
-  "" -> str
-  sock SocketReadLine str STR!
+  sock SocketReadLine
+  "" -> str  str STR!
   str
 ;
+
 
 ( \ Пример: обращение к локальному веб-серверу и печать 20 строк ответа
 
