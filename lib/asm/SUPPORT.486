@@ -1,0 +1,48 @@
+If you have a problem with the assembler as written runnning on Andrew
+McKewan's and Tom Zimmer's FORTH for Windows 95 and NT, send me e-mail
+or paper mail as directed in the documentation file.
+
+If you have a problem with a modified version of the assembler, first,
+contact the person who modified it.  If you either can't contact them, or
+they are unable to help you, send me e-mail or paper mail, and be prepared
+to wait a possibly very long time (could be over a year) for a response.  I
+will need a copy of the modified assembler
+
+If you are running on any platform other than Andrew and Tom's FORTH,
+I can probably help you, but it will cost you.
+
+If you need an immediate response, it will definitely cost you.
+
+If you are running on a different platform and you need support, you have
+to provide me with a normally licensed copy of the FORTH system you are
+using.  If the FORTH system won't run on a 386, you're also going to need to
+loan me the necessary hardware.  All necessary shipping will be done at your
+expense.  Also, I will not install a different operating system on my machine
+to support you.  If you need me to debug an OS/2 FORTH assembler, for example,
+you are going to have to provide me with a computer to run the FORTH system on,
+as I have no interest in cramming OS/2 into my already overstuffed box (and
+that goes double for NT!).  If the provided hardware doesn't already have the
+operating system and FORTH system installed, you will be billed at my normal
+consulting rate for me to perform the installation.  My rate is currently
+US $120 per hour, but I reserve the right to change it at any time.  Any
+system you provide for my use must include a decent editor, preferably a vi
+clone.  If you don't need immediate results, send me a letter, and I'll
+write back telling you what I need to do the job.  I won't charge for
+this support if you provide the required materials, and understand that it
+could take several months to a year for me to get around to doing anything.
+
+If you need an immediate response, call FIG during their normal business hours,
+and Frank Hall will pass your message on to me.  Be warned, I will charge the
+unreasonable consulting fee cited above.  (My programs are free, my time
+isn't).  You will also be responsible for any necessary long distance charges.
+
+If you would like to distribute the assembler in a manner inconsistent with
+the Free Software Foundation's General Public License, contact me through the
+channels listed in the documentation file, and we'll work something out.
+
+If you want a copy of the latest assembler source code, send me a check for
+US $20, drawn on a bank in the United States, or a postal money order, to the
+address in the documentation and I'll send you the latest version on 3.5"
+floppy.  If you need a 5.25" floppy, it will cost you US $5 more.  You can
+also download the assembler via anonymous FTP at:
+ftp://ftp.netcom.com/pub/ja/japs/486asm.zip

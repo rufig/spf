@@ -1,0 +1,542 @@
+This is the documentation file for 486ASM.F.  486ASM.F is copyrighted
+(c) 1994, 1995 by Jim Schneider, japs@netcom.com, and distributed under the
+terms of the Free Software Foundation's General Public License.  See the file
+COPYASM.486.   The assembler files consist of 486ASM.F (the source code),
+ASMMAC.F (optional macros), VCALL.F (Win32FORTH specific calls to FORTH words),
+486ASM.DOC (this file), and COPYASM.486 (the license).   Also included in this
+distribution is ASMWIN32.F, public domain macros for EXEC and NEXT functions
+under Andrew Mckewan and Tom Zimmer's FORTH for Windows 95 and NT, and
+SUPPORT.486, which will tell you how to get support if you need it.  The rest
+of the software in this distribution may or may not be under similar licenses.
+Please distribute all of the assembler files together.  This file covers
+version 1.24.  When distributing modified versions of this assembler, please
+make sure that all modifications are clearly labeled as such.
+
+This document assumes that the reader is familiar with both FORTH and assembly
+language programming on the Intel(R) platform.
+
+Although the assembler is written for Andrew McKewan and Tom Zimmer's FORTH
+for Windows 95 and NT, it should be portable to other operating environments
+with minimal trouble.  The author would love to hear about such ports.
+
+Features:
+*	Support for all documented Intel(R) Pentium(tm) instructions
+*	Includes the RDTSC instruction (which is documented by Intel(R) in the
+		infamous ``Appendix H'', but described in several other
+		places).
+*	Includes support for the 386 & 486 Test registers.
+*	User configurable code generation
+		The user can select default 16 bit or default 32 bit code
+		Automatically handles address and operand size overrides
+		Supports both prefix and postfix syntaxes
+*	User configurable error reporting/handling
+		All but three errors are DEFERred
+		User can turn all errors off or on
+		User can turn on individual errors with slightly more effort
+*	Local code labels with forward references
+		Up to 19 local labels (or more with judicious hacking) in a
+			a primative or subroutine
+		Up to 10 local labels in macros
+		Up to 256 simultaneously unresolved forward references to
+			local labels (or more with judicious hacking)
+		Syntax is based on the TASM ``@@'' syntax for local labels
+*	Supports creation of new primatives, macros and subroutines
+*	Allows calling FORTH words from assembly code (Win32FORTH only)
+*	Support for out of scope forward references
+
+Misfeatures:
+*	Some bonehead errors can't be caught
+		For example, using a local label as a data item will create
+		some spectacularly interesting, but incorrect, code
+*       Some addressing modes for some instructions are not supported
+                IMUL will only take one operand
+*	Not all instructions are assembled as compactly as possible
+
+Contributors:
+These people have helped this project enormously in one way or another:
+Andrew McKewan -- wrote the kernel and wrapper for the FORTH system I now
+	use almost exclusively.
+Tom Zimmer -- souped up that kernel to tremendous heights.  He also nagged
+	me enough to get me to write the assembler in the first place.  If
+	that isn't enough, he is also the major distributor of the assembler.
+Bob Smith -- pointed out some subtle bugs in the floating point words.
+Steven M. Brault -- found all of the bugs that were fixed in 1.22.
+Anton Ertl -- Pointed out that my previous version of SET-ASSEMBLER-ORDER
+	didn't work.
+Andrey Cherezov -- found a bug concerning PUSH # <data>.
+Vladimir F. Ibatulin -- found a bug concerning operand sizes for I/O
+        instructions.
+
+Standard compliance:
+This program is substantially compliant with the ANS for the FORTH
+programming language, with these exceptions:
+
+This program is expected to be compiled on a system where upper and lower
+cases are equivalent.  A conversion to uppercase may be required to make
+this program portable to your FORTH system.
+
+The words DEFER, DEFER@ and IS, as used in this program, are substantially
+the same as the standard code stream:
+``: NOOP ;
+: DEFER CREATE ['] NOOP , DOES> @ EXECUTE ;
+: DEFER@ ' >BODY STATE @ IF POSTPONE LITERAL POSTPONE @ ELSE @ THEN ; IMMEDIATE
+: IS ' STATE @ IF POSTPONE LITERAL POSTPONE ! ELSE ! THEN ; IMMEDIATE''
+
+The word +TO, as used in this program, is intended to add the number on the
+stack to the stored value of the VALUE following it in the code stream.  If
+VALUE is defined as:
+``: VALUE CREATE , DOES> @ ;''
+and TO is defined as:
+``: TO ' >BODY STATE @ IF POSTPONE LITERAL POSTPONE ! ELSE ! THEN ; IMMEDIATE''
+then a working definition of +TO would be:
+``: +TO ' >BODY STATE @ IF POSTPONE LITERAL POSTPONE +! ELSE +! THEN ;
+IMMEDIATE''
+Unfortunately, this word has no standard implementation.
+
+The words ASSEMBLER, ASM-HIDDEN, IN-FORTH, IN-ASM, and IN-HIDDEN, as used and
+defined in this program, are substantially the same as the standard code stream:
+``FORTH-WORDLIST SET-CURRENT
+WORDLIST CONSTANT ASSEMBLER-WORDLIST
+: ASSEMBLER GET-ORDER ASSEMBLER-WORDLIST ROT DROP SWAP SET-ORDER ;
+ASSEMBLER-WORDLIST SET-CURRENT
+WORDLIST CONSTANT HIDDEN-WORDLIST
+: ASM-HIDDEN GET-ORDER HIDDEN-WORDLIST ROT DROP SWAP SET-ORDER ;
+HIDDEN-WORDLIST SET-CURRENT
+: SET-ASSEMBLER-ORDER ONLY GET-ORDER FORTH-WORDLIST SWAP HIDDEN-WORDLIST
+                      ASSEMBLER-WORDLIST ROT 3 + SET-ORDER ;
+: IN-FORTH SET-ASSEMBLER-ORDER FORTH-WORDLIST SET-CURRENT ;
+: IN-ASM SET-ASSEMBLER-ORDER ASSEMBLER-WORDLIST SET-CURRENT ;
+: IN-HIDDEN SET-ASSEMBLER-ORDER HIDDEN-WORDLIST SET-CURRENT ;''
+
+The words prefixed with ``CODE-'' act directly on the target dictionary, and
+have no standard implementation.  If your FORTH system does not provide words
+to directly alter the contents of the dictionary, this assembler is not
+portable to your system.
+
+The words that are implied by the defered words CODE, ;CODE, SUBR:, and
+END-CODE make several assumptions about the FORTH system in general, and the
+dictionary in particular.  The header creation words, compiler security, and
+more esoteric vocabulary manipulations have either non-trivial or no standard
+implementation.  If your system does not provide comparable words, this
+assembler is not directly portable to your system.
+
+The assembler source fragment ``CURRENT DATA-@'' is equivalent to the
+standard code stream ``GET-CURRENT'', while the assembler source code fragment
+``CURRENT DATA-!'' is equivalent to the standard code stream ``SET-CURRENT''
+
+The assembler assumes that items on the stack are at least 32 bits long.
+
+The assembler requires the words ALSO, FORTH, ONLY, and PREVIOUS from the
+search order extension wordset.
+
+The redifinition of EXIT in the ASSEMBLER vocabulary is non-standard.  First,
+it tracks macro nesting so that EXIT can be used in macros.  Second, using it
+from the console is effectively a no-op.
+
+Bugs:
+One of the truely wonderful things about FORTH is the ease with which bugs can
+be isolated and killed.  During this project, the average time to design and
+enter 10k of source code was about 6 hours, while the average time to debug
+10k of source code was about 1 hour.  For a C program of comparable complexity,
+the times would be about 8 hours and 8 hours, respectively.  (Of course, the
+average time to *document* 10k of source code was ...) Thus, FORTH code can be
+somewhat more bug free than comparable C code.  Still, I'm virtually certain
+that somewhere in all my beautiful code someone will find a really obvious,
+obnoxious bug.
+
+If you find a bug, I really want to hear about it, provided it is:
+1. Reproducible -- If I can't find it on my system, I can't fix it. At a
+minimum, I need to know which version of the assembler you are using, which
+FORTH it is running on, exactly what conditions cause it to manifest, and
+what you think the error is.
+2. Actually in my code -- If you (or someone else) modified the assembler,
+you're on your own.  I'm sorry, but I really don't have time to wade through
+several pages of assembler source code to find that you mistook al for ax.
+This does not apply if you use the provided words to change the behavior of
+the assembler, however (things like turning off error reporting, etc.).
+As another caution:  Tom's interpreter may do strange things with words that
+aren't found in the search order.  For example, the word ``L$11:'', which is
+not defined in my assembler, but looks a lot like one of my local labels, will
+be interpreted as a method selector, and give you a truly strange error
+message.
+3. Actually a bug -- If the assembler incorrectly turns semantically well
+formed statements into machine code, that is a bug.  However, although I
+tried to catch the most obvious errors, the assembler is free to create bogus
+machine code from semantically incorrect statements.  This is not a bug of
+the assembler, but a problem with whoever tried to assemble the garbage in
+the first place.  Related to this: turning off error reporting will leave the
+stack balanced if you encounter an error, but it will almost certainly
+produce bogus code.
+
+To report a bug that fits the above conditions, send me e-mail to
+japs@netcom.com.  Please make bug reports as detailed as possible, and
+send it with a subject line of ``bug report 486asm.f''.  If you don't
+have e-mail access, you can send a letter to me in care of Frank Hall,
+POBox 14162 Oakland, CA 94614.  Since this method is slower (and more
+likely to cost me money), the e-mail method is preferred.  I will reply
+to either in the same manner.
+
+Enhancements, Bug fixes:
+If you have an enhancement or bug fix, I definitely want to hear from you.
+Send a diff with an indication of which version it applies to the e-mail
+address above.  If you can't create a diff, compress and uuencode the
+entire (modified) assembler and e-mail it to me.  If you don't have e-mail,
+you can mail me either a diff (hard copy or disc) or the entire assembler
+(disc only, please) at the US mail address given above.  If I incorporate
+the change in a future version, you'll be the first to get a copy, and I'll
+acknowledge your contribution in the new version.  If you send me an entire
+assembler, please clearly indicate what was changed and why.  If you send
+me a hard copy of an entire assembler, however, it will probably be a loooong
+time before I get a chance to look at it.  I can only read 3.5" PC floppies.
+
+Installation:
+The source file (486ASM.F) must be somewhere that your FORTH system can find
+it.  For Win32FORTH, this is the same directory in which the FORTH system
+files reside.  To load the assembler in Win32FORTH, type (at the FORTH
+command line) ``fload 486asm.f''  Other FORTHs may be different.  Check
+the documentation that came with your system.  That's all there is to it.
+
+To load the optional macro package ``ASMMAC.F'', the FORTH word calling
+routines in ``VCALL.F'', or the Win32 FORTH specific macros in ``ASMWIN32.F'',
+you must follow a similar process.
+
+If you received this assembler as part of Tom Zimmer's and Andrew McKewan's
+FORTH for Windows 95 and NT, it's already installed.  To install an updated
+version, you need to run the FORTH kernel and load the file ``EXTEND.F''.
+Currently, running the Windows command line (either from the Run... menu
+item or an icon) ``FKERNEL FLOAD EXTEND.F BYE'' does the trick.
+
+Notes for users of FORTH systems other than Win32FORTH:
+If your system does not already contain an ASSEMBLER vocabulary, remove the
+parens around the phrase ``( vocabulary assembler )'' in the source code.
+The virtual call instructions assembled in ``VCALL.F'' probably won't work
+on your system without modification.
+
+Why this is under the FSF's GPL:
+I am currently distributing this assembler under the terms of the Free
+Software Foundation's General Public License for two related reasons.  The
+first is that, while I respect and envy Tom Zimmer's skill at transmuting
+other's work into something that is convenient for him to use, this assembler
+is my baby, and I don't want him to mess with it too much.  Since the GPL
+specifically permits (and actually encourages) that covered software be
+experimented with, as long as all distributed copies carry conspicuous notice
+of where they were modified, this allows Tom to hack away to his heart's
+content, but gives me ultimate control over what hackery I will support.
+
+Second, because I want this assembler to be useful to the widest range of
+users, I want the users to have some gaurantee that they will be able to do
+just about whatever they want to with it, but I still want some control over
+the eventual outcome of the process.
+
+Creating primatives:
+The word CODE creates the header for an executable low-level word, puts the
+ASSEMBLER vocabulary in the search order, and does miscellaneous prep for
+assembly.  By default, the assembly syntax is operator-operands (eg. MOV
+AX , BX).  This can be changed by executing POSTFIX in the ASSEMBLER
+vocabulary, and changed back with PREFIX.  Because of the timing
+considerations involved (prefix mode works by doing the assembly an
+instruction late), these words should be executed only before code is actually
+generated, or right after the word ``A;''.  By default, the assembler
+generates 32 bit code.  This can be changed by executing USE16 or USE32.
+These should also only be used before code is generated, or right after the
+word ``A;''.  Operands must be separated with a freestanding comma (",").
+Numeric constants are assumed to be addresses unless they are preceded by a
+"#".  Assembly is ended with the word END-CODE or ;C.
+
+If you load the optional macro package ``ASMMAC.F'', commas can be combined
+with their preceding operands, provided that operand is not a numeric value.
+For example, if you load ``ASMMAC.F'', the code fragment:
+	MOV EAX, # ' FOO
+	MOV ECX, [EAX] [EDI]
+is equivalent to:
+	MOV EAX , # ' FOO
+	MOV ECX , [EAX] [EDI]
+
+Creating subroutines:
+The word SUBR: creates the header for a subroutine in the ASSEMBLER vocabulary,
+puts the ASSEMBLER vocabulary in the search order, and does miscellaneous prep
+for assembly.  The subroutine's header can only be found during subsequent
+assembly.  Subsequent execution of the subroutine's name leaves the address
+of the subroutine on the stack.  Other than that, the subroutine is treated
+exactly like a CODE definition, as far as the assembler is concerned.
+
+Creating macros:
+The word MACRO: essentially does the same thing as the word :, with some
+chicanery with the search order.  It also initializes the macro-scoped local
+labels (discussed below). MACROs are created in the ASSEMBLER vocabulary.
+Macros are ended with either ENDM or ;MACRO (or ;M, if you load the optional
+macro package ASMMAC.F).  Since macros are essentially colon definitions, no
+(machine) code is actually generated by defining them, but rather by invoking
+them.
+
+Because of the way parameters on the stack are handled by the assembler, any
+parameters to the macro should be saved onto the return stack before the first
+assembly instruction, and popped from it as needed.  Register parameters *MUST*
+be removed from the operand stack and saved until they are needed.  When they
+are to be used, they *MUST* be pushed back onto the operand stack.  The words
+to do this are POP-OP and PUSH-OP.  Finally, any non-assembly code *MUST*
+leave the stack balanced.
+
+Unless the macro parses for its own parameters, the parameters have to be
+available before the macro is invoked.  Note: passing in a local label to
+a macro won't work!  The local label handler will assume that the label
+is used by the first instruction assembled after the label is invoked.
+However, parsing a local label out of the input stream and executing it in
+the macro will work.
+
+The word SET-POSTFIX safely sets the assembler syntax to postfix, and returns
+a flag to tell the which mode the assembler was in previously.  The word
+RESET-SYNTAX restores the assembler syntax to the way it was before.
+Bracketing your macro code with ``SET-POSTFIX >R'' and ``R> RESET-SYNTAX''
+will insure that the macro is executed in postfix mode.  The word SET-PREFIX
+works similarly, and returns a flag that is compatible with SET-POSTFIX.
+Because no machine code is generated until your macro is executed, I strongly
+suggest that your macros assume that the syntax is unknown until they
+explicitly set it.
+
+Notice for those of you who plan on using the assembler as part of a cross-
+compiler:  If your cross-compiler uses the same three state approach that the
+Nautilus System's figFORTH cross-compiler used, macros will severely mess with
+your mind.  The timing relationships envolved are non-trivial, and mostly
+counter-intuitive.  This is because at macro definition time, the system is
+in the compiling state, and compiling into the host dictionary, while when the
+macro is being invoked, the system is in assembling state, and assembly code is
+being generated in the target.  I suspect that most problems will come about
+because assembling and interpreting state are similar, but different enough to
+cause problems.
+
+Using local labels:
+Local labels can be used anywhere a branch destination address can appear.
+Local labels have two forms:  definition scoped labels and macro scoped
+labels.  Definition scoped label references have the form ``@@n'', where
+n is a digit from 1 to 9.  Macro scoped label references have the form
+``@@Mn'', where n is a digit from 0 to 9, or alternately, ``L$n''.  Labels
+are bound to a particular address by word of the form ``@@n:'' for definition
+scoped labels and ``@@Mn:'' or ``L$n:'' for macro scoped labels.  As the
+designation implies, definition scoped labels are "visible" throughout the
+entire definition in which they occur, including in any macros used in the
+definition.  It's not an error to bind a label more than once.  It is (usually)
+benign for a macro to reference a definition scoped label, but (usually) a
+bad idea for a macro to bind a definition scoped label.  For example, in the
+code fragment:
+``MACRO: DELAY ( x -- ) SET-POSTFIX >R >R
+        MOV ECX , # R>
+        @@1: LOOP @@1
+        >R RESTORE-SYNTAX
+ENDM
+CODE FOO ( -- )
+        ...
+        30 DELAY
+        JMP @@1
+	...''
+the label @@1 is bound in the macro DELAY, which will cause FOO to go into
+an infinite loop.  For this reason, the assembler also provides macro
+scoped labels.  They can safely be used anywhere, including at definition
+scope.    Since their scope disappears with the macro that invoked them,
+they can be the source of some subtle errors, however.  For example, if
+one macro references a label but doesn't bind it, and another macro at the
+same lexical level references and binds the label,  that binding will also be
+effective for the earlier macro.  If the macros are reversed, the reference in
+the later macro will never be resolved.
+
+The macro scoped labels come in two forms because Tom Zimmer is fond of the
+alternate syntax.  The words ``@@Mn'' and ``L$n'', where n is the same digit
+for both, are identical, and similar remarks apply to ``@@Mn:'' and ``L$n:''.
+They are macro scoped because macro scoped labels are more flexible.
+
+Also, binding a label in the middle of an instruction is a bad idea.  Because
+the label binder forces the previous instruction to finish assembling, this
+code fragment:
+	ADD EBX, [EAX] @@1: [EDI]
+	ADD CL, 4 [EBP]
+will actually appear to the assembler as:
+	ADD EBX, [EAX]
+	@@1: ADD [EDI] CL, 4 [EBP]
+This kind of error (while obvious in this example) may (or may not)
+generate a "bad addressing mode" error.  Although it is possible to bind
+a local label to the address of, say, a mod-r/m byte, it requires somewhat
+subtle hackery, and it's generally a fairly bad idea.
+
+Also, the local labels are *code* labels.  Currently, there is no way to
+create a local label to a data item (and I have no immediate plans to
+implement one...).
+
+If you need more than 10 macro scoped local labels, increase the value
+MACRO-LABELS to the number of labels that you need, and use the words
+CREATE-MACRO-REF and CREATE-MACRO-BIND (in the ASM-HIDDEN vocabulary) to create
+the local label reference and binding words.  Each takes a number from the
+stack.  The numbers 0 through 9 are already in use, so the new reference
+and binding words must use parameters in the range 10 to the new value
+in MACRO-LABELS, minus one.  By doing this, you also increase the space
+available for definition scoped local labels.  The reference and binding
+words for definition scoped local labels are created with CREATE-REF and
+CREATE-BIND respectively (again, in the ASM-HIDDEN vocabulary).  The words
+that control label scoping, referencing and binding are in the ASM-HIDDEN
+vocabulary.  If you have deeply nested macros, you may also need to increase
+the constant LBMAX in the source code and recompile.  If need more than 256
+unresolved references to local labels, increase the constant FRMAX in the
+source code and recompile. "Out of the box", the assembler supports macros
+nested up to 28 levels deep.
+
+Controlling error reporting:
+The error handling words are all DEFERed.  This is done, rather than having
+them check a status variable, to permit finer control over which errors are
+reported.  The word NO-ERRORS turns off error reporting, while the word
+REPORT-ERRORS turns on error reporting.  Error checking words can be turned
+on or off individually, with judicious hacking.  Either of the built in words
+to control error handling and reporting will put the error checking words
+in a known state.  If you need to individually turn off or on error words,
+I strongly encourage you to read the source code for both the error word
+itself and NO-ERRORS and REPORT-ERRORS so you know how many parameters your
+error handler is expected to deal with.  Also, you can't turn off errors
+associated with table or stack overflows (currently dealing with forward
+referenced local labels and the operand stack) without either changing the
+source code or catching the interpreter that is running the assembler.  As
+a final caveat, some of the ``error handling'' words also set flags in the
+assembler.  One point: in postfix mode (the default) reports are delayed until
+after the next instruction in the code stream is encountered.  This is due
+to the way that FORTH processes words.  This is not a bug of the assembler,
+but a language feature that is more troublesome to work around than it
+is worth.
+
+Use as a cross-assembler:
+All of the words that generate actual code or headers to be found in the
+target are DEFERed.  The assembler can be retooled as a cross-assembler with
+minimal difficulty.  Simply redirect all of the words that start with
+``CODE-'' to use words that operate on the intended target address space.
+You will also have to define words analogous to CODE, ;CODE, END-CODE, and
+;C to create headers in the target.
+
+Of course, the cross-assembler will still only generate code for a 486.
+
+Late note:  I now know for a fact that the assembler can be loaded as a
+cross assembler with as little as 65 lines of support code, because I've done
+it.
+
+I have also added the word REGISTER-REF to the ASM-HIDDEN vocabulary to
+facilitate out of scope forward references.  This word takes a number and a
+type from the parameter stack and returns the number.  It is called by the
+words that compile displacements and immediate data.  The type values are
+also defined in ASM-HIDDEN.  In the out-of-the-box assembler, REGISTER-REF
+just discards the type value.  It is intended for use in a cross-assembler.
+
+Calling FORTH words from assembly language:
+If you are using Win32FORTH, you can use the words defined in the file
+``VCALL.F'' to call FORTH words from assembly language.  The macro FCALL
+is defined to allow you to do this conveniently.  It parses the input
+stream for a word name, and causes this code to be assembled:
+	MOV EAX, # (xt of word name)
+	CALL VCALL
+If you are trying to call unnamed words, you must move the execution token
+of the word into the eax register yourself, and assemble a call to VCALL.
+VCALL expects that the eax register contains a valid execution token, and
+the top of the machine stack contains a valid return address.
+
+Note: because FCALL parses the input stream, you must provide a word name.
+Also, this performs absolutely no error checking.  Calling VCALL with a
+random value in EAX will almost certainly raise an exception.
+
+On the misfeatures:
+Some bonehead errors won't be caught.  Of course, if you wanted all of your
+boneheaded errors caught, you'd be programming in a boneheaded language...
+The solution supported by the assembler is simple: Don't DO that!
+
+For example, using a local label as a data address won't be caught, and will
+mung your code.  The reason:  I didn't feel like coding RESOLVE to look for
+every single possible branch.  It looks for 0e8h, 0e9h, or 0fh to decide if
+the offset is NEAR or SHORT.  Since the 486 uses relative branches, the
+address put into the operand slot will be incorrect.  And since almost all of
+the instructions that take memory operands also require a mod-r/m byte,
+BACKPATCH will be off by one, anyway...
+
+Further, not all addressing modes are supported for all instructions.  In
+particular, IMUL only supports the implied AL/AX/EAX, register/memory
+addressing mode.  Also, instructions with implied operands don't handle
+them consistently when they are present in the code.  For example, LODS
+will check for [SI] or [ESI], to determine the address size, but it won't
+check for AL, etc., and MUL only checks for AL, etc. if it can't determine
+the size of the second operand.  This will (hopefully) be fixed in a later
+version.
+
+A related problem is that the assembler doesn't fully screen all addressing
+modes.  For example, the assembler will accept as perfectly reasonable the
+fragment ``JMP CS: [ECX] @@1'', which will be clobbered by the local label
+binder when @@1 is bound.  Since it has a segment override (and maybe an
+address size prefix, which is accounted for in the local label binder), which
+is not one of the three cases the local label binder looks for as a NEAR
+offset, it will patch the opcode byte for JMP with the displacement from the
+mod-r/m byte to the bound address of @@1.  The case when @@1 is already bound
+is not quite as spectacular, as @@1 will be used as a displacement from ECX,
+which will result in effectively ``JMP CS:[ECX+@@1-HERE]''.  When the segment
+override is absent, the binder will patch the mod-r/m byte with the offset
+from the displacement field to the address of @@1.  This is one of the class
+of the most spectacular errors that can be generated.  Some coding errors
+actually generate valid object code.  For example, the fragment ``FIST
+QWORD [EAX]'' will actually assemble as ``FBSTP TBYTE [EAX]''.  Since FIST
+does not support a QWORD memory operand, the error is in the code, not the
+assembler.
+
+Also, the assembler doesn't generate the world's tightest code.  That's
+because the assembler is complicated enough without having it check for
+every special case.  If there's both a register, reg/mem and an (e)ax,
+reg/mem form of the instruction, the register, reg/mem form will also
+work if the register is (e)ax.  However, the assembler is smart enough not
+to assemble an unnecessary zero offset.  Even so, just the support routines
+are larger than an 8086 assembler I wrote, which was more than twice as large
+as the first assembler I wrote.  (Of course, most of that overhead is for
+things like local labels, flexible code generation, and flexible error
+handling...  Still, the assembler _is_ larger than any other source file in
+the Win32FORTH distribution, except for the fkernel.f file...)
+
+Unsupported instructions:
+Currently, all Intel(R) documented assembly mnemonics are supported, but not
+all addressing modes are supported.
+
+Glossary:
+All of the words defined in the assembler are documented in the file
+486ASM.GLS (which is still incomplete...).
+
+Version history:
+1.0a -- Initial very small scale beta release.  Very little floating point
+	support.
+1.0b -- (Not released)  More complete floating point support.
+1.0c -- Fixed a bug having to do with reg,mem addressing modes when the
+	displacement is 0, and another related bug having to do with mem,reg
+	addressing when the destination address is 0.  Added macro scoped
+	labels.  Created a macro file for ``REG,'' operands.  Finished floating
+	point instruction set.
+1.0d -- Fixed a bug dealing with ebp, immediate addressing modes.  Reorganized
+	the assembler somewhat to make it more convenient to use.  Changed the
+	names of the assembler source and documentation files.
+1.0e -- Merged Tom Zimmer's local label hackery into the assembler.  Fudged
+	with vocabulary declarations.  Updated the documentation.  Actually
+	defined the words FIST and FISTP, which had compiling engines in
+	the dictionary already...Created the file ``vcall.f'' to call into
+	FORTH words.
+1.0f -- Corrected FBLD, which was incorrect in the 1990 Intel(R) doc.  Also
+	corrected FSTSW/FNSTSW for the same reason.
+1.1  -- Updated the assembler to assemble the new Pentium(tm) instructions.
+	Changed SET-POSTFIX and RESET-SYNTAX to simple colon definitions.
+	Moved Win32 FORTH specific code to asmwin32.f.  Changed distribution
+	restrictions on asmwin32.f to unrestricted, public domain.
+1.2  -- Fixed FSTSW AX, FRSTOR, FIST, and FISTP.  Fixed typo in the name of
+	FISUBR.  Defered CODE, ;CODE, and END-CODE to support cross-compiling.
+	Changed ;C to be a defered synonym for END-CODE, for added flexibility.
+	Finally got around to adding a ``Contributors'' section.  Added the
+	Free Software Foundation's broilerplate notice to all covered source
+	files.
+1.21 -- Added REGISTER-REF to support out of scope forward references for use
+	in cross assembly/meta compiling.  Added justification for using the
+	FSF's GPL.  Fixed PUSHA/PUSHAD.  Added a definition for EXIT-ASSEMBLER
+	to deal with Tom's dictionary search lookaside cache.
+1.22 -- Fixed an off by one bug in DO-DISP.  Made group 2 (shift/rotate)
+	instructions generate size prefixes.  Fixed push/pop segment register.
+	Fixed ?reg,mem to accept a direct offset as a memory operand.
+1.23 -- Fixed a bug dealing with IMMEDIATE operands.  Fixed an error in the
+	documentation dealing with the vocabulary manipulations.  Made exit
+	closer to the standard -- but now it won't work from the console!
+	Removed 486asm.gls from the distribution, as it is *WAY* out of date.
+1.24 -- Fixed a bug in I/O instructions having to do with size prefixes.  It
+        seems the assembler was setting a flag without bothering to check it...
+        Changed GROUP1-COMPILE to assemble 8 bit immediate operands when
+        possible.
