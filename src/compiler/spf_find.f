@@ -7,10 +7,12 @@
 
 VECT FIND
 
+VECT SEARCH-WORDLIST    \ 94 SEARCH
+
 HEX \ Оптимизмровано by day (29.10.2000)
 \ Оптимизмровано by mak July 26th, 2001 - 15:45
 
-CODE SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
+CODE SEARCH-WORDLIST1 ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
 \ Найти определение, заданное строкой c-addr u в списке слов, идентифицируемом 
 \ wid. Если определение не найдено, вернуть ноль.
 \ Если определение найдено, вернуть выполнимый токен xt и единицу (1), если 
@@ -74,6 +76,7 @@ END-CODE
 
 DECIMAL
 
+' SEARCH-WORDLIST1 (TO) SEARCH-WORDLIST
 
 USER-CREATE S-O 16 CELLS TC-USER-ALLOT \ порядок поиска
 USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
