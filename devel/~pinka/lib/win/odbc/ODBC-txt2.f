@@ -49,6 +49,7 @@ REQUIRE SPARSETO    ~pinka\lib\ext\parse.f
 
 \ --------------------------------------------
 
+USER-VALUE  #Col
 USER-VALUE  RowId
 USER-VALUE  vHashT
 USER-VALUE  qSql
@@ -182,6 +183,16 @@ USER-VALUE h-tbl
   FALSE             THEN
   RDROP
 ;
+: StoreHeader ( -- )
+  0
+  BEGIN
+    SkipDelimiters
+    EndOfChunk 0=
+  WHILE
+    1+ DUP
+    NextField ROT StoreCol#
+  REPEAT  TO #Col
+;
 : CmpRowById ( -- flag )
   CURSTR @  RowId 1+ <> EXIT
 ;
@@ -204,17 +215,13 @@ USER-VALUE h-tbl
 ;
 : UpdateRowById ( -- )
   SOURCE NIP 0= IF EXIT THEN
-  0  
-  BEGIN
-    SkipDelimiters
-    EndOfChunk 0=
-  WHILE ( i )
-    1+ DUP DUP HasValue IF
-    NextField 2DROP     ELSE
-    NextField           THEN
-    ( i i a u )
+  #Col 1+ 1 DO
+    I DUP HasValue  IF
+    NextField 2DROP ELSE
+    NextField       THEN
+    ( i a u )
     WriteField
-  REPEAT DROP  CRLF WriteTbl
+  LOOP  CRLF WriteTbl
 ;
 : UpdateRow ( -- )
    SOURCE NIP 0= IF EXIT THEN
@@ -241,16 +248,6 @@ USER-VALUE h-tbl
   WriteOtherRows
   UpdateRowById
   WriteOtherRows
-;
-: StoreHeader ( -- )
-  0
-  BEGIN
-    SkipDelimiters
-    EndOfChunk 0=
-  WHILE
-    1+ DUP
-    NextField ROT StoreCol#
-  REPEAT DROP
 ;
 : update ( -- )
   REFILL IF \ the header
