@@ -61,6 +61,9 @@ M-DATE Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
   TZ @ 60 / NEGATE DUP #SG 0 > IF [CHAR] + HOLD THEN
   S"  GMT" HOLDS h m s Time# BL HOLD d m1 y Date#
 ;
+: DateTime#GMT { s m h d m1 y -- }
+  S"  GMT" HOLDS h m s Time# BL HOLD d m1 y Date#
+;
 : DateTime#Z { s m h d m1 y -- }
   TZ @ 0= IF GET-TIME-ZONE THEN
   TZ @ 60 / NEGATE DUP >R ABS 100 * 0 # # # # 2DROP
