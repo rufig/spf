@@ -48,7 +48,9 @@ CONSTANT /sockaddr_in
 CREATE sock_addr HERE /sockaddr_in DUP ALLOT ERASE
 AF_INET sock_addr sin_family W!
 
-CREATE LINGER 1 W, 6000 W,
+CREATE LINGER 1 W, 30 W,
+\ 6000 W, слишком много, это в секундах, заменил на 30 - 26.06.2001 ~ac
+
 CREATE BROADCAST -1 ,
 
 : CreateSocket ( -- socket ior )
