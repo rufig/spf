@@ -220,6 +220,7 @@ DECIMAL
   THEN
 ;
 
+: VOC-LIST S" ' VOC-LIST EXECUTE" EVALUATE ;
 
 VOCABULARY TC     \ слова, работающие в режиме интерпретации при ЦК
 VOCABULARY TC-IMM \ immediate-слова для режима компиляции при ЦК,
@@ -293,6 +294,14 @@ ALSO TC DEFINITIONS PREVIOUS
   [T] HEADER [I]
   VECT-CODE COMPILE, ,
   TOVALUE-CODE COMPILE,
+;
+
+: WORDLIST
+  HERE VOC-LIST @ , VOC-LIST !
+  HERE 0 , \ здесь будет указатель на имя последнего слова списка
+       0 , \ здесь будет указатель на имя списка для именованых
+       0 , \ wid словаря-предка
+       0 , \ класс словаря = wid словаря, определяющего свойства данного
 ;
 
 : --
