@@ -71,6 +71,7 @@ TRUE VALUE ?Res
   IMAGE-SIZE            HERE START-PE-HEADER 0x128 + + ! ( VirtualSize code)
   END-CODE-SEG IMAGE-BEGIN -
                         HERE START-PE-HEADER 0x130 + + ! ( PhisicalSize code)
+                        HERE START-PE-HEADER 0x1C + + 0! ( SizeOfCode)
 
   HERE 0x1C8 + TO START-RES-TABLE
   START-RES-TABLE 0x38 ERASE
