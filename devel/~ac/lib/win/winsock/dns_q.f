@@ -289,9 +289,12 @@ CONSTANT /RL
   BS @ WriteTo
 ;
 
-: PrintName
+USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
+
+: PrintName1
+  uDnsPNRL 1+!
   BEGIN
-     REP @ C@ DUP 0 > DEPTH 30 < AND
+     REP @ C@ DUP 0 > DEPTH 10 < AND uDnsPNRL @ 10 < AND
   WHILE
     64 > 
     IF REP @ DUP >R W@ >B< 255 AND DNSREPLY @ + REP ! RECURSE R> REP ! 2 REP +!
@@ -299,10 +302,15 @@ CONSTANT /RL
     ELSE REP @ COUNT 2DUP + REP ! TYPE ." ." THEN
   REPEAT DROP
   SPACE REP 1+!
+  uDnsPNRL @ 1- uDnsPNRL !
+;
+: PrintName
+  uDnsPNRL 0! PrintName1
 ;
 : ParseName1 ( -- ... )
+  uDnsPNRL 1+!
   BEGIN
-     REP @ C@ DUP 0 > DEPTH 30 < AND
+     REP @ C@ DUP 0 > DEPTH 10 < AND uDnsPNRL @ 10 < AND
   WHILE
     64 > 
     IF REP @ DUP >R W@ >B< 255 AND DNSREPLY @ + REP ! RECURSE R> REP ! 2 REP +!
@@ -310,10 +318,11 @@ CONSTANT /RL
     ELSE REP @ COUNT 2DUP + REP ! THEN
   REPEAT DROP
   REP 1+!
+  uDnsPNRL @ 1- uDnsPNRL !
 ;
 : ParseName ( -- addr u )
   PAD ( HERE) 0
-  ParseName1
+  uDnsPNRL 0! ParseName1
   0 0 <# 2DROP
   BEGIN
     DUP
@@ -378,8 +387,8 @@ CONSTANT /RL
   THEN
 
   REP @ W@ >B< DUP . 2 REP +!
-  REP @ OVER CR DUMP CR
-  REP +!
+  REP @ OVER 1500 MIN CR DUMP CR
+  REP +! \ 1500 MIN - защита от неверных входных форматов
 ;
 
 : ParseRD
@@ -416,8 +425,8 @@ CONSTANT /RL
 \  NextRD
 
   REP @ W@ >B< 2 REP +!
-  REP @ OVER CURRENT-R @ RLhost SetFieldData
-  REP +!
+  REP @ OVER 1500 MIN CURRENT-R @ RLhost SetFieldData
+  REP +! \ 1500 MIN - защита от неверных входных форматов
 
 ;
 
