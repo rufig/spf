@@ -30,11 +30,10 @@ WARNING !
 \ ***********************
 VARIABLE CtrlHandler
 
-: (ServiceControlHandler) ( lpContext lpEventData dwEventType fdwControl -- )
+: (ServiceControlHandler) ( fdwControl -- )
   \ управл€юща€ процедура сервиса
   \ поступают аргументы =1 или =4
 
-  NIP NIP NIP
   DUP SERVICE_CONTROL_STOP = ( 1 )
   IF
     DROP
