@@ -116,7 +116,7 @@ USER-VALUE hash
 : reduce-hash ( last  wid  -- )
 \ Исключить из хэш-таблицы слова от wid @ до last
 \ last должно иметь место в цепочке словаря wid
-\ ( для MARKER )
+\ ( для MARKER ) ( для MARKER не подходит, - 25.Mar.2004 )
 
   DUP wid-exth ?DUP 0= IF 2DROP EXIT THEN >R
   @ ( l2  l )
@@ -189,10 +189,13 @@ EXPORT
      , , GET-CURRENT ,
   R> WARNING !
 
-  DOES> DUP CELL+ DUP @ SWAP CELL+ @ ( a last wid )
-            reduce-hash
-        @ EXECUTE
+  DOES> 
+    DUP 0 CELLS +  @ EXECUTE
+        2 CELLS +  @ REFRESH-WLHASH
 ;
+( Если слово было переопределено,
+  то после reduce-hash  предыдущая версия останется недоступной..
+)
 [THEN]
 
 [UNDEFINED] WL-#WORDS [IF]
@@ -280,7 +283,7 @@ USER-VALUE NOW-COLON?
 : ;
     POSTPONE ;
     LatestWord2Hash
-    ( если было NONAME, то пере-добавит слово, которое уже есть
+    ( если было NONAME, то передобавит слово, которое уже есть
       - ситуация штатная. )
     FALSE TO NOW-COLON?
 ; IMMEDIATE
