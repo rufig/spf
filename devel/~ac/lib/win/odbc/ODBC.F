@@ -54,6 +54,10 @@ WINAPI: SQLEndTran            ODBC32.DLL
 4 -- odbcColsIndex
 4 -- odbcRowData
 4 -- odbcRowSize
+2 CELLS -- odbcDrv
+2 CELLS -- odbcSrc
+2 CELLS -- odbcLogin
+2 CELLS -- odbcPassw
 CONSTANT /ODBC
 
 : SQL_OK?
@@ -67,7 +71,7 @@ CONSTANT /ODBC
   -> fodbc -> ior
   ^ ErrLen 1000 mem
   ^ ErrNat mem 1000 +
-  0  fodbc odbcConn @  fodbc odbcEnv @ 
+  0  fodbc odbcConn @  fodbc odbcEnv @
   SQLError ." ERR: " mem 1000 + 5 TYPE SPACE
   100 <>
   IF mem ErrLen TYPE CR THEN
@@ -79,8 +83,8 @@ CONSTANT /ODBC
   /ODBC ALLOCATE THROW -> fodbc
   fodbc /ODBC ERASE
   fodbc odbcEnv SQLAllocEnv SQL_OK?
-  IF 
-     SQL_IS_INTEGER SQL_OV_ODBC2 SQL_ATTR_ODBC_VERSION 
+  IF
+     SQL_IS_INTEGER SQL_OV_ODBC2 SQL_ATTR_ODBC_VERSION
      fodbc odbcEnv @ SQLSetEnvAttr DROP \ без этого новый ODBC работать не хочет
      fodbc odbcConn  fodbc odbcEnv @ SQLAllocConnect SQL_OK? fodbc SWAP
   ELSE fodbc FALSE THEN
@@ -94,10 +98,26 @@ CONSTANT /ODBC
 ;
 : ConnectSQL ( S" data source" S" name" S" pass" fodbc -- ior )
   { ds-a ds-u login-a login-u pass-a pass-u fodbc }
+  ds-a ds-u         fodbc odbcSrc   2!
+  login-a login-u   fodbc odbcLogin 2!
+  pass-a pass-u     fodbc odbcPassw  2!
+
   pass-u pass-a login-u login-a ds-u ds-a
   fodbc odbcConn @
   SQLConnect
 ;
+
+: ReconnectSQL { fodbc -- ior }
+  fodbc odbcConn @ SQLDisconnect DROP
+
+  fodbc odbcPassw 2@
+  fodbc odbcLogin 2@
+  fodbc odbcSrc   2@
+
+  fodbc odbcConn @
+  SQLConnect
+;
+
 : ResultCols ( fodbc -- n )
   { \ ncol }
   ^ ncol SWAP odbcStat @ SQLNumResultCols DROP ncol
@@ -202,17 +222,20 @@ CONSTANT /ci
   m fodbc odbcRowData !
 ;
 
+: cash-odbc-params { fodbc -- }
+     fodbc ResultCols fodbc odbcResultCols !
+     fodbc AffectedRows fodbc odbcAffectedRows !
+     fodbc IndexResultCols
+     fodbc RowSize fodbc odbcRowSize !
+     fodbc BindCols
+;
 : ExecSQL ( S" statement" fodbc -- ior )
   { sta stu fodbc }
   fodbc odbcStat  fodbc odbcConn @  SQLAllocStmt
   DUP SQL_OK?
   IF DROP
      stu sta fodbc odbcStat @ SQLExecDirect
-     fodbc ResultCols fodbc odbcResultCols !
-     fodbc AffectedRows fodbc odbcAffectedRows !
-     fodbc IndexResultCols
-     fodbc RowSize fodbc odbcRowSize !
-     fodbc BindCols
+     fodbc cash-odbc-params
   THEN
 ;
 : FreeExec { fodbc -- }
@@ -243,12 +266,12 @@ CONSTANT /ci
   REPEAT
 ;
 : ColName ( n fodbc -- addr u )
-  ColFind ?DUP 
+  ColFind ?DUP
   IF DUP ciColumnName SWAP ciNameLengthPtr @
   ELSE S" " THEN
 ;
 : ColSize ( n fodbc -- n )
-  ColFind DUP 
+  ColFind DUP
   IF ciColumnSizePtr @ THEN
 ;
 : Row ( fodbc -- addr u )
