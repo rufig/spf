@@ -45,7 +45,8 @@
        IF 2 - SWAP 1+ SWAP THEN ( убрал кавычки, если есть)
        2DUP + 0 SWAP C!
        ['] INCLUDED CATCH
-       DUP 2 = OVER 3 = OR ( файл не найден или путь не найден )
+       DUP 2 = OVER 3 = OR OVER 161 = OR ( файл не найден или путь не найден,
+       или неразрешенное имя файла)
        IF  -2003 THROW \ ABORT"  -???"
        ELSE  THROW THEN
   ELSE RDROP RDROP
