@@ -32,27 +32,22 @@ CODE _WINAPI-CODE
       REP MOVS DWORD
       ADD  EBP, EBX
       MOV  EDI, EDX
+      CALL EAX
+      RET
+
 @@4:  CALL EAX
       RET
 
-      4 ALIGN-NOP
-@@1:  PUSH EBX
-      PUSH EDI
-      PUSH EBP
-      MOV  EAX, 4 [EBX]
+@@6:  4 ALIGN-NOP
+@@1:  MOV  EAX, 4 [EBX]
       PUSH EAX
       A; 0xA1 C,  AddrOfLoadLibrary
       ALSO FORTH , PREVIOUS \   MOV  EAX, AddrOfLoadLibrary
 A; HERE 4 - ' AOLL EXECUTE !
       CALL EAX
       OR   EAX, EAX
-      POP EBP
-      POP EDI
-      POP EBX
       JZ  SHORT @@3
 
-      PUSH EDI
-      PUSH EBP
       MOV  ECX, 8 [EBX]
       PUSH ECX
       PUSH EAX
@@ -61,8 +56,6 @@ A; HERE 4 - ' AOLL EXECUTE !
 A; HERE 4 - ' AOGPA EXECUTE !
       CALL EAX
       OR   EAX, EAX
-      POP EBP
-      POP EDI
       JZ  SHORT @@3
       MOV [EBX], EAX
 
@@ -147,18 +140,6 @@ A;   HERE 4 - ' ST-RES 9 + EXECUTE
      MOV  EAX, [EAX]   \ адрес возврата из CALLBACK
      XCHG EAX, [ESP]
      RET
-     INT 3
-     INT 3
-     INT 3
-     INT 3
-     INT 3
-     INT 3
-     INT 3
-     INT 3
-     INT 3
-     INT 3
-     INT 3
-     INT 3
 END-CODE
 
 

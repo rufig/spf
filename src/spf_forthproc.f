@@ -1022,6 +1022,7 @@ CODE CMOVE> ( c-addr1 c-addr2 u -- ) \ 94 STRING
        ADD ESI, ECX
        DEC ESI
        REP MOVS BYTE
+       CLD
        MOV EDI, EDX
        LEA EBP, 0C [EBP]
        MOV EAX, -4 [EBP]
