@@ -31,8 +31,8 @@
 \ что было в u байтах по адресу addr1 до копировани€.
   >R 2DUP SWAP R@ + U< \ назначение попадает в диапазон источника или левее
   IF 2DUP U<           \ » Ќ≈ левее
-     IF R> CMOVE> ELSE R> QCMOVE THEN
-  ELSE R> QCMOVE THEN
+     IF R> CMOVE> ELSE R> CMOVE THEN
+  ELSE R> CMOVE THEN
 ;
 : ERASE ( addr u -- ) \ 94 CORE EXT
 \ ≈сли u больше нул€, очистить все биты каждого из u байт пам€ти,

@@ -974,30 +974,37 @@ CODE CMOVE ( c-addr1 c-addr2 u -- ) \ 94 STRING
        MOV EDI, [EBP]
        MOV ESI, 4 [EBP]
        CLD
-\       SAR ECX, # 2
-\       REP MOVS DWORD
-\       MOV ECX, EAX
-\       AND ECX, # 3
-       REP MOVS BYTE
-       LEA EBP, 0C [EBP]
-       MOV EAX, -4 [EBP]
-       MOV EDI, EDX
-       RET
-END-CODE
-
-CODE QCMOVE ( c-addr1 c-addr2 u -- ) \ 94 STRING
-\ Если u больше нуля, копировать u последовательных символов из пространства 
-\ данных начиная с адреса c-addr1 в c-addr2, символ за символом, начиная с 
-\ младших адресов к старшим.
-       MOV EDX, EDI
-       MOV ECX, EAX
-       MOV EDI, [EBP]
-       MOV ESI, 4 [EBP]
-       CLD
+       \ перекрываются ли области данных?
+        \ если нет, то можно копировать DWORD
+       MOV EBX, EDI
+       SUB EBX, ESI
+       JG  SHORT @@2
+       NEG EBX
+@@2:   CMP EBX, EAX
+       JL  SHORT @@1
+       
+       \ если выровняем на 4, то копируется в 3 раза быстрее
+       MOV  EBX, EDI
+       AND  EBX, # 3
+       JZ   SHORT @@3
+       MOV  ECX, # 4
+       SUB  ECX, EBX
+       
+       CMP  ECX, EAX
+       JL   SHORT @@4
+       MOV  ECX, EAX
+       JMP  @@1 \ нечего выравнивать
+@@4:
+       SUB  EAX, ECX                    
+       REP  MOVS BYTE
+       MOV  ECX, EAX
+@@3:       
        SAR ECX, # 2
+       \ вот здесь хорошо бы в MMX копировать
        REP MOVS DWORD
        MOV ECX, EAX
        AND ECX, # 3
+@@1:       
        REP MOVS BYTE
        LEA EBP, 0C [EBP]
        MOV EAX, -4 [EBP]
@@ -1005,7 +1012,7 @@ CODE QCMOVE ( c-addr1 c-addr2 u -- ) \ 94 STRING
        RET
 END-CODE
 
-
+: QCMOVE CMOVE ;
 
 CODE CMOVE> ( c-addr1 c-addr2 u -- ) \ 94 STRING
 \ Если u больше нуля, копировать u последовательных символов из пространства 
@@ -1034,6 +1041,25 @@ CODE FILL ( c-addr u char -- ) \ 94
        MOV ECX, [EBP]
        MOV EDI, 4 [EBP]
        CLD
+       \ можем ли заполнять DWORD?
+       MOV EBX, ECX
+       AND EBX, # 3
+       JNZ @@1 \ низя
+       \ сформируем DWORD
+       MOV EBX, EAX
+       SHL EAX, # 8
+       OR  EAX, EBX
+       SHL EAX, # 8
+       OR  EAX, EBX
+       SHL EAX, # 8
+       OR  EAX, EBX
+       MOV EBX, ECX
+       
+       SAR ECX, # 2
+       REP STOS DWORD
+       MOV ECX, EBX
+       AND ECX, # 3
+@@1:       
        REP STOS BYTE
        MOV EDI, EDX
        LEA EBP, 0C [EBP]
