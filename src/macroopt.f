@@ -58,8 +58,6 @@ CELL+ DUP CONSTANT OP8
 
 DROP
 
- 
-
 : SetOP ( -- )
  OP0 OP1 OpBuffSize CELL- CMOVE>
  DP @ OP0 !
@@ -367,7 +365,7 @@ M\ VECT DTST
       R@ CELL+ R@ OpBuffSize CELL- R> - OP0 + QCMOVE
 ;
 : ?OPlast  ( OPX -- OPX flag )
-     DUP CELL+ CELL+ OP0 OpBuffSize + U> ;
+     DUP OP0 OpBuffSize + CELL- CELL- U> ;
 
 : XX_STEP ( OPX -- OPX+CELL FALSE | { OPX | FALSE } TRUE )
 \ Проверка на не изменение  EAX
@@ -1349,8 +1347,9 @@ OP0 @  C@  58 XOR OR \ POP     EAX
 0= IF  OP1
       BEGIN   ?EAX>ECX
          IF  T?EAX>ECX  
-         ELSE   ?OPlast >R
-                DUP @ :-SET U< R> OR
+         ELSE   ?OPlast
+                OVER @ :-SET U< OR
+                OVER @ @ FF00FF AND 24008B = OR \  8B0424   MOV   ___ , [ESP]
            IF   DROP FALSE TRUE
            ELSE DUP  @   C@  50 XOR    \	PUSH     EAX , X
            0=   F?EAX>ECX 
@@ -1369,6 +1368,14 @@ OP0 @  C@  58 XOR OR \ POP     EAX
            EXIT  
        THEN
 
+   THEN
+
+OP1 @ @ 24048B50 = \  50      PUSH    EAX
+                   \  8B0424  MOV     EAX , [ESP]
+   IF  M\ E2 DTST
+       OP0 OPexcise
+       FALSE  M\ E3 DTST
+       EXIT   
    THEN
 
 OP2 @ :-SET U< IF TRUE EXIT THEN M\ PPPP
