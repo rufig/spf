@@ -1,5 +1,6 @@
 \ $Id$
 \ Andrey Filatkin, af@forth.org.ru
+\ Work in spf3, spf4
 
 \ save v2
 \ Сохраняет в exe с ресурсами из fres файла
@@ -12,6 +13,7 @@ DECIMAL
 
 GET-CURRENT
 TEMP-WORDLIST DUP ALSO CONTEXT ! DEFINITIONS
+REQUIRE [DEFINED]  lib\include\tools.f
 
 0x080 CONSTANT START-PE-HEADER
 0x400 CONSTANT SIZE-HEADER
@@ -89,10 +91,24 @@ TRUE VALUE ?Res
     0x40 0x40000000 OR    START-RES-TABLE 0x24 + !
   THEN
 
-  HERE SIZE-HEADER R@ WRITE-FILE THROW ( заголовок и таблица импорта )
-  IMAGE-BEGIN HERE OVER -
-  ROT ALLOT SetOP
-  R@ WRITE-FILE THROW
+  [ VERSION 400000 < [IF] ] 
+    AOLL @ @ AOGPA @ @ ROT
+    IMAGE-BASE 0x1034 + AOLL @ !
+    IMAGE-BASE 0x1038 + AOGPA @ !
+    HERE SIZE-HEADER R@ WRITE-FILE THROW ( заголовок и таблица импорта )
+    ERASED-CNT 0!
+    IMAGE-BEGIN HERE OVER -   ROT ALLOT   R@ WRITE-FILE THROW
+    ERASED-CNT 1+!
+    AOGPA @ ! AOLL @ !
+  [ [ELSE] VERSION 400008 < [IF] ] 
+    HERE SIZE-HEADER R@ WRITE-FILE THROW ( заголовок и таблица импорта )
+    ERASED-CNT 0!
+    IMAGE-BEGIN HERE OVER -   ROT ALLOT SetOP   R@ WRITE-FILE THROW
+    ERASED-CNT 1+!
+  [ [ELSE] ] 
+    HERE SIZE-HEADER R@ WRITE-FILE THROW ( заголовок и таблица импорта )
+    IMAGE-BEGIN HERE OVER -   ROT ALLOT SetOP   R@ WRITE-FILE THROW
+  [ [THEN] [THEN] ] 
   R> CLOSE-FILE THROW
 ;
 

@@ -1,13 +1,19 @@
 \ $Id$
 \ Andrey Filatkin, af@forth.org.ru
+\ Work in spf3, spf4
 \ Работа с ini-файлами
+
+REQUIRE [DEFINED]  lib\include\tools.f
 
 WINAPI: GetPrivateProfileStringA    kernel32.dll
 WINAPI: WritePrivateProfileStringA  kernel32.dll
 
 USER-CREATE BufIni 4096 USER-ALLOT
 : N>S ( u -- addr0)
-  S>D DUP >R DABS <# #S R> SIGN #> DROP ;
+  S>D DUP >R DABS <#
+  [ VERSION 400000 < [IF] ] 0 HOLD  [ [THEN] ] \ чтобы была 0-строка
+  #S R> SIGN #> DROP
+;
 
 \ Получить строковое значение ключа
 : GetIniString ( addr0_ini addr0_sec addr0_key addr0_def -- addr0)
@@ -27,7 +33,7 @@ USER-CREATE BufIni 4096 USER-ALLOT
 \ Записать строковое значение ключа
 : SetIniString ( addr0_ini addr0_sec addr0_key addr0 -- )
 \ гиде - addr0 - записываемая строка
-  -ROT SWAP
+  SWAP ROT
   WritePrivateProfileStringA DROP
 ;
 

@@ -1,14 +1,21 @@
 \ $Id$
 \ Andrey Filatkin, af@forth.org.ru
+\ Work in spf3, spf4
 \ Recent File List
 
-REQUIRE {            ~af\lib\locals.f 
-REQUIRE GetIniString ~af\lib\ini.f
-REQUIRE USES         ~af\lib\api-func.f
-REQUIRE FileExist    ~af\lib\fileexist.f
-REQUIRE STR@         ~ac\lib\str2.f
+REQUIRE {            devel\~af\lib\locals.f 
+REQUIRE GetIniString devel\~af\lib\ini.f
+REQUIRE USES         devel\~af\lib\api-func.f
+REQUIRE FileExist    devel\~af\lib\fileexist.f
+REQUIRE STR@         devel\~ac\lib\str2.f
 
 USES user32.dll
+
+[UNDEFINED] WITHIN [IF]
+  : WITHIN ( n1|u1 n2|u2 n3|u3 -- flag ) \ 93 CORE EXT
+    OVER - >R - R> U<
+  ;
+[THEN]
 
 0 VALUE IdFirstRFL \ первый идентификатор
 0 VALUE MaxCountRFL \ максимальное число файлов в списке

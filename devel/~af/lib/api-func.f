@@ -23,7 +23,7 @@ REQUIRE ON         lib\ext\onoff.f
     HERE SWAP ! ( заполнили cfa )
   ;
   : CREATED ( addr u -- )
-    HEADER
+    SHEADER
     HERE DOES>A ! ( для DOES )
     ['] _CREATE-CODE COMPILE,
   ;

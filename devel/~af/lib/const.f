@@ -48,13 +48,14 @@ VARIABLE ChainOfConst
 ;
 
 : ADD-CONST-VOC ( addr u -- )
-  R/O TryOpenFile THROW >R
-  R@ FILE-SIZE THROW DROP \ size
-  DUP ALLOCATE THROW DUP ROT \ addr addr size
-  R@ READ-FILE THROW DROP
-  R> CLOSE-FILE THROW
-  HERE
-  ChainOfConst @ ,  SWAP ,  ChainOfConst !
+  R/O TryOpenFile 0= IF >R
+    R@ FILE-SIZE THROW DROP \ size
+    DUP ALLOCATE THROW DUP ROT \ addr addr size
+    R@ READ-FILE THROW DROP
+    R> CLOSE-FILE THROW
+    HERE
+    ChainOfConst @ ,  SWAP ,  ChainOfConst !
+  THEN
 ;
 
 : REMOVE-ALL-CONSTANTS
@@ -67,13 +68,12 @@ VARIABLE ChainOfConst
 ;
 
 SET-CURRENT
-PREVIOUS
 
 FALSE WARNING !
 : NOTFOUND ( addr u -- )
   2DUP 2>R ['] NOTFOUND CATCH ?DUP
   IF                    
-    NIP NIP 2R> {{ WINCONST SEARCH-CONST }}
+    NIP NIP 2R> SEARCH-CONST
     IF NIP [COMPILE] LITERAL
     ELSE
       THROW
@@ -83,4 +83,6 @@ FALSE WARNING !
 ;
 TRUE WARNING !
 
-S" lib\win\winconst\windows.const" {{ WINCONST ADD-CONST-VOC }}
+S" lib\win\winconst\windows.const" WINCONST ADD-CONST-VOC
+
+PREVIOUS
