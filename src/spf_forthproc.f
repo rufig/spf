@@ -556,6 +556,17 @@ CODE MOD ( n1 n2 -- n3 ) \ 94
        RET
 END-CODE
 
+CODE /MOD ( n1 n2 -- n3 ) \ 94
+\ Делить n1 на n2, дать остаток n3 и частное n4.
+\ Неоднозначная ситуация возникает, если n2 нуль.
+       MOV ECX, EAX
+       MOV EAX, [EBP]
+       CDQ
+       IDIV ECX
+       MOV [EBP], EDX
+       RET
+END-CODE
+
 CODE UMOD ( W1, W2 -> W3 ) \ остаток от деления W1 на W2
        MOV ECX, EAX
        MOV EAX, [EBP]
