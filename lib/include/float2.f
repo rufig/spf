@@ -1,8 +1,10 @@
-\ Float-библиотека для spf375.exe ver. 2.33
+\ Float-библиотека для spf4
 \ Слова высокого уровня
 \ [c] Dmitry Yakimov [ftech@tula.net]
 \ 64 битная арифметика по умолчанию!
-\ Дальше будет развиваться только эта либа!
+
+\ ! переписан F. ,рефакторинг ( 9.03.2005 ~day )
+\ ! пофиксен FS. ( 9.03.2005 ~day )
 
 \ Hi level words
 \ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -19,7 +21,6 @@ USER ?PRINT-EXP       \ печать с экспонентой или без нее
 USER F-SIZE
 USER PAST-COMMA \ число знаков после точки
 USER ?IS-COMMA  \ появилась точка или нет
-USER CountBuf \ счетчик в буфере
 
 
 : 2e 2.E ;
@@ -271,8 +272,9 @@ DECIMAL
     R> SETFPUCW
 ;
 
-\ Дает размер строки знаков после запятой float числа
-: #EXP ( -- n ) ( r -- r )  FDUP F0=  IF PRECISION  ELSE
+\ Дает число знаков целой части числа
+: #EXP ( -- n ) ( r -- r )  
+   FDUP F0=  IF PRECISION  ELSE
    FDUP FABS FLOG FLOOR F>D DROP THEN
 ;
 
@@ -305,29 +307,17 @@ DECIMAL
 ;
 
 
-: Buf+word ( addr u )
-    CountBuf @ 256 <
-    IF
-     2DUP FLOAT-PAD CountBuf @ + SWAP CMOVE
-     NIP CountBuf +!
-    ELSE
-     2DROP
-    THEN      
-;
-
-: +Count ( char -- )
-    CountBuf @ 256 <
-    IF
-      CountBuf @ FLOAT-PAD + C!
-      CountBuf 1+!
-    ELSE
-      DROP
-    THEN
-;
-
 : FDISPLAY ( n -- )
-   FLOAT-PAD OVER 0 MAX TYPE [CHAR] . EMIT
-   DUP FLOAT-PAD + PRECISION ROT - 1+ TYPE  ;
+   FLOAT-PAD OVER 0 MAX PRECISION MIN TYPE
+   \ дополним нулями до PRECISION
+   PRECISION OVER -
+   DUP 0 < IF ABS 0 ?DO [CHAR] 0 EMIT LOOP 
+           ELSE DROP
+           THEN
+   \ выведем дробную часть
+   [CHAR] . EMIT
+   DUP FLOAT-PAD + PRECISION ROT - 1+ 0 MAX TYPE
+;
 
 : format-exp ( ud1 -- ud2 ) \ *
   UP-MODE
@@ -351,8 +341,20 @@ HEX
    FDEPTH 0<>
    IF
      FLOAT-PAD PRECISION REPRESENT DROP
-     IF  [CHAR] - TYPE  THEN
-     1 FDISPLAY 1-  .EXP
+     IF  [CHAR] - EMIT THEN
+     1 FDISPLAY 1- .EXP
+   ELSE
+     C0000092 THROW
+   THEN
+;
+
+: F. ( r -- )
+   FDEPTH 0<>
+   IF
+     FDUP
+     FLOAT-PAD PRECISION REPRESENT DROP
+     IF  [CHAR] - EMIT THEN
+     #EXP FDROP 1+ FDISPLAY DROP
    ELSE
      C0000092 THROW
    THEN
@@ -373,138 +375,9 @@ HEX
 
 DECIMAL
 
-: fnormalize-big ( F: r -- F: r1 u ) \ *
-\ на выходе: x.xxxxxx
-   UP-MODE
-   FDUP F[LOG]
-   F>DS DUP 0<> IF DUP 1- F10X F/ ELSE 1+ THEN
-;
-
-\ на выходе: x.xxxxxx
-: fnormalize-small ( F: r -- r1 u ) \ *
-  0 
-  BEGIN
-    F--DS 0=
-  WHILE
-    F10* 1+
-  REPEAT 
-;
-
-: FLOAT<1 ( -- f )
-      1 FD< DUP
-      IF
-         [CHAR] 0 +Count
-         [CHAR] . +Count
-      THEN
-;         
-
-\ выводим число, пришедшее как x.xxxxxx
-\ Если <1 то выводим точку
-
-: fprint-frac ( F: r D: u -- )
-  TRUNC-MODE 
-  0
-  ?DO
-    I 15 >
-    IF 
-      [CHAR] 0 +Count
-    ELSE  
-      F--DS DUP 10 =
-      IF
-        [CHAR] 1 +Count
-        [CHAR] 0 +Count
-      ELSE  
-        DUP 48 + +Count
-      THEN  
-      DS>F F- F10*
-    THEN
-  LOOP
-  FDROP
-;
-
-\ Вывести целую часть числа
-: fprint-high ( F: r -- )
-    fnormalize-big
-    fprint-frac
-;
-
-\ выводим число в формате без экспоненты
-: fprint-noexp ( F: r -- )
-    TRUNC-MODE
-    FLOAT<1
-    IF
-      FDUP F0= IF FDROP EXIT THEN
-      F10* PRECISION fprint-frac
-    ELSE
-      FDUP FLOAT>DATA fprint-high DATA>FLOAT
-      [CHAR] . +Count
-      FDUP FINT F- F10*
-      1 FD< ?PRINT-EXP @ INVERT AND
-      IF
-        FDROP
-      ELSE
-        PRECISION fprint-frac
-      THEN
-    THEN
-;
-
-\ выводим число в формате с экспонентой
-: fprint-exp ( F: r -- )
-   1 FD< 
-   IF FDUP F0= IF 0 ELSE fnormalize-small -1 * THEN
-   ELSE fnormalize-big 1- 10 FD> IF F10/ 1+ THEN
-   THEN                       
-   fprint-noexp 
-   S>D
-   DUP >R DABS <# format-exp R> SIGN FCON-E @ HOLD #>
-   Buf+word
-;
-HEX
-
-: >FNUM ( F: r  -- addr u )
-      FABORT FDEPTH 0= IF C0000092 THROW THEN
-      0 CountBuf ! 
-      FDUP FINF F= 
-      IF
-         FDROP S" +Infinity" Buf+word
-      ELSE 
-        FDUP FINF FNEGATE F= 
-          IF FDROP S" -Infinity" Buf+word
-          ELSE
-            GETFPUCW >R
-            BASE @ DECIMAL 
-            FDUP F0< IF FABS [CHAR] - +Count THEN
-            ?PRINT-EXP @
-            IF fprint-exp
-            ELSE fprint-noexp 
-            THEN
-            BASE !
-            R> SETFPUCW
-          THEN
-      THEN  
-      FLOAT-PAD CountBuf @
-;
-
-: F. ( F: r -- )
-   FDEPTH 0<>
-      IF  
-        >FNUM TYPE
-       ELSE  
-           C0000092 THROW
-      THEN     
-;   
-DECIMAL
-
 \ DB 2D - TBYTE
 \ DD 05 - QWORD
 \ D9 05 - DWORD
-
-\ : FS. ( F: r -- )
-\    ?PRINT-EXP @
-\    PRINT-EXP
-\    F.
-\    ?PRINT-EXP !
-\ ;
 
 : DFLOAT+ ( addr1 -- addr2 )
     8 +
