@@ -1336,6 +1336,9 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
      C88B OVER CELL+ @ W! \ MOV     ECX , EAX 
 \     CELL-
 ;
+
+TRUE VALUE  ~BR-OPT
+
 : ?EAX:=ECX  ( -- )
    ?~EAX @
    IF SetOP 8B C, C1 C, \ MOV     EAX , ECX 
@@ -1380,6 +1383,7 @@ M\  VARIABLE VPPP : PPPP DUP VPPP @ <> IF 0 @ THEN ;
 \ TTTT  IF ." T=" 2DUP HEX U. U. THEN
  U< IF TRUE EXIT THEN
           OP1 @ ?ChEAX 0=
+          ~BR-OPT AND
 \          OP1 @ W@ ADD|XOR|OR|AND= OR
    WHILE   M\ 0 DTST
            OP1 OPexcise
@@ -2135,7 +2139,6 @@ OP1 @ W@ D02B XOR OR \ 5969A4 2BD0              SUB     EDX , EAX
   TRUE
 ;
 
-TRUE VALUE  ~BR-OPT
 
 \ : SSSSSS ;
 \ TRUE VALUE ?C-JMP
@@ -4166,8 +4169,9 @@ OS\ AND EC = M_WL   1_,_STEP  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
          ['] NOOP FALSE EXIT
    THEN  
 
+   DUP 'DROP =
    OFF-EAX 0=
-   OP0 @ C@  A1 =  AND  \  MOV     EAX , 44444
+   OP0 @ C@  A1 =  AND AND  \  MOV     EAX , 44444
    IF M\ 434 DTST
       0 W,
       OP0 @ 1+ @ OP0 @ 2+ !
