@@ -209,14 +209,14 @@ VECT v_add-value
   ( S" 198.63.211.47" DROP) 2R> DROP SNMPsession @ SnmpStrToEntity DUP SNMPdstentity ! 0= THROW
   R> SNMPdstentity @ SnmpSetPort 0= THROW
   SNMPpdu @ SNMPcontext @ SNMPdstentity @ SNMPentity @ SNMPsession @ SnmpSendMsg 0= THROW
-;
-: SnmpGetTypeExRecv ( -- )
   SNMPvbl @ SnmpFreeVbl 0= THROW
   SNMPpdu @ SnmpFreePdu 0= THROW
   SNMPcontext @ SnmpFreeContext 0= THROW
   SNMPentity @ SnmpFreeEntity 0= THROW
   SNMPdstentity @ SnmpFreeEntity 0= THROW
   SNMPoid SNMP_SYNTAX_OID SnmpFreeDescriptor 0= THROW
+;
+: SnmpGetTypeExRecv ( -- )
   SNMPoutpdu SNMPoutcontext SNMPdstentity SNMPsrcentity SNMPsession @ SnmpRecvMsg 0= THROW
 ;
 : SnmpGetTypeEx ( S"oid" type S"community" S"host" port -- )
