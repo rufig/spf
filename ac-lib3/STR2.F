@@ -379,8 +379,12 @@ STRFREE
   [CHAR] ' PARSE [COMPILE] SLITERAL
 ; IMMEDIATE
 
+: S@ ( addr u -- addr2 u2 )
+\ вычислить {} в строке
+  (") STR@
+;
 : EVAL-FILE ( addr u -- addr1 u1 )
-  FILE (") STR@
+  FILE S@
 ;
 : S! ( addr u var_addr -- )
   "" DUP ROT ! STR+
