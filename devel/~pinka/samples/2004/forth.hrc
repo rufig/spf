@@ -70,7 +70,7 @@ With Help of
    -->
 
    <!-- strings -->
-   <block start='/(\s+|^|\=)\"[^,]/' end='/\"/' scheme="nnCron_string" region="forString"/>
+   <block start='/(\s+|^|\=)\"[^,"]/' end='/\"/' scheme="nnCron_string" region="forString"/>
    <block start="/(\s+|^)(\.\'\s+)/"    end="/\'/" scheme="nnCron_string" region="forString"/>
    <block start='/(\s+|^)([SCZ\.]|(ABORT))\"\s+/' end='/"/' scheme="nnCron_string" 
           region00="forResWord" region10="forResWord"
