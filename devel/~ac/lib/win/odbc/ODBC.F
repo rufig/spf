@@ -44,6 +44,7 @@ WINAPI: SQLEndTran            ODBC32.DLL
   2 CONSTANT SQL_OV_ODBC2
   3 CONSTANT SQL_OV_ODBC3
 200 CONSTANT SQL_ATTR_ODBC_VERSION
+65532 CONSTANT SQL_C_BINARY
 
 0
 4 -- odbcEnv
@@ -175,7 +176,9 @@ CONSTANT /ci
   127
   m ciColumnName
   n fodbc odbcStat @ SQLDescribeCol
-  m ciColumnSizePtr @ 200000 MIN m ciColumnSizePtr !
+  m ciDataTypePtr @ SQL_C_BINARY = \ BLOB
+  IF m ciColumnSizePtr @ 2* m ciColumnSizePtr ! THEN
+\  m ciColumnSizePtr @ 200000 MIN m ciColumnSizePtr !
 ;
 : IndexResultCols ( fodbc -- )
   0 OVER odbcColsIndex !
@@ -190,7 +193,9 @@ CONSTANT /ci
   BEGIN
     DUP
   WHILE
-    DUP ciColumnSizePtr @ n + -> n
+    DUP ciColumnSizePtr @ 
+        0 MAX \ NULL גûהאוע נאחלונ -1
+        n + -> n
     ciLink @
   REPEAT DROP
   n
@@ -303,6 +308,10 @@ VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
   ColFind DUP
   IF ciColumnSizePtr @ THEN
 ;
+: ColType ( n fodbc -- n )
+  ColFind DUP
+  IF ciDataTypePtr @ THEN
+;
 : Row ( fodbc -- addr u )
   DUP odbcRowData @
   SWAP odbcRowSize @
@@ -321,6 +330,7 @@ VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
 \ ...
 \ ;
 
+(
 : TEST \ --
   { \ q }
   StartSQL
@@ -331,7 +341,8 @@ VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
     IF
       ." Connected" CR
 \      S" news2.sql" q ExecSQLfile DUP . q SQL_Error
-      S" SELECT * FROM sp_vendors LIMIT 50" q ExecSQL DUP . q SQL_Error
+\      S" SELECT * FROM sp_vendors LIMIT 50" q ExecSQL DUP . q SQL_Error
+      S" latest_orders.sql" q ExecSQLfile DUP . q SQL_Error
 
       ." Result cols: " q ResultCols  . CR
 
@@ -358,4 +369,4 @@ VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
     q FREE DROP
   THEN
 ;
-
+)
