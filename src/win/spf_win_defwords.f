@@ -9,8 +9,7 @@
 VARIABLE WINAPLINK
 0  VALUE NEW-WINAPI?
 
-: __WIN:  ( pars CFA_INI "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
-  COMPILE,
+: __WIN:  ( params "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
   HERE >R
   0 , \ address of winproc
   0 , \ address of library name
@@ -44,7 +43,8 @@ VARIABLE WINAPLINK
     -1
     >IN @  HEADER  >IN !
   THEN
-  ['] _WINAPI-CODE __WIN:
+  ['] _WINAPI-CODE COMPILE,
+  __WIN:
 ;
 
 : EXTERN ( xt1 n -- xt2 )
