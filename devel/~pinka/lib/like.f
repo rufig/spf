@@ -51,33 +51,15 @@ CHAR \ VALUE quote-char
   DUP [CHAR] ? = IF DROP TRUE EXIT THEN
   DROP FALSE
 ;
-: ProcessQuote ( -- )
-\ удаляет quote-char в шаблоне
-  CharAddr    >IN 1+!
-  PARSE-AREA@
-  DUP 0= IF 2DROP DROP EXIT THEN
-  ( a1  a u )
-  ROT SWAP   2DUP SOURCE!   CMOVE
-  GetChar IF
-   DUP [CHAR] q = IF
-     [CHAR] " CharAddr C!
-   THEN ( c )
-   >IN 1+!
-  THEN DROP
-;
 : NextPat ( -- a u )
 \ дает подстроку из шаблона   (и скипает ее)
-  CharAddr
-  BEGIN
-   GetChar
-  WHILE
-   DUP IsCharWild 0=
-  WHILE ( c )
-   quote-char =  IF
-   ProcessQuote  ELSE
-    >IN 1+!      THEN
-  REPEAT THEN ( addr c ) DROP
-  CharAddr OVER -
+  GetChar AND IF CharAddr COUNT DUP 1+ >IN +! EXIT THEN
+  CharAddr 0
+\  CharAddr EndOfChunk IF 0 ELSE COUNT  DUP 1+ >IN +! THEN
+;
+: GetWild ( -- c true | false )
+  GetChar 0= OR IF FALSE EXIT THEN
+  CharAddr 1+ C@  TRUE
 ;
 : QMatch ( a u -- a1 u1 f )
 \ сопоставляет с шаблоном, содержащим '?'
@@ -85,13 +67,13 @@ CHAR \ VALUE quote-char
     NextPat DUP IF
       MATCH-SIMPLE 0= IF FALSE EXIT THEN
     ELSE 2DROP THEN
-    GetChar
+    GetWild
   WHILE
-    DUP [CHAR] ? =
+    [CHAR] ? =
   WHILE
-    DROP >IN 1+!
+    2 >IN +!
     DUP IF  SWAP 1+  SWAP 1- ELSE FALSE EXIT THEN
-  REPEAT THEN DROP  TRUE
+  REPEAT THEN TRUE
 ;
 : QMatch2 ( a u -- a1 u1 f )
 \ при неуспехе  счетчики оставляет неизменными
@@ -110,33 +92,68 @@ CHAR \ VALUE quote-char
     DUP IF EndOfChunk IF DROP DUP 0=  THEN THEN
   UNTIL TRUE ELSE FALSE THEN   2R> 2DROP
 ;
+: Is(*) ( -- f )
+  GetWild DUP IF DROP [CHAR] * = THEN
+;
 : (LIKE-MASK) ( a1 u1 -- a2 u2 flag )
   BEGIN
-    GetChar
-  WHILE
-    [CHAR] * =   IF
-    >IN 1+!  EndOfChunk IF TRUE EXIT THEN
+    Is(*)        IF
+    2 >IN +!
+    EndOfChunk IF TRUE EXIT THEN
     Process(*)   ELSE
     QMatch       THEN
-    0=
-  UNTIL FALSE ELSE DROP DUP 0= THEN
+    0= IF FALSE EXIT THEN
+    EndOfChunk
+  UNTIL DUP 0=
+;
+
+: store-char ( a p c -- a1 p1 )
+  >R
+  DUP 0= IF DROP  0 OVER C!  DUP 1+ SWAP THEN
+  SWAP R> OVER C! 1+ SWAP
+  DUP 1+!
+;
+: store-wild ( a p c -- a1 0 )
+  >R DROP
+  0  OVER C! 1+
+  R> OVER C! 1+
+  0
+;
+: ?quote ( c -- c | c2 )
+  DUP quote-char = IF DROP
+    >IN 1+! GetChar DROP
+    DUP [CHAR] q = IF DROP [CHAR] " THEN
+  THEN
+;
+: translate-mask ( -- a u )
+  PAD 0
+  BEGIN ( a p )
+    GetChar
+  WHILE ( a p c )
+    DUP IsCharWild IF
+    store-wild     ELSE
+    ?quote
+    store-char     THEN
+    >IN 1+!
+  REPEAT 2DROP
+  PAD TUCK -
+;
+: LIKE-MASK1  ( a1 u1 -- flag ) 
+\ только within EVALUATE-WITH
+\ в PARSE-AREA - маска
+  translate-mask SOURCE!
+  (LIKE-MASK) NIP NIP
 ;
 
 EXPORT
 
-: LIKE-MASK\  ( a1 u1 -- flag )
-\ остаток чанка - маска
-  (LIKE-MASK) NIP NIP POSTPONE \
-;
 : LIKE ( a1 u1 a-mask u-mask -- flag )
-  TUCK SALLOC DUP >R SWAP
-  ['] LIKE-MASK\ EVALUATE-WITH
-  R> FREE THROW
+  ['] LIKE-MASK1 EVALUATE-WITH
 ;
 : ULIKE ( a1 u1 a-mask u-mask -- flag )
   2SWAP  TUCK SALLOC DUP >R SWAP 2DUP UPPERCASE
   2SWAP  TUCK SALLOC DUP >R SWAP 2DUP UPPERCASE
-  ['] LIKE-MASK\ EVALUATE-WITH
+  LIKE
   R> FREE THROW  R> FREE THROW
 ;
 
