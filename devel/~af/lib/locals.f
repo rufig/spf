@@ -147,6 +147,18 @@ USER uAddDepth
 ;
 
 \ Чтобы работал и в spf3 и в spf4
+
+[UNDEFINED] EVAL-WORD [IF]
+  : EVAL-WORD ( a u -- )
+  \ интерпретировать ( транслировать) слово с именем  a u
+    SFIND ?DUP IF
+      STATE @ = IF COMPILE, ELSE  EXECUTE THEN
+    ELSE
+      -2003 THROW
+    THEN
+  ;
+[THEN]
+
 VERSION 400000 < [IF]
 \ spf3
   : CompileLocalsInit
@@ -344,7 +356,7 @@ WARNING @ WARNING 0!
 
 \ ===
 
-: ;  LocalsCleanup POSTPONE ; ; IMMEDIATE
+: ;  LocalsCleanup  S" ;" EVAL-WORD ; IMMEDIATE
 
 WARNING !
 
