@@ -1,0 +1,541 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=x-sjis">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>BREGEXP.DLL</title>
+</head>
+
+<body">
+
+<p><a name="0001"></a></p>
+
+<h1><font face="Century">BREGEXP.DLL</font></h1>
+<p align="right"><b>Release Notes&nbsp; </b>August 1, 1999<br>
+Written by Hippo2000</p>
+
+<p><font face="Century">BREGEXP.DLL provides you APIs for Reguar
+Expressions. If you want the power of regular expressions like
+Perl5, Try and use it! Methods for Regular Expressions in BASP21.DLL
+are using these APIs. These APIs supports NULL-character. So
+these are useful for not only text but also binary data. You can
+call these APIs from Microsoft </font><a href="vbtips.html"><font
+face="Century"><b>Visual Basic</b></font></a><font face="Century">,
+too. </font></p>
+
+<!--
+<p><a href="data/bregexp.lzh"><font face="Century">Down Load!</font></a></p>
+-->
+
+<p><font color="#FF0000" face="Century">05/13/99 Updated</font></p>
+
+<ul>
+    <li><font face="Century">Add the description of regular
+        expressions.</font></li>
+    <li><font face="Century">Add the description of BREGEXP
+        structture and samples for BregPool class. </font></li>
+    <li><font face="Century">Add the sample of function calling.</font></li>
+</ul>
+
+<p><font face="Century">Installing Arimac's BRegIF enables you to
+use regular expressions of BREGEXP from HIDEMARU editor Version 3.01.
+<br>
+</font><a href="http://www.urban.ne.jp/home/arimac/">Ç`ÇíÇâÇçÇÅÇÉ<font
+face="Century">'s Room(Only in Japanese)</font></a><font
+face="Century"><br>
+<br>
+For Perl and regular expressions, refer to Perl man page.<br>
+</font><a href="http://www.att.or.jp/perl/"><font face="Century">Perl
+Newbies(Only in Japanese)</font></a></p>
+
+<h2><font face="Century">List of the Functions</font></h2>
+
+<ul>
+    <li><font face="Century">int BMatch(char* regstr,char *target,char
+        *targetendp, BREGEXP **rxp,char *msg) ; <br>
+        Searches a string for a pattern match, and returns
+        searching result and strings matched patterns within ()s.</font></li>
+    <li><font face="Century">int BSubst(char* regstr,char *target,char
+        *targetendp, BREGEXP **rxp,char *msg) ; <br>
+        Searches a string for a pattern, and if found, replaces
+        that pattern with the replacement text and returns the
+        number of substitutions made.</font></li>
+    <li><font face="Century">int BTrans(char* regstr,char *target,char
+        *targetendp, BREGEXP **rxp,char *msg) ; <br>
+        Performs translation-process, and returns the number of
+        characters translated and the string after translation.</font></li>
+    <li><font face="Century">int BSplit(char* regstr,char *target,char
+        *targetendp, int limit,BREGEXP **rxp,char *msg); <br>
+        Splits a string into an array of strings using a pattern
+        as delimiter.</font></li>
+    <li><font face="Century">void BRegfree(BREGEXP* rx); <br>
+        Sets free specified compile block.</font></li>
+    <li><font face="Century">char* BRegexpVersion(void); <br>
+        Returns the versioin.</font></li>
+</ul>
+
+<h2><font face="Century">What is pattern</font></h2>
+
+<p><font face="Century">Regular expressions treat a string as a
+pattern. A pattern is specified by enclosing with &quot;/&quot;
+like below:</font></p>
+
+<p><font face="Century"><b>/pattern/qualifiers</b></font></p>
+
+<p><font face="Century">If a pattern contains &quot;/&quot;,you
+can use other character with 'm' like below:<br>
+<b>m#pattern#qualifiers</b></font></p>
+
+<p><font face="Century">In pattern, there are special characters
+called 'Metacharacter'. After mastering these metacharacters, you
+may feel the real power of the regular expressions.
+Metacharacters that can be used in BREGEXP.DLL are almost same to
+Perl5. So, you can use same regular expressions in BREGEXP.DLL,
+which were used in Perl5 .</font></p>
+
+<p><font face="Century">Follwing Metacharacters are recognized in
+BREGEXP.DLL:</font></p>
+
+<pre><font face="Century">    \    Quote the next metacharacter
+    ^    Match the beginning of the line
+    .   	Match any character (except newline)
+    $	  Match the end of the line (or before newline at the end)
+    |    Alternation
+    ()    Grouping
+    []    Character class
+    \w  Match a &quot;word&quot; character (alphanumeric plus &quot;_&quot;)
+    \W Match a non-word character
+    \s   Match a whitespace character
+    \S   Match a non-whitespace character
+    \d   Match a digit character
+    \D  Match a non-digit character
+    \b   Match a word boundary
+    \B   Match a non-(word boundary)
+    \A   Match only at beginning of string
+    \Z   Match only at end of string, or before newline at the end
+    \t    tab                   (HT, TAB)
+    \n   newline               (LF, NL)
+    \r    return                (CR)
+    \f     form feed             (FF)
+    \a    alarm (bell)          (BEL)
+    \e    escape (think troff)  (ESC)
+    \033 octal char (think of a PDP-11)
+    \x1B hex char
+    \c[    control char
+</font></pre>
+
+<p><font face="Century">The following standard quantifiers are
+recognized: </font></p>
+
+<pre><font face="Century">    *        Match 0 or more times
+    +        Match 1 or more times
+    ?        Match 1 or 0 times
+    {n}      Match exactly n times
+    {n,}     Match at least n times
+    {n,m}  Match at least n but not more than m times
+</font></pre>
+
+<p><font face="Century">The following qualifiers are recognized: </font></p>
+
+<pre><font face="Century">    k    Treat string as Japanese (SJIS). (Perl does NOT have this qualifier.)
+    m   Treat string as multiple lines.(Metachar-$ will be affected.)
+    g 	  Match globally, i.e., find all occurrences. 
+    c     replace:Complement the SEARCHLIST.
+    d     replace:Delete found but unreplaced characters.
+    s     replace:Squash duplicate replaced characters.</font></pre>
+
+<pre><font face="Century">    </font></pre>
+
+<p>Å@</p>
+
+<h2><font face="Century">About Incompatibility</font></h2>
+
+<p><font face="Century">The following features are not supported
+by BREGEXP.DLL:</font></p>
+
+<pre>Åú<font face="Century">Variables in a pattern will not be expanded, in Visual Basic etc.
+</font>Åú<font face="Century">Metacharcter:
+         \G   Match only where previous m//g left off 
+</font>Åú<font face="Century">Qualifiers (parameters on right side of a pattern)
+         o     Compile only once.
+         x     Use Expanded regular expressions.
+         e     Evaluate the right side as an expressions.
+</font></pre>
+
+<h2><font face="Century">Using from Visual C++</font></h2>
+
+<ul>
+    <li><font face="Century">Copy bregexp.dll into system32
+        directory. (This is no requirement if you have already
+        installed BASP21.DLL.)</font></li>
+    <li><font face="Century">Copy bregexp.lib into your defined
+        directory (ex.. c:\babaq\bsmtp.lib)</font></li>
+    <li><font face="Century">Include header file(bregexp).</font></li>
+</ul>
+
+<blockquote>
+    <p><font size="2" face="Century">#include &quot;bregexp.h&quot;
+    // Regular Expressions DLL <br>
+    <br>
+    <br>
+    =================== BEGIN of bregexp.h
+    ======================================<br>
+    <br>
+    #ifdef _BREGEXP_<br>
+    #define BREGEXPAPI __declspec(dllexport) <br>
+    #else<br>
+    #define BREGEXPAPI __declspec(dllimport) <br>
+    #endif<br>
+    <br>
+    typedef struct bregexp {<br>
+    const char *outp; // BSubst: Pointer to Replace data<br>
+    const char *outendp; // BSubst : Pointer to last of replace
+    data + 1<br>
+    const int splitctr; // BSplit: Number of array items.<br>
+    const char **splitp; // BSplit: Pointer to the data<br>
+    int rsv1; // Reserved (free to use)<br>
+    char *parap; // Pointer to pattern data<br>
+    char *paraendp; // Pointer to pattern data + 1<br>
+    char *transtblp; // BTrans : Pointer to Translation table <br>
+    char **startp; // Pointer to first of matched data.<br>
+    char **endp; // Pointer to last of matched data.<br>
+    int nparens; // Number of ()s in pattern. It is useful to
+    examine $1, $2 and $n.<br>
+    } BREGEXP;<br>
+    <br>
+    #if defined(__cplusplus)<br>
+    extern &quot;C&quot;<br>
+    {<br>
+    #endif<br>
+    <br>
+    BREGEXPAPI<br>
+    int BMatch(char* str,char *target,char *targetendp,<br>
+    BREGEXP **rxp,char *msg) ;<br>
+    BREGEXPAPI<br>
+    int BSubst(char* str,char *target,char *targetendp,<br>
+    BREGEXP **rxp,char *msg) ;<br>
+    BREGEXPAPI<br>
+    int BTrans(char* str,char *target,char *targetendp,<br>
+    BREGEXP **rxp,char *msg) ;<br>
+    BREGEXPAPI<br>
+    int BSplit(char* str,char *target,char *targetendp,<br>
+    int limit,BREGEXP **rxp,char *msg);<br>
+    BREGEXPAPI<br>
+    void BRegfree(BREGEXP* rx);<br>
+    <br>
+    BREGEXPAPI<br>
+    char* BRegexpVersion(void);<br>
+    <br>
+    #if defined(__cplusplus)<br>
+    }<br>
+    #endif<br>
+    <br>
+    <br>
+    #undef BREGEXPAPI<br>
+    <br>
+    =================== END of bregexp.h
+    ======================================<br>
+    </font></p>
+</blockquote>
+
+<ul>
+    <li><font face="Century">Call Function like below:</font><pre><font
+face="Century">	char msg[256];
+	BREGEXP *rxp = NULL; 
+   	int matched = BMatch(&quot;m/abc/&quot;,szTarget,
+		szTarget+strlen(szTarget),&amp;rxp,msg);
+</font></pre>
+    </li>
+    <li><font face="Century">After adding c:\babaq\bregexp.lib
+        into &quot;link library&quot; , and link a program.</font></li>
+</ul>
+
+<h2><font face="Century">Struct BREGEXP</font></h2>
+
+<p><font face="Century">BREGEXP.DLL uses struct BREGEXP as a
+parameter. Struct BREGEXP is also called 'compile block'. It can
+not be used from Visual Basic.<br>
+Struct BREGEXP has following features:</font></p>
+
+<ul>
+    <li><font face="Century">Returns a result of a function.</font></li>
+    <li><font face="Century">Preserves the result of the
+        compiling regular expressions.</font></li>
+    <li><font face="Century">You should set free the block by
+        using BRegfree fuction at last.</font></li>
+</ul>
+
+<p><font face="Century">If you use struct BREGEXP effectively,
+your program runs faster. use same compile block for the
+functions which use same regular expressions.</font></p>
+
+<p><font face="Century">Following example, BregPool class shows
+the sample that makes to run faster by pooling struct BREGEXPs.</font></p>
+
+<blockquote>
+    <pre><font face="Century">class BregPool
+{
+public:
+	BregPool(int max){
+		m_nmax = max;
+		m_rxpool = new BREGEXP*[m_nmax]; 
+		ZeroMemory(m_rxpool,sizeof(BREGEXP*)*m_nmax);
+	};
+	~BregPool() {
+		Free();
+	};
+	void Free() {
+		if (m_rxpool == 0)
+			return;
+		for (int i = 0;i &lt; m_nmax;i++) {
+			if (m_rxpool[i])
+				BRegfree(m_rxpool[i]);
+		}
+		delete [] m_rxpool;
+		m_rxpool = NULL;
+	};
+	BREGEXP* Get(char *regstr)
+	{
+		BREGEXP *r;
+		for (int i = 0;i &lt; m_nmax;i++) {
+			r = m_rxpool[i];
+			if (r == 0)
+				break;
+			if (r-&gt;parap == 0)
+				break;
+			// Check same Regular Expression
+			if (memcmp(regstr,r-&gt;parap,(r-&gt;paraendp - r-&gt;parap) + 1) == 0)
+				return r;		// we got !!!
+		}
+		if (i &gt; m_nmax - 1)
+			i = m_nmax - 1;
+		if (m_rxpool[i])
+			return m_rxpool[i];
+		char msg[80];
+		char p[] = &quot; &quot;;
+		// Make Compile Block
+		BMatch(regstr,p,p+1,&amp;m_rxpool[i],msg);
+
+		return m_rxpool[i];
+	}
+private:
+	int m_nmax;
+	BREGEXP **m_rxpool;
+};</font></pre>
+    <pre><font size="4" face="Century"><strong>How to Use BregPool Class:</strong></font>
+	<font face="Century">static BregPool bpool(8);  // Number of Pools</font>
+	<font face="Century">char patern1[] = &quot;tr/A-Z0-9/a-zx/g&quot;;
+	BREGEXP *rxp = bpool.Get(patern1);
+	int pos = 0;	// Search position</font>
+	<font face="Century">while (BMatch(patern1,t1+pos,t1+lstrlen(t1),&amp;rxp,msg)) {
+
+	// BregPool's destructor calls BRegfree.
+	// So you don't have to call BRegfree clearly, </font></pre>
+    <pre> </pre>
+</blockquote>
+
+<h2><font face="Century">Code Sample</font></h2>
+
+<h3><font face="Century">Code Sample of BMatch</font></h3>
+
+<pre><font face="Century">	char msg[80];	// Message buffer
+	BREGEXP *rxp = NULL;	// You should clear up!
+	// Sample of Search
+	char t1[] = &quot; Yokohama 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 &quot;;
+	char patern1[] = &quot;/(03|045)-(\\d{3,4})-(\\d{4})/&quot;;	// /(03|045)-(\d{3,4})-(\d{4})/
+						// Searches telepone numbers begining with 03 or 045
+						// () means to memory the specified numbers.
+	int pos = 0;	// Seaching position
+	while (BMatch(patern1,t1+pos,t1+lstrlen(t1),&amp;rxp,msg)) {
+		TRACE1(&quot;data=%s\n&quot;,t1+pos);		// String to be searched
+		TRACE1(&quot;found=%s\n&quot;,rxp-&gt;startp[0]);	// Matched string
+		TRACE1(&quot;length=%d\n&quot;,rxp-&gt;endp[0] - rxp-&gt;startp[0]);	// Number of matched characters 
+		for (int i = 1;i &lt;= rxp-&gt;nparens;i++) {		// Data specified by ()
+			TRACE2(&quot;$%d = %s\n&quot;,i,rxp-&gt;startp[i]);
+			TRACE2(&quot;$%d length = %d\n&quot;,i,rxp-&gt;endp[i]-rxp-&gt;startp[i]);
+		}
+		pos = rxp-&gt;endp[0] - t1;		// Searching position for next character
+	}
+
+	pos = 0;
+	char t2[] = &quot; abcdabce abcdabcd abcdabcf abcgabcg &quot;;
+	char patern2[] = &quot;/abc(.)abc\\1/&quot;;	// Example of searching with pattern memory
+	while(BMatch(patern2,t2+pos,t2+lstrlen(t2),&amp;rxp,msg)) {
+		TRACE1(&quot;data=%s\n&quot;,t2);			// String to be searched
+		TRACE1(&quot;found=%s\n&quot;,rxp-&gt;startp[0]);	// Matched String
+		TRACE1(&quot;length=%d\n&quot;,rxp-&gt;endp[0] - rxp-&gt;startp[0]);	// Number of matched characters
+		for (int i = 1;i &lt;= rxp-&gt;nparens;i++) {		// Data specified by ()
+			TRACE2(&quot;$%d = %s\n&quot;,i,rxp-&gt;startp[i]);
+			TRACE2(&quot;$%d length = %d\n&quot;,i,rxp-&gt;endp[i]-rxp-&gt;startp[i]);
+		}
+		pos = rxp-&gt;endp[0] - t2;	// Searching position for next character
+	}
+
+	if (rxp)			// Set free compile block
+		BRegfree(rxp);		// Don't forget this!
+</font></pre>
+
+<h4><font face="Century">Result of TRACE:</font></h4>
+
+<pre><font face="Century">data= Yokohama 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 
+found=045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 
+length=12
+$1 = 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 
+$1 length = 3
+$2 = 222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 
+$2 length = 3
+$3 = 1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 
+$3 length = 4
+data=  Osaka 06-5555-6666  Tokyo 03-1111-9999 
+found=03-1111-9999 
+length=12
+$1 = 03-1111-9999 
+$1 length = 2
+$2 = 1111-9999 
+$2 length = 4
+$3 = 9999 
+$3 length = 4
+data= abcdabce abcdabcd abcdabcf abcgabcg 
+found=abcdabcd abcdabcf abcgabcg 
+length=8
+$1 = dabcd abcdabcf abcgabcg 
+$1 length = 1
+data= abcdabce abcdabcd abcdabcf abcgabcg 
+found=abcgabcg 
+length=8
+$1 = gabcg 
+$1 length = 1
+</font></pre>
+
+<h3><font face="Century">Code Sample for BSubst</font></h3>
+
+<p><font face="Century">Substitutes a inner-city part of the
+telepone number that has 2digit city-number into 'xxxx-xxxx'.<br>
+</font></p>
+
+<pre><font face="Century">	char msg[80];	// Message buffer
+	BREGEXP *rxp = NULL;	// You should clear up!
+	// Sample of string substitution
+	char t1[] = &quot; Yokohama 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 &quot;;
+	char patern1[] = &quot;s/(\\d\\d)-\\d{4}-\\d{4}/$1-xxxx-xxxx/g&quot;;
+	int ctr;
+	if (ctr = BSubst(patern1,t1,t1+lstrlen(t1),&amp;rxp,msg)) {
+		TRACE2(&quot;after(%d)=%s\n&quot;,ctr,rxp-&gt;outp);	// Number of substituted pattern and characters.
+		TRACE1(&quot;length=%d\n&quot;,rxp-&gt;outendp - rxp-&gt;outp);	// Number of characters that containd result of substitution
+	}
+
+	if (rxp)			// Set free compile block
+		BRegfree(rxp);		// Don't forget this.
+</font></pre>
+
+<h4><font face="Century">Result of TRACE:</font></h4>
+
+<pre><font face="Century">after(2)= Yokohama 045-222-1111  Osaka 06-xxxx-xxxx  Tokyo 03-xxxx-xxxx 
+length=63
+</font></pre>
+
+<h3><font face="Century">Code Sample for BTrans</font></h3>
+
+<p><font face="Century">Translates upper case to lower, a digit
+to 'x'.<br>
+</font></p>
+
+<pre><font face="Century">	char msg[80];	// Message buffer
+	BREGEXP *rxp = NULL;	// You should clear up.
+	// Sample of Translation
+	char t1[] = &quot; Yokohama 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 &quot;;
+	char patern1[] = &quot;tr/A-Z0-9/a-zx/g&quot;;
+	int ctr;
+	if (ctr = BTrans(patern1,t1,t1+lstrlen(t1),&amp;rxp,msg)) {
+		TRACE2(&quot;after(%d)=%s\n&quot;,ctr,rxp-&gt;outp);	// Number of translated characters and string
+		TRACE1(&quot;length=%d\n&quot;,rxp-&gt;outendp - rxp-&gt;outp);	// Number of characters in result of the translation
+	}
+
+	if (rxp)				// Set free compile block.
+		BRegfree(rxp);		// Don't forget this!
+
+
+</font></pre>
+
+<h4><font face="Century">Result of TRACE:</font></h4>
+
+<pre><font face="Century">after(33)= yokohama xxx-xxx-xxxx  osaka xx-xxxx-xxxx  tokyo xx-xxxx-xxxx 
+length=63
+</font></pre>
+
+<h3><font face="Century">Code Sample for BSplit</font></h3>
+
+<p><font face="Century">Splits the telephone number by parts.<br>
+</font></p>
+
+<pre><font face="Century">	static BregPool bpool(8);
+	char msg[80];
+	char t1[] = &quot; Yokohama 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 &quot;;
+	char patern1[] = &quot;/ *\\d{2,3}-\\d{3,4}-\\d{4} */&quot;;
+	BREGEXP *rxp = bpool.Get(patern1);
+   	int splitcnt = BSplit(patern1,t1,t1+lstrlen(t1),0,&amp;rxp,msg);
+	if (splitcnt &gt; 0 ) {
+		int i = 0;
+		for (int j = 0;j &lt; splitcnt;j++) {
+			int len = rxp-&gt;splitp[i+1] - rxp-&gt;splitp[i];
+			char *tp = (char*)rxp-&gt;splitp[i];
+			char ch = tp[len]; // save delmitter
+			tp[len] = 0;	// set stopper
+			TRACE3(&quot;len=%d [%d]=%s\n&quot;,len,j,tp);
+			tp[len] = ch;	// restore the char
+			i += 2;
+		}
+	}
+</font></pre>
+
+<h4><font face="Century">Result of TRACE:</font></h4>
+
+<pre><font face="Century">len=9 [0]= Yokohama
+len=5 [1]=Osaka
+len=5 [2]=Tokyo
+</font></pre>
+
+<h2><font face="Century">BREGEXP.DLL library for Delphi</font></h2>
+
+<pre><font face="Century">osamu@big.or.jp has produced BREGEXP.Dll library for Delphi. Please try and use it.
+You can download </font><a
+href="http://home1.infonia.or.jp/~delphian/delphi/"><font
+face="Century">here</font></a><font face="Century">. Category [Miscellaneous] - [Perl compatible regular expressions unit].</font></pre>
+
+<h2><font face="Century">Warning:</font></h2>
+
+<p><font color="#FF0000" face="Century">I've made sure to work
+these functions ONLY ON Visual C++ compiler.</font></p>
+
+<hr>
+
+<h3><font face="Century">Important Note of BABAQ Free Soft </font></h3>
+
+<ul>
+    <li><font face="Century">You must use this program at own
+        responsibility, and we won't take any responsibility for
+        any incident caused by this program. </font></li>
+    <li><font face="Century">You may use this program absolutely
+        free, even to re-distribute with the application you
+        developed. </font></li>
+    <li><font face="Century">This program never guarantee the
+        accomplished fulfillment. </font></li>
+    <li><font face="Century">This program will operate on Intel x86
+        based Windows NT 4.0 and Windows 95/98. </font></li>
+</ul>
+
+<p>Å@</p>
+
+<p align="right"><a href="http://www.hi-ho.ne.jp/babaq/index.html"><font face="Century">Home</font></a></p>
+
+<hr>
+<div align="right">
+
+<pre><font face="Century">Copyright 1999 Tatsuo Baba,All rights reserved. 
+
+</font><font face="Century">
+</font></pre>
+</div>
+</body>
+</html>
