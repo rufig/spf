@@ -20,13 +20,21 @@ USER CURSTR \ номер строки
   -12 GetStdHandle TO H-STDERR
 ;
 
-: REFILL ( -- flag ) \ 94 FILE EXT
-\ Расширить семантику выполнения CORE EXT REFILL следующим:
-\ Когда входной поток - текстовый файл, попытаться прочесть следующую
-\ строку из текстового входного файла. Если успешно, сделать результат
-\ входным буфером, установить >IN в ноль и вернуть "истину".
-\ Иначе вернуть "ложь".
-\ : REFILL ( -- flag ) \ 94 CORE EXT
+
+VECT REFILL ( -- flag )
+
+: TAKEN-TIB ( u flag -- flag )
+  IF CURSTR 1+!  TIB SWAP SOURCE!  <PRE> -1  ELSE DROP 0  THEN
+;
+: REFILL-STDIN ( -- flag ) \  from user input
+  SOURCE-ID -1 = IF FALSE EXIT THEN ( evaluate string )
+  TIB C/L ['] ACCEPT CATCH
+  \ -1002=конец файла или pipe
+  \ остальные ошибки - ошибки чтения
+  DUP -1002 = IF DROP 2DROP 0 0 ELSE THROW -1 THEN
+  TAKEN-TIB
+;
+' REFILL-STDIN (TO) REFILL ( -- flag ) \ 94 CORE EXT
 \ Попытаться заполнить входной буфер из входного потока, вернуть
 \ флаг "истина", если успешно.
 \ Когда входным потоком является пользовательское входное устройство,
@@ -37,36 +45,33 @@ USER CURSTR \ номер строки
 \ Когда входным потоком является строка от EVALUATE, возвратить "ложь"
 \ и не выполнять других действий.
 
-\   CURSTR 1+!
-\   TIB C/L
-\   SOURCE-ID 0 > IF SOURCE-ID ( included text )
-\                 ELSE SOURCE-ID
-\                      IF 2DROP FALSE EXIT THEN ( evaluate string )
-\                      H-STDIN ( user input )
-\                 THEN
-\   READ-LINE THROW ( ошибка чтения )
-\   IF #TIB ! >IN 0! <PRE> -1
-\   ELSE DROP 0 THEN
-\ ;
-
-( Исправления на тот случай, когда консоль не файл, и читать её
+( Исправления [ использовано ACCEPT вместо READ-LINE  ~ruv ]
+  на тот случай, когда консоль не файл, и читать её
   следует через ACCEPT [который может быть не файловым]
   24.04.2000 А.Ч.
 )
-  CURSTR 1+!
-  TIB C/L
-  SOURCE-ID 0 > IF SOURCE-ID ( included text )
-     SOURCE-ID-XT ?DUP IF EXECUTE ELSE READ-LINE THEN
-     THROW ( ошибка чтения )
-     IF #TIB !
-     ELSE DROP FALSE EXIT THEN
-  ELSE SOURCE-ID
-     IF 2DROP FALSE EXIT THEN ( evaluate string )
-     ['] ACCEPT CATCH ?DUP \ -1002=конец файла или pipe
-                            \ остальные ошибки - ошибки чтения
-     IF -1002 = IF FALSE EXIT THEN
-        THROW
-     ELSE #TIB ! THEN ( user input )
-  THEN
-  >IN 0! <PRE> -1
+
+\ ------------------------
+
+: FREFILL ( h -- flag )
+  TIB C/L ROT READ-LINE THROW TAKEN-TIB
 ;
+: REFILL-SOURCE ( -- flag )
+  SOURCE-ID-XT IF
+   TIB C/L SOURCE-ID SOURCE-ID-XT EXECUTE THROW
+   TAKEN-TIB
+  ELSE
+   SOURCE-ID FREFILL
+  THEN
+;
+: REFILL-FILE ( -- flag ) \ 94 FILE EXT
+  SOURCE-ID 0 > IF ( included text )
+  REFILL-SOURCE ELSE
+  REFILL-STDIN  THEN
+;
+' REFILL-FILE (TO) REFILL ( -- flag ) \ 94 FILE EXT
+\ Расширить семантику выполнения CORE EXT REFILL следующим:
+\ Когда входной поток - текстовый файл, попытаться прочесть следующую
+\ строку из текстового входного файла. Если успешно, сделать результат
+\ входным буфером, установить >IN в ноль и вернуть "истину".
+\ Иначе вернуть "ложь".
