@@ -1,10 +1,17 @@
-( ~ac: Ё§¬Ґ­Ґ­Ёп 25.03.2004
-   „®Ў ў«Ґ­® дг­ЄжЁ®­ «м­®Ґ б«®ў® StartAppWaitDir
+( ~ac: изменения 25.03.2004
+   Добавлено функциональное слово StartAppWaitDir
    S" app_path.exe cmdline" S" curr_dir" wait StartAppWaitDir THROW ." res=" .
-   ’.Ґ. ў ®в«ЁзЁҐ ®в StartApp ў®§ўа й Ґв ­Ґ бЁи­л© bool,   ior
-   Ї«об Є®¤ § ўҐаиҐ­Ёп. Љ®¤ § ўҐаиҐ­Ёп ў «Ё¤­л© в®«мЄ® ў б«гз Ґ
-   ­Ґ­г«Ґў®Ј® § ¤ ­­®Ј® ўаҐ¬Ґ­Ё ®¦Ё¤ ­Ёп wait.
-   StartApp Ё StartAppWait вҐЇҐам ®ЇаҐ¤Ґ«Ґ­л зҐаҐ§ нв® б«®ў®.
+   Т.е. в отличие от StartApp возвращает не сишный bool, а ior
+   плюс код завершения. Код завершения валидный только в случае
+   ненулевого заданного времени ожидания wait.
+   StartApp и StartAppWait теперь определены через это слово.
+
+   ~ac: изменения 30.03.2004
+   * Если запуск неудачен, то попыток получения кода возврата не производится,
+   т.к. это портит код в GetLastError и StartAppWaitDir возвращает 6.
+   
+   P.S. Если процесс еще не завершился, то возвращаемый код 259.
+   Если ему указан неверный текущий каталог, то 267.
 )
 
 WINAPI: CreateProcessA KERNEL32.DLL
@@ -61,9 +68,10 @@ USER SA_WAIT
   0    \ application
   CreateProcessA DUP
   ROT >R ROT >R
-  IF SA_WAIT @ R@ @ WaitForSingleObject DROP THEN
-  R@ @  0 >R RP@ OVER GetExitCodeProcess DROP R> SWAP CLOSE-FILE DROP 
-  R@ CELL+ @ CLOSE-FILE DROP
+  IF SA_WAIT @ R@ @ WaitForSingleObject DROP
+     R@ @  0 >R RP@ OVER GetExitCodeProcess DROP R> SWAP CLOSE-FILE DROP 
+     R@ CELL+ @ CLOSE-FILE DROP
+  ELSE 0 THEN
   R> FREE DROP R> FREE DROP
   SWAP ERR
 ;
@@ -131,6 +139,9 @@ USER SA_WAIT
 ;
 
 (
+S" \temp\clamav3\clamscan.exe" S" G:\temp\clamav3z" 3000 StartAppWaitDir . .
+S" G:\temp\clamav3\clamscan.exe" S" G:\temp\clamav3" 3000 StartAppWaitDir . .
+S" G:\temp\clamav3\clamscan.exe" StartApp . CR
 S" G:\temp\clamav3\clamscan.exe H:\eserv2\check\vir\ibp@ibp.krasnoyarsk.su!POP3!1916726!149" S" G:\temp\clamav3" -1 StartAppWaitDir . . CR
 S" G:\temp\clamav3\clamscanz.exe" StartApp . CR
 S" G:\temp\clamav3\clamscan.exe" StartAppWait . CR
