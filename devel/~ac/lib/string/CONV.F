@@ -130,7 +130,7 @@ CREATE  AB64 C" ghijklmnopqrstuvwxyz0123456789+/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
   S" .." SEARCH
   IF -4012 THROW ELSE 2DROP THEN
 ;
-CREATE KOI C" áâ÷çäå_öúéêëìíîïðòóôõæèãþûýÿùøüàñÁÂ×ÇÄÅ_ÖÚÉÊËÌÍÎÏÐÒÓÔÕÆÈÃÞÛÝßÙØÜÀÑ" ",
+CREATE KOI C" áâ÷çäå³öúéêëìíîïðòóôõæèãþûýÿùøüàñÁÂ×ÇÄÅ£ÖÚÉÊËÌÍÎÏÐÒÓÔÕÆÈÃÞÛÝßÙØÜÀÑ" ",
 CREATE WIN C" ÀÁÂÃÄÅ¨ÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäå¸æçèéêëìíîïðñòóôõö÷øùúûüýþÿ" ",
 
 : CKOI>WIN ( char1 -- char2 )
