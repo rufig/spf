@@ -687,7 +687,7 @@ HEX  U. U. ." EAX>EBX" ABORT
                 CELL+ FALSE
            THEN      EXIT
         THEN
-  DUP 5589 = \ 0 AND    \ OPX N F  MOV     FC [EBP] , EDX 
+  DUP 5589 =      \ OPX N F  MOV     FC [EBP] , EDX 
         IF DROP DUP @ 2+ C@  OP0 @ 2+ C@ =
            IF   DROP  FALSE TRUE
            ELSE CELL+ FALSE
@@ -699,17 +699,13 @@ HEX  U. U. ." EAX>EBX" ABORT
 
 \ 8B00		MOV     EAX , [EAX] 
 \ 3B05E3745400	CMP     EAX , 5474E3  ( :-SET+5  ) 
+  DUP 3AFF AND 028B <>   \ MOV     EAX , [EDX] 
+        IF
   DUP 008B <>       \ MOV     EAX , [EAX] 
-        IF
-  DUP 028B <>       \ MOV     EAX , [EDX] 
-        IF
-  DUP 878B <>       \ MOV     EAX , [044444H+EDI]
         IF
   DUP 408D <>       \ LEA     EAX , 1 [EAX] 
         IF
   DUP 808D <>       \ LEA     EAX , X [EAX] 
-        IF
-  DUP C28B <>       \ MOV     EAX , EDX 
         IF
 TRUE ?~EAX !
   DUP C00B <>       \ OR      EAX , EAX
@@ -879,34 +875,25 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
   DUP 5589 =       \ MOV     X [EBP] , EDX 
         IF DROP CELL- FALSE EXIT THEN
 
+  DUP 3AFF AND 028B =   \ MOV     EAX , [EDX] 
+        IF DROP
+           0800  OVER @ +!  CELL- FALSE EXIT
+        THEN
+  DUP 458B =       \ MOV     EAX , [EBP+X] 
+        IF DROP
+           4D  OVER @ 1+ C!  CELL- FALSE EXIT
+        THEN
+
   DUP 008B =     \ MOV     EAX , [EAX] 
         IF DROP
            09  OVER @ 1+ C!  CELL- FALSE EXIT
         THEN
 
-  DUP 028B =     \ MOV     EAX , [EDX] 
-        IF DROP
-           0A  OVER @ 1+ C!  CELL- FALSE EXIT
-        THEN
-
-  DUP 878B =       \ MOV     EAX , [044444H+EDI]
-        IF DROP
-           8F  OVER @ 1+ C!  CELL- FALSE EXIT
-        THEN
-
-  DUP C28B =     \ MOV     EAX , EDX 
-        IF DROP
-           CA  OVER @ 1+ C!  CELL- FALSE EXIT
-        THEN
   DUP D08B =     \ MOV     EDX , EAX 
         IF DROP
            D1  OVER @ 1+ C!  CELL- FALSE EXIT
         THEN
 
-  DUP 458B =       \ MOV     EAX , [EBP+X] 
-        IF DROP
-           4D  OVER @ 1+ C!  CELL- FALSE EXIT
-        THEN
 
   DUP 508B =     \ MOV     EDX , [EAX+4] 
         IF DROP
@@ -2466,12 +2453,12 @@ M\ PPPP
 OP0 @  W@ ADD|XOR|OR|AND=
 OP0 @  W@ 4539  = OR  \ CMP     F8 [EBP] , EAX 
 OP0 @  W@ 453B  = OR  \ CMP     EAX , F8 [EBP] 
-   IF
+   IF TRUE ?~EAX !
       OP1
       BEGIN ?EAX>ECX
       UNTIL DUP IF  ?~EAX @ IF 2DROP FALSE THEN
                 THEN
-      IF   M\ 40E DTST
+      IF   M\ AE DTST
            BEGIN EAX>ECX0 UNTIL
            BEGIN EAX>ECX  UNTIL
            DROP 
@@ -2482,7 +2469,7 @@ OP0 @  W@ 453B  = OR  \ CMP     EAX , F8 [EBP]
            OP0 @  W@ 453B  =                     \ CMP EAX , F8 [EBP] 
            IF   C83B OP0 @    W! -1 ALLOT ELSE   \ CMP ECX , EAX
                 0C1  OP0 @ 1+ C! -1 ALLOT        \  OR EAX,ECX 
-           THEN THEN THEN FALSE  M\ 40F DTST
+           THEN THEN THEN FALSE  M\ AF DTST
            EXIT  
       THEN   M\ PPPP
       OP1 @   @ 4503D8F7 = \  NEG     EAX  \	ADD     EAX , 4 [EBP] 
