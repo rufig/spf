@@ -1,8 +1,8 @@
 \ $Id$
 \ Andrey Filatkin, af@forth.org.ru
 
-\ WIN console ver 0.6.10
-\ For spf3, spf4
+\ WIN console ver 0.6.11
+\ For spf4
 
 \ Based on -
 \ CE console ver 0.012 ...
@@ -305,28 +305,12 @@ TRUE VALUE EnableEmit
     DROP
   THEN
 ;
-:NONAME { \ SizeEd Content EdFile fid [ 260 ] TempPath [ 260 ] TempFile -- }
+
+:NONAME
+  \ сохраняем в файл
   SaveScript
-  \ получаем содержимое окна Script
-  0 0 WM_GETTEXTLENGTH SendToEd 1+ DUP TO SizeEd
-  ALLOCATE THROW DUP TO Content
-  SizeEd WM_GETTEXT SendToEdVoid
-  \ создаем временный файл
-  TempPath 260 GetTempPath DROP
-  TempFile 0 S" spf" DROP TempPath GetTempFileName DROP
-  TempFile ASCIIZ> " {s}" TO EdFile
-  \ открываем временный файл
-  EdFile STR@ W/O OPEN-FILE THROW TO fid
-  \ записываем код в файл
-  Content SizeEd 1- fid WRITE-FILE THROW
-  \ закрываем файл и буфер
-  Content FREE THROW
-  fid CLOSE-FILE THROW
   \ выполняем код
-  EdFile STR@ INCLUDED
-  \ подчищаем
-  EdFile STR@ DELETE-FILE THROW
-  EdFile STRFREE
+  S" spf4wc-script.f" +ModuleDirName INCLUDED
 ;
 TO RunScript
 
@@ -636,13 +620,13 @@ TO RunScript
      THEN
    ENDOF
 
-   WM_CLEAR OF
+(   WM_CLEAR OF
      0 FALSE
    ENDOF
 
    WM_CUT OF
      0 FALSE
-   ENDOF
+   ENDOF)
 
    WM_SETFOCUS OF
      hwnd TO CurFocus
