@@ -1,6 +1,14 @@
 \ 18.Jan.2004  ~ruv
 \ $Id$
 
+( ENTER-CS можно сделать в потоке несколько раз,
+  потом столько же LEAVE-CS
+  Пока входов больше - другой поток не войдет,
+  если выходов больше - можно будет войти
+  только после выполнения ActivateCSs
+  /WinXP/
+)
+
 WINAPI: InitializeCriticalSection  KERNEL32.DLL
 WINAPI: EnterCriticalSection       KERNEL32.DLL
 WINAPI: LeaveCriticalSection       KERNEL32.DLL
