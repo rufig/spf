@@ -192,6 +192,7 @@ VECT ?SLITERAL
 ;
 
 VECT PROCESS-ERR \ обработать ошибку трансл€ции (файла).
+' NOOP (TO) PROCESS-ERR
 
 : TranslateFlow  ( -- )
   ['] (TranslateFlow) CATCH DUP IF
