@@ -1,76 +1,81 @@
+\ Windows константы
 
-\ ѕросто подключите этот модуль и все - работайте на здоровье :)
+REQUIRE +LibraryDirName  src\win\spf_win_module.f
+REQUIRE TryOpenFile      lib\ext\util.f
 
+VOCABULARY WINCONST
+GET-CURRENT ALSO WINCONST DEFINITIONS
 
 USER-VALUE CURRENT-VOC
 USER-VALUE SOURCE-CONST
 USER-VALUE SOURCE-LEN
-
 VARIABLE ChainOfConst
 
-: compare ( n-const -- u 0 | -1 | 1 )
-     CELLS
-     CURRENT-VOC + 2 CELLS + @
-     CURRENT-VOC + DUP CELL+ COUNT
-     SOURCE-CONST SOURCE-LEN COMPARE
-     DUP IF NIP ELSE DROP @ 0 THEN
+: compare_const ( n-const -- u 0 | -1 | 1 )
+  CELLS
+  CURRENT-VOC + 2 CELLS + @
+  CURRENT-VOC + DUP CELL+ COUNT
+  SOURCE-CONST SOURCE-LEN COMPARE
+  DUP IF NIP ELSE DROP @ 0 THEN
 ;
 
 : _SEARCH-CONST ( lo hi -- u -1 | 0 )
   2DUP = IF
-    DROP compare 0=
+    DROP compare_const 0=
     EXIT
   THEN
   2DUP + 2/
-  DUP compare DUP 0= IF DROP NIP NIP NIP TRUE EXIT THEN
+  DUP compare_const DUP 0= IF DROP NIP NIP NIP TRUE EXIT THEN
   0< IF ROT DROP 1+ SWAP ELSE NIP THEN RECURSE 
 ;
 
 : SEARCH-CONST ( addr u -- u -1 | 0 )
-    TO SOURCE-LEN
-    TO SOURCE-CONST
-    ChainOfConst
-    BEGIN @ ?DUP
-    WHILE
-      DUP CELL+ @ TO CURRENT-VOC
-      CURRENT-VOC CELL+ @ 1- 0 SWAP
-      _SEARCH-CONST IF NIP -1 EXIT THEN
-    REPEAT
-    0
+  TO SOURCE-LEN
+  TO SOURCE-CONST
+  ChainOfConst
+  BEGIN @ ?DUP
+  WHILE
+    DUP CELL+ @ TO CURRENT-VOC
+    0 CURRENT-VOC CELL+ @ 1-
+    _SEARCH-CONST IF NIP -1 EXIT THEN
+  REPEAT
+  0
 ;
 
+FALSE WARNING !
 : NOTFOUND ( addr u -- )
   2DUP 2>R ['] NOTFOUND CATCH ?DUP
   IF                    
     NIP NIP 2R> SEARCH-CONST
     IF NIP [COMPILE] LITERAL
     ELSE
-       THROW
+      THROW
     THEN
-  ELSE 2R> 2DROP
+  ELSE RDROP RDROP
   THEN
 ;
+TRUE WARNING !
 
 : ADD-CONST-VOC ( addr u -- )
-    ." Including " 2DUP TYPE +LibraryDirName [CHAR] . EMIT BL EMIT
-    R/O OPEN-FILE THROW >R
+  R/O TryOpenFile 0= IF >R
     R@ FILE-SIZE THROW DROP \ size
     DUP ALLOCATE THROW DUP ROT \ addr addr size
     R@ READ-FILE THROW DROP
     R> CLOSE-FILE THROW
     HERE
-    ChainOfConst @ ,
-    SWAP DUP CELL+ @ ." It contains " . ."  constants" CR ,
-    ChainOfConst !
+    ChainOfConst @ ,  SWAP ,  ChainOfConst !
+  THEN
 ;
 
 : REMOVE-ALL-CONSTANTS
-    ChainOfConst
-    BEGIN @ ?DUP
-    WHILE
-      DUP CELL+ @ FREE THROW
-    REPEAT
+  ChainOfConst
+  BEGIN @ ?DUP
+  WHILE
+    DUP CELL+ @ FREE THROW
+  REPEAT
+  ChainOfConst 0!
 ;
 
+SET-CURRENT
 
-S" ~day\wincons\windows.const" ADD-CONST-VOC
+S" lib\win\winconst\windows.const" ADD-CONST-VOC

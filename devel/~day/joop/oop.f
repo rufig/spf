@@ -1,16 +1,30 @@
+\ 09.Mar.2002 Sat 20:25  ruv
+\ подправил на предмет ONLY FORTH DEFINITIONS
+\ и нутро в отдельный словарь  OO_Support
+
 ( Yet another oop extention for sp-forth - just oop :)
-( Dmitry Yakimov 2000 [c] ver. 1.5 )
+( Dmitry Yakimov 2000 [c] )
+
+: SWAP-CURRENT \ PUSH-CURRENT ( wid1 -- wid2 ) \ SWAP-CURRENT
+  GET-CURRENT SWAP SET-CURRENT
+;
+
+  
+
+REQUIRE MODULE: lib\ext\spf_modules.f
+REQUIRE [IF]    lib\include\tools.f
 
 HERE
 
+MODULE: OO_Support
+
 \ structure of class:
 0
-CELL -- .vtbl       \ for ActiveX
 CELL -- .myself     \ link on myself
 CELL -- .methods    \ wid of methods
 CELL -- .size       \ size of class instance
 CELL -- .parent     \ parent class
-CELL -- .name       \ link to class name    
+CELL -- .name       \ link to class name
 CELL -- .variables  \ wid of variables
 CONSTANT /class
 
@@ -18,31 +32,98 @@ CONSTANT /class
 \ CONTEXT: wid_of_vars FORTH
 \ CURRENT: wid_of_methods
 
-USER-VALUE self
 USER ERR-M
+
+EXPORT 
+
+USER-VALUE self
+
+: this self ;
+
+: WITH  ( oid -- )
+  TO self
+;
+
+: UnknownMsg ( -- a u )
+  ERR-M @ COUNT
+;
+
+DEFINITIONS
 
 VOCABULARY ClassContext
 
-: this self ;
-: class ( oid - u) CELL+ @ ;
-: len ( cid - u) class .size @ ;
+DEFINITIONS
+
+: class ( oid - u) @ ;
+: len ( cid - u) .size @ ;
+
+
+0 [IF]
 
 : execMessage ( addr u wid -- ... )
   SEARCH-WORDLIST
   IF   EXECUTE
-  ELSE S" :unknown" self class .methods @ RECURSE
+  ELSE S" :unknown" self @ .methods @ RECURSE
   THEN
+;
+: sendMessage ( ... addr u oid -- ... )
+  self >R
+  DUP TO self
+  @ .methods @  
+  execMessage
+  R> TO self
 ;
 
 : sendMessage ( ... addr u oid -- ... )
   self >R
   DUP TO self
-  class .methods @  
-  execMessage
+  Linked        IF
+  EXECUTE       ELSE
+  $Unknown COUNT self @
+  RECURSE       THEN
   R> TO self
 ;
+[ELSE]
+\ ---
+\ =========================
+\ связывание!  основа:
+\  ( "имя"/идентификатор  класс/объект  --  xt/подпрограмма true | false )
+
+CREATE $Unknown  S" :unknown" S", 0 C,
+
+EXPORT
+
+: RESOLVE-LINK ( addr u oid -- xt true | false )
+  @ .methods @
+  SEARCH-WORDLIST
+;
+: ResolveLink ( addr u oid -- xt )
+  DUP >R
+  RESOLVE-LINK IF RDROP EXIT THEN
+  $Unknown COUNT R> RESOLVE-LINK 0= ABORT" Object hasn't method ':unknown'."
+;
+: ExecuteMethod ( i*x xt oid -- j*x )
+   self >R
+   TO self
+   EXECUTE
+   R> TO self
+;
+\ DEFINITIONS
+\ =========================
+
+: sendMessage ( ... addr u oid -- ... )
+  self >R
+  DUP TO self
+  ResolveLink CATCH
+  R> TO self  THROW
+;
+[THEN]
+
+
+DEFINITIONS
 
 0 VALUE message_does
+
 
 : message, ( oid )
   CREATE LATEST ,
@@ -50,6 +131,8 @@ VOCABULARY ClassContext
   DOES> @ DUP ERR-M !
         COUNT ROT sendMessage
 ;
+
+EXPORT
 
 : message: ( oid )
   >IN @ NextWord SFIND
@@ -59,14 +142,16 @@ VOCABULARY ClassContext
   THEN
 ;
 
+DEFINITIONS
+
 : sendVariable ( ... addr u oid -- ... )
-    DUP >R class .variables @ 
+    DUP >R @ .variables @ 
     SEARCH-WORDLIST
     IF
       >BODY @ R> +
     ELSE
       R@ TO self
-      S" :unknown" R> class .methods @ SEARCH-WORDLIST DROP EXECUTE
+      S" :unknown" R> @ .methods @ SEARCH-WORDLIST DROP EXECUTE
     THEN
 ;
 
@@ -76,6 +161,11 @@ VOCABULARY ClassContext
           DUP C@ 1- SWAP 2 + SWAP
           ROT sendVariable    
 ;
+( глобальное имя public-переменной  имеет произвольный односимвольный префикс
+  по сравнениню с локальным именем этой переменной
+)
+
+EXPORT  
 
 : pvar:
   >IN @ NextWord SFIND
@@ -84,15 +174,19 @@ VOCABULARY ClassContext
        pvar,
   THEN
 ;
-  
+
+
 : << message: ;
 
+DEFINITIONS
 
 VARIABLE _NVAR
 VARIABLE _CURCLASS
 VARIABLE _REC
 VARIABLE _RECLEN
 VARIABLE _OLDCURRENT
+
+EXPORT 
 
 << :new
 << :free
@@ -138,8 +232,14 @@ ALSO ClassContext DEFINITIONS
 : _FREE-ARR ( addr)
    FREE THROW
 ;
+( массив ARR - распределяется в хипе.
+ - несовместимость, если объект создается по :newLit
+ в области текущего хранилища HERE
+ Аналогично с OBJ
+ - ruv
+)
 
-: ARR ( len)
+: x-ARR ( len)
    DEFINITIONS
    CREATE
      [C] _NVAR @ ,
@@ -150,7 +250,7 @@ ALSO ClassContext DEFINITIONS
    DOES> @ self + @
 ;
 
-: OBJ ( cid)
+: x-OBJ ( cid)
    DEFINITIONS
    CREATE
      [C] _NVAR @ ,
@@ -161,27 +261,34 @@ ALSO ClassContext DEFINITIONS
    DOES> @ self + @
 ;
 
+: ARR
+   x-ARR
+;
+: OBJ
+   x-OBJ
+;
+      
 : VAR ( u)
-   DEFINITIONS 
+   DEFINITIONS
    CREATE
-     [C]
+     \ [C]
      _NVAR @ ,
      DUP ,
      _NVAR +!
      ['] 2DROP ,
      ['] DROP ,
+     [C]  \ сделать словарь methods класса CURRENT -словарем.
    DOES> @ self +
 ;
 
-
-: InitObj ( oid)
-     class .variables @ @
+: InitObj ( oid oid -- oid )
+     @ .variables @ @
      BEGIN
        DUP
      WHILE
        2DUP
        NAME> >BODY DUP CELL+
-       CELL+ @ EXECUTE
+       CELL+ @ EXECUTE ( oid name  oid body xt -- oid name )
        CDR
      REPEAT DROP
 ;
@@ -190,7 +297,7 @@ ALSO ClassContext DEFINITIONS
    _CURCLASS @ >R
    ' >BODY
    DUP .size @ _NVAR !
-   DUP .methods @ @ R@ .methods @ !
+   DUP .methods @ @ R@ .methods @ !  \ подцепляю списк
    DUP .variables @ @ R@ .variables @ !
    R> .parent !
 ;
@@ -204,18 +311,25 @@ WARNING @ WARNING 0!
 
 : :
   >IN @
-  NextWord SFIND
-  IF
-  DUP 1+ @ + message_does
-  = IF
-      WARNING @
-      WARNING 0! SWAP >IN ! :
-      WARNING !
-    ELSE >IN ! :
-    THEN
-  ELSE 2DROP >IN ! :
-  THEN
+  NextWord SFIND  IF 
+  DUP 1+ @ + message_does = IF
+  WARNING @
+  WARNING 0! SWAP >IN ! :
+  WARNING !                 ELSE
+  >IN ! :                   THEN
+                  ELSE 
+  2DROP >IN ! :   THEN
 ;
+
+: __:
+( чтобы лишние варнинги не выводил )
+  WARNING @ >R
+  >IN @ >R NextWord R> >IN !
+  SFIND IF  DUP 1+ @ + message_does = IF WARNING 0! THEN ELSE 2DROP THEN 
+  :
+  >R WARNING !
+;
+
 
 : abstract S" You can't call abstract method!" ER-U ! ER-A ! -2 THROW ;
 
@@ -225,7 +339,12 @@ WARNING @ WARNING 0!
 
 WARNING !
 
-PREVIOUS FORTH DEFINITIONS
+( CONTEXT:  ... OO_Support ClassContext \ top )
+PREVIOUS DEFINITIONS
+
+0 VALUE CurrClass
+
+EXPORT
 
 : CLASS: ( - )
    GET-CURRENT _OLDCURRENT !
@@ -236,19 +355,33 @@ PREVIOUS FORTH DEFINITIONS
      LATEST SWAP SET-CURRENT
      HERE >R /class ALLOT
      R@ /class ERASE
-     R@ DUP .myself !
+     R@ R@ !
      R@ _CURCLASS !
      R@ .name !
      R@ .methods !
-     R> .variables !
+     R@ .variables !
+     R> TO CurrClass
 ;
 
-: own
+: own_old
     ?COMP
     CONTEXT @
     GET-CURRENT CONTEXT !
     [COMPILE] '  COMPILE,
     CONTEXT !
+; IMMEDIATE
+
+: own
+\    CONTEXT @ >R
+\    GET-CURRENT CONTEXT ! '
+\    R> CONTEXT !
+
+\    NextWord GET-CURRENT SEARCH-WORDLIST
+     \ тоже не хорошо, т.к. в CURRENT может быть какой-нить Private
+    NextWord
+    CurrClass .methods @ SEARCH-WORDLIST
+    0= IF -321 THROW THEN
+    STATE @ 0= IF EXECUTE ELSE COMPILE, THEN
 ; IMMEDIATE
 
 \ from micro
@@ -273,15 +406,8 @@ PREVIOUS FORTH DEFINITIONS
 : SearchWM ( mess_id oid c -- xt -1 | 0)
   ROT BASE @ >R HEX
   0 <# # # # #  # # # # ROT HOLD #>
-  ROT class .methods @ SEARCH-WORDLIST
+  ROT @ .methods @ SEARCH-WORDLIST
   R> BASE !
-;
-
-: ExecuteMethod ( xt oid)
-   self >R
-   TO self
-   EXECUTE
-   R> TO self
 ;
 
 : ->WM ( mess_id oid c)
@@ -296,18 +422,6 @@ PREVIOUS FORTH DEFINITIONS
    [CHAR] W ->WM
 ;
 
-: INHERITWM ( -- )
-\ Наследование слов типа ->WM
-   SMUDGE
-   LATEST COUNT DUP >R
-   PAD SWAP CMOVE
-   HIDE PAD R>
-   GET-CURRENT SEARCH-WORDLIST
-   IF
-     COMPILE,
-   THEN
-; IMMEDIATE
-
 << :unknown
 << :see
 << :name
@@ -321,15 +435,12 @@ PREVIOUS FORTH DEFINITIONS
 << :init
 
 
-pvar: <vVTBL
-
 CLASS: Object
 
-   CELL VAR vVTBL \ таблица методов интерфейса
    CELL VAR vClassID
 
 : :length ( - u)
-     self len
+     self class len
 ;
 
 \ метод - заглушка
@@ -339,22 +450,22 @@ CLASS: Object
 : :new ( - oid)
      self class len DUP ALLOCATE THROW
      DUP ROT ERASE
-     self OVER CELL+ ! DUP TO self
-     DUP CELL+ @ OVER CELL- !
-     DUP InitObj
+     self OVER ! DUP TO self
+     DUP @ OVER CELL- !
+     DUP InitObj ( oid oid -- oid )
      self :init
 ;
 
 : :newLit ( - oid)
      self class len HERE OVER ALLOT
      DUP ROT ERASE
-     self OVER CELL+ ! DUP TO self
+     self OVER ! DUP TO self
      DUP InitObj
      self :init
 ;
 
 : :free 
-     self class .variables @ @
+     self @ .variables @ @
      BEGIN
        DUP
      WHILE
@@ -378,7 +489,7 @@ CLASS: Object
 
 : :unknown
      ." Unknown message " ERR-M @ COUNT TYPE
-     ."  for class " own :name TYPE
+     ."  for class " own :name TYPE SPACE CR
      ABORT
 ;
 
@@ -401,4 +512,48 @@ CLASS: Object
 
 ;CLASS
 
-.( Length of Just OOP is ) HERE SWAP - . .( bytes) CR
+
+: METHODS{ ( oid -- )
+( C: -- oid1 )
+( order: -- methods_wid )
+  self SWAP
+  DUP TO self
+  class .methods @
+  ALSO CONTEXT !
+;
+: }METHODS
+( C: oid1 -- )
+( order: methods_wid -- )
+  TO self
+  PREVIOUS
+;
+: VARS{ ( oid -- )
+( C: -- oid1 )
+( order: -- vars_wid )
+  self SWAP
+  DUP TO self
+  class .variables @
+  ALSO CONTEXT !
+;
+: }VARS
+( C: oid1 -- )
+( order: vars_wid -- )
+  TO self
+  PREVIOUS
+;
+: EXPAND-CLASS ( oid -- )  ( C: -- oid1 oid2 wid )
+( order: -- vars_wid methods_wid )
+\ current: -- methods_wid
+  DUP >R VARS{ R> METHODS{  GET-CURRENT DEFINITIONS
+; IMMEDIATE
+: ;EXPAND-CLASS ( C: oid1 oid2 wid -- )
+( order: vars_wid methods_wid -- )
+\ current: -- wid
+  SET-CURRENT
+  }METHODS }VARS
+;
+
+;MODULE
+
+HERE SWAP -
+DROP \ .( Length of Just OOP is ) . .( bytes) CR
