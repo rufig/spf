@@ -54,3 +54,6 @@ USER LastWriteTime  4 USER-ALLOT
 : FileDateTime# ( h -- )
   GET-FILE-LASTWRITETIME DateTime#
 ;
+: FileDateTime#GMT ( h -- )
+  GET-FILE-LASTWRITETIME DateTime#GMT
+;
