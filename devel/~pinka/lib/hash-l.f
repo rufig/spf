@@ -146,7 +146,7 @@ EXPORT
 ;
 : for-hash ( h xt -- )
 \ xt ( a|value  akey ukey -- )
-  >R TO do-it ['] (for-hash) R> traverse-hash 
+  TO do-it ['] (for-hash) SWAP traverse-hash 
 ;
 
 : hash-empty? ( h -- flag )    \ проверяет, пуст хэш или нет
@@ -154,6 +154,10 @@ EXPORT
 ;
 : hash-count ( h -- n )    \ подсчитывает число элементов в хэше
   _cnt 0! ['] (hash-count) SWAP traverse-hash _cnt @ 
+;
+
+: HASH? ( akey ukey h -- true|false )
+  lookup NIP 0<>
 ;
 
 ;MODULE
