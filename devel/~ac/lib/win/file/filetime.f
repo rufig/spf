@@ -12,7 +12,7 @@ USER LastWriteTime  4 USER-ALLOT
   >R LastWriteTime LastAccessTime CreationTime R>
   GetFileTime IF LastWriteTime 2@ SWAP ELSE 0 0 THEN
 ;
-: GET-FILE-LASTWRITETIME ( h -- filetime )
+: GET-FILE-LASTWRITETIME ( h -- sec min hr day mt year )
   >R 32 ALLOCATE THROW DUP DUP 8 + DUP 8 +
   ( LastWriteTime LastAccessTime CreationTime) R>
   GetFileTime
