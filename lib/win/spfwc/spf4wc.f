@@ -300,6 +300,8 @@ TRUE VALUE EnableEmit
       Content FREE THROW
     THEN
     fid CLOSE-FILE THROW
+  ELSE
+    DROP
   THEN
 ;
 :NONAME { \ SizeEd Content EdFile fid [ 260 ] TempPath [ 260 ] TempFile -- }
@@ -915,7 +917,7 @@ EXPORT
     IDC_ARROW 0 LoadCursor      CONS_ hCursor       !
     0                           CONS_ hbrBackground !
     0                           CONS_ lpszMenuName  !
-    S" SP-FORTH 4.0 win console ver 0.6.10" DROP CONS_ lpszClassName !
+    S" SP-FORTH 4.0 win console ver 0.6.11" DROP CONS_ lpszClassName !
   }}
   CONS_  RegisterClass DROP
 
