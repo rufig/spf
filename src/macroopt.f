@@ -2354,9 +2354,11 @@ M\ PPPP
           FALSE -1 ALLOT M\ 13 DTST
           EXIT
       THEN
+
                           \  ADD|XOR|OR|AND=
       OP0 @ 2+  C@ OP1 -EBPLIT NIP 
       DUP @ W@ 45C7 =      \ MOV     F8 [EBP] , # 2710 
+      OVER @ 2+  C@ OP0 @ 2+  C@  = AND
       IF  OP0 @ W@ 4503 =  \  ADD     EAX , F8 [EBP] 
           IF M\ 46 DTST
              @ 3 + @ OFF-EAX + TO OFF-EAX
@@ -2397,7 +2399,6 @@ M\ PPPP
       THEN
       DROP
     THEN
-
 
     OP0 @ W@   4539   =      \ CMP     X [EBP] , EAX 
     IF
@@ -3387,7 +3388,8 @@ OS\ AND EC = M_WL   1_,_STEP  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
          ['] NOOP FALSE EXIT
    THEN  
 
-   OP0 @ C@  A1 =   \  MOV     EAX , 44444
+   OFF-EAX 0=
+   OP0 @ C@  A1 =  AND  \  MOV     EAX , 44444
    IF M\ 434 DTST
       0 W,
       OP0 @ 1+ @ OP0 @ 2+ !
@@ -3396,7 +3398,8 @@ OS\ AND EC = M_WL   1_,_STEP  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
       EXIT
    THEN
 
-   OP0 @  @  FFFFFF AND 24048B = \ MOV     EAX , [ESP]
+   OFF-EAX 0=
+   OP0 @  @  FFFFFF AND 24048B = AND \ MOV     EAX , [ESP]
    IF M\ 534 DTST
       1 ALLOT
       243C83   OP0 @ !     \    CMP  DWORD PTR [ESP], 0
