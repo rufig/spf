@@ -1,0 +1,108 @@
+( hype )
+
+\ object-oriented forth
+
+needs wordlist vocs
+
+0 value self
+
+: self+ ( n - a) self + ;
+
+: send ( a xt) self >r  swap 
+   to self execute  r> to self ;
+
+variable cls ( contains ta -> |size|wid|super|)
+
+: size^ ( - aa) cls @ ?dup 0= abort" scope?" ;
+
+: mfind ( ta ca u - xt n)  
+   rot cell+ @ search-wordlist 
+   dup 0= abort" no such method?"
+;
+
+: send' ( a ta "m ") 
+   bl word count mfind 0< state @ and
+   if swap lit, lit, postpone send 
+   else send then ;
+
+: super ( "m ") 
+   size^ cell+ cell+ 
+   @ bl word count mfind 0<
+   if compile, else execute then 
+; immediate
+
+: defs ( n "f ") 
+   create size^ @ , size^ +! immediate
+   does> @ state @ if lit, 
+   postpone self+ else self+ then ;
+
+: methods ( ta) 
+   dup cls ! cell+ @ dup set-current
+   also context ! ;
+
+variable lastclass
+
+: class ( "c ") 
+   create here dup lastclass ! 0 , 0 , 0 ,
+   wordlist over cell+ ! methods ;
+
+: subclass ( ta "c ") 
+   dup class size^ over @ over ! cell+ cell+ ! 
+   1 cells + @ @ ( last nfa in super wl)
+   lastclass @ cell+ @ ( wl) !
+;
+
+: endclass ( ) 
+   size^ drop previous definitions 0 cls ! ;
+
+: instance ( ta) 
+   dup , @ here over allot swap erase
+   does> dup cell+ swap @ send' ;
+
+: new ( ta "name ") create instance immediate ;
+
+: -> ( obj "word" )
+    dup cell+ swap @ send'
+; immediate
+
+: alloc ( ta -- obj )
+    dup @ cell+ dup allocate throw
+    tuck swap erase
+    tuck !
+;
+
+: var 1 cells defs ;
+
+: obj ( ta "name ") dup @ defs ,
+   does> 2@ self+ swap send' ;
+
+: ref ( ta "name ") var ,
+   does> 2@ self+ @ swap send' ;
+
+\eof
+\ example of usage
+
+class Button
+   var x
+   var y
+: draw ( )  ." x=" x @ . space ." y=" y @ . cr ;
+: init ( x y )  y ! x !  ;
+: test ;
+endclass
+
+Button new myObj
+3 4 myObj init
+myObj draw
+
+Button subclass Bchild
+: draw ." child: " super draw ;
+endclass
+
+Bchild subclass Asd
+  Button obj bobj
+endclass
+
+Button alloc value testobj
+
+1 2 testobj -> init
+testobj -> draw

@@ -1,0 +1,213 @@
+<html><title>HYPE</title>
+<body>
+<center><h2>HYPE - a simple OOF implementation</h2><br>
+Helge Horch<address>heho@gmx.de</address><br>
+May 1998<br>
+<font size=-2>[URL: <a href="http://home.munich.netsurf.de/Helge.Horch/hype.html">http://home.munich.netsurf.de/Helge.Horch/hype.html</a> DATE: 06jan99]</font>
+<hr>NOTE: THIS WAS WORK IN PROGRESS FOR QUITEAWHILE. DON'T EXPECT TOO MUCH ANYMORE.<hr></center>
+<h4>What?</h4> 
+This is a short description of HYPE, the author's implementation of
+object-oriented capabilities for Forth. They allow the programmer to
+define data and methods that act upon that data as a unit ("class").
+<h4>Why now?</h4>
+The recent thread on comp.lang.forth about different OOFs prompted me to revise
+my pet implementation. According to the categories Mike Hore has put forth, HYPE
+<ul>
+<li>has object-message syntax,
+<lI>is a parsing implementation (objects parse selectors),
+<li>uses <code>WORDLIST</code>s for its implementation (not vtables).
+</ul>
+This makes HYPE a "type F" implementation.
+<h4>Why at all?</h4>
+I've been using HYPE (i.e. all its predecessors) for nearly nine years
+years now to my full satisfaction. HYPE originally grew from Dick Pountain's
+1987 landmark book "Object-oriented Forth" [Academic Press]. I carried my
+implementation around to every Forth I used and modified it on the way. I wrote a
+small library of classes, e.g. classes for the Macintosh Toolbox, and experimented with
+MIDI classes.
+<p>
+Major differences to Pountain's model are:
+<ol>
+<li>HYPE uses <code>SEARCH-WORDLIST</code> instead of patching link fields.
+<li>Existing classes can be extended later (by using <code>METHODS</code>).
+<li>Subclasses inherit instance variables, although they must be accessed with SUPER.
+<li>Instance variables are public now (data hiding was of no great use to
+me <em>in Forth</em> anyway...)
+<li>No extra object stack, which was synchronous with the return stack anyway.
+</ol>
+
+<h4>What do I need?</h4>
+The HYPE version below is intended for ANS-Forths. Beyond the CORE word set, it also
+requires
+<ul>
+<li>from the CORE EXTENSION word set<br>
+<code>VALUE  TO  0&gt;  2&gt;R  2R@  2R&gt;  COMPILE,</code>
+<li>from the SEARCH ORDER word set<br>
+<code>WORDLIST  SEARCH-WORDLIST  DEFINITIONS  SET-CURRENT  GET-ORDER  SET-ORDER</code>
+<li>from the SEARCH ORDER EXTENSION word set<br>
+<code>PREVIOUS</code>
+</ul>
+
+<h4>How much?</h4>
+The code is herewith released into the public domain. If you really use and
+build upon it, I would be glad to hear of it.
+So here it is, all 24 lines (at <code>64 C/L</code>) of it:
+<hr><pre>: LIT, ( x) POSTPONE LITERAL ;
+: &gt;SIZE ( ta - n) CELL+ @ ;
+0 VALUE SELF
+: SELF+ ( n - a) SELF + ;
+: SEND ( a xt) SELF &gt;R  SWAP TO SELF EXECUTE  R&gt; TO SELF ;
+VARIABLE CLS ( contains ta)
+: SIZE^ ( - aa) CLS @ ?DUP 0= ABORT" scope?" CELL+ ;
+: MFIND ( ta ca u - xt n) 2&gt;R BEGIN DUP WHILE DUP @ 2R@ ROT
+   SEARCH-WORDLIST ?DUP IF ROT DROP 2R&gt; 2DROP EXIT THEN
+   CELL+ CELL+ @ REPEAT -1 ABORT" can't?" ;
+: SEND' ( a ta "m ") BL WORD COUNT MFIND 0&lt; STATE @ AND
+   IF SWAP LIT, LIT, POSTPONE SEND ELSE SEND THEN ;
+: SUPER ( "m ") SIZE^ CELL+ @ BL WORD COUNT MFIND 0&gt;
+   IF EXECUTE ELSE COMPILE, THEN ; IMMEDIATE
+: DEFS ( n "f ") CREATE SIZE^ @ , SIZE^ +! IMMEDIATE
+   DOES&gt; @ STATE @ IF LIT, POSTPONE SELF+ ELSE SELF+ THEN ;
+: METHODS ( ta) DUP CLS ! @ DUP SET-CURRENT
+   &gt;R GET-ORDER R&gt; SWAP 1+ SET-ORDER ; ( ALSO CONTEXT !)
+: CLASS ( "c ") CREATE HERE 0 , 0 , 0 ,
+   WORDLIST OVER ! METHODS ;
+: SUBCLASS ( ta "c ") CLASS SIZE^ OVER &gt;SIZE OVER ! CELL+ ! ;
+: END ( ) SIZE^ DROP PREVIOUS DEFINITIONS 0 CLS ! ;
+: NEW ( ta "name ") CREATE DUP , &gt;SIZE ALLOT IMMEDIATE
+   DOES&gt; DUP CELL+ SWAP @ SEND' ;</pre><hr>
+This comprises the basic definitions I can't do without. Some quick explanations
+regarding the stack comments:<dl>
+<dt><code>ta</code></dt>
+<dd>the address of a class (formerly "type"), ta -&gt; | wid | size | super-ta |</dd>
+<dt><code>oa</code></dt>
+<dd>the address of an object (instance), oa -&gt; | ta | ... |</dd>
+<dt><code>"c "</code></dt>
+<dd>a class name follows the word</dd>
+<dt><code>"f "</code></dt>
+<dd>a field name (instance variable name) follows the word</dd>
+<dt><code>"m "</code></dt>
+<dd>an existing method name (selector) follows the word</dd>
+</dl>
+
+Here's what I like about HYPE:
+<ul>
+<li>It is small enough to be understandable. (Is it?)
+<li>It treats instance variables very much like "normal" variables.
+<li>Methods are just normal forth words. They can be colon definitions,
+code definitions, constants, whatever.
+<li>The words <code>SELF</code>, <code>SELF+</code> and <code>SEND'</code> are easily replaced
+by code words for a particular implementation. For example, in F/X and PoFo on the Macintosh,
+I used a register for <code>SELF</code>.
+<li>It reads like Smalltalk. I like that, I'm used to it.
+</ul>
+<h4>What does it look like?</h4>
+Here is a HYPE version of Bernd Paysan's example, transcribed from his
+<a href="http://www.complang.tuwien.ac.at/anton/lvas/12-zeilen-oof">12-line OOF</a>:
+<hr><pre>1 CELLS CONSTANT CELL
+
+CLASS BUTTON
+   CELL DEFS TEXT
+   CELL DEFS LEN
+   CELL DEFS X
+   CELL DEFS Y
+: DRAW ( )   X @ Y @ AT-XY  TEXT @ LEN @ TYPE ;
+: INIT ( ca u)   0 X ! 0 Y ! LEN ! TEXT ! ;
+END
+
+: BOLD   27 EMIT ." [1m" ;
+: NORMAL 27 EMIT ." [0m" ;
+
+BUTTON SUBCLASS BOLD-BUTTON
+: DRAW ( )   BOLD SUPER DRAW NORMAL ;
+END
+
+BUTTON NEW FOO
+S" thin foo" FOO INIT
+PAGE
+FOO DRAW
+BOLD-BUTTON NEW BAR
+S" fat bar" BAR INIT
+1 BAR Y !
+BAR DRAW</pre><hr>
+Perhaps you'll agree that <pre>: VAR 1 CELLS DEFS ;</pre> would be a nice add-on.
+But there's more. We may nest objects within others:
+<pre>
+: IV ( ta "name ") DUP &gt;SIZE DEFS ,
+   DOES&gt; 2@ SELF+ SWAP SEND' ;
+</pre>
+It is used thusly:
+<pre>
+CLASS Foo
+   Button IV btn1
+   Button IV btn2
+END
+</pre>
+We could also embed <em>references</em> to other objects, with
+<pre>
+: REF ( ta "name ") VAR ,
+   DOES&gt; 2@ SELF+ @ SWAP SEND' ;
+</pre>
+This allows us to say
+<pre>
+CLASS Link
+   0 DEFS 'next
+   Link REF next
+END
+</pre>
+where the <code>'next</code> definition is used as a way to store addresses
+into the reference field. Arrayed instance variables are left as an exercise
+for the reader <small><i>(I always wanted to say that sometime)</i></small>.<p>
+Also, for special cases, one might want to factor <code>NEW</code> into
+<pre>
+: INSTANCE ( ta) DUP , &gt;SIZE ALLOT
+   DOES&gt; DUP CELL+ SWAP @ SEND' ;
+: NEW ( ta "name ") CREATE INSTANCE IMMEDIATE ;
+</pre>
+thus providing a way of creating instances at runtime.
+
+<h4>Now what?</h4>
+Here are some open questions:
+<ul>
+<li>Is it really ANS compliant?<br> I don't know.
+I ran the example code on gforth under NT. My favourite, ZENForth, itself not being
+fully ANS-compliant, needs a different version due to its ROM/RAM model.
+<li>Do you see a way of making it shorter?<br>
+...without sacrificing too much (or any) of its functionality, of course. Hacking
+Forth has degraded into a part-time hobby for me, so I'm not spending too much time
+on it.
+</ul>
+
+Please direct comments, ideas and funky-ways-to-cut-HYPE-down-to-16-lines to
+<a href="mailto:heho@gmx.de">me</a>.
+<hr>
+<h4>Appendix</h4>
+12may98 NEWS FLASH: By staring at the code, I've managed to squeeze one more line out
+(<code>&gt;SIZE</code>).
+So HYPE weighs only 2<u>3</u> now. Plus it doesn't require <code>0></code> anymore. Is this getting silly yet? <code>:-)</code>
+<pre>
+: LIT, ( x) POSTPONE LITERAL ;
+0 VALUE SELF
+: SELF+ ( n - a) SELF + ;
+: SEND ( a xt) SELF &gt;R  SWAP TO SELF EXECUTE  R&gt; TO SELF ;
+VARIABLE CLS ( contains ta -&gt; |size|wid|super|)
+: SIZE^ ( - aa) CLS @ ?DUP 0= ABORT" scope?" ;
+: MFIND ( ta ca u - xt n) 2&gt;R BEGIN DUP WHILE CELL+ DUP @ 2R@
+   ROT SEARCH-WORDLIST ?DUP IF ROT DROP 2R&gt; 2DROP EXIT THEN
+   CELL+ @ REPEAT -1 ABORT" can't?" ;
+: SEND' ( a ta "m ") BL WORD COUNT MFIND 0&lt; STATE @ AND
+   IF SWAP LIT, LIT, POSTPONE SEND ELSE SEND THEN ;
+: SUPER ( "m ") SIZE^ CELL+ CELL+ @ BL WORD COUNT MFIND 0&lt;
+   IF COMPILE, ELSE EXECUTE THEN ; IMMEDIATE
+: DEFS ( n "f ") CREATE SIZE^ @ , SIZE^ +! IMMEDIATE
+   DOES&gt; @ STATE @ IF LIT, POSTPONE SELF+ ELSE SELF+ THEN ;
+: METHODS ( ta) DUP CLS ! CELL+ @ DUP SET-CURRENT
+   &gt;R GET-ORDER R&gt; SWAP 1+ SET-ORDER ; ( ALSO CONTEXT !)
+: CLASS ( "c ") CREATE HERE 0 , 0 , 0 ,
+   WORDLIST OVER CELL+ ! METHODS ;
+: SUBCLASS ( ta "c ") CLASS SIZE^ OVER @ OVER ! CELL+ CELL+ ! ;
+: END ( ) SIZE^ DROP PREVIOUS DEFINITIONS 0 CLS ! ;
+: NEW ( ta "name ") CREATE DUP , @ ALLOT IMMEDIATE
+   DOES&gt; DUP CELL+ SWAP @ SEND' ;
+</pre>
+</body></html>

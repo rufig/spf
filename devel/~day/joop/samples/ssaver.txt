@@ -1,0 +1,134 @@
+                                           FORTH SCREEN SAVER powered with jOOP
+                                                        By Dmitry Yakimov 2000
+
+
+History of jOOP:
+
+15.10.00 0.99 - + Теперь WARNING не выдаются при компиляции метода, если
+                  уже есть сообщение, соответствующее этому методу (micro)
+                + Все слова, используемые в классе перемещены в словарь
+                  ClassContext (micro)
+                + Исправлен win\wintest.f - немного уменьшен размер exe
+
+09.10.00 0.95 - + Если сообщение уже создано, то попытки скомпилировать
+                  его заново игнорируются (не путать сообщение с методом!)
+                + Встроенная поддержка работы с Windows объектами!
+                + метод :methods - показывает методы класса.
+                + метод :variables - sas
+                + Поддержка структур - моя уступка Windows и вообще всем ОС
+                + метод :newLit - создает объект в словарном пространстве
+                + метод :init - инициализация экземпляра класса после создания
+                + public переменные
+                + Объектная оболочка над Windows в каталоге \win
+
+19.09.00 0.9  - + при выделении памяти под объект в -1 ячейку записывается
+                  теперь указатель на класс - для мониторинга хипа в спф 3.75
+                + метод :see для мониторинга переменных класса
+                + метод :unknown теперь ищется рекурсивно (так короче)
+                + Формат данных переменной теперь следующий:
+                  4 - смещение в экземпляре
+                  4 - размер
+
+18.09.00 0.8  - первая действительно рабочая версия
+( Yet another oop extention for sp-forth - just oop :)
+( Dmitry Yakimov 2000 [c] )
+
+
+
+
+so be force with us. Forth is our arm.
+                                                        
+Текст данного скринсейвера:                                                        
+
+REQUIRE FrameWindow ~day\joop\win\FrameWindow.f
+REQUIRE Font ~day\joop\win\font.f
+REQUIRE NEXT-PARAM ~day\common\clparam.f
+
+VARIABLE Count
+VARIABLE FirstMouse
+TRUE FirstMouse !
+
+CLASS: SaverWindow <SUPER FrameWindow
+
+        Font OBJ myFont
+        CELL VAR inFile
+
+: :init
+   own :init
+   WS_POPUP WS_MAXIMIZE OR vStyle !
+   WS_EX_TOPMOST vExStyle !
+   BLACK_BRUSH GetStockObject DefWinClass <hbrBackground !
+   S" Comic Sans MS" DROP myFont <lpszFace !
+   20 myFont <height !
+   S" ssaver.txt" +ModuleDirName R/O OPEN-FILE THROW inFile !
+   FW_BOLD myFont <weight !
+;
+
+W: WM_CREATE
+    0 20 1 handle @ SetTimer DROP 0
+    0 220 0 rgb handle @ GetDC DUP >R SetTextColor DROP
+    0 R@ SetBkColor DROP
+    myFont :create
+    myFont <handle @ R> SelectObject DROP
+;
+
+: :scrollWindow
+   SW_ERASE
+   0
+   0
+   0
+   0
+   -1 0 \ dy dx
+   handle @
+   ScrollWindowEx DROP
+;
+
+W: WM_LBUTTONDOWN  BYE ;
+W: WM_MBUTTONDOWN  BYE ;
+W: WM_RBUTTONDOWN  BYE ;
+W: WM_KEYDOWN      BYE ;
+W: WM_MOUSEMOVE    FirstMouse @ IF FirstMouse 0! 0 ELSE BYE THEN ;
+W: WM_ACTIVATE  wparam @ 0= IF BYE THEN 0 ;
+
+W: WM_TIMER
+   own :scrollWindow
+   Count 1+!
+   Count @ 20 = IF
+     Count 0!
+     PAD 1024 inFile @ READ-LINE THROW
+     IF
+       PAD SWAP
+       GetDesktopCoord 30 - NIP 0 SWAP self :textOut
+     ELSE
+       0 inFile @ REPOSITION-FILE THROW
+     THEN
+   THEN
+   0
+;
+
+;CLASS
+
+
+: RUN { \ w }
+   NEXT-PARAM 2DROP
+   NEXT-PARAM  DROP 1+ C@ DUP [CHAR] p = IF BYE THEN
+   [CHAR] c =
+   IF
+      S" There aren't any options" ShowMessage
+   ELSE
+      FALSE ShowCursor DROP
+      SaverWindow :new -> w
+      0 w :create
+      w :show
+      w :run
+      w :free
+      TRUE ShowCursor DROP
+   THEN
+   BYE
+;
+
+85000 TO IMAGE-SIZE
+' RUN MAINX !
+TRUE TO ?GUI
+S" fsaver.scr" SAVE BYE
+                                                        

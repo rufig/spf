@@ -1,0 +1,14 @@
+: @4+@  
+[ BASE @ HEX
+ 8B  C, 45  C, 0  C, 8B  C,
+ 0  C, 83  C, C0  C, 4  C,
+ 8B  C, 0  C, 89  C, 45  C,
+ 0  C,
+BASE ! ] ;
+
+: VECT->  
+[ BASE @ HEX
+ 8D  C, 40  C, 5  C, 8B  C,
+ 0  C,
+BASE ! ] ;
+
