@@ -27,14 +27,10 @@ USER ZSP  ZS0 ZSP !
   ZSP@ @   4 ZSP +!
 ;
 : 2>ZS ( x x -- )
-  SWAP  
-  -4 ZSP +!  ZSP@ !
-  -4 ZSP +!  ZSP@ !
+  -8 ZSP +!  ZSP@ 2!
 ;
 : 2ZS> ( -- x x )
-  ZSP@ @   4 ZSP +!
-  ZSP@ @   4 ZSP +!
-  SWAP
+  ZSP@ 2@   8 ZSP +!
 ;
 : ZNDROP ( n -- )
   CELLS ZSP +!
