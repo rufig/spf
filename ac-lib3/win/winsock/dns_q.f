@@ -1,4 +1,53 @@
-\ RFC1035
+( Библиотека работы с DNS-серверами.
+  Протокол DNS описан в RFC1035
+
+  Обновление 19.01.2003:
+  добавлено слово GetRRs, являющееся основным средством 
+  DNS-запросов вместо прежних более узко специализированных.
+  "Прежние" теперь могут быть в основном переписаны через GetRRs :->
+
+  Использование:
+  S" domain.name" dns-record-type GetRRs
+  Например:
+  S" forth.org.ru" TYPE-MX GetRRs
+
+  Результат GetRRs - число полученных записей.
+  "Нормальные" ответы - 0,1,2 и т.д. неотрицательные числа.
+  Особые ответы:
+  -1 - сетевые проблемы [невозможен обмен UDP-пакетами]
+     это может быть следствием отсутствия модемной связи, например,
+     т.е. просто недоступен целевой сервер
+  -2 - связь вроде есть, но ответы не приходят с 6 попыток - скорее 
+     всего очень большие таймауты
+  -3 - указанный домен "не существует в природе"
+  -5 - DNS-сервер не хочет выполнять ваши запросы [чужой сервер, наверное]
+
+  Инициализацию сети и поиск подходящего DNS-сервера библиотека
+  производит сама при первой необходимости. Но можно указать желаемый
+  DNS-сервер опцией "-s сервер".
+
+  Ещё полезные слова:
+  DnsValidateDomain      [ domaina domainu -- flag ]
+  DnsValidateEmailDomain [ emaila emailu -- flag ]
+  Проверяют, является ли домен валидным почтовым доменом,
+  т.е. можно ли на него отправлять почту. Это делается запросом
+  MX- и A-записей для этого домена. Если есть хотя бы одна, то
+  считается валидным. Существование имени user@ в данном домене
+  не проверяется, и "отзывчивость" найденных почтовых серверов
+  также не проверяется - т.е. собственно попыток почтовых сессий не
+  делается. Отрицательные ответы GetRR трактуются как "невалидный
+  домен". Т.е. использовать эти слова можно только при рабочем DNS.
+  
+  DnsDomainExists [ domaina domainu -- flag ]
+  Если GetRRs возвращает -3, то домена точно нет. Все остальные
+  ответы, в т.ч. отрицательные трактуются как "есть", означающее
+  на деле "есть или невозможно проверить из-за проблем DNS или сети".
+
+  NextMX [ -- servera serveru true | false ]
+
+  Методика перебора MX-записей по приоритетам для попыток отправки почты.
+  S" domain" GetMXs 0 MAX 0 ?DO NextMX ... LOOP
+)
 
 REQUIRE GetDNS  ~ac/lib/win/winsock/get_dns.f
 REQUIRE WriteTo ~ac/lib/win/winsock/sockname.f
@@ -92,14 +141,20 @@ CONSTANT /RL
 ;
 
 : SetFieldData ( addr u af -- )
+." 1"
   { a u af \ mem }
-  af FreeField
+." 2"
+\  af FreeField
+." 3"
   u CELL+ ALLOCATE THROW -> mem
+." 4"
   u mem ! a mem CELL+ u MOVE
+." 5"
   mem af !
 ;
 
 : AddName ( addr u -- )
+." AN=" 2DUP TYPE
   /RL ALLOCATE THROW >R
   R@ /RL ERASE
   R@ RLname SetFieldData
@@ -117,10 +172,10 @@ CONSTANT /RL
 ;
 : PrintRL ( addr -- )
   >R
-  R@ RLname GetFieldData TYPE SPACE
-  R@ RLtype @ DUP TYPE-MX = IF DROP ." MX " ELSE . THEN
-  R@ RLhost GetFieldData TYPE SPACE
-  R@ RLparam1 @ .
+  ." Name=" R@ RLname GetFieldData TYPE SPACE
+  ." Type=" R@ RLtype @ DUP TYPE-MX = IF DROP ." MX " ELSE . THEN
+  ." Host=" R@ RLhost GetFieldData TYPE SPACE
+  ." Param=" R@ RLparam1 @ .
   R> DROP
 ;
 : PrintRLIST ( -- )
@@ -132,34 +187,46 @@ CONSTANT /RL
     RLnext @
   REPEAT DROP
 ;
-: PrintReceivedMXs ( -- )
+: PrintReceivedRDs ( type -- )
+  >R
   RLIST @
   BEGIN
     DUP
   WHILE
-    DUP RLtype @ TYPE-MX =
+    DUP RLtype @ R@ =
     IF DUP PrintRL CR THEN
     RLnext @
   REPEAT DROP
+  R> DROP
 ;
-: EnumReceivedMXs ( -- n )
+
+: PrintReceivedMXs ( -- )
+  TYPE-MX PrintReceivedRDs
+;
+: EnumReceivedRDs ( type -- n )
+\ имеет смысл только если записи получались не по GetRRs,
+\ а другим способом. При GetRRs список и так содержит только записи
+\ одного (заказанного :) типа
   0 >R
   RLIST @
   BEGIN
     DUP
   WHILE
-    DUP RLtype @ TYPE-MX =
+    2DUP RLtype @ =
     IF R> 1+ >R THEN
     RLnext @
-  REPEAT DROP
+  REPEAT 2DROP
   R>
+;
+: EnumReceivedMXs ( -- n )
+  TYPE-MX EnumReceivedRDs
 ;
 
 : PrepareDnsQuery ( qtype addr u -- )
 
   DNSQUERY @ 0= IF 500 ALLOCATE THROW DNSQUERY ! THEN
   DNSQUERY @ 500 ERASE
-  DNSREPLY @ ?DUP IF /DNSREPLY ERASE THEN
+\  DNSREPLY @ ?DUP IF /DNSREPLY ERASE THEN
 
   FreeRlist
   QID 1+! QID W@ >B< DNSQUERY @ HeaderID W!
@@ -183,17 +250,23 @@ CONSTANT /RL
        OVER - ( адрес длина_токена_имени    R: длина_остатка адрес_остатка )
        TOKEN,
        R> R>
-    ELSE 2DROP TOKEN, HERE 0 THEN
+    ELSE 2DROP TOKEN, PAD ( HERE) 0 THEN
   REPEAT TOKEN,
   WT, QCLASS-ANY WT,
 ;
 
+: BsStartup
+  SocketsStartup DROP
+  CreateUdpSocket THROW BS !
+  8000 BS @ SetSocketTimeout THROW
+;
 : SendDnsQuery
   DNS-SERVER @ 0= 
   IF GetDNS ?DUP 
             IF COUNT + 1+ DNS-SERVER !
             ELSE C" localhost" DNS-SERVER ! THEN
   THEN
+  BS @ 0= IF BsStartup THEN
   DNS-SERVER @ COUNT GetHostIP THROW 53
   DNSQUERY @ DDP @ OVER - \ 2DUP DUMP
   BS @ WriteTo
@@ -222,7 +295,7 @@ CONSTANT /RL
   REP 1+!
 ;
 : ParseName ( -- addr u )
-  HERE 0
+  PAD ( HERE) 0
   ParseName1
   0 0 <# 2DROP
   BEGIN
@@ -302,7 +375,26 @@ CONSTANT /RL
      NextRD EXIT
   THEN
 
-  NextRD
+
+  REP @ 8 - W@ >B< TYPE-A =
+  IF 
+     REP @ 2 + @ NtoA CURRENT-R @ RLhost SetFieldData
+     NextRD EXIT
+  THEN
+
+  REP @ 8 - W@ >B< TYPE-NS =
+  IF
+     REP @ DUP >R 2 + REP ! ParseName CURRENT-R @ RLhost SetFieldData
+     R> REP !
+     NextRD EXIT
+  THEN
+
+\  NextRD
+
+  REP @ W@ >B< 2 REP +!
+  REP @ OVER CURRENT-R @ RLhost SetFieldData
+  REP +!
+
 ;
 
 : PrintDnsQuestions ( n -- )
@@ -356,7 +448,7 @@ CONSTANT /RL
   R@ HeaderARCOUNT W@ >B< ?DUP IF ." Additional:" CR PrintDnsAnswers THEN
   R> DROP
 ;
-: ParseDnsReply
+: ParseDnsReply \ всех возвращенных полей, включая дополнительные,
   ( RLIST 0!) FreeRlist CURRENT-R 0!
   DNSREPLY @ >R
   R@ /Header + REP !
@@ -364,6 +456,14 @@ CONSTANT /RL
   R@ HeaderANCOUNT W@ >B< ?DUP IF ParseDnsAnswers THEN
   R@ HeaderNSCOUNT W@ >B< ?DUP IF ParseDnsAnswers THEN
   R@ HeaderARCOUNT W@ >B< ?DUP IF ParseDnsAnswers THEN
+  R> DROP
+;
+: ParseAnswer \ только полей ответа
+  ( RLIST 0!) FreeRlist CURRENT-R 0!
+  DNSREPLY @ >R
+  R@ /Header + REP !
+  R@ HeaderQDCOUNT W@ >B< ?DUP IF ParseDnsQuestions THEN
+  R@ HeaderANCOUNT W@ >B< ?DUP IF ParseDnsAnswers THEN
   R> DROP
 ;
 
@@ -374,10 +474,13 @@ CONSTANT /RL
   DNSREPLY @ /DNSREPLY BS @ ReadFrom
   DnsDebug @ 0=
   IF 2DROP DROP 
-  ELSE . . DNSREPLY @ SWAP ( 23 16 *) /DNSREPLY MIN DUMP CR PrintDnsReply CR THEN
+  ELSE . . DNSREPLY @ SWAP ( 23 16 *) /DNSREPLY MIN DUMP CR 
+       PrintDnsReply CR 
+  THEN
 ;
 
-: host ( type "dns-server" "host" -- )
+\ : host ( type "dns-server" "host" -- )
+(
   SocketsStartup DROP
   CreateUdpSocket THROW BS !
   8000 BS @ SetSocketTimeout THROW
@@ -395,48 +498,57 @@ CONSTANT /RL
   UNTIL
   IS-SUCCESS @ .
 ;
+)
 
-USER DNS-FAIL
-VARIABLE Verbose?
-TRUE Verbose? !
-
-: DnsValidateEmailDomain ( addr u -- flag )
-  { a u }
-  u 7 < IF FALSE EXIT THEN
-  a u S" @" SEARCH
-  IF 1- SWAP 1+ SWAP -> u -> a THEN
-  FALSE DNS-FAIL !
-  ATTEMPTS 0!
-  TYPE-MX a u PrepareDnsQuery
+: GetRRs { hosta hostu type \ attempts -- n }
+  0 -> attempts
+  type hosta hostu PrepareDnsQuery
   BEGIN
-    ['] SendDnsQuery CATCH ?DUP 
-        IF Verbose? @ IF 
-             CR ." Can't send DNS request (err=)" . 
-           THEN
-           TRUE DNS-FAIL !
-        ELSE ( ." .") THEN
-    ['] RecvDnsReply CATCH
-    ?DUP IF DUP 10060 = 
-            IF DROP Verbose? @ IF ." timeout " THEN
-            ELSE Verbose? @ IF . ELSE DROP THEN 
-            THEN FALSE 
-         ELSE TRUE THEN
-    DUP IF ParseDnsReply THEN
-    DNSREPLY @ HeaderBits W@ >B< 15 AND 0= AND
-    DNSREPLY @ HeaderID W@ >B< QID W@ = AND
-    DUP IS-SUCCESS !
-    ATTEMPTS 1+!
-    ATTEMPTS @ 6 > OR
+    ['] SendDnsQuery CATCH IF -1 EXIT THEN  \ network problem
+    ['] RecvDnsReply CATCH 
+    ?DUP IF 10060 <> IF -1 EXIT THEN FALSE ELSE TRUE THEN
+    IF 
+      DNSREPLY @ HeaderBits W@ >B< 15 AND
+      DUP ( RCODE) 3 = IF DROP -3 EXIT THEN \ domain not exist (authoritative!)
+      DUP ( RCODE) 5 = IF DROP -5 EXIT THEN \ refused operation
+      0=
+      DNSREPLY @ HeaderID W@ >B< QID W@ = AND
+      IF
+        ParseAnswer  DnsDebug @ IF PrintRLIST THEN
+        type EnumReceivedRDs
+        DUP 0=
+        IF
+          DNSREPLY @ HeaderBits W@ >B< 128 AND \ RA - recurse available
+          0= IF 
+               DROP -5 \ сервер не дал ответ, т.к. не содержит этого домена
+                       \ а рекурсивный запрос делать не хочет,
+                       \ т.е. скорее всего задан чужой DNS-сервер
+             THEN
+        THEN
+        EXIT
+      THEN
+    THEN
+    attempts 1+ DUP -> attempts
+    6 >
   UNTIL
-  IS-SUCCESS @ 
-  IF Verbose? @ IF CR PrintReceivedMXs THEN
-     EnumReceivedMXs 
-     IF TRUE
-     ELSE \ ." Empty MX list."
-        FALSE
-     THEN
-  ELSE 1 ( ошибка DNS, принимаем все Email) THEN
+  -2 \ timeouts or DNS-server failure
 ;
+
+: GetDomainFromEmail
+  S" @" SEARCH
+  IF 1- SWAP 1+ SWAP THEN
+;
+: DnsValidateDomain ( domaina domainu -- flag )
+  DUP 4 < IF 2DROP FALSE EXIT THEN
+  2DUP TYPE-MX GetRRs 0 > IF 2DROP TRUE EXIT THEN
+       TYPE-A  GetRRs 0 > IF TRUE EXIT THEN
+  FALSE
+;
+: DnsValidateEmailDomain ( emaila emailu -- flag )
+  DUP 7 < IF 2DROP FALSE EXIT THEN
+  GetDomainFromEmail DnsValidateDomain
+;
+
 : DnsValidateList ( addr u -- )
   SocketsStartup DROP
   CreateUdpSocket THROW BS !
@@ -453,9 +565,8 @@ TRUE Verbose? !
   R> CLOSE-FILE THROW
 ;
 
-: GetMXs ( domaina domainu -- flag )
-  IS-SUCCESS 0! DnsValidateEmailDomain IS-SUCCESS @
-  EnumReceivedMXs 0<> AND
+: GetMXs ( domaina domainu -- n )
+  TYPE-MX GetRRs
 ;
 : NextMX ( -- servera serveru true | false )
   { \ pref mx }
@@ -474,10 +585,24 @@ TRUE Verbose? !
   70001 mx RLparam1 !
   mx RLhost GetFieldData TRUE
 ;
+: DnsDomainExists ( domaina domainu -- flag )
+  TYPE-NS GetRRs -3 <>
+;
 
 \ TYPE-MX host main.svlm.com swr.da.ru
 
 \ -s ns1.granitecanyon.com
 \ -s eserv.ru
 
-Verbose? 0! S" C:\eserv2\mail\lists\eserv_drweb.txt" DnsValidateList
+\ TRUE DnsDebug !
+\ S" enet.ru" TYPE-MX GetRRs PrintRLIST .
+\ .( ------------) CR
+\ S" enet.ru" TYPE-A GetRRs PrintRLIST .
+\ .( ------------) CR
+\ S" eserv.ru" TYPE-MX GetRRs PrintRLIST .
+\ .( ------------) CR
+\ S" non.existent.domain" TYPE-SOA GetRRs PrintRLIST .
+\ S" C:\eserv2\mail\lists\eserv_drweb.txt" DnsValidateList
+\ S" ac@non.exist.domain" GetDomainFromEmail DnsDomainExists .
+\ S" ac@whois.eserv.ru" GetDomainFromEmail DnsDomainExists .
+\ S" eserv.ru" TYPE-SOA GetRRs PrintRLIST .

@@ -18,14 +18,22 @@ VARIABLE DNS-SERVERS
 : ,>BL ( addr u -- )
   0 ?DO DUP I + C@ [CHAR] , = IF BL OVER I + C! THEN LOOP DROP
 ;
-: DNS,, ( addr u -- )
-  2DUP ,>BL
-  #TIB ! TO TIB >IN 0!
+: DNS,,x
   BEGIN
     BL WORD DUP C@
   WHILE
     COUNT DNS,
   REPEAT DROP
+;
+: DNS,, ( addr u -- )
+  2DUP ,>BL
+  ['] DNS,,x EVALUATE-WITH
+\  #TIB ! TO TIB >IN 0!
+\  BEGIN
+\    BL WORD DUP C@
+\  WHILE
+\    COUNT DNS,
+\  REPEAT DROP
 ;
 : FindDNS ( addr u -- )
   S" NameServer" 2SWAP StrValue ?DUP
