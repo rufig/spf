@@ -1646,7 +1646,7 @@ MAX_PLY 2/ VALUE maxDepth
   readTimer ?DUP IF
 \    nodes msPerS ROT */  ELSE
 \ >>>  Jos: Oct. 20th, 2003 The following line prevents a divide by 0
-     msPerS DS>F nodes DS>F F* DS>F F/ F>DS DROP ELSE
+     msPerS DS>F nodes DS>F F* DS>F F/ F>DS ELSE
     ." at least " nodes THEN
   U. ." nps  " ;
 
