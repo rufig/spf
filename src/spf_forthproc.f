@@ -881,6 +881,7 @@ CODE -TRAILING ( c-addr u1 -- c-addr u2 ) \ 94 STRING
       INC ECX
 @@2:  MOV EAX, ECX
       MOV EDI, EDX
+      CLD
 @@1:  RET
 END-CODE
 
