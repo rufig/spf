@@ -8,14 +8,16 @@
   ALSO LATEST NAME> EXECUTE DEFINITIONS
   0
 ;
-
 : ;STRUCT ( old-current -- )
   S" /SIZE" ['] CONSTANT EVALUATE-WITH
   SET-CURRENT PREVIOUS
 ;
-
 : f: ( offset "new-name" -- offset+cell )
-  CREATE
-  DUP , CELL+
+  CREATE DUP , CELL+
   DOES> @ OVER @ + @ API-CALL
+;
+: f...: ( offset "new-name" -- offset+cell )
+  CREATE DUP , CELL+
+  DOES> SWAP >R @ OVER @ + @ API-CALL
+  R> 0 DO NIP LOOP
 ;

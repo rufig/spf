@@ -121,25 +121,6 @@ USER widListFunc
   THEN
 ;
 
-\ Компиляция функции из списка и коррекция слова в котором она используется
-: AddNodes ( widListFunc -- )
-  @
-  BEGIN
-    ?DUP
-  WHILE
-    DUP >R
-    COUNT SFIND NIP 0= IF
-      DROP
-      GET-CURRENT FORTH-WORDLIST SET-CURRENT
-      R@ NAME> @ R@ COUNT SWINAPI
-      SET-CURRENT
-    THEN
-    R@ COUNT SFIND DROP
-    R@ NAME> CELL+ @ SWAP OVER CELL+ - SWAP !
-    R> CDR
-  REPEAT
-;
-
 : FindWrap ( a u -- FALSE | xt TRUE )
   2>R
   WINAPLINK
@@ -154,6 +135,24 @@ USER widListFunc
     THEN
   REPEAT DROP RDROP RDROP
   FALSE
+;
+
+\ Компиляция функции из списка и коррекция слова в котором она используется
+: AddNodes ( widListFunc -- )
+  @
+  BEGIN
+    ?DUP
+  WHILE
+    DUP >R
+    COUNT FindWrap 0= IF
+      GET-CURRENT FORTH-WORDLIST SET-CURRENT
+      R@ NAME> @ R@ COUNT SWINAPI
+      SET-CURRENT
+      R@ COUNT FindWrap DROP
+    THEN
+    R@ NAME> CELL+ @ SWAP OVER CELL+ - SWAP !
+    R> CDR
+  REPEAT
 ;
 
 SET-CURRENT
