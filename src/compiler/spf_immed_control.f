@@ -123,5 +123,6 @@
 \ ƒобавить семантику выполнени€ текущего определени€ в текущее определение.
 \ Ќеоднозначна€ ситуаци€ возникает, если RECURSE используетс€ после DOES>.
   ?COMP
-  LATEST NAME> _COMPILE,
+  LAST-NON  DUP 0= 
+  IF DROP  LATEST NAME>  THEN _COMPILE,
 ; IMMEDIATE

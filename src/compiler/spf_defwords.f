@@ -6,6 +6,7 @@
 )
 
 USER LAST-CFA
+USER-VALUE LAST-NON
 
 : SHEADER ( addr u -- )
   HERE 0 , ( cfa )
@@ -217,7 +218,7 @@ USER C-SMUDGE \ 12 C,
 \ Выполнить определение, заданное xt. Элементы стека i*x и j*x 
 \ представляют аргументы и результаты xt соответственно.
   LATEST ?DUP IF 1+ C@ C-SMUDGE C! SMUDGE THEN
-  HERE [COMPILE] ]
+  HERE DUP TO LAST-NON [COMPILE] ]
 ;
 
 

@@ -690,23 +690,21 @@ CODE DIGIT \ [ C, N1 -> N2, TF / FF ] \ N2 - значение литеры C как
            \ цифры в системе счисления по основанию N1
        MOV ECX, EAX
        MOV EAX, [EBP]
-       A;  3C C, 30 C,  \  CMP AL, # 30
-       JC SHORT @@1
-       A;  3C C, 3A C,  \  CMP AL, # 3A
-       JNC SHORT @@2
        A;  2C C, 30 C,  \  SUB AL, # 30
-       CMP AL, CL
-       JNC SHORT @@1
-       MOV [EBP], EAX
-       JMP SHORT @@3
-@@2:   A;  3C C, 41 C,  \  CMP AL, # 41
        JC SHORT @@1
-       A;  2C C, 37 C,  \  SUB AL, # 37
-       CMP AL, CL
+       A;  3C C, A C,   \  CMP AL, # A
+       JNC SHORT @@2
+@@3:   CMP AL, CL
        JNC SHORT @@1
        MOV [EBP], EAX
-@@3:   A; B8 C, TRUE W, TRUE W,  \  MOV EAX, # -1
+       A; B8 C, TRUE W, TRUE W,  \  MOV EAX, # -1
        RET
+
+@@2:   A;  3C C, 11 C,  \  CMP AL, # 11
+       JC SHORT @@1
+       A;  2C C, 7 C,   \  SUB AL, # 7
+       JMP SHORT @@3
+
 @@1:   LEA EBP, 4 [EBP]
        XOR EAX, EAX
        RET

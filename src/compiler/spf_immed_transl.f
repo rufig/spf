@@ -80,6 +80,7 @@
 : ; ( -- )
   RET, [COMPILE] [ SMUDGE
   ClearJpBuff
+  0 TO LAST-NON
 ; IMMEDIATE
 
 : EXIT
