@@ -3,36 +3,46 @@ REQUIRE DateTime# ~ac/lib/win/date/date-int.f
 WINAPI: SystemTimeToFileTime KERNEL32.DLL
 WINAPI: FileTimeToSystemTime KERNEL32.DLL
 WINAPI: GetFileTime          KERNEL32.DLL
+WINAPI: FileTimeToLocalFileTime KERNEL32.DLL
+WINAPI: GetSystemTimeAsFileTime KERNEL32.DLL
 
 USER CreationTime   4 USER-ALLOT
 USER LastAccessTime 4 USER-ALLOT
 USER LastWriteTime  4 USER-ALLOT
 
-: GET-FILETIME ( h -- filetime )
+
+: UTC>LOCAL ( filetime1 -- filetime2 )  \ ( filetime ) is ( tlo thi )
+  SWAP SP@ DUP FileTimeToLocalFileTime
+  0= IF 2DROP 0 0 THEN SWAP
+;
+: GET-FILETIME-WRITE ( h -- filetime ) \ UTC
   >R LastWriteTime LastAccessTime CreationTime R>
   GetFileTime IF LastWriteTime 2@ SWAP ELSE 0 0 THEN
 ;
-: GET-FILE-LASTWRITETIME ( h -- sec min hr day mt year )
-  >R 32 ALLOCATE THROW DUP DUP 8 + DUP 8 +
-  ( LastWriteTime LastAccessTime CreationTime) R>
-  GetFileTime
-  IF >R /SYSTEMTIME ALLOCATE THROW DUP /SYSTEMTIME ERASE
-     DUP R@ FileTimeToSystemTime DROP
-     R> FREE DROP >R
+: GET-FILETIME ( h -- filetime ) \ local time
+  GET-FILETIME-WRITE DUP IF UTC>LOCAL THEN
+;
+: FILETIME>TIME&DATE ( tlo thi -- sec min hr day mt year )
+  SWAP SP@  ( filetime )
+  /SYSTEMTIME ALLOCATE THROW DUP /SYSTEMTIME ERASE DUP >R
+  SWAP
+  FileTimeToSystemTime DROP
+  2DROP
      R@ wSecond W@
      R@ wMinute W@
-     R@ wHour W@
-     R@ wDay W@
-     R@ wMonth W@
-     R> wYear W@
-  ELSE DROP 0 0 0 0 0 0 THEN
+     R@ wHour   W@
+     R@ wDay    W@
+     R@ wMonth  W@
+     R@ wYear   W@
+  R> FREE THROW
 ;
-
+: GET-FILE-LASTWRITETIME ( h -- sec min hr day mt year )
+  GET-FILETIME-WRITE  UTC>LOCAL FILETIME>TIME&DATE
+;
 : NOW-FILETIME ( -- filetime )
-  CreationTime
-  TIME&DATE 2DROP 2DROP 2DROP SYSTEMTIME
-  SystemTimeToFileTime
-  IF CreationTime 2@ SWAP ELSE 0 0 THEN
+  0. SP@ ( a-filetime )
+  GetSystemTimeAsFileTime 
+  IF SWAP UTC>LOCAL ELSE 2DROP 0 0 THEN
 ;
 6 6 * 24 * CONSTANT NS-IN-DAY
 
