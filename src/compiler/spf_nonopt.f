@@ -54,20 +54,6 @@ CODE1 EXECUTE ( i*x xt -- j*x ) \ 94
      JMP EBX
 ;C
 
-:: THROW
-  ?DUP
-  IF
-     DUP 109 = IF DROP EXIT THEN \ broken pipe - обычно не ошибка, а конец входного потока в CGI
-     HANDLER @ 
-     DUP
-     IF RP! 
-        R> HANDLER !
-        R> SWAP >R
-        SP! DROP R>
-     ELSE DROP FATAL-HANDLER THEN
-  THEN
-;; 
-
 
 PREVIOUS PREVIOUS SET-CURRENT
 
