@@ -73,7 +73,8 @@ END-CODE
     Z" s" , Z" asdf" strstr
   )
   >IN @  HEADER  >IN !
-  ['] _CAPI-CODE __WIN:
+  ['] _CAPI-CODE COMPILE,
+  __WIN:
 ;
 
 : CVAPI: ( "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
@@ -84,5 +85,6 @@ END-CODE
 \ 50 ALLOCATE THROW VALUE buf
 \ 10 Z" %d" buf 3 sprintf
   >IN @  HEADER  >IN !
-  0 ['] _CVAPI-CODE __WIN:
+  0 ['] _CVAPI-CODE COMPILE,
+  __WIN:
 ;

@@ -64,7 +64,8 @@ END-CODE
     -1
     >IN @  HEADER  >IN !
   THEN
-  ['] _WINAPI-CODE __WIN:
+  ['] _WINAPI-CODE COMPILE,
+  __WIN:
 ;
 
 ;MODULE
