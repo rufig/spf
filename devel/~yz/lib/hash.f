@@ -1,7 +1,8 @@
 \ Расстановочные таблицы
 \ Ю. Жиловец, 18.12.2002, с добавлениями А. Черезова
+\ Добавления Рувима Пинки и Игоря Панасенко
 
-REQUIRE GMEMINIT ~yz/lib/gmem.f
+REQUIRE MGETMEM ~yz/lib/gmem.f
 
 MODULE: HASH-TABLES
 
@@ -10,12 +11,19 @@ MODULE: HASH-TABLES
 \ +4 	n cells	Начала списков записей
 
 \ Формат записи
+
+EXPORT
+
 0 
-CELL -- :link   \ Указатель на следующую запись / 0
-CELL -- :key    \ указатель на строку - ключ
-CELL -- :value  \ Указатель на значение
-1    -- :free   \ 0 - число, <>0 строка
+CELL -- :hashlink   \ Указатель на следующую запись / 0
+CELL -- :hashkey    \ указатель на строку - ключ
+CELL -- :hashvalue  \ Указатель на значение
+1    -- :hashfree   \ 0 - число, <>0 строка
 == #rec
+
+;MODULE
+
+MODULE: HASH-TABLES
 
 : make-hash ( n -- )
   \ очистит хэш-таблицу ALLOCATE
@@ -32,16 +40,28 @@ CELL -- :value  \ Указатель на значение
   BEGIN
     ( akey nkey prev rec)
     2>R ( akey nkey)
-    2DUP R@ :key @ COUNT COMPARE 0= IF ( нашли ключ) 2DROP 2R> ( ." found" s.) EXIT THEN
+    2DUP R@ :hashkey @ COUNT COMPARE 0= IF ( нашли ключ) 2DROP 2R> ( ." found" s.) EXIT THEN
     R> RDROP  ( akey nkey rec)
-    DUP :link @ ?DUP 0= IF ( не нашли ключ) PRESS PRESS 0 ( ." notfound" s.) EXIT THEN
+    DUP :hashlink @ ?DUP 0= IF ( не нашли ключ) PRESS PRESS 0 ( ." notfound" s.) EXIT THEN
   AGAIN ;
 
+: traverse-hash ( xt hash -- )
+  DUP @ CELLS OVER + CELL+ SWAP CELL+ ?DO
+    I @
+    BEGIN ?DUP WHILE
+      OVER EXECUTE 
+    REPEAT
+  CELL +LOOP
+  DROP ;
+
 : del-value ( rec -- )
-  DUP :free C@ IF DUP :value @ MFREEMEM THEN DROP ;
+  DUP :hashfree C@ IF DUP :hashvalue @ MFREEMEM THEN DROP ;
 
 : del-rec ( rec -- link)
-  DUP :key @ MFREEMEM DUP del-value DUP :link @ SWAP MFREEMEM ;
+  DUP :hashkey @ MFREEMEM DUP del-value DUP :hashlink @ SWAP MFREEMEM ;
+
+: del-all-recs ( hash -- )    \ освобождает все записи в таблице
+  ['] del-rec SWAP traverse-hash ;
 
 : (rec-in-hash) ( akey nkey hash -- rec)
   -ROT 2DUP 2>R ROT lookup ?DUP IF
@@ -49,61 +69,90 @@ CELL -- :value  \ Указатель на значение
     DUP del-value RDROP RDROP
   ELSE
      #rec MGETMEM ( last new)
-     DUP ROT :link !
-     2R> CMGETMEM OVER :key !
+     DUP ROT :hashlink !
+     2R> CMGETMEM OVER :hashkey !
   THEN ;
 
-VECT do-it
+USER-VALUE do-it
+
+: (all-hash) ( rec -- nextrec )
+  >R R@ :hashkey @ COUNT R@ :hashvalue @ R> :hashlink @ >R do-it EXECUTE R> ;
+
+: (all-hash-records) ( rec -- nextrec )
+  DUP :hashlink @ >R do-it EXECUTE R> ;
+
+: (del-some-records) ( hash -- )
+  DUP @ CELLS OVER + CELL+ SWAP CELL+ ?DO
+    I
+    BEGIN
+      ( prevrec-a)
+      DUP @ ?DUP 
+    WHILE
+      ( prevrec-a rec)
+      >R
+      R@ :hashkey @ COUNT  R@ :hashvalue @  do-it EXECUTE
+      IF 
+        R> del-rec ( prevrec link) OVER !
+      ELSE
+        DROP R> :hashlink
+      THEN
+    REPEAT DROP
+  CELL +LOOP ;
 
 EXPORT
 
-: HASH! ( akey nkey avalue nvalue hash -- )
-  -ROT 2>R (rec-in-hash) TRUE OVER :free C! 2R> CMGETMEM SWAP :value ! ;
+: HASH! ( avalue nvalue akey nkey hash -- )
+  (rec-in-hash) TRUE OVER :hashfree C! >R CMGETMEM R> :hashvalue ! ;
 
-: HASH!Z ( akey nkey zvalue hash -- )
-  SWAP >R (rec-in-hash) TRUE OVER :free C! R> ZMGETMEM SWAP :value ! ;
+: HASH!Z ( zvalue akey nkey hash -- )
+  (rec-in-hash) TRUE OVER :hashfree C! SWAP ZMGETMEM SWAP :hashvalue ! ;
+
+: HASH!R ( size akey nkey hash -- adr )
+  (rec-in-hash) TRUE OVER :hashfree C! >R MGETMEM DUP R> :hashvalue ! ;
 
 : HASH!N ( akey nkey value hash -- )
-  SWAP >R (rec-in-hash) FALSE OVER :free C! R> SWAP :value ! ;
-
-: HASH!R ( akey nkey size hash -- adr )
-  SWAP >R (rec-in-hash) TRUE OVER :free C! R> MGETMEM DUP ROT :value ! ;
+  SWAP >R (rec-in-hash) FALSE OVER :hashfree C! R> SWAP :hashvalue ! ;
 
 : -HASH ( akey nkey hash -- )
-  lookup ?DUP IF del-rec SWAP :link ! ELSE DROP THEN ;
+  lookup ?DUP IF del-rec SWAP :hashlink ! ELSE DROP THEN ;
 
 : HASH@ ( akey nkey hash -- avalue nvalue / 0 0) 
-  lookup PRESS DUP IF :value @ COUNT ELSE 0 THEN ;
+  lookup PRESS DUP IF :hashvalue @ COUNT ELSE 0 THEN ;
 
 : HASH@Z ( akey nkey hash -- z/0) 
-  lookup PRESS DUP IF :value @ THEN ;
+  lookup PRESS DUP IF :hashvalue @ THEN ;
 
 : HASH@R ( akey nkey hash -- a/0) HASH@Z ;
 
 : HASH@N ( akey nkey hash -- n TRUE / FALSE) 
-  lookup PRESS DUP IF :value @ TRUE THEN ;
+  lookup PRESS DUP IF :hashvalue @ TRUE THEN ;
 
-: small-hash ( -- hash ) 32 make-hash ;
-: large-hash ( -- hash) 256 make-hash ;
+: small-hash ( -- hash ) 32   make-hash ;
+: big-hash   ( -- hash ) 256  make-hash ;
+: large-hash ( -- hash ) 1024 make-hash ;
 
-: traverse-hash ( xt hash -- )
-  DUP @ CELLS OVER + CELL+ SWAP CELL+ ?DO
-    I @ IF 
-      I @
-        BEGIN ?DUP WHILE
-          OVER EXECUTE 
-        REPEAT
-    THEN
-  CELL +LOOP
-  DROP ;
+: clear-hash ( hash -- )    \ очищает хэш, не удаляя основную таблицу
+  DUP del-all-recs DUP @ CELLS SWAP CELL+ SWAP ERASE ;
 
 : del-hash ( hash -- )
-  ['] del-rec OVER traverse-hash MFREEMEM ;
-
-: (all-hash) ( rec -- nextrec )
-  >R R@ :key @ COUNT R@ :value @ do-it R> :link @ ;
+  DUP del-all-recs MFREEMEM ;
 
 : all-hash ( xt hash -- )
+  \ xt ( akey ukey a|value   -- )
   >R TO do-it ['] (all-hash) R> traverse-hash ;
 
+: all-hash-records ( xt hash -- )
+  \ xt ( rec -- )
+  >R TO do-it ['] (all-hash-records) R> traverse-hash ;
+
+: del-some-records ( xt hash -- )
+  \ xt ( akey nkey a|value -- ?)
+  SWAP TO do-it (del-some-records)
+;
+
+: HASH? ( akey ukey h -- true|false )
+  lookup NIP 0<>
+;
+
 ;MODULE
+
