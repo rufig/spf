@@ -30,6 +30,11 @@ WINAPI: SQLGetDiagRec         ODBC32.DLL
 WINAPI: SQLSetEnvAttr         ODBC32.DLL
 WINAPI: SQLRowCount           ODBC32.DLL
 
+WINAPI: SQLCloseCursor        ODBC32.DLL
+WINAPI: SQLEndTran            ODBC32.DLL
+
+\ WINAPI: SQLConfigDataSource   ODBC32.DLL
+
 0 CONSTANT SQL_SUCCESS
 1 CONSTANT SQL_SUCCESS_WITH_INFO
 \ -2125070336 CONSTANT SQL_SUCCESS_WITH_INFO
@@ -75,13 +80,14 @@ CONSTANT /ODBC
   fodbc /ODBC ERASE
   fodbc odbcEnv SQLAllocEnv SQL_OK?
   IF 
-     SQL_IS_INTEGER SQL_OV_ODBC2 SQL_ATTR_ODBC_VERSION fodbc odbcEnv @ SQLSetEnvAttr DROP \ без этого новый ODBC работать не хочет
+     SQL_IS_INTEGER SQL_OV_ODBC2 SQL_ATTR_ODBC_VERSION 
+     fodbc odbcEnv @ SQLSetEnvAttr DROP \ без этого новый ODBC работать не хочет
      fodbc odbcConn  fodbc odbcEnv @ SQLAllocConnect SQL_OK? fodbc SWAP
   ELSE fodbc FALSE THEN
 ;
-: StopSQL ( fodbc -- ior )
+: StopSQL ( fodbc -- )
   { fodbc }
-  fodbc odbcConn @ SQLDisconnect DROP
+\  fodbc odbcConn @ SQLDisconnect DROP
   fodbc odbcConn @ SQLFreeConnect DROP
   fodbc odbcEnv  @ SQLFreeEnv DROP
   fodbc FREE DROP
@@ -185,6 +191,12 @@ CONSTANT /ci
      fodbc BindCols
   THEN
 ;
+: FreeExec { fodbc -- }
+\  fodbc odbcStat @ SQLCloseCursor DROP
+\  0 ( SQL_COMMIT) fodbc odbcEnv @ 1 ( SQL_HANDLE_ENV) SQLEndTran DROP
+  0 fodbc odbcStat @ SQLFreeStmt DROP
+  fodbc odbcConn @ SQLDisconnect DROP
+;
 : ExecSQLfile ( S" filename" fodbc -- ior )
   { fa fu fodbc \ f size mem }
   fa fu R/O OPEN-FILE-SHARED ?DUP IF NIP EXIT THEN
@@ -228,7 +240,10 @@ CONSTANT /ci
   IF DUP ciColumnData @ SWAP ciColumnDataSize @
   ELSE S" " THEN
 ;
-
+\ : ConfigDSN ( attra attru drivera driveru
+\   SQLConfigDataSource
+\ ...
+\ ;
 (
 : TEST \ --
   { \ q }

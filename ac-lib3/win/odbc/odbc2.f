@@ -26,10 +26,12 @@ VARIABLE DescriptionLen
 \ ¬ примерах MS часты опечатки!, осторожнее :)
   { fa fu fodbc \ sl2p mem }
   2048 ALLOCATE THROW -> mem
-  ( SQL_DRIVER_PROMPT) 0 ^ sl2p 2048 mem fu fa 
-  ( S" RichEdit20A" SPF_STDEDIT 0 Window) 0
+  ( SQL_DRIVER_NOPROMPT) 0 ^ sl2p 2048 mem fu fa 
+  ( S" RichEdit20A" SPF_STDEDIT 0 Window ) 0
   fodbc odbcConn @
-  SQLDriverConnect mem FREE THROW
+  SQLDriverConnect
+\ mem sl2p TYPE CR
+  mem FREE THROW
 ;
 : ListTables ( fodbc -- ior )
   { fodbc }
