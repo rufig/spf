@@ -23,7 +23,7 @@ REQUIRE { lib/ext/locals.f
   a u a1 u1 SEARCH   IF
   -> uu -> aa
   aa u1 + uu u1 -
-  aa a - a SWAP
+  a  aa a -
   TRUE               ELSE
   FALSE              THEN
 ;
