@@ -10,12 +10,12 @@ REQUIRE SPLIT- ~pinka\samples\2005\lib\split.f
   \ s-what и s-to освобождаются
   "" { s so sn ss }
   s STR@
-  BEGIN DUP WHILE
+  BEGIN ( dright' )
     so STR@ SPLIT-
   WHILE ( dright dleft )
     ss STR+
     sn STR@ ss STR+
-  REPEAT THEN  ss STR+
+  REPEAT ss STR+
 
   ss STR@  s STR!
   ss STRFREE
