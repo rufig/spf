@@ -1,0 +1,14 @@
+VARIABLE DEBUG
+: DebugOn   TRUE DEBUG ! ;
+: DebugOff FALSE DEBUG ! ;
+
+: DEBUG.
+  DEBUG @
+  IF (.") SPACE ELSE DROP THEN
+;  
+
+: :
+  :
+  LATEST POSTPONE LITERAL
+  POSTPONE DEBUG. 
+;
