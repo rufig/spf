@@ -150,10 +150,10 @@ CREATE LTL 2 ,   \ line terminator length
 
 DECIMAL
 
-USER Buf
-USER Hdl
+\ USER Buf
+\ USER Hdl
 
-: READ-LINE ( c-addr u1 fileid -- u2 flag ior ) \ 94 FILE
+\ : READ-LINE ( c-addr u1 fileid -- u2 flag ior ) \ 94 FILE
 \ ѕрочесть следующую строку из файла, заданного fileid, в пам€ть
 \ по адресу c-addr. „итаетс€ не больше u1 символов. ƒо двух
 \ определенных реализацией символов "конец строки" могут быть
@@ -174,30 +174,55 @@ USER Hdl
 \ пытаетс€ прочесть незаписанную часть файла.
 \ ѕосле завершени€ операции FILE-POSITION возвратит следующую позицию
 \ в файле после последнего прочитанного символа.
-  SWAP LTL @ + SWAP
-  >R >R DUP Buf ! R> R>
-  DUP Hdl !
-  READ-FILE ?DUP IF ( ошибка чтени€ ) 0 SWAP EXIT THEN
-  DUP IF ( что-то прочли ) ( прочитано_байт )
-         DUP
-         Buf @ SWAP LT 1 SEARCH ( прочитано_байт адрес_конца_строки осталось_байт флаг )
-         0= IF ( конец строки не найден - будем рвать в текущем месте)
-               2DROP -1 0 EXIT
-            THEN
-         ( конец строки найден )
-         ROT DROP ( убрал прочитано_байт )
-         ( адрес_конца_строки  осталось )
-         LTL @ - ( не возвращать CRLF )
-         ?DUP IF
-         0 DNEGATE
-         Hdl @ FILE-POSITION ?DUP
-         IF >R 2DROP 2DROP Buf @ - -1 R> EXIT THEN
-         D+
-         Hdl @ REPOSITION-FILE ?DUP IF 0 SWAP EXIT THEN
-         THEN
-         ( адрес_конца_строки )
-         Buf @ - -1 0
-      ELSE ( были в конце файла ) 0 0 THEN
+\  SWAP LTL @ + SWAP
+\  >R >R DUP Buf ! R> R>
+\  DUP Hdl !
+\  READ-FILE ?DUP IF ( ошибка чтени€ ) 0 SWAP EXIT THEN
+\  DUP IF ( что-то прочли ) ( прочитано_байт )
+\         DUP
+\         Buf @ SWAP LT 1 SEARCH ( прочитано_байт адрес_конца_строки осталось_байт флаг )
+\         0= IF ( конец строки не найден - будем рвать в текущем месте)
+\               2DROP -1 0 EXIT
+\            THEN
+\         ( конец строки найден )
+\         ROT DROP ( убрал прочитано_байт )
+\         ( адрес_конца_строки  осталось )
+\         LTL @ - ( не возвращать CRLF )
+\         ?DUP IF
+\         0 DNEGATE
+\         Hdl @ FILE-POSITION ?DUP
+\         IF >R 2DROP 2DROP Buf @ - -1 R> EXIT THEN
+\         D+
+\         Hdl @ REPOSITION-FILE ?DUP IF 0 SWAP EXIT THEN
+\         THEN
+\         ( адрес_конца_строки )
+\         Buf @ - -1 0
+\      ELSE ( были в конце файла ) 0 0 THEN
+\ ;
+
+USER _fp1 USER _fp2
+USER _addr USER _ar
+
+: READ-LINE ( c-addr u1 fileid -- u2 flag ior ) \ 94 FILE
+  >R
+
+  R@ FILE-POSITION IF 2DROP 0 0 THEN _fp1 ! _fp2 !
+  LTL @ +
+  OVER _addr !
+
+  R@ READ-FILE ?DUP IF NIP 0 0 ROT RDROP EXIT ELSE >R THEN
+
+  R@ 0= IF RDROP RDROP 0 0 0 EXIT THEN          \ были в конце файла
+
+  _addr @ R@ LT LTL @ SEARCH
+  IF                                \ найден разделитель строк
+     DROP _ar !
+     _fp2 @ _fp1 @ _ar @ _addr @ - 2+ S>D D+ RDROP R> REPOSITION-FILE DROP
+     _ar @ _addr @ - TRUE 0
+  ELSE                              \ не найден разделитель строк
+     2DROP
+     R> RDROP TRUE 0                \ если строка прочитана не полностью - будет разрезана
+  THEN
 ;
 
 USER lpNumberOfBytesWritten
