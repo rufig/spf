@@ -2,7 +2,7 @@
 \ $Id$
 
 ( ENTER-CS можно сделать в потоке несколько раз,
-  потом столько же LEAVE-CS
+  потом столько же LEAVE-CS.
   Пока входов больше - другой поток не войдет,
   если выходов больше - можно будет войти
   только после выполнения ActivateCSs
@@ -52,4 +52,13 @@ CREATE CS-LIST 0 ,
 : LEAVE-CS ( cs -- )
 \ Покинуть (освободить) критическую секцию cs
     LeaveCriticalSection DROP
+;
+
+: NEW-CS ( -- cs )
+  6 CELLS ALLOCATE THROW
+  DUP  InitializeCriticalSection DROP
+;
+: DEL-CS ( cs -- )
+  DUP  DeleteCriticalSection DROP
+  FREE THROW
 ;
