@@ -218,7 +218,7 @@ USER C-SMUDGE \ 12 C,
 \ представл€ют аргументы и результаты xt соответственно.
   LATEST ?DUP IF 1+ C@ C-SMUDGE C! SMUDGE THEN
   HERE [COMPILE] ]
-  HERE TO :-SET
+\  HERE TO :-SET 
 ;
 
 
@@ -239,6 +239,6 @@ USER C-SMUDGE \ 12 C,
   HEADER
   ]
   HIDE
-  HERE TO :-SET
+  HERE DROP \ TO :-SET
 ;
 

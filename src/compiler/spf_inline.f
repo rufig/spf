@@ -35,9 +35,8 @@ HEX
 \   сообщение об условии, соответствующем THROW с кодом n. Затем 
 \   система выполнит функцию ABORT (версию ABORT из CORE).
      STATE @ IF
-     0B C, C0 C, \  or eax, eax
-     74 C, 05 C, \  jz $+05
-     ['] (THROW) _COMPILE,
+     0x850FC00B , \  or eax, eax \  jnz near
+     ['] (THROW) HERE CELL+ - ,
      ['] DROP    MACRO,   \ без MACRO, оптмимизации не будет
      ELSE THROW
      THEN

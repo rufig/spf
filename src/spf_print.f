@@ -128,6 +128,23 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 ;
 ' (.") TO (.")-CODE
 
+: DIGIT ( C, N1 -> N2, TF / FF ) 
+\ N2 - значение литеры C как
+\ цифры в системе счислени€ по основанию N1
+  SWAP
+  DUP 58 <
+      OVER 47 > AND
+      IF \ within 0..9
+         48 -
+      ELSE
+         DUP 64 >
+         IF
+           DUP 96 > IF 87 ELSE 55 THEN -
+         ELSE 2DROP 0 EXIT THEN
+      THEN
+   TUCK > DUP 0= IF NIP THEN
+;
+
 : >NUMBER ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 ) \ 94
 \ ud2 - результат преобразовани€ символов строки, заданной c-addr1 u1,
 \ в цифры, использу€ число в BASE, и добавлением каждой к ud1 после
@@ -151,10 +168,14 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
     R> 1+ R> 1-
   REPEAT
 ;
-: ANSI>OEM ( addr u -- addr u )
-  2DUP SWAP DUP CharToOemBuffA DROP
-;
 
+: ANSI>OEM ( addr u -- addr u )
+  DUP ROT ( u u addr )
+  PAD SWAP CharToOemBuffA DROP
+  PAD SWAP
+;
 : OEM>ANSI ( addr u -- addr u )
-  2DUP SWAP DUP OemToCharBuffA DROP
+  DUP ROT ( u u addr )
+  PAD SWAP OemToCharBuffA DROP
+  PAD SWAP
 ;

@@ -40,7 +40,7 @@
 \ Добавить семантику времени выполнения, данную ниже, к текущему определению.
 \ Время выполнения: ( -- )
 \ Продолжить выполнение.
-  ?COMP HERE TO :-SET
+  ?COMP \ HERE TO :-SET
   >RESOLVE
 ; IMMEDIATE
 
@@ -53,7 +53,7 @@
 \ Продолжить выполнение.
   ?COMP
   4 ALIGN-NOP
-  HERE TO :-SET
+\  HERE TO :-SET
   <MARK 3
 ; IMMEDIATE
 
@@ -124,5 +124,4 @@
 \ Неоднозначная ситуация возникает, если RECURSE используется после DOES>.
   ?COMP
   LATEST NAME> _COMPILE,
-  HERE TO :-SET
 ; IMMEDIATE

@@ -6,7 +6,7 @@ HEX IMAGE-BASE 1034 + CONSTANT AddrOfLoadLibrary      \ адреса процедур в spf-st
     IMAGE-BASE 1038 + CONSTANT AddrOfGetProcAddress
 DECIMAL
 
-4 ALIGN-BYTES !
+\ 4 ALIGN-BYTES !
 
 : LOAD-VERSION ( -- n )
   S" VERSION.SPF" ['] INCLUDED CATCH IF 2DROP 375000 THEN
@@ -44,6 +44,9 @@ VARIABLE SAVED-CURRENT
 ' R>  VALUE  DOES-CODE
 
 0 VALUE WINAPI-CODE
+0 VALUE 0WIN-CODE
+0 VALUE 1WIN-CODE
+0 VALUE RWIN-CODE
 0 VALUE WNDPROC-CODE
 0 VALUE TC-FORTH-INSTANCE>
 0 VALUE TC-<FORTH-INSTANCE
@@ -108,7 +111,6 @@ C" UMIN" FIND NIP 0=
 
 \ ~mak\listing1.f
 
-
 HEX
 
 : ALIGN-NOP ( n -- )
@@ -127,15 +129,21 @@ HEX
 :  'DUP  'DUP_V ;
 : 'DROP 'DROP_V ;
 
+: M\  POSTPONE \  ; IMMEDIATE
+
 S" src\macroopt.f"                   INCLUDED
+
+TRUE TO ?C-JMP
+
+M\ ' DROP TO DTST
 
 : TC-CALL, ( addr -- )
   \ так компилируетс€ вызов слова в —ѕ-‘орте 3.0
   ?SET
   SetOP
   0E8 C,              \ машинна€ команда CALL
-  HERE CELL+ - ,
-  HERE TO LAST-HERE
+  DP @ CELL+ - ,
+  DP @ TO LAST-HERE
 ;
 
 : MCOMPILE, ( CFA -- )
@@ -311,11 +319,10 @@ ALSO TC DEFINITIONS PREVIOUS
 \  OVER , +
 ;
 
-: WINAPI: ( "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
-  >IN @
-  [T] HEADER [I]
-  >IN !
-  WINAPI-CODE COMPILE,
+
+: __WIN:  ( CFA_INI "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
+
+  COMPILE,
   HERE TC-WINAP !
   0 , \ address of winproc
   0 , \ address of library name
@@ -331,6 +338,31 @@ ALSO TC DEFINITIONS PREVIOUS
   R> LoadLibraryA DUP 0= ABORT" Library not found"
   R> SWAP GetProcAddress 0= ABORT" Procedure not found"
 ;
+
+ALSO TC
+
+: _WIN: ( CFA_INI "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
+     >IN @ [T] HEADER [I]  >IN ! __WIN: ;
+
+
+: WINAPI: ( "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
+  WINAPI-CODE  _WIN:
+;
+
+: RWIN:  ( "R»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
+  RWIN-CODE SkipDelimiters  >IN @ [T] HEADER [I]
+ 1+  \ обход префикса обозначающего функцию, параметры которой
+\ передаютс€ через стек возвратов
+    >IN !      __WIN: ;
+
+: 0WIN:  ( "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
+  0WIN-CODE _WIN: ;
+
+: 1WIN:  ( "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
+  1WIN-CODE _WIN: ;
+
+ PREVIOUS
+
 
 : WNDPROC: ( xt "name" -- )
   HERE
@@ -437,8 +469,8 @@ ALSO TC-IMM DEFINITIONS PREVIOUS
 
 ; IMMEDIATE
 
-
-: ; PREVIOUS POSTPONE ; [I] ; IMMEDIATE
+: ; PREVIOUS
+  ?SET SetOP  POSTPONE ; [I] OPT OPT_CLOSE  ; IMMEDIATE
 
 : ['] ALSO TC-WL ' TC-LIT, PREVIOUS ; IMMEDIATE
 
@@ -463,7 +495,8 @@ ALSO TC-IMM DEFINITIONS PREVIOUS
 : ( [COMPILE] ( ; IMMEDIATE
 : [ [COMPILE] [ ; IMMEDIATE
 
-: EXIT RET, ; IMMEDIATE
+: EXIT
+ ?SET SetOP 0xC3 C, OPT OPT_CLOSE   ; IMMEDIATE
 
 : LITERAL
     STATE @ IF TC-LIT, THEN
@@ -480,8 +513,8 @@ ALSO TC-IMM DEFINITIONS PREVIOUS
 : UNTIL \ 94
   ?COMP 3 <> IF -2004 THROW THEN \ ABORT" UNTIL без BEGIN !"
   TC-?BRANCH,
-  0xFFFFFF80  HERE 4 - @  U<
-  IF  HERE 5 - W@ 0x3F0 + HERE 6 - W!   -4 ALLOT
+  0xFFFFFF80  DP @ 4 - @  U<
+  IF  HERE 5 - W@ 0x3F0 + DP @ 6 - W!   -4 ALLOT
   THEN
 ; IMMEDIATE
 
@@ -595,11 +628,10 @@ HEX
                  ELSE ?DUP
                  THEN ;   IMMEDIATE
 
-: THROW STATE @ IF
-     HERE TO :-SET
-     0B C, C0 C, \  or eax, eax
-     74 C, 05 C, \  jz $+05
-     E8 C, THROW-CODE HERE CELL+ - ,
+: THROW
+     STATE @ IF
+     0x850FC00B , \  or eax, eax \  jnz near
+     THROW-CODE HERE CELL+ - ,
      'DROP    MACRO,
      ELSE THROW
      THEN ; IMMEDIATE

@@ -24,6 +24,10 @@ USER-CREATE ATIB
 \ c-addr - адрес входного буфера. u - количество символов в нем.
   TIB #TIB @
 ;
+: SOURCE! ( c-addr u -- ) 
+\ установить  c-addr u входным буфером (точнее, областью разбора - PARSE-AREA)
+  #TIB ! TO TIB >IN 0!
+;
 
 : EndOfChunk ( -- flag )
   >IN @ SOURCE NIP < 0=        \ >IN не меньше, чем длина чанка

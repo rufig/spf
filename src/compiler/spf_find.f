@@ -176,7 +176,7 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 
 : VOC-NAME. ( wid -- ) \ напечатать имя списка слов, если он именован
   DUP FORTH-WORDLIST = IF DROP ." FORTH" EXIT THEN
-  DUP CELL+ @ DUP IF ID. DROP ELSE DROP ." <NONAME>:" . THEN
+  DUP CELL+ @ DUP IF ID. DROP ELSE DROP ." <NONAME>:" U. THEN
 ;
 
 : ORDER ( -- ) \ 94 SEARCH EXT

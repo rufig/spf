@@ -184,6 +184,26 @@ VARIABLE   &INTERPRET
   REPEAT BYE
 ;
 
+: SAVE-ERR ( err-num -- )
+\ сохранить текущую PARSE-AREA (строка by SOURCE ) 
+\ и параметры входного потока CURFILE, CURSTR  в область ERR-DATA
+\ Цель - дальнейшая индикация  места,  вызвавшего исключение.
+
+  ERR-DATA err.number !
+  CURSTR @   ERR-DATA err.line# !
+  >IN @      ERR-DATA err.in#   !
+  SOURCE /errstr_ MIN  DUP 
+             ERR-DATA err.line C!   
+             ERR-DATA err.line 1+ SWAP CMOVE
+          0  ERR-DATA err.line COUNT + C!
+  CURFILE @ ?DUP IF ASCIIZ> ELSE S" H-STDIN" THEN
+  /errstr_ MIN  DUP 
+             ERR-DATA err.file C!
+             ERR-DATA err.file 1+ SWAP MOVE
+          0  ERR-DATA err.file COUNT + C!
+  NOTSEEN-ERR
+;
+
 : QUIT ( -- ) ( R: i*x ) \ CORE 94
 \ Сбросить стек возвратов, записать ноль в SOURCE-ID.
 \ Установить стандартный входной поток и состояние интерпретации.
@@ -196,22 +216,29 @@ VARIABLE   &INTERPRET
 
   BEGIN
     [COMPILE] [
-    ['] MAIN1 CATCH
+    ['] MAIN1 CATCH 
+    \ DUP IF DUP SAVE-ERR THEN
     CONSOLE-HANDLES
     0 TO SOURCE-ID
-\    CGI? @ IF H-STDERR TO H-STDOUT THEN \ В cgi удобно выводить баги в h-stderr
     ['] ERROR CATCH DROP
  ( S0 @ SP! R0 @ RP! \ стеки не сбрасываем, т.к. это за нас делает CATCH :)
   AGAIN
 ;
 
+: SAVE-SOURCE ( -- i*x i )
+  SOURCE-ID   >IN @   SOURCE   CURSTR @   5
+;
+: RESTORE-SOURCE ( i*x i  -- )
+  5 <> IF ABORT THEN
+  CURSTR !    SOURCE!  >IN !  TO SOURCE-ID
+;
+
 : EVALUATE-WITH ( ( i*x c-addr u xt -- j*x )
 \ Считая c-addr u входным потоком, вычислить её интерпретатором xt.
-  SOURCE-ID >R TIB >R #TIB @ >R >IN @ >R
-  -1 TO SOURCE-ID
-  SWAP #TIB ! SWAP TO TIB >IN 0!
-  ( ['] INTERPRET) CATCH
-  R> >IN ! R> #TIB ! R> TO TIB R> TO SOURCE-ID
+  SAVE-SOURCE N>R 
+  >R  SOURCE!  -1 TO SOURCE-ID
+  R> ( ['] INTERPRET) CATCH
+  NR> RESTORE-SOURCE
   THROW
 ;
 
@@ -225,26 +252,26 @@ VARIABLE   &INTERPRET
   ['] INTERPRET EVALUATE-WITH
 ;
 
-: (INCLUDE)
-   BEGIN
-     REFILL  
-   WHILE
-     INTERPRET
-   REPEAT
+: (TranslateFlow) ( -- )
+   BEGIN REFILL WHILE INTERPRET REPEAT
 ;
 
-: PERCEIVE-WITH ( j*x addr u xt -- i*x ior )
-\ Сделать addr u - входным буфером, выполнить xt по CATCH
-\ Если exception #TIB >IN и CURSTR не восстанавливаем!
-   TIB >R #TIB @ >R 
-   CURSTR @ >R >IN @ >R
-   SWAP #TIB ! SWAP TO TIB 
-   >IN 0! CURSTR 0!
+: TranslateFlow  ( -- )
+  ['] (TranslateFlow) CATCH DUP IF
+    SEEN-ERR? IF DUP SAVE-ERR THEN
+  THEN THROW
+;
+
+: RECEIVE-WITH  ( i*x source xt -- j*x ior )
+\ сохранить спецификации входного потока
+\ установить входной поток на source, выполнить xt
+\ восстановить спецификации входного потока
+   SAVE-SOURCE N>R
+   C/L ALLOCATE THROW DUP >R  0 SOURCE!  CURSTR 0! 
+   SWAP TO SOURCE-ID
    CATCH
-   DUP IF RDROP RDROP RDROP
-       ELSE R> >IN ! R> CURSTR ! R> #TIB !
-       THEN
-   R> TO TIB
+   R> FREE THROW
+   NR> RESTORE-SOURCE
 ;
 
 : INCLUDE-FILE ( i*x fileid -- j*x ) \ 94 FILE
@@ -263,14 +290,10 @@ VARIABLE   &INTERPRET
 \ возникают исключительная ситуация при закрытии файла. Когда имеет
 \ место неопределенная ситуация, статус (открыт или закрыт) любых
 \ интерпретируемых файлов зависит от реализации.
-  BLK 0! SOURCE-ID >R
-  FILE>RSTREAM TO SOURCE-ID
-  C/L 2+ DUP ALLOCATE THROW DUP >R
-  SWAP ['] (INCLUDE) PERCEIVE-WITH
-  DUP IF R@ TIB C/L 2+ QCMOVE THEN  \ чтобы ERROR ошибку показало
-  SOURCE-ID FREE-RSTREAM CLOSE-FILE THROW
-  R> FREE THROW
-  R> TO SOURCE-ID
+  BLK 0!
+  FILE>RSTREAM DUP >R  
+  ['] TranslateFlow RECEIVE-WITH
+  R> FREE-RSTREAM CLOSE-FILE THROW
   THROW
 ;
 

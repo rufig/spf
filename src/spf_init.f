@@ -108,7 +108,7 @@ VARIABLE IN-EXCEPTION
   CGI? @ 0= ( ?GUI 0= AND)
   IF
     ." SP-FORTH - ANS FORTH 94 for Win95/98/ME/NT/2000" CR
-    ." Open source project at http://spf.sourceforge.net" CR
+    ." Open source project at http://spf.sf.net" CR
     ." Russian FIG at http://www.forth.org.ru ; Started by A.Cherezov" CR
     ." Version " VERSION 1000 / 0 <# # # [CHAR] . HOLD # #> TYPE
     ."  Build " VERSION 0 <# # # # #> TYPE

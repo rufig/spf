@@ -49,13 +49,11 @@ HEX
 DECIMAL
 
 : OPTIONS ( -> ) \ интерпретировать командную строку
-  TIB #TIB @ HEAP-COPY >R #TIB @ >R
-  SOURCE-ID >R >IN @ >R
-  GetCommandLineA ASCIIZ>
-  TIB SWAP C/L MIN DUP #TIB ! QCMOVE >IN 0!
-  TIB C@ [CHAR] " = IF [CHAR] " ELSE BL THEN
-  WORD DROP \ имя программы
+  SAVE-SOURCE N>R  
+  -1 TO SOURCE-ID \ чтобы REFILL не делал ( как по EVALUATE ), т.к. буфер не ATIB.
+  GetCommandLineA ASCIIZ>  SOURCE!
+  PeekChar [CHAR] " = IF [CHAR] " ELSE BL THEN  
+  WORD DROP  \ имя программы
   <PRE> ['] INTERPRET CATCH ?DUP IF ERROR THEN
-  R> >IN ! R> TO SOURCE-ID R> DUP #TIB !
-  R@ TIB ROT QCMOVE R> FREE THROW
+  NR> RESTORE-SOURCE
 ;

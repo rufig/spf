@@ -7,6 +7,11 @@
 
 HEX
 
+: HERE ( -- addr ) \ 94
+\ addr - указатель пространства данных.
+  DP @ DUP TO :-SET
+;
+
 : _COMPILE,  \ 94 CORE EXT
 \ »нтерпретаци€: семантика не определена.
 \ ¬ыполнение: ( xt -- )
@@ -14,8 +19,8 @@ HEX
 \ семантике выполнени€ текущего определени€.
   SetOP
   0E8 C,              \ машинна€ команда CALL
-  HERE CELL+ - ,
-  HERE TO LAST-HERE
+  DP @ CELL+ - ,
+  DP @ TO LAST-HERE
 ;
 
 : COMPILE,  \ 94 CORE EXT
