@@ -128,37 +128,21 @@ USER uLocalsCOMCnt
 USER uPrevCurrent
 USER uAddDepth
 
-: (Local^) ( N -- ADDR )
-  RP@ +
-;
 : LocalOffs ( n -- offs )
-  uLocalsCnt @ SWAP - CELLS CELL+ uAddDepth @ +
+  uLocalsCnt @ SWAP - 1- CELLS uAddDepth @ +
 ;
 
 : ClearObj ( n --)
-  R> DUP
-  0x18 RSHIFT RP@ SWAP 0
+  R>
+  RP@ SWAP 0
   DO
     DUP @ ?DUP IF 2 CELLS OVER @ + @ API-CALL DROP THEN \ вызов метода release
     CELL+
   LOOP
   DROP
-  0xFFFFFF AND >R ['] (LocalsExit) >R
 ;
 
 \ Чтобы работал и в spf3 и в spf4
-
-[UNDEFINED] EVAL-WORD [IF]
-  : EVAL-WORD ( a u -- )
-  \ интерпретировать ( транслировать) слово с именем  a u
-    SFIND ?DUP IF
-      STATE @ = IF COMPILE, ELSE  EXECUTE THEN
-    ELSE
-      -2003 THROW
-    THEN
-  ;
-[THEN]
-
 VERSION 400000 < [IF]
 \ spf3
   : CompileLocalsInit
@@ -167,14 +151,6 @@ VERSION 400000 < [IF]
     ?DUP IF CELLS LIT, POSTPONE DRMOVE THEN
     uLocalsUCnt @ uLocalsCOMCnt @ + ?DUP
     IF LIT, POSTPONE (RALLOT) THEN
-    uLocalsCnt  @ ?DUP 
-    IF
-      CELLS
-      uLocalsCOMCnt @ ?DUP
-      IF 0x18 LSHIFT OR LIT, POSTPONE >R ['] ClearObj LIT, POSTPONE >R
-      ELSE LIT, POSTPONE >R ['] (LocalsExit) LIT, POSTPONE >R
-      THEN
-    THEN
   ;
   : CompileLocal@ ( n -- )
     LocalOffs LIT, POSTPONE RP+@
@@ -193,14 +169,6 @@ VERSION 400000 < [IF]
     ?DUP IF CELLS LIT, POSTPONE DRMOVE THEN
     uLocalsUCnt @ uLocalsCOMCnt @ + ?DUP
     IF LIT, POSTPONE (RALLOT) THEN
-    uLocalsCnt  @ ?DUP 
-    IF
-      CELLS
-      uLocalsCOMCnt @ ?DUP
-      IF 0x18 LSHIFT OR RLIT, ['] ClearObj RLIT,
-      ELSE RLIT, ['] (LocalsExit) RLIT,
-      THEN
-    THEN
   ;
 
   : CompileLocal@ ( n -- )
@@ -367,9 +335,32 @@ WARNING @ WARNING 0!
 : 2>R   POSTPONE 2>R    [  2 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
 : 2R>   POSTPONE 2R>    [ -2 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
 
-\ ===
+VERSION 400000 < [IF]
+: (EXIT)
+  uLocalsCnt  @ ?DUP 
+  IF
+    uLocalsCOMCnt @ ?DUP
+    IF LIT, POSTPONE >R ['] ClearObj LIT, POSTPONE >R THEN
+    CELLS LIT, POSTPONE >R ['] (LocalsExit) LIT, POSTPONE >R
+  THEN
+;
+[ELSE]
+: (EXIT)
+  uLocalsCnt  @ ?DUP 
+  IF
+    uLocalsCOMCnt @ ?DUP
+    IF RLIT, ['] ClearObj RLIT, THEN
+    CELLS DUP SHORT?
+    IF 0x83 C, 0xC4 C, C, \ ADD ESP, # 127
+    ELSE 0x81 C, 0xC4 C, , \ ADD ESP, # 128
+    THEN
+  THEN
+;
+[THEN]
 
-: ;  LocalsCleanup  S" ;" EVAL-WORD ; IMMEDIATE
+: EXIT  (EXIT) POSTPONE EXIT ; IMMEDIATE
+
+: ;  (EXIT)  LocalsCleanup  S" ;" EVALUATE ; IMMEDIATE
 
 WARNING !
 
