@@ -12,6 +12,7 @@ WINAPI: recvfrom        WSOCK32.DLL
 WINAPI: sendto          WSOCK32.DLL
 
 : sockIP&Port ( socket -- IP port )
+\ IP=0, если клиент уже отключился!
   { s \ nlen nam }
   32 ALLOCATE THROW -> nam
   32 -> nlen
