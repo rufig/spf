@@ -173,6 +173,7 @@ USER TIMEOUT
   DROP inet_addr GetHostName
 ;
 : GetHostIP ( addr u -- IP ior )
+  DUP 0= IF NIP 11004 EXIT THEN \ иначе пустой хост S" " дает 0 0
   OVER inet_addr DUP -1 <> IF NIP NIP 0 EXIT ELSE DROP THEN
   DROP gethostbyname DUP IF 3 CELLS + @ @ @ 0
                          ELSE WSAGetLastError THEN
