@@ -293,7 +293,7 @@ TRUE VALUE EnableEmit
   S" spf4wc-script.f" R/O OPEN-FILE 0= IF
     DUP TO fid
     FILE-SIZE THROW DROP ?DUP IF
-      DUP 1+ TO SizeEd
+      1+ DUP TO SizeEd
       ALLOCATE THROW DUP TO Content
       SizeEd 1- fid READ-FILE 2DROP
       Content 0 WM_SETTEXT SendToEdVoid
