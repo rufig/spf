@@ -1551,7 +1551,7 @@ OP0 @  C@  A1 XOR OR \ MOV     EAX , X
            CELL- \ DROP TRUE EXIT 
            BEGIN EAX>ECX0 UNTIL
            BEGIN EAX>ECX  UNTIL
-           DROP  ." #"
+           DROP  \ ." #"
            OP1 ToOP0
            FALSE
            -5 ALLOT  M\ F0F DTST
