@@ -36,7 +36,8 @@ REQUIRE STR@         ~ac/lib/str2.f
   { server port \ sock ip }
   server STR@ GetHostIP THROW -> ip
   CreateSocket THROW -> sock
-  60000 sock SetSocketTimeout THROW
+  ( 60000) TIMEOUT @ DUP 0= IF DROP 60000 THEN
+  sock SetSocketTimeout THROW
   ip port sock ConnectSocket 
   ?DUP IF sock CloseSocket DROP THROW THEN
   sock SocketLine
