@@ -14,9 +14,12 @@ VARIABLE USER-OFFS \ смещение в области данных потока,
   IF 0 ELSE GetLastError THEN
 ;
 : USER-ALLOT ( n -- )
-  USER-OFFS @ +   \ с начала прибавляем
-  CELL 1- +  [ CELL NEGATE ] LITERAL AND \ потом выравниваем
-  USER-OFFS !
+  USER-OFFS +!
+
+\ выровняем в USER-CREATE ~day 
+\  USER-OFFS @ +   \ с начала прибавляем
+\  CELL 1- +  [ CELL NEGATE ] LITERAL AND \ потом выравниваем
+\  USER-OFFS !
 ;
 : USER-HERE ( -- n )
   USER-OFFS @

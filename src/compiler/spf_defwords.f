@@ -151,11 +151,18 @@ END-CODE
   ['] _CREATE-CODE COMPILE,
   ,
 ;
+
+: USER-ALIGNED ( -- a-addr n )
+   USER-HERE 3 + 2 RSHIFT ( 4 / ) 4 * DUP
+   USER-HERE -
+;
+
 : USER-CREATE ( "<spaces>name" -- )
   HEADER
   HERE DOES>A ! ( для DOES )
   ['] _USER-CODE COMPILE,
-  USER-HERE ,
+  USER-ALIGNED SWAP ,
+  USER-ALLOT
 ;
 : USER ( "<spaces>name" -- ) \ локальные переменные потока
   USER-CREATE
@@ -164,15 +171,15 @@ END-CODE
 : USER-VALUE ( "<spaces>name" -- ) \ 94 CORE EXT
   HEADER
   ['] _USER-VALUE-CODE COMPILE,
-  USER-HERE ,
-  4 USER-ALLOT
+  USER-ALIGNED SWAP ,
+  CELL+ USER-ALLOT
   ['] _TOUSER-VALUE-CODE COMPILE,
 ;
 : USER-VECT ( "<spaces>name" -- ) 
   HEADER
   ['] _USER-VECT-CODE COMPILE,
-  USER-HERE ,
-  4 USER-ALLOT
+  USER-ALIGNED SWAP ,
+  CELL+ USER-ALLOT
   ['] _TOUSER-VALUE-CODE COMPILE,
 ;
 : ->VECT ( x -> )
