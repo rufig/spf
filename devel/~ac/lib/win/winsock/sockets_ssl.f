@@ -26,15 +26,23 @@ VECT dFailedSsl
   s uSSL_CONTEXT @ ['] SslObjAccept CATCH \ 0=OK, 5=не тот сертификат, 1= нет сертификата
   ?DUP IF NIP NIP dFailedSsl EXIT THEN
   DUP uSSL_OBJECT !
+  verify 0= IF DROP S" " 0 EXIT THEN
   ?DUP IF SslGetVerifyResults THROW ROT \ ." verify:" . ." (" TYPE ." )" .
        ELSE S" " 0 THEN
 ;
-: SslClientSocket ( addr u s -- )
+: SslClientSocket { addr u verify s -- namea nameu cert }
 \ addr u - имя файла с сертификатом и закрытым ключем в PEM-формате
   SslInit
-  uSSL_SOCKET !
-  X509_FILETYPE_PEM 
+  s uSSL_SOCKET !
+  addr u X509_FILETYPE_PEM 
   SslNewClientContext uSSL_CONTEXT !
+  addr u verify ( SSL_VERIFY_PEER) uSSL_CONTEXT @ SslSetVerify
+  s uSSL_CONTEXT @ ['] SslObjConnect CATCH \ 0=OK, 5=не тот сертификат, 1= нет сертификата
+  ?DUP IF NIP NIP dFailedSsl EXIT THEN
+  DUP uSSL_OBJECT !
+  verify 0= IF DROP S" " 0 EXIT THEN
+  ?DUP IF SslGetVerifyResults THROW ROT \ ." verify:" . ." (" TYPE ." )" .
+       ELSE S" " 0 THEN
 ;
 : WriteSocket ( addr u s -- ior )
   DUP uSSL_SOCKET @ =

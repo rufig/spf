@@ -44,6 +44,7 @@ SSLAPI: SSL_library_init
 SSLAPI: SSL_CTX_new
 SSLAPI: TLSv1_method
 SSLAPI: SSLv3_method
+SSLAPI: SSLv23_method
 SSLAPI: SSL_new
 SSLAPI: SSL_set_fd
 SSLAPI: SSL_connect
@@ -60,6 +61,7 @@ SSLAPI: SSL_CTX_set_default_passwd_cb
 SSLAPI: SSL_set_accept_state
 SSLAPI: SSLv23_server_method
 SSLAPI: SSLv23_client_method
+SSLAPI: SSLv3_client_method
 SSLAPI: SSL_free
 
 SSLAPI: SSL_CTX_set_verify
@@ -83,9 +85,14 @@ SSLEAPI: X509_verify_cert_error_string
 2 CONSTANT SSL_VERIFY_FAIL_IF_NO_PEER_CERT
 4 CONSTANT SSL_VERIFY_CLIENT_ONCE
 
+USER uSSL_INIT
+
 : SslInit ( -- )
-  SSL_load_error_strings DROP
-  SSL_library_init DROP
+  uSSL_INIT @ 0=
+  IF
+    SSL_load_error_strings DROP
+    SSL_library_init uSSL_INIT !
+  THEN
 ;
 : SslNewServerContext { pema pemu type \ c -- context }
   SSLv23_server_method SSL_CTX_new DUP 0= THROW NIP
