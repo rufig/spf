@@ -3796,7 +3796,11 @@ OP0 @ W@ 4589 XOR OR \ 587C43 8945EC            MOV     EC [EBP] , EAX
        EXIT   
    THEN
 
-OP3 @ W@ 4589 XOR    \  894500            MOV     0 [EBP] , EAX
+OP3 @ 2+ C@  
+OP1 @ 2+ C@ XOR 
+OP1 @ 2+ C@ 
+OP0 @ 2+ C@ XOR OR
+OP3 @ W@ 4589 XOR OR \  894500            MOV     0 [EBP] , EAX
 OP2 @ W@ 428D XOR OR \  8D4201            LEA     EAX , 1 [EDX]
 OP1 @ W@ 558B XOR OR \  8B5500            MOV     EDX , 0 [EBP]
 OP0 @ W@ 4589 XOR OR \  894500            MOV     0 [EBP] , EAX
