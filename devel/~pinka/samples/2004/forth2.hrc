@@ -328,6 +328,7 @@ With Help of
   <regexp match="/(user-value)(\s)(\s*)(\S+)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
   <regexp match="/(user-vect)(\s)(\s*)(\S+)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
   <regexp match="/(\-\-)(\s)(\s*)(\S+)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(CHAR)(\s)(\s*)(\S)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthParsedStr" region6="fthDelimNew"/>
 
   <regexp match="/(code)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
 
