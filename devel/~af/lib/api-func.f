@@ -3,11 +3,16 @@
 \ Work in spf3, spf4
 \ NOTFOUND для функций в dll
 \ Избавляет от необходимости объявлять используемые API-функции.
-\ Подключение dll - USES "name.dll"
+\ Подключение dll - USES "name.dll". Имя dll может содержать путь и быть
+\ заключенным в ковычки. При выполнении слова name.dll в стек кладется
+\ адрес 0-строки с именем длл.
+\ Порядок поиска: сначала ищется враппер функции в оригинальном написании.
+\ Если не найден, то ищем враппер с добавленным суффиксом - сначала с A, потом
+\ с W. Если враппера нет - ищем в подключенных dll-ка. Сначала в оригинальном
+\ написании, затем с суффиксом - если ANSIAPI ON то с A, иначе с W.
 \ Все врапперы компилятся в словарь FORTH
 
 REQUIRE [DEFINED]  lib\include\tools.f
-REQUIRE AddNode    devel\~ac\lib\list\str_list.f
 REQUIRE ON         lib\ext\onoff.f
 
 [UNDEFINED] SHEADER [IF]
@@ -31,18 +36,13 @@ REQUIRE ON         lib\ext\onoff.f
 
 \ в этом словаре хранится список dll, в которых ищется функция
 VOCABULARY API-FUNC-VOC
+USER ANSIAPI
+ANSIAPI ON
 \ либа замедляет цикл интерпретации, поэтому нужна возможность отключать ее
 USER API-FUNC
 API-FUNC ON
-\ Ищем функцию сначала в оригинальном написании. Если не нашли, то
-\ ищем с добавленным суффиксом - если ANSIAPI ON то с A, иначе с W.
-USER ANSIAPI
-ANSIAPI ON
 
 : USES ( "name.dll" -- ) \ подключение dll к списку поиска
-\ Имя dll может содержать путь и быть заключенным в скобки
-\ При выполнении слова name.dll  в стек кладется адрес 0-строки
-\ с именем длл
   SkipDelimiters GetChar IF
     [CHAR] " = IF [CHAR] " DUP SKIP PARSE ELSE NextWord THEN
   ELSE DROP NextWord THEN
@@ -64,12 +64,10 @@ ANSIAPI ON
 VOCABULARY APISupport
 GET-CURRENT ALSO APISupport DEFINITIONS
 
-\ в режиме компиляции используется отложенная компиляция
-\ врапперов впервые вызванных апи-функций. Список функций, которые надо
-\ скомпилировать, хранится в динамическом списке ListFunc
-USER ListFunc
-
-: FreeListFunc ListFunc FreeList ;
+\ в режиме компиляции используется отложенная компиляция врапперов впервые
+\ вызванных апи-функций. Список функций, которые надо скомпилировать,
+\ хранится во временном словаре widListFunc
+USER widListFunc
 
 \ Почти аналогично WINAPI: но в постфиксном стиле
 : SWINAPI ( NameLibAddr addrИмяПроцедуры u -- )
@@ -89,19 +87,23 @@ USER ListFunc
   WINAP @ CELL+ !
 ;
 
+: STEMPWINAPI ( NameLibAddr addrИмяПроцедуры u -- )
+  SHEADER
+  , \ address of library name
+;
+
 \ Поиск функции, имя которой лежит в PAD, в подключенных длльках
 : SEARCH-FUNC ( -- NameLibAddr ProcAddr t | f )
   [ ALSO API-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL
   @
   BEGIN
-    DUP
+    ?DUP
   WHILE
     DUP NAME> EXECUTE DUP LoadLibraryA DUP 0= IF -2009 THROW THEN
     PAD SWAP GetProcAddress
     ?DUP IF ROT DROP TRUE EXIT THEN
     DROP CDR
   REPEAT
-  DROP
   FALSE
 ;
 
@@ -109,35 +111,36 @@ USER ListFunc
 \ в список для последующей компиляции. В режиме интерпретации - выполняется
 : EXEC-FUNC ( coderr NameLibAddr ProcAddr u -- )
   STATE @ IF
-    SWAP
-    [ VERSION 400000 < [IF] ] COMPILE, [ [ELSE] ] _COMPILE, [ [THEN] ] 
-    3 CELLS ALLOCATE THROW >R 
-    PAD SWAP HEAP-COPY R@ ! \ 1-ячейка - ссылка на имя процедуры
-    R@ CELL+ ! \ 2-ячейка - ссылка на имя библиотеки
-    HERE 4 - R@ CELL+ CELL+ ! \ 3-ячейка - адрес для коррекции
+    0 [ VERSION 400000 < [IF] ] COMPILE, [ [ELSE] ] _COMPILE, [ [THEN] ] 
+    WARNING @ >R  FALSE WARNING !  GET-CURRENT >R  HERE 4 - >R
+    widListFunc @ 0= IF TEMP-WORDLIST widListFunc ! THEN
+    ALSO widListFunc @ CONTEXT ! DEFINITIONS
+    NIP PAD SWAP STEMPWINAPI
+    R> ,
+    PREVIOUS
+    R> SET-CURRENT R> WARNING !
     DROP
-    R> ListFunc AddNode
   ELSE DROP NIP NIP API-CALL
   THEN
 ;
 
 \ Компиляция функции из списка и коррекция слова в котором она используется
-: AddFuncNode ( node -- )
-  NodeValue >R
-  R@ @ ASCIIZ> SFIND 0= IF
-    2DROP
-    GET-CURRENT FORTH-WORDLIST SET-CURRENT
-    R@ CELL+ @
-    R@ @ ASCIIZ>
-    SWINAPI
-    SET-CURRENT
-  ELSE
-    DROP
-  THEN
-  R@ @ ASCIIZ> SFIND DROP
-  R@ CELL+ CELL+ @ SWAP OVER CELL+ - SWAP !
-  R@ @ FREE THROW
-  R> FREE THROW
+: AddNodes ( widListFunc -- )
+  @
+  BEGIN
+    ?DUP
+  WHILE
+    DUP >R
+    COUNT SFIND NIP 0= IF
+      DROP
+      GET-CURRENT FORTH-WORDLIST SET-CURRENT
+      R@ NAME> @ R@ COUNT SWINAPI
+      SET-CURRENT
+    THEN
+    R@ COUNT SFIND DROP
+    R@ NAME> CELL+ @ SWAP OVER CELL+ - SWAP !
+    R> CDR
+  REPEAT
 ;
 
 SET-CURRENT
@@ -148,18 +151,23 @@ FALSE WARNING !
   IF
     API-FUNC @ IF
       NIP NIP  R> PAD R@ MOVE
-      ANSIAPI IF [CHAR] A ELSE [CHAR] W THEN  PAD R@ + C!
+      [CHAR] A  PAD R@ + C!
       PAD R@ 1+ SFIND ?DUP IF
         ROT DROP RDROP STATE @ = IF COMPILE, ELSE EXECUTE THEN
       ELSE
-        2DROP
-        0 PAD R@ + C!
-        SEARCH-FUNC IF R> EXEC-FUNC
+        2DROP [CHAR] W  PAD R@ + C!
+        PAD R@ 1+ SFIND ?DUP IF
+          ROT DROP RDROP STATE @ = IF COMPILE, ELSE EXECUTE THEN
         ELSE
-          ANSIAPI IF [CHAR] A ELSE [CHAR] W THEN  PAD R@ + C!
-          R> 1+ >R
+          2DROP
           0 PAD R@ + C!
-          SEARCH-FUNC IF R> EXEC-FUNC ELSE RDROP THROW THEN
+          SEARCH-FUNC IF R> EXEC-FUNC
+          ELSE
+            ANSIAPI IF [CHAR] A ELSE [CHAR] W THEN  PAD R@ + C!
+            R> 1+ >R
+            0 PAD R@ + C!
+            SEARCH-FUNC IF R> EXEC-FUNC ELSE RDROP THROW THEN
+          THEN
         THEN
       THEN
     ELSE RDROP RDROP THROW
@@ -170,8 +178,11 @@ FALSE WARNING !
 
 : ;
   POSTPONE ;
-  ['] AddFuncNode ListFunc DoList
-  FreeListFunc
+  widListFunc @ ?DUP IF
+    DUP AddNodes
+    FREE-WORDLIST
+    widListFunc 0!
+  THEN
 ; IMMEDIATE
 
 TRUE WARNING !
