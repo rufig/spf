@@ -70,6 +70,17 @@
 - Deleted word +SourcePath.
 
 
+18.March.2002 4.00.011
+
+Correcting build:)
+* Corrections in the optimizer.
+! Corrected F**, FACOS, FASIN. The input-output of the floating point now
+  in the decimal (irrespective of BASE). ~af
+* Factorized TITLE. (TITLE) prints the info without checks, the checks have
+  remained in the TITLE.
+* OPTIONS is moved in the section SPF-INIT?. ~ac
+! CUT-PATH now return 0-terminated string.
+
 
 * - Changes
 ! - Fixed error
