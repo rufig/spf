@@ -29,6 +29,7 @@ WINAPI: SSL_free                libssl32.dll
 WINAPI: SSL_CTX_set_verify      libssl32.dll
 WINAPI: SSL_get_verify_result   libssl32.dll
 WINAPI: SSL_get_peer_certificate libssl32.dll
+WINAPI: SSL_CTX_set_verify_depth libssl32.dll
 
 WINAPI: X509_get_subject_name   libeay32.dll
 WINAPI: X509_NAME_oneline       libeay32.dll
@@ -74,8 +75,14 @@ WINAPI: X509_verify_cert_error_string libeay32.dll
   THEN
   c
 ;
+: SslSetVerifyDepth  ( depth context -- )
+  SSL_CTX_set_verify_depth DROP 2DROP
+;
 : SslSetVerify { pema pemu mode context -- }
-  0 pema context SSL_CTX_load_verify_locations NIP NIP NIP 1 <> THROW
+  pemu
+  IF
+    0 pema context SSL_CTX_load_verify_locations NIP NIP NIP 1 <> THROW
+  THEN
   0 mode context SSL_CTX_set_verify 2DROP 2DROP
 
 \ эти CA передаются сервером в запросе сертификата, и клиент может
