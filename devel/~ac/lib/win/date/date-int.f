@@ -50,7 +50,7 @@ M-DATE Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
 ;
 
 : Date# { d m y -- }
-  y #N BL HOLD m DateM>S HOLDS BL HOLD d #N S" , " HOLDS
+  y #N BL HOLD m DateM>S HOLDS BL HOLD d #N## S" , " HOLDS
   d m y >Date>W DateW>S HOLDS
 ;
 : Time# { h m s -- }
