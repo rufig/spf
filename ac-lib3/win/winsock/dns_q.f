@@ -270,7 +270,7 @@ CONSTANT /RL
 : SendDnsQuery
   DNS-SERVER @ 0= 
   IF GetDNS ?DUP 
-            IF COUNT + 1+ DNS-SERVER !
+            IF DNS-COUNT @ 1 > IF COUNT + 1+ THEN DNS-SERVER !
             ELSE -11001 THROW THEN \ не найден DNS-сервер
   THEN
   BS @ 0= IF BsStartup THEN
