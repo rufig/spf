@@ -16,7 +16,7 @@
 \ на запись - май 2002 ~af
 
 
-REQUIRE PALLOCATE  devel\~af\lib\pallocate.f
+REQUIRE PAllocSupport  devel\~af\lib\pallocate.f
 
 WINAPI: FlushFileBuffers              KERNEL32.DLL
 
@@ -39,11 +39,13 @@ CONSTANT /STREAM
 512 VALUE STREAM-RBUF
 512 VALUE STREAM-WBUF
 
+ALSO PAllocSupport
+
 : HANDLE>STREAM ( h -- s )
-  /STREAM DUP PALLOCATE THROW DUP >R
+  /STREAM DUP ALLOCATE THROW DUP >R
   SWAP ERASE
   R@ .shandle !
-  STREAM-RBUF DUP PALLOCATE THROW R@ .srbuf !
+  STREAM-RBUF DUP ALLOCATE THROW R@ .srbuf !
   R@ .srbsize !
   R>
 ;
@@ -53,7 +55,7 @@ CONSTANT /STREAM
 ;
 : STREAM>WSTREAM ( s -- )
   STREAM-WBUF 2DUP SWAP .swbsize !
-  PALLOCATE THROW SWAP .swbuf !
+  ALLOCATE THROW SWAP .swbuf !
 ;
 : STREAM>WSTREAM-WITH ( s xt -- )
   OVER .swritext !
@@ -85,11 +87,11 @@ CONSTANT /STREAM
 ;
 : CLOSE-STREAM ( s -- ior )
   DUP .swritext @ IF
-    DUP FlushWBuffer OVER .swbuf @ PFREE THROW
+    DUP FlushWBuffer OVER .swbuf @ FREE THROW
   ELSE 0 THEN
   SWAP
-  DUP .srbuf @ PFREE THROW
-  PFREE THROW
+  DUP .srbuf @ FREE THROW
+  FREE THROW
 ;
 
 : FILE>STREAM ( h -- s )  ['] READ-FILE  HANDLE>STREAM-WITH ;
@@ -98,6 +100,8 @@ CONSTANT /STREAM
   FILE>STREAM
   DUP ['] WRITE-FILE  STREAM>WSTREAM-WITH
 ;
+
+PREVIOUS
 
 FALSE WARNING !
 
