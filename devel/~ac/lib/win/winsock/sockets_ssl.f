@@ -1,6 +1,8 @@
 \ Переопределение части функций из sockets.f для прозрачной работы по SSL
 
+REQUIRE {             ~ac/lib/locals.f
 REQUIRE CreateSocket  ~ac/lib/win/winsock/sockets.f
+REQUIRE read          ~ac/lib/win/winsock/sock2.f
 REQUIRE SslInit       ~ac/lib/win/winsock/ssl.f
 
 WARNING @ WARNING 0!
@@ -10,6 +12,7 @@ USER uSSL_CONTEXT
 VECT dFailedSsl
 
 : FailedSsl ( ior -- namea nameu cert )
+  uSSL_SOCKET @ CloseSocket DROP uSSL_SOCKET 0!
   DROP S" " 0
 ; ' FailedSsl TO dFailedSsl
 
@@ -21,7 +24,7 @@ VECT dFailedSsl
   SslNewServerContext uSSL_CONTEXT !
   addr u verify ( SSL_VERIFY_PEER) uSSL_CONTEXT @ SslSetVerify
   s uSSL_CONTEXT @ ['] SslObjAccept CATCH \ 0=OK, 5=не тот сертификат, 1= нет сертификата
-  ?DUP IF NIP NIP dFailedSsl uSSL_SOCKET @ CloseSocket DROP uSSL_SOCKET 0! EXIT THEN
+  ?DUP IF NIP NIP dFailedSsl EXIT THEN
   DUP uSSL_OBJECT !
   ?DUP IF SslGetVerifyResults THROW ROT \ ." verify:" . ." (" TYPE ." )" .
        ELSE S" " 0 THEN

@@ -1,39 +1,78 @@
 REQUIRE {             ~ac/lib/locals.f
-REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
+REQUIRE CreateSocket  ~ac/lib/win/winsock/sockets.f
+\ REQUIRE FreeLibrary   ~ac/lib/win/dll/load_lib.f
 
-WINAPI: SSL_load_error_strings libssl32.dll
-WINAPI: SSL_library_init       libssl32.dll
-WINAPI: SSL_CTX_new            libssl32.dll
-WINAPI: TLSv1_method           libssl32.dll
-WINAPI: SSLv3_method           libssl32.dll
-WINAPI: SSL_new                libssl32.dll
-WINAPI: SSL_set_fd             libssl32.dll
-WINAPI: SSL_connect            libssl32.dll
-WINAPI: SSL_accept             libssl32.dll
-WINAPI: SSL_write              libssl32.dll
-WINAPI: SSL_read               libssl32.dll
-WINAPI: SSL_get_error          libssl32.dll
-\ WINAPI: ERR_error_string       libssl32.dll
-WINAPI: SSL_CTX_use_certificate_file libssl32.dll
-WINAPI: SSL_load_client_CA_file libssl32.dll
-WINAPI: SSL_CTX_set_client_CA_list libssl32.dll
-WINAPI: SSL_CTX_load_verify_locations libssl32.dll
-\ WINAPI: SSL_CTX_set_client_cert_cb libssl32.dll
-WINAPI: SSL_CTX_use_RSAPrivateKey_file libssl32.dll
-WINAPI: SSL_CTX_set_default_passwd_cb  libssl32.dll
-WINAPI: SSL_set_accept_state    libssl32.dll
-WINAPI: SSLv23_server_method    libssl32.dll
-WINAPI: SSLv23_client_method    libssl32.dll
-WINAPI: SSL_free                libssl32.dll
+VARIABLE SSL_LIB
+VARIABLE SSLE_LIB
 
-WINAPI: SSL_CTX_set_verify      libssl32.dll
-WINAPI: SSL_get_verify_result   libssl32.dll
-WINAPI: SSL_get_peer_certificate libssl32.dll
-WINAPI: SSL_CTX_set_verify_depth libssl32.dll
+: LoadSslLibrary ( -- )
+  S" libssl32.dll" DROP LoadLibraryA ?DUP IF SSL_LIB ! EXIT THEN
+  S" conf\plugins\ssl\libssl32.dll" DROP LoadLibraryA ?DUP IF SSL_LIB ! EXIT THEN
+  S" ..\CommonPlugins\plugins\ssl\libssl32.dll" DROP LoadLibraryA ?DUP IF SSL_LIB ! EXIT THEN
+  -2009 THROW
+;
+: LoadSsleLibrary ( -- )
+  S" libeay32.dll" DROP LoadLibraryA ?DUP IF SSLE_LIB ! EXIT THEN
+  S" conf\plugins\ssl\libeay32.dll" DROP LoadLibraryA ?DUP IF SSLE_LIB ! EXIT THEN
+  S" ..\CommonPlugins\plugins\ssl\libeay32.dll" DROP LoadLibraryA ?DUP IF SSLE_LIB ! EXIT THEN
+  -2009 THROW
+;
 
-WINAPI: X509_get_subject_name   libeay32.dll
-WINAPI: X509_NAME_oneline       libeay32.dll
-WINAPI: X509_verify_cert_error_string libeay32.dll
+VARIABLE SSLAPLINK
+
+: SSLAPI:
+  >IN @ CREATE >IN ! 
+  HERE SSLAPLINK @ , SSLAPLINK ! ( סגÿחü )
+  0 , 
+  BL WORD ", 0 C,
+  DOES> CELL+ DUP @ ?DUP IF NIP API-CALL EXIT THEN
+  SSL_LIB @ 0= IF LoadSslLibrary THEN
+  DUP CELL+ COUNT DROP SSL_LIB @ GetProcAddress DUP ROT ! API-CALL
+;
+: SSLEAPI:
+  >IN @ CREATE >IN ! 
+  HERE SSLAPLINK @ , SSLAPLINK ! ( סגÿחü )
+  0 , 
+  BL WORD ", 0 C,
+  DOES> CELL+ DUP @ ?DUP IF NIP API-CALL EXIT THEN
+  SSLE_LIB @ 0= IF LoadSsleLibrary THEN
+  DUP CELL+ COUNT DROP SSLE_LIB @ GetProcAddress DUP ROT ! API-CALL
+;
+
+SSLAPI: SSL_load_error_strings
+SSLAPI: SSL_library_init
+SSLAPI: SSL_CTX_new
+SSLAPI: TLSv1_method
+SSLAPI: SSLv3_method
+SSLAPI: SSL_new
+SSLAPI: SSL_set_fd
+SSLAPI: SSL_connect
+SSLAPI: SSL_accept
+SSLAPI: SSL_write
+SSLAPI: SSL_read
+SSLAPI: SSL_get_error
+SSLAPI: SSL_CTX_use_certificate_file
+SSLAPI: SSL_load_client_CA_file
+SSLAPI: SSL_CTX_set_client_CA_list
+SSLAPI: SSL_CTX_load_verify_locations
+SSLAPI: SSL_CTX_use_RSAPrivateKey_file
+SSLAPI: SSL_CTX_set_default_passwd_cb
+SSLAPI: SSL_set_accept_state
+SSLAPI: SSLv23_server_method
+SSLAPI: SSLv23_client_method
+SSLAPI: SSL_free
+
+SSLAPI: SSL_CTX_set_verify
+SSLAPI: SSL_get_verify_result
+SSLAPI: SSL_get_peer_certificate
+SSLAPI: SSL_CTX_set_verify_depth
+
+SSLEAPI: X509_get_subject_name
+SSLEAPI: X509_NAME_oneline
+SSLEAPI: X509_verify_cert_error_string
+
+\ SSLAPI: ERR_error_string       libssl32.dll
+\ SSLAPI: SSL_CTX_set_client_cert_cb libssl32.dll
 
 1 CONSTANT X509_FILETYPE_PEM
 2 CONSTANT X509_FILETYPE_ASN1
@@ -43,8 +82,6 @@ WINAPI: X509_verify_cert_error_string libeay32.dll
 1 CONSTANT SSL_VERIFY_PEER
 2 CONSTANT SSL_VERIFY_FAIL_IF_NO_PEER_CERT
 4 CONSTANT SSL_VERIFY_CLIENT_ONCE
-
-
 
 : SslInit ( -- )
   SSL_load_error_strings DROP
