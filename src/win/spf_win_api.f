@@ -9,44 +9,15 @@ VARIABLE AOLL
 VARIABLE AOGPA
 0 VALUE ST-RES
 
-CODE _WINAPI-CODE
-
-      LEA  EBP, -4 [EBP]
-      MOV  [EBP], EAX
-
-      POP  EBX
-      MOV  EAX, [EBX]
-      OR   EAX, EAX
-      JZ  SHORT @@1
-
-      MOV  ECX, 12 [EBX]
-      OR   ECX, ECX
-      JS   SHORT @@2
-      JZ   SHORT @@4
-      LEA  EBX, [ECX*4]
-      SUB  ESP, EBX
-      MOV  EDX, EDI
-      MOV  EDI, ESP
-      MOV  ESI, EBP
-      CLD
-      REP MOVS DWORD
-      ADD  EBP, EBX
-      MOV  EDI, EDX
-      CALL EAX
-      RET
-
-@@4:  CALL EAX
-      RET
-
-@@6:  4 ALIGN-NOP
-@@1:  MOV  EAX, 4 [EBX]
+CODE AO_INI
+      MOV  EAX, 4 [EBX]
       PUSH EAX
       A; 0xA1 C,  AddrOfLoadLibrary
       ALSO FORTH , PREVIOUS \   MOV  EAX, AddrOfLoadLibrary
 A; HERE 4 - ' AOLL EXECUTE !
       CALL EAX
       OR   EAX, EAX
-      JZ  SHORT @@3
+      JZ  SHORT @@1
 
       MOV  ECX, 8 [EBX]
       PUSH ECX
@@ -56,35 +27,8 @@ A; HERE 4 - ' AOLL EXECUTE !
 A; HERE 4 - ' AOGPA EXECUTE !
       CALL EAX
       OR   EAX, EAX
-      JZ  SHORT @@3
-      MOV [EBX], EAX
-
-      MOV  ECX, 12 [EBX]
-@@2:  PUSH EDI
-      PUSH EBP
-      SUB  ESP, # 64
-      MOV  EDI, ESP
-      MOV  ESI, EBP
-      MOV  ECX, # 16
-      CLD
-      REP MOVS DWORD
-      MOV  EBP, ESP
-      CALL EAX
-      MOV  ECX, ESP
-      SUB  ECX, EBP
-      MOV  ESP, EBP
-      ADD  ESP, # 64
-      POP  EBP
-      ADD  EBP, ECX
-      SAR  ECX, # 2
-      MOV  12 [EBX], ECX
-      POP  EDI
-
-@@3:  RET
-
+@@1:  RET
 END-CODE
-
-' _WINAPI-CODE TO WINAPI-CODE
 
 CODE API-CALL ( ... extern-addr -- x )
 \ вызов внешней функции (API или метода объекта через COM)
@@ -108,6 +52,22 @@ CODE API-CALL ( ... extern-addr -- x )
       POP EDI
       RET
 END-CODE
+
+CODE _WINAPI-CODE
+      POP  EBX
+      MOV  -4 [EBP], EAX
+      MOV  EAX, [EBX]
+      OR   EAX, EAX
+      LEA  EBP, -4 [EBP]
+      JNZ  SHORT @@1
+      CALL ' AO_INI
+      JZ  SHORT @@2
+      MOV [EBX], EAX
+@@1:  CALL ' API-CALL
+@@2:  RET
+END-CODE
+
+' _WINAPI-CODE TO WINAPI-CODE
 
 CODE _WNDPROC-CODE
      MOV  EAX, ESP

@@ -9,26 +9,8 @@
 VARIABLE WINAPLINK
 0  VALUE NEW-WINAPI?
 
-: WINAPI: ( "ИмяПроцедуры" "ИмяБиблиотеки" -- )
-  ( Используется для импорта WIN32-процедур.
-    Полученное определение будет иметь имя "ИмяПроцедуры".
-    Поле address of winproc будет заполнено в момент первого
-    выполнения полученной словарной статьи.
-    Для вызова полученной "импортной" процедуры параметры
-    помещаются на стек данных в порядке, обратном описанному
-    в Си-вызове этой процедуры. Результат выполнения функции
-    будет положен на стек.
-  )
-
-  NEW-WINAPI?
-  IF HEADER
-  ELSE
-     -1
-     >IN @
-     HEADER
-     >IN !
-  THEN
-  ['] _WINAPI-CODE COMPILE,
+: __WIN:  ( pars CFA_INI "ИмяПроцедуры" "ИмяБиблиотеки" -- )
+  COMPILE,
   HERE >R
   0 , \ address of winproc
   0 , \ address of library name
@@ -44,6 +26,25 @@ VARIABLE WINAPLINK
   NextWord HERE SWAP DUP ALLOT MOVE 0 C, \ имя библиотеки
   LoadLibraryA DUP 0= IF -2009 THROW THEN \ ABORT" Library not found"
   GetProcAddress 0= IF -2010 THROW THEN \ ABORT" Procedure not found"
+;
+
+: WINAPI: ( "ИмяПроцедуры" "ИмяБиблиотеки" -- )
+  ( Используется для импорта WIN32-процедур.
+    Полученное определение будет иметь имя "ИмяПроцедуры".
+    Поле address of winproc будет заполнено в момент первого
+    выполнения полученной словарной статьи.
+    Для вызова полученной "импортной" процедуры параметры
+    помещаются на стек данных в порядке, обратном описанному
+    в Си-вызове этой процедуры. Результат выполнения функции
+    будет положен на стек.
+  )
+  NEW-WINAPI?
+  IF HEADER
+  ELSE
+    -1
+    >IN @  HEADER  >IN !
+  THEN
+  ['] _WINAPI-CODE __WIN:
 ;
 
 : EXTERN ( xt1 n -- xt2 )
