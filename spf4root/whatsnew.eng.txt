@@ -51,6 +51,25 @@
 ! CONSOLE-HANDLES is transferred in a beginning of cycle of QUIT.
 
 
+27.February.2002 4.00.010
+
+* The refreshed optimizer from ~mak.
++ New spf icon. ~yz
+* The asm-version /MOD is now used.
+! Into -TRAILING and CMOVE> added CLD-instruction. Without it in WinXP
+  is problem with this words.
+* Words, worked with count-strings, defined through analog words, worked
+  with (addr u)-strings. ~af
+* Rewrited part of code. Purpose is decrease count of internal variables. ~af
+! ?SLITERAL2 now is right work with attempt included words, which keep
+  ? or * symbols. ~af
+! Length of INPUT_RECORD buffer is incremented into 2 times. ~ruvim
++ Added vectors - FIND-FULLNAME and PROCESS-ERR. Now in INCLUDED is 3 vectors:
+  FIND-FULLNAME - intellectual find of included file; (INCLUDED) - translate
+  file; PROCESS-ERR - work with translate errors.
+- Deleted word +SourcePath.
+
+
 
 * - Changes
 ! - Fixed error
