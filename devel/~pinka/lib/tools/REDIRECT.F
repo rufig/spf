@@ -38,7 +38,7 @@ REQUIRE  TOEND-FILE  ~pinka\lib\FileExt.f
     W/O CREATE-FILE-SHARED THROW  TO H-STDERR
 ;
 
-VERSION 400000  < [IF]
+VERSION DUP 400000 < SWAP 400007 > OR [IF]
 
 : >>    ( a u -- )  \ перенаправления ввода
     R/O OPEN-FILE-SHARED THROW
