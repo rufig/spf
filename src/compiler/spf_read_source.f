@@ -45,8 +45,7 @@ VECT REFILL ( -- flag )
 \ Когда входным потоком является строка от EVALUATE, возвратить "ложь"
 \ и не выполнять других действий.
 
-( Исправления [ использовано ACCEPT вместо READ-LINE  ~ruv ]
-  на тот случай, когда консоль не файл, и читать её
+( Исправления на тот случай, когда консоль не файл, и читать её
   следует через ACCEPT [который может быть не файловым]
   24.04.2000 А.Ч.
 )
@@ -56,18 +55,10 @@ VECT REFILL ( -- flag )
 : FREFILL ( h -- flag )
   TIB C/L ROT READ-LINE THROW TAKEN-TIB
 ;
-: REFILL-SOURCE ( -- flag )
-  SOURCE-ID-XT IF
-   TIB C/L SOURCE-ID SOURCE-ID-XT EXECUTE THROW
-   TAKEN-TIB
-  ELSE
-   SOURCE-ID FREFILL
-  THEN
-;
 : REFILL-FILE ( -- flag ) \ 94 FILE EXT
-  SOURCE-ID 0 > IF ( included text )
-  REFILL-SOURCE ELSE
-  REFILL-STDIN  THEN
+  SOURCE-ID DUP 0 > IF ( included text )
+  FREFILL  EXIT     THEN
+  DROP REFILL-STDIN
 ;
 ' REFILL-FILE (TO) REFILL ( -- flag ) \ 94 FILE EXT
 \ Расширить семантику выполнения CORE EXT REFILL следующим:
@@ -75,3 +66,21 @@ VECT REFILL ( -- flag )
 \ строку из текстового входного файла. Если успешно, сделать результат
 \ входным буфером, установить >IN в ноль и вернуть "истину".
 \ Иначе вернуть "ложь".
+
+
+: REFILL-SOURCE ( -- flag )
+  SOURCE-ID-XT  IF
+  SOURCE-ID 0 > IF
+   TIB C/L SOURCE-ID SOURCE-ID-XT EXECUTE THROW
+   TAKEN-TIB  EXIT
+  THEN THEN
+  REFILL-FILE
+;
+' REFILL-SOURCE (TO) REFILL ( -- flag ) \ SPF EXT
+\ Расширить семантику выполнения FILE EXT REFILL следующим:
+\ Если  SOURCE-ID-XT возвращает не ноль, то, считая это 
+\ значение xt-ом для слова, подобного READ-LINE,
+\ попытаться прочитать им строку из SOURCE-ID.
+\  Если успешно, сделать результат входным буфером,
+\  установить >IN в ноль и вернуть "истину".
+\  Иначе вернуть "ложь".
