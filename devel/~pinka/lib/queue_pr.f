@@ -108,9 +108,10 @@ EXPORT
 ;
 
 : mapQueue { q xt \ e -- }  
+\ xt ( value pr -- )
   q first BEGIN DUP q <> WHILE -> e
-    e ^value @ e ^priority  @ xt EXECUTE
-    e ^next @
+    e ^value @ e ^priority  @ xt 
+    e ^next @ -> e     EXECUTE    e
   REPEAT DROP
 ;
 

@@ -11,4 +11,3 @@ parse.f            ParseFileName ( -- a u ) - понимает длинные имена и в кавычка
 PRINT.F            вывод чисел с разделителем по три разряда
 Words.f            ForEach-Word ( xt wid -- )
 MASK06s.txt еще со старыми temps.f: REQUIRE ||  temps.f
-hash-l.f [http://www.forth.org.ru/~yz/lib/hash.f]
