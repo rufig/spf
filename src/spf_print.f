@@ -35,7 +35,7 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ Исключительная ситуация возникает, если использовать HOLD
 \ вне <# и #>, ограничивающивающих преобразование чисел.
   HLD @ 1- 
-  DUP SYSTEM-PAD < IF -17 THROW THEN
+  DUP SYSTEM-PAD U< IF -17 THROW THEN
   DUP HLD ! C!
 ;
 
