@@ -6,9 +6,17 @@
 \ 22.Sep.2003  ruv, 
 \     * HASH! и т.п. к виду ( avalue nvalue akey nkey h -- ) 
 \     + for-hash 
-\     + clear-hash, hash-count, hash-empty? \ by "Igor Panasenko" <PanasenkoIG@lankgroup.ru>
+\     + clear-hash, hash-count, hash-empty? \ by "Igor Panasenko" <PanasenkoIG@lankgroup.ru> ( ~pig)
+\ 24.Sep.2003 pig,
+\     + HASH? - проверка наличи€ ключа в хэше
+\ 31.Oct.2003 pig,
+\     * исправление clear-hash - записи удал€лись, но ссылки на них оставались в таблице
+\ 01.Nov.2003 ruv
+\     * make-hash теперь new-hash - и вынесен в интерфейс.
 
 REQUIRE [UNDEFINED] lib\include\tools.f
+
+REQUIRE HASH  ~pinka\lib\hash.f
 
 [UNDEFINED] SALLOC [IF]
 : SALLOC ( a u -- a1 )
@@ -33,12 +41,15 @@ CELL -- :link   \ ”казатель на следующую запись / 0
 CELL -- :key    \ указатель на строку - ключ
 CELL -- :value  \ ”казатель на значение
 1    -- :free   \ 0 - число, <>0 строка
-CONSTANT #rec
+CONSTANT /rec
 
-: make-hash ( n -- h )
+EXPORT
+: new-hash ( n -- h )
   DUP 1+ CELLS ALLOCATE THROW 2DUP ! NIP
   \ очистит хэш-таблицу ALLOCATE
 ;
+DEFINITIONS
+
 : (HASH) ( akey nkey n2 -- hash )
   OVER 0= IF DROP 2DROP 0 ELSE HASH THEN ;
 
@@ -66,7 +77,7 @@ CONSTANT #rec
     NIP
     DUP del-value RDROP RDROP
   ELSE
-     #rec ALLOCATE THROW ( last new)
+     /rec ALLOCATE THROW ( last new)
      DUP ROT :link !
      2R> CALLOC OVER :key !
   THEN ;
@@ -88,6 +99,9 @@ EXPORT
 : -HASH ( akey nkey h -- )
   lookup ?DUP IF del-rec SWAP :link ! ELSE DROP THEN ;
 
+: HASH? ( akey ukey h -- true|false )
+  lookup NIP 0<> ;
+
 : HASH@ ( akey nkey h -- avalue nvalue / 0 0) 
   lookup NIP DUP IF :value @ COUNT ELSE 0 THEN ;
 
@@ -99,11 +113,11 @@ EXPORT
 : HASH@N ( akey nkey h -- n TRUE / FALSE) 
   lookup NIP DUP IF :value @ TRUE THEN ;
 
-: small-hash  ( -- h ) 32   make-hash ;
-: large-hash  ( -- h) 256   make-hash ;
-: big-hash    ( -- h) 1024  make-hash ;
+: small-hash  ( -- h ) 32   new-hash ;
+: large-hash  ( -- h) 256   new-hash ;
+: big-hash    ( -- h) 1024  new-hash ;
 
-: traverse-hash ( xt h -- )
+: traverse-hash ( xt h -- ) \ xt ( ... rec -- )
   DUP @ CELLS OVER + CELL+ SWAP CELL+ ?DO
     I @ IF
       I @
@@ -116,15 +130,17 @@ EXPORT
 
 
 : clear-hash ( h -- )    \ очищает хэш, не удал€€ основную таблицу
-  ['] del-rec SWAP traverse-hash ;
-
+  ['] del-rec OVER traverse-hash
+  DUP CELL+ SWAP @ CELLS ERASE
+;
 : del-hash ( h -- )
-  DUP clear-hash FREE THROW ;
-
+  ['] del-rec OVER traverse-hash 
+  FREE THROW 
+;
 
 DEFINITIONS
 
-USER _cnt
+USER cnt
 USER-VALUE do-it
 
 : (all-hash) ( rec -- nextrec )
@@ -134,9 +150,9 @@ USER-VALUE do-it
   >R R@ :value @  R@ :key @ COUNT R> :link @ >R do-it EXECUTE R> 
 ;
 
-: (hash-empty?) ( rec -- nextrec )  _cnt 1+! DROP 0 ;
+: (hash-empty?) ( rec -- nextrec )  cnt 1+! DROP 0 ;
 
-: (hash-count) ( rec -- nextrec )   _cnt 1+! :link @ ;
+: (hash-count) ( rec -- nextrec )   cnt 1+! :link @ ;
 
 EXPORT
 
@@ -150,14 +166,10 @@ EXPORT
 ;
 
 : hash-empty? ( h -- flag )    \ провер€ет, пуст хэш или нет
-  _cnt 0! ['] (hash-empty?) SWAP traverse-hash _cnt @ 0= 
+  cnt 0! ['] (hash-empty?) SWAP traverse-hash cnt @ 0= 
 ;
 : hash-count ( h -- n )    \ подсчитывает число элементов в хэше
-  _cnt 0! ['] (hash-count) SWAP traverse-hash _cnt @ 
-;
-
-: HASH? ( akey ukey h -- true|false )
-  lookup NIP 0<>
+  cnt 0! ['] (hash-count) SWAP traverse-hash cnt @ 
 ;
 
 ;MODULE
