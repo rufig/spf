@@ -57,36 +57,28 @@ USER IniEnumXt
   S" ..\Eserv3.ini" 2DUP IniFileExists IF EXIT THEN
   2DROP IniDefault2
 ;
-VECT IniDefault
-VECT IniDefaultOrig
+0 VALUE IniDefault
+0 VALUE IniDefaultOrig
 ' IniDefault1 TO IniDefault
 ' IniDefault2 TO IniDefaultOrig
 
 : STRNIL
   DUP 0= IF 2DROP 0 0 THEN
 ;
-: File.Section[Key]>
-  { \ fa fu }
+: (File.Section[Key]>)
+  { xt \ fa fu }
   SOURCE S" ." SEARCH NIP SWAP \ flag a
   SOURCE S" [" SEARCH 2DROP \ a2
   U< AND
   IF [CHAR] . PARSE [CHAR] . PARSE 2SWAP " {s}.{s}" STR@ STRNIL
-  ELSE IniDefault THEN
+  ELSE xt EXECUTE THEN
   -> fu -> fa
   [CHAR] [ PARSE " {s}" STR@ STRNIL
   [CHAR] ] PARSE " {s}" STR@ STRNIL 2SWAP fa fu
 ;
-: FileOrig.Section[Key]>
-  { \ fa fu }
-  SOURCE S" ." SEARCH NIP SWAP \ flag a
-  SOURCE S" [" SEARCH 2DROP \ a2
-  U< AND
-  IF [CHAR] . PARSE [CHAR] . PARSE 2SWAP " {s}.{s}" STR@ STRNIL
-  ELSE IniDefaultOrig THEN
-  -> fu -> fa
-  [CHAR] [ PARSE " {s}" STR@ STRNIL
-  [CHAR] ] PARSE " {s}" STR@ STRNIL 2SWAP fa fu
-;
+: File.Section[Key]> IniDefault (File.Section[Key]>) ;
+: FileOrig.Section[Key]> IniDefaultOrig (File.Section[Key]>) ;
+
 : (IniS@)
   File.Section[Key]>
   IniFile@ DUP 0=
