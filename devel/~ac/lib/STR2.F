@@ -1,6 +1,5 @@
 ( 12.10.1999 Черезов А. )
 ( модификация 25.12.2000 )
-( модификация 01.04.2001 для SPF4 )
 
 ( Простое расширение СП-Форта операциями над динамическими
   строками произвольной длины. Эти процедуры сделаны в стиле
@@ -281,7 +280,7 @@ CREATE _S""" CHAR " C,
 ;
 
 HEX
-0BC ( 90, 98 в старых locals) CONSTANT LOCALS_STACK_OFFSET
+0C8 ( 0BC в spf375; 90, 98 в старых locals) CONSTANT LOCALS_STACK_OFFSET
 \ смещение первой локальной переменной в стеке ( в старом locals)
 \ смещение фрейма (в новом locals)
 \ на момент выполнения слова (") внутри скомпилированного определения
@@ -325,7 +324,7 @@ DECIMAL
   IF "" -> s s STR! s STR@ STR@LOCAL EXIT THEN \ весь литерал на одной строке
   \ иначе читаем построчно и ищем кавычку
   SOURCE-ID ?DUP
-  IF STREAM-FILE FILE-SIZE THROW D>S ELSE 10000 THEN 
+  IF FILE-SIZE THROW D>S ELSE 10000 THEN 
   DUP ALLOCATE THROW -> s
   s OVER ERASE
   s sAsize !

@@ -20,6 +20,7 @@ WINAPI: inet_ntoa       WSOCK32.DLL
 WINAPI: setsockopt      WSOCK32.DLL
 WINAPI: shutdown        WSOCK32.DLL
 WINAPI: gethostname     WSOCK32.DLL
+WINAPI: select          WSOCK32.DLL
 
 1  CONSTANT SOCK_STREAM
 2  CONSTANT SOCK_DGRAM
@@ -36,6 +37,7 @@ FFFF CONSTANT SOL_SOCKET
 0020 CONSTANT SO_BROADCAST
 1005 CONSTANT SO_SNDTIMEO
 1006 CONSTANT SO_RCVTIMEO
+0004 CONSTANT SO_REUSEADDR
 BASE !
 
 0
@@ -52,6 +54,7 @@ CREATE LINGER 1 W, 30 W,
 \ 6000 W, слишком много, это в секундах, заменил на 30 - 26.06.2001 ~ac
 
 CREATE BROADCAST -1 ,
+CREATE REUSEADDR -1 ,
 
 : CreateSocket ( -- socket ior )
   IPPROTO_TCP SOCK_STREAM PF_INET
@@ -196,8 +199,13 @@ AF_INET sock_addr2 sin_family W!
   /sockaddr_in R> R> bind SWAP FREE DROP SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
 ;
+: ReusedBindSocket ( port s -- ior )
+  DUP >R 4 REUSEADDR SO_REUSEADDR SOL_SOCKET R>
+  setsockopt ?DUP IF NIP NIP EXIT THEN
+  BindSocket
+;
 : ListenSocket ( s -- ior )
-  10 SWAP listen SOCKET_ERROR =
+  100 SWAP listen SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
 ;
 CREATE SINLEN /sockaddr_in ,
@@ -221,4 +229,17 @@ CREATE SINLEN /sockaddr_in ,
 \         #>
 \  [ BASE ! ]
   inet_ntoa ASCIIZ>
+;
+: AcceptSocketNotBlock ( s -- s2 ior )
+  0 >R 60 >R RP@ \ timeout 60 sec
+  SWAP
+  0 \ exc
+  0 \ write
+  ROT >R 1 >R RP@ \ read
+  0
+  select 
+  RDROP R> RDROP RDROP SWAP
+  DUP 0= IF DROP 10060 EXIT THEN
+  SOCKET_ERROR = IF WSAGetLastError EXIT THEN
+  AcceptSocket
 ;
