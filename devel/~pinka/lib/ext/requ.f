@@ -1,6 +1,6 @@
 \ 31.Mar.2002 Sun 13:57 
 \ 28.Jun.2002 Fri 16:01 под Eproxy (т.е., в расчете и на spf3)
-\ 19.Aug.2004 Thu 23:21 оставил только  sp4 compatible, 
+\ 19.Aug.2004 Thu 23:21 оставил только  spf4 compatible,
 \                       внес в репозиторий cvs  (давно пора уже было!).
 \ $Id$
 
@@ -19,6 +19,12 @@ REQUIRE [DEFINED] lib\include\tools.f
 
 \ WARNING @ WARNING 0!
 
+[UNDEFINED] SOURCE-NAME! [IF]
+
+: SOURCE-NAME! ( addr u -- )
+  HEAP-COPY CURFILE !
+;
+[THEN]
 [UNDEFINED] path_delimiter [IF]
 
 CHAR \ VALUE path_delimiter
