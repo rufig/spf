@@ -26,6 +26,9 @@ REQUIRE PARSE-AREA@ ~pinka\lib\ext\parse.f
 REQUIRE UPPERCASE   ~ac\lib\string\uppercase.f 
 
 : SEARCH&SKIP ( a u  a-subs u-subs -- a2 u2 true | a u false )
+\ искать в строке  a u  подстроку  a-subs u-subs
+\ если найдена, вернуть часть строки после найденного образа и true
+\ иначе вернуть  a u false.
     DUP >R   SEARCH         IF
     SWAP R@ +  
     SWAP R@ -       TRUE    ELSE
@@ -34,6 +37,9 @@ REQUIRE UPPERCASE   ~ac\lib\string\uppercase.f
     RDROP
 ;
 : MATCH-SIMPLE ( a u apat upat -- a1 u1 flag )
+\ сопоставить  apat upat  c  a upat
+\ если совпадает, вернуть  a+upat u-upat true,
+\ иначе  a u  false
   DUP >R 
   2OVER ROT U< IF 2DROP RDROP FALSE EXIT THEN
   R@ TUCK COMPARE IF RDROP FALSE EXIT THEN
@@ -78,7 +84,7 @@ CHAR \ VALUE quote-char
 : QMatch2 ( a u -- a1 u1 f )
 \ при неуспехе  счетчики оставл€ет неизменными
   2DUP PARSE-AREA@ 2>R
-  QMatch IF 2SWAP 2DROP 2R> 2DROP TRUE EXIT THEN
+  QMatch IF 2SWAP 2DROP RDROP RDROP TRUE EXIT THEN
   2DROP 2R> SOURCE! FALSE
 ;
 : Process(*) ( a u -- a1 u1 flag )
@@ -90,7 +96,7 @@ CHAR \ VALUE quote-char
   WHILE
     QMatch2
     DUP IF EndOfChunk IF DROP DUP 0=  THEN THEN
-  UNTIL TRUE ELSE FALSE THEN   2R> 2DROP
+  UNTIL TRUE ELSE FALSE THEN   RDROP RDROP
 ;
 : Is(*) ( -- f )
   GetWild DUP IF DROP [CHAR] * = THEN
@@ -108,8 +114,9 @@ CHAR \ VALUE quote-char
 ;
 
 : store-char ( a p c -- a1 p1 )
+\ p - ссылка на счетчик
   >R
-  DUP 0= IF DROP  0 OVER C!  DUP 1+ SWAP THEN
+  DUP 0= IF ( DROP  0) OVER C!  DUP 1+ SWAP THEN
   SWAP R> OVER C! 1+ SWAP
   DUP 1+!
 ;
@@ -126,6 +133,8 @@ CHAR \ VALUE quote-char
   THEN
 ;
 : translate-mask ( -- a u )
+\ подстроки символов транслируютс€ в строки со счетчиками
+\ а спец-символы предвар€ютс€ кодом 0.
   PAD 0
   BEGIN ( a p )
     GetChar
