@@ -6,26 +6,17 @@ REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
   ^ ip 3 + C@ ^ ip C@ ^ ip 3 + C! ^ ip C!
   ^ ip 1+ C@ ^ ip 2+ C@ ^ ip 1+ C! ^ ip 2+ C! \ reverse
   hosta hostu ip NtoA " {s}.{s}" STR@ \ 2DUP TYPE
+\  GetHostIP IF DROP FALSE
+\            ELSE S" 127.0.0.2" GetHostIP THROW = THEN
   GetHostIP IF DROP FALSE
-            ELSE S" 127.0.0.2" GetHostIP THROW = THEN
+            ELSE 0xFFFFFF AND 0x7F = THEN ( ~pig)
 ;
 
 : IsMapsBlockedRelay ( ip -- flag )
   S" blackholes.mail-abuse.org" IsRblBlocked
-\  ^ ip 3 + C@ ^ ip C@ ^ ip 3 + C! ^ ip C!
-\  ^ ip 1+ C@ ^ ip 2+ C@ ^ ip 1+ C! ^ ip 2+ C! \ reverse
-\  ip NtoA " {s}.blackholes.mail-abuse.org" STR@ \ 2DUP TYPE
-\  GetHostIP IF DROP FALSE
-\            ELSE S" 127.0.0.2" GetHostIP THROW = THEN
 ;
-\ relays.ordb.org
 : IsOrdbBlockedRelay ( ip -- flag )
   S" relays.ordb.org" IsRblBlocked
-\  ^ ip 3 + C@ ^ ip C@ ^ ip 3 + C! ^ ip C!
-\  ^ ip 1+ C@ ^ ip 2+ C@ ^ ip 1+ C! ^ ip 2+ C! \ reverse
-\  ip NtoA " {s}.relays.ordb.org" STR@ \ 2DUP TYPE
-\  GetHostIP IF DROP FALSE
-\            ELSE S" 127.0.0.2" GetHostIP THROW = THEN
 ;
 (
 : TEST
