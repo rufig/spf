@@ -97,3 +97,26 @@
     SYSTEM-PAD SWAP MOVE
     SYSTEM-PAD ER-A ! -2 THROW
 ;
+
+: ANSI>OEM ( addr u -- addr u )
+  DUP NUMERIC-OUTPUT-LENGTH > 
+  IF
+    S" Buffer overrun in ANSI>OEM" ER-U !
+    ER-A ! -2 THROW
+  THEN
+  DUP ROT ( u u addr )
+  SYSTEM-PAD SWAP CharToOemBuffA DROP
+  SYSTEM-PAD SWAP
+;
+
+: OEM>ANSI ( addr u -- addr u )
+  DUP NUMERIC-OUTPUT-LENGTH > 
+  IF
+    S" Buffer overrun in OEM>ANSI" ER-U !
+    ER-A ! -2 THROW
+  THEN
+
+  DUP ROT ( u u addr )
+  SYSTEM-PAD SWAP OemToCharBuffA DROP
+  SYSTEM-PAD SWAP
+;

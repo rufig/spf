@@ -34,7 +34,9 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ ƒобавить char к началу форматной числовой строки.
 \ »сключительна€ ситуаци€ возникает, если использовать HOLD
 \ вне <# и #>, ограничивающивающих преобразование чисел.
-  HLD @ 1- DUP HLD ! C!
+  HLD @ 1- 
+  DUP SYSTEM-PAD < IF -17 THROW THEN
+  DUP HLD ! C!
 ;
 
 : HOLDS ( addr u -- ) \ from eserv src
@@ -174,19 +176,6 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
     ROT BASE @ UM* D+      \ (n udh*base)+(udl*baseD)
     R> 1+ R> 1-
   REPEAT
-;
-
-: ANSI>OEM ( addr u -- addr u )
-  NUMERIC-OUTPUT-LENGTH 1- MIN \ чтобы не порушить форт систему ~day
-  DUP ROT ( u u addr )
-  SYSTEM-PAD SWAP CharToOemBuffA DROP
-  SYSTEM-PAD SWAP
-;
-: OEM>ANSI ( addr u -- addr u )
-  NUMERIC-OUTPUT-LENGTH 1- MIN \ чтобы не порушить форт систему ~day
-  DUP ROT ( u u addr )
-  SYSTEM-PAD SWAP OemToCharBuffA DROP
-  SYSTEM-PAD SWAP
 ;
 
 : SCREEN-LENGTH ( addr n -- n1 ) \ экранна€-длина
