@@ -79,7 +79,7 @@ HEX
 DECIMAL
 
 : S", ( addr u -- ) \ компил€ци€ строки, заданной addr u, в виде строки со счетчиком
-  DUP C, DP @ SWAP DUP ALLOT QCMOVE
+  DUP C, DP @ SWAP DUP ALLOT CMOVE
 ;
 
 : SLIT, ( a u -- )

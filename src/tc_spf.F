@@ -222,6 +222,47 @@ DECIMAL
 
 : VOC-LIST S" ' VOC-LIST EXECUTE" EVALUATE ;
 
+: -ROT ( x1 x2 x3 -- x3 x1 x2 ) \ 94
+    SWAP ROT SWAP
+;
+
+: S", ( addr u -- ) \ компиляция строки, заданной addr u, в виде строки со счетчиком
+  DUP C, DP @ SWAP DUP ALLOT QCMOVE
+;
+
+: +SWORD ( addr u wid -> ) \ добавление заголовка статьи с именем,
+         \ заданным строкой addr u, к списку, заданному wid.
+         \ Формирует только поля имени и связи с
+         \ отведением памяти по ALLOT.
+  HERE LAST !
+  HERE 2SWAP S", SWAP DUP @ , !
+;
+
+4 ALIGN-BYTES !
+
+: SHEADER ( addr u -- )
+  HERE 0 , ( cfa )
+\  DUP LAST-CFA !
+  0 C,     ( flags )
+  -ROT WARNING @
+  IF 2DUP GET-CURRENT SEARCH-WORDLIST
+     IF DROP 2DUP TYPE ."  isn't unique" CR THEN
+  THEN
+  CURRENT @ +SWORD
+  ALIGN
+  HERE SWAP ! ( заполнили cfa )
+;
+
+: HEADER
+   NextWord SHEADER
+;
+
+ALSO ASSEMBLER ALSO ASM-HIDDEN
+: CODE-ORIG
+     HEADER HIDE !CSP INIT-ASM
+;
+PREVIOUS PREVIOUS
+
 VOCABULARY TC     \ слова, работающие в режиме интерпретации при ЦК
 VOCABULARY TC-IMM \ immediate-слова для режима компиляции при ЦК,
                   \ вынесены в отдельный словарь, т.к. их нельзя
@@ -229,10 +270,10 @@ VOCABULARY TC-IMM \ immediate-слова для режима компиляции при ЦК,
 
 ALSO TC DEFINITIONS PREVIOUS
 
-: CODE [T]  CODE CONTEXT @ PREVIOUS CONTEXT ! ;
+: CODE [T] CODE-ORIG CONTEXT @ PREVIOUS CONTEXT ! ;
 
 : CODE1 \ для словаря не TC-WL
-   CODE 
+   CODE-ORIG
 ;
 
 : CREATE ( "<spaces>name" -- ) \ 94
