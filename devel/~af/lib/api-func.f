@@ -1,12 +1,33 @@
-\ NOTFOUND для функций в dll  v1.3.2
-\ Andrey Filatkin, 2001
+\ $Id$
+\ Andrey Filatkin, af@forth.org.ru
+\ Work in spf3, spf4
+\ NOTFOUND для функций в dll
 \ Избавляет от необходимости объявлять используемые API-функции.
 \ Подключение dll - USES "name.dll"
 \ Все врапперы компилятся в словарь FORTH
 
-REQUIRE [IF]     lib\include\tools.f
-REQUIRE AddNode  ~ac\lib\list\str_list.f
-REQUIRE ON       lib\ext\onoff.f
+REQUIRE [DEFINED]  lib\include\tools.f
+REQUIRE AddNode    devel\~ac\lib\list\str_list.f
+REQUIRE ON         lib\ext\onoff.f
+
+[UNDEFINED] SHEADER [IF]
+  : SHEADER ( addr u -- )
+    HERE 0 , ( cfa )
+    0 C,     ( flags )
+    ROT ROT WARNING @
+    IF 2DUP GET-CURRENT SEARCH-WORDLIST
+       IF DROP 2DUP TYPE ."  isn't unique" CR THEN
+    THEN
+    CURRENT @ +SWORD
+    ALIGN
+    HERE SWAP ! ( заполнили cfa )
+  ;
+  : CREATED ( addr u -- )
+    HEADER
+    HERE DOES>A ! ( для DOES )
+    ['] _CREATE-CODE COMPILE,
+  ;
+[THEN]
 
 VOCABULARY API-FUNC-VOC \ в этом словаре хранится список dll,
 \ в которых ищется функция
@@ -51,9 +72,7 @@ VARIABLE ListFunc \ в режиме компиляции используется отложенная компиляция
   0 , \ address of winproc
   0 , \ address of library name
   0 , \ address of function name
-  [ S" FORTH-SYS" ENVIRONMENT? DROP S" SPF4+" COMPARE 0= [IF] ] 
-    0 , \ # of parameters
-  [ [THEN] ] 
+  [ VERSION 400007 > [IF] ] -1 , [ [THEN] ] \ # of parameters
   IS-TEMP-WL 0=
   IF
     HERE WINAPLINK @ , WINAPLINK ! ( связь )
@@ -82,7 +101,8 @@ VARIABLE ListFunc \ в режиме компиляции используется отложенная компиляция
 \ в список для последующей компиляции. В режиме интерпретации - выполняется
 : EXEC-FUNC ( coderr NameLibAddr ProcAddr u -- )
   STATE @ IF
-    SWAP _COMPILE,
+    SWAP
+    [ VERSION 400000 < [IF] ] COMPILE, [ [ELSE] ] _COMPILE, [ [THEN] ] 
     3 CELLS ALLOCATE THROW >R 
     PAD SWAP HEAP-COPY R@ ! \ 1-ячейка - ссылка на имя процедуры
     R@ CELL+ ! \ 2-ячейка - ссылка на имя библиотеки
@@ -107,7 +127,7 @@ VARIABLE ListFunc \ в режиме компиляции используется отложенная компиляция
     DROP
   THEN
   R@ @ ASCIIZ> SFIND DROP
-  R@ CELL+ CELL+ @ TUCK CELL+ - SWAP !
+  R@ CELL+ CELL+ @ SWAP OVER CELL+ - SWAP !
   R@ @ FREE THROW
   R> FREE THROW
 ;

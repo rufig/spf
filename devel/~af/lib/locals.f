@@ -1,10 +1,10 @@
+\ $Id$
+\ Work in spf3, spf4
 ( 28.Mar.2000 Andrey Cherezov  Copyright [C] RU FIG
 
   Использованы идеи следующих авторов:
   Ruvim Pinka; Dmitry Yakimov; Oleg Shalyopa; Yuriy Zhilovets;
   Konstantin Tarasov; Michail Maximov.
-
-  !! Работает только в SPF4.
 )
 
 ( Простое расширение СП-Форта локальными переменными.
@@ -114,8 +114,6 @@
   Z" Excel.Application" create-object THROW TO excel
   TRUE _bool excel ::! Visible
 ;
-
-  Либа работает в spf3 и в spf4.
 )
 
 REQUIRE [IF] lib\include\tools.f

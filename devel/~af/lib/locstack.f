@@ -1,5 +1,6 @@
-\ Локальный стек v1.0.2
-\ Andrey Filatkin, 2001
+\ $Id$
+\ Andrey Filatkin, af@forth.org.ru
+\ Локальный стек.
 \ опасная либа - заменяет на лету CATCH и THROW
 
 REQUIRE REPLACE-WORD lib\ext\patch.f

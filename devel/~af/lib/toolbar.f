@@ -1,5 +1,6 @@
-\ Создание массива, описывающего тулбар v1.0.1
-\ Andrey Filatkin, 2001
+\ $Id$
+\ Andrey Filatkin, af@forth.org.ru
+\ Создание массива, описывающего тулбар
 
 0x00 CONSTANT TBSTYLE_BUTTON
 0x01 CONSTANT TBSTYLE_SEP

@@ -1,5 +1,7 @@
-\ save v2.0.1
-\ Andrey Filatkin, 2001-2002
+\ $Id$
+\ Andrey Filatkin, af@forth.org.ru
+
+\ save v2
 \ Сохраняет в exe с ресурсами из fres файла
 ( addr_exe u_exe addr_fres u_fres -- )
 \ если ресурсы не нужны, то u_fres = 0
@@ -88,11 +90,9 @@ TRUE VALUE ?Res
   THEN
 
   HERE SIZE-HEADER R@ WRITE-FILE THROW ( заголовок и таблица импорта )
-\  ERASED-CNT 0!
   IMAGE-BEGIN HERE OVER -
   ROT ALLOT SetOP
   R@ WRITE-FILE THROW
-\  ERASED-CNT 1+!
   R> CLOSE-FILE THROW
 ;
 

@@ -1,5 +1,6 @@
-\ Recent File List v1.0
-\ Andrey Filatkin, 2002
+\ $Id$
+\ Andrey Filatkin, af@forth.org.ru
+\ Recent File List
 
 REQUIRE {            ~af\lib\locals.f 
 REQUIRE GetIniString ~af\lib\ini.f

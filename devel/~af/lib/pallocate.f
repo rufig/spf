@@ -1,4 +1,7 @@
-\ Выделение динамической памяти, доступной во всех потоках ~af
+\ $Id$
+\ Andrey Filatkin, af@forth.org.ru
+\ Work in spf3, spf4
+\ Выделение динамической памяти, доступной во всех потоках
 
 : ALLOCATE-PROCESS ( u -- a-addr ior )
   CELL+ 9 ( HEAP_ZERO_MEMORY) GetProcessHeap HeapAlloc

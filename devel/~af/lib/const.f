@@ -1,9 +1,15 @@
+\ $Id$
+\ Work in spf3, spf4
 \ Windows константы
-\ 01.12.2001 af: исправил REMOVE-ALL-CONSTANTS, NOTFOUND вынес из модуля
+\ af - исправил REMOVE-ALL-CONSTANTS, NOTFOUND вынес из модуля,
+\ заменил MODULE: на VOCABULARY (для spf3-совместимости)
 
-REQUIRE TryOpenFile lib\ext\util.f
 
-MODULE: WINCONST
+REQUIRE +LibraryDirName  src\win\spf_win_module.f
+REQUIRE TryOpenFile      lib\ext\util.f
+
+VOCABULARY WINCONST
+GET-CURRENT ALSO WINCONST DEFINITIONS
 
 USER-VALUE CURRENT-VOC
 USER-VALUE SOURCE-CONST
@@ -60,13 +66,14 @@ VARIABLE ChainOfConst
   ChainOfConst 0!
 ;
 
-;MODULE
+SET-CURRENT
+PREVIOUS
 
 FALSE WARNING !
 : NOTFOUND ( addr u -- )
   2DUP 2>R ['] NOTFOUND CATCH ?DUP
   IF                    
-    NIP NIP 2R> WINCONST::SEARCH-CONST
+    NIP NIP 2R> {{ WINCONST SEARCH-CONST }}
     IF NIP [COMPILE] LITERAL
     ELSE
       THROW
@@ -76,4 +83,4 @@ FALSE WARNING !
 ;
 TRUE WARNING !
 
-S" lib\win\winconst\windows.const" WINCONST::ADD-CONST-VOC
+S" lib\win\winconst\windows.const" {{ WINCONST ADD-CONST-VOC }}

@@ -1,5 +1,6 @@
-\ Работа с ini-файлами v1.1
-\ Andrey Filatkin, 2001
+\ $Id$
+\ Andrey Filatkin, af@forth.org.ru
+\ Работа с ini-файлами
 
 WINAPI: GetPrivateProfileStringA    kernel32.dll
 WINAPI: WritePrivateProfileStringA  kernel32.dll
