@@ -123,9 +123,9 @@ USER TIMEOUT
 ;
 : CloseSocket ( s -- ior )
   DUP >R 4 LINGER SO_LINGER SOL_SOCKET R> setsockopt DROP
-  100 PAUSE
+\  100 PAUSE
   2 ( SD_BOTH) OVER shutdown DROP
-  100 PAUSE
+\  100 PAUSE
   closesocket SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
 ;
