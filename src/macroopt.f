@@ -45,6 +45,8 @@ INLINEVAR
 
 CREATE OP0 HERE >T DUP , SWAP ALLOT
 
+DUP OpBuffSize + CELL- CONSTANT OPLast
+
 CELL+ DUP CONSTANT OP1
 CELL+ DUP CONSTANT OP2
 CELL+ DUP CONSTANT OP3
@@ -56,9 +58,12 @@ CELL+ DUP CONSTANT OP8
 
 DROP
 
+ 
+
 : SetOP ( -- )
  OP0 OP1 OpBuffSize CELL- CMOVE>
- DP @ OP0 ! ;
+ DP @ OP0 !
+;
 
 : ToOP0 ( OPn -- )
      OP0 OpBuffSize CELL- QCMOVE ;
@@ -300,10 +305,8 @@ DROP
 
 ;
 
-: DEPTH-OPT?  ( N - FLAG )  \ допустиная ли глубина для оптимизации
-  :-SET + DP @  U>  ;
-
 \ 0 VALUE TTTT
+
 \ 0 VALUE ZZZZ \ VECT VVV 
 
 : ?ChEAX  ( ADDR --  FALSE | TRUE )
@@ -363,12 +366,13 @@ M\ VECT DTST
       ALLOT      
       R@ CELL+ R@ OpBuffSize CELL- R> - OP0 + QCMOVE
 ;
+: ?OPlast  ( OPX -- OPX flag )
+     DUP CELL+ OP0 OpBuffSize + U> ;
 
 : XX_STEP ( OPX -- OPX+CELL FALSE | { OPX | FALSE } TRUE )
 \ Проверка на не изменение  EAX
-
-     DUP CELL+ OP0 OpBuffSize +
- U> IF DROP FALSE TRUE EXIT THEN
+     ?OPlast
+     IF DROP FALSE TRUE EXIT THEN
      DUP @
      DUP  :-SET U< IF 2DROP FALSE TRUE EXIT THEN
      C@ 
@@ -409,6 +413,7 @@ M\ VECT DTST
   DUPENDCASE  DROP CELL+ FALSE ;
 
 : MOV_EDX_[EBP]  ( OPX - OPX' FALSE | FLAG TRUE )
+        ?OPlast  IF DROP FALSE TRUE EXIT THEN
   DUP @ :-SET U< IF DROP FALSE TRUE EXIT THEN
   DUP @ ?ChEAX 0= IF CELL+ FALSE EXIT THEN
   DUP @ W@
@@ -458,6 +463,7 @@ VARIABLE SAVE-?~EAX
 \     TTTT 0= IF DROP FALSE TRUE EXIT THEN
 \  ." $="  DUP @ @ U.
 \ DROP FALSE TRUE EXIT
+     ?OPlast     IF DROP FALSE TRUE EXIT THEN
   DUP @ :-SET U< IF DROP FALSE TRUE EXIT THEN
   DUP @ W@
    DUP 4589 =     \ OPX N F  MOV     FC [EBP] , EAX 
@@ -679,6 +685,7 @@ HEX  U. U. ." EAX>EBX" ABORT
 : ?EAX>ECX  ( OPX - OPX' FALSE | FALSE TRUE | OPX' TRUE TRUE )
 \   ZZZZ 0= IF DROP FALSE TRUE EXIT THEN
 \ DROP FALSE TRUE EXIT
+     ?OPlast     IF DROP FALSE TRUE EXIT THEN
   DUP @ :-SET U< IF DROP FALSE TRUE EXIT THEN
   DUP @ W@
    DUP 4589 =     \ OPX N F  MOV     FC [EBP] , EAX 
@@ -1058,9 +1065,10 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
 ;
 
 : -EBPLIT   ( n OPX  -- n OPX' )
-   DUP @  :-SET  U<   IF EXIT THEN
+   DUP @  :-SET  U> 0= IF EXIT THEN
   BEGIN
-     DUP @ W@ 6D8D =  IF EXIT THEN
+          ?OPlast     IF EXIT THEN
+     DUP @ W@ 6D8D =  IF EXIT THEN \ LEA     EBP , X [EBP] 
      DUP @ C@ E8   =  IF EXIT THEN \ CALL
      DUP @ C@ E9   =  IF EXIT THEN \ JMP
      DUP @ C@ F0 
@@ -1069,13 +1077,14 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
      DUP @ W@ F0FF
           AND 800F =  IF EXIT THEN
      2DUP @ 2+ C@  =  IF EXIT THEN
-    CELL+   DUP @  :-SET   U< 
+    CELL+   DUP @  :-SET   U> 0=
   UNTIL ;
 1 [IF]
 :  -EBPCLR   ( FLAG OPX  -- FLAG' )
    DUP @  :-SET  U< IF DROP EXIT THEN
   OFF-EBP CELL- TO OFF-EBP
   BEGIN
+          ?OPlast    IF DROP EXIT THEN
      DUP @ W@ 6D8D = IF DROP EXIT THEN
      DUP @ C@ E8   = IF DROP EXIT THEN \ CALL
      DUP @ C@ E9   = IF DROP EXIT THEN \ JMP
@@ -1105,7 +1114,7 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
   OFF-EBP CELL-  TO OFF-EBP
    BEGIN   
        OFF-EBP  SWAP  -EBPLIT NIP 
-                                
+    ?OPlast    IF DROP EXIT THEN                                
    :-SET  OVER  @   U<  
    WHILE  DUP @ 2+ C@  OFF-EBP FF AND =
           IF  DUP @ W@  E7FF AND  4589  =  \ MOV X [EBP] , EAX|EDX|EBX|ECX
@@ -1116,7 +1125,9 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
           ELSE 
     DUP @ @ FFFFFF AND 85448B = \ MOV  EAX , FC [EBP] [EAX*4] 
               IF DROP EXIT THEN 
-              CELL+ DUP @  :-SET  U< IF DROP EXIT THEN
+              CELL+
+                     ?OPlast    IF DROP EXIT THEN
+               DUP @  :-SET  U< IF DROP EXIT THEN
           THEN
    REPEAT  DROP
 ;
@@ -1309,7 +1320,8 @@ OP0 @  C@  A1 XOR OR \ MOV     EAX , X
 0= IF  OP1
       BEGIN   ?EAX>ECX
          IF  T?EAX>ECX  
-         ELSE   DUP @ :-SET U< 
+         ELSE   ?OPlast >R
+                DUP @ :-SET U< R> OR
            IF   DROP FALSE TRUE
            ELSE DUP >R
                 R@  @   C@  A1 XOR    \	MOV     EAX , X
@@ -1337,7 +1349,8 @@ OP0 @  C@  58 XOR OR \ POP     EAX
 0= IF  OP1
       BEGIN   ?EAX>ECX
          IF  T?EAX>ECX  
-         ELSE   DUP @ :-SET U< 
+         ELSE   ?OPlast >R
+                DUP @ :-SET U< R> OR
            IF   DROP FALSE TRUE
            ELSE DUP  @   C@  50 XOR    \	PUSH     EAX , X
            0=   F?EAX>ECX 
@@ -3069,7 +3082,8 @@ OP0 @ @ FFFFFF AND 24442B XOR OR \ 	SUB     EAX , 4 [ESP]
 0= IF OP2 
       BEGIN  ?EAX>ECX   ( OPX - OPX' FALSE | FALSE TRUE | OPX' TRUE TRUE )
          IF T?EAX>ECX  
-         ELSE DUP @ :-SET U<
+         ELSE   ?OPlast >R
+                DUP @ :-SET U< R> OR
            IF   DROP FALSE TRUE
            ELSE DUP >R
                 R@ CELL+ @ W@             048B XOR    \	MOV     EAX , [ESP] 
