@@ -98,7 +98,6 @@ SET-CURRENT
     0 VALUE *JetBuf
     0 VALUE hFont
  0x64 CONSTANT OBSIZE
-0x100 CONSTANT MAXLIN
     0 VALUE tib
     0 VALUE >in
     0 VALUE promptbuf

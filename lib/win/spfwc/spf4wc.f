@@ -62,16 +62,24 @@ S" lru.f"        INCLUDED  \ буфер history (last recently used)
   LastLineIndex *promptbuf + DUP EM_SETSEL SendToClVoid
 ;
 
+: GetClTextLength ( -- n) \ возвращает длину текста в консоли
+  0 0 WM_GETTEXTLENGTH SendToCl
+;
+
 \ Console Output
-: FlushJetBuf
+: FlushJetBuf { \ [ 32000 ] buf -- }
   JetOut IF
-    GETLINECOUNT MAXLIN > IF
+    GetClTextLength 28000 > IF
         clhwnd LockWindowUpdate DROP
-        0          64 EM_LINEINDEX  SendToCl
-                    0 EM_SETSEL     SendToClVoid
-        0           0 WM_CLEAR      SendToClVoid
-        0xFFFE 0xFFFE EM_SETSEL     SendToClVoid
-        MAXLIN      0 EM_LINESCROLL SendToClVoid
+        buf 32000 WM_GETTEXT SendToCl >R
+        buf DUP 5120 +
+        BEGIN
+          1+ DUP C@ DUP 0x0A = SWAP 0 = OR
+        UNTIL 1+
+        SWAP 2DUP - R> SWAP - 1+ 1 MAX QCMOVE
+        buf          0 WM_SETTEXT    SendToClVoid
+        0xFFFE 0xFFFE EM_SETSEL      SendToClVoid
+        GETLINECOUNT 0 EM_LINESCROLL SendToClVoid
         NULL LockWindowUpdate DROP
     THEN
     *JetBuf 0 > IF
@@ -620,13 +628,13 @@ TO RunScript
      THEN
    ENDOF
 
-(   WM_CLEAR OF
+   WM_CLEAR OF
      0 FALSE
    ENDOF
 
    WM_CUT OF
      0 FALSE
-   ENDOF)
+   ENDOF
 
    WM_SETFOCUS OF
      hwnd TO CurFocus
