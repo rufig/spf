@@ -24,6 +24,7 @@ common table control
   item -updown		\ спин-симбионт
   item -tooltip  getset \ подсказка
   item -tooltipexists   \ флажок: есть ли подсказка
+  item -locked          \ нельзя менять размеры
 endtable
 
 VECT common-tooltip-op
@@ -82,6 +83,7 @@ USER-VALUE this
   W: color_3dface syscolor this -bgcolor!
   W: color_btntext syscolor this -color!
   ['] NOOP this -command!
+  ['] NOOP this -painter!
   20 20 this resize
   this ;
 
@@ -145,8 +147,11 @@ endtable
 : +pads { x y ctl -- x1 y1 }
   ctl -xpad@ 2* x +  ctl -ypad@ 2* y + ;
 
+: resize-if-unlocked ( xsize ysize win -- )
+  DUP -locked@ IF DROP 2DROP ELSE resize THEN ;
+
 : adjust-size { ctl -- }
-  ctl size-of-text  ctl +pads  ctl resize ;
+  ctl size-of-text  ctl +pads  ctl resize-if-unlocked ;
 
 :NONAME \ set-labeltext ( z ctl -- ) 
   2DUP set-text DUP ?invalidate DUP adjust-size 
@@ -170,6 +175,7 @@ endtable
   transparent OVER -bgcolor! ;
 
 : set-stalign ( align ctl -- )
+  2DUP -align SWAP store
   DUP -style@ W: ss_typemask INVERT AND ROT OR OVER -style!
   ?invalidate ;
 
@@ -578,7 +584,10 @@ WINAPI: SetParent USER32.DLL
   DUP winhide 0 SWAP -parent! ;
 
 \ Быстрая инициализация текущего объекта
-\ (/ -font f  -color blue  -bgcolor white  -size 100 200 /)
+\ (/ -font f  -color blue  -bgcolor white  /)
+
+\ Более хитрые вещи:
+\ (/ -name value-var  -size 100 200 /)
 
 -1 == -size
 
@@ -596,6 +605,8 @@ WINAPI: SetParent USER32.DLL
   CELLS NEGATE +LOOP
   remove-stack-block
 ;
+
+: -name ( ->bl; -- ) POSTPONE this [COMPILE] TO ; IMMEDIATE
 
 \ -----------------------------
 \ Сетки
@@ -946,6 +957,7 @@ VECT add-grid-to-window
   DUP grid? IF 
     temp @ SWAP current-window add-grid-to-window
   ELSE 
+    TRUE OVER -locked!
     DUP set-parent temp @ IF ctlshow ELSE DROP THEN
   THEN ;
 

@@ -1,4 +1,4 @@
-\ WINLIB 0.90
+\ WINLIB 1.00
 \ Библиотека пользовательского интерфейса Windows
 \ ч. 1. Базовые объекты, окна, меню, быстрые клавиши
 \ Ю. Жиловец, 8.12.2001
@@ -144,11 +144,13 @@ VARIABLE lastitem
   item -color 		\ цвет букв
   item -bgcolor set	\ цвет фона
   item -bgbrush ( _gdi type)	\ кисть для фона окна
+  item -painter		\ процедура отрисовки окна
   item -xsize	\ размер окна по горизонтали
   item -ysize	\ размер окна по вертикали
   item -parent	\ окно, в котором размещен элемент
   item -text getset	\ максимальный размер строки - 255 символов. 
                 	\ Для richedit и ему подобных - переопределить чтение/запись
+  item -userdata        \ пользовательские данные
 endtable
 
 \ меню
@@ -243,7 +245,6 @@ WINAPI: SetWindowLongA USER32.DLL
 common table window
  item -icon getset	\ иконка
  item -smicon getset	\ маленькая иконка
- item -painter		\ процедура отрисовки окна
  item -pre		\ выполняется до стандартной оконной процедуры
  item -wndproc		\ оконная процедура
  item -menus		\ меню окна
@@ -256,7 +257,6 @@ common table window
  item -grid set 	\ решетка окна
  item -gridresize     	\ процедура изменения размеров решетки
 \ item -gridctlresize
- item -userdata         \ пользовательские данные
  item -dialog	  \ флажок: надо ли обрабатывать диалоговые кнопки
  item -defaultbutton   \ Кнопка по умолчанию
 endtable
@@ -502,6 +502,23 @@ M: wm_paint
  thiswin -painter@ EXECUTE
  paintstruct hwnd EndPaint DROP
  TRUE
+M;
+
+VECT menu-painter
+
+M: wm_drawitem
+   lparam @ W: odt_menu = IF 
+     \ это меню
+     menu-painter 
+   ELSE
+     \ это элемент управления
+     lparam 6 CELLS@ TO windc
+     lparam 7 CELLS+ TO paint-rect
+     lparam 5 CELLS@ window@ ?DUP IF
+       -painter@ EXECUTE
+     THEN
+   THEN
+   TRUE
 M;
 
 WINAPI: PostQuitMessage USER32.DLL
@@ -821,6 +838,10 @@ WINAPI: SetWindowPos USER32.DLL
   \ новый размер окна в него запишет сообщение wm_size
 ;
 
+\ заставить окно перерисоваться в ближайшее время
+: force-redraw ( win -- )
+  TRUE 0 ROT -hwnd@ InvalidateRect DROP
+;
 \ --------------------------------------
 \ Message Boxes
 

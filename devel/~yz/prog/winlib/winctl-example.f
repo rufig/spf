@@ -37,16 +37,17 @@ PROC: dia
       mm start-group
       1 " Мене" radio | 2 " Текел" radio | 3 " Фарес" radio |
       ===
-      multiedit DUP TO e 120 25 this resize -middle | 
-      " >>" button adds this -command! | combo DUP TO c 150 300 this resize -middle |
+      multiedit (/ -name e -size 120 25 /) -middle | 
+      " >>" button (/ -command adds /) | 
+      combo (/ -name c -size 150 300 /) -middle |
       ===
-      " 0" label DUP TO ls 10 -width blue ls -bgcolor!  white ls -color! | 
-      hscroll  255 this -max!  scroll this -notify!  white this -bgcolor!  -xspan |
+      " 0" label (/ -name ls  -bgcolor blue  -color white /) 10 -width | 
+      hscroll (/ -max 255  -notify scroll  -bgcolor white /) -xspan |
     GRID; TO g
     GRID
       1 IMAGE-BASE LoadIconA icon 10 -width | hline -xspan -middle |
       ===
-      listbox  " *.*" 0 this lb-dir  120 150 this resize -yspan | g |
+      listbox  " *.*" 0 this lb-dir  (/ -size 120 150 /) -yspan | g |
       ===
       hline -xspan |
       ===
