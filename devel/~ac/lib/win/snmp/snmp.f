@@ -144,7 +144,7 @@ VECT v_add-value
          OVER @ SNMP_SYNTAX_GAUGE32 =
          IF v_add-value 
          ELSE SNMPcounter_old 0= IF DUP TO SNMPcounter_old THEN
-            DUP SNMPcounter_old - v_add-value TO SNMPcounter_old
+            DUP SNMPcounter_old - 0 MAX v_add-value TO SNMPcounter_old
          THEN
     THEN
     FREE THROW
