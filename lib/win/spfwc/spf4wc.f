@@ -15,7 +15,7 @@ REQUIRE {            ~af\lib\locals.f
 REQUIRE USES         ~af\lib\api-func.f
 REQUIRE GetIniString ~af\lib\ini.f
 REQUIRE FStream      ~af\lib\stream_io.f
-REQUIRE WINCONST     ~af\lib\const.f
+REQUIRE WINCONST     lib\win\const.f
 REQUIRE SaveTlsIndex ~af\lib\QuickWNDPROC.f
 REQUIRE STRUCT:      lib\ext\struct.f
 REQUIRE WAIT         wait.f
@@ -31,6 +31,7 @@ DECIMAL
 
 VECT RunScript
 
+ALSO WINCONST
 MODULE: GUI-CONSOLE
 
 S" spf4wc.h.f"   INCLUDED  \ constants & data
@@ -1013,7 +1014,7 @@ FALSE WARNING !
   THEN
 ;
 TRUE WARNING !
-WINCONST::REMOVE-ALL-CONSTANTS
+REMOVE-ALL-CONSTANTS PREVIOUS
 
 TRUE TO ?GUI
 ' CONSOLE MAINX !
