@@ -30,7 +30,7 @@ REGEDIT4
 ".spf"="c:\\spf\\spf4wc.exe %s"
 
 [HKEY_CURRENT_USER\SOFTWARE\Far\Associations\Type0]
-"Description"="jp-forth files"
+"Description"="sp-forth files"
 "Edit"=""
 "Execute"="c:\\spf\\spf4wc.exe !.!"
 "Mask"="*.f,*.spf"

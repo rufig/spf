@@ -16,7 +16,7 @@
 \ на запись - май 2002 ~af
 
 
-REQUIRE ALLOCATE-PROCESS  devel\~af\lib\pallocate.f
+REQUIRE PALLOCATE  devel\~af\lib\pallocate.f
 
 WINAPI: FlushFileBuffers              KERNEL32.DLL
 
@@ -40,10 +40,10 @@ CONSTANT /STREAM
 512 VALUE STREAM-WBUF
 
 : HANDLE>STREAM ( h -- s )
-  /STREAM DUP ALLOCATE-PROCESS THROW DUP >R
+  /STREAM DUP PALLOCATE THROW DUP >R
   SWAP ERASE
   R@ .shandle !
-  STREAM-RBUF DUP ALLOCATE-PROCESS THROW R@ .srbuf !
+  STREAM-RBUF DUP PALLOCATE THROW R@ .srbuf !
   R@ .srbsize !
   R>
 ;
@@ -53,7 +53,7 @@ CONSTANT /STREAM
 ;
 : STREAM>WSTREAM ( s -- )
   STREAM-WBUF 2DUP SWAP .swbsize !
-  ALLOCATE-PROCESS THROW SWAP .swbuf !
+  PALLOCATE THROW SWAP .swbuf !
 ;
 : STREAM>WSTREAM-WITH ( s xt -- )
   OVER .swritext !
@@ -85,11 +85,11 @@ CONSTANT /STREAM
 ;
 : CLOSE-STREAM ( s -- ior )
   DUP .swritext @ IF
-    DUP FlushWBuffer OVER .swbuf @ FREE-PROCESS THROW
+    DUP FlushWBuffer OVER .swbuf @ PFREE THROW
   ELSE 0 THEN
   SWAP
-  DUP .srbuf @ FREE-PROCESS THROW
-  FREE-PROCESS THROW
+  DUP .srbuf @ PFREE THROW
+  PFREE THROW
 ;
 
 : FILE>STREAM ( h -- s )  ['] READ-FILE  HANDLE>STREAM-WITH ;

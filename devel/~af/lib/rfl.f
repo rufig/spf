@@ -8,7 +8,7 @@ REQUIRE GetIniString      devel\~af\lib\ini.f
 REQUIRE USES              devel\~af\lib\api-func.f
 REQUIRE FileExist         devel\~af\lib\fileexist.f
 REQUIRE STR@              devel\~ac\lib\str2.f
-REQUIRE ALLOCATE-PROCESS  devel\~af\lib\pallocate.f
+REQUIRE PALLOCATE         devel\~af\lib\pallocate.f
 
 USES user32.dll
 
@@ -39,14 +39,14 @@ GET-CURRENT ALSO RFLSupport DEFINITIONS
 : HEAP-PROCESS-COPY ( addr u -- addr1 )
 \ скопировать строку в хип программы и вернуть её адрес в хипе
   0 MAX
-  DUP 1+ ALLOCATE-PROCESS THROW DUP >R
+  DUP 1+ PALLOCATE THROW DUP >R
   SWAP DUP >R MOVE
   0 R> R@ + C! R>
 ;
 
 : AddRFLNode ( addr u -- )
   \ удаление последнего в списке
-  RFList 8 CELLS + @ ?DUP IF FREE-PROCESS DROP THEN
+  RFList 8 CELLS + @ ?DUP IF PFREE DROP THEN
   \ сдвиг списка
   RFList DUP CELL+ 8 CELLS MOVE
   \ добавление нового файла в начало
@@ -128,7 +128,7 @@ SET-CURRENT
 
 : CreateRFL ( addr_ini addr_section -- )
   TO rflsection TO inifile
-  9 CELLS ALLOCATE-PROCESS THROW TO RFList
+  9 CELLS PALLOCATE THROW TO RFList
   LoadRFList
 ;
 : FreeRFL ( -- )
@@ -136,7 +136,7 @@ SET-CURRENT
   9 0 DO
     RFList I CELLS + @ FREE DROP
   LOOP
-  RFList FREE-PROCESS DROP
+  RFList PFREE DROP
 ;
 : RefreshMenu ( -- )
   ClearRFLMenu ShowRFLMenu
