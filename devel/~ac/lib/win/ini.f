@@ -19,6 +19,11 @@ REQUIRE STR@         ~ac/lib/str2.f
   mem SWAP S@
   mem FREE THROW
 ;
+: IniFile! ( S" value" S" key" S" section" S" file" -- ) \ throwable
+\ записать значение ключа в ini-файл
+  { va vu ka ku sa su fa fu \ mem }
+  fa va ka sa WritePrivateProfileStringA ERR THROW
+;
 USER IniEnumXt
 
 : (IniEnum)
@@ -89,8 +94,14 @@ VECT IniDefaultOrig
      IniFile@
   THEN
 ;
+: (IniS!) ( va vu -- )
+  File.Section[Key]> IniFile!
+;
 : IniS@ ( a u -- S" value" )
   ['] (IniS@) EVALUATE-WITH
+;
+: IniS! ( va vu a u -- S" value" )
+  ['] (IniS!) EVALUATE-WITH
 ;
 : ""@ { a u -- str }
   >IN @ u - 0 MAX >IN ! POSTPONE "
@@ -108,6 +119,8 @@ VECT IniDefaultOrig
 
 ( win.ini отображен в реестр, поэтому данные могут не совпадать с ini )
 (
+\ Server[HostName] TYPE
+\ S" rainbow1.test" S" Server[HostName]" IniS!
 g:\WINXP\win.ini.Mail[CMCDLLNAME32] TYPE CR CR
 g:\WINXP\win.ini.Mail[] ' TYPE IniEnum CR CR
 g:\WINXP\win.ini.[] TYPE CR CR
