@@ -83,6 +83,10 @@
 \ + update squares attacked incrementally
 \ + enhance evaluation routines
 
+S" lib\include\core-ext.f" INCLUDED
+S" lib\include\float.f" INCLUDED
+S" lib\include\tools.f" INCLUDED
+
 : NOTFOUND ( addr u -- )
   2DUP 2>R ['] NOTFOUND CATCH ?DUP
   IF                    
@@ -105,9 +109,6 @@
 
 : DEFER VECT ;
 : IS POSTPONE TO ; IMMEDIATE
-
-S" lib\include\core-ext.f" INCLUDED
-S" lib\include\float.f" INCLUDED
 
 WINAPI: GetTickCount KERNEL32.DLL
 
