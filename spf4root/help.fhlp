@@ -1,0 +1,14 @@
+\ —юда можно подключать ваши справочные файлы!
+
+?Topic @ [IF]
+
+S" docs\help\SPForth.ftpc"  INCLUDED
+S" docs\help\OPT.FTPC"  INCLUDED
+[ELSE]
+
+S" docs\help\ANSFth94.fhlp" INCLUDED
+S" docs\help\SPForth.fhlp"  INCLUDED
+S" docs\help\mak.fhlp" INCLUDED
+S" docs\help\opt.fhlp" INCLUDED
+
+[THEN]

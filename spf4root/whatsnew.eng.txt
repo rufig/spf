@@ -1,0 +1,74 @@
+5.July.2002 4.00.008
+
++ Instead of hand connection of icons, the resources are linking on the ~yz
+  technology from spf.fres.
+! The insert of characters of line feed into a log-file is transferred from
+  MAIN1 into ACCEPT1.
++ Instead of the constant #ST-RES the variable ST-RES is entered - size
+  of the data stack. By default size of the data stack - about 4Kb. ~af
+! The system of errors output from ~ruvim, lost in build 7, is added.
++ Large package of changes from uspf4m10-uspf4m13 ~mak
+- The variable ERASED-CNT is removed. Instead of it the word PROCESS-INIT
+  is entered.
+* Width of columns in WORDS was modified from 8 to 15.
+! RECEIVE-WITH allocate now C\L+2 bytes for TIB. REFILL transmits to READ-LINE
+  as buffer TIB by size C\L, and READ-LINE require, that the buffer really was
+  on two bytes more than was declared.
+* The asm-version DIGIT is again used. It understand only large characters.
+  Case-insensitive DIGIT is transferred in lib caseins.
++ The variable SOURCE-ID-XT is added. It stores xt of the word, which reads
+  from SOURCE-ID one line. It is necessary in that case, when SOURCE-ID not
+  file, but memory for example. ~af
+- All words for operations with input-output streams are transferred into
+  the separate lib.
++ (INCLUDED) now is vector.
++ New INCLUDED from ~ruvim - file input on relative "current" directory.
+- Some, not used functions Windows, are removed from kernel .
++ The word .TO-LOG is added. It prints top number from data stack
+  into log-file.
+* Was modified WINAPI:. Field, containing quantity of parameters which
+  is necessary transmit to function, is added. This quantity is calculated
+  at the first call of the function. ~ruvim
+! Word ; clears now the buffer JpBuff in the optimizer.
+! The possibility of availability of the tab characters in sources is taken
+  into account. Was modified - REQUIRE, LAST-WORD.
+! The processing of hex-constants was modified. If following after 0x
+  the part of token contains characters which are not being hex digits,
+  then this token not considered as hex-constant. The exception - at
+  the end of constant can stand the character L.
+
+
+10.November.2002  4.00.009
+
++ The refreshed optimizer from ~mak.
++ New SEH. ~ac
+! The READ-LINE is corrected. ~ac
+! SAVE generates correct (from the point of view WinXP) file header.
+  It generates the program which is not having of resources.
+  If the resources are necessary, it is possible to use src\tsave.f :
+  S" name.exe" S" src\spf.fres" src\tsave.f
+
+! CONSOLE-HANDLES is transferred in a beginning of cycle of QUIT.
+
+
+
+* - Changes
+! - Fixed error
++ - New
+- - Delete
+
+Developers:
+
+~ruvim   = Ruvim Pinka          ruvim@forth.org.ru
+~boa     = Bordachev Andrej     glareboa@mail.ru
+~day     = Dmitry Yakimov       ftech@tula.net
+~micro   = Dmitry Zyryanov      micro@forth.org.ru
+~1001    = Konstantin Tarasov   const@penza.com.ru
+~ac      = Andrey Cherezov      andrey@cherezov.koenig.su
+~nemnick = Nicholas Nemtsev     nn@vdk.psc.ru
+~mak     = Michael Maximov      mak@mail.rtc.neva.ru
+~yz      = Yuriy Zhilovets      yz@nightmail.ru
+~mlg     = Michael Gassanenko   mlg@forth.org
+~af      = Andrey Filatkin      af@forth.org.ru
+~oleg_sh = Oleg Shalyopa
+~trasher = Dmitry Bobrik
