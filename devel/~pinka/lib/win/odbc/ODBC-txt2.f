@@ -16,7 +16,7 @@
 
 REQUIRE INCLUDED-WITH  ~pinka\lib\ext\include.f
 REQUIRE RENAME-FILE ~pinka\lib\FileExt.f
-\ REQUIRE SPARSTO     ~pinka\lib\ext\parse.f
+\ REQUIRE SPARSETO    ~pinka\lib\ext\parse.f
 \ подключаю в ODBCTxt-Support, во избежании коллизий
 REQUIRE NextSubstring ~pinka\lib\parse.f 
 REQUIRE COMPARE-U   ~ac\lib\string\compare-u.f
@@ -29,7 +29,14 @@ REQUIRE ExistTable  ~ac\lib\win\odbc\odbc2.f
 VOCABULARY  ODBCTxt-Support
 GET-CURRENT  ALSO ODBCTxt-Support DEFINITIONS
 
-REQUIRE SPARSTO     ~pinka\lib\ext\parse.f
+
+REQUIRE SPARSETO    ~pinka\lib\ext\parse.f
+
+: SkipComma ( -- )
+  SkipDelimiters
+  GetChar IF  DUP [CHAR] , = IF
+  >IN 1+!  THEN  THEN  DROP
+;
 
 USER-VALUE  vHashT
 USER-VALUE  qSql
@@ -100,7 +107,7 @@ USER-VALUE h-tbl
   CloseNewTbl
   DelPrevNew
   " New{TableName}" DUP >R STR@
-  W/O CREATE-FILE THROW TO h-tbl
+  W/O CREATE-FILE-SHARED THROW TO h-tbl
   R> STRFREE
 ;
 : WriteTbl ( a u -- )
@@ -174,11 +181,13 @@ USER-VALUE h-tbl
    >IN 0!
    qSql ResultCols 1+ 1 ?DO
      I qSql Col
-     GetFileCol COMPARE  
+     ( odbc Col убирает пробелы в конце, даже в кавычках)
+     GetFileCol -TRAILING  COMPARE  
      DUP IF UNLOOP EXIT THEN DROP
    LOOP 0
 ;
 : UpdateRow ( -- )
+   SOURCE NIP 0= IF EXIT THEN
    qSql ResultCols 1+ 1 ?DO
      I HasValue 0= IF
      I qSql Col    THEN ( a u )
@@ -196,7 +205,9 @@ USER-VALUE h-tbl
   WHILE
     SOURCE WriteTbl
     CRLF WriteTbl
-  REPEAT THEN
+  REPEAT ELSE SOURCE DROP 0 SOURCE! THEN
+  \ обнулил SOURCE на случай, если файл закончился, 
+  \  а NextRow еще нет (когда CmpRow не сработало)
 ;
 : update ( -- )
   REFILL IF \ the header
@@ -256,18 +267,22 @@ GET-CURRENT ALSO SqlLex DEFINITIONS
   ['] SqlTxtUpdate CATCH
 ;
 : set2 ( -- )
-  SkipDelimiters [CHAR] = 
-  PARSE -TRAILING ( a-key u-key )
-  NextSubstring   ( a-key u-key a u ) 
+  [CHAR] =  PARSE
+  -TRAILING       ( a-key u-key )
+  SkipDelimiters
+  GetChar DROP IsCharSubs  IF
+  NextSubstring            ELSE
+  [CHAR] , PARSE -TRAILING THEN
+  ( a-key u-key a u )
   2SWAP HashT  HASH!
 ;
-
 : set1 ( -- )
   BEGIN
-    [CHAR] , PARSE
-  DUP WHILE
-    ['] set2 EVALUATE-WITH
-  REPEAT 2DROP
+    SkipDelimiters
+    PARSE-AREA@ NIP
+  WHILE set2
+    SkipComma
+  REPEAT
 ;
 : SET ( -- )
   S" WHERE" SPARSETO 0= IF 0 PARSE THEN
