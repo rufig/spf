@@ -44,4 +44,13 @@
   DUP 0< IF DNEGATE THEN
 ;
 
+: HASH ( addr u u1 -- u2 )
+   2166136261 2SWAP
+   OVER + SWAP 
+   ?DO
+      16777619 * I C@ XOR
+   LOOP
+   SWAP ?DUP IF UMOD THEN   
+;
+
 0  VALUE  DOES-CODE
