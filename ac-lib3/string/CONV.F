@@ -83,6 +83,9 @@ CREATE  AB64 C" ghijklmnopqrstuvwxyz0123456789+/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 : />\ ( addr u -- )
   0 ?DO DUP I + C@ [CHAR] / = IF [CHAR] \ OVER I + C! THEN LOOP DROP
 ;
+: \>/ ( addr u -- )
+  0 ?DO DUP I + C@ [CHAR] \ = IF [CHAR] / OVER I + C! THEN LOOP DROP
+;
 : ?=&>BL ( addr u -- )
   2DUP S"  HTTP/" SEARCH IF DROP ( 8 BL FILL) TIB - #TIB ! ELSE 2DROP THEN
   0 ?DO

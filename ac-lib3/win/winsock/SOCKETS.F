@@ -20,6 +20,7 @@ WINAPI: inet_ntoa       WSOCK32.DLL
 WINAPI: setsockopt      WSOCK32.DLL
 WINAPI: shutdown        WSOCK32.DLL
 WINAPI: gethostname     WSOCK32.DLL
+WINAPI: select          WSOCK32.DLL
 
 1  CONSTANT SOCK_STREAM
 2  CONSTANT SOCK_DGRAM
@@ -204,7 +205,7 @@ AF_INET sock_addr2 sin_family W!
   BindSocket
 ;
 : ListenSocket ( s -- ior )
-  10 SWAP listen SOCKET_ERROR =
+  100 SWAP listen SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
 ;
 CREATE SINLEN /sockaddr_in ,
@@ -228,4 +229,17 @@ CREATE SINLEN /sockaddr_in ,
 \         #>
 \  [ BASE ! ]
   inet_ntoa ASCIIZ>
+;
+: AcceptSocketNotBlock ( s -- s2 ior )
+  0 >R 60 >R RP@ \ timeout 60 sec
+  SWAP
+  0 \ exc
+  0 \ write
+  ROT >R 1 >R RP@ \ read
+  0
+  select 
+  RDROP R> RDROP RDROP SWAP
+  DUP 0= IF DROP 10060 EXIT THEN
+  SOCKET_ERROR = IF WSAGetLastError EXIT THEN
+  AcceptSocket
 ;

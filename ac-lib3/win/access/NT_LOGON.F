@@ -9,6 +9,9 @@ WINAPI: RevertToSelf            ADVAPI32.DLL
 4 CONSTANT LOGON32_LOGON_BATCH
 3 CONSTANT LOGON32_LOGON_NETWORK
 USER TOKEN
+USER uAuthServer
+
+: AuthServer uAuthServer @ ?DUP IF EXECUTE ELSE S" ." THEN ;
 
 : Logon ( S"user" S"password" S"domain" -- token ior )
   DROP >R DROP >R DROP >R
@@ -17,7 +20,7 @@ USER TOKEN
   IF TOKEN @ FALSE ELSE 0 GetLastError THEN
 ;
 : LoginUser ( addr-name u-name addr-passw u-passw -- uid )
-  S" ." Logon IF EXIT ( 0) THEN
+  AuthServer Logon IF EXIT ( 0) THEN
   DUP ImpersonateLoggedOnUser DROP
 ;
 : LogoutUser ( -- )
