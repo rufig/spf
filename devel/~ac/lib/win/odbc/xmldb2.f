@@ -33,7 +33,12 @@ VARIABLE SqlQ
     " </Row>{CRLF}" s S+
   s
 ;
+USER uDisableEscaping
+: disable-output-escaping \ как в XSLT :) но de-escape не делает
+  TRUE uDisableEscaping !
+;
 USER &escape_tmp
+
 : &escape1
   BEGIN
     #TIB @ >IN @ >
@@ -47,7 +52,10 @@ USER &escape_tmp
   REPEAT
 ;
 : &escape
-  2DUP S" &" SEARCH NIP NIP 0= IF EXIT THEN
+  uDisableEscaping @ IF EXIT THEN
+  2DUP S" &" SEARCH NIP NIP 0= IF EXIT THEN \ если нет &, то не трогаем
+  2DUP S" &amp;" SEARCH NIP NIP IF EXIT THEN \ если уже &amp;, то не трогаем
+  2DUP S" &lt;" SEARCH NIP NIP IF EXIT THEN \ если &lt;, то не трогаем
   "" &escape_tmp !
   ['] &escape1 EVALUATE-WITH
   &escape_tmp @ STR@
@@ -64,10 +72,21 @@ USER <escape_tmp
   REPEAT
 ;
 : <escape
+  uDisableEscaping @ IF EXIT THEN
   2DUP S" <" SEARCH NIP NIP 0= IF EXIT THEN
   "" <escape_tmp !
   ['] <escape1 EVALUATE-WITH
   <escape_tmp @ STR@
+;
+: DeBlob { addr u -- a2 u2 }
+  u 0 ?DO
+    addr I + C@ 16 DIGIT DROP 4 LSHIFT
+    addr I + 1+ C@ 16 DIGIT DROP OR
+    addr I 2/ + C!
+  2 +LOOP addr u 2/
+  2DUP S" " 1+ \ ищем нулевые байты
+  SEARCH NIP NIP
+  IF " <![CDATA[{s}]]>" STR@ THEN
 ;
 : SqlQueryResult
   { \ n s }
@@ -85,6 +104,7 @@ USER <escape_tmp
       DUP 1 < 
       IF 2DROP S" 0" 
       ELSE &escape <escape THEN 
+I 1+ SqlQ @ ColType SQL_C_BINARY = IF DeBlob THEN
       2OVER
       " <{s}>{s}</{s}>" s S+
     LOOP DROP
@@ -143,3 +163,6 @@ USER <escape_tmp
 \ CR CR
 \ S" select EMAIL_TO as Email, COUNT(EMAIL_TO) as Msgs, SUM(SIZE) as Total from [200307mail-spam.txt] group by EMAIL_TO order by COUNT(EMAIL_TO)" SqlQueryXml TYPE
 \ SqlExit
+\ S" DSN=myodbc3-test" SqlInit
+\ disable-output-escaping
+\ S" latest_orders.sql" SqlQueryXmlFile TYPE
