@@ -323,13 +323,17 @@ VARIABLE   &INTERPRET
   2DUP +ModuleDirName   2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
   2 ( ERROR_FILE_NOT_FOUND ) THROW
 ;
-: (INCLUDED) ( i*x a u -- )
+
+VECT (INCLUDED)
+
+: (INCLUDED1) ( i*x a u -- j*x )
   R/O OPEN-FILE-SHARED THROW DUP >R
   BLK 0!
   ['] TranslateFlow RECEIVE-WITH ( ior )
-  R> CLOSE-FILE THROW
-  THROW
+  R> CLOSE-FILE SWAP THROW THROW
+  \ Вначале обрабатываем ior от RECEIVE-WITH, а потом от CLOSE-FILE (!)
 ;
+
 : INCLUDED_STD ( i*x c-addr u -- j*x )
   CURFILE @ >R
   2DUP HEAP-COPY CURFILE !
