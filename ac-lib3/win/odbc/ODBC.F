@@ -130,6 +130,7 @@ CONSTANT /ci
   127
   m ciColumnName
   n fodbc odbcStat @ SQLDescribeCol
+  m ciColumnSizePtr @ 200000 MIN m ciColumnSizePtr !
 ;
 : IndexResultCols ( fodbc -- )
   DUP
