@@ -32,7 +32,7 @@ Class: SPF.IUnknown {C6DFBA32-DF7B-4829-AA3B-EE4F90ED5961}
   OVER 16 vSPF.Application Class 16 COMPARE 0= 
           IF ." QI:IForth," 2DROP vSPF.Application SWAP ! 0 EXIT THEN
   ." QI:"
-  DROP CLSID>String THROW UNICODE> TYPE ." ;" 0!
+  DROP CLSID>String THROW ( UNICODE>) TYPE ." ;" 0!
   E_NOINTERFACE
 ; METHOD
 

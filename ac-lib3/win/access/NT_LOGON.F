@@ -20,7 +20,9 @@ USER uAuthServer
   IF TOKEN @ FALSE ELSE 0 GetLastError THEN
 ;
 : LoginUser ( addr-name u-name addr-passw u-passw -- uid )
-  AuthServer Logon IF EXIT ( 0) THEN
+  AuthServer Logon 
+\ ?DUP IF ." Auth failed: " . EXIT ( 0) THEN
+  IF EXIT ( 0) THEN
   DUP ImpersonateLoggedOnUser DROP
 ;
 : LogoutUser ( -- )

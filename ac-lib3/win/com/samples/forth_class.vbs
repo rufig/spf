@@ -24,3 +24,5 @@ Forth.TESTVAR = 777
 WScript.Echo Result
 
 WScript.Echo Forth.TESTVAR
+
+Result = Forth.FORTH.WORDS()
