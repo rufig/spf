@@ -1350,50 +1350,6 @@ CODE (LocalsExit) ( -- )
      RET
 END-CODE
 
-
-CODE HASH ( addr u u1 -- u2 )
-\ Неплохая и быстрая хэш функция
-\ addr u - строка
-\ если u1 не 0 хэш будет в интервале 0 ... u1-1
-\ если u1=0 хэш в интервале 0 ... 2^32-1
-     PUSH EDI
-     XCHG EAX, [EBP]
-     MOV  ECX, EAX
-
-     MOV  EBX, # 10DCD
-     MUL  EBX
-     ADD  EAX, # 7AB7
-     MOV  EBX, # 109CEF4
-     DIV  EBX
-     MOV  EAX, EDX
-
-     XOR  EDI, EDI
-     XOR  EDX, EDX
-     MOV  ESI, 4 [EBP]
-@@1: ROL  EAX, # 1
-     PUSH EAX
-     MOVZX EAX, BYTE [EDI] [ESI]
-     MOV  EBX, # 10DCD
-     MUL  EBX
-     ADD  EAX, # 7AB7
-     MOV  EBX, # 109CEF4
-     DIV  EBX
-     POP  EAX
-     XOR  EAX, EDX
-
-     INC  EDI
-     LOOP @@1
-
-     CMP  DWORD [EBP], # 0
-     JZ   @@2
-     XOR  EDX, EDX
-     DIV  DWORD [EBP]
-     MOV  EAX, EDX
-@@2: LEA  EBP, 8 [EBP]
-     POP  EDI
-     RET
-END-CODE
-
 CODE TIMER@ ( -- tlo thi ) \ Только для Intel Pentium и выше!!!
 \ Возвратить значение таймера процессора как ud
    MOV -4 [EBP], EAX
