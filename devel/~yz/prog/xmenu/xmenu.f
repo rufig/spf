@@ -1,17 +1,17 @@
 REQUIRE "   ~yz/lib/common.f
 
-" XMENU 1.13" ASCIIZ program-name
-" xmenu.cfg" ASCIIZ filename
+" XMENU 1.20" ASCIIZ program-name
+" xmenu.cfg"  ASCIIZ filename
 
 REQUIRE msg         ~yz/lib/msg.f
-DIS-OPT
 REQUIRE (*          ~yz/lib/wincons.f
-SET-OPT
-REQUIRE {           ~ac/lib/locals.f  \ }
+REQUIRE {           lib/ext/locals.f
 REQUIRE PMconnect   ~yz/lib/pagemaker.f
+REQUIRE init->>     ~yz/lib/data.f
 REQUIRE small-hash  ~yz/lib/hash.f
 REQUIRE RESOURCES:  ~yz/lib/resources.f
 REQUIRE <(          ~yz/lib/format.f
+REQUIRE (:	    ~yz/lib/inline.f
 \ REQUIRE TraceON     lib/ext/debug/tracer.f
 
 \ -----------------------------------------------------
@@ -38,9 +38,10 @@ REQUIRE <(          ~yz/lib/format.f
 
 16 == icon-size
 2 == icon-left
-3 == icon-right
+4 == icon-right
 3 == icon-top
 2 == icon-bottom
+40 == max-filename-size
 
 0
 CELL -- :hwnd
@@ -76,6 +77,7 @@ WINAPI: LoadIconA          USER32.DLL
 WINAPI: PostQuitMessage    USER32.DLL
 WINAPI: RegisterClassA     USER32.DLL
 WINAPI: CreateWindowExA    USER32.DLL
+WINAPI: DestroyWindow      USER32.DLL
 
 0 USER-VALUE hwnd
 0 USER-VALUE message
@@ -93,6 +95,16 @@ WINAPI: CreateWindowExA    USER32.DLL
 0 VALUE commands
 0 VALUE macros
 0 VALUE keywords
+
+0 VALUE dyn-submenus
+0 VALUE dyn-items
+
+0 VALUE mouse16
+0 VALUE bmouse16
+0 VALUE reload-icon
+0 VALUE exit-icon
+0 VALUE programs-icon
+0 VALUE documents-icon
 
 CREATE MSG #message ALLOT
 
@@ -127,22 +139,47 @@ CREATE save-macros 8 CELLS ALLOT
   commands CELL- save-wl 8 CELLS CMOVE
   macros   CELL- save-macros 8 CELLS CMOVE ;
 
+\ Запись об отрисовываемом пункте статического меню
+
 0
 CELL -- :micon        \ иконка пункта меню
 CELL -- :mheight      \ высота строки (высчитывается при обработке wm_measureitem)
-CELL -- :mstr         \ начало строки
+CELL -- :mstr         \ адрес начала строки
 == #micon
 
+\ Запись о подменю динамического меню
+
+#micon
+CELL -- :mstable	\ не подлежит уничтожению
+CELL -- :mfilled	\ меню уже заполнено
+CELL -- :mfilter	\ фильтр подменю
+CELL -- :mpath		\ путь, соответствующий этому подменю
+CELL -- :mpath2		\ второй путь 
+CELL -- :mdynid		\ подменю: hmenu, пункт: id
+== #mdynsubmenu
+
+\ Запись о подпункте динамического меню
+\ Такая же, как и о подменю, но различается смысл некоторых полей
+
+: :mparent  :mfilled ;  \ подменю-владелец
+
 : new-mitem ( z icon -- a)
-  OVER ZLEN 1+ 2 CELLS+ MGETMEM ( z icon a )
-  DUP >R ! R@ 2 CELLS+ ZMOVE
+  OVER ZLEN 1+ #micon + MGETMEM ( z icon a )
+  DUP >R :micon ! 
+  R@ #micon + ZMOVE
+  R@ #micon + R@ :mstr !
   R> ;
 
 100 == first-menu-id
 0 VALUE menu-id
+1000 == first-dyn-id
+0 VALUE dyn-id
 
 : next-menu-id
   menu-id 1+ TO menu-id ;
+
+: next-dyn-id
+  dyn-id 1+ TO dyn-id ;
 
 : cursor-pos ( -- x y)
   { \ [ 8 ] point }
@@ -157,14 +194,20 @@ CELL -- :mstr         \ начало строки
 : append ( z id menu -- )
   >R W: mf_string R> menuappend ;
 
+: append-with-icon ( param id menu -- )
+  W: mf_ownerdraw SWAP menuappend ;
+
 : icon-append ( z icon id menu -- )
-  >R >R new-mitem R> W: mf_ownerdraw R> menuappend ;
+  2SWAP new-mitem -ROT append-with-icon ;
 
 : append-menu ( z what-menu menu -- )
   >R W: mf_popup R> menuappend ;
 
+: append-menu-with-icon ( param what-menu menu -- )
+  (* mf_popup mf_ownerdraw *) SWAP menuappend ;
+
 : icon-append-menu ( z icon what-menu menu -- )
-  >R >R new-mitem R> (* mf_popup mf_ownerdraw *) R> menuappend ;
+  2SWAP new-mitem -ROT append-menu-with-icon ;
 
 VARIABLE stack-pointer
 
@@ -203,11 +246,14 @@ VARIABLE stack-pointer
 CREATE start-dir MAX_PATH ALLOT
 
 CREATE item-name 128 ALLOT  item-name 0!
+0 VALUE filter
 VARIABLE item-icon  item-icon 0!
 
-WINAPI: WinExec      KERNEL32.DLL
+WINAPI: ShellExecuteExA       SHELL32.DLL
 WINAPI: SetCurrentDirectoryA  KERNEL32.DLL
 WINAPI: GetCurrentDirectoryA  KERNEL32.DLL
+
+: ask-mainmenu-location ;
 
 : only-dir ( z -- )
   ASCIIZ> 1-
@@ -219,30 +265,31 @@ WINAPI: GetCurrentDirectoryA  KERNEL32.DLL
   REPEAT 2DROP
 ;
 
-\ перейти в каталог, в котором хранится указанный файл
-: chdir { z \ [ MAX_PATH ] buf -- }
-  z PARSE...
-  PeekChar c: " = IF c: " ELSE BL THEN WORD COUNT buf CZMOVE
-  ...PARSE
-  buf only-dir
-  buf SetCurrentDirectoryA DROP ;
+: run-program-in-dir { dir prog args \ [ 15 CELLS ] shexinfo ih -- ?}
+  shexinfo init->>
+  15 CELLS >>
+  0x1000C0 >>  \ see_mask_connectnetdrv see_mask_nocloseprocess 
+  0 >>	       \ hwnd
+  0 >>	       \ open
+  prog >>
+  args >>
+  dir >>
+  W: sw_shownormal >> \ winflag
+  ^ ih >>      \ place for Insthandle
+  shexinfo ShellExecuteExA DROP ;
 
-: run-program ( z -- ?)
-  DUP chdir
-  1 SWAP WinExec 32 < ;
-
-: run-script ( zprog zstr -- )
-  DUP chdir
-  2>R <( 2R@ " ~Z ~Z" )> 1 SWAP WinExec
-  32 < IF
-    <( 2R@ DROP " Не могу запустить~/~Z" )> err
-  THEN
-  RDROP RDROP
+: run-program ( prog args -- )
+  { \ [ MAX_PATH ] dir -- ?}
+  OVER dir ZMOVE  dir only-dir
+  dir -ROT run-program-in-dir 
 ;
 
-: winexec
-  DOES> DUP >R run-program IF <( R@ " Не могу запустить~/~Z" )> err THEN
-  RDROP ;
+: run-script { prog args \ [ MAX_PATH ] dir }
+  args dir ZMOVE  dir only-dir
+  dir prog args run-program-in-dir
+;
+
+: winexec DOES> DUP @ SWAP CELL+ @ run-program ;
 
 : append-to-current-menu
   item-icon @ IF
@@ -253,7 +300,89 @@ WINAPI: GetCurrentDirectoryA  KERNEL32.DLL
   next-menu-id  item-name 0! ;
 
 \ ---------------------------------------
-: land-str ( a n -- ) HERE OVER ALLOT ( from # to) CZMOVE ;
+\ Стек для дескрипторов меню
+
+0 VALUE waste-stack
+VARIABLE waste-ptr
+
+: >WS ( n -- )
+  waste-ptr @ ! waste-ptr CELL+! ;
+
+: WS> ( -- n)
+  waste-ptr CELL-! waste-ptr @ @ ;
+
+: mark-wastestack
+  -1 >WS ;
+
+: empty-till-marker
+  BEGIN
+    WS> DUP DestroyMenu DROP
+  -1 = UNTIL ;
+
+: create-wastestack
+  50 CELLS GETMEM DUP TO waste-stack waste-ptr ! 
+  mark-wastestack ;
+
+: delete-wastestack
+  empty-till-marker
+  waste-stack FREEMEM ;
+
+\ ---------------------------------------
+
+: n>s ( n -- a #) 
+  S>D <# 0 HOLD #S #> ;
+
+: s>n ( a # -- n)
+  0. 2SWAP >NUMBER 2DROP DROP
+;
+
+: submenu-dir ( hmenu -- z)
+  n>s dyn-submenus HASH@R :mpath @ ;
+
+: do-dynitem ( n -- )
+  n>s dyn-items HASH@R ?DUP IF
+    DUP :mparent @ submenu-dir
+    SWAP :mpath @ 0 run-program-in-dir
+  THEN
+;
+
+
+\ ---------------------------------------
+\ Динамические меню
+
+: (new-dynitem) ( str path adr -- adr )
+  >R
+  R@ :mpath !
+  R@ :mstr !
+  R>
+;
+
+\ : new-dynitem ( str path -- adr )
+\  #mdynsubmenu GGETMEM (new-dynitem) ;
+
+: new-dynsubmenu ( str path hmenu -- a )
+  #mdynsubmenu SWAP n>s dyn-submenus HASH!R (new-dynitem) ;
+
+: (lenlen) ( z1 z2 -- n) ZLEN SWAP ZLEN + 2+ #mdynsubmenu + ;
+
+: (new-dynitem-with-strings) ( str path adr -- adr)
+  >R 
+  DUP R@ #mdynsubmenu + DUP >R ZMOVE
+  R> R@ :mpath !
+  ZLEN 1+ R@ #mdynsubmenu + + DUP >R ZMOVE
+  R> R@ :mstr !
+  R> ;
+
+: new-dynsubmenu-with-strings ( str path hmenu -- adr )
+  >R 2DUP (lenlen) R> n>s dyn-submenus HASH!R (new-dynitem-with-strings) ;
+
+: new-dynitem-with-strings ( str path id -- adr)
+  >R 2DUP (lenlen) R> n>s dyn-items HASH!R (new-dynitem-with-strings) ;
+
+\ ---------------------------------------
+VARIABLE sptr
+
+: land-str ( a n -- ) >R sptr @ R@ CMOVE R> sptr +! ;
 
 : macro ( z -- z/0)
   ASCIIZ> macros SEARCH-WORDLIST DUP IF DROP EXECUTE THEN
@@ -272,47 +401,75 @@ WINAPI: GetCurrentDirectoryA  KERNEL32.DLL
   AGAIN
 ;
 
-: macro-expand-here ( a n -- )
+: macro-expand-to ( what what# to -- )
+  sptr !
   SPARSE...
-  expand  0 C,
+  expand
+  0 sptr @ C!
+  sptr 1+!
   ...PARSE
 ;
 
+: macro-expand-here ( a # -- )
+  HERE DUP >R macro-expand-to 
+  sptr @ R> - ALLOT ;
+
 : save-string
-  1 PARSE macro-expand-here ;
+  BL SKIP 1 PARSE macro-expand-here ;
+
+: ?next ( "name" или name<BL> -- a # / 0)
+  PeekChar c: " = IF c: " ELSE BL THEN WORD
+  DUP C@ 0= IF DROP 0 EXIT THEN
+  COUNT OVER C@ c: " = IF 2 - SWAP 1+ SWAP THEN ( убрал кавычки, если есть)
+;
+
+: parse-name-and-args
+  HERE >R 0 , 0 , \ адреса начала имени и аргументов
+  BL SKIP 
+  ?next ?DUP IF HERE R@ ! macro-expand-here THEN
+  BL SKIP
+  1 PARSE ?DUP IF HERE R@ CELL+ ! macro-expand-here ELSE DROP THEN
+  RDROP
+;
 
 \ -----------------------------------
 WINAPI: LoadImageA             USER32.DLL
 WINAPI: ExtractIconExA         SHELL32.DLL
 WINAPI: ExtractAssociatedIconA SHELL32.DLL
+WINAPI: SHGetFileInfoA	       SHELL32.DLL
 
-: extract-small-icon { fn \ small -- }
+: extract-small-icon { fn \ small -- icon/0 }
   1 ^ small 0 0 fn ExtractIconExA 1 = IF small ELSE 0 THEN ;
 
-: get-extracted-icon { fn \ space-adr -- icon }
-  fn ASCIIZ> S"  " SEARCH PRESS IF
-    DUP TO space-adr
-    0 SWAP C!
-  ELSE
-    DROP
-  THEN
-  fn ASCIIZ> iconlist HASH@N 0= IF
-     ( иконки еще нет)
-     fn extract-small-icon DUP fn ASCIIZ> ROT iconlist HASH!N
-  THEN
-  space-adr ?DUP IF BL SWAP C! THEN
+352 == #shfileinfo
+
+: file-info-icon { fn \ [ #shfileinfo ] shfileinfo -- icon/0 }
+  0x101 ( shgfi_icon | hgfi_smallicon) #shfileinfo shfileinfo 0 fn SHGetFileInfoA
+  IF shfileinfo @ ELSE 0 THEN 
 ;
 
-: associated-icon { fn \ [ 255 ] fb icon# -- icon }
+: associated-icon { fn \ [ 255 ] fb icon# -- icon/0 }
   fn fb ZMOVE
   ^ icon# fb IMAGE-BASE ExtractAssociatedIconA ;
+
+: ?associated-icon ( fn -- 0)
+  DUP file-info-icon ?DUP IF PRESS EXIT THEN
+  associated-icon ;
+
+: ?associated-icon-from-a# { a # \ [ MAX_PATH ] s -- 0}
+  a # s CZMOVE  s ?associated-icon
+;
+
+: file-small-icon ( fn -- 0)
+  DUP extract-small-icon ?DUP IF PRESS EXIT THEN
+  ?associated-icon ;
 
 : get-associated-icon { fn \ [ 30 ] ext -- icon }
   fn ASCIIZ> S" ." SEARCH PRESS IF
     1+ ext ZMOVE
     ext ASCIIZ> iconlist HASH@N 0= IF
       ( иконки еще нет)
-      fn associated-icon DUP ext ASCIIZ> ROT iconlist HASH!N
+      fn ?associated-icon DUP ext ASCIIZ> ROT iconlist HASH!N
     THEN
   THEN ;
 
@@ -349,6 +506,24 @@ WINAPI: ExtractAssociatedIconA SHELL32.DLL
 
 : does-script DOES> compile-script ;
 
+: make-directory ( a # -- dynitem )
+  HERE 
+  item-name DUP HERE ZMOVE ZLEN 1+ ALLOT
+  HERE   
+  2SWAP macro-expand-here
+  \ уберем "\", если есть
+  HERE 2- C@ c: \ = IF 0 HERE 2- C! THEN
+  CreatePopupMenu DUP >R new-dynsubmenu R> SWAP >R
+  R@ :mdynid !
+  TRUE  R@ :mstable !
+  FALSE R@ :mfilled !
+  filter R@ :mfilter !
+  ( добавим пункт подменю)
+  R@ DUP R> :mdynid @ current-menu append-menu-with-icon
+  item-name 0!
+  0 TO filter
+;
+
 \ -----------------------------------
 
 WORDLIST TO keywords
@@ -372,14 +547,53 @@ keywords SET-CURRENT
 
 : ЗАПУСТИТЬ ( ->eol)
   menu-id S>D <# # # # #> CREATED
-  HERE save-string item-icon @ IF 
+  HERE parse-name-and-args
+  item-icon @ IF 
     DROP 
   ELSE 
-    get-extracted-icon item-icon !
+    2 CELLS+ file-small-icon item-icon !
   THEN
   winexec
   ( добавим пункт меню)
   append-to-current-menu ;
+
+: ФИЛЬТР ( ->bl)
+  HERE TO filter
+  BL PARSE macro-expand-here 
+;
+
+: КАТАЛОГ ( ->eol) 
+  BL SKIP 1 PARSE 2DUP make-directory >R
+  item-icon @ ?DUP 0= IF ?associated-icon-from-a# ELSE PRESS PRESS THEN
+  R> :micon !
+;
+
+: ПАПКА 
+  [ ALSO keywords CONTEXT ! ]
+  КАТАЛОГ 
+  [ PREVIOUS ] ;
+
+: МОИ-ДОКУМЕНТЫ ( -- )
+ S" [Мои документы]" make-directory
+ item-icon @ ?DUP 0= IF documents-icon THEN SWAP :micon !
+;
+
+: ПРОГРАММЫ ( -- )
+  HERE S" [Общие программы]" macro-expand-here
+  S" [Программы]" make-directory
+  item-icon @ ?DUP 0= IF programs-icon THEN
+  OVER :micon !
+  :mpath2 !
+;
+
+: ПРОГРАММА ( ->eol; -- )
+  BL SKIP 1 PARSE
+  2>R HERE
+  <( 2R@ " [Общие программы]\\~S" )> ASCIIZ> macro-expand-here
+  <( 2R> " [Программы]\\~S" )> ASCIIZ> make-directory
+  item-icon @ ?DUP 0= IF programs-icon THEN
+  OVER :micon ! :mpath2 !
+;
 
 : МЕНЮ ( ->eol; --  zmenu-name icon parent-menu "menu" )
   get-header ( a n icon) >R CZGETMEM R>
@@ -396,10 +610,8 @@ keywords SET-CURRENT
   ELSE
     current-menu SWAP append-menu
   THEN
-  TO current-menu  FREEMEM
-  ( в этом месте неплохо бы взять current-menu, сохранить его где-нибудь с 
-    целью последующего уничтожения при выгрузке программы, но лень.
-    Сколько оно там займет памяти?)
+  current-menu >WS
+  TO current-menu FREEMEM
 ;
 
 : ФОРТ:
@@ -410,7 +622,7 @@ keywords SET-CURRENT
 ;
 
 : ФОРТ;
-  RET, [COMPILE] [
+  RET, [COMPILE] [ \ ]
   PREVIOUS
 ; IMMEDIATE
 
@@ -434,6 +646,60 @@ keywords SET-CURRENT
 
 SET-CURRENT
 
+WINAPI: RemoveMenu       USER32.DLL
+
+: del-unstable ( key-a key# dynsubmenu -- ?)
+  >R 2DROP
+  R@ :mfilled 0!
+  R@ :mstable @ 0= DUP IF
+    \ подлежат безусловному уничтожению, но потом
+    R@ :mdynid @ >WS
+  ELSE
+    \ подлежат очистке
+    BEGIN
+      W: mf_byposition 0 R@ :mdynid @ RemoveMenu
+    WHILE
+    REPEAT
+  THEN RDROP ;
+
+: free-all-dynitems 
+  \ освобождаем динамические пункты меню
+  0 TO dyn-id
+  \ освобождаем динамические подменю
+  mark-wastestack
+  ['] del-unstable dyn-submenus del-some-records
+  empty-till-marker
+  dyn-items clear-hash
+;
+
+WINAPI: RegOpenKeyA      ADVAPI32.DLL
+WINAPI: RegCloseKey      ADVAPI32.DLL
+WINAPI: RegQueryValueExA ADVAPI32.DLL
+
+0x80000001 == HKEY_CURRENT_USER
+0x80000002 == HKEY_LOCAL_MACHINE
+
+: save-key-value { keyroot value \ hkey valtype size -- }
+  ^ hkey " Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders"
+  keyroot RegOpenKeyA DROP
+  200 TO size
+  ^ size HERE ^ valtype 0 value hkey RegQueryValueExA DROP
+  hkey RegCloseKey DROP
+  size ALLOT
+;
+
+: add-std-macros
+  GET-CURRENT
+  macros SET-CURRENT
+  S" Программы" CREATED
+  HKEY_CURRENT_USER ( ) " Programs" save-key-value
+  S" Общие программы" CREATED
+  HKEY_LOCAL_MACHINE " Common Programs" save-key-value
+  S" Мои документы" CREATED
+  HKEY_CURRENT_USER " Personal" save-key-value
+  SET-CURRENT
+;
+
 : prepare-all
   iconlist ?DUP IF del-hash THEN
   small-hash TO iconlist
@@ -444,9 +710,22 @@ SET-CURRENT
   ( очистим словарь)
   save-wl commands CELL- 8 CELLS CMOVE
   save-macros macros CELL- 8 CELLS CMOVE
+  \ добавим определение макросов "Мои документы" и "Главное меню"
+  add-std-macros
   FORTH DEFINITIONS
   WARNING 0!
 ;
+
+: create-all-hashes
+  small-hash TO dyn-submenus
+  small-hash TO dyn-items
+;
+
+: del-all-hashes
+  dyn-submenus del-hash
+  dyn-items del-hash
+;
+
 
 : read-my-file
   { \ depth -- }
@@ -482,7 +761,7 @@ WINAPI: MessageBoxIndirectA USER32.DLL
   40 params !
   secret-window params CELL+ !
   instance params 2 CELLS + !
-  " Меню для быстрого вызова программ.\n\n(c) 2002 Ю. Жиловец, http://www.forth.org.ru/~yz\nМышку нарисовала Н. Рымарь."
+  " Меню для быстрого вызова программ.\n\n(c) 2004 Ю. Жиловец, http://www.forth.org.ru/~yz\nМышку нарисовала Н. Рымарь."
   params 3 CELLS + !
   program-name params 4 CELLS + !
   (* mb_ok mb_usericon *) params 5 CELLS + !
@@ -500,7 +779,12 @@ WINAPI: PostMessageA  USER32.DLL
   0 secret-window 0 cursor-pos SWAP (* tpm_leftbutton tpm_rightalign tpm_returncmd *)
   left-menu TrackPopupMenu
   0 0 W: wm_null secret-window PostMessageA DROP
-  DUP first-menu-id menu-id WITHIN IF do-command ELSE DROP THEN ;
+  DUP CASE
+  first-menu-id menu-id <OF< do-command ENDOF
+  first-dyn-id  dyn-id   <OF< do-dynitem ENDOF
+  2DROP 
+  END-CASE 
+  free-all-dynitems ;
 
 : context-menu
   secret-window SetForegroundWindow DROP
@@ -519,11 +803,6 @@ WINAPI: PostMessageA  USER32.DLL
    DROP END-CASE
 ;
 
-0 VALUE mouse16
-0 VALUE bmouse16
-0 VALUE reload-icon
-0 VALUE exit-icon
-
 : make-right-menu
   CreatePopupMenu ?DUP 0= IF " Не могу создать меню" error THEN TO right-menu
   " Перечитать файл" reload-icon 1 right-menu icon-append
@@ -534,7 +813,9 @@ WINAPI: PostMessageA  USER32.DLL
   2 instance LoadIconA TO mouse16
   3 instance LoadIconA TO bmouse16
   4 instance LoadIconA TO reload-icon
-  5 instance LoadIconA TO exit-icon ;
+  5 instance LoadIconA TO exit-icon
+  6 instance LoadIconA TO programs-icon
+  7 instance LoadIconA TO documents-icon ;
 
 : change-icon ( icon -- )
   { \ [ 88 ] data }
@@ -562,8 +843,10 @@ WINAPI: ReleaseDC             USER32.DLL
   dc window ReleaseDC DROP
   size @ size 1 CELLS@ ;
 
+0 VALUE max-text-width
+
 WINAPI: DrawIconEx	USER32.DLL
-WINAPI: TextOutA	GDI32.DLL
+WINAPI: DrawTextA	USER32.DLL
 WINAPI: GetTextColor    GDI32.DLL
 WINAPI: SetTextColor    GDI32.DLL
 WINAPI: GetBkColor      GDI32.DLL
@@ -571,9 +854,10 @@ WINAPI: SetBkColor	GDI32.DLL
 WINAPI: FillRect	USER32.DLL
 WINAPI: GetSysColor	USER32.DLL
 
-: draw-menu-item { \ data dc state rx ry rw rh textcolor backcolor -- }
+: draw-menu-item { \ data dc state rx ry rw rh rect textcolor backcolor -- }
   lparam 4 CELLS@ 0xFF AND TO state
   lparam 6 CELLS@ TO dc
+  lparam 7 CELLS+ TO rect
   lparam 7 CELLS@ TO rx
   lparam 8 CELLS@ TO ry
   lparam 9 CELLS@ rx - TO rw
@@ -593,15 +877,155 @@ WINAPI: GetSysColor	USER32.DLL
   W: di_normal 0 0 icon-size DUP data :micon @
   icon-top ry + icon-left rx + dc DrawIconEx DROP
   \ пишем строку
-  data :mstr ASCIIZ> SWAP
-  icon-size data :mheight @ - 2/ icon-top + ry + 1+
-  icon-left icon-size icon-right + + rx +
-  dc TextOutA DROP
+   icon-left icon-size + icon-right + rect +!
+   rw 10 100 */ rect 2 CELLS+ -!
+\  icon-size data :mheight @ - 2/ icon-top + ry + 1+
+\   rx +
+\  dc TextOutA DROP
+  (* dt_end_ellipsis dt_noprefix dt_vcenter dt_singleline *) 
+  rect data :mstr @ ASCIIZ> SWAP dc DrawTextA DROP
   state W: ods_selected = IF
     \ приводим в порядок контекст устройства
     textcolor dc SetTextColor DROP
     backcolor dc SetBkColor DROP
   THEN ;
+
+\ ---------------------------------------
+\ Список файлов и каталогов
+
+WINAPI: SendMessageA   USER32.DLL
+WINAPI: FindFirstFileA KERNEL32.DLL
+WINAPI: FindNextFileA  KERNEL32.DLL
+WINAPI: FindClose      KERNEL32.DLL
+
+0
+CELL     -- :sAttr
+2 CELLS  -- :sCreateTime
+2 CELLS  -- :sAccessTime
+2 CELLS  -- :sWriteTime
+CELL     -- :sSizeHigh
+CELL     -- :sSizeLow
+CELL     -- :sRes1
+CELL     -- :sRes2
+MAX_PATH -- :sName
+16       -- :sShortName
+== #find-data
+
+: is-dir? ( fd -- ?)  :sAttr @ 0x10 AND ;
+
+: create-listbox ( -- hwin)
+  0 IMAGE-BASE 0 secret-window 0 0 0 0 W: lbs_sort "" " ListBox" 0
+  CreateWindowExA 
+;
+
+: delete-listbox ( hwin -- ) DestroyWindow DROP ;
+
+: add-to-listbox ( param lb -- )
+  >R DUP :mstr @ 0 W: lb_addstring R@ SendMessageA
+  W: lb_setitemdata R> SendMessageA DROP ;
+
+: not-in-list? ( z list -- ?)
+  >R -1 W: lb_findstringexact R> SendMessageA W: lb_err =
+;
+
+WINAPI: lstrcmpi KERNEL32.DLL
+
+: -trail { z zp \ z# zp# -- }
+  z ZLEN TO z#  zp ZLEN TO zp#
+  z# zp# < IF EXIT THEN
+  z z# + zp# - zp lstrcmpi 0= IF 0 z z# + zp# - C! THEN
+;
+
+: traverse-directory
+  { parent-menu parent-data directory filelist dirlist mask \ h [ #find-data ] fd icon full-path -- }
+  fd <( directory mask " ~Z\\~Z" )> FindFirstFileA TO h 
+  h -1 = IF EXIT THEN
+  BEGIN
+    fd :sName C@ c: . <> IF
+      <( directory fd :sName " ~Z\\~Z" )>
+      DUP TO full-path file-small-icon TO icon
+      fd is-dir? IF
+        \ такой записи в списке еще нет?
+        fd :sName dirlist not-in-list? IF
+          fd :sName full-path CreatePopupMenu DUP >R 
+          new-dynsubmenu-with-strings R> SWAP >R
+          R@ :mdynid !
+          FALSE R@ :mstable !
+          FALSE R@ :mfilled !
+          icon  R@ :micon !
+          parent-data :mfilter @ R@ :mfilter !
+          R> dirlist add-to-listbox
+        THEN
+      ELSE
+          \ расширение .lnk выкидываем, чтобы не портило вид
+        fd :sName " .lnk" -trail
+        fd :sName dirlist not-in-list? IF
+        \ такой записи в списке еще нет?
+          fd :sName full-path dyn-id
+          new-dynitem-with-strings >R
+          icon  R@ :micon !
+          parent-menu R@ :mparent !
+          dyn-id R@ :mdynid !
+          R> filelist add-to-listbox
+          next-dyn-id
+        THEN
+      THEN
+    THEN
+    fd h FindNextFileA
+  0= UNTIL 
+  h FindClose DROP
+;
+
+: traverse-directory-with-filters 
+  { parent parent-data dir flist dlist filters \ [ MAX_PATH ] filter -- }
+  filters PARSE...
+  BEGIN
+    c: ; PARSE ?DUP
+  WHILE
+    filter CZMOVE
+    parent parent-data dir flist dlist filter traverse-directory
+  REPEAT DROP
+  ...PARSE
+;
+
+: traverse-list { param xt list -- }
+  \ xt ( list-item param -- )
+  0 0 W: lb_getcount list SendMessageA 0 ?DO
+    0 I W: lb_getitemdata list SendMessageA
+    param xt EXECUTE
+  LOOP ;
+
+: ?filter ( z -- ?) ?DUP 0= IF " *.*" THEN ;
+
+: fill-dynsubmenu
+  { hmenu \ submenu flist dlist -- }
+  hmenu n>s dyn-submenus HASH@R TO submenu
+  \ наше меню?
+  submenu 0= IF EXIT THEN
+  \ может быть, уже заполнено?
+  submenu :mfilled @ IF EXIT THEN
+  create-listbox TO flist
+  create-listbox TO dlist
+  dyn-id 0= IF first-dyn-id TO dyn-id THEN
+  hmenu submenu DUP :mpath @
+  flist dlist  submenu :mfilter @ ?filter
+  traverse-directory-with-filters
+  submenu :mpath2 @ IF
+    hmenu submenu DUP :mpath2 @
+    flist dlist  submenu :mfilter @ ?filter
+    traverse-directory-with-filters
+  THEN
+  \ Перебираем список и заносим в подменю
+  \ сначала каталоги
+  hmenu (: >R DUP :mdynid @ R> append-menu-with-icon ;) dlist traverse-list
+  \ потом файлы
+  hmenu (: >R DUP :mdynid @ R> append-with-icon ;) flist traverse-list
+  TRUE submenu :mfilled !
+  flist delete-listbox
+  dlist delete-listbox
+;
+
+\ ---------------------------------------
 
 :NONAME
   ( lparam wparam msg hwnd) 
@@ -630,18 +1054,29 @@ WINAPI: GetSysColor	USER32.DLL
   ENDOF
 
   W: wm_measureitem OF
-    lparam 5 CELLS@ :mstr hwnd text-width ( tx ty)
+    max-text-width 0= IF 
+      " k" hwnd text-width DROP max-filename-size * TO max-text-width
+    THEN
+    lparam 5 CELLS@ :mstr @ hwnd text-width ( tx ty)
     DUP lparam 5 CELLS@ :mheight !
     icon-size icon-top icon-bottom + + MAX
-    SWAP icon-size icon-left icon-right + + MAX SWAP
+    SWAP max-text-width MIN  icon-size + icon-left + icon-right +
+    \ Windows почему-то добавляет к возвращенной величине еще
+    \ где-то 50% непонятно на что и менюшки получаются слишком широкие.
+    \ Обманем ее, немного ужав наши требования
+    90 100 */ lparam 3 CELLS!
     lparam 4 CELLS!
-    lparam 3 CELLS!
     TRUE
   ENDOF
 
   W: wm_drawitem OF
      draw-menu-item
      TRUE
+  ENDOF
+
+  W: wm_initmenupopup OF
+     wparam fill-dynsubmenu
+     0
   ENDOF
 
   DROP lparam wparam message hwnd DefWindowProcA
@@ -697,15 +1132,20 @@ WINAPI: GetSysColor	USER32.DLL
   make-right-menu
   hide-into-tray
   create-wordlist
+  ask-mainmenu-location
+  create-wastestack
+  create-all-hashes
   read-my-file
   MessageLoop
+  delete-wastestack
+  del-all-hashes
   BYE ;
 
 REMOVE-ALL-CONSTANTS
 
 0 TO SPF-INIT?
 \ ' ANSI>OEM TO ANSI><OEM
- TRUE TO ?GUI
+TRUE TO ?GUI
 ' RUN MAINX !
 RESOURCES: xmenu.fres
 S" xmenu.exe" SAVE  
