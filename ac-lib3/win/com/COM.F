@@ -174,7 +174,10 @@ Interface;
 : CreateObject ( addr u -- oid ior ) 
   \ addr u - имя программы, создающей требуемые объекты
   \ например S" WordPad.Document.1" CreateObject THROW -> WPDOC
-  >UNICODE ProgID>CLSID ?DUP IF EXIT THEN
+  OVER C@ [CHAR] { = >R
+  >UNICODE 
+  R> IF   String>CLSID ?DUP IF EXIT THEN
+     ELSE ProgID>CLSID ?DUP IF EXIT THEN THEN
   0 >R RP@ SWAP >R
   IID_IUnknown  \ для ActiveX удобнее было бы сразу просить IDispatch, но он не у всех есть
   CLSCTX_SERVER

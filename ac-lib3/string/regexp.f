@@ -134,3 +134,13 @@ USER _pcre_vector
 \ результат: 2 "PcReIsRULEZZ:" "cReIsRULE"
 \ S" one two three" S" (\S+)\s+(\S+)\s+(\S+)" PcreGetMatch . CR TYPE CR TYPE CR TYPE CR TYPE CR 
 \ результат: 4 "one two three" "one" "two" "three"
+
+\ : TEST
+\   S" (\S+)\s+(\S+)\s+(\S+)" PcreCompile THROW >R
+\   S" one two three" R@ PcreExec . .
+\   S" 7 8 9" R@ PcreExec . .
+\   S" ab cd ef" R@ PcreExec . .
+\   S" раз два три" R@ PcreExec . .
+\   S" something" R@ PcreExec . .
+\   RDROP
+\ ; TEST

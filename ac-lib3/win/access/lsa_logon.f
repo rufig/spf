@@ -12,19 +12,19 @@ WINAPI: LsaLookupAuthenticationPackage SECUR32.DLL
 WINAPI: AllocateLocallyUniqueId ADVAPI32.DLL
 
 CREATE SubStatus 100 ALLOT
-CREATE Quotas    100 ALLOT
+CREATE Quotas    1000 ALLOT
 VARIABLE Token
 CREATE LogonId ALIGN 8 ALLOT
 VARIABLE ProfileBufferLength
-VARIABLE pointer
-CREATE ProfileBuffer pointer ,
+VARIABLE pointer 1000 ALLOT
+CREATE ProfileBuffer pointer , 1000 ALLOT
 8 ALIGN-BYTES !
 CREATE TOKEN_SOURCE ALIGN S" Source  " S,
-HERE 8 ALLOT DUP 8 ERASE AllocateLocallyUniqueId . GetLastError . .( >>>)
+HERE 8 ALLOT DUP 8 ERASE AllocateLocallyUniqueId 0= THROW
 
-: US, >UNICODE DUP W, DUP 2+ W, HERE CELL + , S, 0 W, ;
+: US, >UNICODE 1+ DUP W, DUP W, HERE CELL + , S, 0 W, ;
 
-CREATE DOMAIN S" rainbow.koenig.ru" US,
+CREATE DOMAIN S" cherezov" US,
 CREATE NAME S" ac" US,
 CREATE PASS  S" noexnoex" US,
 CREATE AI 2 , 
@@ -35,7 +35,7 @@ NAME 2@ , ,
 PASS 2@ , ,
 
 HERE AI - CONSTANT /AI
- AI /AI DUMP
+\ AI /AI DUMP
 
 
 \    MsV1_0InteractiveLogon = 2,
@@ -57,12 +57,12 @@ VARIABLE LocalGroups
 
 : LogonProcessHandle
   SecurityMode LsaHandle LogonProcessName
-  LsaRegisterLogonProcess LsaNtStatusToWinError . LsaHandle @
+  LsaRegisterLogonProcess LsaNtStatusToWinError THROW LsaHandle @
 ;
 : AuthPackageId
   gAuthPackageId PackageName LogonProcessHandle
-  LsaLookupAuthenticationPackage LsaNtStatusToWinError U.
-  gAuthPackageId @ DUP . ." ==="
+  LsaLookupAuthenticationPackage LsaNtStatusToWinError THROW
+  gAuthPackageId @
 ;
 
 : TEST
@@ -70,7 +70,7 @@ VARIABLE LocalGroups
   TOKEN_SOURCE ALIGNED
 0 \  LocalGroups
   /AI AI
-  AuthPackageId  \ 2 ( LOGON32_PROVIDER_WINNT40 )
+  AuthPackageId \ 2 ( LOGON32_PROVIDER_WINNT40 )
   2 ( interactive )
   OriginName LsaHandle @ LsaLogonUser LsaNtStatusToWinError U.
 ;
