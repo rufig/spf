@@ -130,7 +130,7 @@ VARIABLE DnsDebug
 ;
 
 : -s
-  HERE DNS-SERVER ! BL WORD ", 0 C,
+  HERE DNS-SERVER ! BL WORD ", 0 ,
 ;
 
 0
@@ -398,6 +398,13 @@ CONSTANT /RL
      NextRD EXIT
   THEN
 
+  REP @ 8 - W@ >B< TYPE-PTR =
+  IF
+     REP @ DUP >R 2 + REP ! ParseName CURRENT-R @ RLhost SetFieldData
+     R> REP !
+     NextRD EXIT
+  THEN
+
 \  NextRD
 
   REP @ W@ >B< 2 REP +!
@@ -487,13 +494,28 @@ CONSTANT /RL
        PrintDnsReply CR 
   THEN
 ;
+: DNS-SERVER.
+  DNS-SERVER @ ?DUP IF COUNT TYPE THEN
+;
 
+: NextDNS ( -- flag )
+  DNS-SERVERS @ 0= IF GetDNS DUP 
+                      IF DUP DNS-SERVER ! DnsDebug @ 
+                         IF ." System DNS: " DNS-SERVER @ COUNT TYPE CR THEN
+                      THEN EXIT
+                   THEN
+  DNS-SERVER @ COUNT + 1+
+  DUP COUNT NIP 0= IF DROP FALSE EXIT THEN
+  DnsDebug @ IF ." Next DNS: " DUP COUNT TYPE CR THEN
+  DNS-SERVER ! TRUE
+;
 : GetRRs { hosta hostu type \ attempts -- n }
   DnsDebug @ IF ." GetRRs: " hosta hostu TYPE CR THEN
   1 -> attempts
   type hosta hostu PrepareDnsQuery
   BEGIN
-    DnsDebug @ IF attempts type hosta hostu ." DNS-QUERY:" TYPE ." , type=" . ." , attempt=" . CR THEN
+  BEGIN
+    DnsDebug @ IF attempts type hosta hostu ." DNS-QUERY(" DNS-SERVER. ." ): " TYPE ." , type=" . ." , attempt=" . CR THEN
     ['] SendDnsQuery CATCH IF -1 EXIT THEN  \ network problem
     ['] RecvDnsReply CATCH 
     ?DUP IF 10060 <> IF -1 EXIT THEN FALSE ELSE TRUE THEN
@@ -521,6 +543,8 @@ CONSTANT /RL
     attempts 1+ DUP -> attempts
     vDnsAttempts >
   UNTIL
+  NextDNS 0=
+  UNTIL
   -2 \ timeouts or DNS-server failure
 ;
 \ HeaderANCOUNT W@ >B<
@@ -530,7 +554,8 @@ CONSTANT /RL
   1 -> attempts
   type hosta hostu PrepareDnsQuery
   BEGIN
-    DnsDebug @ IF attempts type hosta hostu ." DNS-QUERY:" TYPE ." , type=" . ." , attempt=" . CR THEN
+  BEGIN
+    DnsDebug @ IF attempts type hosta hostu ." DNS-QUERY(" DNS-SERVER. ." ): " TYPE ." , type=" . ." , attempt=" . CR THEN
     ['] SendDnsQuery CATCH IF -1 EXIT THEN  \ network problem or DNS-server not detected
     ['] RecvDnsReply CATCH 
     ?DUP IF 10060 <> IF -1 EXIT THEN FALSE ELSE TRUE THEN
@@ -556,6 +581,8 @@ CONSTANT /RL
     THEN
     attempts 1+ DUP -> attempts
     vDnsAttempts >
+  UNTIL
+  NextDNS 0=
   UNTIL
   -2 \ timeouts or DNS-server failure
 ;
@@ -617,14 +644,18 @@ CONSTANT /RL
 ;
 : DnsDomainExists ( domaina domainu -- flag )
   2DUP TYPE-MX GetRRn DUP 0 > IF DROP 2DROP TRUE EXIT THEN
-  -3 = IF 2DROP FALSE EXIT THEN
+  DUP -3 = IF DROP 2DROP FALSE EXIT THEN
 \ до сюда дошли, если нет MX-записи, но и нет ответа "нет домена"
+  -2 = \ таймаут - обычно неверная настройка DNS
+  IF 2DROP TRUE EXIT THEN
   TYPE-A GetRRn 0= IF FALSE EXIT THEN \ нет MX и A, считаем домен неверным
   TRUE \ домен есть, либо неверна настройка DNS, узнать достоверно нельзя
 \  TYPE-NS GetRRn -3 <>
 ;
 
 (
+TRUE DnsDebug !
+\ -s 10.1.1.2
 S" eserv.ru" DnsDomainExists . \ есть MX
 S" poil.usinsk.ru" DnsDomainExists . \ нет MX, есть A
 S" co.nz" DnsDomainExists . \ нет MX и нет A
@@ -649,3 +680,14 @@ S" non_existent_domain.com" DnsDomainExists . \ нет такого
 \ S" ac@non.exist.domain" GetDomainFromEmail DnsDomainExists .
 \ S" ac@whois.eserv.ru" GetDomainFromEmail DnsDomainExists .
 \ S" eserv.ru" TYPE-SOA GetRRs PrintRLIST .
+
+\ REQUIRE STR@         ~ac/lib/str2.f
+
+\ : TXT@ ( addr u -- addr2 u2 )
+\   OVER C@ OVER < 0= IF DROP COUNT EXIT THEN
+\   DROP COUNT 2DUP + COUNT 2SWAP " {s}{s}" STR@
+\ ;
+\ S" s1024._domainkey.yahoo.com" TYPE-TXT GetRRs . 
+\ RLIST @ RLhost GetFieldData TXT@ TYPE
+
+\ PrintRLIST .
