@@ -57,7 +57,6 @@ VARIABLE SAVED-CURRENT
    SFIND 0= ABORT" Can't find - TC-FINDOUT"
 ;
 
-VARIABLE TC-WINAP
 VARIABLE TC-WINAPLINK
 VARIABLE TC-USER-OFFS 16 TC-USER-OFFS ! \ 16 байт зарезервировано
 
@@ -68,42 +67,12 @@ VARIABLE TC-USER-OFFS 16 TC-USER-OFFS ! \ 16 байт зарезервировано
   TC-USER-OFFS @
 ;
 
-S" lib\ext\disasm.f"             INCLUDED
-
 WARNING 0!
-ALSO DISASSEMBLER DEFINITIONS
-
-
-: INST  ( ADR -- ADR' )
-        DUP TO NEXT-INST
-        COLS 0x29 <
-        IF      DIS-OP
-                S-BUF COUNT TYPE
-        ELSE    DUP DIS-OP  
-                OVER BASE-ADDR - 6  H.R SPACE
-                DUP ROT 
-                2DUP - DUP>R 0x10 U> ABORT" DECOMPILER ERROR"
-                DO I C@ 2 H.N LOOP 
-                R> 5 < IF 9 EMIT THEN
-                9 EMIT S-BUF COUNT TYPE
-        THEN    NEXT-INST C@ 0xE8 =
-                IF  NEXT-INST 1+ @+ SWAP +
-                    CASE
-                    CLITERAL-CODE OF  X".   ENDOF
-                    SLITERAL-CODE OF  X".   ENDOF
-                    VECT-CODE     OF  VECT. ENDOF
-                    CONSTANT-CODE OF  CONS. ENDOF
-                    USER-CODE     OF  USER. ENDOF
-                    CREATE-CODE   OF  CODE. ENDOF
-                    USER-VALUE-CODE OF UVAL. ENDOF
-                    ENDCASE
-                THEN  ;
 
 ONLY FORTH DEFINITIONS
 
-C" UMIN" FIND NIP 0= 
-[IF] : UMIN 2DUP U< IF DROP ELSE NIP THEN ;
-[THEN]
+: UMIN 2DUP U< IF DROP ELSE NIP THEN ;
+: UMAX 2DUP U< IF NIP ELSE DROP THEN ;
 
 \ ~mak\listing1.f
 
@@ -115,9 +84,6 @@ HEX
   MOD ?DUP IF - + ELSE DROP THEN
   OVER - DUP ALLOT 90 FILL
 ;
-[UNDEFINED] DUP>R
-[IF] : DUP>R  50 C, ; IMMEDIATE
-[THEN]
 
 0 VALUE  'DUP_V
 0 VALUE 'DROP_V
@@ -261,11 +227,6 @@ VOCABULARY TC     \ слова, работающие в режиме интерпретации при ÷ 
 VOCABULARY TC-IMM \ immediate-слова дл€ режима компил€ции при ÷ ,
                   \ вынесены в отдельный словарь, т.к. их нельз€
                   \ переопредел€ть словами из TC-WL
-: tmp ( VOC ADDR LEN -- )
-   EVALUATE  ALSO CONTEXT !
-;
-
-: asd CONTEXT @ PREVIOUS ;
 
 ALSO TC DEFINITIONS PREVIOUS
 
@@ -346,38 +307,26 @@ ALSO TC DEFINITIONS PREVIOUS
 \  OVER , +
 ;
 
+ALSO TC
 
-: __WIN:  ( CFA_INI "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
-
-  COMPILE,
-  HERE TC-WINAP !
+: WINAPI: ( "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
+  >IN @ [T] HEADER [I]  >IN !
+  WINAPI-CODE COMPILE,
+  HERE >R
   0 , \ address of winproc
   0 , \ address of library name
   0 , \ address of function name
   -1 , \ # of parameters
   HERE TC-WINAPLINK @ , TC-WINAPLINK ! ( св€зь )
-  HERE TC-WINAP @ CELL+ CELL+ !
-  HERE >R
+  HERE DUP R@ CELL+ CELL+ !
   NextWord HERE SWAP DUP ALLOT MOVE 0 C, \ им€ функции
-  HERE TC-WINAP @ CELL+ !
-  HERE >R
+  HERE DUP R> CELL+ !
   NextWord HERE SWAP DUP ALLOT MOVE 0 C, \ им€ библиотеки
-  R> LoadLibraryA DUP 0= ABORT" Library not found"
-  R> SWAP GetProcAddress 0= ABORT" Procedure not found"
+  LoadLibraryA DUP 0= ABORT" Library not found"
+  GetProcAddress 0= ABORT" Procedure not found"
 ;
 
-ALSO TC
-
-: _WIN: ( CFA_INI "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
-     >IN @ [T] HEADER [I]  >IN ! __WIN: ;
-
-
-: WINAPI: ( "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
-  WINAPI-CODE  _WIN:
-;
-
- PREVIOUS
-
+PREVIOUS
 
 : WNDPROC: ( xt "name" -- )
   HERE
@@ -392,8 +341,6 @@ ALSO TC
 ;
 
 : ' ALSO TC-WL ' PREVIOUS ;
-
-: SEE ALSO TC-WL ' PREVIOUS REST ;
 
 ALSO ASSEMBLER ALSO ASM-HIDDEN DEFINITIONS
 
@@ -675,8 +622,6 @@ HEX
 : ;..  DUP CELL+ TC-BRANCH, >MARK SWAP ! [COMPILE] [ ; IMMEDIATE
 
 : _@    8B C, 00 C, ; IMMEDIATE
-: DUP>R   STATE @ 0= IF asd S" DUP >R"  tmp ELSE 50 C, THEN ; IMMEDIATE
-\ : SEE SEE ;
 HERE 10000 + 10000 / 10000 * 2000 + DP !    \ выравнивание
 DECIMAL
 \ *** поехали! ***

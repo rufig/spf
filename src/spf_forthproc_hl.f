@@ -49,10 +49,4 @@
   DUP 0< IF DNEGATE THEN
 ;
 
-: STR>R ( addr u -- addr1 u)
-\ Положить строку addr u на стек возвратов
-\ Возвратить addr1 адрес новой строки
-
-;
-
 0  VALUE  DOES-CODE

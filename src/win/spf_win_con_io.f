@@ -73,19 +73,14 @@ VECT TYPE
   TYPE
 ;
 
-USER NumberOfConsoleInputEvents
-
 : EKEY? ( -- flag ) \ 93 FACILITY EXT
 \ ≈сли клавиатурное событие доступно, вернуть "истина". »наче "ложь".
 \ —обытие должно быть возвращено следующим выполнением EKEY.
 \ ѕосле того как EKEY? возвратило значение "истина", следующие выполнени€
 \ EKEY? до выполнени€ KEY, KEY? или EKEY также возвращают "истину",
 \ относ€щуюс€ к тому же событию.
-  NumberOfConsoleInputEvents H-STDIN
-  GetNumberOfConsoleInputEvents DROP
-  NumberOfConsoleInputEvents @
+  0 >R RP@ H-STDIN GetNumberOfConsoleInputEvents DROP R>
 ;
-
 
 CREATE INPUT_RECORD ( /INPUT_RECORD) 20 2 * ALLOT
 

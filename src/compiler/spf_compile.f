@@ -83,12 +83,12 @@ HEX
 
 DECIMAL
 
-: ", ( A -> ) \ компил€ци€ строки со счетчиком, заданной адресом A
-  DP @ OVER C@ 1+ DUP ALLOT QCMOVE
-;
-
 : S", ( addr u -- ) \ компил€ци€ строки, заданной addr u, в виде строки со счетчиком
   DUP C, DP @ SWAP DUP ALLOT QCMOVE
+;
+
+: ", ( A -> ) \ компил€ци€ строки со счетчиком, заданной адресом A
+  COUNT S",
 ;
 
 \ orig - a, 1 (short) или a, 2 (near)

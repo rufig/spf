@@ -73,12 +73,7 @@
 \ Время выполнения: ( -- c-addr )
 \ Возвратить c-addr, строку со счетчиком, состоящую из символов ccc.
 \ Программа не должна менять возвращенную строку.
-
-  [CHAR] " WORD DUP C@ 1+
-  DUP ALLOCATE THROW DUP >R SWAP QCMOVE R>   \ WORD кладёт строку в HERE :(
-  STATE @
-  IF DUP [COMPILE] CLITERAL FREE THROW THEN
-
+  [CHAR] " WORD [COMPILE] CLITERAL
 ; IMMEDIATE
 
 : ."  \ 94

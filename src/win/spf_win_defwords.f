@@ -6,7 +6,6 @@
   –евизи€ - сент€брь 1999
 )
 
-VARIABLE WINAP
 VARIABLE WINAPLINK
 0  VALUE NEW-WINAPI?
 
@@ -30,7 +29,7 @@ VARIABLE WINAPLINK
      >IN !
   THEN
   ['] _WINAPI-CODE COMPILE,
-  HERE WINAP !
+  HERE >R
   0 , \ address of winproc
   0 , \ address of library name
   0 , \ address of function name
@@ -39,14 +38,12 @@ VARIABLE WINAPLINK
   IF
     HERE WINAPLINK @ , WINAPLINK ! ( св€зь )
   THEN
-  HERE WINAP @ CELL+ CELL+ !
-  HERE >R
+  HERE DUP R@ CELL+ CELL+ !
   NextWord HERE SWAP DUP ALLOT MOVE 0 C, \ им€ функции
-  HERE WINAP @ CELL+ !
-  HERE >R
+  HERE DUP R> CELL+ !
   NextWord HERE SWAP DUP ALLOT MOVE 0 C, \ им€ библиотеки
-  R> LoadLibraryA DUP 0= IF -2009 THROW THEN \ ABORT" Library not found"
-  R> SWAP GetProcAddress 0= IF -2010 THROW THEN \ ABORT" Procedure not found"
+  LoadLibraryA DUP 0= IF -2009 THROW THEN \ ABORT" Library not found"
+  GetProcAddress 0= IF -2010 THROW THEN \ ABORT" Procedure not found"
 ;
 
 : EXTERN ( xt1 n -- xt2 )
@@ -82,7 +79,6 @@ VARIABLE WINAPLINK
 
 : ERASE-IMPORTS
   \ обнуление адресов импортируемых процедур
-  \ и числа параметров
   WINAPLINK
   BEGIN
     @ DUP

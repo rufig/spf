@@ -119,8 +119,8 @@ USER lpNumberOfBytesRead
 \ пытаетс€ прочесть незаписанную часть файла.
 \ ѕосле завершени€ операции FILE-POSITION возвратит следующую позицию
 \ в файле после последнего прочитанного символа.
-  >R >R >R
-  0 lpNumberOfBytesRead R> R> SWAP R>
+  >R 2>R
+  0 lpNumberOfBytesRead R> R> R>
   ReadFile ERR
   lpNumberOfBytesRead @ SWAP
 ;
@@ -208,8 +208,8 @@ USER lpNumberOfBytesWritten
 \ FILE-SIZE возвращает значение большее или равное значению,
 \ возвращаемому FILE-POSITION.
   OVER >R
-  >R >R >R
-  0 lpNumberOfBytesWritten R> R> SWAP R>
+  >R 2>R
+  0 lpNumberOfBytesWritten R> R> R>
   WriteFile ERR ( ior )
   ?DUP IF RDROP EXIT THEN
   lpNumberOfBytesWritten @ R> <>
