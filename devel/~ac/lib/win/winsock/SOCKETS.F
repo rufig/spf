@@ -155,10 +155,20 @@ USER TIMEOUT
   OVER 0= IF DROP -1002 THEN
   ( если принято 0, то обрыв соединения )
 ;
+\ : GetHostName ( IP -- addr u ior )
+\   PAD ! PF_INET 4 PAD gethostbyaddr
+\   ?DUP IF @ ASCIIZ> 0 ELSE HERE 0 WSAGetLastError THEN
+\ ;
+
+\ бывают случаи, когда не возвращают ошибку, но и имя не дают
+\ на других линках тот же IP дает ошибку 11004
+
 : GetHostName ( IP -- addr u ior )
   PAD ! PF_INET 4 PAD gethostbyaddr
-  ?DUP IF @ ASCIIZ> 0 ELSE HERE 0 WSAGetLastError THEN
+  ?DUP IF @ ?DUP IF ASCIIZ> 0 ELSE S" ?" 11004 THEN
+       ELSE HERE 0 WSAGetLastError THEN
 ;
+
 : Get.Host.Name ( addr u -- addr u ior )
   DROP inet_addr GetHostName
 ;
