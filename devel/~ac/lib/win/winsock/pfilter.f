@@ -99,6 +99,10 @@ VARIABLE FILTER-IP
   str_ip FilterAllocAddr DUP @ FILTER-IP !
   PF_IPV4 FILTER-IH @ _PfBindInterfaceToIPAddress@12 0 <> THROW
 ;
+: FilterAddInterface { str_ip -- }
+  str_ip FilterAllocAddr
+  PF_IPV4 FILTER-IH @ _PfBindInterfaceToIPAddress@12 0 <> THROW
+;
 : FilterAdd ( srchost srcmask srcport targethost targetmask targetport -- )
 \ запретить пакеты с srchost srcmask srcport на targethost targetmask targetport
   FILTER-IH @ FilterAddRule 0 <> THROW
