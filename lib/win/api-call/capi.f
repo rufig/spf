@@ -37,6 +37,7 @@ CODE _CAPI-CODE
       OR   EAX, EAX
       LEA  EBP, -4 [EBP]
       JNZ  SHORT @@1
+      MOV  EAX, EBX
       CALL ' AO_INI
       JZ  SHORT @@2
       MOV [EBX], EAX
@@ -52,6 +53,7 @@ CODE _CVAPI-CODE
       OR   EAX, EAX
       LEA  EBP, -4 [EBP]
       JNZ  SHORT @@1
+      MOV  EAX, EBX
       CALL ' AO_INI
       JZ  SHORT @@2
       MOV [EBX], EAX
@@ -70,7 +72,7 @@ END-CODE
     будет положен на стек.
     2 CAPI: strstr msvcrt.dll
 
-    Z" s" , Z" asdf" strstr
+    Z" s" Z" asdf" strstr
   )
   >IN @  HEADER  >IN !
   ['] _CAPI-CODE COMPILE,

@@ -11,6 +11,7 @@ CODE _WINAPI-CODE
       OR   EAX, EAX
       LEA  EBP, -4 [EBP]
       JNZ  SHORT @@1
+      MOV  EAX, EBX
       CALL  ' AO_INI
       JZ  SHORT @@3
       MOV [EBX], EAX

@@ -10,6 +10,7 @@ VARIABLE AOGPA
 0 VALUE ST-RES
 
 CODE AO_INI
+      MOV  EBX, EAX
       MOV  EAX, 4 [EBX]
       PUSH EAX
       A; 0xA1 C,  AddrOfLoadLibrary
@@ -60,6 +61,7 @@ CODE _WINAPI-CODE
       OR   EAX, EAX
       LEA  EBP, -4 [EBP]
       JNZ  SHORT @@1
+      MOV  EAX, EBX
       CALL ' AO_INI
       JZ  SHORT @@2
       MOV [EBX], EAX
