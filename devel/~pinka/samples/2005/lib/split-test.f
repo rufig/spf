@@ -1,5 +1,5 @@
-\ Dec.2004
 \ $Id$
+\ see also split.f
 
 : SPLIT ( a u a1 u1 -- a3 u3 a2 u2 true | a u false )
 \ разделить строку a u на часть слева (a2 u2) от подстроки a1 u1
@@ -13,13 +13,9 @@
   2R> 2DROP FALSE    THEN
 ;
 
-\EOF
-\ Ниже вариант с локальными переменными.
-\ Сделать проще. Работает на 20-30% медленней.
-
 REQUIRE { lib/ext/locals.f
 
-: SPLIT ( a u a1 u1 -- a3 u3 a2 u2 true | a u false )
+: SPLIT1 ( a u a1 u1 -- a3 u3 a2 u2 true | a u false )
 \ разделить строку a u на часть слева (a2 u2) от подстроки a1 u1
 \ и на часть справа (a3 u3) от этой подстроки.
 
@@ -31,15 +27,23 @@ REQUIRE { lib/ext/locals.f
   TRUE               ELSE
   FALSE              THEN
 ;
-: SPLIT2 ( a u a1 u1 -- a2 u2 a3 u3 true | a u false )
-\ разделить строку a u на часть слева (a2 u2) от подстроки a1 u1
-\ и на часть справа (a3 u3) от этой подстроки.
 
-  { a u a1 u1 \ aa uu }
-  a u a1 u1 SEARCH   IF
-  -> uu -> aa
-  aa a - a SWAP
-  aa u1 + uu u1 - 
-  TRUE               ELSE
-  FALSE              THEN
+~pinka\lib\Tools\profiler.f
+
+: t0-(no_locals)
+  1000000 0 DO
+  S" aaaaaaa|bb|cccccccc" S" bb" SPLIT DROP 2DROP 2DROP
+  LOOP
+;
+: t1-(with_locals)
+  1000000 0 DO
+  S" aaaaaaa|bb|cccccccc" S" bb" SPLIT1 DROP 2DROP 2DROP
+  LOOP
+;
+profile off
+: test
+  \ t1 t0 \ t1
+  t0-(no_locals)
+  t1-(with_locals)
+  .AllStatistic
 ;
