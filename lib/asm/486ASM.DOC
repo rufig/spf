@@ -540,3 +540,5 @@ Version history:
         seems the assembler was setting a flag without bothering to check it...
         Changed GROUP1-COMPILE to assemble 8 bit immediate operands when
         possible.
+
+1.27 -- Fixed SHxD and BTx reg, reg (Serguei V. Jidkov <jsv@e-mail.ru>)
