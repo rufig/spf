@@ -1,10 +1,17 @@
 VARIABLE DEBUG
+: THROW DEBUG @ IF DUP IF CR ." THROW:" DUP . CR THEN THEN ;
 : DebugOn   TRUE DEBUG ! ;
 : DebugOff FALSE DEBUG ! ;
 
+WINAPI: HeapValidate KERNEL32.DLL
+: VTH
+  0 0 THREAD-HEAP @ HeapValidate 0= IF CR ." HEAP_CORRUPTED!" CR BYE THEN
+;
 : DEBUG.
   DEBUG @
-  IF (.") SPACE ELSE DROP THEN
+  IF (.") ." :" VTH SPACE 
+  ELSE DROP
+  THEN
 ;  
 
 : :
