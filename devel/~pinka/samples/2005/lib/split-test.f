@@ -1,7 +1,7 @@
 \ $Id$
 \ see also split.f
 
-: SPLIT ( a u a1 u1 -- a3 u3 a2 u2 true | a u false )
+: SPLIT0 ( a u a1 u1 -- a3 u3 a2 u2 true | a u false )
 \ разделить строку a u на часть слева (a2 u2) от подстроки a1 u1
 \ и на часть справа (a3 u3) от этой подстроки.
 
@@ -32,7 +32,7 @@ REQUIRE { lib/ext/locals.f
 
 : t0-(no_locals)
   1000000 0 DO
-  S" aaaaaaa|bb|cccccccc" S" bb" SPLIT DROP 2DROP 2DROP
+  S" aaaaaaa|bb|cccccccc" S" bb" SPLIT0 DROP 2DROP 2DROP
   LOOP
 ;
 : t1-(with_locals)
