@@ -8,7 +8,7 @@ IMAGE-BASE 1034 + AOLL @ !
 IMAGE-BASE 1038 + AOGPA @ !
 DECIMAL
 
-S" spf4.exe" S" src\spf.fres" tsave.f
+S" spf4.exe" S" src\spf.fres" src\tsave.f
 .( The system has been saved)
 
 BYE
