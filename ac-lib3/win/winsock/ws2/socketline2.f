@@ -54,6 +54,21 @@ CONSTANT /sl
 \ SocketContRead
 \
 
+: SocketContRead1 ( addr-S -- )
+  { addr \ a u }
+  addr SocketGetPending
+  OVER C@ 10 ( LF ) = OVER 0 > AND IF 1- SWAP 1+ SWAP THEN -> u -> a
+  a addr /sl + u MOVE
+  addr /sl + addr sl_last !
+
+  addr /sl + u +
+  LINE_BUFF_SIZE u -
+  DUP 0 > 
+  IF
+    addr sl_socket @ ReadSocket THROW
+    u + addr sl_point !
+  ELSE 2DROP THEN
+;
 : SocketContRead ( addr-S -- )
   { addr \ a u }
   addr SocketGetPending -> u -> a

@@ -26,7 +26,9 @@ WINAPI: sendto          WS2_32.DLL
   /sockaddr_in CELL+ ALLOCATE THROW -> sin
   /sockaddr_in sin /sockaddr_in + DUP >R !
   R> sin 0 u adr sock recvfrom
-  DUP SOCKET_ERROR = IF DROP sin FREE DROP WSAGetLastError THROW THEN
+  DUP SOCKET_ERROR = OVER u > OR    \ ~ac 18.01.02  (*)
+  IF DROP sin FREE DROP WSAGetLastError THROW -1 THROW ( *) THEN
+  u MIN 0 MAX ( *)
   sin sin_addr @ sin sin_port W@ 256 /MOD SWAP 256 * +
   sin FREE DROP
 ;
@@ -37,6 +39,6 @@ WINAPI: sendto          WS2_32.DLL
   sin sin_addr !
   AF_INET sin sin_family W! sin sin_zero 8 ERASE
   /sockaddr_in sin 0 u adr sock sendto
-  u < IF sin FREE DROP WSAGetLastError THROW THEN
+  u < IF sin FREE DROP WSAGetLastError THROW -1 THROW ( *) THEN
   sin FREE DROP
 ;
