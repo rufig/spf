@@ -1,0 +1,249 @@
+1 ERROR_INVALID_FUNCTION
+2 ERROR_FILE_NOT_FOUND
+3 ERROR_PATH_NOT_FOUND
+4 ERROR_TOO_MANY_OPEN_FILES
+5 ERROR_ACCESS_DENIED
+6 ERROR_INVALID_HANDLE
+7 ERROR_ARENA_TRASHED
+8 ERROR_NOT_ENOUGH_MEMORY
+9 ERROR_INVALID_BLOCK
+10 ERROR_BAD_ENVIRONMENT
+11 ERROR_BAD_FORMAT
+12 ERROR_INVALID_ACCESS
+13 ERROR_INVALID_DATA
+14 ERROR_OUTOFMEMORY
+15 ERROR_INVALID_DRIVE
+15 ERROR_CURRENT_DIRECTORY
+17 ERROR_NOT_SAME_DEVICE
+18 ERROR_NO_MORE_FILES
+19 ERROR_WRITE_PROTECT
+20 ERROR_BAD_UNIT
+21 ERROR_NOT_READY
+22 ERROR_BAD_COMMAND
+23 ERROR_CRC
+24 ERROR_BAD_LENGTH
+25 ERROR_SEEK
+26 ERROR_NOT_DOS_DISK
+27 ERROR_SECTOR_NOT_FOUND
+28 ERROR_OUT_OF_PAPER
+29 ERROR_WRITE_FAULT
+30 ERROR_READ_FAULT
+31 ERROR_GEN_FAILURE
+32 ERROR_SHARING_VIOLATION
+33 ERROR_LOCK_VIOLATION
+34 ERROR_WRONG_DISK
+36 ERROR_SHARING_BUFFER_EXCEEDED
+38 ERROR_HANDLE_EOF
+39 ERROR_HANDLE_DISK_FULL
+50 ERROR_NOT_SUPPORTED
+123 ERROR_INVALID_NAME
+  1 Wrong function number
+  2 File not found \ ( =-38)
+  3 Path not found
+  4 Too many files opened
+  5 Access denied 
+  6 Invalid handle
+  7 DOS memory control blocks are destroyed
+  8 It is not enough DOS memory
+  9 Invalid address of DOS memory block
+ -1 ABORT
+ -2 ABORT"
+ -3 Stack overflow
+ -4 Stack underflow
+ -5 Return stack overflow
+ -6 Return stack underflow
+ -7 DO-LOOP nested too deeply during execution
+ -8 Dictionary overflow
+ -9 Invalid memory address
+-10 Divide by zero
+-11 Result is out of range
+-12 Argument type mismatch
+-13 Undefined word 
+-14 Attempted to interpret compile-only word
+-15 Invalid FORGET
+-16 Attempt to use zero-length string as a name
+-17 Overflow of a pictured numeric output string
+-18 Parsed string overflow
+-19 Definition name  too long
+-20 Writing to a read-only location
+-21 Unsupported operation
+-22 Control structure mismatch
+-23 Address alignment exception
+-24 Invalid numeric argument
+-25 Return stack imbalance
+-26 DO-LOOP parameters unavailable
+-27 Invalid recursion
+-28 User interrupt
+-29 Compiler nesting
+-30 Obsolete feature 
+-31 >BODY used on non-CREATEd definition
+-32 Invalid name argument (e.g., TO xxx)
+-33 Exception of block reading 
+-34 Exception of block writing
+-35 Illegal block number
+-36 Illegal file position
+-37 File I/O exception
+-38 File not found
+-39 Unexpected end of file
+-40 Invalid BASE for floating-point conversion
+-41 Loss of precision
+-42 Floating-point divide by zero
+-43 Floating-point result is out of range
+-44 Floating-point stack overflow 
+-45 Floating-point stack underflow
+-46 Floating-point invalid argument 
+-47 List of compilation words is deleted 
+-48 Wrong POSTPONE
+-49 Search-order overflow
+-50 Search-order underflow
+-51 List of compilation words has changed
+-52 Control-flow stack overflow
+-53 Exception stack overflow
+-54 Floating-point stack underflow
+-55 Floating-point unidentified fault
+-56 QUIT
+-57 Exception in sending or receiving a character
+-58 [IF], [ELSE] or [THEN] exception
+-257 Write error - no more disk space?
+-300 Not enough memory (allocate) !
+-305 Can't open file !
+-306 Can't close file !
+-307 Can't create file !
+-308 I/O seek-pointer error !
+-309 Not a number !
+-311 Stack underflow !
+-312 Only for compilation !
+-314 Jump is too far !
+-315 Unpaired IF..ELSE
+-316 Unpaired IF..THEN
+-317 UNTIL without BEGIN
+-318 REPEAT without WHILE
+-319 REPEAT without BEGIN
+-320 AGAIN without BEGIN
+-321 - not found !
+-322 Divide by zero
+-330 Unpaired brackets \ -330-336 - messages of assembler
+-331 Run-time required
+-332 >NAME error
+-333 Wrond operand
+-334 Unresolved forward reference
+-335 Too more labels
+-336 Wrong register
+-337 Stack fail by CSP \ -337-339 - messages of DIR.F
+-338 Wrong directory
+-339 Wrond disk
+-340 Memory allocation error \ -340-345 - messages of FE
+-341 Read error
+-342 File not found
+-343 Help not available
+-344 No such file
+-345 Cannot find HLP-file
+-346 No more memory \ message of SORT2.F
+-347 Insufficient data-stack space \ message of SORT2.F
+-350 Not enough memory for FE \ -350-354 - messages of FE 2.5
+-351 Wrong block index for FE
+-352 Unknown method (FE)
+-353 Attempt to send message to non-existent parent
+-354 Critical memory allocation error (FE)
+-355 IDX-segment overflow (FE)
+-356 Variable not found (cCheck class) (FE)
+-357 FE menu procedure not found
+-358 KEY-command procedure not found (FE)
+-359 Ctrl+Break interrupt (FE)
+-360 Interrupted by critical DOS error
+-2001 -? (not literal)
+-2002 -?? (not number)
+-2003 WORD OR FILE NOT FOUND
+-2004 UNTIL without BEGIN
+-2005 REPEAT without BEGIN
+-2006 AGAIN without BEGIN
+-2007 Conditionals not paired
+-2009 Library not found
+-2010 Procedure not found
+-2011 Unknown vocabulary
+0xC0000001L UNSUCCESSFUL              
+0x00000000L WAIT_0                    
+0x00000080L ABANDONED_WAIT_0          
+0x000000C0L USER_APC                  
+0x00000102L TIMEOUT                   
+0x00000103L PENDING                   
+0x80000001L GUARD_PAGE_VIOLATION      
+0x80000002L DATATYPE_MISALIGNMENT     
+0x80000003L BREAKPOINT                
+0x80000004L SINGLE_STEP               
+0xC0000005L ACCESS_VIOLATION          
+0xC0000006L IN_PAGE_ERROR             
+0xC000000DL INVALID_PARAMETER         
+0xC0000017L NO_MEMORY                 
+0xC000001CL INVALID_SYSTEM_SERVICE    
+0xC000001DL ILLEGAL_INSTRUCTION       
+0xC0000025L NONCONTINUABLE_EXCEPTION  
+0xC0000026L INVALID_DISPOSITION       
+0xC000008CL ARRAY_BOUNDS_EXCEEDED     
+0xC000008DL FLOAT_DENORMAL_OPERAND    
+0xC000008EL FLOAT_DIVIDE_BY_ZERO      
+0xC000008FL FLOAT_INEXACT_RESULT      
+0xC0000090L FLOAT_INVALID_OPERATION   
+0xC0000091L FLOAT_OVERFLOW            
+0xC0000092L FLOAT_STACK_CHECK         
+0xC0000093L FLOAT_UNDERFLOW           
+0xC0000094L INTEGER_DIVIDE_BY_ZERO    
+0xC0000095L INTEGER_OVERFLOW          
+0xC0000096L PRIVILEGED_INSTRUCTION    
+0xC00000FDL STACK_OVERFLOW            
+0x80000113L USER_BREAK                
+0xC000013AL CONTROL_C_EXIT            
+0xC00000AAL INSTRUCTION_MISALIGNMENT  
+10000 WSABASEERR
+10004 WSAEINTR
+10009 WSAEBADF
+10013 WSAEACCES
+10014 WSAEFAULT
+10022 WSAEINVAL
+10024 WSAEMFILE
+10035 WSAEWOULDBLOCK
+10036 WSAEINPROGRESS
+10037 WSAEALREADY
+10038 WSAENOTSOCK
+10039 WSAEDESTADDRREQ
+10040 WSAEMSGSIZE
+10041 WSAEPROTOTYPE
+10042 WSAENOPROTOOPT
+10043 WSAEPROTONOSUPPORT
+10044 WSAESOCKTNOSUPPORT
+10045 WSAEOPNOTSUPP
+10046 WSAEPFNOSUPPORT
+10047 WSAEAFNOSUPPORT
+10048 WSAEADDRINUSE
+10049 WSAEADDRNOTAVAIL
+10050 WSAENETDOWN
+10051 WSAENETUNREACH
+10052 WSAENETRESET
+10053 WSAECONNABORTED
+10054 WSAECONNRESET
+10055 WSAENOBUFS
+10056 WSAEISCONN
+10057 WSAENOTCONN
+10058 WSAESHUTDOWN
+10059 WSAETOOMANYREFS
+10060 WSAETIMEDOUT
+10061 WSAECONNREFUSED
+10062 WSAELOOP
+10063 WSAENAMETOOLONG
+10064 WSAEHOSTDOWN
+10065 WSAEHOSTUNREACH
+10066 WSAENOTEMPTY
+10067 WSAEPROCLIM
+10068 WSAEUSERS
+10069 WSAEDQUOT
+10070 WSAESTALE
+10071 WSAEREMOTE
+10101 WSAEDISCON
+10091 WSASYSNOTREADY
+10092 WSAVERNOTSUPPORTED
+10093 WSANOTINITIALISED
+11001 WSAHOST_NOT_FOUND
+11002 WSATRY_AGAIN
+11003 WSANO_RECOVERY
+11004 WSANO_DATA
+0 Unknown error
