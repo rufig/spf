@@ -14,7 +14,7 @@ USER curfunc
 
 \ возвращает имя текущего слова, если есть
 : curname ( -- false | addr u true )
-  curfunc @ DUP IF 8 + COUNT TRUE THEN
+  curfunc @ DUP IF 2 CELLS + COUNT TRUE THEN
 ;
 
 \ возвращает число аргументов
@@ -31,15 +31,26 @@ USER curfunc
 : ) ( -- )
   POSTPONE ,
   curfunc @
-  DUP >R 8 + COUNT EVALUATE
+  DUP >R 2 CELLS + COUNT EVALUATE
   R> DUP @ curfunc !
   FREE THROW
   PREVIOUS
 ; IMMEDIATE
 
+\ чтобы не писать DROP после вызова каждой функции
+: )) ( -- )
+  POSTPONE )
+  STATE @ IF POSTPONE DROP ELSE DROP THEN
+; IMMEDIATE
+
 \ для слов без аргументов
 : () ( -- )
   -1 curfunc @ CELL+ ! POSTPONE )
+; IMMEDIATE
+
+: ()) ( -- )
+  POSTPONE ()
+  STATE @ IF POSTPONE DROP ELSE DROP THEN
 ; IMMEDIATE
 
 SET-CURRENT
