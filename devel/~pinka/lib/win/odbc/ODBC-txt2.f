@@ -325,5 +325,3 @@ PREVIOUS
   a u fodbc ProceedSqlTxt  ELSE
   a u fodbc ExecSQL        THEN
 ;
-
-ALSO ODBCTxt-Support
