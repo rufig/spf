@@ -282,7 +282,7 @@ TRUE VALUE EnableEmit
   ALLOCATE THROW DUP TO Content
   SizeEd WM_GETTEXT SendToEdVoid
   \ открываем файл
-  S" spf4wc-script.f" W/O CREATE-FILE THROW TO fid
+  S" spf4wc-script.f" +ModuleDirName W/O CREATE-FILE THROW TO fid
   \ записываем код в файл
   Content SizeEd 1- fid WRITE-FILE THROW
   \ закрываем файл и буфер
@@ -290,7 +290,7 @@ TRUE VALUE EnableEmit
   fid CLOSE-FILE THROW
 ;
 : LoadScript { \ SizeEd Content fid -- }
-  S" spf4wc-script.f" R/O OPEN-FILE 0= IF
+  S" spf4wc-script.f" +ModuleDirName R/O OPEN-FILE 0= IF
     DUP TO fid
     FILE-SIZE THROW DROP ?DUP IF
       1+ DUP TO SizeEd
