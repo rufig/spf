@@ -445,7 +445,7 @@ endtable
   ['] tb-getstate ['] tb-setstate -istate R@ setitem
   ['] tb-getil    ['] tb-setil    -imagelist R@ setitem
   ['] tb-command R@ -command!
-  W: tbn_dropdown R@ -defcommand!
+  W: bn_clicked R@ -defcommand!
   R> ;
 
 : add-toolbar ( ctl win -- )
@@ -551,17 +551,24 @@ endtable
 \ Списки иконок
 
 toolbarctl table listviewctl
-  item -isubitem getset	\ подъэлемент
+  item -exstyle  getset \ расширенный стиль
+  item -isubitem getset	\ подэлемент
   item -ctext	getset	\ текст колонки
   item -cflags	getset	\ флаги колонки
   item -cwidth	getset	\ ширина колонки
-  item -csubitem getset	\ подъэлемент, приписанный к колонке
+  item -csubitem getset	\ подэлемент, приписанный к колонке
   item -cimage	getset	\ картинка колонки
   item -corder	getset	\ порядок колонки
 endtable
 
 : lv-getcol W: lvm_getcolumna fromitem ;
 : lv-setcol W: lvm_setcolumna toitem ;
+
+:NONAME \ getexstyle ( ctl -- n)
+ W: lvm_getextendedlistviewstyle ?send ;
+:NONAME \ setexstyle ( n ctl -- )
+ W: lvm_setextendedlistviewstyle lsend DROP ;
+-exstyle listviewctl setitem
 
 :NONAME \ get-colflags ( i ctl -- n)
   W: lvcf_fmt 1 lv-getcol ;
@@ -701,10 +708,11 @@ endtable
   ['] lv-gettext    ['] lv-settext    -itext   R@ setitem
   ['] lv-getstate   ['] lv-setstate   -istate  R@ setitem
   ['] lv-getselect  ['] lv-setselect  -selected R@ setitem
-  W: lvn_itemactivate R@ -defcommand!
+  W: nm_click R@ -defcommand!
   R> ;
 
 : prepare-listview ( n ctl -- ) W: lvm_setitemcount wsend DROP ;
+: clear-listview ( ctl -- ) W: lvm_deleteallitems ?send DROP ;
 
 : lv-style ( ctl style -- )
   OVER -style@ W: lvs_typemask INVERT AND OR SWAP -style! ;
@@ -741,6 +749,26 @@ endtable
     DUP proc EXECUTE
   REPEAT DROP ;
 
+\ -------------------------------
+\ Всплывающие подсказки
+: create-tooltip ( style -- )
+  >R  W: icc_tab_classes initcc
+  control " tooltips_class32" R> 0 create-control-exstyle-notchild
+  TO common-tooltip ;
+
+:NONAME { z ctl mess \ [ 10 CELLS ] ti -- }
+  ti init->>
+  10 CELLS >>
+  (* ttf_idishwnd ttf_subclass *) >>
+  0 >>
+  ctl -hwnd@ >>
+  0 >> 0 >> 0 >> 0 >>
+  0 >>
+  z >>
+  ti common-tooltip mess lsend DROP ; 
+TO common-tooltip-op
+
+\ -------------------------------
 \EOF
 
 \ -------------------------------

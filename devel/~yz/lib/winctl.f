@@ -94,7 +94,10 @@ USER-VALUE this
   lparam @ window@ TO thisctl
   thisctl 0= IF FALSE EXIT THEN \ сообщение не от наших объектов не обрабатываем
   lparam 3 CELLS + TO lparam
-  lparam CELL- @ DUP thisctl -defcommand@ = IF
+  lparam CELL- @
+  \ подменяем сообщение для панели инструментов
+  DUP W: tbn_dropdown = IF DROP W: bn_clicked THEN
+  DUP thisctl -defcommand@ = IF
     DROP thisctl -command@ EXECUTE
   ELSE
     thisctl -notify@ find-in-xtable DROP
