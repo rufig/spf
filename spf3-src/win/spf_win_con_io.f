@@ -71,7 +71,7 @@ USER NumberOfRecordsRead
 \    0  AsciiChar
 \    2  ScanCod
 \    3  KeyDownFlag
-  NumberOfRecordsRead 1 INPUT_RECORD H-STDIN
+  NumberOfRecordsRead 2 INPUT_RECORD H-STDIN \ 1 заменен на 2 (30.12.2001 ~boa)
   ReadConsoleInputA DROP
    INPUT_RECORD ( EventType ) W@  KEY_EVENT <> IF 0 EXIT THEN
  [ INPUT_RECORD ( Event AsciiChar       ) 14 + ] LITERAL W@

@@ -76,6 +76,12 @@ DECIMAL
 \ согласно операции FREE.
 \ ≈сли операци€ не прошла, a-addr2 равен a-addr1, область пам€ти a-addr1 не 
 \ измен€етс€, и ior - завис€щий от реализации код ввода-вывода.
-  SWAP CELL- 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapReAlloc
+
+\  SWAP CELL- 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapReAlloc
+\  DUP IF CELL+ 0 ELSE -300 THEN
+\  исправлено ~day, 14.01.02
+
+  CELL+ SWAP CELL- 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapReAlloc
   DUP IF CELL+ 0 ELSE -300 THEN
+
 ;

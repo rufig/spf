@@ -99,6 +99,11 @@ S" src\win\spf_win_mtask.f"          INCLUDED
 S" src\win\spf_win_cgi.f"            INCLUDED
 
 \ ==============================================================
+\ Совместимость с SPF4
+
+S" src\win\spf_spf4.f"               INCLUDED
+
+\ ==============================================================
 \ Сохранение системы в exe-файле.
 
 S" src\win\spf_pe_save.f"            INCLUDED
