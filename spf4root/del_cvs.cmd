@@ -1,0 +1,1 @@
+@FOR /R  %%I IN (CVS) DO if exist %%I  rd /S /Q %%I

@@ -200,6 +200,7 @@ USER vThreadId
 ..: AT-THREAD-FINISHING GetCurrentThreadId RemoveThreadMemoryInfo ;..
 
 \EOF
+
 ~ac\lib\str4.f
 
 : test "   " ;

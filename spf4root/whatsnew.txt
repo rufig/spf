@@ -1118,18 +1118,24 @@ note: Ћюди, не делайте так: 0 LIT, HERE CELL-
 ! фикс REFILL (очистка стека если поймали -1002 исключение), факторизаци€ (~ruv)
 + проверка на бесконечный INCLUDE, максимальна€ глубина 64. (~day)
 
-8 ма€ 2004
+7 сент€бр€ 2004
 
 ! фикс оптимизатора (что-то с WHILE и R>) (~mac)
 ! исправлен многократый дамп при аппаратном исключении в потоке или callback (~day)
+! теперь SPF exe пакуютс€ UPX и AsProtect, фикс tsave.f (Igor Nikolayenko)
+! ѕравило F0E не учитывало запись в €чейку пам€ти, при оптимизации двойного 
+  считывани€ из этой €чейки пам€ти. (~mak)
+! fix comment for /MOD (~ruv)
+
 + WINAPI: при ненахождении dll или функции runtime делает ABORT
   новые слова-вектора LIB-ERROR, PROC-ERROR, т.е. можно эту ошибку выводить
   через MessageBox например. (~day)
++ PROCESS-ERR перенесен из TranslateFlow в RECEIVE-WITH-XT элиминировано 
+  ('исчезнуто') слово (TranslateFlow) и слово (TranslateFlowWith) (~ruv)
++ добалено(факторизаци€) слово S, и комментарии
++ «начительно улучшена оптимизаци€ кода, особенно в тесте MD5
 
-CVS релиз:
 
-! теперь SPF exe пакуютс€ UPX, фикс tsave.f
- 
 «начки в whatnews.txt:
 
 * - изменение без потери или приобретени€ функциональности
@@ -1152,3 +1158,5 @@ Developers:
 ~af      = Andrey Filatkin      af@forth.org.ru
 ~oleg_sh = Oleg Shalyopa
 ~trasher = Dmitry Bobrik
+
+Igor Nikolayenko <in4@forth.org.ru>

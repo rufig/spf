@@ -118,6 +118,17 @@ Correcting build:)
 ! fixed REFILL (~ruv)
 + checks for infinitive INCLUDED (~day)
 
+7 Sept. 2004 4.00.016
+
+! two fixes of code optimizer (~mac)
+! fixed EXE header, now it is possible to pack SPF4 by UPX and AsProtect
+! fixed useless huge exception dump
+
++ vectors LIB-ERROR, PROC-ERROR that process errors related with 
+  searching DLL and functions in DLL.
++ some cosmetic improvements
++ improved code optimization
+
 * - Changes
 ! - Fixed error
 + - New
