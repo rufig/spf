@@ -14,7 +14,7 @@ WARNING DUP @ SWAP 0!
 ;
 WARNING !
 
-: LoadInitLibrary ( addr u -- h ior )
+: LoadInitLibrary ( addr u -- h 0  | ior )
   2DUP 2>R
   DROP LOAD_WITH_ALTERED_SEARCH_PATH 0 ROT LoadLibraryExA DUP 0=
 \  DROP LoadLibraryA DUP 0=
