@@ -30,6 +30,7 @@ WINAPI: select          WSOCK32.DLL
 2  CONSTANT AF_INET
 6  CONSTANT IPPROTO_TCP
 17 CONSTANT IPPROTO_UDP
+1000 VALUE ListenQlen
 
 BASE @ HEX
 FFFF CONSTANT SOL_SOCKET
@@ -205,7 +206,7 @@ AF_INET sock_addr2 sin_family W!
   BindSocket
 ;
 : ListenSocket ( s -- ior )
-  100 SWAP listen SOCKET_ERROR =
+  ListenQlen SWAP listen SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
 ;
 CREATE SINLEN /sockaddr_in ,
