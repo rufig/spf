@@ -8,7 +8,7 @@
   ?DUP IF R> DROP NIP NIP EXIT THEN
   R> REPOSITION-FILE  ( ud fileid -- ior ) 
 ;
-: append-file ( a u a-file u-file -- )
+: ATTACH ( a u a-file u-file -- )
   2DUP FILE-EXIST 0= IF
     2DUP W/O CREATE-FILE THROW
     CLOSE-FILE THROW
@@ -17,15 +17,15 @@
   R@ 9REPOSITION-FILE ?DUP 0= IF R@ WRITE-FILE THEN
   R> CLOSE-FILE SWAP THROW THROW
 ;
-: append-file-line ( a u a-file u-file -- )
-  2DUP 2>R append-file
-  LT LTL @ 2R> append-file
+: ATTACH-LINE ( a u a-file u-file -- )
+  2DUP 2>R ATTACH
+  LT LTL @ 2R> ATTACH
 ;
-: APPEND-FILE ( a u a-file u-file -- ior )
-  ['] append-file CATCH
+: ATTACH-CATCH ( a u a-file u-file -- ior )
+  ['] ATTACH CATCH
   DUP IF NIP NIP NIP NIP THEN
 ;
-: APPEND-FILE-LINE ( a u a-file u-file -- ior )
-  ['] append-file-line CATCH
+: ATTACH-LINE-CATCH ( a u a-file u-file -- ior )
+  ['] ATTACH-LINE CATCH
   DUP IF NIP NIP NIP NIP THEN
 ;
