@@ -19,6 +19,7 @@ WINAPI: inet_addr       WSOCK32.DLL
 WINAPI: inet_ntoa       WSOCK32.DLL
 WINAPI: setsockopt      WSOCK32.DLL
 WINAPI: shutdown        WSOCK32.DLL
+WINAPI: gethostname     WSOCK32.DLL
 
 1  CONSTANT SOCK_STREAM
 2  CONSTANT SOCK_DGRAM
