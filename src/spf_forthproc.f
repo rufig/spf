@@ -656,34 +656,28 @@ CODE SM/REM ( d1 n1 -- n2 n3 ) \ 94
      RET
 END-CODE
 
+\ From: Serguei V. Jidkov [mailto:jsv@gorod.bryansk.ru]
+
 CODE FM/MOD ( d1 n1 -- n2 n3 ) \ 94
 \ –азделить d1 на n1, получить частное n3 и остаток n2.
 \ ¬ходные и выходные аргументы знаковые.
 \ Ќеоднозначна€ ситуаци€ возникает, если n1 ноль, или частное вне
 \ диапазона одинарных знаковых чисел.
-     XCHG EBP, ESP
-     MOV EBX, EAX
-     POP EDX
-     POP EAX
-     PUSH EAX
-     IDIV EBX
-     OR EAX, EAX
-     JS SHORT @@1
-@@2: POP EBX
-     PUSH EDX
-     XCHG EBP, ESP
-     RET
-@@1: OR EDX, EDX
-     JZ @@2
-     DEC EAX
-     MOV ECX, EAX
-     IMUL EBX
-     POP EBX
-     SUB EBX, EAX
-     PUSH EBX
-     MOV EAX, ECX
-     XCHG EBP, ESP
-     RET
+
+        MOV ECX, EAX
+        MOV EDX, 0 [EBP]
+        MOV EBX, EDX
+        MOV EAX, 4 [EBP]
+        IDIV ECX
+        TEST EDX, EDX            \ ќстаток-то есть?
+        JZ  SHORT @@1
+        XOR EBX, ECX             \ ј аргументы разного знака?
+        JNS SHORT @@1
+        DEC EAX
+        ADD EDX, ECX
+@@1:    LEA EBP, 4 [EBP]
+        MOV 0 [EBP], EDX
+        RET
 END-CODE
 
 CODE DIGIT \ [ C, N1 -> N2, TF / FF ] \ N2 - значение литеры C как
