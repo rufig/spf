@@ -30,6 +30,7 @@ WINAPI: select          WSOCK32.DLL
 2  CONSTANT AF_INET
 6  CONSTANT IPPROTO_TCP
 17 CONSTANT IPPROTO_UDP
+1000 VALUE ListenQlen
 
 BASE @ HEX
 FFFF CONSTANT SOL_SOCKET
@@ -61,8 +62,8 @@ CREATE REUSEADDR -1 ,
   socket DUP INVALID_SOCKET =
   IF WSAGetLastError
   ELSE 0
-       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
-       setsockopt OR
+\       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
+\       setsockopt OR
   THEN
 ;
 
@@ -73,8 +74,8 @@ USER TIMEOUT
   socket DUP INVALID_SOCKET =
   IF WSAGetLastError
   ELSE 0
-       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
-       setsockopt OR
+\       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
+\       setsockopt OR
        OVER >R 4 TIMEOUT SO_SNDTIMEO SOL_SOCKET R>
        setsockopt OR
        OVER >R 4 TIMEOUT SO_RCVTIMEO SOL_SOCKET R>
@@ -93,8 +94,6 @@ USER TIMEOUT
   socket DUP INVALID_SOCKET =
   IF WSAGetLastError
   ELSE 0
-\       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
-\       setsockopt OR
   THEN
 ;
 : CreateBroadcastSocket ( -- socket ior )
@@ -124,7 +123,9 @@ USER TIMEOUT
 ;
 : CloseSocket ( s -- ior )
   DUP >R 4 LINGER SO_LINGER SOL_SOCKET R> setsockopt DROP
-\  2 OVER shutdown DROP
+  100 PAUSE
+  2 ( SD_BOTH) OVER shutdown DROP
+  100 PAUSE
   closesocket SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
 ;
@@ -205,7 +206,7 @@ AF_INET sock_addr2 sin_family W!
   BindSocket
 ;
 : ListenSocket ( s -- ior )
-  100 SWAP listen SOCKET_ERROR =
+  ListenQlen SWAP listen SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
 ;
 CREATE SINLEN /sockaddr_in ,
@@ -216,8 +217,8 @@ CREATE SINLEN /sockaddr_in ,
   ROT accept DUP INVALID_SOCKET =
   IF WSAGetLastError
   ELSE 0
-       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
-       setsockopt OR
+\       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
+\       setsockopt OR
   THEN
 ;
 : NtoA ( IP -- addr u )

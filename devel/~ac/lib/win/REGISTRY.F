@@ -1,4 +1,5 @@
 ( 02.08.1999 Черезов А. )
+\ 28.03.2001 дополнения
 
 ( Работа с Windows Registry, замена библиотеки reg.txt двухлетней давности.
   Основные слова: 
@@ -25,7 +26,14 @@ WINAPI: RegEnumKeyA      ADVAPI32.DLL
 WINAPI: RegEnumValueA    ADVAPI32.DLL
 
 HEX
+80000000 CONSTANT HKEY_CLASSES_ROOT
+80000001 CONSTANT HKEY_CURRENT_USER
 80000002 CONSTANT HKEY_LOCAL_MACHINE
+80000003 CONSTANT HKEY_USERS
+80000004 CONSTANT HKEY_PERFORMANCE_DATA \ WinNT/2000
+\ #if(WINVER >= 0x0400)
+80000005 CONSTANT HKEY_CURRENT_CONFIG
+80000006 CONSTANT HKEY_DYN_DATA
 DECIMAL
 
  0 CONSTANT REG_NONE
@@ -166,4 +174,18 @@ HKEY_LOCAL_MACHINE EK !
 \    3130 S" HttpsRoutingPort" S" ProxyServer" NumValue!
 \    S" abcde" S" HttpsRoutingHost" S" ProxyServer" StrValue!
 \   ELSE NIP THEN
+\ ;
+
+\ : RG_QueryBigValue ( valuename-a valuename-u h -- addr u type )
+\   | data cbdata type name key |
+\   key ! DROP name !
+\   100000 ALLOCATE THROW data !  100000 cbdata !
+\   cbdata data @ type 0 name @ key @ RegQueryValueExA
+\   DUP 0= IF DROP data @ cbdata @ type @ ELSE S" " ROT THEN
+\   \ освобождать по FREE возвращенный data должна вызывающая программа!
+\   \ type=1=REG_SZ - строка, 4=REG_DWORD - число
+\ ;
+
+\ : TEST
+\   S" Global" HKEY_PERFORMANCE_DATA RG_QueryBigValue
 \ ;

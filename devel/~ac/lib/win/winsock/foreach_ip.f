@@ -6,9 +6,19 @@
               10.1.1.1      [пример] - адрес LAN-интерфейса
               194.186.20.62 [пример] - адрес WAN-интерфейса
 )
+\ Изменения 23.01.2002: Добавлен ExternIP для тех несчастных,
+\ кто работает за NAT-proxy, но хотят считать его IP своим
 
 REQUIRE {            ~ac/lib/locals.f
 REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
+
+VARIABLE ExternIP
+
+: ExternIP:
+  NextWord 2DUP + 0 SWAP C!
+  GetHostIP IF DROP 0 THEN
+  ExternIP !
+;
 
 : ForEachIP { xt \ addr -- ior }
 \ xt - процедура ( IP -- ), запускаемая для каждого IP
@@ -22,6 +32,7 @@ REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
             addr CELL+ CELL+ CELL+ @ @
             DO I @ 4 +LOOP
             0x0100007F xt EXECUTE \ localhost
+            ExternIP @ ?DUP IF xt EXECUTE THEN
             BEGIN
               DUP
             WHILE
@@ -31,8 +42,12 @@ REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
          ELSE DROP WSAGetLastError THEN
   ELSE WSAGetLastError THEN
 ;
+: IsLocalhost ( ip -- flag )
+  0xFF AND 0x7F =
+;
 : IsMyIP { ip \ addr sp -- flag }
-  ip 0x0100007F = IF TRUE EXIT THEN
+  ip ( 0x0100007F =) IsLocalhost IF TRUE EXIT THEN
+  ExternIP @ ?DUP IF ip = IF TRUE EXIT THEN THEN
   255 PAD gethostname 0=
   IF 
      PAD gethostbyname
@@ -54,12 +69,20 @@ REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
   GetHostIP IF DROP FALSE EXIT THEN
   IsMyIP
 ;
+: IsMyHostnameAndNotLocalhost ( addr u -- flag )
+  GetHostIP IF DROP FALSE EXIT THEN
+  DUP 0xFF AND 0x7F = IF DROP FALSE EXIT THEN
+  IsMyIP
+;
 (
-SocketsStartup . CR : TEST NtoA TYPE SPACE ; ' TEST ForEachIP CR . CR
+SocketsStartup . CR 
+ExternIP: 194.186.20.1
+: TEST NtoA TYPE SPACE ; ' TEST ForEachIP CR . CR
 1 IsMyIP . CR
 S" 127.0.0.1" GetHostIP THROW IsMyIP . CR
 S" 10.1.1.1" GetHostIP THROW IsMyIP . CR
 S" ac" IsMyHostname . CR
 S" localhost" IsMyHostname . CR
 S" somehost.com" IsMyHostname . CR
+S" 194.186.20.1" IsMyHostname . CR
 )

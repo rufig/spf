@@ -2,6 +2,7 @@
 ( А.Черезов 4.02.2000 )
 
 WINAPI: CoInitializeEx        OLE32.DLL
+WINAPI: CoUninitialize        OLE32.DLL
 WINAPI: CoCreateGuid          OLE32.DLL
 WINAPI: StringFromCLSID       OLE32.DLL
 WINAPI: CLSIDFromString       OLE32.DLL
@@ -9,8 +10,10 @@ WINAPI: CLSIDFromProgID       OLE32.DLL
 WINAPI: CoRegisterClassObject OLE32.DLL
 WINAPI: CoCreateInstance      OLE32.DLL
 WINAPI: CoGetClassObject      OLE32.DLL
-WINAPI: MultiByteToWideChar KERNEL32.DLL
-WINAPI: WideCharToMultiByte KERNEL32.DLL
+WINAPI: MultiByteToWideChar   KERNEL32.DLL
+WINAPI: WideCharToMultiByte   KERNEL32.DLL
+WINAPI: SysAllocString        OLEAUT32.DLL
+WINAPI: SysFreeString         OLEAUT32.DLL
 
 HEX
 80004002 CONSTANT E_NOINTERFACE
@@ -35,28 +38,39 @@ USER UnicodeBuf
   2DUP + 0 SWAP W!
 ;
 : UNICODE> ( addr u -- addr2 u2 )
+\ на входе - длина в байтах, а WideCharToMultiByte хочет к-во символов
+  2 /
+  1+ \ 0 в конце тоже считаем, т.к. он есть в результ.строке
   >R >R 0 0 R> R>
   DUP CELL+ ALLOCATE DROP UnicodeBuf ! \ 0 0 addr len
   SWAP >R                        \ 0 0 len
   DUP CELL+ UnicodeBuf @         \ 0 0 len len+4 mem
-  ROT R>                         \ 0 0 len+4 mem len addr
+  ROT ( можно поствить DROP -1 для авторасчета длины) 
+  R>                             \ 0 0 len+4 mem len addr
   0 ( flags) 0 ( CP_ACP)
   WideCharToMultiByte
   UnicodeBuf @ 
-  SWAP 
-  DUP 2/ SWAP 2 MOD +
-  2DUP + 0 SWAP W!
+  SWAP 1-
 ;
 : UASCIIZ> ( addr -- addr u ) \ вариант ASCIIZ> для Unicode
   0 OVER
   BEGIN
     DUP W@ 0<>
   WHILE
-    1+ SWAP 1+ SWAP
-  REPEAT DROP
+    2+ SWAP 1+ SWAP
+  REPEAT DROP 2*
+;
+: >BSTR ( addr u -- bstr )
+  >UNICODE DROP SysAllocString
+;
+: BSTR> ( bstr -- addr2 u2 )
+  DUP 4 - @ UNICODE>
 ;
 : ComInit ( -- ior )
   0 0 CoInitializeEx
+;
+: ComExit ( -- )
+  CoUninitialize DROP \ void
 ;
 : ComCreateGUID ( GUIaddr -- ior )
   CoCreateGuid
@@ -75,20 +89,10 @@ USER UnicodeBuf
   >UNICODE String>CLSID THROW >R
   R@ HERE 16 DUP ALLOT MOVE R> FREE THROW
 ;
-: ComCreateForthGUID
-  PAD ComCreateGUID . PAD 16 DUMP
-  S" ForthGUID.bin" R/W CREATE-FILE THROW >R
-  PAD 16 R@ WRITE-FILE THROW
-  R> CLOSE-FILE THROW
-  PAD CLSID>String . ( guid_text)
-  S" ForthGUID.txt" R/W CREATE-FILE THROW >R
-  ( guid_text) R@ WRITE-FILE THROW
-  R> CLOSE-FILE THROW
-;
 : ComGetForthGUID ( addr -- )
-  S" ForthGUID.bin" R/O OPEN-FILE THROW >R
-  16 R@ READ-FILE THROW DROP
-  R> CLOSE-FILE THROW
+  S" {C6DFBA32-DF7B-4829-AA3B-EE4F90ED5961}" \ используется во всех тестах
+  >UNICODE OVER >R
+  String>CLSID THROW DUP >R SWAP 16 MOVE R> FREE THROW R> FREE THROW
 ;
 : InvokeMethod ( parameters interface_pointer method_number -- result )
   \ interface_pointer, он же oid, будет передаваться первым параметром неявно
@@ -111,7 +115,7 @@ VARIABLE INTERFACES
     DUP ,               \ предок
     Methods#            \ к-во методов предка
     DUP ,               \ свои методы (к-во)
-    LATEST @ ,          \ своё имя
+    LATEST ,            \ своё имя
     HERE INTERFACES @ , INTERFACES ! \ связываемся в список
 ;
 
@@ -124,7 +128,7 @@ VARIABLE METHODS
     DUP , 1+    \ номер метода в VTBL
     2DUP SWAP Methods#!
     OVER ,      \ ссылка на интерфейс, в котором определен метод
-    LATEST @ ,  \ имя метода
+    LATEST ,    \ имя метода
     HERE METHODS @ , METHODS ! \ связываемся в список
   DOES> @ InvokeMethod
 ;
@@ -155,16 +159,30 @@ Interface: IID_IDispatch {00020400-0000-0000-C000-000000000046}
   Method: ::GetTypeInfo      ( ppTInfo lcid iTInfo oid -- hresult )
   Method: ::GetIDsOfNames    ( rgDispId lcid cNames rgszNames riid oid -- hresult )
   Method: ::Invoke           ( puArgErr pExcepInfo pVarResult pDispParams wFlags lcid riid dispIdMember oid -- hresult )
-  Method: ::RemoteInvoke
+\  Method: ::RemoteInvoke ( где я это взял? 8-O убрал 3.03.2002 ~ac)
 Interface;
 
+\ IID_IUnknown
+\ Interface: IID_IMarshal {00000003-0000-0000-C000-000000000046}
+\   Method: ::GetUnmarshalClass
+\   Method: ::GetMarshalSizeMax
+\   Method: ::MarshalInterface
+\   Method: ::UnmarshalInterface
+\   Method: ::ReleaseMarshalData
+\   Method: ::DisconnectObject
+\ Interface;
+\ не нужно реализовать интерфейс IMarshal, тогда Windows сам с ним справится :)
+
 ( при создании объекта Win2000 также пытается запросить интерфейсы
-  IMarshal, IStdMarshalInfo, IExternalConnection, и неизвестный с первым байтом 1B..)
+  IStdMarshalInfo, IExternalConnection, и неизвестный с первым байтом 1B..)
 
 : CreateObject ( addr u -- oid ior ) 
   \ addr u - имя программы, создающей требуемые объекты
   \ например S" WordPad.Document.1" CreateObject THROW -> WPDOC
-  >UNICODE ProgID>CLSID ?DUP IF EXIT THEN
+  OVER C@ [CHAR] { = >R
+  >UNICODE 
+  R> IF   String>CLSID ?DUP IF EXIT THEN
+     ELSE ProgID>CLSID ?DUP IF EXIT THEN THEN
   0 >R RP@ SWAP >R
   IID_IUnknown  \ для ActiveX удобнее было бы сразу просить IDispatch, но он не у всех есть
   CLSCTX_SERVER
@@ -187,6 +205,19 @@ Interface;
 : GetIDispatch ( oid -- idispatch ior )
   0 >R RP@ IID_IDispatch ROT ::QueryInterface R> SWAP
 ;
+: GetIdOfName ( idisp addr u -- n ior )
+  >UNICODE DROP >R RP@
+  0 >R RP@
+  ROT >R
+  SWAP 0 ( LOCALE_SYSTEM_DEFAULT) 1 ROT IID_NULL R> ::GetIDsOfNames
+  R> SWAP R> FREE THROW
+;
+: InvokeNamedMethod ( params idisp addr u -- results )
+  2>R DUP 2R> GetIdOfName THROW ( params idisp n )
+  65535 AND \ если запрашиваемое имя - не метода, а property, то там еще флаги
+  6 + InvokeMethod \ 6 - номер последнего метода в IDispatch
+;
+
 \ вызов метода по имени:
 \ GetIDsOfNames(IID_NULL, &pszName, 1, LOCALE_SYSTEM_DEFAULT, &dispid)
 \ pdisp->Invoke(dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, wFlags, &dispparams, pvRet, pexcepinfo, pnArgErr);

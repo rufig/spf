@@ -19,6 +19,8 @@ WINAPI: inet_addr       WS2_32.DLL
 WINAPI: inet_ntoa       WS2_32.DLL
 WINAPI: setsockopt      WS2_32.DLL
 WINAPI: shutdown        WS2_32.DLL
+WINAPI: gethostname     WS2_32.DLL
+WINAPI: select          WS2_32.DLL
 
 1  CONSTANT SOCK_STREAM
 2  CONSTANT SOCK_DGRAM
@@ -28,6 +30,7 @@ WINAPI: shutdown        WS2_32.DLL
 2  CONSTANT AF_INET
 6  CONSTANT IPPROTO_TCP
 17 CONSTANT IPPROTO_UDP
+1000 VALUE ListenQlen
 
 BASE @ HEX
 FFFF CONSTANT SOL_SOCKET
@@ -35,6 +38,7 @@ FFFF CONSTANT SOL_SOCKET
 0020 CONSTANT SO_BROADCAST
 1005 CONSTANT SO_SNDTIMEO
 1006 CONSTANT SO_RCVTIMEO
+0004 CONSTANT SO_REUSEADDR
 BASE !
 
 0
@@ -47,16 +51,19 @@ CONSTANT /sockaddr_in
 CREATE sock_addr HERE /sockaddr_in DUP ALLOT ERASE
 AF_INET sock_addr sin_family W!
 
-CREATE LINGER 1 W, 6000 W,
+CREATE LINGER 1 W, 30 W,
+\ 6000 W, слишком много, это в секундах, заменил на 30 - 26.06.2001 ~ac
+
 CREATE BROADCAST -1 ,
+CREATE REUSEADDR -1 ,
 
 : CreateSocket ( -- socket ior )
   IPPROTO_TCP SOCK_STREAM PF_INET
   socket DUP INVALID_SOCKET =
   IF WSAGetLastError
   ELSE 0
-       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
-       setsockopt OR
+\       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
+\       setsockopt OR
   THEN
 ;
 
@@ -67,8 +74,8 @@ USER TIMEOUT
   socket DUP INVALID_SOCKET =
   IF WSAGetLastError
   ELSE 0
-       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
-       setsockopt OR
+\       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
+\       setsockopt OR
        OVER >R 4 TIMEOUT SO_SNDTIMEO SOL_SOCKET R>
        setsockopt OR
        OVER >R 4 TIMEOUT SO_RCVTIMEO SOL_SOCKET R>
@@ -87,8 +94,6 @@ USER TIMEOUT
   socket DUP INVALID_SOCKET =
   IF WSAGetLastError
   ELSE 0
-\       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
-\       setsockopt OR
   THEN
 ;
 : CreateBroadcastSocket ( -- socket ior )
@@ -118,7 +123,9 @@ USER TIMEOUT
 ;
 : CloseSocket ( s -- ior )
   DUP >R 4 LINGER SO_LINGER SOL_SOCKET R> setsockopt DROP
-\  2 OVER shutdown DROP
+  100 PAUSE
+  2 ( SD_BOTH) OVER shutdown DROP
+  100 PAUSE
   closesocket SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
 ;
@@ -177,7 +184,7 @@ AF_INET sock_addr2 sin_family W!
   R> FREE THROW
 ;
 : SocketsStartup ( -- ior )
-  HERE 2 WSAStartup
+  HERE 257 WSAStartup
 ;
 : SocketsCleanup ( -- ior )
   WSACleanup
@@ -193,8 +200,13 @@ AF_INET sock_addr2 sin_family W!
   /sockaddr_in R> R> bind SWAP FREE DROP SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
 ;
+: ReusedBindSocket ( port s -- ior )
+  DUP >R 4 REUSEADDR SO_REUSEADDR SOL_SOCKET R>
+  setsockopt ?DUP IF NIP NIP EXIT THEN
+  BindSocket
+;
 : ListenSocket ( s -- ior )
-  100 SWAP listen SOCKET_ERROR =
+  ListenQlen SWAP listen SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
 ;
 CREATE SINLEN /sockaddr_in ,
@@ -205,8 +217,8 @@ CREATE SINLEN /sockaddr_in ,
   ROT accept DUP INVALID_SOCKET =
   IF WSAGetLastError
   ELSE 0
-       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
-       setsockopt OR
+\       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
+\       setsockopt OR
   THEN
 ;
 : NtoA ( IP -- addr u )
@@ -218,4 +230,17 @@ CREATE SINLEN /sockaddr_in ,
 \         #>
 \  [ BASE ! ]
   inet_ntoa ASCIIZ>
+;
+: AcceptSocketNotBlock ( s -- s2 ior )
+  0 >R 60 >R RP@ \ timeout 60 sec
+  SWAP
+  0 \ exc
+  0 \ write
+  ROT >R 1 >R RP@ \ read
+  0
+  select 
+  RDROP R> RDROP RDROP SWAP
+  DUP 0= IF DROP 10060 EXIT THEN
+  SOCKET_ERROR = IF WSAGetLastError EXIT THEN
+  AcceptSocket
 ;

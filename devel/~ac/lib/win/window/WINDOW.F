@@ -155,6 +155,7 @@ CREATE   CC_INITS 8 , BASE @ HEX 3FFF , BASE !
     IF
       0 0 wnd mem GetMessageA 0 >
       mem CELL+ @ WM_CLOSE <> AND
+      mem CELL+ @ WM_QUIT <> AND
     ELSE FALSE THEN
   WHILE
     DEBUG @ IF mem 16 DUMP CR THEN

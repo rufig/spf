@@ -94,7 +94,7 @@ CREATE DispParams2 0 , 0 , 0 , 0 ,
 ;
 : TEST7
   ComInit .
-  DispParams2 S" Scripting.FileSystemObject" CreateObject THROW
+  DispParams2 S" Scripting.FileSystemObject" CreateObject THROW DUP ." obj:" .
   S" GetTempName" InvokeNamedMethod . .
 ;
 VARIABLE FSI
