@@ -2,17 +2,55 @@ REQUIRE { ~ac/lib/locals.f
 
 USER STRLAST
 
+(
+: ValidateThreadHeap<
+  DEBUG @ IF CR ." <" VTH THEN
+;
+: ValidateThreadHeap>
+  DEBUG @ IF VTH ." >" CR THEN
+;
+
+\ VARIABLE DEBUG TRUE DEBUG !
+: ALLOCATE
+ValidateThreadHeap<
+  DEBUG @ IF ." ALLOCATE:" SP@ 4 TYPE CR THEN
+  ALLOCATE
+  OVER R@ SWAP CELL- !
+  DEBUG @ IF DUP IF ." ALLOCATE_FAILED" ELSE ." ALLOCATE_OK::[" OVER SP@ 4 TYPE ." ]" DROP THEN CR THEN
+ValidateThreadHeap>
+;
+: RESIZE1 ValidateThreadHeap< RESIZE   OVER R@ SWAP CELL- !
+ValidateThreadHeap>
+;
+: RESIZE
+ValidateThreadHeap<
+  DEBUG @ IF ." RESIZE:" SP@ 4 TYPE ." ::" OVER SP@ 4 TYPE DROP CR THEN
+  RESIZE
+  DEBUG @ IF DUP IF ." RESIZE_FAILED" ELSE   OVER R@ SWAP CELL- !
+  ." RESIZE_OK::[" OVER SP@ 4 TYPE ." ]" DROP THEN CR THEN
+ValidateThreadHeap>
+;
+: FREE
+ValidateThreadHeap<
+  DEBUG @ IF ." FREE:" DUP CELL- @ WordByAddr TYPE ." :[" SP@ 4 TYPE ." ]:" DUP 4 TYPE CR THEN
+  FREE
+  DEBUG @ IF DUP IF ." FREE_FAILED" ELSE ." FREE_OK" THEN CR THEN
+ValidateThreadHeap>
+;
+)
+
 : XCOUNT ( xs -- addr1 u1 )
 \ получить строку addr1 u1 из строки со счетчиком xs
 \ счетчик - ячейчка, а не байт, в отличие от обычного COUNT
   DUP @ SWAP CELL+ SWAP
+\ DEBUG @ IF 2DUP TYPE CR THEN
 ;
 : S'
   [CHAR] ' PARSE [COMPILE] SLITERAL
 ; IMMEDIATE
 
 : SALLOT ( addr u -- xs )
-  DUP 5 + ALLOCATE THROW >R
+  DUP 9 + ALLOCATE THROW >R
   DUP R@ ! R@ CELL+ SWAP CMOVE R>
 ;
 : sALLOT
@@ -26,6 +64,7 @@ USER STRLAST
 ;
 : STR@ ( s -- addr u )
   s@ XCOUNT
+\  DEBUG @ IF ." STR@:" 2DUP TYPE ." |" VTH CR THEN
 ;
 : STRFREE ( s -- )
   DUP s@ FREE THROW FREE THROW
@@ -35,8 +74,9 @@ USER STRLAST
   STRFREE
 ;
 : STR+ { addr u s -- }
+\ DEBUG @ IF ." STR+:" addr u TYPE CR THEN
   s s@ DUP @
-  u + 5 + RESIZE THROW DUP DUP s s!
+  u + 9 + RESIZE THROW DUP DUP s s!
   XCOUNT + addr SWAP u CMOVE
   u SWAP +!
 ;
@@ -53,13 +93,16 @@ USER STRLAST
   S" " sALLOT
 ;
 
-: {eval} ( ... s -- s ) { s \ sp }
+: {eval} ( ... s -- s ) { s \ sp base }
   SP@ -> sp
+  BASE @ -> base DECIMAL
   ['] INTERPRET CATCH
   ?DUP IF S" (Error: " s STR+
           ABS 0 <# [CHAR] ) HOLD #S #> s STR+
+          base BASE !
           s EXIT
        THEN
+  base BASE !
   sp SP@ - 
   DUP 12 = IF DROP s STR+ s EXIT THEN
   DUP  8 = IF DROP 0 <# #S #> s STR+ s EXIT THEN
@@ -105,7 +148,8 @@ STR@ ?SLITERAL
 R0 @ RP@ - - 4 + CONSTANT LOCALS_STACK_OFFSET
 STRFREE
 
-: {STR@LOCAL} ( addr u s -- ) { s }
+: {STR@LOCAL} ( addr u s -- ) { s \ base }
+  BASE @ -> base
   OVER C@ [CHAR] $ =
        IF 1- SWAP 1+ SWAP CONTEXT @ SEARCH-WORDLIST
           IF >BODY @ [ ALSO vocLocalsSupport ] LocalOffs [ PREVIOUS ] LOCALS_STACK_OFFSET +
@@ -120,6 +164,7 @@ STRFREE
                THEN
             ELSE S" {" s STR+ s STR+ S" }" s STR+ THEN
        THEN
+  base BASE !
 ;
 : (STR@LOCAL) ( -- s ) { \ s }
   "" -> s
@@ -130,7 +175,6 @@ STRFREE
     s STR+
     [CHAR] } PARSE ?DUP
     IF s {STR@LOCAL}
-       \ S" {" s STR+ s STR+ S" }" s STR+
     ELSE DROP THEN
   REPEAT
   s
@@ -196,13 +240,17 @@ CREATE _S""" CHAR " C,
 ;
 : S@ ( addr u -- addr2 u2 )
 \ вычислить {} в строке
+\ ValidateThreadHeap<
   (") STR@
+\ ValidateThreadHeap>
 ;
 : EVAL-FILE ( addr u -- addr1 u1 )
   FILE S@
 ;
 : S! ( addr u var_addr -- )
+\ ValidateThreadHeap<
   "" DUP ROT ! STR+
+\ ValidateThreadHeap>
 ;
 : LSTRFREE ( -- )
   STRLAST @ STRFREE
@@ -228,7 +276,8 @@ S" test7" 7  " test7__{n}{s}__test7" STYPE CR
 
 " test8_{5}__{S' test8'}_|{ \ nothing }|__{1 2 3}__" STYPE CR
 
-: TEST9 { \ str nn } " string" -> str 55 -> nn " __{$str}__{#nn}__" STYPE CR ; TEST9
+: TEST9 { \ str nn } " string" -> str 55 -> nn " __{$str}__{#nn}__" STYPE CR ;
+ TEST9
 
 : TEST { \ s } " zzz1" -> s S" test0" s STR! s STYPE CR ; TEST
 
