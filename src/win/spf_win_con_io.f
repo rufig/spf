@@ -59,7 +59,7 @@ VECT TYPE
 \ Программы, использующие управляющие символы, зависят от окружения.
   ANSI><OEM
   2DUP TO-LOG
-  H-STDOUT DUP IF WRITE-FILE THROW ELSE 2DROP DROP THEN
+  H-STDOUT DUP 0 > IF WRITE-FILE THROW ELSE 2DROP DROP THEN
 ;
 
 ' TYPE1 (TO) TYPE

@@ -26,7 +26,7 @@ FALSE VALUE ?CONSOLE
   \ ~day Ќа случай печати в GUI приложении запущеным из под Explorer  
   ?GUI
   IF
-    H-STDOUT 65537 = IF 0 TO H-STDOUT THEN
+    H-STDOUT 65537 = IF -1 TO H-STDOUT THEN \ Invalid handle
   THEN
 ;
 
