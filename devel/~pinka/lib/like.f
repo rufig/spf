@@ -129,19 +129,21 @@ EXPORT
   (LIKE-MASK) NIP NIP POSTPONE \
 ;
 : LIKE ( a1 u1 a-mask u-mask -- flag )
+  TUCK SALLOC DUP >R SWAP
   ['] LIKE-MASK\ EVALUATE-WITH
+  R> FREE THROW
 ;
 : ULIKE ( a1 u1 a-mask u-mask -- flag )
-  2SWAP TUCK SALLOC DUP >R SWAP 2DUP UPPERCASE
-  2SWAP TUCK SALLOC DUP >R SWAP 2DUP UPPERCASE
-  LIKE
+  2SWAP  TUCK SALLOC DUP >R SWAP 2DUP UPPERCASE
+  2SWAP  TUCK SALLOC DUP >R SWAP 2DUP UPPERCASE
+  ['] LIKE-MASK\ EVALUATE-WITH
   R> FREE THROW  R> FREE THROW
 ;
 
 ;MODULE \ WildCardsSupport
 
  ( example
-  S" Zbaabbb777778" S" ?b*7*8" ULIKE .
+  S" Zbaabbb777778" S" ?b*7*8" LIKE .
   S" 012WebMaster" S" ???w??mas*" ULIKE .
   S" INBOX" S" INBOX*" ULIKE .
   S" http://blablabla.html?.newshub.eserv.ru/" S" http://*\?.*/"  ULIKE .
