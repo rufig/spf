@@ -10,8 +10,10 @@ USER     HLD  \ переменная - позиция последней литеры, перенесенной в PAD
 USER     BASE ( -- a-addr ) \ 94
 \ a-addr - адрес ячейки, содержащей текущее основание системы счисления (2..36).
 
+4096 DUP CONSTANT NUMERIC-OUTPUT-LENGTH
+
 USER-CREATE SYSTEM-PAD
-4096 TC-USER-ALLOT \ Область форматного преобразования - обязательно перед PAD
+TC-USER-ALLOT \ Область форматного преобразования - обязательно перед PAD
 
 USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ c-addr - адрес области для промежуточной обработки данных.
@@ -175,11 +177,13 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 ;
 
 : ANSI>OEM ( addr u -- addr u )
+  NUMERIC-OUTPUT-LENGTH 1- MIN \ чтобы не порушить форт систему ~day
   DUP ROT ( u u addr )
   SYSTEM-PAD SWAP CharToOemBuffA DROP
   SYSTEM-PAD SWAP
 ;
 : OEM>ANSI ( addr u -- addr u )
+  NUMERIC-OUTPUT-LENGTH 1- MIN \ чтобы не порушить форт систему ~day
   DUP ROT ( u u addr )
   SYSTEM-PAD SWAP OemToCharBuffA DROP
   SYSTEM-PAD SWAP
@@ -189,6 +193,7 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ дать длину строки при выводе (при печати)
 \  - число знакомест, которое строка займет на экране.
 \ addr n  - строка. n1 число знакомест на экран.
+  2DUP SWAP . . CR
   0 -ROT OVER + SWAP ?DO
     I C@ 9 = IF 3 RSHIFT 1+ 3 LSHIFT
     ELSE 1+ THEN
