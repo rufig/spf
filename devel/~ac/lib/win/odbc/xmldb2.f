@@ -36,20 +36,38 @@ VARIABLE SqlQ
 USER &escape_tmp
 : &escape1
   BEGIN
-    [CHAR] & PARSE DUP
+    #TIB @ >IN @ >
   WHILE
+    [CHAR] & PARSE
     &escape_tmp @ STR+
     CharAddr #TIB @ >IN @ - DUP -1 >
     IF 4 MIN S" amp;" COMPARE 0=
        IF S" &" ELSE S" &amp;" THEN &escape_tmp @ STR+
     ELSE 2DROP THEN
-  REPEAT 2DROP
+  REPEAT
 ;
 : &escape
   2DUP S" &" SEARCH NIP NIP 0= IF EXIT THEN
   "" &escape_tmp !
   ['] &escape1 EVALUATE-WITH
   &escape_tmp @ STR@
+;
+USER <escape_tmp
+: <escape1
+  BEGIN
+    #TIB @ >IN @ >
+  WHILE
+    [CHAR] < PARSE
+    <escape_tmp @ STR+
+    #TIB @ >IN @ - -1 >
+    IF S" &lt;" <escape_tmp @ STR+ THEN
+  REPEAT
+;
+: <escape
+  2DUP S" <" SEARCH NIP NIP 0= IF EXIT THEN
+  "" <escape_tmp !
+  ['] <escape1 EVALUATE-WITH
+  <escape_tmp @ STR@
 ;
 : SqlQueryResult
   { \ n s }
@@ -64,7 +82,7 @@ USER &escape_tmp
       I 1+ OVER 2DUP
       ColName 2SWAP Col DUP 1 < 
       IF 2DROP S" 0" 
-      ELSE &escape THEN 
+      ELSE &escape <escape THEN 
       2OVER
       " <{s}>{s}</{s}>" s S+
     LOOP DROP
@@ -116,8 +134,10 @@ USER &escape_tmp
   SqlQ @ FREE DROP
 ; 
 
-\  S" Driver={Microsoft Text Driver (*.txt; *.csv)};DefaultDir=G:\Eserv3\CONF\lists" SqlInit
-\ S" select * from [AS.txt]" SqlQueryXml TYPE
+\ S" Driver={Microsoft Access Driver (*.mdb)};DBQ=G:\PRO\my-web\ds_new\db\eserv_msgbase.mdb" SqlInit
+\ S" select * from sp_text" SqlQueryXml TYPE
+\ S" Driver={Microsoft Text Driver (*.txt; *.csv)};DefaultDir=G:\Eserv3\CONF.orig\lists" SqlInit
+\ S" select * from [LocalDomains.txt]" SqlQueryXml TYPE
 \ CR CR
 \ S" select EMAIL_TO as Email, COUNT(EMAIL_TO) as Msgs, SUM(SIZE) as Total from [200307mail-spam.txt] group by EMAIL_TO order by COUNT(EMAIL_TO)" SqlQueryXml TYPE
 \ SqlExit
