@@ -54,15 +54,13 @@ REQUIRE SPARSETO    ~pinka\lib\ext\parse.f
 USER-VECT Action
 USER-VALUE #Col
 USER-VALUE RowId
-USER-VALUE vHashT
+USER-VALUE HashT
 USER-VALUE qSql
 USER-CREATE dTableName       2 CELLS USER-ALLOT
 USER-CREATE dWhereCondition  2 CELLS USER-ALLOT
 
-: HashT ( -- h )
-  vHashT DUP 0= IF
-  DROP small-hash
-  DUP TO vHashT THEN
+: HashT! ( h -- )
+  TO HashT
 ;
 
 \ =================================================
@@ -300,6 +298,8 @@ USER-VALUE h-tbl
   CloseNewTbl
   qSql ReconnectSQL SqlThrow
   MakeTbl
+
+  HashT del-hash  0 HashT!
 ;
 
 \ ===============================================
@@ -321,7 +321,7 @@ GET-CURRENT ALSO SqlLex DEFINITIONS
 \ --------------------------------
 : UPDATE ( -- sql_ior )
   NextWord dTableName 2!
-  HashT clear-hash
+  small-hash HashT!
   ['] SqlTxtUpdate TO Action
 ;
 : SET ( -- )
