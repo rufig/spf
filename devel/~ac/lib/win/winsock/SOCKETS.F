@@ -41,6 +41,8 @@ FFFF CONSTANT SOL_SOCKET
 0004 CONSTANT SO_REUSEADDR
 BASE !
 
+SO_LINGER INVERT CONSTANT SO_DONTLINGER
+
 0
 2 -- sin_family
 2 -- sin_port
@@ -125,7 +127,13 @@ USER TIMEOUT
   DUP >R 4 LINGER SO_LINGER SOL_SOCKET R> setsockopt DROP
 \  100 PAUSE
   2 ( SD_BOTH) OVER shutdown DROP
-\  100 PAUSE
+  100 PAUSE
+  closesocket SOCKET_ERROR =
+  IF WSAGetLastError ELSE 0 THEN
+;
+: FastCloseSocket ( s -- ior )
+  DUP >R 4 LINGER SO_DONTLINGER SOL_SOCKET R> setsockopt DROP
+\  2 ( SD_BOTH) OVER shutdown DROP
   closesocket SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
 ;
