@@ -36,10 +36,10 @@ REQUIRE ON         lib\ext\onoff.f
 
 \ в этом словаре хранится список dll, в которых ищется функция
 VOCABULARY API-FUNC-VOC
-USER ANSIAPI
+VARIABLE ANSIAPI
 ANSIAPI ON
 \ либа замедляет цикл интерпретации, поэтому нужна возможность отключать ее
-USER API-FUNC
+VARIABLE API-FUNC
 API-FUNC ON
 
 : USES ( "name.dll" -- ) \ подключение dll к списку поиска
