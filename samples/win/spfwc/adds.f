@@ -1,6 +1,5 @@
 \ подключение дополнительных либ
 
-REQUIRE CODE	lib\ext\spf-asm.f
 S" lib\ext\disasm.f"	INCLUDED
 REQUIRE F.	lib\include\float2.f
 REQUIRE MDSW:	~af\lib\4interp.f

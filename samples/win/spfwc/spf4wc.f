@@ -11,6 +11,7 @@
 \ GUI console ver 0.4 ...
 \ DAY, Jan-2001
 
+REQUIRE CODE	lib\ext\spf-asm.f
 REQUIRE ((	~af\lib\c\prefixfun.f
 REQUIRE AT	~af\lib\var.f
 REQUIRE {	~af\lib\locals.f
