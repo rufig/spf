@@ -108,17 +108,15 @@ VARIABLE IN-EXCEPTION
 ;
 ' EXC-DUMP1 (TO) <EXC-DUMP>
 
-: TITLE
-  CGI? @ 0= ( ?GUI 0= AND)
-  IF
-    ." SP-FORTH - ANS FORTH 94 for Win95/98/ME/NT/2000/XP" CR
-    ." Open source project at http://spf.sf.net" CR
-    ." Russian FIG at http://www.forth.org.ru ; Started by A.Cherezov" CR
-    ." Version " VERSION 1000 / 0 <# # # [CHAR] . HOLD # #> TYPE
-    ."  Build " VERSION 0 <# # # # #> TYPE
-    ."  at " BUILD-DATE COUNT TYPE CR CR
-  THEN
+: (TITLE)
+  ." SP-FORTH - ANS FORTH 94 for Win95/98/ME/NT/2000/XP" CR
+  ." Open source project at http://spf.sf.net" CR
+  ." Russian FIG at http://www.forth.org.ru ; Started by A.Cherezov" CR
+  ." Version " VERSION 1000 / 0 <# # # [CHAR] . HOLD # #> TYPE
+  ."  Build " VERSION 0 <# # # # #> TYPE
+  ."  at " BUILD-DATE COUNT TYPE CR CR
 ;
+: TITLE  CGI? @ 0=  ?GUI 0= AND IF (TITLE) THEN ;
 ' TITLE ' MAINX EXECUTE !
 
 : SPF-INI
@@ -152,7 +150,8 @@ TRUE VALUE SPF-INIT?
   SPF-INIT?
   IF
     ['] SPF-INI ERR-EXIT
-  THEN OPTIONS
+    ['] OPTIONS ERR-EXIT
+  THEN
   CGI? @ 0= POST? @ OR IF ['] <MAIN> ERR-EXIT THEN
   BYE
 ;
