@@ -198,8 +198,7 @@ VARIABLE   &INTERPRET
     ['] ERROR CATCH DROP
  (  R0 @ RP! \ стек не сбрасываем, т.к. это за нас делает CATCH :)
 
-   \ если расскомментарить, то будут глюки с http://www.codeproject.com/dialog/quickwin.asp
-    \ да и пусть OPTIONS оставляет что-то на стеке, вдруг понадобится (~day)
+    \ пусть OPTIONS оставляет что-то на стеке, вдруг понадобится (~day)
      \ S0 @ SP! \ стек    сбрасываем, т.к. OPTIONS может оставить значения :(
   AGAIN
 ;

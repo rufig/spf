@@ -41,7 +41,11 @@ VECT ACCEPT
 \ Ничего не добавляется в строку.
 \ +n2 - длина строки, записанной по адресу c-addr.
   OVER SWAP
-  H-STDIN READ-LINE THROW DROP
+  H-STDIN READ-LINE
+  
+  DUP 109 = IF DROP -1002 THEN THROW ( ~ruv)
+  0= IF -1002 THROW THEN ( ~ac)
+  
   TUCK TO-LOG
   LT LTL @ TO-LOG \ Если ввод с user-device записать cr в лог, то есть нажали Enter
 ;

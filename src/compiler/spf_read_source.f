@@ -62,7 +62,11 @@ USER CURSTR \ номер строки
      ELSE DROP FALSE EXIT THEN
   ELSE SOURCE-ID
      IF 2DROP FALSE EXIT THEN ( evaluate string )
-     ACCEPT #TIB ! ( user input )
+     ['] ACCEPT CATCH ?DUP \ -1002=конец файла или pipe
+                            \ остальные ошибки - ошибки чтения
+     IF -1002 = IF FALSE EXIT THEN
+        THROW
+     ELSE #TIB ! THEN ( user input )
   THEN
   >IN 0! <PRE> -1
 ;
