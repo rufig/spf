@@ -3,6 +3,8 @@
 )
 
 
+3968 CONSTANT #ST-RES
+
 HEX IMAGE-BASE 1034 + CONSTANT AddrOfLoadLibrary      \ адреса процедур в spf-stub.exe
     IMAGE-BASE 1038 + CONSTANT AddrOfGetProcAddress
 DECIMAL

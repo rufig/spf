@@ -17,7 +17,8 @@ H-STDERR VALUE  H-STDERR   \ хэндл файла - стандартного вывода ошибок
 \ Ввод прерывается, когда получен символ "конец строки".
 \ Ничего не добавляется в строку.
 \ +n2 - длина строки, записанной по адресу c-addr.
-  H-STDIN READ-LINE THROW DROP
+  H-STDIN READ-LINE THROW
+  0= IF -1002 THROW THEN
 ;
 
 : EMIT ( x -- ) \ 94

@@ -1047,47 +1047,49 @@ CODE SEARCH ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 flag ) \ 94 STRING
       RET
 END-CODE
 
-\ CODE CMOVE ( c-addr1 c-addr2 u -- ) \ 94 STRING
-\ Если u больше нуля, копировать u последовательных символов из пространства 
-\ данных начиная с адреса c-addr1 в c-addr2, символ за символом, начиная с 
-\ младших адресов к старшим.
-\        PUSH EDI
-\        XCHG EBP, ESP
-\        POP ECX
-\        POP EDI
-\        POP ESI
-\        JCXZ @@1
-\        CLD
-\        REP MOVS BYTE
-\ @@1:   XCHG EBP, ESP
-\        POP EDI
-\        RET
-\ END-CODE
-( заменено более быстрой реализацией [C] Dmitry Yakimov [ftech@tula.net] )
-( 07.03.2000 )
-
 CODE CMOVE ( c-addr1 c-addr2 u -- ) \ 94 STRING
 \ Если u больше нуля, копировать u последовательных символов из пространства 
 \ данных начиная с адреса c-addr1 в c-addr2, символ за символом, начиная с 
 \ младших адресов к старшим.
        PUSH EDI
        XCHG EBP, ESP
-       POP ECX \ u
-       POP EDI \ addr2
-       POP ESI \ addr1
-       JCXZ @@2
-       CLD
-       MOV EAX, ECX
-       SHR ECX, # 2
+       POP ECX
+       POP EDI
+       POP ESI
        JCXZ @@1
-       REP MOVS DWORD
-@@1:   MOV ECX, EAX
-       AND ECX, # 3
+       CLD
        REP MOVS BYTE
-@@2:   XCHG EBP, ESP
+@@1:   XCHG EBP, ESP
        POP EDI
        RET
 END-CODE
+( заменено более быстрой реализацией [C] Dmitry Yakimov [ftech@tula.net] )
+( 07.03.2000 )
+\ более быстрая реализация отключена 13.03.2003, 
+\ ~1001 говорит, что она не работает на >64K
+
+\ CODE CMOVE ( c-addr1 c-addr2 u -- ) \ 94 STRING
+\ Если u больше нуля, копировать u последовательных символов из пространства 
+\ данных начиная с адреса c-addr1 в c-addr2, символ за символом, начиная с 
+\ младших адресов к старшим.
+\       PUSH EDI
+\       XCHG EBP, ESP
+\       POP ECX \ u
+\       POP EDI \ addr2
+\       POP ESI \ addr1
+\       JCXZ @@2
+\       CLD
+\       MOV EAX, ECX
+\       SHR ECX, # 2
+\       JCXZ @@1
+\       REP MOVS DWORD
+\ @@1:   MOV ECX, EAX
+\       AND ECX, # 3
+\       REP MOVS BYTE
+\ @@2:   XCHG EBP, ESP
+\       POP EDI
+\       RET
+\ END-CODE
 
 
 CODE CMOVE> ( c-addr1 c-addr2 u -- ) \ 94 STRING
