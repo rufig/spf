@@ -8,6 +8,8 @@ REQUIRE WinNT?       ~ac/lib/win/winver.f
 WINAPI: DeviceIoControl KERNEL32.DLL
 
 VARIABLE DNS-SERVERS
+VARIABLE DNS-COUNT
+
 : S, ( addr u -- )
   HERE SWAP DUP ALLOT MOVE
 ;
@@ -28,6 +30,7 @@ VARIABLE DNS-SERVERS
 : DNS,, ( addr u -- )
   2DUP ,>BL
   ['] DNS,,x EVALUATE-WITH
+  DNS-COUNT 1+!
 \  #TIB ! TO TIB >IN 0!
 \  BEGIN
 \    BL WORD DUP C@
@@ -77,6 +80,7 @@ VARIABLE DNS-SERVERS
   ELSE DROP THEN
 ;
 : GetDNS ( -- addr )
+  DNS-COUNT 0!
   WinNT? IF GetNT_DNS ELSE Get95_DNS THEN
   0 ,
   DNS-SERVERS @
