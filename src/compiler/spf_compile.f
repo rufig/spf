@@ -39,8 +39,8 @@ HEX
 ;
 
 : BRANCH, ( ADDR -> ) \ скомпилировать инструкцию ADDR JMP
-  SetOP SetJP E9 C,
-  DP @ CELL+ - ,    DP @ TO LAST-HERE
+  ?SET SetOP SetJP E9 C,
+  DUP IF DP @ CELL+ - THEN ,    DP @ TO LAST-HERE
 ;
 
 : RET, ( -> ) \ скомпилировать инструкцию RET
@@ -65,6 +65,7 @@ HEX
 ;
 
 : ?BRANCH, ( ADDR -> ) \ скомпилировать инструкцию ADDR ?BRANCH
+  ?SET
   084 TO J_COD
   ['] DROP
   0xC00B W,    \ OR EAX, EAX
@@ -77,7 +78,7 @@ HEX
   J_COD    \  JX без 0x0F
   0x0F     \  кусок от JX
   C, C,
-  DP @ CELL+ - , DP @ TO LAST-HERE
+  DUP IF DP @ CELL+ - THEN , DP @ TO LAST-HERE
 ;
 
 DECIMAL

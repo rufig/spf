@@ -36,8 +36,9 @@
   ( расширенный вариант ?SLITERAL1:
     если строка - не число, то пытаемся трактовать её
     как имя файла для авто-INCLUDED)
-  2DUP 2 MIN S" 0x" COMPARE 0= 
-  IF 2DUP 2>R HEX-SLITERAL IF RDROP RDROP EXIT ELSE 2R> THEN THEN
+  DUP 1 > IF OVER W@ 0x7830 ( 0x) = 
+    IF 2DUP 2>R HEX-SLITERAL IF RDROP RDROP EXIT ELSE 2R> THEN THEN
+  THEN
   2DUP 2>R ['] ?SLITERAL1 CATCH
   IF   2DROP 2R>
        OVER C@ [CHAR] " = OVER 2 > AND

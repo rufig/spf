@@ -1148,6 +1148,11 @@ CODE C-?DO
       RET
 END-CODE
 
+CODE  ADD[ESP],EAX 
+      ADD [ESP] , EAX 
+      RET
+END-CODE
+
 CODE C-I
       LEA EBP, -4 [EBP]
       MOV [EBP], EAX
@@ -1404,6 +1409,30 @@ CODE TRAP-CODE ( D: j*x u R: i*x i -- i*x u )
      JNZ  SHORT @@1
      ADD  ESP, ECX
 @@2: JMP  EDX
+END-CODE
+
+CODE (ENTER) ( {4*params ret_addr} -- 4*params R: ret_addr ebp ) \ 09.09.2002
+\ отодвинуть стек возвратов и сохранить EBP на стеке возвратов.
+\ необходимо при ручном кодировании входа в callback, т.к.
+\ комбинация SP@ >R портит слово по адресу EBP,
+\ а оно может быть нужно вызывающей процедуре :)
+     POP  EBX       \ адрес возврата из ENTER
+     POP  ESI       \ адрес возврата из CALLBACK/WNDPROC
+     MOV  EAX, EBP
+     MOV  EBP, ESP
+
+     XOR  EDX, EDX
+     MOV  ECX, # 32
+@@1: PUSH EDX
+     DEC  ECX
+     JNZ  @@1
+
+     PUSH ESI
+     PUSH EAX
+     MOV EAX, [EBP]
+     LEA EBP, 4 [EBP]
+
+     JMP  EBX
 END-CODE
 
 DECIMAL

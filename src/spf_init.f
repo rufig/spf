@@ -7,7 +7,7 @@ VARIABLE MAINX
 TC-USER-HERE ' USER-OFFS EXECUTE !
 
 : AT-THREAD-STARTING ( -- ) ...  ;
-: AT-PROCESS-STARTING ( -- ) ... CONSOLE-HANDLES ;
+: AT-PROCESS-STARTING ( -- ) ... ;
 : AT-THREAD-FINISHING ( -- ) ... ;
 
 : POOL-INIT ( n -- )
@@ -32,6 +32,7 @@ TC-USER-HERE ' USER-OFFS EXECUTE !
 : USER-INIT ( n )
 \ n - размер параметров, к-е Windows передает callback процедуре (в байтах)
   CREATE-HEAP
+  <SET-EXC-HANDLER>
   POOL-INIT
 ;
 \ один раз на задачу
@@ -48,7 +49,9 @@ TC-USER-HERE ' USER-OFFS EXECUTE !
   ['] TYPE1      TO TYPE
   ['] KEY1       TO KEY
   ['] (INCLUDED1) TO (INCLUDED)
-  USER-INIT
+  CREATE-HEAP
+  <SET-EXC-HANDLER>
+  POOL-INIT
 ;
 
 : USER-EXIT
@@ -81,7 +84,7 @@ VARIABLE IN-EXCEPTION
   ."  REGISTERS:"
   DUP 4 CELLS + @ CELLS + \ может быть указано смещение структуры на 2 CELLS
   176 + DUP 12 CELLS DUMP CR
-  ." USER DATA: " TlsIndex@ U.
+  ." USER DATA: " TlsIndex@ U. ." THREAD ID: " 36 FS@ U.
   ." HANDLER: " HANDLER @ U.
   ." RETURN STACK:" CR
   6 CELLS + DUP @ \ DUP 65000 > IF NIP ELSE DROP CELL+ CELL+ @ THEN

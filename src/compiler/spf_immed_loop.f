@@ -84,20 +84,17 @@ HEX
 \ пределом цикла минус единица и пределом цикла, продолжить выполнение с
 \ начала цикла. Иначе убрать параметры цикла и продолжить выполнение сразу
 \ за циклом.
-   ?COMP  
-    0x810FFC45
-    0x8B240401
-\ ADD     [ESP] , EAX
-\ MOV     EAX , FC [EBP]
-\ JNO 
-  ['] NIP INLINE, SetOP , , 
-  -5 ALLOT SetOP 
-   3 ALLOT SetOP
-   2 ALLOT
-  DP @ CELL+ -  ,
-  SetOP 0x0C24648D , \ lea esp, 0xC [esp]
+  ?COMP  
+  ['] ADD[ESP],EAX  INLINE,
+  ['] DROP INLINE,
+  HERE 2+ - DUP SHORT?   SetOP SetJP
+  IF
+    71 C, C, \ jno short 
+  ELSE
+    4 - 0F C, 81 C, , \ jno near
+  THEN    SetOP
+  0C24648D , \ lea esp, 0c [esp]
   DP @ SWAP !
-
 ; IMMEDIATE
 
 : I   \ 94

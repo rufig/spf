@@ -210,14 +210,14 @@ VARIABLE   &INTERPRET
 \   система находится в состоянии интерпретации, все процессы завершены,
 \   и нет неоднозначных ситуаций.
   BEGIN
-    [COMPILE] [
-    ['] MAIN1 CATCH 
-    \ DUP IF DUP SAVE-ERR THEN
     CONSOLE-HANDLES
     0 TO SOURCE-ID
     0 TO SOURCE-ID-XT
+    [COMPILE] [
+    ['] MAIN1 CATCH
     ['] ERROR CATCH DROP
- ( S0 @ SP! R0 @ RP! \ стеки не сбрасываем, т.к. это за нас делает CATCH :)
+ (  R0 @ RP! \ стек не сбрасываем, т.к. это за нас делает CATCH :)
+    S0 @ SP! \ стек    сбрасываем, т.к. OPTIONS может оставить значения :(
   AGAIN
 ;
 

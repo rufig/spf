@@ -35,8 +35,10 @@ HEX
   HERE IMAGE-BEGIN -  1FF + 200 / 200 *
           HERE 1B0 + ! ( PhisicalSize )
 
+  2 HERE 086 + W!
   RESOURCES-RVA @ HERE 108 + !
   RESOURCES-SIZE @ HERE 10C + !
+  HERE 1C8 + 38 ERASE
 
   HERE 400 R@ WRITE-FILE THROW ( заголовок и таблица импорта )
   HERE 200 ERASE

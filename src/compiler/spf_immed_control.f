@@ -15,7 +15,7 @@
 \ ¬рем€ выполнени€: ( x -- )
 \ ≈сли все биты x нулевые, продолжать выполнение с позиции, заданной 
 \ разрешением orig.
-  ?COMP DP @ ?BRANCH, >MARK 1
+  ?COMP 0 ?BRANCH, >MARK 1
 ; IMMEDIATE
 
 : ELSE \ 94
@@ -28,7 +28,7 @@
 \ семантики выполнени€.
 \ ¬рем€ выполнени€: ( -- )
 \ ѕродолжить выполнение с позиции, заданной разрешением orig2.
-  ?COMP DP @ BRANCH,
+  ?COMP 0 BRANCH,
   >ORESOLVE
   >MARK 2
 ; IMMEDIATE
@@ -68,7 +68,7 @@
   ?BRANCH,
   0xFFFFFF80  DP @ 4 - @  U<
   IF  DP @ 5 - W@ 0x3F0 + DP @ 6 - W!   -4 ALLOT
-  THEN
+  THEN  DP @ TO :-SET
 ; IMMEDIATE
 
 : WHILE \ 94
@@ -114,7 +114,7 @@
   DUP DP @ 2+ - DUP
   SHORT?
   IF SetJP 0xEB C, C, DROP
-  ELSE DROP BRANCH, THEN
+  ELSE DROP BRANCH, THEN  DP @ TO :-SET
 ; IMMEDIATE
 
 : RECURSE   \ 94
