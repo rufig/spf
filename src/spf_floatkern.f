@@ -354,44 +354,41 @@ END-CODE
 
 \ e^(x) = 2^(x * LOG{2}e)
 
-CODE FEXP  \ *
-       FLDL2E
-       FMULP ST(1), ST
-       FXTRACT            
-       FXCH  ST(1)
-       LEA   ESP, -4 [ESP]
-       FISTP DWORD [ESP] 
-       PUSH  # 4
-       FIDIV [ESP]
-       F2XM1
+CODE FEXP
+       FLDL2E                \ normalize
+       FMULP ST(1), ST(0)
+       LEA EBP, -4 [EBP]     \ set rounding mode to truncate
+       MOV [EBP], EAX
+       FSTCW  DWORD -4 [EBP]
+       MOV EAX, -4 [EBP]
+       AND AH, # 0F3
+       OR  AH, # 0C
+       MOV -8 [EBP], EAX
+       FLDCW DWORD -8 [EBP]
+       FLD ST(0)                    \ get integer and fractional parts
+       FRNDINT
+       FXCH ST(1)
+       FSUB ST(0), ST(1)
+       F2XM1                        \ exponentiate fraction
        FLD1
-       FADDP ST(1), ST    
-       MOV  ECX, # 2
-       POP  EBX
-       POP  EBX
-       ADD  ECX, EBX
-@@1:   FMUL ST, ST(0)
-       LOOP @@1
+       FADDP ST(1), ST(0)
+       FSCALE                        \ scale in integral part
+       FXCH ST(1)                    \ clean up
+       FCOMP ST(1)
+       FLDCW DWORD -4 [EBP]
+       MOV EAX, [EBP]
+       LEA EBP, 4 [EBP]
        RET
 END-CODE
 
 CODE FEXPM1
-       FLDL2E
-       FMULP ST(1), ST(0)
-       FLD ST(0)
-       FLD ST(0)
-       FRNDINT
-       FSUBP ST(1), ST(0)
-       F2XM1
-       FLD1
-       FADDP ST(1), ST(0)
-       FSCALE
-       FSTP ST(1)
+       CALL ' FEXP
        FLD1 
        FSUBP ST(1), ST
        RET
 END-CODE
 
+\ X>0
 CODE F**     \ *
        FXCH
        FYL2X
