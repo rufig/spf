@@ -2,6 +2,8 @@
 \ Идея реализации - А. Черезов
 \ Ю. Жиловец, 17.12.2002
 
+REQUIRE CZMOVE ~yz/lib/common.f
+
 MODULE: GMEM
 
 EXPORT

@@ -1,4 +1,4 @@
-\ WINLIB 0.90
+\ WINLIB 1.00
 \ Библиотека пользовательского интерфейса Windows
 \ ч. 2. Стандартные элементы интерфейса и их размещение
 \ Ю. Жиловец, 2.02.2002
@@ -576,6 +576,26 @@ WINAPI: SetParent USER32.DLL
 
 : remove ( ctl -- ) 
   DUP winhide 0 SWAP -parent! ;
+
+\ Быстрая инициализация текущего объекта
+\ (/ -font f  -color blue  -bgcolor white  -size 100 200 /)
+
+-1 == -size
+
+: (/  (( ;
+: /) ( ... -- )
+  )) DO
+  I @ CASE
+  -size OF 
+    I CELL- @ I 2 CELLS - @ this ctlresize
+    3 ( параметра)
+  ENDOF
+    I CELL- @ SWAP this setproc
+    2 ( параметра)
+  END-CASE
+  CELLS NEGATE +LOOP
+  remove-stack-block
+;
 
 \ -----------------------------
 \ Сетки
