@@ -3,7 +3,7 @@
 
 REQUIRE STR@ ~ac/lib/str2.f
 
-REQUIRE SPLIT- ~pinka\samples\2005\lib\split.f
+REQUIRE SPLIT ~pinka\samples\2005\lib\split.f
 
 : replace-str ( s-what s-to s -- )
   \ заменить  s-what на s-to в s
