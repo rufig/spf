@@ -1,3 +1,8 @@
+\ DLL/SO - словари
+
+REQUIRE HEAP-COPY heap-copy.f
+REQUIRE DLOPEN    dlopen.f
+
 : OBJ-DATA@ ( oid -- data )
 \ Данные объекта (instance).
 \ Для форт-словарей возвращает указатель на имя последнего слова в списке (канон),
@@ -33,38 +38,96 @@
 ;
 ' SEARCH-WORDLIST-V TO SEARCH-WORDLIST
 
-VOCABULARY DLL-CLASS
-GET-CURRENT ALSO DLL-CLASS DEFINITIONS
+USER _PAS-EXEC \ без локальных переменных неудобно ;)
+: PAS-EXEC ( ... n dll-xt -- x )
+\ n - число параметров на стеке для dll-функции
+\ Параметры снимает вызываемый.
+  _PAS-EXEC !
+  ?DUP IF N>R RDROP THEN
+  0 _PAS-EXEC @ EXECUTE
+;
+USER _C-EXEC
+: C-EXEC ( ... n dll-xt -- x )
+\ n - число параметров на стеке для dll/so-функции
+\ Параметры снимает вызывающий.
+  _PAS-EXEC ! DUP _C-EXEC !
+  ?DUP IF N>R RDROP THEN
+  _C-EXEC @ 0 _PAS-EXEC @ EXECUTE
+  SWAP BEGIN DUP WHILE RDROP 1- REPEAT DROP
+;
+\ если на стеке только адрес функции и параметры,
+\ то число параметров можно посчитать автоматом.
 
-: SEARCH-WORDLIST-DLL ( c-addr u oid -- 0 | xt 1 | xt -1 )
+: SPAS-EXEC ( dll-xt ... -- x )
+  DEPTH 1- N>R RDROP 0 SWAP EXECUTE
+;
+: SC-EXEC ( dll-xt ... -- x )
+  DEPTH 1- _C-EXEC !
+  DEPTH 1- N>R RDROP _C-EXEC @ 0 ROT EXECUTE
+  SWAP BEGIN DUP WHILE RDROP 1- REPEAT DROP
+;
+
+: NEW:
+\ Создать новый именованый словарь, class которого будет равен 
+\ текущему контекстному словарю. Т.е. создать объект - экземпляр
+\ текущего класса.
+  >IN @ VOCABULARY >IN !
+  CONTEXT @ ( ALSO) ' EXECUTE CONTEXT @ CLASS!
+;
+\ NEW: KERNEL32.DLL соответствует такому коду:
+\ VOCABULARY KERNEL32.DLL
+\ ( ALSO) KERNEL32.DLL
+\ CONTEXT @ CLASS!
+
+
+VOCABULARY DL
+GET-CURRENT ALSO DL DEFINITIONS
+
+: HEAP-COPY-U
+  DUP >R HEAP-COPY R>
+;
+: SEARCH-WORDLIST ( c-addr u oid -- 0 | xt 1 | xt -1 )
   DUP OBJ-DATA@ ?DUP
-  IF NIP ROT ROT HEAP-COPY DUP >R SWAP GetProcAddress R> FREE THROW
+  IF NIP ROT ROT HEAP-COPY-U OVER >R ROT DLSYM R> FREE THROW
      DUP IF 1 THEN
   ELSE
-     DUP OBJ-NAME@ HEAP-COPY DUP >R LoadLibraryA R> FREE THROW
+     DUP OBJ-NAME@ HEAP-COPY-U OVER >R DLOPEN R> FREE THROW
      ?DUP IF ( addr u oid h ) OVER OBJ-DATA! RECURSE
-          ELSE DROP 2DROP 0 THEN \ не удалось загрузить DLL
+          ELSE DROP 2DROP 0 THEN \ не удалось загрузить DLL/SO
   THEN
 ;
-USER LATEST-FOUND
-: EXECUTE-LATEST-FOUND ( ... n -- ... )
-\ n - число параметров на стеке для dll-функции
-  ?DUP IF N>R RDROP THEN
-  0 LATEST-FOUND @ EXECUTE
-;
-: SEARCH-WORDLIST
-  SEARCH-WORDLIST-DLL DUP 
-  IF SWAP LATEST-FOUND ! ['] EXECUTE-LATEST-FOUND SWAP THEN
-;
-GET-CURRENT SWAP
 SET-CURRENT PREVIOUS
 
-VOCABULARY KERNEL32.DLL
-ALSO KERNEL32.DLL
-CONTEXT @ CLASS!
+: NOTFOUND \ просто для сокращения asciiz литералов "zzz" = S" zzz" DROP
+  OVER C@ [CHAR] " = 
+  IF NIP >IN @ SWAP - 0 MAX >IN !
+     POSTPONE S" DROP
+  ELSE NOTFOUND THEN
+;
 
+ALSO \ чтобы форт остался :-]
+\ ===========================
+DL NEW: KERNEL32.DLL
 
-0 GetTickCount . CR
-0 GetCurrentProcessId . CR
-1000 PAD S" OS" DROP 3 GetEnvironmentVariableA PAD SWAP TYPE CR
-0 GetZzz .
+0 ' GetTickCount PAS-EXEC . CR
+0 ' GetCurrentProcessId PAS-EXEC . CR
+1000 PAD S" OS" DROP 3 ' GetEnvironmentVariableA PAS-EXEC PAD SWAP TYPE CR
+' GetEnvironmentVariableA 1000 PAD "OS" SPAS-EXEC PAD SWAP TYPE CR
+
+\ ===========================
+DL NEW: USER32.DLL
+
+0 ' GetDesktopWindow PAS-EXEC . CR
+
+\ ===========================
+DL NEW: libcrypt.dll
+
+"zz" "pass" 2 ' crypt C-EXEC ASCIIZ> TYPE CR
+' crypt "zz" "pass" SC-EXEC ASCIIZ> TYPE CR
+
+\ ===========================
+KERNEL32.DLL ' GetEnvironmentVariableA 
+1000 PAD "USERNAME" SPAS-EXEC PAD SWAP TYPE CR
+
+' GetCurrentThreadId SPAS-EXEC . CR
+ORDER
