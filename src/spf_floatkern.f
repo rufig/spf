@@ -394,31 +394,17 @@ END-CODE
 
 CODE F**     \ *
        FXCH
-       FYL2X              
-       FXTRACT            
-       FXCH  ST(1)
-       LEA   ESP, -4 [ESP]
-       FISTP DWORD [ESP] 
-       PUSH  # 4
-       FIDIV [ESP]
-       F2XM1
+       FYL2X
        FLD1
-       FADDP ST(1), ST    
-       MOV  ECX, # 2
-       POP  EBX
-       POP  EBX
-       ADD  ECX, EBX
-@@1:   FMUL ST, ST(0)
-       LOOP @@1
+       FLD ST(1)
+       FPREM
+       F2XM1
+       FADD
+       FSCALE
+       FXCH
+       FSTP ST
        RET
 END-CODE
-
-: F**
-   FDUP F0=
-   IF FDROP FDROP 1.E
-   ELSE F**
-   THEN
-;
 
 CODE FTAN \ *
      FPTAN
