@@ -19,7 +19,14 @@
 \    * фикс THROW  - неверно получало timer-info текущего слова.
 \    * пофиксил получение timer-info - слово last_timer_info
 
-\ Copyright (C) R.P., 1999-2000
+\ 19.Nov.2002 Tue 01:02
+\    * исправил ошибку в слове DU< 
+\     see:
+\        From: mlg 3 <m_l_g3@yahoo.com>
+\        To: spf-dev@lists.sourceforge.net
+\        Date: Sat, 9 Nov 2002 10:05:16 -0800 (PST)
+
+\ Copyright (C) R.P., 1999-2002
 
 \  profile on    - включить компил€цию кода таймера  ( на все след. слова вешаетс€ таймер  )
 \  profile off   - отключить компил€цию кода таймера ( на все след. слова таймер не вешаетс€)
@@ -221,10 +228,10 @@ WORDLIST CONSTANT shadows
    ?IMMEDIATE  IF ." - Imed " THEN
 ;
 
-
 : DU< ( d1 d2 -- f ) ( d1_lo d1_hi d2_lo d2_hi -- f )
-  ROT SWAP U> IF 2DROP FALSE EXIT THEN
-  U<
+\  ROT SWAP U> IF 2DROP FALSE EXIT THEN
+\  U<
+   ROT 2DUP = IF 2DROP U< ELSE U> NIP NIP THEN
 ;
 
 : .average ( a-timer_info -- )
