@@ -3,11 +3,12 @@
 \ Work in spf3, spf4
 \ Recent File List
 
-REQUIRE {            devel\~af\lib\locals.f 
-REQUIRE GetIniString devel\~af\lib\ini.f
-REQUIRE USES         devel\~af\lib\api-func.f
-REQUIRE FileExist    devel\~af\lib\fileexist.f
-REQUIRE STR@         devel\~ac\lib\str2.f
+REQUIRE {                 devel\~af\lib\locals.f
+REQUIRE GetIniString      devel\~af\lib\ini.f
+REQUIRE USES              devel\~af\lib\api-func.f
+REQUIRE FileExist         devel\~af\lib\fileexist.f
+REQUIRE STR@              devel\~ac\lib\str2.f
+REQUIRE ALLOCATE-PROCESS  devel\~af\lib\pallocate.f
 
 USES user32.dll
 
@@ -16,6 +17,10 @@ USES user32.dll
     OVER - >R - R> U<
   ;
 [THEN]
+
+   0 CONSTANT MF_BYCOMMAND
+1024 CONSTANT MF_BYPOSITION
+   0 CONSTANT MF_STRING
 
 0 VALUE IdFirstRFL \ первый идентификатор
 0 VALUE MaxCountRFL \ максимальное число файлов в списке
@@ -29,13 +34,23 @@ GET-CURRENT ALSO RFLSupport DEFINITIONS
 0 VALUE inifile  \ имя файла, в котором хранится список
 0 VALUE rflsection \ имя секции rfl
 
+\ в spf3 какие то проблемы с ALLOCATE, пришлось использовать
+\ глобальный ALLOCATE
+: HEAP-PROCESS-COPY ( addr u -- addr1 )
+\ скопировать строку в хип программы и вернуть её адрес в хипе
+  0 MAX
+  DUP 1+ ALLOCATE-PROCESS THROW DUP >R
+  SWAP DUP >R MOVE
+  0 R> R@ + C! R>
+;
+
 : AddRFLNode ( addr u -- )
   \ удаление последнего в списке
-  RFList 8 CELLS + @ ?DUP IF FREE DROP THEN
+  RFList 8 CELLS + @ ?DUP IF FREE-PROCESS DROP THEN
   \ сдвиг списка
   RFList DUP CELL+ 8 CELLS MOVE
   \ добавление нового файла в начало
-  HEAP-COPY RFList !
+  HEAP-PROCESS-COPY RFList !
 ;
 : LoadRFList ( -- )
   1024 ALLOCATE THROW >R
@@ -69,11 +84,13 @@ GET-CURRENT ALSO RFLSupport DEFINITIONS
   -1 +LOOP
 ;
 : MoveToTopRFL ( node -- )
-  CELLS RFList +
-  RFList @
-  OVER @
-  RFList !
-  SWAP !
+  ?DUP IF
+    CELLS RFList + DUP @ >R
+    RFList SWAP DO
+      I CELL- @ I !
+    -1 CELLS +LOOP
+    R> RFList !
+  THEN
 ;
 : SeekInRFL ( addr u -- node true\ false )
   2DUP SWAP CharLowerBuff DROP
@@ -111,7 +128,7 @@ SET-CURRENT
 
 : CreateRFL ( addr_ini addr_section -- )
   TO rflsection TO inifile
-  9 CELLS ALLOCATE THROW TO RFList
+  9 CELLS ALLOCATE-PROCESS THROW TO RFList
   LoadRFList
 ;
 : FreeRFL ( -- )
@@ -119,7 +136,7 @@ SET-CURRENT
   9 0 DO
     RFList I CELLS + @ FREE DROP
   LOOP
-  RFList FREE DROP
+  RFList FREE-PROCESS DROP
 ;
 : RefreshMenu ( -- )
   ClearRFLMenu ShowRFLMenu
