@@ -281,11 +281,12 @@ With Help of
 
 <scheme name="macrostring">
   <!-- strings, like this: " ccc {Forth_Code} ccc "  -->
-  <regexp match='/([^\"\{\}]*)/i' region1="fthParsedStr"/>
-  <!--
-  <regexp match='/([^\"\{\}]*)/i' region1="fthParsedStr"/>
+  <!-- 
   <block start="/(\{)/" end="/(\})/" scheme="forthinterpreter0" region01="fthColon" region11="fthSemi"/>
-  -->
+  <!-- -->
+  <regexp match='/([^\"\{]*)/i' region1="fthParsedStr" />
+  <block start="/(\{)/" end="/(\})/" scheme="empty" region="fthParsedStr" region00="fthColon" region11="fthSemi"/>
+  <!-- -->
 </scheme>
 
 <scheme name="forthinterpreter0">
