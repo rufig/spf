@@ -19,10 +19,20 @@ REQUIRE list+ ~pinka\lib\list.f
   0 SWAP @
   BEGIN DUP WHILE SWAP 1+ OVER @ REPEAT DROP
 ;
-: reverse-list ( list -- ) \ можно и для статических узлов
+: reverse-list-small ( list -- ) \ можно и для статических узлов
   DUP >R @list R> SWAP
   BEGIN DUP WHILE >R OVER SWAP ! R> 1- REPEAT
   DROP 0!
+;
+: reverse-list ( list -- )
+  DUP >R
+  0 SWAP @ ( prev next )
+  BEGIN DUP WHILE
+    DUP DUP @
+    2SWAP !
+  REPEAT ( prev 0 )
+  DROP R> !
+  \ так надежней, т.к. не всякий список на стек выложишь ;)
 ;
 2 CELLS CONSTANT /simple_list-node
 : list_allot+ ( value hlist -- )
