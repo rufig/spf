@@ -142,18 +142,12 @@ M\ ' DROP TO DTST
 : TC-?BRANCH,
   ?SET
   084 TO J_COD
-  S" DROP" TC-FINDOUT
-(  OPT_INIT SetOP ) 0xC00B W,    \ OR EAX, EAX
-  OPT?  IF ( OP1 ToOP0 ) -2 ALLOT   \ ликвидация OR EAX, EAX
-           OPT_INIT DP @ TO LAST-HERE
-           ?BR-OPT 
-           DP @ TO LAST-HERE
-        THEN
-  INLINE,  SetJP  SetOP
+  ???BR-OPT
+  SetJP  SetOP
   J_COD    \  JX без 0x0F
   0x0F     \  кусок от JX
-  C,  C,
-  DP @ CELL+ - , DP @ TO LAST-HERE
+  C, C,
+  DUP IF DP @ CELL+ - THEN , DP @ TO LAST-HERE
 ;
 
 : TC-BRANCH, ( ADDR -> ) \ скомпилировать инструкцию ADDR JMP
