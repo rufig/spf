@@ -34,6 +34,7 @@ CODE1 R>    \ 94
      JMP EBX
 ;C
 
+
 CODE1 ?DUP ( x -- 0 | x x ) \ 94
 \ Продублировать x, если не ноль.
      OR EAX, EAX

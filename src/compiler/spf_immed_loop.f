@@ -58,12 +58,12 @@ HEX
 \ убрать параметры цикла и продолжить выполнение сразу за циклом. Иначе 
 \ продолжить выполнение с начала цикла.
   ?COMP 
-  FF C, 04 C, 24 C, \ inc dword [esp]
+  24 04FF W, C, \ inc dword [esp]
   HERE 2+ - DUP SHORT?
   IF
     71 C, C, \ jno short 
   ELSE
-    4 - 0F C, 81 C, , \ jno far
+    4 - 0F C, 81 C, , \ jno near
   THEN
   0C24648D , \ lea esp, 0c [esp]
   HERE SWAP !

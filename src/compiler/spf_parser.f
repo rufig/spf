@@ -115,3 +115,8 @@ USER-CREATE ATIB
 
 \ PARSE и SKIP оставлены для совместимости, больше не используются
 \ при трансляции исходного текста
+
+: SKIP1 ( addr u -- addr+1 u-1 )
+   DUP 0 >
+   IF 1- SWAP 1+ SWAP THEN
+;

@@ -38,8 +38,7 @@ CODE SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
        CMP EAX, EDX
        JZ SHORT @@3                   \ проверить всю строку
        A;  25 C, FF C, 0 C, 0 W, \       AND EAX, # FF
-       ADD ESI, EAX               \ длины не равны - идем дальше
-       MOV ESI, [ESI]
+       MOV ESI, [ESI] [EAX]       \ длины не равны - идем дальше
 
        JMP SHORT @@1
 @@3:
@@ -50,8 +49,7 @@ CODE SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
        REPZ CMPS BYTE
        POP EDI
        JZ SHORT @@5
-       ADD ESI, ECX
-       MOV ESI, [ESI]
+       MOV ESI, [ESI] [ECX]
        JMP SHORT @@1
 @@2:
        LEA EBP, 8 [EBP]
@@ -178,7 +176,7 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 
 : VOC-NAME. ( wid -- ) \ напечатать имя списка слов, если он именован
   DUP FORTH-WORDLIST = IF DROP ." FORTH" EXIT THEN
-  DUP CELL+ @ DUP IF ID. DROP ELSE DROP ." <NONAME>:" U. THEN
+  DUP CELL+ @ DUP IF ID. DROP ELSE DROP ." <NONAME>:" . THEN
 ;
 
 : ORDER ( -- ) \ 94 SEARCH EXT

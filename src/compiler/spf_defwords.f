@@ -11,10 +11,9 @@ USER LAST-CFA
   HERE 0 , ( cfa )
   DUP LAST-CFA !
   0 C,     ( flags )
-  ROT ROT WARNING @
-  IF 2DUP SFIND
-     IF DROP 2DUP TYPE ."  isn't unique" CR
-     ELSE 2DROP THEN
+  -ROT WARNING @
+  IF 2DUP GET-CURRENT SEARCH-WORDLIST
+     IF DROP 2DUP TYPE ."  isn't unique" CR THEN
   THEN
   CURRENT @ +SWORD
   ALIGN
@@ -34,7 +33,7 @@ USER LAST-CFA
 \ a-addr - адрес поля данных name. Семантика выполнения name может
 \ быть расширена с помощью DOES>.
   ALIGN-BYTES @ 1 ALIGN-BYTES !
-  ROT ROT SHEADER 4 ALIGN-BYTES !
+  -ROT SHEADER 4 ALIGN-BYTES !
   HERE 5 + ALIGNED 5 -
   HERE - ALLOT HERE LAST-CFA @ !
   ALIGN-BYTES !
@@ -144,10 +143,7 @@ END-CODE
   ['] _VECT-CODE COMPILE, ['] NOOP ,
   ['] _TOVALUE-CODE COMPILE,
 ;
-: --
-  CREATE OVER , +
-  (DOES1) (DOES2) @ +
-;
+
 
 : ->VARIABLE ( x "<spaces>name" -- ) \ 94
   HEADER

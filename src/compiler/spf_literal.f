@@ -59,7 +59,7 @@
        DUP 2 = OVER 3 = OR ( файл не найден или путь не найден )
        IF -2003 THROW \ ABORT"  -???"
        ELSE THROW THEN
-  ELSE R> DROP
+  ELSE RDROP
   THEN
 ;
 : ?SLITERAL2 ( c-addr u -- ... )

@@ -37,7 +37,7 @@ HEX
 ;
 
 : RET, ( -> ) \ скомпилировать инструкцию RET
-  C3 C,
+  ?SET SetOP 0xC3 C, OPT OPT_CLOSE 
 ;
 
 : LIT, ( W -> )
@@ -48,12 +48,7 @@ HEX
 ;
 
 : DLIT, ( D -> )
-  89 C, 45 C, FC C,        \ mov -4 [ebp], eax
-  C7 C, 45 C, F8 C, SWAP , \ mov -8 [ebp], # low
-\  HERE TO :-SET
-  SetOP  B8 C, ,                  \ mov eax, # high
-  SetOP  8D C, 6D C, F8 C,        \ lea ebp, -8 [ebp]
-  HERE TO LAST-HERE
+  SWAP LIT, LIT,
 ;
 
 : RLIT, ( u -- )
@@ -65,16 +60,10 @@ HEX
 : ?BRANCH, ( ADDR -> ) \ скомпилировать инструкцию ADDR ?BRANCH
   084 TO J_COD
   OPT_INIT SetOP 0xC00B W,    \ OR EAX, EAX
-  OPT? 
-  IF BEGIN ?BR-OPT-STEP
-     UNTIL
-  THEN
-\  OPT_CLOSE
-  EVEN-EBP
-  HERE TO :-SET
-  HERE TO LAST-HERE
-  ['] DROP MACRO,
-  0F C, J_COD C,   \  JZ
+  OPT? IF ?BR-OPT THEN
+  J_COD          \  JX без 0x0F
+  0x0FFC458B     \  MOV     EAX , FC [EBP] и кусок от JX
+  ['] NIP MACRO, ,  C,
   HERE CELL+ - ,
 ;
 

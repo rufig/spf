@@ -20,9 +20,9 @@ VECT <EXC-DUMP>
   DESTROY-HEAP            \ удалить хип, созданный для этого обработчика
   CELL+ CELL+ CELL+ @ TlsIndex! \ указатель на USER-данные сбойнувшего потока
                           \ будем иcпользовать его хип и USER-data
-  H-STDOUT >R H-STDERR TO H-STDOUT
+\  CGI? @ IF H-STDOUT >R H-STDERR TO H-STDOUT THEN
   DUP <EXC-DUMP>          \ пользовательский обработчик (дамп по умолчанию)
-  R> TO H-STDOUT
+\  CGI? @ IF R> TO H-STDOUT THEN \ в cgi удобно выводить баги в h-stderr
   EXC-HANDLER 0!
   @ THROW                 \ превращаем исключение в родное фортовое :)
 ;

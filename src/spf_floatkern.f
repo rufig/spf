@@ -295,16 +295,16 @@ CODE F!
 END-CODE
 
 CODE FLOAT>DATA
-       LEA  EBP, -0C [EBP]
-       FSTP  TBYTE [EBP]
-       XCHG  EAX, 8 [EBP]
+       LEA  EBP, -8 [EBP]
+       FSTP  QWORD [EBP]
+       XCHG  EAX, 4 [EBP]
        RET
 END-CODE
 
 CODE DATA>FLOAT
-       XCHG EAX, 8 [EBP]
-       FLD  TBYTE [EBP]
-       LEA  EBP, 0C [EBP]
+       XCHG EAX, 4 [EBP]
+       FLD  QWORD [EBP]
+       LEA  EBP, 8 [EBP]
        RET
 END-CODE
 

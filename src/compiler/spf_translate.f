@@ -99,7 +99,7 @@ VECT ?SLITERAL
     ALSO EXECUTE SP@ R> - 0=
     IF CONTEXT ! THEN
                                 ELSE  ( a1 u' )
-    R> DROP R> DROP
+    RDROP RDROP
     NR>  SET-ORDER
     -2011 THROW                 THEN
     2R>                  REPEAT
@@ -109,7 +109,7 @@ VECT ?SLITERAL
  ELSE RDROP RDROP THEN
 ;
 
-: INTERPRET ( -> ) \ интерпретировать входной поток
+: INTERPRET_ ( -> ) \ интерпретировать входной поток
   BEGIN
     NextWord DUP
   WHILE
@@ -125,6 +125,14 @@ VECT ?SLITERAL
     ?STACK
   REPEAT 2DROP
 ;
+
+VARIABLE   &INTERPRET
+
+' INTERPRET_ ' &INTERPRET EXECUTE !
+
+: INTERPRET &INTERPRET @ EXECUTE ;
+
+
 
 : .SN ( n --)
 \ Распечатать n верхних элементов стека
@@ -187,11 +195,11 @@ VECT ?SLITERAL
 \   и нет неоднозначных ситуаций.
 
   BEGIN
-    CONSOLE-HANDLES
-    0 TO SOURCE-ID
     [COMPILE] [
     ['] MAIN1 CATCH
-    H-STDERR TO H-STDOUT
+    CONSOLE-HANDLES
+    0 TO SOURCE-ID
+\    CGI? @ IF H-STDERR TO H-STDOUT THEN \ В cgi удобно выводить баги в h-stderr
     ['] ERROR CATCH DROP
  ( S0 @ SP! R0 @ RP! \ стеки не сбрасываем, т.к. это за нас делает CATCH :)
   AGAIN
@@ -219,7 +227,7 @@ VECT ?SLITERAL
 
 : (INCLUDE)
    BEGIN
-     REFILL
+     REFILL  
    WHILE
      INTERPRET
    REPEAT
@@ -267,7 +275,7 @@ VECT ?SLITERAL
 ;
 
 : INCLUDE-PROBE ( addr u -- ... 0 | ior )
-  R/O OPEN-FILE-SHARED ?DUP 
+  R/O OPEN-FILE-SHARED ?DUP
   IF NIP EXIT THEN
   INCLUDE-FILE 0
 ;
@@ -300,7 +308,7 @@ VECT ?SLITERAL
 \  ['] INCLUDE-FILE CATCH
 \  ?DUP IF R> CLOSE-FILE DROP THROW
 \          \ закрыли транслируемый файл и передаем ошибку выше
-\       ELSE R> DROP THEN
+\       ELSE RDROP THEN
 
 \  CURFILE @ FREE THROW R> CURFILE !
 \ ;

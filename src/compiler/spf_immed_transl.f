@@ -90,3 +90,21 @@
   BEGIN REFILL 0= UNTIL
   POSTPONE \
 ;
+
+: FIELD  ( offset size "new-name< >" -- offset+size )
+      : OVER
+        DUP IF   DUP  LIT,  ['] + COMPILE,
+            THEN DROP
+       POSTPONE ;
+       + ;  
+
+0 [IF]
+: --
+  CREATE OVER , +
+  (DOES1) (DOES2) @ +
+;
+
+[ELSE]
+: -- FIELD ;
+[THEN]
+

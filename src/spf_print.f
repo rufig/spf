@@ -22,6 +22,7 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ Установить содержимое BASE равным шестнадцати.
   16 BASE !
 ;
+
 : DECIMAL ( -- ) \ 94
 \ Установить основание системы счисления равным десяти.
   10 BASE !
@@ -51,7 +52,7 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ Исключительная ситуация возникает, если использовать #
 \ вне <# и #>, ограничивающивающих преобразование чисел.
   0 BASE @ UM/MOD >R BASE @ UM/MOD R>
-  ROT DUP 10 < IF 48 + ELSE 55 + THEN
+  ROT DUP 10 < 0= IF 7 + THEN 48 + 
   HOLD
 ;
 

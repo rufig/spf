@@ -108,7 +108,7 @@ VARIABLE IN-EXCEPTION
   CGI? @ 0= ( ?GUI 0= AND)
   IF
     ." SP-FORTH - ANS FORTH 94 for Win95/98/ME/NT/2000" CR
-    ." Open source project at http://sourceforge.net/projects/spf/" CR
+    ." Open source project at http://spf.sourceforge.net" CR
     ." Russian FIG at http://www.forth.org.ru ; Started by A.Cherezov" CR
     ." Version " VERSION 1000 / 0 <# # # [CHAR] . HOLD # #> TYPE
     ."  Build " VERSION 0 <# # # # #> TYPE
@@ -140,15 +140,16 @@ TRUE VALUE SPF-INIT?
 \ Точка входа при запуске:
 
 : (INIT)
+  0 TO H-STDLOG
+  0 TO H-STDIN
+  CONSOLE-HANDLES
+  ['] CGI-OPTIONS ERR-EXIT
+  ['] AT-PROCESS-STARTING ERR-EXIT
+  MAINX @ ?DUP IF ERR-EXIT THEN
   SPF-INIT?
   IF
-    0 TO H-STDLOG
-    0 TO H-STDIN
-    ['] CGI-OPTIONS ERR-EXIT
-    ['] AT-PROCESS-STARTING ERR-EXIT
-    MAINX @ ?DUP IF ERR-EXIT THEN
-    ['] SPF-INI ERR-EXIT OPTIONS
-  THEN
+    ['] SPF-INI ERR-EXIT
+  THEN OPTIONS
   CGI? @ 0= POST? @ OR IF ['] <MAIN> ERR-EXIT THEN
   BYE
 ;

@@ -66,6 +66,9 @@
 \ ≈сли все биты x нулевые, продолжать выполнение с позиции, заданной dest.
   ?COMP 3 <> IF -2004 THROW THEN \ ABORT" UNTIL без BEGIN !"
   ?BRANCH,
+  0xFFFFFF80  HERE 4 - @  U<
+  IF  HERE 5 - W@ 0x3F0 + HERE 6 - W!   -4 ALLOT
+  THEN
 ; IMMEDIATE
 
 : WHILE \ 94
@@ -121,4 +124,5 @@
 \ Ќеоднозначна€ ситуаци€ возникает, если RECURSE используетс€ после DOES>.
   ?COMP
   LATEST NAME> _COMPILE,
+  HERE TO :-SET
 ; IMMEDIATE

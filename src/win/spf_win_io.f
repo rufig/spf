@@ -227,7 +227,7 @@ USER lpNumberOfBytesWritten
 \ не записана.
 \ После завершения операции FILE-SIZE возвращает значение ud
 \ и FILE-POSITION возвращает неопределенное значение.
-  DUP >R REPOSITION-FILE  ?DUP IF R> DROP EXIT THEN
+  DUP >R REPOSITION-FILE  ?DUP IF RDROP EXIT THEN
   R> SetEndOfFile ERR
 ;
 
@@ -239,7 +239,7 @@ USER lpNumberOfBytesWritten
 \ позицию в файле за последним записанным в файл символом, и
 \ FILE-SIZE возвращает значение большее или равное значению,
 \ возвращаемому FILE-POSITION.
-  DUP >R WRITE-FILE ?DUP IF R> DROP EXIT THEN
+  DUP >R WRITE-FILE ?DUP IF RDROP EXIT THEN
   LT LTL @ R> WRITE-FILE
 ;
 

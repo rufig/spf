@@ -81,9 +81,9 @@ END-CODE
 CODE SWAP ( x1 x2 -- x2 x1 ) \ 94
 \ поменять местами два верхних элемента стека
 \     XCHG EAX, [EBP]
-     MOV   EBX, [EBP]
+     MOV   EDX, [EBP]
      MOV   [EBP], EAX
-     MOV   EAX, EBX
+     MOV   EAX, EDX
      RET
 END-CODE
 
@@ -125,10 +125,19 @@ END-CODE
 
 CODE ROT ( x1 x2 x3 -- x2 x3 x1 ) \ 94
 \ Прокрутить три верхних элемента стека.
-     MOV  EBX, [EBP]
+     MOV  EDX, [EBP]
      MOV  [EBP], EAX
      MOV  EAX, 4 [EBP]
-     MOV  4 [EBP], EBX
+     MOV  4 [EBP], EDX
+     RET
+END-CODE
+
+CODE -ROT ( x1 x2 x3 -- x3 x1 x2 ) \ 94
+\ Прокрутить три верхних элемента стека.
+     MOV  EDX, 4 [EBP]
+     MOV  4 [EBP], EAX
+     MOV  EAX, [EBP]
+     MOV  [EBP], EDX
      RET
 END-CODE
 
@@ -197,8 +206,8 @@ CODE 2R>  \ 94 CORE EXT
 \ эквивалентно R> R> SWAP.
      MOV EBX, [ESP]
      MOV  -4 [EBP], EAX
-     MOV EAX, 4 [ESP]
      MOV ECX, 8 [ESP]
+     MOV EAX, 4 [ESP]
      MOV -8 [EBP], ECX
      LEA EBP, -8 [EBP]
      LEA ESP, 0C [ESP]
@@ -510,20 +519,20 @@ CODE / ( n1 n2 -- n3 ) \ 94
 \ Исключительная ситуация возникает, если n2 равен нулю.
 \ Если n1 и n2 различаются по знаку - возвращаемый результат зависит от 
 \ реализации.
-       MOV EBX, EAX
+       MOV ECX, EAX
        MOV EAX, [EBP]
        CDQ
-       IDIV EBX
+       IDIV ECX
        LEA EBP, 4 [EBP]
        RET
 END-CODE
 
 CODE U/ ( W1, W2 -> W3 ) \ беззнаковое деление W1 на W2
-       MOV EBX, EAX
+       MOV ECX, EAX
        MOV EAX, [EBP]
        LEA EBP, 4 [EBP]
        XOR EDX, EDX
-       DIV EBX
+       DIV ECX
        RET
 END-CODE
 
@@ -719,8 +728,8 @@ END-CODE
 
 CODE < ( n1 n2 -- flag ) \ 94
 \ flag "истина" тогда и только тогда, когда n1 меньше n2.
-       CMP  [EBP], EAX
-       SETGE AL
+       CMP  EAX, [EBP]
+       SETLE AL
        AND  EAX, # 1
        DEC  EAX
        LEA  EBP, 4 [EBP]
@@ -752,11 +761,23 @@ CODE D< ( d1 d2 -- flag ) \ DOUBLE
      MOV EBX, [EBP]
      CMP 8 [EBP], EBX
      SBB 4 [EBP], EAX
-     XOR EAX, EAX
-     JNS SHORT @@1
+     MOV EAX, # 0
+     JGE SHORT @@1
        DEC EAX
 @@1: LEA EBP, 0C [EBP]
      RET
+END-CODE
+
+CODE D> ( d1 d2 -- flag ) \ DOUBLE
+\ flag "истина" тогда и только тогда, когда d1 больше d2.
+     MOV EBX, 8 [EBP]
+     CMP [EBP], EBX
+     SBB EAX, 4 [EBP]
+     MOV EAX, # 0
+     JGE SHORT @@1
+       DEC EAX
+@@1: LEA EBP, 0C [EBP]
+    RET
 END-CODE
 
 CODE U< ( u1 u2 -- flag ) \ 94
@@ -804,16 +825,14 @@ CODE D0= ( xd -- flag ) \ 94 DOUBLE
      RET
 END-CODE
 
-CODE D= ( xd1 xd2 -- flag ) \ 94 DOUBLE
+CODE  D= ( xd1 xd2 -- flag ) \ 94 DOUBLE
 \ flag is true if and only if xd1 is bit-for-bit the same as xd2
+     MOV  EDX,   [EBP]
      XOR  EAX, 4 [EBP]
+     XOR  EDX, 8 [EBP]
+      OR  EAX, EDX
      SUB  EAX, # 1
      SBB  EAX, EAX
-     MOV  EBX, [EBP]
-     XOR  EBX, 8 [EBP]
-     SUB  EBX, # 1
-     SBB  EBX, EBX
-     AND  EAX, EBX
      LEA  EBP, 0C [EBP]
      RET
 END-CODE
@@ -964,7 +983,6 @@ CODE QCMOVE ( c-addr1 c-addr2 u -- ) \ 94 STRING
 \ Если u больше нуля, копировать u последовательных символов из пространства 
 \ данных начиная с адреса c-addr1 в c-addr2, символ за символом, начиная с 
 \ младших адресов к старшим.
-\ Копируем ячейками!
        MOV EDX, EDI
        MOV ECX, EAX
        MOV EDI, [EBP]

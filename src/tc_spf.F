@@ -6,6 +6,7 @@ HEX IMAGE-BASE 1034 + CONSTANT AddrOfLoadLibrary      \ адреса процедур в spf-st
     IMAGE-BASE 1038 + CONSTANT AddrOfGetProcAddress
 DECIMAL
 
+4 ALIGN-BYTES !
 
 : LOAD-VERSION ( -- n )
   S" VERSION.SPF" ['] INCLUDED CATCH IF 2DROP 375000 THEN
@@ -17,6 +18,9 @@ DECIMAL
   H-STDOUT CLOSE-FILE THROW
   R> TO H-STDOUT
 ;
+: HASH  ( c-addr u wid --  c-addr u HASHwid ) \ 94 SEARCH
+    @  OVER DUP 1 U> IF XOR 2 PICK C@ XOR 2 PICK 1+ XOR THEN +   ;
+
 VOCABULARY TC-WL
 VARIABLE SAVED-CURRENT
 
@@ -113,7 +117,7 @@ HEX
   MOD ?DUP IF - + ELSE DROP THEN
   OVER - DUP ALLOT 90 FILL
 ;
-S" DUP>R" [UNDEFINED]
+[UNDEFINED] DUP>R
 [IF] : DUP>R  50 C, ; IMMEDIATE
 [THEN]
 
@@ -158,27 +162,18 @@ S" src\macroopt.f"                   INCLUDED
 
 
 : TC-DLIT, ( D --)
-  89 C, 45 C, FC C,        \ mov -4 [ebp], eax
-  C7 C, 45 C, F8 C, SWAP , \ mov -8 [ebp], # low
-  HERE TO :-SET
-  SetOP  B8 C, ,                  \ mov eax, # high
-  SetOP  8D C, 6D C, F8 C,        \ lea ebp, -8 [ebp]
-  HERE TO LAST-HERE
+  SWAP
+  TC-LIT,
+  TC-LIT,
 ;
 
 : TC-?BRANCH,
   084 TO J_COD
   OPT_INIT SetOP 0xC00B W,    \ OR EAX, EAX
-  OPT? 
-  IF BEGIN ?BR-OPT-STEP
-     UNTIL
-  THEN
-\  OPT_CLOSE
-  HERE TO :-SET
-  EVEN-EBP
-  HERE TO LAST-HERE
-  'DROP MACRO,
-  0F C, J_COD C,   \  JZ
+  OPT?  IF ?BR-OPT THEN
+  J_COD          \  JX без 0x0F
+  0x0FFC458B     \  MOV     EAX , FC [EBP] и кусок от JX
+  S" NIP" TC-FINDOUT MACRO, ,  C,
   HERE CELL+ - ,
 ;
 
@@ -307,8 +302,11 @@ ALSO TC DEFINITIONS PREVIOUS
 ;
 
 : --
-  [T] HEADER [I]
-  05 C, OVER , + RET,  \ add eax, # xxx 
+  [T] HEADER [I]  
+  OPT_INIT
+  SetOP  05 C, OVER , OPT  \ add eax, # xxx 
+  OPT_CLOSE 
+  + RET,
 \  ---CODE COMPILE,
 \  OVER , +
 ;
@@ -482,12 +480,19 @@ ALSO TC-IMM DEFINITIONS PREVIOUS
 : UNTIL \ 94
   ?COMP 3 <> IF -2004 THROW THEN \ ABORT" UNTIL без BEGIN !"
   TC-?BRANCH,
+  0xFFFFFF80  HERE 4 - @  U<
+  IF  HERE 5 - W@ 0x3F0 + HERE 6 - W!   -4 ALLOT
+  THEN
 ; IMMEDIATE
 
 : WHILE \ 94
   ?COMP HERE TC-?BRANCH, >MARK 1
   2SWAP
 ; IMMEDIATE
+
+: M_WL  2DUP [ ALSO TC-IMM ]
+  POSTPONE WHILE
+ [ PREVIOUS ] ; IMMEDIATE
 
 : ELSE   POSTPONE ELSE   ; IMMEDIATE
 : THEN   POSTPONE THEN  HERE TO :-SET  ; IMMEDIATE

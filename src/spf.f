@@ -19,12 +19,13 @@ C" M_WL" FIND NIP 0=
 [IF] : M_WL  CS-DUP POSTPONE WHILE ; IMMEDIATE
 [THEN]
 
+
 C" LAST-HERE" FIND NIP 0= VALUE MACROVAR
 
 
 : ," ( addr u -- )
-     DUP C, HERE OVER ALLOT
-     SWAP CMOVE 0 C, ;
+    DUP C, HERE OVER ALLOT
+    SWAP CMOVE 0 C, ;
 
 S" src\spf_date.f"                INCLUDED
 S" src\tc_spf.f"                  INCLUDED
@@ -99,8 +100,8 @@ S" src\compiler\spf_compile0.f"       INCLUDED
 \  Макроподстановщик-оптимизатор
 TRUE TO MACROVAR
 
-\ S" src\macroopt.f"                   INCLUDED_L \ для листинга кодов
-S" src\macroopt.f"                   INCLUDED
+ S" src\macroopt.f"                   INCLUDED \ для листинга кодов
+\ S" src\macroopt.f"                   INCLUDED
 
 S" src\compiler\spf_compile.f"       INCLUDED
 S" src\compiler\spf_wordlist.f"      INCLUDED
@@ -150,7 +151,7 @@ S" src\spf_init.f"                   INCLUDED
 
 \ ==============================================================
 
-: DONE
+: DONE CR ." DONE"
   S" src\done.f" INCLUDED
 ;
 

@@ -21,7 +21,6 @@ HEX
 
 : SAVE ( c-addr u -- ) \ например S" My Forth Program.exe" SAVE
   ( сохранение наработанной форт-системы в EXE-файле формата PE - Win32 )
-  ERASED-CNT 0!
   R/W CREATE-FILE THROW >R
   ModuleName R/O OPEN-FILE-SHARED THROW >R
   HERE 400 R@ READ-FILE THROW 400 < THROW
@@ -39,11 +38,14 @@ HEX
   RESOURCES-RVA @ HERE 108 + !
   RESOURCES-SIZE @ HERE 10C + !
 
+  ERASED-CNT 0!
   HERE 400 R@ WRITE-FILE THROW ( заголовок и таблица импорта )
   HERE 200 ERASE
   IMAGE-BEGIN HERE OVER - 1FF + 200 / 200 * R@ WRITE-FILE THROW
   R> CLOSE-FILE THROW
+  ERASED-CNT 1+!
 ;
+
 DECIMAL
 
 : OPTIONS ( -> ) \ интерпретировать командную строку
