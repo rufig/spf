@@ -69,6 +69,7 @@ VECT dFailedSsl
   DUP uSSL_SOCKET @ =
   IF uSSL_OBJECT @ SSL_free 2DROP 
      uSSL_CONTEXT @ SSL_CTX_free 2DROP
+     uSSL_SOCKET 0!
   THEN
   CloseSocket
 ;
