@@ -274,31 +274,29 @@ VERSION 400000 < [IF]
 
 : ;; POSTPONE ; ; IMMEDIATE
 
-
-: ^ 
-  ' >BODY @ 
-  CompileLocalRec
-; IMMEDIATE
-
+: ^  ' >BODY @ CompileLocalRec ; IMMEDIATE
 
 : -> ' >BODY @ LocalOffs LIT, POSTPONE RP+! ; IMMEDIATE
 
 WARNING DUP @ SWAP 0!
 
-: AT
-  [COMPILE] ^
-; IMMEDIATE
+[DEFINED] AT [IF]
+  : AT
+    >IN @ NextWord ROT >IN ! widLocals @ SEARCH-WORDLIST
+    IF DROP POSTPONE ^ ELSE POSTPONE AT THEN
+  ; IMMEDIATE
+[ELSE]
+  : AT
+    POSTPONE ^
+  ; IMMEDIATE
+[THEN]
 
 : TO ( "name" -- )
-  >IN @ NextWord widLocals @ SEARCH-WORDLIST 1 =
-  IF >BODY @ LocalOffs LIT, POSTPONE RP+! DROP
-  ELSE >IN ! [COMPILE] TO
-  THEN
+  >IN @ NextWord ROT >IN ! widLocals @ SEARCH-WORDLIST
+  IF DROP POSTPONE -> ELSE POSTPONE TO THEN
 ; IMMEDIATE
 
 WARNING !
-
-: â POSTPONE -> ; IMMEDIATE
 
 : NoLimit? ( -- f )
   BL SKIP PeekChar
