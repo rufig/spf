@@ -5,11 +5,11 @@
 
 REQUIRE "       ~yz/lib/common.f
 REQUIRE PROC:   ~yz/lib/proc.f
-REQUIRE {       lib/ext/locals.f
+REQUIRE {       lib/ext/locals.f \ }
 REQUIRE W:      ~yz/lib/wincons.f
 REQUIRE >>      ~yz/lib/data.f
 REQUIRE MGETMEM ~yz/lib/gmem.f
-S" ~yz/lib/commctrl.const" LOAD-CONSTANTS
+S" ~yz/cons/commctrl.const" LOAD-CONSTANTS
 
 " yzWinLib" ASCIIZ classname
 
@@ -149,7 +149,6 @@ VARIABLE lastitem
   item -parent	\ окно, в котором размещен элемент
   item -text getset	\ максимальный размер строки - 255 символов. 
                 	\ Для richedit и ему подобных - переопределить чтение/запись
-  item -dialog	\ обработчик сообщений WM_KEYXXX окна
 endtable
 
 \ меню
@@ -176,6 +175,8 @@ WINAPI: SendMessageA USER32.DLL
   OVER >R >R 255 SWAP W: wm_gettext R> send R> + 0 SWAP C! ;
 ' set-text
 -text common setitem
+
+: -text# ( ctl -- ) W: wm_gettextlength ?send ;
 
 0xFF0000 == red
 0x00FF00 == green
@@ -229,6 +230,15 @@ WINAPI: GetWindowRect  USER32.DLL
 ;
 -bgcolor common setitem
 
+WINAPI: GetWindowLongA USER32.DLL
+WINAPI: SetWindowLongA USER32.DLL
+
+ :NONAME \ get-style   tab -- style
+ W: gwl_style SWAP -hwnd@ GetWindowLongA ;
+ :NONAME \ set-style   style tab --
+ >R W: gwl_style R> -hwnd@ SetWindowLongA DROP ;
+ -style common setitem
+
 \ ----------------------------------------
 common table window
  item -icon getset	\ иконка
@@ -246,22 +256,16 @@ common table window
  item -grid set 	\ решетка окна
  item -gridresize     	\ процедура изменения размеров решетки
 \ item -gridctlresize
+ item -userdata         \ пользовательские данные
+ item -dialog	  \ флажок: надо ли обрабатывать диалоговые кнопки
+ item -defaultbutton   \ Кнопка по умолчанию
 endtable
-
-WINAPI: GetWindowLongA USER32.DLL
-WINAPI: SetWindowLongA USER32.DLL
 
 : window! ( n hwnd -- )
   W: gwl_userdata SWAP SetWindowLongA DROP ;
 
 : window@ ( hwnd -- n)
   W: gwl_userdata SWAP GetWindowLongA ;
-
- :NONAME \ get-style   tab -- style
- W: gwl_style SWAP -hwnd@ GetWindowLongA ;
- :NONAME \ set-style   style tab --
- >R W: gwl_style R> -hwnd@ SetWindowLongA DROP ;
- -style common setitem
 
 :NONAME \ get-icon  tab -- hicon
  >R W: icon_big 0 W: wm_geticon R> send ;
@@ -354,9 +358,12 @@ VARIABLE xtname
   land-xttable  xttable destroy-utable
 ;
 
-: M: ( ->message-name; -- msg# xt secret-sign)
-  BL PARSE FIND-CONSTANT2
+: :M ( msg# -- xt secret-sign)
   :NONAME CELL" M:  "
+;
+
+: M: ( ->message-name; -- msg# xt secret-sign)
+  BL PARSE FIND-CONSTANT2 :M
 ;
 
 : M; ( msg# xt secret-sign -- )
@@ -512,9 +519,33 @@ M;
 0 VALUE dialog
 0 VALUE dialog-termination
 
+: end-dialog ( code -- ) TO dialog-termination ;
+: dialog-ok  ( -- ) W: idok end-dialog ;
+: dialog-cancel ( -- ) W: idcancel end-dialog ;
+
 M: wm_close
   dialog 0= IF FALSE EXIT THEN
-  hwnd dialog -hwnd@ = DUP >R IF W: idcancel TO dialog-termination THEN R>
+  hwnd dialog -hwnd@ = DUP >R IF dialog-cancel THEN R>
+M;
+
+WINAPI: PostMessageA USER32.DLL
+
+\ lparam: 0  wparam: 0 - next, 1 - previous
+M: wm_nextdlgctl
+  lparam 0= thiswin -dialog@ AND IF
+    wparam IF
+      \ имитируем нажатие Shift-Tab
+      0x002A0001 W: vk_shift W: wm_keydown hwnd PostMessageA DROP
+      0x000F0001 W: vk_tab   W: wm_keydown hwnd PostMessageA DROP
+      0xC00F0001 W: vk_tab   W: wm_keyup   hwnd PostMessageA DROP
+      0xC02A0001 W: vk_shift W: wm_keyup   hwnd PostMessageA DROP
+    ELSE 
+      \ имитируем нажатие Tab
+      0x000F0001 W: vk_tab W: wm_keydown hwnd PostMessageA DROP
+      0x800F0001 W: vk_tab W: wm_keyup   hwnd PostMessageA DROP
+    THEN  
+  THEN
+  TRUE
 M;
 
 M: wm_size
@@ -578,7 +609,16 @@ M: wm_command
      ELSE
        wparam LOWORD DUP first-menu-id < IF
          \ завершение диалога
-         TO dialog-termination
+         DUP W: idok = IF
+           \ если нажали Enter - отработаем команду
+           \ кнопки по умолчанию
+           DROP
+           thiswin -defaultbutton@ ?DUP IF
+             W: bm_click ?send DROP
+           THEN
+         ELSE
+           end-dialog
+         THEN
        ELSE
          \ привет от меню
          thiswin -menus@ find-and-execute DROP
@@ -749,6 +789,9 @@ WINAPI: EnableWindow USER32.DLL
 : windisable ( win -- )
   FALSE SWAP -hwnd@ EnableWindow DROP ;
 
+WINAPI: SetFocus USER32.DLL
+: winfocus ( ctl -- ) -hwnd@ SetFocus DROP ;
+
 \ Настоящий размер окна
 : win-size { tab \ [ 4 CELLS ] rect -- x y }
   rect tab -hwnd@ GetWindowRect DROP
@@ -787,7 +830,7 @@ WINAPI: SetWindowPos USER32.DLL
 WINAPI: MessageBoxA USER32.DLL
 
 : message-box ( title text style -- result)
-  ROT ROT winmain -hwnd@ MessageBoxA ;
+  ROT ROT winmain DUP IF -hwnd@ THEN MessageBoxA ;
 : msg ( text -- )
   mbox-title SWAP (* mb_ok mb_iconwarning *) message-box DROP ;
 : err ( text -- )
@@ -1062,13 +1105,16 @@ VARIABLE font-attr   font-attr 0!
 
 WINAPI: CreateFontA GDI32.DLL
 
-: create-font ( zname size -- font )
+: create-font-devunits ( zname devunits -- ) 
   >R (* default_pitch ff_dontcare *) W: default_quality
   W: clip_default_precis W: out_default_precis W: ansi_charset
   font-attr @ 8 AND  font-attr @ 4 AND  font-attr @ 2 AND 
   font-attr @ 1 AND IF 700 ELSE 400 THEN
-  0 0 0 R> pt>devunits CreateFontA 
+  0 0 0 R> CreateFontA 
   font-attr 0! ;
+
+: create-font ( zname size -- font )
+  pt>devunits create-font-devunits ;
   
 : delete-font ( font -- ) DeleteObject DROP ;
 
@@ -1102,7 +1148,7 @@ WINAPI: DeleteDC      GDI32.DLL
 \ регистрация класса окна
   HERE init->>
 \ typedef struct _WNDCLASS {    // wc  
- (* cs_vredraw cs_hredraw cs_owndc cs_dblclks cs_bytealignclient *) >>  \ UINT    style; 
+ (* cs_vredraw cs_hredraw cs_dblclks cs_bytealignclient *) >>  \ UINT    style; 
  ['] dispatch >>  	\   WNDPROC lpfnWndProc; 
  0 >>			\   int     cbClsExtra; 
  0 >>			\   int     cbWndExtra; 
@@ -1131,7 +1177,7 @@ WINAPI: DestroyAcceleratorTable USER32.DLL
 WINAPI: TranslateAccelerator    USER32.DLL
 WINAPI: IsDialogMessage         USER32.DLL
 
-: ?dialog ( msg -- ?)
+: ?dialog ( msg -- ?) 
   dialog-filter DUP IF IsDialogMessage ELSE 2DROP FALSE THEN ;
 
 : ...WINDOWS \ главный цикл окна
