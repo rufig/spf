@@ -42,10 +42,10 @@ WINAPI: crc32      zlib.dll
 -5 CONSTANT Z_BUF_ERROR
 
 : zlib_compress ( addr u -- addr2 u2 )
-  SWAP OVER 110 100 */
+  SWAP OVER 110 100 */ 12 +
   DUP ALLOCATE THROW DUP >R SWAP >R
   RP@ SWAP
-  compress >R 2DROP 2DROP R> 
+  compress >R 2DROP 2DROP R>
   Z_OK = IF 2R> ELSE 2R> DROP FREE THROW S" " THEN
 ;
 : zlib_uncompress ( addr u -- addr2 u2 )
