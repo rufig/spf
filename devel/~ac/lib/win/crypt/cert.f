@@ -102,7 +102,7 @@ DUP , ( rgpMsgCert - массив указателей на включаемые сертификаты )
   ^ size mem
   ^ u  paddr
   1 FALSE
-  SIGN_PARA CryptSignMessage ." ok" 0 = IF GetLastError EXIT THEN
+  SIGN_PARA CryptSignMessage 0 = IF GetLastError EXIT THEN
   mem size 0
 ;
 : IsMsgSignedBy ( addr u cert -- flag )
