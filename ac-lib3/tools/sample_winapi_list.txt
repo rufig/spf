@@ -1,0 +1,37 @@
+SP-Forth 3.75 (29.Mar.2001) ANS FORTH 94 for Win95/98/NT/2000
+Copyright (C) 1992-2001  A.Cherezov  http://www.forth.org.ru/
+
+Sleep:KERNEL32.DLL
+TerminateThread:KERNEL32.DLL
+ResumeThread:KERNEL32.DLL
+SuspendThread:KERNEL32.DLL
+CreateThread:KERNEL32.DLL
+GetEnvironmentVariableA:KERNEL32.DLL
+GetModuleFileNameA:KERNEL32.DLL
+OemToCharBuffA:USER32.DLL
+CharToOemBuffA:USER32.DLL
+GetProcAddress:KERNEL32.DLL
+LoadLibraryA:KERNEL32.DLL
+VirtualAlloc:KERNEL32.DLL
+GetCommandLineA:KERNEL32.DLL
+HeapReAlloc:KERNEL32.DLL
+HeapFree:KERNEL32.DLL
+HeapAlloc:KERNEL32.DLL
+HeapDestroy:KERNEL32.DLL
+HeapCreate:KERNEL32.DLL
+GetProcessHeap:KERNEL32.DLL
+ReadConsoleInputA:KERNEL32.DLL
+GetNumberOfConsoleInputEvents:KERNEL32.DLL
+ExitProcess:KERNEL32.DLL
+SetEndOfFile:KERNEL32.DLL
+WriteFile:KERNEL32.DLL
+ReadFile:KERNEL32.DLL
+GetFileSize:KERNEL32.DLL
+SetFilePointer:KERNEL32.DLL
+DeleteFileA:KERNEL32.DLL
+CreateFileA:KERNEL32.DLL
+CloseHandle:KERNEL32.DLL
+GetLastError:KERNEL32.DLL
+SetConsoleTitleA:KERNEL32.DLL
+GetStdHandle:KERNEL32.DLL
+AllocConsole:KERNEL32.DLL
