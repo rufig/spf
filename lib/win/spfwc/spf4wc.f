@@ -457,6 +457,9 @@ TO RunScript
           cmdDotR       OF S" GUI-CONSOLE::RR" TOtib (VK_RETURN) ENDOF
           cmdRefreshFavorites OF RefreshFavorites ENDOF
           cmdHELP       OF S" REQUIRE HELP lib\ext\help.f" TOtib (VK_RETURN) ENDOF
+          CtrlTAB       OF CurFocus clhwnd = IF edhwnd ELSE clhwnd THEN
+                         SetFocus DROP
+                        ENDOF
         ENDCASE
       THEN
     THEN
@@ -976,6 +979,8 @@ EXPORT
 ' CON-MAIN TASK: Thread1
 
 : CONSOLE
+  0 -11 SetStdHandle DROP \ В WinXP GUI-приложение при запуске через линк
+  0 TO H-STDOUT           \ получает стандартные хэндлы
   TlsIndex@ TO MainTlsIndex
   ['] TYPE-GUI  TO TYPE
   ['] KEY-GUI   TO KEY

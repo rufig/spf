@@ -16,6 +16,7 @@ produced by Borland Resource Workshop
 #define cmdDbgInclude        212
 #define cmdRunScript         213
 #define cmdBYE               214
+#define CtrlTAB              215
 #define cmdCUT               221
 #define cmdCOPY              222
 #define cmdPASTE             223
@@ -48,6 +49,7 @@ ACCELERATORS_1 ACCELERATORS
  VK_F7, cmdSTEP, VIRTKEY
  VK_F8, cmdOVER, VIRTKEY
  VK_F6, cmdOUT,  VIRTKEY
+ VK_TAB, CtrlTAB, VIRTKEY, CONTROL
 }
 
 
