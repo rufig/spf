@@ -260,8 +260,9 @@ TESTING COMPARISONS: 0= = 0< < > U< MIN MAX D<
 
 
 \ ------------------------------------------------------------------------
-TESTING STACK OPS: 2DROP 2DUP 2OVER 2SWAP ?DUP DEPTH DROP DUP OVER ROT SWAP
+TESTING STACK OPS: 2DROP 2DUP 2OVER 2SWAP ?DUP DEPTH DROP DUP OVER ROT SWAP PICK
 
+{ 1 2 3 0 PICK -> 1 2 3 3 }
 { 1 2 2DROP -> }
 { 1 2 2DUP -> 1 2 1 2 }
 { 1 2 3 4 2OVER -> 1 2 3 4 1 2 }
