@@ -46,13 +46,16 @@ REQUIRE SPARSETO    ~pinka\lib\ext\parse.f
     FALSE
   THEN
 ;
-
+: SkipField ( -- )
+  NextField 2DROP
+;
 \ --------------------------------------------
 
-USER-VALUE  #Col
-USER-VALUE  RowId
-USER-VALUE  vHashT
-USER-VALUE  qSql
+USER-VECT Action
+USER-VALUE #Col
+USER-VALUE RowId
+USER-VALUE vHashT
+USER-VALUE qSql
 USER-CREATE dTableName       2 CELLS USER-ALLOT
 USER-CREATE dWhereCondition  2 CELLS USER-ALLOT
 
@@ -93,7 +96,7 @@ PREVIOUS SET-CURRENT
 \ THROW, if table not exist
   " {TableName}" >R
   R@ STR@ FILE-EXIST 0=
-  ABORT" Table not found (current dir must contain the table)"
+  ABORT" ODBC-txt2: Table not found"
   R> STRFREE
 ;
 : MakeBak ( -- )
@@ -131,6 +134,52 @@ USER-VALUE h-tbl
   DUP STR@  h-tbl WRITE-FILE THROW
   STRFREE
 ;
+\ ===
+
+: >NUM ( a u -- n )
+  0. 2SWAP  >NUMBER 2DROP DROP
+;
+: TranslateWhere ( -- )
+\ предполагает, что содержится только одна инструкция: ROWID=nnn
+   NextValueName IF 2DROP >NUM  ELSE 0 THEN
+   DUP 0= IF DROP -1 THEN
+   TO RowId
+;
+: SelectWhere ( -- )
+  dWhereCondition 2@
+  DROP S" ROWID" TUCK  COMPARE IF
+    " SELECT * FROM {TableName} WHERE {WhereCondition}" ExecSqlStr
+  ELSE
+    dWhereCondition 2@ ['] TranslateWhere EVALUATE-WITH
+  THEN
+;
+: CmpRowById ( -- flag ) \ 0 if matched
+  CURSTR @  RowId 1+ <>
+;
+: CmpRow ( -- flag ) \ 0 if matched
+\ Сопоставить строку в SOURCE с текущей строкой последней выборки.
+\ Если есть RowId, то сопоставить по нему, иначе по всем полям.
+   >IN 0!
+   RowId IF CmpRowById EXIT THEN
+
+   qSql ResultCols 1+ 1 ?DO
+     I qSql Col 0 MAX
+     ( odbc Col убирает пробелы в конце, даже в кавычках)
+     NextField -TRAILING  COMPARE
+     DUP IF UNLOOP EXIT THEN DROP
+   LOOP 0
+;
+: WriteFirstField ( a u -- )
+   DUP 0 > IF " {''}{s}{''}" ELSE 2DROP "" THEN WriteTbl-str
+;
+: WriteOtherField ( i a u -- )
+   DUP 0 > IF " ;{''}{s}{''}" ELSE 2DROP " ;" THEN WriteTbl-str
+;
+: WriteFieldI ( a u i -- )
+  1 = IF WriteFirstField ELSE WriteOtherField THEN
+;
+\ ---
+\ for DELETE
 
 : SqlTxtDelete ( -- )
   qSql { q }
@@ -142,18 +191,14 @@ USER-VALUE h-tbl
 
   q ResultCols 1+ 1 ?DO
       I q ColName
-      I 1 = IF " {''}{s}{''}" ELSE " ;{''}{s}{''}" THEN
-      WriteTbl-str
+      I WriteFieldI
   LOOP  CRLF WriteTbl
 
   BEGIN
    q NextRow
   WHILE
    q ResultCols 1+ 1 ?DO
-     I q Col DUP 0 >
-     IF   I 1 = IF " {''}{s}{''}" ELSE " ;{''}{s}{''}" THEN
-     ELSE 2DROP I 1 = IF "" ELSE " ;" THEN
-     THEN WriteTbl-str
+     I q Col  I WriteFieldI
    LOOP  CRLF WriteTbl
   REPEAT
 
@@ -164,6 +209,7 @@ USER-VALUE h-tbl
 ;
 
 \ ----------------------------
+\ for UPDATE
 
 : StoreCol ( a u i -- )
 ( если в HashT есть ключ a u, то сохраняет 
@@ -183,7 +229,7 @@ USER-VALUE h-tbl
   FALSE             THEN
   RDROP
 ;
-: StoreByHeader ( -- )
+: StoreHeader ( -- )
   0
   BEGIN
     SkipDelimiters
@@ -193,46 +239,23 @@ USER-VALUE h-tbl
     NextField ROT StoreCol
   REPEAT  TO #Col
 ;
-: CmpRowById ( -- flag )
-  CURSTR @  RowId 1+ <> EXIT
-;
-: CmpRow ( -- flag ) \ 0 if matched
-   >IN 0!
-   RowId IF CmpRowById EXIT THEN
-
-   qSql ResultCols 1+ 1 ?DO
-     I qSql Col
-     ( odbc Col убирает пробелы в конце, даже в кавычках)
-     NextField -TRAILING  COMPARE
-     DUP IF UNLOOP EXIT THEN DROP
-   LOOP 0
-;
-: WriteField ( i a u -- )
-   DUP
-   IF   ROT 1 = IF " {''}{s}{''}" ELSE " ;{''}{s}{''}" THEN
-   ELSE 2DROP 1 = IF "" ELSE " ;" THEN
-   THEN WriteTbl-str
-;
 : UpdateRowById ( -- )
   SOURCE NIP 0= IF EXIT THEN
   #Col 1+ 1 DO
-    I DUP HasValue  IF
-    NextField 2DROP ELSE
-    NextField       THEN
-    ( i a u )
-    WriteField
+    I HasValue IF  SkipField ELSE NextField THEN
+    ( a u )
+    I WriteFieldI
   LOOP  CRLF WriteTbl
 ;
 : UpdateRow ( -- )
    SOURCE NIP 0= IF EXIT THEN
    qSql ResultCols 1+ 1 ?DO
-     I
-     I HasValue 0= IF
-     I qSql Col    THEN ( i a u )
-     WriteField
+     I HasValue 0= IF I qSql Col THEN ( a u )
+     I WriteFieldI
    LOOP  CRLF WriteTbl
 ;
 : WriteOtherRows ( -- )
+\ записать идущие подряд не совпадающие(другие) строки.
   BEGIN  
     REFILL
   WHILE
@@ -241,22 +264,15 @@ USER-VALUE h-tbl
     SOURCE WriteTbl
     CRLF WriteTbl
   REPEAT ELSE SOURCE DROP 0 SOURCE! THEN
-  \ обнулил SOURCE на случай, если файл закончился, 
+  \ обнулил SOURCE на случай, если файл закончился,
   \  а NextRow еще нет (когда CmpRow не сработало)
 ;
-: UpdateById ( -- )
+: UpdateBodyById ( -- )
   WriteOtherRows
   UpdateRowById
   WriteOtherRows
 ;
-: update ( -- )
-  REFILL IF \ the header
-    SOURCE WriteTbl  CRLF WriteTbl
-    StoreByHeader
-  THEN
-
-  RowId IF UpdateById  EXIT THEN
-
+: UpdateBody ( -- )
   BEGIN
     qSql NextRow
   WHILE
@@ -265,21 +281,12 @@ USER-VALUE h-tbl
   REPEAT
   WriteOtherRows
 ;
-: >NUM ( a u -- n )
-  0. 2SWAP  >NUMBER 2DROP DROP
-;
-: TranslateWhere ( -- )
-   NextValueName IF 2DROP >NUM  ELSE 0 THEN
-   DUP 0= IF DROP -1 THEN
-   TO RowId
-;
-: SelectWhere ( -- )
-  dWhereCondition 2@
-  DROP S" ROWID" TUCK  COMPARE IF
-    " SELECT * FROM {TableName} WHERE {WhereCondition}" ExecSqlStr
-  ELSE
-    dWhereCondition 2@ ['] TranslateWhere EVALUATE-WITH
+: update ( -- )
+  REFILL IF \ the header
+    SOURCE WriteTbl  CRLF WriteTbl
+    StoreHeader
   THEN
+  RowId IF UpdateBodyById  ELSE UpdateBody THEN
 ;
 : SqlTxtUpdate ( -- )    \ EXIT
   MakeBak
@@ -296,6 +303,7 @@ USER-VALUE h-tbl
 ;
 
 \ ===============================================
+
 GET-CURRENT ALSO SqlLex DEFINITIONS
 
 : FROM
@@ -306,9 +314,7 @@ GET-CURRENT ALSO SqlLex DEFINITIONS
   0 PARSE dWhereCondition 2!
 ;
 : DELETE ( -- sql_ior )
-  INTERPRET
-  CheckTbl
-  ['] SqlTxtDelete CATCH
+  ['] SqlTxtDelete TO Action
 ;
 \ DELETE FROM authors WHERE au_lname = 'McBadden'
 
@@ -316,9 +322,7 @@ GET-CURRENT ALSO SqlLex DEFINITIONS
 : UPDATE ( -- sql_ior )
   NextWord dTableName 2!
   HashT clear-hash
-  INTERPRET
-  CheckTbl
-  ['] SqlTxtUpdate CATCH
+  ['] SqlTxtUpdate TO Action
 ;
 : SET ( -- )
   BEGIN
@@ -331,7 +335,6 @@ GET-CURRENT ALSO SqlLex DEFINITIONS
   UNTIL THEN
 ;
 \ UPDATE Tbl SET f2 = 'v2',  f3 = 'v3'  WHERE f1 = 'v1'
-\ UPDATE weather SET temp_hi = temp_hi - 2,  temp_lo = temp_lo - 2  WHERE date > '1994-11-28'
 
 PREVIOUS  SET-CURRENT
 \ ===============================================
@@ -344,9 +347,9 @@ SET-CURRENT
   0. dTableName 2!
   0. dWhereCondition 2!
   ALSO SqlLex
-    \ ['] EVALUATE CATCH DUP IF NIP NIP THEN
-    ['] EVALUATE CATCH ?DUP IF PREVIOUS THROW THEN ( sql_ior )
+    ['] EVALUATE CATCH ?DUP IF PREVIOUS THROW THEN
     ( ошибка трансляции пойдет выше, т.к. это не sql_ior )
+    CheckTbl  ['] Action CATCH ( sql_ior )
   PREVIOUS
 ;
 : (IsSQLTxt) ( -- flag )
@@ -366,3 +369,5 @@ PREVIOUS
   a u fodbc ProceedSqlTxt  ELSE
   a u fodbc ExecSQL        THEN
 ;
+
+\ ALSO ODBCTxt-Support
