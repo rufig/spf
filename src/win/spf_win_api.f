@@ -17,9 +17,26 @@ CODE _WINAPI-CODE
       POP  EBX
       MOV  EAX, [EBX]
       OR   EAX, EAX
-      JNZ  SHORT @@1
+      JZ  SHORT @@1
 
-      PUSH EBX
+      MOV  ECX, 12 [EBX]
+      OR   ECX, ECX
+      JS   SHORT @@2
+      JZ   SHORT @@4
+      LEA  EBX, [ECX*4]
+      SUB  ESP, EBX
+      MOV  EDX, EDI
+      MOV  EDI, ESP
+      MOV  ESI, EBP
+      CLD
+      REP MOVS DWORD
+      ADD  EBP, EBX
+      MOV  EDI, EDX
+@@4:  CALL EAX
+      RET
+
+      4 ALIGN-NOP
+@@1:  PUSH EBX
       PUSH EDI
       PUSH EBP
       MOV  EAX, 4 [EBX]
@@ -48,22 +65,8 @@ A; HERE 4 - ' AOGPA EXECUTE !
       POP EDI
       JZ  SHORT @@3
       MOV [EBX], EAX
- 
-@@1:  MOV  ECX, 12 [EBX]
-      OR   ECX, ECX
-      JS   SHORT @@2
-      LEA  EBX, [ECX*4]
-      SUB  ESP, EBX
-      MOV  EDX, EDI
-      MOV  EDI, ESP
-      MOV  ESI, EBP
-      CLD
-      REP MOVS DWORD
-      ADD  EBP, EBX
-      MOV  EDI, EDX
-      CALL EAX
-      RET
 
+      MOV  ECX, 12 [EBX]
 @@2:  PUSH EDI
       PUSH EBP
       SUB  ESP, # 64
