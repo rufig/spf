@@ -1,0 +1,379 @@
+( Списки слов по темам к справке SPF         )
+( Слово TOPIC покажет все темы, слово        )
+( TOPIC \ "name" \ покажет слова темы "name" )
+
+
+***
+    СОДЕРЖАНИЕ:
+    (После выбора темы разверните ее строкой "TOPIC тема"
+
+    ФОРТ СВЕДЕНИЯ:
+ WORDS - ANS слова по функциональным категориям
+ WORDSET - ANS слова по уровневым категориям
+
+    ДРУГОЕ:
+
+ LICENSE - лицензия на спф               WHERE   - спф в интернете
+ DONE    - программы, написанные на спф
+
+*** LICENSE
+
+SP-Forth v4.0 (SPF/4.0) может свободно использоваться
+любым желающим в коммерческих и некоммерческих целях соблюдая при
+этом GNU PUBLIC LICENSE
+
+Разрешается модификация исходных текстов для создания
+собственных вариантов форт-систем. В этом случае ссылка на
+автора и сайт http://www.forth.org.ru/ обязательна.
+
+*** WHERE
+
+  Главный сайт сп-форта: http://www.forth.org.ru
+
+  Русскоязычная конференция по сп-форту:
+  http://www.egroups.com/group/sp-forth
+
+*** DONE
+
+  Большой набор серверов (WWW, FTP, NEWS, PROXY... )
+  сайт:  http://www.eserv.ru
+  автор: Андрей Черезов (~ac) ac@forth.org.ru
+
+*** WORDS
+ ANS слова по категориям:
+ ~~~~~~~~~~~~~~~~~~~~~~~
+ STACK  - работа со стеком возвратов
+ MEM    - работа с памятью
+ ARITH  - арифметические и логические действия
+ COMP   - сравнение значений
+ RETURN - работа со стеком возвратов
+ CONTR  - управляющие структуры - циклы, ветвления
+ OUT    - вывод на консоль
+ CONV   - форматирование чисел
+ LIT    - литералы, режимы работы форт систему
+ TOKEN  - работа с токенами (указателями на форт слова)
+ REM    - комментарии
+ DICT   - словари форта
+ DEF    - создание форт слов
+ STR    - строки
+ IN     - ввод с user device
+ INPUT  - работа с входным потоком
+ TIME   - время
+ ERROR  - обработка ошибок
+ COND   - условия трансляции [IF]...
+ MISC     - разные слова
+ USELESS  - считаются бесполезными в современных форт системах
+ OBSOLETE - устаревшие
+
+*** WORDSET
+
+ CORE       - ядро форт системы
+ CORE-EXT   - ядро форт системы - расширения
+ BLOCK      - работа с блоками (в них могут храниться форт
+                                исходники/любые данные)
+ BLOCK-EXT  - работа с блоками - расширения
+ FILE       - работа с файлами
+ FILE-EXT   - работа с файлами - расширения
+ FLOAT      - работа с числами с плавающей точкой
+ FLOAT-EXT  - работа с числами с плавающей точкой - расширения
+ LOCALS     - локальные переменные
+ LOCALS-EXT - локальные переменные - расширения
+ MEMORY     - работа с локальной памятью
+ SEARCH     - поиск в словарях
+ SEARCH-EXT - поиск в словарях - расширения
+ STRING     - строки
+ PTOOLS     - вспомогательные слова.
+ PTOOLS-EXT - вспомогательные слова2.
+
+*** BLOCK
+работа с блоками (в них могут храниться форт  исходники/любые данные)
+
+        BLK     BLOCK   BUFFER  EVALUATE
+        FLUSH   LOAD    SAVE-BUFFERS    UPDATE  
+
+*** BLOCK-EXT
+работа с блоками - расширения
+
+        EMPTY-BUFFERS   LIST    REFILL  SCR     THRU    \
+
+***  FILE
+работа с файлами
+
+        (       BIN     CLOSE-FILE      CREATE-FILE     DELETE-FILE
+        FILE-POSITION   FILE-SIZE       INCLUDE-FILE    INCLUDED
+        OPEN-FILE       R/O     R/W     READ-FILE       READ-LINE
+        REPOSITION-FILE RESIZE-FILE     S"      SOURCE-ID
+        W/O     WRITE-FILE      WRITE-LINE      
+
+*** FILE-EXT
+работа с файлами - расширения
+
+       FILE-STATUS     FLUSH-FILE      REFILL  RENAME-FILE
+
+***  FLOAT
+работа с числами с плавающей точкой
+
+       >FLOAT  D>F     F!      F*      F+      F-      F/
+       F0<     F0=     F<      F>D     F@      FALIGN  FALIGNED
+       FCONSTANT       FDEPTH  FDROP   FDUP    FLITERAL
+       FLOAT+  FLOATS  FMAX    FMIN    FNEGATE FOVER   FROT
+       FROUND  FSWAP   FVARIABLE       REPRESENT
+
+*** FLOAT-EXT
+работа с числами с плавающей точкой - расширения
+
+       DF!     DF@     DFALIGN DFALIGNED       DFLOAT+ DFLOATS
+       F**     F.      FABS    FACOS   FACOSH  FALOG   FASIN
+       FASINH  FATAN   FATAN2  FATANH  FCOS    FCOSH   FE.
+       FEXP    FEXPM1  FLN     FLNP1   FLOG    FS.     FSIN
+       FSINCOS FSINH   FSQRT   FTAN    FTANH   F~      PRECISION
+       SET-PRECISION   SF!     SF@     SFALIGN SFALIGNED
+       SFLOAT+         SFLOATS
+
+***  LOCALS
+локальные переменные
+
+       (LOCAL) TO
+
+***  LOCALS-EXT
+локальные переменные - расширения
+
+       LOCALS| 
+
+***  MEMORY
+работа с локальной памятью
+
+       ALLOCATE        FREE    RESIZE
+
+***  SEARCH
+поиск в словарях
+
+       DEFINITIONS     FIND    FORTH-WORDLIST  GET-CURRENT
+       GET-ORDER       SEARCH-WORDLIST SET-CURRENT     SET-ORDER
+       WORDLIST
+
+***  SEARCH-EXT
+поиск в словарях - расширения
+
+       ALSO    FORTH   ONLY    ORDER   PREVIOUS
+
+*** CORE
+Ядро форт системы:
+
+        !       #       #>      #S      '       (       *
+        */      */MOD   +       +!      +LOOP   ,       -
+        .       ."      /       /MOD    0<      0=      1+
+        1-      2!      2*      2/      2@      2DROP   2DUP
+        2OVER   2SWAP
+        :       ;       <       <#      =       >       >BODY
+        >IN     >NUMBER >R      ?DUP    @       ABORT   ABORT"
+        ABS     ACCEPT  ALIGN   ALIGNED         ALLOT   AND
+        BASE    BEGIN   BL      C!      C,      C@      CELL+
+        CELLS   CHAR    CHAR+   CHARS   CONSTANT
+        COUNT   CR      CREATE  DECIMAL DEPTH   DO      DOES>
+        DROP    DUP     ELSE    EMIT    ENVIRONMENT?    EVALUATE
+        EXECUTE EXIT    FILL    FIND    FM/MOD  HERE    HOLD
+        I       IF      IMMEDIATE       INVERT  J       KEY
+        LEAVE   LITERAL LOOP    LSHIFT  M*      MAX     MIN
+        MOD     MOVE    NEGATE  OR      OVER    POSTPONE
+        QUIT    R>      R@      RECURSE REPEAT  ROT     RSHIFT
+        S"      S>D     SIGN    SM/REM  SOURCE  SPACE   SPACES
+        STATE   SWAP    THEN    TYPE    U.      U<      UM*
+        UM/MOD  UNLOOP  UNTIL   VARIABLE        WHILE   WORD
+        XOR     [       [']     [CHAR]  ]
+
+*** CORE-EXT
+Ядро форт системы. Расширения.
+
+        #TIB    .(      .R      0<>     0>      2>R     2R>
+        2R@     :NONAME <>      ?DO     AGAIN   C"      CASE
+        COMPILE,        CONVERT ENDCASE ENDOF   ERASE   EXPECT
+        FALSE   HEX     ROLL    SAVE-INPUT      SOURCE-ID
+        SPAN    TIB     TO      TRUE    TUCK    U.R     U>
+        UNUSED  MARKER  NIP     OF      PAD     PARSE   PICK
+        QUERY   REFILL  RESTORE-INPUT   VALUE   WITHIN  [COMPILE]
+        \
+
+*** STRING
+Строки
+
+        -TRAILING       /STRING BLANK   CMOVE   CMOVE>  COMPARE
+        SEARCH  SLITERAL
+
+*** PTOOLS
+Вспомогательные слова.
+        .S      ?       DUMP    SEE     WORDS
+
+*** PTOOLS-EXT
+Вспомогательные слова 2.
+        ;CODE   AHEAD   ASSEMBLER       BYE     CODE    CS-PICK
+        CS-ROLL EDITOR  FORGET  STATE   [ELSE]  [IF]    [THEN]  
+
+***  STACK
+работа со стеком возвратов
+
+    CORE:               2DROP   2DUP    2OVER   2SWAP   ?DUP
+                        DROP    DUP     OVER    ROT     SWAP
+                        DEPTH
+    CORE_EXT:           PICK    ROLL    NIP     TUCK
+    DOUBLE_EXT:         2ROT
+
+***  MEM
+работа с памятью
+    CORE:               !       @       2!      2@      +!
+                        C!      C@      CELL+   CELLS
+                        FILL    MOVE
+    CORE_EXT:           ERASE   PAD
+    unstandard:         CELL-
+
+*** ARITH
+арифметические и логические действия
+
+    CORE:               +       -       NEGATE
+                        1+      1-      2*      2/
+                        ABS     MAX     MIN
+                        AND     OR      XOR     INVERT  LSHIFT  RSHIFT
+                        *       /       MOD     */      */MOD   /MOD
+                        FM/MOD  SM/REM  M*      UM*     UM/MOD
+                        S>D
+    CORE_EXT:           FALSE   TRUE
+    DOUBLE:             D+      D-      D2*     D2/     M*/     M+
+                        DABS    DMAX    DMIN    DNEGATE
+                        D>S
+
+***  COMP
+сравнение значений
+
+    CORE:               0<      0=      <       =       >       U<
+    CORE_EXT:           0<>     0>      <>      U>      WITHIN
+    DOUBLE:             D0<     D0=     D<      D=
+    DOUBLE_EXT:         DU<
+
+***  RETURN
+работа со стеком возвратов
+
+    CORE:               >R      R>      R@
+    CORE_EXT:           2>R     2R>     2R@
+
+
+***  CONTR
+управляющие структуры - циклы, ветвления
+
+    CORE:               IF      ELSE    THEN
+                        BEGIN   WHILE   REPEAT  UNTIL
+                        DO      LOOP    +LOOP   I       J       LEAVE   UNLOOP
+                        EXIT    RECURSE
+    CORE_EXT:           ?DO     AGAIN
+                        CASE    OF      ENDOF   ENDCASE
+    TOOLS_EXT:          AHEAD   CS-PICK CS-ROLL
+
+***  OUT
+вывод на консоль
+
+    CORE:               ."      CR      SPACE   SPACES
+                        .       U.      EMIT    TYPE
+    CORE_EXT:           .(      .R      U.R
+    DOUBLE:             D.      D.R
+    TOOLS:              .S      ?       DUMP    SEE     WORDS
+
+***  CONV
+форматирование чисел
+
+    CORE:               <#      #       #S      HOLD    SIGN    #>
+                        BASE    DECIMAL >NUMBER
+    CORE_EXT:           HEX
+
+*** LIT
+литералы, режимы работы форт систему
+
+    CORE:               LITERAL POSTPONE        STATE   [       ]
+    CORE_EXT:           COMPILE,        [COMPILE]
+    DOUBLE:             2LITERAL
+    STRING:             SLITERAL
+
+***  TOKEN
+работа с токенами (указателями на форт слова)
+
+    CORE:               '       [']     EXECUTE EVALUATE        FIND    >BODY
+    SEARCH:             SEARCH-WORDLIST
+
+***  REM
+комментарии
+
+    CORE:               (
+    CORE_EXT:           \
+
+***  DICT
+словари форта
+
+    CORE:               HERE    ,       C,      ALIGN   ALIGNED ALLOT
+    CORE_EXT:           UNUSED
+
+***  DEF
+создание форт слов
+
+    CORE:               :       ;       IMMEDIATE
+                        CONSTANT        VARIABLE
+                        CREATE  DOES>
+    CORE_EXT:           :NONAME
+                        VALUE   TO
+    TOOLS_EXT:          ;CODE   CODE    ASSEMBLER
+    DOUBLE:             2CONSTANT       2VARIABLE
+
+***  STR
+строки
+
+    CORE:               BL      CHAR    [CHAR]
+                        CHAR+   CHARS   COUNT   S"
+    CORE_EXT:           C"
+    STRING              -TRAILING       /STRING
+                        BLANK   CMOVE   CMOVE>
+                        COMPARE SEARCH
+
+***  IN
+ввод с user device
+
+    CORE:               ACCEPT  KEY
+    FACILITY:           AT-XY   PAGE
+                        KEY?    EKEY    EKEY?   EKEY>CHAR       EMIT?
+
+*** INPUT
+работа с входным потоком
+
+    CORE:               >IN     SOURCE  WORD
+    CORE_EXT:           SAVE-INPUT      RESTORE-INPUT
+                        PARSE   REFILL  SOURCE-ID
+
+***  TIME
+время
+
+    FACILITY:           MS      TIME&DATE       
+
+***  ERROR
+обработка ошибок
+
+    CORE:               ABORT   ABORT"  QUIT
+    EXCEPTION:          CATCH   THROW
+    EXCEPTION_EXT:      ABORT   ABORT"  
+
+***  COND
+условия трансляции [IF]...
+
+    TOOLS_EXT:          [ELSE]  [IF]    [THEN]
+
+***  MISC
+разные слова
+
+    CORE_EXT:           MARKER
+    TOOLS_EXT:          BYE     FORGET  STATE
+
+***  USELESS
+считаются бесполезными в современных форт системах
+
+    CORE:               ENVIRONMENT?
+    TOOLS_EXT:          EDITOR
+
+***  OBSOLETE
+устаревшие
+
+    CORE_EXT:           #TIB    CONVERT EXPECT  SPAN    TIB     QUERY
