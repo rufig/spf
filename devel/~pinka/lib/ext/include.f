@@ -36,13 +36,8 @@ REQUIRE [UNDEFINED]  lib\include\tools.f
 [THEN]
 
 [UNDEFINED] INCLUDED-LINES-WITH [IF]
-: (TranslateFlowWith) ( xt -- )
+: TranslateFlowWith ( xt -- )
   >R BEGIN REFILL WHILE R@ EXECUTE REPEAT RDROP
-;
-: TranslateFlowWith  ( xt -- ) \ xt - интерпретатор строк
-  ['] (TranslateFlowWith) CATCH
-  DUP IF PROCESS-ERR ( err -- err ) THEN
-  THROW
 ;
 : INCLUDED-LINES-WITH ( a u  xt  -- )
 \ Также, как INCLUDED-WITH,

@@ -229,6 +229,14 @@ VARIABLE   &INTERPRET
   ['] INTERPRET EVALUATE-WITH
 ;
 
+
+VECT PROCESS-ERR ( ior -- ior ) \ обработать ошибку трансл€ции (файла).
+
+: PROCESS-ERR1 ( ior -- ior )  \ тут проверка на ior=0 тоже нужна.
+  DUP IF SEEN-ERR? IF DUP SAVE-ERR THEN THEN
+;
+' PROCESS-ERR1 (TO) PROCESS-ERR
+
 : RECEIVE-WITH-XT  ( i*x source source-xt xt -- j*x ior )
 \ сохранить спецификации входного потока
 \ установить входной поток на source, слово дл€ чтени€ строки в source-xt
@@ -238,7 +246,7 @@ VARIABLE   &INTERPRET
   C/L 2+ ALLOCATE THROW DUP >R  0 SOURCE!  CURSTR 0!
   SWAP TO SOURCE-ID-XT
   SWAP TO SOURCE-ID
-  CATCH
+  CATCH  DUP IF PROCESS-ERR ( err -- err ) THEN
   R> FREE THROW
   NR> RESTORE-SOURCE
 ;
@@ -268,21 +276,9 @@ VECT FIND-FULLNAME \ найти указанный файл и вернуть его с полным путем
 ;
 ' FIND-FULLNAME1 (TO) FIND-FULLNAME
 
-VECT PROCESS-ERR \ обработать ошибку трансл€ции (файла).
 
-: PROCESS-ERR1 ( ior -- ior )  \ тут проверка на ior=0 тоже нужна.
-  DUP IF SEEN-ERR? IF DUP SAVE-ERR THEN THEN
-;
-' PROCESS-ERR1 (TO) PROCESS-ERR
-
-: (TranslateFlow) ( -- )
+: TranslateFlow ( -- )
   BEGIN REFILL WHILE INTERPRET REPEAT
-;
-
-: TranslateFlow  ( -- )
-  ['] (TranslateFlow) CATCH
-  DUP IF PROCESS-ERR ( err -- err ) THEN
-  THROW
 ;
 
 : INCLUDE-FILE ( i*x fileid -- j*x ) \ 94 FILE
