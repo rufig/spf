@@ -50,17 +50,16 @@ CONSTANT /BREGEXP
   LOOP
   R>
 ;
-(
-: TEST
-  S" one two three" S" /(\S+)\s+(\S+)\s+(\S+)/" BregexpGetMatch
-  . CR TYPE CR TYPE CR TYPE CR TYPE CR 
-  S" Yokohama 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 "
-  S" /(03|045)-(\d{3,4})-(\d{4})/" BregexpGetMatch
-  DUP . 0 ?DO TYPE CR LOOP \ находит только первое совпадение
-  S" Yokohama 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 "
-  S" s/(\d\d)-\d{4}-\d{4}/$1-xxxx-xxxx/g" BregexpReplace
-  . TYPE
-  S" test&lt;test" S" s/(&lt;)/</g" BregexpReplace
-  . TYPE
-; TEST
-)
+
+\ : TEST
+\   S" one two three" S" /(\S+)\s+(\S+)\s+(\S+)/" BregexpGetMatch
+\   . CR TYPE CR TYPE CR TYPE CR TYPE CR 
+\   S" Yokohama 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 "
+\   S" /(03|045)-(\d{3,4})-(\d{4})/" BregexpGetMatch
+\   DUP . 0 ?DO TYPE CR LOOP \ находит только первое совпадение
+\   S" Yokohama 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 "
+\   S" s/(\d\d)-\d{4}-\d{4}/$1-xxxx-xxxx/g" BregexpReplace
+\   . TYPE
+\   S" test&lt;test" S" s/(&lt;)/</g" BregexpReplace
+\   . TYPE
+\ ; TEST
