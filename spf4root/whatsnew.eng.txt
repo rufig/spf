@@ -110,6 +110,14 @@ Correcting build:)
 + SLIT, (~ruv)
 + vectorized search via VECT, for quick-swl.f (~ruv)
 
+29.april.2004   4.00.015
+! two fixes of code optimizer (~mac)
+! fixed FM/MOD Serguei V. Jidkov [mailto:jsv@gorod.bryansk.ru]  
+   3 % -7 =>  0,  3     !! wrong, must be -1, -4
+  -3 %  7 =>  0, -3     !! wrong, must be -1,  4
+! fixed REFILL (~ruv)
++ checks for infinitive INCLUDED (~day)
+
 * - Changes
 ! - Fixed error
 + - New
@@ -125,7 +133,7 @@ Developers:
 ~ac      = Andrey Cherezov      andrey@cherezov.koenig.su
 ~nemnick = Nicholas Nemtsev     nn@vdk.psc.ru
 ~mak     = Michael Maximov      mak@mail.rtc.neva.ru
-~yz      = Yuriy Zhilovets      yz@nightmail.ru
+~yz      = Yuriy Zhilovets      yz@forth.org.ru
 ~mlg     = Michael Gassanenko   mlg@forth.org
 ~af      = Andrey Filatkin      af@forth.org.ru
 ~oleg_sh = Oleg Shalyopa

@@ -1108,6 +1108,23 @@ note: Ћюди, не делайте так: 0 LIT, HERE CELL-
 
   из библиотек хотелось бы отметить ~pinka\spf\quick-swl.f - ускор€ющую
   поиск по словарю на пор€док
+
+29 апрел€ 2004 4.00.015
+
+! два фикса оптимизатора (~mac)
+! фикс FM/MOD Serguei V. Jidkov [mailto:jsv@gorod.bryansk.ru]  
+   3 % -7 =>  0,  3     !! ошибка, должно быть -1, -4
+  -3 %  7 =>  0, -3     !! ошибка, должно быть -1,  4   
+! фикс REFILL (очистка стека если поймали -1002 исключение), факторизаци€ (~ruv)
++ проверка на бесконечный INCLUDE, максимальна€ глубина 64.
+
+8 ма€ 2004
+
+! фикс оптимизатора (WHILE)
+! исправлен многократый дамп при аппаратном исключении в потоке или callback
++ WINAPI: при ненахождении dll или функции runtime делает ABORT
+  новые слова-вектора LIB-ERROR, PROC-ERROR, т.е. можно эту ошибку выводить
+  через MessageBox например.
   
 «начки в whatnews.txt:
 
@@ -1126,7 +1143,7 @@ Developers:
 ~ac      = Andrey Cherezov      andrey@cherezov.koenig.su
 ~nemnick = Nicholas Nemtsev     nn@vdk.psc.ru
 ~mak     = Michael Maximov      mak@mail.rtc.neva.ru
-~yz      = Yuriy Zhilovets      yz@nightmail.ru
+~yz      = Yuriy Zhilovets      yz@forth.org.ru
 ~mlg     = Michael Gassanenko   mlg@forth.org
 ~af      = Andrey Filatkin      af@forth.org.ru
 ~oleg_sh = Oleg Shalyopa
