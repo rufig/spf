@@ -2,6 +2,7 @@
 ( А.Черезов 4.02.2000 )
 
 WINAPI: CoInitializeEx        OLE32.DLL
+WINAPI: CoUninitialize        OLE32.DLL
 WINAPI: CoCreateGuid          OLE32.DLL
 WINAPI: StringFromCLSID       OLE32.DLL
 WINAPI: CLSIDFromString       OLE32.DLL
@@ -57,6 +58,9 @@ USER UnicodeBuf
 ;
 : ComInit ( -- ior )
   0 0 CoInitializeEx
+;
+: ComExit ( -- )
+  CoUninitialize DROP \ void
 ;
 : ComCreateGUID ( GUIaddr -- ior )
   CoCreateGuid
@@ -155,7 +159,7 @@ Interface: IID_IDispatch {00020400-0000-0000-C000-000000000046}
   Method: ::GetTypeInfo      ( ppTInfo lcid iTInfo oid -- hresult )
   Method: ::GetIDsOfNames    ( rgDispId lcid cNames rgszNames riid oid -- hresult )
   Method: ::Invoke           ( puArgErr pExcepInfo pVarResult pDispParams wFlags lcid riid dispIdMember oid -- hresult )
-  Method: ::RemoteInvoke
+\  Method: ::RemoteInvoke ( где я это взял? 8-O убрал 3.03.2002 ~ac)
 Interface;
 
 ( при создании объекта Win2000 также пытается запросить интерфейсы
@@ -187,6 +191,19 @@ Interface;
 : GetIDispatch ( oid -- idispatch ior )
   0 >R RP@ IID_IDispatch ROT ::QueryInterface R> SWAP
 ;
+: GetIdOfName ( idisp addr u -- n ior )
+  >UNICODE DROP >R RP@
+  0 >R RP@
+  ROT >R
+  SWAP 0 ( LOCALE_SYSTEM_DEFAULT) 1 ROT IID_NULL R> ::GetIDsOfNames
+  R> SWAP R> FREE THROW
+;
+: InvokeNamedMethod ( params idisp addr u -- results )
+  2>R DUP 2R> GetIdOfName THROW ( params idisp n )
+  65535 AND \ если запрашиваемое имя - не метода, а property, то там еще флаги
+  6 + InvokeMethod \ 6 - номер последнего метода в IDispatch
+;
+
 \ вызов метода по имени:
 \ GetIDsOfNames(IID_NULL, &pszName, 1, LOCALE_SYSTEM_DEFAULT, &dispid)
 \ pdisp->Invoke(dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, wFlags, &dispparams, pvRet, pexcepinfo, pnArgErr);
