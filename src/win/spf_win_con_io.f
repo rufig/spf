@@ -87,7 +87,7 @@ USER NumberOfConsoleInputEvents
 ;
 
 
-CREATE INPUT_RECORD ( /INPUT_RECORD) 20 ALLOT
+CREATE INPUT_RECORD ( /INPUT_RECORD) 20 2 * ALLOT
 
 : ControlKeysMask ( -- u )
 \ вернуть маску управляющих клавиш для последнего клавиатурного события.
@@ -95,7 +95,6 @@ CREATE INPUT_RECORD ( /INPUT_RECORD) 20 ALLOT
 ;
 
 1 CONSTANT KEY_EVENT
-USER NumberOfRecordsRead
 
 : EKEY ( -- u ) \ 93 FACILITY EXT
 \ Принять одно клавиатурное событие u. Кодирование клавиатурных событий
@@ -105,8 +104,8 @@ USER NumberOfRecordsRead
 \    0  AsciiChar
 \    2  ScanCod
 \    3  KeyDownFlag
-  NumberOfRecordsRead 2 INPUT_RECORD H-STDIN \ 1 заменен на 2 (30.12.2001 ~boa)
-  ReadConsoleInputA DROP
+  0 >R RP@ 2 INPUT_RECORD H-STDIN \ 1 заменен на 2 (30.12.2001 ~boa)
+  ReadConsoleInputA DROP RDROP
   INPUT_RECORD ( EventType ) W@  KEY_EVENT <> IF 0 EXIT THEN
   [ INPUT_RECORD ( Event AsciiChar       ) 14 + ] LITERAL W@
   [ INPUT_RECORD ( Event wVirtualScanCode) 12 + ] LITERAL W@  16 LSHIFT OR
