@@ -370,6 +370,9 @@ M\ VECT DTST
      DUP 8289 <> IF \ MOV X [EDX], EAX
      DUP 8789 <> IF \ MOV X [EDI], EAX
      DUP 87FF <> IF \ INC X [EDI]
+     DUP 04FF <> IF \ INC X [ESP]
+     DUP 0CFF <> IF \ DEC X [ESP]
+     DUP 3C83 <> IF \ CMP [ESP] , # 0 
      DUP C00B <> IF \ OR EAX, EAX
      DUP 0481 <> IF \ ADD [E_X] 
      DUP 0401 <> IF \ ADD [E_X] 
@@ -738,6 +741,14 @@ M\ VECT DTST
            OP1 OPexcise
            M\ 1 DTST
    REPEAT
+   OP1 @ @ FC458B58 = \ POP     EAX   MOV     EAX , FC [EBP] 
+   IF      M\ F0 DTST
+           0424648D OP1 @ !
+           OP1 ToOP0
+           FALSE    M\ F1 DTST
+           EXIT  
+   THEN
+   
    OP2 @ :-SET U< 0= IF
    OP2 @ C@ B8 =    \  MOV     EAX , # 44444
    IF
@@ -1476,6 +1487,15 @@ OP0 @ 2+ C@    XOR OR
        EXIT   
     THEN
 
+OP2 @ C@ 58 XOR  \ 	POP     EAX 
+OP1 @ @ FFFFFF AND FF408D XOR OR \  LEA     EAX , FF [EAX] 
+OP0 @ C@ 50 XOR OR \ 	PUSH    EAX 
+0=  IF   M\ D30 DTST
+       240CFF OP2 @ !  \  DEC DWORD PTR  [ESP]
+       OP2 ToOP0
+       FALSE -2 ALLOT  M\ D31 DTST
+       EXIT   
+    THEN
 
    OP3 @ :-SET U< IF TRUE EXIT THEN
 
@@ -1803,6 +1823,14 @@ OP0 @ @ FFFFFF AND 24442B XOR OR \ 	SUB     EAX , 4 [ESP]
       EXIT
    THEN
 
+   OP0 @  @  FFFFFF AND 24048B = \ MOV     EAX , [ESP]
+   IF M\ 534 DTST
+      1 ALLOT
+      243C83   OP0 @ !     \    CMP  DWORD PTR [ESP], 0
+      TRUE  M\ 535 DTST
+      EXIT
+   THEN
+
    DUP 'DROP XOR
    OP0 @ W@  458B XOR OR 0= \  MOV     EAX , 0 [EBP]  
    IF M\ 334 DTST
@@ -1956,7 +1984,7 @@ OP0 @ 2+ C@ C>S  OFF-EBP > OR
         OVER 7D83  <> AND  \ CMP X [EBP], # Z
         OVER 3D81  <> AND  \ CMP 44444, # 55555
         OVER 3D83  <> AND  \ CMP 44444, # 0
-
+        OVER 3C83  <> AND  \ CMP [ESP], # 0
         OVER C20B XOR AND  \  OR EAX , EDX
         NIP AND
         IF    SetOP 0xC00B W,    \ OR EAX, EAX
