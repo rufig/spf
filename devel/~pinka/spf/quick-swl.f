@@ -66,7 +66,8 @@ USER-VALUE hash
   2DUP = IF 2DROP RDROP EXIT THEN
   \ если словарь пуст - 0 0 - тоже выход
 
-  C-SMUDGE C@ 12 <> IF CDR THEN
+  DUP CHAR+ C@ 12 = IF CDR THEN
+  \ не добавляем последнее слово, если скрыто ( by HIDE )
   DUP R@ .last !
   R> .hash @ TO hash
 
