@@ -47,7 +47,8 @@ WINAPI: SQLEndTran            ODBC32.DLL
 \ 65532 CONSTANT SQL_LONGVARBINARY \ -4
 \ 65535 CONSTANT SQL_LONGVARCHAR \ -1
 \ 65530 CONSTANT SQL_TINYINT \ -6
-: SqlIsBinary ( type -- flag ) DUP 65530 65536 WITHIN SWAP 5 = OR ;
+\ : SqlIsBinary ( type -- flag ) DUP 65531 65535 WITHIN SWAP 5 = OR ;
+: SqlIsBinary ( type -- flag ) 65531 65535 WITHIN ;
 
 0
 4 -- odbcEnv
