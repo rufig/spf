@@ -116,6 +116,21 @@ VARIABLE SnmpWaitingPdu
     PAD 100 SNMPoutoid SnmpOidToStr PAD SWAP TYPE CR
   LOOP
 ;
+VECT v_add-value
+
+: SnmpGraphReceivedPdu ( -- )
+  SNMPoutvbl SNMPerror_index SNMPerror_status SNMPrequest_id SNMPpdu_type
+  SNMPoutpdu @ SnmpGetPduData 0= THROW
+  SNMPoutvbl @ SnmpCountVbl 1+ 1 ?DO
+    3 CELLS ALLOCATE THROW DUP SNMPoutoid I SNMPoutvbl @ SnmpGetVb 0= THROW
+    DUP @ SNMP_SYNTAX_OCTETS =
+    IF DUP CELL+ DUP @ SWAP CELL+ @ SWAP TYPE CR
+    ELSE ( DUP 3 CELLS DUMP CR) DUP CELL+ @ v_add-value THEN
+    FREE THROW
+\    SNMPoutoid CELL+ @ SNMPoutoid @ CELLS DUMP CR
+    PAD 100 SNMPoutoid SnmpOidToStr PAD SWAP TYPE CR
+  LOOP
+;
 : SnmpExecReceivedPdu ( -- )
   SNMPoutvbl SNMPerror_index SNMPerror_status SNMPrequest_id SNMPpdu_type
   SNMPoutpdu @ SnmpGetPduData 0= THROW
@@ -169,8 +184,8 @@ SNMPpdu_type @ ." T=" .
   SNMPnLevel @ 2 = AND 0= THROW
   0 ['] SnmpCallback 0 0 SnmpCreateSession DUP SNMPsession ! 0= THROW
 
-  S" 1.3.6.1.2.1.2.2.1.10.65539" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
 (
+  S" 1.3.6.1.2.1.2.2.1.10.65539" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
   S" 1.3.6.1.2.1.1.1.0" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
   S" 1.3.6.1.2.1.1.7.0" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
 
@@ -181,12 +196,11 @@ SNMPpdu_type @ ." T=" .
 ." 1:"  S" 1.3.6.1.2.1.6.9.0" S" 198.63.211.47" SnmpGetNext SnmpDumpReceivedPdu SnmpFreeReceivedPdu
 ." 2:"  S" 1.3.6.1.2.1.6.15.0" S" 198.63.211.47" SnmpGetNext SnmpDumpReceivedPdu SnmpFreeReceivedPdu
 ." 3:"  S" 1.3.6.1.2.1.6.105" S" 198.63.211.47" SnmpGetNext SnmpDumpReceivedPdu SnmpFreeReceivedPdu
-(
+
   100 0 DO
     S" 1.3.6.1.2.1.6.9.0" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
     1000 PAUSE
   LOOP
-)
 
   S" 127.0.0.2" DROP SNMPsession @ SnmpStrToEntity DUP SNMPentity ! 0= THROW
   170 SNMPentity @ SnmpSetPort 0= THROW
@@ -196,7 +210,7 @@ SNMPpdu_type @ ." T=" .
     SNMPoutpdu SNMPoutcontext SNMPdstentity SNMPsrcentity SNMPsession @ SnmpRecvMsg 0= THROW
     SnmpExecReceivedPdu ."  D=" DEPTH . CR
   AGAIN
-
+)
 \  SNMPsession @ SnmpGetLastError .
 ;
 
@@ -306,10 +320,10 @@ WINAPI: GetTickCount KERNEL32.DLL
 
 \ MRTG def stats
 : 1.3.6.1.2.1.2.2.1.10.0 \ .iso.org.dod.internet.mgmt.mib-2.interfaces.ifTable.ifEntry.ifInOctets.0
-  GetTickCount 0xFF AND SnmpSetCounterReply
+  GetTickCount 0xFFFFFF AND ."  in=" DUP . SnmpSetCounterReply
 ;
 : 1.3.6.1.2.1.2.2.1.16.0 \ .iso.org.dod.internet.mgmt.mib-2.interfaces.ifTable.ifEntry.ifOutOctets.0
-  GetTickCount 0xFFFF AND SnmpSetCounterReply
+  GetTickCount ."  out=" DUP . SnmpSetCounterReply
 ;
 
 \ .iso.org.dod.internet.private.enterprises.etype
