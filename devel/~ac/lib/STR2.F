@@ -159,6 +159,7 @@ REQUIRE { ~ac/lib/locals.f
 4 -- sReadH
 CONSTANT /sHeader
 
+500 VALUE STRBUF-SIZE
 USER STR-ID
 USER STRLAST
 
@@ -199,7 +200,7 @@ USER STRLAST
 ;
 : STRBUF ( -- s )
   { \ s }
-  4000 /sHeader + DUP ALLOCATE THROW -> s
+  STRBUF-SIZE /sHeader + DUP ALLOCATE THROW -> s
   s OVER ERASE
   s sAsize !
   S" " s STR!
