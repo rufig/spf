@@ -275,6 +275,7 @@ EXPORT
   LocalsStartup
   BEGIN
     BL SKIP PeekChar DUP [CHAR] \ <> 
+                    OVER [CHAR] | <> AND
                     OVER [CHAR] - <> AND
                     OVER [CHAR] } <> AND
                     SWAP [CHAR] ) <> AND
