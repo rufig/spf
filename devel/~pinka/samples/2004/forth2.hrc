@@ -215,7 +215,7 @@ With Help of
 
   <!-- words like p[  ] -->
   <!--            12       3    4         5       -->
-  <regexp match='/(([^\s]+)(\[))(\s[^\]]*)(\])/i' region1="fthWordStr" region4="fthParsedStr" region5="fthDelimStr"/>
+  <regexp match='/(([^\s[]+)(\[))(\s[^\]]*)(\])/i' region1="fthWordStr" region4="fthParsedStr" region5="fthDelimStr"/>
 
 
 </scheme>
@@ -350,8 +350,8 @@ With Help of
    <block start="/^(BLOCK\:)(\s)/" end="/^/" scheme="Comment" region="fthCondComp" region01="fthCondComp" region02="fthCondComp" />
    <!-- TechnoForth library entry:  // name -->
    <block start="/^(\/\/)(\s)/" end="/^/" scheme="Comment" region="fthCondComp" region01="fthCondComp" region02="fthCondComp" />
-   <regexp match="/\/\/\s*$/" region0="fthCondComp">
-   <regexp match="/library\s*$/i" region0="fthCondComp">
+   <regexp match="/\/\/\s*$/" region0="fthCondComp"/>
+   <regexp match="/library\s*$/i" region0="fthCondComp"/>
 <!--  <inherit scheme="biplaneblock1"/> -->
    <!-- "((" : either Gray (parser generator) or coment -->
    <block start="/(\(\()(\s|$)/" end="/(\)\))(\s|$)/" scheme="gray" region="fthGray" region01="fthWordRem2" region02="fthSkippedRem2" region11="fthWordRem2" region12="fthDelimRem2"/>
