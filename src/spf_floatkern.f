@@ -438,28 +438,23 @@ CODE FATAN2
 END-CODE
 
 CODE FACOS \ *
-     FMUL ST(0), ST
      FLD1
-     FXCH
+     FLD ST(1)
+     FMUL ST, ST
      FSUBP ST(1), ST
      FSQRT
-     FLD1
+     FXCH
      FPATAN
-     MOV DWORD -4 [EBP], # 2
-     FIMUL DWORD -4 [EBP]
      RET
 END-CODE
 
 CODE FASIN
-     FLD ST(0)
-     FMUL ST, ST
-     FSTP TBYTE -0A [EBP]
      FLD1
-     FSUB TBYTE -0A [EBP]
+     FLD ST(1)
+     FMUL ST, ST
+     FSUBP ST(1), ST
      FSQRT
      FPATAN
-     MOV DWORD -4 [EBP], # 2
-     FIMUL DWORD -4 [EBP]
      RET
 END-CODE
 
