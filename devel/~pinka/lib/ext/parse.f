@@ -6,7 +6,7 @@ REQUIRE {             ~ac\lib\locals.f
 [UNDEFINED] PARSE-AREA@ [IF]
 \ for desc see http://forth.sourceforge.net/word/parse-area-fetch/index.html
 : PARSE-AREA@ ( -- a u )
-  SOURCE SWAP >IN @ + SWAP >IN @ -
+  SOURCE  DUP >IN @ UMIN  TUCK - >R + R>
 ;                       [THEN]
 
 : SPARSE ( sa su -- a1 u1 true | false )
