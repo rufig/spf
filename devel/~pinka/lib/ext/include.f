@@ -25,9 +25,10 @@ REQUIRE [UNDEFINED]  lib\include\tools.f
 \ Если произошло исключение, спецификации входного потока
 \ должны быть такими же, как до вызова этого слова.
   -ROT
-  2DUP R/O OPEN-FILE-SHARED THROW  >R
+  CURFILE @ >R
+  2DUP R/O OPEN-FILE-SHARED THROW >R
   HEAP-COPY CURFILE !
-  R@ SWAP RECEIVE-WITH ( ior )
+  R@ SWAP RECEIVE-WITH ( fileid xt -- ior )
   R> CLOSE-FILE     SWAP
   CURFILE @ FREE    SWAP
   R> CURFILE !      THROW THROW THROW
