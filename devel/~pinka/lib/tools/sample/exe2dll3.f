@@ -269,11 +269,33 @@ VARIABLE image-offs
 
   HERE >R 
 
-  HERE >rva 0 W,                 \ NameOrdinals
-  HERE 1+ >rva  S" sfind" S", 0 C, \ names itself
+  HERE >rva               \ NameOrdinals
+            2 W,
+            1 W,
+            0 W,
+  ( 'NameOrdinals )
+
+  HERE 1+ >rva  S" sfind" S", 0 C, \ name itself
+  HERE 1+ >rva  S" eval"  S", 0 C, \ name itself
+  HERE 1+ >rva  S" exec"  S", 0 C, \ name itself
+
+  \ obviously, this^ order must be sorted by name (inverse for us)
+
   HERE >rva     SWAP ,          \ array of rva names
+                SWAP ,
+                SWAP ,
+
+  ( 'NameOrdinals 'Names )
+
   HERE >rva     ['] sfind >RVA ,  \ array of rva functions
+                ['] eval  >RVA ,
+                ['] exec  >RVA ,
+
+  ( 'NameOrdinals 'Names 'Functions )
+                
   HERE 1+ >rva  dllname-a @ dllname-u @ S", 0 C, \ dll name
+
+  ( 'NameOrdinals 'Names 'Functions 'DllName )
 
   HERE >rva TO ExportDirectory
   HERE >R
@@ -283,8 +305,8 @@ VARIABLE image-offs
   0 ,  \ Major&Minor version
    ,  \ name
   1 , \ Base
-  1 , \ NumberOfFunctions
-  1 , \ NumberOfNames
+  3 , \ NumberOfFunctions
+  3 , \ NumberOfNames
    ,  \ Addr of functions
    ,  \ Addr of names
    ,  \ addr of name ordinals
