@@ -1,0 +1,76 @@
+ 
+  Файлы forth2.hrc взят из архива 
+  http://www.forth.org.ru/~mlg/Colorer/colorer.4.mlg.rar  346,536
+
+  - отличная реализация подсветки синтаксиса для Форта by mlg! :-)
+  (mlg, спасибо :)
+
+  Для полноты также нужен файл forthhrd.hrc и MY1.HRD (или forth.hrd)
+  - цветовая схема (лежат в том же архиве).
+
+  Файлы положить в colorer:
+    colorer\hrc\main\forth2.hrc
+    colorer\hrc\main\forthhrd.hrc
+    colorer\hrd\console\MY1.HRD
+
+  В colorer\hrc\colorer.hrc  
+  в секции   type descr="Forth" name="forth"
+  вместо
+     <load name="main/forth.hrc"/>
+  прописать
+     <load name="main/forth2.hrc"/>
+
+  В colorer\hrc\regions.hrc 
+  после строки
+    <define name="dInverseLabel" value="121"/>
+  добавлена строка
+    <define name="dInverseLabel2" value="122"/>
+
+  В настройках колорера, Файл ассоциаций 
+  - прописать имя цветовой схемы: console\my1.hrd
+
+
+  По сравнению с оригинальным forth2.hrc, внесены некоторые изменения.
+  Лог моих редакций ниже (также, см. дерево ревизий).
+
+  30.Jul.2004, ruvim@forth.org.ru
+
+________________________________________________________________________
+
+\ 20.Jul.2004 
+
+  <block start="/\{\s/" end="/\}(\s|$)/" scheme="empty" region="fthWritten" region00="fthKeyWordC" region10="fthKeyWordC"/>
+                                   ^ была опечатка.
+\ 20.Jul.2004 Tue 18:56
+
+   <regexp match="/(\+?[CWHcwh2]?\+?\!)(\s|$)/"
+                 +  ^^^
+                   - чтобы понимал  +С!
+  С+!
+  W+!
+  +W!
+
+\ 20.Jul.2004 Tue 23:30
+
+ блок
+  <!-- words like S$ { } -->
+ перенесен в
+  <scheme name="forthcommon"> <!-- both compiler and interpreter -->
+
+ и добавлен туда
+   <!-- words like p[  ] -->
+ 
+\ 26.Jul.2004 Mon 22:06
+ понятие о строке синтаксисом: " ... "
+
+ перенес  <!-- S" text" and like that  -->
+ ( 'S"' , 'C"', )
+ в <scheme name="forthcommon">
+
+\ 28.Jul.2004 Wed 22:13
+
++ <!-- heuristic rule, words like:  <some-ccc>! -->
+
++ REQUIRE
++ INCLUDE
++ USER

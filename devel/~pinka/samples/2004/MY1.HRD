@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<!DOCTYPE hrd SYSTEM "../hrd.dtd">
+<hrd>
+<!--
+   christmas tree syndrome...
+   minimum syntax highlighting
+-->
+
+  <assign value="02" fore="#B" back="1" descr="dText"/>
+  <assign value="03" fore="#F" back="" descr="dRow"/>
+  <assign value="04" fore="#F" back="" descr="dColumn"/>
+  <assign value="05" fore="" back="" type="1" descr="dSyntax"/>
+
+  <assign value="10" fore="#F" back="" descr="dNumber"/>
+  <assign value="11" fore="#F" back="" descr="dNumDec"/>
+  <assign value="12" fore="#F" back="" descr="dNumHex"/>
+  <assign value="13" fore="#F" back="" descr="dNumBin"/>
+  <assign value="14" fore="#F" back="" descr="dNumOct"/>
+  <assign value="15" fore="#F" back="" descr="dNumFloat"/>
+  <assign value="16" fore="#7" back="" descr="dNumSuffix"/>
+
+  <assign value="20" fore="#E" back="" descr="dString"/>
+  <assign value="21" fore="#E" back="" descr="dString2"/>
+  <assign value="22" fore="#E" back="" descr="dStringQuote"/>
+  <assign value="23" fore="#E" back="" descr="dStringQuote2"/>
+  <assign value="24" fore="#E" back="" descr="dCharacter"/>
+  <assign value="25" fore="#E" back="" descr="dCharacter2"/>
+
+  <assign value="30" fore="#a" back="" type="1" descr="dComment"/>
+  <assign value="31" fore="#7" back="" descr="dComment2"/>
+  <assign value="32" fore="#7" back="" descr="dBlockComment"/>
+  <assign value="33" fore="#7" back="" descr="dLineComment"/>
+  <assign value="34" fore="#3" back="" descr="dPod"/>
+
+  <assign value="40" fore="" back="" descr="dSymbol"/>
+  <assign value="41" fore="#F" back="" descr="dSymbol2"/>
+  <assign value="42" fore="#F" back="" descr="dPrefix"/>
+
+  <assign value="50" fore="#F" back="" descr="dOperator"/>
+
+  <assign value="60" fore="#F" back="" descr="dKeyword"/>
+  <assign value="61" fore="#F" back="" descr="dKeyword2"/>
+  <assign value="62" fore="#F" back="" descr="dType"/>
+
+  <assign value="70" fore="" back="" type="2" descr="dFunction"/>
+  <assign value="71" fore="#F" back="" descr="dRegister"/>
+  <assign value="72" fore="#F" back="" descr="dConstant"/>
+  <assign value="73" fore="#F" back="" descr="dBoolean"/>
+
+  <assign value="80" fore="" back="" descr="dVar"/>
+  <assign value="81" fore="" back="" descr="dVar2"/>
+  <assign value="82" fore="" back="" descr="dIdentifier"/>
+
+  <assign value="90" fore="#3" back="" descr="dDirective"/>
+  <assign value="91" fore="#2" back="" descr="dDirective2"/>
+
+  <assign value="100" fore="#F" back=""  descr="dParam"/>
+  <assign value="101" fore="#6" back=""  descr="dParam2"/>
+
+  <assign value="110" fore="#7" back="" descr="dTag"/>
+  <assign value="111" fore="#F" back="" descr="dOpenTag"/>
+  <assign value="112" fore="#F" back="" descr="dCloseTag"/>
+
+  <assign value="120" fore="#D" back="" descr="dLabel"/>
+  <assign value="121" fore="#1" back="#F" descr="dInverseLabel"/>
+  <assign value="122" fore="#1" back="#7" descr="dInverseLabel2"/>
+
+  <assign value="130" fore="#B" back="#8" descr="dInsert"/>
+  <assign value="131" fore="#B" back="#8" descr="dInsertStart"/>
+  <assign value="132" fore="#B" back="#8" descr="dInsertEnd"/>
+
+  <assign value="140" fore="#0" back="#4" type="3" descr="dError"/>
+  <assign value="141" fore="#D" back=""   descr="dErrorText"/>
+  <assign value="142" fore="#C" back="" type="3" descr="dTODO"/>
+  <assign value="143" fore="#C" back="" type="3" descr="dDebug"/>
+
+  <assign value="150" fore="#A" back="" descr="dPath"/>
+  <assign value="151" fore="#A" back="" descr="dURL"/>
+  <assign value="152" fore="#A" back="" descr="dEMail"/>
+
+  <assign value="160" fore="#E" back="" descr="dDate"/>
+  <assign value="161" fore="#E" back="" descr="dTime"/>
+
+  <assign value="170" fore="#4" back=""   type="#100" descr="dpOpenStruct"/>
+  <assign value="171" fore="#4" back=""   type="#101" descr="dpCloseStruct"/>
+  <assign value="172" fore="#0" back="#F" type="#100" descr="dpOpenTag"/>
+  <assign value="173" fore="#0" back="#F" type="#101" descr="dpCloseTag"/>
+
+  <!-- Forth parsing -->
+  <!-- Skip leading delimiters; parse non-delimiters; parse one delimiter -->
+  <!--  The 2nd digit:
+	0 skip leading delimiters;
+	1 parse non-delimiters;
+	2 parse one delimiter
+	3 the word that does parsing (if any)
+     Examples:
+          DUP     SWAP DROP     POSTPONE   DUP   POSTPONE SWAP
+       0001112000011112111120000333333332001112
+  -->
+  <!--  The last digit:
+	0 interpretation (outside : x ... ; )
+	1 compilation (inside : x ... ; )
+	2 new name in a definition ( x in : x ... ; )
+	3 parsed as name by immediate ( POSTPONE IF )
+	4 parsed as text ( S" abcd" )
+	5 parsed as comment ( \ abcd )
+	6 parsed as block comment ( \ -- abcd ---  )
+	7 creating word ( create in : x create ... does> ... ; )
+	8 comment2 (( ... ))
+  -->
+  <!--
+  norm:  0 black 1 blue 2 green 3 cyan 4 red 5 magenta 6 khaki (brown) 7 white
+  light: 8 gray  9 blue A green B cyan C red D magenta E yellow        F white
+  -->
+
+  <!-- 0 interpretation (outside : x ... ; ) -->
+  <assign value="200" fore="" back="" descr="dfSkipped0"/>
+  <assign value="210" fore="#a" back="" descr="dfParsed0"/>
+  <assign value="220" fore=""   back="" descr="dfDelim0"/>
+  <assign value="230" fore=""   back="" descr="dfWord0"/>
+  <!-- 1 compilation (inside : x ... ; ) -->
+  <assign value="201" fore="" back="" descr="dfSkipped1"/>
+  <assign value="211" fore="#b" back="" descr="dfParsed1"/>
+  <assign value="221" fore="4" back="" descr="dfDelim1"/>
+  <assign value="231" fore="" back="" descr="dfWord1"/>
+  <!-- 2 new name in a definition ( x in : x ... ; ) -->
+  <assign value="202" fore=""   back="" descr="dfSkipped2"/>
+  <assign value="212" fore="#f" back="" descr="dfParsed2"/>
+  <assign value="222" fore=""   back=""  descr="dfDelim2"/>
+  <assign value="232" fore="#f" back="" descr="dfWord2"/>
+  <!-- 3 parsed by immediate ( POSTPONE IF ) -->
+  <assign value="203" fore="#7" back="0" descr="dfSkipped3"/>
+  <assign value="213" fore="#7" back="0" descr="dfParsed3"/>
+  <assign value="223" fore="#7" back="0" descr="dfDelim3"/>
+  <assign value="233" fore="#e" back="0" descr="dfWord3"/>
+  <!-- 4 parsed as text ( S" abcd" ) -->
+  <assign value="204" fore="#e" back="" descr="dfSkipped4"/>
+  <assign value="214" fore="#7" back="0" descr="dfParsed4"/>
+  <assign value="224" fore="#e" back="" descr="dfDelim4"/>
+  <assign value="234" fore="#e" back="" descr="dfWord4"/>
+  <!-- 5 parsed as comment:  \ abcd  -->
+  <assign value="205" fore="" back="" descr="dfSkipped5"/>
+  <assign value="215" fore="#7" back="0" descr="dfParsed5"/>
+  <assign value="225" fore="#7" back="" descr="dfDelim5"/>
+  <assign value="235" fore="#7" back="" descr="dfWord5"/>
+  <!-- 6 parsed as block title comment:  \ -- abcd ---   -->
+  <assign value="206" fore=""   back="6" descr="dfSkipped6"/>
+  <assign value="216" fore="#f" back="6" descr="dfParsed6"/>
+  <assign value="226" fore="#f" back="6" descr="dfDelim6"/>
+  <assign value="236" fore="#f" back="6" descr="dfWord6"/>
+  <!-- 7 creating word ( create in : x create ... does> ... ; ) -->
+  <assign value="207" fore="" back="" descr="dfSkipped7"/>
+  <assign value="217" fore="#e" back="5" descr="dfParsed7"/>
+  <assign value="227" fore="" back="" descr="dfDelim7"/>
+  <assign value="237" fore="" back="" descr="dfWord7"/>
+  <!-- 8 comment2 (( ... )) -->
+  <assign value="208" fore="#7" back="" descr="dfSkipped8"/>
+  <assign value="218" fore="#7" back="" descr="dfParsed8"/>
+  <assign value="228" fore="#7" back="" descr="dfDelim8"/>
+  <assign value="238" fore="#f" back="" descr="dfWord8"/>
+
+  <!-- skipped -->
+
+  <assign value="209" fore="" back="" descr="dfSkipped9"/>
+  <!-- parsed -->
+
+  <assign value="219" fore="" back="" descr="dfParsed9"/>
+  <!-- delimiter -->
+
+  <assign value="229" fore="" back="" descr="dfDelim9"/>
+  <!-- word that parses -->
+
+  <assign value="239" fore="" back="" descr="dfWord9"/>
+
+  <assign value="240" fore="#f" back="" descr="dfKeyWordI"/>
+  <assign value="241" fore="#e" back="" descr="dfKeyWordC"/>
+  <assign value="242" fore="#d" back="" descr="dfWritten"/>
+  <assign value="243" fore="#f" back="8" descr="dfCondComp"/>
+  <assign value="244" fore="#f" back="0" descr="dfParsedCondComp"/>
+  <assign value="245" fore="#7" back="0" descr="dfCommentedOut"/>
+  <assign value="246" fore="#7" back="5" descr="dfGray"/>
+
+  <assign value="248" fore="#f" back="#4" descr="dfWarning"/>
+  <assign value="249" fore="#f" back="#c" descr="dfError"/>
+
+</hrd>

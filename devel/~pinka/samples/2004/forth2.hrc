@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<!DOCTYPE hrc SYSTEM "../hrc.dtd">
+<?xml-stylesheet type="text/xsl" href="../hrc.xsl"?>
+<!--
+   Forth Syntax
+With Help of
+   Andrey Cherezov <ac@eserv.ru>       based on SP-forth
+   Loktev Nikola <loktev@niisi.msk.ru> based on P-forth
+   cail: add new worddiv parameter
+   Valery Kondakoff <strauss@orc.ru>, 2:5020/163
+   (nnCron Crontabs Syntax http://nemtsev.eserv.ru)
+-->
+<!-- $Id$  -->
+<hrc>
+
+<!-- ======= specify colors ========== -->
+<!-- basically, there are two ways to specify colors -->
+
+<!-- ~~~~ way 1: map onto Forth colors added to the current hrd ~~~~ -->
+<!-- you must modify your hrd file: copy & paste definitions of Forth colors. -->
+<!-- The Forth colors are in the range 200..250 -->
+<include name="main/forthhrd.hrc"/>
+
+<!-- ~~~~ way2: map onto existing colors ~~~~ -->
+
+<!-- ======= end specify colors ========== -->
+
+<!-- GENERAL NOTE
+
+  Introduction
+  by M.L.Gassanenko
+
+  Before we start, let me remind you that Forth programs
+  are sequences of words: sequences of non-whitespece characters
+  delimited by whitespace. All non-whitespace characters are
+  equal to Forth, so we cannot use the colorer's keywords
+  mechanism.
+
+  The purpose of our Forth colorer is to undrline essential
+  properties of Forth code.
+
+  We do not want to just color different elements of code
+  differently because this will not help much.
+  We want to underline relations.
+  For example, now we do not highlight numbers, because
+  numbers are no different from constants or words
+  that return one value.
+  OTOH, in some future version we probably will 
+  highlight numbers according to the current base.
+
+
+  Since any word in Forth may be redefined, and since
+  the user may define his own meta-words, the problem of
+  coloring Forth does not have a general solution.
+  (If you attach colorer to the compiler, you will
+  not be able to color the code that hangs the system,
+  e.g. such code fragment is
+    0 >IN !
+  This code tells the interpreter to reset the input pointer
+  to the beginning of the current input line.
+  Since in the beginning of this line is this code,
+  the interpreter enters an endless loop.)
+  
+-->
+<!-- TECHNICAL NOTE
+
+  The comments like
+  [!--            123      4        5     6   --]
+  are needed to count parens. The parens are referenced
+  by directives like region2="blaBlah" and \2 .
+
+-->
+
+
+<scheme name="blskipi">  <!-- skip spaces while interpreting -->
+  <regexp match="/(\s*)/" region1="fthSkippedInte"/>
+</scheme>
+<scheme name="blskipc"> <!-- skip spaces while compiling -->
+  <regexp match="/(\s*)/" region1="fthSkippedComp"/>
+</scheme>
+<scheme name="blwordi">  <!-- BL WORD while interpreting -->
+  <!-- any word except )) -->
+  <!--            1       2    3 -->
+  <regexp match="/(\)\))?!(\S+)(\s|$)/" region2="fthParsedInte" region3="fthDelimInte"/>
+</scheme>
+<scheme name="blwordc">  <!-- BL WORD while compiling -->
+  <!-- any word except ";" and "[" -->
+  <!--            123      4            5            6        7     8  -->
+  <regexp match="/(((\[|\;|(end\-macro)|(\.endmacro))(\s|$))?!(\S+))(\s|$)/i"       region1="fthParsedComp" region8="fthDelimComp"/>
+</scheme>
+
+<scheme name="assignc"> <!-- memory write operators -->
+   <!-- TO name IS name -->
+   <!--            12    3    4   5    6    7  was: 1=fthParsedComp -->
+   <regexp match="/((to)|(is))(\s)(\s*)(\S*)(\s|$)/i"
+    region1="fthKeyWordC" region4="fthDelimComp"
+    region5="fthSkippedComp" region6="fthWritten" region7="fthDelimComp"
+   />
+   <!-- ! C! +! and non-standard W! H! -->
+   <regexp match="/([12]?\+?[CWHcwh2]?\+?\!)(\s|$)/"
+    region1="fthWritten" region2="fthDelimComp"
+   />
+   <!-- F! SF! DF! -->
+   <regexp match="/([sdSD]?f\!)(\s|$)/i"
+    region1="fthWritten" region2="fthDelimComp"
+   />
+   <!-- CMOVE CMOVE> MOVE and non-standard QMOVE -->
+   <regexp match="/([cqCQ]?move\>?)/i"
+    region1="fthWritten" region2="fthDelimComp"
+   />
+   <!-- non-standard S$MOVETO -->
+   <regexp match="/(s\$moveto)/i"
+    region1="fthWritten" region2="fthDelimComp"
+   />
+   <!-- non-standard []! C[]! D[]! W[]! H[]! -->
+   <regexp match="/([CWHDcwhd2]?\[\]\!)(\s|$)/"
+    region1="fthWritten" region2="fthDelimComp"
+   />
+   <!-- non-standard 1+! 1-! C1+! C1-! etc -->
+   <regexp match="/([CWHDcwhd2]?[12][\+\-]\!)(\s|$)/"
+    region1="fthWritten" region2="fthDelimComp"
+   />
+
+   <!-- heuristic rule, words like:  <some-ccc>! -->
+   <regexp match="/(\w+!)(\s|$)/"
+    region1="fthWritten" region2="fthDelimComp"
+   />
+
+   <!-- non-standard ON OFF -->
+   <regexp match="/((ON)|(OFF))(\s|$)/i"
+    region1="fthWritten" region4="fthDelimComp"
+   />
+
+</scheme>
+
+
+<scheme name="forthcomment2">  <!-- (( comment2 )) -->
+  <!-- skip leading spaces -->
+  <regexp match="/(\s*)/" region1="fthSkippedRem2"/>
+  <!-- any word except "))" -->
+  <!--            123     4        5     6   -->
+  <regexp match="/(((\)\))(\s|$))?!(\S+))(\s|$)/"       region1="fthParsedRem2" region6="fthDelimRem2"/>
+
+<!--
+  !-- any word not starting with ) --
+  <regexp match="/([^\s\)]\S*)(\s|$)/" region1="fthParsedRem2" region2="fthDelimRem2"/>
+  <!-- ) itself --
+  <regexp match="/(\))(\s|$)/" region1="fthParsedRem2" region2="fthDelimRem2"/>
+  <!-- any word starting with ) and not ) --
+  <regexp match="/(\)[^\s\)]\S*)(\s|$)/" region1="fthParsedRem2" region2="fthDelimRem2"/>
+  <!-- any word starting with )) but having something after --
+  <regexp match="/(\)\)\S+)(\s|$)/" region1="fthParsedRem2" region2="fthDelimRem2"/>
+-->
+</scheme>
+
+<scheme name="forthcommon"> <!-- both compiler and interpreter -->
+   <!-- \ comment -->
+   <!--regexp match="/\\\s+.*$/"  region0="fthRem"/-->
+
+   <!-- \ == block title comment == -->
+    <!-- may be *very* slow on almost matching blocks if we append .*\-$ to start="" -->
+   <block start="/^(\\)(\s)(\-\-\-)/" end="/^/" scheme="Comment" region="fthParsedRemB" region01="fthWordRemB" region02="fthSkippedRemB" />
+   <block start="/^(\\)(\s)(\=\=\=)/" end="/^/" scheme="Comment" region="fthParsedRemB" region01="fthWordRemB" region02="fthSkippedRemB" />
+
+   <!-- \ comment -->
+   <regexp match="/(\\\s)(.*)($)/"  region1="fthWordRem" region2="fthParsedRem" region3="fthDelimRem"/>
+   <regexp match="/(\\)($)/"  region1="fthWordRem" region2="fthDelimRem"/>
+
+   <!-- -- comment -->
+   <regexp match="/(\-\-\s)(.*)($)/"  region1="fthWordRem" region2="fthParsedRem" region3="fthDelimRem"/>
+   <regexp match="/(\-\-)($)/"  region1="fthWordRem" region2="fthDelimRem"/>
+
+   <!-- ( comment) -->
+   <block start="/(\()(\s|$)/" end="/\)/" scheme="Comment" region01="fthWordRem" region02="fthSkippedRem" region="fthParsedRem" region10="fthDelimRem"/>
+   <!-- (( comment2 )) -->
+   <block start="/(\(\()(\s|$)/" end="/(\)\))(\s|$)/" scheme="forthcomment2" region01="fthWordRem2" region02="fthSkippedRem2" region11="fthWordRem2" region12="fthDelimRem2"/>
+
+   <!-- [IF] [ELSE] [THEN] -->
+   <regexp match="/((\[IF\])|(\[ELSE\])|(\[THEN\]))(\s|$)/i" region1="fthCondComp"/>
+   <regexp match="/((\[CASE\])|(\[OF\])|(\[ENDOF\])|(\[ENDCASE\]))(\s|$)/i" region1="fthCondComp"/>
+   <!--            1            2   3    4     -->
+   <regexp match="/(\[defined\])(\s)(\S*)(\s|$)/i" region1="fthCondComp" region3="fthParsedCondComp"/>
+   <regexp match="/(\[undefined\])(\s)(\S*)(\s|$)/i" region1="fthCondComp" region3="fthParsedCondComp"/>
+
+
+  <!-- S" text" and like that  -->
+  <regexp match='/(s\")(\s)([^\"]*)(\")/i'      region1="fthWordStr" region2="fthSkippedStr" region3="fthParsedStr" region4="fthDelimStr"/>
+  <regexp match='/(c\")(\s)([^\"]*)(\")/i'      region1="fthWordStr" region2="fthSkippedStr" region3="fthParsedStr" region4="fthDelimStr"/>
+  <block start='/(\")(\s|$)/' end='/(\")/' scheme="macrostring" region01="fthWordStr" region02="fthSkippedStr" region11="fthDelimStr"/>
+
+  
+  <!-- words like S$ { } -->
+  <!-- error: these words allow long sequences-->
+  <regexp match='/((s|c|\.|(please))\$)($|(\s.?$)|(\s\s\s))/i' region0="fthWrong"/>
+
+  <!--            12       3      4 5      6   7   8    9        -- parens 4 & 5 are reserved-->
+  <regexp match='/((s|c|\.|(please()()))\$)(\s)(\s)(\S*)(\s|$)/i' region1="fthWordStr" region6="fthDelimComp" region7="fthWarn" region8="fthParsedStr" region9="fthWarn"/>
+
+  <!--            12       3      4 5      6   7   8       9    parens 4 & 5 are reserved-->
+  <regexp match='/((s|c|\.|(please()()))\$)(\s)(\{)([^\}]*)($)/i' region1="fthWordStr" region6="fthDelimComp" region7="fthWrong" region8="fthParsedStr" region9="fthDelimStr"/>
+  <regexp match='/((s|c|\.|(please()()))\$)(\s)(\<)([^\>]*)($)/i' region1="fthWordStr" region6="fthDelimComp" region7="fthWrong" region8="fthParsedStr" region9="fthDelimStr"/>
+  <regexp match='/((s|c|\.|(please()()))\$)(\s)(\[)([^\]]*)($)/i' region1="fthWordStr" region6="fthDelimComp" region7="fthWrong" region8="fthParsedStr" region9="fthDelimStr"/>
+  <regexp match='/((s|c|\.|(please()()))\$)(\s)(\()([^\)]*)($)/i' region1="fthWordStr" region6="fthDelimComp" region7="fthWrong" region8="fthParsedStr" region9="fthDelimStr"/>
+  <!--            12       3      4 5      6   7   8       9    parens 4 & 5 are reserved-->
+  <regexp match='/((s|c|\.|(please()()))\$)(\s)(\{)([^\}]*)(\})/i' region1="fthWordStr" region6="fthDelimComp" region7="fthDelimStr" region8="fthParsedStr" region9="fthDelimStr"/>
+  <regexp match='/((s|c|\.|(please()()))\$)(\s)(\<)([^\>]*)(\>)/i' region1="fthWordStr" region6="fthDelimComp" region7="fthDelimStr" region8="fthParsedStr" region9="fthDelimStr"/>
+  <regexp match='/((s|c|\.|(please()()))\$)(\s)(\[)([^\]]*)(\])/i' region1="fthWordStr" region6="fthDelimComp" region7="fthDelimStr" region8="fthParsedStr" region9="fthDelimStr"/>
+  <regexp match='/((s|c|\.|(please()()))\$)(\s)(\()([^\)]*)(\))/i' region1="fthWordStr" region6="fthDelimComp" region7="fthDelimStr" region8="fthParsedStr" region9="fthDelimStr"/>
+
+  <!--            12       3      4 5      6   7   89a         b  -- parens 4 & 5 are reserved-->
+  <regexp match='/((s|c|\.|(please()()))\$)(\s)(\S)(((\7)?!.)*)($)/i' region1="fthWordStr" region6="fthDelimComp" region7="fthWrong" region8="fthParsedStr" regionb="fthDelimStr"/>
+  <regexp match='/((s|c|\.|(please()()))\$)(\s)(\S)(((\7)?!.)*)(\7)/i' region1="fthWordStr" region6="fthDelimComp" region7="fthDelimStr" region8="fthParsedStr" regionb="fthDelimStr"/>
+
+  <!-- words like p[  ] -->
+  <!--            12       3    4         5       -->
+  <regexp match='/(([^\s]+)(\[))(\s[^\]]*)(\])/i' region1="fthWordStr" region4="fthParsedStr" region5="fthDelimStr"/>
+
+
+</scheme>
+
+<scheme name="forthcompiler">
+  <inherit scheme="blskipc"/>
+
+  <!-- control structure words -->
+  <regexp match="/((if)|(else)|(then)|(endif)|(ahead)|(begin)|(while)|(repeat)|(again)|(until)|(do)|(\?do)|(leave)|(unloop)|(loop)|(\+loop))(\s|$)/i" region0="fthKeyWordC"/>
+  <regexp match="/((catch)|(throw)|(exit)|(recurse)|(\?exit)|(lit))(\s|$)/i" region0="fthKeyWordC"/>
+  <regexp match="/((literal)|(literal\+))(\s|$)/i" region0="fthKeyWordC"/>
+  <regexp match="/((case)|(of)|(endof)|(endcase)|(esac))(\s|$)/i" region0="fthKeyWordC"/>
+  <!-- control structure words from BacFORTH -->
+  <regexp match="/((start)|(dive)|(emerge)|(dive\#)|(back)|(tracking)|(among)|(every)|(iterate)|(succ)|(\-pro)|(1succ)|(fail)|(pro)|(cont)|(yield)|(loop)|(\{\|)|(\|\|)|(\|\}))(\s|$)/i" region0="fthKeyWordC"/>
+  <!-- non-standard control structures -->
+  <regexp match="/((ifnot)|(\;else)|(\;then)|(\;endif)|(whilenot)|(unless)|(untilnot)|(\/loop)|(\\loop))(\s|$)/i" region0="fthKeyWordC"/>
+  <regexp match="/((cand)|(cor))(\s|$)/i" region0="fthKeyWordC"/>
+  <regexp match="/((done))(\s|$)/i" region0="fthKeyWordC"/>
+
+  <!-- uncomment if needed --
+  <regexp match="/((cond)|(thens)|(\?of)|(end\-case)|(next\-case))(\s|$)/i" region0="fthKeyWordC"/>
+  <!-- -->
+
+  <!-- POSTPONE name -->
+  <regexp match="/(postpone)(\s+)(\S+)(\s|$)/i" region1="fthWordImm" region2="fthSkippedImm" region3="fthParsedCrea" region4="fthDelimImm"/>
+  <regexp match="/(\[compile\])(\s+)(\S+)(\s|$)/i" region1="fthWordImm" region2="fthSkippedImm" region3="fthParsedCrea" region4="fthDelimImm"/>
+  <regexp match="/(\[\'\])(\s+)(\S+)(\s|$)/" region1="fthWordImm" region2="fthSkippedImm" region3="fthParsedImm" region4="fthDelimImm"/>
+  <regexp match="/(\[[tmTM]compile\])(\s+)(\S+)(\s|$)/i" region1="fthWordImm" region2="fthSkippedImm" region3="fthParsedCrea" region4="fthDelimImm"/>
+  <!-- error if POSTPONE eol -->
+  <regexp match="/((postpone)|(\[compile\])|(\[\'\])|(is)|(to))(\s*)($)/i" region0="fthWrong"/>
+
+  <!-- meta-words  -->
+  <regexp match="/((compile\,)|(compile)|(evaluate)|(interpret)|(\]))(\s|$)/i" region1="fthParsedCrea"/>
+  <regexp match="/((create)|(immediate)|(does\>)|(\:)|(\:noname)|(variable)|(value)|(defer)|(quan)|(vect)|(2variable)|(fvariable)|(buffer\:))(\s|$)/i" region1="fthParsedCrea"/>
+<!--
+  <regexp match="/((hide)|(reveal))(\s|$)/i" region1="fthParsedCrea"/>
+-->
+
+  <!-- ABORT" text" and like that  -->
+  <regexp match='/(abort\")(\s)([^\"]*)(\")/i'  region1="fthWordStr" region2="fthSkippedStr" region3="fthParsedStr" region4="fthDelimStr"/>
+  <regexp match='/(\.\")(\s)([^\"]*)(\")/i'     region1="fthWordStr" region2="fthSkippedStr" region3="fthParsedStr" region4="fthDelimStr"/>
+  <regexp match='/(please\")(\s)([^\"]*)(\")/i' region1="fthWordStr" region2="fthSkippedStr" region3="fthParsedStr" region4="fthDelimStr"/>
+  
+  <!-- error if no delimiter   -->
+  <regexp match='/(((s)|(abort)|(c)|(\.))\")((\s)([^\"]*))?($)/i' region0="fthWrong"/>
+
+  <!-- [char] x -->
+  <regexp match='/(\[char\])(\s+)(\S)(\S*)/i'    region1="fthWordStr" region2="fthSkippedStr" region3="fthParsedStr" region4="fthParsedRem"/>
+
+
+
+  <!-- { l o c a l s }  -->
+  <block start="/\{\s/" end="/\}(\s|$)/" scheme="empty" region="fthWritten" region00="fthKeyWordC" region10="fthKeyWordC"/>
+
+
+  <!--     -->
+
+
+  <inherit scheme="assignc"/>
+  <inherit scheme="forthcommon"/>
+  <inherit scheme="blwordc"/>
+</scheme>
+
+<scheme name="macrostring">
+  <!-- strings, like this: " ccc {Forth_Code} ccc "  -->
+  <regexp match='/([^\"\{\}]*)/i' region1="fthParsedStr"/>
+  <!--
+  <regexp match='/([^\"\{\}]*)/i' region1="fthParsedStr"/>
+  <block start="/(\{)/" end="/(\})/" scheme="forthinterpreter0" region01="fthColon" region11="fthSemi"/>
+  -->
+</scheme>
+
+<scheme name="forthinterpreter0">
+  <!-- skip spaces -->
+  <inherit scheme="blskipi"/>
+
+  <!-- : x ... ; and like that -->
+  <block start="/(\:)(\s)(\s*)(\S+)(\s|$)/" end="/([\;\[])(\s|$)/" scheme="forthcompiler" region01="fthColon" region02="fthSkippedNew" region03="fthWarn" region04="fthParsedNew" region05="fthDelimNew" region11="fthSemi"/>
+  <block start="/(m\:)(\s)(\s*)(\S+)(\s|$)/i" end="/([\;\[])(\s|$)/" scheme="forthcompiler" region01="fthColon" region02="fthSkippedNew" region03="fthWarn" region04="fthParsedNew" region05="fthDelimNew" region11="fthSemi"/>
+  <block start="/(op\:)(\s)(\s*)(\S+)(\s|$)/i" end="/([\;\[])(\s|$)/" scheme="forthcompiler" region01="fthColon" region02="fthSkippedNew" region03="fthWarn" region04="fthParsedNew" region05="fthDelimNew" region11="fthSemi"/>
+  <block start="/(macro)(\s)(\s*)(\S+)(\s|$)/i" end="/(end\-macro)(\s|$)/i" scheme="forthcompiler" region01="fthColon" region02="fthSkippedNew" region03="fthWarn" region04="fthParsedNew" region05="fthDelimNew" region11="fthSemi"/>
+  <block start="/(mmacro)(\s)(\s*)(\S+)(\s|$)/i" end="/(end\-macro)(\s|$)/i" scheme="forthcompiler" region01="fthColon" region02="fthSkippedNew" region03="fthWarn" region04="fthParsedNew" region05="fthDelimNew" region11="fthSemi"/>
+  <block start="/(\.macro)(\s)(\s*)(\S+)(\s|$)/i" end="/(\.endmacro)(\s|$)/i" scheme="forthcompiler" region01="fthColon" region02="fthSkippedNew" region03="fthWarn" region04="fthParsedNew" region05="fthDelimNew" region11="fthSemi"/>
+
+  <!--block start="/(m:)(\s+)(\S+)(\s|$)/i" end="/([\;\[])(\s|$)/" scheme="forthcompiler" region01="fthColon" region02="fthSkippedNew" region03="fthParsedNew" region04="fthDelimNew" region11="fthSemi"/-->
+
+  <!-- switching ot compiling mode: ] :noname [and like that] -->
+  <block start="/(\])(\s|$)/" end="/([\;\[])(\s|$)/" scheme="forthcompiler" region01="fthColon" region02="fthSkippedInte" region11="fthSemi"/>
+  <block start="/(\:noname)(\s|$)/i" end="/([\;\[])(\s|$)/" scheme="forthcompiler" region01="fthColon" region02="fthSkippedInte" region11="fthSemi"/>
+
+
+  <regexp match="/(equ)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(value)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(variable)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(2variable)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(fvariable)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(defer)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(create)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(constant)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(2constant)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(field)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(sfield)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(val)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(var)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(vect)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(quan)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(user)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+
+  <regexp match="/(code)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+
+  <regexp match="/(end\-code)(\s|$)/i" region1="fthSemi" region2="fthDelimInte"/>
+  <regexp match="/(next\;)(\s|$)/i" region1="fthSemi" region2="fthDelimInte"/>
+
+  <!--            1        2   3    4    5         -->
+  <regexp match="/(include)(\s)(\s*)(\S+)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <!--            1        2   3    4    5   6    7    8     -->
+  <regexp match="/(require)(\s)(\s*)(\S+)(\s)(\s*)(\S+)(\s|$)/i" 
+    region1="fthColon" region2="fthSkippedNew" 
+    region3="fthParsed" region4="fthParsedNew" region5="fthSkippedNew" 
+    region6="fthParsed" region7="fthParsedNew" region8="fthDelimNew"
+  />
+
+  <regexp match="/((\:)|(op\:)|(m\:)|(is)|(to))(\s*)($)/i" region0="fthWrong"/>
+   <block start="/^\M(\-BLOCK\:)(\s)/" end="/^(BLOCK\:)?=/" scheme="disabledBlock"  region="fthCommentedOut" region01="fthCondComp" region02="fthCondComp" />
+
+   <block start="/^(BLOCK\:)(\s)/" end="/^/" scheme="Comment" region="fthCondComp" region01="fthCondComp" region02="fthCondComp" />
+   <!-- TechnoForth library entry:  // name -->
+   <block start="/^(\/\/)(\s)/" end="/^/" scheme="Comment" region="fthCondComp" region01="fthCondComp" region02="fthCondComp" />
+   <regexp match="/\/\/\s*$/" region0="fthCondComp">
+   <regexp match="/library\s*$/i" region0="fthCondComp">
+<!--  <inherit scheme="biplaneblock1"/> -->
+   <!-- "((" : either Gray (parser generator) or coment -->
+   <block start="/(\(\()(\s|$)/" end="/(\)\))(\s|$)/" scheme="gray" region="fthGray" region01="fthWordRem2" region02="fthSkippedRem2" region11="fthWordRem2" region12="fthDelimRem2"/>
+   <!-- Gray definitions -->
+  <regexp match="/(\<\-\=)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+  <regexp match="/(\<\-\:)(\s)(\s*)(\S*)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
+
+
+  <inherit scheme="forthcommon"/>
+  <regexp match="/(\;)(\s|$)/" region1="fthWrong"/>
+  <regexp match="/(immediate)(\s|$)/i" region1="fthSemi"/>
+</scheme>
+
+<scheme name="biplaneblock1">
+   <!-- BLOCK: blockname -->
+<!--
+   <block start="/^\M(\-BLOCK\:)(\s)/" end="/~.*(BLOCK\:)?=/" scheme="disabledBlock"  region="fthCommentedOut" region01="fthCondComp" region02="fthCondComp" />
+-->
+</scheme>
+
+<scheme name="forthinterpreter">
+  <inherit scheme="forthinterpreter0"/>
+  <inherit scheme="blwordi"/>
+<!--  <regexp match="/(\)\))(\s|$)/i" region1="fthWrong"/> -->
+</scheme>
+<scheme name="gray">
+  <regexp match="/(\|\|)(\s|$)/i" region1="fthWordRem2" region2="fthDelimRem2"/>
+  <regexp match="/(\*\*)(\s|$)/i" region1="fthWordRem2" region2="fthDelimRem2"/>
+  <regexp match="/(\?\?)(\s|$)/i" region1="fthWordRem2" region2="fthDelimRem2"/>
+   <block start="/(\{\{)(\s|$)/" end="/(\}\})(\s|$)/" scheme="comment" region0="fthParsedInte" region10="fthWordRem2" region00="fthWordRem2" />
+   <!-- region01="fthWordRem2" region02="fthSkippedRem2" region11="fthWordRem2" region12="fthDelimRem2" -->
+  <inherit scheme="forthinterpreter"/>
+</scheme>
+<!--
+<scheme name="grayrule">
+  <inherit scheme="forthcompiler"/>
+</scheme>
+-->
+
+<scheme name="blwordid">  <!-- BL WORD while interpreting for a disabled block-->
+  <!-- any word except )) -->
+  <!--            1       2          3    4  -->
+  <regexp match="/(BLOCK\:)?!(\S+)(\s|$)/" region2="fthWrong" region3="fthDelimInte"/>
+<!-- fthParsedInte -->
+</scheme>
+
+<scheme name="disabledBlock">
+   <block start="/^(\-BLOCK\:)(\s)/" end="/^/" scheme="Comment" region="fthCondComp" region01="fthCondComp" region02="fthCondComp" />
+<!--
+  <inherit scheme="forthinterpreter">
+     <virtual scheme="blwordi" subst="blwordid"/>
+     <virtual scheme="biplaneblock" subst="empty"/>
+   </inherit>
+-->
+</scheme>
+
+<scheme name="forth">
+  <inherit scheme="forthinterpreter"/>
+</scheme>
+
+</hrc>

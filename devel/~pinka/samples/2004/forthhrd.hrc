@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<!DOCTYPE hrc SYSTEM "../hrc.dtd">
+<?xml-stylesheet type="text/xsl" href="../hrc.xsl"?>
+<!--
+    Set Forth colors to the colors specified in hrd 
+-->
+<hrc>
+
+<!-- interpreter -->
+<define name="fthSkippedInte" value="200"/>
+<define name="fthParsedInte"  value="210"/>
+<define name="fthDelimInte"   value="220"/>
+<!-- compiler -->
+<define name="fthSkippedComp" value="201"/>
+<define name="fthParsedComp"  value="211"/>
+<define name="fthDelimComp"   value="221"/>
+<!-- new word definition -->
+<define name="fthWordNew"     value="232"/>
+<define name="fthSkippedNew"  value="202"/>
+<define name="fthParsedNew"   value="212"/>
+<define name="fthDelimNew"    value="222"/>
+<!-- parsed by immediate -->
+<define name="fthWordImm"     value="233"/>
+<define name="fthSkippedImm"  value="203"/>
+<define name="fthParsedImm"   value="213"/>
+<define name="fthDelimImm"    value="223"/>
+<!-- string -->
+<define name="fthWordStr"     value="234"/>
+<define name="fthSkippedStr"  value="204"/>
+<define name="fthParsedStr"   value="214"/>
+<define name="fthDelimStr"    value="224"/>
+
+<!-- comment  ( ... ) and \ ... -->
+<define name="fthSkippedRem"  value="205"/>
+<define name="fthWordRem"     value="235"/>
+<define name="fthParsedRem"   value="215"/>
+<define name="fthDelimRem"    value="225"/>
+<!-- block comment \ ==== ... ==== -->
+<define name="fthSkippedRemB" value="206"/>
+<define name="fthWordRemB"    value="236"/>
+<define name="fthParsedRemB"  value="216"/>
+<define name="fthDelimRemB"   value="226"/>
+
+<!-- comment2  (( ... )) -->
+<define name="fthWordRem2"    value="238"/>
+<define name="fthSkippedRem2" value="208"/>
+<define name="fthParsedRem2"  value="218"/>
+<define name="fthDelimRem2"   value="228"/>
+
+
+<define name="fthSkippedCrea" value="207"/>
+<define name="fthParsedCrea"  value="217"/>
+<define name="fthDelimCrea"   value="227"/>
+
+<define name="fthColon"    value="232"/>
+<define name="fthSemi"     value="232"/>
+<define name="fthRem"      value="fthParsedRem"/>
+
+<define name="fthWrong"    value="249"/>
+<define name="fthWarn"     value="248"/>
+<define name="fthKeyWordC" value="241"/>
+<define name="fthWritten"  value="242"/>
+<define name="fthCondComp" value="243"/>
+<define name="fthCreatingC" value="fthParsedCrea"/>
+<define name="fthParsedCondComp" value="244"/>
+<define name="fthCommentedOut" value="245"/>
+<define name="fthGray" value="246"/>
+
+</hrc>
