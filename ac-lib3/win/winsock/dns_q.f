@@ -96,6 +96,8 @@ USER ATTEMPTS
 USER RLIST
 USER CURRENT-R
 VARIABLE DnsDebug
+   3 VALUE vDnsAttempts \ было 6
+2000 VALUE vDnsTimeout  \ было 8000
 
   1 CONSTANT TYPE-A
   2 CONSTANT TYPE-NS
@@ -262,7 +264,7 @@ CONSTANT /RL
 : BsStartup
   SocketsStartup DROP
   CreateUdpSocket THROW BS !
-  8000 BS @ SetSocketTimeout THROW
+  vDnsTimeout BS @ SetSocketTimeout THROW
 ;
 : BsCloseSocket
   BS @ ?DUP IF CloseSocket DROP BS 0! THEN
@@ -487,9 +489,11 @@ CONSTANT /RL
 ;
 
 : GetRRs { hosta hostu type \ attempts -- n }
-  0 -> attempts
+  DnsDebug @ IF ." GetRRs: " hosta hostu TYPE CR THEN
+  1 -> attempts
   type hosta hostu PrepareDnsQuery
   BEGIN
+    DnsDebug @ IF attempts type hosta hostu ." DNS-QUERY:" TYPE ." , type=" . ." , attempt=" . CR THEN
     ['] SendDnsQuery CATCH IF -1 EXIT THEN  \ network problem
     ['] RecvDnsReply CATCH 
     ?DUP IF 10060 <> IF -1 EXIT THEN FALSE ELSE TRUE THEN
@@ -515,16 +519,18 @@ CONSTANT /RL
       THEN
     THEN
     attempts 1+ DUP -> attempts
-    6 >
+    vDnsAttempts >
   UNTIL
   -2 \ timeouts or DNS-server failure
 ;
 \ HeaderANCOUNT W@ >B<
 
 : GetRRn { hosta hostu type \ attempts -- n }
-  0 -> attempts
+  DnsDebug @ IF ." GetRRn: " hosta hostu TYPE CR THEN
+  1 -> attempts
   type hosta hostu PrepareDnsQuery
   BEGIN
+    DnsDebug @ IF attempts type hosta hostu ." DNS-QUERY:" TYPE ." , type=" . ." , attempt=" . CR THEN
     ['] SendDnsQuery CATCH IF -1 EXIT THEN  \ network problem or DNS-server not detected
     ['] RecvDnsReply CATCH 
     ?DUP IF 10060 <> IF -1 EXIT THEN FALSE ELSE TRUE THEN
@@ -549,14 +555,14 @@ CONSTANT /RL
       THEN
     THEN
     attempts 1+ DUP -> attempts
-    6 >
+    vDnsAttempts >
   UNTIL
   -2 \ timeouts or DNS-server failure
 ;
 
 : GetDomainFromEmail
   S" @" SEARCH
-  IF 1- SWAP 1+ SWAP THEN
+  IF 1- SWAP 1+ SWAP ELSE 2DROP S" " THEN
 ;
 : GetUserFromEmail
   2DUP S" @" SEARCH

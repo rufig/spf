@@ -139,6 +139,7 @@ CONSTANT /ci
   m ciColumnSizePtr @ 200000 MIN m ciColumnSizePtr !
 ;
 : IndexResultCols ( fodbc -- )
+  0 OVER odbcColsIndex !
   DUP
   odbcResultCols @ 0 ?DO
     I 1+ OVER IndexResultCol DROP
@@ -169,6 +170,29 @@ CONSTANT /ci
       ci ciColumnSizePtr @ 1+ \ for zero
       addr OVER - DUP -> addr
       addr ci ciColumnData !
+      1   \ target type
+      ci ciColumnNumber @
+      fodbc odbcStat @
+      SQLBindCol DROP
+    ci ciLink @
+  REPEAT DROP
+  m fodbc odbcRowData !
+;
+: UnbindCols ( fodbc -- )
+  { fodbc \ m s addr ci size }
+  fodbc odbcRowSize @ -> s
+  s fodbc odbcResultCols @ SWAP OVER + ALLOCATE THROW -> m
+  m s + + -> addr
+  fodbc odbcColsIndex @
+  BEGIN
+    DUP
+  WHILE
+    -> ci
+      ci ciColumnDataSize
+      ci ciColumnSizePtr @ 1+ \ for zero
+\      addr OVER - DUP -> addr
+\      addr ci ciColumnData !
+0
       1   \ target type
       ci ciColumnNumber @
       fodbc odbcStat @

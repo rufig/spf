@@ -42,8 +42,11 @@ VARIABLE ExternIP
          ELSE DROP WSAGetLastError THEN
   ELSE WSAGetLastError THEN
 ;
+: IsLocalhost ( ip -- flag )
+  0xFF AND 0x7F =
+;
 : IsMyIP { ip \ addr sp -- flag }
-  ip 0x0100007F = IF TRUE EXIT THEN
+  ip ( 0x0100007F =) IsLocalhost IF TRUE EXIT THEN
   ExternIP @ ?DUP IF ip = IF TRUE EXIT THEN THEN
   255 PAD gethostname 0=
   IF 
