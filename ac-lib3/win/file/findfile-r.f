@@ -48,10 +48,44 @@ USER FIND-FILES-RL \ уровень вложенности 0-...
   id FindClose DROP
   data FREE DROP
 ;
+: FIND-DIRS-R ( addr u xt -- )
+\ addr u - имя каталога для обхода
+\ xt ( addr u data -- ) - процедура вызываемая для каждого каталога
+
+  { addr u xt \ addr2 data id f }
+
+  addr u " {s}/*.*" -> addr2
+  /WIN32_FIND_DATA ALLOCATE THROW -> data
+  data /WIN32_FIND_DATA ERASE
+  data addr2 STR@ DROP FindFirstFileA -> id
+  id -1 = IF data FREE DROP addr2 STRFREE EXIT THEN
+  BEGIN
+    data cFileName ASCIIZ>
+    2DUP 2DUP S" .." COMPARE 0<> ROT ROT S" ." COMPARE 0<> AND
+    IF
+      data dwFileAttributes @ FILE_ATTRIBUTE_DIRECTORY AND 0<>
+      IF 
+         addr u " {s}/{s}" DUP -> f STR@ data xt EXECUTE
+         FIND-FILES-RL 1+!
+         f STR@ xt RECURSE
+         FIND-FILES-RL @ 1- FIND-FILES-RL !
+         f STRFREE
+      ELSE 2DROP THEN
+    ELSE 2DROP THEN
+    data id FindNextFileA 0=
+  UNTIL
+  addr2 STRFREE
+  id FindClose DROP
+  data FREE DROP
+;
 
 \ печать полных имен каталогов
 \ : TT NIP IF TYPE CR ELSE 2DROP THEN ;
 \ печать имен каталогов со сдвигом на глубину
-: TT IF FIND-FILES-RL @ CELLS SPACES cFileName ASCIIZ> TYPE CR
-     ELSE DROP THEN 2DROP ;
-: T S" c:" ['] TT FIND-FILES-R ; T
+\ : TT IF FIND-FILES-RL @ CELLS SPACES cFileName ASCIIZ> TYPE CR
+\      ELSE DROP THEN 2DROP ;
+\ : T S" c:" ['] TT FIND-FILES-R ; T
+
+\ печать полных имен каталогов
+\ : TT DROP TYPE CR ;
+\ : T S" c:" ['] TT FIND-DIRS-R ; T
