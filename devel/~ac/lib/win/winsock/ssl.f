@@ -1,21 +1,31 @@
 REQUIRE {             ~ac/lib/locals.f
 REQUIRE CreateSocket  ~ac/lib/win/winsock/sockets.f
-\ REQUIRE FreeLibrary   ~ac/lib/win/dll/load_lib.f
+REQUIRE FreeLibrary   ~ac/lib/win/dll/load_lib.f
+REQUIRE CREATE-MUTEX  lib/win/mutex.f
 
 VARIABLE SSL_LIB
 VARIABLE SSLE_LIB
 
+: LoadLibEx ( addr u -- h )
+  DROP LOAD_WITH_ALTERED_SEARCH_PATH 0 ROT LoadLibraryExA
+;
 : LoadSslLibrary ( -- )
-  S" libssl32.dll" DROP LoadLibraryA ?DUP IF SSL_LIB ! EXIT THEN
-  S" conf\plugins\ssl\libssl32.dll" DROP LoadLibraryA ?DUP IF SSL_LIB ! EXIT THEN
-  S" ..\CommonPlugins\plugins\ssl\libssl32.dll" DROP LoadLibraryA ?DUP IF SSL_LIB ! EXIT THEN
+  S" libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+  S" conf\plugins\ssl\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+  S" ..\CommonPlugins\plugins\ssl\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
   -2009 THROW
 ;
 : LoadSsleLibrary ( -- )
-  S" libeay32.dll" DROP LoadLibraryA ?DUP IF SSLE_LIB ! EXIT THEN
-  S" conf\plugins\ssl\libeay32.dll" DROP LoadLibraryA ?DUP IF SSLE_LIB ! EXIT THEN
-  S" ..\CommonPlugins\plugins\ssl\libeay32.dll" DROP LoadLibraryA ?DUP IF SSLE_LIB ! EXIT THEN
+  S" libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+  S" conf\plugins\ssl\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+  S" ..\CommonPlugins\plugins\ssl\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
   -2009 THROW
+;
+VARIABLE SSL-MUT
+
+: CREATE-SSL-MUT
+  SSL-MUT @ 0= 
+  IF 0 0 0 CreateMutexA SSL-MUT ! THEN
 ;
 
 VARIABLE SSLAPLINK
@@ -63,6 +73,7 @@ SSLAPI: SSLv23_server_method
 SSLAPI: SSLv23_client_method
 SSLAPI: SSLv3_client_method
 SSLAPI: SSL_free
+SSLAPI: SSL_CTX_free
 
 SSLAPI: SSL_CTX_set_verify
 SSLAPI: SSL_get_verify_result
@@ -85,13 +96,16 @@ SSLEAPI: X509_verify_cert_error_string
 2 CONSTANT SSL_VERIFY_FAIL_IF_NO_PEER_CERT
 4 CONSTANT SSL_VERIFY_CLIENT_ONCE
 
-USER uSSL_INIT
+VARIABLE vSSL_INIT
 
 : SslInit ( -- )
-  uSSL_INIT @ 0=
+  CREATE-SSL-MUT
+  vSSL_INIT @ 0=
   IF
+    -1 SSL-MUT @ WAIT THROW DROP
     SSL_load_error_strings DROP
-    SSL_library_init uSSL_INIT !
+    SSL_library_init vSSL_INIT !
+    SSL-MUT @ RELEASE-MUTEX DROP
   THEN
 ;
 : SslNewServerContext { pema pemu type \ c -- context }

@@ -19,11 +19,13 @@ VECT dFailedSsl
 : SslServerSocket { addr u verify s -- namea nameu cert }
 \ addr u - имя файла с сертификатом и закрытым ключем в PEM-формате
   SslInit
+  -1 SSL-MUT @ WAIT THROW DROP
   s uSSL_SOCKET !
   addr u X509_FILETYPE_PEM 
   SslNewServerContext uSSL_CONTEXT !
   addr u verify ( SSL_VERIFY_PEER) uSSL_CONTEXT @ SslSetVerify
   s uSSL_CONTEXT @ ['] SslObjAccept CATCH \ 0=OK, 5=не тот сертификат, 1= нет сертификата
+  SSL-MUT @ RELEASE-MUTEX DROP
   ?DUP IF NIP NIP dFailedSsl EXIT THEN
   DUP uSSL_OBJECT !
   verify 0= IF DROP S" " 0 EXIT THEN
@@ -65,7 +67,9 @@ VECT dFailedSsl
 ;
 : CloseSocket ( s -- ior )
   DUP uSSL_SOCKET @ =
-  IF uSSL_OBJECT @ SSL_free 2DROP THEN
+  IF uSSL_OBJECT @ SSL_free 2DROP 
+     uSSL_CONTEXT @ SSL_CTX_free 2DROP
+  THEN
   CloseSocket
 ;
 : read ( addr len socket -- )
