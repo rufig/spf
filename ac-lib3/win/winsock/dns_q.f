@@ -16,11 +16,16 @@
   Особые ответы:
   -1 - сетевые проблемы [невозможен обмен UDP-пакетами]
      это может быть следствием отсутствия модемной связи, например,
-     т.е. просто недоступен целевой сервер
+     т.е. просто недоступен целевой сервер. Или невозможно найти имена DNS-серверов.
   -2 - связь вроде есть, но ответы не приходят с 6 попыток - скорее 
      всего очень большие таймауты
   -3 - указанный домен "не существует в природе"
   -5 - DNS-сервер не хочет выполнять ваши запросы [чужой сервер, наверное]
+
+  GetRRn отличается от GetRRs тем, что не разбирает список
+  полученных записей, а только выясняет их число, т.е. экономит
+  время и память, если не нужен собственно список записей. 
+  Ответы все те же.
 
   Инициализацию сети и поиск подходящего DNS-сервера библиотека
   производит сама при первой необходимости. Но можно указать желаемый
@@ -39,14 +44,19 @@
   домен". Т.е. использовать эти слова можно только при рабочем DNS.
   
   DnsDomainExists [ domaina domainu -- flag ]
-  Если GetRRs возвращает -3, то домена точно нет. Все остальные
+  Если GetRRn возвращает -3, то домена точно нет. Все остальные
   ответы, в т.ч. отрицательные трактуются как "есть", означающее
   на деле "есть или невозможно проверить из-за проблем DNS или сети".
+  Если у домена нет MX- и A-записей, то он также считается несуществующим.
 
   NextMX [ -- servera serveru true | false ]
 
   Методика перебора MX-записей по приоритетам для попыток отправки почты.
   S" domain" GetMXs 0 MAX 0 ?DO NextMX ... LOOP
+
+  DnsDomainExists отличается от DnsValidateDomain отношением к
+  ошибкам DNS. DnsDomainExists при ошибках НЕ отвергает домен,
+  а DnsValidateDomain отвергает. При рабочем DNS они равноценны.
 )
 
 REQUIRE GetDNS  ~ac/lib/win/winsock/get_dns.f
@@ -141,20 +151,14 @@ CONSTANT /RL
 ;
 
 : SetFieldData ( addr u af -- )
-." 1"
   { a u af \ mem }
-." 2"
-\  af FreeField
-." 3"
-  u CELL+ ALLOCATE THROW -> mem
-." 4"
+  af FreeField
+  u CELL+ CHAR+ ALLOCATE THROW -> mem
   u mem ! a mem CELL+ u MOVE
-." 5"
   mem af !
 ;
 
 : AddName ( addr u -- )
-." AN=" 2DUP TYPE
   /RL ALLOCATE THROW >R
   R@ /RL ERASE
   R@ RLname SetFieldData
@@ -223,7 +227,6 @@ CONSTANT /RL
 ;
 
 : PrepareDnsQuery ( qtype addr u -- )
-
   DNSQUERY @ 0= IF 500 ALLOCATE THROW DNSQUERY ! THEN
   DNSQUERY @ 500 ERASE
 \  DNSREPLY @ ?DUP IF /DNSREPLY ERASE THEN
@@ -260,11 +263,14 @@ CONSTANT /RL
   CreateUdpSocket THROW BS !
   8000 BS @ SetSocketTimeout THROW
 ;
+: BsCloseSocket
+  BS @ ?DUP IF CloseSocket DROP BS 0! THEN
+;
 : SendDnsQuery
   DNS-SERVER @ 0= 
   IF GetDNS ?DUP 
             IF COUNT + 1+ DNS-SERVER !
-            ELSE C" localhost" DNS-SERVER ! THEN
+            ELSE -11001 THROW THEN \ не найден DNS-сервер
   THEN
   BS @ 0= IF BsStartup THEN
   DNS-SERVER @ COUNT GetHostIP THROW 53
@@ -479,27 +485,6 @@ CONSTANT /RL
   THEN
 ;
 
-\ : host ( type "dns-server" "host" -- )
-(
-  SocketsStartup DROP
-  CreateUdpSocket THROW BS !
-  8000 BS @ SetSocketTimeout THROW
-  BL WORD HERE SWAP ", 0 C, DNS-SERVER !
-  BL PARSE  PrepareDnsQuery
-  BEGIN
-    ['] SendDnsQuery CATCH ?DUP IF ." SEND-RESULT=" . THEN
-    ['] RecvDnsReply CATCH CR DUP ." RECV-RESULT=" . CR 0=
-    DUP IF ParseDnsReply PrintReceivedMXs THEN
-    DNSREPLY @ HeaderBits W@ >B< 15 AND 0= AND
-    DNSREPLY @ HeaderID W@ >B< QID W@ = AND
-    DUP IS-SUCCESS !
-    ATTEMPTS 1+!
-    ATTEMPTS @ 6 > OR
-  UNTIL
-  IS-SUCCESS @ .
-;
-)
-
 : GetRRs { hosta hostu type \ attempts -- n }
   0 -> attempts
   type hosta hostu PrepareDnsQuery
@@ -533,15 +518,53 @@ CONSTANT /RL
   UNTIL
   -2 \ timeouts or DNS-server failure
 ;
+\ HeaderANCOUNT W@ >B<
+
+: GetRRn { hosta hostu type \ attempts -- n }
+  0 -> attempts
+  type hosta hostu PrepareDnsQuery
+  BEGIN
+    ['] SendDnsQuery CATCH IF -1 EXIT THEN  \ network problem or DNS-server not detected
+    ['] RecvDnsReply CATCH 
+    ?DUP IF 10060 <> IF -1 EXIT THEN FALSE ELSE TRUE THEN
+    IF 
+      DNSREPLY @ HeaderBits W@ >B< 15 AND
+      DUP ( RCODE) 3 = IF DROP -3 EXIT THEN \ domain not exist (authoritative!)
+      DUP ( RCODE) 5 = IF DROP -5 EXIT THEN \ refused operation
+      0=
+      DNSREPLY @ HeaderID W@ >B< QID W@ = AND
+      IF
+        DNSREPLY @ HeaderANCOUNT W@ >B<
+        DUP 0=
+        IF
+          DNSREPLY @ HeaderBits W@ >B< 128 AND \ RA - recurse available
+          0= IF 
+               DROP -5 \ сервер не дал ответ, т.к. не содержит этого домена
+                       \ а рекурсивный запрос делать не хочет,
+                       \ т.е. скорее всего задан чужой DNS-сервер
+             THEN
+        THEN
+        EXIT
+      THEN
+    THEN
+    attempts 1+ DUP -> attempts
+    6 >
+  UNTIL
+  -2 \ timeouts or DNS-server failure
+;
 
 : GetDomainFromEmail
   S" @" SEARCH
   IF 1- SWAP 1+ SWAP THEN
 ;
+: GetUserFromEmail
+  2DUP S" @" SEARCH
+  IF NIP - ELSE 2DROP THEN
+;
 : DnsValidateDomain ( domaina domainu -- flag )
   DUP 4 < IF 2DROP FALSE EXIT THEN
-  2DUP TYPE-MX GetRRs 0 > IF 2DROP TRUE EXIT THEN
-       TYPE-A  GetRRs 0 > IF TRUE EXIT THEN
+  2DUP TYPE-MX GetRRn 0 > IF 2DROP TRUE EXIT THEN
+       TYPE-A  GetRRn 0 > IF TRUE EXIT THEN
   FALSE
 ;
 : DnsValidateEmailDomain ( emaila emailu -- flag )
@@ -586,8 +609,21 @@ CONSTANT /RL
   mx RLhost GetFieldData TRUE
 ;
 : DnsDomainExists ( domaina domainu -- flag )
-  TYPE-NS GetRRs -3 <>
+  2DUP TYPE-MX GetRRn DUP 0 > IF DROP 2DROP TRUE EXIT THEN
+  -3 = IF 2DROP FALSE EXIT THEN
+\ до сюда дошли, если нет MX-записи, но и нет ответа "нет домена"
+  TYPE-A GetRRn 0= IF FALSE EXIT THEN \ нет MX и A, считаем домен неверным
+  TRUE \ домен есть, либо неверна настройка DNS, узнать достоверно нельзя
+\  TYPE-NS GetRRn -3 <>
 ;
+
+(
+S" eserv.ru" DnsDomainExists . \ есть MX
+S" poil.usinsk.ru" DnsDomainExists . \ нет MX, есть A
+S" co.nz" DnsDomainExists . \ нет MX и нет A
+S" hotamil.com" DnsDomainExists . \ нет MX и нет A
+S" non_existent_domain.com" DnsDomainExists . \ нет такого
+)
 
 \ TYPE-MX host main.svlm.com swr.da.ru
 

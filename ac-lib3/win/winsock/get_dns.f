@@ -36,21 +36,30 @@ VARIABLE DNS-SERVERS
 \  REPEAT DROP
 ;
 : FindDNS ( addr u -- )
-  S" NameServer" 2SWAP StrValue ?DUP
+  S" NameServer" 2OVER StrValue ?DUP
+  IF DNS,,
+  ELSE DROP THEN
+  S" DhcpNameServer" 2SWAP StrValue ?DUP
   IF DNS,,
   ELSE DROP THEN
 ;
+: GetNT_MainDNS
+  HKEY_LOCAL_MACHINE EK !
+  S" NameServer"
+  S" SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
+  StrValue ?DUP IF DNS,, ELSE DROP THEN
+  S" NameServer"
+  S" SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Transient"
+  StrValue ?DUP IF DNS,, ELSE DROP THEN
+  S" DhcpNameServer"
+  S" SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
+  StrValue ?DUP IF DNS,, ELSE DROP THEN
+;
 : GetNT_DNS
+  GetNT_MainDNS
   S" SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces"
   HKEY_LOCAL_MACHINE RG_OpenKey 
   IF DROP
-    HKEY_LOCAL_MACHINE EK !
-    S" NameServer"
-    S" SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
-    StrValue ?DUP IF DNS,, ELSE DROP THEN
-    S" NameServer"
-    S" SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Transient"
-    StrValue ?DUP IF DNS,, ELSE DROP THEN
   ELSE EK !
     ['] FindDNS EK @ RG_ForEachKey
     EK @ RegCloseKey DROP

@@ -61,8 +61,8 @@ CREATE REUSEADDR -1 ,
   socket DUP INVALID_SOCKET =
   IF WSAGetLastError
   ELSE 0
-       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
-       setsockopt OR
+\       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
+\       setsockopt OR
   THEN
 ;
 
@@ -73,8 +73,8 @@ USER TIMEOUT
   socket DUP INVALID_SOCKET =
   IF WSAGetLastError
   ELSE 0
-       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
-       setsockopt OR
+\       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
+\       setsockopt OR
        OVER >R 4 TIMEOUT SO_SNDTIMEO SOL_SOCKET R>
        setsockopt OR
        OVER >R 4 TIMEOUT SO_RCVTIMEO SOL_SOCKET R>
@@ -93,8 +93,6 @@ USER TIMEOUT
   socket DUP INVALID_SOCKET =
   IF WSAGetLastError
   ELSE 0
-\       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
-\       setsockopt OR
   THEN
 ;
 : CreateBroadcastSocket ( -- socket ior )
@@ -216,8 +214,8 @@ CREATE SINLEN /sockaddr_in ,
   ROT accept DUP INVALID_SOCKET =
   IF WSAGetLastError
   ELSE 0
-       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
-       setsockopt OR
+\       OVER >R 4 LINGER SO_LINGER SOL_SOCKET R>
+\       setsockopt OR
   THEN
 ;
 : NtoA ( IP -- addr u )

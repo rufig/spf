@@ -181,12 +181,16 @@ Class;
   IF
     ComRegisterForth DROP \ HEX U. DECIMAL
   THEN
+  ?GUI IF -1 PAUSE ELSE MAIN1 THEN
 ;
-: -Embedding RUN ;
+\ : -Embedding RUN ;
+: -Embedding ;
 
 REQUIRE KoiWin ~ac/lib/string/conv2.f
 
-\ FALSE TO SPF-INIT?
-\ TRUE TO ?GUI
-\ ' RUN TO <MAIN>
+FALSE TO SPF-INIT?
+TRUE TO ?GUI
+\ FALSE TO ?CONSOLE
+' RUN TO <MAIN>
+\ ' RUN MAINX !
 S" spfcs.exe" SAVE BYE
