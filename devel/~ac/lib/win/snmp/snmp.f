@@ -92,6 +92,7 @@ WINAPI: InterlockedIncrement KERNEL32.DLL
 WINAPI: InterlockedDecrement KERNEL32.DLL
 
 VARIABLE SnmpWaitingPdu
+VECT vSnmpOnRecv ' NOOP TO vSnmpOnRecv
 
 :NONAME
 (
@@ -102,7 +103,10 @@ VARIABLE SnmpWaitingPdu
   ."  lParam="  .
   ."  lpClientData=" . CR
 ) 2DROP DROP >R 2DROP
-  R> 0= IF SnmpWaitingPdu InterlockedIncrement DROP ELSE ." retransmit;" THEN \ 1+!
+  R> 0= 
+  IF SnmpWaitingPdu InterlockedIncrement DROP 
+     vSnmpOnRecv
+  ELSE ." retransmit;" THEN \ 1+!
   1
 ; WNDPROC: SnmpCallback
 
@@ -195,7 +199,7 @@ VECT v_add-value
   SNMPoid SNMP_SYNTAX_OID SnmpFreeDescriptor 0= THROW
   SNMPoutpdu SNMPoutcontext SNMPdstentity SNMPsrcentity SNMPsession @ SnmpRecvMsg 0= THROW
 ;
-: SnmpGetTypeEx ( S"oid" type S"community" S"host" port -- )
+: SnmpGetTypeExSend ( S"oid" type S"community" S"host" port -- )
   >R 2>R 2>R >R 2>R
   SNMPoid ( S" 1.3.6.1.2.1.1.1.0" DROP) 2R> DROP SnmpStrToOid 0= THROW
   SNMPvalue SNMPoid SNMPsession @ SnmpCreateVbl DUP SNMPvbl ! 0= THROW
@@ -205,7 +209,8 @@ VECT v_add-value
   ( S" 198.63.211.47" DROP) 2R> DROP SNMPsession @ SnmpStrToEntity DUP SNMPdstentity ! 0= THROW
   R> SNMPdstentity @ SnmpSetPort 0= THROW
   SNMPpdu @ SNMPcontext @ SNMPdstentity @ SNMPentity @ SNMPsession @ SnmpSendMsg 0= THROW
-  BEGIN 100 PAUSE SnmpWaitingPdu @ UNTIL SnmpWaitingPdu @ 1- 0 MAX SnmpWaitingPdu !
+;
+: SnmpGetTypeExRecv ( -- )
   SNMPvbl @ SnmpFreeVbl 0= THROW
   SNMPpdu @ SnmpFreePdu 0= THROW
   SNMPcontext @ SnmpFreeContext 0= THROW
@@ -213,6 +218,11 @@ VECT v_add-value
   SNMPdstentity @ SnmpFreeEntity 0= THROW
   SNMPoid SNMP_SYNTAX_OID SnmpFreeDescriptor 0= THROW
   SNMPoutpdu SNMPoutcontext SNMPdstentity SNMPsrcentity SNMPsession @ SnmpRecvMsg 0= THROW
+;
+: SnmpGetTypeEx ( S"oid" type S"community" S"host" port -- )
+  SnmpGetTypeExSend
+  BEGIN 100 PAUSE SnmpWaitingPdu @ UNTIL SnmpWaitingPdu @ 1- 0 MAX SnmpWaitingPdu !
+  SnmpGetTypeExRecv
 ;
 : SnmpGet  ( S"oid" S"host" -- )
   SNMP_PDU_GET ROT ROT SnmpGetType
