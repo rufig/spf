@@ -675,8 +675,6 @@ CODE FM/MOD ( d1 n1 -- n2 n3 ) \ 94
      RET
 END-CODE
 
-( \ заменено высокоуровневой версией )
- 
 CODE DIGIT \ [ C, N1 -> N2, TF / FF ] \ N2 - значение литеры C как
            \ цифры в системе счисления по основанию N1
        MOV ECX, EAX
@@ -692,12 +690,8 @@ CODE DIGIT \ [ C, N1 -> N2, TF / FF ] \ N2 - значение литеры C как
        JMP SHORT @@3
 @@2:   A;  3C C, 41 C,  \  CMP AL, # 41
        JC SHORT @@1
-       A;  3C C, 61 C,  \  CMP AL, # 61
-       JC SHORT @@4
-       A;  2C C, 57 C,  \  SUB AL, # 57
-       JMP SHORT @@5
-@@4:   A;  2C C, 37 C,  \  SUB AL, # 37
-@@5:   CMP AL, CL
+       A;  2C C, 37 C,  \  SUB AL, # 37
+       CMP AL, CL
        JNC SHORT @@1
        MOV [EBP], EAX
 @@3:   A; B8 C, TRUE W, TRUE W,  \  MOV EAX, # -1
