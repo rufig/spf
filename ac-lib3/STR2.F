@@ -290,12 +290,18 @@ CREATE _S""" CHAR " C,
   _S""" 1
 ;
 
-HEX
-08C ( 0BC в spf375;  90, 98 в старых locals) CONSTANT LOCALS_STACK_OFFSET
+\ HEX
+\ 08C ( 0BC в spf375;  90, 98 в старых locals) CONSTANT LOCALS_STACK_OFFSET
 \ смещение первой локальной переменной в стеке ( в старом locals)
 \ смещение фрейма (в новом locals)
 \ на момент выполнения слова (") внутри скомпилированного определения
-DECIMAL
+\ DECIMAL
+
+( вечная слава Андрею Филаткину: )
+S" {R0 @ RP@ -}" (") DUP
+STR@ ?SLITERAL
+R0 @ RP@ - - 4 + CONSTANT LOCALS_STACK_OFFSET
+STRFREE
 
 : STR@LOCAL ( addr u -- addr u )
   { \ tib >in #tib s sp }

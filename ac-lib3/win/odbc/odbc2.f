@@ -21,6 +21,9 @@ VARIABLE DescriptionLen
   Description DescriptionLen @ TYPE CR
 ;
 : ConnectFile ( S" connect string" fodbc -- ior )
+\ 09.01.2003: в параметре Driver= имя драйвера должно точно совпадать с тем,
+\ что написано в ODBC control panel, вплоть до пробелов. 
+\ В примерах MS часты опечатки!, осторожнее :)
   { fa fu fodbc \ sl2p mem }
   2048 ALLOCATE THROW -> mem
   ( SQL_DRIVER_PROMPT) 0 ^ sl2p 2048 mem fu fa 
