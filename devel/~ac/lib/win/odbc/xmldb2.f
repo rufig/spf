@@ -33,6 +33,24 @@ VARIABLE SqlQ
     " </Row>{CRLF}" s S+
   s
 ;
+USER &escape_tmp
+: &escape1
+  BEGIN
+    [CHAR] & PARSE DUP
+  WHILE
+    &escape_tmp @ STR+
+    CharAddr #TIB @ >IN @ - DUP -1 >
+    IF 4 MIN S" amp;" COMPARE 0=
+       IF S" &" ELSE S" &amp;" THEN &escape_tmp @ STR+
+    ELSE 2DROP THEN
+  REPEAT 2DROP
+;
+: &escape
+  2DUP S" &" SEARCH NIP NIP 0= IF EXIT THEN
+  "" &escape_tmp !
+  ['] &escape1 EVALUATE-WITH
+  &escape_tmp @ STR@
+;
 : SqlQueryResult
   { \ n s }
   "" -> s
@@ -44,7 +62,10 @@ VARIABLE SqlQ
     SqlQ @
     SqlQ @ ResultCols 0 ?DO
       I 1+ OVER 2DUP
-      ColName 2SWAP Col DUP 1 < IF 2DROP S" 0" THEN 2OVER
+      ColName 2SWAP Col DUP 1 < 
+      IF 2DROP S" 0" 
+      ELSE &escape THEN 
+      2OVER
       " <{s}>{s}</{s}>" s S+
     LOOP DROP
     " </Row>{CRLF}" s S+
@@ -65,7 +86,10 @@ VARIABLE SqlQ
     SqlQ @
     SqlQ @ ResultCols 0 ?DO
       I 1+ OVER 2DUP
-      ColName 2SWAP Col DUP 1 < IF 2DROP S" 0" THEN S@ 2OVER
+      ColName 2SWAP Col DUP 1 < 
+      IF 2DROP S" 0"
+      ELSE &escape THEN 
+      S@ 2OVER
       " <{s}>{s}</{s}>" s S+
     LOOP DROP
     " </Row>{CRLF}" s S+
