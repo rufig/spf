@@ -333,7 +333,10 @@ USER aMessageStartPos CELL USER-ALLOT
 : LineProcessor DefaultLineProcessor ;
 : DefaultTextEnd C" TextEnd" FEX ;
 
-: ProcessFile
+: ProcessFile { \ tib in #tib }
+  TIB -> tib >IN @ -> in #TIB @ -> tib
+  C/L 2+ ALLOCATE THROW TO TIB
+
   DOT-FOUND 0!
   BEGIN
     REFILL
@@ -341,6 +344,9 @@ USER aMessageStartPos CELL USER-ALLOT
     DefaultLineProcessing
   REPEAT
   DefaultTextEnd
+
+  TIB FREE THROW
+  tib #TIB ! in >IN ! tib TO TIB
 ;
 
 \ ****************************** Interface ********************************
