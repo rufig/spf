@@ -160,6 +160,7 @@ REQUIRE { ~ac/lib/locals.f
 CONSTANT /sHeader
 
 USER STR-ID
+USER STRLAST
 
 : sAddr ( s -- addr )
   DUP sNewBuff @ ?DUP IF NIP EXIT THEN
@@ -211,6 +212,9 @@ USER STR-ID
   DUP sNewBuff @ ?DUP IF FREE THROW THEN
   FREE THROW
 ;
+: LSTRFREE ( -- )
+  STRLAST @ STRFREE
+;
 : STR_EVAL ( addr u s -- )
   { s \ sp tib >in #tib so si addr char }
   DUP 1 = \ варианты {s} {n}
@@ -261,7 +265,7 @@ USER STR-ID
     ELSE DROP THEN
   REPEAT
   >in >IN ! #tib #TIB ! tib TO TIB base BASE !
-  s
+  s DUP STRLAST !
 ;
 : _STRLITERAL ( -- s )
   R> DUP CELL+ SWAP @ 2DUP + CHAR+ >R

@@ -39,6 +39,7 @@ CONSTANT /MIB_TCPROW
   mem CELL+ -> tr
   mem @ 0 ?DO
     tr MTCP.State @ filter =
+    filter 0= OR
     IF tr xt EXECUTE THEN
     tr /MIB_TCPROW + -> tr
   LOOP
