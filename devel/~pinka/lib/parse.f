@@ -35,3 +35,50 @@
   SWAP 1- SWAP 2+ 
   THEN              THEN
 ;
+
+\ 22.Apr.2004
+
+: UnQuoted ( a u -- a1 u1 )
+  DUP IF
+  OVER C@ IsCharSubs IF
+  SWAP 1+ SWAP 2-    THEN
+  THEN
+;
+
+CHAR ;  VALUE FieldDelimiter
+
+: NextField ( -- a u )
+  SkipDelimiters
+  FieldDelimiter PARSE
+  -TRAILING  UnQuoted
+;
+: NextField2 ( -- a u )
+\ в кавычках может быть и разделитель полей
+  SkipDelimiters
+  GetChar DROP IsCharSubs         IF
+  NextSubstring
+  FieldDelimiter PARSE 2DROP      ELSE
+  FieldDelimiter PARSE -TRAILING  THEN
+;
+: SkipComma ( -- )
+  SkipDelimiters
+  GetChar IF  DUP [CHAR] , = IF
+  >IN 1+!  THEN  THEN  DROP
+;
+
+: IsCharLike ( a u c -- flag )
+  >R RP@ 1 SEARCH NIP NIP  RDROP
+;
+: ParseTill ( a u -- a1 u1 )
+  CharAddr >IN @  2>R
+  BEGIN
+    2DUP
+    GetChar
+  WHILE
+    IsCharLike 0=
+  WHILE >IN 1+!
+  REPEAT ELSE DROP 2DROP THEN 2DROP
+  2R> NEGATE >IN @ +
+;
+\ i.g.:  S" ;,&=" ParseTill
+
