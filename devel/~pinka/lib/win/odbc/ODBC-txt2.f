@@ -71,7 +71,7 @@ PREVIOUS SET-CURRENT
   s STRFREE              SqlThrow
 ;
 : DelPrevNew ( -- )
-  " New{TableName}" >R
+  " {TableName}.New" >R
   R@ STR@  FILE-EXIST         IF
   R@ STR@  DELETE-FILE THROW  THEN
   R> STRFREE
@@ -91,7 +91,7 @@ PREVIOUS SET-CURRENT
   R> STRFREE
 ;
 : MakeTbl ( -- )
-  " {TableName}New"  DUP >R STR@
+  " {TableName}.New" DUP >R STR@
   " {TableName}"     DUP >R STR@
   2DUP DELETE-FILE THROW
   RENAME-FILE THROW
@@ -107,7 +107,7 @@ USER-VALUE h-tbl
 : OpenNewTbl ( -- )
   CloseNewTbl
   DelPrevNew
-  " {TableName}New" DUP >R STR@
+  " {TableName}.New" DUP >R STR@
   W/O CREATE-FILE-SHARED THROW TO h-tbl
   R> STRFREE
 ;
