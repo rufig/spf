@@ -8,7 +8,8 @@
   ќсобенности и ограничени€.
      оманды запроса регистро-зависимы и должны быть в верхнем регистре.
     ¬ запросе DELETE слово FROM об€зательно.
-    ¬ запросе UPDATE не поддерживаетс€ вычисление значений в SET
+    ¬ запросе UPDATE не поддерживаетс€ вычисление значений в SET,
+      поддерживаетс€ ROWID - 'номер строки' /с 22.Apr.2004/.
     «начени€ атрибутов не должны содержать кавычки ["].
     ‘айл таблицы должен находитьс€ в текущем каталоге.
     ѕри исключени€х [ бросках THROW] возможна утечка пам€ти [от строк].
@@ -18,7 +19,7 @@ REQUIRE INCLUDED-WITH  ~pinka\lib\ext\include.f
 REQUIRE RENAME-FILE ~pinka\lib\FileExt.f
 \ REQUIRE SPARSETO    ~pinka\lib\ext\parse.f
 \ подключаю в ODBCTxt-Support, во избежании коллизий
-REQUIRE NextSubstring ~pinka\lib\parse.f 
+REQUIRE NextSubstring ~pinka\lib\parse.f
 REQUIRE COMPARE-U   ~ac\lib\string\compare-u.f
 REQUIRE HASH@       ~pinka\lib\hash-table.f
 REQUIRE STR@        ~ac\lib\str2.f
@@ -29,15 +30,26 @@ REQUIRE ExistTable  ~ac\lib\win\odbc\odbc2.f
 VOCABULARY  ODBCTxt-Support
 GET-CURRENT  ALSO ODBCTxt-Support DEFINITIONS
 
-
 REQUIRE SPARSETO    ~pinka\lib\ext\parse.f
 
-: SkipComma ( -- )
+: NextValueName ( -- a-value u-value a-name u-name true | false )
   SkipDelimiters
-  GetChar IF  DUP [CHAR] , = IF
-  >IN 1+!  THEN  THEN  DROP
+  S" =" SPARSE IF
+    -TRAILING UnQuoted
+    SkipDelimiters
+    PeekChar IsCharSubs IF
+    NextSubstring       ELSE
+    S" , " ParseTill
+    -TRAILING           THEN
+    2SWAP   TRUE
+  ELSE
+    FALSE
+  THEN
 ;
 
+\ --------------------------------------------
+
+USER-VALUE  RowId
 USER-VALUE  vHashT
 USER-VALUE  qSql
 USER-CREATE dTableName       2 CELLS USER-ALLOT
@@ -71,7 +83,7 @@ PREVIOUS SET-CURRENT
   s STRFREE              SqlThrow
 ;
 : DelPrevNew ( -- )
-  " {TableName}.New" >R
+  " New{TableName}" >R
   R@ STR@  FILE-EXIST         IF
   R@ STR@  DELETE-FILE THROW  THEN
   R> STRFREE
@@ -91,7 +103,7 @@ PREVIOUS SET-CURRENT
   R> STRFREE
 ;
 : MakeTbl ( -- )
-  " {TableName}.New" DUP >R STR@
+  " {TableName}New"  DUP >R STR@
   " {TableName}"     DUP >R STR@
   2DUP DELETE-FILE THROW
   RENAME-FILE THROW
@@ -107,7 +119,7 @@ USER-VALUE h-tbl
 : OpenNewTbl ( -- )
   CloseNewTbl
   DelPrevNew
-  " {TableName}.New" DUP >R STR@
+  " {TableName}New" DUP >R STR@
   W/O CREATE-FILE-SHARED THROW TO h-tbl
   R> STRFREE
 ;
@@ -170,31 +182,47 @@ USER-VALUE h-tbl
   FALSE             THEN
   RDROP
 ;
-: GetFileCol ( -- a u )
-  SkipDelimiters
-  GetChar DROP IsCharSubs   IF
-  NextSubstring
-  [CHAR] ; PARSE 2DROP      ELSE
-  [CHAR] ; PARSE -TRAILING  THEN
+: CmpRowById ( -- flag )
+  CURSTR @  RowId 1+ <> EXIT
 ;
-: CmpRow ( -- flag )
+: CmpRow ( -- flag ) \ 0 if matched
    >IN 0!
+   RowId IF CmpRowById EXIT THEN
+
    qSql ResultCols 1+ 1 ?DO
      I qSql Col
      ( odbc Col убирает пробелы в конце, даже в кавычках)
-     GetFileCol -TRAILING  COMPARE  
+     NextField -TRAILING  COMPARE  
      DUP IF UNLOOP EXIT THEN DROP
    LOOP 0
+;
+: WriteField ( i a u -- )
+   DUP
+   IF   ROT 1 = IF " {''}{s}{''}" ELSE " ;{''}{s}{''}" THEN
+   ELSE 2DROP 1 = IF "" ELSE " ;" THEN
+   THEN WriteTbl-str
+;
+: UpdateRowById ( -- )
+  SOURCE NIP 0= IF EXIT THEN
+  0  
+  BEGIN
+    SkipDelimiters
+    EndOfChunk 0=
+  WHILE ( i )
+    1+ DUP DUP HasValue IF
+    NextField 2DROP     ELSE
+    NextField           THEN
+    ( i i a u )
+    WriteField
+  REPEAT DROP  CRLF WriteTbl
 ;
 : UpdateRow ( -- )
    SOURCE NIP 0= IF EXIT THEN
    qSql ResultCols 1+ 1 ?DO
+     I
      I HasValue 0= IF
-     I qSql Col    THEN ( a u )
-     DUP
-     IF   I 1 = IF " {''}{s}{''}" ELSE " ;{''}{s}{''}" THEN
-     ELSE 2DROP I 1 = IF "" ELSE " ;" THEN
-     THEN WriteTbl-str
+     I qSql Col    THEN ( i a u )
+     WriteField
    LOOP  CRLF WriteTbl
 ;
 : WriteOtherRows ( -- )
@@ -209,10 +237,29 @@ USER-VALUE h-tbl
   \ обнулил SOURCE на случай, если файл закончилс€, 
   \  а NextRow еще нет (когда CmpRow не сработало)
 ;
+: UpdateById ( -- )
+  WriteOtherRows
+  UpdateRowById
+  WriteOtherRows
+;
+: StoreHeader ( -- )
+  0
+  BEGIN
+    SkipDelimiters
+    EndOfChunk 0=
+  WHILE
+    1+ DUP
+    NextField ROT StoreCol#
+  REPEAT DROP
+;
 : update ( -- )
   REFILL IF \ the header
     SOURCE WriteTbl  CRLF WriteTbl
+    StoreHeader
   THEN
+
+  RowId IF UpdateById  EXIT THEN
+
   BEGIN
     qSql NextRow
   WHILE
@@ -221,25 +268,33 @@ USER-VALUE h-tbl
   REPEAT
   WriteOtherRows
 ;
-
+: >NUM ( a u -- n )
+  0. 2SWAP  >NUMBER 2DROP DROP
+;
+: TranslateWhere ( -- )
+   NextValueName IF 2DROP >NUM  ELSE 0 THEN
+   DUP 0= IF DROP -1 THEN
+   TO RowId
+;
+: SelectWhere ( -- )
+  dWhereCondition 2@
+  DROP S" ROWID" TUCK  COMPARE IF
+    " SELECT * FROM {TableName} WHERE {WhereCondition}" ExecSqlStr
+  ELSE
+    dWhereCondition 2@ ['] TranslateWhere EVALUATE-WITH
+  THEN
+;
 : SqlTxtUpdate ( -- )    \ EXIT
-  qSql { q }
   MakeBak
-
-  " SELECT * FROM {TableName} WHERE {WhereCondition}" ExecSqlStr
-
+  SelectWhere
   OpenNewTbl
-
-  q ResultCols 1+ 1 ?DO
-      I q ColName I StoreCol#
-  LOOP
 
   " {TableName}.bak"
   DUP >R STR@ ['] update INCLUDED-WITH
   R> STRFREE
 
   CloseNewTbl
-  q ReconnectSQL SqlThrow
+  qSql ReconnectSQL SqlThrow
   MakeTbl
 ;
 
@@ -250,6 +305,7 @@ GET-CURRENT ALSO SqlLex DEFINITIONS
   NextWord dTableName 2!
 ;
 : WHERE
+  SkipDelimiters
   0 PARSE dWhereCondition 2!
 ;
 : DELETE ( -- sql_ior )
@@ -267,29 +323,16 @@ GET-CURRENT ALSO SqlLex DEFINITIONS
   CheckTbl
   ['] SqlTxtUpdate CATCH
 ;
-: set2 ( -- )
-  [CHAR] =  PARSE
-  -TRAILING       ( a-key u-key )
-  SkipDelimiters
-  GetChar DROP IsCharSubs  IF
-  NextSubstring            ELSE
-  [CHAR] , PARSE -TRAILING THEN
-  ( a-key u-key a u )
-  2SWAP HashT  HASH!
-;
-: set1 ( -- )
-  BEGIN
-    SkipDelimiters
-    PARSE-AREA@ NIP
-  WHILE set2
-    SkipComma
-  REPEAT
-;
 : SET ( -- )
-  S" WHERE" SPARSETO 0= IF 0 PARSE THEN
-  ['] set1 EVALUATE-WITH
+  BEGIN
+    SkipComma
+    NextValueName
+  WHILE
+    HashT  HASH!
+    SkipDelimiters
+    PeekChar [CHAR] , <>
+  UNTIL THEN
 ;
-
 \ UPDATE Tbl SET f2 = 'v2',  f3 = 'v3'  WHERE f1 = 'v1'
 \ UPDATE weather SET temp_hi = temp_hi - 2,  temp_lo = temp_lo - 2  WHERE date > '1994-11-28'
 
