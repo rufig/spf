@@ -1,3 +1,5 @@
+REQUIRE EveryoneName ~ac/lib/win/access/everyone.f
+
 WINAPI: GetCurrentProcess            KERNEL32.DLL
 WINAPI: GetSecurityInfo              ADVAPI32.DLL
 WINAPI: SetSecurityInfo              ADVAPI32.DLL
@@ -25,7 +27,7 @@ USER-CREATE EXPL_ACCESS 8 CELLS USER-ALLOT
   GetSecurityInfo R> SWAP R> FREE DROP
 ;
 : CreateEveryoneACE ( -- )
-  NO_INHERITANCE GRANT_ACCESS RIGHTS_ALL S" EVERYONE" DROP
+  NO_INHERITANCE GRANT_ACCESS RIGHTS_ALL EveryoneName ( S" EVERYONE") DROP
   EXPL_ACCESS BuildExplicitAccessWithNameA DROP
 ;
 : CreateEveryoneACL ( -- acl ior )
