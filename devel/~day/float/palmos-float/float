@@ -1,0 +1,210 @@
+( float DAY )
+
+CREATE dfres 8 ALLOT
+
+: FlpVersion ( -- u ) 5 floattrap d0 ;
+
+: F+
+   2>R 2>R
+   dfres >abs >r
+   51 floattrap2
+   20 nrdrop
+   dfres 2@
+;
+
+: F*
+   2>R 2>R
+   dfres >abs >r
+   52 floattrap2
+   20 nrdrop
+   dfres 2@
+;
+
+: F-
+   2>R 2>R
+   dfres >abs >r
+   53 floattrap2
+   20 nrdrop
+   dfres 2@
+;
+
+: F/
+   2>R 2>R
+   dfres >abs >r
+   54 floattrap2
+   20 nrdrop
+   dfres 2@
+;
+
+: S>F ( i -- r )
+    >R dfres >abs >R
+    8 floattrap2 d1 d0
+    8 NRDROP
+;
+
+: FNEGATE ( r -- -r )
+    0x80000000 XOR
+;
+
+: FABS ( r -- |r| )
+    0x7FFFFFFF AND
+;
+
+: skipChar ( addr u c -- addr2 u2 | addr u )
+   >R OVER C@ R> =
+   IF SKIP1 THEN
+;
+
+: skipDigits ( addr u -- addr1 u1 )
+   BEGIN
+     OVER C@ 10 DIGIT DUP
+     IF NIP THEN
+     OVER 0> AND
+   WHILE
+     SKIP1
+   REPEAT
+;
+
+: skipBL
+   BEGIN
+      OVER C@ BL =
+      OVER 0> AND
+   WHILE
+      SKIP1
+   REPEAT
+;
+
+: float?  ( addr u -- f )
+  skipBL
+  [CHAR] + skipChar
+  [CHAR] - skipChar
+  [CHAR] . skipChar
+  skipDigits
+  [CHAR] . skipChar
+  skipDigits
+  [CHAR] e skipChar         
+  [CHAR] E skipChar
+  [CHAR] + skipChar
+  [CHAR] - skipChar
+  skipDigits
+  skipBL
+  NIP 0=
+;
+
+VARIABLE FRACCOUNT
+VARIABLE WASCOMMA?
+
+: 10e
+   0 0x40240000
+;
+
+: UNTIL_E ( R1 ADDR U -- R2 ADDR2 U2 )
+  BEGIN
+    OVER C@ >R
+    SKIP1 R@ [CHAR] . =
+    IF RDROP WASCOMMA? ON
+    ELSE
+       R> 10 DIGIT
+       IF
+         WASCOMMA? @ 
+         IF FRACCOUNT 1+! THEN
+         >R 2SWAP 
+         10e F* 
+         R> S>F F+ 
+         2SWAP
+         DUP 0= IF EXIT THEN
+       ELSE EXIT
+       THEN
+    THEN
+  AGAIN
+;
+
+: FN^10 ( N --) ( R -- R1 )
+   DUP 0 >
+   IF
+     0 ?DO
+       10e F* 
+     LOOP 
+   ELSE
+      ABS 0 ?DO
+         10e F/
+      LOOP
+   THEN
+;
+
+: >FLOAT-ABS ( ADDR U -- R -1 | 0 )
+  0. 2SWAP
+  UNTIL_E ( R ADDR1 U1 )
+  DUP 
+  IF
+    OVER C@ DUP [CHAR] - = 
+    IF DROP SKIP1 TRUE 
+    ELSE [CHAR] + = IF SKIP1 THEN FALSE
+    THEN >R
+    BASE @ >R DECIMAL
+    0. 2SWAP >NUMBER 2DROP
+    R> BASE !
+    DROP R> IF NEGATE THEN
+  ELSE NIP
+  THEN FRACCOUNT @ -
+  DUP
+  DUP 0< IF 1+ THEN ABS 307 > 
+  IF 2DROP DROP 0 EXIT THEN
+  FN^10 TRUE
+;
+
+: >FLOAT ( ADDR U -- R -1 | 0 )
+    FRACCOUNT 0! WASCOMMA? OFF
+    2DUP float?
+    IF
+      OVER C@ [CHAR] - =
+      IF SKIP1
+         >FLOAT-ABS DUP
+         IF >R FNEGATE R> THEN
+      ELSE OVER C@ [CHAR] + =
+           IF SKIP1 THEN
+           >FLOAT-ABS
+      THEN
+    ELSE 2DROP 0
+    THEN
+;
+
+8 VALUE PRECISION
+
+: SET-PRECISION ( u -- )
+   TO PRECISION
+;
+
+: 1e
+   0 0x3FF00000
+;
+
+: FSWAP 2SWAP ;
+
+: F>D ( r -- d )
+    2>R dfres >abs >R
+    24 floattrap2 d1 d0
+    12 NRDROP
+;
+
+: FDUP 2DUP ;
+
+: F0= ( r -- flag )
+    0x7FFFFFFF AND OR 0=
+;
+
+: F< ( r1 r2 -- flag )
+    2>R 2>R
+    39 floattrap2 d0
+    16 NRDROP
+    1 =
+;
+
+: FDROP 2DROP ;
+
+: F0< ( r -- flag )
+    NIP 0x80000000 AND 0<>
+;
+
+
+S" float2" INCLUDED

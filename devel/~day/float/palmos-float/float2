@@ -1,0 +1,157 @@
+( float2 DAY )
+
+: EXP# ( R -- N )
+   DUP 20 RSHIFT
+   0x7FF AND 1023 -
+   S>F
+   0x509F79FD 0x3FD34413
+   ( 0.301029995663981e) F*
+   FSWAP 0xFFFFF AND
+   0x3FF00000 OR
+   0 0x3FF8000
+   ( 1.5e) F-
+   0x636F4361 0x3FD287A7
+   ( 0.289529654602168e) F*
+   0x8B60B7F4 0x3FC68A28
+   ( 0.176091259055681e) F+
+   F+ F>D DROP
+;
+
+: FNORM ( R -- R1 N )
+   FDUP EXP# >R 1e R@
+   FN^10 F/
+   FDUP 1e F<
+   IF
+     10e F*
+     -1 RP@ +!
+   THEN R>
+;
+
+VARIABLE EXP?
+
+: F# ( r -- r1 )
+   FDUP F>D OVER >R
+   <# # #> TYPE
+   R> S>F F- 10e F*
+;
+
+: NAN. ( r -- r 0 | -1 )
+   2DUP DUP 0< >R FABS
+   0 0x7FF00000 D=
+   IF
+     FDROP R> IF [CHAR] - ELSE [CHAR] + THEN
+     EMIT S" inf" TYPE -1
+   ELSE 2DUP -1 0x7FFFFFFF D=
+        IF FDROP RDROP S" nan" TYPE -1
+        ELSE RDROP 0
+        THEN
+   THEN
+;
+
+: F. ( R -- )
+   NAN. IF EXIT THEN
+   FDUP 10e F< 0=
+   IF
+     FNORM DUP 0< IF DROP 0 THEN
+   ELSE 0
+   THEN 1+ 0
+   DO F#  LOOP
+   [CHAR] . EMIT
+   PRECISION 0
+   ?DO
+     EXP? @ 0= IF FDUP F0= IF LEAVE THEN
+               THEN
+     F#
+   LOOP FDROP
+   EXP? OFF
+;
+
+: FS. ( R -- )
+   NAN. IF EXIT THEN
+   EXP? ON
+   FDUP F0< IF FABS [CHAR] - EMIT THEN
+   FNORM >R
+   FDUP F0= IF RP@ 0! THEN
+   F. [CHAR] e EMIT
+   R@ ABS 0
+   <# # # R@ ABS 99 > IF # THEN R> SIGN #>
+   TYPE
+;
+
+: (FS.) ( r -- addr u )
+   E{  FS.  }E
+;
+
+: (F.) ( r -- addr u )
+   E{  F.   }E
+;
+
+: FLITERAL ( r -- )
+    STATE @ IF DLIT, THEN
+; IMMEDIATE
+
+: IsExp? ( addr u -- f )
+   S" e" SEARCH 
+   IF 2DROP TRUE EXIT
+   ELSE S" E" SEARCH NIP NIP
+   THEN
+;
+
+: NOTFOUND ( addr u -- i*x )
+    2DUP 2>R
+    ['] NOTFOUND CATCH ?DUP
+    IF
+      NIP NIP 2R> 2DUP
+      IsExp? IF >FLOAT  
+             ELSE 2DROP THROW
+             THEN
+      IF ROT DROP [COMPILE] FLITERAL
+      ELSE THROW
+      THEN
+    ELSE
+      2RDROP
+    THEN   
+;
+
+: F@ 2@ ;
+
+: F! 2! ;
+
+: FLOAT+ 8 + ;
+
+: FLOATS 3 LSHIFT ;
+
+
+: FOVER 2OVER ;
+
+
+: D>F ( d -- r )
+    2>R dfres >abs >R
+    10 floattrap2 d1 d0
+    12 NRDROP
+;
+
+: FROT ( r1 r2 r3 -- r2 r3 r1 )
+    2ROT
+;
+
+: FPI
+    0x54442D18
+    0x400921FB  
+;
+
+: FDEPTH DEPTH 2/ ;
+
+: FMAX ( r1 r2 -- r3 )
+   FOVER FOVER F<
+   IF FSWAP FDROP THEN
+;
+
+: FMIN ( r1 r2 -- r3 )
+   FOVER FOVER F<
+   IF FDROP THEN
+;
+
+: FCONSTANT 2CONSTANT ;
+
+: FVARIABLE 2VARIABLE ;
