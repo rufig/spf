@@ -180,26 +180,6 @@ VARIABLE   &INTERPRET
   REPEAT BYE
 ;
 
-: SAVE-ERR ( err-num -- )
-\ сохранить текущую PARSE-AREA (строка by SOURCE ) 
-\ и параметры входного потока CURFILE, CURSTR  в область ERR-DATA
-\ ÷ель - дальнейша€ индикаци€  места,  вызвавшего исключение.
-
-  ERR-DATA err.number !
-  CURSTR @   ERR-DATA err.line# !
-  >IN @      ERR-DATA err.in#   !
-  SOURCE /errstr_ MIN  DUP 
-             ERR-DATA err.line C!   
-             ERR-DATA err.line 1+ SWAP CMOVE
-          0  ERR-DATA err.line COUNT + C!
-  CURFILE @ ?DUP IF ASCIIZ> ELSE S" H-STDIN" THEN
-  /errstr_ MIN  DUP 
-             ERR-DATA err.file C!
-             ERR-DATA err.file 1+ SWAP MOVE
-          0  ERR-DATA err.file COUNT + C!
-  NOTSEEN-ERR
-;
-
 : QUIT ( -- ) ( R: i*x ) \ CORE 94
 \ —бросить стек возвратов, записать ноль в SOURCE-ID.
 \ ”становить стандартный входной поток и состо€ние интерпретации.
@@ -224,6 +204,7 @@ VARIABLE   &INTERPRET
 : SAVE-SOURCE ( -- i*x i )
   SOURCE-ID-XT  SOURCE-ID   >IN @   SOURCE   CURSTR @   6
 ;
+
 : RESTORE-SOURCE ( i*x i  -- )
   6 <> IF ABORT THEN
   CURSTR !    SOURCE!  >IN !  TO SOURCE-ID   TO SOURCE-ID-XT
@@ -248,16 +229,6 @@ VARIABLE   &INTERPRET
   ['] INTERPRET EVALUATE-WITH
 ;
 
-: (TranslateFlow) ( -- )
-  BEGIN REFILL WHILE INTERPRET REPEAT
-;
-
-: TranslateFlow  ( -- )
-  ['] (TranslateFlow) CATCH DUP IF
-    SEEN-ERR? IF DUP SAVE-ERR THEN
-  THEN THROW
-;
-
 : RECEIVE-WITH-XT  ( i*x source source-xt xt -- j*x ior )
 \ сохранить спецификации входного потока
 \ установить входной поток на source, слово дл€ чтени€ строки в source-xt
@@ -277,6 +248,39 @@ VARIABLE   &INTERPRET
 \ установить входной поток на source, выполнить xt
 \ восстановить спецификации входного потока
   0 SWAP RECEIVE-WITH-XT
+;
+
+: HEAP-COPY ( addr u -- addr1 )
+\ скопировать строку в хип и вернуть еЄ адрес в хипе
+  DUP 0< IF 8 THROW THEN
+  DUP 1+ ALLOCATE THROW DUP >R
+  SWAP DUP >R MOVE
+  0 R> R@ + C! R>
+;
+
+: FIND-FULLNAME ( a1 u1 -- a u )
+  2DUP +SourcePath      2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
+  2DUP FILE-EXIST IF EXIT THEN
+  2DUP +LibraryDirName  2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
+  2DUP +ModuleDirName   2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
+  2 ( ERROR_FILE_NOT_FOUND ) THROW
+;
+
+VECT PROCESS-ERR \ обработать ошибку трансл€ции (файла).
+
+: PROCESS-ERR1 ( ior -- ior )  \ тут проверка на ior=0 тоже нужна.
+  DUP IF SEEN-ERR? IF DUP SAVE-ERR THEN THEN
+;
+' PROCESS-ERR1 (TO) PROCESS-ERR
+
+: (TranslateFlow) ( -- )
+  BEGIN REFILL WHILE INTERPRET REPEAT
+;
+
+: TranslateFlow  ( -- )
+  ['] (TranslateFlow) CATCH
+  DUP IF PROCESS-ERR ( err -- err ) THEN
+  THROW
 ;
 
 : INCLUDE-FILE ( i*x fileid -- j*x ) \ 94 FILE
@@ -308,30 +312,11 @@ VARIABLE   &INTERPRET
   INCLUDE-FILE 0
 ;
 
-: HEAP-COPY ( addr u -- addr1 )
-\ скопировать строку в хип и вернуть еЄ адрес в хипе
-  DUP 0< IF 8 THROW THEN
-  DUP 1+ ALLOCATE THROW DUP >R
-  SWAP DUP >R MOVE
-  0 R> R@ + C! R>
-;
-
-: FIND-FULLNAME ( a1 u1 -- a u )
-  2DUP +SourcePath      2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
-  2DUP FILE-EXIST IF EXIT THEN
-  2DUP +LibraryDirName  2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
-  2DUP +ModuleDirName   2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
-  2 ( ERROR_FILE_NOT_FOUND ) THROW
-;
-
 VECT (INCLUDED)
 
 : (INCLUDED1) ( i*x a u -- j*x )
-  R/O OPEN-FILE-SHARED THROW DUP >R
-  BLK 0!
-  ['] TranslateFlow RECEIVE-WITH ( ior )
-  R> CLOSE-FILE SWAP THROW THROW
-  \ ¬начале обрабатываем ior от RECEIVE-WITH, а потом от CLOSE-FILE (!)
+  R/O OPEN-FILE-SHARED THROW
+  INCLUDE-FILE
 ;
 
 : INCLUDED_STD ( i*x c-addr u -- j*x )
@@ -342,6 +327,7 @@ VECT (INCLUDED)
   R> CURFILE !
   THROW
 ;
+
 : INCLUDED ( i*x c-addr u -- j*x ) \ 94 FILE
 \ ”брать c-addr u со стека. —охранить текущие спецификации входного потока,
 \ включа€ текущее значение SOURCE-ID. ќткрыть файл, заданный c-addr u,

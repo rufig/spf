@@ -88,3 +88,22 @@ USER-CREATE ERR-DATA [T] /err-data [I] TC-USER-ALLOT
   SWAP IF COUNT ER-U ! ER-A ! -2 THROW ELSE DROP THEN
 ;
 
+: SAVE-ERR ( err-num -- )
+\ сохранить текущую PARSE-AREA (строка by SOURCE ) 
+\ и параметры входного потока CURFILE, CURSTR  в область ERR-DATA
+\ Цель - дальнейшая индикация  места,  вызвавшего исключение.
+
+  ERR-DATA err.number !
+  CURSTR @   ERR-DATA err.line# !
+  >IN @      ERR-DATA err.in#   !
+  SOURCE /errstr_ MIN  DUP 
+             ERR-DATA err.line C!   
+             ERR-DATA err.line 1+ SWAP CMOVE
+          0  ERR-DATA err.line COUNT + C!
+  CURFILE @ ?DUP IF ASCIIZ> ELSE S" H-STDIN" THEN
+  /errstr_ MIN  DUP 
+             ERR-DATA err.file C!
+             ERR-DATA err.file 1+ SWAP MOVE
+          0  ERR-DATA err.file COUNT + C!
+  NOTSEEN-ERR
+;
