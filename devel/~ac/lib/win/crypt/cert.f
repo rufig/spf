@@ -105,6 +105,17 @@ DUP , ( rgpMsgCert - массив указателей на включаемые сертификаты )
   SIGN_PARA CryptSignMessage 0 = IF GetLastError EXIT THEN
   mem size 0
 ;
+: SignMessageDetached { addr u cert \ size mem pmem paddr -- addr2 u2 0   | ior }
+  cert SIGN_PARA CELL+ CELL+ !
+\ ^ cert SIGN_PARA 6 CELLS + !
+  u 8000 + -> size
+  size ALLOCATE THROW -> mem  mem -> pmem  ^ addr -> paddr
+  ^ size mem
+  ^ u  paddr
+  1 TRUE
+  SIGN_PARA CryptSignMessage 0 = IF GetLastError EXIT THEN
+  mem size 0
+;
 : CompareCert ( cert1 cert2 -- flag ) \ 0 означает "равны", как в COMPARE
   3 CELLS + @ SWAP 3 CELLS + @
   X509_ASN_ENCODING PKCS_7_ASN_ENCODING OR
