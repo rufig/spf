@@ -1,0 +1,94 @@
+\ 09.Aug.2003 Sat 05:17
+
+SP-FORTH - ANS FORTH 94 for Win95/98/ME/NT/2000/XP
+Open source project at http://spf.sf.net
+Russian FIG at http://www.forth.org.ru ; Started by A.Cherezov
+Version 4.00 Build 014 at 09.Aug.2003
+
+Unknown difference at 543E57  Exe offset: 2257  Word: GetFileSize
+Unknown difference at 543E58  Exe offset: 2258  Word: GetFileSize
+Unknown difference at 543E59  Exe offset: 2259  Word: GetFileSize
+Unknown difference at 543E5A  Exe offset: 225A  Word: GetFileSize
+
+  WINAPI  адрес точки входа, 
+  т.к. был использован FILE-SIZE  \ ?
+
+Unknown difference at 5447CE  Exe offset: 2BCE  Word: USER-OFFS
+Unknown difference at 5447CF  Exe offset: 2BCF  Word: USER-OFFS
+
+  либа locals подлючилась только в exe2dll.f
+   и добавила несколько USER-переменных
+
+Unknown difference at 5468F4  Exe offset: 4CF4  Word: REFILL
+Unknown difference at 5468F5  Exe offset: 4CF5  Word: REFILL
+
+  место между REFILL и NON-OPT-WL
+  выравнивание, по идее.
+  пару байт в этом padding  оказались разные
+
+Unknown difference at 546A2A  Exe offset: 4E2A  Word: (DP)
+Unknown difference at 546A2B  Exe offset: 4E2B  Word: (DP)
+Unknown difference at 546A2C  Exe offset: 4E2C  Word: (DP)
+
+  ???
+  значение VARIABLE (DP)
+
+  т.к. locals.f подключились только в exe2dll.f
+  а они создают свой словарь (стандартный), 
+  а его контент пишется в основное хранилище (!)
+
+  Поэтому нельзя их там подключать.
+
+
+Unknown difference at 546CA7  Exe offset: 50A7  Word: :-SET
+Unknown difference at 546CA8  Exe offset: 50A8  Word: :-SET
+Unknown difference at 546CA9  Exe offset: 50A9  Word: :-SET
+
+  0 VALUE :-SET
+  \ FALSE TO OPT?  не поможет, 
+  \   т.к. устанавливают их условные операторы, 
+  \   через "?BRANCH," ">MARK" и т.п.
+
+
+Unknown difference at 546CC4  Exe offset: 50C4  Word: J-SET
+Unknown difference at 546CC5  Exe offset: 50C5  Word: J-SET
+Unknown difference at 546CC6  Exe offset: 50C6  Word: J-SET
+
+
+  0 VALUE J-SET
+
+Unknown difference at 546CE5  Exe offset: 50E5  Word: LAST-HERE
+Unknown difference at 546CE6  Exe offset: 50E6  Word: LAST-HERE
+Unknown difference at 546CE7  Exe offset: 50E7  Word: LAST-HERE
+
+  0 VALUE LAST-HERE
+
+Unknown difference at 546D1D  Exe offset: 511D  Word: OP0
+Unknown difference at 546D1E  Exe offset: 511E  Word: OP0
+Unknown difference at 546D1F  Exe offset: 511F  Word: OP0
+[...]
+Unknown difference at 546E2B  Exe offset: 522B  Word: OP0
+
+
+  Таблица оптимизатора.  \ OpBuffSize == 0x110  == 0x44 CELLS
+  По идее, значения не важны, когда надо - обновляются \ (?)
+
+
+Unknown difference at 547DA0  Exe offset: 61A0  Word: OPinsert
+
+  FFAA91D7 NEGATE .
+  556E29  Ok
+  FFAB91D7 NEGATE .
+  546E29  Ok
+
+  За счет оптимизатора, смещенная величина была обращена по знаку.
+  Надо фиксить... (!)  \ ***
+  Поэтому пока юзать оптимизатор для dll лучше не надо.
+
+
+Unknown difference at 5505AF  Exe offset: E9AF  Word: LAST
+Unknown difference at 5505B0  Exe offset: E9B0  Word: LAST
+Unknown difference at 5505B1  Exe offset: E9B1  Word: LAST
+
+  VARIABLE LAST
+  последняя скомпилированная статья

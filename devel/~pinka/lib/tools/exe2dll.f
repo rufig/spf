@@ -1,4 +1,7 @@
-\ 12.Sep.2001 Wed 21:17
+\ 12.Sep.2001 Wed 21:17   Ruv
+
+\ 09.Aug.2003   Ruv
+\  * comment ERASED-CNT  as obsolete  in new versions of spf4
 
 \ S" exe2.exe" S" %2" SAVE-DLL
 
@@ -18,6 +21,7 @@
      .edata
    -----
 )
+
 
 
 GET-ORDER  GET-CURRENT OVER 2 +  (  x1 x2 ... xk k )
@@ -51,8 +55,12 @@ StoreAs OrigContext&Current
 ;
 
                                         VOC-LIST @
+: | 0= IF POSTPONE \ THEN ; IMMEDIATE
+  ' ' CATCH {  | 0 .( locals.f must be included at the base exe !!! ) CR CR
+  DROP
 REQUIRE {       ~ac\lib\locals.f
                                         VOC-LIST !  
+
 ( надо фиксить VOC-LIST на старое значение.
   Потому как. даже если словарь создается во временном хранилище /во временном словаре/
   он добавляется в VOC-LIST
@@ -288,7 +296,7 @@ VARIABLE image-offs
 
 : SAVE-DLL  ( name2-a  name2-u  namedll-a  namedll-u -- )
 
-  ERASED-CNT 0!
+  \ ERASED-CNT 0!
   OrigContext&Current DROP SET-CURRENT SET-ORDER
 
   2DUP dllname-u ! dllname-a !
@@ -316,7 +324,7 @@ VARIABLE image-offs
 
   hdll CLOSE-FILE THROW
 
-  ERASED-CNT 1+!
+  \ ERASED-CNT 1+!
 
   vReloc FREE THROW
   \ BYE
