@@ -10,11 +10,13 @@
 \ ??-11-2000 Fixed FE. FF. (Bandaletov) and H.R (Yakimov)
 \ 15-11-2000 Fixed MV2 (Yakimov)
 \ 25-12-2000 Added float literals recognition (Yakimov)
+\ 26-07-2001 Fixed MVX (Maksimov)
 
 CR .( Loading Intel Pentium MMX disassembler...)
 
 WARNING 0!
 
+REQUIRE [IF] ~mak\CompIF.f
 REQUIRE CASE lib\ext\case.f
 REQUIRE WITHIN lib\include\core-ext.f
 
@@ -65,7 +67,13 @@ REQUIRE WITHIN lib\include\core-ext.f
 CREATE SPCS  SPCS-MAX ALLOT
        SPCS  SPCS-MAX BLANK
 
-: UPC [ CHAR A CHAR a XOR INVERT ] LITERAL AND ;
+C" UPC" FIND NIP 0=
+[IF]
+: UPC  ( c -- c' )
+   DUP [CHAR] Z U>
+   IF  0xDF AND
+   THEN   ;
+[THEN]
 
 : (D.)          ( d -- addr len )       TUCK DABS  <# #S ROT SIGN #> ;
 
@@ -148,12 +156,20 @@ CREATE S-BUF MAXSTRING ALLOT
                 0 <# #S #> R> OVER - SSPACES >S
                 R> BASE ! ;
 
+C" NEAR_NFA" FIND NIP 0=
+[IF] : NEAR_NFA ( addr -- NFA addr | 0 addr ) DUP  WordByAddr DROP 1- SWAP
+        2DUP 1000 - U< IF NIP 0 SWAP THEN ;
+[THEN]
+
 : ?.NAME>S      ( CFA -- )
 \ ELIMINATE " 0X"
                 DUP   1 H.R>S SSPACE
-                DUP WordByAddr 
-                >R  TUCK 1- NAME> =
-                IF .S"        ( "  R> >S   .S"  ) "
+                NEAR_NFA 
+                >R DUP
+                IF .S"  ( " DUP COUNT >S 
+                     NAME> R> - DUP
+                     IF   DUP .S" +" NEGATE H.>S
+                     THEN DROP        .S"  ) "
                 ELSE RDROP DROP
                 THEN
                 ;
@@ -718,7 +734,8 @@ INH UD1 UD1
 : >MAX_R  DUP MAX_REFERENCE UMAX TO MAX_REFERENCE ;
 
 : REL8  ( ADDR OP -- ADDR' )
-        COUNT SEXT OVER + >MAX_R H.>S ;
+        COUNT SEXT OVER + BASE-ADDR - >MAX_R H.>S ;
+
 
 
 : REL16/32 ( ADDR OP -- ADDR' )
@@ -1127,12 +1144,12 @@ STR SCS SCAS
         IF    SWAP REG32 .,                     \ WORD TO DWORD CASE
               3 =
               IF   REG16
-              ELSE .S" WORD PTR " MOD-R/M
+              ELSE .S" WORD PTR "  DROP DUP 1- C@ MOD-R/M
               THEN
         ELSE  SWAP REG16/32 .,                  \ BYTE CASE
               3 =
               IF   REG8
-              ELSE .S" BYTE PTR " MOD-R/M
+              ELSE .S" BYTE PTR "  DROP DUP 1- C@ MOD-R/M
               THEN
         THEN ;
 
@@ -1499,10 +1516,10 @@ VARIABLE  COUNT-LINE
                 BEGIN
                         CR
                         NEXT-INST C@
-                        ( DUP)  0xC3 <> 
-\                        SWAP 0xE9 <> AND    \ NEXT, BEHIND US?
+                        DUP  0xC3 <> 
+                        SWAP 0xE9 <> AND    \ NEXT, BEHIND US?
                         NEXT-INST MAX_REFERENCE U< OR
-                        OVER HERE U< AND
+                        OVER HERE - 0x100 U> AND
                 WHILE   INST
                         COUNT-LINE @ 1- DUP 0=  SEE-KET-FL AND
                            IF 9 EMIT ." \ Press <enter> | q | any" KEY UPC

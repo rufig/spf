@@ -5,20 +5,6 @@
   –евизи€ - сент€брь 1999
 )
 
-: ?LITERAL1 ( T -> ... )
-  \ преобразовать строку в число
-  0 0 ROT COUNT
-  OVER C@ [CHAR] - = IF 1- SWAP 1+ SWAP TRUE ELSE FALSE THEN >R
-  >NUMBER
-  DUP 1 > IF -2001 THROW THEN \ ABORT" -?"
-  IF C@ [CHAR] . <> IF -2002 THROW THEN \ ABORT" -??"
-       R> IF DNEGATE THEN
-       [COMPILE] 2LITERAL
-  ELSE DROP D>S
-       R> IF NEGATE THEN
-       [COMPILE] LITERAL
-  THEN
-;
 : ?SLITERAL1 ( c-addr u -> ... )
   \ преобразовать строку в число
   0 0 2SWAP
@@ -33,41 +19,25 @@
        [COMPILE] LITERAL
   THEN
 ;
-: HEX-LITERAL ( T -> ... )
-  BASE @ >R HEX
-  0 0 ROT COUNT 2- SWAP 2+ SWAP >NUMBER 2DROP D>S POSTPONE LITERAL
-  R> BASE !
+: ?LITERAL1 ( T -> ... )
+  \ преобразовать строку в число
+  COUNT ?SLITERAL1
 ;
-: HEX-SLITERAL ( T -> ... )
+: HEX-SLITERAL ( addr u -> flag )
   BASE @ >R HEX
-  0 0 2SWAP 2- SWAP 2+ SWAP >NUMBER 2DROP D>S POSTPONE LITERAL
-  R> BASE !
-;
-
-: ?LITERAL2 ( c-addr -- ... )
-  ( расширенный вариант ?LITERAL1:
-    если строка - не число, то пытаемс€ трактовать еЄ
-    как им€ файла дл€ авто-INCLUDED)
-  DUP COUNT 2 MIN S" 0x" COMPARE 0= 
-  IF HEX-LITERAL EXIT THEN
-  DUP >R ['] ?LITERAL1 CATCH
-  IF   DROP R> COUNT
-       OVER C@ [CHAR] " = OVER 2 > AND
-       IF 2 - SWAP 1+ SWAP THEN ( убрал кавычки, если есть)
-       2DUP + 0 SWAP C!
-       ['] INCLUDED CATCH
-       DUP 2 = OVER 3 = OR ( файл не найден или путь не найден )
-       IF -2003 THROW \ ABORT"  -???"
-       ELSE THROW THEN
-  ELSE RDROP
+  0 0 2SWAP 2- SWAP 2+ SWAP >NUMBER
+  NIP IF 2DROP FALSE
+  ELSE
+    D>S POSTPONE LITERAL TRUE
   THEN
+  R> BASE !
 ;
 : ?SLITERAL2 ( c-addr u -- ... )
   ( расширенный вариант ?SLITERAL1:
     если строка - не число, то пытаемс€ трактовать еЄ
     как им€ файла дл€ авто-INCLUDED)
   2DUP 2 MIN S" 0x" COMPARE 0= 
-  IF HEX-SLITERAL EXIT THEN
+  IF 2DUP 2>R HEX-SLITERAL IF RDROP RDROP EXIT ELSE 2R> THEN THEN
   2DUP 2>R ['] ?SLITERAL1 CATCH
   IF   2DROP 2R>
        OVER C@ [CHAR] " = OVER 2 > AND
@@ -77,6 +47,12 @@
        DUP 2 = OVER 3 = OR ( файл не найден или путь не найден )
        IF  -2003 THROW \ ABORT"  -???"
        ELSE  THROW THEN
-  ELSE 2R> 2DROP
+  ELSE RDROP RDROP
   THEN
+;
+: ?LITERAL2 ( c-addr -- ... )
+  ( расширенный вариант ?LITERAL1:
+    если строка - не число, то пытаемс€ трактовать еЄ
+    как им€ файла дл€ авто-INCLUDED)
+  COUNT ?SLITERAL2
 ;
