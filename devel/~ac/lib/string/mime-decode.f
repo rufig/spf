@@ -38,7 +38,10 @@ PREVIOUS SWAP SET-CURRENT CONSTANT CHARSET-DECODERS-WL
     DUP C@ DUP [CHAR] = = 
         IF DROP 1+ DUP 2+ SWAP 2 0 0 2SWAP >NUMBER 2DROP D>S
            ?DUP IF -> c ^ c 1 s STR+ THEN
-        ELSE -> c ^ c 1 s STR+ 1+ THEN
+        ELSE -> c 
+             c [CHAR] _ = IF BL -> c THEN
+             ^ c 1 s STR+ 1+
+        THEN
   REPEAT DROP R> DROP
   R> BASE ! s STR@
 ;
@@ -91,5 +94,12 @@ Subject: =?Windows-1251?B?0SDN7uL77CDD7uTu7CEg1e7y/CDxIO7v4Ofk4O3o5ewsIO3uIOLx5S
 From: =?koi8-r?Q?=EF=CC=D8=C7=C1=20=F0=C1=D7=CC=CF=D7=C1?=
 Subject: =?koi8-r?Q?RE:_FIG_Taiwan_+_Russian+_clf_=C4=CF_=CB=D5=DE=C9?=
 Subject: =?windows-1251?Q?=EF=EE_=EF=EE=E2=EE=E4=F3_Eserv?=
+" STR@ StripLwsp MimeValueDecode ANSI>OEM TYPE
+
+" =?koi8-r?Q?=EF=D4=CD=C5=CE=C5=CE=CF________=E9=FA=F7=E5=FD=E5=EE?=
+ =?koi8-r?Q?=E9=E5=2E_=E9=EE=F4=E5=F2=EE=E5=F4_=FA=E1=EB=E1=FA_20638935?=
+ =?koi8-r?Q?_=E9=EE=F7=EF=EA=F3_40620100_=E7=EF=F4=EF=F7_=EB_=F7=F9=E4=E1?=
+ =?koi8-r?Q?=FE=E5__=C4=C1=D4=C1_=CD=CF=C4=C9=C6=C9=CB=C1=C3=C9=C9=3A_1?=
+ =?koi8-r?Q?7=2E12=2E2003_=28=29?=
 " STR@ StripLwsp MimeValueDecode ANSI>OEM TYPE
 )
