@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<!DOCTYPE hrc SYSTEM "../hrc.dtd">
+<?xml-stylesheet type="text/xsl" href="../hrc.xsl"?>
+<!--
+   Forth Syntax
+With Help of
+   Andrey Cherezov <ac@eserv.ru>       based on SP-forth
+   Loktev Nikola <loktev@niisi.msk.ru> based on P-forth
+   cail: add new worddiv parameter
+   Valery Kondakoff <strauss@orc.ru>, 2:5020/163
+   (nnCron Crontabs Syntax http://nemtsev.eserv.ru)
+
+   11.Mar.2004, ruv
+   $Id$
+-->
+<hrc>
+
+<define name="forHiColor"  value="dInverseLabel"/>
+<define name="forString"   value="dString"/>
+<define name="forComment"  value="dComment"/>
+<define name="forMl"       value="dString"/>
+<define name="forWord"     value="dKeyword"/>
+<define name="forResWord"  value="dLabel"/>
+<define name="forNumb"     value="dNumber"/>
+<define name="forExtwords" value="dVar2"/>
+<define name="forWordDefinition" value="forHiColor"/>
+<define name="forParsedName" value="dVar2"/>
+<define name="nnEnvString" value="dStringQuote"/>
+<define name="nnTaskStartEnd" value="dTODO"/>
+<define name="nnExtSyntax"    value="dError"/>
+
+<scheme name="nnCron_string">
+   <regexp match="/%.+?%/" region0="nnEnvString"/>
+</scheme>
+
+<scheme name="forth">
+
+   <!-- linear comments -->
+   <regexp match="/(\s+|^)\\\s+.*$/"  region0="forComment"/>
+   <regexp match="/(^)\#(\s).*$/" region0="forComment"/>
+   <block start="/\(\s+/" end="/\s*\)/" scheme="Comment" region="forComment"/>
+   <block start="/0\s+\[IF\]/" end="/\[THEN\]/" scheme="Comment" region="forComment"/>
+   <!-- block start="/\[\s/" end="/^|\s\]/" scheme="Comment" region="forHiColor"/ -->
+   <!-- why ??? <block  start="/OF /i" end="/ ENDOF/i" scheme="Comment" region0="forMl"/-->
+
+   <!-- controls -->
+   <block start="/^|\s(IF)(\s|$)?=/i" end="/^|\s(THEN)(\s|$)?=/i" scheme="forth"
+          region00="forResWord" region10="forResWord"
+          region01="dpOpenStruct" region11="dpCloseStruct"
+   />
+   <block start="/^|\s(BEGIN)(\s|$)?=/i" end="/^|\s((AGAIN)|(REPEAT)|(UNTIL))(\s|$)?=/i" scheme="forth"
+          region00="forResWord" region10="forResWord"
+          region01="dpOpenStruct" region11="dpCloseStruct"
+   />
+   <block start="/^|\s((DO)|(\?DO))(\s|$)?=/i" end="/^|\s((LOOP)|(\+LOOP))(\s|$)?=/i" scheme="forth"
+          region00="forResWord" region10="forResWord"
+          region01="dpOpenStruct" region11="dpCloseStruct"
+   />
+   <block start="/^|\s(\[IF\])(\s|$)?=/i" end="/^|\s(\[THEN\])(\s|$)?=/i" scheme="forth"
+          region00="forResWord" region10="forResWord"
+          region01="dpOpenStruct" region11="dpCloseStruct"
+   />
+   <!-- если блоки пересекаются, как [IF] и IF, то работает только один из них.. -->
+
+   <!--
+   <block start="/^|\s\$\s+(\S+)/i" end="/^|\s(\$)(\s|$)?=/i" scheme="forth"
+          region00="forWordDefinition"   region10="forResWord"
+          region01="dpOpenStruct" region11="dpCloseStruct"
+   />
+   -->
+
+   <!-- strings -->
+   <block start='/(\s+|^|\=)\"[^,]/' end='/\"/' scheme="nnCron_string" region="forString"/>
+   <block start="/(\s+|^)(\.\'\s+)/"    end="/\'/" scheme="nnCron_string" region="forString"/>
+   <block start='/(\s+|^)([SCZ\.]|(ABORT))\"\s+/' end='/"/' scheme="nnCron_string" 
+          region00="forResWord" region10="forResWord"
+          region="forMl"
+   />
+
+   <!-- words with numbers -->
+   <regexp match="/(\s*|^)\d[\+\-\=\!\*\@\<\>]{1,2}(\s)?=/" region0="forWord"/>
+
+   <!-- numbers -->
+   <regexp match="/\b(0[xX])[\da-fA-F]+\B/" region0="forNumb"/>
+   <regexp match="/\b[0-9]+\B/" region0="forNumb"/>
+
+   <!-- LNM: Local variables -->
+   <regexp match="/(\{)(.+?)(\|?)(.+?)(\-\-)(.*?)(\})/"
+           region1="dSymbol" region2="dString" region3="dStringQuote"
+           region4="dString2" region5="dSymbol" region6="dString2" region7="dSymbol"/>
+   
+   <!-- nnCron task start/end -->
+   <regexp match="/#\(\s+\S+\s*$/" region0="nnTaskStartEnd"/>
+   <regexp match="/\)#/" region0="nnTaskStartEnd"/>
+
+   <!-- nnCron extended syntax -->
+   <regexp match="/(^|\s+)(<%)(\s+|$)/" region2="nnExtSyntax"/>
+   <regexp match="/(^|\s+)(%>)(\s+|$)/" region2="nnExtSyntax"/>
+   <regexp match="/(^|\s+)(<\()(\s+|$)/" region2="nnExtSyntax"/>
+   <regexp match="/(^|\s+)(\)>)(\s+|$)/" region2="nnExtSyntax"/>
+   
+   <!-- nnCron time specification -->
+   <regexp match="/(\s+|^)(Time|Days|Minutes|Hours|Months|WeekDays|Years)\:\s+[\s\w\*\/\,\-\?]*$/" region0="forWord"/>
+           
+   <!-- def words -->
+   <regexp match="/(\s|^)(:)\s+(\S+)/"   region0="forWord" region3="forWordDefinition"/>
+   <regexp match="/\s|^(WINAPI:)\s+(\S+)/"    region0="forWord" region2="forWordDefinition"/>
+   <regexp match="/\s|^(CREATE)\s+(\S+)/"     region0="forWord" region2="forWordDefinition"/>
+   <regexp match="/\s|^(VARIABLE)\s+(\S+)/"   region0="forWord" region2="forWordDefinition"/>
+   <regexp match="/\s|^(USER\S*)\s+(\S+)/"    region0="forWord" region2="forWordDefinition"/>
+   <regexp match="/\s|^(CONSTANT)\s+(\S+)/"   region0="forWord" region2="forWordDefinition"/>
+   <regexp match="/\s|^(VOCABULARY)\s+(\S+)/" region0="forWord" region2="forWordDefinition"/>
+   <regexp match="/\s|^(VECT)\s+(\S+)/"       region0="forWord" region2="forWordDefinition"/>
+   <regexp match="/\s|^(VALUE)\s+(\S+)/"      region0="forWord" region2="forWordDefinition"/>
+   <regexp match="/\s|^(ASCII\s+\S)/i"        region0="forString"/>
+   <regexp match="/\s|^(TASK:)\s+(\S+)/"      region0="forWord" region2="forWordDefinition"/>
+
+   <!-- parse -->
+   <regexp match="/(REQUIRE)\s+(\S+)\s+(\S+)/"  region0="forWord" region2="forWordDefinition"/>
+   
+   <!-- Immediate -->
+     <!--
+     <regexp match="/(\['\]\s+(\S+))/"  region0="forMl" region2="forWord"/>
+     <regexp match="/(POSTPONE\s+\S+)/" region0="forMl"/>
+     -->
+   <regexp match="/(\['\])\s+(\S+)/"  region1="forResWord" region2="forParsedName" />
+   <regexp match="/(POSTPONE)\s+(\S+)/" region1="forResWord" region2="forParsedName"/>
+   <regexp match="/(\[CHAR\])\s+(\S)/i" region1="forResWord" region2="forString"/>
+   <regexp match='/(ABORT")\s+(\S)/i' region1="forResWord" region2="forString"/>
+
+   <keywords worddiv="/[\s\{\}\(\)]/" region="forResWord">
+     <word name="OF"/>
+     <word name="ENDOF"/>
+     <word name="CASE"/>
+     <word name="ENDCASE"/>
+     <word name="IF"/>
+     <word name="ELSE"/>
+     <word name="THEN"/>
+     <word name="BEGIN"/>
+     <word name="WHILE"/>
+     <word name="REPEAT"/>
+     <word name="BEGIN"/>
+     <word name="UNTIL"/>
+     <word name="AGAIN"/>
+     <word name="DOES>"        region="ForWordDefinition"/>
+     <word name="DO"/>
+     <word name="+LOOP"/>
+     <word name="LOOP"/>
+     <word name="?DO"/>
+     <word name="[DEFINED]"/>
+     <word name="[UNDEFINED]"/>
+     <word name="[IF]"/>
+     <word name="[ELSE]"/>
+     <word name="[THEN]"/>
+   </keywords>
+
+   <keywords worddiv="/[\s\[\]\{\}\(\)]/" region="forWord">
+     <word name="!"/>
+     <word name="#"/>
+     <word name="#>"/>
+     <word name="#S"/>
+     <word name="#TIB"/>
+     <word name="&lt;"/>
+     <word name="&lt;#"/>
+     <word name="&lt;>"/>
+     <word name="*"/>
+     <word name="*/"/>
+     <word name="*/MOD"/>
+     <word name="+!"/>
+     <word name="+"/>
+     <word name="+PLACE"/>
+     <word name="+ZPLACE"/>
+     <word name=","/>
+     <word name="-"/>
+     <word name="."/>
+     <word name=".0"/>
+     <word name=".S"/>
+     <word name="/"/>
+     <word name="/MOD"/>
+     <word name="2/"/>
+     <word name="2>R"/>
+     <word name="2CONSTANT"/>
+     <word name="2DROP"/>
+     <word name="2DUP"/>
+     <word name="2LITERAL"/>
+     <word name="2OVER"/>
+     <word name="2R>"/>
+     <word name="2R@"/>
+     <word name="2SWAP"/>
+     <word name="2VARIABLE"/>
+     <word name="3DUP"/>
+     <word name=":"/>
+     <word name=";"/>
+     <word name=":NONAME"/>
+     <word name="="/>
+     <word name=">"/>
+     <word name="?DUP"/>
+     <word name="@"/>
+     <word name="ABORT"/>
+     <word name="ABS"/>
+     <word name="ACCEPT"/>
+     <word name="AGAIN"/>
+     <word name="ALIGN"/>
+     <word name="ALIGNED"/>
+     <word name="ALLOCATE"/>
+     <word name="ALLOT"/>
+     <word name="ALSO"/>
+     <word name="AND"/>
+     <word name="ASCII"/>
+     <word name="ASCIIZ>"/>
+     <word name="BASE"/>
+     <word name="BETWEEN"/>
+     <word name="BL"/>
+     <word name="BLK"/>
+     <word name="BUFFER:"/>
+     <word name="BYE"/>
+     <word name="CATCH"/>
+     <word name="CELL"/>
+     <word name="CELL+"/>
+     <word name="CELL-"/>
+     <word name="CELLS"/>
+     <word name="CHAR"/>
+     <word name="CHAR+"/>
+     <word name="CHARS"/>
+     <word name="CLITERAL"/>
+     <word name="CLOSE-FILE"/>
+     <word name="CMOVE"/>
+     <word name="CMOVE>"/>
+     <word name="CODE>"/>
+     <word name="COMPARE"/>
+     <word name="COMPILE"/>
+     <word name="CONSTANT"/>
+     <word name="CONTEXT"/>
+     <word name="COUNT"/>
+     <word name="CR"/>
+     <word name="CREATE"/>
+     <word name="CREATE-FILE"/>
+     <word name="CURRENT"/>
+     <word name="DABS"/>
+     <word name="DECIMAL"/>
+     <word name="DEFER"/>
+     <word name="DEFINITIONS"/>
+     <word name="DELETE-FILE"/>
+     <word name="DEPTH"/>
+     <word name="DIGIT"/>
+     <word name="DNEGATE"/>
+     <word name="DP"/>
+     <word name="DROP"/>
+     <word name="DUMP"/>
+     <word name="DUP"/>
+     <word name="EKEY"/>
+     <word name="EKEY?"/>
+     <word name="EMIT"/>
+     <word name="ENVIRONMENT?"/>
+     <word name="ERASE"/>
+     <word name="EVALUATE"/>
+     <word name="EVALUATE-WITH"/>
+     <word name="EXECUTE"/>
+     <word name="EXIT"/>
+     <word name="EXPORT"/>
+     <word name="FALSE"/>
+     <word name="FIELD"/>
+     <word name="FILE-POSITION"/>
+     <word name="FILE-SIZE"/>
+     <word name="FILL"/>
+     <word name="FIND"/>
+     <word name="FM/MOD"/>
+     <word name="FORTH"/>
+     <word name="FORTH-WORDLIST"/>
+     <word name="FREE"/>
+     <word name="GET-CURRENT"/>
+     <word name="GET-ORDER"/>
+     <word name="HANDLER"/>
+     <word name="HEADER"/>
+     <word name="HERE"/>
+     <word name="HEX"/>
+     <word name="HIDE"/>
+     <word name="HLD"/>
+     <word name="HOLD"/>
+     <word name="IMMEDIATE"/>
+     <word name="INCLUDE"/>
+     <word name="INCLUDE-FILE"/>
+     <word name="INCLUDED"/>
+     <word name="INTERPRET"/>
+     <word name="INVERT"/>
+     <word name="IS"/>
+     <word name="KEY"/>
+     <word name="KEY?"/>
+     <word name="LATEST"/>
+     <word name="LEAVE"/>
+     <word name="LITERAL"/>
+     <word name="LSHIFT"/>
+     <word name="M*"/>
+     <word name="MAX"/>
+     <word name="MIN"/>
+     <word name="MOD"/>
+     <word name="MOVE"/>
+     <word name="NAME>"/>
+     <word name="NEGATE"/>
+     <word name="NIP"/>
+     <word name="NLIST"/>
+     <word name="NOOP"/>
+     <word name="NOT"/>
+     <word name="OCTAL"/>
+     <word name="ONLY"/>
+     <word name="OPEN-FILE"/>
+     <word name="OR"/>
+     <word name="ORDER"/>
+     <word name="OVER"/>
+     <word name="PAD"/>
+     <word name="PARSE"/>
+     <word name="PICK"/>
+     <word name="PLACE"/>
+     <word name="POSTPONE"/>
+     <word name="PREVIOUS"/>
+     <word name="PRIVATE"   region="forHiColor"/>
+     <word name="PRIVATIZE" region="forHiColor"/>
+     <word name="QUIT"/>
+     <word name="R/O"/>
+     <word name="R/W"/>
+     <word name="R0"/>
+     <word name="R>"/>
+     <word name="R@"/>
+     <word name="RDROP"/>
+     <word name="READ-FILE"/>
+     <word name="READ-LINE"/>
+     <word name="RECURSE"/>
+     <word name="REFILL"/>
+     <word name="REPOSITION-FILE"/>
+     <word name="RESIZE"/>
+     <word name="RESIZE-FILE"/>
+     <word name="ROLL"/>
+     <word name="ROT"/>
+     <word name="RP!"/>
+     <word name="RP@"/>
+     <word name="RSHIFT"/>
+     <word name="S0"/>
+     <word name="SEARCH"/>
+     <word name="SEARCH-WORDLIST"/>
+     <word name="SET-CURRENT"/>
+     <word name="SET-ORDER"/>
+     <word name="SIGN"/>
+     <word name="SKIP"/>
+     <word name="SLITERAL"/>
+     <word name="SM/REM"/>
+     <word name="SMUDGE"/>
+     <word name="SOURCE"/>
+     <word name="SOURCE-ID"/>
+     <word name="SP!"/>
+     <word name="SP@"/>
+     <word name="SPACE"/>
+     <word name="SPACES"/>
+     <word name="START"/>
+     <word name="STATE"/>
+     <word name="STOP"/>
+     <word name="SWAP"/>
+     <word name="S>ZALLOC"/>
+     <word name="THROW"/>
+     <word name="TIB"/>
+     <word name="TO"/>
+     <word name="TRUE"/>
+     <word name="TUCK"/>
+     <word name="TYPE"/>
+     <word name="U&lt;"/>
+     <word name="U."/>
+     <word name="U/"/>
+     <word name="U>"/>
+     <word name="U>D"/>
+     <word name="UM*"/>
+     <word name="UM/MOD"/>
+     <word name="UMOD"/>
+     <word name="UNLOOP"/>
+     <word name="USER-ALLOT"/>
+     <word name="VALUE"/>
+     <word name="VARIABLE"/>
+     <word name="VOCABULARY"/>
+     <word name="VOCS"/>
+     <word name="W!"/>
+     <word name="W,"/>
+     <word name="W/O"/>
+     <word name="W@"/>
+     <word name="WARNING"/>
+     <word name="WITHIN"/>
+     <word name="WORD"/>
+     <word name="WORDLIST"/>
+     <word name="WORDS"/>
+     <word name="WRITE-FILE"/>
+     <word name="WRITE-LINE"/>
+     <word name="XOR"/>
+     <word name="ZPLACE"/>
+     <word name="["/>
+     <word name="[CHAR]"/>
+     <word name="]"/>
+     <word name='",'/>
+     <word name='&lt;&lt;'/>
+     <word name='(.")'/>
+     <word name='(ABORT")'/>
+     <word name='->'/>
+     <word name='-ROT'/>
+     <word name='-TRAILING'/>
+     <word name='0&lt;/'/>
+     <word name='0&lt;>/'/>
+     <word name="0="/>
+     <word name='0=/'/>
+     <word name='1\+'/>
+     <word name='1\-'/>
+     <word name='2\+'/>
+     <word name='2\-'/>
+     <word name='>>'/>
+     <word name='>BODY'/>
+     <word name='>CODE'/>
+     <word name='>IN'/>
+     <word name='>NUMBER'/>
+     <word name='>R'/>
+     <word name='ABORT"'/>
+     <word name='C!'/>
+     <word name='C,'/>
+     <word name='C/L'/>
+     <word name='C@'/>
+     <word name='C@'/>
+     <word name='D&lt;'/>
+     <word name='D0='/>
+     <word name='D>S'/>
+     <word name='D\+'/>
+     <word name='D\.'/>
+     <word name='S>D'/>
+     <word name='\.S'/>
+     <!-- nnCron related words -->
+     <word name="Rule:"/>
+     <word name="Action:"/>
+     <word name="SET"/>
+     <word name="SYS-SET"/>
+   </keywords>
+   <!-- Key words for OpenBoot programming LNM -->
+   <keywords ignorecase="ignorecase" worddiv="/[\s\[\]\{\}\(\)]/" region="forExtWords">
+     <word name="!nt"/>
+     <word name="@nt"/>
+     <word name="br+"/>
+     <word name="br-"/>
+     <word name="br0"/>
+     <word name="ddo"/>
+     <word name="decode-2int"/>
+     <word name="decode-int"/>
+     <word name="decode-phys"/>
+     <word name="decode-string"/>
+     <word name="device-name"/>
+     <word name="DICTLIST"/>
+     <word name="encode+"/>
+     <word name="encode-2int"/>
+     <word name="encode-bytes"/>
+     <word name="encode-int"/>
+     <word name="encode-phys"/>
+     <word name="encode-string"/>
+     <word name="end0"/>
+     <word name="end1"/>
+     <word name="ex"/>
+     <word name="ex+"/>
+     <word name="ex-"/>
+     <word name="ex0"/>
+     <word name="external"/>
+     <word name="finish-device"/>
+     <word name="headers"/>
+     <word name="if+"/>
+     <word name="if-"/>
+     <word name="if0"/>
+     <word name="my-self"/>
+     <word name="NAMEBASE"/>
+     <word name="new-device"/>
+     <word name="PROPERTY"/>
+     <word name="rp"/>
+     <word name="TVOCABULARY"/>
+   </keywords>
+</scheme>
+
+</hrc>
