@@ -132,3 +132,13 @@ KERNEL32.DLL ' GetEnvironmentVariableA
 
 ' GetCurrentThreadId SPAS-EXEC . CR
 ORDER
+
+\ ===========================
+DL NEW: libcurl.dll
+VARIABLE CURLH
+CREATE URL S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" HERE SWAP DUP ALLOT MOVE 0 C,
+\ curl не копирует ссылку себе
+
+0 ' curl_easy_init C-EXEC DUP . CURLH !
+URL 10002 ( CURLOPT_URL) CURLH @ 3 ' curl_easy_setopt C-EXEC .
+CURLH @ 1 ' curl_easy_perform C-EXEC .
