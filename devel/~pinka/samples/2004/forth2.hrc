@@ -105,11 +105,11 @@ With Help of
     region1="fthWritten" region2="fthDelimComp"
    />
    <!-- CMOVE CMOVE> MOVE and non-standard QMOVE -->
-   <regexp match="/([cqCQ]?move\>?)/i"
+   <regexp match="/([cqCQ]?move\>?\s|$)/i"
     region1="fthWritten" region2="fthDelimComp"
    />
    <!-- non-standard S$MOVETO -->
-   <regexp match="/(s\$moveto)/i"
+   <regexp match="/(s\$moveto\s|$)/i"
     region1="fthWritten" region2="fthDelimComp"
    />
    <!-- non-standard []! C[]! D[]! W[]! H[]! -->
