@@ -10,8 +10,10 @@ WINAPI: CLSIDFromProgID       OLE32.DLL
 WINAPI: CoRegisterClassObject OLE32.DLL
 WINAPI: CoCreateInstance      OLE32.DLL
 WINAPI: CoGetClassObject      OLE32.DLL
-WINAPI: MultiByteToWideChar KERNEL32.DLL
-WINAPI: WideCharToMultiByte KERNEL32.DLL
+WINAPI: MultiByteToWideChar   KERNEL32.DLL
+WINAPI: WideCharToMultiByte   KERNEL32.DLL
+WINAPI: SysAllocString        OLEAUT32.DLL
+WINAPI: SysFreeString         OLEAUT32.DLL
 
 HEX
 80004002 CONSTANT E_NOINTERFACE
@@ -56,6 +58,9 @@ USER UnicodeBuf
     1+ SWAP 1+ SWAP
   REPEAT DROP
 ;
+: >BSTR ( addr u -- bstr )
+  >UNICODE DROP SysAllocString
+;
 : ComInit ( -- ior )
   0 0 CoInitializeEx
 ;
@@ -79,20 +84,10 @@ USER UnicodeBuf
   >UNICODE String>CLSID THROW >R
   R@ HERE 16 DUP ALLOT MOVE R> FREE THROW
 ;
-: ComCreateForthGUID
-  PAD ComCreateGUID . PAD 16 DUMP
-  S" ForthGUID.bin" R/W CREATE-FILE THROW >R
-  PAD 16 R@ WRITE-FILE THROW
-  R> CLOSE-FILE THROW
-  PAD CLSID>String . ( guid_text)
-  S" ForthGUID.txt" R/W CREATE-FILE THROW >R
-  ( guid_text) R@ WRITE-FILE THROW
-  R> CLOSE-FILE THROW
-;
 : ComGetForthGUID ( addr -- )
-  S" ForthGUID.bin" R/O OPEN-FILE THROW >R
-  16 R@ READ-FILE THROW DROP
-  R> CLOSE-FILE THROW
+  S" {C6DFBA32-DF7B-4829-AA3B-EE4F90ED5961}" \ используется во всех тестах
+  >UNICODE OVER >R
+  String>CLSID THROW DUP >R SWAP 16 MOVE R> FREE THROW R> FREE THROW
 ;
 : InvokeMethod ( parameters interface_pointer method_number -- result )
   \ interface_pointer, он же oid, будет передаваться первым параметром неявно
@@ -115,7 +110,7 @@ VARIABLE INTERFACES
     DUP ,               \ предок
     Methods#            \ к-во методов предка
     DUP ,               \ свои методы (к-во)
-    LATEST @ ,          \ своё имя
+    LATEST ,            \ своё имя
     HERE INTERFACES @ , INTERFACES ! \ связываемся в список
 ;
 
@@ -128,7 +123,7 @@ VARIABLE METHODS
     DUP , 1+    \ номер метода в VTBL
     2DUP SWAP Methods#!
     OVER ,      \ ссылка на интерфейс, в котором определен метод
-    LATEST @ ,  \ имя метода
+    LATEST ,    \ имя метода
     HERE METHODS @ , METHODS ! \ связываемся в список
   DOES> @ InvokeMethod
 ;
@@ -162,8 +157,19 @@ Interface: IID_IDispatch {00020400-0000-0000-C000-000000000046}
 \  Method: ::RemoteInvoke ( где я это взял? 8-O убрал 3.03.2002 ~ac)
 Interface;
 
+\ IID_IUnknown
+\ Interface: IID_IMarshal {00000003-0000-0000-C000-000000000046}
+\   Method: ::GetUnmarshalClass
+\   Method: ::GetMarshalSizeMax
+\   Method: ::MarshalInterface
+\   Method: ::UnmarshalInterface
+\   Method: ::ReleaseMarshalData
+\   Method: ::DisconnectObject
+\ Interface;
+\ не нужно реализовать интерфейс IMarshal, тогда Windows сам с ним справится :)
+
 ( при создании объекта Win2000 также пытается запросить интерфейсы
-  IMarshal, IStdMarshalInfo, IExternalConnection, и неизвестный с первым байтом 1B..)
+  IStdMarshalInfo, IExternalConnection, и неизвестный с первым байтом 1B..)
 
 : CreateObject ( addr u -- oid ior ) 
   \ addr u - имя программы, создающей требуемые объекты
