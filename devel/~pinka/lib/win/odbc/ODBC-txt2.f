@@ -76,7 +76,8 @@ PREVIOUS SET-CURRENT
   R@ STR@  DELETE-FILE THROW  THEN
   R> STRFREE
 ;
-: CheckTbl ( -- )
+: CheckTbl ( -- ) 
+\ THROW, if table not exist
   " {TableName}" >R
   R@ STR@ FILE-EXIST 0=
   ABORT" Table not found (current dir must contain the table)"
@@ -90,7 +91,7 @@ PREVIOUS SET-CURRENT
   R> STRFREE
 ;
 : MakeTbl ( -- )
-  " New{TableName}"  DUP >R STR@
+  " {TableName}New"  DUP >R STR@
   " {TableName}"     DUP >R STR@
   2DUP DELETE-FILE THROW
   RENAME-FILE THROW
@@ -106,7 +107,7 @@ USER-VALUE h-tbl
 : OpenNewTbl ( -- )
   CloseNewTbl
   DelPrevNew
-  " New{TableName}" DUP >R STR@
+  " {TableName}New" DUP >R STR@
   W/O CREATE-FILE-SHARED THROW TO h-tbl
   R> STRFREE
 ;
@@ -120,10 +121,9 @@ USER-VALUE h-tbl
 
 : SqlTxtDelete ( -- )
   qSql { q }
-  CheckTbl
   MakeBak
 
-  " SELECT * FROM [{TableName}] WHERE NOT({WhereCondition})" ExecSqlStr
+  " SELECT * FROM {TableName} WHERE NOT({WhereCondition})" ExecSqlStr
 
   OpenNewTbl
 
@@ -224,10 +224,9 @@ USER-VALUE h-tbl
 
 : SqlTxtUpdate ( -- )    \ EXIT
   qSql { q }
-  CheckTbl
   MakeBak
 
-  " SELECT * FROM [{TableName}] WHERE {WhereCondition}" ExecSqlStr
+  " SELECT * FROM {TableName} WHERE {WhereCondition}" ExecSqlStr
 
   OpenNewTbl
 
@@ -255,6 +254,7 @@ GET-CURRENT ALSO SqlLex DEFINITIONS
 ;
 : DELETE ( -- sql_ior )
   INTERPRET
+  CheckTbl
   ['] SqlTxtDelete CATCH
 ;
 \ DELETE FROM authors WHERE au_lname = 'McBadden'
@@ -264,6 +264,7 @@ GET-CURRENT ALSO SqlLex DEFINITIONS
   NextWord dTableName 2!
   HashT clear-hash
   INTERPRET
+  CheckTbl
   ['] SqlTxtUpdate CATCH
 ;
 : set2 ( -- )
