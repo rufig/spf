@@ -26,7 +26,6 @@ TC-USER-HERE ' USER-OFFS EXECUTE !
   TRUE WARNING !
   12 C-SMUDGE !
   16 ALIGN-BYTES !
-  AT-THREAD-STARTING
 ;
 
 : USER-INIT ( n )
@@ -34,7 +33,16 @@ TC-USER-HERE ' USER-OFFS EXECUTE !
   CREATE-HEAP
   <SET-EXC-HANDLER>
   POOL-INIT
+  AT-THREAD-STARTING  
 ;
+
+: ERR-EXIT ( xt -- )
+  CATCH
+  ?DUP IF ['] ERROR CATCH IF 4 ELSE 3 THEN HALT THEN
+  \ выходим с кодом ошибки 3, если обычная ошибка при инициализации 
+  \ 4 - если вложенная
+;
+
 \ один раз на задачу
 : PROCESS-INIT ( n )
   ERASE-IMPORTS
@@ -51,6 +59,8 @@ TC-USER-HERE ' USER-OFFS EXECUTE !
   CREATE-HEAP
   <SET-EXC-HANDLER>
   POOL-INIT
+  ['] AT-PROCESS-STARTING ERR-EXIT  
+  ['] AT-THREAD-STARTING  ERR-EXIT
 ;
 
 : USER-EXIT
@@ -129,13 +139,6 @@ VARIABLE IN-EXCEPTION
 : ..: '  >BODY DUP @  1 >RESOLVE ] ;
 : ;..  DUP CELL+ BRANCH, >MARK SWAP ! [COMPILE] [ ; IMMEDIATE
 
-: ERR-EXIT ( xt -- )
-  CATCH
-  ?DUP IF ['] ERROR CATCH IF 4 ELSE 3 THEN HALT THEN
-  \ выходим с кодом ошибки 3, если обычная ошибка при инициализации 
-  \ 4 - если вложенная
-;
-
 TRUE VALUE SPF-INIT?
 
 \ Startup
@@ -147,7 +150,6 @@ TRUE VALUE SPF-INIT?
   0 TO H-STDLOG
   CONSOLE-HANDLES
   ['] CGI-OPTIONS ERR-EXIT
-  ['] AT-PROCESS-STARTING ERR-EXIT
   MAINX @ ?DUP IF ERR-EXIT THEN
   SPF-INIT?
   IF
