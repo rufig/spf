@@ -334,7 +334,7 @@ USER aMessageStartPos CELL USER-ALLOT
 : DefaultTextEnd C" TextEnd" FEX ;
 
 : ProcessFile { \ tib in #tib }
-  TIB -> tib >IN @ -> in #TIB @ -> tib
+  TIB -> tib >IN @ -> in #TIB @ -> #tib
   C/L 2+ ALLOCATE THROW TO TIB
 
   DOT-FOUND 0!
@@ -346,7 +346,7 @@ USER aMessageStartPos CELL USER-ALLOT
   DefaultTextEnd
 
   TIB FREE THROW
-  tib #TIB ! in >IN ! tib TO TIB
+  #tib #TIB ! in >IN ! tib TO TIB
 ;
 
 \ ****************************** Interface ********************************
