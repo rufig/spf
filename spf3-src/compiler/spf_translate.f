@@ -155,7 +155,7 @@ VECT ?SLITERAL
   ['] INTERPRET EVALUATE-WITH
 ;
 
-: INCLUDE-FILE ( i*x fileid -- j*x ) \ 94 FILE
+\ : INCLUDE-FILE ( i*x fileid -- j*x ) \ 94 FILE
 \ Убрать fileid со стека. Сохранить текущие спецификации входного потока,
 \ включая текущее значение SOURCE-ID. Записать fileid в SOURCE-ID.
 \ Сделать файл, заданный fileid, входным потоком. Записать 0 в BLK.
@@ -171,15 +171,42 @@ VECT ?SLITERAL
 \ возникают исключительная ситуация при закрытии файла. Когда имеет
 \ место неопределенная ситуация, статус (открыт или закрыт) любых
 \ интерпретируемых файлов зависит от реализации.
+\  TIB >R >IN @ >R #TIB @ >R SOURCE-ID >R BLK @ >R CURSTR @ >R
+\  C/L 2 + ALLOCATE THROW TO TIB  BLK 0!
+\  TO SOURCE-ID
+\  CURSTR 0!
+\  BEGIN
+\    REFILL
+\  WHILE
+\    INTERPRET
+\  REPEAT
+\  TIB FREE THROW
+\  SOURCE-ID CLOSE-FILE THROW ( ошибка закрытия файла )
+\  R> CURSTR ! R> BLK ! R> TO SOURCE-ID R> #TIB ! R> >IN ! R> TO TIB
+\ ;
+
+\ изменения INCLUDE-FILE предложены ~ruv
+
+: (TranslateFlow) ( -- )
+   BEGIN REFILL WHILE INTERPRET REPEAT
+;
+
+VECT PROCESS-ERR \ обработать ошибку трансляции (файла).
+
+: TranslateFlow  ( -- )
+  ['] (TranslateFlow) CATCH DUP IF
+  PROCESS-ERR ( err -- err )    THEN
+  THROW
+;
+
+: INCLUDE-FILE ( i*x fileid -- j*x ) \ 94 FILE
   TIB >R >IN @ >R #TIB @ >R SOURCE-ID >R BLK @ >R CURSTR @ >R
   C/L 2 + ALLOCATE THROW TO TIB  BLK 0!
   TO SOURCE-ID
   CURSTR 0!
-  BEGIN
-    REFILL
-  WHILE
-    INTERPRET
-  REPEAT
+
+  TranslateFlow
+
   TIB FREE THROW
   SOURCE-ID CLOSE-FILE THROW ( ошибка закрытия файла )
   R> CURSTR ! R> BLK ! R> TO SOURCE-ID R> #TIB ! R> >IN ! R> TO TIB
