@@ -35,7 +35,7 @@ REQUIRE STR@         ~ac/lib/str2.f
 : fsockopen ( server port -- socketline )
   { server port \ sock ip }
   CreateSocket THROW -> sock
-  60000 sock SetSocketTimeout THROW
+  600000 sock SetSocketTimeout THROW
   server STR@ GetHostIP THROW -> ip
   ip port sock ConnectSocket THROW
   sock SocketLine

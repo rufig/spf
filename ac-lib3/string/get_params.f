@@ -10,25 +10,13 @@ REQUIRE {             ~ac/lib/locals.f
 REQUIRE "             ~ac/lib/str2.f
 REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
 
-USER PARAMS
-
-: STRING: { \ mem }
-  3 CELLS ALLOCATE THROW -> mem
-  PARAMS @ mem !
-  BL PARSE mem CELL+ S!
-  1 PARSE mem CELL+ CELL+ S!
-  mem PARAMS !
-;
-: Name:Value
-  ['] STRING: EVALUATE-WITH
-;
 : CONVERT { a u c1 c2 -- }
   u 0 ?DO a I + C@ c1 = IF c2 a I + C! THEN LOOP
 ;
 : CONVERT% { a u \ a2 u2 i -- a2 u2 }
   a u [CHAR] + BL CONVERT
-  a u [CHAR] & 1  CONVERT
-  a u [CHAR] = BL CONVERT
+\  a u [CHAR] & 1  CONVERT
+\  a u [CHAR] = BL CONVERT
   u ALLOCATE THROW -> a2
   0 -> u2  0 -> i  HEX
   BEGIN
@@ -42,6 +30,24 @@ USER PARAMS
   REPEAT DECIMAL
   a2 u2
 ;
+
+USER PARAMS
+
+: SetParam1 ( va vu na nu -- ) { \ mem }
+  3 CELLS ALLOCATE THROW -> mem
+  PARAMS @ mem !
+  mem CELL+ S!
+  mem CELL+ CELL+ S!
+  mem PARAMS !
+;
+: STRING:
+  1 PARSE 1 PARSE 2SWAP SetParam1
+;
+: Name:Value
+  2DUP [CHAR] = 1 CONVERT
+  CONVERT%
+  ['] STRING: EVALUATE-WITH
+;
 : AllocParams
   PARAMS 0!
   BEGIN
@@ -51,7 +57,8 @@ USER PARAMS
   REPEAT 2DROP
 ;
 : GetParamsFromString ( addr u -- )
-  CONVERT% ['] AllocParams EVALUATE-WITH
+  2DUP [CHAR] & 1  CONVERT
+  ( CONVERT%) ['] AllocParams EVALUATE-WITH
 ;
 : ForEachParam { xt \ a -- }
   PARAMS @
@@ -90,7 +97,7 @@ USER PARAMS
 : SetParam { va vu na nu -- }
   na nu SearchParam
   IF va vu ROT CELL+ CELL+ S!
-  ELSE va vu na nu " {s} {s}" STR@ Name:Value THEN
+  ELSE va vu na nu SetParam1 ( " {s} {s}" STR@ Name:Value) THEN
 ;
 : GetParam { na nu -- va vu }
   na nu SearchParam

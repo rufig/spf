@@ -36,6 +36,7 @@ FFFF CONSTANT SOL_SOCKET
 0020 CONSTANT SO_BROADCAST
 1005 CONSTANT SO_SNDTIMEO
 1006 CONSTANT SO_RCVTIMEO
+0004 CONSTANT SO_REUSEADDR
 BASE !
 
 0
@@ -52,6 +53,7 @@ CREATE LINGER 1 W, 30 W,
 \ 6000 W, слишком много, это в секундах, заменил на 30 - 26.06.2001 ~ac
 
 CREATE BROADCAST -1 ,
+CREATE REUSEADDR -1 ,
 
 : CreateSocket ( -- socket ior )
   IPPROTO_TCP SOCK_STREAM PF_INET
@@ -195,6 +197,11 @@ AF_INET sock_addr2 sin_family W!
   0 R@ sin_addr !
   /sockaddr_in R> R> bind SWAP FREE DROP SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
+;
+: ReusedBindSocket ( port s -- ior )
+  DUP >R 4 REUSEADDR SO_REUSEADDR SOL_SOCKET R>
+  setsockopt ?DUP IF NIP NIP EXIT THEN
+  BindSocket
 ;
 : ListenSocket ( s -- ior )
   10 SWAP listen SOCKET_ERROR =
