@@ -3429,11 +3429,14 @@ OP0 @ W@ C88B XOR OR \  8BC8              MOV     ECX , EAX
    THEN
 
 OP2 @ C@ B8 XOR      \  B801000000  MOV     EAX , # 1
+OP2 @ 1+ @ SHORT? 0= OR
 OP1 @ W@ 558B XOR OR \  8B5500      MOV     EDX , 0 [EBP]
 OP0 @ W@ 48D XOR OR  \  8D0402      LEA     EAX , [EDX] [EAX]
 0= IF  M\ FC DTST
+       OP2 @ 1+ @
        OP2 OPexcise
-       01428D  OP0 @ !        \  LEA     EAX , 1 [EDX]
+       428D  OP0 @ W!        \  LEA     EAX , 1 [EDX]
+       OP0 @ 2+ C!
        FALSE  M\ FD DTST
        EXIT   
    THEN
