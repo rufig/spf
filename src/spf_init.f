@@ -142,6 +142,7 @@ TRUE VALUE SPF-INIT?
 \ Точка входа при запуске:
 
 : (INIT)
+  SetOP
   0 TO H-STDLOG
   CONSOLE-HANDLES
   ['] CGI-OPTIONS ERR-EXIT
