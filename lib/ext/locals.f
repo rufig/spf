@@ -132,11 +132,11 @@ BASE @ HEX
 
 : CompileLocal@ ( n -- )
   ['] DUP MACRO,
-  DUP LocalOffs  SHORT?
+  LocalOffs DUP  SHORT?
   OPT_INIT SetOP
-  IF    8B C, 44 C, 24 C, LocalOffs C, \ mov eax, offset [esp]
-  ELSE  8B C, 84 C, 24 C, LocalOffs  , \ mov eax, offset [esp]
-  THEN
+  IF    8B C, 44 C, 24 C, C, \ mov eax, offset [esp]
+  ELSE  8B C, 84 C, 24 C,  , \ mov eax, offset [esp]
+  THEN  OPT
   OPT_CLOSE
 ;
 
@@ -144,14 +144,24 @@ BASE @ HEX
 \   LocalOffs LIT, POSTPONE RP+@
 \ ;
 
+: CompileLocal! ( n -- )
+  LocalOffs DUP  SHORT?
+  OPT_INIT SetOP
+  IF    89 C, 44 C, 24 C, C, \ mov  offset [esp], eax
+  ELSE  89 C, 84 C, 24 C,  , \ mov  offset [esp], eax
+  THEN  OPT
+  OPT_CLOSE
+  ['] DROP MACRO,
+;
+
 : CompileLocalRec ( u -- )
-  DUP LocalOffs 
+  LocalOffs DUP
   ['] DUP MACRO,
   SHORT?
   OPT_INIT SetOP
-  IF    8D C, 44 C, 24 C, LocalOffs C, \ lea eax, offset [esp]
-  ELSE  8D C, 84 C, 24 C, LocalOffs  , \ lea eax, offset [esp]
-  THEN
+  IF    8D C, 44 C, 24 C, C, \ lea eax, offset [esp]
+  ELSE  8D C, 84 C, 24 C,  , \ lea eax, offset [esp]
+  THEN  OPT
   OPT_CLOSE
 ;
 
@@ -210,7 +220,7 @@ BASE !
 ; IMMEDIATE
 
 
-: -> ' >BODY @ LocalOffs LIT, POSTPONE RP+! ; IMMEDIATE
+: -> ' >BODY @ CompileLocal!  ; IMMEDIATE
 
 WARNING DUP @ SWAP 0!
 
@@ -220,7 +230,7 @@ WARNING DUP @ SWAP 0!
 
 : TO ( "name" -- )
   >IN @ NextWord widLocals @ SEARCH-WORDLIST 1 =
-  IF >BODY @ LocalOffs LIT, POSTPONE RP+! DROP
+  IF >BODY @ CompileLocal! DROP
   ELSE >IN ! [COMPILE] TO
   THEN
 ; IMMEDIATE

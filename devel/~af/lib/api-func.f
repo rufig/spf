@@ -30,25 +30,6 @@ ANSIAPI ON
 VARIABLE API-FUNC
 API-FUNC ON
 
-: USES ( "name.dll" -- ) \ подключение dll к списку поиска
-  SkipDelimiters GetChar IF
-    [CHAR] " = IF [CHAR] " DUP SKIP PARSE ELSE NextWord THEN
-  ELSE DROP NextWord THEN
-  2DUP
-  [ ALSO API-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL
-  SEARCH-WORDLIST 0= IF
-    2DUP + 0 SWAP C!
-    OVER LoadLibraryA 0= IF -2009 THROW THEN
-    GET-CURRENT >R ALSO API-FUNC-VOC DEFINITIONS
-    2DUP <# HOLDS S" CREATE " HOLDS 0 0 #> EVALUATE
-    1+ HERE OVER ALLOT
-    SWAP MOVE
-    PREVIOUS R> SET-CURRENT
-  ELSE
-    DROP 2DROP
-  THEN
-;
-
 VOCABULARY APISupport
 GET-CURRENT ALSO APISupport DEFINITIONS
 
@@ -63,9 +44,7 @@ USER ListFunc
   <# ROT ASCIIZ> HOLDS S"  " HOLDS HOLDS S" WINAPI: " HOLDS 0 0 #> EVALUATE
 ;
 
-\ Поиск функции, имя которой лежит в PAD, в подключенных длльках
-: SEARCH-FUNC ( -- NameLibAddr ProcAddr t | f )
-  [ ALSO API-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL
+: (SEARCH-FUNC) ( wid -- NameLibAddr ProcAddr t | f )
   @
   BEGIN
     DUP
@@ -79,17 +58,27 @@ USER ListFunc
   FALSE
 ;
 
+\ Поиск функции, имя которой лежит в PAD, в подключенных длльках
+: SEARCH-FUNC ( -- NameLibAddr ProcAddr t | f )
+  [ ALSO API-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL (SEARCH-FUNC)
+;
+
+: ,FUNC ( n NameLibAddr u -- )
+  0 [ VERSION 400000 < [IF] ] COMPILE, [ [ELSE] ] _COMPILE, [ [THEN] ]
+  4 CELLS ALLOCATE THROW >R
+  PAD SWAP HEAP-COPY R@ ! \ 1-ячейка - ссылка на имя процедуры
+  R@ CELL+ !              \ 2-ячейка - ссылка на имя библиотеки
+  HERE 4 - R@ 2 CELLS + ! \ 3-ячейка - адрес для коррекции
+  R@ 3 CELLS + !          \ 4-ячейка - количество аргументов
+                          \ (-1 метка, что это не c-функция)
+  R> ListFunc AddNode
+;
+
 \ Выполнение найденной функции. В режиме компиляции функция заносится
 \ в список для последующей компиляции. В режиме интерпретации - выполняется
 : EXEC-FUNC ( NameLibAddr ProcAddr u -- )
   STATE @ IF
-    NIP
-    0 [ VERSION 400000 < [IF] ] COMPILE, [ [ELSE] ] _COMPILE, [ [THEN] ]
-    3 CELLS ALLOCATE THROW >R
-    PAD SWAP HEAP-COPY R@ ! \ 1-ячейка - ссылка на имя процедуры
-    R@ CELL+ !               \ 2-ячейка - ссылка на имя библиотеки
-    HERE 4 - R@ CELL+ CELL+ ! \ 3-ячейка - адрес для коррекции
-    R> ListFunc AddNode
+    NIP -1 ROT ROT ,FUNC
   ELSE DROP NIP API-CALL
   THEN
 ;
@@ -112,8 +101,10 @@ USER ListFunc
   FALSE
 ;
 
+VECT AddFuncNode
+
 \ Компиляция функции из списка и коррекция слова в котором она используется
-: AddFuncNode ( node -- )
+: (AddFuncNode) ( node -- )
   NodeValue DUP >R
   @ ASCIIZ> FindWrap 0= IF
     GET-CURRENT FORTH-WORDLIST SET-CURRENT
@@ -125,8 +116,32 @@ USER ListFunc
   R@ @ FREE THROW
   R> FREE THROW
 ;
+' (AddFuncNode) TO AddFuncNode
+
+: (USES) ( "name.dll" wid -- )
+  >R
+  SkipDelimiters GetChar IF
+    [CHAR] " = IF [CHAR] " DUP SKIP PARSE ELSE NextWord THEN
+  ELSE DROP NextWord THEN
+  2DUP
+  R@ SEARCH-WORDLIST 0= IF
+    2DUP + 0 SWAP C!
+    OVER LoadLibraryA 0= IF -2009 THROW THEN
+    R> GET-CURRENT >R ALSO CONTEXT ! DEFINITIONS
+    2DUP <# HOLDS S" CREATE " HOLDS 0 0 #> EVALUATE
+    1+ HERE OVER ALLOT
+    SWAP MOVE
+    PREVIOUS R> SET-CURRENT
+  ELSE
+    DROP 2DROP RDROP
+  THEN
+;
 
 SET-CURRENT
+
+: USES ( "name.dll" -- ) \ подключение dll к списку поиска
+  [ ALSO API-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL (USES)
+;
 
 FALSE WARNING !
 : NOTFOUND ( addr u -- )

@@ -179,6 +179,9 @@ VERSION 400000 < [IF]
   : CompileLocal@ ( n -- )
     LocalOffs LIT, POSTPONE RP+@
   ;
+  : CompileLocal! ( n -- )
+    LocalOffs LIT, POSTPONE RP+!
+  ;
   : CompileLocalRec ( u -- )
     LocalOffs LIT, POSTPONE RP+
   ;
@@ -199,23 +202,35 @@ VERSION 400000 < [IF]
       THEN
     THEN
   ;
+
   : CompileLocal@ ( n -- )
     ['] DUP MACRO,
-    DUP LocalOffs  SHORT?
+    LocalOffs DUP  SHORT?
     OPT_INIT SetOP
-    IF    0x8B C, 0x44 C, 0x24 C, LocalOffs C, \ mov eax, offset [esp]
-    ELSE  0x8B C, 0x84 C, 0x24 C, LocalOffs  , \ mov eax, offset [esp]
-    THEN
+    IF    0x8B C, 0x44 C, 0x24 C, C, \ mov eax, offset [esp]
+    ELSE  0x8B C, 0x84 C, 0x24 C,  , \ mov eax, offset [esp]
+    THEN  OPT
     OPT_CLOSE
   ;
+
+  : CompileLocal! ( n -- )
+    LocalOffs DUP  SHORT?
+    OPT_INIT SetOP
+    IF    0x89 C, 0x44 C, 0x24 C, C, \ mov  offset [esp], eax
+    ELSE  0x89 C, 0x84 C, 0x24 C,  , \ mov  offset [esp], eax
+    THEN  OPT
+    OPT_CLOSE
+    ['] DROP MACRO,
+  ;
+
   : CompileLocalRec ( u -- )
-    DUP LocalOffs 
+    LocalOffs DUP
     ['] DUP MACRO,
     SHORT?
     OPT_INIT SetOP
-    IF    0x8D C, 0x44 C, 0x24 C, LocalOffs C, \ lea eax, offset [esp]
-    ELSE  0x8D C, 0x84 C, 0x24 C, LocalOffs  , \ lea eax, offset [esp]
-    THEN
+    IF    0x8D C, 0x44 C, 0x24 C, C, \ lea eax, offset [esp]
+    ELSE  0x8D C, 0x84 C, 0x24 C,  , \ lea eax, offset [esp]
+    THEN  OPT
     OPT_CLOSE
   ;
 [THEN]
@@ -276,7 +291,7 @@ VERSION 400000 < [IF]
 
 : ^  ' >BODY @ CompileLocalRec ; IMMEDIATE
 
-: -> ' >BODY @ LocalOffs LIT, POSTPONE RP+! ; IMMEDIATE
+: -> ' >BODY @ CompileLocal!  ; IMMEDIATE
 
 WARNING DUP @ SWAP 0!
 

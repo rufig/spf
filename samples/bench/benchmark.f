@@ -11,7 +11,14 @@
 \       API overhead which is tested elsewhere.
 \     Added BigForth harness courtesy of Bernd Paysan
 
- REQUIRE [DEFINED]	lib\include\tools.f
+: start
+  S" FORTH-SYS" ENVIRONMENT? IF
+    S" SP-FORTH" COMPARE 0= IF
+      S" lib\include\tools.f" INCLUDED
+    THEN
+  THEN
+;
+start
 
 0 [IF]
 Introduction 
@@ -40,39 +47,38 @@ Athlon 700MHz under Windows XP with 128Mb RAM
 ***********************************************
 
 MPE VFX Forth for Windows IA32   3.40.0849   5 April 2002
-SPF4 build 9+   17 January 2003
+SPF4 build 10   19 February 2003
 SwiftForth 2.2.2.9 07May2001
 
 Primitives using no extensions
 Test time (ms) including overhead       VFX3.4    SPF4      SF
-DO LOOP                                   40       40       41
+DO LOOP                                   40       40       40
 +                                         30       40       40
-M+                                        60       70      100
-*                                         40       40       80
-/                                        360      330      380
-M*                                        71       50       81
-M/                                       350      441      360
-/MOD                                     391      351      371
-*/                                       470      460      490
-ARRAY fill                                20       20       50
+M+                                        60       60      100
+*                                         40       50       80
+/                                        350      331      391
+M*                                        70       50       80
+M/                                       351      430      370
+/MOD                                     380      351      371
+*/                                       461      471      461
+ARRAY fill                                10       20       40
 ==============================================================
-Total:                                  1842     1862     1993
+Total:                                  1802     1843     1973
 
-Win32 API: SendMessage                    20       30       20
-Win32 API: GetTickCount                   80      171      161
-System I/O: KEY?                          31      791     1301
+Win32 API: SendMessage                    90      150      130
+Win32 API: GetTickCount                   70      170      160
+System I/O: KEY?                          40      791     1622
 ==============================================================
-Total:                                   171     1002     1482
+Total:                                   240     1131     1912
 
-Eratosthenes sieve 1899 Primes           460      461      561
-Fibonacci recursion ( 35 -> 9227465 )    361      310      671
-Hoare's quick sort (reverse order)       340      531      851
-Generate random numbers (1024 kb array)  341      350      481
-LZ77 Comp. (400 kb Random Data Mem>Mem)  400      491     1973
-Dhrystone (integer)                      361      761     1502
+Eratosthenes sieve 1899 Primes           460      321      561
+Fibonacci recursion ( 35 -> 9227465 )    361      310      681
+Hoare's quick sort (reverse order)       350      431     1032
+Generate random numbers (1024 kb array)  341      290      480
+LZ77 Comp. (400 kb Random Data Mem>Mem)  410      421     1973
+Dhrystone (integer)                      351      501     1112
 ==============================================================
-Total:                                  2333     2954     6059
-
+Total:                                  2333     2314     5849
 [THEN]
 
 DECIMAL
@@ -95,9 +101,12 @@ DECIMAL
 8  CONSTANT iForth          \ iForth 1.12 5 Aug 2001
 9  CONSTANT SPF4            \ SPF4
 
-  SPF4 CONSTANT ForthSystem  \ select system to test
-\ SwiftForth20 CONSTANT ForthSystem  \ select system to test
-\ VfxForth CONSTANT ForthSystem  \ select system to test
+\ select system to test
+S" FORTH-SYS" ENVIRONMENT? [IF]
+  S" SP-FORTH" COMPARE 0= [IF] SPF4 [ELSE] BYE [THEN]
+[ELSE]
+  [DEFINED] SWIFT-BAR [IF] SwiftForth20 [ELSE] VfxForth [THEN]
+[THEN] CONSTANT ForthSystem
 
 FALSE CONSTANT specifics  \ true to use system dependent code
  TRUE CONSTANT ANSSystem  \ Some Forth 83 systems cannot compile
@@ -1374,7 +1383,7 @@ ALIGN-CACHE
 
 HWND_DESKTOP VALUE hWnd
 
-80000 constant /api1
+500000 constant /api1
 
 : (api1)        \ -- ; SENDMESSAGE is probably the most used API function there is!
   hWnd WM_CLOSE 0 0 SendMessage drop
