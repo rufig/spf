@@ -337,7 +337,19 @@ HEX
      R> BASE !
 ;
 
+: PrintFInf ( F: r -- F: r f )
+     FDUP FINF F=
+     IF ." infinity" TRUE
+     ELSE FDUP FINF FNEGATE F=
+          IF ." -infinity" TRUE 
+          ELSE 0
+          THEN
+     THEN
+;
+
 : FS. ( r -- )
+   FABORT
+   PrintFInf IF FDROP EXIT THEN
    FDEPTH 0<>
    IF
      FLOAT-PAD PRECISION REPRESENT DROP
@@ -349,6 +361,8 @@ HEX
 ;
 
 : F. ( r -- )
+   FABORT
+   PrintFInf IF FDROP EXIT THEN
    FDEPTH 0<>
    IF
      FDUP
@@ -364,6 +378,8 @@ HEX
    S>D 3 FM/MOD 3 * SWAP 1+  ;
 
 : FE. ( r)
+   FABORT
+   PrintFInf IF FDROP EXIT THEN
    FDEPTH 0<>
    IF
       FLOAT-PAD PRECISION REPRESENT DROP IF  [CHAR] - EMIT  THEN
