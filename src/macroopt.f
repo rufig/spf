@@ -130,13 +130,16 @@ DROP
   0x80 + 0x100 U<
 ;
 
+M\ VECT DTST
+
 : EVEN-EAX OFF-EAX
-   IF
+   IF      M\ 1000 DTST
  SetOP OFF-EAX DUP SHORT?  
      IF    0408D W, C, 
      ELSE  0808D W,  ,
      THEN   \  LEA   EAX,  OFF-EBP [EAX]
      0 TO OFF-EAX
+       M\ 1001 DTST
    THEN
 ;
 
@@ -348,7 +351,6 @@ DROP
   DUPENDCASE 2DROP FALSE ;
 
 \   DUP   8B00 =     \  MOV  EAX, [EAX]
-M\ VECT DTST
 
 : OP_SIZE ( OP - n )
   DUP IF THEN  DUP CELL- @ SWAP @ -
@@ -1750,9 +1752,8 @@ OP1 @ W@ D02B XOR OR \ 5969A4 2BD0              SUB     EDX , EAX
 \ TRUE VALUE ?C-JMP
  FALSE VALUE ?C-JMP
 
-
-\ $ - ãª §ë¢ ¥â ­  äà £¬¥­â ¨áå®¤­®£® â¥ªáâ , ®¯â¨¬¨§¨àã¥¬ë©
-\ ¤ ­­ë¬ ¬¥â®¤®¬
+\ $ - óêàçûâàåò íà ôðàãìåíò èñõîäíîãî òåêñòà, îïòèìèçèðóåìûé
+\ äàííûì ìåòîäîì
 
 : OPT-RULES  ( ADDR  -- ADDR' FLAG )
 
@@ -2381,10 +2382,12 @@ OP1 @ W@ 45C7 XOR OR  \ 599B95 C745F401000000    MOV     F4 [EBP] , # 1
     THEN
 M\ PPPP
 
+\ OP0 @ W@ 4D8B =
  OP0 @ W@ 558B =    \ MOV     EDX , X [EBP] 
     IF                     \ OP-1  MOV     EAX , FC [EBP] 
       OP0 @ 2+  C@ OP1 -EBPLIT NIP 
       DUP @ W@ 45C7 =      \ MOV     F8 [EBP] , # 2710 
+      OVER @ 2+  C@ OP0 @ 2+  C@  = AND
       IF M\ 50 DTST
              -2 ALLOT
              BA OP0 @ C!
@@ -2794,7 +2797,6 @@ OP0 @ W@ 558B XOR OR \    MOV     EDX , F8 [EBP]
             EXIT
     THEN
 
-
 DUP C@   0C3 XOR
 OP2 @ @ D9F7CA8B XOR OR \    MOV     ECX , EDX    NEG     ECX
 OP0 @ 1- @ 01048DD9 XOR OR \    LEA     EAX , [ECX] [EAX]
@@ -3142,8 +3144,6 @@ M\ PPPP
 ;
 
 : -EVEN-EBP
-
-
      OP0 @ :-SET U< IF EXIT THEN
      OP0 @ W@ 06D8D =  \  LEA   ebp,  OFF-EBP [EBP]
      IF  OP0 @ 2+ C@ +>OFF-EBP
@@ -3153,7 +3153,11 @@ M\ PPPP
 
 
 : OPT_  ( -- )
-  BEGIN OPT-RULES UNTIL  EVEN-EAX  ;
+  BEGIN
+   M\ -D DTST
+ OPT-RULES UNTIL
+   M\ -F DTST
+  EVEN-EAX  ;
 
 : DO_OPT   ( ADDR -- ADDR' )
   OPT? IF OPT_ THEN ;
@@ -3221,7 +3225,7 @@ OS\ AND EC    = M_WL DROP 1+  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
 
 : MACRO? INLINE? ;
 
-\  Œ€ŠŽŽ„‘’€Ž‚™ˆŠ
+\  ÌÀÊÐÎÏÎÄÑÒÀÍÎÂÙÈÊ
 
 : +EBP DUP C@ C>S OFF-EBP + C,    1+ ;
 
@@ -3364,10 +3368,23 @@ OS\ AND EC = M_WL   1_,_STEP  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
 :  ?BR-OPT-RULES ( cfa -- cfa' flag )
 \ ZZZZ IF ." z=" OP1 @ @ U. THEN
    OP0 @ :-SET U< IF TRUE EXIT THEN
+   M\ -3 DTST
+
+   OP0 @ C@ 05 =    \ ADD  EAX, # X
+   IF  M\ 404 DTST
+       OP0 @ 1+ @ OFF-EAX + TO OFF-EAX
+       OP1 ToOP0
+       FALSE  -5 ALLOT M\ 405 DTST
+       EXIT
+   THEN
 
    DUP 'DROP XOR
+   OFF-EAX   OR
    OP0 @  W@  4589 XOR OR 0= \ MOV X [EBP] , EAX
-   IF DP @ TO LAST-HERE INLINE, ['] NOOP FALSE EXIT
+   IF   M\ 436 DTST
+       DP @ TO LAST-HERE INLINE,
+        M\ 437 DTST
+         ['] NOOP FALSE EXIT
    THEN  
 
    OP0 @ C@  A1 =   \  MOV     EAX , 44444
@@ -3747,10 +3764,20 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
 
      TRUE  ;
 
+: BR-EVEN-EAX OFF-EAX
+   IF   M\ 1002 DTST
+       SetOP
+      5 C, OFF-EAX ,
+      0 TO OFF-EAX
+         M\ 1003 DTST
+   THEN
+;
+
 : ?BR-OPT
-     BEGIN BEGIN ?BR-OPT-RULES
+     BEGIN BEGIN  ?BR-OPT-RULES
            UNTIL  ['] NOOP OPT-RULES NIP
-     UNTIL
+     UNTIL        BR-EVEN-EAX
+   M\ -5 DTST
 \ ZZZZ IF ." B=" DUP U. THEN
         OP0 @ :-SET U<
         IF    SetOP 0xC00B W,    \ OR EAX, EAX
@@ -3791,10 +3818,14 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
         AND
         IF    SetOP 0xC00B W,    \ OR EAX, EAX
         THEN
+        DP @ TO :-SET
 ;
 
 : ??BR-OPT
-  OPT?  IF OPT_INIT ?BR-OPT OPT_CLOSE
+  OPT?  IF OPT_INIT
+ ?BR-OPT
+   M\ -B DTST
+ OPT_CLOSE
        THEN ;
 : ???BR-OPT
   OPT? 0= IF  C00B W,    \ OR EAX, EAX
@@ -3820,8 +3851,7 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
   INLINE,
  )
 
-: OPT   ( -- )
-  ['] NOOP DO_OPT DROP  ;
+: OPT   ( -- )  ['] NOOP DO_OPT DROP  ;
 
 : FORLIT, ( N -- )
   'DUP _INLINE, SetOP 0B8 C, , OPT ;
