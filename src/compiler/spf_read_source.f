@@ -13,11 +13,21 @@ USER-VALUE SOURCE-ID-XT \ если не равен нулю, то содержит заполняющее
 VECT <PRE>
 USER CURSTR \ номер строки
 
+
+FALSE VALUE ?GUI
+FALSE VALUE ?CONSOLE
+
 : CONSOLE-HANDLES
 \  0 TO SOURCE-ID
   -10 GetStdHandle TO H-STDIN 
   -11 GetStdHandle TO H-STDOUT
   -12 GetStdHandle TO H-STDERR
+
+  \ ~day На случай печати в GUI приложении запущеным из под Explorer  
+  ?GUI
+  IF
+    H-STDOUT 65537 = IF 0 TO H-STDOUT THEN
+  THEN
 ;
 
 

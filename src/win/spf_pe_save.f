@@ -11,9 +11,6 @@ DUP        VALUE IMAGE-BEGIN   \ адрес загрузки кода
                                \ загрузке секции кода
 DUP 8 1024 * - CONSTANT IMAGE-BASE \ адрес загрузки первой секции
 
-FALSE VALUE ?GUI
-FALSE VALUE ?CONSOLE
-
 VARIABLE RESOURCES-RVA
 VARIABLE RESOURCES-SIZE
 
