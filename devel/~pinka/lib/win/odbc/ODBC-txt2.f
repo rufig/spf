@@ -17,8 +17,7 @@
 
 REQUIRE INCLUDED-WITH  ~pinka\lib\ext\include.f
 REQUIRE RENAME-FILE ~pinka\lib\FileExt.f
-\ REQUIRE SPARSETO    ~pinka\lib\ext\parse.f
-\ подключаю в ODBCTxt-Support, во избежании коллизий
+REQUIRE PARSE-FOR   ~pinka\lib\ext\parse.f
 REQUIRE NextSubstring ~pinka\lib\parse.f
 REQUIRE COMPARE-U   ~ac\lib\string\compare-u.f
 REQUIRE HASH@       ~pinka\lib\hash-table.f
@@ -30,11 +29,10 @@ REQUIRE ExistTable  ~ac\lib\win\odbc\odbc2.f
 VOCABULARY  ODBCTxt-Support
 GET-CURRENT  ALSO ODBCTxt-Support DEFINITIONS
 
-REQUIRE SPARSETO    ~pinka\lib\ext\parse.f
 
 : NextValueName ( -- a-value u-value a-name u-name true | false )
   SkipDelimiters
-  S" =" SPARSE IF
+  S" =" PARSE-FOR  IF
     -TRAILING UnQuoted
     SkipDelimiters
     PeekChar IsCharSubs IF

@@ -1,4 +1,7 @@
 \ 01.2002
+\ 04.Aug.2004 переименовал (были коллизии имен с acTCP )
+\             SPARSE    в  PARSE-FOR
+\             SPARSETO  в  PARSE-BEFORE
 
 REQUIRE [UNDEFINED]   lib\include\tools.f
 REQUIRE {             ~ac\lib\locals.f
@@ -9,7 +12,7 @@ REQUIRE {             ~ac\lib\locals.f
   SOURCE  DUP >IN @ UMIN  TUCK - >R + R>
 ;                       [THEN]
 
-: SPARSE ( sa su -- a1 u1 true | false )
+: PARSE-FOR ( sa su -- a1 u1 true | false )
 \ Разбирает до разделителя sa su, разделитель пропускает.
 \ При неуспехе >IN не меняется.
   PARSE-AREA@ { sa su a u }
@@ -18,7 +21,7 @@ REQUIRE {             ~ac\lib\locals.f
   a SWAP TRUE  EXIT THEN
   2DROP FALSE
 ;
-: SPARSETO ( sa su -- a1 u1 true | false )
+: PARSE-BEFORE ( sa su -- a1 u1 true | false )
 \ Разбирает до разделителя sa su, разделитель НЕ пропускает.
 \ При неуспехе >IN не меняется.
   PARSE-AREA@ { sa su a u }
