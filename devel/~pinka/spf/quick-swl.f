@@ -106,9 +106,12 @@ EXPORT
 \ SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
 
 : QuickSWL ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ SWL
+  DUP GET-CURRENT <>                IF
+  GET-CURRENT  wid-exth update-hash THEN
+
   wid-exth DUP update-hash
-  ( c-addr u  exth )
-  @ HASH@N          IF
+  @  ( c-addr u  h )
+  HASH@N            IF
   \ last OVER U<  IF DROP RDROP 0 EXIT THEN
   \  такая проверка криво работает 
   \       при сцеплении списков в порядке, отличном от следования в ОП
@@ -170,8 +173,8 @@ DEFINITIONS
   то хэш инициируется из хипа этого потока... а поток потом завершается
   и наступает облом.
   Это слово принудительно инициирует все словари/хэш-таблицы/ при запуске.
-    Также, ситуацию можно разрешить навязывая нужный хип перед
-    распределением памяти [например, HEAP-GLOBAL для стационарных словарей]
+    Правда, словари могут и после запуска расширится/добавится
+     - поэтому добавил в SWL проверку CURRENT
 )
   VOC-LIST @ BEGIN
   DUP        WHILE
