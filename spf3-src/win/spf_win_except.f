@@ -24,16 +24,14 @@ USER ExceptionRecord
 ;
 
 : DROP-EXC-HANDLER
-  R>
   R> 0 FS! RDROP RDROP
-  >R
-  EXC-HANDLER 0!
+\  EXC-HANDLER 0!
 ;
 : SET-EXC-HANDLER
   R> R>
   TlsIndex@ >R
   ['] (EXC) >R
-  0 FS@   >R
+  0 FS@ >R
   RP@ 0 FS!
   RP@ EXC-HANDLER !
   ['] DROP-EXC-HANDLER >R \ самоубираемый фрейм ловли аппаратн.исключения

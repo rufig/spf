@@ -99,7 +99,7 @@ VARIABLE IN-EXCEPTION
 : TITLE
   CGI? @ 0= ?GUI 0= AND
   IF
-    ." SP-Forth 3.76 (09.Sep.2002) ANS FORTH 94 for Win95/98/NT/2000/XP/.NET" CR
+    ." SP-Forth 3.76 (21.Sep.2002) ANS FORTH 94 for Win95/98/NT/2000/XP/.NET" CR
     ." Copyright (C) 1992-2002  A.Cherezov  http://www.forth.org.ru/" CR CR
   THEN
 ;
