@@ -264,12 +264,6 @@ CODE D>F    \ *
        RET
 END-CODE
 
-CODE F>D     \ *
-       LEA  EBP, -8 [EBP]
-       FISTP  QWORD [EBP]
-       XCHG   EAX, 4 [EBP]
-       RET
-END-CODE
 
 \ Extention words
  
@@ -564,6 +558,20 @@ CODE LOW-MODE
        FLDCW DWORD -4 [EBP]
        RET
 END-CODE
+
+CODE F>D     \ *
+       LEA  EBP, -8 [EBP]
+       FISTP  QWORD [EBP]
+       XCHG   EAX, 4 [EBP]
+       RET
+END-CODE
+
+: F>D
+       GETFPUCW >R
+       TRUNC-MODE
+       F>D
+       R> SETFPUCW
+;
 
 CODE F10*   \ *
        MOV  DWORD -4 [EBP], # 0A
