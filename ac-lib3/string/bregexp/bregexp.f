@@ -3,6 +3,8 @@ WINAPI: BRegexpVersion BRegexp.dll
 WINAPI: BMatch         BRegexp.dll
 \ BMatch("m/abc/",szTarget,
 \ 		szTarget+strlen(szTarget),&rxp,msg);
+WINAPI: BSubst         BRegexp.dll
+
 
 USER rxp 
 0
@@ -25,10 +27,20 @@ CONSTANT /BREGEXP
   rxp @ rxp.startp @ R@ + @
   rxp @ rxp.endp @ R> + @ OVER -
 ;
-: BregexpMatch ( S" string" S" pattern" -- ... n )
+: BregexpMatch ( S" string" S" pattern" -- n )
+\ n - к-во попаданий в ()
   2>R 2>R PAD rxp 2R> OVER + SWAP 2R> DROP BMatch >R 2DROP 2DROP DROP R>
   DUP -1 = IF PAD ASCIIZ> TYPE CR ABORT THEN
   1 = IF rxp @ rxp.nparens @ 1+ ELSE 0 THEN
+;
+: BregexpReplace ( S" string" S" pattern" -- S" result" n )
+\ n - к-во замен
+  2>R 2>R PAD rxp 2R> OVER + SWAP 2R> DROP BSubst >R 2DROP 2DROP DROP R>
+  DUP -1 = IF PAD ASCIIZ> TYPE CR ABORT THEN
+  >R
+  rxp @ rxp.outp @ 
+  rxp @ rxp.outendp @ OVER -
+  R>
 ;
 : BregexpGetMatch ( S" string" S" pattern" -- ... n )
   BregexpMatch
@@ -44,4 +56,7 @@ CONSTANT /BREGEXP
   S" Yokohama 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 "
   S" /(03|045)-(\d{3,4})-(\d{4})/" BregexpGetMatch
   DUP . 0 ?DO TYPE CR LOOP \ находит только первое совпадение
+  S" Yokohama 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 "
+  S" s/(\d\d)-\d{4}-\d{4}/$1-xxxx-xxxx/g" BregexpReplace
+  . TYPE
 ; TEST
