@@ -22,10 +22,10 @@ HEX
 \ находилось на стеке возвратов, становится недоступным до тех пор, пока не 
 \ будут убраны параметры цикла.
   ?COMP
-  OP0 @ :-SET  UMAX TO :-SET
-  ['] NIP DUP INLINE, INLINE,
-  SetOP  0x68 C, DP @ 4 ALLOT
   ['] C-DO INLINE,
+  SetOP  0x68 C, DP @ 4 ALLOT
+  SetOP  0x52 C,    \ PUSH EDX
+  SetOP  0x53 C,    \ PUSH EBX
   4 ALIGN-NOP
   DP @ DUP TO :-SET
 ; IMMEDIATE

@@ -43,7 +43,7 @@ INLINEVAR
 
 0x44 CELLS DUP CONSTANT OpBuffSize
 
-CREATE OP0 HERE DUP , SWAP ALLOT
+CREATE OP0 HERE >T DUP , SWAP ALLOT
 
 CELL+ DUP CONSTANT OP1
 CELL+ DUP CONSTANT OP2
@@ -300,7 +300,7 @@ DROP
 
 ;
 
-: DEPTH-OPT?  ( N - FLAG )  \ допустимая ли глубина для оптимизации
+: DEPTH-OPT?  ( N - FLAG )  \ допустиная ли глубина для оптимизации
   :-SET + DP @  U>  ;
 
 \ 0 VALUE TTTT
@@ -377,6 +377,8 @@ M\ VECT DTST
      DUP 3B <> IF   \ CMP E_X , X
      DUP A3 <> IF   \ MOV X , EAX
      DUP B9 <> IF   \ MOV ECX , # X
+     DUP BA <> IF   \ MOV EDX , # X
+     DUP BB <> IF   \ MOV EBX , # X
      DUP 50 <> IF   \ PUSH EAX
      DROP
      DUP @ W@
@@ -1162,6 +1164,8 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
      DUP @ C@ EB   = IF DROP EXIT THEN
      DUP @ W@ F0FF
           AND 800F = IF DROP EXIT THEN
+     DUP @ @ FFFFFF AND 85448B = \ MOV  EAX , FC [EBP] [EAX*4] 
+              IF DROP EXIT THEN 
 
 \     DUP @  2+ C@ DUP U. OFF-EBP FF AND DUP U. = 
      DUP @ 2+ C@ OFF-EBP FF AND = 
@@ -1189,7 +1193,10 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
                 DUP  OPexcise NIP TRUE SWAP \ CELL-
               ELSE DROP EXIT
               THEN
-          ELSE CELL+ DUP @  :-SET  U< IF DROP EXIT THEN
+          ELSE 
+    DUP @ @ FFFFFF AND 85448B = \ MOV  EAX , FC [EBP] [EAX*4] 
+              IF DROP EXIT THEN 
+              CELL+ DUP @  :-SET  U< IF DROP EXIT THEN
           THEN
    REPEAT  DROP
 ;
@@ -1579,8 +1586,31 @@ OP1 @ W@  F7FF AND 44FF XOR OR \ FF4424  INC DEC    30 [ESP]
        EXIT   
    THEN
 
+OP2 @ C@ B8 XOR \   MOV     EAX , # 1
+OP1 @ @ FFFFFF AND 21C8D XOR OR \         LEA     EBX , [EDX] [EAX]
+\ EAX=
+0= IF  M\ AA DTST
+       OP2 1 OPresize
+       9A8D   OP2 @ W!
+       OP1 OPexcise
+       FALSE  M\ AB DTST
+       EXIT   
+   THEN
+OP2 @ C@ BA XOR  \  MOV     EDX , # 7FFFFFEE
+OP1 @ W@ 9A8D XOR OR \   LEA     EBX , 1 [EDX]
+\ EAX=
+0= IF  M\ AC DTST
+       OP1 @ 2+ @
+       OP1 OPexcise
+       OP0 5 OPinsert
+       BB OP1 @ C!        \     MOV     EBX , # 
+       OP2 @ 1+ @ +  OP1 @ 1+ !
+       FALSE  M\ AD DTST
+       EXIT   
+   THEN
+
 M\ PPPP
-   OP3 @ :-SET U< IF TRUE EXIT THEN
+OP3 @ :-SET U< IF TRUE EXIT THEN
 
 
 \ $ SWAP 4444   
@@ -1604,7 +1634,20 @@ OP1 @ W@ E08B XOR OR   \     MOV     ESP , EAX
        FALSE  M\ 8B DTST
        EXIT   
    THEN
+OP5 @ :-SET U< IF TRUE EXIT THEN
 
+OP5 @ C@ B8 XOR  \ 596994 B812000000  MOV     EAX , # 12
+OP4 @ W@ 4589 XOR OR \ 596999 8945F4            MOV     F4 [EBP] , EAX
+OP3 @ W@ 4589 XOR OR \ 59699C 8945F0            MOV     F0 [EBP] , EAX
+OP2 @ C@ BA XOR OR \ 59699F BA00000080  MOV     EDX , # 80000000
+OP1 @ W@ D02B XOR OR \ 5969A4 2BD0              SUB     EDX , EAX
+\ EAX=
+0=  IF  M\ A6 DTST
+       OP5 @ 1+ @ NEGATE OP2 @ 1+ +!
+       OP1 OPexcise
+       FALSE  M\ A7 DTST
+       EXIT   
+   THEN
   TRUE
 ;
 
@@ -1733,6 +1776,10 @@ OP0 @ W@ C069 XOR OR \ 59A095 69C005000000      IMUL    EAX , EAX , # 5
        FALSE  M\ 8F DTST
        EXIT
    THEN
+
+OP0 @ W@ D28B =  \   MOV EDX, EDX  \ C-DO
+IF  OP0 OPexcise TRUE EXIT
+THEN
 
 
 M\ PPPP
@@ -2041,11 +2088,11 @@ OP0 @ C@ A3 XOR OR \ 59A22C A375995900  MOV     599975  ( Char1Glob+5  ) ,  EAX
 DUP   C@  0C3 XOR
 OP1 @ C@ B8 XOR OR               \   MOV     EAX , # 2000
 OP0 @ @ FFFFFF AND 244489 XOR OR \    MOV     1C [ESP] , EAX
-0=  IF   M\ 98 DTST
+0=  IF   M\ A8 DTST
             OP1 @ 1+ @ ,
             OP1 OPexcise
             C7  OP0 @ C! \  MOV   1C [ESP] ,  # 2000
-            FALSE M\ 99 DTST
+            FALSE M\ A9 DTST
             EXIT
     THEN
 DUP   C@  0C3 XOR
@@ -2057,6 +2104,16 @@ OP0 @ W@ C133 XOR OR   \     XOR     EAX , ECX
             OP0 @ 1+ @ OP0 @ !  \ XOR   AL , BYTE PTR [EAX+EDX+44H]
             -1 ALLOT
             FALSE M\ A1 DTST
+            EXIT
+    THEN
+
+DUP   C@  0C3 XOR
+OP1 @ @ FFFFFF AND 850C8D XOR OR \    LEA     ECX , 58E188  ( rson+5  ) [EAX*4]
+OP0 @ W@ 1189 XOR OR \ 596738 8911              MOV     [ECX] , EDX
+0=  IF   M\ A2 DTST
+            OP0 OPexcise
+            1489  OP0 @ W!
+            FALSE M\ A3 DTST
             EXIT
     THEN
 
@@ -2804,6 +2861,22 @@ OP0 @ W@ 4513 XOR OR \ 57BF22 1345FC            ADC     EAX , FC [EBP]
        EXIT   
    THEN
 
+OP3 @ 2+ C@  
+OP0 @ 2+ C@ XOR
+OP3 @ W@ 4589 XOR OR \ 59690C 8945F0            MOV     F0 [EBP] , EAX
+OP2 @ C@ B8 XOR OR \ 59690F B801000000  MOV     EAX , # 1
+OP1 @ C@ BA XOR OR \ 596914 BA00000080  MOV     EDX , # 80000000
+OP0 @ W@ 552B XOR OR \ 596919 2B55F0            SUB     EDX , F0 [EBP]
+0= IF   M\ A4 DTST
+       OP2 @ 1+ @
+       OP2 OPexcise
+       D02B  OP0 @ ! \ SUB     EDX , EAX
+       -1 ALLOT
+       SetOP  B8 C, ,
+       FALSE   M\ A5 DTST
+       EXIT   
+   THEN
+
 OP4 @ :-SET U< IF TRUE EXIT THEN
 
 \ $ 10 LSHIFT
@@ -2896,8 +2969,8 @@ M\ PPPP
 
   DUP   099    = M_WL DROP 1+  REPEAT  \ CDQ
 \ 1110.11XX
-\ DUP FC
-\ AND EC    = M_WL DROP 1+  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
+OS\ DUP FC
+OS\ AND EC    = M_WL DROP 1+  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
   DROP
   DUP W@      \  CFA CFA+OFF N'
 
@@ -2996,8 +3069,8 @@ M\ PPPP
 
   DUP   099 = M_WL  1_,_STEP      REPEAT  \ CDQ
 
-\ DUP FC
-\ AND EC = M_WL   1_,_STEP  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
+OS\ DUP FC
+OS\ AND EC = M_WL   1_,_STEP  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
 
 \  DUP   0BB = M_WL  5_,_STEP     REPEAT  \ MOV EBX, # X
 \  JO JNO JB JAE JE JNE JBE JA JS JNS JP JNP JL JGE JLE JG
@@ -3061,6 +3134,7 @@ M\ PPPP
   DUP 24442B = M_WL 4_,_STEP      REPEAT \ SUB  EAX, X [ESP]
   DUP 85448B = M_WL 3_,_STEP +EBP REPEAT \ MOV  EAX, X [EBP] [EAX*4]
   DUP 24048B = M_WL 3_,_STEP      REPEAT \ MOV  EAX, 0 [ESP]
+  DUP 021C8D = M_WL 3_,_STEP      REPEAT \ LEA  EBX,  [EDX] [EAX]
   DUP 85048D = M_WL 7_,_STEP      REPEAT \ LEA  EAX, X [EAX*4]
   DUP 45048D = M_WL 7_,_STEP      REPEAT \ LEA  EAX, X [EAX*2]
   DUP 90048D = M_WL 3_,_STEP      REPEAT \ LEA  EAX , [EAX] [EDX*4] 
@@ -3234,7 +3308,7 @@ M\ PPPP
 
  OP1 @ W@ 558B XOR       \ MOV     EDX , 0 [EBP] 
  OP0 @ W@ C23B XOR OR 0= \ CMP     EAX , EDX 
-        IF  ." $" M\ 43A DTST
+        IF \ ." $" M\ 43A DTST
             453B  OP1 @ W! \ CMP     EAX , 0 [EBP] 
             OP1 ToOP0
             FALSE -2 ALLOT M\ 43B DTST
@@ -3537,7 +3611,7 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
                  
                  DUP 1+  REL@ CELL+ 
                  DUP   CREATE-CODE  = 
-                 IF  DROP OPT_INIT 5 +  FORLIT, FALSE OPT_CLOSE EXIT
+                 IF  DROP OPT_INIT 5 + [>T] FORLIT, FALSE OPT_CLOSE EXIT
                  THEN
                  
                  DUP     USER-CODE  =
@@ -3553,7 +3627,7 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
                  DUP  CONSTANT-CODE  =
                  IF  DROP  OPT_INIT 5 + DUP 5 +  REL@ 
                      TOVALUE-CODE CELL- =
-                    IF    'DUP _INLINE, SetOP 0A1 C, , OPT
+                    IF   'DUP _INLINE, SetOP 0A1 C, [>T] , OPT
                     ELSE    @  FORLIT, 
                     THEN   FALSE  OPT_CLOSE  EXIT
                  THEN
@@ -3570,7 +3644,7 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
                  THEN
                   TOVALUE-CODE =
                  IF  OPT_INIT
-                     SetOP  A3 C,  CELL-  ,   OPT
+                     SetOP  A3 C,  CELL- [>T] ,   OPT
                      'DROP _INLINE,
                      FALSE  OPT_CLOSE  EXIT
                  THEN

@@ -1135,12 +1135,14 @@ END-CODE
 ( inline'ы дл€ компил€ции циклов )
 
 CODE C-DO
-      A;  BB C, 0000 W, 8000 W,   \   MOV     EBX , # 80000000
-      SUB  EBX, -8 [EBP]
-      PUSH EBX
-      ADD  EBX, EAX
-      PUSH EBX
+      LEA EBP, 8 [EBP]
+      A;  BA C, 0000 W, 8000 W,   \   MOV     EDX , # 80000000
+      SUB  EDX, -8 [EBP]
+      LEA  EBX,  [EDX] [EAX]
       MOV  EAX, -4 [EBP]
+      MOV  EDX, EDX  \ FOR OPT
+\      PUSH EDX
+\      PUSH EBX
       RET
 END-CODE
 

@@ -91,7 +91,11 @@ HEX
 :  'DUP  'DUP_V ;
 : 'DROP 'DROP_V ;
 
-: M\  POSTPONE \  ; IMMEDIATE
+: M\  POSTPONE \ ; IMMEDIATE
+: OS\ POSTPONE \ ; IMMEDIATE
+
+: [>T]  ; IMMEDIATE
+:  >T   ; IMMEDIATE
 
 TRUE VALUE J_OPT?
 
@@ -508,10 +512,10 @@ HEX
 
 : DO   \ 94
   ?COMP
-  OP0 @ :-SET  UMAX TO :-SET
-  S" NIP" TC-FINDOUT DUP INLINE, INLINE,
-  SetOP  0x68 C, DP @ 4 ALLOT
   S" C-DO" TC-FINDOUT INLINE,
+  SetOP  0x68 C, DP @ 4 ALLOT  \ PUSH #
+  SetOP  0x52 C,               \ PUSH EDX
+  SetOP  0x53 C,               \ PUSH EBX
   4 ALIGN-NOP
   DP @ DUP TO :-SET
 ; IMMEDIATE
