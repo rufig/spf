@@ -1,0 +1,54 @@
+( CGI в SPF/3.73. А.Черезов 03.03.2000 )
+
+На SPF всегда можно было разрабатывать CGI (и в Eserv's Erobot это
+активно использовалось и в FIS/CGI 96го года тоже :), но при этом 
+требовалось слегка модифицировать startup-последовательность 
+запускаемого SPF. Сам SPF/3.x никак не распознавал ситуацию запуска 
+в CGI-режиме. С версии 3.73 стало проще - не нужно менять MAINX, 
+не нужно проверять "CGI/неCGI", и т.д.
+
+Способ запуска SPF-CGI-скриптов принят таким же, как в случае с 
+языками Perl и PHP. Например, для настройки запуска *.spf-файлов
+как CGI в Eserv/2.x достаточно указать в разделе ScriptHandlers
+обработчик spf:
+
+ScriptHandlers:
+.php3 c:\php\php4\php.exe
+.fis fis.exe
+.cgi perl.exe
+.pl perl.exe
+.html InterpretHtml
+.spf C:\spf\spf373.exe
+
+Путь можно не указывать, если c:\spf\ есть в PATH.
+
+В браузере обращения к скрипту делаются в виде:
+
+http://server/path/file.spf
+или
+http://server/path/file.spf?name1=value1&name2=value2&etc
+или из HTML-формы
+<form action=http://server/path/file.spf>
+<input name=name1 value=value1>
+etc
+</form>
+
+Сервер при этом сделает запуск SPF373.exe командной строкой:
+C:\spf\spf373.exe file.spf
+Параметры передаются в переменной окружения QUERY_STRING
+(их можно достать вызовом S" QUERY_STRING" ENVIRONMENT?)
+Если запуск делается из формы 
+<form action=http://server/path/file.spf method=POST>
+то параметры будут не в QUERY_STRING, а во входном потоке.
+Текущим каталогом будет каталог, где лежит file.spf.
+
+Всё это не зависит от сервера, т.к. это спецификация CGI,
+одинаково реализованная во всех серверах.
+
+Также, в соответствии с CGI, скрипт должен вначале выдать
+http-заголовки. Как минимум Content-Type. Простейший пример
+скрипта:
+--------------- words.spf ------------
+.( Content-Type: text/plain) CR CR
+WORDS
+------------------------------------
