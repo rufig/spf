@@ -212,8 +212,7 @@ USER STR-ID
   FREE THROW
 ;
 : STR_EVAL ( addr u s -- )
-  { \ s sp tib >in #tib so si }
-  -> s
+  { s \ sp tib >in #tib so si addr char }
   DUP 1 = \ варианты {s} {n}
   IF OVER C@ [CHAR] n = IF 2DROP 0 <# #S #> s STR+ EXIT THEN
      OVER C@ [CHAR] s = IF 2DROP s STR+ EXIT THEN
@@ -221,16 +220,28 @@ USER STR-ID
   SP@ -> sp
   TIB -> tib  >IN @ -> >in  #TIB @ -> #tib SOURCE-ID -> so STR-ID -> si
   s STR-ID !
+  2DUP + DUP -> addr C@ -> char
   \ при сбое в EVALUATE он сам не сможет восстановить наш TIB, поэтому сохраняем
   ['] EVALUATE CATCH ?DUP
   IF NIP NIP S" (Error: " s STR+
      ABS 0 <# [CHAR] ) HOLD #S #>  s STR+
      tib TO TIB  >in >IN !  #tib #TIB ! so TO SOURCE-ID
+     char addr C! \ при сбое EVALUATE пробовал включить файл с именем слова
+                  \ и мог затереть последний символ
   ELSE
      SP@ sp -
      \ разница=0, если возвращены два числа - адрес и длина строки
-     IF 0 <# #S #> THEN
-     s STR+
+     DUP 0= IF DROP s STR+
+            ELSE DUP 4 =
+                 IF DROP 0 <# #S #> s STR+
+                 ELSE
+                    DUP 8 =
+                    IF DROP \ ничего не вернули
+                    ELSE DROP S" (Error: 2020)" s STR+
+                         sp SP! 2DROP
+                    THEN
+                 THEN
+            THEN
   THEN
   si STR-ID !
   sp SP! 2DROP
@@ -280,7 +291,7 @@ CREATE _S""" CHAR " C,
 ;
 
 HEX
-084 ( 0BC в spf375;  90, 98 в старых locals) CONSTANT LOCALS_STACK_OFFSET
+08C ( 0BC в spf375;  90, 98 в старых locals) CONSTANT LOCALS_STACK_OFFSET
 \ смещение первой локальной переменной в стеке ( в старом locals)
 \ смещение фрейма (в новом locals)
 \ на момент выполнения слова (") внутри скомпилированного определения
