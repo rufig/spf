@@ -39,6 +39,7 @@ VECT <FLOAT-INIT>
   CURFILE 0!
   TRUE WARNING !
   12 C-SMUDGE !
+  <SET-EXC-HANDLER>
   <FLOAT-INIT>
 ;
 
@@ -61,7 +62,7 @@ VARIABLE IN-EXCEPTION
 ;
 : EXC-DUMP1 ( exc-info -- )
   IN-EXCEPTION @ IF DROP EXIT THEN
-  TRUE IN-EXCEPTION !
+  IN-EXCEPTION 1+!
   BASE @ SWAP
   HEX
   ." EXCEPTION! " 
@@ -70,7 +71,7 @@ VARIABLE IN-EXCEPTION
   ."  REGISTERS:"
   DUP 4 CELLS + @ CELLS + \ может быть указано смещение структуры на 2 CELLS
   176 + DUP 12 CELLS DUMP CR
-  ." USER DATA: " TlsIndex@ U.
+  ." USER DATA: " TlsIndex@ U. ." THREAD ID: " 36 FS@ U.
   ." HANDLER: " HANDLER @ U.
   ." RETURN STACK:" CR
   6 CELLS + DUP @ \ DUP 65000 > IF NIP ELSE DROP CELL+ CELL+ @ THEN
@@ -91,14 +92,14 @@ VARIABLE IN-EXCEPTION
     LOOP
   THEN
   BASE !
-  FALSE IN-EXCEPTION !
+  IN-EXCEPTION @ 1- IN-EXCEPTION !
 ;
 ' EXC-DUMP1 (TO) <EXC-DUMP>
 
 : TITLE
   CGI? @ 0= ?GUI 0= AND
   IF
-    ." SP-Forth 3.76 (06.Sep.2002) ANS FORTH 94 for Win95/98/NT/2000/XP/.NET" CR
+    ." SP-Forth 3.76 (09.Sep.2002) ANS FORTH 94 for Win95/98/NT/2000/XP/.NET" CR
     ." Copyright (C) 1992-2002  A.Cherezov  http://www.forth.org.ru/" CR CR
   THEN
 ;

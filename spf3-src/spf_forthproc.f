@@ -1303,7 +1303,7 @@ CODE RP+! ( x offs -- )
      RET
 END-CODE
 
-CODE RALLOT ( n -- addr )
+CODE RALLOT ( n -- addr ) ( не используется ?)
 \ зарезервировать n ячеек на стеке возвратов
 (     POP  EAX
      MOV  EBX, [EBP]
@@ -1361,6 +1361,42 @@ CODE (LocalsExit) ( -- )
 \ вернуть память в стек вовратов, число байт лежит на стеке
      POP  EAX
      ADD  ESP, EAX
+     RET
+END-CODE
+
+CODE (ENTER) ( {4*params ret_addr} -- 4*params R: ret_addr ebp ) \ 09.09.2002
+\ отодвинуть стек возвратов и сохранить EBP на стеке возвратов.
+\ необходимо при ручном кодировании входа в callback, т.к.
+\ комбинация SP@ >R портит слово по адресу EBP,
+\ а оно может быть нужно вызывающей процедуре :)
+     POP  EAX       \ адрес возврата из ENTER
+     POP  ESI       \ адрес возврата из CALLBACK/WNDPROC
+     MOV  EBX, EBP
+     MOV  EBP, ESP
+
+     XOR  EDX, EDX
+     MOV  ECX, # 32
+@@1: PUSH EDX
+     DEC  ECX
+     JNZ  @@1
+
+     PUSH ESI
+     PUSH EBX
+
+     JMP  EAX
+END-CODE
+
+CODE (LEAVE) ( eax R: ret_addr ebp lret_addr -- )
+\ возврат после (ENTER)
+\ eax берется со стека - это результат выполнения функции,
+\ windows ждет его в eax
+     MOV  EAX, [EBP]
+     MOV  EBX, EBP
+     POP  EBP        \ drop lret_addr
+     POP  EBP
+     POP  EDX
+     MOV  [EBX], EDX
+     MOV  ESP, EBX
      RET
 END-CODE
 

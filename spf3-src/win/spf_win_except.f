@@ -8,28 +8,36 @@
 USER EXC-HANDLER  \ аппаратные исключения (преобразуемые в программные)
 VECT <EXC-DUMP>
 
-: (EXC) ( exc-info -- )
-  0 FS@ @                 \ Windows установила новый обработчик
-                          \ но сохранила в нем адрес старого (нашего)
-  DUP 0 FS!               \ восстановление этого же обработчика снова
-  DESTROY-HEAP            \ удалить хип, созданный для этого обработчика
-  CELL+ CELL+ CELL+ @ TlsIndex! \ указатель на USER-данные сбойнувшего потока
-                          \ будем импользовать его хип и USER-data
-  DUP <EXC-DUMP>          \ пользовательский обработчик (дамп по умолчанию)
-  EXC-HANDLER 0!
+USER ExceptionRecord
+
+: (EXC) ( DispatcherContext ContextRecord EstablisherFrame ExceptionRecord -- flag )
+  (ENTER) \ фрейм для стека данных
+  0 FS@ @ \ адрес нашего фрейма обработки исключений под новым виндовым фреймом
+  DUP 0 FS! \ восстанавливаем его чтобы продолжать ловить exceptions в будущем
+  CELL+ CELL+ @ TlsIndex! \ указатель на USER-данные сбойнувшего потока
+
+\  2DROP 2DROP
+\  0 (LEAVE)               \ это если нужно передать обработку выше
+
+  DUP <EXC-DUMP>
   @ THROW                 \ превращаем исключение в родное фортовое :)
 ;
-' (EXC) WNDPROC: EXC
 
 : DROP-EXC-HANDLER
-  RDROP RDROP R> 0 FS! RDROP RDROP RDROP
+  R>
+  R> 0 FS! RDROP RDROP
+  >R
+  EXC-HANDLER 0!
 ;
 : SET-EXC-HANDLER
-  R>
-  0 >R -1 >R TlsIndex@ >R 0 FS@ >R ['] EXC >R 0 FS@ >R
-  RP@ 0 FS! RP@ EXC-HANDLER !
-  ['] DROP-EXC-HANDLER >R  \ самоубираемый фрейм ловли аппаратн.исключения
-  >R
+  R> R>
+  TlsIndex@ >R
+  ['] (EXC) >R
+  0 FS@   >R
+  RP@ 0 FS!
+  RP@ EXC-HANDLER !
+  ['] DROP-EXC-HANDLER >R \ самоубираемый фрейм ловли аппаратн.исключения
+  >R >R
 ;
 ' SET-EXC-HANDLER (TO) <SET-EXC-HANDLER>
 
