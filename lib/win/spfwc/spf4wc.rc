@@ -8,6 +8,8 @@ produced by Borland Resource Workshop
 
 *****************************************************************************/
 
+#include "winuser.h"
+
 #define IDM_MENU1       1
 #define IDB_BITMAP1     1
 #define ACCELERATORS_1  1
