@@ -25,6 +25,7 @@
 \        From: mlg 3 <m_l_g3@yahoo.com>
 \        To: spf-dev@lists.sourceforge.net
 \        Date: Sat, 9 Nov 2002 10:05:16 -0800 (PST)
+\ 11.Dec.2003 Thu 11:17  * GetTimes принимает строку: ( a u -- ... )
 
 \ Copyright (C) R.P., 1999-2002
 
@@ -169,10 +170,10 @@ WORDLIST CONSTANT shadows
   RDROP
 ;
 
-: timer_info ( NFA -- a-timer_info | 0 )
+: timer_info ( a u -- a-timer_info | 0 )
 \  DUP ID. CR
 \ ѕри коллизии имени будет найден последний вариант.
-  COUNT  shadows SEARCH-WORDLIST
+  shadows SEARCH-WORDLIST
   IF EXECUTE ELSE 0 THEN
 ;
 
@@ -194,7 +195,7 @@ WORDLIST CONSTANT shadows
     R@ ticks 2@ D+  R@ ticks 2!  R>  count-out 1+!
 ;
 
-: have-timer ( NFA -- a-timer_info true | false )
+: have-timer ( a u -- a-timer_info true | false )
     timer_info  ?DUP 0<>
 ;
 
@@ -275,12 +276,10 @@ VARIABLE 'named?  \ €чейка, хран€ща€ флаг:  было ли у последнего определени€ им€
 \ ================================================================
 \ Public - секци€.
 
-
-: GetTimes  (  CFA -- d-ticks u-rets  true | false )
-    >NAME
+: GetTimes  (  a u -- d-ticks u-rets  true | false )
     have-timer IF
-      >R
-      R@ ticks 2@
+      DUP >R
+        ticks 2@
       R> count-out  @
       TRUE  EXIT
    THEN  FALSE
@@ -312,7 +311,7 @@ VARIABLE 'named?  \ €чейка, хран€ща€ флаг:  было ли у последнего определени€ им€
     BEGIN  ( NFA )
       DUP 0 <>
     WHILE
-      DUP have-timer IF
+      DUP COUNT have-timer IF
         .result
       THEN  CDR
     REPEAT  DROP
@@ -339,7 +338,7 @@ VARIABLE 'named?  \ €чейка, хран€ща€ флаг:  было ли у последнего определени€ им€
     BEGIN  ( NFA )
       DUP 0 <>
     WHILE
-      DUP  have-timer IF  ( NFA a-timer_data  )
+      DUP COUNT have-timer IF  ( NFA a-timer_data  )
         .result
       THEN  CDR
     REPEAT  DROP  CR
