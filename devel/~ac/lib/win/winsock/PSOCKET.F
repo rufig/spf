@@ -1,7 +1,7 @@
 ( Работа с сокетами в стиле PHP.  Andrey Cherezov 30.Mar.2000
 
   fsockopen < server port -- socketline >
-    Например: " www.forth.org.ru" 80 fsockeopen -> s
+    Например: " www.forth.org.ru" 80 fsockopen -> s
     - соединиться с сервером server по порту port и вернуть соединенный сокет.
 
   fclose < socketline -- >
@@ -35,6 +35,7 @@ REQUIRE STR@         ~ac/lib/str2.f
 : fsockopen ( server port -- socketline )
   { server port \ sock ip }
   CreateSocket THROW -> sock
+  60000 sock SetSocketTimeout THROW
   server STR@ GetHostIP THROW -> ip
   ip port sock ConnectSocket THROW
   sock SocketLine

@@ -19,6 +19,7 @@ WINAPI: inet_addr       WSOCK32.DLL
 WINAPI: inet_ntoa       WSOCK32.DLL
 WINAPI: setsockopt      WSOCK32.DLL
 WINAPI: shutdown        WSOCK32.DLL
+WINAPI: gethostname     WSOCK32.DLL
 
 1  CONSTANT SOCK_STREAM
 2  CONSTANT SOCK_DGRAM
@@ -47,7 +48,9 @@ CONSTANT /sockaddr_in
 CREATE sock_addr HERE /sockaddr_in DUP ALLOT ERASE
 AF_INET sock_addr sin_family W!
 
-CREATE LINGER 1 W, 6000 W,
+CREATE LINGER 1 W, 30 W,
+\ 6000 W, слишком много, это в секундах, заменил на 30 - 26.06.2001 ~ac
+
 CREATE BROADCAST -1 ,
 
 : CreateSocket ( -- socket ior )
