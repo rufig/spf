@@ -1,17 +1,21 @@
-\ mask.f производства RP с замененными temps на locals
 
 \ сравнение строки и маски, содержащей метасимволы (wildcards)  * ?
 
 \ ver 0.4
 \ 18.03.2000
 \ исправлена некорректна€ обработка случа€  S" aaa" S" aaa*"
+\ ver 0.5
+\ переход к locals,  небольшое улучшение алгоритма. (  дл€ Eserv2* - temps.f оставлены)
+\ ver 0.6  13.05.2000  добавлена возможность квотить метасимволы:  \* \? \\
 
 \ for SPF
 \ ver 0.1 - 11.06.1999    
 \ (c) Ruvim Pinka
 
 
-REQUIRE { ~ac/lib/locals.f
+\ REQUIRE ||  ~pinka/lib/temps.txt 
+
+CHAR \ VALUE quote-char
 
 : WITHIN ( n1|u1 n2|u2 n3|u3 -- flag ) \ 93 CORE EXT
   OVER - >R - R> U<
@@ -33,7 +37,7 @@ REQUIRE { ~ac/lib/locals.f
 ; IMMEDIATE
 
 
-: WildCMP-U   (  addr1 u1  addr2 u2 -- n )  \ case sensitive - non
+: WildCMP-U   (  addr1 u1  addr2 u2 -- n )   \ case sensitive - non
 \  addr1 u1  - строка
 \  addr2 u2  - маска ( шаблон)
 \  n =  0,  если строка подходит под шаблон,
@@ -48,42 +52,46 @@ REQUIRE { ~ac/lib/locals.f
 \           *  - любое количество любых символов
 \           ?  - любой символ
 \
-\ —лучай   *ссс - где ссс - любое количество любых ће“а—ићвќлќв, обрабатываетс€
-\ также, как  если бы этих метасимволов не было.(така€ маска сверхдостаточна)
-
-
-    { str strlen wc wclen }
+    || str strlen wc wclen ||  (( str strlen wc wclen ))
 
     BEGIN
-
-        wclen  0= IF   
-            strlen 0= IF  0 EXIT THEN  -1 EXIT  
+        wclen  1 < IF   
+            strlen 0= IF  0 EXIT THEN  -1  EXIT  
         THEN
 
         strlen 0= IF
             wc C@ [CHAR] * =  IF 
-                wc+  wclen 0= IF 0 EXIT THEN \ если * - последний.
-            THEN  -1 EXIT
+                wc+  wclen 0= IF 0  EXIT THEN \ если * - последний.
+            THEN  -1  EXIT
         THEN
 
-        wc C@
-        DUP  [CHAR] ?  = IF DROP    str+ wc+   ELSE
-        DUP  [CHAR] *  = IF DROP    wc+
-                \ пропустим все метасимволы после *
-                BEGIN   wclen IF  
-                        wc C@ [CHAR] * =  wc C@ [CHAR] ? =  OR
-                    ELSE  0 EXIT  THEN \ выход, если * - последний в шаблоне
-                WHILE wc+ REPEAT
+        wc C@  wc+
+        DUP  [CHAR] *  = IF DROP
+
+                wclen 0= IF  0 EXIT  THEN \ выход, если * - последний в шаблоне
+
                 BEGIN  \ попробуем сравнить оставшиес€ части
-                    str strlen  wc wclen  RECURSE  0<>
-                WHILE  \ пропустим символ в строке, если не успешно ( обрабатываетс€ * )
+                    str strlen  wc wclen  RECURSE  0=
+                    IF   0 EXIT  THEN  \ нашли совпадение
+                    \ пропустим символ в строке, если не успешно ( обрабатываетс€ * )
                     strlen 0= IF -1  EXIT THEN   str+
-                REPEAT
+                AGAIN
         ELSE
+        DUP  [CHAR] ?  = IF DROP    str+  ELSE
+        DUP  quote-char = IF DROP  wc C@  wc+ THEN
             UpCase  str C@
             UpCase  2DUP  <> IF
-               > IF  -1 EXIT    ELSE   1 EXIT   THEN  THEN 2DROP
-            str+ wc+
+               > IF  -1 EXIT    ELSE   1 EXIT   THEN  
+            THEN 2DROP
+            str+
         THEN THEN
     AGAIN
 ;
+
+
+( example
+  S" Zbaabbb777778" S" ?b*7*8" WildCMP-U .
+  S" 012WebMaster" S" ???w??mas*" WildCMP-U .
+  S" INBOX" S" INBOX*" WildCMP-U .
+  S" http://blablabla.html?.newshub.eserv.ru/" S" http://*\?.*/"  WildCMP-U .
+)
