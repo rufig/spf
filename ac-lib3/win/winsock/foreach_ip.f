@@ -66,6 +66,11 @@ VARIABLE ExternIP
   GetHostIP IF DROP FALSE EXIT THEN
   IsMyIP
 ;
+: IsMyHostnameAndNotLocalhost ( addr u -- flag )
+  GetHostIP IF DROP FALSE EXIT THEN
+  DUP 0xFF AND 0x7F = IF DROP FALSE EXIT THEN
+  IsMyIP
+;
 (
 SocketsStartup . CR 
 ExternIP: 194.186.20.1
