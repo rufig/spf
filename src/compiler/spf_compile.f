@@ -82,6 +82,10 @@ DECIMAL
   DUP C, DP @ SWAP DUP ALLOT QCMOVE
 ;
 
+: SLIT, ( a u -- )
+  ['] _SLITERAL-CODE COMPILE,  S", 0 C,
+;
+
 : ", ( A -> ) \ компил€ци€ строки со счетчиком, заданной адресом A
   COUNT S",
 ;

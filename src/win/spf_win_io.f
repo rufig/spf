@@ -243,9 +243,14 @@ USER lpNumberOfBytesWritten
 : FLUSH-FILE ( fileid -- ior ) \ 94 FILE EXT
   FlushFileBuffers ERR
 ;
+
 : FILE-EXIST ( addr u -- flag )
   R/O OPEN-FILE-SHARED ?DUP
-  IF NIP DUP 2 = SWAP 3 = OR 0= \ ~ruv
+  IF NIP DUP 2 =
+        OVER 3 = OR
+        OVER 206 = OR
+        SWAP 123 = OR
+        0=
   ELSE CLOSE-FILE THROW TRUE
   THEN
 ;

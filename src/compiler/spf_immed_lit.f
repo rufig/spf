@@ -33,13 +33,7 @@
 \ c-addr1 u во время компиляции. Программа не может менять возвращенную
 \ строку.
 
-  STATE @ IF
-             ['] _SLITERAL-CODE COMPILE,
-             DUP C,
-             HERE SWAP DUP ALLOT MOVE 0 C,
-          ELSE
-             2DUP + 0 SWAP C!
-          THEN
+  STATE @ IF SLIT, ELSE  2DUP + 0 SWAP C! THEN
 ; IMMEDIATE
 
 : CLITERAL ( addr -- )
