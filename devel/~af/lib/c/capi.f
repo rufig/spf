@@ -1,95 +1,13 @@
-\ $Id$
-\ Andrey Filatkin, af@forth.org.ru
-\ ‚ë§®¢ ¢­¥è­¨å äã­ªæ¨©, íªá¯®àâ¨à®¢ ­­ëå ¯® c-¯à ¢¨« ¬
+\ Âûçîâ âíåøíèõ ôóíêöèé, ýêñïîðòèðîâàííûõ ïî c-ïðàâèëàì
 
 S" lib\ext\spf-asm-tmp.f" INCLUDED
-CODE _CAPI-CODE
-      LEA  EBP, -4 [EBP]
-      MOV  [EBP], EAX
 
-      POP  EBX
-      MOV  EAX, [EBX]
-      OR   EAX, EAX
-      JZ   SHORT @@3
-
-@@1:  MOV  ECX, 12 [EBX]
+CODE (CAPI-CALL) ( EAX - extern-addr, ECX - n -- x )
       OR   ECX, ECX
-      JZ   SHORT @@2
+      JZ   SHORT @@1
       LEA  EBX, [ECX*4]
       SUB  ESP, EBX
       MOV  EDX, EDI
-      MOV  EDI, ESP
-      MOV  ESI, EBP
-      CLD
-      REP  MOVS DWORD
-      ADD  EBP, EBX
-      MOV  EDI, EDX
-      CALL EAX
-      ADD  ESP, EBX
-      RET
-
-@@2:  CALL EAX
-      RET
-
-@@6:  4 ALIGN-NOP
-@@3:  MOV  EAX, 4 [EBX]
-      PUSH EAX
-      MOV  EAX, IMAGE-BASE 0x1034 +
-      CALL EAX
-      OR   EAX, EAX
-      JZ   SHORT @@4
-
-      MOV  ECX, 8 [EBX]
-      PUSH ECX
-      PUSH EAX
-      MOV  EAX, IMAGE-BASE 0x1038 +
-      CALL EAX
-      OR   EAX, EAX
-      JZ   SHORT @@4
-      MOV  [EBX], EAX
-      JMP  SHORT @@1
-
-@@4:  RET
-END-CODE
-
-: CAPI: ( "ˆ¬ïà®æ¥¤ãàë" "ˆ¬ï¨¡«¨®â¥ª¨" n -- )
-  ( ˆá¯®«ì§ã¥âáï ¤«ï ¨¬¯®àâ  c-äã­ªæ¨©.
-    ®«ãç¥­­®¥ ®¯à¥¤¥«¥­¨¥ ¡ã¤¥â ¨¬¥âì ¨¬ï "ˆ¬ïà®æ¥¤ãàë".
-    ®«¥ address of winproc ¡ã¤¥â § ¯®«­¥­® ¢ ¬®¬¥­â ¯¥à¢®£®
-    ¢ë¯®«­¥­¨ï ¯®«ãç¥­­®© á«®¢ à­®© áâ âì¨.
-    „«ï ¢ë§®¢  ¯®«ãç¥­­®© "¨¬¯®àâ­®©" ¯à®æ¥¤ãàë ¯ à ¬¥âàë
-    ¯®¬¥é îâáï ­  áâ¥ª ¤ ­­ëå ¢ ¯®àï¤ª¥, ®¡à â­®¬ ®¯¨á ­­®¬ã
-    ¢ ‘¨-¢ë§®¢¥ íâ®© ¯à®æ¥¤ãàë. ¥§ã«ìâ â ¢ë¯®«­¥­¨ï äã­ªæ¨¨
-    ¡ã¤¥â ¯®«®¦¥­ ­  áâ¥ª.
-  )
-
-  >IN @  HEADER  >IN !
-  ['] _CAPI-CODE COMPILE,
-  HERE >R
-  0 , \ address of winproc
-  0 , \ address of library name
-  0 , \ address of function name
-  , \ # of parameters
-  IS-TEMP-WL 0=
-  IF
-    HERE WINAPLINK @ , WINAPLINK ! ( á¢ï§ì )
-  THEN
-  HERE DUP R@ CELL+ CELL+ !
-  NextWord HERE SWAP DUP ALLOT MOVE 0 C, \ ¨¬ï äã­ªæ¨¨
-  HERE DUP R> CELL+ !
-  NextWord HERE SWAP DUP ALLOT MOVE 0 C, \ ¨¬ï ¡¨¡«¨®â¥ª¨
-  LoadLibraryA DUP 0= IF -2009 THROW THEN \ ABORT" Library not found"
-  GetProcAddress 0= IF -2010 THROW THEN \ ABORT" Procedure not found"
-;
-
-CODE CAPI-CALL ( ... n extern-addr -- x )
-\ ¢ë§®¢ ¢­¥è­¥© äã­ªæ¨¨, íªá¯®àâ¨à®¢ ­­®© ¯® c-¯à ¢¨« ¬
-      MOV  EBX, [EBP]
-      LEA  EBP, 4 [EBP]
-      MOV  EDX, EDI
-      MOV  ECX, EBX
-      LEA  EBX, [EBX*4]
-      SUB  ESP, EBX
       MOV  EDI, ESP
       MOV  ESI, EBP
       CLD
@@ -99,4 +17,76 @@ CODE CAPI-CALL ( ... n extern-addr -- x )
       CALL EAX
       ADD  ESP, EBX
       RET
+
+@@1:  CALL EAX
+      RET
 END-CODE
+
+CODE CAPI-CALL ( ... n extern-addr -- x )
+\ âûçîâ âíåøíåé ôóíêöèè, ýêñïîðòèðîâàííîé ïî c-ïðàâèëàì
+      MOV  ECX, [EBP]
+      LEA  EBP, 4 [EBP]
+      CALL ' (CAPI-CALL)
+      RET
+END-CODE
+
+CODE _CAPI-CODE
+      POP  EBX
+      MOV  -4 [EBP], EAX
+      MOV  EAX, [EBX]
+      OR   EAX, EAX
+      LEA  EBP, -4 [EBP]
+      JNZ  SHORT @@1
+      MOV  EAX, EBX
+      CALL ' AO_INI
+      JZ  SHORT @@2
+      MOV [EBX], EAX
+@@1:  MOV  ECX, 12 [EBX]
+      JMP ' (CAPI-CALL)
+@@2:  RET
+END-CODE
+
+CODE _CVAPI-CODE
+      POP  EBX
+      MOV  -4 [EBP], EAX
+      MOV  EAX, [EBX]
+      OR   EAX, EAX
+      LEA  EBP, -4 [EBP]
+      JNZ  SHORT @@1
+      MOV  EAX, EBX
+      CALL ' AO_INI
+      JZ  SHORT @@2
+      MOV [EBX], EAX
+@@1:  JMP ' CAPI-CALL
+@@2:  RET
+END-CODE
+
+: CAPI: ( "ÈìÿÏðîöåäóðû" "ÈìÿÁèáëèîòåêè" n -- )
+  ( Èñïîëüçóåòñÿ äëÿ èìïîðòà c-ôóíêöèé.
+    Ïîëó÷åííîå îïðåäåëåíèå áóäåò èìåòü èìÿ "ÈìÿÏðîöåäóðû".
+    Ïîëå address of winproc áóäåò çàïîëíåíî â ìîìåíò ïåðâîãî
+    âûïîëíåíèÿ ïîëó÷åííîé ñëîâàðíîé ñòàòüè.
+    Äëÿ âûçîâà ïîëó÷åííîé "èìïîðòíîé" ïðîöåäóðû ïàðàìåòðû
+    ïîìåùàþòñÿ íà ñòåê äàííûõ â ïîðÿäêå, îáðàòíîì îïèñàííîìó
+    â Ñè-âûçîâå ýòîé ïðîöåäóðû. Ðåçóëüòàò âûïîëíåíèÿ ôóíêöèè
+    áóäåò ïîëîæåí íà ñòåê.
+    2 CAPI: strstr msvcrt.dll
+
+    Z" s" Z" asdf" strstr
+  )
+  >IN @  HEADER  >IN !
+  ['] _CAPI-CODE COMPILE,
+  __WIN:
+;
+
+: CVAPI: ( "ÈìÿÏðîöåäóðû" "ÈìÿÁèáëèîòåêè" -- )
+\ Äëÿ ôóíêöèé ñ ïåðåìåííûì ÷èñëîì ïàðàìåòðîâ
+\ Ïðè âûçîâå ïîñëå ïàðàìåòðîâ íàäî óêàçàòü èõ ÷èñëî
+\ CVAPI: sprintf msvcrt.dll
+
+\ 50 ALLOCATE THROW VALUE buf
+\ 10 Z" %d" buf 3 sprintf
+  >IN @  HEADER  >IN !
+  0 ['] _CVAPI-CODE COMPILE,
+  __WIN:
+;
