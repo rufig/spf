@@ -269,6 +269,13 @@ CONSTANT /RL
 : BsCloseSocket
   BS @ ?DUP IF CloseSocket DROP BS 0! THEN
 ;
+: BsReopen \ создать новый сокет, чтобы при переключении DNS или перепосылах
+           \ уже точно не получить затерявшиеся ответы на старые запросы!
+  CreateUdpSocket THROW
+  vDnsTimeout OVER SetSocketTimeout THROW
+  BsCloseSocket
+  BS !
+;
 : SendDnsQuery
   DNS-SERVER @ 0= 
   IF GetDNS ?DUP 
@@ -505,20 +512,25 @@ CONSTANT /RL
        PrintDnsReply CR 
   THEN
 ;
-: DNS-SERVER.
-  DNS-SERVER @ ?DUP IF COUNT TYPE THEN
-;
-
 : NextDNS ( -- flag )
   DNS-SERVERS @ 0= IF GetDNS DUP 
                       IF DUP DNS-SERVER ! DnsDebug @ 
                          IF ." System DNS: " DNS-SERVER @ COUNT TYPE CR THEN
                       THEN EXIT
                    THEN
+  BsReopen
   DNS-SERVER @ COUNT + 1+
-  DUP COUNT NIP 0= IF DROP FALSE EXIT THEN
+  DUP COUNT NIP 0= IF DROP FALSE DNS-SERVERS @ DNS-SERVER !
+                      \ в этом цикле скажем "больше нет", и приготовим следующий
+                      EXIT
+                   THEN
   DnsDebug @ IF ." Next DNS: " DUP COUNT TYPE CR THEN
   DNS-SERVER ! TRUE
+;
+: DNS-SERVER.
+  DNS-SERVER @ ?DUP 
+  IF COUNT TYPE
+  ELSE NextDNS IF RECURSE THEN THEN
 ;
 : GetRRs { hosta hostu type \ attempts -- n }
   DnsDebug @ IF ." GetRRs: " hosta hostu TYPE CR THEN
@@ -553,6 +565,7 @@ CONSTANT /RL
     THEN
     attempts 1+ DUP -> attempts
     vDnsAttempts >
+    BsReopen
   UNTIL
   NextDNS 0=
   UNTIL
@@ -592,6 +605,7 @@ CONSTANT /RL
     THEN
     attempts 1+ DUP -> attempts
     vDnsAttempts >
+    BsReopen
   UNTIL
   NextDNS 0=
   UNTIL
