@@ -1,4 +1,5 @@
-REQUIRE fsockopen ~ac\lib\win\winsock\psocket.f 
+REQUIRE {             ~ac/lib/locals.f
+REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
 
 WINAPI: SSL_load_error_strings libssl32.dll
 WINAPI: SSL_library_init       libssl32.dll
@@ -111,44 +112,4 @@ WINAPI: X509_verify_cert_error_string libeay32.dll
 ;
 : SslRead ( addr u conn_obj -- n )
   >R SWAP R> SSL_read NIP NIP NIP
-;
-: TEST_CONNECT
-  SocketsStartup THROW
-
-  " localhost" 443 fsockopen fsock
-  SslInit 
-  S" cherezov_self.pem" X509_FILETYPE_PEM SslNewClientContext 
-\  S" cherezov_self.p12" X509_FILETYPE_ASN1 SslNewContext 
-  SslObjConnect >R
-  " GET / HTTP/1.0
-Host: localhost
-Connection: close
-
-" STR@ R@ SslWrite .
-  PAD 100 R@ SslRead .
-  RDROP
-
-; 
-
-: TEST_ACCEPT { \ s }
-  SocketsStartup THROW
-  443 CreateServerSocket AcceptSocket THROW DUP -> s
-  SslInit 
-  S" cherezov_self.pem" X509_FILETYPE_PEM SslNewServerContext 
-  DUP >R
-\ S" cherezov_self.pem" SSL_VERIFY_PEER R> SslSetVerify
-  RDROP
-\  S" cherezov_self.p12" X509_FILETYPE_ASN1 SslNewContext 
-  SslObjAccept >R
-R@ SslGetVerifyResults ." verify:" . ." (" TYPE ." )" .
-  PAD 1000 R@ SslRead ." read" .
-  
-  " HTTP/1.0 200 OK
-Content-Type: text/plain
-Connection: close
-
-test OK!
-" STR@ R@ SslWrite .
-  R> SSL_free 2DROP ." free ok"
-  s CloseSocket DROP ." close ok"
 ;
