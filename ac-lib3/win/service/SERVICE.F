@@ -1,3 +1,6 @@
+\ 30.12.2001 ac »справлены ошибки с числом параметров в (ServiceControlHandler)
+\               и в (ServiceMain)
+
 REQUIRE OpenServiceA ~ac/lib/win/service/service_struct.f
 
 WARNING @ WARNING 0!
@@ -27,17 +30,32 @@ WARNING !
 \ ***********************
 VARIABLE CtrlHandler
 
-: (ServiceControlHandler) ( fdwControl -- )
+: (ServiceControlHandler) ( lpContext lpEventData dwEventType fdwControl -- )
   \ управл€юща€ процедура сервиса
   \ поступают аргументы =1 или =4
-  SERVICE_CONTROL_STOP =
+
+  NIP NIP NIP
+  DUP SERVICE_CONTROL_STOP = ( 1 )
   IF
+    DROP
     SERVICE_WIN32 SERVICE_INTERACTIVE_PROCESS OR
                         SERVICE_STATUS dwServiceType !
     SERVICE_STOPPED     SERVICE_STATUS dwCurrentState !
     SERVICE_ACCEPT_STOP SERVICE_STATUS dwControlsAccepted !
     SERVICE_STATUS CtrlHandler @ SetServiceStatus DROP
-  THEN 0
+    0 EXIT
+  THEN
+  DUP SERVICE_CONTROL_INTERROGATE = ( 4 )
+  IF
+    DROP
+    SERVICE_WIN32 SERVICE_INTERACTIVE_PROCESS OR
+                        SERVICE_STATUS dwServiceType !
+    SERVICE_RUNNING     SERVICE_STATUS dwCurrentState !
+    SERVICE_ACCEPT_STOP SERVICE_STATUS dwControlsAccepted !
+    SERVICE_STATUS CtrlHandler @ SetServiceStatus DROP
+    0 EXIT
+  THEN
+  DROP 120
 ;
 ' (ServiceControlHandler) WNDPROC: ServiceControlHandler
 
@@ -46,8 +64,9 @@ VARIABLE CtrlHandler
 VECT ServiceProc  ' NOOP TO ServiceProc
 
 
-: (ServiceMain) ( dwArgc *lpszArgv -- )
+: (ServiceMain) ( dwArgc *lpszArgv -- void )
   2DROP
+
   SERVICE_WIN32 SERVICE_INTERACTIVE_PROCESS OR
                       SERVICE_STATUS dwServiceType !
   SERVICE_RUNNING     SERVICE_STATUS dwCurrentState !
@@ -58,6 +77,7 @@ VECT ServiceProc  ' NOOP TO ServiceProc
   SERVICE_STATUS SWAP SetServiceStatus DROP      \ поэтому игнорируем
 
   ServiceProc
+  0
 ;
 ' (ServiceMain) WNDPROC: ServiceMain
 
