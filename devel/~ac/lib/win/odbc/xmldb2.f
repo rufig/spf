@@ -80,7 +80,9 @@ USER <escape_tmp
     SqlQ @
     SqlQ @ ResultCols 0 ?DO
       I 1+ OVER 2DUP
-      ColName 2SWAP Col DUP 1 < 
+      ColName 2SWAP Col 
+      OVER C@ 0= IF 2DROP S" " THEN
+      DUP 1 < 
       IF 2DROP S" 0" 
       ELSE &escape <escape THEN 
       2OVER
