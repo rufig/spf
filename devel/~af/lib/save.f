@@ -61,8 +61,8 @@ TRUE VALUE ?Res
   \ если ресурсов нет (u_coff = 0), то END-CODE-SEG = END-RES-SEG
   END-CODE-SEG END-RES-SEG = IF FALSE ELSE TRUE THEN TO ?Res
 
-  ?Res IF 3 ELSE 2 THEN HERE START-PE-HEADER 0x06  + + C! ( Num of Objects)
-  ?GUI IF 2 ELSE 3 THEN HERE START-PE-HEADER 0x5C  + + C!
+  ?Res IF 3 ELSE 2 THEN HERE START-PE-HEADER 0x06  + + W! ( Num of Objects)
+  ?GUI IF 2 ELSE 3 THEN HERE START-PE-HEADER 0x5C  + + W!
   BASEOFCODE            HERE START-PE-HEADER 0x28  + +  ! ( EntryPointRVA )
   IMAGE-BASE            HERE START-PE-HEADER 0x34  + +  ! ( ImageBase )
   IMAGE-SIZE BASEOFCODE + END-RES-SEG END-CODE-SEG - 0xFFF + 0x1000 / 0x1000 * +
@@ -76,8 +76,9 @@ TRUE VALUE ?Res
   END-CODE-SEG IMAGE-BEGIN -
                         HERE START-PE-HEADER 0x130 + + ! ( PhisicalSize code)
 
+  HERE 0x1C8 + TO START-RES-TABLE
+  START-RES-TABLE 0x38 ERASE
   ?Res IF
-    HERE 0x1C8 + TO START-RES-TABLE
     S" .rsrc"             START-RES-TABLE SWAP CMOVE
     END-RES-SEG END-CODE-SEG - 0xFFF + 0x1000 / 0x1000 *
                           START-RES-TABLE 0x08 + !
