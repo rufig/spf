@@ -78,7 +78,10 @@ USER <escape_tmp
   ['] <escape1 EVALUATE-WITH
   <escape_tmp @ STR@
 ;
+VARIABLE DeBlobDebug
+
 : DeBlob { addr u -- a2 u2 }
+  DeBlobDebug @ IF CR ." DeBlob: " 2DUP . . 2DUP DUMP CR CR THEN
   u 0 ?DO
     addr I + C@ 16 DIGIT DROP 4 LSHIFT
     addr I + 1+ C@ 16 DIGIT DROP OR
@@ -87,6 +90,11 @@ USER <escape_tmp
   2DUP S" " 1+ \ ищем нулевые байты
   SEARCH NIP NIP
   IF " <![CDATA[{s}]]>" STR@ THEN
+;
+: SqlIsBinary ( type -- flag )
+  DeBlobDebug @ IF ." Type: " DUP . THEN
+  SqlIsBinary
+  DeBlobDebug @ IF ." Result: " DUP . CR THEN
 ;
 : SqlQueryResult
   { \ n s }
