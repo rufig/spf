@@ -37,10 +37,10 @@
   REPEAT 2DROP 2DROP 2R> 2DROP
 ;
 
-: PLACED- ( a-dst u-dst a-src u-src -- )
+: SEAT- ( a-dst u-dst a-src u-src -- )
   ROT UMIN >R SWAP R> MOVE
 ;
-: PLACE- ( a-dst u-dst a-src u-src -- a-dst u )
+: SEATED- ( a-dst u-dst a-src u-src -- a-dst u )
   ROT UMIN >R OVER R@ MOVE R>
 ;
 \ see also  ~mak\place.f 
