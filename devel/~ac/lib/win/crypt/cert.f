@@ -116,6 +116,7 @@ DUP , ( rgpMsgCert - массив указателей на включаемые сертификаты )
   2R> CompareCert 0=
 ;
 : EnumCertExtensions { context xt \ size mem -- }
+\ xt: cert addr u --
 \ Массив расширений:
 \ 322EE4   01 00 00 00  EC 2E 32 00  F0 2E 32 00  31 2E 33 2E ....ь.2.Ё.2.1.3.
 \ 322EF4   36 2E 31 2E  34 2E 31 2E  31 38 34 37  34 2E 31 2E 6.1.4.1.18474.1.
@@ -124,7 +125,7 @@ DUP , ( rgpMsgCert - массив указателей на включаемые сертификаты )
   ^ size mem 0 context CertGetEnhancedKeyUsage 1 =
   IF mem CELL + @
      mem @ 0 ?DO
-       DUP I CELLS + @ ASCIIZ> xt EXECUTE
+       context OVER I CELLS + @ ASCIIZ> xt EXECUTE
      LOOP DROP
   THEN
 ;
