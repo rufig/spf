@@ -139,6 +139,8 @@ TRUE VALUE EnableEmit
       DO I C@ conemit LOOP
       TypeFlush IF FlushJetBuf THEN
     THEN
+  ELSE
+    2DROP
   THEN
 ;
 
@@ -1079,7 +1081,7 @@ EXPORT
     OFN_FILEMUSTEXIST OFN_HIDEREADONLY OR open_dlg Flags !
   }}
 
-  TITLE
+  (TITLE)
   ACCELERATORS_1 HINST LoadAccelerators TO hAccel
   S" lib\win\winconst\windows.const" WINCONST::ADD-CONST-VOC
 
