@@ -846,7 +846,7 @@ TRUE ?~EAX !
 
   DUP 80B60F =     \ MOVZX   EAX , BYTE PTR X [EAX] 
         IF DROP
-           81 OVER @ 2+ C!  CELL- TRUE EXIT
+           88 OVER @ 2+ C!  CELL- TRUE EXIT
         THEN
 
 \  DUP 24442B =        \ SUB     EAX , [ESP+4] 
