@@ -105,7 +105,7 @@ CONSTANT /SYSTEMTIME     [THEN]
 \ )
 
 : !FTime ( tlo thi a -- )
-  SWAP 2!
+  -ROT SWAP ROT 2!
 ;
 : @FTime ( a -- tlo thi )
   2@ SWAP
@@ -182,7 +182,7 @@ TO ?C-JMP        [THEN]
 \ Слова для перевода интервалов времени, выраженных в секундах.
 
 : SecondsToTimeDate ( sec -- sec min hr day mt year )
-  60  /MOD
+  0 60 UM/MOD
   60  /MOD
   24  /MOD
   30  /MOD
