@@ -5,7 +5,7 @@ REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
 : IsRblBlocked { ip hosta hostu -- flag }
   ^ ip 3 + C@ ^ ip C@ ^ ip 3 + C! ^ ip C!
   ^ ip 1+ C@ ^ ip 2+ C@ ^ ip 1+ C! ^ ip 2+ C! \ reverse
-  hosta hostu ip NtoA " {s}.{s}" STR@ 2DUP TYPE
+  hosta hostu ip NtoA " {s}.{s}" STR@ \ 2DUP TYPE
   GetHostIP IF DROP FALSE
             ELSE S" 127.0.0.2" GetHostIP THROW = THEN
 ;
