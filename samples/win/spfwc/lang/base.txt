@@ -1,0 +1,71 @@
+lang: English
+
+IDS_MAIN_MENU DUP :	&File
+1+ DUP :	&Edit
+1+ DUP :	&Debug
+1+ DUP :	F&avorites
+1+ DUP :	&Options
+1+     :	&Help
+IDS_OPT_MENU 2 + :	L&anguage
+
+cmdInclude :	&Included...
+cmdDbgInclude :	&Debug Included...
+cmdRunScript :	&Run Script
+cmdBYE :	&BYE
+cmdCUT :	Cu&t
+cmdCOPY :	&Copy
+cmdPASTE :	&Paste
+cmdDBG :	&Debug
+cmdGO :	&Go\tF9
+cmdSTEP :	S&tep\tF7
+cmdOVER :	&Over\tF8
+cmdOUT :	O&ut\tF6
+cmdDotS :	.&S
+cmdDotR :	.&R
+cmdRefrFav :	&Refresh Favorites
+cmdLOG :	&Log
+cmdCASEINS :	&Case Ins
+cmdLBase :	Base
+cmdHELP :	&REQUIRE HELP
+
+
+300
+DUP cmdInclude + :	Opening the existing file and iterpret it
+DUP cmdDbgInclude + :	Opening the existing file and iterpret it in debug mode
+DUP cmdRunScript + :	Interpret code from the RunScript window
+DUP cmdBYE + :	Quits SPF
+DUP cmdCUT + :	Removes the selection and places it onto the Clipboard
+DUP cmdCOPY + :	Copies the selection onto the Clipboard
+DUP cmdPASTE + :	Pastes the contents of the Clipboard
+DUP cmdDBG  + :	Switching in\from the debug mode
+DUP cmdGO + :	Exit from the debug mode. To continue execution of the debugged program
+DUP cmdSTEP + :	One step into word
+DUP cmdOVER + :	One step over word
+DUP cmdOUT + :	Steps out of the current word
+DUP cmdDotS + :	Print the data stack
+DUP cmdDotR + :	Print the return stack
+DUP cmdRefrFav + :	Refreshing the favorites submenu from ini-file
+DUP cmdLOG + :	Switching on\off log-file
+DUP cmdCASEINS + :	Switching on\off case sensitivity
+DUP cmdHELP + :	Including fhlp-files
+DUP IDS_MAIN_MENU + DUP :	Interpret codes or quit program
+1+ DUP :	Cut, copy and paste
+1+ DUP :	Debug commands and print stacks
+1+ DUP :	User-configurable menu
+1+ DUP :	Tuning spf4wc
+1+     :	Displays help on sp-forth
+IDS_OPT_MENU 2 + + :	Select interface language
+
+400
+DUP cmdInclude + :	Included
+DUP cmdDbgInclude + :	Debug Included
+DUP cmdCASEINS + :	Case sensitivity status
+DUP cmdLOG + :	Log status
+DUP cmdDBG + :	Debug status
+DUP cmdGO + :	Go - F9
+DUP cmdSTEP + :	Step - F7
+DUP cmdOVER + :	Over - F8
+DUP cmdOUT + :	Out - F6
+DUP cmdDotS + :	Print data stack
+DUP cmdDotR + :	Print return stack
+    cmdRunScript + :	Run code in script window
