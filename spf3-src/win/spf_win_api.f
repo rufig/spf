@@ -52,10 +52,10 @@ A; HERE 4 - ' AOGPA EXECUTE !
       PUSH EDI
       PUSH EBP
 \      PUSH ECX
-      SUB  ESP, # 64
+      SUB  ESP, # 60
       MOV  EDI, ESP
       MOV  ESI, EBP
-      MOV  ECX, # 16
+      MOV  ECX, # 15
       CLD
       REP MOVS DWORD
       MOV  EBP, ESP
@@ -63,7 +63,7 @@ A; HERE 4 - ' AOGPA EXECUTE !
       MOV  EBX, EBP
       SUB  EBX, ESP
       MOV  ESP, EBP
-      ADD  ESP, # 64
+      ADD  ESP, # 60
 
 \      POP ECX
       POP EBP
@@ -83,10 +83,10 @@ CODE API-CALL ( ... extern-addr -- x )
       PUSH EDI
       PUSH EBP
 \      PUSH ECX
-      SUB  ESP, # 64
+      SUB  ESP, # 60
       MOV  EDI, ESP
       MOV  ESI, EBP
-      MOV  ECX, # 16
+      MOV  ECX, # 15
       CLD
       REP MOVS DWORD
       MOV  EBP, ESP
@@ -95,7 +95,7 @@ CODE API-CALL ( ... extern-addr -- x )
       MOV  EBX, EBP
       SUB  EBX, ESP
       MOV  ESP, EBP
-      ADD  ESP, # 64
+      ADD  ESP, # 60
 
 \      POP ECX
       POP EBP
