@@ -2,6 +2,7 @@
 
 REQUIRE HEAP-COPY heap-copy.f
 REQUIRE DLOPEN    dlopen.f
+REQUIRE NOTFOUND  notfound.f
 
 : OBJ-DATA@ ( oid -- data )
 \ Данные объекта (instance).
