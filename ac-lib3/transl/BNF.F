@@ -23,7 +23,7 @@ USER Look \ будем заглядывать вперед на один символ
   { char \ c }
   Look @ -> c
   char c =
-  IF GetNextChar ELSE " Expected char:{$char} instead of {$c}" STR@ Expected THEN
+  IF GetNextChar ELSE c char " Expected char:'{n}' instead of '{n}'" STR@ Expected THEN
 ;
 
 \ --------------------------------------------------------------------
