@@ -29,20 +29,15 @@ REQUIRE ON         lib\ext\onoff.f
   ;
 [THEN]
 
-VOCABULARY API-FUNC-VOC \ в этом словаре хранится список dll,
-\ в которых ищется функция
-ALSO API-FUNC-VOC CONTEXT @  VALUE API-FUNC-WORDLIST
-PREVIOUS
-
-VARIABLE API-FUNC \ это либа сильно замедляет цикл интерпретации,
-\ поэтому нужна возможность отключать ее
+\ в этом словаре хранится список dll, в которых ищется функция
+VOCABULARY API-FUNC-VOC
+\ либа замедляет цикл интерпретации, поэтому нужна возможность отключать ее
+USER API-FUNC
 API-FUNC ON
-
-VARIABLE ListFunc \ в режиме компиляции используется отложенная компиляция
-\ врапперов впервые вызванных апи-функций. Список функций, которые надо
-\ скомпилировать, хранится в динамическом списке ListFunc
-
-: FreeListFunc ListFunc FreeList ;
+\ Ищем функцию сначала в оригинальном написании. Если не нашли, то
+\ ищем с добавленным суффиксом - если ANSIAPI ON то с A, иначе с W.
+USER ANSIAPI
+ANSIAPI ON
 
 : USES ( "name.dll" -- ) \ подключение dll к списку поиска
 \ Имя dll может содержать путь и быть заключенным в скобки
@@ -51,7 +46,9 @@ VARIABLE ListFunc \ в режиме компиляции используется отложенная компиляция
   SkipDelimiters GetChar IF
     [CHAR] " = IF [CHAR] " DUP SKIP PARSE ELSE NextWord THEN
   ELSE DROP NextWord THEN
-  2DUP API-FUNC-WORDLIST SEARCH-WORDLIST 0= IF
+  2DUP
+  [ ALSO API-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL
+  SEARCH-WORDLIST 0= IF
     2DUP + 0 SWAP C!
     OVER LoadLibraryA 0= IF -2009 THROW THEN
     GET-CURRENT >R ALSO API-FUNC-VOC DEFINITIONS
@@ -63,6 +60,16 @@ VARIABLE ListFunc \ в режиме компиляции используется отложенная компиляция
     DROP 2DROP
   THEN
 ;
+
+VOCABULARY APISupport
+GET-CURRENT ALSO APISupport DEFINITIONS
+
+\ в режиме компиляции используется отложенная компиляция
+\ врапперов впервые вызванных апи-функций. Список функций, которые надо
+\ скомпилировать, хранится в динамическом списке ListFunc
+USER ListFunc
+
+: FreeListFunc ListFunc FreeList ;
 
 \ Почти аналогично WINAPI: но в постфиксном стиле
 : SWINAPI ( NameLibAddr addrИмяПроцедуры u -- )
@@ -84,7 +91,8 @@ VARIABLE ListFunc \ в режиме компиляции используется отложенная компиляция
 
 \ Поиск функции, имя которой лежит в PAD, в подключенных длльках
 : SEARCH-FUNC ( -- NameLibAddr ProcAddr t | f )
-  API-FUNC-WORDLIST @
+  [ ALSO API-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL
+  @
   BEGIN
     DUP
   WHILE
@@ -132,30 +140,26 @@ VARIABLE ListFunc \ в режиме компиляции используется отложенная компиляция
   R> FREE THROW
 ;
 
+SET-CURRENT
+
 FALSE WARNING !
 : NOTFOUND ( addr u -- )
   2DUP >R >R ['] NOTFOUND CATCH ?DUP
   IF
     API-FUNC @ IF
       NIP NIP  R> PAD R@ MOVE
-      PAD R@ + 0 SWAP C!
-      SEARCH-FUNC IF R> EXEC-FUNC
+      ANSIAPI IF [CHAR] A ELSE [CHAR] W THEN  PAD R@ + C!
+      PAD R@ 1+ SFIND ?DUP IF
+        ROT DROP RDROP STATE @ = IF COMPILE, ELSE EXECUTE THEN
       ELSE
-        PAD R@ + [CHAR] A SWAP C!
-        R> 1+ >R
-        PAD R@ + 0 SWAP C!
-        PAD R@ SFIND ?DUP IF
-          ROT DROP RDROP STATE @ = IF COMPILE, ELSE EXECUTE THEN
+        2DROP
+        0 PAD R@ + C!
+        SEARCH-FUNC IF R> EXEC-FUNC
         ELSE
-          2DROP SEARCH-FUNC IF R> EXEC-FUNC
-          ELSE
-            PAD R@ 1- + [CHAR] W SWAP C!
-            PAD R@ SFIND ?DUP IF
-              ROT DROP RDROP STATE @ = IF COMPILE, ELSE EXECUTE THEN
-            ELSE
-              2DROP SEARCH-FUNC IF R> EXEC-FUNC ELSE RDROP THROW THEN
-            THEN
-          THEN
+          ANSIAPI IF [CHAR] A ELSE [CHAR] W THEN  PAD R@ + C!
+          R> 1+ >R
+          0 PAD R@ + C!
+          SEARCH-FUNC IF R> EXEC-FUNC ELSE RDROP THROW THEN
         THEN
       THEN
     ELSE RDROP RDROP THROW
@@ -171,3 +175,5 @@ FALSE WARNING !
 ; IMMEDIATE
 
 TRUE WARNING !
+
+PREVIOUS
