@@ -5,6 +5,8 @@ WINAPI: BMatch         BRegexp.dll
 \ 		szTarget+strlen(szTarget),&rxp,msg);
 WINAPI: BSubst         BRegexp.dll
 
+WINAPI: BRegfree       BRegexp.dll
+
 
 USER rxp 
 0
@@ -35,12 +37,15 @@ CONSTANT /BREGEXP
 ;
 : BregexpReplace ( S" string" S" pattern" -- S" result" n )
 \ n - к-во замен
+  2OVER 2>R
   2>R 2>R PAD rxp 2R> OVER + SWAP 2R> DROP BSubst >R 2DROP 2DROP DROP R>
   DUP -1 = IF PAD ASCIIZ> TYPE CR ABORT THEN
-  >R
-  rxp @ rxp.outp @ 
-  rxp @ rxp.outendp @ OVER -
-  R>
+  DUP >R
+  IF
+    rxp @ rxp.outp @ 
+    rxp @ rxp.outendp @ OVER -
+    R> 2R> 2DROP
+  ELSE RDROP 2R> 0 THEN
 ;
 : BregexpGetMatch ( S" string" S" pattern" -- ... n )
   BregexpMatch
@@ -49,6 +54,9 @@ CONSTANT /BREGEXP
     rxp @ rxp.nparens @ I - bresult
   LOOP
   R>
+;
+: BregexpFree
+  rxp @ ?DUP IF BRegfree 2DROP rxp 0! THEN
 ;
 
 \ : TEST
@@ -60,6 +68,7 @@ CONSTANT /BREGEXP
 \   S" Yokohama 045-222-1111  Osaka 06-5555-6666  Tokyo 03-1111-9999 "
 \   S" s/(\d\d)-\d{4}-\d{4}/$1-xxxx-xxxx/g" BregexpReplace
 \   . TYPE
-\   S" test&lt;test" S" s/(&lt;)/</g" BregexpReplace
-\   . TYPE
+\   S" test&lt;test&amp;" S" s/(&lt;)/</g" BregexpReplace
+\   . 2DUP TYPE
+\   S" s/(&amp;)/&/g" BregexpReplace . TYPE
 \ ; TEST
