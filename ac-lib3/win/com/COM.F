@@ -38,28 +38,33 @@ USER UnicodeBuf
   2DUP + 0 SWAP W!
 ;
 : UNICODE> ( addr u -- addr2 u2 )
+\ на входе - длина в байтах, а WideCharToMultiByte хочет к-во символов
+  2 /
+  1+ \ 0 в конце тоже считаем, т.к. он есть в результ.строке
   >R >R 0 0 R> R>
   DUP CELL+ ALLOCATE DROP UnicodeBuf ! \ 0 0 addr len
   SWAP >R                        \ 0 0 len
   DUP CELL+ UnicodeBuf @         \ 0 0 len len+4 mem
-  ROT R>                         \ 0 0 len+4 mem len addr
+  ROT ( можно поствить DROP -1 для авторасчета длины) 
+  R>                             \ 0 0 len+4 mem len addr
   0 ( flags) 0 ( CP_ACP)
   WideCharToMultiByte
   UnicodeBuf @ 
-  SWAP 
-  DUP 2/ SWAP 2 MOD +
-  2DUP + 0 SWAP W!
+  SWAP 1-
 ;
 : UASCIIZ> ( addr -- addr u ) \ вариант ASCIIZ> для Unicode
   0 OVER
   BEGIN
     DUP W@ 0<>
   WHILE
-    1+ SWAP 1+ SWAP
-  REPEAT DROP
+    2+ SWAP 1+ SWAP
+  REPEAT DROP 2*
 ;
 : >BSTR ( addr u -- bstr )
   >UNICODE DROP SysAllocString
+;
+: BSTR> ( bstr -- addr2 u2 )
+  DUP 4 - @ UNICODE>
 ;
 : ComInit ( -- ior )
   0 0 CoInitializeEx
