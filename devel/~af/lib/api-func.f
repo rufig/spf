@@ -167,12 +167,12 @@ FALSE WARNING !
           NIP RDROP STATE @ IF COMPILE, ELSE EXECUTE THEN
         ELSE
           0 PAD R@ + C!
-          SEARCH-FUNC IF R> EXEC-FUNC DROP
+          SEARCH-FUNC IF ROT DROP R> EXEC-FUNC
           ELSE
             ANSIAPI IF [CHAR] A ELSE [CHAR] W THEN  PAD R@ + C!
             R> 1+ >R
             0 PAD R@ + C!
-            SEARCH-FUNC IF R> EXEC-FUNC DROP ELSE RDROP THROW THEN
+            SEARCH-FUNC IF ROT DROP R> EXEC-FUNC ELSE RDROP THROW THEN
           THEN
         THEN
       THEN
