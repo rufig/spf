@@ -23,32 +23,34 @@ WINAPI: SnmpSetPort       Wsnmp32.DLL
 WINAPI: SnmpListen        Wsnmp32.DLL
 WINAPI: SnmpOidToStr      Wsnmp32.DLL
 WINAPI: SnmpEntityToStr   Wsnmp32.DLL
+WINAPI: SnmpContextToStr  Wsnmp32.DLL
 WINAPI: SnmpSetPduData    Wsnmp32.DLL
 WINAPI: SnmpSetVb         Wsnmp32.DLL
 WINAPI: SnmpDeleteVb      Wsnmp32.DLL
 
-USER SNMPnMajorVersion
-USER SNMPnMinorVersion
-USER SNMPnLevel
-USER SNMPnTranslateMode
-USER SNMPnRetransmitMode
-USER SNMPsession
-USER SNMPpdu
+VARIABLE SNMPnMajorVersion
+VARIABLE SNMPnMinorVersion
+VARIABLE SNMPnLevel
+VARIABLE SNMPnTranslateMode
+VARIABLE SNMPnRetransmitMode
+VARIABLE SNMPsession
+VARIABLE SNMPpdu
 CREATE SNMPcommunity S" public" DUP , HERE CELL+ , HERE SWAP DUP ALLOT MOVE
-USER SNMPcontext
-USER SNMPentity
+CREATE SNMPcommunityEx 0 , 0 ,
+VARIABLE SNMPcontext
+VARIABLE SNMPentity
 CREATE SNMPoid 0 , 0 ,
-USER SNMPvbl
+VARIABLE SNMPvbl
 
-USER SNMPoutpdu
-USER SNMPoutcontext
-USER SNMPdstentity
-USER SNMPsrcentity
-USER SNMPoutvbl
-USER SNMPerror_index
-USER SNMPerror_status
-USER SNMPrequest_id
-USER SNMPpdu_type
+VARIABLE SNMPoutpdu
+VARIABLE SNMPoutcontext
+VARIABLE SNMPdstentity
+VARIABLE SNMPsrcentity
+VARIABLE SNMPoutvbl
+VARIABLE SNMPerror_index
+VARIABLE SNMPerror_status
+VARIABLE SNMPrequest_id
+VARIABLE SNMPpdu_type
 CREATE SNMPoutoid 0 , 0 ,
 
 0x80 CONSTANT ASN_CONTEXT
@@ -86,7 +88,11 @@ ASN_APPLICATION ASN_PRIMITIVE OR 0x07 OR CONSTANT SNMP_SYNTAX_UINT32
 
 CREATE SNMPresp SNMP_PDU_RESPONSE ,
 
+WINAPI: InterlockedIncrement KERNEL32.DLL
+WINAPI: InterlockedDecrement KERNEL32.DLL
+
 VARIABLE SnmpWaitingPdu
+
 :NONAME
 (
   ." sessionHandle=" .
@@ -95,14 +101,20 @@ VARIABLE SnmpWaitingPdu
   ."  wParam[0?]=" .
   ."  lParam="  .
   ."  lpClientData=" . CR
-) 2DROP 2DROP 2DROP
-  SnmpWaitingPdu 1+!
+) 2DROP DROP >R 2DROP
+  R> 0= IF SnmpWaitingPdu InterlockedIncrement DROP ELSE ." retransmit;" THEN \ 1+!
   1
 ; WNDPROC: SnmpCallback
 
 \ .1.3.6.1.2.1.1.1
 \ .iso.org.dod.internet.mgmt.mib-2.system.sysDescr
 
+: SnmpFreeOutValue ( -- ) \ освобождение полученного по GetVb
+  SNMPoutoid SNMP_SYNTAX_OID SnmpFreeDescriptor 0= THROW
+  SNMPoutvalue @ DUP SNMP_SYNTAX_OID = SWAP SNMP_SYNTAX_OCTETS = OR
+  SNMPoutvalue CELL+ CELL+ @ AND
+  IF SNMPoutvalue CELL+ SNMPoutvalue SnmpFreeDescriptor 0= THROW THEN
+;
 : SnmpDumpReceivedPdu ( -- )
   SNMPoutvbl SNMPerror_index SNMPerror_status SNMPrequest_id SNMPpdu_type
   SNMPoutpdu @ SnmpGetPduData 0= THROW
@@ -114,9 +126,11 @@ VARIABLE SnmpWaitingPdu
     FREE THROW
 \    SNMPoutoid CELL+ @ SNMPoutoid @ CELLS DUMP CR
     PAD 100 SNMPoutoid SnmpOidToStr PAD SWAP TYPE CR
+    SnmpFreeOutValue
   LOOP
 ;
 VECT v_add-value
+0 VALUE SNMPcounter_old
 
 : SnmpGraphReceivedPdu ( -- )
   SNMPoutvbl SNMPerror_index SNMPerror_status SNMPrequest_id SNMPpdu_type
@@ -124,17 +138,25 @@ VECT v_add-value
   SNMPoutvbl @ SnmpCountVbl 1+ 1 ?DO
     3 CELLS ALLOCATE THROW DUP SNMPoutoid I SNMPoutvbl @ SnmpGetVb 0= THROW
     DUP @ SNMP_SYNTAX_OCTETS =
-    IF DUP CELL+ DUP @ SWAP CELL+ @ SWAP TYPE CR
-    ELSE ( DUP 3 CELLS DUMP CR) DUP CELL+ @ v_add-value THEN
+    IF DUP CELL+ DUP @ SWAP CELL+ @ SWAP 2DROP \ TYPE CR
+    ELSE ( DUP 3 CELLS DUMP CR) 
+         DUP CELL+ @
+         OVER @ SNMP_SYNTAX_GAUGE32 =
+         IF v_add-value 
+         ELSE SNMPcounter_old 0= IF DUP TO SNMPcounter_old THEN
+            DUP SNMPcounter_old - v_add-value TO SNMPcounter_old
+         THEN
+    THEN
     FREE THROW
 \    SNMPoutoid CELL+ @ SNMPoutoid @ CELLS DUMP CR
-    PAD 100 SNMPoutoid SnmpOidToStr PAD SWAP TYPE CR
+\    PAD 100 SNMPoutoid SnmpOidToStr PAD SWAP TYPE CR
+    SnmpFreeOutValue
   LOOP
 ;
 : SnmpExecReceivedPdu ( -- )
   SNMPoutvbl SNMPerror_index SNMPerror_status SNMPrequest_id SNMPpdu_type
   SNMPoutpdu @ SnmpGetPduData 0= THROW
-SNMPpdu_type @ ." T=" .
+\ SNMPpdu_type @ ." T=" .
   SNMPoutvbl @ SnmpCountVbl 1+ 1 ?DO
     SNMPoutvalue SNMPoutoid I SNMPoutvbl @ SnmpGetVb 0= THROW
     PAD 100 SNMPoutoid SnmpOidToStr 
@@ -143,16 +165,17 @@ SNMPpdu_type @ ." T=" .
 \    IF PAD ASCIIZ> TYPE ." ->" THEN
 \    PAD 100 SNMPdstentity @ DUP ." dst=" . SnmpEntityToStr DUP .
 \    IF PAD ASCIIZ> TYPE CR THEN \ в режиме агента = 0 !
+    SnmpFreeOutValue
   LOOP
   0 0 0 0 SNMPresp SNMPoutpdu @ SnmpSetPduData 0= THROW
   SNMPoutpdu @ SNMPoutcontext @ SNMPsrcentity @ SNMPentity @ SNMPsession @ SnmpSendMsg 0= THROW
 ;
 : SnmpFreeReceivedPdu
-  SNMPoutvbl @ SnmpFreeVbl 0= THROW
-  SNMPoutpdu @ SnmpFreePdu 0= THROW
-  SNMPoutcontext @ SnmpFreeContext 0= THROW
-  SNMPsrcentity @ SnmpFreeEntity 0= THROW
-  SNMPdstentity @ SnmpFreeEntity 0= THROW
+  SNMPoutvbl @ ?DUP IF SnmpFreeVbl 0= THROW SNMPoutvbl 0! THEN
+  SNMPoutpdu @ ?DUP IF SnmpFreePdu 0= THROW SNMPoutpdu 0! THEN
+  SNMPoutcontext @ ?DUP IF SnmpFreeContext 0= THROW SNMPoutcontext 0! THEN
+  SNMPsrcentity @ ?DUP IF SnmpFreeEntity 0= THROW SNMPsrcentity 0! THEN
+  SNMPdstentity @ ?DUP IF SnmpFreeEntity 0= THROW SNMPdstentity 0! THEN
 ;
 : SnmpGetType ( S"oid" type S"host" -- )
   2>R >R 2>R
@@ -162,6 +185,25 @@ SNMPpdu_type @ ." T=" .
   SNMPcommunity SNMPsession @ SnmpStrToContext DUP SNMPcontext ! 0= THROW
   S" 127.0.0.1" DROP SNMPsession @ SnmpStrToEntity DUP SNMPentity ! 0= THROW
   ( S" 198.63.211.47" DROP) 2R> DROP SNMPsession @ SnmpStrToEntity DUP SNMPdstentity ! 0= THROW
+  SNMPpdu @ SNMPcontext @ SNMPdstentity @ SNMPentity @ SNMPsession @ SnmpSendMsg 0= THROW
+  BEGIN 100 PAUSE SnmpWaitingPdu @ UNTIL SnmpWaitingPdu @ 1- 0 MAX SnmpWaitingPdu !
+  SNMPvbl @ SnmpFreeVbl 0= THROW
+  SNMPpdu @ SnmpFreePdu 0= THROW
+  SNMPcontext @ SnmpFreeContext 0= THROW
+  SNMPentity @ SnmpFreeEntity 0= THROW
+  SNMPdstentity @ SnmpFreeEntity 0= THROW
+  SNMPoid SNMP_SYNTAX_OID SnmpFreeDescriptor 0= THROW
+  SNMPoutpdu SNMPoutcontext SNMPdstentity SNMPsrcentity SNMPsession @ SnmpRecvMsg 0= THROW
+;
+: SnmpGetTypeEx ( S"oid" type S"community" S"host" port -- )
+  >R 2>R 2>R >R 2>R
+  SNMPoid ( S" 1.3.6.1.2.1.1.1.0" DROP) 2R> DROP SnmpStrToOid 0= THROW
+  SNMPvalue SNMPoid SNMPsession @ SnmpCreateVbl DUP SNMPvbl ! 0= THROW
+  SNMPvbl @ 0 0 0 ( SNMP_PDU_GET) R> SNMPsession @ SnmpCreatePdu DUP SNMPpdu ! 0= THROW
+  ( SNMPcommunity) 2R> SNMPcommunityEx ! SNMPcommunityEx CELL+ ! SNMPcommunityEx SNMPsession @ SnmpStrToContext DUP SNMPcontext ! 0= THROW
+  S" 127.0.0.1" DROP SNMPsession @ SnmpStrToEntity DUP SNMPentity ! 0= THROW
+  ( S" 198.63.211.47" DROP) 2R> DROP SNMPsession @ SnmpStrToEntity DUP SNMPdstentity ! 0= THROW
+  R> SNMPdstentity @ SnmpSetPort 0= THROW
   SNMPpdu @ SNMPcontext @ SNMPdstentity @ SNMPentity @ SNMPsession @ SnmpSendMsg 0= THROW
   BEGIN 100 PAUSE SnmpWaitingPdu @ UNTIL SnmpWaitingPdu @ 1- 0 MAX SnmpWaitingPdu !
   SNMPvbl @ SnmpFreeVbl 0= THROW
@@ -189,9 +231,15 @@ SNMPpdu_type @ ." T=" .
   S" 1.3.6.1.2.1.1.1.0" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
   S" 1.3.6.1.2.1.1.7.0" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
 
+\ .iso.org.dod.internet.mgmt.mib-2.ip.ipInReceives
   S" 1.3.6.1.2.1.4.3.0" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
 
   S" 1.3.6.1.2.1.6.9.0" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
+
+  S" 1.3.6.1.2.1.6.9.0" SNMP_PDU_GET S" public" S" 198.63.211.47" 161
+  SnmpGetTypeEx \ S"oid" type S"community" S"host" port --
+  SnmpDumpReceivedPdu SnmpFreeReceivedPdu
+
   S" 1.3.6.1.2.1.6.9" S" 198.63.211.47" SnmpGetNext SnmpDumpReceivedPdu SnmpFreeReceivedPdu
 ." 1:"  S" 1.3.6.1.2.1.6.9.0" S" 198.63.211.47" SnmpGetNext SnmpDumpReceivedPdu SnmpFreeReceivedPdu
 ." 2:"  S" 1.3.6.1.2.1.6.15.0" S" 198.63.211.47" SnmpGetNext SnmpDumpReceivedPdu SnmpFreeReceivedPdu
@@ -209,63 +257,83 @@ SNMPpdu_type @ ." T=" .
     BEGIN 100 PAUSE SnmpWaitingPdu @ UNTIL SnmpWaitingPdu @ 1- 0 MAX SnmpWaitingPdu !
     SNMPoutpdu SNMPoutcontext SNMPdstentity SNMPsrcentity SNMPsession @ SnmpRecvMsg 0= THROW
     SnmpExecReceivedPdu ."  D=" DEPTH . CR
+    SnmpFreeReceivedPdu
   AGAIN
 )
 \  SNMPsession @ SnmpGetLastError .
 ;
 
+CREATE SnmpOutValue 0 , 0 , 0 ,
+
 : SnmpStrValue ( addr u -- addr2 ) \ addr2 освободить по FREE
   2>R
-  3 CELLS ALLOCATE THROW
+\  3 CELLS ALLOCATE THROW
+  SnmpOutValue
   SNMP_SYNTAX_OCTETS OVER !
   DUP 2R> ROT CELL+ ! OVER CELL+ CELL+ ! \ value
 ;
 : SnmpGaugeValue ( x -- addr2 ) \ addr2 освободить по FREE
   >R
-  3 CELLS ALLOCATE THROW
+\  3 CELLS ALLOCATE THROW
+  SnmpOutValue
   SNMP_SYNTAX_GAUGE32 OVER !
   R> OVER CELL+ ! \ value
 ;
 : SnmpIntValue ( n -- addr2 ) \ addr2 освободить по FREE
   >R
-  3 CELLS ALLOCATE THROW
+\  3 CELLS ALLOCATE THROW
+  SnmpOutValue
   SNMP_SYNTAX_INT OVER !
   R> OVER CELL+ ! \ value
 ;
 : SnmpUintValue ( n -- addr2 ) \ addr2 освободить по FREE
   >R
-  3 CELLS ALLOCATE THROW
+\  3 CELLS ALLOCATE THROW
+  SnmpOutValue
   SNMP_SYNTAX_UINT32 OVER !
   R> OVER CELL+ ! \ value
 ;
 : SnmpCounterValue ( n -- addr2 ) \ addr2 освободить по FREE
   >R
-  3 CELLS ALLOCATE THROW
+\  3 CELLS ALLOCATE THROW
+  SnmpOutValue
   SNMP_SYNTAX_CNTR32 OVER !
   R> OVER CELL+ ! \ value
 ;
 : SnmpOidValue ( addr u -- addr2 ) \ addr2 освободить по FREE
   2>R
-  3 CELLS ALLOCATE THROW
+\  3 CELLS ALLOCATE THROW
+  SnmpOutValue
   SNMP_SYNTAX_OID OVER !
   DUP CELL+ 2R> DROP SnmpStrToOid 0= THROW \ value
 ;
 : SnmpTimeValue ( n -- addr2 ) \ addr2 освободить по FREE
   >R
-  3 CELLS ALLOCATE THROW
+\  3 CELLS ALLOCATE THROW
+  SnmpOutValue
   SNMP_SYNTAX_TIMETICKS OVER !
   R> OVER CELL+ ! \ value
 ;
 : SnmpOidName ( addr u -- addr2 ) \ addr2 освободить по FREE
   2>R
-  3 CELLS ALLOCATE THROW
+\  3 CELLS ALLOCATE THROW
+  SnmpOutValue
   DUP 2R> DROP SnmpStrToOid 0= THROW \ value
 ;
 
+CREATE SNMPvb_value 0 , 0 ,
+CREATE SNMPvb_oid 0 , 0 ,
+
+: SnmpFreeVbIndex ( index -- )
+  SNMPvb_value SNMPvb_oid ROT SNMPoutvbl @ SnmpGetVb 0= THROW
+  SNMPvb_value CELL+ @ SNMPvb_value @ SnmpFreeDescriptor 0= THROW
+  SNMPvb_oid SNMP_SYNTAX_OID SnmpFreeDescriptor 0= THROW
+;
 : SnmpSetStrReply ( index S"str" -- )
   SnmpStrValue 0 ( name unchanged ) ROT SNMPoutvbl @ SnmpSetVb ( index) DROP
 ;
 : SnmpSetGaugeReply ( index x -- )
+\  OVER SnmpFreeVbIndex
   SnmpGaugeValue 0 ( name unchanged ) ROT SNMPoutvbl @ SnmpSetVb ( index) DROP
 ;
 : SnmpSetIntReply ( index n -- )
@@ -330,4 +398,4 @@ WINAPI: GetTickCount KERNEL32.DLL
 : 1.3.6.1.4.1.18474 S" Etype root OID" SnmpSetStrReply ;
 \ 18474.1 = x.509 key usage
 
-SnmpInit
+\ SnmpInit
