@@ -8,7 +8,7 @@
 
 : ENDLOG
 \ «акончить лог.
-    H-STDLOG 
+    H-STDLOG
     IF
       H-STDLOG CLOSE-FILE
       0 TO H-STDLOG 
@@ -41,8 +41,9 @@ VECT ACCEPT
 \ Ќичего не добавл€етс€ в строку.
 \ +n2 - длина строки, записанной по адресу c-addr.
   OVER SWAP
-  H-STDIN READ-RSTREAM-LINE THROW DROP
+  H-STDIN READ-LINE THROW DROP
   TUCK TO-LOG
+  LT LTL @ TO-LOG \ ≈сли ввод с user-device записать cr в лог, то есть нажали Enter
 ;
 
 ' ACCEPT1 (TO) ACCEPT
@@ -80,7 +81,7 @@ USER NumberOfConsoleInputEvents
 \ ѕосле того как EKEY? возвратило значение "истина", следующие выполнени€
 \ EKEY? до выполнени€ KEY, KEY? или EKEY также возвращают "истину",
 \ относ€щуюс€ к тому же событию.
-  NumberOfConsoleInputEvents H-STDIN STREAM-FILE
+  NumberOfConsoleInputEvents H-STDIN
   GetNumberOfConsoleInputEvents DROP
   NumberOfConsoleInputEvents @
 ;
@@ -104,12 +105,12 @@ USER NumberOfRecordsRead
 \    0  AsciiChar
 \    2  ScanCod
 \    3  KeyDownFlag
-  NumberOfRecordsRead 1 INPUT_RECORD H-STDIN STREAM-FILE
+  NumberOfRecordsRead 2 INPUT_RECORD H-STDIN \ 1 заменен на 2 (30.12.2001 ~boa)
   ReadConsoleInputA DROP
-   INPUT_RECORD ( EventType ) W@  KEY_EVENT <> IF 0 EXIT THEN
-   [ INPUT_RECORD ( Event AsciiChar       ) 14 +  ] LITERAL W@
-   [ INPUT_RECORD ( Event wVirtualScanCode) 12 +  ] LITERAL W@  16 LSHIFT OR
-   [ INPUT_RECORD ( Event bKeyDown        ) 04 +  ] LITERAL C@  24 LSHIFT OR
+  INPUT_RECORD ( EventType ) W@  KEY_EVENT <> IF 0 EXIT THEN
+  [ INPUT_RECORD ( Event AsciiChar       ) 14 + ] LITERAL W@
+  [ INPUT_RECORD ( Event wVirtualScanCode) 12 + ] LITERAL W@  16 LSHIFT OR
+  [ INPUT_RECORD ( Event bKeyDown        ) 04 + ] LITERAL C@  24 LSHIFT OR
 ;
 
 HEX

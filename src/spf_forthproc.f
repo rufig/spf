@@ -26,9 +26,9 @@ END-CODE
 
 CODE 2DUP ( x1 x2 -- x1 x2 x1 x2 ) \ 94
 \ Продублировать пару ячеек x1 x2.
-     MOV ECX, [EBP]
+     MOV EDX, [EBP]
      MOV -4 [EBP], EAX
-     MOV -8 [EBP], ECX
+     MOV -8 [EBP], EDX
      LEA EBP, -8 [EBP]
      RET
 END-CODE
@@ -109,9 +109,9 @@ END-CODE
 
 CODE 2OVER ( x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2 ) \ 94
 \ Копировать пару ячеек x1 x2 на вершину стека.
-     MOV ECX, 8 [EBP]
+     MOV EDX, 8 [EBP]
      MOV -4 [EBP], EAX
-     MOV -8 [EBP], ECX
+     MOV -8 [EBP], EDX
      MOV EAX, 4 [EBP]
      LEA EBP, -8 [EBP]
      RET
@@ -176,8 +176,8 @@ CODE TUCK ( x1 x2 -- x2 x1 x2 )
 \ Copy the first (top) stack item below the second stack item. 
      LEA EBP, -4 [EBP]
      MOV EDX, 4 [EBP]
-     MOV [EBP], EDX
      MOV 4 [EBP], EAX
+     MOV [EBP], EDX
      RET
 END-CODE
 
@@ -247,8 +247,8 @@ END-CODE
 
 CODE ! ( x a-addr -- ) \ 94
 \ Записать x по адресу a-addr.
-     MOV EBX, [EBP]
-     MOV [EAX], EBX
+     MOV EDX, [EBP]
+     MOV [EAX], EDX
      MOV EAX, 4 [EBP]
      LEA EBP, 8 [EBP]
      RET
@@ -262,8 +262,8 @@ END-CODE
 
 CODE C! ( char c-addr -- ) \ 94
 \ Записать char по адресу a-addr.
-     MOV EBX, [EBP]
-     MOV BYTE [EAX], BL
+     MOV EDX, [EBP]
+     MOV BYTE [EAX], DL
      MOV EAX, 4 [EBP]
      LEA EBP, 8 [EBP]
      RET
@@ -277,8 +277,8 @@ END-CODE
 
 CODE W! ( word c-addr -- )
 \ Записать word по адресу a-addr.
-     MOV EBX, [EBP]
-     MOV WORD [EAX], BX
+     MOV EDX, [EBP]
+     MOV WORD [EAX], DX
      MOV EAX, 4 [EBP]
      LEA EBP, 8 [EBP]
      RET
@@ -288,9 +288,9 @@ CODE 2@ ( a-addr -- x1 x2 ) \ 94
 \ Получить пару ячеек x1 x2, записанную по адресу a-addr.
 \ x2 по адресу a-addr, x1 в следующей ячейке.
 \ Равносильно DUP CELL+ @ SWAP @
-     MOV EBX, 4 [EAX]
+     MOV EDX, 4 [EAX]
      LEA EBP, -4 [EBP]
-     MOV [EBP], EBX
+     MOV [EBP], EDX
      MOV EAX, [EAX]
      RET
 END-CODE
@@ -299,10 +299,10 @@ CODE 2! ( x1 x2 a-addr -- ) \ 94
 \ Записать пару ячеек x1 x2 по адресу a-addr,
 \ x2 по адресу a-addr, x1 в следующую ячейку.
 \ Равносильно SWAP OVER ! CELL+ !
-     MOV EBX, [EBP]
-     MOV [EAX], EBX
-     MOV EBX, 4 [EBP]
-     MOV 4 [EAX], EBX
+     MOV EDX, [EBP]
+     MOV [EAX], EDX
+     MOV EDX, 4 [EBP]
+     MOV 4 [EAX], EDX
      LEA EBP, 0C [EBP]
      MOV EAX, -4 [EBP]
      RET
@@ -362,16 +362,16 @@ END-CODE
                
 CODE D+ ( d1|ud1 d2|ud2 -- d3|ud3 ) \ 94 DOUBLE
 \ Сложить d1|ud1 и d2|ud2 и дать сумму d3|ud3.
-     MOV EBX, [EBP]
-     ADD 8 [EBP], EBX
+     MOV EDX, [EBP]
+     ADD 8 [EBP], EDX
      ADC EAX, 4 [EBP]
      LEA EBP, 8 [EBP]
      RET     
 END-CODE
 
 CODE D- ( d1|ud1 d2|ud2 -- d3|ud3 ) \ 94 DOUBLE
-     MOV EBX, [EBP]
-     SUB 8 [EBP], EBX
+     MOV EDX, [EBP]
+     SUB 8 [EBP], EDX
      SBB 4 [EBP], EAX
      MOV EAX, 4 [EBP]
      LEA EBP, 8 [EBP]
@@ -406,9 +406,9 @@ CODE COUNT ( c-addr1 -- c-addr2 u ) \ 94
 \ u - содержимое байта c-addr1, являющееся длиной строки символов,
 \ начинающейся с адреса c-addr2.
      LEA EBP, -4 [EBP]
-     LEA EBX, 1 [EAX]
-     MOV [EBP], EBX
+     LEA EDX, 1 [EAX]
      MOVZX EAX, BYTE [EAX]
+     MOV [EBP], EDX
      RET
 END-CODE
 
@@ -454,20 +454,19 @@ END-CODE
 
 CODE DNEGATE ( d1 -- d2 ) \ 94 DOUBLE
 \ d2 результат вычитания d1 из нуля.
-       MOV EBX, [EBP]
+       MOV EDX, [EBP]
        NEG EAX
-       NEG EBX
+       NEG EDX
        SBB EAX, # 0
-       MOV [EBP], EBX
+       MOV [EBP], EDX
        RET
 END-CODE
 
 CODE ABS ( n -- u ) \ 94
 \ u - абсолютная величина n.
        OR EAX, EAX
-       JNS SHORT @@1
-       NEG EAX
-@@1:   RET
+       JS # ' NEGATE
+       RET
 END-CODE
 
 CODE NOOP ( -> )
@@ -536,12 +535,11 @@ END-CODE
 
 CODE +! ( n|u a-addr -- ) \ 94
 \ Прибавить n|u к одинарному числу по адресу a-addr.
-       MOV EBX, [EAX]
-       ADD EBX, [EBP]
-       MOV [EAX], EBX
-       LEA EBP, 8 [EBP]
-       MOV EAX, -4 [EBP]
-       RET
+     MOV EDX, [EBP]
+     ADD [EAX], EDX
+     MOV EAX, 4 [EBP]
+     LEA EBP, 8 [EBP]
+     RET
 END-CODE
 
 CODE MOD ( n1 n2 -- n3 ) \ 94
@@ -549,20 +547,20 @@ CODE MOD ( n1 n2 -- n3 ) \ 94
 \ Исключительная ситуация возникает, если n2 равен нулю.
 \ Если n1 и n2 различаются по знаку - возвращаемый результат зависит от 
 \ реализации.
-       MOV EBX, EAX
+       MOV ECX, EAX
        MOV EAX, [EBP]
        CDQ
-       IDIV EBX
+       IDIV ECX
        LEA EBP, 4 [EBP]
        MOV EAX, EDX
        RET
 END-CODE
 
 CODE UMOD ( W1, W2 -> W3 ) \ остаток от деления W1 на W2
-       MOV EBX, EAX
+       MOV ECX, EAX
        MOV EAX, [EBP]
        XOR EDX, EDX
-       DIV EBX
+       DIV ECX
        LEA EBP, 4 [EBP]
        MOV EAX, EDX
        RET
@@ -573,10 +571,10 @@ CODE UM/MOD ( ud u1 -- u2 u3 ) \ 94
 \ Все значения и арифметика беззнаковые.
 \ Исключительная ситуация возникает, если u1 ноль или частное
 \ находится вне диапазона одинарных беззнаковых чисел.
-       MOV EBX, EAX
+       MOV ECX, EAX
        MOV EDX, [EBP]
        MOV EAX, 4 [EBP]
-       DIV EBX
+       DIV ECX
        LEA EBP, 4 [EBP]
        MOV [EBP], EDX
        RET
@@ -638,10 +636,10 @@ CODE SM/REM ( d1 n1 -- n2 n3 ) \ 94
 \ Входные и выходные аргументы знаковые.
 \ Неоднозначная ситуация возникает, если n1 ноль, или частное вне
 \ диапазона одинарных знаковых чисел.
-     MOV EBX, EAX
+     MOV ECX, EAX
      MOV EDX, [EBP]
      MOV EAX, 4 [EBP]
-     IDIV EBX
+     IDIV ECX
      LEA EBP, 4 [EBP]
      MOV [EBP], EDX
      RET
@@ -678,7 +676,7 @@ CODE FM/MOD ( d1 n1 -- n2 n3 ) \ 94
 END-CODE
 
 ( \ заменено высокоуровневой версией )
-(
+ 
 CODE DIGIT \ [ C, N1 -> N2, TF / FF ] \ N2 - значение литеры C как
            \ цифры в системе счисления по основанию N1
        MOV ECX, EAX
@@ -694,8 +692,12 @@ CODE DIGIT \ [ C, N1 -> N2, TF / FF ] \ N2 - значение литеры C как
        JMP SHORT @@3
 @@2:   A;  3C C, 41 C,  \  CMP AL, # 41
        JC SHORT @@1
-       A;  2C C, 37 C,  \  SUB AL, # 37
-       CMP AL, CL
+       A;  3C C, 61 C,  \  CMP AL, # 61
+       JC SHORT @@4
+       A;  2C C, 57 C,  \  SUB AL, # 57
+       JMP SHORT @@5
+@@4:   A;  2C C, 37 C,  \  SUB AL, # 37
+@@5:   CMP AL, CL
        JNC SHORT @@1
        MOV [EBP], EAX
 @@3:   A; B8 C, TRUE W, TRUE W,  \  MOV EAX, # -1
@@ -703,7 +705,7 @@ CODE DIGIT \ [ C, N1 -> N2, TF / FF ] \ N2 - значение литеры C как
 @@1:   LEA EBP, 4 [EBP]
        XOR EAX, EAX
        RET
-END-CODE                             )
+END-CODE
 
 \ ================================================================
 \ Сравнения
@@ -747,10 +749,10 @@ CODE > ( n1 n2 -- flag ) \ 94
 END-CODE
 
 CODE WITHIN     ( n1 low high -- f1 ) \ f1=true if ((n1 >= low) & (n1 < high))
-      MOV  EBX, 4 [EBP]
+      MOV  EDX, 4 [EBP]
       SUB  EAX, [EBP]
-      SUB  EBX, [EBP]
-      SUB  EBX, EAX
+      SUB  EDX, [EBP]
+      SUB  EDX, EAX
       SBB  EAX, EAX
       LEA  EBP, 8 [EBP]
       RET
@@ -758,8 +760,8 @@ END-CODE
 
 CODE D< ( d1 d2 -- flag ) \ DOUBLE
 \ flag "истина" тогда и только тогда, когда d1 меньше d2.
-     MOV EBX, [EBP]
-     CMP 8 [EBP], EBX
+     MOV EDX, [EBP]
+     CMP 8 [EBP], EDX
      SBB 4 [EBP], EAX
      MOV EAX, # 0
      JGE SHORT @@1
@@ -770,8 +772,8 @@ END-CODE
 
 CODE D> ( d1 d2 -- flag ) \ DOUBLE
 \ flag "истина" тогда и только тогда, когда d1 больше d2.
-     MOV EBX, 8 [EBP]
-     CMP [EBP], EBX
+     MOV EDX, 8 [EBP]
+     CMP [EBP], EDX
      SBB EAX, 4 [EBP]
      MOV EAX, # 0
      JGE SHORT @@1
@@ -1035,15 +1037,15 @@ CODE FILL ( c-addr u char -- ) \ 94
 END-CODE
 
 CODE ASCIIZ> ( c-addr -- c-addr u )
-       MOV  ECX, EAX
-@@1:   MOV  BL, [EAX]
+       LEA  EBP, -4 [EBP]
+       MOV  EDX, EAX
+@@1:   MOV  CL, [EAX]
        LEA  EAX, 1 [EAX]
-       OR   BL, BL
+       OR   CL, CL
        JNZ  SHORT @@1
        LEA  EAX, -1 [EAX]
-       SUB  EAX, ECX
-       LEA  EBP, -4 [EBP]
-       MOV  [EBP], ECX
+       SUB  EAX, EDX
+       MOV  [EBP], EDX
        RET
 END-CODE
 
@@ -1051,9 +1053,8 @@ END-CODE
 \ Указатели стеков
 
 CODE SP! ( A -> )
-     MOV EBP, EAX
-     MOV EAX, [EBP]
-     LEA EBP, 4 [EBP]
+     LEA EBP,  4 [EAX]
+     MOV EAX, -4 [EBP]
      RET
 END-CODE
 
@@ -1105,7 +1106,7 @@ CODE FS! ( x addr -- )
      MOV  EBX, [EBP]
      MOV  FS: [EAX], EBX
      MOV  EAX, 4 [EBP]
-     LEA EBP, 8 [EBP]
+     LEA  EBP, 8 [EBP]
      RET
 END-CODE
 
@@ -1176,7 +1177,7 @@ CODE C-R>    \ 94
 END-CODE
 
 CODE C-RDROP
-     ADD ESP, # 4
+     ADD  ESP, # 4
      RET
 END-CODE
 
@@ -1191,10 +1192,10 @@ END-CODE
 CODE C-EXECUTE ( i*x xt -- j*x ) \ 94
 \ Убрать xt со стека и выполнить заданную им семантику.
 \ Другие изменения на стеке определяются словом, которое выполняется.
-     MOV  EBX, EAX
+     MOV  EDX, EAX
      MOV  EAX, [EBP]
      LEA  EBP, 4 [EBP]
-     CALL EBX
+     CALL EDX
      RET
 END-CODE
 

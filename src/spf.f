@@ -20,7 +20,7 @@ C" M_WL" FIND NIP 0=
 [THEN]
 
 
-C" LAST-HERE" FIND NIP 0= VALUE MACROVAR
+C" LAST-HERE" FIND NIP 0= VALUE INLINEVAR
 
 
 : ," ( addr u -- )
@@ -96,12 +96,11 @@ S" src\compiler\spf_read_source.f"   INCLUDED
 \ Слова, к-е нельзя инлайнить.
 
 S" src\compiler\spf_nonopt.f"        INCLUDED
-S" src\compiler\spf_compile0.f"       INCLUDED
+S" src\compiler\spf_compile0.f"      INCLUDED
 \  Макроподстановщик-оптимизатор
-TRUE TO MACROVAR
+TRUE TO INLINEVAR
 
- S" src\macroopt.f"                   INCLUDED \ для листинга кодов
-\ S" src\macroopt.f"                   INCLUDED
+S" src\macroopt.f"                    INCLUDED
 
 S" src\compiler\spf_compile.f"       INCLUDED
 S" src\compiler\spf_wordlist.f"      INCLUDED
@@ -133,7 +132,6 @@ S" src\compiler\spf_inline.f"        INCLUDED
 \ Определяющие слова для Windows.
 \ Многозадачность.
 \ CGI
-
 
 S" src\win\spf_win_envir.f"          INCLUDED
 S" src\win\spf_win_defwords.f"       INCLUDED

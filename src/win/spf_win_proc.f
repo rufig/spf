@@ -3,9 +3,7 @@
   –евизи€ - сент€брь 1999
 )
 
-WINAPI: AllocConsole                  KERNEL32.DLL
 WINAPI: GetStdHandle                  KERNEL32.DLL
-WINAPI: SetConsoleTitleA              KERNEL32.DLL
 WINAPI: GetLastError                  KERNEL32.DLL
 WINAPI: CloseHandle                   KERNEL32.DLL
 WINAPI: CreateFileA                   KERNEL32.DLL
@@ -26,7 +24,6 @@ WINAPI: HeapAlloc                     KERNEL32.DLL
 WINAPI: HeapFree                      KERNEL32.DLL
 WINAPI: HeapReAlloc                   KERNEL32.DLL
 WINAPI: GetCommandLineA               KERNEL32.DLL
-WINAPI: VirtualAlloc                  KERNEL32.DLL
 WINAPI: LoadLibraryA                  KERNEL32.DLL
 WINAPI: GetProcAddress                KERNEL32.DLL
 WINAPI: CharToOemBuffA                USER32.DLL

@@ -9,11 +9,11 @@ DECIMAL
 \ 4 ALIGN-BYTES !
 
 : LOAD-VERSION ( -- n )
-  S" VERSION.SPF" ['] INCLUDED CATCH IF 2DROP 375000 THEN
+  S" src\version.spf" ['] INCLUDED CATCH IF 2DROP 400000 THEN
 ;
 : SAVE-VERSION ( n -- )
   H-STDOUT >R
-  S" VERSION.SPF" R/W CREATE-FILE THROW TO H-STDOUT
+  S" src\version.spf" R/W CREATE-FILE THROW TO H-STDOUT
   . CR
   H-STDOUT CLOSE-FILE THROW
   R> TO H-STDOUT
@@ -44,9 +44,6 @@ VARIABLE SAVED-CURRENT
 ' R>  VALUE  DOES-CODE
 
 0 VALUE WINAPI-CODE
-0 VALUE 0WIN-CODE
-0 VALUE 1WIN-CODE
-0 VALUE RWIN-CODE
 0 VALUE WNDPROC-CODE
 0 VALUE TC-FORTH-INSTANCE>
 0 VALUE TC-<FORTH-INSTANCE
@@ -115,7 +112,7 @@ HEX
 
 : ALIGN-NOP ( n -- )
 \ выровн€ть на n и заполнить NOP
-  HERE DUP ROT 2DUP
+  DP @ DUP ROT 2DUP
   MOD ?DUP IF - + ELSE DROP THEN
   OVER - DUP ALLOT 90 FILL
 ;
@@ -131,10 +128,13 @@ HEX
 
 : M\  POSTPONE \  ; IMMEDIATE
 
+TRUE VALUE J_OPT?
+
 S" src\macroopt.f"                   INCLUDED
 
 TRUE TO ?C-JMP
 
+: [TTO] TRUE TO OPT? ; IMMEDIATE
 M\ ' DROP TO DTST
 
 : TC-CALL, ( addr -- )
@@ -148,15 +148,15 @@ M\ ' DROP TO DTST
 
 : MCOMPILE, ( CFA -- )
     CON>LIT 
-    IF  MACRO?
-      IF     MACRO,
+    IF  INLINE?
+      IF     INLINE,
       ELSE   TC-CALL,
       THEN
     THEN
 ;
 
 : TC-LIT,
-  S" DUP" TC-FINDOUT MACRO,
+  S" DUP" TC-FINDOUT INLINE,
   OPT_INIT
   SetOP 0B8 C,  , OPT  \ MOV EAX, #
   OPT_CLOSE ;
@@ -177,12 +177,40 @@ M\ ' DROP TO DTST
 
 : TC-?BRANCH,
   084 TO J_COD
-  OPT_INIT SetOP 0xC00B W,    \ OR EAX, EAX
-  OPT?  IF ?BR-OPT THEN
-  J_COD          \  JX без 0x0F
-  0x0FFC458B     \  MOV     EAX , FC [EBP] и кусок от JX
-  S" NIP" TC-FINDOUT MACRO, ,  C,
-  HERE CELL+ - ,
+  S" DROP" TC-FINDOUT
+(  OPT_INIT SetOP ) 0xC00B W,    \ OR EAX, EAX
+  OPT?  IF ( OP1 ToOP0 ) -2 ALLOT   \ ликвидаци€ OR EAX, EAX
+           OPT_INIT DP @ TO LAST-HERE
+           ?BR-OPT 
+           DP @ TO LAST-HERE
+        THEN
+  INLINE,  SetJP  SetOP
+  J_COD    \  JX без 0x0F
+  0x0F     \  кусок от JX
+  C,  C,
+  DP @ CELL+ - , DP @ TO LAST-HERE
+;
+
+: TC-BRANCH, ( ADDR -> ) \ скомпилировать инструкцию ADDR JMP
+  SetOP SetJP E9 C,
+  DP @ CELL+ - ,    DP @ TO LAST-HERE
+;
+
+: TC>RESOLVE1 ( A -> )
+  DUP
+    DP @ DUP TO :-SET
+    OVER - 4 -
+    SWAP !
+\   J_OPT? IF ." R=" BASE @ HEX LAST-HERE U. DP @ U. BASE ! THEN
+ RESOLVE_OPT
+
+;
+
+: TC>RESOLVE ( A, N -- )
+  DUP 1 = IF   DROP TC>RESOLVE1
+          ELSE 2 <> IF -2007 THROW THEN \ ABORT" Conditionals not paired"
+               TC>RESOLVE1
+          THEN
 ;
 
 DECIMAL
@@ -327,7 +355,7 @@ ALSO TC DEFINITIONS PREVIOUS
   0 , \ address of winproc
   0 , \ address of library name
   0 , \ address of function name
-\  0 , \ # of parameters
+  -1 , \ # of parameters
   HERE TC-WINAPLINK @ , TC-WINAPLINK ! ( св€зь )
   HERE TC-WINAP @ CELL+ CELL+ !
   HERE >R
@@ -349,18 +377,6 @@ ALSO TC
   WINAPI-CODE  _WIN:
 ;
 
-: RWIN:  ( "R»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
-  RWIN-CODE SkipDelimiters  >IN @ [T] HEADER [I]
- 1+  \ обход префикса обозначающего функцию, параметры которой
-\ передаютс€ через стек возвратов
-    >IN !      __WIN: ;
-
-: 0WIN:  ( "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
-  0WIN-CODE _WIN: ;
-
-: 1WIN:  ( "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
-  1WIN-CODE _WIN: ;
-
  PREVIOUS
 
 
@@ -379,16 +395,6 @@ ALSO TC
 : ' ALSO TC-WL ' PREVIOUS ;
 
 : SEE ALSO TC-WL ' PREVIOUS REST ;
-(
-CODE EXECUTE  \ выполнить jpf слово в контексте spf
-   MOV EAX, 4 [EBP]
-   MOV ECX, [EBP]
-   ADD EBP, # 8
-   CALL ECX
-   SUB EBP, # 4
-   MOV [EBP], EAX
-   RET
-END-CODE )
 
 ALSO ASSEMBLER ALSO ASM-HIDDEN DEFINITIONS
 
@@ -435,7 +441,7 @@ ALSO TC-IMM DEFINITIONS PREVIOUS
 : ."
   CLITERAL-CODE COMPILE,
   [CHAR] " PARSE DUP C,
-  HERE SWAP DUP ALLOT MOVE 0 C,
+  DP @ SWAP DUP ALLOT MOVE 0 C,
   (.")-CODE COMPILE,
 ; IMMEDIATE
 
@@ -443,7 +449,7 @@ ALSO TC-IMM DEFINITIONS PREVIOUS
   STATE @ IF
              SLITERAL-CODE COMPILE,
              DUP C,
-             HERE SWAP DUP ALLOT MOVE 0 C,
+             DP @ SWAP DUP ALLOT MOVE 0 C,
           ELSE
              2DUP + 0 SWAP C!
           THEN
@@ -453,7 +459,7 @@ ALSO TC-IMM DEFINITIONS PREVIOUS
   STATE @ IF
             CLITERAL-CODE COMPILE,
             COUNT DUP C,
-            HERE SWAP DUP ALLOT MOVE 0 C,
+            DP @ SWAP DUP ALLOT MOVE 0 C,
           THEN
 ; IMMEDIATE
 
@@ -469,8 +475,15 @@ ALSO TC-IMM DEFINITIONS PREVIOUS
 
 ; IMMEDIATE
 
+C" SHERE-TAB-CUR" FIND NIP
+[IF]
+: ; PREVIOUS
+  ?SET SetOP  POSTPONE ; [I] OPT OPT_CLOSE
+  DP @ SHERE-TAB-CUR @ CELL- !  ; IMMEDIATE
+[ELSE]
 : ; PREVIOUS
   ?SET SetOP  POSTPONE ; [I] OPT OPT_CLOSE  ; IMMEDIATE
+[THEN]
 
 : ['] ALSO TC-WL ' TC-LIT, PREVIOUS ; IMMEDIATE
 
@@ -507,19 +520,19 @@ ALSO TC-IMM DEFINITIONS PREVIOUS
   BL WORD 1+ C@ TC-LIT, ; IMMEDIATE
 
 : IF  \ 94
-  ?COMP HERE TC-?BRANCH, >MARK 1
+  ?COMP DP @ TC-?BRANCH, >MARK 1
 ; IMMEDIATE
 
 : UNTIL \ 94
   ?COMP 3 <> IF -2004 THROW THEN \ ABORT" UNTIL без BEGIN !"
   TC-?BRANCH,
   0xFFFFFF80  DP @ 4 - @  U<
-  IF  HERE 5 - W@ 0x3F0 + DP @ 6 - W!   -4 ALLOT
+  IF  DP @ 5 - W@ 0x3F0 + DP @ 6 - W!   -4 ALLOT
   THEN
 ; IMMEDIATE
 
 : WHILE \ 94
-  ?COMP HERE TC-?BRANCH, >MARK 1
+  ?COMP DP @ TC-?BRANCH, >MARK 1
   2SWAP
 ; IMMEDIATE
 
@@ -527,120 +540,139 @@ ALSO TC-IMM DEFINITIONS PREVIOUS
   POSTPONE WHILE
  [ PREVIOUS ] ; IMMEDIATE
 
-: ELSE   POSTPONE ELSE   ; IMMEDIATE
-: THEN   POSTPONE THEN  HERE TO :-SET  ; IMMEDIATE
+: ELSE 
+  ?COMP DP @ TC-BRANCH,
+  TC>RESOLVE
+  >MARK 2
+; IMMEDIATE
+
+: THEN  ?COMP  TC>RESOLVE ; IMMEDIATE
+
 : REPEAT 
 \ ѕродолжить выполнение с позиции, заданной dest.
   ?COMP
   3 <> IF -2005 THROW THEN \ ABORT" REPEAT без BEGIN !"
-  DUP HERE 2+ - DUP
+  DUP DP @ 2+ - DUP
   SHORT?
-  IF   0xEB C, C, DROP
-  ELSE DROP BRANCH, THEN
+  IF SetJP 0xEB C, C, DROP
+  ELSE DROP TC-BRANCH, THEN
   >RESOLVE
 ; IMMEDIATE
 
 : AGAIN  POSTPONE AGAIN  ; IMMEDIATE
 : RECURSE POSTPONE RECURSE ; IMMEDIATE
-: BEGIN  POSTPONE BEGIN  HERE TO :-SET  ; IMMEDIATE
+: BEGIN  POSTPONE BEGIN  DP @ TO :-SET  ; IMMEDIATE
 \ : ORDER  ORDER ;
 
 HEX
 
 : DO   \ 94
   ?COMP
-  S" NIP" TC-FINDOUT DUP MACRO, MACRO,
-  0x68 C, HERE 4 ALLOT
-  S" C-DO" TC-FINDOUT MACRO,  
-  HERE  DUP TO :-SET 
+  OP0 @ :-SET  UMAX TO :-SET
+  S" NIP" TC-FINDOUT DUP INLINE, INLINE,
+  SetOP  0x68 C, DP @ 4 ALLOT
+  S" C-DO" TC-FINDOUT INLINE,
+  4 ALIGN-NOP
+  DP @ DUP TO :-SET
 ; IMMEDIATE
 
 : ?DO   \ 94 CORE EXT
   ?COMP
-  S" NIP" TC-FINDOUT DUP MACRO, MACRO,
-  0xBB C, HERE 4 ALLOT
-  S" C-?DO" TC-FINDOUT MACRO,
-  HERE  DUP TO :-SET 
+  OP0 @ :-SET  UMAX TO :-SET
+  S" NIP" TC-FINDOUT DUP INLINE, INLINE,
+  0xBB C, DP @ 4 ALLOT
+  S" C-?DO" TC-FINDOUT INLINE,
+  DP @ DUP TO :-SET
 ; IMMEDIATE
 
 : LOOP   \ 94
-  ?COMP 
-  FF C, 04 C, 24 C, \ inc dword [esp]
-  HERE 2+ - DUP ABS 7F <
+  ?COMP
+  24 04FF W, C, \ inc dword [esp]
+  HERE 2+ - DUP SHORT?   SetOP SetJP
   IF
     71 C, C, \ jno short 
   ELSE
-    4 - 0F C, 81 C, , \ jno far
-  THEN
+    4 - 0F C, 81 C, , \ jno near
+  THEN    SetOP
   0C24648D , \ lea esp, 0c [esp]
-  HERE SWAP !
+  DP @ SWAP !
 ; IMMEDIATE
 
 : +LOOP    \ 94
   ?COMP
-  POSTPONE [ S" ' NIP" EVALUATE ]   MACRO,  
-    0x8B240401 ,
-    0x810FFC45 ,
+    0x810FFC45
+    0x8B240401
 \ ADD     [ESP] , EAX
 \ MOV     EAX , FC [EBP]
 \ JNO 
-  HERE CELL+ -  ,
-    0x0C24648D , \ lea esp, 0xC [esp]
-  HERE SWAP !
+  POSTPONE [ S" ' NIP" EVALUATE ]  INLINE, SetOP , , 
+  -5 ALLOT SetOP 
+   3 ALLOT SetOP
+   2 ALLOT
+  DP @ CELL+ -  ,
+  SetOP 0x0C24648D , \ lea esp, 0xC [esp]
+  DP @ SWAP !
 ; IMMEDIATE
 
 : I   \ 94
-  ?COMP S" C-I" TC-FINDOUT MACRO,
+  ?COMP S" C-I" TC-FINDOUT INLINE,
 ; IMMEDIATE
 
 : UNLOOP  \ 94
   ?COMP
-  0C24648D , \ lea esp, 0c [esp]
+  SetOP  0C24648D , \ lea esp, 0c [esp]
 ; IMMEDIATE
 
 : LEAVE    \ 94
   ?COMP
-  0824648D , \ lea esp, 8 [esp]
-  C3 C,  \ ret
+  SetOP 0824648D , \ lea esp, 08 [esp]
+  SetOP C3 C,  \ ret
 ; IMMEDIATE
 
 : >R   \ 94
   ?COMP
-  S" C->R" TC-FINDOUT MACRO, ;   IMMEDIATE
+  S" C->R" TC-FINDOUT INLINE, ;   IMMEDIATE
 
 : R>
   ?COMP
-  S" C-R>" TC-FINDOUT MACRO, ;   IMMEDIATE
+  S" C-R>" TC-FINDOUT INLINE, ;   IMMEDIATE
 
 : RDROP
   ?COMP
-  S" C-RDROP" TC-FINDOUT MACRO, ;   IMMEDIATE
+  S" C-RDROP" TC-FINDOUT INLINE, ;   IMMEDIATE
 
   
 : EXECUTE
-  S" C-EXECUTE" TC-FINDOUT HERE TO :-SET MACRO, HERE TO :-SET ; IMMEDIATE
+  S" C-EXECUTE" TC-FINDOUT INLINE, ; IMMEDIATE
 
 
 : ?DUP   STATE @
                  IF   HERE TO :-SET
-                      S" C-?DUP" TC-FINDOUT  MACRO,
+                      S" C-?DUP" TC-FINDOUT  INLINE,
                       HERE TO :-SET
                  ELSE ?DUP
                  THEN ;   IMMEDIATE
 
 : THROW
      STATE @ IF
+     OPT_INIT OP0 @ C@ 0xB8 = 0 AND
+     IF  0xE9 C,              \ машинна€ команда JMP
+         THROW-CODE  DP @ CELL+ - ,
+\          DP @ TO LAST-HERE
+         EXIT 
+     THEN
+     OPT_CLOSE
      0x850FC00B , \  or eax, eax \  jnz near
-     THROW-CODE HERE CELL+ - ,
-     'DROP    MACRO,
+     THROW-CODE DP @ CELL+ - ,
+     'DROP    INLINE,
      ELSE THROW
      THEN ; IMMEDIATE
 
 : NOTFOUND ( a u -- )  TC-?SLITERAL ;
 
-: ... 0 BRANCH, >MARK DUP , 1 >RESOLVE ; IMMEDIATE 
+: ... 0 TC-BRANCH, >MARK DUP , 1 >RESOLVE ; IMMEDIATE 
 : ..: '  >BODY DUP @  1 >RESOLVE ] ;
-: ;..  DUP CELL+ BRANCH, >MARK SWAP ! [COMPILE] [ ; IMMEDIATE
+: ;..  DUP CELL+ TC-BRANCH, >MARK SWAP ! [COMPILE] [ ; IMMEDIATE
 
 : _@    8B C, 00 C, ; IMMEDIATE
 : DUP>R   STATE @ 0= IF asd S" DUP >R"  tmp ELSE 50 C, THEN ; IMMEDIATE

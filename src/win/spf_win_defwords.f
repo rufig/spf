@@ -22,8 +22,9 @@ VARIABLE WINAPLINK
   )
 
   NEW-WINAPI?
-  IF DROP HEADER
+  IF HEADER
   ELSE
+     -1
      >IN @
      HEADER
      >IN !
@@ -33,7 +34,7 @@ VARIABLE WINAPLINK
   0 , \ address of winproc
   0 , \ address of library name
   0 , \ address of function name
-\  0 , \ # of parameters
+  , \ # of parameters
   IS-TEMP-WL 0=
   IF
     HERE WINAPLINK @ , WINAPLINK ! ( связь )
@@ -78,14 +79,14 @@ VARIABLE WINAPLINK
 : TASK: ( xt "name" -- )
   TASK CONSTANT
 ;
-VARIABLE ERASED-CNT
 
 : ERASE-IMPORTS
   \ обнуление адресов импортируемых процедур
+  \ и числа параметров
   WINAPLINK
   BEGIN
     @ DUP
   WHILE
-    DUP 3 CELLS - 0!
+    DUP 4 CELLS - 0!
   REPEAT DROP
 ;

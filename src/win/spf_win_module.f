@@ -1,3 +1,5 @@
+USER CURFILE
+
 : ModuleName ( -- addr u )
   1024 PAD 0 GetModuleFileNameA
   PAD SWAP
@@ -25,4 +27,22 @@
   6 + 2DUP +
   2R> DUP >R ROT SWAP 1+ MOVE 
   R> +
+;
+: SOURCE-NAME ( -- a u )
+  CURFILE @ DUP IF ASCIIZ> ELSE 0 THEN
+;
+: is_path_delimiter ( c -- flag )
+  DUP [CHAR] \ = SWAP [CHAR] / = OR
+;
+: CUT-PATH ( a u -- a u1 )
+\ из строки "path\name" выделить строку "path\"
+  OVER +
+  BEGIN 2DUP <> WHILE DUP C@ is_path_delimiter 0= WHILE 1- REPEAT 1+ THEN
+  OVER -
+;
+: +SourcePath ( addr u -- addr2 u2 )
+  SOURCE-NAME CUT-PATH DUP >R
+  PAD SWAP MOVE
+  DUP R@ + R> PAD + SWAP >R SWAP 1+ MOVE
+  PAD R> 
 ;

@@ -8,6 +8,7 @@
 VECT FIND
 
 HEX \ Оптимизмровано by day (29.10.2000)
+\ Оптимизмровано by mak July 26th, 2001 - 15:45
 
 CODE SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
 \ Найти определение, заданное строкой c-addr u в списке слов, идентифицируемом 
@@ -27,21 +28,19 @@ CODE SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
        SHL EAX, # 8
        OR  EDX, EAX
        AND EDX, EBX
-
-       MOV ESI, [ESI]             \ адрес поля имени в DS:SI
-@@1:
-       OR ESI, ESI
+       MOV AL, # 0
+       DEC ESI
+@@3:
+       A;  25 C, FF C, 0 C, 0 W, \       AND EAX, # FF
+       MOV ESI, 1 [ESI] [EAX]
+@@1:   OR ESI, ESI
        JZ SHORT @@2                   \ конец поиска
        MOV EAX, [ESI]
        AND EAX, EBX
-       INC ESI
        CMP EAX, EDX
-       JZ SHORT @@3                   \ проверить всю строку
-       A;  25 C, FF C, 0 C, 0 W, \       AND EAX, # FF
-       MOV ESI, [ESI] [EAX]       \ длины не равны - идем дальше
-
-       JMP SHORT @@1
-@@3:
+       JNZ SHORT @@3              \ длины не равны - идем дальше
+\ проверить всю строку
+       INC ESI
        CLD
        XOR ECX, ECX
        MOV CL, DL

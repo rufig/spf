@@ -9,7 +9,9 @@ HEX
 
 : HERE ( -- addr ) \ 94
 \ addr - указатель пространства данных.
-  DP @ DUP TO :-SET
+  DP @ 
+  DUP TO :-SET
+  DUP TO J-SET
 ;
 
 : _COMPILE,  \ 94 CORE EXT
@@ -29,16 +31,16 @@ HEX
 \ Добавить семантику выполнения определения, представленого xt, к
 \ семантике выполнения текущего определения.
     CON>LIT 
-    IF  MACRO?
-      IF     MACRO,
+    IF  INLINE?
+      IF     INLINE,
       ELSE   _COMPILE,
       THEN
     THEN
 ;
 
 : BRANCH, ( ADDR -> ) \ скомпилировать инструкцию ADDR JMP
-  E9 C,
-  HERE CELL+ - ,
+  SetOP SetJP E9 C,
+  DP @ CELL+ - ,    DP @ TO LAST-HERE
 ;
 
 : RET, ( -> ) \ скомпилировать инструкцию RET
@@ -46,7 +48,7 @@ HEX
 ;
 
 : LIT, ( W -> )
-  ['] DUP  MACRO,
+  ['] DUP  INLINE,
   OPT_INIT
   SetOP 0B8 C,  , OPT  \ MOV EAX, #
   OPT_CLOSE
@@ -64,38 +66,59 @@ HEX
 
 : ?BRANCH, ( ADDR -> ) \ скомпилировать инструкцию ADDR ?BRANCH
   084 TO J_COD
-  OPT_INIT SetOP 0xC00B W,    \ OR EAX, EAX
-  OPT? IF ?BR-OPT THEN
-  J_COD          \  JX без 0x0F
-  0x0FFC458B     \  MOV     EAX , FC [EBP] и кусок от JX
-  ['] NIP MACRO, ,  C,
-  HERE CELL+ - ,
+  ['] DROP
+  0xC00B W,    \ OR EAX, EAX
+  OPT?  IF -2 ALLOT   \ ликвидация OR EAX, EAX
+           OPT_INIT DP @ TO LAST-HERE
+           ?BR-OPT
+           DP @ TO LAST-HERE
+       THEN
+  INLINE, SetJP  SetOP
+  J_COD    \  JX без 0x0F
+  0x0F     \  кусок от JX
+  C, C,
+  DP @ CELL+ - , DP @ TO LAST-HERE
 ;
 
 DECIMAL
 
 : ", ( A -> ) \ компиляция строки со счетчиком, заданной адресом A
-  HERE OVER C@ 1+ DUP ALLOT QCMOVE
+  DP @ OVER C@ 1+ DUP ALLOT QCMOVE
 ;
 
 : S", ( addr u -- ) \ компиляция строки, заданной addr u, в виде строки со счетчиком
-  DUP C, HERE SWAP DUP ALLOT QCMOVE
+  DUP C, DP @ SWAP DUP ALLOT QCMOVE
 ;
 
 \ orig - a, 1 (short) или a, 2 (near)
 \ dest - a, 3
 
 : >MARK ( -> A )
-  HERE 4 -
+  DP @ DUP TO :-SET 4 - 
+;
+
+: <MARK ( -> A )
+  DP @ DUP TO :-SET
+;
+
+: >ORESOLVE1 ( A -> )
+  DUP
+    DP @ DUP TO :-SET
+    OVER - 4 -
+    SWAP !
+  RESOLVE_OPT
+;
+
+: >ORESOLVE ( A, N -- )
+  DUP 1 = IF   DROP >ORESOLVE1
+          ELSE 2 <> IF -2007 THROW THEN \ ABORT" Conditionals not paired"
+               >ORESOLVE1
+          THEN
 ;
 
 : >RESOLVE1 ( A -> )
   HERE OVER - 4 -
   SWAP !
-;
-
-: <MARK ( -> A )
-  HERE
 ;
 
 : >RESOLVE ( A, N -- )
@@ -104,6 +127,7 @@ DECIMAL
                >RESOLVE1
           THEN
 ;
+
 
 \ Слова для выравнивания (ALOGN*) в SPF не используются.
 \ Оставлены для соответствия стандарту ANS 94.
@@ -118,7 +142,7 @@ USER ALIGN-BYTES
 : ALIGN ( -- ) \ 94
 \ Если указатель пространства данных не выровнен -
 \ выровнять его.
-  HERE ALIGNED HERE - ALLOT
+  DP @ ALIGNED DP @ - ALLOT
 ;
 
 : ALIGN-NOP ( n -- )

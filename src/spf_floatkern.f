@@ -413,6 +413,13 @@ CODE F**     \ *
        RET
 END-CODE
 
+: F**
+   FDUP F0=
+   IF FDROP FDROP 1.E
+   ELSE F**
+   THEN
+;
+
 CODE FTAN \ *
      FPTAN
      FDIVP ST(1), ST

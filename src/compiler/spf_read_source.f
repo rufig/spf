@@ -7,16 +7,15 @@ USER-VALUE SOURCE-ID ( -- 0|-1 ) \ 94 CORE EXT
 \ »дентифицирует входной поток:
 \ -1 - строка (через EVALUATE)
 \  0 - пользовательское входное устройство
+USER-VALUE SOURCE-ID-XT \ если не равен нулю, то содержит заполн€ющее
+\ слово дл€ REFILL
 
 VECT <PRE>
 USER CURSTR \ номер строки
 
 : CONSOLE-HANDLES
 \  0 TO SOURCE-ID
-  -10 GetStdHandle H-STDIN 
-  IF H-STDIN DUP .spos 0! DUP .s#tib 0! .shandle !
-  ELSE  FILE>RSTREAM TO H-STDIN
-  THEN
+  -10 GetStdHandle TO H-STDIN 
   -11 GetStdHandle TO H-STDOUT
   -12 GetStdHandle TO H-STDERR
 ;
@@ -57,12 +56,13 @@ USER CURSTR \ номер строки
   CURSTR 1+!
   TIB C/L
   SOURCE-ID 0 > IF SOURCE-ID ( included text )
-                   READ-RSTREAM-LINE THROW ( ошибка чтени€ )
-                   IF #TIB !
-                   ELSE DROP FALSE EXIT THEN
-                ELSE SOURCE-ID
-                     IF 2DROP FALSE EXIT THEN ( evaluate string )
-                     ACCEPT #TIB ! ( user input )
-                THEN
+     SOURCE-ID-XT ?DUP IF EXECUTE ELSE READ-LINE THEN
+     THROW ( ошибка чтени€ )
+     IF #TIB !
+     ELSE DROP FALSE EXIT THEN
+  ELSE SOURCE-ID
+     IF 2DROP FALSE EXIT THEN ( evaluate string )
+     ACCEPT #TIB ! ( user input )
+  THEN
   >IN 0! <PRE> -1
 ;

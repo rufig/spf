@@ -15,11 +15,11 @@ USER W-CNT
     DUP KEY? 0= AND
   WHILE
     W-CNT 1+! 
-    DUP C@ >OUT @ + 71 >
+    DUP C@ >OUT @ + 74 >
     IF CR >OUT 0! THEN
     DUP ID.
     DUP C@ >OUT +!
-    8 >OUT @ 8 MOD - DUP >OUT +! SPACES
+    15 >OUT @ 15 MOD - DUP >OUT +! SPACES
     CDR
   REPEAT DROP KEY? IF KEY DROP THEN
   CR CR ." Words: " W-CNT @ U. CR
@@ -33,4 +33,3 @@ USER W-CNT
 \ идентифицируемую #>.
   CONTEXT @ NLIST
 ;
-

@@ -79,6 +79,7 @@
 
 : ; ( -- )
   RET, [COMPILE] [ SMUDGE
+  ClearJpBuff
 ; IMMEDIATE
 
 : EXIT

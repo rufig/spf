@@ -103,6 +103,11 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
     ELSE DROP THEN TYPE 
 ;
 
+: .TO-LOG ( n -- )
+\ Напечатать n в свободном формате в лог-файл
+  S>D DUP >R DABS <# BL HOLD #S R> SIGN #> TO-LOG
+;
+
 : >PRT
   DUP BL U< IF DROP [CHAR] . THEN
 ;
@@ -128,10 +133,10 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 ;
 ' (.") TO (.")-CODE
 
-: DIGIT ( C, N1 -> N2, TF / FF ) 
+\ : DIGIT ( C, N1 -> N2, TF / FF ) 
 \ N2 - значение литеры C как
 \ цифры в системе счисления по основанию N1
-  SWAP
+(  SWAP
   DUP 58 <
       OVER 47 > AND
       IF \ within 0..9
@@ -143,7 +148,7 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
          ELSE 2DROP 0 EXIT THEN
       THEN
    TUCK > DUP 0= IF NIP THEN
-;
+;)
 
 : >NUMBER ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 ) \ 94
 \ ud2 - результат преобразования символов строки, заданной c-addr1 u1,

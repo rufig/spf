@@ -5,9 +5,9 @@
   –евизи€ - сент€брь 1999
 )
 
-
 VARIABLE AOLL
 VARIABLE AOGPA
+0 VALUE ST-RES
 
 CODE _WINAPI-CODE
 
@@ -32,7 +32,7 @@ A; HERE 4 - ' AOLL EXECUTE !
       POP EBP
       POP EDI
       POP EBX
-      JZ  SHORT @@2
+      JZ  SHORT @@3
 
       PUSH EDI
       PUSH EBP
@@ -46,28 +46,45 @@ A; HERE 4 - ' AOGPA EXECUTE !
       OR   EAX, EAX
       POP EBP
       POP EDI
-      JZ  SHORT @@2
+      JZ  SHORT @@3
       MOV [EBX], EAX
+ 
+@@1:  MOV  ECX, 12 [EBX]
+      OR   ECX, ECX
+      JS   SHORT @@2
+      LEA  EBX, [ECX*4]
+      SUB  ESP, EBX
+      MOV  EDX, EDI
+      MOV  EDI, ESP
+      MOV  ESI, EBP
+      CLD
+      REP MOVS DWORD
+      ADD  EBP, EBX
+      MOV  EDI, EDX
+      CALL EAX
+      RET
 
-@@1:  PUSH EDI
+@@2:  PUSH EDI
       PUSH EBP
       SUB  ESP, # 64
       MOV  EDI, ESP
       MOV  ESI, EBP
-      A;  0xB9  C,  0x10 W, 0 W, \   MOV  ECX, # 16
+      MOV  ECX, # 16
       CLD
       REP MOVS DWORD
       MOV  EBP, ESP
       CALL EAX
-      MOV  EBX, EBP
-      SUB  EBX, ESP
+      MOV  ECX, ESP
+      SUB  ECX, EBP
       MOV  ESP, EBP
       ADD  ESP, # 64
-      POP EBP
-      SUB EBP, EBX
-      POP EDI
+      POP  EBP
+      ADD  EBP, ECX
+      SAR  ECX, # 2
+      MOV  12 [EBX], ECX
+      POP  EDI
 
-@@2:  RET
+@@3:  RET
 
 END-CODE
 
@@ -98,7 +115,8 @@ END-CODE
 
 CODE _WNDPROC-CODE
      MOV  EAX, ESP
-     SUB  ESP, # #ST-RES
+     SUB  ESP, # 3968
+A;   HERE 4 - ' ST-RES 9 + EXECUTE
      PUSH EBP
      MOV  EBP, 4 [EAX] ( адрес возврата из CALLBACK )
      PUSH EBP
@@ -148,5 +166,3 @@ VECT <FORTH-INSTANCE  \ и выходе в WNDPROC-процедуры (инициализаци€ TlsIndex)
 
 ' FORTH-INSTANCE> TO TC-FORTH-INSTANCE>
 ' <FORTH-INSTANCE TO TC-<FORTH-INSTANCE
-
-3968 CONSTANT #ST-RES

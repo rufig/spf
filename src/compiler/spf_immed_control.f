@@ -15,7 +15,7 @@
 \ ¬рем€ выполнени€: ( x -- )
 \ ≈сли все биты x нулевые, продолжать выполнение с позиции, заданной 
 \ разрешением orig.
-  ?COMP HERE ?BRANCH, >MARK 1
+  ?COMP DP @ ?BRANCH, >MARK 1
 ; IMMEDIATE
 
 : ELSE \ 94
@@ -28,8 +28,8 @@
 \ семантики выполнени€.
 \ ¬рем€ выполнени€: ( -- )
 \ ѕродолжить выполнение с позиции, заданной разрешением orig2.
-  ?COMP HERE BRANCH,
-  >RESOLVE
+  ?COMP DP @ BRANCH,
+  >ORESOLVE
   >MARK 2
 ; IMMEDIATE
 
@@ -41,7 +41,7 @@
 \ ¬рем€ выполнени€: ( -- )
 \ ѕродолжить выполнение.
   ?COMP \ HERE TO :-SET
-  >RESOLVE
+  >ORESOLVE
 ; IMMEDIATE
 
 : BEGIN \ 94
@@ -66,8 +66,8 @@
 \ ≈сли все биты x нулевые, продолжать выполнение с позиции, заданной dest.
   ?COMP 3 <> IF -2004 THROW THEN \ ABORT" UNTIL без BEGIN !"
   ?BRANCH,
-  0xFFFFFF80  HERE 4 - @  U<
-  IF  HERE 5 - W@ 0x3F0 + HERE 6 - W!   -4 ALLOT
+  0xFFFFFF80  DP @ 4 - @  U<
+  IF  DP @ 5 - W@ 0x3F0 + DP @ 6 - W!   -4 ALLOT
   THEN
 ; IMMEDIATE
 
@@ -95,11 +95,11 @@
 \ ѕродолжить выполнение с позиции, заданной dest.
   ?COMP
   3 <> IF -2005 THROW THEN \ ABORT" REPEAT без BEGIN !"
-  DUP HERE 2+ - DUP
+  DUP DP @ 2+ - DUP
   SHORT?
-  IF   0xEB C, C, DROP
+  IF SetJP 0xEB C, C, DROP
   ELSE DROP BRANCH, THEN
-  >RESOLVE
+  >ORESOLVE
 ; IMMEDIATE
 
 : AGAIN  \ 94 CORE EXT
@@ -111,9 +111,9 @@
 \ ѕродолжить выполнение с позиции, заданной dest. ≈сли другие управл€ющие слова
 \ не используютс€, то любой программный код после AGAIN не будет выполн€тьс€.
   ?COMP 3 <> IF -2006 THROW THEN \ ABORT" AGAIN без BEGIN !"
-  DUP HERE 2+ - DUP
+  DUP DP @ 2+ - DUP
   SHORT?
-  IF   0xEB C, C, DROP
+  IF SetJP 0xEB C, C, DROP
   ELSE DROP BRANCH, THEN
 ; IMMEDIATE
 

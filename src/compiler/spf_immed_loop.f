@@ -21,11 +21,13 @@ HEX
 \ ситуация возникает, если n1|u1 и n2|u2 не одного типа. Все, что уже 
 \ находилось на стеке возвратов, становится недоступным до тех пор, пока не 
 \ будут убраны параметры цикла.
-  ?COMP  ['] NIP DUP MACRO, MACRO,
-  0x68 C, HERE 4 ALLOT
-  ['] C-DO MACRO,
+  ?COMP
+  OP0 @ :-SET  UMAX TO :-SET
+  ['] NIP DUP INLINE, INLINE,
+  SetOP  0x68 C, DP @ 4 ALLOT
+  ['] C-DO INLINE,
   4 ALIGN-NOP
-  HERE \ DUP TO :-SET
+  DP @ DUP TO :-SET
 ; IMMEDIATE
 
 : ?DO   \ 94 CORE EXT
@@ -41,10 +43,12 @@ HEX
 \ ситуация возникает, если n1|u1 и n2|u2 не одного типа. Все, что уже 
 \ находилось на стеке возвратов, становится недоступным до тех пор, пока не 
 \ будут убраны параметры цикла.
-  ?COMP  ['] NIP DUP MACRO, MACRO,
+  ?COMP 
+  OP0 @ :-SET  UMAX TO :-SET
+  ['] NIP DUP INLINE, INLINE,
   0xBB C, HERE 4 ALLOT
-  ['] C-?DO MACRO,
-  HERE \ DUP TO :-SET
+  ['] C-?DO INLINE,
+  DP @ DUP TO :-SET
 ; IMMEDIATE
 
 : LOOP   \ 94
@@ -59,14 +63,14 @@ HEX
 \ продолжить выполнение с начала цикла.
   ?COMP 
   24 04FF W, C, \ inc dword [esp]
-  HERE 2+ - DUP SHORT?
+  HERE 2+ - DUP SHORT?   SetOP SetJP
   IF
     71 C, C, \ jno short 
   ELSE
     4 - 0F C, 81 C, , \ jno near
-  THEN
+  THEN    SetOP
   0C24648D , \ lea esp, 0c [esp]
-  HERE SWAP !
+  DP @ SWAP !
 ; IMMEDIATE
 
 : +LOOP    \ 94
@@ -86,10 +90,13 @@ HEX
 \ ADD     [ESP] , EAX
 \ MOV     EAX , FC [EBP]
 \ JNO 
-  ['] NIP MACRO, , ,
-  HERE CELL+ -  ,
-    0x0C24648D , \ lea esp, 0xC [esp]
-  HERE SWAP !
+  ['] NIP INLINE, SetOP , , 
+  -5 ALLOT SetOP 
+   3 ALLOT SetOP
+   2 ALLOT
+  DP @ CELL+ -  ,
+  SetOP 0x0C24648D , \ lea esp, 0xC [esp]
+  DP @ SWAP !
 
 ; IMMEDIATE
 
@@ -98,7 +105,7 @@ HEX
 \ Выполнение: ( -- n|u ) ( R: loop-sys -- loop-sys )
 \ n|u - копия текущего (внутреннего) индекса цикла. Неопределенная ситуация 
 \ возникает, если парметры цикла недоступны.
-  ?COMP  ['] C-I  MACRO,
+  ?COMP  ['] C-I  INLINE,
 ; IMMEDIATE
 
 : LEAVE    \ 94
@@ -108,8 +115,8 @@ HEX
 \ они недоступны. Продолжить выполнение сразу за самыми внутренними DO ... LOOP 
 \ или DO ... +LOOP.
   ?COMP
-  0824648D , \ lea esp, 08 [esp]
-  C3 C,  \ ret
+  SetOP 0824648D , \ lea esp, 08 [esp]
+  SetOP C3 C,  \ ret
 ; IMMEDIATE
 
 : UNLOOP  \ 94
@@ -119,7 +126,7 @@ HEX
 \ уровня вложения циклов перед выходом из определения по EXIT.
 \ Неоднозначная ситуация возникает, если параметры цикла недоступны.
   ?COMP
-  0C24648D , \ lea esp, 0c [esp]
+  SetOP  0C24648D , \ lea esp, 0c [esp]
 ; IMMEDIATE
 
 DECIMAL

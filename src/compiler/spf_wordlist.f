@@ -165,46 +165,24 @@ END-CODE
 \ ==============================================
 \ отладка - поиск слова по адресу в его теле
 
-USER WBW-NFA
-USER WBW-OFFS
-
-: WordByAddrWl ( addr wid -- nfa offs )
-  -1 1 RSHIFT WBW-OFFS !
-  WBW-NFA 0!
-  @
-  BEGIN
-    DUP
-  WHILE
-    2DUP - DUP 0 > 
-        IF WBW-OFFS @ OVER > 
-           IF WBW-OFFS ! DUP WBW-NFA !
-           ELSE DROP THEN
-        ELSE DROP THEN
-    CDR
-  REPEAT 2DROP
-  WBW-NFA @ WBW-OFFS @
+: WL_NEAR_NFA ( addr wid - addr nfa | addr 0 )
+   CELL+ @
+   BEGIN 2DUP U<
+   WHILE CDR
+   REPEAT
 ;
 
-USER WB-NFA
-USER WB-OFFS
+: NEAR_NFA ( addr - nfa addr | 0 addr )
+   0 SWAP 
+   VOC-LIST
+   BEGIN  @ DUP
+   WHILE  DUP >R  WL_NEAR_NFA SWAP >R UMAX R>  R>
+   REPEAT DROP
+;
 
 : WordByAddr  ( addr -- c-addr u )
-  \ найти слово, телу которого принадлежит данный адрес
-  (DP) @ OVER >
-  IF 
-     -1 1 RSHIFT WB-OFFS !
-     WB-NFA 0!
-     VOC-LIST @
-     BEGIN
-       DUP
-     WHILE
-       2DUP ( addr voc addr voc )
-       CELL+ WordByAddrWl
-             WB-OFFS @ OVER >
-             IF WB-OFFS ! WB-NFA !
-             ELSE 2DROP THEN
-       @
-     REPEAT 2DROP
-     WB-NFA @ ?DUP IF COUNT ELSE S" <not found>" THEN
-  ELSE DROP S" <not in the image>" THEN
+\ найти слово, телу которого принадлежит данный адрес
+   DUP         (DP) @ U> IF DROP S" <not in the image>" EXIT THEN
+   NEAR_NFA DROP  DUP 0= IF DROP S" <not found>"        EXIT THEN
+   COUNT
 ;

@@ -14,7 +14,6 @@ USER STATE ( -- a-addr ) \ 94
      \ Изменяют STATE только следующие стандартные слова:
      \ : ; [ ] ABORT QUIT :NONAME
 USER BLK
-USER CURFILE
 
 VECT OK
 VECT <MAIN>
@@ -178,9 +177,6 @@ VARIABLE   &INTERPRET
     REFILL
   WHILE
     INTERPRET OK
-    SOURCE-ID 0=
-    IF  LT LTL @ TO-LOG  THEN
-        \ Если ввод с user-device записать cr в лог, то есть нажали Enter
   REPEAT BYE
 ;
 
@@ -213,24 +209,24 @@ VARIABLE   &INTERPRET
 \ - Вывести зависящее от реализации системное приглашение, если
 \   система находится в состоянии интерпретации, все процессы завершены,
 \   и нет неоднозначных ситуаций.
-
   BEGIN
     [COMPILE] [
     ['] MAIN1 CATCH 
     \ DUP IF DUP SAVE-ERR THEN
     CONSOLE-HANDLES
     0 TO SOURCE-ID
+    0 TO SOURCE-ID-XT
     ['] ERROR CATCH DROP
  ( S0 @ SP! R0 @ RP! \ стеки не сбрасываем, т.к. это за нас делает CATCH :)
   AGAIN
 ;
 
 : SAVE-SOURCE ( -- i*x i )
-  SOURCE-ID   >IN @   SOURCE   CURSTR @   5
+  SOURCE-ID-XT  SOURCE-ID   >IN @   SOURCE   CURSTR @   6
 ;
 : RESTORE-SOURCE ( i*x i  -- )
-  5 <> IF ABORT THEN
-  CURSTR !    SOURCE!  >IN !  TO SOURCE-ID
+  6 <> IF ABORT THEN
+  CURSTR !    SOURCE!  >IN !  TO SOURCE-ID   TO SOURCE-ID-XT
 ;
 
 : EVALUATE-WITH ( ( i*x c-addr u xt -- j*x )
@@ -253,7 +249,7 @@ VARIABLE   &INTERPRET
 ;
 
 : (TranslateFlow) ( -- )
-   BEGIN REFILL WHILE INTERPRET REPEAT
+  BEGIN REFILL WHILE INTERPRET REPEAT
 ;
 
 : TranslateFlow  ( -- )
@@ -262,16 +258,25 @@ VARIABLE   &INTERPRET
   THEN THROW
 ;
 
+: RECEIVE-WITH-XT  ( i*x source source-xt xt -- j*x ior )
+\ сохранить спецификации входного потока
+\ установить входной поток на source, слово для чтения строки в source-xt
+\ выполнить xt
+\ восстановить спецификации входного потока
+  SAVE-SOURCE N>R
+  C/L 2+ ALLOCATE THROW DUP >R  0 SOURCE!  CURSTR 0!
+  SWAP TO SOURCE-ID-XT
+  SWAP TO SOURCE-ID
+  CATCH
+  R> FREE THROW
+  NR> RESTORE-SOURCE
+;
+
 : RECEIVE-WITH  ( i*x source xt -- j*x ior )
 \ сохранить спецификации входного потока
 \ установить входной поток на source, выполнить xt
 \ восстановить спецификации входного потока
-   SAVE-SOURCE N>R
-   C/L ALLOCATE THROW DUP >R  0 SOURCE!  CURSTR 0! 
-   SWAP TO SOURCE-ID
-   CATCH
-   R> FREE THROW
-   NR> RESTORE-SOURCE
+  0 SWAP RECEIVE-WITH-XT
 ;
 
 : INCLUDE-FILE ( i*x fileid -- j*x ) \ 94 FILE
@@ -291,9 +296,9 @@ VARIABLE   &INTERPRET
 \ место неопределенная ситуация, статус (открыт или закрыт) любых
 \ интерпретируемых файлов зависит от реализации.
   BLK 0!
-  FILE>RSTREAM DUP >R  
+  DUP >R  
   ['] TranslateFlow RECEIVE-WITH
-  R> FREE-RSTREAM CLOSE-FILE THROW
+  R> CLOSE-FILE THROW
   THROW
 ;
 
@@ -303,39 +308,6 @@ VARIABLE   &INTERPRET
   INCLUDE-FILE 0
 ;
 
-\ : INCLUDED ( i*x c-addr u -- j*x ) \ 94 FILE
-\ Убрать c-addr u со стека. Сохранить текущие спецификации входного потока,
-\ включая текущее значение SOURCE-ID. Открыть файл, заданный c-addr u,
-\ записать полученный fileid в SOURCE-ID и сделать его входным потоком.
-\ Записать 0 в BLK.
-\ Другие изменения стека определяются словами из включенного файла.
-\ Повторять до конца файла: прочесть строку из файла, заполнить входной
-\ буфер содержимым этой строки, установить >IN в ноль и интерпретировать.
-\ Интерпретация текста начинается с позиции, с которой должно происходить
-\ дальнейшее чтение файла.
-\ Когда достигнут конец файла, закрыть файл и восстановить спецификации
-\ входного потока к их сохраненным значениям.
-\ Неопределенная ситуация возникает, если fileid неверен, если возникают
-\ исключительные ситуации ввода-вывода по мере чтения fileid, или
-\ возникают исключительная ситуация при закрытии файла. Когда имеет
-\ место неопределенная ситуация, статус (открыт или закрыт) любых
-\ интерпретируемых файлов зависит от реализации.
-
-\  CURFILE @ >R
-\  DUP CELL+ ALLOCATE THROW CURFILE !
-\  2DUP CURFILE @ SWAP 1+ MOVE
-
-\  R/O OPEN-FILE-SHARED ?DUP 
-\  IF NIP CURFILE @ FREE DROP R> CURFILE ! THROW THEN ( ошибка открытия файла )
-\  DUP >R
-\  ['] INCLUDE-FILE CATCH
-\  ?DUP IF R> CLOSE-FILE DROP THROW
-\          \ закрыли транслируемый файл и передаем ошибку выше
-\       ELSE RDROP THEN
-
-\  CURFILE @ FREE THROW R> CURFILE !
-\ ;
-
 : HEAP-COPY ( addr u -- addr1 )
 \ скопировать строку в хип и вернуть её адрес в хипе
   DUP 0< IF 8 THROW THEN
@@ -344,6 +316,28 @@ VARIABLE   &INTERPRET
   0 R> R@ + C! R>
 ;
 
+: FIND-FULLNAME ( a1 u1 -- a u )
+  2DUP +SourcePath      2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
+  2DUP FILE-EXIST IF EXIT THEN
+  2DUP +LibraryDirName  2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
+  2DUP +ModuleDirName   2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
+  2 ( ERROR_FILE_NOT_FOUND ) THROW
+;
+: (INCLUDED) ( i*x a u -- )
+  R/O OPEN-FILE-SHARED THROW DUP >R
+  BLK 0!
+  ['] TranslateFlow RECEIVE-WITH ( ior )
+  R> CLOSE-FILE THROW
+  THROW
+;
+: INCLUDED_STD ( i*x c-addr u -- j*x )
+  CURFILE @ >R
+  2DUP HEAP-COPY CURFILE !
+  ['] (INCLUDED) CATCH
+  CURFILE @ FREE THROW
+  R> CURFILE !
+  THROW
+;
 : INCLUDED ( i*x c-addr u -- j*x ) \ 94 FILE
 \ Убрать c-addr u со стека. Сохранить текущие спецификации входного потока,
 \ включая текущее значение SOURCE-ID. Открыть файл, заданный c-addr u,
@@ -361,20 +355,11 @@ VARIABLE   &INTERPRET
 \ возникают исключительная ситуация при закрытии файла. Когда имеет
 \ место неопределенная ситуация, статус (открыт или закрыт) любых
 \ интерпретируемых файлов зависит от реализации.
-  CURFILE @ >R
-  2DUP HEAP-COPY CURFILE !
-
-  2DUP 2>R INCLUDE-PROBE
-  IF 2R@ +LibraryDirName INCLUDE-PROBE IF 2R> +ModuleDirName INCLUDE-PROBE
-                                       ELSE 2R> 2DROP 0
-                                       THEN
-  ELSE 2R> 2DROP 0 THEN
-  CURFILE @ FREE THROW R> CURFILE !
-  THROW
+  FIND-FULLNAME INCLUDED_STD
 ;
 : REQUIRED ( waddr wu laddr lu -- )
   2SWAP SFIND
-  IF DROP 2DROP EXIT
+  IF DROP 2DROP
   ELSE 2DROP INCLUDED THEN
 ;
 : REQUIRE ( "word" "libpath" -- )

@@ -24,9 +24,9 @@
   S" ENVIR.SPF" +ModuleDirName
 
   R/O OPEN-FILE-SHARED 0=
-  IF  FILE>RSTREAM DUP >R  
+  IF  DUP >R  
       ['] (ENVIR?) RECEIVE-WITH  IF 0 THEN
-      R> FREE-RSTREAM CLOSE-FILE THROW 
+      R> CLOSE-FILE THROW 
   ELSE 
     2DROP DROP 0 THEN
 ;
@@ -34,35 +34,35 @@
 0 CONSTANT FORTH_ERROR
 
 : (DECODE-ERROR) ( n -- c-addr u )
-   STATE @ >R STATE 0!
-   BEGIN
-     REFILL
-   WHILE
-     NextWord ['] ?SLITERAL CATCH
-     IF DROP S" Error while error decoding!" -1
-     ELSE OVER = DUP IF 2DROP >IN 0! [CHAR] \ PARSE
-                        TUCK PAD SWAP MOVE
-                        PAD SWAP -1 
-                     THEN
-     THEN IF R> STATE ! EXIT THEN
-   REPEAT DROP R> STATE !
-   SOURCE TUCK PAD SWAP QCMOVE \ Unknown error
-   PAD SWAP
+  STATE @ >R STATE 0!
+  BEGIN
+    REFILL
+  WHILE
+    NextWord ['] ?SLITERAL CATCH
+    IF DROP S" Error while error decoding!" -1
+    ELSE OVER = DUP IF 2DROP >IN 0! [CHAR] \ PARSE
+                       TUCK PAD SWAP MOVE
+                       PAD SWAP -1
+                    THEN
+    THEN IF R> STATE ! EXIT THEN
+  REPEAT DROP R> STATE !
+  SOURCE TUCK PAD SWAP QCMOVE \ Unknown error
+  PAD SWAP
 ;
 
 : DECODE-ERROR ( n u -- c-addr u )
-\ Возвратить строку, содержащую расшифровку кода 
+\ Возвратить строку, содержащую расшифровку кода
 \ ошибки n при условии u. Использует PAD!
 \ Scattered Colon.
   ... DROP
   S" SPF.ERR" +ModuleDirName
   R/O OPEN-FILE-SHARED
   IF DROP DUP >R ABS 0 <# #S R> SIGN S" ERROR #" HOLDS #>
-     TUCK PAD SWAP MOVE PAD SWAP 
+     TUCK PAD SWAP MOVE PAD SWAP
   ELSE
-    FILE>RSTREAM DUP >R
+    DUP >R
     ['] (DECODE-ERROR) RECEIVE-WITH DROP
-    R> FREE-RSTREAM CLOSE-FILE THROW
+    R> CLOSE-FILE THROW
     2DUP -TRAILING + 0 SWAP C!
   THEN
 ;

@@ -17,6 +17,7 @@ TC-USER-HERE ' USER-OFFS EXECUTE !
   DECIMAL
   ATIB TO TIB
   0 TO SOURCE-ID
+  0 TO SOURCE-ID-XT
   S-O TO CONTEXT FORTH DEFINITIONS
   POSTPONE [
   HANDLER 0!
@@ -30,23 +31,23 @@ TC-USER-HERE ' USER-OFFS EXECUTE !
 
 : USER-INIT ( n )
 \ n - размер параметров, к-е Windows передает callback процедуре (в байтах)
-  ERASED-CNT @ 0=
-  IF ( один раз на задачу )
-     ERASE-IMPORTS
-     ERASED-CNT 1+!
-     ['] NOOP       TO <PRE>
-     ['] FIND1      TO FIND
-     ['] ?LITERAL2  TO ?LITERAL
-     ['] ?SLITERAL2 TO ?SLITERAL
-     ['] OK1        TO OK
-     ['] ERROR2     TO ERROR
-     ['] (ABORT1")  TO (ABORT")
-     ['] ACCEPT1    TO ACCEPT
-     ['] TYPE1      TO TYPE
-     ['] KEY1       TO KEY
-  THEN         
   CREATE-HEAP
   POOL-INIT
+;
+\ один раз на задачу
+: PROCESS-INIT ( n )
+  ERASE-IMPORTS
+  ['] NOOP       TO <PRE>
+  ['] FIND1      TO FIND
+  ['] ?LITERAL2  TO ?LITERAL
+  ['] ?SLITERAL2 TO ?SLITERAL
+  ['] OK1        TO OK
+  ['] ERROR2     TO ERROR
+  ['] (ABORT1")  TO (ABORT")
+  ['] ACCEPT1    TO ACCEPT
+  ['] TYPE1      TO TYPE
+  ['] KEY1       TO KEY
+  USER-INIT
 ;
 
 : USER-EXIT
@@ -118,8 +119,8 @@ VARIABLE IN-EXCEPTION
 ' TITLE ' MAINX EXECUTE !
 
 : SPF-INI
-  S" SPF.INI" INCLUDE-PROBE
-  IF  S" SPF.INI" +ModuleDirName INCLUDE-PROBE DROP  THEN
+  S" SPF4.INI" INCLUDE-PROBE
+  IF  S" SPF4.INI" +ModuleDirName INCLUDE-PROBE DROP  THEN
 ;
 
 \ Scattering a Colon Definition
@@ -141,7 +142,6 @@ TRUE VALUE SPF-INIT?
 
 : (INIT)
   0 TO H-STDLOG
-  0 TO H-STDIN
   CONSOLE-HANDLES
   ['] CGI-OPTIONS ERR-EXIT
   ['] AT-PROCESS-STARTING ERR-EXIT
@@ -154,5 +154,7 @@ TRUE VALUE SPF-INIT?
   BYE
 ;
 
+' PROCESS-INIT TO TC-FORTH-INSTANCE>
 ' (INIT) WNDPROC: INIT
 ' INIT OVER - OVER 1+ +!
+' FORTH-INSTANCE> TO TC-FORTH-INSTANCE>

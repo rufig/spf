@@ -177,9 +177,10 @@ USER Hdl
   SWAP LTL @ + SWAP
   2>R DUP Buf ! 2R>
   DUP Hdl !
-  READ-FILE DUP IF ( ошибка чтения ) 0 SWAP EXIT THEN DROP
+  READ-FILE ?DUP IF ( ошибка чтения ) 0 SWAP EXIT THEN
   DUP IF ( что-то прочли ) ( прочитано_байт )
-         Buf @ OVER LT 1 SEARCH ( прочитано_байт адрес_конца_строки осталось_байт флаг )
+         Buf @ OVER LT 1 SEARCH
+         ( прочитано_байт адрес_конца_строки осталось_байт флаг )
          0= IF ( конец строки не найден - будем рвать в текущем месте)
                2DROP -1 0 EXIT
             THEN
@@ -188,11 +189,11 @@ USER Hdl
          ( адрес_конца_строки  осталось )
          LTL @ - ( не возвращать CRLF )
          ?DUP IF
-         0 DNEGATE
-         Hdl @ FILE-POSITION ?DUP
-         IF >R 2DROP 2DROP Buf @ - -1 R> EXIT THEN
-         D+
-         Hdl @ REPOSITION-FILE ?DUP IF  0 SWAP EXIT THEN
+           0 DNEGATE
+           Hdl @ FILE-POSITION ?DUP
+           IF >R 2DROP 2DROP Buf @ - -1 R> EXIT THEN
+           D+
+           Hdl @ REPOSITION-FILE ?DUP IF  0 SWAP EXIT THEN
          THEN
          ( адрес_конца_строки )
          Buf @ - -1 0
@@ -246,121 +247,9 @@ USER lpNumberOfBytesWritten
 : FLUSH-FILE ( fileid -- ior ) \ 94 FILE EXT
   FlushFileBuffers ERR
 ;
-
-\ портабельный устройство-независимый уровень  (layer)
-\ работы с потоками чтения (c) ~day 07.Feb.2001
-0
-CELL -- .shandle
-CELL -- .sbuf
-CELL -- .spos
-CELL -- .s#tib
-CELL -- .sreadxt
-CONSTANT /STREAM
-
-512 VALUE RSTREAM-BUF
-
-: HANDLE>RSTREAM ( h -- s )
-   /STREAM DUP ALLOCATE THROW DUP 
-   ROT ERASE >R
-   R@ .shandle !
-   RSTREAM-BUF ALLOCATE THROW R@ .sbuf !
-   R>
-;
-
-: HANDLE>RSTREAM-WITH ( h xt -- s )
-   SWAP HANDLE>RSTREAM
-   TUCK .sreadxt !
-;
-
-: FILE>RSTREAM ( h -- s )
-   ['] READ-FILE
-   HANDLE>RSTREAM-WITH
-;
-
-: REFILL-RSTREAM ( s -- u ior )
-\ Обновить буфер
-  DUP >R
-  .sbuf @
-  RSTREAM-BUF
-  R@ .shandle @
-  R@ .sreadxt @ EXECUTE OVER
-  R@ .s#tib !
-  R> .spos 0!
-;
-
-: FREE-RSTREAM ( s -- h )
-   DUP >R .shandle @
-   R@ .sbuf @ FREE THROW
-   R> FREE THROW
-;
-
-: STREAM-FILE ( s -- h )
-    @
-;
-
-USER-VALUE _s
-USER-VALUE _buf
-USER-VALUE _pos
-USER-VALUE _#tib
-
-: READ-RSTREAM-LINE  ( addr u s -- u1 flag ior )
-   TO _s 2>R
-   _s .sbuf @ TO _buf
-   _s .s#tib @ DUP TO _#tib
-   _s .spos @ DUP TO _pos 
-   =
-   IF \ буфер кончился
-     _s REFILL-RSTREAM ?DUP IF 0 SWAP RDROP RDROP EXIT THEN
-      \ прочитали 0
-     0 TO _pos
-     DUP TO _#tib
-     0= IF 0. 0 RDROP RDROP EXIT THEN
-   THEN
-   _buf _pos + DUP
-   _#tib _pos -
-   LT 1+ 1 SEARCH
-   IF
-     DROP OVER - R> MIN >R
-     2R@ QCMOVE
-     \ на случай если запрашивали символов меньше чем длина строки
-     R@ _buf _pos + R@ + C@ 10 = IF 1+ THEN _s .spos +!
-     2R@ SWAP OVER + 1- C@ 13 = IF 1- THEN -1 0
-     RDROP RDROP
-   ELSE \ нет LF
-     \ копируем все что нужно
-     2DROP R@ SWAP CELL RP+@ ( addr) _#tib _pos - R@ MIN DUP >R QCMOVE
-     _#tib _pos - 1+ <  ( _#tib _pos - u > )
-     IF \ если можно - больше чем нужно, либо в самый раз
-        R> DUP _s .spos +!
-        RDROP RDROP -1 0 EXIT
-     THEN
-     _#tib _s .spos !
-     R@ 8 RP+@ ( addr) OVER +
-     CELL RP+@ ( u) ROT - _s RECURSE
-     \ Суммируем результат рекурсии
-     ROT R> + ROT DROP -1 ( что-то возвратили) ROT RDROP RDROP
-   THEN
-;
-
-: READ-RSTREAM ( c-addr u1 fileid -- u2 ior )
-   DUP >R
-   .s#tib @ DUP TO _#tib
-   R@ .spos @ DUP TO _pos
-   =
-   IF \ буфер пуст
-     R@ REFILL-RSTREAM ?DUP IF >R NIP NIP R> RDROP EXIT THEN
-     0 TO _pos
-     DUP TO _#tib
-     0= IF 2DROP RDROP 0 0 EXIT THEN
-   THEN
-   \ копируем все что есть в буфере
-   2DUP SWAP R@ .sbuf @ _pos + SWAP ROT _#tib _pos - MIN DUP >R QCMOVE
-   DUP R@ > \ запросили больше?
-   IF
-     R@ - SWAP R@ + SWAP \ учли уже записаное
-     CELL RP+@ ( s) DUP .shandle @ SWAP .sreadxt @ EXECUTE
-     SWAP R> + SWAP _#tib R> .spos !
-   ELSE
-     2DROP 2R> TUCK SWAP .spos +! 0
-   THEN 
+: FILE-EXIST ( addr u -- flag )
+  R/O OPEN-FILE-SHARED ?DUP
+  IF NIP DUP 2 = SWAP 3 = OR 0= \ ~ruv
+  ELSE CLOSE-FILE THROW TRUE
+  THEN
 ;
