@@ -1,0 +1,179 @@
+HASH           {              vocLocalsSupport              DONE           
+INIT           (INIT)         SPF-INIT?      ERR-EXIT       ;..            
+..:            ...            SPF-INI        TITLE          (TITLE)        
+EXC-DUMP1      STACK-ADDR.    IN-EXCEPTION   USER-EXIT      PROCESS-INIT   
+USER-INIT      POOL-INIT      AT-THREAD-FINISHING           
+AT-PROCESS-STARTING           AT-THREAD-STARTING            MAINX          
+OPTIONS        SAVE           RESOURCES-SIZE RESOURCES-RVA  ?CONSOLE       
+?GUI           IMAGE-BASE     IMAGE-SIZE     IMAGE-BEGIN    ORG-ADDR       
+CGI-OPTIONS    POST?          CGI?           TERMINATE      PAUSE          
+STOP           RESUME         SUSPEND        START          ERASE-IMPORTS  
+TASK:          TASK           WNDPROC:       CALLBACK:      EXTERN         
+WINAPI:        NEW-WINAPI?    WINAPLINK      ERROR2         DECODE-ERROR   
+(DECODE-ERROR) FORTH_ERROR    ENVIRONMENT?   (ENVIR?)       THROW          
+EXECUTE        ?DUP           RDROP          >R             R>             
+}}             {{             ;MODULE        EXPORT         MODULE:        
+UNLOOP         LEAVE          I              +LOOP          LOOP           
+?DO            DO             RECURSE        AGAIN          REPEAT         
+WHILE          UNTIL          BEGIN          THEN           ELSE           
+IF             ?LITERAL2      ?SLITERAL2     HEX-SLITERAL   ?LITERAL1      
+?SLITERAL1     [']            ABORT"         [CHAR]         ."             
+C"             S"             CLITERAL       SLITERAL       2LITERAL       
+LITERAL        --             FIELD          \EOF           EXIT           
+;              [COMPILE]      (              .(             \              
+POSTPONE       TO             :              :NONAME        HIDE           
+SMUDGE         C-SMUDGE       BEHAVIOR       ->VECT         USER-VECT      
+USER-VALUE     USER           USER-CREATE    ->VARIABLE     VECT           
+VALUE          CONSTANT       VARIABLE       VOCABULARY     DOES>          
+(DOES2)        (DOES1)        CREATE         CREATED        HEADER         
+SHEADER        LAST-NON       LAST-CFA       REQUIRE        REQUIRED       
+INCLUDED       INCLUDED_STD   (INCLUDED1)    (INCLUDED)     INCLUDE-PROBE  
+INCLUDE-FILE   TranslateFlow  (TranslateFlow)               PROCESS-ERR1   
+PROCESS-ERR    FIND-FULLNAME1 FIND-FULLNAME  HEAP-COPY      RECEIVE-WITH   
+RECEIVE-WITH-XT               EVALUATE       EVALUATE-WITH  RESTORE-SOURCE 
+SAVE-SOURCE    QUIT           MAIN1          ]              [              
+OK1            .SN            INTERPRET      &INTERPRET     INTERPRET_     
+NOTFOUND       EVAL-WORD      BYE            CHAR           '              
+WORD           ?COMP          ?STACK         DEPTH          ?SLITERAL      
+?LITERAL       <MAIN>         OK             BLK            STATE          
+WARNING        R0             S0             SAVE-ERR       (ABORT1")      
+?ERROR         LAST-WORD      ERR-STRING     ERR-FILE       ERR-LINE       
+ERR-IN#        ERR-LINE#      ERR-NUMBER     NOTSEEN-ERR    SEEN-ERR       
+SEEN-ERR?      ERR-DATA       /err-data      err.file       err.line       
+err.notseen    err.in#        err.line#      err.number     /errstr_       
+ER-U           ER-A           (ABORT")       ERROR          WORDS          
+NLIST          W-CNT          >OUT           LATEST         ORDER          
+VOC-NAME.      PREVIOUS       ALSO           SET-ORDER      ONLY           
+FORTH          GET-ORDER      DEFINITIONS    FIND1          SFIND          
+CONTEXT        S-O            SEARCH-WORDLIST               FIND           
+WordByAddr     NEAR_NFA       WL_NEAR_NFA    VOC            IMMEDIATE      
+?VOC           ?IMMEDIATE     ID.            CDR            NAME>L         
+NAME>F         NAME>C         NAME>          PAR@           PAR!           
+CLASS@         CLASS!         FREE-WORDLIST  TEMP-WORDLIST  WORDLIST       
+BUILD-DATE     VERSION        WL_SIZE        +WORD          +SWORD         
+>BODY          FORTH-WORDLIST &VOC           &IMMEDIATE     LAST           
+VOC-LIST       ALIGN-NOP      ALIGN          ALIGNED        ALIGN-BYTES    
+>RESOLVE       >RESOLVE1      >ORESOLVE      >ORESOLVE1     <MARK          
+>MARK          ",             S",            ?BRANCH,       RLIT,          
+DLIT,          LIT,           RET,           BRANCH,        COMPILE,       
+_COMPILE,      HERE           RESOLVE_OPT    J_OPT?         J_MOVE         
+J_+!           J?_STEP        CON>LIT        FORLIT,        OPT            
+???BR-OPT      ??BR-OPT       ?BR-OPT        ?BR-OPT-RULES  XC_J           
+MACRO,         INLINE,        OPT_INIT       OPT_CLOSE      _INLINE,       
+2A_,_STEP      1A_,_STEP      7_,_STEP       6_,_STEP       5_,_STEP       
+4_,_STEP       4_,_STEP_      3_,_STEP       2_,_STEP       1_,_STEP       
++EBP           MACRO?         INLINE?        DO_OPT         OPT_           
+-EVEN-EBP      OPT-RULES      ?C-JMP         ?EAX=RULES     DO_EAX>ECX     
+?EAX:=ECX      ECX:=EAX       F?EAX>ECX      T?EAX>ECX      -EBPCLR        
+-EBPLIT        EAX>ECX        EAX>ECX0       ?EAX>ECX       EAX>EBX        
+EAX>EBX0       ?EAX>EBX       }?~EAX         ?~EAX{         SAVE-?~EAX     
+?~EAX          OPinsert       OPresize       MOV_EDX_[EBP]  XX_STEP        
+OPexcise       OP_SIZE        ^?EAX=         ?ChEAX         DEPTH-OPT?     
+DUP7B?         DUP5B?         DUP6B?         DUP2B?         DUP3B?         
+DUP3B?[EBP]    ADD|XOR|OR|AND=               +>OFF-EBP      EVEN-EBP       
+EVEN-EAX       SHORT?         ?SET           SetJP          J_@            
+SJ@            J@             ClearJpBuff    JP4            JP3            
+JP2            JP1            JP0            JpBuffSize     ToOP0          
+SetOP          OP8            OP7            OP6            OP5            
+OP4            OP3            OP2            OP1            OP0            
+OpBuffSize     LAST-HERE      J-SET          :-SET          OFF-EAX        
+OFF-EBP        MM_SIZE        DIS-OPT        SET-OPT        J_COD          
+OPT?           REL@           W,             C,             ,              
+ALLOT          DP             IS-TEMP-WL     GET-CURRENT    SET-CURRENT    
+DOES>A         CFL            (DP)           CURRENT        NON-OPT-WL     
+REFILL         CONSOLE-HANDLES               CURSTR         <PRE>          
+SOURCE-ID-XT   SOURCE-ID      SKIP1          SKIP           PARSE          
+NextWord       ParseWord      SkipUpTo       SkipWord       OnNotDelimiter 
+SkipDelimiters OnDelimiter    GetChar        IsDelimiter    PeekChar       
+CharAddr       EndOfChunk     SOURCE!        SOURCE         ATIB           
+TIB            C/L            >IN            #TIB           SOURCE-NAME    
++LibraryDirName               +ModuleDirName ModuleDirName  ModuleName     
+CUT-PATH       is_path_delimiter             CURFILE        SCREEN-LENGTH  
+OEM>ANSI       ANSI>OEM       >NUMBER        (.")           DUMP           
+PTYPE          >PRT           .TO-LOG        .0             U.             
+.              D.             SIGN           #>             #S             
+#              <#             HOLDS          HOLD           DECIMAL        
+HEX            PAD            SYSTEM-PAD     BASE           HLD            
+KEY1           KEY            KEY?           PENDING-CHAR   SPACES         
+SPACE          BL             EKEY>SCAN      EKEY>CHAR      EKEY           
+KEY_EVENT      ControlKeysMask               INPUT_RECORD   EKEY?          
+CR             EMIT           TYPE1          TYPE           ACCEPT1        
+ACCEPT         TO-LOG         STARTLOG       ENDLOG         ANSI><OEM      
+FILE-EXIST     FLUSH-FILE     WRITE-LINE     RESIZE-FILE    WRITE-FILE     
+lpNumberOfBytesWritten        READ-LINE      _addr          _fp2           
+_fp1           UNIX-LINES     DOS-LINES      LTL            LT             
+REPOSITION-FILE               READ-FILE      lpNumberOfBytesRead           
+OPEN-FILE      FILE-SIZE      FILE-POSITION  lpDistanceToMoveHigh          
+DELETE-FILE    OPEN-FILE-SHARED              CREATE-FILE-SHARED            
+SA             CREATE-FILE    CLOSE-FILE     HALT           
+AT-PROCESS-FINISHING          SET-EXC-HANDLER               
+DROP-EXC-HANDLER              (EXC)          <EXC-DUMP>     EXC-HANDLER    
+H-STDLOG       H-STDERR       H-STDOUT       H-STDIN        ABORT          
+CATCH          <SET-EXC-HANDLER>             (THROW)        FATAL-HANDLER  
+HANDLER        RESIZE         FREE           ALLOCATE       DESTROY-HEAP   
+CREATE-HEAP    EXTRA-MEM      USER-HERE      USER-ALLOT     ERR            
+USER-OFFS      THREAD-HEAP    R/W            W/O            R/O            
+FILE_CURRENT   FILE_BEGIN     OPEN_EXISTING  CREATE_ALWAYS  
+FILE_ATTRIBUTE_ARCHIVE        INVALID_HANDLE_VALUE          MEM_RESERVE    
+MEM_COMMIT     PAGE_EXECUTE_READWRITE        FlushFileBuffers              
+Sleep          TerminateThread               ResumeThread   SuspendThread  
+CreateThread   GetEnvironmentVariableA       GetModuleFileNameA            
+OemToCharBuffA CharToOemBuffA GetProcAddress LoadLibraryA   
+GetCommandLineA               HeapReAlloc    HeapFree       HeapAlloc      
+HeapDestroy    HeapCreate     GetProcessHeap ReadConsoleInputA             
+GetNumberOfConsoleInputEvents ExitThread     ExitProcess    SetEndOfFile   
+WriteFile      ReadFile       GetFileSize    SetFilePointer DeleteFileA    
+CreateFileA    CloseHandle    GetLastError   GetStdHandle   
+<FORTH-INSTANCE               FORTH-INSTANCE>               _WNDPROC-CODE  
+API-CALL       _WINAPI-CODE   ST-RES         AOGPA          AOLL           
+DOES-CODE      DABS           ERASE          MOVE           CHARS          
+CHAR+          */             CELL           TRUE           FALSE          
+_FLIT-CODE10   _FLIT-CODE8    `F1-           F**2           `F1+           
+FD>            FD<            FRSTOR         FSAVE          FENV>          
+F>ENV          F10/           F10*           LOW-MODE       UP-MODE        
+ROUND-MODE     TRUNC-MODE     F[LOG]         FLOG2          ?OF            
+?ZE            ?IE            GETFPUSW       F--DS          F>DS           
+DS>F           GETFPUCW       SETFPUCW       FINIT          F>RAD          
+F>DEG          FASIN          FACOS          FATAN2         FATAN          
+FTAN           F**            FEXPM1         FEXP           FLOG           
+FLNP1          FLN            SF@            SF!            F@             
+DATA>FLOAT     FLOAT>DATA     F!             DF@            DF!            
+F>D            D>F            F1+            FDEPTH         FROT           
+FSWAP          FINT           FOVER          FDUP           FDROP          
+FSQRT          F/             F-             F+             F*             
+FABS           FSINCOS        FSIN           FCOS           FNEGATE        
+FMIN           FMAX           F=             F<             F0<            
+F0=            1.E            .E             FL2E           FL2T           
+FLN2           FLG2           FPI            10.E           2.E            
+(ENTER)        TRAP-CODE      TIMER@         HASH           (LocalsExit)   
+RFREE          (RALLOT)       RALLOT         RP+!           RP+            
+RP+@           NRCOPY         N>R            NR>            DRMOVE         
+C-EXECUTE      C-?DUP         C-RDROP        C-R>           C->R           
+C-I            ADD[ESP],EAX   C-?DO          C-DO           J              
+FS!            FS@            TlsIndex@      TlsIndex!      RP@            
+SP@            RP!            SP!            ASCIIZ>        FILL           
+CMOVE>         QCMOVE         CMOVE          SEARCH         COMPARE        
+-TRAILING      D2/            D2*            D=             D0=            
+0<>            0=             0<             U>             U<             
+D>             D<             WITHIN         >              <              
+<>             =              DIGIT          FM/MOD         SM/REM         
+RSHIFT         LSHIFT         M*             */MOD          2/             
+UM/MOD         UMOD           /MOD           MOD            +!             
+U/             /              UM*            C>S            U>D            
+D>S            S>D            NOOP           ABS            DNEGATE        
+NEGATE         INVERT         XOR            OR             AND            
+*              COUNT          0!             1+!            -              
+D-             D+             CELLS          CELL-          CELL+          
++              2*             2-             2+             1-             
+1+             2!             2@             W!             W@             
+C!             C@             !              @              2R@            
+R@             2R>            2>R            TUCK           ROLL           
+PICK           -ROT           ROT            NIP            2OVER          
+OVER           2SWAP          SWAP           2DROP          UMIN           
+UMAX           MIN            MAX            DROP           2DUP           
+DUP            TOUSER-VALUE-CODE             USER-VALUE-CODE               
+TOVALUE-CODE   CONSTANT-CODE  USER-CODE      CREATE-CODE    _---CODE       
+CLITERAL-CODE  _CLITERAL-CODE SLITERAL-CODE  _SLITERAL-CODE 
+_TOUSER-VALUE-CODE            _TOVALUE-CODE  _VECT-CODE     
+_USER-VECT-CODE               _USER-VALUE-CODE              USER+          
+_USER-CODE     _CONSTANT-CODE _CREATE-CODE   
