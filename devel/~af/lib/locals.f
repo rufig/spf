@@ -93,7 +93,10 @@
   после этого вычищаются и более недоступны.
 
   Использовать конструкцию "{ ... }" внутри одного определения можно
-  только один раз.
+  несколько раз.
+  : test { this } { a b } a this 4 + ! b this 8 + ! ;
+  CREATE th 20 ALLOT
+  12 5 th test 
 
   Компиляция этой библиотеки добавляет в текущий словарь компиляции
   Только два слова:
@@ -106,9 +109,6 @@
   Этот список располагается после списка неиниц.локалов и 
   начинается после символов - \v.
   Для всех переменных, не равных нулю, при очистке локалов вызывается release.
-  Число таких переменных - не более 255.
-  Общий объем памяти, который можно занять под локалсы -
-  не более 0xFFFFFF байт.
 
 : test { \v excel }
   Z" Excel.Application" create-object THROW TO excel
@@ -127,19 +127,24 @@ USER uLocalsUCnt
 USER uLocalsCOMCnt
 USER uPrevCurrent
 USER uAddDepth
+USER uLatest
+USER lLocalsCnt
+USER lLocalsUCnt
+USER lLocalsCOMCnt
 
 : LocalOffs ( n -- offs )
   uLocalsCnt @ SWAP - 1- CELLS uAddDepth @ +
 ;
 
-: ClearObj ( n --)
-  R>
+: ClearObj ( R: n --)
+  R> R>
   RP@ SWAP 0
   DO
     DUP @ ?DUP IF 2 CELLS OVER @ + @ API-CALL DROP THEN \ вызов метода release
     CELL+
   LOOP
   DROP
+  >R
 ;
 
 \ Чтобы работал и в spf3 и в spf4
@@ -165,17 +170,39 @@ VERSION 400000 < [IF]
 \ spf4
   : CompileLocalsInit
     uPrevCurrent @ SET-CURRENT
-    uLocalsCnt  @ uLocalsUCnt @ - uLocalsCOMCnt @ -
-    ?DUP IF CELLS LIT, POSTPONE DRMOVE THEN
-    uLocalsUCnt @ uLocalsCOMCnt @ + ?DUP
-    IF LIT, POSTPONE (RALLOT) THEN
+    uLocalsCnt @ lLocalsCnt @ -
+    uLocalsUCnt @ lLocalsUCnt @ - -
+    uLocalsCOMCnt @ lLocalsCOMCnt @ - -
+    ?DUP IF
+      DUP
+      1- DUP CELLS SWAP 0 ?DO
+        0xFF C, 0x75 C, CELL- DUP C, \ PUSH XX [EBP]
+      LOOP
+      DROP
+      0x50 C, \ PUSH EAX 
+      0 DO S" DROP" EVALUATE LOOP
+    THEN
+    uLocalsUCnt @ lLocalsUCnt @ -
+    uLocalsCOMCnt @ lLocalsCOMCnt @ -
+    + ?DUP IF
+      DUP 9 < IF \ если неинициализированных локалсов немного, то быстрый метод
+        0 LIT,
+        0 DO 0x50 C, ( PUSH EAX) LOOP
+        S" DROP" EVALUATE
+      ELSE
+        LIT, POSTPONE (RALLOT)
+      THEN
+    THEN
   ;
 
   : CompileLocal@ ( n -- )
     ['] DUP MACRO,
     LocalOffs DUP  SHORT?
     OPT_INIT SetOP
-    IF    0x8B C, 0x44 C, 0x24 C, C, \ mov eax, offset [esp]
+    IF
+      ?DUP IF 0x8B C, 0x44 C, 0x24 C, C, \ mov eax, offset [esp]
+      ELSE 0x8B C, 0x04 C, 0x24 C, \ mov eax, [esp]
+      THEN
     ELSE  0x8B C, 0x84 C, 0x24 C,  , \ mov eax, offset [esp]
     THEN  OPT
     OPT_CLOSE
@@ -204,18 +231,29 @@ VERSION 400000 < [IF]
 [THEN]
 
 : LocalsStartup
-  TEMP-WORDLIST widLocals !
-  GET-CURRENT uPrevCurrent !
-  ALSO vocLocalsSupport
-  ALSO widLocals @ CONTEXT ! DEFINITIONS
-  uLocalsCnt 0!
-  uLocalsUCnt 0!
-  uLocalsCOMCnt 0!
-  uAddDepth 0!
+  LATEST uLatest @ <> IF
+    LATEST uLatest !
+    ALSO vocLocalsSupport
+    TEMP-WORDLIST widLocals !
+    GET-CURRENT uPrevCurrent !
+    ALSO widLocals @ CONTEXT ! DEFINITIONS
+    uLocalsCnt 0!
+    uLocalsUCnt 0!
+    uLocalsCOMCnt 0!
+    lLocalsCnt 0!
+    lLocalsUCnt 0!
+    lLocalsCOMCnt 0!
+    uAddDepth 0!
+  ELSE
+    widLocals @ SET-CURRENT
+    uLocalsCnt @ lLocalsCnt !
+    uLocalsUCnt @ lLocalsUCnt !
+    uLocalsCOMCnt @ lLocalsCOMCnt !
+  THEN
 ;
 : LocalsCleanup
   PREVIOUS PREVIOUS
-  widLocals @ FREE-WORDLIST
+  widLocals @ ?DUP IF FREE-WORDLIST THEN
 ;
 
 : ProcessLocRec ( "name" -- u )
@@ -340,7 +378,7 @@ VERSION 400000 < [IF]
   uLocalsCnt  @ ?DUP 
   IF
     uLocalsCOMCnt @ ?DUP
-    IF LIT, POSTPONE >R ['] ClearObj LIT, POSTPONE >R THEN
+    IF LIT, POSTPONE >R POSTPONE ClearObj THEN
     CELLS LIT, POSTPONE >R ['] (LocalsExit) LIT, POSTPONE >R
   THEN
 ;
@@ -349,7 +387,7 @@ VERSION 400000 < [IF]
   uLocalsCnt  @ ?DUP 
   IF
     uLocalsCOMCnt @ ?DUP
-    IF RLIT, ['] ClearObj RLIT, THEN
+    IF RLIT, POSTPONE ClearObj THEN
     CELLS DUP SHORT?
     IF 0x83 C, 0xC4 C, C, \ ADD ESP, # 127
     ELSE 0x81 C, 0xC4 C, , \ ADD ESP, # 128
