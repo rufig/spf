@@ -280,7 +280,7 @@ CREATE _S""" CHAR " C,
 ;
 
 HEX
-0BC ( 90, 98 в старых locals) CONSTANT LOCALS_STACK_OFFSET
+084 ( 0BC в spf375;  90, 98 в старых locals) CONSTANT LOCALS_STACK_OFFSET
 \ смещение первой локальной переменной в стеке ( в старом locals)
 \ смещение фрейма (в новом locals)
 \ на момент выполнения слова (") внутри скомпилированного определения
@@ -391,7 +391,7 @@ TEST2
   123
 " 
 STYPE
-
+)
 : TEST3  { \ n t k }
   9 -> n
   " abcd" -> t
@@ -399,4 +399,3 @@ STYPE
   " |123|{$t}|123|{#n}|123|{#k}|{S' file1.txt' EVAL-FILE}<End of file>" STYPE
 ;
 TEST3
-)
