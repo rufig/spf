@@ -1,0 +1,23 @@
+VARIABLE Urlmon
+WINAPI: CreateURLMoniker URLMON.DLL
+WINAPI: ShowHTMLDialog Mshtml.dll
+
+: L" ( "ccc" -- ) \ ******* компиляция строки в UNICODE
+  [CHAR] " PARSE
+  0 ?DO DUP I + C@ W, LOOP DROP 0 W,
+;
+
+CREATE Url L" http://www.eserv.ru/eserv/download/"
+CREATE Params L" dialogWidth:40;dialogHeight:28"
+
+
+: ENET
+  NEW-HEAP-HANDLE 0!
+  Urlmon Url 0 CreateURLMoniker 0=
+  IF
+    0 Params 0 Urlmon @ 0 ShowHTMLDialog DROP
+  THEN
+  BYE
+;
+
+' NOOP TO <PRE> ' ENET DUP MAINX ! TO <MAIN> FALSE TO ?CONSOLE TRUE TO ?GUI NEW-HEAP-HANDLE 0! S" ESERV-2000.EXE" SAVE BYE
