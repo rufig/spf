@@ -288,16 +288,34 @@ CODE F!
        RET
 END-CODE
 
-CODE FLOAT>DATA
+CODE FLOAT>DATA ( F: f -- D: u )
        LEA  EBP, -8 [EBP]
        FSTP  QWORD [EBP]
        XCHG  EAX, 4 [EBP]
        RET
 END-CODE
 
-CODE DATA>FLOAT
+CODE DATA>FLOAT ( D: f -- F: f )
        XCHG EAX, 4 [EBP]
        FLD  QWORD [EBP]
+       LEA  EBP, 8 [EBP]
+       RET
+END-CODE
+
+\ float takes 32 bit here
+
+CODE FLOAT@ ( F: f -- D: f )
+       LEA  EBP, -8 [EBP]
+       FSTP  DWORD [EBP]
+       XCHG  EAX, 4 [EBP]
+       RET
+END-CODE
+
+\ float takes 32 bit here
+
+CODE FLOAT! ( D: f -- F: f )
+       XCHG EAX, 4 [EBP]
+       FLD  DWORD [EBP]
        LEA  EBP, 8 [EBP]
        RET
 END-CODE
