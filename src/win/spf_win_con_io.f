@@ -28,7 +28,7 @@
 
 : TO-LOG ( addr u -- )
 \ копирует входящую строку в лог файл
-  H-STDLOG IF  H-STDLOG WRITE-FILE 0 THEN 2DROP
+  H-STDLOG IF H-STDLOG WRITE-FILE 0 THEN 2DROP
 ;
 
 VECT ACCEPT

@@ -9,7 +9,11 @@ VARIABLE AOLL
 VARIABLE AOGPA
 0 VALUE ST-RES
 
-CODE AO_INI
+\ обработчики ненахождения ф-ии/либы
+VECT PROC-ERROR
+VECT LIB-ERROR
+
+CODE AO_INI \ в EAX структура WINAPI:
       MOV  EBX, EAX
       MOV  EAX, 4 [EBX]
       PUSH EAX
@@ -18,7 +22,7 @@ CODE AO_INI
 A; HERE 4 - ' AOLL EXECUTE !
       CALL EAX
       OR   EAX, EAX
-      JZ  SHORT @@1
+      JZ   @@1
 
       MOV  ECX, 8 [EBX]
       PUSH ECX
@@ -28,7 +32,13 @@ A; HERE 4 - ' AOLL EXECUTE !
 A; HERE 4 - ' AOGPA EXECUTE !
       CALL EAX
       OR   EAX, EAX
-@@1:  RET
+      JZ   @@2
+      RET
+      
+@@2:  MOV   EAX, EBX \ здесь нам уже дела нет до EAX
+      JMP ' PROC-ERROR \ can't find a proc
+@@1:  MOV   EAX, EBX      
+      JMP ' LIB-ERROR \ can't find a library
 END-CODE
 
 CODE API-CALL ( ... extern-addr -- x )
@@ -63,9 +73,9 @@ CODE _WINAPI-CODE
       JNZ  SHORT @@1
       MOV  EAX, EBX
       CALL ' AO_INI
-      JZ  SHORT @@2
+      JZ  SHORT @@2 \ чего-то не нашли
       MOV [EBX], EAX
-@@1:  CALL ' API-CALL
+@@1:  JMP ' API-CALL \ call ret
 @@2:  RET
 END-CODE
 

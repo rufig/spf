@@ -46,7 +46,7 @@
                     THEN
     THEN IF R> STATE ! EXIT THEN
   REPEAT DROP R> STATE !
-  SOURCE TUCK PAD SWAP QCMOVE \ Unknown error
+  SOURCE TUCK PAD SWAP CMOVE \ Unknown error
   PAD SWAP
 ;
 
@@ -76,4 +76,24 @@
   FORTH_ERROR DECODE-ERROR TYPE
   CURFILE @ ?DUP IF FREE THROW  CURFILE 0! THEN
            THEN CR
+;
+
+: LIB-ERROR1 ( addr_winapi_structure )
+    CELL+ @ ASCIIZ> 
+    <# HOLDS S" Forth: Can't load a library " HOLDS 0. #>
+    DUP ER-U !
+    SYSTEM-PAD SWAP MOVE
+    SYSTEM-PAD ER-A ! -2 THROW
+;
+
+
+: LIB-PROC1 ( addr_winapi_structure )
+    DUP
+    CELL+ @ ASCIIZ> ROT
+    CELL+ CELL+ @ ASCIIZ> 2SWAP
+    <# HOLDS S"  in a library " HOLDS HOLDS
+       S" Forth: Can't find a proc " HOLDS 0. #>
+    DUP ER-U !
+    SYSTEM-PAD SWAP MOVE
+    SYSTEM-PAD ER-A ! -2 THROW
 ;
