@@ -97,11 +97,11 @@ WARNING @ FALSE WARNING !
 : F@
    DF@
 ;
+WARNING !
 
 : F, ( F: r -- )
   DF,
 ;
-WARNING !
 
 : TNUM ( addr u -- d )       \ *
    0. 2SWAP >NUMBER 2DROP
@@ -161,6 +161,7 @@ WARNING !
 ;
 
 : >FLOAT-ABS  ( addr u -- F: r D:  bool )
+   BASE @ >R DECIMAL
    GETFPUCW >R UP-MODE 
    2DUP GET-EXP DROP         \  addr u u2 - экспонента
    ROT ROT FRAC>F             \ u2
@@ -168,6 +169,7 @@ WARNING !
    PAST-COMMA @ - F10X  F*  ?OF ?IE OR 
    DUP IF FDROP THEN INVERT
    R> SETFPUCW
+   R> BASE !
 ;
 
 ( : SKIP1
@@ -239,9 +241,8 @@ WARNING !
     PAST-COMMA 0! FALSE ?IS-COMMA !
     OVER C@ DUP [CHAR] - =    \ addr u c flag
     IF DROP SKIP1 >FLOAT-ABS FNEGATE
-    ELSE [CHAR] + = IF SKIP1 >FLOAT-ABS
-                    ELSE >FLOAT-ABS
-                    THEN
+    ELSE [CHAR] + = IF SKIP1 THEN
+                    >FLOAT-ABS
     THEN
   ELSE
    2DROP 0
@@ -291,6 +292,7 @@ DECIMAL
 ;
 
 : REPRESENT ( c-addr u -- n f1 f2 )
+   BASE @ >R DECIMAL
    2DUP 1+ [CHAR] 0 FILL 2DUP FDUP F0< >R FABS
    #EXP DUP >R - FN^10
    DROP F>D <# #S #> DUP
@@ -299,6 +301,7 @@ DECIMAL
    ELSE
      ROT 2DUP - >R MIN ROT SWAP 1+ MOVE 2R> +  R> -1
    THEN
+   R> BASE !
 ;
 
 
@@ -337,9 +340,11 @@ DECIMAL
 HEX 
 
 : .EXP
+     BASE @ >R DECIMAL
      S>D
      DUP >R DABS <# format-exp R> SIGN FCON-E @ HOLD #>
      TYPE
+     R> BASE !
 ;
 
 : FS. ( r -- )

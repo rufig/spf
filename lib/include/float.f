@@ -78,7 +78,7 @@ HEX
      FDEPTH 0= IF
                   C0000092 THROW
               ELSE
-                 HERE 8 ALLOT   DF! 
+                 HERE 8 ALLOT  DF! 
               THEN
 ;
 
@@ -154,6 +154,7 @@ DECIMAL
 ;
 
 : >FLOAT-ABS  ( addr u -- F: r D:  bool )
+   BASE @ >R DECIMAL
    GETFPUCW >R UP-MODE 
    2DUP GET-EXP DROP         \  addr u u2 - экспонента
    ROT ROT FRAC>F             \ u2
@@ -161,11 +162,12 @@ DECIMAL
    PAST-COMMA @ - F10X  F*  ?OF ?IE OR 
    DUP IF FDROP THEN INVERT
    R> SETFPUCW
+   R> BASE !
 ;
 
-: SKIP1
+( : SKIP1
    1- SWAP 1+ SWAP 
-;
+;)
 
 \ Simple BNF parser ( ver. 2.2)
 
@@ -232,9 +234,8 @@ DECIMAL
     PAST-COMMA 0! FALSE ?IS-COMMA !
     OVER C@ DUP [CHAR] - =    \ addr u c flag
     IF DROP SKIP1 >FLOAT-ABS FNEGATE
-    ELSE [CHAR] + = IF SKIP1 >FLOAT-ABS
-                    ELSE >FLOAT-ABS
-                    THEN
+    ELSE [CHAR] + = IF SKIP1 THEN
+                    >FLOAT-ABS
     THEN
   ELSE
    2DROP 0
@@ -284,6 +285,7 @@ DECIMAL
 ;
 
 : REPRESENT ( c-addr u -- n f1 f2 )
+   BASE @ >R DECIMAL
    2DUP 1+ [CHAR] 0 FILL 2DUP FDUP F0< >R FABS
    #EXP DUP >R - FN^10
    DROP F>D <# #S #> DUP
@@ -292,6 +294,7 @@ DECIMAL
    ELSE
      ROT 2DUP - >R MIN ROT SWAP 1+ MOVE 2R> +  R> -1
    THEN
+   R> BASE !
 ;
 
 
@@ -330,9 +333,11 @@ DECIMAL
 HEX 
 
 : .EXP
+     BASE @ >R DECIMAL
      S>D
      DUP >R DABS <# format-exp R> SIGN FCON-E @ HOLD #>
      TYPE
+     R> BASE !
 ;
 
 : FS. ( r -- )
@@ -603,6 +608,7 @@ DECIMAL
 
 : FVALUE FCONSTANT ;
 
+WARNING @ FALSE WARNING !
 : NOTFOUND ( c-addr u -- )
   2DUP 2>R ['] NOTFOUND CATCH ?DUP
   IF
@@ -616,6 +622,7 @@ DECIMAL
   ELSE 2R> 2DROP
   THEN
 ;
+WARNING !
 
 ..: AT-THREAD-STARTING HIGH-FINIT ;..
 
