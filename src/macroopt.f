@@ -1574,6 +1574,18 @@ OP1 @ W@ E08B XOR OR   \     MOV     ESP , EAX
        EXIT   
    THEN
 
+OP3 @ W@ C88B = \ 581B54 8BC8              MOV     ECX , EAX
+IF
+      OP5 @ J-SET  U< IF TRUE EXIT THEN
+      OP5 @ W@ C18B XOR    \ 581B4C 8BC1              MOV     EAX , ECX
+      OP4 @ W@ 840F XOR OR \ 581B4E 0F8400000000      JE      581B54  ( zz+14  )
+      0= IF  M\ B0 DTST
+             OP3 OPexcise
+             FALSE M\ B1 DTST
+             EXIT
+      THEN
+THEN
+
 OP5 @ :-SET U< IF TRUE EXIT THEN
 
 OP5 @ C@ B8 XOR  \ 596994 B812000000  MOV     EAX , # 12
@@ -1588,6 +1600,7 @@ OP1 @ W@ D02B XOR OR \ 5969A4 2BD0              SUB     EDX , EAX
        FALSE  M\ A7 DTST
        EXIT   
    THEN
+
   TRUE
 ;
 
@@ -1736,7 +1749,9 @@ OP1 @ @ FFFFFFFD AND  XOR OR \ MOV     EAX , 8 [ESP]
        EXIT
    THEN
 
-OP1 @ W@ 5089 XOR \ MOV     C [EAX] , EDX 
+OP1 @ 2+  C@
+OP0 @ 2+  C@  XOR
+OP1 @ W@ 5089 XOR OR \ MOV     C [EAX] , EDX 
 OP0 @ W@ 408B XOR OR \ MOV     EAX , C [EAX] 
 0= IF M\ 2F0 DTST    
         C28B OP0 @ W!    \ MOV     EAX , EDX
@@ -2849,6 +2864,7 @@ OP0 @ @ FFFFFF AND 24442B XOR OR \ 	SUB     EAX , 4 [ESP]
        THEN
     THEN
 M\ PPPP
+
  TRUE
 ;
 
@@ -3221,7 +3237,7 @@ OS\ AND EC = M_WL   1_,_STEP  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
 
  OP1 @ W@ 558B XOR       \ MOV     EDX , 0 [EBP] 
  OP0 @ W@ C23B XOR OR 0= \ CMP     EAX , EDX 
-        IF \ ." $" M\ 43A DTST
+        IF  M\ 43A DTST
             453B  OP1 @ W! \ CMP     EAX , 0 [EBP] 
             OP1 ToOP0
             FALSE -2 ALLOT M\ 43B DTST
