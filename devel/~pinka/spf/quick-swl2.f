@@ -1,5 +1,5 @@
 \ 07.Jan.2004 ruv
-\ 06.Feb.2004
+\ 14.Feb.2004
 \ $Id$
 
 ( Расширение SPF [зависит от реализации!]
@@ -11,14 +11,13 @@
     Хэш-таблицы располагаются в общем хипе процесса
     [через механизм HEAP-ID  ~pinka/spf/mem.f]
     Возможна утечка, если не делать FREE-WORDLIST на каждый TEMP-WORDLIST
-    Неопределенная ситуация, если при компиляции в некоторый словарь
-     другой поток сделает поиск по этому словарю.
 )
-
 ( Переопределяет FREE-WORDLIST  и MARKER /если он есть/
   Поэтому, следует подгружать quick-swl.f до того, 
    как эти слова могут быть использованы в определениях.
   [ в том числе, до locals.f ]
+  
+  Заменяет/перехватывает/ +SWORD  и переопределяет слова ":" ";"
 
   Заменяет вектор SEARCH-WORDLIST - метод поиска в стандартных словарях SPF
   Использует ячейку "класс словаря" в заголовке словаря
@@ -33,8 +32,10 @@ MODULE: QuickSWL-Support
 
 EXPORT
 
- 1024 VALUE #WL-HASH
- \ размер хэш-таблицы 
+ 256 VALUE #WL-HASH
+ \ размер хэш-таблиц для вновь создаваемых словарей.
+ \ При инициализации на этапе AT-PROCESS-STARTING 
+ \   размер таблиц берется как 3*n, где n -число слов в словаре.
 
 DEFINITIONS
 
@@ -43,6 +44,9 @@ DEFINITIONS
  1 CELLS -- .last
  1 CELLS -- .wid
 CONSTANT /exth
+( exth знает свой wid через атрибут .wid
+  и из wid можно получить exth
+)
 
 : wid-exth ( wid -- exth )
   3 CELLS +  \ использовал ячейку "класс словаря"
@@ -59,7 +63,7 @@ CONSTANT /exth
 : WL-HASH ( wid -- hash-table )
   wid-exth .hash @
 ;
-( внутри, т.к. способ использования хэш-таблица - детали реализации )
+( внутри, т.к. способ использования хэш-таблицы - детали реализации )
 
 USER-VALUE hash
 
@@ -94,6 +98,21 @@ USER-VALUE hash
   R> HEAP-ID!
 ;
 
+: update-wlhash ( wid -- )
+  wid-exth update-hash
+;
+
+: update1-wlhash ( nfa wid -- )
+  wid-exth DUP .last @     IF
+  HEAP-ID >R  HEAP-GLOBAL
+    .hash @    >R
+    DUP COUNT  R> HASH!N
+  R> HEAP-ID!               ELSE
+  \ чтобы при сцеплении списков все слова добавлялись
+  NIP update-hash           THEN
+;
+
+
 : reduce-hash ( last  wid  -- )
 \ Исключить из хэш-таблицы слова от wid @ до last
 \ last должно иметь место в цепочке словаря wid
@@ -119,25 +138,22 @@ EXPORT
 \ SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
 
 : QuickSWL ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ SWL
-  DUP GET-CURRENT <>                IF
-  GET-CURRENT  wid-exth update-hash THEN
-
-  wid-exth DUP update-hash
-  @  ( c-addr u  h )
+  WL-HASH ( c-addr u  h )
   HASH@N            IF
-  \ last OVER U<  IF DROP RDROP 0 EXIT THEN
-  \  такая проверка криво работает 
-  \       при сцеплении списков в порядке, отличном от следования в ОП
-
   DUP  NAME> 
   SWAP NAME>F C@
   &IMMEDIATE AND
   IF 1 ELSE -1 THEN ELSE
   0                 THEN
 ;
+( для сочетания с MARKER можно было бы в QuickSWL проверять,
+   что найденное через хэш слово находиться ниже последенего слова в словаре 
+   [ или до границы HERE ], но такая проверка криво работает 
+   при сцеплении списков в порядке, отличном от их следования в ОП.
+)
 
 : CLEAR-WLHASH ( wid -- )
-\ очистить хэш-таблицу словаря. На случай, если она стала не адекватной..
+\ очистить хэш-таблицу словаря (на случай, если она стала неадекватной..)
   HEAP-ID >R  HEAP-GLOBAL
 
   wid-exth DUP
@@ -149,10 +165,10 @@ EXPORT
 
 : FREE-WORDLIST ( wid -- )
   DUP wid-exth DUP
-
+   ( wid exth exth )
    HEAP-ID >R  HEAP-GLOBAL
-    .hash @ del-hash 
-    FREE THROW
+     .hash @ del-hash
+      FREE THROW
    R> HEAP-ID!
 
   FREE-WORDLIST
@@ -162,17 +178,27 @@ EXPORT
 
 : MARKER
   WARNING @ >R WARNING 0!
-  LATEST
-  >IN @ >R  MARKER LATEST NAME>  R> >IN ! 
-  ( last marker-xt  )
-  CREATE
-   , , GET-CURRENT ,
+    LATEST
+    >IN @ >R  MARKER LATEST NAME>  R> >IN ! 
+    ( last marker-xt )
+    CREATE
+     , , GET-CURRENT ,
   R> WARNING !
+
   DOES> DUP CELL+ DUP @ SWAP CELL+ @ ( a last wid )
             reduce-hash
         @ EXECUTE
 ;
+[THEN]
 
+[UNDEFINED] WL-#WORDS [IF]
+: WL-#WORDS ( wid -- n )
+  0 SWAP
+  @     BEGIN
+  DUP   WHILE
+  SWAP 1+ SWAP
+  CDR   REPEAT  DROP
+;
 [THEN]
 
 DEFINITIONS
@@ -190,24 +216,80 @@ DEFINITIONS
 ;
 
 : update-hashes ( -- )
-( если к стационарному словарю первым обращается коротко живущий поток,
-  то хэш инициируется из хипа этого потока... а поток потом завершается
-  и наступает облом.
-  Это слово принудительно инициирует все словари/хэш-таблицы/ при запуске.
-    Правда, словари могут и после запуска расширится/добавится
-     - поэтому добавил в SWL проверку CURRENT
-)
+\ инициирует хэш-таблицы для всех словарей (по списку VOC-LIST)
+  #WL-HASH >R
   VOC-LIST @ BEGIN
   DUP        WHILE
   DUP CELL+ ( a wid )
-  wid-exth update-hash
+    DUP WL-#WORDS 3 *   16 UMAX   TO #WL-HASH
+    \ DUP VOC-NAME. SPACE #WL-HASH . CR
+  update-wlhash
   @          REPEAT  DROP
+  R> TO #WL-HASH
+;
+( заполнение хэш-таблицы по первому поиску в словаре
+  требует синхронизации для реентерабельности к многопоточности,
+  не используется.
+
+  Использование локального хипа потока наложило бы ограничения
+  на режимы разнопоточной компиляции...
+)
+
+VECT 0SWL  \ иниц.-ия модуля QuickSWL  при запуске системы..
+
+: 0SWL1 ( -- )
+  erase-refer update-hashes
+; ' 0SWL1 TO 0SWL
+
+..: AT-PROCESS-STARTING 0SWL ;..
+
+\ -------------------------------
+
+USER LAST-WID
+
+: LastWord2Hash ( -- )
+  LAST @ LAST-WID @ update1-wlhash
+;
+: LatestWord2Hash ( -- )
+  LATEST ?DUP IF GET-CURRENT update1-wlhash THEN
 ;
 
-..: AT-PROCESS-STARTING erase-refer update-hashes ;..
-
-
 EXPORT
+
+USER-VALUE NOW-COLON?
+
+: +SWORD2 ( addr u wid -- )
+  DUP LAST-WID !
+
+  HERE LAST !
+  HERE 2SWAP S", SWAP DUP @ , !
+
+  NOW-COLON?            IF
+  FALSE TO NOW-COLON?   ELSE
+  LastWord2Hash         THEN
+;
+
+: : ( C: "<spaces>name" -- colon-sys ) \ 94
+  TRUE TO NOW-COLON?
+  :
+;
+: ;
+    POSTPONE ;
+    LatestWord2Hash
+    ( если было NONAME, то пере-добавит слово, которое уже есть
+      - ситуация штатная. )
+    FALSE TO NOW-COLON?
+; IMMEDIATE
+
+
+
+    [DEFINED] +SWORD1                           [IF]
+    ' +SWORD2 TO +SWORD                         [ELSE]
+
+    REQUIRE REPLACE-WORD lib\ext\patch.f
+    ' +SWORD2 ' +SWORD REPLACE-WORD             [THEN]
+
+0SWL  \ иниц.ия
 
     [DEFINED] SEARCH-WORDLIST1                  [IF]
     ' QuickSWL TO SEARCH-WORDLIST               [ELSE]
