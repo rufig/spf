@@ -294,7 +294,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 : PrintName1
   uDnsPNRL 1+!
   BEGIN
-     REP @ C@ DUP 0 > DEPTH 10 < AND uDnsPNRL @ 10 < AND
+     REP @ C@ DUP 0 > DEPTH 30 < AND uDnsPNRL @ 10 < AND
   WHILE
     64 > 
     IF REP @ DUP >R W@ >B< 255 AND DNSREPLY @ + REP ! RECURSE R> REP ! 2 REP +!
@@ -310,7 +310,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 : ParseName1 ( -- ... )
   uDnsPNRL 1+!
   BEGIN
-     REP @ C@ DUP 0 > DEPTH 10 < AND uDnsPNRL @ 10 < AND
+     REP @ C@ DUP 0 > DEPTH 30 < AND uDnsPNRL @ 10 < AND
   WHILE
     64 > 
     IF REP @ DUP >R W@ >B< 255 AND DNSREPLY @ + REP ! RECURSE R> REP ! 2 REP +!
