@@ -3,6 +3,10 @@
 \ 18.Sep.2003 ruvim@forth.org.ru  верси€ оригинального ~yz\lib\hash.f 
 \     распредел€юща€ пам€ть стандартным образом ALLOCATE/FREE
 \     (по умолчанию, локальную пам€ть потока)
+\ 22.Sep.2003  ruv, 
+\     * HASH! и т.п. к виду ( avalue nvalue akey nkey h -- ) 
+\     + for-hash 
+\     + clear-hash, hash-count, hash-empty? \ by "Igor Panasenko" <PanasenkoIG@lankgroup.ru>
 
 REQUIRE [UNDEFINED] lib\include\tools.f
 
@@ -67,21 +71,19 @@ CONSTANT #rec
      2R> CALLOC OVER :key !
   THEN ;
 
-USER-VALUE do-it
-
 EXPORT
 
-: HASH! ( akey nkey avalue nvalue h -- )
-  -ROT 2>R (rec-in-hash) TRUE OVER :free C! 2R> CALLOC SWAP :value ! ;
+: HASH! ( avalue nvalue akey nkey h -- )
+  (rec-in-hash) TRUE OVER :free C! >R CALLOC R> :value ! ;
 
-: HASH!Z ( akey nkey zvalue h -- )
-  SWAP >R (rec-in-hash) TRUE OVER :free C! R> ZALLOC SWAP :value ! ;
+: HASH!Z ( zvalue akey nkey h -- )
+  (rec-in-hash) TRUE OVER :free C! SWAP ZALLOC SWAP :value ! ;
 
-: HASH!N ( akey nkey value h -- )
-  SWAP >R (rec-in-hash) FALSE OVER :free C! R> SWAP :value ! ;
+: HASH!N ( value akey nkey h -- )
+  (rec-in-hash) FALSE OVER :free C! :value ! ;
 
-: HASH!R ( akey nkey size h -- adr )
-  SWAP >R (rec-in-hash) TRUE OVER :free C! R> ALLOCATE THROW DUP ROT :value ! ;
+: HASH!R ( size akey nkey h -- adr )
+  (rec-in-hash) TRUE OVER :free C! >R ALLOCATE THROW DUP R> :value ! ;
 
 : -HASH ( akey nkey h -- )
   lookup ?DUP IF del-rec SWAP :link ! ELSE DROP THEN ;
@@ -89,16 +91,17 @@ EXPORT
 : HASH@ ( akey nkey h -- avalue nvalue / 0 0) 
   lookup NIP DUP IF :value @ COUNT ELSE 0 THEN ;
 
-: HASH@Z ( akey nkey h -- z/0) 
+: HASH@R ( akey nkey h -- a/0) 
   lookup NIP DUP IF :value @ THEN ;
 
-: HASH@R ( akey nkey h -- a/0) HASH@Z ;
+: HASH@Z ( akey nkey h -- a/0) HASH@R ;
 
 : HASH@N ( akey nkey h -- n TRUE / FALSE) 
   lookup NIP DUP IF :value @ TRUE THEN ;
 
-: small-hash ( -- h ) 32 make-hash ;
-: large-hash ( -- h) 256 make-hash ;
+: small-hash  ( -- h ) 32   make-hash ;
+: large-hash  ( -- h) 256   make-hash ;
+: big-hash    ( -- h) 1024  make-hash ;
 
 : traverse-hash ( xt h -- )
   DUP @ CELLS OVER + CELL+ SWAP CELL+ ?DO
@@ -111,14 +114,46 @@ EXPORT
   CELL +LOOP
   DROP ;
 
+
+: clear-hash ( h -- )    \ очищает хэш, не удал€€ основную таблицу
+  ['] del-rec SWAP traverse-hash ;
+
 : del-hash ( h -- )
-  ['] del-rec OVER traverse-hash FREE THROW ;
+  DUP clear-hash FREE THROW ;
+
+
+DEFINITIONS
+
+USER _cnt
+USER-VALUE do-it
 
 : (all-hash) ( rec -- nextrec )
-  >R R@ :key @ COUNT R@ :value @ R> :link @ >R do-it EXECUTE R>
+  >R R@ :key @ COUNT R@ :value @  R> :link @ >R do-it EXECUTE R> 
+;
+: (for-hash) ( rec -- nextrec )
+  >R R@ :value @  R@ :key @ COUNT R> :link @ >R do-it EXECUTE R> 
 ;
 
+: (hash-empty?) ( rec -- nextrec )  _cnt 1+! DROP 0 ;
+
+: (hash-count) ( rec -- nextrec )   _cnt 1+! :link @ ;
+
+EXPORT
+
 : all-hash ( xt h -- )
-  >R TO do-it ['] (all-hash) R> traverse-hash ;
+\ xt ( akey ukey a|value   -- )
+  >R TO do-it ['] (all-hash) R> traverse-hash 
+;
+: for-hash ( h xt -- )
+\ xt ( a|value  akey ukey -- )
+  >R TO do-it ['] (for-hash) R> traverse-hash 
+;
+
+: hash-empty? ( h -- flag )    \ провер€ет, пуст хэш или нет
+  _cnt 0! ['] (hash-empty?) SWAP traverse-hash _cnt @ 0= 
+;
+: hash-count ( h -- n )    \ подсчитывает число элементов в хэше
+  _cnt 0! ['] (hash-count) SWAP traverse-hash _cnt @ 
+;
 
 ;MODULE
