@@ -78,10 +78,7 @@ USER widListFunc
   0 , \ address of library name
   0 , \ address of function name
   [ VERSION 400007 > [IF] ] -1 , [ [THEN] ] \ # of parameters
-  IS-TEMP-WL 0=
-  IF
-    HERE WINAPLINK @ , WINAPLINK ! ( связь )
-  THEN
+  HERE WINAPLINK @ , WINAPLINK ! ( связь )
   HERE WINAP @ CELL+ CELL+ !
   HERE SWAP DUP ALLOT MOVE 0 C, \ имя функции
   WINAP @ CELL+ !
@@ -143,6 +140,22 @@ USER widListFunc
   REPEAT
 ;
 
+: FindWrap ( a u -- FALSE | xt TRUE )
+  2>R
+  WINAPLINK
+  BEGIN
+    @ DUP
+  WHILE
+    DUP 2 CELLS - @ ASCIIZ> 2R@ COMPARE
+    0= IF
+      RDROP RDROP
+      NEAR_NFA
+      DROP NAME> TRUE EXIT
+    THEN
+  REPEAT DROP RDROP RDROP
+  FALSE
+;
+
 SET-CURRENT
 
 FALSE WARNING !
@@ -152,14 +165,13 @@ FALSE WARNING !
     API-FUNC @ IF
       NIP NIP  R> PAD R@ MOVE
       [CHAR] A  PAD R@ + C!
-      PAD R@ 1+ SFIND ?DUP IF
-        ROT DROP RDROP STATE @ = IF COMPILE, ELSE EXECUTE THEN
+      PAD R@ 1+ FindWrap IF
+        NIP RDROP STATE @ IF COMPILE, ELSE EXECUTE THEN
       ELSE
-        2DROP [CHAR] W  PAD R@ + C!
-        PAD R@ 1+ SFIND ?DUP IF
-          ROT DROP RDROP STATE @ = IF COMPILE, ELSE EXECUTE THEN
+        [CHAR] W  PAD R@ + C!
+        PAD R@ 1+ FindWrap IF
+          NIP RDROP STATE @ IF COMPILE, ELSE EXECUTE THEN
         ELSE
-          2DROP
           0 PAD R@ + C!
           SEARCH-FUNC IF R> EXEC-FUNC
           ELSE
