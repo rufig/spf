@@ -660,7 +660,7 @@ TRUE ?~EAX !
         THEN
   DUP 240C8B =              \ MOV     ECX , [ESP] 
         IF DROP CELL- FALSE EXIT THEN
- BASE @ >R HEX DUP U. R> BASE !
+ \ BASE @ >R HEX DUP U. R> BASE !
   FF AND
   DUP   3B =       \ CMP
         IF DROP CELL- FALSE EXIT THEN
