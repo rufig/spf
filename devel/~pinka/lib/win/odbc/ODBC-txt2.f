@@ -84,7 +84,7 @@ PREVIOUS SET-CURRENT
   s STRFREE              SqlThrow
 ;
 : DelPrevNew ( -- )
-  " New{TableName}" >R
+  " {TableName}.New" >R
   R@ STR@  FILE-EXIST         IF
   R@ STR@  DELETE-FILE THROW  THEN
   R> STRFREE
@@ -104,7 +104,7 @@ PREVIOUS SET-CURRENT
   R> STRFREE
 ;
 : MakeTbl ( -- )
-  " {TableName}New"  DUP >R STR@
+  " {TableName}.New" DUP >R STR@
   " {TableName}"     DUP >R STR@
   2DUP DELETE-FILE THROW
   RENAME-FILE THROW
@@ -120,7 +120,7 @@ USER-VALUE h-tbl
 : OpenNewTbl ( -- )
   CloseNewTbl
   DelPrevNew
-  " {TableName}New" DUP >R STR@
+  " {TableName}.New" DUP >R STR@
   W/O CREATE-FILE-SHARED THROW TO h-tbl
   R> STRFREE
 ;
@@ -165,7 +165,7 @@ USER-VALUE h-tbl
 
 \ ----------------------------
 
-: StoreCol# ( a u i -- )
+: StoreCol ( a u i -- )
 ( если в HashT есть ключ a u, то сохраняет 
   его значение под ключем i )
   >R
@@ -183,14 +183,14 @@ USER-VALUE h-tbl
   FALSE             THEN
   RDROP
 ;
-: StoreHeader ( -- )
+: StoreByHeader ( -- )
   0
   BEGIN
     SkipDelimiters
     EndOfChunk 0=
   WHILE
     1+ DUP
-    NextField ROT StoreCol#
+    NextField ROT StoreCol
   REPEAT  TO #Col
 ;
 : CmpRowById ( -- flag )
@@ -203,7 +203,7 @@ USER-VALUE h-tbl
    qSql ResultCols 1+ 1 ?DO
      I qSql Col
      ( odbc Col убирает пробелы в конце, даже в кавычках)
-     NextField -TRAILING  COMPARE  
+     NextField -TRAILING  COMPARE
      DUP IF UNLOOP EXIT THEN DROP
    LOOP 0
 ;
@@ -252,7 +252,7 @@ USER-VALUE h-tbl
 : update ( -- )
   REFILL IF \ the header
     SOURCE WriteTbl  CRLF WriteTbl
-    StoreHeader
+    StoreByHeader
   THEN
 
   RowId IF UpdateById  EXIT THEN
