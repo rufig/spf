@@ -11,6 +11,7 @@
 \ 15-11-2000 Fixed MV2 (Yakimov)
 \ 25-12-2000 Added float literals recognition (Yakimov)
 \ 26-07-2001 Fixed MVX (Maksimov)
+\ 11-05-2004 Fixed FDA and CMV (Serguei Jidkov) 
 
 CR .( Loading Intel Pentium MMX disassembler...)
 
@@ -990,7 +991,7 @@ STR SCS SCAS
 : FDA   ( ADDR OP -- )
         DROP COUNT DUP 0xC0 <
         IF      DUP FALU3 .S" DWORD " MOD-R/M
-        ELSE    0xE9 =
+        ELSE    DUP 0xE9 =
                 IF      .S" FUCOMPP" DROP
                 ELSE    DUP FCMOVA STI.
                 THEN
@@ -1215,7 +1216,7 @@ STR SCS SCAS
 : CMV   ( ADR OP -- )
         .S" CMOV"
         TTTN 1 SSPACES
-        COUNT R,R/M ;
+        R,R/M ;
 
 \ --------------------- MMX OPERATIONS -----------------
 
