@@ -9,6 +9,17 @@ REQUIRE [UNDEFINED]  lib\include\tools.f
 ;
 [THEN]
 
+[UNDEFINED] INCLUDE-SFILE-WITH [IF]
+: INCLUDE-SFILE-WITH ( i*x addr u xt -- j*x )
+  CURFILE @ >R  >R 
+  2DUP 2>R   R/O OPEN-FILE-SHARED THROW
+  2R> HEAP-COPY CURFILE !
+  R> ['] INCLUDE-FILE-WITH CATCH
+  CURFILE @ FREE DROP
+  R> CURFILE !                   THROW
+;
+[THEN]
+
 [UNDEFINED] INCLUDED-WITH [IF]
 : INCLUDED-WITH ( a u  xt -- )
   >R 
