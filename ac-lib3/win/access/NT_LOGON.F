@@ -27,4 +27,5 @@ USER uAuthServer
 ;
 : LogoutUser ( -- )
   RevertToSelf DROP
+  TOKEN @ ?DUP IF CLOSE-FILE DROP TOKEN 0! THEN
 ;
