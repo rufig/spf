@@ -1,5 +1,7 @@
 \ 2001
 
+\ 31.Mar.2004  + COPY-FILE-OVER
+
 REQUIRE [UNDEFINED]           lib\include\tools.f
 
 WINAPI: MoveFileA              KERNEL32.DLL
@@ -30,12 +32,18 @@ WINAPI: CopyFileA              KERNEL32.DLL
 
 \  MoveFile (  lpNewFileName  lpExistingFileName -- flag:BOOL )
 
+: COPY-FILE-OVER ( c-addr1 u1  c-addr2 u2 -- ior )
+  DROP NIP
+  SWAP FALSE -ROT CopyFileA ERR
+;
+
 
 WINAPI: RemoveDirectoryA KERNEL32.DLL (
     LPCTSTR lpPathName  // address of directory to remove  
   -- BOOL  )   
 
 : DELETE-FOLDER ( a u -- ior )
+\ will deleted only if empty
   DROP RemoveDirectoryA ERR
 ;
 
