@@ -64,7 +64,7 @@ CONSTANT /ODBC
   FFFF AND
   DUP SQL_SUCCESS = SWAP SQL_SUCCESS_WITH_INFO = OR
 ;
-: SQL_Error ( ior fodbc -- )
+: SQL_Error_old ( ior fodbc -- )
   { \ ErrLen ErrNat mem ior fodbc }
   OVER SQL_OK? IF 2DROP EXIT THEN
   2000 ALLOCATE THROW -> mem
@@ -75,6 +75,25 @@ CONSTANT /ODBC
   SQLError ." ERR: " mem 1000 + 5 TYPE SPACE
   100 <>
   IF mem ErrLen TYPE CR THEN
+  mem FREE THROW
+  ior THROW
+;
+: SQLDumpError ( addr u -- )
+  OVER >R
+  CR ANSI>OEM TYPE ."  ( " R> 1900 + @ . ." )" CR
+;
+VECT vSQLDumpError ' SQLDumpError TO vSQLDumpError
+
+: SQL_Error { ior fodbc \ pcbErrorMsg ErrNat mem -- }
+  ior SQL_OK? IF EXIT THEN
+  2000 ALLOCATE THROW -> mem
+
+  ^ pcbErrorMsg 1000 mem 6 + \ pDiagInfo
+  mem 1900 + ( pfNativeError ) mem ( pszSqlState)
+  1 fodbc odbcStat @ 3 ( SQL_HANDLE_STMT)
+  SQLGetDiagRec 100 <>
+  IF BL mem 5 + C! mem pcbErrorMsg 6 + vSQLDumpError
+  THEN
   mem FREE THROW
   ior THROW
 ;
@@ -229,13 +248,23 @@ CONSTANT /ci
      fodbc RowSize fodbc odbcRowSize !
      fodbc BindCols
 ;
+0 VALUE qSQLDebug
+
+: SQLLastQuery ( addr u -- )
+  qSQLDebug IF TYPE CR ELSE 2DROP THEN
+;
+VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
+
 : ExecSQL ( S" statement" fodbc -- ior )
   { sta stu fodbc }
+  sta stu vSQLLastQuery
   fodbc odbcStat  fodbc odbcConn @  SQLAllocStmt
   DUP SQL_OK?
   IF DROP
-     stu sta fodbc odbcStat @ SQLExecDirect
-     fodbc cash-odbc-params
+     stu sta fodbc odbcStat @ SQLExecDirect DUP SQL_OK?
+     IF
+       fodbc cash-odbc-params
+     THEN
   THEN
 ;
 : FreeExec { fodbc -- }
@@ -291,7 +320,7 @@ CONSTANT /ci
 \   SQLConfigDataSource
 \ ...
 \ ;
-(
+
 : TEST \ --
   { \ q }
   StartSQL
@@ -301,8 +330,8 @@ CONSTANT /ci
 
     IF
       ." Connected" CR
-      S" news2.sql" q ExecSQLfile q SQL_Error
-\      S" SELECT * FROM sp_vendors LIMIT 50" q ExecSQL q SQL_Error
+\      S" news2.sql" q ExecSQLfile DUP . q SQL_Error
+      S" SELECT * FROM sp_vendors LIMIT 50" q ExecSQL DUP . q SQL_Error
 
       ." Result cols: " q ResultCols  . CR
 
@@ -329,4 +358,4 @@ CONSTANT /ci
     q FREE DROP
   THEN
 ;
-)
+
