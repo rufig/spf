@@ -78,9 +78,11 @@ ASN_UNIVERSAL ASN_PRIMITIVE OR 0x05 OR CONSTANT SNMP_SYNTAX_NULL
 ASN_UNIVERSAL ASN_PRIMITIVE OR 0x06 OR CONSTANT SNMP_SYNTAX_OID
 
 ASN_APPLICATION ASN_PRIMITIVE OR 0x00 OR CONSTANT SNMP_SYNTAX_IPADDR    
-ASN_APPLICATION ASN_PRIMITIVE OR 0x01 OR CONSTANT SNMP_SYNTAX_CNTR32    
+ASN_APPLICATION ASN_PRIMITIVE OR 0x01 OR CONSTANT SNMP_SYNTAX_CNTR32
 ASN_APPLICATION ASN_PRIMITIVE OR 0x02 OR CONSTANT SNMP_SYNTAX_GAUGE32
 ASN_APPLICATION ASN_PRIMITIVE OR 0x03 OR CONSTANT SNMP_SYNTAX_TIMETICKS
+ASN_APPLICATION ASN_PRIMITIVE OR 0x07 OR CONSTANT SNMP_SYNTAX_UINT32
+
 
 CREATE SNMPresp SNMP_PDU_RESPONSE ,
 
@@ -167,6 +169,7 @@ SNMPpdu_type @ ." T=" .
   SNMPnLevel @ 2 = AND 0= THROW
   0 ['] SnmpCallback 0 0 SnmpCreateSession DUP SNMPsession ! 0= THROW
 
+  S" 1.3.6.1.2.1.2.2.1.10.65539" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
 (
   S" 1.3.6.1.2.1.1.1.0" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
   S" 1.3.6.1.2.1.1.7.0" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
@@ -178,7 +181,7 @@ SNMPpdu_type @ ." T=" .
 ." 1:"  S" 1.3.6.1.2.1.6.9.0" S" 198.63.211.47" SnmpGetNext SnmpDumpReceivedPdu SnmpFreeReceivedPdu
 ." 2:"  S" 1.3.6.1.2.1.6.15.0" S" 198.63.211.47" SnmpGetNext SnmpDumpReceivedPdu SnmpFreeReceivedPdu
 ." 3:"  S" 1.3.6.1.2.1.6.105" S" 198.63.211.47" SnmpGetNext SnmpDumpReceivedPdu SnmpFreeReceivedPdu
-
+(
   100 0 DO
     S" 1.3.6.1.2.1.6.9.0" S" 198.63.211.47" SnmpGet SnmpDumpReceivedPdu SnmpFreeReceivedPdu
     1000 PAUSE
@@ -215,6 +218,18 @@ SNMPpdu_type @ ." T=" .
   SNMP_SYNTAX_INT OVER !
   R> OVER CELL+ ! \ value
 ;
+: SnmpUintValue ( n -- addr2 ) \ addr2 освободить по FREE
+  >R
+  3 CELLS ALLOCATE THROW
+  SNMP_SYNTAX_UINT32 OVER !
+  R> OVER CELL+ ! \ value
+;
+: SnmpCounterValue ( n -- addr2 ) \ addr2 освободить по FREE
+  >R
+  3 CELLS ALLOCATE THROW
+  SNMP_SYNTAX_CNTR32 OVER !
+  R> OVER CELL+ ! \ value
+;
 : SnmpOidValue ( addr u -- addr2 ) \ addr2 освободить по FREE
   2>R
   3 CELLS ALLOCATE THROW
@@ -241,6 +256,12 @@ SNMPpdu_type @ ." T=" .
 ;
 : SnmpSetIntReply ( index n -- )
   SnmpIntValue 0 ( name unchanged ) ROT SNMPoutvbl @ SnmpSetVb ( index) DROP
+;
+: SnmpSetUintReply ( index u -- )
+  SnmpUintValue 0 ( name unchanged ) ROT SNMPoutvbl @ SnmpSetVb ( index) DROP
+;
+: SnmpSetCounterReply ( index u -- )
+  SnmpCounterValue 0 ( name unchanged ) ROT SNMPoutvbl @ SnmpSetVb ( index) DROP
 ;
 : SnmpSetOidReply ( index S"o.i.d" -- )
   SnmpOidValue 0 ( name unchanged ) ROT SNMPoutvbl @ SnmpSetVb ( index) DROP
@@ -281,6 +302,14 @@ WINAPI: GetTickCount KERNEL32.DLL
   DUP S" 1.3.6.1.2.1.6.9.0" SnmpSetReplyName
 \  1.3.6.1.2.1.6.9.0
   GetTickCount 0xFFFF AND SnmpSetGaugeReply
+;
+
+\ MRTG def stats
+: 1.3.6.1.2.1.2.2.1.10.0 \ .iso.org.dod.internet.mgmt.mib-2.interfaces.ifTable.ifEntry.ifInOctets.0
+  GetTickCount 0xFF AND SnmpSetCounterReply
+;
+: 1.3.6.1.2.1.2.2.1.16.0 \ .iso.org.dod.internet.mgmt.mib-2.interfaces.ifTable.ifEntry.ifOutOctets.0
+  GetTickCount 0xFFFF AND SnmpSetCounterReply
 ;
 
 \ .iso.org.dod.internet.private.enterprises.etype
