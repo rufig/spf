@@ -22,6 +22,7 @@ DECIMAL
        4 CONSTANT CLSCTX_LOCAL_SERVER
        1 CONSTANT CLSCTX_INPROC_SERVER 
       16 CONSTANT CLSCTX_REMOTE_SERVER
+   65001 CONSTANT CP_UTF8
 
  CLSCTX_LOCAL_SERVER CLSCTX_INPROC_SERVER OR CLSCTX_REMOTE_SERVER OR
          CONSTANT CLSCTX_SERVER
@@ -51,6 +52,15 @@ USER UnicodeBuf
   WideCharToMultiByte
   UnicodeBuf @ 
   SWAP 1-
+;
+: UTF8>UNICODE ( addr u -- addr2 u2 )
+  DUP 2* CELL+ ALLOCATE DROP UnicodeBuf !
+  SWAP >R
+  DUP 2* CELL+ UnicodeBuf @ ROT R> 0 ( flags) CP_UTF8
+  MultiByteToWideChar
+  UnicodeBuf @ 
+  SWAP 2* 
+  2DUP + 0 SWAP W!
 ;
 : UASCIIZ> ( addr -- addr u ) \ вариант ASCIIZ> для Unicode
   0 OVER
