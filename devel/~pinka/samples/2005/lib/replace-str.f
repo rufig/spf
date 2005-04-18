@@ -6,8 +6,8 @@ REQUIRE STR@ ~ac/lib/str2.f
 REQUIRE SPLIT- ~pinka\samples\2005\lib\split.f
 
 : replace-str- ( s s-old s-new -- )
-  \ заменить  s-what на s-to в s
-  \ s-what и s-to освобождаются
+  \ заменить  s-old на s-new в строке s
+  \ s-old и s-new освобождаются
   "" { s so sn ss }
   s STR@
   BEGIN ( dright' )
@@ -22,6 +22,6 @@ REQUIRE SPLIT- ~pinka\samples\2005\lib\split.f
   so STRFREE
   sn STRFREE
 ;
-: replace-str ( s s-new s-old -- )
-  SWAP replace-str-
+: replace-str ( s-new s-old s -- )
+  -ROT SWAP replace-str-
 ;
