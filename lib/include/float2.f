@@ -89,6 +89,7 @@ CREATE FINF-ADDR 0 , 80 , FF7F0000 ,  \ Infinity
 DECIMAL
 
 : FINF FINF-ADDR F@ ;
+: -FINF FINF FNEGATE ;
 
 WARNING @ FALSE WARNING !
 : F!
@@ -306,17 +307,19 @@ DECIMAL
    R> BASE !
 ;
 
+VECT FTYPE
+VECT FEMIT
 
 : FDISPLAY ( n -- )
-   FLOAT-PAD OVER 0 MAX PRECISION MIN TYPE
+   FLOAT-PAD OVER 0 MAX PRECISION MIN FTYPE
    \ дополним нулями до PRECISION
    PRECISION OVER -
-   DUP 0 < IF ABS 0 ?DO [CHAR] 0 EMIT LOOP 
+   DUP 0 < IF ABS 0 ?DO [CHAR] 0 FEMIT LOOP 
            ELSE DROP
            THEN
    \ выведем дробную часть
-   [CHAR] . EMIT
-   DUP FLOAT-PAD + PRECISION ROT - 1+ 0 MAX TYPE
+   [CHAR] . FEMIT
+   DUP FLOAT-PAD + PRECISION ROT - 1+ 0 MAX FTYPE
 ;
 
 : format-exp ( ud1 -- ud2 ) \ *
@@ -327,21 +330,19 @@ DECIMAL
   DO # LOOP
 ;
 
-HEX 
-
 : .EXP
      BASE @ >R DECIMAL
      S>D
      DUP >R DABS <# format-exp R> SIGN FCON-E @ HOLD #>
-     TYPE
+     FTYPE
      R> BASE !
 ;
 
 : PrintFInf ( F: r -- F: r f )
      FDUP FINF F=
-     IF ." infinity" TRUE
+     IF S" infinity" FTYPE TRUE
      ELSE FDUP FINF FNEGATE F=
-          IF ." -infinity" TRUE 
+          IF S" -infinity" FTYPE TRUE 
           ELSE 0
           THEN
      THEN
@@ -356,7 +357,7 @@ HEX
    FStackCheck
    PrintFInf IF FDROP EXIT THEN
    FLOAT-PAD PRECISION REPRESENT DROP
-   IF  [CHAR] - EMIT THEN
+   IF  [CHAR] - FEMIT THEN
    1 FDISPLAY 1- .EXP
 ;
 
@@ -365,7 +366,7 @@ HEX
    PrintFInf IF FDROP EXIT THEN
    FDUP
    FLOAT-PAD PRECISION REPRESENT DROP
-   IF  [CHAR] - EMIT THEN
+   IF  [CHAR] - FEMIT THEN
    #EXP FDROP 1+ FDISPLAY DROP
 ;
    
@@ -375,11 +376,34 @@ HEX
 : FE. ( r)
    FStackCheck
    PrintFInf IF FDROP EXIT THEN
-   FLOAT-PAD PRECISION REPRESENT DROP IF  [CHAR] - EMIT  THEN
+   FLOAT-PAD PRECISION REPRESENT DROP IF  [CHAR] - FEMIT  THEN
    1- Adjust FDISPLAY .EXP
 ;
 
-DECIMAL
+USER PAD-COUNT
+
+: C-TO-PAD ( c )
+   PAD-COUNT @ PAD + C!
+   PAD-COUNT 1+!
+;
+
+: S-TO-PAD ( addr u )
+   OVER + SWAP
+   DO
+      I C@ C-TO-PAD
+   LOOP
+;
+
+: >FNUM ( F: r  -- addr u )
+   PAD-COUNT 0!
+   ['] C-TO-PAD TO FEMIT
+   ['] S-TO-PAD TO FTYPE
+   FS.
+   ['] EMIT TO FEMIT
+   ['] TYPE TO FTYPE
+   PAD PAD-COUNT @
+;
+
 
 \ DB 2D - TBYTE
 \ DD 05 - QWORD
@@ -468,6 +492,8 @@ DECIMAL
      FINIT
      PRINT-FIX
      [CHAR] e FCON-E !
+     ['] EMIT TO FEMIT
+     ['] TYPE TO FTYPE
 ;
 
 : FALIGN
