@@ -8,7 +8,7 @@ USER CURFILE
 \ из строки "path\name" выделить строку "path\"
   OVER +
   BEGIN 2DUP <> WHILE DUP C@ is_path_delimiter 0= WHILE 1- REPEAT 1+ THEN
-  DUP 0!
+  \ DUP 0!  \ ~ruv (to anfilat): не дќлжно тут затирать поданный буфер!
   OVER -
 ;
 
