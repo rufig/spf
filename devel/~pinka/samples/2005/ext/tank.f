@@ -29,7 +29,7 @@
   SAVE-TANK N>R
   SWAP TANK-ID!
   CATCH
-  N>R RESTORE-TANK
+  NR> RESTORE-TANK
 ;
 
 : APPEND-FILE ( a-file u-file -- h )
