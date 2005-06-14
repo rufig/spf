@@ -24,19 +24,33 @@ object's current count is to be increased.
 
 : CreateSem ( addr u MaxCount InitCount -- handle ior )
 \ создает семафор. Если InitCount=0, то созданный семфор занят.
+\ успешный Wait уменьшает счетчик на 1.
 \ порядок Max Init - как в DO...LOOP ;)
 \ addr u - имя (или 0 0)
   ROT DROP \ убираю длину
   0 \ default security descriptor,  the resulting handle is not inheritable.
   CreateSemaphoreA  DUP  ERR
 ;
-
-: ReleaseSem ( n handle -- )
+: NReleaseSem ( n handle -- )
 \ счетчик увеличивается на n
   0 ROT ROT
   ReleaseSemaphore ERR THROW
 ;
+: ReleaseSem ( handle -- )
+\ счетчик увеличивается на 1
+  0 1 ROT
+  ReleaseSemaphore ERR THROW
+;
 
-: DeleteSem ( handle -- ior )
+: CloseSem ( handle -- ior )
   CloseHandle ERR
+;
+
+REQUIRE Wait ~pinka\lib\Multi\Synchr.f
+
+: SemState ( handle -- n )
+  DUP 0 Wait                    IF
+  >R 0 SP@ 1 R>
+  ReleaseSemaphore ERR THROW 1+ ELSE
+  DROP 0                        THEN
 ;
