@@ -53,14 +53,14 @@ DECIMAL                  [THEN]
 \ неудобно было возится с дополнительными массивами.
 \ Такая, как ниже, стековая нотация кажется удобней.
 
-: WaitAny  (  h1 h2 ... hn  n time -- flag )
+: WaitAny  (  h1 h2 ... hn  n time -- false|number_from_top )
   SWAP >R 0    ( S: h1 h2 ... hn time 0 ) \ flag-WaitAll=0  - any object
   SP@ 8 +  R@  ( S: h1 h2 ... hn  time 0  a-array n )
   WaitForMultipleObjects  ( S: ... wait_flag )
   R> 2>R  SP@ R> CELLS + SP!  R>  ( wait_flag ) \ убираем список хэндлов
   DUP WAIT_FAILED  =  IF   GetLastError  ( true  err_no ) THROW ELSE
-      WAIT_TIMEOUT =  IF   FALSE         ( false        ) ELSE
-  TRUE                THEN THEN
+  DUP WAIT_TIMEOUT =  IF   DROP FALSE    ( false        ) ELSE
+  WAIT_OBJECT_0 - 1+  THEN THEN
 ;
 
 : WaitAll  ( h1 h2 ... hn  n time  -- flag )
