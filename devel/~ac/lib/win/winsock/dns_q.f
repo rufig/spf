@@ -267,6 +267,7 @@ CONSTANT /RL
   SocketsStartup DROP
   CreateUdpSocket THROW BS !
   vDnsTimeout BS @ SetSocketTimeout THROW
+  DNS-SERVER @ 0= IF DNS-SERVERS @ DNS-SERVER ! THEN
 ;
 : BsCloseSocket
   BS @ ?DUP IF CloseSocket DROP BS 0! THEN
