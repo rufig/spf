@@ -1,4 +1,5 @@
-\ WINLIB 1.00
+\ WINLIB 1.10
+
 \ Библиотека пользовательского интерфейса Windows
 \ ч. 3. Общие элементы управления
 \ Ю. Жиловец, 10.09.2002
@@ -305,9 +306,23 @@ PROC;
 \ --------------------------------
 \ Закладки
 
-: tc-add { text image lparam i ctl \ [ 7 CELLS ] item -- }
+container table tabctl
+  item -maxwidth   \ ширина самой большой сетки
+  item -maxheight  \ высота самой большой сетки
+endtable
+
+PROC: calc-tab-size { tab \ [ 4 CELLS ] rect -- w h }
+  rect 0!
+  0 rect 1 CELLS!
+  tab -maxwidth@  rect 2 CELLS!
+  tab -maxheight@ rect 3 CELLS!
+  TRUE rect W: tcm_adjustrect tab send DROP
+  rect 2 CELLS@ rect @ - rect 3 CELLS@ rect 1 CELLS@ -
+PROC;
+
+: tc-add { grid text image i ctl \ [ 7 CELLS ] item -- }
   W: tcif_param item !
-  lparam item 6 CELLS!
+  grid item 6 CELLS!
   text none <> IF 
      W: tcif_text item OR!
      text item 3 CELLS!
@@ -317,7 +332,12 @@ PROC;
     W: tcif_image item OR!
     image item 5 CELLS!
   THEN
-  i item W: tcm_insertitema ctl send DROP ;
+  i item W: tcm_insertitema ctl send DROP 
+  grid grid-size
+  ctl -maxheight@ MAX ctl -maxheight!
+  ctl -maxwidth@ MAX ctl -maxwidth!
+  ctl calc-tab-size EXECUTE ctl resize
+;
 
 : tc-del ( i ctl -- ) >R 0 W: tcm_deleteitem R> send DROP ;
 : tc-num ( ctl -- )  W: tcm_getitemcount ?send ;
@@ -339,9 +359,51 @@ PROC;
 : get-tcil ( 0 ctl -- n ) PRESS W: tcm_getimagelist ?send ;
 : set-tcil ( n 0 ctl -- ) PRESS W: tcm_setimagelist lsend DROP ;
 
+: map-current-tab-grid { tab \ [ 4 CELLS ] rect -- }
+  \ узнаем расположение элемента
+  tab child-win-rect rect 3 CELLS! rect 2 CELLS! rect 1 CELLS! rect !
+  \ запрашиваем координаты внутреннего места для сетки
+  FALSE rect W: tcm_adjustrect tab send DROP
+  \ конструируем параметры
+  rect @ rect 1 CELLS@
+  tab -parent@ ?DUP IF -minustop@ ELSE 0 THEN DUP >R - 2DUP
+  rect 3 CELLS@ SWAP -  SWAP rect 2 CELLS@ SWAP -  SWAP R> -
+  tab -selected@ tab -iparam@ map-grid
+;
+
+PROC: tab-show { ctl -- }
+  ctl -selected@ -1 = IF EXIT THEN
+  ctl map-current-tab-grid
+  ctl winshow
+  ctl -selected@ ctl -iparam@ show-grid
+PROC;
+
+PROC: tab-hide { ctl -- }
+  ctl -selected@ -1 = IF EXIT THEN
+  ctl winhide
+  ctl -selected@ ctl -iparam@ hide-grid
+PROC;
+
+PROC: tab-resize ( x y tab -- )
+  DUP >R resize R> map-current-tab-grid
+PROC;
+
+MESSAGES: tabcontrol-notify
+
+M: tcn_selchanging
+  thisctl -selected@ thisctl -iparam@ hide-grid
+M;
+
+M: tcn_selchange
+  thisctl map-current-tab-grid
+  thisctl -selected@ thisctl -iparam@ show-grid
+M;
+
+MESSAGES;
+
 : tabcontrol ( style -- ctl )
-  container " SysTabControl32" ROT create-control >R
-  W: tcn_selchange R@ -defcommand!
+  tabctl " SysTabControl32" ROT create-control >R
+  tabcontrol-notify R@ -notify!
   ['] tc-add R@ -addproc!
   ['] tc-del R@ -delproc!
   ['] tc-num R@ -numproc!
@@ -350,6 +412,12 @@ PROC;
   ['] get-tcparam ['] set-tcparam -iparam R@ setitem
   ['] get-tcsel   ['] set-tcsel   -selected R@ setitem
   ['] get-tcil    ['] set-tcil    -imagelist R@ setitem
+  calc-tab-size R@ -calcsize!
+  tab-show R@ -ctlshow!
+  tab-hide R@ -ctlhide!
+  tab-resize R@ -ctlresize!
+  0 R@ -maxwidth!
+  0 R@ -maxheight!
   R> ;
 
 \ -----------------------------------------
@@ -754,6 +822,7 @@ endtable
 : create-tooltip ( style -- )
   >R  W: icc_tab_classes initcc
   control " tooltips_class32" R> 0 create-control-exstyle-notchild
+  -sysfont
   TO common-tooltip ;
 
 :NONAME { z ctl mess \ [ 10 CELLS ] ti -- }

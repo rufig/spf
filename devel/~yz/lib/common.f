@@ -1,13 +1,15 @@
-\ 1.06 Часто требующиеся определения, asciiz-строки
+\ Часто требующиеся определения, asciiz-строки
+\ Версия 1.10
 \ Ю. Жиловец, http://www.forth.org.ru/~yz
 
 REQUIRE =OF ~yz/lib/mycase.f
 
 CREATE "" 0 ,
 : ==  CONSTANT ;
+: VAR ( -- ) 0 VALUE ;
+: UVAR ( -- ) USER-VALUE ;
 : PRESS  NIP ;
 : NOT  INVERT ;
-: ..  DUP . ;  : ``  KEY DROP ;
 : -! ( n a --) SWAP NEGATE SWAP +! ;
 : CELL+!  CELL SWAP +! ;
 : CELL-!  CELL SWAP -! ;
@@ -15,9 +17,8 @@ CREATE "" 0 ,
 : CELLS@  CELLS+ @ ;
 : CELLS!  CELLS+ ! ;
 : CELL" ( ->") [CHAR] " PARSE DROP @ STATE @ IF [COMPILE] LITERAL THEN ; IMMEDIATE
-: W>S  [ 0x0F C, 0xBF C, 0xC0 C, ] ; \ movsx eax,ax
-: LOWORD ( n --n) 0x0000FFFF AND W>S ;
-: HIWORD ( n--n)  0xFFFF0000 AND 16 RSHIFT W>S ;
+: LOWORD  [ 0x0F C, 0xBF C, 0xC0 C, ] ; \ movsx eax,ax
+: HIWORD ( n--n)  16 RSHIFT LOWORD ;
 : ON  ( a--) TRUE SWAP ! ;
 : OFF ( a--) 0! ;
 : ?  @ . ;
@@ -36,9 +37,9 @@ CREATE "" 0 ,
   4 > IF 2DROP ." Stack is underflowed" CR EXIT THEN
   DO I @ . CELL NEGATE +LOOP CR ;
 
-: .ASCIIZ ( z--) DUP ZLEN TYPE ;
+: .ASCIIZ ( z--) ASCIIZ> TYPE ;
 : Z>NUMBER ( z--n true / false) 
-  0 0 ROT DUP ZLEN >NUMBER PRESS IF 2DROP FALSE ELSE D>S TRUE THEN ;
+  0 0 ROT ASCIIZ> >NUMBER PRESS IF 2DROP FALSE ELSE D>S TRUE THEN ;
 
 VARIABLE toadr  VARIABLE fromadr VARIABLE counter
 
@@ -53,9 +54,10 @@ VARIABLE toadr  VARIABLE fromadr VARIABLE counter
   c: r OF 13 ENDOF
   c: t OF 9 ENDOF
   c: q OF c: " ENDOF
-  DUP c: 0 c: 9 WITHIN IF
+  c: ' OF c: " ENDOF
+  DUP c: 0 c: 9 1+ WITHIN IF
     c: 0 -
-    BEGIN ( n) char DUP c: 0 c: 9 WITHIN WHILE
+    BEGIN ( n) char DUP c: 0 c: 9 1+ WITHIN WHILE
       ( n c) c: 0 - SWAP 10 * +
     REPEAT -1 <> IF unchar THEN
   THEN
@@ -70,9 +72,9 @@ VARIABLE toadr  VARIABLE fromadr VARIABLE counter
     END-CASE
   DUP c> 0= UNTIL ;
 
-: ALITERAL  R> DUP DUP ZLEN + 1+ >R ;
+: ALITERAL  R> DUP ASCIIZ> + 1+ >R ;
 
-: " ( -->") [CHAR] " PARSE ( a #)
+: " ( -->") c: " PARSE ( a #)
   STATE @ IF
    POSTPONE ALITERAL
        HERE DUP >R ESC-CZMOVE R> ZLEN 1+ ALLOT 
@@ -105,7 +107,7 @@ WINAPI: FormatMessageA   KERNEL32.DLL
  >R 512 DUP GETMEM ( 512 a) DUP >R SWAP 0 SWAP R> 0 R> 0 0x1000 ( format_message_from_system)
  FormatMessageA DROP
 ;
-: .ansiz ( z -- ) DUP ZLEN ANSI>OEM TYPE ;
+: .ansiz ( z -- ) ASCIIZ> ANSI>OEM TYPE ;
 : .err ( err# --) DUP .H 
   error-text DUP .ansiz FREEMEM ;
 : .lerr dll-error .err ;
@@ -141,3 +143,5 @@ WINAPI: lstrcat KERNEL32.DLL
 : ZCOMPARE ( z1 z2 -- n) lstrcmp ;
 : ZAPPEND ( z1 z2 -- ) SWAP lstrcat DROP ;
 : 0APPEND ( z -- ) ASCIIZ> + 1+ 0 SWAP C! ;
+
+: SAPPEND ( a1 n1 a2 n2 -- ) DUP >R 2OVER + SWAP CMOVE R> + ;

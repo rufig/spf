@@ -1,4 +1,5 @@
-\ WINLIB 1.00
+\ WINLIB 1.14
+
 \ Библиотека пользовательского интерфейса Windows
 \ ч. 1. Базовые объекты, окна, меню, быстрые клавиши
 \ Ю. Жиловец, 8.12.2001
@@ -140,6 +141,9 @@ VARIABLE lastitem
 \ Свойства, общие для всех окон
 0 table common
   item -hwnd    	\ дескриптор окна
+  item -pre		\ выполняется до стандартной оконной процедуры
+  item -wndproc		\ оконная процедура
+  item -messages        \ Список обработчиков сообщений по умолчанию
   item -style 	getset 	\ стиль окна
   item -color 		\ цвет букв
   item -bgcolor set	\ цвет фона
@@ -245,8 +249,6 @@ WINAPI: SetWindowLongA USER32.DLL
 common table window
  item -icon getset	\ иконка
  item -smicon getset	\ маленькая иконка
- item -pre		\ выполняется до стандартной оконной процедуры
- item -wndproc		\ оконная процедура
  item -menus		\ меню окна
  item -status		\ статус
  item -toolbar          \ палитра инструментов
@@ -473,6 +475,24 @@ USER-VALUE lparam
 USER-VALUE thiswin
 USER-VALUE thisctl
 
+WINAPI: BeginPaint USER32.DLL
+WINAPI: EndPaint   USER32.DLL
+
+USER-VALUE windc
+USER-VALUE paint-rect
+
+: wm-paint-proc 
+ { \ [ 64 ] paintstruct -- }
+ paintstruct hwnd BeginPaint TO windc
+ paintstruct 2 CELLS + TO paint-rect
+ thiswin -painter@ EXECUTE
+ paintstruct hwnd EndPaint DROP
+ TRUE
+;
+
+\ --------------------------------------
+\ Оконная функция для стандартных окон
+
 MESSAGES: main-dispatch
 
 \ закрасим фон 
@@ -482,26 +502,13 @@ WINAPI: GetClientRect USER32.DLL
 M: wm_erasebkgnd
   { \ [ 4 CELLS ] rect -- }
   rect hwnd GetClientRect DROP
-  thiswin -bgcolor@ >bgr wparam SetBkColor DROP
-  thiswin -bgbrush@
-  rect wparam FillRect DROP
+  thiswin -bgbrush@ rect wparam FillRect DROP
   TRUE RETURN
   TRUE
 M;
 
-WINAPI: BeginPaint USER32.DLL
-WINAPI: EndPaint   USER32.DLL
-
-USER-VALUE windc
-USER-VALUE paint-rect
-
 M: wm_paint
- { \ [ 64 ] paintstruct -- }
- paintstruct hwnd BeginPaint TO windc
- paintstruct 2 CELLS + TO paint-rect
- thiswin -painter@ EXECUTE
- paintstruct hwnd EndPaint DROP
- TRUE
+ wm-paint-proc
 M;
 
 VECT menu-painter
@@ -648,7 +655,9 @@ M;
 : set-colors
   lparam window@ DUP 0= IF EXIT THEN \ не наше окно
   TO thisctl
-  W: transparent wparam SetBkMode DROP
+  thisctl -bgcolor@ transparent = IF
+    W: transparent wparam SetBkMode DROP
+  THEN
   thisctl -bgcolor@ >bgr wparam SetBkColor DROP
   thisctl -color@ >bgr wparam SetTextColor DROP
   thisctl -bgbrush@ RETURN
@@ -694,7 +703,27 @@ M;
 
 MESSAGES;
 
+\ ---------------------------------
+\ Стандартная оконная функция для элементов управления
+
+MESSAGES: control-std-wndproc
+
+M: wm_paint
+  wm-paint-proc
+M;
+
+M: wm_size
+  lparam LOWORD thiswin -xsize!
+  lparam HIWORD thiswin -ysize!
+ TRUE
+M;
+
+MESSAGES;
+
+\ -------------------------------
+
 XLIST common-window-proclist
+XLIST common-control-proclist
 
 : extend-window-proc  ( xtable -- ) common-window-proclist insert-to-end ;
 
@@ -712,7 +741,7 @@ WINAPI: DefWindowProcA USER32.DLL
   0 TO return-value
   message thiswin -pre@ ?find-in-xtable
   ?DUP 0= IF
-    message common-window-proclist ?find-and-execute
+    message thiswin -messages@ ?find-and-execute
     ?DUP 0= IF
       message thiswin -wndproc@ ?find-in-xtable
     THEN
@@ -722,7 +751,7 @@ WINAPI: DefWindowProcA USER32.DLL
   ELSE
     lparam wparam message hwnd DefWindowProcA
   THEN
-\  DUP . CR
+\  ." /" message .H DUP . CR
 ; WNDPROC: dispatch
 
 \ --------------------------------------
@@ -736,16 +765,13 @@ WINAPI: LoadIconA       USER32.DLL
   { parent style exstyle \ win [ 4 CELLS ] rect -- a/0 }
   (* ws_hscroll ws_vscroll *) ^ style OR!
   window new-table TO win
+  common-window-proclist win -messages!
   0 IMAGE-BASE 0 
   parent DUP IF -hwnd@ style W: ws_child OR TO style THEN
   W: cw_usedefault DUP 2DUP style ""
   classname exstyle CreateWindowExA DUP 0= IF win del-table EXIT THEN
   ( hwnd) DUP >R win -hwnd!
   win R> window!
-  \ выставим размеры окна
-  rect win -hwnd@ GetClientRect DROP
-  rect 2 CELLS+ @ win -xsize!
-  rect 3 CELLS+ @ win -ysize!
   ['] NOOP win -painter!
   \ спрячем полосы прокрутки
   FALSE W: sb_both win -hwnd@ ShowScrollBar DROP
@@ -807,14 +833,31 @@ WINAPI: EnableWindow USER32.DLL
   FALSE SWAP -hwnd@ EnableWindow DROP ;
 
 WINAPI: SetFocus USER32.DLL
+
 : winfocus ( ctl -- ) -hwnd@ SetFocus DROP ;
 
-\ Настоящий размер окна
-: win-size { tab \ [ 4 CELLS ] rect -- x y }
-  rect tab -hwnd@ GetWindowRect DROP
-  rect 2 CELLS@ rect @ -
-  rect 3 CELLS@ rect 1 CELLS@ -
+: win-rect { win \ [ 4 CELLS ] rect -- x1 y1 x2 y2 }
+  rect win -hwnd@ GetWindowRect DROP
+  rect @  rect 1 CELLS@ 
+  rect 2 CELLS@  rect 3 CELLS@
 ;
+
+WINAPI: ScreenToClient USER32.DLL
+
+\ То же самое, но в координатах родительского окна
+: child-win-rect { win \ [ 4 CELLS ] rect -- x1 y1 x2 y2 }
+  rect win -hwnd@ GetWindowRect DROP
+  win -parent@ ?DUP IF
+    -hwnd@ rect OVER ScreenToClient DROP
+    rect 2 CELLS+ SWAP ScreenToClient DROP
+  THEN
+  rect @  rect 1 CELLS@ 
+  rect 2 CELLS@  rect 3 CELLS@
+;
+
+\ Настоящий размер окна
+: win-size ( win -- )
+  win-rect SWAP >R SWAP - R> ROT - SWAP ;
 
 WINAPI: SetWindowPos USER32.DLL
 
@@ -1139,6 +1182,8 @@ WINAPI: CreateFontA GDI32.DLL
   
 : delete-font ( font -- ) DeleteObject DROP ;
 
+0 VALUE def-font
+
 \ --------------------------------------
 0 VALUE hbaseunits
 0 VALUE vbaseunits
@@ -1159,6 +1204,7 @@ WINAPI: InitCommonControlsEx COMCTL32.DLL
 
 WINAPI: RegisterClassA     USER32.DLL
 WINAPI: GetDialogBaseUnits USER32.DLL
+WINAPI: LoadCursorA        USER32.DLL
 WINAPI: CreateCompatibleDC GDI32.DLL
 WINAPI: GetDeviceCaps GDI32.DLL
 WINAPI: DeleteDC      GDI32.DLL
@@ -1166,6 +1212,7 @@ WINAPI: DeleteDC      GDI32.DLL
 : WINDOWS...
 \ инициализация
   main-dispatch common-window-proclist insert-to-begin
+  control-std-wndproc common-control-proclist insert-to-begin
 \ регистрация класса окна
   HERE init->>
 \ typedef struct _WNDCLASS {    // wc  
@@ -1175,7 +1222,8 @@ WINAPI: DeleteDC      GDI32.DLL
  0 >>			\   int     cbWndExtra; 
  IMAGE-BASE >>		\   HANDLE  hInstance; 
  0 >>			\   HICON   hIcon; 
- 0 >>			\   HCURSOR hCursor; 
+ W: idc_arrow 0
+ LoadCursorA >>		\   HCURSOR hCursor; 
  0 >>			\   HBRUSH  hbrBackground; 
  0 >>			\   LPCTSTR lpszMenuName; 
  classname >>		\   LPCTSTR lpszClassName; 

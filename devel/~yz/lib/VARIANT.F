@@ -44,11 +44,12 @@ WINAPI: SysFreeString     OLEAUT32.DLL
   _currency OF 2@ ENDOF
   _date     OF 2@ ENDOF
   _str OF @ unicode>buf ENDOF
-  _obj OF @ DUP ::AddRef DROP ENDOF
+  _obj OF @ DUP IF DUP ::AddRef DROP THEN ENDOF
   _unk OF @ DUP ::AddRef DROP ENDOF
     DROP @
   END-CASE
-  R> :var-type W@ 0xFF AND ;
+  R> :var-type W@ 0xFF AND 
+;
 
 : variant! ( value/dvalue type var -- ) 
   DUP VariantInit DROP

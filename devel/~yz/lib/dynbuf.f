@@ -3,13 +3,13 @@
 
 MODULE: DYNBUF
 
-EXPORT
-
 0
 \ смещения от начала данных
 CELL -- :dynptr  \ текущий указатель
 CELL -- :dynsize \ текущий размер буфера
 == /dynbufheader
+
+EXPORT
 
 : CREATE-DYNBUF ( initsize -- dyn)
   DUP /dynbufheader + GETMEM >R

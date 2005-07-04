@@ -1,4 +1,5 @@
-\ WINLIB 1.00
+\ WINLIB 1.13
+
 \ Библиотека пользовательского интерфейса Windows
 \ ч. 2. Стандартные элементы интерфейса и их размещение
 \ Ю. Жиловец, 2.02.2002
@@ -25,9 +26,17 @@ common table control
   item -tooltip  getset \ подсказка
   item -tooltipexists   \ флажок: есть ли подсказка
   item -locked          \ нельзя менять размеры
+  \ специализированные слова
+  item -calcsize        \ слово вычисления размеров окна
+  item -ctlshow         \ слово показа элемента
+  item -ctlhide         \ слово отключения показа элемента
+  item -ctlresize       \ изменение размеров
+  item -ctlmove		\ перестановка элемента
+  item -ctladdpart      \ добавление внутренних частей к окну
 endtable
 
 VECT common-tooltip-op
+VECT ctlresize
 
 :NONAME \ get-tooltip ( z ctl -- )
   W: ttm_gettexta common-tooltip-op ;
@@ -60,7 +69,6 @@ WINAPI: GetIconInfo USER32.DLL
 
 : +style ( style ctl -- ) DUP -style@ ROT OR SWAP -style! ;
 
-\ VARIABLE child-id  10 child-id !
 \ -----------------------------------
 \ Элементы управления
 
@@ -75,7 +83,8 @@ USER-VALUE this
 
 : create-control-exstyle-notchild { table class style exstyle -- ctl/0 }
   table new-table TO this
-  0 IMAGE-BASE  0 \ child-id @ child-id 1+!
+  common-control-proclist this -messages!
+  0 IMAGE-BASE 0 
   current-window -hwnd@ 
   0 0 0 0 style  "" class exstyle
   CreateWindowExA DUP 0= IF this del-table EXIT THEN
@@ -84,6 +93,7 @@ USER-VALUE this
   W: color_btntext syscolor this -color!
   ['] NOOP this -command!
   ['] NOOP this -painter!
+  def-font ?DUP IF this -font! THEN
   20 20 this resize
   this ;
 
@@ -105,6 +115,12 @@ USER-VALUE this
     thisctl -notify@ find-in-xtable DROP
   THEN TRUE
 ; TO notifyproc
+
+\ ----------------------------------
+\ Шрифт по умолчанию
+
+: default-font ( font -- ) TO def-font ;
+: -sysfont  0 this -font! ;
 
 \ ----------------------------------
 \ Строки статуса
@@ -148,7 +164,7 @@ endtable
   ctl -xpad@ 2* x +  ctl -ypad@ 2* y + ;
 
 : resize-if-unlocked ( xsize ysize win -- )
-  DUP -locked@ IF DROP 2DROP ELSE resize THEN ;
+  DUP -locked@ IF DROP 2DROP ELSE ctlresize THEN ;
 
 : adjust-size { ctl -- }
   ctl size-of-text  ctl +pads  ctl resize-if-unlocked ;
@@ -210,20 +226,19 @@ endtable
   R@ -image! 
   R> ;
 
-: groupbox ( z -- ctl )
-  control static W: bs_groupbox 0 create-control >R
-  R@ -text!
-  R> ;
-
-: groupedge ( z -- ctl )
-  control static W: bs_groupbox W: ws_ex_staticedge create-control-exstyle >R
-  R@ -text!
-  R> ;
+: groupedge ( -- ctl )
+  control static W: ss_blackframe W: ws_ex_staticedge 
+  create-control-exstyle ;
 
 \ -----------------------------
 \ Кнопки
 
 " BUTTON" ASCIIZ buttons
+
+: groupbox ( z -- ctl )
+  control buttons W: bs_groupbox create-control >R
+  R@ -text!  R>
+;
 
 (* bs_left bs_center bs_right *) INVERT == bs_alignmask
 
@@ -366,7 +381,7 @@ PROC: check-this-radio ( -- ) thisctl check-radio ;
 " EDIT" ASCIIZ edits
 
 : adjust-height ( ctl -- ) >R 
-  R@ -xsize@ " ." R@ text-size PRESS 6 + R> resize ;
+  R@ -xsize@ " ." R@ text-size PRESS 6 + R> resize-if-unlocked ;
 
 : set-editfont ( font ctl -- )
   >R 1 W: wm_setfont R@ send DROP
@@ -529,39 +544,66 @@ WINAPI: SetScrollRange USER32.DLL
 \ -----------------------------
 \ Размещение объектов
 
-: ctlmove ( x y ctl -- )
-  DUP -updown@ IF
-    >R
-    0 0 W: udm_setbuddy R@ -updown@ send DROP
-    R@ winmove
-    R@ -hwnd@ 0 W: udm_setbuddy R> -updown@ send DROP
+: ctl-size ( ctl -- x y)
+  DUP -calcsize@ ?DUP IF
+    >R DUP R> EXECUTE
   ELSE
-    winmove
-  THEN ;
+    DUP win-size
+  THEN
+  ROT -updown@ ?DUP IF
+    win-size DROP ROT + 2- SWAP
+  THEN
+;
 
-: ctlresize ( x y ctl -- )
-  DUP -updown@ IF
-    >R
-    0 0 W: udm_setbuddy R@ -updown@ send DROP
-    R@ resize
-    R@ -hwnd@ 0 W: udm_setbuddy R> -updown@ send DROP
+: (set-ud) ( ctl what -- )
+  SWAP >R 0 W: udm_setbuddy R> -updown@ send DROP ;
+
+\ спин делается видимым, так как система почему-то при добавлении
+\ прячет его, если спин относится к полю ввода
+: add-ud ( ctl -- ) DUP DUP -hwnd@ (set-ud) -updown@ winshow ;
+
+: remove-ud ( ctl -- ) DUP ctl-size 2 PICK 0 (set-ud) ROT resize ;
+
+: ctlmove  ( x y ctl -- )
+  DUP -ctlmove@ ?DUP 0= IF ['] winmove THEN
+  ( x y ctl xt -- )
+  OVER -updown@ IF
+    OVER remove-ud  OVER >R EXECUTE  R> add-ud
   ELSE
-    resize
-  THEN ;
+    EXECUTE
+  THEN ; 
 
-: ctlshow ( ctl -- )
-  DUP winshow
-  -updown@ ?DUP IF winshow THEN ;
+:NONAME  ( x y ctl -- )
+  DUP -ctlresize@ ?DUP 0= IF ['] resize THEN
+  ( x y ctl xt -- )
+  OVER -updown@ IF
+    OVER remove-ud  OVER >R EXECUTE  R> add-ud
+  ELSE
+    EXECUTE
+  THEN ; TO ctlresize
 
-: ctlhide ( ctl -- )
-  DUP winhide
-  -updown@ ?DUP IF winhide THEN ;
+: ctlshow { ctl -- }
+  ctl -ctlshow@ ?DUP IF
+    ctl SWAP EXECUTE
+  ELSE
+    ctl winshow
+  THEN
+  ctl -updown@ ?DUP IF winshow THEN ;
+
+: ctlhide { ctl -- }
+  ctl -ctlhide@ ?DUP IF
+    ctl SWAP EXECUTE
+  ELSE
+    ctl winhide
+  THEN
+  ctl -updown@ ?DUP IF winhide THEN ;
 
 : ctl-destroy ( ctl -- ) >R
   R@ -tooltipexists@ IF 0 R@ W: ttm_deltoola common-tooltip-op THEN
   R> destroy-window 
 ;
 
+WINAPI: GetParent  USER32.DLL
 WINAPI: SetParent USER32.DLL
 
 : link-to-current ( ctl -- )
@@ -593,17 +635,20 @@ WINAPI: SetParent USER32.DLL
 
 : (/  (( ;
 : /) ( ... -- )
-  )) DO
-  I @ CASE
-  -size OF 
-    I CELL- @ I 2 CELLS - @ this ctlresize
-    3 ( параметра)
-  ENDOF
-    I CELL- @ SWAP this setproc
-    2 ( параметра)
-  END-CASE
+  )) 2DUP < IF
+  DO
+    I @ CASE
+    -size OF 
+      I CELL- @ I 2 CELLS - @ this ctlresize
+      3 ( параметра)
+    ENDOF
+      I CELL- @ SWAP this setproc
+      2 ( параметра)
+    END-CASE
   CELLS NEGATE +LOOP
-  remove-stack-block
+  ELSE
+    2DROP
+  THEN remove-stack-block
 ;
 
 : -name ( ->bl; -- ) POSTPONE this [COMPILE] TO ; IMMEDIATE
@@ -696,7 +741,11 @@ CELL -- :bnostretch \ не растягивать клетку
   defaultbind 
   cur-bind 0! ;
 
-: GRID ( -- )
+: GRID ( -- savedparams )
+  this cur-grid @ cur-row @ cur-bind @
+  cur-halign @ cur-valign @
+  cur-xx @ cur-yy @
+  cur-width @ cur-height @
   #grid MGETMEM >R
   CELL" GRID" R@ :gsign !
   -1 R@ :gwidth !
@@ -706,7 +755,7 @@ CELL -- :bnostretch \ не растягивать клетку
   === ;
 
 : -boxed ( -- ) "" groupbox  cur-grid @ :gbox ! ;
-: -bevel ( -- ) "" groupedge cur-grid @ :gbox ! ;
+: -bevel ( -- ) groupedge cur-grid @ :gbox ! ;
 
 : | ( ctl/grid -- )
   #binding MGETMEM DUP
@@ -860,11 +909,18 @@ VARIABLE temp2
   THEN
   R@ :gwidth @ R> :gheight @ ;
 
-: GRID; ( -- grid )
+: GRID; ( savedparams -- grid )
   \ заставим сетку рассчитать свои параметры
-  cur-grid @ DUP grid-size 2DROP ;
+  cur-grid @ >R
+  cur-height ! cur-width !
+  cur-yy !
+  cur-xx !
+  cur-valign !
+  cur-halign !
+  cur-bind ! cur-row ! cur-grid ! TO this
+  R> DUP grid-size 2DROP ;
 
-: dweller-size ( a -- w h) DUP grid? IF grid-size ELSE win-size THEN ;
+: dweller-size ( a -- w h) DUP grid? IF grid-size ELSE ctl-size THEN ;
 
 \ первый проход ряда:
 \ проходим по всем клеткам, считаем максимальную высоту и общую ширину
@@ -958,8 +1014,11 @@ VECT add-grid-to-window
     temp @ SWAP current-window add-grid-to-window
   ELSE 
     TRUE OVER -locked!
-    DUP set-parent temp @ IF ctlshow ELSE DROP THEN
-  THEN ;
+    DUP set-parent 
+    DUP -ctladdpart@ ?DUP IF >R DUP R> EXECUTE THEN
+    temp @ IF ctlshow ELSE DROP THEN
+  THEN 
+;
 
 : add-controls-in-row ( row -- )
   \ ищем последнюю ячейку...
@@ -1076,9 +1135,9 @@ PROC: map-bind { \ new-w new-h new-x new-y ww hh xm ym resize? }
     ELSE 
       2DROP 2DROP
     THEN
-  ELSE
+  ELSE 
     resize? IF 
-      DUP new-w new-h ROT resize 
+      DUP new-w new-h ROT ctlresize 
       new-w cur-bind @ :bdwellerw !
       new-h cur-bind @ :bdwellerh !
     THEN
@@ -1153,8 +1212,6 @@ TO map-grid
   0 0 R@ -xsize@ R@ -ysize@ R> -grid@ map-grid
   TO current-window ;
 
-WINAPI: GetParent  USER32.DLL
-
 : max-win-size ( win -- w h)
   -hwnd@ GetParent ?DUP IF 
     window@ DUP -xsize@ SWAP -ysize@
@@ -1178,9 +1235,10 @@ WINAPI: GetParent  USER32.DLL
 
 \ Модальные диалоги ==================
 
-: MODAL... ( z -- )
+: MODAL... ( z -- oldmw olddlg )
+  modal-window dialog 
   winmain dialog-window TO dialog 
-  dialog -text! ;
+  ROT dialog -text! ;
 
 : SHOW ( grid -- )
   { \ [ 7 CELLS ] msg -- }
@@ -1199,4 +1257,8 @@ WINAPI: GetParent  USER32.DLL
   0 TO modal-window
   dialog winhide ;
 
-: ...MODAL  dialog destroy-window ;
+: ...MODAL  ( oldmw olddlg -- )
+  dialog destroy-window 
+  DUP TO dialog ?DUP IF winfocus THEN
+  TO modal-window
+;
