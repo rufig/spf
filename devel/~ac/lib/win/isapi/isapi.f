@@ -1,5 +1,4 @@
 WINAPI: LoadLibraryExA KERNEL32.DLL
-WINAPI: FreeLibrary    KERNEL32.DLL
 
 \ WINAPI: GetExtensionVersion php5isapi.dll
 \ WINAPI: HttpExtensionProc   php5isapi.dll
@@ -13,6 +12,11 @@ VECT dIsapiSetStatus
 VECT dIsapiSetHeader
 VECT dIsapiWriteClient
 VECT dIsapiMapPath
+VECT dREQUEST_METHOD
+VECT dQUERY_STRING
+VECT dPATH_TRANSLATED
+VECT dPOST_BODY
+VECT dCONTENT_TYPE
 
 ' TYPE TO dIsapiWriteClient
 
@@ -26,6 +30,10 @@ VECT dIsapiMapPath
 ;
 ' IsapiSetHeader TO dIsapiSetHeader
 
+:NONAME S" GET" ; TO dREQUEST_METHOD
+:NONAME S" qqq=sss" ; TO dQUERY_STRING
+:NONAME S" /wwwroot/path/info" ; TO dPATH_TRANSLATED
+:NONAME S" " ; DUP TO dPOST_BODY TO dCONTENT_TYPE
 
 0
 4 -- ecb.cbSize
@@ -72,20 +80,29 @@ CONSTANT /HSE_URL_MAPEX_INFO
 
 USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
 
-: SCRIPT_NAME ecb ecb.lpszPathInfo @ ASCIIZ> ;
+: SCRIPT_FILENAME ecb ecb.lpszPathInfo @ ASCIIZ> ;
+
+\ веб-сервер должен переопределить SCRIPT_NAME!
+: SCRIPT_NAME SCRIPT_FILENAME ;
+
+(
 : QUERY_STRING S" qqq=sss" ; 
 : REQUEST_METHOD S" GET" ; 
 : PATH_TRANSLATED S" /wwwroot/path/info" ; 
 : PATH_INFO S" /path/info" ; 
+)
+: SERVER_PROTOCOL S" HTTP/1.0" ; 
+: SERVER_SOFTWARE S" acWEB/3" ; 
 
 : IsapiMapPath ( addr u -- addr2 u2 )
   0 MAX \ PHP может передавать отрицательную длину! :-)
-\  ." Map logical path:<" TYPE ." >" CR
+\  ." Map logical path:<" 2DUP TYPE ." >" CR
   2DROP
-  SCRIPT_NAME
+  SCRIPT_FILENAME
 ;
 ' IsapiMapPath TO dIsapiMapPath
 
+(
 : HTTP_COOKIE S" _HTTP_COOKIE_" ; 
 : ALL_HTTP S" _ALL_HTTP_" ; 
 : HTTPS S" _HTTPS_" ; 
@@ -99,8 +116,6 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
 : REMOTE_USER S" _REMOTE_USER_" ; 
 : SERVER_NAME S" _SERVER_NAME_" ; 
 : SERVER_PORT S" _SERVER_PORT_" ; 
-: SERVER_PROTOCOL S" _SERVER_PROTOCOL_" ; 
-: SERVER_SOFTWARE S" _SERVER_SOFTWARE_" ; 
 : APPL_MD_PATH S" _APPL_MD_PATH_" ; 
 : APPL_PHYSICAL_PATH S" _APPL_PHYSICAL_PATH_" ; 
 : INSTANCE_ID S" _INSTANCE_ID_" ; 
@@ -125,7 +140,7 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
 : HTTPS_SERVER_SUBJECT S" _HTTPS_SERVER_SUBJECT_" ; 
 : SERVER_PORT_SECURE S" _SERVER_PORT_SECURE_" ; 
 
-(
+
 : LC_ALL S" _LC_ALL_" ; 
 : LANG S" _LANG_" ; 
 : PERL_UNICODE S" _PERL_UNICODE_" ; 
@@ -166,11 +181,12 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
 :NONAME ( lpdwSizeofBuffer lpvBuffer lpszVariableName hConn -- flag )
   TlsIndex@ >R
   TlsIndex! 
-  ASCIIZ> \ 2DUP 2>R
-  SFIND IF EXECUTE ( 2R> TYPE ." =" 2DUP TYPE CR) >R SWAP R@ 1+ MOVE R> SWAP ! TRUE
+  ASCIIZ>
+  SFIND IF EXECUTE
+           >R SWAP R@ 2DUP 1+ ERASE MOVE R> SWAP ! TRUE
         ELSE ENVIRONMENT?
-             IF ( 2R> TYPE ." =" 2DUP TYPE CR) >R SWAP R@ 1+ MOVE R> SWAP ! TRUE
-             ELSE ( 2R> 2DROP) 2DROP FALSE
+             IF >R SWAP R@ 2DUP 1+ ERASE MOVE R> SWAP ! TRUE
+             ELSE DROP 0! FALSE
              THEN
         THEN
   R> TlsIndex!
@@ -239,39 +255,76 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
   R> TlsIndex!
 ; 5 CELLS CALLBACK: IsapiServerSupportFunction
 
-: IsapiRunExtension ( scriptaddr scriptu addr u -- code )
-  DROP 
+: IsapiExtension:
+  CREATE 0 , 0 , S, 0 C,
+;
+: IsapiInitExtension ( addr -- )
+  DUP @ IF DROP EXIT THEN
+  DUP CELL+ CELL+
   ( LOAD_WITH_ALTERED_SEARCH_PATH) 0x00000008 0 ROT
-  LoadLibraryExA DUP 0= IF DROP ." ISAPI LoadLibrary failed" CR EXIT THEN
+  LoadLibraryExA DUP 0= IF DROP ." ISAPI LoadLibrary failed" CR GetLastError THROW THEN
+  SWAP !
+;
+: IsapiCallExtension ( ecb addr -- res )
   >R
+  R@ CELL+ @ ?DUP IF RDROP API-CALL EXIT THEN
+  S" HttpExtensionProc" DROP R@ @ GetProcAddress ?DUP
+  IF DUP R> CELL+ ! API-CALL
+  ELSE R> 2DROP ." ISAPI GetProcAddress failed" CR -2011 THROW THEN
+;
+: IsapiRunExtension ( scriptaddr scriptu addr -- code )
+  DUP >R IsapiInitExtension
 
   /EXTENSION_CONTROL_BLOCK   ecb ecb.cbSize !
-  REQUEST_METHOD DROP  ecb   ecb.lpszMethod !
-  QUERY_STRING DROP    ecb   ecb.lpszQueryString !
+  dREQUEST_METHOD DROP  ecb   ecb.lpszMethod !
+  dQUERY_STRING DROP    ecb   ecb.lpszQueryString !
 \ Perl хочет в PATH_INFO видеть путь к скрипту!
   ( PATH_INFO) DROP          ecb ecb.lpszPathInfo !
-  PATH_TRANSLATED DROP       ecb ecb.lpszPathTranslated !
+  dPATH_TRANSLATED DROP       ecb ecb.lpszPathTranslated !
   TlsIndex@                  ecb ecb.connID !
   ['] IsapiGetServerVariable ecb ecb.GetServerVariable !
   ['] IsapiWriteClient       ecb ecb.WriteClient !
   ['] IsapiReadClient        ecb ecb.ReadClient !
   ['] IsapiServerSupportFunction ecb ecb.ServerSupportFunction !
+  dPOST_BODY DUP ecb ecb.cbTotalBytes ! ecb ecb.cbAvailable ! ecb ecb.lpbData !
+  dCONTENT_TYPE DROP ecb ecb.lpszContentType !
 
-  ecb S" HttpExtensionProc" DROP R@ GetProcAddress ?DUP
-  IF API-CALL
-  ELSE 2DROP ." ISAPI GetProcAddress failed" CR THEN
-  R> FreeLibrary 1 <> THROW
+  ecb R> IsapiCallExtension
 
 \  CR ecb ecb.lpszLogData ASCIIZ> TYPE CR
 \  DUP 1 > IF CR ." HttpExtensionProc() returned " . CR ELSE DROP THEN
 \ HSE_STATUS_SUCCESS=1, HSE_STATUS_ERROR=4
 ;
+
+
+\EOF
+\ ============== benchmark ====================
+\ S" D:\Perl\bin\perlis.dll" IsapiExtension: PERL
+\ S" D:\PHP4\php-4.3.11-Win32\php4isapi.dll" IsapiExtension: PHP4
+\ S" D:\ac\php-5.1.0b2-Win32\php5isapi.dll" IsapiExtension: PHP5
+
+S" C:\Perl\bin\perlis.dll" IsapiExtension: PERL
+S" C:\ac\dl\php-4.4.0RC2-Win32\php-4.4.0RC2-Win32\php4isapi.dll" IsapiExtension: PHP4
+S" C:\ac\php-5.1.0b2-Win32\php5isapi.dll" IsapiExtension: PHP5
+
+
+\ S" D:\perl3.pl" PERL IsapiRunExtension .
+\ S" D:\perl3.pl" PERL IsapiRunExtension .
+
+
+\ S" D:\ac\php-5.1.0b2-Win32\php3.php"  PHP4 IsapiRunExtension DROP
+\ S" D:\perl3.pl" S" D:\Perl\bin\perlis.dll" IsapiRunExtension DROP
+
 : TEST
-  100 0 DO
- S" C:\distr\1\php3.php"  S" C:\ac\dl\php-4.4.0RC2-Win32\php-4.4.0RC2-Win32\php4isapi.dll" IsapiRunExtension .
+  1000 0 DO
+\ S" D:\ac\php-5.1.0b2-Win32\php3.php"  PHP4 IsapiRunExtension .
 \ CR ." ============" CR
- S" C:\distr\1\perl3.pl" S" c:\Perl\bin\perlis.dll" IsapiRunExtension .
-\ I . DEPTH .
+\ S" D:\perl3.pl" PERL IsapiRunExtension .
+
+ S" C:\distr\1\php3.php"  PHP4 IsapiRunExtension .
+\ CR ." ============" CR
+ S" C:\distr\1\perl3.pl" PERL IsapiRunExtension .
+
   LOOP
 ;
 WINAPI: GetTickCount KERNEL32.DLL
@@ -286,5 +339,5 @@ WINAPI: GetTickCount KERNEL32.DLL
     I TEST1 START DROP
   LOOP
 ;
-5 TEST2
+15 TEST2
 \ TEST
