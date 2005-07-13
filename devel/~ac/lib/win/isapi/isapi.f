@@ -18,7 +18,12 @@ VECT dPATH_TRANSLATED
 VECT dPOST_BODY
 VECT dCONTENT_TYPE
 
-' TYPE TO dIsapiWriteClient
+USER uSN_CNT
+
+: IsapiTYPE
+  TYPE TRUE
+;
+' IsapiTYPE TO dIsapiWriteClient
 
 : IsapiSetStatus
   ." <status=" TYPE ." >" CR
@@ -182,6 +187,7 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
   TlsIndex@ >R
   TlsIndex! 
   ASCIIZ>
+  2DUP S" SCRIPT_NAME" COMPARE 0= IF uSN_CNT 1+! THEN \ хак для PHP
   SFIND IF EXECUTE
            >R SWAP R@ 2DUP 1+ ERASE MOVE R> 1+ SWAP ! TRUE
         ELSE ENVIRONMENT?
@@ -203,9 +209,8 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
 :NONAME ( dwSync lpdwSizeofBuffer Buffer ConnID -- flag )
   TlsIndex@ >R
   TlsIndex!
-  SWAP @ dIsapiWriteClient
-  DROP \ 1=sync, 2=async
-  TRUE
+  SWAP @ dIsapiWriteClient ( flag )
+  NIP \ 1=sync, 2=async
   R> TlsIndex!
 ; WNDPROC: IsapiWriteClient
 
