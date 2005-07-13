@@ -3382,9 +3382,9 @@ OP0 @ 2+ C@   XOR
 OP2 @ W@ 5589 XOR OR     \ 8955F8            MOV     F8 [EBP] , EDX
 
 OP1 @ W@ D8F7 XOR        \ F7D8              NEG     EAX
-OP1 @ W@ D0F7 XOR AND    \ F7D0              NOT     EAX
-OP1 @ C@ 58   XOR AND    \  58          POP     EAX
-OP1 @ W@ C123 XOR AND OR \  23C1           AND     EAX , ECX
+OP1 @ W@ D0F7 <> AND    \ F7D0              NOT     EAX
+OP1 @ C@ 58   <> AND    \  58          POP     EAX
+OP1 @ W@ C123 <> AND OR \  23C1           AND     EAX , ECX
 
 OP0 @ W@ ADD|XOR|OR|AND= 0=
 OP0 @ W@ 458B  XOR AND OR
