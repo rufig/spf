@@ -19,6 +19,7 @@ VECT dPOST_BODY
 VECT dCONTENT_TYPE
 
 USER uSN_CNT
+USER uIsapiDebug
 
 : IsapiTYPE
   TYPE TRUE
@@ -185,16 +186,20 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
 
 :NONAME ( lpdwSizeofBuffer lpvBuffer lpszVariableName hConn -- flag )
   TlsIndex@ >R
-  TlsIndex! 
-  ASCIIZ>
+  TlsIndex!
+  ASCIIZ> uIsapiDebug @ IF ." >>" 2DUP TYPE ." =" THEN
+  2DUP S" TZ" COMPARE 0= IF 2DROP S" TZone" THEN
   2DUP S" SCRIPT_NAME" COMPARE 0= IF uSN_CNT 1+! THEN \ хак для PHP
-  SFIND IF EXECUTE
+  SFIND IF EXECUTE uIsapiDebug @ IF 2DUP TYPE THEN
            >R SWAP R@ 2DUP 1+ ERASE MOVE R> 1+ SWAP ! TRUE
-        ELSE ENVIRONMENT?
-             IF >R SWAP R@ 2DUP 1+ ERASE MOVE R> 1+ SWAP ! TRUE
-             ELSE DROP 0! FALSE
-             THEN
+        ELSE \ ENVIRONMENT?
+             \ IF uIsapiDebug @ IF 2DUP TYPE THEN
+             \    >R SWAP R@ 2DUP 1+ ERASE MOVE R> 1+ SWAP ! TRUE
+             \ ELSE DROP 0! FALSE
+             \ THEN
+             2DROP DROP 0! FALSE
         THEN
+  uIsapiDebug @ IF ." (F=" DUP . ." )" CR THEN
   R> TlsIndex!
 ; WNDPROC: IsapiGetServerVariable
 
@@ -256,7 +261,8 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
      R> SWAP MOVE
      TRUE R> TlsIndex! EXIT
   THEN
-  ." ServerSupportFunction:" . . . . CR FALSE
+  uIsapiDebug @ IF ." ServerSupportFunction:" . . . . CR THEN
+  FALSE
   R> TlsIndex!
 ; 5 CELLS CALLBACK: IsapiServerSupportFunction
 
@@ -277,15 +283,18 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
   IF DUP R> CELL+ ! API-CALL
   ELSE R> 2DROP ." ISAPI GetProcAddress failed" CR -2011 THROW THEN
 ;
+: IsapiAdump
+  uIsapiDebug @ IF ." ::" DUP ASCIIZ> TYPE ." ::" CR THEN
+;
 : IsapiRunExtension ( scriptaddr scriptu addr -- code )
   DUP >R IsapiInitExtension
 
   /EXTENSION_CONTROL_BLOCK   ecb ecb.cbSize !
-  dREQUEST_METHOD DROP  ecb   ecb.lpszMethod !
-  dQUERY_STRING DROP    ecb   ecb.lpszQueryString !
+  dREQUEST_METHOD DROP  IsapiAdump  ecb ecb.lpszMethod !
+  dQUERY_STRING DROP    IsapiAdump  ecb ecb.lpszQueryString !
 \ Perl хочет в PATH_INFO видеть путь к скрипту!
-  ( PATH_INFO) DROP          ecb ecb.lpszPathInfo !
-  dPATH_TRANSLATED DROP       ecb ecb.lpszPathTranslated !
+  ( PATH_INFO) DROP     IsapiAdump  ecb ecb.lpszPathInfo !
+  dPATH_TRANSLATED DROP IsapiAdump  ecb ecb.lpszPathTranslated !
   TlsIndex@                  ecb ecb.connID !
   ['] IsapiGetServerVariable ecb ecb.GetServerVariable !
   ['] IsapiWriteClient       ecb ecb.WriteClient !
@@ -296,8 +305,11 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
 
   ecb R> IsapiCallExtension
 
-\  CR ecb ecb.lpszLogData ASCIIZ> TYPE CR
-\  DUP 1 > IF CR ." HttpExtensionProc() returned " . CR ELSE DROP THEN
+  uIsapiDebug @
+  IF
+    ecb ecb.lpszLogData ASCIIZ> TYPE CR
+    ." HttpExtensionProc() returned " DUP . CR
+  THEN
 \ HSE_STATUS_SUCCESS=1, HSE_STATUS_ERROR=4
 ;
 
