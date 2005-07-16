@@ -187,12 +187,15 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
 :NONAME ( lpdwSizeofBuffer lpvBuffer lpszVariableName hConn -- flag )
   TlsIndex@ >R
   TlsIndex!
+  >R OVER R> SWAP @ 1- 0 MAX >R \ длина входного буфера для переменной
   ASCIIZ> uIsapiDebug @ IF ." >>" 2DUP TYPE ." =" THEN
   2DUP S" TZ" COMPARE 0= IF 2DROP S" TZone" THEN
   2DUP S" SCRIPT_NAME" COMPARE 0= IF uSN_CNT 1+! THEN \ хак для PHP
   SFIND IF EXECUTE uIsapiDebug @ IF 2DUP TYPE THEN
+           R> MIN \ обрежем значение переменной, если не влазит в буфер
            >R SWAP R@ 2DUP 1+ ERASE MOVE R> 1+ SWAP ! TRUE
-        ELSE \ ENVIRONMENT?
+        ELSE RDROP
+             \ ENVIRONMENT?
              \ IF uIsapiDebug @ IF 2DUP TYPE THEN
              \    >R SWAP R@ 2DUP 1+ ERASE MOVE R> 1+ SWAP ! TRUE
              \ ELSE DROP 0! FALSE
