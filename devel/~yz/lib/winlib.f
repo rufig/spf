@@ -761,7 +761,7 @@ WINAPI: CreateWindowExA USER32.DLL
 WINAPI: ShowScrollBar   USER32.DLL
 WINAPI: LoadIconA       USER32.DLL
 
-: create-window-with-styles 
+: create-window-with-styles  ( parent style exstyle -- )
   { parent style exstyle \ win [ 4 CELLS ] rect -- a/0 }
   (* ws_hscroll ws_vscroll *) ^ style OR!
   window new-table TO win
