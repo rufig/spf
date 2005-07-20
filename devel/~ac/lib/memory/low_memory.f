@@ -1,6 +1,6 @@
 \ используемые функции есть на WinXP/2003, на остальных эмулируются
 
-WINAPI: GetCurrentProcess KERNEL32.DLL
+\ WINAPI: GetCurrentProcess KERNEL32.DLL
 REQUIRE DLOPEN    ~ac/lib/ns/dlopen.f 
 REQUIRE ReduceMem ~ac/lib/memory/less_mem.f
 
