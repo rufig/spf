@@ -98,7 +98,7 @@ USER RLIST
 USER CURRENT-R
 VARIABLE DnsDebug
    3 VALUE vDnsAttempts \ было 6
-2000 VALUE vDnsTimeout  \ было 8000
+4000 VALUE vDnsTimeout  \ было 8000
 
   1 CONSTANT TYPE-A
   2 CONSTANT TYPE-NS
@@ -679,7 +679,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   70001 mx RLparam1 !
   mx RLhost GetFieldData TRUE
 ;
-: DnsDomainExists ( domaina domainu -- flag )
+: DnsDomainExistsOld ( domaina domainu -- flag )
   2DUP TYPE-MX GetRRn DUP 0 > IF DROP 2DROP TRUE EXIT THEN
   DUP -3 = IF DROP 2DROP FALSE EXIT THEN
 \ до сюда дошли, если нет MX-записи, но и нет ответа "нет домена"
@@ -689,9 +689,19 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   TRUE \ домен есть, либо неверна настройка DNS, узнать достоверно нельзя
 \  TYPE-NS GetRRn -3 <>
 ;
+: DnsDomainExists { domaina domainu -- flag }
+  domaina domainu TYPE-MX GetRRn DUP 0 > IF DROP TRUE EXIT THEN
+  DUP -3 = IF DROP FALSE EXIT THEN
+\ до сюда дошли, если нет MX-записи, но и нет ответа "нет домена"
+  -2 = \ таймаут - обычно неверная настройка DNS
+  IF TRUE EXIT THEN
+  domaina domainu TYPE-A GetRRn 0= IF FALSE EXIT THEN \ нет MX и A, считаем домен неверным
+  TRUE \ домен есть, либо неверна настройка DNS, узнать достоверно нельзя
+\  TYPE-NS GetRRn -3 <>
+;
 
 (
-TRUE DnsDebug !
+\ TRUE DnsDebug !
 \ -s 10.1.1.2
 S" eserv.ru" DnsDomainExists . \ есть MX
 S" poil.usinsk.ru" DnsDomainExists . \ нет MX, есть A
