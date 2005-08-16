@@ -52,6 +52,7 @@
   - имя функции с нулем на конце для передачи в DLSYM
 )
 
+WARNING @ WARNING 0!
 REQUIRE NEW: ~ac/lib/ns/ns.f
 
 : DLL-INIT ( addr -- )
@@ -117,6 +118,8 @@ SET-CURRENT PREVIOUS
 : SAVE
   ERASE-DLL-HANDLES SAVE
 ;
+
+WARNING !
 
 ( пример.
 DL NEW: libxml2.dll
