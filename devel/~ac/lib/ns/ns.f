@@ -99,6 +99,8 @@ GET-CURRENT ALSO DL DEFINITIONS
 ;
 SET-CURRENT PREVIOUS
 
+\EOF примеры:
+
 : NOTFOUND \ просто для сокращения asciiz литералов "zzz" = S" zzz" DROP
   OVER C@ [CHAR] " = 
   IF NIP >IN @ SWAP - 0 MAX >IN !
