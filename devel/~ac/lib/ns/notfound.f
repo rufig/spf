@@ -1,5 +1,8 @@
 \ NOTFOUND для SPF/Linux
 
+\ если вдруг уже определен - уходим
+' NOOP ' \EOF C" NOTFOUND" FIND NIP 1+ PICK  NIP NIP EXECUTE
+
 : NOTFOUND ( a u -- )
 \ обращение к словам в словарях в виде  vocname1::wordname
 \ или vocname1::vocname2::wordname и т.п.
