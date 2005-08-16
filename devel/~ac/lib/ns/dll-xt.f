@@ -1,4 +1,16 @@
-( Структура, компилируемая в словарную статью для отложенного
+( ~ac 16.08.2005
+  $Id$
+
+  Развитие идеи ns.f в части исключения необходимости использования 'WINAPI:'
+  теперь имена функций DLL можно использовать и внутри компилируемых
+  определений. При этом в код скомпилируется отложенный импорт и вызов 
+  функции из DLL, а SFIND вернет адрес NOOP.
+
+  Ни одно из определенных здесь слов не рекомендуется к использованию -
+  они все работают за кадром [DL NEW:] как системное расширение транслятора.
+  См. примеры в конце файла.
+
+  Структура, компилируемая в словарную статью для отложенного
   выполнения функции DLL [своего рода inline WINAPI]
 
   CALL DLL-CALL
@@ -30,6 +42,8 @@
   число_параметров_если_известно_иначе_-1:
   - в зависимости от предварительных условий может быть известно число параметров...
 
+  !!! в текущей версии "число параметров" не используется, работает API-CALL
+
   ссылка_на_предыдущую_подобную_структуру_импорта:
   - winaplink, необходимо для поиска структур для обнуления
   кэшированных адресов кэш_адрес_функции_в_dll
@@ -38,10 +52,18 @@
   - имя функции с нулем на конце для передачи в DLSYM
 )
 
+REQUIRE NEW: ~ac/lib/ns/ns.f
+
+: DLL-INIT ( addr -- )
+  DUP >R 6 CELLS + ASCIIZ> R@ CELL+ CELL+ @
+  [ ALSO DL ] SEARCH-WORDLIST [ PREVIOUS ]
+\  S" SEARCH-WORDLIST-I" INVOKE ( то же самое, но медленнее :)
+  0= IF ABORT THEN R> CELL+ !
+;
 : DLL-CALL ( на стеке возвратов адрес структуры импорта вызываемой функции )
   R@ CELL+ @
-  ?DUP IF R@ @ R> + >R API-CALL
-       ELSE ." need initialize" ABORT THEN
+  DUP 0= IF DROP R@ DLL-INIT R@ CELL+ @ THEN
+  R@ @ R> + >R API-CALL
 ;
 : DLL-CALL, ( funa funu n dll-wid xt -- addr )
   ['] DLL-CALL _COMPILE,
@@ -63,10 +85,9 @@
 
 \ S" function" 5 0xDDD 0xCCC DLL-CALL, 80 DUMP
 
-ns.f
-
-
 GET-CURRENT ALSO DL DEFINITIONS
+
+\ : SEARCH-WORDLIST-I SEARCH-WORDLIST ; \ версия только для интерпретации
 
 : SEARCH-WORDLIST ( c-addr u oid -- 0 | xt 1 | xt -1 )
   >R 2DUP ( c-addr u c-addr u )
@@ -83,10 +104,26 @@ GET-CURRENT ALSO DL DEFINITIONS
 
 SET-CURRENT PREVIOUS
 
+: ERASE-DLL-HANDLES
+  VOC-LIST @
+  BEGIN
+    DUP
+  WHILE
+    DUP CELL+ DUP CLASS@ [ ALSO DL CONTEXT @ PREVIOUS ] LITERAL =
+              IF 0 OVER OBJ-DATA! THEN DROP
+    @
+  REPEAT DROP
+;
+: SAVE
+  ERASE-DLL-HANDLES SAVE
+;
+
+( пример.
 DL NEW: libxml2.dll
 
 S" text.xml" DROP xmlRecoverFile
 
 : TEST
-S" text.xml" DROP xmlRecoverFile
+  S" text.xml" DROP xmlRecoverFile
 ;
+)
