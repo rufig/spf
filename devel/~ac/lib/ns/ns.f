@@ -1,8 +1,8 @@
 \ DLL/SO - словари
 
-REQUIRE HEAP-COPY heap-copy.f
-REQUIRE DLOPEN    dlopen.f
-REQUIRE NOTFOUND  notfound.f
+REQUIRE HEAP-COPY ~ac/lib/ns/heap-copy.f
+REQUIRE DLOPEN    ~ac/lib/ns/dlopen.f
+REQUIRE NOTFOUND  ~ac/lib/ns/notfound.f
 
 : OBJ-DATA@ ( oid -- data )
 \ Данные объекта (instance).
