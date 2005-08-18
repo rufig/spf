@@ -142,7 +142,8 @@ CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
 
 : XML_XPATH { addr u xpaddr xpu \ s doc ctx res -- }
   addr u GET-FILE -> s
-  s STR@ SWAP 2 xmlRecoverMemory -> doc
+\  s STR@ SWAP 2 xmlRecoverMemory -> doc
+  97 ( noerror|nowarning|recover) 0 0 s STR@ SWAP 5 xmlReadMemory -> doc
   doc 1 xmlXPathNewContext -> ctx
   ctx xpaddr 2 xmlXPathEvalExpression -> res
   ctx 1 xmlXPathFreeContext DROP
