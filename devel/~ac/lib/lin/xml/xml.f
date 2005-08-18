@@ -55,6 +55,24 @@ CONSTANT /xmlNode
 
 1 CONSTANT XML_ELEMENT_NODE
 
+0
+CELL -- xpo.type       \ xmlXPathObjectType
+CELL -- xpo.nodesetval \ xmlNodeSetPtr
+CELL -- xpo.boolval    \ int
+CELL -- xpo.floatval   \ double
+CELL -- xpo.stringval  \ xmlChar
+CELL -- xpo.user       \ void
+CELL -- xpo.index      \ int
+CELL -- xpo.user2      \ void
+CELL -- xpo.index2     \ int
+CONSTANT /xmlXPathObject
+
+0
+CELL -- xns.nodeNr     \ int : number of nodes in the set
+CELL -- xns.nodeMax    \ int : size of the array as allocated
+CELL -- xns.nodeTab    \ xmlNodePtr : array of nodes in no particular order @
+CONSTANT /xmlNodeSet
+
 USER RECURSE-LEVEL
 : 1-! DUP @ 1- SWAP ! ;
 VECT vlistNodes
@@ -105,6 +123,29 @@ VECT vlistNodes
   doc 1 xmlFreeDoc DROP
   0 xmlCleanupParser DROP
 ;
+: XML_XPATH { addr u xpaddr xpu \ s doc ctx res -- }
+  addr u GET-FILE -> s
+  s STR@ SWAP 2 xmlRecoverMemory -> doc
+  doc 1 xmlXPathNewContext -> ctx
+  ctx xpaddr 2 xmlXPathEvalExpression -> res
+  ctx 1 xmlXPathFreeContext DROP
+  res IF res xpo.nodesetval @ xns.nodeNr @ 0
+         ?DO
+           res xpo.nodesetval @ xns.nodeTab @ I CELLS + @
+           x.children @ ( listNodes)
+           1 SWAP doc 3 xmlNodeListGetString ASCIIZ> TYPE CR
+\ то же самое: ?DUP IF x.content @ ?DUP IF ASCIIZ> TYPE CR THEN THEN
+         LOOP
+      THEN
+  res 1 xmlXPathFreeObject DROP
+  doc 1 xmlFreeDoc DROP
+  0 xmlCleanupParser DROP
+;
+
+
+\ S" http://www.forth.org.ru/rss.xml" S" //link" XML_XPATH
+\ S" http://www.forth.org.ru/rss.xml" S" //item/description" XML_XPATH
+\ S" http://www.forth.org.ru/rss.xml" S" /rss/channel/image/url" XML_XPATH
 
 \ S" http://www.forth.org.ru/rss.xml" XML_LIST_NODES
 \ 0 0 S" http://localhost:8989/dsf3.rem?wsdl" DROP 3 xmlReadFile .
