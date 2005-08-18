@@ -104,7 +104,7 @@ SET-CURRENT PREVIOUS
 : NOTFOUND \ просто для сокращения asciiz литералов "zzz" = S" zzz" DROP
   OVER C@ [CHAR] " = 
   IF NIP >IN @ SWAP - 0 MAX >IN !
-     POSTPONE S" DROP
+     POSTPONE S" STATE @ IF POSTPONE DROP ELSE DROP THEN
   ELSE NOTFOUND THEN
 ;
 
