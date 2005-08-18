@@ -22,7 +22,7 @@ CURLOPT_FILE CONSTANT CURLOPT_WRITEDATA
   stream nmemb size ptr asize
 ; QUICK_WNDPROC CURL_CALLBACK
 
-: GET_FILE_VIAPROXY { addr u paddr pu \ h data -- str }
+: GET-FILE-VIAPROXY { addr u paddr pu \ h data -- str }
 \ если прокси paddr pu - непустая строка, то явно используется этот прокси
 \ curl умеет использовать переменные окружения http_proxy, ftp_proxy
 \ поэтому можно не задавать прокси явно.
@@ -41,15 +41,15 @@ CURLOPT_FILE CONSTANT CURLOPT_WRITEDATA
   h 1 curl_easy_cleanup DROP
   data
 ;
-: GET_FILE ( addr u -- str )
+: GET-FILE ( addr u -- str )
   \ без прокси или с заданным в переменной окружения http_proxy
-  S" " GET_FILE_VIAPROXY
+  S" " GET-FILE-VIAPROXY
 ;
 
 \EOF
 : TEST
-  S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" GET_FILE STYPE
-  S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" S" http://otradnoe:3128/" GET_FILE_VIAPROXY STYPE
-  S" ftp://ftp.forth.org.ru/" GET_FILE STYPE
+  S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" GET-FILE STYPE
+  S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" S" http://otradnoe:3128/" GET-FILE-VIAPROXY STYPE
+  S" ftp://ftp.forth.org.ru/" GET-FILE STYPE
 ;
 TEST
