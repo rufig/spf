@@ -141,10 +141,8 @@ VECT vlistNodes
 
 CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
 
-: XML_XPATH { addr u xpaddr xpu \ s doc ctx res -- }
-  addr u GET-FILE -> s
-\  s STR@ SWAP 2 xmlRecoverMemory -> doc
-  97 ( noerror|nowarning|recover) 0 0 s STR@ SWAP 5 xmlReadMemory -> doc
+: XML_XPATH_MEM { addr u xpaddr xpu \ doc ctx res -- }
+  97 ( noerror|nowarning|recover) 0 0 u addr 5 xmlReadMemory -> doc
   doc 1 xmlXPathNewContext -> ctx
   ctx xpaddr 2 xmlXPathEvalExpression -> res
   ctx 1 xmlXPathFreeContext DROP
@@ -153,13 +151,18 @@ CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
   doc 1 xmlFreeDoc DROP
   0 xmlCleanupParser DROP
 ;
+: XML_XPATH { addr u xpaddr xpu \ s -- }
+  addr u GET-FILE -> s
+  s STR@ xpaddr xpu XML_XPATH_MEM
+  s STRFREE
+;
 
-\ S" http://www.w3schools.com/xpath/xpath_functions.asp" 
+\ S" http://www.w3schools.com/xpath/xpath_functions.asp" XML_LIST_NODES
 \ S" http://www.forth.org.ru/xpath_functions.asp.htm" S" //td[@valign='top' and starts-with(.,'fn:')]" XML_XPATH
 \ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" //entry[position()<11]/*/name" XML_XPATH
-\ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" string(123)" XML_XPATH
-\ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" number(5.5)" XML_XPATH
-\ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" boolean(1)" XML_XPATH
+\ S" <dummy/>" S" string(123)" XML_XPATH_MEM
+\ S" <dummy/>" S" number(5.5)" XML_XPATH_MEM
+\ S" <dummy/>" S" boolean(1)" XML_XPATH_MEM
 \ S" http://www.forth.org.ru/rss.xml" S" //link" XML_XPATH
 \ S" http://www.forth.org.ru/rss.xml" S" //item/description" XML_XPATH
 \ S" http://www.forth.org.ru/rss.xml" S" /rss/channel/image/url" XML_XPATH
