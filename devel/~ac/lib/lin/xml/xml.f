@@ -59,7 +59,7 @@ CONSTANT /xmlNode
 CELL -- xpo.type       \ xmlXPathObjectType
 CELL -- xpo.nodesetval \ xmlNodeSetPtr
 CELL -- xpo.boolval    \ int
-CELL -- xpo.floatval   \ double
+  12 -- xpo.floatval   \ double
 CELL -- xpo.stringval  \ xmlChar
 CELL -- xpo.user       \ void
 CELL -- xpo.index      \ int
@@ -123,26 +123,39 @@ VECT vlistNodes
   doc 1 xmlFreeDoc DROP
   0 xmlCleanupParser DROP
 ;
+: dumpNodeSet { res -- }
+  res xpo.nodesetval @ ?DUP
+  IF xns.nodeNr @ 0
+     ?DO
+        res xpo.nodesetval @ xns.nodeTab @ I CELLS + @
+        x.children @ ( listNodes)
+\          1 SWAP doc 3 xmlNodeListGetString ASCIIZ> TYPE CR \ ниже то же самое, без выделения памяти
+        ?DUP IF x.content @ ?DUP IF ASCIIZ> TYPE CR THEN THEN
+      LOOP
+  THEN
+;
+: dumpBool xpo.boolval @ . ;
+: dumpFloat xpo.floatval 12 DUMP ;
+: dumpString xpo.stringval @ ASCIIZ> TYPE ;
+
+CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
+
 : XML_XPATH { addr u xpaddr xpu \ s doc ctx res -- }
   addr u GET-FILE -> s
   s STR@ SWAP 2 xmlRecoverMemory -> doc
   doc 1 xmlXPathNewContext -> ctx
   ctx xpaddr 2 xmlXPathEvalExpression -> res
   ctx 1 xmlXPathFreeContext DROP
-  res IF res xpo.nodesetval @ xns.nodeNr @ 0
-         ?DO
-           res xpo.nodesetval @ xns.nodeTab @ I CELLS + @
-           x.children @ ( listNodes)
-           1 SWAP doc 3 xmlNodeListGetString ASCIIZ> TYPE CR
-\ то же самое: ?DUP IF x.content @ ?DUP IF ASCIIZ> TYPE CR THEN THEN
-         LOOP
-      THEN
+  res IF res xpo.type @ 1- 0 MAX CELLS xpathTypes + @ res SWAP EXECUTE THEN
   res 1 xmlXPathFreeObject DROP
   doc 1 xmlFreeDoc DROP
   0 xmlCleanupParser DROP
 ;
 
-
+\ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" //entry[position()<11]/*/name" XML_XPATH
+\ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" string(123)" XML_XPATH
+\ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" number(5.5)" XML_XPATH
+\ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" boolean(1)" XML_XPATH
 \ S" http://www.forth.org.ru/rss.xml" S" //link" XML_XPATH
 \ S" http://www.forth.org.ru/rss.xml" S" //item/description" XML_XPATH
 \ S" http://www.forth.org.ru/rss.xml" S" /rss/channel/image/url" XML_XPATH
