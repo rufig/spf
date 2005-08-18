@@ -117,7 +117,8 @@ VECT vlistNodes
 
 : XML_LIST_NODES { addr u \ s doc -- }
   addr u GET-FILE -> s
-  s STR@ SWAP 2 xmlRecoverMemory -> doc
+\  s STR@ SWAP 2 xmlRecoverMemory -> doc
+  97 ( noerror|nowarning|recover) 0 0 s STR@ SWAP 5 xmlReadMemory -> doc
 \  addr 1 xmlRecoverFile -> doc \ встроенный http-клиент слабее curl'а
   doc 1 xmlDocGetRootElement listNodes
   doc 1 xmlFreeDoc DROP
