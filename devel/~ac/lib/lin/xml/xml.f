@@ -152,6 +152,8 @@ CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
   0 xmlCleanupParser DROP
 ;
 
+\ S" http://www.w3schools.com/xpath/xpath_functions.asp" 
+\ S" http://www.forth.org.ru/xpath_functions.asp.htm" S" //td[@valign='top' and starts-with(.,'fn:')]" XML_XPATH
 \ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" //entry[position()<11]/*/name" XML_XPATH
 \ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" string(123)" XML_XPATH
 \ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" number(5.5)" XML_XPATH
