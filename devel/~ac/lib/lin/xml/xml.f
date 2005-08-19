@@ -141,8 +141,14 @@ VECT vlistNodes
 
 CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
 
+: XML_READDOC_MEM { addr u -- doc }
+  97 ( noerror|nowarning|recover) 0 0 u addr 5 xmlReadMemory
+;
+: XML_READDOC ( addr u -- doc )
+  GET-FILE DUP STR@ XML_READDOC_MEM SWAP STRFREE
+;
 : XML_XPATH_MEM { addr u xpaddr xpu \ doc ctx res -- }
-  97 ( noerror|nowarning|recover) 0 0 u addr 5 xmlReadMemory -> doc
+  addr u XML_READDOC_MEM -> doc
   doc 1 xmlXPathNewContext -> ctx
   ctx xpaddr 2 xmlXPathEvalExpression -> res
   ctx 1 xmlXPathFreeContext DROP
@@ -156,7 +162,12 @@ CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
   s STR@ xpaddr xpu XML_XPATH_MEM
   s STRFREE
 ;
-
+: XML_SERIALIZE { doc \ mem size -- addr2 u2 }
+  ^ size ^ mem doc 3 xmlDocDumpMemory DROP mem size
+;
+: XML_SERIALIZE_ENC { enca encu doc \ mem size -- addr2 u2 }
+  enca ^ size ^ mem doc 4 xmlDocDumpMemoryEnc DROP mem size
+;
 \ S" http://www.w3schools.com/xpath/xpath_functions.asp" XML_LIST_NODES
 \ S" http://www.forth.org.ru/xpath_functions.asp.htm" S" //td[@valign='top' and starts-with(.,'fn:')]" XML_XPATH
 \ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" //entry[position()<11]/*/name" XML_XPATH
@@ -169,3 +180,7 @@ CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
 
 \ S" http://www.forth.org.ru/rss.xml" XML_LIST_NODES
 \ 0 0 S" http://localhost:8989/dsf3.rem?wsdl" DROP 3 xmlReadFile .
+
+\ S" <text attr='zz'>test</text>" XML_READDOC_MEM XML_SERIALIZE TYPE
+\ S" http://www.forth.org.ru/rss.xml" XML_READDOC XML_SERIALIZE TYPE
+\ S" UTF-8" S" http://www.forth.org.ru/rss.xml" XML_READDOC XML_SERIALIZE_ENC TYPE
