@@ -1,8 +1,8 @@
-( Разбор XML через библиотеку LIBXML2
-  ~ac: переписал через so-xt.f 18.08.2005
+( ╨рчсюЁ XML ўхЁхч сшсышюЄхъє LIBXML2
+  ~ac: яхЁхяшёры ўхЁхч so-xt.f 18.08.2005
   $Id$
 
-  Для компиляции нужны следующие dll:
+  ─ы  ъюьяшы Ўшш эєцэ√ ёыхфє■∙шх dll:
   libxml2.dll iconv.dll zlib1.dll   
   libcurl.dll zlibwapi.dll
 )  
@@ -115,15 +115,6 @@ VECT vlistNodes
 ;
 ' listNodes TO vlistNodes
 
-: XML_LIST_NODES { addr u \ s doc -- }
-  addr u GET-FILE -> s
-\  s STR@ SWAP 2 xmlRecoverMemory -> doc
-  97 ( noerror|nowarning|recover) 0 0 s STR@ SWAP 5 xmlReadMemory -> doc
-\  addr 1 xmlRecoverFile -> doc \ встроенный http-клиент слабее curl'а
-  doc 1 xmlDocGetRootElement listNodes
-  doc 1 xmlFreeDoc DROP
-  0 xmlCleanupParser DROP
-;
 : dumpNodeSet { res -- }
   res xpo.nodesetval @ ?DUP
   IF xns.nodeNr @ 0
@@ -141,14 +132,20 @@ VECT vlistNodes
 
 CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
 
-: XML_READDOC_MEM { addr u -- doc }
+: XML_READ_DOC_MEM { addr u -- doc }
   97 ( noerror|nowarning|recover) 0 0 u addr 5 xmlReadMemory
 ;
-: XML_READDOC ( addr u -- doc )
-  GET-FILE DUP STR@ XML_READDOC_MEM SWAP STRFREE
+: XML_READ_DOC_MEM_ENC { enca encu addr u -- doc }
+  97 ( noerror|nowarning|recover) enca 0 u addr 5 xmlReadMemory
+;
+: XML_READ_DOC ( addr u -- doc )
+  GET-FILE DUP STR@ XML_READ_DOC_MEM SWAP STRFREE
+;
+: XML_READ_DOC_ENC { enca encu addr u -- doc }
+  addr u GET-FILE DUP STR@ enca encu 2SWAP XML_READ_DOC_MEM_ENC SWAP STRFREE
 ;
 : XML_XPATH_MEM { addr u xpaddr xpu \ doc ctx res -- }
-  addr u XML_READDOC_MEM -> doc
+  addr u XML_READ_DOC_MEM -> doc
   doc 1 xmlXPathNewContext -> ctx
   ctx xpaddr 2 xmlXPathEvalExpression -> res
   ctx 1 xmlXPathFreeContext DROP
@@ -168,6 +165,36 @@ CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
 : XML_SERIALIZE_ENC { enca encu doc \ mem size -- addr2 u2 }
   enca ^ size ^ mem doc 4 xmlDocDumpMemoryEnc DROP mem size
 ;
+: XML_LIST_NODES { addr u \ doc -- }
+  addr u XML_READ_DOC -> doc
+  doc 1 xmlDocGetRootElement listNodes
+  doc 1 xmlFreeDoc DROP
+  0 xmlCleanupParser DROP
+;
+: XML_DUMP_NODES ( addr u -- ) { \ doc }
+  XML_READ_DOC -> doc
+  doc S" -" DROP 2 xmlSaveFile DROP
+  doc 1 xmlFreeDoc DROP
+  0 xmlCleanupParser DROP
+;
+: XML_SAVE_URL { uaddr uu faddr fu \ doc -- }
+  uaddr uu XML_READ_DOC -> doc
+  doc faddr 2 xmlSaveFile DROP
+  doc 1 xmlFreeDoc DROP
+  0 xmlCleanupParser DROP
+;
+: XML_SAVE_URL_ENC { enca encu uaddr uu faddr fu \ doc -- }
+  enca encu uaddr uu XML_READ_DOC_ENC -> doc
+  enca doc faddr 3 xmlSaveFileEnc DROP
+  doc 1 xmlFreeDoc DROP
+  0 xmlCleanupParser DROP
+;
+: XML_DOC_TEXT  ( addr u -- addr2 u2 ) { \ doc }
+  XML_READ_DOC -> doc
+  doc 1 xmlDocGetRootElement
+\  doc H-STDOUT 3 xmlElemDump DROP
+  1 xmlNodeGetContent ASCIIZ> \ т√фрхЄ UTF-8
+;
 \ S" http://www.w3schools.com/xpath/xpath_functions.asp" XML_LIST_NODES
 \ S" http://www.forth.org.ru/xpath_functions.asp.htm" S" //td[@valign='top' and starts-with(.,'fn:')]" XML_XPATH
 \ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" //entry[position()<11]/*/name" XML_XPATH
@@ -179,8 +206,11 @@ CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
 \ S" http://www.forth.org.ru/rss.xml" S" /rss/channel/image/url" XML_XPATH
 
 \ S" http://www.forth.org.ru/rss.xml" XML_LIST_NODES
+\ S" http://www.forth.org.ru/rss.xml" XML_DUMP_NODES
+\ S" http://www.forth.org.ru/rss.xml" XML_DOC_TEXT TYPE CR
 \ 0 0 S" http://localhost:8989/dsf3.rem?wsdl" DROP 3 xmlReadFile .
+\ S" windows-1251" S" http://www.eserv.ru/" S" eserv.xml" XML_SAVE_URL_ENC
 
-\ S" <text attr='zz'>test</text>" XML_READDOC_MEM XML_SERIALIZE TYPE
-\ S" http://www.forth.org.ru/rss.xml" XML_READDOC XML_SERIALIZE TYPE
-\ S" UTF-8" S" http://www.forth.org.ru/rss.xml" XML_READDOC XML_SERIALIZE_ENC TYPE
+\ S" <text attr='zz'>test</text>" XML_READ_DOC_MEM XML_SERIALIZE TYPE
+\ S" http://www.forth.org.ru/rss.xml" XML_READ_DOC XML_SERIALIZE TYPE
+\ S" UTF-8" S" http://www.forth.org.ru/rss.xml" XML_READ_DOC XML_SERIALIZE_ENC TYPE
