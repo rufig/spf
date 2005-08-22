@@ -11,6 +11,7 @@ WARNING @ WARNING 0!
 REQUIRE SO            ~ac/lib/ns/so-xt.f
 REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE GET-FILE      ~ac/lib/lin/curl/curl.f
+REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
 WARNING !
 
 ALSO SO NEW: libxml2.dll
@@ -115,22 +116,86 @@ VECT vlistNodes
 ;
 ' listNodes TO vlistNodes
 
+: attr@ { addr u node -- node2 }
+  node x.properties @
+  BEGIN
+    DUP
+  WHILE
+    DUP x.name @ ASCIIZ> addr u COMPARE 0= IF EXIT THEN
+    x.next @
+  REPEAT
+;
+\ : attr@ ( addr u node -- node2 )
+\ в т.ч. из DTD
+\   NIP 2 xmlHasProp
+\ ;
+
+: node@ { addr u node -- node2 }
+  addr C@ [CHAR] @ = IF addr 1+ u 1- 0 MAX node attr@ EXIT THEN
+  node x.children @
+  BEGIN
+    DUP
+  WHILE
+    DUP x.type @ XML_ELEMENT_NODE =
+    IF DUP x.name @ ASCIIZ> addr u COMPARE 0= IF EXIT THEN
+    THEN
+    x.next @
+  REPEAT
+;
+: text@ ( node -- addr u )
+  1 xmlNodeGetContent ASCIIZ> UTF8>UNICODE UNICODE>
+;
+: nodeText ( addr u node -- addr2 u2 )
+  node@ ?DUP IF text@
+             ELSE S" " THEN
+;
+
 : dumpNodeSet { res -- }
   res xpo.nodesetval @ ?DUP
   IF xns.nodeNr @ 0
      ?DO
         res xpo.nodesetval @ xns.nodeTab @ I CELLS + @
         x.children @ ( listNodes)
-\          1 SWAP doc 3 xmlNodeListGetString ASCIIZ> TYPE CR \ ­Ё¦Ґ в® ¦Ґ б ¬®Ґ, ЎҐ§ ўл¤Ґ«Ґ­Ёп Ї ¬пвЁ
+\          1 SWAP doc 3 xmlNodeListGetString ASCIIZ> TYPE CR \ ниже то же самое, без выделения памяти
         ?DUP IF x.content @ ?DUP IF ASCIIZ> TYPE CR THEN THEN
-      LOOP
+     LOOP
   THEN
 ;
+: dumpNodeSet@ { res \ s -- addr u }
+  "" -> s
+  res xpo.nodesetval @ ?DUP
+  IF xns.nodeNr @ 0
+     ?DO
+        res xpo.nodesetval @ xns.nodeTab @ I CELLS + @
+        x.children @ ( listNodes)
+        1 xmlNodeGetContent ASCIIZ> UTF8>UNICODE UNICODE> s STR+ CRLF s STR+
+     LOOP
+  THEN
+  s STR@
+;
 : dumpBool xpo.boolval @ . ;
+: dumpBool@ xpo.boolval @ ;
 : dumpFloat xpo.floatval 12 DUMP ;
+: dumpFloat@ xpo.floatval ;
 : dumpString xpo.stringval @ ASCIIZ> TYPE ;
+: dumpString@ xpo.stringval @ ASCIIZ> ;
 
 CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
+CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
+
+: XML_NLIST ( node -- )
+  x.children @
+  BEGIN
+    DUP
+  WHILE
+     DUP x.type @ XML_ELEMENT_NODE =
+     IF \ т.е. ищутся только элементы, то и печатаем только их,
+        \ а текстовые узлы не выводим
+       DUP x.name @ ?DUP IF ASCIIZ> TYPE SPACE ELSE DUP . THEN
+     THEN
+     x.next @
+  REPEAT DROP
+;
 
 : XML_READ_DOC_MEM { addr u -- doc }
   97 ( noerror|nowarning|recover) 0 0 u addr 5 xmlReadMemory
@@ -144,20 +209,35 @@ CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
 : XML_READ_DOC_ENC { enca encu addr u -- doc }
   addr u GET-FILE DUP STR@ enca encu 2SWAP XML_READ_DOC_MEM_ENC SWAP STRFREE
 ;
-: XML_XPATH_MEM { addr u xpaddr xpu \ doc ctx res -- }
+: XML_DOC_ROOT ( doc -- node )
+  1 xmlDocGetRootElement
+;
+: XML_READ_DOC_ROOT ( addr u -- node )
+  XML_READ_DOC XML_DOC_ROOT
+;
+: XML_XPATH_MEM_XT { addr u xpaddr xpu xt \ doc ctx res -- }
   addr u XML_READ_DOC_MEM -> doc
   doc 1 xmlXPathNewContext -> ctx
   ctx xpaddr 2 xmlXPathEvalExpression -> res
   ctx 1 xmlXPathFreeContext DROP
-  res IF res xpo.type @ 1- 0 MAX CELLS xpathTypes + @ res SWAP EXECUTE THEN
+  res IF res xpo.type @ 1- 0 MAX CELLS xt + @ res SWAP EXECUTE THEN
   res 1 xmlXPathFreeObject DROP
   doc 1 xmlFreeDoc DROP
   0 xmlCleanupParser DROP
 ;
-: XML_XPATH { addr u xpaddr xpu \ s -- }
+: XML_XPATH_MEM ( addr u xpaddr xpu -- )
+  xpathTypes XML_XPATH_MEM_XT
+;
+: XML_XPATH_XT { addr u xpaddr xpu xt \ s -- }
   addr u GET-FILE -> s
-  s STR@ xpaddr xpu XML_XPATH_MEM
+  s STR@ xpaddr xpu xt XML_XPATH_MEM_XT
   s STRFREE
+;
+: XML_XPATH ( addr u xpaddr xpu -- )
+  xpathTypes XML_XPATH_XT
+;
+: XML_XPATH@ ( addr u xpaddr xpu -- addr2 u2 )
+  xpathTypes@ XML_XPATH_XT
 ;
 : XML_SERIALIZE { doc \ mem size -- addr2 u2 }
   ^ size ^ mem doc 3 xmlDocDumpMemory DROP mem size
@@ -170,6 +250,9 @@ CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
   doc 1 xmlDocGetRootElement listNodes
   doc 1 xmlFreeDoc DROP
   0 xmlCleanupParser DROP
+;
+: XML_DOC_SAVE ( addr u doc -- )
+  NIP SWAP 2 xmlSaveFile DROP
 ;
 : XML_DUMP_NODES ( addr u -- ) { \ doc }
   XML_READ_DOC -> doc
@@ -195,6 +278,18 @@ CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
 \  doc H-STDOUT 3 xmlElemDump DROP
   1 xmlNodeGetContent ASCIIZ> \ выдает UTF-8
 ;
+: >UTF8  ( addr u -- addr2 u2 )
+  >UNICODE OVER >R UNICODE>UTF8 R> FREE THROW
+;
+: NODE>DOC
+  x.doc @
+;
+: XML_NEW_NODE { addr u node \ s -- new_node }
+  addr u " {s}" -> s
+  0 s STR@ DROP 0 node NODE>DOC 4 xmlNewDocNode DUP
+  node 2 xmlAddChild DROP s STRFREE
+;
+
 \ S" http://www.w3schools.com/xpath/xpath_functions.asp" XML_LIST_NODES
 \ S" http://www.forth.org.ru/xpath_functions.asp.htm" S" //td[@valign='top' and starts-with(.,'fn:')]" XML_XPATH
 \ S" http://forth.org.ru/log/SpfDevChangeLog.xml" S" //entry[position()<11]/*/name" XML_XPATH
@@ -214,3 +309,22 @@ CREATE xpathTypes ' dumpNodeSet , ' dumpBool , ' dumpFloat , ' dumpString ,
 \ S" <text attr='zz'>test</text>" XML_READ_DOC_MEM XML_SERIALIZE TYPE
 \ S" http://www.forth.org.ru/rss.xml" XML_READ_DOC XML_SERIALIZE TYPE
 \ S" UTF-8" S" http://www.forth.org.ru/rss.xml" XML_READ_DOC XML_SERIALIZE_ENC TYPE
+\ S" windows-1251" S" D:\ac\mm\1.xml" S" test1.xml" XML_SAVE_URL_ENC
+\ S" D:\ac\mm\1.xml" S" //node/@TEXT" XML_XPATH@ TYPE
+\ S" D:\ac\mm\1.xml" S" //node/@CREATED" XML_XPATH@ TYPE
+\ S" <text attr='zz'>test</text>" XML_READ_DOC_MEM XML_DOC_ROOT S" attr" ROT attr@ text@ TYPE
+\ S" <text attr='zz'>test</text>" XML_READ_DOC_MEM XML_DOC_ROOT S" @attr" ROT node@ text@ TYPE
+(
+: TEST { \ doc root }
+  S" 1.0" DROP 1 xmlNewDoc -> doc
+ \ doc XML_DOC_ROOT .
+  S" this is content рус, " >UTF8 DROP
+  S" node_name" DROP 0 doc 4 xmlNewDocNode  -> root
+  root doc 2 xmlDocSetRootElement DROP
+  S" this is comment" DROP doc 2 xmlNewDocComment doc 2 xmlAddChild DROP
+  S" это добавочный <text>текст</text>" >UTF8 SWAP doc 3 xmlNewDocTextLen root 2 xmlAddChild DROP
+  S" windows-1251" DROP doc S" create_test.xml" DROP 3 xmlSaveFileEnc DROP
+; TEST
+)
+\ ALSO libxml2.dll DEFINITIONS : TEST ; \ должно вызвать 5 THROW
+PREVIOUS
