@@ -1,5 +1,5 @@
-\ ®«ãç¥­¨¥ ä ©«®¢ ¯® HTTP/FTP ç¥à¥§ ¡¨¡«¨®â¥ªã CURL
-\ ~ac: ¯¥à¥¯¨á « ç¥à¥§ xt-so.f 18.08.2005
+\ Ïîëó÷åíèå ôàéëîâ ïî HTTP/FTP ÷åðåç áèáëèîòåêó CURL
+\ ~ac: ïåðåïèñàë ÷åðåç xt-so.f 18.08.2005
 \ $Id$
 
 WARNING @ WARNING 0!
@@ -23,9 +23,9 @@ CURLOPT_FILE CONSTANT CURLOPT_WRITEDATA
 ; QUICK_WNDPROC CURL_CALLBACK
 
 : GET-FILE-VIAPROXY { addr u paddr pu \ h data -- str }
-\ ¥á«¨ ¯à®ªá¨ paddr pu - ­¥¯ãáâ ï áâà®ª , â® ï¢­® ¨á¯®«ì§ã¥âáï íâ®â ¯à®ªá¨
-\ curl ã¬¥¥â ¨á¯®«ì§®¢ âì ¯¥à¥¬¥­­ë¥ ®ªàã¦¥­¨ï http_proxy, ftp_proxy
-\ ¯®íâ®¬ã ¬®¦­® ­¥ § ¤ ¢ âì ¯à®ªá¨ ï¢­®.
+\ åñëè ïðîêñè paddr pu - íåïóñòàÿ ñòðîêà, òî ÿâíî èñïîëüçóåòñÿ ýòîò ïðîêñè
+\ curl óìååò èñïîëüçîâàòü ïåðåìåííûå îêðóæåíèÿ http_proxy, ftp_proxy
+\ ïîýòîìó ìîæíî íå çàäàâàòü ïðîêñè ÿâíî.
 
   "" -> data
   0 curl_easy_init -> h
@@ -42,10 +42,13 @@ CURLOPT_FILE CONSTANT CURLOPT_WRITEDATA
   data
 ;
 : GET-FILE ( addr u -- str )
-  \ ¡¥§ ¯à®ªá¨ ¨«¨ á § ¤ ­­ë¬ ¢ ¯¥à¥¬¥­­®© ®ªàã¦¥­¨ï http_proxy
-  S" " GET-FILE-VIAPROXY
+  \ áåç ïðîêñè èëè ñ çàäàííûì â ïåðåìåííîé îêðóæåíèÿ http_proxy
+  2DUP FILE ?DUP
+  IF 2SWAP 2DROP OVER >R sALLOT R> FREE THROW
+  ELSE DROP S" " GET-FILE-VIAPROXY THEN
 ;
 
+PREVIOUS
 \EOF
 : TEST
   S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" GET-FILE STYPE
