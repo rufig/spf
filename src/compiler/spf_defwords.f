@@ -8,7 +8,9 @@
 USER LAST-CFA
 USER-VALUE LAST-NON
 
-: SHEADER ( addr u -- )
+VECT SHEADER
+
+: SHEADER1 ( addr u -- )
   HERE 0 , ( cfa )
   DUP LAST-CFA !
   0 C,     ( flags )
@@ -20,6 +22,7 @@ USER-VALUE LAST-NON
   ALIGN
   HERE SWAP ! ( заполнили cfa )
 ;
+' SHEADER1 (TO) SHEADER
 
 : HEADER ( "name" -- )
   NextWord SHEADER
