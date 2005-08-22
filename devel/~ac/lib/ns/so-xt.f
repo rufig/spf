@@ -50,11 +50,13 @@ REQUIRE NEW: ~ac/lib/ns/ns.f
 
 \ S" function" 5 0xDDD 0xCCC DLL-CALL, 80 DUMP
 
-VOCABULARY SO
-
-GET-CURRENT ALSO SO DEFINITIONS
+<<: FORTH SO
 ALSO DL
 
+: SHEADER ( addr u -- )
+  ." Can't insert " TYPE ."  into " GET-CURRENT VOC-NAME. ."  SharedObject ;)" CR
+  5 THROW
+;
 : SEARCH-WORDLIST ( c-addr u oid -- 0 | xt 1 | xt -1 )
   >R 2DUP ( c-addr u c-addr u )
   0 ROT ROT R@ ROT ROT R> ( c-addr u 0 oid  c-addr u oid )
@@ -68,14 +70,15 @@ ALSO DL
   ELSE 2DROP 2DROP 0 THEN
 ;
 
-SET-CURRENT PREVIOUS PREVIOUS
+PREVIOUS
+>> CONSTANT SO-WL
 
 : ERASE-SO-HANDLES
   VOC-LIST @
   BEGIN
     DUP
   WHILE
-    DUP CELL+ DUP CLASS@ [ ALSO SO CONTEXT @ PREVIOUS ] LITERAL =
+    DUP CELL+ DUP CLASS@ SO-WL =
               IF 0 OVER OBJ-DATA! THEN DROP
     @
   REPEAT DROP

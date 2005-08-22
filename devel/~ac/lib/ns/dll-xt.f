@@ -86,10 +86,13 @@ REQUIRE NEW: ~ac/lib/ns/ns.f
 
 \ S" function" 5 0xDDD 0xCCC DLL-CALL, 80 DUMP
 
-GET-CURRENT ALSO DL DEFINITIONS
+<<: FORTH DLL
+ALSO DL
 
-\ : SEARCH-WORDLIST-I SEARCH-WORDLIST ; \ версия только для интерпретации
-
+: SHEADER ( addr u -- )
+  ." Can't insert " TYPE ."  into " GET-CURRENT VOC-NAME. ."  DLL ;)" CR
+  5 THROW
+;
 : SEARCH-WORDLIST ( c-addr u oid -- 0 | xt 1 | xt -1 )
   >R 2DUP ( c-addr u c-addr u )
   0 ROT ROT R@ ROT ROT R> ( c-addr u 0 oid  c-addr u oid )
@@ -103,14 +106,15 @@ GET-CURRENT ALSO DL DEFINITIONS
   ELSE 2DROP 2DROP 0 THEN
 ;
 
-SET-CURRENT PREVIOUS
+PREVIOUS
+>> CONSTANT DLL-WL
 
 : ERASE-DLL-HANDLES
   VOC-LIST @
   BEGIN
     DUP
   WHILE
-    DUP CELL+ DUP CLASS@ [ ALSO DL CONTEXT @ PREVIOUS ] LITERAL =
+    DUP CELL+ DUP CLASS@ DLL-WL =
               IF 0 OVER OBJ-DATA! THEN DROP
     @
   REPEAT DROP
@@ -122,7 +126,7 @@ SET-CURRENT PREVIOUS
 WARNING !
 
 ( пример.
-DL NEW: libxml2.dll
+DLL NEW: libxml2.dll
 
 S" text.xml" DROP xmlRecoverFile
 
