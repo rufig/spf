@@ -18,14 +18,39 @@ REQUIRE NOTFOUND  ~ac/lib/ns/notfound.f
 \ под другим именем.)
   CELL+ @ ?DUP IF COUNT ELSE S" FORTH" THEN
 ;
+: HEAP-COPY-C ( addr u -- addr1 )
+\ скопировать строку в хип и вернуть её адрес в хипе
+  DUP 0< IF 8 THROW THEN
+  DUP 2+ ALLOCATE THROW DUP >R 1+
+  SWAP DUP >R MOVE
+  R> 0 OVER R@ + 1+ C! 
+  R@ C!
+  R>
+;
+: OBJ-NAME! ( addr u oid -- )
+  >R HEAP-COPY-C R> CELL+ !
+;
+
+: SEARCH-WORDLIST-R ( c-addr u oid -- 0 | xt 1 | xt -1 )
+\ Искать в текущем словаре и в словарях-предках, как в фортах до-94.
+\ Но использоваться будет только для "классовых" вызовов - INVOKE,
+\ не пересекаясь с обычным поиском.
+
+  DUP >R FORTH-WORDLIST = >R 2DUP S" SEARCH-WORDLIST" COMPARE 0= R> AND
+  IF 2DROP RDROP ['] SEARCH-WORDLIST1 -1 EXIT THEN \ чтобы избежать рекурсии на поиске SEARCH-WORDLIST через SEARCH-WORDLIST :)
+  R>
+
+  >R 2DUP R@ SEARCH-WORDLIST1 ?DUP IF 2SWAP 2DROP RDROP EXIT THEN
+  R> DUP FORTH-WORDLIST = IF DROP 2DROP 0 EXIT THEN \ выше искать некуда
+  CLASS@ DUP 0= IF DROP FORTH-WORDLIST THEN RECURSE \ ищем выше по линии наследования
+;
 
 : INVOKE ( ... oid addr u -- ... )
 \ выполнить метод с именем addr u для объекта oid
   ROT ( addr u oid )
-  DUP CLASS@ DUP 0= IF DROP FORTH-WORDLIST THEN ( addr u oid class-oid )
-  SWAP >R ( addr u class-oid )
-  SEARCH-WORDLIST1
-  IF R> SWAP EXECUTE ELSE -2004 THROW THEN
+  CLASS@ DUP 0= IF DROP FORTH-WORDLIST THEN ( addr u class-oid )
+  SEARCH-WORDLIST-R
+  IF EXECUTE ELSE -2004 THROW THEN
 ;
 
 : SEARCH-WORDLIST-V ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
@@ -33,11 +58,20 @@ REQUIRE NOTFOUND  ~ac/lib/ns/notfound.f
 \ wid. Если определение не найдено, вернуть ноль.
 \ Если определение найдено, вернуть выполнимый токен xt и единицу (1), если 
 \ определение немедленного исполнения, иначе минус единицу (-1).
-  DUP CLASS@
-  IF S" SEARCH-WORDLIST" INVOKE
-  ELSE SEARCH-WORDLIST1 THEN
+  DUP CLASS@ DUP 0= SWAP FORTH-WORDLIST = OR
+  IF SEARCH-WORDLIST1
+  ELSE DUP S" SEARCH-WORDLIST" INVOKE THEN
 ;
 ' SEARCH-WORDLIST-V TO SEARCH-WORDLIST
+
+: SHEADER-V ( addr u -- )
+\ Создать заголовок нового определения способом, зависящим от
+\ текущего словаря компиляции.
+  GET-CURRENT CLASS@ DUP 0= SWAP FORTH-WORDLIST = OR
+  IF SHEADER1
+  ELSE GET-CURRENT S" SHEADER" INVOKE THEN
+;
+' SHEADER-V TO SHEADER
 
 USER _PAS-EXEC \ без локальных переменных неудобно ;)
 : PAS-EXEC ( ... n dll-xt -- x )
@@ -72,6 +106,7 @@ USER _C-EXEC
 \ Создать новый именованый словарь, class которого будет равен 
 \ текущему контекстному словарю. Т.е. создать объект - экземпляр
 \ текущего класса.
+\ И установить его контекстным словарем (вместо словаря-класса).
   >IN @ VOCABULARY >IN !
   CONTEXT @ ( ALSO) ' EXECUTE CONTEXT @ CLASS!
 ;
@@ -80,10 +115,45 @@ USER _C-EXEC
 \ ( ALSO) KERNEL32.DLL
 \ CONTEXT @ CLASS!
 
+: NEW
+\ Создать новый неименованый словарь, class которого будет равен 
+\ текущему контекстному словарю. Т.е. создать объект - экземпляр
+\ текущего класса.
+\ И установить его контекстным словарем (вместо словаря-класса).
+  CONTEXT @ WORDLIST DUP CONTEXT ! CLASS!
+;
 
-VOCABULARY DL
-GET-CURRENT ALSO DL DEFINITIONS
+: new
+\ Создать новый неименованый временный словарь, class которого будет равен 
+\ текущему контекстному словарю. Т.е. создать объект - экземпляр
+\ текущего класса.
+\ И установить его контекстным словарем (вместо словаря-класса).
+  CONTEXT @ TEMP-WORDLIST DUP CONTEXT ! CLASS!
+;
+: new:
+\ Создать новый именованый временный словарь, class которого будет равен 
+\ текущему контекстному словарю. Т.е. создать объект - экземпляр
+\ текущего класса.
+\ И установить его контекстным словарем (вместо словаря-класса).
+  CONTEXT @ TEMP-WORDLIST DUP CONTEXT ! CLASS!
+  NextWord CONTEXT @ OBJ-NAME!
+;
 
+\ "макросы" для упрощения записи
+: << ( "name" -- cwid )
+  GET-CURRENT ALSO ' EXECUTE new DEFINITIONS
+;
+: <<: ( "class-name" "obj-name" -- cwid )
+  GET-CURRENT ALSO ' EXECUTE NEW: DEFINITIONS
+;
+: >> ( cwid -- wid ) SET-CURRENT CONTEXT @ PREVIOUS ;
+: :>> ( cwid -- ) SET-CURRENT PREVIOUS ;
+
+<<: FORTH DL
+
+: SHEADER ( addr u -- )
+  ." Can't insert " TYPE ."  into " GET-CURRENT VOC-NAME. ."  DL ;)" CR
+;
 : HEAP-COPY-U
   DUP >R HEAP-COPY R>
 ;
@@ -97,7 +167,7 @@ GET-CURRENT ALSO DL DEFINITIONS
           ELSE DROP 2DROP 0 THEN \ не удалось загрузить DLL/SO
   THEN
 ;
-SET-CURRENT PREVIOUS
+:>>
 
 \EOF примеры:
 
@@ -149,4 +219,3 @@ CREATE URL S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" HERE SWAP DUP
 DL NEW:  sqlite3.dll
 VARIABLE SQH
 PAD "D:\Program Files\SQLiteSpy_1.1\world.db3" 2 ' sqlite3_open C-EXEC . PAD @ SQH !
-
