@@ -66,10 +66,40 @@ USER global
 ;
 : JE 2DUP TYPE ."  --> " JsEval J. CR ;
 
+:NONAME ( *report *message *cx -- )
+  CR ." ERROR: "
+  OVER ASCIIZ> TYPE CR 0
+; 3 CELLS CALLBACK: ERRORREP
+
+\ ѕример самодельной форт-функции, внедр€емой внутрь JS через JS_DefineFunctions
+:NONAME ( *rval *argv argc *obj *cx -- flag )
+  ." TESTF: "
+  2>R DUP . \ число параметров
+      OVER @ @ UASCIIZ> TYPE CR \ переданна€ строка
+  2R>
+  2>R 2>R 14 ( JSVAL_TRUE) OVER ! 2R> 2R> \ возвращаемый результат
+  1 \ JS_TRUE - выполнено успешно
+; 5 CELLS CALLBACK: TESTF
+
+
+ 
+CREATE MyFunctions HERE 0 , ' TESTF , 1 ,
+0 , 0 , 0 ,
+HERE S" testf" S, 0 , SWAP !
+
+( CREATE MyFunctions S" testf" S, 0 C, ' TESTF , 1 ,
+0 , 0 , 0 , 
+MyFunctions 20 DUMP)
+
 \ EOF
 \ 0 JS_GetImplementationVersion ASCIIZ> TYPE \ DeerPark a2: JavaScript-C 1.5 pre-release 6a 2004-06-09
 
 JsInit
+' ERRORREP cx @ 2 JS_SetErrorReporter .
+
+MyFunctions global @ cx @ 3 JS_DefineFunctions .
+S" testf('test')" JE
+
 S" 5+5" JE
 S" var x=10.0;Math.sqrt(x*x*x*x);" JE
 S" Date()" JE
@@ -93,8 +123,9 @@ S" typeof('1 2 3'.split(/\s+/))" JE
 S" var order = <order><customer><name>Joe Green</name><address><street>410 Main</street><city>York</city><state>VT</state></address></customer><item>. . .</item><item><make>Acme</make><model>Framistat</model><price>2.50</price><qty>30</qty></item></order>" JE
 S" typeof(order)" JE
 S" order.customer.address.toString()" JE
+S" order..qty.toString()" JE
 S" typeof([1])" JE
 S" typeof(1)" JE
 S" NaN" JE
 S" SyntaxError()" JE
-\ S" bug" JsEval . . CR
+S" bug" JsEval . . CR
