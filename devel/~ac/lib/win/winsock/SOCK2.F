@@ -1,3 +1,6 @@
+REQUIRE {            ~ac/lib/locals.f
+REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
+
 : read ( addr len socket -- )
   \ прочесть ровно len байт из сокета socket и записать в addr
   { _addr _len _sock \ _p }
