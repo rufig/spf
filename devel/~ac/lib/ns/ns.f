@@ -52,6 +52,9 @@ REQUIRE NOTFOUND  ~ac/lib/ns/notfound.f
   SEARCH-WORDLIST-R
   IF EXECUTE ELSE -2004 THROW THEN
 ;
+: .. ( -- )
+  CONTEXT @ PAR@ ?DUP IF CONTEXT ! THEN
+;
 
 : SEARCH-WORDLIST-V ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
 \ Ќайти определение, заданное строкой c-addr u в списке слов, идентифицируемом 
