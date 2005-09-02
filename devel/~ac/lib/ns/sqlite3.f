@@ -16,14 +16,18 @@
   Выполнение найденной таблицы заменяет текущую вершину контекста
   поиска на найденный словарь найденной таблицы [или VIEW],
   как если бы она сама была определена через VOCABULARY, и дальнейший 
-  поиск будет вестись, начиная с него. Поиск в текущем словаре-таблице
-  будет инициировать, соответственно неявное выполнение SELECT-запросов.
-  Которое в свою очередь вернет словарь с результатами.
+  поиск будет вестись, начиная с него. Поиск в текущей таблице
+  приводит к замене текущей вершины контекста на ROW-словарь -
+  искомое слово при этом считается именем ключевого поля таблицы,
+  по которому будет теперь производиться дальнейший поиск.
+  Поиск в текущем ROW-словаре будет инициировать, соответственно 
+  неявное выполнение SELECT-запросов.
+  todo: Которое в свою очередь вернет словарь с результатами.
 
   Таким образом возможна запись:
-  world.db3 Country RU
+  world.db3 Country CODE RU
   которая в процессе исполнения даст тот же результат, что и
-  SQL-запрос "SELECT * FROM Country WHERE ID='RU'"
+  SQL-запрос "SELECT * FROM Country WHERE CODE='RU'"
 
   Слова "@" и "." в этих контекстах переопределены для извлечения
   и печати текстовых значений "контекстных узлов" соответственно.
@@ -35,38 +39,24 @@ REQUIRE db3_open ~ac/lib/lin/sql/sqlite3.f
 
 ALSO sqlite3.dll
 
-: DB_SELECT { addr u sqh \ pzTail ppStmt -- ppStmt }
-  addr u CONTEXT @ OBJ-NAME@ " SELECT * FROM {s} WHERE CODE='{s}'"
-  STR@ 2DUP TYPE CR sqh db3_prepare -> ppStmt -> pzTail
-  ppStmt db3_bind
-
-  BEGIN \ ждем освобождения доступа к БД
-    ppStmt 1 sqlite3_step DUP SQLITE_BUSY =
-  WHILE
-    DROP 1000 PAUSE
-  REPEAT
-
-  DUP 1 SQLITE_ROW WITHIN IF S" DB3_STEP" sqh db3_error? THEN
-
-  SQLITE_ROW = IF ppStmt DUP . ELSE 0 THEN
+: DB_SELECT { addr u sqh \ ppStmt -- ppStmt }
+  addr u CONTEXT @ OBJ-NAME@  CONTEXT @ PAR@ OBJ-NAME@ 
+  " SELECT * FROM {s} WHERE {s}='{s}'"
+  STR@ 2DUP TYPE CR sqh db3_car -> ppStmt
 ;
 : DB_RESET ( stmt -- )
-  DUP 1 sqlite3_reset THROW  1 sqlite3_finalize THROW
+  db3_fin
 ;
 PREVIOUS
 
-<<: FORTH SQLITE3_TABLE
-
-: SHEADER ( addr u -- )
-  TYPE ." to implement - INSERT :)"
-;
+<<: FORTH SQLITE3_ROW
 : SEARCH-WORDLIST { c-addr u oid -- 0 | xt 1 | xt -1 }
-\ Найти записи с ID='c-addr u' в таблице oid
+\ Найти записи с oid='c-addr u' в таблице oid_par
 
 \ сначала ищем в методах класса, чтобы не менять контекст поиска в БД...
   c-addr u [ GET-CURRENT ] LITERAL SEARCH-WORDLIST ?DUP IF EXIT THEN
   
-  oid PAR@ OBJ-DATA@ DUP \ sqh
+  oid PAR@ PAR@ OBJ-DATA@ DUP \ sqh
   IF c-addr u ROT DB_SELECT DUP 
      IF \ найден узел с заданным именем
         ( менять в oid или в CONTEXT ?! - разные полезные свойства ...)
@@ -83,10 +73,44 @@ PREVIOUS
      0 CONTEXT @ OBJ-DATA!
   ELSE 2DROP THEN
 ;
+: PREVIOUS PREVIOUS ;
+: \ POSTPONE \ ;
+: .. .. ;
+>> CONSTANT SQLITE3_ROW-WL
+
+: TABLE>ROW ( addr u -- )
+  TEMP-WORDLIST >R
+  R@ OBJ-NAME!
+  SQLITE3_ROW-WL R@ CLASS!
+  CONTEXT @ R@ PAR!
+  R> CONTEXT !
+;
+
+<<: FORTH SQLITE3_TABLE
+
+: SHEADER ( addr u -- )
+  TYPE ." to implement - INSERT :)"
+;
+: SEARCH-WORDLIST { c-addr u oid -- 0 | xt 1 | xt -1 }
+\ Найти в текущей таблице поле с именем c-addr u в БД oid и сделать его 
+\ текущим (считать ключевым в дальнейшем поиске).
+
+\ сначала ищем в методах класса
+  c-addr u [ GET-CURRENT ] LITERAL SEARCH-WORDLIST ?DUP IF EXIT THEN
+
+  oid OBJ-NAME@ NIP DUP
+  IF \ нужно заменить контекст таблицы на контекст записи
+     \ т.к. сейчас известно имя ключевого поля
+     DROP c-addr u TABLE>ROW ['] NOOP 1
+  THEN
+;
+: PREVIOUS PREVIOUS ;
+: \ POSTPONE \ ;
+: .. .. ;
+
 >> CONSTANT SQLITE3_TABLE-WL
 
 : DB>TABLE ( addr u -- )
-2DUP TYPE ." : "
   TEMP-WORDLIST >R
   R@ OBJ-NAME!
   SQLITE3_TABLE-WL R@ CLASS!
@@ -111,8 +135,9 @@ PREVIOUS
 :>>
 
 ALSO SQLITE3_DB NEW: world.db3
-Country RUS .
+Country CODE RUS .
 USA .
-\ world.db3 Country ROS \ даст -2003
-ORDER
-PREVIOUS
+\ world.db3 Country CODE ROS \ даст -2003
+.. .. 
+CountryLanguage CountryCode RUS .
+PREVIOUS ORDER
