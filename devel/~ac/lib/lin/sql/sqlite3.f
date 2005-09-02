@@ -157,6 +157,11 @@ ALSO SO NEW: sqlite3.dll
 
   ppStmt db3_fin
 ;
+: db3_dump1 { i par ppStmt -- flag }
+  ppStmt db3_cols 0 ?DO
+    I ppStmt db3_col     [CHAR] " EMIT TYPE [CHAR] " EMIT ." ;"
+  LOOP CR TRUE
+;
 : db3_dump { i par ppStmt -- flag }
   i 1 =
   IF
@@ -165,9 +170,7 @@ ALSO SO NEW: sqlite3.dll
     LOOP CR
   THEN
   BEGIN
-    ppStmt db3_cols 0 ?DO
-        I ppStmt db3_col     [CHAR] " EMIT TYPE [CHAR] " EMIT ." ;"
-    LOOP CR
+    i par ppStmt db3_dump1 DROP
     ppStmt db3_cdr DUP -> ppStmt 0=
   UNTIL
   TRUE
@@ -200,12 +203,12 @@ PREVIOUS
 (
 : TEST { \ sqh res }
   S" dbmail.db3" db3_open -> sqh
-  S" dbmail.sql" FILE ^ res ['] db3_dump sqh db3_exec
+  S" dbmail.sql" FILE ^ res ['] db3_dump1 sqh db3_exec
   sqh db3_close
 ;
 : TEST2 { \ sqh res }
   S" world.db3" db3_open -> sqh
-  S" SELECT * FROM Country ORDER BY CODE2" ^ res ['] db3_dump sqh db3_enum
+  S" SELECT * FROM Country ORDER BY CODE2" ^ res ['] db3_dump1 sqh db3_enum
   sqh db3_close
 ; TEST2
 )
