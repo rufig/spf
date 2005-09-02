@@ -42,9 +42,11 @@ ALSO sqlite3.dll
 : DB_SELECT { addr u sqh \ ppStmt -- ppStmt }
   addr u CONTEXT @ OBJ-NAME@  CONTEXT @ PAR@ OBJ-NAME@ 
   " SELECT * FROM {s} WHERE {s}='{s}'"
-  STR@ 2DUP TYPE CR sqh db3_car -> ppStmt
+  STR@ 2DUP TYPE SPACE sqh db3_car DUP . CR
 ;
 : DB_RESET ( stmt -- )
+\ db3_fin вызывается из db3_cdr, поэтому явно вызывать нужно
+\ только в случае, если результат не обрабатывается
   db3_fin
 ;
 PREVIOUS
@@ -67,11 +69,13 @@ PREVIOUS
   THEN
 ;
 : . ( -- )
-  1 0 CONTEXT @ ?DUP
-  IF OBJ-DATA@ db3_dump DROP
-     CONTEXT @ OBJ-DATA@ DB_RESET
-     0 CONTEXT @ OBJ-DATA!
-  ELSE 2DROP THEN
+  0 CONTEXT @ ?DUP
+  IF OBJ-DATA@ ?DUP 
+     IF db3_dump
+\       CONTEXT @ OBJ-DATA@ DB_RESET ( db3_fin вызывается из db3_cdr )
+       0 CONTEXT @ OBJ-DATA!
+     THEN
+  ELSE DROP THEN
 ;
 : PREVIOUS PREVIOUS ;
 : \ POSTPONE \ ;
@@ -123,6 +127,9 @@ PREVIOUS
 : SEARCH-WORDLIST { c-addr u oid -- 0 | xt 1 | xt -1 }
 \ Найти таблицу с именем c-addr u в БД oid и сделать эту таблицу текущей.
 
+\ сначала ищем в методах класса
+  c-addr u [ GET-CURRENT ] LITERAL SEARCH-WORDLIST ?DUP IF EXIT THEN
+
   oid OBJ-DATA@ \ sqh; если не подключена - подключим
   0= IF oid OBJ-NAME@ " {s}" STR@ db3_open oid OBJ-DATA! THEN
 
@@ -132,12 +139,18 @@ PREVIOUS
      DROP c-addr u DB>TABLE ['] NOOP 1
   THEN
 ;
+: PREVIOUS PREVIOUS ;
+: \ POSTPONE \ ;
+: .. .. ;
 :>>
 
 ALSO SQLITE3_DB NEW: world.db3
 Country CODE RUS .
+UKR .
+BLR .
 USA .
-\ world.db3 Country CODE ROS \ даст -2003
 .. .. 
+\ world.db3
+\ Country CODE ROS \ даст -2003
 CountryLanguage CountryCode RUS .
 PREVIOUS ORDER
