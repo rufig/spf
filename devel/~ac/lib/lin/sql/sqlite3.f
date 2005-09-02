@@ -75,18 +75,6 @@ ALSO SO NEW: sqlite3.dll
     IF I ppStmt db3_col UNLOOP EXIT THEN
   LOOP S" "
 ;
-: db3_dump { i par ppStmt -- flag }
-  i 1 =
-  IF
-    ppStmt db3_cols 0 ?DO
-      I ppStmt db3_colname [CHAR] " EMIT TYPE [CHAR] " EMIT ." ;"
-    LOOP CR
-  THEN
-  ppStmt db3_cols 0 ?DO
-      I ppStmt db3_col     [CHAR] " EMIT TYPE [CHAR] " EMIT ." ;"
-  LOOP CR
-  TRUE
-;
 : db3_prepare { addr u sqh \ pzTail ppStmt -- pzTail ppStmt }
   ^ pzTail ^ ppStmt u addr sqh 5 sqlite3_prepare
   S" DB3_PREPARE" sqh db3_error?
@@ -101,6 +89,10 @@ ALSO SO NEW: sqlite3.dll
        ELSE TYPE ."  - bind name not found" THEN
     THEN
   LOOP
+;
+: db3_fin ( ppStmt -- )
+  DUP 1 sqlite3_reset THROW
+      1 sqlite3_finalize THROW
 ;
 : db3_exec { addr u par xt sqh \ pzTail ppStmt i -- }
 \ выполнить SQL-запрос(ы) из addr u,
@@ -129,10 +121,56 @@ ALSO SO NEW: sqlite3.dll
       i par ppStmt xt EXECUTE \ возвращает флаг продолжения
     REPEAT
 
-    ppStmt 1 sqlite3_reset THROW
-    ppStmt 1 sqlite3_finalize THROW
+    ppStmt db3_fin
     pzTail ?DUP IF ASCIIZ> ELSE S" " THEN  -> u -> addr
   u 3 < UNTIL
+;
+
+: db3_cdr { ppStmt -- ppStmt | 0 }
+  BEGIN \ ждем освобождения доступа к БД
+    ppStmt 1 sqlite3_step DUP SQLITE_BUSY =
+  WHILE
+    DROP 1000 PAUSE
+  REPEAT
+
+  DUP 1 SQLITE_ROW WITHIN ABORT" DB3_STEP error"
+
+  SQLITE_ROW = IF ppStmt ELSE 0 THEN
+;
+: db3_car ( addr u sqh -- ppStmt )
+  db3_prepare NIP DUP db3_bind DUP db3_cdr
+;
+: db3_enum { addr u par xt sqh \ pzTail ppStmt i -- }
+\ выполнить SQL-запрос из addr u,
+\ вызывая для каждого результата функцию xt с параметрами i par ppStmt
+\ в запросах биндятся макроподстановки :name и $name
+  addr u sqh db3_car -> ppStmt
+  0 -> i
+  BEGIN
+    DUP
+  WHILE
+    DUP
+    i 1+ -> i
+    i par ROT xt EXECUTE \ возвращает флаг продолжения
+    IF db3_cdr ELSE 0 THEN
+  REPEAT DROP
+
+  ppStmt db3_fin
+;
+: db3_dump { i par ppStmt -- flag }
+  i 1 =
+  IF
+    ppStmt db3_cols 0 ?DO
+      I ppStmt db3_colname [CHAR] " EMIT TYPE [CHAR] " EMIT ." ;"
+    LOOP CR
+  THEN
+  BEGIN
+    ppStmt db3_cols 0 ?DO
+        I ppStmt db3_col     [CHAR] " EMIT TYPE [CHAR] " EMIT ." ;"
+    LOOP CR
+    ppStmt db3_cdr DUP -> ppStmt 0=
+  UNTIL
+  TRUE
 ;
 
 PREVIOUS
@@ -165,4 +203,9 @@ PREVIOUS
   S" dbmail.sql" FILE ^ res ['] db3_dump sqh db3_exec
   sqh db3_close
 ;
+: TEST2 { \ sqh res }
+  S" world.db3" db3_open -> sqh
+  S" SELECT * FROM Country ORDER BY CODE2" ^ res ['] db3_dump sqh db3_enum
+  sqh db3_close
+; TEST2
 )
