@@ -162,18 +162,17 @@ ALSO SO NEW: sqlite3.dll
     I ppStmt db3_col     [CHAR] " EMIT TYPE [CHAR] " EMIT ." ;"
   LOOP CR TRUE
 ;
-: db3_dump { i par ppStmt -- flag }
-  i 1 =
-  IF
-    ppStmt db3_cols 0 ?DO
-      I ppStmt db3_colname [CHAR] " EMIT TYPE [CHAR] " EMIT ." ;"
-    LOOP CR
-  THEN
+: db3_dump { par ppStmt \ i -- }
+  ppStmt db3_cols 0 ?DO
+    I ppStmt db3_colname [CHAR] " EMIT TYPE [CHAR] " EMIT ." ;"
+  LOOP CR
+
+  0 -> i
   BEGIN
     i par ppStmt db3_dump1 DROP
     ppStmt db3_cdr DUP -> ppStmt 0=
+    i 1+ -> i
   UNTIL
-  TRUE
 ;
 
 PREVIOUS
