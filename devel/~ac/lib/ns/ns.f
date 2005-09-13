@@ -30,6 +30,9 @@ REQUIRE NOTFOUND  ~ac/lib/ns/notfound.f
 : OBJ-NAME! ( addr u oid -- )
   >R HEAP-COPY-C R> CELL+ !
 ;
+: CLASS.
+  CLASS@ VOC-NAME.
+;
 
 : SEARCH-WORDLIST-R ( c-addr u oid -- 0 | xt 1 | xt -1 )
 \ Искать в текущем словаре и в словарях-предках, как в фортах до-94.
@@ -154,8 +157,12 @@ USER _C-EXEC
 
 <<: FORTH DL
 
+: CAR ( wid -- item )
+  ." DL exports enumeration isn't supported now." CR
+  DROP 0
+;
 : SHEADER ( addr u -- )
-  ." Can't insert " TYPE ."  into " GET-CURRENT VOC-NAME. ."  DL ;)" CR
+  ." Can't insert " TYPE ."  into " GET-CURRENT VOC-NAME. ."  DL ;)" CR 5 THROW
 ;
 : HEAP-COPY-U
   DUP >R HEAP-COPY R>
