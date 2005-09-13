@@ -35,23 +35,65 @@
   Библиотека еще в доработке, поэтому примеры в конце не отключены.
 )
 
-REQUIRE db3_open ~ac/lib/lin/sql/sqlite3.f 
+REQUIRE db3_open     ~ac/lib/lin/sql/sqlite3.f 
+REQUIRE ForEachDirWR ~ac/lib/ns/iterators.f
 
 ALSO sqlite3.dll
 
-: DB_SELECT { addr u sqh \ ppStmt -- ppStmt }
-  addr u CONTEXT @ OBJ-NAME@  CONTEXT @ PAR@ OBJ-NAME@ 
-  " SELECT * FROM {s} WHERE {s}='{s}'"
-  STR@ 2DUP TYPE SPACE sqh db3_car DUP . CR
-;
 : DB_RESET ( stmt -- )
 \ db3_fin вызывается из db3_cdr, поэтому явно вызывать нужно
 \ только в случае, если результат не обрабатывается
   db3_fin
 ;
+: DB_CAR ( addr u sqh -- ppStmt )
+  db3_car
+;
+: DB_CDR ( ppStmt -- ppStmt | 0 )
+  db3_cdr
+;
+: DB_SELECT { addr u sqh wid -- ppStmt }
+  addr u wid OBJ-NAME@  wid PAR@ OBJ-NAME@ 
+  " SELECT * FROM {s} WHERE {s} LIKE '{s}'"
+  STR@ 2DUP TYPE SPACE sqh DB_CAR
+;
 PREVIOUS
 
+<<: FORTH SQLITE3_FIELD
+
+: CAR DROP 0 ;
+
+>> CONSTANT SQLITE3_FIELD-WL
+
+: TABLE>FIELD ( addr u -- )
+  TEMP-WORDLIST >R
+  R@ OBJ-NAME!
+  SQLITE3_FIELD-WL R@ CLASS!
+  CONTEXT @ R@ PAR!
+  R> CONTEXT !
+;
+
 <<: FORTH SQLITE3_ROW
+
+: ?VOC DROP FALSE ;
+
+: CAR { oid \ ppStmt -- item }
+." SQLITE3_ROW CAR;"
+  oid PAR@ PAR@ OBJ-DATA@ DUP \ sqh
+  IF S" %" ROT oid DB_SELECT DUP 
+     IF oid OBJ-DATA! oid
+        ." OK!"
+     THEN
+  THEN
+;
+: NAME ( item -- addr u )
+  ." SQLITE3_ROW NAME;"
+  1 SWAP OBJ-DATA@ db3_col
+;
+: CDR ( item -- item )
+  ." SQLITE3_ROW CDR;"
+  DUP >R OBJ-DATA@ db3_cdr DUP R@ OBJ-DATA!
+  IF R> ELSE RDROP 0 THEN
+;
 : SEARCH-WORDLIST { c-addr u oid -- 0 | xt 1 | xt -1 }
 \ Найти записи с oid='c-addr u' в таблице oid_par
 
@@ -59,7 +101,7 @@ PREVIOUS
   c-addr u [ GET-CURRENT ] LITERAL SEARCH-WORDLIST ?DUP IF EXIT THEN
   
   oid PAR@ PAR@ OBJ-DATA@ DUP \ sqh
-  IF c-addr u ROT DB_SELECT DUP 
+  IF c-addr u ROT oid DB_SELECT DUP 
      IF \ найден узел с заданным именем
         ( менять в oid или в CONTEXT ?! - разные полезные свойства ...)
         \ oid
@@ -91,6 +133,8 @@ PREVIOUS
 ;
 
 <<: FORTH SQLITE3_TABLE
+
+: ?VOC DROP FALSE ;
 
 : SHEADER ( addr u -- )
   TYPE ." to implement - INSERT :)"
@@ -124,6 +168,36 @@ PREVIOUS
 
 <<: FORTH SQLITE3_DB
 
+: ?VOC DROP TRUE ;
+
+: CAR  { oid \ ppStmt -- item }
+." SQLITE3_DB CAR;"
+  oid OBJ-DATA@ \ sqh; если не подключена - подключим
+  0= IF oid OBJ-NAME@ " {s}" STR@ db3_open oid OBJ-DATA! THEN
+
+." open OK;"
+  oid OBJ-DATA@ DUP
+  IF \ удалось открыть, теперь нужно заменить контекст на словарь-таблицу
+     \ т.к. только сейчас известно её имя
+     S" select name from SQLite_Master where type LIKE '%'"
+     ROT DB_CAR ( ppstmt )
+\     DROP
+\     ALSO oid CONTEXT ! S" SQLite_Master" DB>TABLE
+\     S" type" TABLE>ROW CONTEXT @ PREVIOUS SQLITE3_ROW::CAR
+
+  THEN
+;
+: NAME ( item -- addr u )
+  0 SWAP db3_col
+;
+: CDR ( item -- item )
+  db3_cdr
+;
+: >WID ( item -- wid )
+  ALSO S" name" TABLE>FIELD CONTEXT @ OBJ-DATA!
+  CONTEXT @ PREVIOUS
+;
+
 : SEARCH-WORDLIST { c-addr u oid -- 0 | xt 1 | xt -1 }
 \ Найти таблицу с именем c-addr u в БД oid и сделать эту таблицу текущей.
 
@@ -142,15 +216,20 @@ PREVIOUS
 : PREVIOUS PREVIOUS ;
 : \ POSTPONE \ ;
 : .. .. ;
+: WORDS ['] wid. CONTEXT @ ForEachDirWR ;
+: \EOF \EOF ;
+
 :>>
 
+\ EOF
+
 ALSO SQLITE3_DB NEW: world.db3
+WORDS
 Country CODE RUS .
 UKR .
 BLR .
 USA .
 .. .. 
-\ world.db3
 \ Country CODE ROS \ даст -2003
 CountryLanguage CountryCode RUS .
 PREVIOUS ORDER
