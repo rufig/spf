@@ -31,7 +31,7 @@ REQUIRE NOTFOUND  ~ac/lib/ns/notfound.f
   >R HEAP-COPY-C R> CELL+ !
 ;
 : CLASS.
-  CLASS@ VOC-NAME.
+  CLASS@ ?DUP IF VOC-NAME. ELSE ." FORTH" THEN
 ;
 
 : SEARCH-WORDLIST-R ( c-addr u oid -- 0 | xt 1 | xt -1 )
@@ -157,6 +157,7 @@ USER _C-EXEC
 
 <<: FORTH DL
 
+: ?VOC DROP FALSE ;
 : CAR ( wid -- item )
   ." DL exports enumeration isn't supported now." CR
   DROP 0
