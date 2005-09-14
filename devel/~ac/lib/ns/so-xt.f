@@ -53,6 +53,11 @@ REQUIRE NEW: ~ac/lib/ns/ns.f
 <<: FORTH SO
 ALSO DL
 
+: ?VOC DROP FALSE ;
+: CAR ( wid -- item )
+  ." SO exports enumeration isn't supported now." CR
+  DROP 0
+;
 : SHEADER ( addr u -- )
   ." Can't insert " TYPE ."  into " GET-CURRENT VOC-NAME. ."  SharedObject ;)" CR
   5 THROW

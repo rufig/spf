@@ -89,7 +89,12 @@ REQUIRE NEW: ~ac/lib/ns/ns.f
 <<: FORTH DLL
 ALSO DL
 
-: SHEADER ( addr u -- )
+:: ?VOC DROP FALSE ;
+: CAR ( wid -- item )
+  ." DLL exports enumeration isn't supported now." CR
+  DROP 0
+;
+ SHEADER ( addr u -- )
   ." Can't insert " TYPE ."  into " GET-CURRENT VOC-NAME. ."  DLL ;)" CR
   5 THROW
 ;
