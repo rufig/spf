@@ -2,7 +2,7 @@ REQUIRE ForEachDirWR ~ac/lib/ns/iterators.f
 REQUIRE STR@         ~ac/lib/str5.f
 
 : ForEachDirWRstr { str xt wid \ s -- }
-\ xt: ( item wid -- )
+\ xt: ( str item wid -- )
   wid CAR
   BEGIN
     DUP
@@ -16,7 +16,7 @@ REQUIRE STR@         ~ac/lib/str5.f
     wid WCDR
   REPEAT DROP
 ;
-: swid. ( str item wid -- ) WNAME TYPE ." :" STR@ TYPE CR ;
+: swid. ( str item wid -- ) 2DROP ( WNAME TYPE ." :") STR@ TYPE CR ;
 
 \ " FORTH" ' swid. FORTH-WORDLIST ForEachDirWRstr
 
