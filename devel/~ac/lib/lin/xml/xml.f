@@ -78,6 +78,20 @@ USER RECURSE-LEVEL
 : 1-! DUP @ 1- SWAP ! ;
 VECT vlistNodes
 
+: nextNode
+\ пропуск текстовых узлов, атрибутов, комментариев и т.д.
+  BEGIN
+    x.next @ DUP
+  WHILE
+    DUP x.type @ XML_ELEMENT_NODE = IF EXIT THEN
+  REPEAT
+;
+: firstNode
+  BEGIN
+    DUP x.type @ XML_ELEMENT_NODE = IF EXIT THEN
+    x.next @ DUP 0=
+  UNTIL
+;
 : attrDump ( node -- )
   x.properties @
   BEGIN
