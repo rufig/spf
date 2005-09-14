@@ -28,8 +28,41 @@
 )
 
 REQUIRE XML_READ_DOC_ROOT ~ac/lib/lin/xml/xml.f 
+REQUIRE ForEachDirWRstr   ~ac/lib/ns/iter.f
 
+: VOC-CLONE
+  TEMP-WORDLIST >R
+  CONTEXT @ CELL- R@ CELL- WL_SIZE MOVE
+  ALSO R> CONTEXT !
+;
 <<: FORTH XML_NODE
+
+: CAR { node -- node }
+  node OBJ-DATA@ DUP
+  IF firstNode
+     DUP node OBJ-DATA! 0= IF 0 ELSE node THEN
+  THEN
+;
+: CDR { node -- node }
+  node OBJ-DATA@ DUP 
+  IF nextNode
+     DUP node OBJ-DATA! 0= IF 0 ELSE node THEN 
+  THEN
+;
+: NAME ( node -- addr u )
+  OBJ-DATA@ DUP x.type @ XML_ELEMENT_NODE =
+  IF
+    x.name @ ASCIIZ>
+  ELSE DROP S" noname" THEN
+;
+: ?VOC DROP TRUE ; \ OBJ-DATA@ x.children @ 0<> ;
+
+: >WID ( node -- node )
+  ALSO CONTEXT !
+  CONTEXT @ OBJ-DATA@ x.children @
+  VOC-CLONE CONTEXT @ OBJ-DATA!
+  CONTEXT @ PREVIOUS PREVIOUS
+;
 
 : SHEADER ( addr u -- )
 \ Добавить xml-узел с именем addr u в текущий xml-узел "компиляции"
@@ -68,17 +101,34 @@ REQUIRE XML_READ_DOC_ROOT ~ac/lib/lin/xml/xml.f
   XML_NODE-WL R@ CLASS!
   R> CONTEXT !
 ;
-: VOC-CLONE
-  TEMP-WORDLIST >R
-  CONTEXT @ CELL- R@ CELL- WL_SIZE MOVE
-  ALSO R> CONTEXT !
-;
 
 <<: FORTH XML_DOC
 
+: CAR { doc -- node }
+  doc OBJ-DATA@ \ если не загружен - загрузим
+  0= IF doc OBJ-NAME@ " {s}" STR@ XML_READ_DOC doc OBJ-DATA! THEN
+  
+  doc OBJ-DATA@ DUP
+  IF  ALSO CONTEXT @ OBJ-DATA! DOC>NODE CONTEXT @ PREVIOUS THEN
+;
+: CDR ( node -- node )
+  DROP 0 \ корневой узел только один
+;
+: ?VOC ( node -- flag )
+  DROP TRUE
+;
+: NAME ( node -- addr u )
+  XML_NODE::NAME
+;
+: >WID ( node -- node )
+  XML_NODE::>WID
+;
 : SAVE ( addr u -- ) GET-CURRENT OBJ-DATA@ XML_DOC_SAVE ;
 
 : SEARCH-WORDLIST { c-addr u oid -- 0 | xt 1 | xt -1 }
+
+\ сначала ищем в методах класса
+  c-addr u [ GET-CURRENT ] LITERAL SEARCH-WORDLIST ?DUP IF EXIT THEN
 
   c-addr C@ [CHAR] / <> IF 0 EXIT THEN \ в документе ищем только корень
 
@@ -91,13 +141,19 @@ REQUIRE XML_READ_DOC_ROOT ~ac/lib/lin/xml/xml.f
      DROP ['] DOC>NODE 1
   THEN
 ;
+: WORDS "" ['] swid. CONTEXT @ ForEachDirWRstr ;
 :>>
 
 \ ниже почти << XML_DOC libxml-parser.html , но без манипуляций DEFINITIONS
 
+100 TO WL_SIZE
+
+\EOF
+
 ALSO XML_DOC NEW: libxml-parser.html
 libxml-parser.html / head title .
 libxml-parser.html / head style .
+libxml-parser.html WORDS
 PREVIOUS
 
 ALSO XML_DOC NEW: eserv.xml
