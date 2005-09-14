@@ -221,7 +221,7 @@ PREVIOUS
 
 :>>
 
-\ EOF
+\EOF
 
 ALSO SQLITE3_DB NEW: world.db3
 WORDS
