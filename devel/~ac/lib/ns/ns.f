@@ -108,6 +108,11 @@ USER _C-EXEC
   SWAP BEGIN DUP WHILE RDROP 1- REPEAT DROP
 ;
 
+: VOC-CLONE
+  TEMP-WORDLIST >R
+  CONTEXT @ CELL- R@ CELL- WL_SIZE MOVE
+  ALSO R> CONTEXT !
+;
 : NEW:
 \ Создать новый именованый словарь, class которого будет равен 
 \ текущему контекстному словарю. Т.е. создать объект - экземпляр

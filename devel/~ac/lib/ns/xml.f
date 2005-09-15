@@ -30,11 +30,6 @@
 REQUIRE XML_READ_DOC_ROOT ~ac/lib/lin/xml/xml.f 
 REQUIRE ForEachDirWRstr   ~ac/lib/ns/iter.f
 
-: VOC-CLONE
-  TEMP-WORDLIST >R
-  CONTEXT @ CELL- R@ CELL- WL_SIZE MOVE
-  ALSO R> CONTEXT !
-;
 <<: FORTH XML_NODE
 
 : CAR { node -- node }
