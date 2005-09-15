@@ -1,3 +1,5 @@
+\ ‘айловый NS в отличие от других в этом каталоге, работает только с Windows
+
 REQUIRE FIND-FILES-R      ~ac/lib/win/file/findfile-r.f 
 REQUIRE ForEachDirWRstr   ~ac/lib/ns/iter.f
 
@@ -12,8 +14,6 @@ REQUIRE ForEachDirWRstr   ~ac/lib/ns/iter.f
   THEN
 ;
 WINAPI: GetFileAttributesA KERNEL32.DLL
-
-16 CONSTANT FILE_ATTRIBUTE_DIRECTORY
 
 : IsDirectory ( addr u -- flag )
   DROP GetFileAttributesA DUP FILE_ATTRIBUTE_DIRECTORY AND
@@ -38,6 +38,49 @@ WINAPI: GetFileAttributesA KERNEL32.DLL
 ;
 
 <<: FORTH DIR
+
+: ?VOC ( item -- flag )
+  OBJ-NAME@ DROP DUP
+  cFileName ASCIIZ> 2DUP 
+  S" .." COMPARE 0= ROT ROT S" ." COMPARE 0= OR IF DROP FALSE EXIT THEN
+  dwFileAttributes @ FILE_ATTRIBUTE_DIRECTORY AND 0<>
+;
+: FULLPATH { s oid -- s }
+\ из имен узлов файловой системы собираетс€ полный путь
+  oid OBJ-NAME@
+  OVER @ 80 < \ см. ниже
+  IF DROP cFileName ASCIIZ>
+     s oid PAR@ ?DUP IF RECURSE THEN ( addr u s )
+     " \" OVER S+ STR+
+  ELSE s STR+ THEN
+  s
+;
+: CAR { oid \ data id item s pa -- item }
+  TEMP-WORDLIST -> item
+  HERE /WIN32_FIND_DATA item OBJ-NAME! \ внимание, "им€" бинарное!
+  [ GET-CURRENT ] LITERAL item CLASS!
+  oid item PAR!
+  item OBJ-NAME@ DROP -> data
+  data /WIN32_FIND_DATA ERASE
+  data oid OBJ-NAME@  \ либо им€ каталога, либо WIN32_FIND_DATA
+  OVER @ 80 < \ если там dwFileAttributes, а не начало имени (хак)...
+  IF 2DROP "" DUP -> pa oid FULLPATH STR@ THEN
+  " {s}\*.*" DUP -> s 
+  STR@ \ 2DUP ." [" TYPE ." ]" CR
+  DROP FindFirstFileA -> id
+  s STRFREE pa ?DUP IF STRFREE THEN
+  id -1 = IF ( data FREE DROP) item FREE-WORDLIST 0 EXIT THEN
+  id item OBJ-DATA!
+  item
+;
+: NAME ( oid -- addr u )
+  OBJ-NAME@ DROP ( data ) cFileName ASCIIZ> 
+;
+: CDR { item1 -- item2 }
+  item1 OBJ-NAME@ DROP item1 OBJ-DATA@ FindNextFileA
+  IF item1
+  ELSE item1 OBJ-DATA@ FindClose DROP item1 FREE-WORDLIST 0 THEN
+;
 : SHEADER ( addr u -- )
 \ —оздать файл [или лучше каталог?] с именем addr u в текущем DIR-узел "компил€ции"
   GET-CURRENT OBJ-NAME@ " {s}\{s}" DUP >R
@@ -61,8 +104,16 @@ WINAPI: GetFileAttributesA KERNEL32.DLL
   2DUP FileExists IF DIR>FIL ['] NOOP 1 f STRFREE EXIT THEN
   2DROP f STRFREE FALSE
 ;
+: WORDS "" ['] swid. CONTEXT @ ForEachDirWRstr ;
 >> CONSTANT DIR-WL
 
+\EOF
+
+\ ALSO DIR NEW: D:\
+ALSO DIR NEW: D:\ac\spf4\devel\~ac\lib
+WORDS
+
+\EOF
 ALSO DIR NEW: c:
 WINDOWS system32 drivers etc hosts 
 ORDER CONTEXT @ CLASS.
