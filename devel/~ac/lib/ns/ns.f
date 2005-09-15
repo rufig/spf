@@ -149,7 +149,17 @@ USER _C-EXEC
   CONTEXT @ TEMP-WORDLIST DUP CONTEXT ! CLASS!
   NextWord CONTEXT @ OBJ-NAME!
 ;
+: VOC: ( name-a name-u class-xt "word-name" -- )
+\ —оздать посто€нный словарь с именем "word-name" в текущем словаре.
+\ ”становить его класс равным "class-xt EXECUTE", а "внутреннее" им€ name
+\  онтекст не мен€ть.
+\ Ќапример: S" http://forth.org.ru/rss.xml" ' XML_DOC VOC: FORTH_NEWS
 
+  >IN @ VOCABULARY >IN ! ALSO ' EXECUTE
+  ALSO EXECUTE CONTEXT @ PREVIOUS CONTEXT @ CLASS! 
+  CONTEXT @ OBJ-NAME!
+  PREVIOUS
+;
 \ "макросы" дл€ упрощени€ записи
 : << ( "name" -- cwid )
   GET-CURRENT ALSO ' EXECUTE new DEFINITIONS
