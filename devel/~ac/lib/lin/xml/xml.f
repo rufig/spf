@@ -74,6 +74,19 @@ CELL -- xns.nodeMax    \ int : size of the array as allocated
 CELL -- xns.nodeTab    \ xmlNodePtr : array of nodes in no particular order @
 CONSTANT /xmlNodeSet
 
+0 \ Structure xmlBuffer
+CELL -- xb.content  \    xmlChar *   content : The buffer content UTF8
+CELL -- xb.use      \    unsigned int    use : The buffer size used
+CELL -- xb.size     \    unsigned int    size : The buffer size
+CELL -- xb.alloc    \    xmlBufferAllocationScheme   alloc : The realloc method
+CONSTANT /xmlBuffer
+
+\ The realloc methods:
+1 CONSTANT XML_BUFFER_ALLOC_DOUBLEIT
+2 CONSTANT XML_BUFFER_ALLOC_EXACT
+3 CONSTANT XML_BUFFER_ALLOC_IMMUTABLE
+
+
 USER RECURSE-LEVEL
 : 1-! DUP @ 1- SWAP ! ;
 VECT vlistNodes
@@ -259,6 +272,17 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
 : XML_SERIALIZE_ENC { enca encu doc \ mem size -- addr2 u2 }
   enca ^ size ^ mem doc 4 xmlDocDumpMemoryEnc DROP mem size
 ;
+: XML_SERIALIZE_NODE ( node -- addr u ) \ encoding is UTF-8
+  0 xmlBufferCreate  { node buf }
+  0 0 node node x.doc @ buf
+  5 xmlNodeDump ( len )
+  \ buf xb.content @  buf xb.use @
+  buf 1 xmlBufferContent SWAP
+;
+\ see also: 
+\   xmlBufferFree ( xmlBufferPtr -- void )
+\   xmlSaveTree ( xmlNodePtr xmlSaveCtxtPtr -- long )
+
 : XML_LIST_NODES { addr u \ doc -- }
   addr u XML_READ_DOC -> doc
   doc 1 xmlDocGetRootElement listNodes
