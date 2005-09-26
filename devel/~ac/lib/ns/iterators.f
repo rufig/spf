@@ -112,6 +112,31 @@ REQUIRE INVOKE ~ac/lib/ns/ns.f
     R@ WCDR
   REPEAT 2DROP RDROP
 ;
+: ForEachNdirWR ( xt wid -- )
+\ xt: ( item wid -- )
+  DUP >R
+  CAR
+  BEGIN
+    DUP
+  WHILE
+    DUP R@ W?VOC
+    IF 2DUP R@ ITEM>WID RECURSE
+    ELSE 2DUP R@ ROT EXECUTE THEN
+    R@ WCDR
+  REPEAT 2DROP RDROP
+;
+: ForEachNdirW ( xt wid -- )
+\ xt: ( item wid -- )
+  DUP >R
+  CAR
+  BEGIN
+    DUP
+  WHILE
+    DUP R@ W?VOC 0=
+    IF 2DUP R@ ROT EXECUTE THEN
+    R@ WCDR
+  REPEAT 2DROP RDROP
+;
 
 : id. NAME TYPE CR ;
 : wid. WNAME TYPE CR ;

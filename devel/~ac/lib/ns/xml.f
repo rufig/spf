@@ -104,7 +104,7 @@ REQUIRE ForEachDirWRstr   ~ac/lib/ns/iter.f
   0= IF doc OBJ-NAME@ " {s}" STR@ XML_READ_DOC doc OBJ-DATA! THEN
   
   doc OBJ-DATA@ DUP
-  IF  ALSO CONTEXT @ OBJ-DATA! DOC>NODE CONTEXT @ PREVIOUS THEN
+  IF  ALSO NEW CONTEXT @ OBJ-DATA! DOC>NODE CONTEXT @ PREVIOUS THEN
 ;
 : CDR ( node -- node )
   DROP 0 \ корневой узел только один
@@ -141,7 +141,7 @@ REQUIRE ForEachDirWRstr   ~ac/lib/ns/iter.f
 
 \ ниже почти << XML_DOC libxml-parser.html , но без манипуляций DEFINITIONS
 
-200 TO WL_SIZE
+300 TO WL_SIZE
 
 \EOF
 
@@ -150,6 +150,7 @@ libxml-parser.html / head title .
 libxml-parser.html / head style .
 libxml-parser.html WORDS
 PREVIOUS
+\EOF
 
 ALSO XML_DOC NEW: eserv.xml
 eserv.xml / head link @ FORTH::TYPE
