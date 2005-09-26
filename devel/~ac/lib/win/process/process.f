@@ -15,6 +15,7 @@
 )
 
 WINAPI: CreateProcessA KERNEL32.DLL
+WINAPI: CreateProcessAsUserA ADVAPI32.DLL
 WINAPI: WaitForSingleObject KERNEL32.DLL
 WINAPI: GetExitCodeProcess KERNEL32.DLL
 
