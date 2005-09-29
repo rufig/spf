@@ -48,7 +48,7 @@ WINAPI: GetFileAttributesA KERNEL32.DLL
 : FULLPATH { s oid -- s }
 \ из имен узлов файловой системы собирается полный путь
   oid OBJ-NAME@
-  OVER @ 80 < \ см. ниже
+  OVER @ ABS 80 < \ см. ниже
   IF DROP cFileName ASCIIZ>
      s oid PAR@ ?DUP IF RECURSE THEN ( addr u s )
      " \" OVER S+ STR+
@@ -63,7 +63,7 @@ WINAPI: GetFileAttributesA KERNEL32.DLL
   item OBJ-NAME@ DROP -> data
   data /WIN32_FIND_DATA ERASE
   data oid OBJ-NAME@  \ либо имя каталога, либо WIN32_FIND_DATA
-  OVER @ 80 < \ если там dwFileAttributes, а не начало имени (хак)...
+  OVER @ ABS 80 < \ если там dwFileAttributes, а не начало имени (хак)...
   IF 2DROP "" DUP -> pa oid FULLPATH STR@ THEN
   " {s}\*.*" DUP -> s 
   STR@ \ 2DUP ." [" TYPE ." ]" CR
@@ -110,8 +110,7 @@ WINAPI: GetFileAttributesA KERNEL32.DLL
 \EOF
 
 \ ALSO DIR NEW: D:\
-ALSO DIR NEW: D:\ac\spf4\devel\~ac\lib
-WORDS
+<<: DIR D:\ac\spf4\devel\~ac\lib WORDS :>>
 
 \EOF
 ALSO DIR NEW: c:
