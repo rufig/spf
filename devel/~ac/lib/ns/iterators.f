@@ -85,6 +85,19 @@ REQUIRE INVOKE ~ac/lib/ns/ns.f
     CDR
   REPEAT 2DROP
 ;
+: ForEachWR ( xt wid -- )
+\ xt: ( item wid -- )
+  DUP >R
+  CAR
+  BEGIN
+    DUP
+  WHILE
+    DUP R@ W?VOC
+    IF 2DUP R@ ITEM>WID RECURSE THEN
+    2DUP R@ ROT EXECUTE
+    R@ WCDR
+  REPEAT 2DROP RDROP
+;
 : ForEachDirR ( xt wid -- )
   CAR
   BEGIN
