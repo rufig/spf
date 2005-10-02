@@ -125,7 +125,17 @@ ALSO SO NEW: sqlite3.dll
     pzTail ?DUP IF ASCIIZ> ELSE S" " THEN  -> u -> addr
   u 3 < UNTIL
 ;
+: 3DROP 2DROP DROP ;
 
+: db3_exec_ { addr u sqh \ res -- }
+  \ упрощенная форма вызова exec для CREATE, INSERT и т.п.
+  addr u ^ res ['] 3DROP sqh db3_exec
+;
+: db3_insert_id ( sqh -- id ) \ ROWID, OID, or _ROWID_
+  \ id первичного ключа последней вставки
+  \ если еще ничего не вставлялось, то 0
+  1 sqlite3_last_insert_rowid
+;
 : db3_cdr { ppStmt -- ppStmt | 0 }
   BEGIN \ ждем освобождения доступа к БД
     ppStmt 1 sqlite3_step DUP SQLITE_BUSY =
@@ -180,6 +190,20 @@ ALSO SO NEW: sqlite3.dll
 PREVIOUS
 
 \EOF примеры:
+: TEST { \ sqh }
+  S" test.db3" db3_open -> sqh
+  S" CREATE TABLE Items (ID INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT);begin"
+  sqh db3_exec_
+  sqh db3_insert_id .
+  S" INSERT INTO Items (Name) VALUES ('Тест1')" sqh db3_exec_
+  sqh db3_insert_id .
+  S" INSERT INTO Items (Name) VALUES ('Тест2');commit" sqh db3_exec_
+  sqh db3_insert_id .
+  sqh db3_close
+; TEST
+
+\EOF
+
 : TEST2 { \ sqh res }
   S" world.db3" db3_open -> sqh
   S" SELECT * FROM Country WHERE CODE LIKE 'RU%' ORDER BY CODE2" ^ res ['] db3_dump1 sqh db3_enum
