@@ -17,7 +17,7 @@ REQUIRE STR@         ~ac/lib/str5.f
     wid WCDR
   REPEAT DROP
 ;
-\ : swid. ( str item wid -- ) 2DROP ( WNAME TYPE ." :") STR@ TYPE CR ;
+: swid. ( str item wid -- ) 2DROP ( WNAME TYPE ." :") STR@ TYPE CR ;
 \ " FORTH" ' swid. FORTH-WORDLIST ForEachDirWRstr
 
 : ForEachWRI { id xt wid \ id2 -- }
@@ -36,5 +36,5 @@ REQUIRE STR@         ~ac/lib/str5.f
   REPEAT DROP
 ;
 
-\ : swidi. ( id item wid -- ) WNAME TYPE ." :" DUP . 1+ ;
+: swidi. ( id item wid -- ) WNAME TYPE ." :" DUP . 1+ ;
 \ 0 ' swidi. FORTH-WORDLIST ForEachWRI
