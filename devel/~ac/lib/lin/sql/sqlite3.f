@@ -49,10 +49,11 @@ ALSO SO NEW: sqlite3.dll
 )
 
 : db3_error? { ior addr u sqh -- }
-  ior IF CR addr u TYPE ."  failed: " 
-         sqh 1 sqlite3_errmsg ASCIIZ> TYPE CR
+  ior IF \ CR addr u TYPE ."  failed: " 
+         sqh 1 sqlite3_errmsg ASCIIZ> ER-U ! ER-A ! \ TYPE CR
+         sqh 1 sqlite3_errcode DUP 1 = IF DROP -2 ELSE 30000 + THEN THROW
       THEN
-  ior THROW
+\  ior THROW ( ior почти всегда 1 в случае ошибки)
 ;
 : db3_open { addr u \ sqh -- sqh }
   ^ sqh addr 2 sqlite3_open S" DB3_OPEN" sqh db3_error? sqh
@@ -68,6 +69,9 @@ ALSO SO NEW: sqlite3.dll
 ;
 : db3_col ( n ppStmt -- addr u )
   2 sqlite3_column_text ?DUP IF ASCIIZ> ELSE S" NULL" THEN
+;
+: db3_coli ( n ppStmt -- int )
+  2 sqlite3_column_int
 ;
 : db3_field { addr1 u1 ppStmt -- addr u }
   ppStmt db3_cols 0 ?DO
