@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<root>
+
+ <emit>2+3=</emit> 2 3 + . CR
+
+<def name="test">
+ ." test passed" CR
+</def>
+
+<def name="test2">
+ ." is " <decide><if>." true"</if><else>." false"</else></decide> CR
+</def>
+
+<!-- форт-словам вперед заглядывать незачем,
+  - пусть xml-парсер  строки парсит :)
+-->
+<def name="test3">
+ <t> is </t> TYPE
+ <decide><if><emit>true</emit></if><else><emit>false</emit></else></decide> CR
+</def>
+
+</root>
