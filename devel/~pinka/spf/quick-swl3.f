@@ -62,9 +62,6 @@ MODULE: QuickSWL-Support
   HERE /THIS-EXTR DUP ALLOT ERASE
   R> SET-CURRENT
 ;
-: MAKE-EXTR-EXISTS ( -- )
-  ['] MAKE-EXTR ENUM-VOCS
-;
 
 EXPORT
 
@@ -94,6 +91,17 @@ WARNING @ WARNING 0!
 : CLASS! ( cls wid -- ) WID-CLASSA ! ;
 : CLASS@ ( wid -- cls ) WID-CLASSA @ ;
 WARNING !
+
+: ENUM-FORTH-VOCS ( xt -- )
+\ перебор только обычных форт-словарей (у которых CLASS = 0 )
+\ xt ( wid -- )
+  >R VOC-LIST @ BEGIN DUP WHILE
+    DUP CELL+ ( a wid ) 
+    DUP CLASS@ 0= IF R@ ROT >R  EXECUTE R> ELSE DROP THEN
+    @
+  REPEAT DROP RDROP
+;
+
 
 DEFINITIONS
 
@@ -272,12 +280,12 @@ DEFINITIONS
 \ хэш-таблицы динамические, живут только в ОП,
 \ поэтому после запуска процесса ссылки на exth в заголовках словарей
 \ будут не действительны. Их надо обнулить. 
-  ['] WID-EHA0! ENUM-VOCS
+  ['] WID-EHA0! ENUM-FORTH-VOCS
 ;
 
 : update-hashes ( -- )
 \ инициирует хэш-таблицы для всех словарей (по списку VOC-LIST)
-  ['] update-wlhash ENUM-VOCS
+  ['] update-wlhash ENUM-FORTH-VOCS
 ;
 ( заполнение хэш-таблицы по первому поиску в словаре
   требует синхронизации для реентерабельности к многопоточности,
