@@ -74,7 +74,7 @@ REQUIRE NOTFOUND  ~ac/lib/ns/notfound.f
 \ —оздать заголовок нового определени€ способом, завис€щим от
 \ текущего словар€ компил€ции.
   GET-CURRENT CLASS@ DUP 0= SWAP FORTH-WORDLIST = OR
-  IF [ ' SHEADER BEHAVIOUR COMPILE, ]
+  IF [ ' SHEADER BEHAVIOR COMPILE, ]
   ELSE GET-CURRENT S" SHEADER" INVOKE THEN
 ;
 ' SHEADER-V TO SHEADER
