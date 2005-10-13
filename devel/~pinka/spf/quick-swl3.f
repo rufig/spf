@@ -119,7 +119,7 @@ CONSTANT /exth
   ( wid )
   HEAP-ID >R  HEAP-GLOBAL
 
-  DUP WL-#WORDS #WL-HASH UMIN new-hash
+  DUP WL-#WORDS 3 * #WL-HASH UMAX new-hash
 
   /exth ALLOCATE THROW ( wid h exth )
   TUCK .hash !
@@ -318,21 +318,17 @@ USER LAST-WID
 USER-VALUE NOW-COLON?
 
 : SHEADER(SWL) ( addr u -- )
-  GET-CURRENT LAST-WID !
+  GET-CURRENT DUP LAST-WID ! WID-EXTRA DROP \ иниц.ия, если свежий.
 
+  [ ' SHEADER BEHAVIOR COMPILE, ]
   NOW-COLON?
   IF FALSE TO NOW-COLON?  ELSE  LastWord2Hash THEN
-  [ ' SHEADER BEHAVIOR COMPILE, ]
 ;
 
 EXPORT
 
 WARNING @ WARNING 0!
 
-: : ( C: "<spaces>name" -- colon-sys ) \ 94
-  TRUE TO NOW-COLON?
-  :
-;
 : ;
     POSTPONE ;
     LatestWord2Hash
@@ -340,6 +336,11 @@ WARNING @ WARNING 0!
       - ситуация штатная. )
     FALSE TO NOW-COLON?
 ; IMMEDIATE
+
+: : ( C: "<spaces>name" -- colon-sys ) \ 94
+  TRUE TO NOW-COLON?
+  :
+;
 
 WARNING !
 
