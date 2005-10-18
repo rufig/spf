@@ -6,6 +6,7 @@ REQUIRE ReduceMem ~ac/lib/memory/less_mem.f
 
 VARIABLE _CreateMemoryResourceNotification
 VARIABLE _QueryMemoryResourceNotification
+VARIABLE vWaitHighMemory
 
 : CreateMemoryResourceNotification ( flag -- handle )
   _CreateMemoryResourceNotification @
@@ -39,6 +40,7 @@ VARIABLE HighMemoryH
 ;
 : WaitHighMemory,Log
 \  200000000 ALLOCATE THROW 200000000 5 FILL
+  vWaitHighMemory @ 0= IF EXIT THEN
   HighMemoryH @ 0= IF InitMemoryNotification THEN
   BEGIN
     HighMemory? 0=
