@@ -264,3 +264,30 @@ CREATE SINLEN /sockaddr_in ,
   SOCKET_ERROR = IF WSAGetLastError EXIT THEN
   AcceptSocket
 ;
+: GetHostIPs ( addr u -- IPab IPae ior )
+\ ѕолучить список IP multihomed-хоста
+\ IPab IPae возвращаютс€ в формате дл€ последующего цикла DO, см. ConnectHost
+  DUP 0= IF NIP 11004 EXIT THEN \ иначе пустой хост S" " дает 0 0
+  OVER inet_addr DUP -1 <> IF NIP NIP 0 EXIT ELSE DROP THEN
+  DROP gethostbyname DUP IF DUP @ SWAP 3 CELLS + @ @ 0
+                         ELSE 0 WSAGetLastError THEN
+;
+: ConnectHost ( addr u port -- sock ior )
+\ ѕодключитьс€ к хосту addr u на порт port
+\ с автоматическим перебором всех IP хоста.
+\ ≈сли коннект не удалс€, то ior - код ошибки (на последнем хосте из списка)
+\ и socks=0.
+\ ≈сли удалс€, то sock - новый соединенный сокет, ior=0.
+  >R
+  GetHostIPs ?DUP IF ROT DROP RDROP EXIT THEN
+  ( IPab IPae )
+  0 ROT ROT
+  CreateSocketWithTimeout ?DUP IF 2SWAP 2DROP ROT DROP RDROP EXIT THEN
+  R> SWAP 2SWAP DO ( ior port socket )
+    2DUP I @       ( ior port socket port socket ip )
+    ROT ROT ConnectSocket ?DUP 
+    IF ( ior1 port socket ior )
+       >R ROT DROP R> ROT ROT
+    ELSE NIP NIP 0 UNLOOP EXIT THEN
+  4 +LOOP CloseSocket THROW DROP 0 SWAP
+;
