@@ -32,7 +32,7 @@ REQUIRE STR@         ~ac/lib/str2.f
 : fsock ( socketline -- socket )
   sl_socket @
 ;
-: fsockopen ( server port -- socketline )
+: fsockopen_old ( server port -- socketline )
   { server port \ sock ip }
   server STR@ GetHostIP THROW -> ip
   CreateSocket THROW -> sock
@@ -41,6 +41,10 @@ REQUIRE STR@         ~ac/lib/str2.f
   ip port sock ConnectSocket 
   ?DUP IF sock CloseSocket DROP THROW THEN
   sock SocketLine
+;
+: fsockopen ( server port -- socketline )
+  SWAP STR@ ROT ConnectHost THROW
+  SocketLine
 ;
 \ : fclose ( socketline -- )
 \   fsock CloseSocket THROW
