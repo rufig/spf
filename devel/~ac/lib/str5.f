@@ -125,14 +125,30 @@ ValidateThreadHeap>
 : {...} ( addr u -- ... )
   ['] ({...}) EVALUATE-WITH
 ;
+CHAR { VALUE [CHAR]{
+CHAR } VALUE [CHAR]}
+
+: S"{" ( -- addr u )
+  S" {" OVER [CHAR]{ SWAP C!
+;
+: S"}" ( -- addr u )
+  S" }" OVER [CHAR]} SWAP C!
+;
+: "delimiters ( addr 2 -- )
+  DROP DUP C@ TO [CHAR]{ CHAR+ C@ TO [CHAR]}
+;
+: "delimiters: ( -- )
+  NextWord "delimiters
+;
+
 : ((")) ( -- s ) { \ s }
   "" -> s
   BEGIN
     >IN @ #TIB @ <
   WHILE
-    [CHAR] { PARSE
+    [CHAR]{ PARSE
     s STR+
-    [CHAR] } PARSE ?DUP
+    [CHAR]} PARSE ?DUP
     IF {...} s S+
     ELSE DROP THEN
   REPEAT
@@ -153,16 +169,16 @@ STRFREE
   OVER C@ [CHAR] $ =
        IF 1- SWAP 1+ SWAP CONTEXT @ SEARCH-WORDLIST
           IF >BODY @ [ ALSO vocLocalsSupport ] LocalOffs [ PREVIOUS ] LOCALS_STACK_OFFSET +
-             0 <# #S [CHAR] { HOLD #> s STR+
-             S"  RP+@ STR@}" s STR+
+             0 <# #S [CHAR]{ HOLD #> s STR+
+             S"  RP+@ STR@" s STR+ S"}" s STR+
           THEN
        ELSE OVER C@ [CHAR] # =
             IF 1- SWAP 1+ SWAP CONTEXT @ SEARCH-WORDLIST
                IF >BODY @ [ ALSO vocLocalsSupport ] LocalOffs [ PREVIOUS ] LOCALS_STACK_OFFSET +
-                  0 <# #S [CHAR] { HOLD #> s STR+
-                  S"  RP+@}" s STR+
+                  0 <# #S [CHAR]{ HOLD #> s STR+
+                  S"  RP+@" s STR+ S"}" s STR+
                THEN
-            ELSE S" {" s STR+ s STR+ S" }" s STR+ THEN
+            ELSE S"{" s STR+ s STR+ S"}" s STR+ THEN
        THEN
   base BASE !
 ;
@@ -171,9 +187,9 @@ STRFREE
   BEGIN
     >IN @ #TIB @ <
   WHILE
-    [CHAR] { PARSE
+    [CHAR]{ PARSE
     s STR+
-    [CHAR] } PARSE ?DUP
+    [CHAR]} PARSE ?DUP
     IF s {STR@LOCAL}
     ELSE DROP THEN
   REPEAT
