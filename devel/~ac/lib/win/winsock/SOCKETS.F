@@ -264,11 +264,15 @@ CREATE SINLEN /sockaddr_in ,
   SOCKET_ERROR = IF WSAGetLastError EXIT THEN
   AcceptSocket
 ;
+USER _GetHostIPs
+
 : GetHostIPs ( addr u -- IPab IPae ior )
 \ Получить список IP multihomed-хоста
 \ IPab IPae возвращаются в формате для последующего цикла DO, см. ConnectHost
-  DUP 0= IF NIP 11004 EXIT THEN \ иначе пустой хост S" " дает 0 0
-  OVER inet_addr DUP -1 <> IF NIP NIP 0 EXIT ELSE DROP THEN
+  DUP 0= IF 11004 EXIT THEN \ иначе пустой хост S" " дает ior=0
+  OVER inet_addr DUP -1 <> IF NIP NIP _GetHostIPs ! _GetHostIPs DUP CELL+ SWAP 
+                              0 EXIT
+                           ELSE DROP THEN
   DROP gethostbyname DUP IF DUP @ SWAP 3 CELLS + @ @ 0
                          ELSE 0 WSAGetLastError THEN
 ;
