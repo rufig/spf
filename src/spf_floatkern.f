@@ -196,8 +196,7 @@ CODE FSQRT
 END-CODE
 
 CODE FDROP  \ *
-       FFREE ST
-       FINCSTP
+       FSTP ST(0)
        RET
 END-CODE
 
@@ -474,7 +473,7 @@ END-CODE
 HEX
 
 CODE FINIT
-       FINIT
+       FNINIT
        RET
 END-CODE
 
@@ -524,10 +523,6 @@ CODE GETFPUSW
        FSTSW EAX
        RET
 END-CODE
-
-: ?IE GETFPUSW 1 AND 0<> ;
-: ?ZE GETFPUSW 4 AND 0<> ;
-: ?OF GETFPUSW 8 AND 0<> ;
 
 CODE FLOG2 ( F: r1 -- r2 )
        FLD1
@@ -677,5 +672,10 @@ CODE _FLIT-CODE10
      JMP  EBX
 END-CODE
 
+
+CODE FNOP
+ FNOP
+ RET
+END-CODE
 
 DECIMAL
