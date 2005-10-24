@@ -3,6 +3,11 @@
 \ [c] Dmitry Yakimov [ftech@tula.net]
 \ 64 битная арифметика по умолчанию!
 
+\ + FABORT заменен FNOP 
+\ ! исправлен FINIT, автоматическая реинициализация при исключении
+\ ! новый необрезающий REPRESENT
+\ ! исправлена бесконечность ~yGREK 
+
 \ ! переписан F. ,рефакторинг ( 9.03.2005 ~day )
 \ ! пофиксен FS. ( 9.03.2005 ~day )
 
@@ -84,12 +89,44 @@ HEX
               THEN
 ;
 
-CREATE FINF-ADDR 0 , 80 , FF7F0000 ,  \ Infinity
+CREATE FINF-ADDR 0 , 80000000 , 7FFF , \ Infinity
 
 DECIMAL
 
 : FINF FINF-ADDR F@ ;
 : -FINF FINF FNEGATE ;
+
+\ Младшие шесть бит маскируют ошибки #I #D #Z #O #U #P
+: ERROR-MODE \ Включает ошибки сопроцессора кроме #P 
+             \ потому что #P реагирует на ноль
+   GETFPUCW
+   127 INVERT AND
+   32 OR
+   SETFPUCW
+;
+: NORMAL-MODE \ Всё тихо крома #I и стека
+  GETFPUCW
+  127 OR
+  1 INVERT AND
+  SETFPUCW
+;
+
+: SILENT-MODE \ Всё тихо
+  GETFPUCW
+  127 OR
+  SETFPUCW
+;
+
+: FPUmask CREATE , DOES> @ GETFPUCW AND 0<> ;
+: FPUstate CREATE , DOES> @ GETFPUSW AND 0<> ;
+
+\ Состояние и маски сопроцессора
+ 1 FPUstate ?IE   1 FPUmask ?IM
+ 2 FPUstate ?DE   2 FPUmask ?DM
+ 4 FPUstate ?ZE   4 FPUmask ?ZM
+ 8 FPUstate ?OE   8 FPUmask ?OM
+16 FPUstate ?UE  16 FPUmask ?UM
+32 FPUstate ?PE  32 FPUmask ?PM
 
 WARNING @ FALSE WARNING !
 : F!
@@ -168,7 +205,7 @@ WARNING !
    2DUP GET-EXP DROP         \  addr u u2 - экспонента
    ROT ROT FRAC>F             \ u2
    ?IS-COMMA @ 0= IF PAST-COMMA 1+! THEN
-   PAST-COMMA @ - F10X  F*  ?OF ?IE OR 
+   PAST-COMMA @ - F10X  F*  ?OE ?IE OR 
    DUP IF FDROP THEN INVERT
    R> SETFPUCW
    R> BASE !
@@ -224,6 +261,7 @@ WARNING !
 ;
 
 : ?FLOAT ( addr u -- bool )
+    DUP 2 < IF 2DROP 0 EXIT THEN
     1   0 <SIGN>    >R
     16  0 <DIGITS>  >R
     1   0 <DOT>     >R
@@ -253,12 +291,13 @@ WARNING !
 
 HEX
 
-: FABORT
-      ?IE IF FINIT C0000090  THROW THEN    \ invalid operation
-      ?OF IF FINIT C0000091 THROW THEN     \ overflow
-      ?ZE IF FINIT C000008E THROW THEN     \ divide by zero
-;
+HEX
+
+\ Если нет маски, то ругаемся
+: FABORT FNOP ;
+
 DECIMAL
+
 
 : FLOOR ( F: r1 -- r2 )
     GETFPUCW >R
@@ -294,17 +333,44 @@ DECIMAL
    THEN
 ;
 
-: REPRESENT ( c-addr u -- n f1 f2 )
-   BASE @ >R DECIMAL
-   2DUP 1+ [CHAR] 0 FILL 2DUP FDUP F0< >R FABS
-   #EXP DUP >R - FN^10
-   DROP F>D <# #S #> DUP
-   1 = IF
-     2DROP 2DROP RDROP RDROP 1 0 -1
-   ELSE
-     ROT 2DUP - >R MIN ROT SWAP 1+ MOVE 2R> +  R> -1
-   THEN
-   R> BASE !
+: 2VARIABLE 
+   CREATE 0 DUP , ,
+   DOES>
+;
+
+: 0.1E
+   1.E 10.E F/
+;
+
+16 VALUE MPREC  \ your maximum precision
+2VARIABLE EXP  \ exponent & sign
+
+\ from http://www.alphalink.com.au/~edsa/represent.html
+: REPRESENT  ( c-addr u -- n flag1 flag2 ) ( F: r -- )
+     2DUP [CHAR] 0 FILL
+     MPREC MIN  2>R
+     FDUP F0< 0 EXP 2!
+     FABS  FDUP F0= 0=
+     BEGIN  WHILE
+       FDUP 1.E F< 0= IF
+         10.E F/
+         1
+       ELSE
+         FDUP 0.1E F< IF
+           10.E F*
+           -1
+         ELSE
+           0
+         THEN
+       THEN
+       DUP EXP +!
+     REPEAT
+     1.E  R@ 0 ?DO 10.E F* LOOP  F*
+     FROUND F>D
+     2DUP <# #S #>  DUP R@ - EXP +!
+     2R>  ROT MIN 1 MAX CMOVE
+     D0=  EXP 2@ SWAP  ROT IF 2DROP 1 0 THEN  \ 0.0E fix-up
+     TRUE 
 ;
 
 VECT FTYPE
@@ -319,7 +385,7 @@ VECT FEMIT
            THEN
    \ выведем дробную часть
    [CHAR] . FEMIT
-   DUP FLOAT-PAD + PRECISION ROT - 1+ 0 MAX FTYPE
+   DUP FLOAT-PAD + PRECISION ROT - 0 MAX FTYPE
 ;
 
 : format-exp ( ud1 -- ud2 ) \ *
@@ -348,13 +414,8 @@ VECT FEMIT
      THEN
 ;
 
-: FStackCheck
-   FDEPTH 1 < IF FINIT 0xC0000092 THROW THEN
-   FABORT
-;
-
 : FS. ( r -- )
-   FStackCheck
+   FNOP
    PrintFInf IF FDROP EXIT THEN
    FLOAT-PAD PRECISION REPRESENT DROP
    IF  [CHAR] - FEMIT THEN
@@ -362,7 +423,7 @@ VECT FEMIT
 ;
 
 : F. ( r -- )
-   FStackCheck
+   FNOP
    PrintFInf IF FDROP EXIT THEN
    FDUP
    FLOAT-PAD PRECISION REPRESENT DROP
@@ -374,7 +435,7 @@ VECT FEMIT
    S>D 3 FM/MOD 3 * SWAP 1+  ;
 
 : FE. ( r)
-   FStackCheck
+   FNOP
    PrintFInf IF FDROP EXIT THEN
    FLOAT-PAD PRECISION REPRESENT DROP IF  [CHAR] - FEMIT  THEN
    1- Adjust FDISPLAY .EXP
@@ -491,6 +552,7 @@ USER PAD-COUNT
      FDOUBLE
      FINIT
      PRINT-FIX
+     NORMAL-MODE
      [CHAR] e FCON-E !
      ['] EMIT TO FEMIT
      ['] TYPE TO FTYPE
