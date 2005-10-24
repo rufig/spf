@@ -16,6 +16,7 @@
 
 : SPACES ( n -- ) \ 94
 \ Если n>0 - вывести на дисплей n пробелов.
+  DUP 1 < IF DROP EXIT THEN
   BEGIN
     DUP
   WHILE
