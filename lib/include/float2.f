@@ -377,15 +377,23 @@ VECT FTYPE
 VECT FEMIT
 
 : FDISPLAY ( n -- )
-   FLOAT-PAD OVER 0 MAX PRECISION MIN FTYPE
-   \ дополним нулями до PRECISION
-   PRECISION OVER -
-   DUP 0 < IF ABS 0 ?DO [CHAR] 0 FEMIT LOOP 
-           ELSE DROP
-           THEN
-   \ выведем дробную часть
-   [CHAR] . FEMIT
-   DUP FLOAT-PAD + PRECISION ROT - 0 MAX FTYPE
+   DUP 0 <
+   IF \ число < 1      
+      DUP 0 < IF [CHAR] 0 FEMIT THEN
+      [CHAR] . FEMIT
+      ABS 0 ?DO [CHAR] 0 FEMIT LOOP
+      FLOAT-PAD PRECISION FTYPE
+   ELSE
+     FLOAT-PAD OVER 0 MAX PRECISION MIN FTYPE
+     \ дополним нулями до PRECISION
+     PRECISION OVER -
+     DUP 0 < IF ABS 0 ?DO [CHAR] 0 FEMIT LOOP 
+             ELSE DROP
+             THEN
+     \ выведем дробную часть
+     [CHAR] . FEMIT
+     DUP FLOAT-PAD + PRECISION ROT - 0 MAX FTYPE
+     THEN   
 ;
 
 : format-exp ( ud1 -- ud2 ) \ *
@@ -418,17 +426,16 @@ VECT FEMIT
    FNOP
    PrintFInf IF FDROP EXIT THEN
    FLOAT-PAD PRECISION REPRESENT DROP
-   IF  [CHAR] - FEMIT THEN
+   IF [CHAR] - FEMIT THEN
    1 FDISPLAY 1- .EXP
 ;
 
 : F. ( r -- )
    FNOP
    PrintFInf IF FDROP EXIT THEN
-   FDUP
    FLOAT-PAD PRECISION REPRESENT DROP
    IF  [CHAR] - FEMIT THEN
-   #EXP FDROP 1+ FDISPLAY DROP
+   FDISPLAY
 ;
    
 : Adjust ( n - n' 1|2|3 )
@@ -446,11 +453,13 @@ USER PAD-COUNT
 : C-TO-PAD ( c )
    PAD-COUNT @ PAD + C!
    PAD-COUNT 1+!
+   PAD-COUNT @ 1024 1- >
+   ABORT" Too big float number, buffer overflow"
 ;
 
 : S-TO-PAD ( addr u )
    OVER + SWAP
-   DO
+   ?DO
       I C@ C-TO-PAD
    LOOP
 ;
@@ -459,7 +468,12 @@ USER PAD-COUNT
    PAD-COUNT 0!
    ['] C-TO-PAD TO FEMIT
    ['] S-TO-PAD TO FTYPE
-   FS.
+   ?PRINT-EXP @
+   IF
+     FS.
+   ELSE
+     F.
+   THEN
    ['] EMIT TO FEMIT
    ['] TYPE TO FTYPE
    PAD PAD-COUNT @
@@ -551,7 +565,7 @@ USER PAD-COUNT
      2 FFORM-EXP !
      FDOUBLE
      FINIT
-     PRINT-FIX
+     PRINT-EXP
      NORMAL-MODE
      [CHAR] e FCON-E !
      ['] EMIT TO FEMIT
