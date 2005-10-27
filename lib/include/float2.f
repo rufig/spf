@@ -153,8 +153,6 @@ WARNING !
            THEN
 ;
 
-: FACOSH   FDUP FDUP F* 1.E F- FSQRT F+ FLN ;    
-
 : SEARCH-EXP ( c-addr1 u -- c-addr2 u flag )
     BEGIN
       OVER C@ -1
@@ -318,32 +316,12 @@ DECIMAL
    FDUP FABS FLOG FLOOR F>D DROP THEN
 ;
 
-\ r1=r*n^10
-
-: FN^10 ( n --) ( r -- r1 )
-   DUP 0 >
-   IF
-     0 ?DO
-       F10*
-     LOOP 
-   ELSE
-      ABS 0 ?DO
-         F10/
-      LOOP
-   THEN
-;
-
-: 2VARIABLE 
-   CREATE 0 DUP , ,
-   DOES>
-;
-
 : 0.1E
    1.E 10.E F/
 ;
 
 16 VALUE MPREC  \ your maximum precision
-2VARIABLE EXP  \ exponent & sign
+CREATE EXP 0 , 0 ,  \ exponent & sign
 
 \ from http://www.alphalink.com.au/~edsa/represent.html
 : REPRESENT  ( c-addr u -- n flag1 flag2 ) ( F: r -- )
@@ -376,13 +354,18 @@ DECIMAL
 VECT FTYPE
 VECT FEMIT
 
+\ trim trailing '0's
+: (T0)  ( c-addr u1 -- c-addr u2 )
+  BEGIN  DUP WHILE  1- 2DUP CHARS +
+  C@ [CHAR] 0 -  UNTIL  1+  THEN ;
+
 : FDISPLAY ( n -- )
    DUP 0 <
    IF \ число < 1      
       DUP 0 < IF [CHAR] 0 FEMIT THEN
       [CHAR] . FEMIT
       ABS 0 ?DO [CHAR] 0 FEMIT LOOP
-      FLOAT-PAD PRECISION FTYPE
+      FLOAT-PAD PRECISION (T0) FTYPE
    ELSE
      FLOAT-PAD OVER 0 MAX PRECISION MIN FTYPE
      \ дополним нулями до PRECISION
@@ -422,29 +405,38 @@ VECT FEMIT
      THEN
 ;
 
-: FS. ( r -- )
-   FNOP
+: (F.) ( n1 n2 )
+\ n1 - exponent
+\ n2 - sign
    PrintFInf IF FDROP EXIT THEN
    FLOAT-PAD PRECISION REPRESENT DROP
-   IF [CHAR] - FEMIT THEN
+;
+
+
+: FS. ( r -- )
+   (F.) IF [CHAR] - FEMIT THEN
    1 FDISPLAY 1- .EXP
 ;
 
 : F. ( r -- )
-   FNOP
-   PrintFInf IF FDROP EXIT THEN
-   FLOAT-PAD PRECISION REPRESENT DROP
-   IF  [CHAR] - FEMIT THEN
+   (F.) IF  [CHAR] - FEMIT THEN
    FDISPLAY
+;
+
+: G. ( r)
+   (F.) IF  [CHAR] - FEMIT THEN
+   DUP ABS PRECISION > 
+   IF 
+      1 FDISPLAY 1- .EXP
+   ELSE FDISPLAY
+   THEN
 ;
    
 : Adjust ( n - n' 1|2|3 )
    S>D 3 FM/MOD 3 * SWAP 1+  ;
 
 : FE. ( r)
-   FNOP
-   PrintFInf IF FDROP EXIT THEN
-   FLOAT-PAD PRECISION REPRESENT DROP IF  [CHAR] - FEMIT  THEN
+   (F.) IF  [CHAR] - FEMIT  THEN
    1- Adjust FDISPLAY .EXP
 ;
 
@@ -472,7 +464,7 @@ USER PAD-COUNT
    IF
      FS.
    ELSE
-     F.
+     G.
    THEN
    ['] EMIT TO FEMIT
    ['] TYPE TO FTYPE
@@ -539,7 +531,7 @@ USER PAD-COUNT
 
 
 : FASINH   FDUP FDUP F* 1.E F+ FSQRT F/ FATANH ;
-
+: FACOSH   FDUP FDUP F* 1.E F- FSQRT F+ FLN ;    
 
 : FTO 
    BL WORD FIND
