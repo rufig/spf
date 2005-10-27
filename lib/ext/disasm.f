@@ -1409,18 +1409,35 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
 \       COUNT  + 1+ 
 ;
 
+[DEFINED] F. [IF]
+
+: FLIT8.  ( ADDR -- ADDR' )
+       ." FLITERAL: "
+       DUP DF@ G.  8 +
+;
+
+: FLIT10.  ( ADDR -- ADDR' )
+       ." FLITERAL: "
+       DUP F@ G.  10 +
+;
+
+[ELSE]
+
+: FLIT8.
+       CR DUP  BASE-ADDR - 6 H.R SPACE   
+       ."  A; " DUP 8 OVER + SWAP
+       DO I C@ 3 H.R ."  C," LOOP
+       8 +
+;
+
 : FLIT10. ( ADDR -- ADDR' )
        CR DUP  BASE-ADDR - 6 H.R SPACE   
        ."  A; "  DUP 10 OVER + SWAP
        DO I C@ 3 H.R ."  C," LOOP
        10 +
 ;
-: FLIT8.  ( ADDR -- ADDR' )
-       CR DUP  BASE-ADDR - 6 H.R SPACE   
-       ."  A; " DUP 8 OVER + SWAP
-       DO I C@ 3 H.R ."  C," LOOP
-       8 +
-;
+
+[THEN]
 
 : VECT. ( ADDR -- ADDR' )
        CR DUP  BASE-ADDR - 6 H.R SPACE   
