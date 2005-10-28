@@ -198,7 +198,7 @@ VECT vlistNodes
         1 xmlNodeGetContent ASCIIZ> UTF8>UNICODE UNICODE> s STR+ CRLF s STR+
      LOOP
   THEN
-  s STR@
+  s STR@ 2- 0 MAX
 ;
 : dumpBool xpo.boolval @ . ;
 : dumpBool@ xpo.boolval @ ;
