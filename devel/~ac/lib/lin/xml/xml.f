@@ -266,6 +266,9 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
 : XML_XPATH@ ( addr u xpaddr xpu -- addr2 u2 )
   xpathTypes@ XML_XPATH_XT
 ;
+: XML_XPATH_MEM@ ( addr u xpaddr xpu -- addr2 u2 )
+  xpathTypes@ XML_XPATH_MEM_XT
+;
 : XML_SERIALIZE { doc \ mem size -- addr2 u2 }
   ^ size ^ mem doc 3 xmlDocDumpMemory DROP mem size
 ;
