@@ -1,0 +1,51 @@
+<HTML><!-- (p) 08.2005-10.2005 ruvim@forth.org.ru -->
+<HEAD>
+<hta:APPLICATION ID="screensaver"
+APPLICATIONNAME="screensaver"
+BORDER="none"
+INNERBORDER = "no"
+CAPTION="no"
+SHOWINTASKBAR="no"
+SINGLEINSTANCE="yes"
+SYSMENU="no"
+SCROLL = "no"
+WINDOWSTATE="maximize"
+icon="http://www.levitated.net/favicon.ico"
+/>
+<!--
+icon="http://www.levitated.net/favicon.ico"
+ без "overflow: hidden;" - показывает правый скролл  при такой иконке!
+-->
+<STYLE>
+body {
+  margin: 0;
+  padding: 0;
+  border: none;
+  cursor: crosshair;
+  overflow: hidden;
+}
+</STYLE>
+</HEAD>
+<BODY>
+<!--
+<SCRIPT>
+ HTA:APPLICATION.icon = ...
+</SCRIPT>
+-->
+
+<object 
+  classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" 
+  codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,29,0" 
+  width="100%" height="100%">
+<param 
+  name="movie" 
+  value="http://www.levitated.net/daily/levSeaThing.swf"
+/>
+<param name=quality value=high />
+</object>
+
+</BODY>
+<!-- see http://www.wynia.org/wordpress/?p=172
+  for details
+-->
+</HTML>
