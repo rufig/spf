@@ -141,7 +141,7 @@ REQUIRE ForEachDirWRstr   ~ac/lib/ns/iter.f
 
 \ ниже почти << XML_DOC libxml-parser.html , но без манипул€ций DEFINITIONS
 
-300 TO WL_SIZE
+1000 TO WL_SIZE
 
 \EOF
 
