@@ -170,7 +170,7 @@ VECT vlistNodes
   REPEAT
 ;
 : text@ ( node -- addr u )
-  1 xmlNodeGetContent ASCIIZ> UTF8>UNICODE UNICODE>
+  1 xmlNodeGetContent ASCIIZ> UTF8>UNICODE OVER >R UNICODE> R> FREE THROW
 ;
 : nodeText ( addr u node -- addr2 u2 )
   node@ ?DUP IF text@
@@ -188,6 +188,9 @@ VECT vlistNodes
      LOOP
   THEN
 ;
+USER uLastNodeSetStr
+: LNSFREE uLastNodeSetStr @ ?DUP IF STRFREE THEN uLastNodeSetStr 0! ;
+
 : dumpNodeSet@ { res \ s -- addr u }
   "" -> s
   res xpo.nodesetval @ ?DUP
@@ -195,9 +198,13 @@ VECT vlistNodes
      ?DO
         res xpo.nodesetval @ xns.nodeTab @ I CELLS + @
         x.children @ ( listNodes)
-        1 xmlNodeGetContent ASCIIZ> UTF8>UNICODE UNICODE> s STR+ CRLF s STR+
+        1 xmlNodeGetContent ASCIIZ> UTF8>UNICODE OVER >R UNICODE> R> FREE THROW
+        OVER >R
+        s STR+ CRLF s STR+
+        R> FREE THROW
      LOOP
   THEN
+  s uLastNodeSetStr !
   s STR@ 2- 0 MAX
 ;
 : dumpBool xpo.boolval @ . ;
