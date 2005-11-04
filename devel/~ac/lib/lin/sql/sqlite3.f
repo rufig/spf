@@ -5,7 +5,7 @@
 )
 
 WARNING @ WARNING 0!
-REQUIRE DL            ~ac/lib/ns/so-xt.f
+REQUIRE SO            ~ac/lib/ns/so-xt.f
 REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
 WARNING !
