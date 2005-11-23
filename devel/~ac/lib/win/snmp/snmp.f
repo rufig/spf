@@ -145,7 +145,7 @@ VECT v_add-value
     IF DUP CELL+ DUP @ SWAP CELL+ @ SWAP 2DROP \ TYPE CR
     ELSE ( DUP 3 CELLS DUMP CR) 
          DUP CELL+ @
-         OVER @ SNMP_SYNTAX_GAUGE32 =
+         OVER @ DUP SNMP_SYNTAX_GAUGE32 = SWAP SNMP_SYNTAX_INT = OR
          IF v_add-value 
          ELSE SNMPcounter_old 0= IF DUP TO SNMPcounter_old THEN
             DUP SNMPcounter_old - 0 MAX v_add-value TO SNMPcounter_old
