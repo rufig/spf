@@ -257,7 +257,6 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
   res IF res xpo.type @ 1- 0 MAX CELLS xt + @ res SWAP EXECUTE THEN
   res 1 xmlXPathFreeObject DROP
   doc 1 xmlFreeDoc DROP
-  0 xmlCleanupParser DROP
 ;
 : XML_XPATH_MEM ( addr u xpaddr xpu -- )
   xpathTypes XML_XPATH_MEM_XT
@@ -297,7 +296,6 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
   addr u XML_READ_DOC -> doc
   doc 1 xmlDocGetRootElement listNodes
   doc 1 xmlFreeDoc DROP
-  0 xmlCleanupParser DROP
 ;
 : XML_DOC_SAVE ( addr u doc -- )
   NIP SWAP 2 xmlSaveFile DROP
@@ -306,19 +304,16 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
   XML_READ_DOC -> doc
   doc S" -" DROP 2 xmlSaveFile DROP
   doc 1 xmlFreeDoc DROP
-  0 xmlCleanupParser DROP
 ;
 : XML_SAVE_URL { uaddr uu faddr fu \ doc -- }
   uaddr uu XML_READ_DOC -> doc
   doc faddr 2 xmlSaveFile DROP
   doc 1 xmlFreeDoc DROP
-  0 xmlCleanupParser DROP
 ;
 : XML_SAVE_URL_ENC { enca encu uaddr uu faddr fu \ doc -- }
   enca encu uaddr uu XML_READ_DOC_ENC -> doc
   enca doc faddr 3 xmlSaveFileEnc DROP
   doc 1 xmlFreeDoc DROP
-  0 xmlCleanupParser DROP
 ;
 : XML_DOC_TEXT  ( addr u -- addr2 u2 ) { \ doc }
   XML_READ_DOC -> doc
@@ -336,6 +331,14 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
   addr u " {s}" -> s
   0 s STR@ DROP 0 node NODE>DOC 4 xmlNewDocNode DUP
   node 2 xmlAddChild DROP s STRFREE
+;
+: XML_INIT
+  0 xmlInitParser DROP
+\  0 xmlInitThreads DROP
+\  0 xmlLockLibrary DROP
+;
+: XML_CLEAN
+  0 xmlCleanupParser DROP
 ;
 
 \ S" http://www.w3schools.com/xpath/xpath_functions.asp" XML_LIST_NODES
