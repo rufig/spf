@@ -1,15 +1,17 @@
 \ OPT?  \ DIS-OPT
 
 FALSE TO OPT?
+\ the relocation of word OPinsert is not proper
 
 REQUIRE {       ~ac\lib\locals.f
 
 : (INIT1)
+  ERASE-IMPORTS
   0 TO H-STDLOG
   0 TO H-STDIN
   CONSOLE-HANDLES
   ['] CGI-OPTIONS ERR-EXIT
-  ['] AT-PROCESS-STARTING ERR-EXIT
+  ['] AT-PROCESS-STARTING ERR-EXIT \ тут оно выполнится уже после AT-THREAD-STARTING
   MAINX @ ?DUP IF ERR-EXIT THEN
 ;
 
