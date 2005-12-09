@@ -191,9 +191,28 @@ ALSO SO NEW: sqlite3.dll
   UNTIL
 ;
 
+USER _db3_get_1
+USER _db3_get_2
+
+: db3_get_id2_ { i par ppStmt -- flag }
+  0 ppStmt db3_coli _db3_get_1 ! 
+  1 ppStmt db3_coli _db3_get_2 ! 
+  FALSE
+;
+: db3_get_id2 ( addr u sqh -- id1 id2 )
+  _db3_get_1 0! _db3_get_2 0!
+  >R 0 ['] db3_get_id2_ R> db3_exec
+  _db3_get_1 @ _db3_get_2 @
+;
 PREVIOUS
 
 \EOF примеры:
+: TEST { \ sqh }
+  S" \spf4\devel\~ac\lib\ns\world.db3" db3_open -> sqh
+  S" select id, 5 from City where name like 'Kalinin%'" sqh db3_get_id2 . .
+  sqh db3_close
+; TEST
+\EOF
 : TEST { \ sqh }
   S" test.db3" db3_open -> sqh
   S" CREATE TABLE Items (ID INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT);begin"
