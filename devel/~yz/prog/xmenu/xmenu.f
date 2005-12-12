@@ -1,23 +1,26 @@
 REQUIRE "   ~yz/lib/common.f
 
-" XMENU 1.20" ASCIIZ program-name
+" XMENU 1.30" ASCIIZ program-name
 " xmenu.cfg"  ASCIIZ filename
+" Секретное меню" ASCIIZ secret-menu-tooltip
 
-REQUIRE msg         ~yz/lib/msg.f
-REQUIRE (*          ~yz/lib/wincons.f
-REQUIRE {           lib/ext/locals.f
-REQUIRE PMconnect   ~yz/lib/pagemaker.f
-REQUIRE init->>     ~yz/lib/data.f
-REQUIRE small-hash  ~yz/lib/hash.f
-REQUIRE RESOURCES:  ~yz/lib/resources.f
-REQUIRE <(          ~yz/lib/format.f
-REQUIRE (:	    ~yz/lib/inline.f
-\ REQUIRE TraceON     lib/ext/debug/tracer.f
+REQUIRE msg            ~yz/lib/msg.f
+REQUIRE (*             ~yz/lib/wincons.f
+REQUIRE {              lib/ext/locals.f
+REQUIRE init->>        ~yz/lib/data.f
+REQUIRE SPARSE...      ~yz/lib/parse.f
+REQUIRE small-hash     ~yz/lib/hash.f
+REQUIRE RESOURCES:     ~yz/lib/resources.f
+REQUIRE <(             ~yz/lib/format.f
+REQUIRE (:	       ~yz/lib/inline.f
+REQUIRE create-channel ~yz/lib/channel.f
+REQUIRE PROC:          ~yz/lib/proc.f
+REQUIRE RECORD:        ~yz/lib/record.f
 
 \ -----------------------------------------------------
 
 : my-error ( ERR-NUM -> ) \ показать расшифровку ошибки
-  DUP -2 = IF DROP 
+  ." err"  DUP -2 = IF DROP 
                 ER-A @ ER-U @ PAD CZMOVE PAD err
            THEN
   >R <( R> DUP " Ошибка #~N (0x~06H)" )> err
@@ -34,6 +37,23 @@ REQUIRE (:	    ~yz/lib/inline.f
   CURFILE @ ?DUP IF FREE DROP CURFILE 0! THEN
 ;
 
+: include-file { filename-a filename-# \ depth -- ?}
+  DEPTH TO depth
+  filename-a filename-# ['] INCLUDED CATCH
+  ?DUP IF
+    PRESS PRESS \ уничтожаем остатки от INCLUDED
+    CASE
+      2 3 <OF< <( filename-a filename-# " Файл ~'~S~' не найден" )> err 0 EXIT ENDOF
+      -2003 OF " Неизвестное ключевое слово"  ENDOF
+      0xC0000005 OF " Нарушение общей защиты" ENDOF
+      -1000 OF " КОНЕЦ-МЕНЮ без МЕНЮ" ENDOF
+    >R <( R> " Ошибка ~N" )>
+    END-CASE
+    err-dialog 0 EXIT
+  THEN
+  DEPTH depth <> 
+;
+
 \ ---------------------------------------------------
 
 16 == icon-size
@@ -42,6 +62,7 @@ REQUIRE (:	    ~yz/lib/inline.f
 3 == icon-top
 2 == icon-bottom
 40 == max-filename-size
+40 == #exticons
 
 0
 CELL -- :hwnd
@@ -95,28 +116,38 @@ WINAPI: DestroyWindow      USER32.DLL
 0 VALUE commands
 0 VALUE macros
 0 VALUE keywords
+0 VALUE rcommands
 
 0 VALUE dyn-submenus
 0 VALUE dyn-items
 
-0 VALUE mouse16
-0 VALUE bmouse16
-0 VALUE reload-icon
-0 VALUE exit-icon
-0 VALUE programs-icon
-0 VALUE documents-icon
+0 VALUE current-icon
+0 VALUE std-tooltip
+0 VALUE std-icon
+
+0 VALUE taskbar-created
 
 CREATE MSG #message ALLOT
 
-0
-CELL -- :nsize
-CELL -- :nhwnd
-CELL -- :niconid
-CELL -- :nflags
-CELL -- :ncallback
-CELL -- :nicon
-64   -- :ntip
-CONSTANT #notify
+RECORD: #notify
+  DWORD    :nSize
+  HWND     :nHwnd 
+  UINT     :nID 
+  UINT     :nFlags
+  UINT     :nCallback
+  HICON    :nIcon
+  64 TCHAR :nTip
+RECORD;
+
+#notify RECORDEX: #notifyex
+  64 TCHAR  :nTip2           \ огрызок от нового поля
+  DWORD     :nState
+  DWORD     :nStateMask
+  256 TCHAR :nInfo
+  UINT      :nTimeout
+  64 TCHAR  :nInfoTitle
+  DWORD     :nInfoFlags
+RECORDEX;
 
 WINAPI: Shell_NotifyIconA  SHELL32.DLL
 
@@ -145,12 +176,12 @@ CREATE save-macros 8 CELLS ALLOT
 CELL -- :micon        \ иконка пункта меню
 CELL -- :mheight      \ высота строки (высчитывается при обработке wm_measureitem)
 CELL -- :mstr         \ адрес начала строки
+CELL -- :mstable      \ не подлежит уничтожению через destroy-menu
 == #micon
 
 \ Запись о подменю динамического меню
 
 #micon
-CELL -- :mstable	\ не подлежит уничтожению
 CELL -- :mfilled	\ меню уже заполнено
 CELL -- :mfilter	\ фильтр подменю
 CELL -- :mpath		\ путь, соответствующий этому подменю
@@ -174,6 +205,10 @@ CELL -- :mdynid		\ подменю: hmenu, пункт: id
 0 VALUE menu-id
 1000 == first-dyn-id
 0 VALUE dyn-id
+
+1 == id-reload
+2 == id-about
+3 == id-exit
 
 : next-menu-id
   menu-id 1+ TO menu-id ;
@@ -221,11 +256,187 @@ VARIABLE stack-pointer
   THEN
 ;
 
+\ -----------------------------------
+\ Список именованных иконок
+
+VAR named-icons
+
+: new-named-icon-s ( hicon a # -- ) 
+  ROT named-icons HASH!N ;
+
+: new-named-icon ( hicon z -- )
+  ASCIIZ> new-named-icon-s ;  
+
+: named-icon-from-res ( n z -- )
+  >R instance LoadIconA R> new-named-icon ;
+
+: icon-by-name ( z -- hicon/0)
+  ASCIIZ> named-icons HASH@N DUP IF DROP THEN
+;
+
+: create-named-icons ( -- )
+  small-hash TO named-icons
+  2 " mouse"     named-icon-from-res
+  3 " bl-mouse"  named-icon-from-res
+  4 " reload"    named-icon-from-res
+  5 " exit"      named-icon-from-res
+  6 " programs"  named-icon-from-res
+  7 " documents" named-icon-from-res
+  " mouse" icon-by-name TO std-icon
+  secret-menu-tooltip TO std-tooltip
+;
+
+WINAPI: DestroyIcon      USER32.DLL
+
+: del-named-icons ( -- )
+  (: ( akey nkey hicon -- )
+    DestroyIcon DROP
+    2DROP
+  ;) named-icons all-hash
+  named-icons del-hash
+;
+
+\ -----------------------------------
+\ Обход и уничтожение меню со всеми внутренностями
+
+WINAPI: GetMenuItemInfoA USER32.DLL
+WINAPI: GetMenuItemCount USER32.DLL
+WINAPI: RemoveMenu       USER32.DLL
+
+: traverse-menu { hmenu xt \ [ 11 CELLS ] iteminfo -- }
+  \ xt ( iteminfo -- )
+  hmenu GetMenuItemCount DUP -1 = IF DROP EXIT THEN
+  0 ?DO
+    11 CELLS iteminfo !
+    (* miim_data miim_type miim_submenu *) iteminfo 1 CELLS!
+    iteminfo TRUE ( by position) I hmenu GetMenuItemInfoA DROP
+    iteminfo xt EXECUTE
+  LOOP
+;
+
+\ itemifo
+\ 0	UINT    cbSize;  
+\ 1	UINT    fMask; 
+\ 2	UINT    fType;		Тип подъэлемента
+\ 3	UINT    fState; 
+\ 4	UINT    wID; 
+\ 5	HMENU   hSubMenu;       Подменю (если есть)
+\ 6	HBITMAP hbmpChecked; 
+\ 7	HBITMAP hbmpUnchecked; 
+\ 8	DWORD   dwItemData;     Наши данные
+\ 9	LPTSTR  dwTypeData; 
+\ 10	UINT    cch; 
+
+VECT clean-submenu
+
+: del-icon-from-micon ( micon-rec -- )
+  :micon @ DestroyIcon DROP ;
+
+PROC: delete-ownerdraw-data ( iteminfo -- ?)
+  DUP 5 CELLS@ ?DUP IF
+    clean-submenu 
+  THEN
+  DUP 2 CELLS@ W: mft_ownerdraw AND IF
+    8 CELLS@  DUP del-icon-from-micon
+    DUP :mstable @ 0= IF MFREEMEM ELSE DROP THEN
+  ELSE
+    DROP
+  THEN
+PROC;
+
+:NONAME ( hmenu -- )
+  delete-ownerdraw-data traverse-menu
+; TO clean-submenu 
+
+: destroy-menu ( hmenu -- )
+  DUP clean-submenu DestroyMenu DROP
+;
+
+PROC: del-icon-from-record ( akey nkey micon -- ) 
+  del-icon-from-micon 2DROP
+PROC;
+
+: del-hash-and-icons ( hash -- )
+  del-icon-from-record OVER all-hash del-hash
+;
+
+: clear-hash-and-icons ( hash -- )
+  del-icon-from-record OVER all-hash clear-hash
+;
+
+\ -----------------------------------
+\ Системный лоток
+
+: change-icon-in-tray ( icon -- )
+  { \ [ #notify ] data }
+  DUP TO current-icon
+  #notify => data :nSize
+  secret-window => data :nHwnd
+  0x2 ( есть иконка) => data :nFlags
+  => data :nIcon
+  data 1 ( nim_modify) Shell_NotifyIconA
+  0= " Не могу изменить иконку" ?error
+;
+
+: new-icon ( hicon ms -- )
+  current-icon ROT change-icon-in-tray
+  SWAP ?DUP IF 
+    Sleep DROP
+    change-icon-in-tray
+  ELSE
+    DROP
+  THEN
+;
+
+: animate-icon ( block -- )
+  current-icon >R
+  DO
+    I @ icon-by-name change-icon-in-tray
+    I CELL- @ Sleep DROP
+  2 CELLS NEGATE +LOOP
+  remove-stack-block
+  R> change-icon-in-tray
+;
+
+: change-tooltip-in-tray ( z -- )
+  { \ [ #notify ] data }
+  #notify => data :nSize
+  secret-window => data :nHwnd
+  0x4 ( есть подсказка) => data :nFlags
+  data :nTip ZMOVE
+  data 1 ( nim_modify) Shell_NotifyIconA
+  0= " Не могу изменить подсказку" ?error
+;
+
+: popup-info { ztitle zinfo ms \ [ #notifyex ] data -- }
+  #notifyex data => :nSize
+  secret-window => data :nHwnd
+  0x10 ( вызвать информацию) => data :nFlags
+  ztitle data :nInfoTitle ZMOVE
+  zinfo data :nInfo ZMOVE
+  ms => data :nTimeout
+  0 ( niif_none) => data :nInfoFlags
+  data 1 ( nim_modify) Shell_NotifyIconA
+  0= " Не могу вывести информацию" ?error
+;
+
+: hide-into-tray
+  #notify => HERE :nSize
+  secret-window => HERE :nHwnd
+  0x7 ( есть все) => HERE :nFlags
+  fromtray => HERE :nCallback
+  2 instance LoadIconA DUP TO current-icon => HERE :nIcon 
+  secret-menu-tooltip HERE :nTip ZMOVE
+  HERE 0 ( nim_add) Shell_NotifyIconA
+  0= " Не могу добавить иконку в системную панель" ?error
+;
+
+
 : remove-from-tray
-  { \ [ 88 ] data }
-  88 data :nsize !
-  secret-window data :nhwnd !
-  0 data :nflags !
+  { \ [ #notify ] data }
+  #notify => data :nSize
+  secret-window => data :nHwnd
+  0 => data :nFlags
   data 2 ( nim_delete) Shell_NotifyIconA
   0= " Не могу удалить иконку из системной панели" ?error
 ;
@@ -252,8 +463,6 @@ VARIABLE item-icon  item-icon 0!
 WINAPI: ShellExecuteExA       SHELL32.DLL
 WINAPI: SetCurrentDirectoryA  KERNEL32.DLL
 WINAPI: GetCurrentDirectoryA  KERNEL32.DLL
-
-: ask-mainmenu-location ;
 
 : only-dir ( z -- )
   ASCIIZ> 1-
@@ -300,34 +509,7 @@ WINAPI: GetCurrentDirectoryA  KERNEL32.DLL
   next-menu-id  item-name 0! ;
 
 \ ---------------------------------------
-\ Стек для дескрипторов меню
-
-0 VALUE waste-stack
-VARIABLE waste-ptr
-
-: >WS ( n -- )
-  waste-ptr @ ! waste-ptr CELL+! ;
-
-: WS> ( -- n)
-  waste-ptr CELL-! waste-ptr @ @ ;
-
-: mark-wastestack
-  -1 >WS ;
-
-: empty-till-marker
-  BEGIN
-    WS> DUP DestroyMenu DROP
-  -1 = UNTIL ;
-
-: create-wastestack
-  50 CELLS GETMEM DUP TO waste-stack waste-ptr ! 
-  mark-wastestack ;
-
-: delete-wastestack
-  empty-till-marker
-  waste-stack FREEMEM ;
-
-\ ---------------------------------------
+\ Динамические меню
 
 : n>s ( n -- a #) 
   S>D <# 0 HOLD #S #> ;
@@ -346,19 +528,12 @@ VARIABLE waste-ptr
   THEN
 ;
 
-
-\ ---------------------------------------
-\ Динамические меню
-
 : (new-dynitem) ( str path adr -- adr )
   >R
   R@ :mpath !
   R@ :mstr !
   R>
 ;
-
-\ : new-dynitem ( str path -- adr )
-\  #mdynsubmenu GGETMEM (new-dynitem) ;
 
 : new-dynsubmenu ( str path hmenu -- a )
   #mdynsubmenu SWAP n>s dyn-submenus HASH!R (new-dynitem) ;
@@ -524,7 +699,29 @@ WINAPI: SHGetFileInfoA	       SHELL32.DLL
   0 TO filter
 ;
 
+: switch-to-forth ( -- wid)
+  GET-CURRENT
+  FORTH-WORDLIST SET-CURRENT
+  ALSO FORTH
+;
+
+: switch-back ( wid -- )
+  SET-CURRENT
+  PREVIOUS
+;
+
+: may-change-menu? ( -- ?)
+  current-menu left-menu = current-menu right-menu = OR
+  DUP 0= IF 
+    " Нельзя переключать меню в середине подменю" err
+  THEN
+;
+
+VAR memorized-icon
+CREATE std-tooltip-text 61 ALLOT
+
 \ -----------------------------------
+\ Команды
 
 WORDLIST TO keywords
 
@@ -575,13 +772,13 @@ keywords SET-CURRENT
 
 : МОИ-ДОКУМЕНТЫ ( -- )
  S" [Мои документы]" make-directory
- item-icon @ ?DUP 0= IF documents-icon THEN SWAP :micon !
+ item-icon @ ?DUP 0= IF " documents" icon-by-name THEN SWAP :micon !
 ;
 
 : ПРОГРАММЫ ( -- )
   HERE S" [Общие программы]" macro-expand-here
   S" [Программы]" make-directory
-  item-icon @ ?DUP 0= IF programs-icon THEN
+  item-icon @ ?DUP 0= IF " programs" icon-by-name THEN
   OVER :micon !
   :mpath2 !
 ;
@@ -591,7 +788,7 @@ keywords SET-CURRENT
   2>R HERE
   <( 2R@ " [Общие программы]\\~S" )> ASCIIZ> macro-expand-here
   <( 2R> " [Программы]\\~S" )> ASCIIZ> make-directory
-  item-icon @ ?DUP 0= IF programs-icon THEN
+  item-icon @ ?DUP 0= IF " programs" icon-by-name THEN
   OVER :micon ! :mpath2 !
 ;
 
@@ -610,7 +807,6 @@ keywords SET-CURRENT
   ELSE
     current-menu SWAP append-menu
   THEN
-  current-menu >WS
   TO current-menu FREEMEM
 ;
 
@@ -634,42 +830,147 @@ keywords SET-CURRENT
 ;
 
 : РАСШИРЕНИЯ:
-  GET-CURRENT
-  FORTH-WORDLIST SET-CURRENT
-  ALSO FORTH
+  switch-to-forth
 ;
 
 : РАСШИРЕНИЯ;
-  SET-CURRENT
-  PREVIOUS
+  switch-back
+; 
+
+: ДОБАВИТЬ ( ->eol; -- )
+  { \ [ 100 ] buf }
+  switch-to-forth
+  BL SKIP 1 PARSE buf CZMOVE
+  buf ASCIIZ> include-file DROP
+  switch-back
+;
+
+: ИКОНКА ( ->eol)
+  1 PARSE get-icon 0 new-icon
+;
+
+: ПОДСКАЗКА ( ->eol)
+  1 PARSE std-tooltip-text CZMOVE
+  std-tooltip-text TO std-tooltip
+;
+
+: ЛЕВОЕ-МЕНЮ
+  may-change-menu? 0= IF EXIT THEN
+  left-menu TO current-menu
+;
+
+: ПРАВОЕ-МЕНЮ
+  may-change-menu? 0= IF EXIT THEN
+  right-menu TO current-menu
+;
+
+: ПРАВОЕ-МЕНЮ-ПО-ЛЕВОМУ
+  right-menu destroy-menu
+  left-menu TO right-menu
+;
+
+: ПУНКТ-ПЕРЕЧИТАТЬ 
+  " Перечитать настройки" " reload" icon-by-name id-reload current-menu icon-append ;
+
+: ПУНКТ-О-ПРОГРАММЕ
+  " О программе..." " mouse" icon-by-name id-about current-menu icon-append ;
+
+: ПУНКТ-ВЫХОД
+  " Выход" " exit" icon-by-name  id-exit current-menu icon-append ;
+
+: ЗАПОМНИТЬ ( ->bl/"; -- )
+  BL SKIP ?next DUP 0= IF DROP " Пропущено имя файла в команде \'ЗАПОМНИТЬ\'" error THEN
+  get-icon TO memorized-icon
+;
+
+: КАК ( ->bl/"; --)
+  memorized-icon 0= " Пропущена команда \'ЗАПОМНИТЬ\'" ?error 
+  BL SKIP ?next ?DUP 0= IF DROP " В команде \'КАК\' отсутствует имя для иконки" error THEN
+  memorized-icon -ROT new-named-icon-s
 ;
 
 SET-CURRENT
 
-WINAPI: RemoveMenu       USER32.DLL
+\ -----------------------------------
+\ Удаленные команды
 
-: del-unstable ( key-a key# dynsubmenu -- ?)
+VAR ch
+
+USER-VALUE str-pool
+USER-VALUE str-pool-ptr
+
+WORDLIST TO rcommands
+
+GET-CURRENT
+rcommands SET-CURRENT
+
+: " ( ->"; -- z) 
+  c: " PARSE str-pool-ptr ESC-CZMOVE
+  str-pool-ptr DUP ASCIIZ> + 1+ TO str-pool-ptr ;
+
+: new-icon-by-handle ( hicon ms -- ) new-icon ;
+: new-icon ( zicon ms -- ) >R icon-by-name R> new-icon ;
+: new-tooltip  change-tooltip-in-tray ;
+: make-mouse-blink  " bl-mouse" icon-by-name 500 new-icon ;
+: msgbox ( ztitle ztext -- ) msgbox ;
+: popup-info ( ztitle ztext ms -- ) popup-info ;
+: (( ( -- ) (( ;
+: )) ( ... -- block ) )) ;
+: animate-icon ( block -- ) animate-icon ;
+
+SET-CURRENT
+
+: execute-rcommand ( a # -- ) 2>R
+  str-pool TO str-pool-ptr
+  GET-ORDER
+  rcommands 1 SET-ORDER
+  2R> ['] EVALUATE CATCH IF 2DROP THEN
+  SET-ORDER
+;
+
+:NONAME { \ [ 100 ] buf }
+  800 GETMEM TO str-pool
+  BEGIN
+    buf ch read-channel execute-rcommand
+  AGAIN
+; TASK: listen-channel
+
+: open-remote-channel
+  init-channels
+  " XMENU" create-channel TO ch
+  ch 0= IF " Не могу создать канал" msg EXIT THEN
+  0 listen-channel START DROP
+;
+
+\ -----------------------------------
+
+PROC: del-menuitems ( iteminfo -- ?)
+  5 CELLS@ ( submenu) ?DUP IF DestroyMenu DROP THEN 
+PROC;
+
+PROC: del-submenu ( key-a key# dynsubmenu -- ?)
   >R 2DROP
-  R@ :mfilled 0!
-  R@ :mstable @ 0= DUP IF
-    \ подлежат безусловному уничтожению, но потом
-    R@ :mdynid @ >WS
-  ELSE
-    \ подлежат очистке
+  R@ :mstable @ IF
+    \ здесь ничего нет
+    R@ :mfilled 0!
+    R> :mdynid @ DUP del-menuitems traverse-menu
+    \ удаляем все пункты из этого меню
+    >R
     BEGIN
-      W: mf_byposition 0 R@ :mdynid @ RemoveMenu
+      W: mf_byposition 0 R@ RemoveMenu
     WHILE
-    REPEAT
-  THEN RDROP ;
+    REPEAT RDROP
+    FALSE \ оставить запись
+  ELSE
+    R> del-icon-from-micon
+    TRUE \ удалить эту запись
+  THEN 
+PROC;
 
 : free-all-dynitems 
-  \ освобождаем динамические пункты меню
   0 TO dyn-id
-  \ освобождаем динамические подменю
-  mark-wastestack
-  ['] del-unstable dyn-submenus del-some-records
-  empty-till-marker
-  dyn-items clear-hash
+  del-submenu dyn-submenus del-some-records
+  dyn-items clear-hash-and-icons
 ;
 
 WINAPI: RegOpenKeyA      ADVAPI32.DLL
@@ -696,60 +997,77 @@ WINAPI: RegQueryValueExA ADVAPI32.DLL
   S" Общие программы" CREATED
   HKEY_LOCAL_MACHINE " Common Programs" save-key-value
   S" Мои документы" CREATED
-  HKEY_CURRENT_USER " Personal" save-key-value
+  HKEY_CURRENT_USER ( ) " Personal" save-key-value
   SET-CURRENT
 ;
 
+: clean-all
+  left-menu IF 
+    left-menu destroy-menu right-menu destroy-menu 
+    iconlist del-hash
+    dyn-submenus del-hash-and-icons
+    ( очистим словари)
+    save-wl commands CELL- 8 CELLS CMOVE
+    save-macros macros CELL- 8 CELLS CMOVE
+    del-named-icons
+    0 TO memorized-icon
+  THEN
+;
+
 : prepare-all
-  iconlist ?DUP IF del-hash THEN
+  clean-all
   small-hash TO iconlist
+  small-hash TO dyn-submenus
+  small-hash TO dyn-items
+  create-named-icons
   start-dir SetCurrentDirectoryA DROP
-  left-menu DestroyMenu DROP
   CreatePopupMenu ?DUP 0= IF " Не могу создать меню" error THEN TO left-menu
+  CreatePopupMenu ?DUP 0= IF " Не могу создать меню" error THEN TO right-menu
   first-menu-id TO menu-id
-  ( очистим словарь)
-  save-wl commands CELL- 8 CELLS CMOVE
-  save-macros macros CELL- 8 CELLS CMOVE
   \ добавим определение макросов "Мои документы" и "Главное меню"
   add-std-macros
   FORTH DEFINITIONS
   WARNING 0!
 ;
 
-: create-all-hashes
-  small-hash TO dyn-submenus
-  small-hash TO dyn-items
+: read-my-file ( z -- )
+  ASCIIZ> 2DUP FILE-EXIST IF 
+    include-file
+    IF " Ошибка в файле меню" err THEN
+  ELSE
+    2DROP
+  THEN
 ;
 
-: del-all-hashes
-  dyn-submenus del-hash
-  dyn-items del-hash
+ALSO keywords CONTEXT !
+
+: ?right-menu
+  right-menu GetMenuItemCount 0= IF
+    ПРАВОЕ-МЕНЮ
+    ПУНКТ-ПЕРЕЧИТАТЬ
+    ПУНКТ-О-ПРОГРАММЕ
+    ПУНКТ-ВЫХОД
+  THEN
 ;
 
+PREVIOUS
 
-: read-my-file
-  { \ depth -- }
+WINAPI: GetUserNameA  ADVAPI32.DLL
+
+: read-my-files { \ [ 100 ] user # -- }
   prepare-all
   GET-CURRENT
   GET-ORDER
   commands SET-CURRENT
   keywords 1 SET-ORDER
-  DEPTH TO depth
   left-menu TO current-menu
-  filename DUP ZLEN ['] INCLUDED CATCH
-  ?DUP IF
-    CASE
-      2 3 <OF< <( filename " Файл ~'~Z~' не найден" )> err EXIT ENDOF
-      -2003 OF " Неизвестное ключевое слово"  ENDOF
-      0xC0000005 OF " Нарушение общей защиты" ENDOF
-      -1000 OF " КОНЕЦ-МЕНЮ без МЕНЮ" ENDOF
-    >R <( R> " Ошибка ~N" )>
-    END-CASE
-    err-dialog EXIT
-  THEN
-  DEPTH depth <> IF " Ошибка в файле меню" err EXIT THEN
+  filename read-my-file
+  90 TO #
+  ^ # user GetUserNameA DROP
+  user " .cfg" ZAPPEND  user read-my-file
   SET-ORDER
   SET-CURRENT
+  ?right-menu
 ;
 
 \ ----------------------------------------
@@ -761,7 +1079,7 @@ WINAPI: MessageBoxIndirectA USER32.DLL
   40 params !
   secret-window params CELL+ !
   instance params 2 CELLS + !
-  " Меню для быстрого вызова программ.\n\n(c) 2004 Ю. Жиловец, http://www.forth.org.ru/~yz\nМышку нарисовала Н. Рымарь."
+  " Меню для быстрого вызова программ.\n\nЮ. Жиловец, 2004\nhttp://www.forth.org.ru/~yz/xmenu.html\nМышку нарисовала Н. Рымарь."
   params 3 CELLS + !
   program-name params 4 CELLS + !
   (* mb_ok mb_usericon *) params 5 CELLS + !
@@ -774,64 +1092,26 @@ WINAPI: MessageBoxIndirectA USER32.DLL
 
 WINAPI: PostMessageA  USER32.DLL
 
-: x-menu
+: call-menu { menu \ cmd -- } 
   secret-window SetForegroundWindow DROP
-  0 secret-window 0 cursor-pos SWAP (* tpm_leftbutton tpm_rightalign tpm_returncmd *)
-  left-menu TrackPopupMenu
-  0 0 W: wm_null secret-window PostMessageA DROP
-  DUP CASE
-  first-menu-id menu-id <OF< do-command ENDOF
-  first-dyn-id  dyn-id   <OF< do-dynitem ENDOF
-  2DROP 
-  END-CASE 
-  free-all-dynitems ;
-
-: context-menu
-  secret-window SetForegroundWindow DROP
-  0 secret-window 0 cursor-pos SWAP (* tpm_leftbutton tpm_leftalign tpm_returncmd *)
-  right-menu TrackPopupMenu
+  0 secret-window 0 cursor-pos SWAP 
+  (* tpm_leftbutton tpm_rightalign tpm_returncmd *) menu 
+  TrackPopupMenu DUP TO cmd
   0 0 W: wm_null secret-window PostMessageA DROP
   CASE
-    1 OF read-my-file ENDOF
-    2 OF about ENDOF
-    3 OF ( выход)
-       remove-from-tray
-       right-menu DestroyMenu DROP
-       left-menu DestroyMenu DROP
+    id-reload OF read-my-files ENDOF
+    id-about  OF about ENDOF
+    id-exit   OF ( выход)
        0 PostQuitMessage DROP
     ENDOF
-   DROP END-CASE
+    first-menu-id menu-id  <OF< cmd do-command ENDOF
+    first-dyn-id  dyn-id   <OF< cmd do-dynitem ENDOF
+  DROP 
+  END-CASE 
+  free-all-dynitems
 ;
 
-: make-right-menu
-  CreatePopupMenu ?DUP 0= IF " Не могу создать меню" error THEN TO right-menu
-  " Перечитать файл" reload-icon 1 right-menu icon-append
-  " О программе..."  mouse16     2 right-menu icon-append
-  " Выход"           exit-icon   3 right-menu icon-append ;
-
-: load-icons
-  2 instance LoadIconA TO mouse16
-  3 instance LoadIconA TO bmouse16
-  4 instance LoadIconA TO reload-icon
-  5 instance LoadIconA TO exit-icon
-  6 instance LoadIconA TO programs-icon
-  7 instance LoadIconA TO documents-icon ;
-
-: change-icon ( icon -- )
-  { \ [ 88 ] data }
-  88 data :nsize !
-  secret-window data :nhwnd !
-  0x2 ( есть иконка) data :nflags !
-  data :nicon !
-  data 1 ( nim_modify) Shell_NotifyIconA
-  0= " Не могу изменить иконку" ?error
-;
-
-: mouse-blink
-  ( заставляет мышку мигнуть)
-  bmouse16 change-icon
-  500 Sleep DROP
-  mouse16 change-icon ;
+\ ------------------------------------------
 
 WINAPI: GetTextExtentPoint32A GDI32.DLL
 WINAPI: GetDC                 USER32.DLL
@@ -1026,6 +1306,7 @@ WINAPI: lstrcmpi KERNEL32.DLL
 ;
 
 \ ---------------------------------------
+\ Обработчик сообщений
 
 :NONAME
   ( lparam wparam msg hwnd) 
@@ -1035,22 +1316,13 @@ WINAPI: lstrcmpi KERNEL32.DLL
   fromtray OF
     lparam CASE
       W: wm_lbuttondown OF
-          x-menu
+         left-menu call-menu
       ENDOF
       W: wm_rbuttondown OF
-        context-menu
+         right-menu call-menu
       ENDOF
     DROP END-CASE  
     0
-  ENDOF
-
-  W: wm_command OF
-     wparam LOWORD CASE
-     10 OF
-       mouse-blink
-     ENDOF
-     DROP END-CASE ( все остальное не обрабатываем)
-     0
   ENDOF
 
   W: wm_measureitem OF
@@ -1077,6 +1349,12 @@ WINAPI: lstrcmpi KERNEL32.DLL
   W: wm_initmenupopup OF
      wparam fill-dynsubmenu
      0
+  ENDOF
+
+  \ Бобик сдох, в смысле Explorer упал и запущен заново
+  taskbar-created OF
+    hide-into-tray
+    0 
   ENDOF
 
   DROP lparam wparam message hwnd DefWindowProcA
@@ -1112,33 +1390,24 @@ WINAPI: lstrcmpi KERNEL32.DLL
   TO secret-window
 ;
 
-: hide-into-tray
-  88 HERE :nsize !
-  secret-window HERE :nhwnd !
-  0x7 ( есть все) HERE :nflags !
-  fromtray HERE :ncallback !
-  mouse16 HERE :nicon !
-  " Секретное меню" HERE :ntip ZMOVE
-  HERE 0 ( nim_add) Shell_NotifyIconA
-  0= " Не могу добавить иконку в системную панель" ?error
-;
+\ ----------------------------------------
+
+WINAPI: RegisterWindowMessageA USER32.DLL
 
 : RUN
   ['] my-error TO ERROR
 \  STARTLOG
   start-dir MAX_PATH GetCurrentDirectoryA DROP
+  " TaskbarCreated" RegisterWindowMessageA TO taskbar-created
   create-hidden-window
-  load-icons
-  make-right-menu
-  hide-into-tray
   create-wordlist
-  ask-mainmenu-location
-  create-wastestack
-  create-all-hashes
-  read-my-file
+  open-remote-channel
+  hide-into-tray
+  read-my-files
   MessageLoop
-  delete-wastestack
-  del-all-hashes
+  remove-from-tray
+  ch delete-channel
+\ все остальное уничтожит сама система
   BYE ;
 
 REMOVE-ALL-CONSTANTS
