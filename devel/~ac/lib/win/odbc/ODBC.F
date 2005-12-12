@@ -102,6 +102,19 @@ VECT vSQLDumpError ' SQLDumpError TO vSQLDumpError
   mem FREE THROW
   ior THROW
 ;
+: SQL_ConnError { ior fodbc \ pcbErrorMsg ErrNat mem -- }
+  ior SQL_OK? IF EXIT THEN
+  2000 ALLOCATE THROW -> mem
+
+  ^ pcbErrorMsg 1000 mem 6 + \ pDiagInfo
+  mem 1900 + ( pfNativeError ) mem ( pszSqlState)
+  1 fodbc odbcConn @ 2 ( SQL_HANDLE_DBC)
+  SQLGetDiagRec 100 <>
+  IF BL mem 5 + C! mem pcbErrorMsg 6 + vSQLDumpError
+  THEN
+  mem FREE THROW
+  ior THROW
+;
 : StartSQL ( -- fodbc flag )  \ true - OK
   { \ fodbc }
   /ODBC ALLOCATE THROW -> fodbc
