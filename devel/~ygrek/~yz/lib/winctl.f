@@ -6,7 +6,7 @@
 \ ч. 2. Стандартные элементы интерфейса и их размещение
 \ Ю. Жиловец, 2.02.2002
 
-REQUIRE WINDOWS... ~yz/lib/winlib.f
+REQUIRE WINDOWS... ~ygrek/~yz/lib/winlib.f
 
 0 VALUE common-tooltip
 
