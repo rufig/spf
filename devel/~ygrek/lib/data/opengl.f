@@ -1,0 +1,32 @@
+WINAPI: glViewport        OpenGL32.DLL
+WINAPI: glMatrixMode      OpenGL32.DLL
+WINAPI: glLoadIdentity    OpenGL32.DLL
+WINAPI: glShadeModel      OpenGL32.DLL
+WINAPI: glClearColor      OpenGL32.DLL
+WINAPI: glClearDepth      OpenGL32.DLL
+WINAPI: glEnable          OpenGL32.DLL
+WINAPI: glDepthFunc       OpenGL32.DLL
+WINAPI: glHint            OpenGL32.DLL
+WINAPI: glClear           OpenGL32.DLL
+WINAPI: wglMakeCurrent    OpenGL32.DLL
+WINAPI: wglDeleteContext  OpenGL32.DLL
+WINAPI: wglCreateContext  OpenGL32.DLL
+WINAPI: wglSwapBuffers    OpenGL32.DLL
+WINAPI: glGetError        OpenGL32.DLL
+WINAPI: glTranslatef      OpenGL32.DLL
+WINAPI: glBegin           OpenGL32.DLL
+WINAPI: glEnd             OpenGL32.DLL
+WINAPI: glVertex3f        OpenGL32.DLL
+WINAPI: glColor3f         OpenGL32.DLL
+WINAPI: glRotatef         OpenGL32.DLL
+WINAPI: glGenTextures     OpenGL32.DLL
+WINAPI: glBindTexture     OpenGL32.DLL
+WINAPI: glTexImage2D      OpenGL32.DLL
+WINAPI: glTexParameteri   OpenGL32.DLL
+WINAPI: glTexCoord2f      OpenGL32.DLL
+WINAPI: glPixelStoref     OpenGL32.DLL
+WINAPI: glPixelStorei     OpenGL32.DLL
+
+WINAPI: gluPerspective    Glu32.DLL 
+WINAPI: gluOrtho2D         Glu32.DLL 
+
