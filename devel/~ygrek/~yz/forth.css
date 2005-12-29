@@ -1,0 +1,207 @@
+BODY {
+ font-family: "Arial","Helvetica",sans-serif;
+ font-size: 11pt;
+ text-align: justify;
+}
+
+P {
+ margin-left: 2em;
+ margin-right: 2em;
+}
+
+H1 {
+ font-size: 14pt;
+ color: white;
+ background: blue;
+ font-weight: bold;
+ text-indent: 0.5em;
+ padding-bottom: 0.5em;
+}
+
+H2 {
+ margin-top: 2em;
+ font-size: 12pt;
+ color: blue;
+}
+
+U {
+ color: rgb(240,0,50);
+ font-weight: bold;
+ text-decoration: none;
+}
+
+I {
+ font-style: normal;
+ color: rgb(30,130,130);
+}
+
+TT {
+ font-weight: bold;
+ font-family: monotype;
+}
+
+TABLE {
+ font-size: 12pt;
+}
+
+
+SPAN {
+ font-size: 9pt;
+}
+
+TABLE.head {
+  border: none;
+  width: 90%;
+  align: left;
+  background-image: url("pic/grad.jpg");
+  background-repeat: repeat-y;
+  background-repeat: no-repeat;
+  background-position: left center;
+}
+
+TABLE.libhead {
+  border: none;
+  width: 100%;
+  background-image: url("pic/grad.jpg");
+  background-repeat: repeat-y;
+  background-repeat: no-repeat;
+  background-position: left center;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+TD.head {
+  padding-left: 1em;
+  max-width: 2%;
+  width: 2%;
+}
+
+TD.headn {
+  width: 10em;
+  font-size: 14pt;
+  color: blue;
+  padding-left: 1em;
+  width: 20%;
+  max-width: 20%;
+}
+
+TD.libheadn {
+  width: 10em;
+  font-size: 15pt;
+  color: blue;
+  padding-left: 1em;
+  width: 20%;
+  max-width: 20%;
+}
+
+TD.head A IMG {
+  border: none;
+  vertical-align: middle;
+  float: right;
+}
+
+TD.libspf A IMG, TD.libdoc A IMG {
+  border: none;
+  vertical-align: middle;
+  float: left;
+}
+
+TD.libspf {
+  background-color: #E2F5FA;
+  width: 4%;
+  max-width: 4%;
+  border-bottom: solid white 0.5em;
+}
+
+TD.libdoc {
+  background-color: #FEFEF4;
+  width: 5%;
+  max-width: 5%;
+  border-bottom: solid white 0.5em;
+}
+
+TD.libname {
+  background-color: #E2F5FA;
+  font-size: 13pt;
+  border: none;
+  max-width: 20%;
+  width: 20%;
+  font-weight: bold;
+  padding-left: 1em;
+  border-bottom: solid white 0.5em;
+}
+
+TD.libdescr {
+  background-color: #FEFEF4;
+  padding-left: 2em;
+  border-bottom: solid white 0.5em;
+}
+
+TABLE.lib {
+ width: 95%;
+}
+
+TABLE.win {
+ font-size: 10pt;
+ background: #DDEEEE;
+ margin-top: 0.5em;
+}
+
+CODE, DIV.e {
+  display: block;
+  background: rgb(250,250,220);
+  font-family: monospace;
+  font-weight: bold;
+  border: none;
+  white-space: pre;
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 1em;
+  width: 90%;
+}
+
+KBD {
+ color: rgb(150,150,150);
+}
+
+TABLE.st {
+ border: solid black 1pt;
+ width: 100%;
+}
+
+TH.st {
+ border: solid black 1pt;
+ background: rgb(207,250,225);
+ text-align: left;
+ font-size: 12pt;
+ font-weight: bold;
+ padding-bottom: 0.5em;
+}
+
+TD.st1 {
+  border: solid black 1pt;
+  width: 20%;
+  background: rgb(230,250,180);
+  font-weight: bold;
+  font-size: 11pt;
+  text-indent: 0.5em;
+}
+
+TD.st1def {
+  border: solid black 1pt;
+  width: 20%;
+  background: rgb(230,250,180);
+  font-weight: bold;
+  font-size: 11pt;
+  text-indent: 0.5em;
+  color: blue;
+}
+
+TD.st2 {
+  border: solid rgb(70,70,70) 1pt;
+  width: 80%;
+  background: rgb(245,245,200);
+  font-weight: normal;
+  font-size: 11pt;
+  text-indent: 0.5em;
+}
