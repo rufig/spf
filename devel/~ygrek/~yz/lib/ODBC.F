@@ -266,6 +266,8 @@ EXPORT
   fodbc odbcConn @
   SQLConnect
 ;
+: DisconnectSQL ( fodbc -- ) odbcConn @ SQLDisconnect DROP ;
+
 : ResultCols ( fodbc -- n )
   { \ ncol }
   ^ ncol SWAP odbcStat @ SQLNumResultCols DROP ncol
