@@ -17,9 +17,10 @@ CR .( Loading Intel Pentium MMX disassembler...)
 
 WARNING 0!
 
-REQUIRE [IF] ~mak\CompIF.f
+REQUIRE [DEFINED] lib/include/tools.f
+\ REQUIRE [IF] ~mak\CompIF.f
 REQUIRE CASE lib\ext\case.f
-REQUIRE WITHIN lib\include\core-ext.f
+\ REQUIRE WITHIN lib\include\core-ext.f
 
 : DEFER VECT ;
 
@@ -1409,7 +1410,7 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
 \       COUNT  + 1+ 
 ;
 
-[DEFINED] F. [IF]
+[DEFINED] G. [IF]
 
 : FLIT8.  ( ADDR -- ADDR' )
        ." FLITERAL: "
