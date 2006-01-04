@@ -1,6 +1,9 @@
-<?xml version="1.0" encoding="Windows-1251"?>
-<!DOCTYPE hrc SYSTEM "../hrc.dtd">
-<?xml-stylesheet type="text/xsl" href="../hrc.xsl"?>
+<?xml version="1.0" encoding='Windows-1251'?>
+<!DOCTYPE hrc PUBLIC "-//Cail Lomecb//DTD Colorer HRC take5//EN"
+  "http://colorer.sf.net/2003/hrc.dtd">
+<hrc version="take5" xmlns="http://colorer.sf.net/2003/hrc"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://colorer.sf.net/2003/hrc http://colorer.sf.net/2003/hrc.xsd">
 <!--
    Forth Syntax
 With Help of
@@ -8,31 +11,30 @@ With Help of
    Loktev Nikola <loktev@niisi.msk.ru> based on P-forth
    Remake by Dmitry Yakimov
    cail: add new worddiv parameter
-   Andrey Filatkin - remake for colorer4ever_patch2
+   Andrey Filatkin - remake for colorer take5
 -->
-<hrc>
+   <type name="forth">
 
-<define name="forString"   value="dString"/>
-<define name="forComment"  value="dComment"/>
-<define name="forWord"     value="dKeyword"/>
-<define name="forResWord"  value="dLabel"/>
-<define name="forNumb"     value="dNumber"/>
-<define name="forWordDefinition"  value="dOperator"/>
+      <import type="def"/>
 
-<scheme name="str2">
-</scheme>
+      <region name="forString"   parent="String"/>
+      <region name="forComment"  parent="Comment"/>
+      <region name="forWord"     parent="Keyword"/>
+      <region name="forResWord"  parent="Label"/>
+      <region name="forNumb"     parent="Number"/>
+      <region name="forWordDefinition"  parent="Identifier"/>
 
 <scheme name="Forthint">
 
    <!-- comments -->
    <regexp match="/(\s|^)\\((\s.*$)|$)/" region="forComment"/>
-   <block start="/(\s|^)\((\s|$)/" end="/\)/" scheme="comment" region="forComment"/>
-   <block start="/(\s|^)\(\*(\s|$)/" end="/(\s|^)\*\)\M(\s|$)/" scheme="comment" region="forComment"/>
+   <block start="/(\s|^)\((\s|$)/" end="/\)/" scheme="Comment" region="forComment"/>
+   <block start="/(\s|^)\(\*(\s|$)/" end="/(\s|^)\*\)\M(\s|$)/" scheme="Comment" region="forComment"/>
    <!-- strings -->
    <regexp match='/(\s|^)(\S+(\"\s))(.*?)(\")/' region2="forWord" region4="forString" region5="forWord"/>
-   <block start='/(\s|^)\"(\s|$)/' end='/\"/' scheme="str2" region="forString" region00="forWord" region10="forWord"/>
+   <block start='/(\s|^)\"(\s|$)/' end='/\"/' scheme="Comment" region="forString" region00="forWord" region10="forWord"/>
 
-   <keywords ignorecase="ignorecase" worddiv="/[\s]/" region="forWord">
+   <keywords ignorecase="yes" worddiv="[\s]" region="forWord">
      <word name="CLOSE-FILE"/>
      <word name="CREATE-FILE-SHARED"/>
      <word name="CREATE-FILE"/>
@@ -58,7 +60,7 @@ With Help of
      <word name="WRITE-LINE"/>
    </keywords>
 
-   <keywords ignorecase="ignorecase" worddiv="/[\s]/" region="forWord">
+   <keywords ignorecase="yes" worddiv="[\s]" region="forWord">
      <word name='0&lt;/'/>
      <word name='0&lt;>/'/>
      <word name='0='/>
@@ -95,7 +97,7 @@ With Help of
      <word name="#>"/>
    </keywords>
 
-   <keywords ignorecase="ignorecase" worddiv="/[\s]/" region="forWord">
+   <keywords ignorecase="yes" worddiv="[\s]" region="forWord">
      <word name="#S"/>
      <word name="#TIB"/>
      <word name="*/MOD"/>
@@ -111,7 +113,7 @@ With Help of
      <word name="W/O"/>
    </keywords>
 
-   <keywords ignorecase="ignorecase" worddiv="/[\s]/" region="ForWord">
+   <keywords ignorecase="yes" worddiv="[\s]" region="forWord">
       <word name="!"/>
       <word name=".S"/>
       <word name="#"/>
@@ -292,7 +294,7 @@ With Help of
 
    <!-- numbers -->
    <regexp match="/(\s|^)\m(0x)?[\da-fA-F]+L?\M(\s|$)/" region="forNumb"/>
-   <regexp match="/\b[0-9]+\B/" region="forNumb"/>
+   <regexp match="/\b[0-9]+\b/" region="forNumb"/>
 
    <regexp match="/(TO|AT)\s+(\S+)/" region1="forResWord" region2="forWord"/>
 
@@ -311,13 +313,14 @@ With Help of
    <regexp match="/(\s|^)(\[COMPILE\])\s+(\S+)/" region2="forResWord" region3="forWord"/>
 
    <!-- Immediate -->
-   <block start="/(\s|^)\m\[\M(\s|$)/" end="/(\s|^)(\]|\;)\M(\s|$)/" scheme="Forth" region="dRow" region00="forResWord" region10="forResWord"/>
+   <block start="/(\s|^)\m\[\M(\s|$)/" end="/(\s|^)(\]|\;)\M(\s|$)/" scheme="forth" region="Insertion" region00="forResWord" region10="forResWord"/>
 
    <!-- LNM: Local variables -->
-   <regexp match="/(\s|^)(\{\s)([^\|\\].*?\s+)?((\||\\)\s+(.*?)\s+)?((\-\-)\s+(.*?)\s+)?(\})/"
-           region2="dSymbol2" region3="dParam2" region5="dSymbol2" region6="dVar2" region7="dVar2" region8="dSymbol2" region9="dComment" regiona="dSymbol2"/>
+   <regexp match="/(\s|^)(\{\s+)([^\|\\].*?\s+)?((\||\\)\s+(.*?\s+))?((\-\-)\s+(.*?\s+))?(\})/"
+           region2="Symbol" region3="Parameter" region5="Symbol" region6="Var"
+           region8="Symbol" region9="Comment" region0="Symbol"/>
 
-   <keywords ignorecase="ignorecase" worddiv="/[\s]/" region="forResWord">
+   <keywords ignorecase="yes" worddiv="[\s]" region="forResWord">
       <word name="OF"/>
       <word name="ENDOF"/>
       <word name="CASE"/>
@@ -345,7 +348,7 @@ With Help of
       <word name="}}"/>
    </keywords>
 
-   <keywords ignorecase="ignorecase" worddiv="/[\s]/" region="ForWord">
+   <keywords ignorecase="yes" worddiv="[\s]" region="forWord">
       <word name=":"/>
       <word name="'"/>
       <word name="..."/>
@@ -363,31 +366,31 @@ With Help of
    </keywords>
 </scheme>
 
-<scheme name="Forth">
+<scheme name="forth">
    <inherit scheme="Forthint"/>
 
    <!-- def words -->
    <block start="/(\s|^)\m(:|M:|\.\.:)\s+(\S+)\M(\s|$)/"  end="/(\s|^)(;|;\.\.)\M(\s|$)/"
-       scheme="forthcomp" region00="dFunction" region10="forWord"
+       scheme="forthcomp" region00="Function" region10="forWord"
        region02="forWord" region03="forWordDefinition"/>
    <block start="/(\s|^)\m(:NONAME|:M)\M(\s|$)/"  end="/(\s|^);\M(\s|$)/"
-       scheme="forthcomp" region00="dFunction" region10="forWord" region02="forWord"/>
-   <regexp match="/(\s|^)(WINAPI:)\s+(\S+)\s+(\S+)/" region="dFunction" region2="forWord" region3="forWordDefinition" region4="dPath"/>
-   <regexp match="/(\s|^)(CREATE)\s+(\S+)/"          region="dFunction" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(VARIABLE)\s+(\S+)/"        region="dFunction" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(USER(-VALUE)?)\s+(\S+)/"   region="dFunction" region2="forWord" region4="forWordDefinition"/>
-   <regexp match="/(\s|^)(CONSTANT)\s+(\S+)/"        region="dFunction" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(VOCABULARY)\s+(\S+)/"      region="dFunction" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(VECT)\s+(\S+)/"            region="dFunction" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(VALUE)\s+(\S+)/"           region="dFunction" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(--)\s+(\S+)/"              region="dFunction" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(CODE)\s+(\S+)/"            region="dFunction" region2="forWord" region3="forWordDefinition"/>
+       scheme="forthcomp" region00="Function" region10="forWord" region02="forWord"/>
+   <regexp match="/(\s|^)(WINAPI:)\s+(\S+)\s+(\S+)/" region="Function" region2="forWord" region3="forWordDefinition" region4="Path"/>
+   <regexp match="/(\s|^)(CREATE)\s+(\S+)/"          region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(VARIABLE)\s+(\S+)/"        region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(USER(-VALUE)?)\s+(\S+)/"   region="Function" region2="forWord" region4="forWordDefinition"/>
+   <regexp match="/(\s|^)(CONSTANT)\s+(\S+)/"        region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(VOCABULARY)\s+(\S+)/"      region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(VECT)\s+(\S+)/"            region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(VALUE)\s+(\S+)/"           region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(--)\s+(\S+)/"              region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(CODE)\s+(\S+)/"            region="Function" region2="forWord" region3="forWordDefinition"/>
 
-   <regexp match="/(\s|^)(REQUIRE)\s+(\S+)\s+(\S+)/"  region2="forWord" region3="forWord" region4="dPath"/>
+   <regexp match="/(\s|^)(REQUIRE)\s+(\S+)\s+(\S+)/"  region2="forWord" region3="forWord" region4="Path"/>
    <regexp match="/(\s|^)(CHAR)\s+(\S+)/" region2="forWord" region3="forString"/>
    <regexp match="/(\s|^)(\.\(\s)(.*?)(\))/" region2="forWord" region3="forString" region4="forWord"/>
    <regexp match="/(')\s+(\S+)/"  region1="forResWord" region2="forWord"/>
 
 </scheme>
-
+</type>
 </hrc>
