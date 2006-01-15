@@ -24,32 +24,40 @@ REQUIRE  ENUM  ~ygrek/lib/enum.f
 
 : >ASCIIZ ( addr u -- z ) OVER + 0 SWAP C! ;
 
-values  path spf cnt farmanager scriptmap ;
+values  edit-path spf ntype farmanager scriptmap ;
 
 WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 
 : RG_DeleteKey ( addr u -- ior )
   >ASCIIZ EK @ RegDeleteKeyA ;
 
-: FindN ( addr u -- )
+: CheckSPFType ( addr u -- )
   S" Description" 2SWAP StrValue
   S" sp-forth files" COMPARE 0= IF DROP TRUE EXIT THEN
-  cnt 1+ TO cnt
+  ntype 1+ TO ntype
 ;
 
-: TypeN A" Type{cnt}" STR@ ;
+: TypeN A" Type{ntype}" STR@ ;
 
+: FindSPFType
+  S" SOFTWARE\Far\Associations" HKEY_CURRENT_USER RG_OpenKey THROW EK !
+
+  0 TO ntype
+  ['] CheckSPFType EK @ RG_ForEachKey
+;
+
+: path spf ASCIIZ> ;
 
 PROC: install
 
- spf 512 ERASE
- spf path -text@
+ spf 1024 ERASE
+ spf edit-path -text@
 
  HKEY_LOCAL_MACHINE EK !
 
 \ [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe]
 \ @="C:\\spf\\spf4.exe"
- spf ASCIIZ> S" " S" SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" StrValue!
+ path S" " S" SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" StrValue!
 
 
  HKEY_CLASSES_ROOT EK !
@@ -72,7 +80,7 @@ PROC: install
 
 \ [HKEY_CLASSES_ROOT\spf\DefaultIcon]
 \ @="c:\\spf\\spf4.exe,0"
-  spf ASCIIZ> A" {s},0" STR@ S" " S" spf\DefaultIcon"  StrValue!
+  path A" {s},0" STR@ S" " S" spf\DefaultIcon"  StrValue!
 
 (
 [HKEY_CLASSES_ROOT\spf\Shell]
@@ -82,7 +90,7 @@ PROC: install
 \ [HKEY_CLASSES_ROOT\spf\Shell\Open\Command]
 \ @="c:\\spf\\spf4.exe \"%1\" %*"
 
- spf ASCIIZ> A" {s} {''}%1{''} %*" STR@ S" " S" spf\Shell\Open\Command" StrValue!
+ path A" {s} {''}%1{''} %*" STR@ S" " S" spf\Shell\Open\Command" StrValue!
 
 
  scriptmap -state@ IF
@@ -91,27 +99,23 @@ PROC: install
 
    \ [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map]
    \ ".spf"="c:\\spf\\spf4.exe %s"
-   spf ASCIIZ>
+   path
    A" {s} %s" STR@  S" .spf" S" SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map" StrValue!
 
    \ [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map]
    \ ".spf"="c:\\spf\\spf4.exe %s"
-   spf ASCIIZ> 
+   path 
    A" {s} %s" STR@ S" .spf" S" SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map" StrValue!
  THEN
 
 
-
  farmanager -state@ IF
 
-  S" SOFTWARE\Far\Associations" HKEY_CURRENT_USER RG_OpenKey THROW EK !
-
-  0 TO cnt
-  ['] FindN EK @ RG_ForEachKey
+  FindSPFType
 
   S" sp-forth files" S" Description" TypeN StrValue!
   S" " S" Edit" TypeN StrValue!
-  A" {spf ASCIIZ>} !.!" STR@ S" Execute" TypeN StrValue!
+  A" {path} !.!" STR@ S" Execute" TypeN StrValue!
   S" *.f,*.spf" S" Mask" TypeN StrValue!
   S" " S" View" TypeN StrValue!
  THEN
@@ -142,6 +146,31 @@ PROC: uninstall
 
 PROC;
 
+PROC: generate { \ h orig -- }
+
+ spf 1024 ERASE
+ spf edit-path -text@
+
+ spf ASCIIZ> + 2+ TO orig
+ spf orig orig spf - CMOVE
+
+ spf
+ orig ASCIIZ> OVER + SWAP DO
+  I C@ [CHAR] \ = 
+  IF [CHAR] \  OVER C! 1+ [CHAR] \ OVER C! 1+
+  ELSE I C@ OVER C! 1+ THEN
+ LOOP
+ 0 SWAP C!
+
+ FindSPFType
+ S" spf_install.reg" R/W CREATE-FILE THROW TO h
+ A" {A-STR::S' spf_install.template' A-STR::EVAL-FILE}" STR@ h WRITE-FILE THROW
+ h CLOSE-FILE THROW
+
+ " File spf_install.reg written successfully" 0 winmain set-status
+PROC;
+
+
 PROC: quit
   W: wm_close winmain send DROP
 PROC;
@@ -169,7 +198,7 @@ PROC;
     GRID
     " Path to spf.exe : " label |
     ===
-    edit  200 this limit-edit -xspan  this TO path  |
+    edit  200 this limit-edit -xspan  this TO edit-path  |
     ===
     " Associate FAR Manager" checkbox  this TO farmanager |
     ===
@@ -177,16 +206,17 @@ PROC;
     -bevel
     GRID; -xspan |
     ===
-    "  Register  " button install this -command! |
-    " Unregister "  button uninstall this -command! |
-    "    Quit    " button   quit this -command! |
+    "  Register  " button   install this -command! |
+    " Unregister " button uninstall this -command! |
+    "  Generate  " button  generate this -command! |
+    "    Quit    " button      quit this -command! |
   GRID;
 
     winmain create-status
 
   winmain -grid!
 
-  ModuleName >ASCIIZ path -text!
+  ModuleName >ASCIIZ edit-path -text!
   TRUE farmanager -state!
   FALSE scriptmap -state!
   check
