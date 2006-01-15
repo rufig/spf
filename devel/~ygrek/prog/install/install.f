@@ -18,16 +18,27 @@ EXPORT
 
 REQUIRE  RG_CreateKey  ~ac/lib/win/registry2.f
 REQUIRE  button  ~yz/lib/winctl.f
+REQUIRE  ENUM  ~ygrek/lib/enum.f
+
+:NONAME 0 VALUE ; ENUM values
 
 : >ASCIIZ ( addr u -- z ) OVER + 0 SWAP C! ;
 
-0 VALUE path
-0 VALUE spf
+values  path spf cnt farmanager scriptmap ;
 
 WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 
 : RG_DeleteKey ( addr u -- ior )
   >ASCIIZ EK @ RegDeleteKeyA ;
+
+: FindN ( addr u -- )
+  S" Description" 2SWAP StrValue
+  S" sp-forth files" COMPARE 0= IF DROP TRUE EXIT THEN
+  cnt 1+ TO cnt
+;
+
+: TypeN A" Type{cnt}" STR@ ;
+
 
 PROC: install
 
@@ -73,18 +84,37 @@ PROC: install
 
  spf ASCIIZ> A" {s} {''}%1{''} %*" STR@ S" " S" spf\Shell\Open\Command" StrValue!
 
- HKEY_LOCAL_MACHINE EK !
 
-\ [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map]
-\ ".spf"="c:\\spf\\spf4.exe %s"
+ scriptmap -state@ IF
 
- spf ASCIIZ>
- A" {s} %s" STR@  S" .spf" S" SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map" StrValue!
+   HKEY_LOCAL_MACHINE EK !
 
-\ [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map]
-\ ".spf"="c:\\spf\\spf4.exe %s"
- spf ASCIIZ>
- A" {s} %s" STR@ S" .spf" S" SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map" StrValue!
+   \ [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map]
+   \ ".spf"="c:\\spf\\spf4.exe %s"
+   spf ASCIIZ>
+   A" {s} %s" STR@  S" .spf" S" SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map" StrValue!
+
+   \ [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map]
+   \ ".spf"="c:\\spf\\spf4.exe %s"
+   spf ASCIIZ> 
+   A" {s} %s" STR@ S" .spf" S" SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map" StrValue!
+ THEN
+
+
+
+ farmanager -state@ IF
+
+  S" SOFTWARE\Far\Associations" HKEY_CURRENT_USER RG_OpenKey THROW EK !
+
+  0 TO cnt
+  ['] FindN EK @ RG_ForEachKey
+
+  S" sp-forth files" S" Description" TypeN StrValue!
+  S" " S" Edit" TypeN StrValue!
+  A" {spf ASCIIZ>} !.!" STR@ S" Execute" TypeN StrValue!
+  S" *.f,*.spf" S" Mask" TypeN StrValue!
+  S" " S" View" TypeN StrValue!
+ THEN
 
  " Registry values installed successfully" 0 winmain set-status
 
@@ -133,19 +163,23 @@ PROC;
   0 dialog-window TO win
   " Arial Cyr" 10 create-font default-font
   win TO winmain
-  " SP-Forth Installer" win -text!
+  " SP-Forth Registrator" win -text!
 
   GRID
     GRID
     " Path to spf.exe : " label |
     ===
     edit  200 this limit-edit -xspan  this TO path  |
+    ===
+    " Associate FAR Manager" checkbox  this TO farmanager |
+    ===
+    " Associate Script Map" checkbox  this TO scriptmap |
     -bevel
     GRID; -xspan |
     ===
-    "  Install  " button install this -command! |
-    " Uninstall "  button uninstall this -command! |
-    "   Quit  " button   quit this -command! |
+    "  Register  " button install this -command! |
+    " Unregister "  button uninstall this -command! |
+    "    Quit    " button   quit this -command! |
   GRID;
 
     winmain create-status
@@ -153,6 +187,8 @@ PROC;
   winmain -grid!
 
   ModuleName >ASCIIZ path -text!
+  TRUE farmanager -state!
+  FALSE scriptmap -state!
   check
 
   win wincenter
