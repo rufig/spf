@@ -129,11 +129,11 @@ ALSO SO NEW: sqlite3.dll
     pzTail ?DUP IF ASCIIZ> ELSE S" " THEN  -> u -> addr
   u 3 < UNTIL
 ;
-: 3DROP 2DROP DROP ;
+: 3DROP0 2DROP DROP 0 ;
 
 : db3_exec_ { addr u sqh \ res -- }
   \ упрощенная форма вызова exec для CREATE, INSERT и т.п.
-  addr u ^ res ['] 3DROP sqh db3_exec
+  addr u ^ res ['] 3DROP0 sqh db3_exec
 ;
 : db3_insert_id ( sqh -- id ) \ ROWID, OID, or _ROWID_
   \ id первичного ключа последней вставки
