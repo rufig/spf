@@ -24,7 +24,7 @@ REQUIRE  ENUM  ~ygrek/lib/enum.f
 
 : >ASCIIZ ( addr u -- z ) OVER + 0 SWAP C! ;
 
-values  edit-path spf ntype farmanager scriptmap ;
+values  edit-path spf ntype farmanager scriptmap explorer ;
 
 WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 
@@ -55,48 +55,61 @@ PROC: install
 
  HKEY_LOCAL_MACHINE EK !
 
-\ [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe]
-\ @="C:\\spf\\spf4.exe"
- path S" " S" SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" StrValue!
-
+ explorer -state@  farmanager -state@ OR  scriptmap -state@ OR IF
+   \ [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe]
+   \ @="C:\\spf\\spf4.exe"
+   path S" " S" SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" StrValue!
+ ELSE
+   S" SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" RG_DeleteKey DROP
+ THEN
 
  HKEY_CLASSES_ROOT EK !
 
-\ [HKEY_CLASSES_ROOT\.spf]
-\ @="spf"
-\ "Content Type"="text/plain"
- S" spf" S" " S" .spf" StrValue!
- S" text/plain" S" Content Type" S" .spf" StrValue!
+ explorer -state@ IF
+    \ [HKEY_CLASSES_ROOT\.spf]
+    \ @="spf"
+    \ "Content Type"="text/plain"
+    S" spf" S" " S" .spf" StrValue!
+    S" text/plain" S" Content Type" S" .spf" StrValue!
 
-\ [HKEY_CLASSES_ROOT\.f]
-\ @="spf"
-\ "Content Type"="text/plain"
- S" spf" S" " S" .f" StrValue!
- S" text/plain" S" Content Type" S" .f" StrValue!
+    \ [HKEY_CLASSES_ROOT\.f]
+    \ @="spf"
+    \ "Content Type"="text/plain"
+    S" spf" S" " S" .f" StrValue!
+    S" text/plain" S" Content Type" S" .f" StrValue!
+  
+    \ [HKEY_CLASSES_ROOT\spf]
+    \ @="Forth File"
+     S" Forth file" S" " S" spf" StrValue!
 
-\ [HKEY_CLASSES_ROOT\spf]
-\ @="Forth File"
- S" Forth file" S" " S" spf" StrValue!
+    \ [HKEY_CLASSES_ROOT\spf\DefaultIcon]
+    \ @="c:\\spf\\spf4.exe,0"
+      path A" {s},0" STR@ S" " S" spf\DefaultIcon"  StrValue!
 
-\ [HKEY_CLASSES_ROOT\spf\DefaultIcon]
-\ @="c:\\spf\\spf4.exe,0"
-  path A" {s},0" STR@ S" " S" spf\DefaultIcon"  StrValue!
+    (
+    [HKEY_CLASSES_ROOT\spf\Shell]
+    [HKEY_CLASSES_ROOT\spf\Shell\Open]
+    [HKEY_CLASSES_ROOT\spf\Shell\Open\Command])
 
-(
-[HKEY_CLASSES_ROOT\spf\Shell]
-[HKEY_CLASSES_ROOT\spf\Shell\Open]
-[HKEY_CLASSES_ROOT\spf\Shell\Open\Command])
+    \ [HKEY_CLASSES_ROOT\spf\Shell\Open\Command]
+    \ @="c:\\spf\\spf4.exe \"%1\" %*"
 
-\ [HKEY_CLASSES_ROOT\spf\Shell\Open\Command]
-\ @="c:\\spf\\spf4.exe \"%1\" %*"
+     path A" {s} {''}%1{''} %*" STR@ S" " S" spf\Shell\Open\Command" StrValue!
+ ELSE
+    S" .spf" RG_DeleteKey DROP 
+    S" .f"   RG_DeleteKey DROP
+    S" spf\DefaultIcon"  RG_DeleteKey DROP
+    S" spf\Shell\Open\Command" RG_DeleteKey DROP
+    S" spf\Shell\Open" RG_DeleteKey DROP
+    S" spf\Shell" RG_DeleteKey DROP
+    S" spf" RG_DeleteKey DROP
+ THEN
 
- path A" {s} {''}%1{''} %*" STR@ S" " S" spf\Shell\Open\Command" StrValue!
 
+ HKEY_LOCAL_MACHINE EK !
 
  scriptmap -state@ IF
-
-   HKEY_LOCAL_MACHINE EK !
-
+ 
    \ [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map]
    \ ".spf"="c:\\spf\\spf4.exe %s"
    path
@@ -106,6 +119,9 @@ PROC: install
    \ ".spf"="c:\\spf\\spf4.exe %s"
    path 
    A" {s} %s" STR@ S" .spf" S" SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map" StrValue!
+ ELSE
+   S" " S" .spf" S" SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map" StrValue!
+   S" " S" .spf" S" SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map" StrValue!
  THEN
 
 
@@ -121,28 +137,6 @@ PROC: install
  THEN
 
  " Registry values installed successfully" 0 winmain set-status
-
-PROC;
-
-PROC: uninstall
-
- HKEY_LOCAL_MACHINE EK !
- S" SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" RG_DeleteKey THROW
-
- HKEY_CLASSES_ROOT EK ! 
- S" .spf" RG_DeleteKey THROW
- S" .f"   RG_DeleteKey THROW
- S" spf\DefaultIcon"  RG_DeleteKey THROW
- S" spf\Shell\Open\Command" RG_DeleteKey THROW
- S" spf\Shell\Open" RG_DeleteKey THROW
- S" spf\Shell" RG_DeleteKey THROW
- S" spf" RG_DeleteKey THROW
-
- HKEY_LOCAL_MACHINE EK !
- S" " S" .spf" S" SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map" StrValue!
- S" " S" .spf" S" SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map" StrValue!
-
- " Registry values uninstalled successfully" 0 winmain set-status
 
 PROC;
 
@@ -192,23 +186,26 @@ PROC;
   0 dialog-window TO win
   " Arial Cyr" 10 create-font default-font
   win TO winmain
-  " SP-Forth Registrator" win -text!
+  " SP-Forth registry installer" win -text!
 
   GRID
-    GRID
     " Path to spf.exe : " label |
     ===
     edit  200 this limit-edit -xspan  this TO edit-path  |
     ===
-    " Associate FAR Manager" checkbox  this TO farmanager |
+    GRID
+    " Associate spf.exe, .spf and .f file types within: " label |
     ===
-    " Associate Script Map" checkbox  this TO scriptmap |
+    " Explorer" checkbox  this TO explorer |
+    ===
+    " FAR Manager" checkbox  this TO farmanager |
+    ===
+    " Script Map" checkbox  this TO scriptmap |
     -bevel
     GRID; -xspan |
     ===
-    "  Register  " button   install this -command! |
-    " Unregister " button uninstall this -command! |
-    "  Generate  " button  generate this -command! |
+    "   Apply  " button   install this -command! |
+    " Generate .reg file" button  generate this -command! |
     "    Quit    " button      quit this -command! |
   GRID;
 
@@ -217,6 +214,7 @@ PROC;
   winmain -grid!
 
   ModuleName >ASCIIZ edit-path -text!
+  TRUE explorer -state!
   TRUE farmanager -state!
   FALSE scriptmap -state!
   check
