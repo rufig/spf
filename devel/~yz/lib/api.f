@@ -19,6 +19,8 @@ kernel32 k32 get-handle
 user32   u32 get-handle
 gdi32    g32 get-handle
 
+VARIABLE WINAP
+
 : api ( adr z "function" -- ) 
  CREATE , , DOES>
  >R
