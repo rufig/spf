@@ -12,10 +12,10 @@ EXPORT
 
 : A" POSTPONE " ; IMMEDIATE
 : STR@ STR@ ;
-: '' '' ;
 
 ;MODULE
 
+\ REQUIRE  load-bitmap   ~vsp/lib/images.f
 REQUIRE  RG_CreateKey  ~ac/lib/win/registry2.f
 REQUIRE  button  ~yz/lib/winctl.f
 REQUIRE  ENUM  ~ygrek/lib/enum.f
@@ -25,6 +25,16 @@ REQUIRE  ENUM  ~ygrek/lib/enum.f
 : >ASCIIZ ( addr u -- z ) OVER + 0 SWAP C! ;
 
 values  edit-path spf ntype farmanager scriptmap explorer ;
+
+100 VALUE anime-step-ms
+: anime-status-main ( -- ) 
+  "  \\" 0 winmain set-status anime-step-ms PAUSE
+  "  |" 0 winmain set-status anime-step-ms PAUSE
+  "  /" 0 winmain set-status anime-step-ms PAUSE
+  "  -" 0 winmain set-status anime-step-ms PAUSE
+;
+
+: set-main-status ( z -- ) 2 0 DO anime-status-main LOOP  0 winmain set-status ;
 
 WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 
@@ -136,7 +146,7 @@ PROC: install
   S" " S" View" TypeN StrValue!
  THEN
 
- " Registry values installed successfully" 0 winmain set-status
+ " Registry values updated successfully" set-main-status
 
 PROC;
 
@@ -158,10 +168,14 @@ PROC: generate { \ h orig -- }
 
  FindSPFType
  S" spf_install.reg" R/W CREATE-FILE THROW TO h
- A" {A-STR::S' spf_install.template' A-STR::EVAL-FILE}" STR@ h WRITE-FILE THROW
+
+\ A" {S' spf_install.template' DEPTH . EVAL-FILE}" STR@ h WRITE-FILE THROW
+ S" spf_install.template" A-STR::EVAL-FILE
+ A" {s}" STR@ h WRITE-FILE THROW
+
  h CLOSE-FILE THROW
 
- " File spf_install.reg written successfully" 0 winmain set-status
+ " File spf_install.reg written successfully" set-main-status
 PROC;
 
 
