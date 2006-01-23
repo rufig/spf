@@ -1,5 +1,3 @@
-\ MIME-парсер из сервера acIMAP
-
 REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
 
@@ -8,6 +6,7 @@ USER MimePart           \ временный указатель на текущую mime-часть
 USER CurrentHeader      \ временный указатель на текущее поле заголовка
 USER NestingLevel       \ текущий уровень вложенности
 USER uBodySectionHeader \ модификатор. ≈сли TRUE, то GetMimePart отдаст заголовок
+USER Rfc822MessageSize
 
 0
 CELL -- mhNextHeader
@@ -259,8 +258,24 @@ USER uPhParamNum
 ;
 ' ParseMime TO vParseMime
 
-: ParseMessageFile ( addr u -- mp )
-  FILE 2DUP + 5 - 5 " {CRLF}.{CRLF}" DUP >R STR@ COMPARE 0= R> STRFREE
-  IF 3 - THEN
+USER _LASTFILE : LastFileFree _LASTFILE @ ?DUP IF FREE THROW _LASTFILE 0! THEN ;
+
+: ParseMessageFile { addr u -- mp }
+  addr u FILE 
+  DUP IF OVER _LASTFILE ! THEN
+
+  2DUP 4096 MIN S" From:" SEARCH NIP NIP 0=
+  IF DROP FREE THROW _LASTFILE 0!
+    addr u
+  " From: message_parser
+To: you
+Subject: {s} - not a valid message file
+
+not a valid message file
+" STR@
+  THEN
+
+  2DUP + 5 - 5 " {CRLF}.{CRLF}" DUP >R STR@ COMPARE 0= R> STRFREE
+  IF 3 - THEN DUP Rfc822MessageSize !
   ['] ParseMime EVALUATE-WITH
 ;
