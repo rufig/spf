@@ -37,17 +37,17 @@
   STATE @ >R STATE 0!
   BEGIN
     REFILL
-  WHILE
+  WHILE ( n )
     NextWord ['] ?SLITERAL CATCH
-    IF DROP S" Error while error decoding!" -1
-    ELSE OVER = DUP IF 2DROP >IN 0! [CHAR] \ PARSE
-                       TUCK SYSTEM-PAD SWAP MOVE
-                       SYSTEM-PAD SWAP -1
-                    THEN
-    THEN IF R> STATE ! EXIT THEN
-  REPEAT DROP R> STATE !
-  SOURCE TUCK SYSTEM-PAD SWAP CMOVE \ Unknown error
-  SYSTEM-PAD SWAP
+    IF 2DROP DROP S" Error while error decoding!" R> STATE ! EXIT THEN
+    OVER = IF ( n )
+      DROP >IN 0! [CHAR] \ PARSE
+      TUCK SYSTEM-PAD SWAP MOVE
+      SYSTEM-PAD SWAP   R> STATE ! EXIT
+    THEN
+  REPEAT ( n ) 0
+  <# SOURCE SWAP 1+ SWAP 1- HOLDS #S #> \ Unknown error
+  R> STATE !
 ;
 
 : DECODE-ERROR ( n u -- c-addr u )
