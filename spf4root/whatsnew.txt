@@ -1136,11 +1136,24 @@ note: Люди, не делайте так: 0 LIT, HERE CELL-
 + Значительно улучшена оптимизация кода, особенно в тесте MD5
 
 
-current:
+20 января 2006  4.00.0.18:
 
-! фикс оптимизатора
+! фиксы оптимизатора
 ! фикс вывода в INVALID_HANDLE в H-STDOUT при запуске GUI приложения,
   с учетом багофичи Windows explorer.
++  FNOP  FLOAT>DATA32  DATA>FLOAT32
+!  F>D  FINIT  FDROP
+-  ?IE ?ZE ?OF
+* векторизация SHEADER
+! фикс SPACES на отрицательные числа
++ FINIT добавлен в дефолтный обработчик исключений
+! упоминания PAD заменены на SYSTEM-PAD
+! одинаковое поведение TYPE в Win98 и WinNT в gui приложениях
+! фикс возможного переполнения буфера ANSI>
+! removed debug info from screen-length
+! добавлена проверка в ANSI>OEM OEM>ANSI и HOLD
+! слово CUT-PATH не должно изменять поданную на вход строку.
+! сравнение адресов беззнаковое в HOLD
  
 
 Значки в whatnews.txt:

@@ -129,6 +129,26 @@ Correcting build:)
 + some cosmetic improvements
 + improved code optimization
 
+20.Jan.2006 4.00.018
+
+! fixes in optimizer
+! fixed issue with gui programs and ms explorer
++  FNOP  FLOAT>DATA32  DATA>FLOAT32
+!  F>D  FINIT  FDROP
+-  ?IE ?ZE ?OF
+* vector SHEADER
+! improved SPACES (negative numbers)
++ added FINIT to exception handler
+! references to PAD replaced by SYSTEM-PAD
+! fixed issue with gui programs and ms explorer
+! unified behaviour of TYPE on Win98 and WinNT in gui application
+! fixed potential buffer overrun in ANSI>
+! removed debug info from screen-length
+! added check in ANSI>OEM OEM>ANSI and HOLD
+! CUT-PATH should not change the passed string
+! unsigned address compare in the word HOLD
+
+
 * - Changes
 ! - Fixed error
 + - New
