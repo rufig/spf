@@ -129,7 +129,7 @@ Correcting build:)
 + some cosmetic improvements
 + improved code optimization
 
-20.Jan.2006 4.00.018
+26.Jan.2006 4.00.017
 
 ! fixes in optimizer
 ! fixed issue with gui programs and ms explorer
@@ -147,6 +147,7 @@ Correcting build:)
 ! added check in ANSI>OEM OEM>ANSI and HOLD
 ! CUT-PATH should not change the passed string
 ! unsigned address compare in the word HOLD
+! The word ERROR displays unknown ior-s too. (DECODE-ERROR) fixed. (~ruv) 
 
 
 * - Changes
