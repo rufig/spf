@@ -15,6 +15,7 @@ ALSO SO NEW: sqlite3.dll
   0 CONSTANT SQLITE_STATIC
   5 CONSTANT SQLITE_BUSY
 100 CONSTANT SQLITE_ROW
+    VARIABLE DB3_DEBUG
 
 (
 #define SQLITE_OK           0   /* Successful result */
@@ -46,10 +47,16 @@ ALSO SO NEW: sqlite3.dll
 #define 	SQLITE_NOTADB   26
 #define SQLITE_ROW         100  /* sqlite_step[] has another row ready */
 #define SQLITE_DONE        101  /* sqlite_step[] has finished executing */
+
+#define SQLITE_INTEGER  1
+#define SQLITE_FLOAT    2
+#define SQLITE_TEXT     3
+#define SQLITE_BLOB     4
+#define SQLITE_NULL     5
 )
 
 : db3_error? { ior addr u sqh -- }
-  ior IF \ CR addr u TYPE ."  failed: " 
+  ior IF DB3_DEBUG @ IF CR addr u TYPE ."  failed: " ior . THEN
          sqh 1 sqlite3_errmsg ASCIIZ> ER-U ! ER-A ! \ TYPE CR
          sqh 1 sqlite3_errcode DUP 1 = IF DROP -2 ELSE 30000 + THEN THROW
       THEN
@@ -79,7 +86,11 @@ ALSO SO NEW: sqlite3.dll
     IF I ppStmt db3_col UNLOOP EXIT THEN
   LOOP S" "
 ;
+: db3_coltype ( n ppStmt -- n )
+  2 sqlite3_column_type
+;
 : db3_prepare { addr u sqh \ pzTail ppStmt -- pzTail ppStmt }
+  DB3_DEBUG @ IF CR ." ====================" CR addr u TYPE CR THEN
   ^ pzTail ^ ppStmt u addr sqh 5 sqlite3_prepare
   S" DB3_PREPARE" sqh db3_error?
   pzTail ppStmt
@@ -88,9 +99,12 @@ ALSO SO NEW: sqlite3.dll
   ppStmt 1 sqlite3_bind_parameter_count 0 ?DO
     I 1+ ppStmt 2 sqlite3_bind_parameter_name
     ?DUP 
-    IF ASCIIZ> SFIND
-       IF SQLITE_STATIC SWAP EXECUTE SWAP I 1+ ppStmt 5 sqlite3_bind_text THROW
-       ELSE TYPE ."  - bind name not found" THEN
+    IF DUP >R ASCIIZ> SFIND
+       IF RDROP SQLITE_STATIC SWAP EXECUTE SWAP I 1+ ppStmt 5 sqlite3_bind_text THROW
+       ELSE R> 1+ ASCIIZ> SFIND
+            IF SQLITE_STATIC SWAP EXECUTE SWAP I 1+ ppStmt 5 sqlite3_bind_text THROW
+            ELSE TYPE ."  - bind name not found" THEN
+       THEN
     THEN
   LOOP
 ;
