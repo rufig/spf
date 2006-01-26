@@ -36,13 +36,13 @@ VARIABLE MEM_DEBUG
   MEM_DEBUG @
   IF
    ." <m"  OVER .
-\   ." (" R@ WordByAddr TYPE ." ):"
+   ." (" R@ WordByAddr TYPE ." ):"
   THEN
 ;
 : MS_FREE 
   MEM_DEBUG @
   IF
-\   ." :(" R@ WordByAddr TYPE ." )"
+   ." :(" R@ WordByAddr TYPE ." )"
    SPACE DUP . ." M!>" CR
   THEN
   FREE
@@ -51,7 +51,7 @@ VARIABLE MEM_DEBUG
 : FREE ( addr -- ior )
   MEM_DEBUG @
   IF
-\   ." :(" R@ WordByAddr TYPE ." )"
+   ." :(" R@ WordByAddr TYPE ." )"
    SPACE DUP . ." m>" CR
   THEN
   >R
@@ -67,6 +67,27 @@ VARIABLE MEM_DEBUG
     THEN
     @
   REPEAT DROP RDROP
+  301 \ элемент, который просят освободить, не был выделен
+;
+: RESIZE ( a-addr1 u -- a-addr2 ior ) \ 94 MEMORY
+  MEM_DEBUG @
+  IF
+   ." :RS(" R@ WordByAddr TYPE ." )"
+   SPACE OVER . ." m>" CR
+  THEN
+  >R >R
+  MEM_STACK_PTR
+  BEGIN
+    DUP @ \ пераметром цикла будет не адрес элемента, а указатель на адрес
+  WHILE
+    DUP @ CELL+ @ R@ =
+    IF R> R> RESIZE 2>R
+       DUP @ DUP >R @ SWAP ! \ исключили из списка записью след.элемента
+       R> MS_FREE THROW
+       2R> OVER STACK_MEM EXIT
+    THEN
+    @
+  REPEAT DROP R> RDROP
   301 \ элемент, который просят освободить, не был выделен
 ;
 : HEAP-COPY ( addr u -- addr1 ) \ опеределим заново, т.к. может использоваться
