@@ -91,7 +91,13 @@ ALSO SO NEW: sqlite3.dll
 ;
 : db3_prepare { addr u sqh \ pzTail ppStmt -- pzTail ppStmt }
   DB3_DEBUG @ IF CR ." ====================" CR addr u TYPE CR THEN
-  ^ pzTail ^ ppStmt u addr sqh 5 sqlite3_prepare
+
+  BEGIN \ ждем освобождения доступа к БД
+    ^ pzTail ^ ppStmt u addr sqh 5 sqlite3_prepare DUP SQLITE_BUSY =
+  WHILE
+    DROP 1000 PAUSE
+  REPEAT
+
   S" DB3_PREPARE" sqh db3_error?
   pzTail ppStmt
 ;
