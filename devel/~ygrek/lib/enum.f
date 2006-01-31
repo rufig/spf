@@ -7,29 +7,28 @@
 
 \ Пример в конце
 
-: GetWordPosition ( -- f )
+: CheckNextWord ( -- ? )
   BEGIN
    >IN @ 
    NextWord
-    DUP 0=
+   DUP 0=
   WHILE
    2DROP
    DROP
    REFILL 0= ABORT" Need semicolon as the delimiter!"
   REPEAT
-  S" ;" COMPARE 
-  DUP IF SWAP >IN ! ELSE NIP THEN
+  S" ;" COMPARE IF >IN ! TRUE ELSE DROP FALSE THEN
 ;
 
 : ENUM
   CREATE ,
-  DOES> @ ( xt )
+  DOES> @ ( xt ) >R
   BEGIN
-    GetWordPosition
+   CheckNextWord
   WHILE
-   DUP EXECUTE 
+   R@ EXECUTE
   REPEAT
-  DROP
+  RDROP
 ;
 
  
@@ -37,13 +36,28 @@
 \ Пример
 REQUIRE F. lib/include/float2.f
 
-:NONAME 2e FVALUE ; ENUM floats                          
+:NONAME 1e FVALUE ; ENUM floats                          
 :NONAME 23 CONSTANT ; ENUM consts
-:NONAME CREATE DOES> DROP S" Hello,world" TYPE ; ENUM hellos
+:NONAME CREATE DOES> DROP S" Hello,world" TYPE CR ; ENUM hellos
+:NONAME DUP CONSTANT 1 + ; ENUM 1+consts
 
+\ пример одинаково инициализированных переменных
 consts a1
 a2 a3 
     a4 
 ;
 hellos h1 h2 h3 ; 
+
+\ пример инициализирумых переменных
 floats f1 f2 f3 ;
+
+10 1+consts c1 c2 c3 ; DROP
+
+\ check
+
+a1 a2 + a4 - . .( = ) a3 . CR 
+h1 h2 h3
+f1 G. CR 
+f2 G. CR
+f3 G. CR
+c1 . c2 . c3 .
