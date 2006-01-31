@@ -12,6 +12,7 @@ EXPORT
 
 : A" POSTPONE " ; IMMEDIATE
 : STR@ STR@ ;
+: '' '' ;
 
 ;MODULE
 
