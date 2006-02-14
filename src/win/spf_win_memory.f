@@ -32,8 +32,8 @@ VARIABLE EXTRA-MEM
 
 : CREATE-HEAP ( -- )
 \ Создать хип текущего потока.
-  0 8000 0 HeapCreate >R
-  USER-OFFS @ EXTRA-MEM @ CELL+ + 9 R@ HeapAlloc CELL+ TlsIndex!
+  0 8000 1 HeapCreate >R
+  USER-OFFS @ EXTRA-MEM @ CELL+ + 8 R@ HeapAlloc CELL+ TlsIndex!
   R> THREAD-HEAP !
   R> R@ TlsIndex@ CELL- ! >R
 ;
@@ -58,7 +58,7 @@ DECIMAL
 \ для "служебных целей" (например, хранения класса созданного объекта)
 \ по умолчанию заполняется адресом тела процедуры, вызвавшей ALLOCATE
 
-  CELL+ 9 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
+  CELL+ 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
   DUP IF R@ OVER ! CELL+ 0 ELSE -300 THEN
 ;
 
@@ -86,6 +86,6 @@ DECIMAL
 \ согласно операции FREE.
 \ Если операция не прошла, a-addr2 равен a-addr1, область памяти a-addr1 не 
 \ изменяется, и ior - зависящий от реализации код ввода-вывода.
-  CELL+ SWAP CELL- 9 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapReAlloc
+  CELL+ SWAP CELL- 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapReAlloc
   DUP IF CELL+ 0 ELSE -300 THEN
 ;
