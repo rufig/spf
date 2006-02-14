@@ -34,16 +34,18 @@ REQUIRE NOTFOUND  ~ac/lib/ns/notfound.f
   CLASS@ ?DUP IF VOC-NAME. ELSE ." FORTH" THEN
 ;
 
+' SEARCH-WORDLIST BEHAVIOR  CONSTANT SWL_PREVNS
+
 : SEARCH-WORDLIST-R ( c-addr u oid -- 0 | xt 1 | xt -1 )
 \ Искать в текущем словаре и в словарях-предках, как в фортах до-94.
 \ Но использоваться будет только для "классовых" вызовов - INVOKE,
 \ не пересекаясь с обычным поиском.
 
   DUP >R FORTH-WORDLIST = >R 2DUP S" SEARCH-WORDLIST" COMPARE 0= R> AND
-  IF 2DROP RDROP ['] SEARCH-WORDLIST1 -1 EXIT THEN \ чтобы избежать рекурсии на поиске SEARCH-WORDLIST через SEARCH-WORDLIST :)
+  IF 2DROP RDROP SWL_PREVNS -1 EXIT THEN \ чтобы избежать рекурсии на поиске SEARCH-WORDLIST через SEARCH-WORDLIST :)
   R>
 
-  >R 2DUP R@ SEARCH-WORDLIST1 ?DUP IF 2SWAP 2DROP RDROP EXIT THEN
+  >R 2DUP R@ SWL_PREVNS EXECUTE ?DUP IF 2SWAP 2DROP RDROP EXIT THEN
   R> DUP FORTH-WORDLIST = IF DROP 2DROP 0 EXIT THEN \ выше искать некуда
   CLASS@ DUP 0= IF DROP FORTH-WORDLIST THEN RECURSE \ ищем выше по линии наследования
 ;
@@ -65,7 +67,7 @@ REQUIRE NOTFOUND  ~ac/lib/ns/notfound.f
 \ Если определение найдено, вернуть выполнимый токен xt и единицу (1), если 
 \ определение немедленного исполнения, иначе минус единицу (-1).
   DUP CLASS@ DUP 0= SWAP FORTH-WORDLIST = OR
-  IF SEARCH-WORDLIST1
+  IF SWL_PREVNS EXECUTE
   ELSE DUP S" SEARCH-WORDLIST" INVOKE THEN
 ;
 ' SEARCH-WORDLIST-V TO SEARCH-WORDLIST
