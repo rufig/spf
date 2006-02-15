@@ -93,11 +93,12 @@ WARNING @ WARNING 0!
 WARNING !
 
 : ENUM-FORTH-VOCS ( xt -- )
-\ перебор только обычных форт-словарей (у которых CLASS = 0 )
+\ перебор только обычных форт-словарей (у которых CLASS равен 0 или FORTH-WORDLIST )
 \ xt ( wid -- )
   >R VOC-LIST @ BEGIN DUP WHILE
     DUP CELL+ ( a wid ) 
-    DUP CLASS@ 0= IF R@ ROT >R  EXECUTE R> ELSE DROP THEN
+    DUP CLASS@ DUP 0= SWAP FORTH-WORDLIST = OR
+    IF R@ ROT >R  EXECUTE R> ELSE DROP THEN
     @
   REPEAT DROP RDROP
 ;
