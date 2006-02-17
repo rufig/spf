@@ -3,13 +3,16 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Поскольку в SPF4 стек данных и стек возвратов расположенные в
   одном адресном пространстве стека возвратов операционной системы,
-  то существует опасность порча стека возвратов возврастающим стеком 
+  то существует опасность порча стека возвратов возрастающим стеком 
   данных. 
-    Предлагаю защитить стек возвратов от стека данных 
-  средствами защиты виртуальной памяти ОС. 
-    А также устанавливать корректный номер ошибки в случае переполнения 
+    Предлагаю: 
+    1. Защитить стек возвратов от стека данных средствами защиты 
+  виртуальной памяти ОС. 
+    2. Устанавливать корректный номер ошибки в случае переполнения 
   стека, анализируя регистры в ContextRecord во время исключения 
   "0xC0000005L ACCESS_VIOLATION".
+    3. При выходе из callback проверять глубину стека с выдачей
+  соответствующего сообщения.
 
      В SPF4 стек имеет такой вид:
   xxxxFFFF-StackReserved   --- макс. глубина стека зарезервированная ОС.
@@ -24,7 +27,8 @@
   xxxxFFFF-StackReserved   --- макс. глубина стека зарезервированная ОС.
                            } стек возвратов [где-то здесь RP@]
   xxxxFFFF-r-ST_RES        --- R0 @ =
-                           } неиспользуемый участок из-за выравнивания на PAGE-SIZE
+                           } неиспользуемый участок из-за 
+                             выравнивания на PAGE-SIZE [**]
   xxxxFFFF-r-ST_RES+unused --- переменная "SP-PROTECTED" содержит адрес участка,
                                который выровнен на 4Кб.  
                            } участок защищённый с помощью VirtualProtect/PAGE_READONLY
@@ -39,16 +43,27 @@
 
     [*] В приведённых именах символ '-' заменён на '_', 
         чтоб не перепутать с вычитанием.
+    [**] Размер unused зависит от r, который зависит от ОС.
+         [у меня в WinXP unused=132б, а в Win98SE - 160б.] 
 
   Шишминцев Сергей [mailto:ss@forth.org.ru]
   2006.02.15
-  PS: Кстати, а защита от исчерпание стека нужна? 
+
+    TODO и всякие идеи
+    ~~~~~~~~~~~~~~~~~~
+    1. Почему-то сработывает THROW в AT-THREAD-STARTING/AT-THREAD-FINISHING.
+    2. DECOMMIT неиспользуемых страниц стека данных и установка
+       PAGE_GUARD/PAGE_NOACCESS на первой неиспользуемой странице,
+       чтобы ОС сама сделала COMMIT в нужное время. [сработает ли?]
+    3. src/spf_win_api.f::_WNDPROC-CODE: в место ST-RES читать 
+       StackCommitSize прямо из PE-заголовка. [IMAGE-BASE 0xE4 + @ R-RESERVE -]
+    z. Кстати, а защита от исчерпание стека нужна? 
 
     История
     ~~~~~~~
   2006.02.16 
   ~~~~~~~~~~
-    Заработало под Win98. Почему-то несрабатывал PAGE_NOACCESS.
+    Заработало под Win98. Почему-то не срабатывал PAGE_NOACCESS.
   Будем довольствоваться PAGE_READONLY.
     Предположение: поскольку под Win98 нету PAGE_GUARD, то сама ОС 
   перехватывает PAGE_NOACCESS и при обращении к "SP-PROTECTED"
@@ -59,8 +74,19 @@
   [а PAGE_GUARD+PAGE_READONLY дасть "0xC0000005L ACCESS_VIOLATION"]
     Кому интересно вот программа на C с протоколами под Win98 и WinXP:
   http://forth.org.ru/~ss/stack-guard-test.zip
-  http://bookmania.com.ru/stack-guard-test.zip
     
+  2006.02.17
+  ~~~~~~~~~~
+    - Инициализация в AT-PROCESS-STARTING лишняя.
+    * Более надёжное выявление ошибки "-3 Переполнение стека" 
+      [условие "<=", вместо "="]
+    + Проверка состояния стека при выходе из callback.
+      При выходе из callback на стеке данных ожидается одна, и 
+      только ячейка. Остальные ситуации трактуем как ошибка стека.
+    * Перед SAVE обнуляю H-STDOUT, а потом проверяю его в PROTECT-RETURN-STACK.
+      Иначе, "spf_guarded.exe" при перенаправлении в файл молча вылетает.
+      [Может CONSOLE-HANDLES перенести в PROCESS-INIT ???]
+
     Литература
     ~~~~~~~~~~
   [1] MSDN "Thread Stack Size" 
@@ -82,10 +108,9 @@ WINAPI: VirtualProtect  KERNEL32.DLL
 2 CONSTANT PAGE_READONLY
 0x100 CONSTANT PAGE_GUARD
 
-: VIRTUAL-PROTECT-PAGE ( addr new-prot -- old-prot 0|err )
+: VIRTUAL-PROTECT-PAGE ( addr new-prot -- old-prot ior )
   2>R 
-  0 SP@ R> PAGE-SIZE R> VirtualProtect 
-  0= IF DROP GetLastError  ELSE 0 THEN 
+  0 SP@ R> PAGE-SIZE R> VirtualProtect ERR
 ;
 
 USER-VALUE SP-PROTECTED    \ адрес защищённой страницы стека в текущеи потоке
@@ -98,20 +123,26 @@ USER-VALUE SP-OLD-PROTECT  \ исходный флаг защиты
 
 : PROTECT-RETURN-STACK
   R0 @ PAGE-SIZE + PAGE-SIZE / PAGE-SIZE * DUP TO SP-PROTECTED
-  ." Protecting at "  DUP HEX . DECIMAL CR
-  ." Unused stack space: " SP-PROTECTED R0 @ - . ." bytes" CR
+  H-STDOUT IF
+    ." Protecting at "  DUP HEX . DECIMAL CR
+    ." Unused stack space: " SP-PROTECTED R0 @ - . ." bytes" CR
+    ." Maximal stack depth: " S0 @ SP-PROTECTED PAGE-SIZE + - CELL / . ." cells" CR
+  THEN
   PAGE_READONLY VIRTUAL-PROTECT-PAGE xTHROW TO SP-OLD-PROTECT \ . . OK
-  ." Old protection: " SP-OLD-PROTECT . CR
+  H-STDOUT IF
+    ." Old protection: " SP-OLD-PROTECT . CR
+  THEN
 ;
 
 : EXC-DUMP-20060215 ( exc-info -- ) 
   \ Вывод корректных сообщений в случае переполнения стека.
   IN-EXCEPTION @ IF DROP EXIT THEN
   TRUE IN-EXCEPTION !
-  \ достаём ContextRecord->Ebp
-  3 PICK 180 + @ SP-PROTECTED PAGE-SIZE + = IF -3 OVER ! ( Переполнение стека) THEN
+  \ достаём ContextRecord->Ebp == SP@
+  \ 3 PICK 180 + @ ." EBP=" HEX U.  CR
+  3 PICK 180 + @ SP-PROTECTED PAGE-SIZE + > 0= IF -3 OVER ! ( Переполнение стека) THEN
   3 PICK 180 + @ S0 @ > IF -4 OVER ! ( Исчерпание стека) THEN
-  \ достаём ContextRecord->Esp
+  \ достаём ContextRecord->Esp == RP@
   3 PICK 196 + @ R0 @ > IF -6 OVER ! ( Исчерпание стека возвратов!) THEN
   \ 3 PICK 196 + @ S0 @ 0x100000 < IF -5 OVER ! ( Переполнение стека возвратов) THEN
   FALSE IN-EXCEPTION !
@@ -119,17 +150,30 @@ USER-VALUE SP-OLD-PROTECT  \ исходный флаг защиты
 ;
 ' EXC-DUMP-20060215 TO <EXC-DUMP>
  
-..: AT-THREAD-STARTING SP-PROTECTED 0= IF PROTECT-RETURN-STACK THEN ;..
-..: AT-PROCESS-STARTING PROTECT-RETURN-STACK ;..
+\ это лишнее ..: AT-PROCESS-STARTING PROTECT-RETURN-STACK ;..
+..: AT-THREAD-STARTING PROTECT-RETURN-STACK ;..
 ..: AT-THREAD-FINISHING
-    SP-PROTECTED SP-OLD-PROTECT VIRTUAL-PROTECT-PAGE xTHROW DROP ;.. 
+  \ При выходе из callback на стеке данных ожидается одна, и только ячейка
+  \ Остальные ситуации трактуем как ошибка стека.
+  \ Попробуйте spf4.exe :NONAME 30 0 DO DROP LOOP ; TASK: x  0 x START DROP
+  \ [WinXP: вылетает молча]
+  SP@ S0 @ CELL- < IF ." -3 Stack overflow" CR -3 xTHROW THEN
+  SP@ S0 @ CELL- > IF ." -4 Stack underflow" CR -4 xTHROW THEN
+  \ на всякий случай, снимем защиту, что бы, вдруг, ОС не напоролась.
+  SP-PROTECTED SP-OLD-PROTECT VIRTUAL-PROTECT-PAGE xTHROW DROP 
+;.. 
 \ ST-RES содержит адрес на длину форт-стека в байтах
 \ для всех CALLBACK:
-0x7000 ST-RES ! \ меньше (PAGE-SIZE*3) нельзя.
-                \ больше 0x8000 нельзя (см. StackCommitSize в spf-stub.f, [1])
+0x7000 ST-RES ! \ меньше (PAGE-SIZE*3) нежелательно,
+                \ а меньше чем (PAGE-SIZE*2) нельзя.
+                \ больше 0x8000 тоже вызовет ошибки (см. StackCommitSize в spf-stub.f, [1])
+                \ Eсли стека данных нужно больше чем 0x8000 байт, то
+                \ отредактируйте PE-заголовок в "spf[_guarded].exe".
+                \ (например с помощью http://hte.sourceforge.net, F6, "pe/header",
+                \  "optional header: NT fields", "stack commit".)
 
 \ А чтоб подействовало на основной поток нужно сделать SAVE
-\ S" spf4_guarded.exe" SAVE
+\ 0 TO H-STDOUT S" spf4_guarded.exe" SAVE BYE
 \ и попробуйте:
 \  spf4_guarded.exe : tt 10000 0 DO I LOOP ; tt
 \                                            ^  -3 Переполнение стека
