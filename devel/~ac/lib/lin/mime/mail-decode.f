@@ -58,6 +58,9 @@ REQUIRE { ~ac/lib/locals.f
 ;
 : FromNameEmail ( addr u -- addr1 u1 addr2 u2 )
   ['] (FromNameEmail) EVALUATE-WITH
+  2DUP S" @" SEARCH NIP NIP 0= >R
+  2SWAP 2DUP S" @" SEARCH NIP NIP R> AND
+  IF EXIT ELSE 2SWAP THEN
 ;
 \ ==========================================================
 : (Strip")
@@ -198,8 +201,14 @@ CREATE CRLF.CRLF 13 C, 10 C, CHAR . C, 13 C, 10 C,
 \    " {s}" STR@ BregexpFree
 \  THEN
 ;
+CREATE dbCRLFCRLF 13 C, 10 C, 13 C, 10 C,
+
 : debase64 ( addr u -- addr1 u1 ) { \ i }
 \ версия, игнорирующая пробельные символы внутри исходной строки
+
+\ отрезаем левые приписки после base64-блока, которые иногда добавляются форвардерами почты
+  2DUP dbCRLFCRLF 4 SEARCH IF NIP - ELSE 2DROP THEN
+
   DUP 0= IF 2DROP 4 ALLOCATE THROW abase ! abase @ 0 EXIT THEN
   0 SWAP DUP 4 / 3 * CELL+ ALLOCATE THROW abase ! lbase 0! nbase 0!
   0 ?DO
@@ -214,6 +223,7 @@ CREATE CRLF.CRLF 13 C, 10 C, CHAR . C, 13 C, 10 C,
     THEN
   LOOP 2DROP abase @ lbase @ nbase @ - 0 MAX
 ;
+
 USER _LASTMSGHTML
 
 : MessageHtml { mp s \ tf_dq tf_db tf_pl -- addr u }
