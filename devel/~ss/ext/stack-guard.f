@@ -1,4 +1,9 @@
 ( 
+!!! Сейчас это расширение актуально только для отладки производных 
+!!! слов TASK:, и основного потока. Если у Вас есть производные 
+!!! CALLBACK:, то ожидайте обновлений или предлагайте ваши
+!!! идеи и реализации. [см. историю - 2006.02.18]
+
     Защита стека возвратов от повреждения стеком данных в SPF4
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Поскольку в SPF4 стек данных и стек возвратов расположенные в
@@ -51,6 +56,7 @@
 
     TODO и всякие идеи
     ~~~~~~~~~~~~~~~~~~
+    0. Инициализаци стека возвратов в _WNDPROC-CODE. 
     1. Почему-то сработывает THROW в AT-THREAD-STARTING/AT-THREAD-FINISHING.
     2. DECOMMIT неиспользуемых страниц стека данных и установка
        PAGE_GUARD/PAGE_NOACCESS на первой неиспользуемой странице,
@@ -86,6 +92,23 @@
     * Перед SAVE обнуляю H-STDOUT, а потом проверяю его в PROTECT-RETURN-STACK.
       Иначе, "spf_guarded.exe" при перенаправлении в файл молча вылетает.
       [Может CONSOLE-HANDLES перенести в PROCESS-INIT ???]
+
+  2006.02.18
+  ~~~~~~~~~~
+    Оказывается AT-THREAD-STARTING вызывается для _ВСЕХ_ CALLBACK:, а
+  не только TASK: [ну кто бы мог подумать!] В таком случае надо вносить 
+  изменения в _WNDPROC-CODE, чтобы активировать нужное количество 
+  страниц стека [чего я так не хотел ;(]
+    Кроме того, некоторые фортёры используют тот-же CALLBACK: для передачи 
+  функций сишным-библиотекам, которые вызываются по соглашениям языка C 
+  [т.н. CDECL или SYSV/X86 ABI.]  Но вместо, того чтобы написать 
+  CDECL-CALLBACK:, просто оставляют все аргументы на стеке и вызвавшая 
+  C-библиотека сама дропает их [нету на фортёров Задорнова, [и не надо!]]
+  Замечание: На ~af/lib/QuickWNDPROC.f это расширение влияет.
+  ~~~~~~~~~  И в результате на ~ac/lib/lin/curl/curl.f тоже.
+    IMHO, сейчас это расширение коректно работает только с TASK:,
+  QUICK_WNDPROC и основным потоком.
+
 
     Литература
     ~~~~~~~~~~
@@ -157,14 +180,14 @@ USER-VALUE SP-OLD-PROTECT  \ исходный флаг защиты
   \ Остальные ситуации трактуем как ошибка стека.
   \ Попробуйте spf4.exe :NONAME 30 0 DO DROP LOOP ; TASK: x  0 x START DROP
   \ [WinXP: вылетает молча]
-  SP@ S0 @ CELL- < IF ." -3 Stack overflow" CR -3 xTHROW THEN
+  \ SP@ S0 @ CELL- < IF ." -3 Stack overflow" CR -3 xTHROW THEN
   SP@ S0 @ CELL- > IF ." -4 Stack underflow" CR -4 xTHROW THEN
   \ на всякий случай, снимем защиту, что бы, вдруг, ОС не напоролась.
   SP-PROTECTED SP-OLD-PROTECT VIRTUAL-PROTECT-PAGE xTHROW DROP 
 ;.. 
 \ ST-RES содержит адрес на длину форт-стека в байтах
 \ для всех CALLBACK:
-0x7000 ST-RES ! \ меньше (PAGE-SIZE*3) нежелательно,
+0x7000 ST-RES ! \ меньше (PAGE-SIZE*3) нельзя.
                 \ а меньше чем (PAGE-SIZE*2) нельзя.
                 \ больше 0x8000 тоже вызовет ошибки (см. StackCommitSize в spf-stub.f, [1])
                 \ Eсли стека данных нужно больше чем 0x8000 байт, то
@@ -193,6 +216,18 @@ USER-VALUE SP-OLD-PROTECT  \ исходный флаг защиты
   0x7000 CELL /  0 DO DROP LOOP 
 ;
 
+( ~af\lib\QuickWNDPROC.f 
+:NONAME
+  ." In ~af's callback" CR
+; QUICK_WNDPROC quick_callback
+quick_callback API-CALL BYE)
+
+:NONAME
+  ." In Forth callback" CR
+  \ sp-pre-overflow
+  ." Out callback" CR
+; CELL CALLBACK: callback
+
 :NONAME
   10 PAUSE
   100000 MIN
@@ -206,6 +241,7 @@ USER-VALUE SP-OLD-PROTECT  \ исходный флаг защиты
   ." R0="  R0 @ . CR
   DECIMAL
   sp-pre-overflow
+  \ 0 callback API-CALL DROP
   \ sp-overflow 
   \ SP-PROTECTED DUP HEX .  @ .
   1 PAUSE
