@@ -79,7 +79,7 @@ VECT ServiceProc  ' NOOP TO ServiceProc
   ServiceProc
   0
 ;
-' (ServiceMain) WNDPROC: ServiceMain
+' (ServiceMain) 2 CELLS CALLBACK: ServiceMain \ WNDPROC: ServiceMain
 
 : StartService ( addr u -- flag )
   HERE DUP >R SWAP DUP ALLOT MOVE 0 C,
