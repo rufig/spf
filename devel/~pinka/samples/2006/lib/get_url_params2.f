@@ -38,16 +38,16 @@ USER uPARAMS-TBL
   PARSE-URN-PARAMS uPARAMS-TBL !
 ;
 
-: DumpParam ( name-a name-u addr -- )
+: DumpParam2 ( name-a name-u addr -- )
   COUNT 2SWAP
   " <tr><td>{s}</td><td>{s}</td></tr>" EVALUATE.str @ S+
 ;
-: DumpParams ( -- a u )
+: DumpParams2 ( -- a u )
   uPARAMS-TBL @ 0= IF 0. EXIT THEN
   TEMP-WORDLIST DUP >R ALSO CONTEXT !
   GET-CURRENT >R DEFINITIONS
    S" str" CREATED " <table>" DUP , ( s )
-    ['] DumpParam uPARAMS-TBL @ all-hash
+    ['] DumpParam2 uPARAMS-TBL @ all-hash
    DUP S" </table>" ROT STR+
   R> SET-CURRENT
   PREVIOUS R> FREE-WORDLIST
