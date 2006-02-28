@@ -99,7 +99,7 @@ CODE F<              \ *
        FCOMPP
        FSTSW  EAX
        SAHF
-       JB SHORT @@1
+       JBE SHORT @@1
        MOV EBX, # -1
 @@1:   MOV EAX, EBX
        RET
