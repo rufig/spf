@@ -4,7 +4,9 @@
     ¬ отличии от USER-VALUE в SPF4, содержимое €чеек TASK-VALUE 
   совпадает дл€ всех вложенных CALLBACK: в текущем потоке.
     Ћиба написана под впечатлением ~af/lib/QuickWNDPROC.f
- 
+    ≈сли task-values.f используетс€ в SPF-DLL, то позаботьтесь
+  об освобождении TLS в DLL_PROCESS_DETACH - вызовите FREE-TASK-VALUES.
+
   Ўишминцев —ергей [mailto:ss@forth.org.ru]
   2006.02.23
 
@@ -23,6 +25,10 @@ WINAPI: TlsGetValue KERNEL32.DLL
   TlsAlloc 
   DUP 0xFFFFFFFF = IF GetLastError ELSE 0 THEN  
 ;
+: TLS-FREE ( index -- ior )
+  TlsFree ERR
+;
+
 : TLS! ( x index -- ior )
   TlsSetValue ERR
 ;
@@ -48,40 +54,46 @@ WINAPI: TlsGetValue KERNEL32.DLL
   TASK-VALUES HERE TO TASK-VALUES
     ,  \ св€занный список переменных
 ;
+
 : INIT-TASK-VALUES
    \ выдел€ет пам€ть и устанавливет начальное значение дл€ всех переменных.
   TASK-VALUES
-  BEGIN
-    DUP
-  WHILE
-    >R
+  BEGIN DUP WHILE >R
     R@ CELL- @  \ S: default
     TLS-ALLOC THROW
     DUP
     R@ CELL- 5 - CELL- !  \ S: default index index
     TLS! THROW
-    R> @
-  REPEAT
-  DROP
+  R> @ REPEAT DROP
 ;
 
-: RESET-TASK-VALUES \ устанавливет начальное значение дл€ всех переменных.
+: RESET-TASK-VALUES \ устанавливает начальное значение дл€ всех переменных.
   TASK-VALUES
-  BEGIN
-    DUP
-  WHILE
-    >R
+  BEGIN DUP WHILE >R
     R@ CELL- @  \ S: default
     R@ CELL- 5 - CELL- @  \ S: default index
     TLS! THROW
-    R> @
-  REPEAT
-  DROP
+  R> @ REPEAT DROP
+;
+
+: FREE-TASK-VALUES \ свобождает TLS.
+\  It is expected that DLLs call this [TlsFree] function 
+\  (if at all) only during DLL_PROCESS_DETACH.  (from MSDN)
+  TASK-VALUES
+  BEGIN DUP WHILE
+    DUP CELL- 5 - CELL- @  \ S: task-value index
+    TLS-FREE THROW
+  @ REPEAT DROP
 ;
 
 WINAPI: GetCurrentThreadId KERNEL32.DLL
 0 TASK-VALUE THREAD-ID 
 GetCurrentThreadId TO THREAD-ID
+
+..: AT-PROCESS-STARTING 
+  INIT-TASK-VALUES 
+  GetCurrentThreadId TO THREAD-ID 
+;..
 
 ..: AT-THREAD-STARTING 
   THREAD-ID GetCurrentThreadId <> IF
@@ -90,17 +102,10 @@ GetCurrentThreadId TO THREAD-ID
   THEN
 ;..
 
-..: AT-PROCESS-STARTING INIT-TASK-VALUES ;..
-
-( 
-  TODO: FREE-TASK-VALUES for DLL_PROCESS_DETACH
-  It is expected that DLLs call this[TlsFree] function 
-  [if at all] only during DLL_PROCESS_DETACH.  [from MSDN]
-)
-
 \EOF
 1000 TASK-VALUE TASK-HANDLER
-INIT-TASK-VALUES OK
+INIT-TASK-VALUES  ( <- THREAD-ID обнулЄн!) THREAD-ID . 
+GetCurrentThreadId TO THREAD-ID OK
 TASK-HANDLER .
 1024 TO TASK-HANDLER
 TASK-HANDLER .
@@ -116,4 +121,10 @@ OK
 WINAPI: WaitForSingleObject KERNEL32.DLL
 0 task START -1 SWAP WaitForSingleObject DROP
 OK
+TASK-HANDLER . OK
 BYE
+0 Ok
+1000 1024  Ok
+1024  Ok
+1000 1023  Ok
+1024 Ok
