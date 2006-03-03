@@ -36,7 +36,7 @@ CREATE  AB64 C" ghijklmnopqrstuvwxyz0123456789+/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
   R@ 1 = IF 2DUP + 2 - 2 [CHAR] = FILL THEN
   R> 2 = IF 2DUP + 1 - [CHAR] = SWAP C! THEN
 ;
-: debase64 ( addr u -- addr1 u1 )
+: debase64_1 ( addr u -- addr1 u1 )
   DUP 0= IF 2DROP 4 ALLOCATE THROW abase ! abase @ 0 EXIT THEN
   0 SWAP DUP 4 / 3 * CELL+ ALLOCATE THROW abase ! lbase 0! nbase 0!
   0 ?DO
@@ -47,6 +47,7 @@ CREATE  AB64 C" ghijklmnopqrstuvwxyz0123456789+/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
     3 lbase +! 0 THEN
   LOOP 2DROP abase @ lbase @ nbase @ - 0 MAX
 ;
+VECT debase64 ' debase64_1 TO debase64
 
 : +>BL ( addr u -- )
   0 ?DO DUP C@ [CHAR] + = IF BL OVER C! THEN 1+ LOOP DROP
