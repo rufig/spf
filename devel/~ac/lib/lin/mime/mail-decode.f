@@ -203,8 +203,9 @@ CREATE CRLF.CRLF 13 C, 10 C, CHAR . C, 13 C, 10 C,
 ;
 CREATE dbCRLFCRLF 13 C, 10 C, 13 C, 10 C,
 
-: debase64 ( addr u -- addr1 u1 ) { \ i }
+: debase64_3 ( addr u -- addr1 u1 ) { \ i }
 \ версия, игнорирующая пробельные символы внутри исходной строки
+\ и игнорирующая баг энкодера google
 
 \ отрезаем левые приписки после base64-блока, которые иногда добавляются форвардерами почты
   2DUP dbCRLFCRLF 4 SEARCH IF NIP - ELSE 2DROP THEN
@@ -221,8 +222,16 @@ CREATE dbCRLFCRLF 13 C, 10 C, 13 C, 10 C,
       3 lbase +! 0 THEN
       i 1+ -> i
     THEN
-  LOOP 2DROP abase @ lbase @ nbase @ - 0 MAX
+  LOOP
+  NIP ?DUP
+  IF \ баг энкодера google - не добавлены == в конце
+    8 RSHIFT DUP abase @ lbase @ + DUP >R 1+ C!
+    8 RSHIFT R> C!
+    2 lbase +!
+  THEN
+  abase @ lbase @ nbase @ - 0 MAX
 ;
+' debase64_3 TO debase64
 
 USER _LASTMSGHTML
 
@@ -253,7 +262,7 @@ USER _LASTMSGHTML
 
            0 -> tf_pl
            mp mpSubTypeAddr @ mp mpSubTypeLen @ S" plain" COMPARE-U 0=
-           IF CR>BR " <div class='plain'>{s}</div>" DUP -> tf_pl STR@ THEN
+           IF CR>BR " <pre class='plain'>{s}</pre>" DUP -> tf_pl STR@ THEN
            s STR+
            tf_dq ?DUP IF FREE DROP THEN tf_db ?DUP IF FREE DROP THEN
            tf_pl ?DUP IF STRFREE THEN
