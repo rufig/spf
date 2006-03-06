@@ -395,35 +395,34 @@ VECT FEMIT
      R> BASE !
 ;
 
-: PrintFInf ( F: r -- F: r f )
-     FDUP FINF F=
-     IF S" infinity" FTYPE TRUE
-     ELSE FDUP FINF FNEGATE F=
-          IF S" -infinity" FTYPE TRUE 
-          ELSE 0
-          THEN
-     THEN
+: PrintFInf ( F: r -- r ) ( -- -1 )
+            ( F: r -- ) ( -- 0 )
+     FDUP  FINF F= IF  S" infinity " FTYPE FDROP TRUE EXIT THEN
+     FDUP -FINF F= IF S" -infinity " FTYPE FDROP TRUE EXIT THEN
+     FALSE
 ;
 
 : (F.) ( n1 n2 )
 \ n1 - exponent
 \ n2 - sign
-   PrintFInf IF FDROP EXIT THEN
    FLOAT-PAD PRECISION REPRESENT DROP
 ;
 
 
 : FS. ( r -- )
+   PrintFInf IF EXIT THEN
    (F.) IF [CHAR] - FEMIT THEN
    1 FDISPLAY 1- .EXP
 ;
 
 : F. ( r -- )
+   PrintFInf IF EXIT THEN
    (F.) IF  [CHAR] - FEMIT THEN
    FDISPLAY
 ;
 
 : G. ( r)
+   PrintFInf IF EXIT THEN
    (F.) IF  [CHAR] - FEMIT THEN
    DUP ABS PRECISION > 
    IF 
@@ -436,6 +435,7 @@ VECT FEMIT
    S>D 3 FM/MOD 3 * SWAP 1+  ;
 
 : FE. ( r)
+   PrintFInf IF EXIT THEN
    (F.) IF  [CHAR] - FEMIT  THEN
    1- Adjust FDISPLAY .EXP
 ;
