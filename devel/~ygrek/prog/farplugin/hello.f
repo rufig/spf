@@ -11,6 +11,7 @@ REQUIRE {       ~ac\lib\locals.f
   ['] CGI-OPTIONS ERR-EXIT
   ['] AT-PROCESS-STARTING ERR-EXIT
   MAINX @ ?DUP IF ERR-EXIT THEN
+  STARTLOG
 ;
 
 : (INIT2)
@@ -38,16 +39,17 @@ REQUIRE {       ~ac\lib\locals.f
 \ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 REQUIRE CONST ~micro/lib/const/const.f
-REQUIRE TPSI  plugin.f
+REQUIRE TPluginStartupInfo  plugin.f
 REQUIRE .S    lib/include/tools.f
-
-0x00001000 CONSTANT MB_SYSTEMMODAL
-WINAPI: MessageBoxA USER32.DLL
 
 1234 CONSTANT SOMETHING
 
-HERE TPSI::/SIZE ALLOT VALUE FARAPI
-TPSI::/SIZE FARAPI TPSI::StructSize ! 
+0 VALUE DEBUG \ 1 for debugging output
+
+ALSO TPluginStartupInfo
+HERE /SIZE ALLOT VALUE FARAPI
+/SIZE FARAPI StructSize !
+PREVIOUS
 
 CONST
  MTitle     0
@@ -58,24 +60,21 @@ CONST
  MButton    5
 ;
 
-: .H ( x -- )
- BASE @ SWAP HEX ." 0x0" . BASE ! 
-;
+: .H ( x -- ) BASE @ SWAP HEX ." 0x0" . BASE ! ;
 
 : PrintPluginInfo ( psi -- )
   >R
-   CR 
-   ." -------------------------------------------------"
-   CR
-   ." PSI : " R@ .H CR
-   R@ TPSI::StructSize DUP .H ." StructSize " @ .H CR
-   R@ TPSI::ModuleNumber DUP .H ." ModuleNumber " @ .H CR
-   R@ TPSI::GetMsg DUP .H ." GetMsg " @ .H CR
-   R@ TPSI::Message DUP .H ." Message " @ .H CR
-   R@ TPSI::ShowHelp DUP .H ." ShowHelp " @ .H CR
-   R@ TPSI::DefDlgProc DUP .H ." DefDlgProc " @ .H CR
-   ." -------------------------------------------------"
-   CR
+  [ ALSO TPluginStartupInfo ]
+   CR ." -------------------------------------------------"
+   CR ." PSI : " R@ .H
+   CR R@ StructSize   DUP .H ." StructSize "   @ .H
+   CR R@ ModuleNumber DUP .H ." ModuleNumber " @ .H
+   CR R@ GetMsg       DUP .H ." GetMsg "       @ .H
+   CR R@ Message      DUP .H ." Message "      @ .H
+   CR R@ ShowHelp     DUP .H ." ShowHelp "     @ .H
+   CR R@ DefDlgProc   DUP .H ." DefDlgProc "   @ .H
+   CR ." -------------------------------------------------"
+  [ PREVIOUS ]
   RDROP
 ;
 
@@ -89,7 +88,7 @@ VARIABLE String
 
 : GetMsg ( MsgId -- pchar )
 \  ." GetMsg "
-  FARAPI TPSI::ModuleNumber @ FARAPI TPSI::GetMsg @ API-CALL
+  FARAPI TPluginStartupInfo::ModuleNumber @ FARAPI TPluginStartupInfo::GetMsg @ API-CALL
 ;
 
 ( 
@@ -99,8 +98,9 @@ VARIABLE String
 )
 
 :NONAME ( psi -- )
-\  ." SetStartupInfo "
-  FARAPI TPSI::/SIZE CMOVE
+  STARTLOG
+  DEBUG IF CR S" SetStartupInfo " THEN
+  FARAPI TPluginStartupInfo::/SIZE CMOVE
 \  FARAPI PrintPluginInfo
   SOMETHING
 ; 1 CELLS CALLBACK: SetStartupInfo
@@ -110,22 +110,23 @@ VARIABLE String
   [general] информации о плагине
 )
 
-VARIABLE PluginMenuStrings \ array[0..0] of PChar;
+VARIABLE MyPluginMenuStrings \ array[0..0] of PChar;
 
-: ShowMessage ( addr u -- )
-   DROP >R MB_SYSTEMMODAL S" hi" DROP R>  0 MessageBoxA DROP
-;
+ALSO TPluginInfo
 
 :NONAME ( PluginInfo)
+  DEBUG IF CR ." GetPluginInfo" THEN
   >R
-   TPI::/SIZE R@ TPI::StructSize !
-   PF_VIEWER R@ TPI::Flags !
-   MTitle GetMsg PluginMenuStrings !
-   PluginMenuStrings R@ TPI::PluginMenuStrings !
-   1 R@ TPI::PluginMenuStringsNumber !
+   /SIZE R@ StructSize !
+   PF_VIEWER R@ Flags !
+   MTitle GetMsg MyPluginMenuStrings !
+   MyPluginMenuStrings R@ PluginMenuStrings !
+   1 R@ PluginMenuStringsNumber !
   RDROP
   SOMETHING \ Возвращаем что-нибудь
 ; 1 CELLS CALLBACK: GetPluginInfo
+
+PREVIOUS \ TPluginInfo
 
 CREATE Msg 6 CELLS ALLOT
 
@@ -134,8 +135,12 @@ CREATE Msg 6 CELLS ALLOT
 )
 :NONAME ( Item OpenFrom -- Handle )
 \  S" OpenPlugin" ShowMessage
-\  ." OpenPlugin : "
-\  ." from = " .H ." item = " .H CR
+  DEBUG IF
+   ." OpenPlugin : "
+   ." from = " .H ." item = " .H CR
+  ELSE
+   2DROP 
+  THEN
 
      MTitle GetMsg Msg 0 CELLS + !
   MMessage1 GetMsg Msg 1 CELLS + !
@@ -149,8 +154,8 @@ CREATE Msg 6 CELLS ALLOT
   Msg \ Items
   0 \ HelpTopic
   FMSG_WARNING FMSG_ERRORTYPE OR FMSG_LEFTALIGN OR \ Flags
-  FARAPI TPSI::ModuleNumber @ \ PluginNumber
-  FARAPI TPSI::Message @ API-CALL
+  FARAPI TPluginStartupInfo::ModuleNumber @ \ PluginNumber
+  FARAPI TPluginStartupInfo::Message @ API-CALL
   DROP
 
 \  ." result " .H

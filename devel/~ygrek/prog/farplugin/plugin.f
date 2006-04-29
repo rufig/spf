@@ -3,11 +3,12 @@ REQUIRE CONST   ~micro/lib/const/const.f
 
 260 CONSTANT NM
 
-STRUCT: TPSI \ TPluginStartupInfo
+STRUCT: TPluginStartupInfo
  4 -- StructSize \ integer;
-NM -- ModuleName \ array[0..NM-1]
+NM -- ModuleName \ array[0..NM-1] of Char
  4 -- ModuleNumber \ integer;
  4 -- RootKey \ PChar;
+
  4 -- Menu \ TFarApiMenu;
  4 -- Dialog \ TFarApiDialog;
  4 -- Message \ TFarApiMessage;
@@ -35,14 +36,15 @@ NM -- ModuleName \ array[0..NM-1]
  4 -- DialogEx \ TFarApiDialogEx;
  4 -- SendDlgMessage \ TFarApiSendDlgMessage;
  4 -- DefDlgProc \ TFarApiDefDlgProc;
- 8 -- Reserved \ array[0..1] of DWORD;
+ 4 -- Reserved \ DWORD;
+ 4 -- ViewerControl \ TFarApiViewerControl;
 ;STRUCT
 
-STRUCT: TPI \ TPluginInfo 
+STRUCT: TPluginInfo 
  4 -- StructSize \ integer;
  4 -- Flags \ DWORD;
- 4 -- DiskMenuStrings \ PPCharArr;
- 4 -- DiskMenuNumbers \ PIntArr;
+ 4 -- DiskMenuStrings \ PPCharArray;
+ 4 -- DiskMenuNumbers \ PIntegerArray;
  4 -- DiskMenuStringsNumber \ integer;
  4 -- PluginMenuStrings \ PPCharArr;
  4 -- PluginMenuStringsNumber \ integer;

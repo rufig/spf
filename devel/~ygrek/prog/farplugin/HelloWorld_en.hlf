@@ -10,7 +10,7 @@ who just do the first step in plugin programming.
 from program "Hello, World! That is this plugin does.
 
   Plugin is written in Forth language.
-The compiler is SP-Forth 4 build 16 ~spf.sf.net~@http://spf.sf.net@
+The compiler is SP-Forth 4 ~spf.sf.net~@http://sourceforge.net/projects/spf/@
 
   The initial conditions were:
 
@@ -29,12 +29,9 @@ The compiler is SP-Forth 4 build 16 ~spf.sf.net~@http://spf.sf.net@
   - Use API-CALL instead of EXECUTE to invoke FAR API functions
   - Return SOMETHING in the CALLBACK functions even if they are
    declared as void.
-  - All structure fields are 4 bytes even if it is claimed integer or else.
 
- These hints were painfully discovered by me while writing the plugin.
-
- yGREK heretix 
- 15.Jun.2005 
+ ~~ygrek
+ 15.Jun.2005 (Revised 29.Apr.2006)
 
  mailto:#ygrek@@forth.org.ru#
  ~RuFIG~@http://www.forth.org.ru/@
