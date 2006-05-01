@@ -20,8 +20,7 @@
   S" ;" COMPARE IF >IN ! TRUE ELSE DROP FALSE THEN
 ;
 
-: ENUM
-  CREATE ,
+: (enum)
   DOES> @ ( xt ) >R
   BEGIN
    CheckNextWord
@@ -29,6 +28,12 @@
    R@ EXECUTE
   REPEAT
   RDROP
+;
+
+: ENUM
+  CREATE ,
+  (enum)
+  IMMEDIATE
 ;
 
  

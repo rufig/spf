@@ -1,6 +1,8 @@
 \ ~pinka/lib/tools/samples/exe2dll3.f
-\ Подправлено для экспорта OpenPlugin SetStartupInfo GetPluginInfo
-
+\ 30.Apr.2006
+\ Подправлено для экспорта функций плагина для FAR Manager
+\ Для добавления экспорта - поправить все места с отметкой !HERE!
+                                                                   
 \ 12.Sep.2001 Wed 21:17   Ruv
 
 \ 09.Aug.2003   Ruv
@@ -272,27 +274,35 @@ VARIABLE image-offs
 
   HERE >R 
 
+  \ !HERE! 
   HERE >rva               \ NameOrdinals
+            3 W,
             2 W,
             1 W,
             0 W,
   ( 'NameOrdinals )
 
-  HERE 1+ >rva  S" SetStartupInfo" S", ( ") 0 C, \ name itself 
-  HERE 1+ >rva  S" OpenPlugin"  S", ( ") 0 C, \ name itself
-  HERE 1+ >rva  S" GetPluginInfo"  S", ( ") 0 C, \ name itself
+  \ !HERE! добавить строку с именем функции так чтобы список был отсортировани по алфавиту
+  HERE 1+ >rva  S" SetStartupInfo" S", 0 C, \ name itself 
+  HERE 1+ >rva  S" OpenPlugin"     S", 0 C, \ name itself
+  HERE 1+ >rva  S" GetPluginInfo"  S", 0 C, \ name itself
+  HERE 1+ >rva  S" Configure"      S", 0 C, \ name itself
 
   \ obviously, this^ order must be sorted by name (inverse for us)
 
+  \ !HERE!
   HERE >rva     SWAP ,          \ array of rva names
+                SWAP ,
                 SWAP ,
                 SWAP ,
 
   ( 'NameOrdinals 'Names )
 
+  \ !HERE!
   HERE >rva     ['] SetStartupInfo >RVA ,  \ array of rva functions
                 ['] OpenPlugin  >RVA ,
                 ['] GetPluginInfo  >RVA ,
+                ['] Configure >RVA ,
 
   ( 'NameOrdinals 'Names 'Functions )
                 
@@ -308,8 +318,8 @@ VARIABLE image-offs
   0 ,  \ Major&Minor version
    ,  \ name
   1 , \ Base
-  3 , \ NumberOfFunctions
-  3 , \ NumberOfNames
+  4 , \ NumberOfFunctions !HERE!
+  4 , \ NumberOfNames !HERE!
    ,  \ Addr of functions
    ,  \ Addr of names
    ,  \ addr of name ordinals
