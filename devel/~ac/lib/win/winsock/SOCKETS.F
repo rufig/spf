@@ -116,7 +116,22 @@ USER TIMEOUT
   R@ [ HEX ] 4004667F [ DECIMAL ] ROT ioctlsocket SOCKET_ERROR =
   IF 0 WSAGetLastError ELSE R@ @ 0 THEN R> FREE THROW
 ;
+: BindSocketInterface ( port ip s -- ior )
+  >R /sockaddr_in ALLOCATE ?DUP IF NIP R> DROP EXIT THEN
+  SWAP >R >R
+  256 /MOD SWAP 256 * +
+  R@ sin_port W!
+  AF_INET R@ sin_family W!
+  R@
+  R> R> SWAP >R R@ sin_addr !
+  /sockaddr_in R> R> bind SWAP FREE DROP SOCKET_ERROR =
+  IF WSAGetLastError ELSE 0 THEN
+;
+USER CONNECT-INTERFACE
+
 : ConnectSocket ( IP port socket -- ior )
+  CONNECT-INTERFACE @ ?DUP 
+  IF OVER 0 SWAP BindSocketInterface ?DUP IF NIP NIP NIP EXIT THEN THEN
   >R
   256 /MOD SWAP 256 * +
   sock_addr sin_port W!
@@ -210,15 +225,7 @@ AF_INET sock_addr2 sin_family W!
   WSACleanup
 ;
 : BindSocket ( port s -- ior )
-  >R /sockaddr_in ALLOCATE ?DUP IF NIP R> DROP EXIT THEN
-  >R
-  256 /MOD SWAP 256 * +
-  R@ sin_port W!
-  AF_INET R@ sin_family W!
-  R@
-  0 R@ sin_addr !
-  /sockaddr_in R> R> bind SWAP FREE DROP SOCKET_ERROR =
-  IF WSAGetLastError ELSE 0 THEN
+  0 SWAP BindSocketInterface
 ;
 : ReusedBindSocket ( port s -- ior )
   DUP >R 4 REUSEADDR SO_REUSEADDR SOL_SOCKET R>
