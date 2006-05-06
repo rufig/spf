@@ -131,7 +131,7 @@ USER CONNECT-INTERFACE
 
 : ConnectSocket ( IP port socket -- ior )
   CONNECT-INTERFACE @ ?DUP 
-  IF OVER 0 SWAP BindSocketInterface ?DUP IF NIP NIP NIP EXIT THEN THEN
+  IF OVER 0 ROT ROT BindSocketInterface ?DUP IF NIP NIP NIP EXIT THEN THEN
   >R
   256 /MOD SWAP 256 * +
   sock_addr sin_port W!
