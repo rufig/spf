@@ -1,0 +1,22 @@
+Изменения относительно текущих версий этих же либ в devel/~yz
+
+ODBC.F
+[+] SQL_MESSAGE
+[+] DisconnectSQL
+
+
+wincc.f
+-
+
+
+winctl.f
+[+] password-edit
+[*] max-win-size - выключил обрезание размеров
+[+] INITMODAL SHOWMODAL LOOPMODAL HIDEMODAL
+[*] ...MODAL  0 TO dialog-termination
+[*] выделил сетки в отдельный файл wingrid.f
+
+
+winlib.f
+[*] REQUIRE LOAD-CONSTANTS ~yz/lib/wincons.f - W: конфликтует часто, результат - либа не грузится
+[*] выделил win-независимую часть в wincore.f
