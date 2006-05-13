@@ -140,7 +140,7 @@ DROP
 VARIABLE COUNT-COMPILED
 
 : ADD-TO-STUB ( node -- )
-     HERE CURR-STUB - 8 +
+     HERE CURR-STUB - 12 +
      COUNT-COMPILED @ CELLS CURR-STUB + !
      DUP .value @ , 
      .length DUP 1+ SWAP C@ \ addr u
@@ -162,6 +162,7 @@ VARIABLE COUNT-COMPILED
 : FORM-STUB
     [CHAR] C C, [CHAR] O C,
     [CHAR] N C, [CHAR] S C,
+    0 , \ extra info, in ~yz/cons/*.const this cell points to the end of file but not used
     CONST-COUNT @ ,
     HERE TO CURR-STUB        
     CONST-COUNT @ CELLS ALLOT
@@ -173,8 +174,8 @@ VARIABLE COUNT-COMPILED
 : SAVE-CONST ( c-addr u -- )
    FORM-STUB
    W/O CREATE-FILE THROW >R
-   HERE CURR-STUB - 8 +
-   CURR-STUB 8 - SWAP R@ WRITE-FILE THROW DROP
+   HERE CURR-STUB - 12 +
+   CURR-STUB 12 - SWAP R@ WRITE-FILE THROW DROP
    R> CLOSE-FILE
    CONST-COUNT @ . ."  constants was written" CR
 ;
