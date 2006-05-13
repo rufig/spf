@@ -27,6 +27,10 @@ USER F-SIZE
 USER PAST-COMMA \ число знаков после точки
 USER ?IS-COMMA  \ появилась точка или нет
 
+USER ?FSTRICT \ дополнять ли точно нулями до PRECISION
+
+: FSTRICT ( -- ? ) ?FSTRICT @ ;
+: SET-FSTRICT ( ? -- ) ?FSTRICT ! ;
 
 : 2e 2.E ;
 : 1e 1.E ;
@@ -356,26 +360,26 @@ VECT FEMIT
 
 \ trim trailing '0's
 : (T0)  ( c-addr u1 -- c-addr u2 )
+  FSTRICT IF EXIT THEN
   BEGIN  DUP WHILE  1- 2DUP CHARS +
   C@ [CHAR] 0 -  UNTIL  1+  THEN ;
 
 : FDISPLAY ( n -- )
-   DUP 0 <
+   DUP 1 <
    IF \ число < 1      
-      DUP 0 < IF [CHAR] 0 FEMIT THEN
+      DUP 1 < IF [CHAR] 0 FEMIT THEN
       [CHAR] . FEMIT
-      ABS 0 ?DO [CHAR] 0 FEMIT LOOP
-      FLOAT-PAD PRECISION (T0) FTYPE
+      ABS DUP 0 ?DO [CHAR] 0 FEMIT LOOP
+      FLOAT-PAD PRECISION ROT - 1- 0 MAX
+      (T0) FTYPE
    ELSE
      FLOAT-PAD OVER 0 MAX PRECISION MIN FTYPE
-     \ дополним нулями до PRECISION
-     PRECISION OVER -
-     DUP 0 < IF ABS 0 ?DO [CHAR] 0 FEMIT LOOP 
-             ELSE DROP
-             THEN
      \ выведем дробную часть
      [CHAR] . FEMIT
-     DUP FLOAT-PAD + PRECISION ROT - 0 MAX FTYPE
+     DUP FLOAT-PAD + PRECISION ROT - 0 MAX
+     (T0)
+     \ DUP 0= IF [CHAR] 0 FEMIT THEN
+     FTYPE
      THEN   
 ;
 
@@ -408,17 +412,16 @@ VECT FEMIT
    FLOAT-PAD PRECISION REPRESENT DROP
 ;
 
-
 : FS. ( r -- )
    PrintFInf IF EXIT THEN
    (F.) IF [CHAR] - FEMIT THEN
-   1 FDISPLAY 1- .EXP
+   1 FDISPLAY 1- .EXP SPACE
 ;
 
 : F. ( r -- )
    PrintFInf IF EXIT THEN
    (F.) IF  [CHAR] - FEMIT THEN
-   FDISPLAY
+   FDISPLAY SPACE
 ;
 
 : G. ( r)
@@ -429,6 +432,7 @@ VECT FEMIT
       1 FDISPLAY 1- .EXP
    ELSE FDISPLAY
    THEN
+   SPACE
 ;
    
 : Adjust ( n - n' 1|2|3 )
@@ -437,7 +441,7 @@ VECT FEMIT
 : FE. ( r)
    PrintFInf IF EXIT THEN
    (F.) IF  [CHAR] - FEMIT  THEN
-   1- Adjust FDISPLAY .EXP
+   1- Adjust FDISPLAY .EXP SPACE
 ;
 
 USER PAD-COUNT
@@ -554,6 +558,7 @@ USER PAD-COUNT
 )
 : HIGH-FINIT
      8 SET-PRECISION
+     TRUE SET-FSTRICT
      2 FFORM-EXP !
      FDOUBLE
      FINIT
