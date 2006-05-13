@@ -1,17 +1,9 @@
-REQUIRE (dllinit) farplugindll.f
-
-REQUIRE TPluginStartupInfo  plugin.f
-REQUIRE VAR  ~ygrek/lib/var.f
-REQUIRE ENUM ~ygrek/lib/enum.f 
-
-\ REQUIRE ACCERT( lib/ext/debug/accert.f
+REQUIRE (dllinit) ~ygrek/lib/far/plugindll.f
+REQUIRE NEWDIALOG ~ygrek/lib/far/control.f
 
 1234 CONSTANT SOMETHING
 
-\ 0 ACCERT-LEVEL ! \ 1 for debugging output
-
-DEFSTRUCT TPluginStartupInfo FARAPI
-FARAPI. /SIZE@  FARAPI. StructSize !
+' STARTLOG TO FARPLUGIN-INIT
 
 ( 
  Функция GetMsg возвращает строку сообщения из языкового файла.
@@ -19,13 +11,11 @@ FARAPI. /SIZE@  FARAPI. StructSize !
 
 : GetMsg ( MsgId -- pchar ) FARAPI. ModuleNumber @ FARAPI. GetMsg @ API-CALL ;
 
-:NONAME DUP 1+ SWAP CREATE , DOES> @ GetMsg ; ENUM MESSAGES:
+:NONAME DUP 1+ SWAP CREATE , DOES> @ GetMsg ; ENUM MESSAGES=
 
 0 
- MESSAGES: MTitle MMessage1 MMessage2 MMessage3 MMessage4 MButton ;
+ MESSAGES= MTitle MMessage1 MMessage2 MMessage3 MMessage4 MButton ;
 DROP
-
-: .H ( x -- ) BASE @ SWAP HEX ." 0x0" . BASE ! ;
 
 ( 
 Функция SetStartupInfo вызывается один раз, перед всеми
@@ -34,7 +24,6 @@ DROP
 )
 
 :NONAME ( psi -- void )
-\  ACCERT( CR S" SetStartupInfo " )
   FARAPI. /SIZE CMOVE
   SOMETHING
 ; 1 CELLS CALLBACK: SetStartupInfo
@@ -48,12 +37,11 @@ VARIABLE MyPluginMenuStrings \ array[0..0] of PChar;
 VARIABLE MyPluginConfigStrings
 
 :NONAME { pi \ -- void }  
-   TEMP VAR TPluginInfo pi ;TEMP
-\  ACCERT( CR ." GetPluginInfo" )
+   TEMPVAR TPluginInfo pi
 
    pi. /SIZE NIP  pi. StructSize !
 
-   PF_DISABLEPANELS PF_VIEWER OR pi. Flags !
+   W: PF_VIEWER pi. Flags !
 
    MTitle MyPluginMenuStrings !
    MyPluginMenuStrings pi. PluginMenuStrings !
@@ -68,39 +56,86 @@ VARIABLE MyPluginConfigStrings
   SOMETHING \ Возвращаем что-нибудь
 ; 1 CELLS CALLBACK: GetPluginInfo
 
+0 VALUE .output
+0 VALUE .input
 
-CREATE Dlg 10 CELLS ALLOT
+: MakeGrid ( -- grid )
 
-: (Dialog) OVER ! CELL+ ;
-:NONAME ' COMPILE, POSTPONE (Dialog) ; ENUM Dialog:
+   0 TO Items
+   10 Items. get ALLOCATE THROW TO Items
+   10 Items. buf ERASE
+   
+   GRID
+    GRID
+     " SPF:" label |
+     " 2 2 + . " edit  -xspan  20 1 this ctlresize  this TO .input  |
+     ===
+     "" label  this TO .output |
+     -boxed
+    GRID; |
+    ===
+    "" label |
+    ===
+    " OK" button -xspan -center |
+   GRID;
 
-( 
-  Функция OpenPlugin вызывается при создании новой копии плагина.
-)
+;
+
+0 VALUE zz
+
+: ToLabel ( a u -- )
+   >ASCIIZ
+   zz SWAP ZAPPEND
+   zz .output -text! ;
+
+MESSAGES: MyDlgProc
+
+M: dn_key { \ buf -- }
+    param1 .input -id@ <> IF FALSE EXIT THEN
+    param2 13 <> IF FALSE EXIT THEN
+
+    0 zz !
+    zz .output -text!
+
+    .input -text# ALLOCATE THROW TO buf
+    buf .input -text@ 
+    buf .input -text#
+    ['] ToLabel TO TYPE
+    EVALUATE
+\    ['] ToLabel2 TO TYPE
+\    S" OK" EVALUATE
+    ['] TYPE1 TO TYPE
+    DEPTH 0 ?DO DROP LOOP \ DROP all extra
+    buf FREE THROW
+  
+    TRUE RETURN
+    TRUE
+M;
+
+MESSAGES;
+
 :NONAME ( Item OpenFrom -- Handle )
-\  S" OpenPlugin" ShowMessage
-  (
-   2DUP
-   ." OpenPlugin : "
-   ." from = " .H ." item = " .H CR )
+  ( 2DUP ." from = " .H ." item = " .H CR )
 
    2DROP 
 
-   Dlg
-    Dialog: MTitle MMessage1 MMessage2 MMessage3 MMessage4 MButton ;
-   DROP
+   NEWDIALOG
 
-   1 \ ButtonsNumber
-   6 \ ItemsNumber
-   Dlg \ Items
-   0 \ HelpTopic
-   FMSG_WARNING FMSG_ERRORTYPE OR FMSG_LEFTALIGN OR \ Flags
-   FARAPI. ModuleNumber @ \ PluginNumber
-   FARAPI. Message @ API-CALL
-   DROP
+    MakeGrid  winmain -grid!
+    MyDlgProc winmain -dlgproc!
 
-  INVALID_HANDLE_VALUE 
-; 2 CELLS CALLBACK: OpenPlugin
+    1024 ALLOCATE THROW TO zz
+
+   RUNDIALOG
+
+    zz FREE THROW
+
+\   5 Items. buf DUMP
+
+   Items FREE THROW
+   0 TO Items
+
+  INVALID_HANDLE_VALUE ; 2 CELLS CALLBACK: OpenPlugin
 
 (
   Вызывается при вызове из меню настроек плагинов

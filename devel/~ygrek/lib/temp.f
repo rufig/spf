@@ -29,7 +29,7 @@ EXPORT
 
 : TEMP
     Init
-;; IMMEDIATE
+;; IMMEDIATE 
 
 ;MODULE
 
@@ -40,7 +40,7 @@ REQUIRE VAR ~ygrek/lib/var.f
 REQUIRE { lib/ext/locals.f
 
 : zz { a \ -- zz }
-   TEMP VAR TPluginStartupInfo a ;TEMP
+   TEMPVAR TPluginStartupInfo a
 
    a. StructSize @
 ;

@@ -1,5 +1,4 @@
 REQUIRE STRUCT: lib/ext/struct.f
-REQUIRE CONST   ~micro/lib/const/const.f
 
 260 CONSTANT NM
 
@@ -54,29 +53,20 @@ STRUCT: TPluginInfo
  4 -- Reserved \ DWORD;
 ;STRUCT
 
-CONST for GetPluginInfo
- PF_PRELOAD        1
- PF_DISABLEPANELS  2
- PF_EDITOR         4
- PF_VIEWER         8
- PF_FULLCMDLINE    16
-;
+REQUIRE ENUM ~ygrek/lib/enum.f
 
-CONST  for Message()
-  FDLG_WARNING             0x000001
-  FDLG_SMALLDIALOG         0x000002
-  FDLG_NODRAWSHADOW        0x000004
-  FDLG_NODRAWPANEL         0x000008
-  FMSG_WARNING             0x000001
-  FMSG_ERRORTYPE           0x000002
-  FMSG_KEEPBACKGROUND      0x000004
-  FMSG_DOWN                0x000008
-  FMSG_LEFTALIGN           0x000010
-  FMSG_ALLINONE            0x000020
-  FMSG_MB_OK               0x010000
-  FMSG_MB_OKCANCEL         0x020000
-  FMSG_MB_ABORTRETRYIGNORE 0x030000
-  FMSG_MB_YESNO            0x040000
-  FMSG_MB_YESNOCANCEL      0x050000
-  FMSG_MB_RETRYCANCEL      0x060000
-;
+:NONAME 2DUP -- DROP ; ENUM UnionItem
+: Union: ( ofs n -- ofs+n) POSTPONE UnionItem + ;
+
+STRUCT: TFarDialogItem
+  4 -- ItemType
+  4 -- X1
+  4 -- Y1
+  4 -- X2
+  4 -- Y2
+  4 -- Focus
+  4 Union:  Extra Selected History Mask ListItems ListPos VBuf ;
+  4 -- Flags
+  4 -- DefaultButton
+  512 -- Data
+;STRUCT
