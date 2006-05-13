@@ -15,7 +15,8 @@ REQUIRE /STRING      LIB\INCLUDE\STRING.F
 REQUIRE [IF]         LIB\INCLUDE\TOOLS.F
 REQUIRE SAVE-INPUT   LIB\INCLUDE\CORE-EXT.F
 REQUIRE RENAME-FILE  DEVEL\~PINKA\LIB\FileExt.f
-REQUIRE D0<          lib\include\double.f 
+REQUIRE D0<          lib\include\double.f
+REQUIRE ANSI-FILE    lib/include/ansi-file.f
 
 WARNING @  0 WARNING !
 
