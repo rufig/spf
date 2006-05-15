@@ -57,7 +57,8 @@ ALSO SO NEW: sqlite3.dll
 
 : db3_error? { ior addr u sqh -- }
   ior IF DB3_DEBUG @ IF CR addr u TYPE ."  failed: " ior . THEN
-         sqh 1 sqlite3_errmsg ASCIIZ> ER-U ! ER-A ! \ TYPE CR
+         sqh 1 sqlite3_errmsg ASCIIZ> DB3_DEBUG @ IF 2DUP TYPE CR THEN
+         ER-U ! ER-A !
          sqh 1 sqlite3_errcode DUP 1 = IF DROP -2 ELSE 30000 + THEN THROW
       THEN
 \  ior THROW ( ior почти всегда 1 в случае ошибки)
@@ -136,7 +137,8 @@ ALSO SO NEW: sqlite3.dll
           DROP 1000 PAUSE
         REPEAT
 
-        DUP 1 SQLITE_ROW WITHIN IF S" DB3_STEP" sqh db3_error? THEN
+        DUP 1 SQLITE_ROW WITHIN 
+        IF ppStmt ['] db3_fin CATCH ?DUP IF NIP NIP THEN S" DB3_STEP" sqh db3_error? THEN
 
         SQLITE_ROW =
       ELSE FALSE THEN
