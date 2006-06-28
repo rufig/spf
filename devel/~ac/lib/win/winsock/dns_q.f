@@ -741,3 +741,77 @@ S" non_existent_domain.com" DnsDomainExists . \ нет такого
 \ RLIST @ RLhost GetFieldData TXT@ TYPE
 
 \ PrintRLIST .
+
+\ =================== расширения и оптимизация ~pig (23.06.2006) =======
+
+\ дополнительные навороты вокруг DNS
+\ запрос массива A-записей
+
+: GetHosts ( namea nameu -- n ) TYPE-A GetRRs ;
+
+\ выборка следующей записи заданного типа (если MX, то с учётом приоритета)
+\ (на самом деле приоритет смотрится всегда, просто записи не-MX все одного наивысшего приоритета)
+
+: NextRR ( type -- hosta hostu true | false )
+  { type \ pref rr }
+  70000 -> pref					\ наименьший приоритет
+  RLIST @					\ начало списка
+  BEGIN
+    DUP						\ это не конец?
+  WHILE
+    DUP RLtype @ type =				\ запись искомого типа?
+    IF
+      DUP RLparam1 @ DUP pref <			\ приоритетнее текущего?
+      IF
+        -> pref					\ да - зафиксировать новый приоритет
+        DUP -> rr				\ и текущую запись
+      ELSE
+        DROP					\ приоритет не нужен
+      THEN
+    THEN
+    RLnext @					\ следующая запись
+  REPEAT
+  DROP						\ лишнее со стека снять
+  pref 70000 =					\ если приоритет не изменился
+  IF FALSE EXIT THEN				\ ничего не найдено
+  70001 rr RLparam1 !				\ эта запись обработана - больше не возвращать
+  rr RLhost GetFieldData TRUE			\ вернуть имя хоста и признак наличия данных
+;
+
+\ выборка следующего хоста
+
+: NextHost ( -- hosta hostu true | false ) TYPE-A NextRR ;
+
+\ проверка соответствия символического имени IP-адресу
+\ с учётом возможной множественности IP-адресов, навешенных на имя
+
+: IsNameMatchesIp ( namea nameu ip -- err false | true )
+  { namea nameu ip \ sflg err }
+  namea nameu GetHosts 0 MAX			\ получить список A-записей для имени
+  IF
+    -1 -> sflg					\ флаг отсутствия успешных попыток
+    BEGIN
+      NextHost					\ получить очередную запись
+    WHILE
+      GetHostIP DUP				\ свернуть строку в число
+      IF
+        -> err DROP				\ запомнить код ошибки и сбросить ненужное значение
+      ELSE
+        -> sflg					\ отметить успех получения IP
+        ip =					\ есть совпадение?
+        IF TRUE EXIT THEN			\ да - дальше можно не искать
+      THEN
+    REPEAT
+    err sflg AND				\ возвращаемый код ошибки
+  ELSE
+    namea nameu GetHostIP ?DUP			\ попытка получить адрес обычным способом
+    IF
+      NIP					\ нет такого адреса, и всё тут
+    ELSE
+      ip =					\ адрес получен - сравнить
+      IF TRUE EXIT THEN				\ успешно
+      0						\ ошибки нет
+    THEN
+  THEN
+  FALSE						\ несравнение или ошибка
+;
