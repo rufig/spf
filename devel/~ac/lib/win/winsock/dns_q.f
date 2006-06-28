@@ -280,13 +280,16 @@ CONSTANT /RL
   BS !
 ;
 : SendDnsQuery
-  DNS-SERVERS @ 0= 
+  DNS-SERVERS @ 0= DNS-SERVER @ 0= AND
   IF GetDNS ?DUP 
             IF DNS-SERVER !
                \ DNS-COUNT @ 1 > IF COUNT + 1+ THEN DNS-SERVER !
             ELSE -11001 THROW THEN \ не найден DNS-сервер
   THEN
   BS @ 0= IF BsStartup THEN
+
+  DnsDebug @ IF ."  SendQuery(" DNS-SERVER @ COUNT TYPE ." ):" CR THEN
+
   DNS-SERVER @ COUNT GetHostIP THROW 53
   DNSQUERY @ DDP @ OVER - \ 2DUP DUMP
   BS @ WriteTo
