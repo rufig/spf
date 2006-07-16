@@ -1,30 +1,30 @@
 *** OPT
-   ( -- )
+( -- )
    Производит оптимизацию.
  file:  src\macroopt.f 
   См: MM_SIZE DIS-OPT SET-OPT MACRO? MACRO, :-SET INCLUDED_L
    
 *** MM_SIZE
-   ( -- n ) 
+( -- n ) 
   VALUE переменная, содержащая ограничение на размер
  макроподстановки для MACRO? .
  file:  src\macroopt.f 
   См: OPT
 
 *** DIS-OPT
-   ( -- )
+( -- )
    Выключить оптимизацию
  file:  src\macroopt.f 
   См: OPT
 
 *** SET-OPT
-   ( -- )
+( -- )
    Включить оптимизацию
  file:  src\macroopt.f 
   См: OPT
 
 *** MACRO? 
-   ( cfa -- flag )
+( cfa -- flag )
    Выдает разрешение на макроподстановку с помощью MACRO, .
    flag=TRUE  гарантирована корректная м-ка
    flag=FALSE не гарантирована корректная м-ка
@@ -32,13 +32,13 @@
   См: OPT
 
 *** MACRO,
-   ( cfa -- )
+( cfa -- )
    макроподстановка с оптимизацией.
  file:  src\macroopt.f 
   См: OPT
 
 *** :-SET
-   ( -- n ) 
+( -- n ) 
   VALUE переменная, содержащая адрес ограничивающий оптимизатор.
   Слова фиксирующие текущую позицию вершины кодофаила
   (например: THEN BEGIN ) должно содержать: HERE TO :-SET
