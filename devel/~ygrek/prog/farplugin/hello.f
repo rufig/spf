@@ -37,7 +37,7 @@ VARIABLE MyPluginMenuStrings \ array[0..0] of PChar;
 VARIABLE MyPluginConfigStrings
 
 :NONAME { pi \ -- void }  
-   TEMPVAR TPluginInfo pi
+   TEMPAUS TPluginInfo pi
 
    pi. /SIZE NIP  pi. StructSize !
 
