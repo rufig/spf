@@ -14,7 +14,18 @@
 
   28.Jun.2006 )
 
-REQUIRE ForEach ~ac/lib/ns/iterators.f
+( aльтернативный способ использования
+  with: my_path\
+  S" my path with spaces/" with 
+
+  16.Jul.2006 )
+
+
+REQUIRE [IF] lib/include/tools.f
+
+C" EXTRA-INCLUDED" FIND NIP [IF] \EOF [THEN] \ Dont include it twice
+
+: [WID] ALSO ' EXECUTE CONTEXT @ PREVIOUS POSTPONE LITERAL ; IMMEDIATE
 
 MODULE: included_path
 \ CREATE D:/WORK/FORTH/spf4/devel2/
@@ -77,30 +88,36 @@ CREATE buf buf-size ALLOT
   2DUP ?full-path 0= IF +ModuleDirName buf-copy THEN
   +auName ;
 
-0 VALUE ?found
-
-: CHECK
-   ?found IF DROP EXIT THEN
-   NAME +DirName 
+: CHECK ( a -- ? )
+   COUNT +DirName 
    2DUP FILE-EXIST IF 
     TO u TO a
-    TRUE TO ?found
+    TRUE
    ELSE
-    2DROP THEN ;
+    2DROP FALSE THEN ;
 
 : FIND-FULLNAME2 ( a1 u1 -- a u )
-  ['] FIND-FULLNAME1 CATCH 0= IF EXIT THEN
-\  ." Find: " 2DUP TYPE CR
-  ALSO included_path CONTEXT @ PREVIOUS >R
-   TO u
-   TO a
-   0 TO ?found
-   ['] CHECK R> ForEach
-   ?found 0= IF 2 THROW THEN
-\   ." Found: " a u TYPE CR
-   a u
-;
+  [ ' FIND-FULLNAME BEHAVIOR ] LITERAL CATCH 0= IF EXIT THEN
+
+  TO u TO a
+  \ ." Find: " a u TYPE CR
+  [WID] included_path @
+  0 >R
+  BEGIN
+   DUP R@ 0= AND
+  WHILE
+   DUP CHECK RP@ !
+   CDR
+  REPEAT
+  DROP R> 0= IF 2 THROW THEN
+  \ ." Found: " a u TYPE CR
+  a u ;
 
 ' FIND-FULLNAME2 TO FIND-FULLNAME
+
+EXPORT
+
+: with ( a u -- ) GET-CURRENT >R [WID] included_path SET-CURRENT CREATED R> SET-CURRENT ;
+: with: ( "dir" -- ) NextWord with ;
 
 ;MODULE
