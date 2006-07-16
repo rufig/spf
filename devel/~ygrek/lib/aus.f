@@ -1,8 +1,8 @@
 REQUIRE TEMP ~ygrek/lib/temp.f
 
-MODULE: vocVAR
+MODULE: vocAUS
 
-: (VAR) 
+: (AUS) 
  DOES> >R R@ CELL+ COUNT EVALUATE
  NextWord R> @ ( a u wid) SEARCH-WORDLIST 0= IF ABORT" No such word here." THEN
  STATE @ IF COMPILE, ELSE EXECUTE THEN ;
@@ -16,7 +16,7 @@ MODULE: vocVAR
 
 EXPORT
 
-: VAR ( "type" "name" -- )
+: AUS ( "type" "name" -- )
   ALSO ' EXECUTE
   CONTEXT @ ( wid)
   PREVIOUS
@@ -25,11 +25,11 @@ EXPORT
   CREATED
   ROT
   ( a u wid) , S",
-  (VAR)
+  (AUS)
   IMMEDIATE
 ; IMMEDIATE
 
-: TEMPVAR POSTPONE TEMP POSTPONE VAR S" ;TEMP" EVALUATE ; IMMEDIATE
+: TEMPAUS POSTPONE TEMP POSTPONE AUS S" ;TEMP" EVALUATE ; IMMEDIATE
 
 : DEFSTRUCT ( "type" "name" -- )
    >IN @
@@ -39,18 +39,17 @@ EXPORT
     GET-CURRENT DEFINITIONS S" : /SIZE@ /SIZE NIP ;" EVALUATE SET-CURRENT
    >IN !
    PREVIOUS
-   POSTPONE VAR
-;
+   POSTPONE AUS ;
 
 ;MODULE
 
 \EOF
 
 REQUIRE SEE lib/ext/disasm.f
-REQUIRE TPluginStartupInfo ~ygrek/prog/farplugin/plugin.f
+REQUIRE TPluginStartupInfo ~ygrek/lib/far/struct.f
 
 \ CREATE a TPluginStartupInfo::/SIZE ALLOT
-\ VAR TPluginStartupInfo a
+\ AUS TPluginStartupInfo a
 DEFSTRUCT TPluginStartupInfo a
 
 : aMN a. ModuleName ;

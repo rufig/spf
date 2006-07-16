@@ -35,12 +35,13 @@ EXPORT
 
 \EOF
 
-REQUIRE TPluginStartupInfo ~ygrek/prog/farplugin/plugin.f
-REQUIRE VAR ~ygrek/lib/var.f
+REQUIRE TPluginStartupInfo ~ygrek/lib/far/struct.f
+REQUIRE TEMPAUS ~ygrek/lib/aus.f
 REQUIRE { lib/ext/locals.f
 
 : zz { a \ -- zz }
-   TEMPVAR TPluginStartupInfo a
+   TEMPAUS TPluginStartupInfo a
+   \ TEMP AUS TPluginStartupInfo a ;TEMP
 
    a. StructSize @
 ;

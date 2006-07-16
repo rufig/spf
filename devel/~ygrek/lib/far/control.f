@@ -81,7 +81,7 @@ REQUIRE set-text ~ygrek/lib/far/details.f
 : set-parent 
    DROP EXIT
    { \ ctl Item -- }
-   TEMPVAR TFarDialogItem Item
+   TEMPAUS TFarDialogItem Item
    ctl -flags@ Item. Flags !
    ctl -extra@ Item. Selected !
    ?focus 0= IF ctl -focus@ DUP Item. Focus ! TO ?focus THEN

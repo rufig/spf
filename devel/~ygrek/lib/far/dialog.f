@@ -23,7 +23,7 @@ S" ~ygrek/lib/data/farplugin.const" LOAD-CONSTANTS
 
 REQUIRE table ~ygrek/~yz/lib/wincore.f
 
-REQUIRE DEFSTRUCT  ~ygrek/lib/var.f
+REQUIRE DEFSTRUCT  ~ygrek/lib/aus.f
 REQUIRE TPluginStartupInfo  ~ygrek/lib/far/struct.f
 DEFSTRUCT TPluginStartupInfo FARAPI
 FARAPI. /SIZE@  FARAPI. StructSize !
@@ -37,7 +37,7 @@ MODULE: TFarDialogItemArray
 ;MODULE
 
 0 VALUE Items \ Указатель на массив структур TFarDialogItem
-VAR TFarDialogItemArray Items
+AUS TFarDialogItemArray Items
 
 0 VALUE ItemsNumber \ Количество этих структур
 
@@ -170,7 +170,7 @@ FALSE VALUE ?INIT
 
 
 : TFarDialogItemInfo { item \ -- }
-   TEMPVAR TFarDialogItem item
+   TEMPAUS TFarDialogItem item
 
    CR ." ItemType = " item. ItemType @ .
    CR ." X1 Y1 X2 Y2 = " item. X1 @ . item. Y1 @ . item. X2 @ . item. Y2 @ .

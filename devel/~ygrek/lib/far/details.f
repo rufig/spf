@@ -3,7 +3,7 @@
 \ $Id$
 
 : ThisItem -id@ Items. get ;
-VAR TFarDialogItem ThisItem
+AUS TFarDialogItem ThisItem
 
 : send-to-dialog ( param2 param1 Msg hDlg -- result) FARAPI. SendDlgMessage @ API-CALL ;
 : send ( param2 param1 msg win -- result) -hdlg@ send-to-dialog ;
