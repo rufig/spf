@@ -1,0 +1,39 @@
+.code {
+margin-left: 20px;
+font-family: monospace;
+font-weight: bold;
+color: #0000FF;
+background-color: #EFEFEF;
+border: dashed 1 #00FF00
+}
+
+.index {
+font-family: Courier;
+}
+
+.run, .int, .comp {
+font-family: monospace;
+background-color: #CFCFCF;
+}
+
+.pre {
+//background-color: #CFCFCF;
+font-family: monospace;
+font-variant: normal;
+}
+
+.word {
+font-size: larger;
+font-weight: bold;
+}
+
+.link {
+text-decoration: none;
+color: #000000;
+}
+
+.date {
+font-size: smaller;
+font-style: italic;
+text-align: right;
+}
