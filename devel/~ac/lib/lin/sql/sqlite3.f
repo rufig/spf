@@ -106,9 +106,9 @@ ALSO SO NEW: sqlite3.dll
   ppStmt 1 sqlite3_bind_parameter_count 0 ?DO
     I 1+ ppStmt 2 sqlite3_bind_parameter_name
     ?DUP 
-    IF DUP >R ASCIIZ> SFIND
-       IF RDROP SQLITE_STATIC SWAP EXECUTE SWAP I 1+ ppStmt 5 sqlite3_bind_text THROW
-       ELSE R> 1+ ASCIIZ> SFIND
+    IF ASCIIZ> SFIND
+       IF SQLITE_STATIC SWAP EXECUTE SWAP I 1+ ppStmt 5 sqlite3_bind_text THROW
+       ELSE 1- SWAP 1+ SWAP SFIND
             IF SQLITE_STATIC SWAP EXECUTE SWAP I 1+ ppStmt 5 sqlite3_bind_text THROW
             ELSE TYPE ."  - bind name not found" THEN
        THEN
