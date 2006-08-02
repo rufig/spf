@@ -1,7 +1,7 @@
 REQUIRE { lib/ext/locals.f
 REQUIRE /STRING lib/include/string.f
 REQUIRE :M ~ygrek/~yz/lib/wincore.f
-REQUIRE OnText parser.f 
+REQUIRE OnText ~ygrek/prog/fhlp/parser.f 
 REQUIRE DateTime#GMT ~ac/lib/win/date/date-int.f
 
 ' OEM>ANSI TO ANSI><OEM
