@@ -1,7 +1,7 @@
 ( –асширение поиска дл€ INCLUDED
-  ≈сли файл не найден оригинальным FIND-FULLNAME'ом, перебираютс€ 
-  слова из included_path и трактуютс€ как пути /относительно ModuleDir
-  или абсолютные/ дл€ поиска. 
+  ≈сли файл не найден оригинальным FIND-FULLNAME'ом, перебираютс€ слова 
+  из included_path и трактуютс€ как пути дл€ поиска. [относительно ModuleDir или абсолютные]
+
   »спользовать в spf4.ini в виде:
 
   ~ygrek/lib/included.f
@@ -15,6 +15,7 @@
   28.Jun.2006 )
 
 ( aльтернативный способ использовани€
+
   with: my_path\
   S" my path with spaces/" with 
 
@@ -25,7 +26,7 @@ REQUIRE [IF] lib/include/tools.f
 
 C" EXTRA-INCLUDED" FIND NIP [IF] \EOF [THEN] \ Dont include it twice
 
-: [WID] ALSO ' EXECUTE CONTEXT @ PREVIOUS POSTPONE LITERAL ; IMMEDIATE
+\ : [WID] ALSO ' EXECUTE CONTEXT @ PREVIOUS POSTPONE LITERAL ; IMMEDIATE
 
 MODULE: included_path
 \ CREATE D:/WORK/FORTH/spf4/devel2/
@@ -33,6 +34,8 @@ MODULE: included_path
 ;MODULE
 
 MODULE: EXTRA-INCLUDED
+
+ALSO included_path CONTEXT @ PREVIOUS VALUE _wid \ [WID] included_path
 
 0 VALUE a
 0 VALUE u
@@ -101,7 +104,7 @@ CREATE buf buf-size ALLOT
 
   TO u TO a
   \ ." Find: " a u TYPE CR
-  [WID] included_path @
+  _wid @
   0 >R
   BEGIN
    DUP R@ 0= AND
@@ -117,7 +120,7 @@ CREATE buf buf-size ALLOT
 
 EXPORT
 
-: with ( a u -- ) GET-CURRENT >R [WID] included_path SET-CURRENT CREATED R> SET-CURRENT ;
+: with ( a u -- ) GET-CURRENT >R _wid SET-CURRENT CREATED R> SET-CURRENT ;
 : with: ( "dir" -- ) NextWord with ;
 
 ;MODULE
