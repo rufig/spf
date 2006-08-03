@@ -229,6 +229,15 @@ USER _db3_get_2
 PREVIOUS
 
 \EOF примеры:
+: kl \ можно подставлять в SQL-команду как :kl или $kl для авто-биндинга
+  S" Kalinin%"
+;
+: TEST { \ sqh }
+  S" \spf4\devel\~ac\lib\ns\world.db3" db3_open -> sqh
+  S" select id, 5 from City where name like :kl" sqh db3_get_id2 . .
+  sqh db3_close
+; TEST
+\EOF примеры:
 : TEST { \ sqh }
   S" \spf4\devel\~ac\lib\ns\world.db3" db3_open -> sqh
   S" select id, 5 from City where name like 'Kalinin%'" sqh db3_get_id2 . .
