@@ -69,11 +69,11 @@ MESSAGES;
 \ ." <LINK rel='stylesheet' href='" TYPE ." ' type='text/css'>" CR
  ." </STYLE>" CR
  ." </HEAD>" CR
- ." <BODY bgcolor='white'><pre>" CR
+ ." <BODY bgcolor='white'> <div align='center'><table width='800'><tr><td><pre>" CR
 ;
 
 : HTML-footer
- ." </pre></BODY></HTML>" CR
+ ." </pre></td></tr></table></div></BODY></HTML>" CR
 ;
 
 : convert { ina inu outa outu cssa cssu \ -- }
