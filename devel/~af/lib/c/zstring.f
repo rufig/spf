@@ -8,7 +8,7 @@ VOCABULARY ZStrSupport
 GET-CURRENT ALSO ZStrSupport DEFINITIONS
 
 USER toadr  USER fromadr  USER counter
-: char ( --c/0) counter @ 1 <
+: gchar ( --c/0) counter @ 1 <
   IF 0 ELSE -1 counter +! fromadr @ C@ fromadr 1+! THEN ;
 : unchar  counter 1+! -1 fromadr +! ;
 : c> ( c--) toadr @ C!  toadr 1+! ;
@@ -19,7 +19,7 @@ USER toadr  USER fromadr  USER counter
         DUP [CHAR] q = IF DROP [CHAR] " ELSE
           DUP [ CHAR 0 1- ] LITERAL OVER < SWAP [ CHAR 9 1+ ] LITERAL < AND IF
             [CHAR] 0 -
-            BEGIN ( n) char DUP
+            BEGIN ( n) gchar DUP
               [ CHAR 0 1- ] LITERAL OVER < SWAP [ CHAR 9 1+ ] LITERAL < AND
             WHILE
               ( n c) [CHAR] 0 - SWAP 10 * +
@@ -34,8 +34,8 @@ USER toadr  USER fromadr  USER counter
 : ESC-CZMOVE ( a # to --)
   toadr ! counter ! fromadr !
   BEGIN
-    char
-    DUP [CHAR] \ = IF DROP char escape THEN
+    gchar
+    DUP [CHAR] \ = IF DROP gchar escape THEN
   DUP c> 0= UNTIL ;
 
 : ALITERAL  R> DUP DUP C@ + >R 1+ ;
