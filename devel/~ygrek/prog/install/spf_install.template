@@ -29,7 +29,7 @@ REGEDIT4
 [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map]
 ".spf"="{path} %s"
 
-[HKEY_CURRENT_USER\SOFTWARE\Far\Associations\Type{ntype}]
+[HKEY_CURRENT_USER\SOFTWARE\Far\Associations\{TypeN}]
 "Description"="sp-forth files"
 "Edit"=""
 "Execute"="{path} !.!"

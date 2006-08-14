@@ -13,27 +13,28 @@ EXPORT
 : A" POSTPONE " ; IMMEDIATE
 : STR@ STR@ ;
 : '' '' ;
+: A"" POSTPONE "" ; IMMEDIATE
+: STRFREE STRFREE ;
 
 ;MODULE
 
 \ REQUIRE  load-bitmap   ~vsp/lib/images.f
 REQUIRE  RG_CreateKey  ~ac/lib/win/registry2.f
-REQUIRE  button  ~yz/lib/winctl.f
+REQUIRE  button  ~yz/lib/wincc.f
 REQUIRE  ENUM  ~ygrek/lib/enum.f
+REQUIRE  PRO ~profit/lib/bac4th.f
+REQUIRE  >ASCIIZ ~ygrek/lib/string.f
 
 :NONAME 0 VALUE ; ENUM values
 
-: >ASCIIZ ( addr u -- z ) OVER + 0 SWAP C! ;
-
-values  edit-path spf ntype farmanager scriptmap explorer ;
+values  edit-path spf ntype farmanager scriptmap explorer TypeNstr ;
 
 100 VALUE anime-step-ms
+: anim-strings PRO "  \\" CONT "  |" CONT "  /" CONT "  -" CONT ;
 : anime-status-main ( -- ) 
-  "  \\" 0 winmain set-status anime-step-ms PAUSE
-  "  |" 0 winmain set-status anime-step-ms PAUSE
-  "  /" 0 winmain set-status anime-step-ms PAUSE
-  "  -" 0 winmain set-status anime-step-ms PAUSE
-;
+  anim-strings ( a u )
+  0 winmain set-status 
+  anime-step-ms PAUSE ;
 
 : set-main-status ( z -- ) 2 0 DO anime-status-main LOOP  0 winmain set-status ;
 
@@ -43,26 +44,36 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
   >ASCIIZ EK @ RegDeleteKeyA ;
 
 : CheckSPFType ( addr u -- )
+  TypeNstr STRFREE
+  2DUP A" {s}" TO TypeNstr \ remember the key
+  \ CR TypeNstr STR@ TYPE
   S" Description" 2SWAP StrValue
-  S" sp-forth files" COMPARE 0= IF DROP TRUE EXIT THEN
+  \ CR ntype . 2DUP TYPE
+  S" sp-forth files" COMPARE 0= IF -1 TO ntype DROP TRUE EXIT THEN \ DROP TRUE is a hack!!
   ntype 1+ TO ntype
 ;
 
-: TypeN A" Type{ntype}" STR@ ;
+: TypeN TypeNstr STR@ ;
 
 : FindSPFType
   S" SOFTWARE\Far\Associations" HKEY_CURRENT_USER RG_OpenKey THROW EK !
 
+  A"" TO TypeNstr
   0 TO ntype
   ['] CheckSPFType EK @ RG_ForEachKey
+  ntype -1 <> IF \ it means there was no key found
+    A" Type{ntype}" TO TypeNstr THEN \ else the key name is already set
+  \ CR ." CHECK IT " TypeN TYPE
 ;
 
 : path spf ASCIIZ> ;
+: get-user-path
+   spf 1024 ERASE
+   spf edit-path -text@ ;
 
 PROC: install
 
- spf 1024 ERASE
- spf edit-path -text@
+ get-user-path
 
  HKEY_LOCAL_MACHINE EK !
 
@@ -151,21 +162,25 @@ PROC: install
 
 PROC;
 
+\ double the slashes
+: DOUBLE-SLASHES ( buf a u -- )
+ BOUNDS DO
+  I C@ [CHAR] \ = IF 
+    [CHAR] \  OVER C! 1+ [CHAR] \ OVER C! 1+
+  ELSE 
+    I C@ OVER C! 1+ 
+  THEN
+ LOOP
+ 0 SWAP C! ;
+
 PROC: generate { \ h orig -- }
 
- spf 1024 ERASE
- spf edit-path -text@
+ get-user-path
 
  spf ASCIIZ> + 2+ TO orig
  spf orig orig spf - CMOVE
 
- spf
- orig ASCIIZ> OVER + SWAP DO
-  I C@ [CHAR] \ = 
-  IF [CHAR] \  OVER C! 1+ [CHAR] \ OVER C! 1+
-  ELSE I C@ OVER C! 1+ THEN
- LOOP
- 0 SWAP C!
+ spf orig ASCIIZ> DOUBLE-SLASHES
 
  FindSPFType
  S" spf_install.reg" R/W CREATE-FILE THROW TO h
@@ -194,34 +209,54 @@ PROC;
  THEN
 ;
 
+MESSAGES: ttp
+520 :M  ." dsds" M;
+MESSAGES;
+
 : main { \ win -- }
   1024 ALLOCATE THROW TO spf
 
   WINDOWS...
   0 dialog-window TO win
+  0 create-tooltip
   " Arial Cyr" 10 create-font default-font
   win TO winmain
-  " SP-Forth registry installer" win -text!
+  " SP-Forth registry settings manager" win -text!
 
   GRID
     " Path to spf.exe : " label |
     ===
-    edit  200 this limit-edit -xspan  this TO edit-path  |
+    edit  200 this limit-edit -xspan  this TO edit-path  
+        " Path to the SPF executable" this -tooltip! |
     ===
     GRID
-    " Associate spf.exe, .spf and .f file types within: " label |
+    " Associate .spf and .f file types with spf.exe in : " label |
     ===
-    " Explorer" checkbox  this TO explorer |
+    " Explorer" checkbox  this TO explorer  
+        " Check to associate forth files with spf.exe in Explorer. You will be able to run them by simply double-clicking. Uncheck to delete the current association" 
+        this -tooltip! 
+        ttp this -notify!
+\        this W: ttm_getmaxtipwidth ?send .
+\        50 this W: ttm_setmaxtipwidth common-tooltip-op
+ \       this W: ttm_getmaxtipwidth ?send .
+         |
     ===
-    " FAR Manager" checkbox  this TO farmanager |
+    " FAR Manager" checkbox  this TO farmanager 
+        " Check to associate *.f and *.spf files with spf.exe in FAR manager" this -tooltip! |
     ===
-    " Script Map" checkbox  this TO scriptmap |
+    " Script Map" checkbox  this TO scriptmap 
+        " Check to add forth files to the W3SVC script map" this -tooltip! |
     -bevel
     GRID; -xspan |
     ===
-    "   Apply  " button   install this -command! |
-    " Generate .reg file" button  generate this -command! |
-    "    Quit    " button      quit this -command! |
+    "   Apply  " button   install this -command! 
+      " Checked boxes will result in setting the corresponding value in the registry. Cleared boxes will delete the setting from the registry" 
+      this -tooltip! |
+    " Generate .reg file" button  generate this -command! 
+      " Save the current settings to the .reg file so that you can manually incorporate it in the registry later" 
+      this -tooltip! |
+    "    Quit    " button      quit this -command! 
+      " Quit" this -tooltip! |
   GRID;
 
     winmain create-status
