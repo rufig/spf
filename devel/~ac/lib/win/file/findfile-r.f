@@ -16,7 +16,9 @@ REQUIRE FIND-FILES       ~ac/lib/win/file/findfile.f
 REQUIRE {                ~ac/lib/locals.f
 REQUIRE STR@             ~ac/lib/str2.f
 
-USER FIND-FILES-RL \ уровень вложенности 0-...
+USER FIND-FILES-RL    \ уровень вложенности 0-...
+USER FIND-FILES-DEPTH \ ограничение вложенности, 0 - без ограничения,
+                      \ 1 - только в указанном каталоге, ...
 
 : FIND-FILES-R ( addr u xt -- )
 \ addr u - имя каталога для обхода
@@ -37,7 +39,8 @@ USER FIND-FILES-RL \ уровень вложенности 0-...
       addr u " {s}/{s}" DUP -> f STR@ data dir xt EXECUTE
       dir
       IF FIND-FILES-RL 1+!
-         f STR@ xt RECURSE
+         FIND-FILES-RL @ FIND-FILES-DEPTH @ < FIND-FILES-DEPTH @ 0= OR
+         IF f STR@ xt RECURSE THEN
          FIND-FILES-RL @ 1- FIND-FILES-RL !
       THEN
       f STRFREE
@@ -67,7 +70,8 @@ USER FIND-FILES-RL \ уровень вложенности 0-...
       IF 
          addr u " {s}/{s}" DUP -> f STR@ data xt EXECUTE
          FIND-FILES-RL 1+!
-         f STR@ xt RECURSE
+         FIND-FILES-RL @ FIND-FILES-DEPTH @ < FIND-FILES-DEPTH @ 0= OR
+         IF f STR@ xt RECURSE THEN
          FIND-FILES-RL @ 1- FIND-FILES-RL !
          f STRFREE
       ELSE 2DROP THEN
@@ -84,7 +88,8 @@ USER FIND-FILES-RL \ уровень вложенности 0-...
 \ печать имен каталогов со сдвигом на глубину
 \ : TT IF FIND-FILES-RL @ CELLS SPACES cFileName ASCIIZ> TYPE CR
 \      ELSE DROP THEN 2DROP ;
-\ : T S" c:" ['] TT FIND-FILES-R ; T
+\ 2 FIND-FILES-DEPTH !
+\ : T S" c:\temp" ['] TT FIND-FILES-R ; T
 
 \ печать полных имен каталогов
 \ : TT DROP TYPE CR ;
