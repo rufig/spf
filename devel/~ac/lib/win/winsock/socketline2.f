@@ -80,6 +80,7 @@ CONSTANT /sl
   addr sl_socket @ ReadSocket
 \  DUP 10060 = IF a u DUMP CCR THEN
   THROW
+\  u IF DROP ELSE THROW THEN \ ~ruv 16.08.2006
   u + addr sl_point !
 ;
 
@@ -95,7 +96,7 @@ CONSTANT /sl
 \ Если буфер большой, а данные из сокета получаются мелкими 
 \ порциями, то возможна большая глубина рекурсивных вызовов...
 
-: SocketReadLine ( addr -- addr1 u1 )
+: SocketReadLine1 ( addr -- addr1 u1 )
   { addr \ pa1 pu1 acr }
   addr SocketGetPending -> pu1 -> pa1
   pa1 pu1 LT 1+ 1 SEARCH
@@ -113,6 +114,15 @@ CONSTANT /sl
      THEN
      addr SocketContRead addr RECURSE
   THEN
+;
+: SocketReadLine ( addr -- addr1 u1 ) \ ~ruv 16.08.2006
+  DUP >R ['] SocketReadLine1 CATCH
+  ?DUP IF NIP ( ior )
+    DUP -1002 <> IF THROW THEN
+    R@ SocketGetPending NIP R> SocketReadFromPending
+    DUP IF ROT DROP EXIT THEN
+    2DROP THROW
+  THEN RDROP
 ;
 : CreateServerSocket ( port -- socket )
   { port \ s }
