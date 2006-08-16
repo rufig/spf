@@ -390,15 +390,26 @@ PROC: tab-resize ( x y tab -- )
   DUP >R resize R> map-current-tab-grid
 PROC;
 
+: hide-selected-tab ( ctl -- )
+   DUP -selected@ SWAP -iparam@ hide-grid ;
+
+: show-selected-tab ( ctl -- )
+   DUP map-current-tab-grid
+   DUP -selected@ SWAP -iparam@ show-grid ;
+
+: switch-tab { i tab -- }
+   tab hide-selected-tab
+   i 0  W: TCM_SETCURSEL tab send DROP
+   tab show-selected-tab ;
+
 MESSAGES: tabcontrol-notify
 
 M: tcn_selchanging
-  thisctl -selected@ thisctl -iparam@ hide-grid
+  thisctl hide-selected-tab
 M;
 
 M: tcn_selchange
-  thisctl map-current-tab-grid
-  thisctl -selected@ thisctl -iparam@ show-grid
+  thisctl show-selected-tab
 M;
 
 MESSAGES;
@@ -838,6 +849,18 @@ endtable
   z >>
   ti common-tooltip mess lsend DROP ; 
 TO common-tooltip-op
+
+\ все задержки в миллисекундах
+\ initial - сколько ждать перед "всплытием" если курсор пришёл с пустого места
+\ autopop - сколько времени висеть, пока курсор внутри контрола
+\ reshow - сколько ждать перед "всплытием" если курсор движется по контролам
+\ по умолчанию t, 10*t, t/5, где t - время даблклика
+\ чтобы сбросить значение в дефолтное - установите -1
+: set-tooltip-delay { initial autopop reshow tooltip -- }
+  W: TTDT_INITIAL initial W: TTM_SETDELAYTIME tooltip send DROP 
+  W: TTDT_AUTOPOP autopop W: TTM_SETDELAYTIME tooltip send DROP
+  W: TTDT_RESHOW  reshow  W: TTM_SETDELAYTIME tooltip send DROP 
+  ;
 
 \ -------------------------------
 \EOF

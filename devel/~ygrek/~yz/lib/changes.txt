@@ -6,7 +6,10 @@ ODBC.F
 
 
 wincc.f
--
+[+] hide-selected-tab
+[+] show-selected-tab
+[*] tabcontrol-notify
+[+] switch-tab
 
 
 winctl.f
