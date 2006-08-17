@@ -1,0 +1,68 @@
+<html>
+<title>
+~micro/lib/
+</title>
+<body text="#800080" bgcolor="#66ccff" vlink=#c000c0>
+<font face="Times New Roman" size=4>
+<h1>
+<p align=center>
+~micro/lib/
+</p>
+</h1>
+
+<h2><a href="const/index.htm">const/</a></h2>
+Средства для описания констант и готовые константы.
+
+<h2><a href="key/index.htm">key/</a></h2>
+Слова для обработки клавиатуры (и не только) в консоли.
+
+<h2><a href="parser/index.htm">parser/</a></h2>
+Слова для парсера.
+
+<h2><a href="http://www.forth.org.ru/%7Emicro/wwwlib/stack/index.htm">stack/</a></h2>
+Работа со стеком.
+
+<h2><a name="literal" href="../lib/literal.f">literal.f</a></h2>
+Расширенный вариант ?SLITERAL-а, написанный с использованием предикатов.
+Размещён здесь в основном для демонстрации возможностей. Требуется:
+<a href="index.htm#predicat">~micro/lib/predicat.f</a>.<br>
+
+<h2><a name="predicat" href="../lib/predicat.f">predicat.f</a></h2>
+Реализация предикатов. Каждый предикат представляет собой слово, берущее
+со стека несколько чисел и возвращающее флаг. Эта библиотека позволяет
+составлять списки предикатов. Списки фиксированной максимальной длины.
+При выполнении списка выполняется каждый входящий в него предикат по-очереди.
+Если какой-то предикат выдаёт true, слово завершается.<br>
+Для примера смотрите <a href="index.htm#literal">literal.f</a><br>
+i j P: name word1 word2 ... ;<br>
+Составляет список предикатов. Каждый требует j чисел на стеке, дополнительно
+резервируется место для добавления ещё i предикатов.<br>
+PADD ( xt v -- ) - добавление предиката к хвосту списка. v - xt списка.<br>
+PSHOW ( v -- ) - показывает список.<br>
+PREMOVE ( v -- ) - убирает последний предикат.<br>
+PREPLACE ( no-xt what-xt v -- ) - заменяет предикат № no-xt предикатом с
+xt=what-xt в списке v.<br>
+Требуется:
+<a href="http://www.forth.org.ru/%7Emicro/wwwlib/stack/index.htm#mem">~micro/lib/stack/mem.f</a>,
+<a href="parser/index.htm#word">~micro/lib/parser/word.f</a>.<br>
+
+<h2><a name="replace" href="../lib/replace.f">replace.f</a></h2>
+Переопределение скомпилированных слов типа <b>:</b> .<br>
+REPLACE: existing_word word1 word2 ... INHERITED  word3 word4 word5 ... ;<br>
+Пример:<pre>
+<i>REPLACE: . DUP INHERITED INHERITED ;
+1 .</i>
+<b>1 1  Ok</b>
+
+<i>REPLACE: TYPE [CHAR] { EMIT INHERITED [CHAR] } EMIT ;</i>
+<b>TYPE isn't unique
+{ Ok}</b>
+<i>.( QWERTY)</i>
+<b>{QWERTY}{ Ok}</b>
+</pre>
+
+<br><br><br><br>
+Предложения, пожелания и дополнения шлите мне <a href="mailto:micro@forth.org.ru">Dmitry Zyryanov (Micro)</a>
+</font>
+</body>
+</html>

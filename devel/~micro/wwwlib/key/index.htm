@@ -1,0 +1,99 @@
+<html>
+<title>
+~micro/lib/key/
+</title>
+<body text="#800080" bgcolor="#66ccff" vlink=#c000c0>
+<font face="Times New Roman" size=4>
+<h1>
+<p align=center>
+~micro/lib/key/
+</p>
+</h1>
+
+<h2><a href="../index.htm">../</h2>
+
+<h2><a name="accept" href="../../lib/key/accept.f">accept.f</a></h2>
+ACCEPT с историей ввода. Понимает клавиши BACKSPACE, DEL, HOME, END, стрелки,
+ESC, русские буквы (перключение как обычно в консоли). Имеющийся в ядре
+ACCEPT не перекрывается - просто создаётся новый. Вводимая строка располагается
+в позиции курсора и не должна вылазить за край экрана. Число и размер хранимых
+строк описаны константами. Буфер выделяется в heap. Для перекрытия старого
+ACCEPT-а и возможности сохранения новой версии форта используйте
+<a href="index.htm#acceptgo">acceptgo.f</a>. Если консольное событие не распознано, то
+вызывается ACCEPTUnknownEvent ( u -- enter ) u - результат работы вызванного
+перед этим EKEY, в INPUT_RECORD исчерпывающая информация о событии (см. 
+<a href="index.htm#keys">keys.f</a>), enter=0 если строка ещё не введена.
+Требуется:
+lib/ext/case.f, 
+<a href="index.htm#keys">~micro/lib/key/keys.f</a>, 
+<a href="../const/index.htm#const">~micro/lib/const/vk_.f</a>.<br>
+
+<h2><a name="acceptgo" href="../../lib/key/acceptgo.f">acceptgo.f</a></h2>
+Загрузка accept.f и подстановка нового ACCEPT вместо старого.
+Требуется:
+<a href="../index.htm#replace">replace.f</a>, 
+<a href="index.htm#accept">~micro/lib/key/accept.f</a>.<br>
+
+<h2><a name="keys" href="../../lib/key/keys.f">keys.f</a></h2>
+Обработка событий консоли. Объёмные слова, но с большими фозможностями.
+НАРОД! Кто сможет написать слова EKEY?, EKEY, EKEY>CHAR, KEY? и KEY короче,
+но без потери функциональности (по крайней мере чтобы клавиатуру можно было
+читать нормально), намыльте, плиз! Честное слово, короче не получается :-(
+Там же интересный пример использования слова CONST. EKEY? ( -- f ) возвращает
+true, если есть событие консоли. EKEY ( -- u ) берёт событие, заполняет
+структуру INPUT_RECORD, и возвращает виртуальный код клавиши в младшем байте
+и флаги:<br>
+KEYFLAG_KEY_EVENT - событие клавиатуры. Если так,то<br>
+KEYFLAG_KEY_DOWN - нажатие клавиши<br>
+KEYFLAG_CHAR_KEY - символьная клавиша<br>
+Если KEYFLAG_KEY_EVENT=0, то скорее всего это событие мыши. Тогда<br>
+KEYFLAG_MOUSE_EVENT - событие мыши.<br>
+KEYFLAG_MOUSE_LBUTTON - левая кнопка нажата<br>
+KEYFLAG_MOUSE_RBUTTON - правая кнопка нажата<br>
+KEYFLAG_MOUSE_MOVE - мышь двинули<br>
+KEYFLAG_MOUSE_DBLCLICK - дблклик мыши<br>
+Структура INPUT_RECORD:<br>
+&nbsp&nbspEventType - тип события<br>
+&nbsp&nbsp&nbsp&nbspMOUSE_EVENT - от мыши<br>
+&nbsp&nbsp&nbsp&nbspKEY_EVENT - от клавиатуры<br>
+Если событие от клавиатуры, то<br>
+&nbsp&nbspKKeyDown - если не 0, то нажатие<br>
+&nbsp&nbspKRepeatCount - счётчик (?)<br>
+&nbsp&nbspKVirtualKeyCode - виртуальный код клавиши<br>
+&nbsp&nbspKVirtualScanCode - виртуальный скан-код клавиши (?)<br>
+&nbsp&nbspKAsciiCode - ASCII-код клавиши (только если она нажата, а не отпущена)<br>
+&nbsp&nbspKControlKeyState - состояние регистровых клавиш и индикаторов<br>
+&nbsp&nbsp&nbsp&nbspRIGHT_ALT_PRESSED - правый Alt<br>
+&nbsp&nbsp&nbsp&nbspLEFT_ALT_PRESSED - левый Alt<br>
+&nbsp&nbsp&nbsp&nbspRIGHT_CTRL_PRESSED - правый Ctrl<br>
+&nbsp&nbsp&nbsp&nbspLEFT_CTRL_PRESSED - левый Ctrl<br>
+&nbsp&nbsp&nbsp&nbspCAPSLOCK_ON - CapsLock<br>
+&nbsp&nbsp&nbsp&nbspENHANCED_KEY - расширеная клавиша (?)<br>
+&nbsp&nbsp&nbsp&nbspNUMLOCK_ON - NumLock<br>
+&nbsp&nbsp&nbsp&nbspSCROLLLOCK_ON - ScrollLock<br>
+&nbsp&nbsp&nbsp&nbspSHIFT_PRESSED - догадайтесь ;) Shift<br>
+Если событие от мыши<br>
+&nbsp&nbspMMouseX - координата X мыши<br>
+&nbsp&nbspMMouseY - координата Y мыши<br>
+&nbsp&nbspMButtonState - кнопки мыши<br>
+&nbsp&nbsp&nbsp&nbspLBUTTON - левая<br>
+&nbsp&nbsp&nbsp&nbspRBUTTON - правая<br>
+&nbsp&nbspMControlKeyState - состояние регистровых клавиш и индикаторов, см KControlKeyState<br>
+&nbsp&nbspMEventFlag - флаг события<br>
+&nbsp&nbsp&nbsp&nbspMOUSE_MOVED - движение<br>
+&nbsp&nbsp&nbsp&nbspDOUBLE_CLICK - дблклик<br>
+ВНИМАНИЕ! Поля в структуре 2х байтовые! Поля, помеченные (?) не нашли
+применения.
+EKEY>CHAR ( u -- u 0 | c -1 ) возвращает true и символ, если событие
+интерпретируется как символ, или false и код события. KEY? ( -- f ) возвращает
+true, если нажата символьная клавиша. KEY ( -- c ) ждёт символьную клавишу
+и возвращает соответствующий ей символ.
+Требуется:
+<a href="../const/index.htm#const">~micro/lib/const/const.f</a>.<br>
+
+
+<br><br><br><br>
+Предложения, пожелания и дополнения шлите мне <a href="mailto:micro@forth.org.ru">Dmitry Zyryanov (Micro)</a>
+</font>
+</body>
+</html>

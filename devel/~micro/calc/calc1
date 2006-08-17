@@ -1,0 +1,116 @@
+WARNING 0!
+
+: .S
+ ." STACK: "
+  DEPTH 15 AND DUP
+  IF DUP 0 DO DUP PICK U. 1- LOOP DROP
+  ELSE DROP ." <EMPTY>" THEN CR
+;
+
+S" ~yz/blankprog.f" INCLUDED
+S" calc/fpnum.f" INCLUDED
+S" calc/string.f" INCLUDED
+
+OBJECT PNUM X
+OBJECT PNUM Y
+OBJECT STRING XS
+INST STRING XSS
+OBJECT STRING YS
+OBJECT STRING PS
+
+
+" Times New Roman Cyr" 20 Шрифт times
+" Times New Roman Cyr" 20 жирный Шрифт times-bold
+
+500 400 " Цалцулатор" Форма
+
+1 ===
+66 Ввод INDY
+
+1 ===
+66 Ввод INDX
+
+1 ===
+20 % " Основание:" Надпись
+10 % 2 Ввод-числа P 5 % пусто 20 % "  ОК " Кнопка okP
+
+1 === Линия
+
+4 ===
+times-bold
+|| "    ^   " Кнопка enter
+|| "   <=>  " Кнопка swap
+|| "    +   " Кнопка plus
+|| "    -   " Кнопка minus
+
+Обработчики
+
+CLASS: INDICATOR
+CLASS PNUM N
+CLASS STRING S
+;CLASS
+
+\ : txt S" NewText" DROP ;
+
+\ : QWE
+\   txt 0 12 XXX SendMessageA DROP
+\ ;
+
+: ErrMsg ( addr u -- )
+  WITH STRING
+    NEW >R
+    ." Errmsg inst=" R@ . CR
+    R@ <S
+    R@ >Z
+    " Опа..."
+    SWAP
+    0
+    MsgBox DROP
+    R> DESTROY
+  ENDWITH
+;
+
+: ERRHND ( xt -- )
+  CATCH IF ER-A @ ER-U @ ErrMsg THEN
+;
+
+: +ERRHND ( xt -- xt1 )
+  HERE >R
+  POSTPONE LITERAL
+\  POSTPONE CATCH
+  POSTPONE ERRHND
+  R>
+;
+
+
+: :NONAME>
+  >R :NONAME R> POSTPONE LITERAL
+;
+
+:NONAME
+  INDX
+." 1. "  XSS STRING SHOW
+  XSS STRING <Z
+." 2. "  XSS STRING SHOW
+\  10 XS >S
+\  X <STR
+\  16 X >STR
+\  XS <S
+\  XS >Z
+\  DROP
+\  Окошко
+  ABORT" ERROR!"
+;
+
+:NONAME>
+  CATCH DUP ." CATCH=" .
+  ." 3. " XSS STRING SHOW
+  IF ER-A @ ER-U @ CR TYPE CR ( ErrMsg ) THEN CR
+  ." 4. " XSS STRING SHOW
+; дляКнопки okP
+
+:NONAME
+  S" QWERTY" ErrMsg
+; дляКнопки enter
+
+Конец-формы

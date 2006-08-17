@@ -1,0 +1,41 @@
+\ =================  Описание полей  ====================
+
+: FIELDS
+  0
+  BEGIN
+    REFILL 0= ABORT" Structure not closed by ';'"
+    NextWord S" ;" COMPARE
+  WHILE
+    INTERPRET
+    0 >IN ! --
+  REPEAT
+  CREATING-CLASS @ CELL+ +!
+;
+
+\ ============  Описание чистых структур, без методов  ===============
+
+: STRUCT:
+  CLASS:
+  FIELDS
+  ;CLASS
+;
+
+\ ==================  Описание объекта  ==================
+
+: OBJECT
+  ' >BODY
+  CREATE
+  DUP @ , CELL+ @ ALLOT
+  DOES>
+  DUP CELL+ SWAP @
+  INTERPRET-METHOD
+;
+
+\ ======================  Debug  =========================
+
+: SHOWCLASS
+  >IN @
+  WIDOF NLIST
+  >IN !
+  SIZEOF ." Size=" .
+;

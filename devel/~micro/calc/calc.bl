@@ -1,0 +1,264 @@
+WARNING 0!
+
+S" ~micro/calc/fpnum.f" INCLUDED
+S" ~micro/calc/string.f" INCLUDED
+
+" Fixedsys" 20 Ўрифт mono
+" Fixedsys" 20 ( жирный ) Ўрифт mono-bold
+
+500 350 " ÷алцулатор" ‘орма
+
+1 ===
+66 ¬вод _X
+
+3 ===
+10 % 2 ¬вод-числа _P 5 % пусто 20 % " ѕеревести"  нопка okP
+
+1 === Ћини€
+
+5 ===
+mono
+15 % || "   7  "  нопка _7
+15 % || "   8  "  нопка _8
+15 % || "   9  "  нопка _9
+15 % || "   /  "  нопка _/
+30 % || "      C     "  нопка _C
+
+5 ===
+mono
+15 % || "   4  "  нопка _4
+15 % || "   5  "  нопка _5
+15 % || "   6  "  нопка _6
+15 % || "   *  "  нопка _*
+30 % || "      =     "  нопка _=
+
+5 ===
+mono
+15 % || "   1  "  нопка _1
+15 % || "   2  "  нопка _2
+15 % || "   3  "  нопка _3
+15 % || "   -  "  нопка _-
+30 % || "            "  нопка _ 
+
+5 ===
+mono
+15 % || "   0  "  нопка _0
+15 % || "  +/- "  нопка _+/-
+15 % || "   .  "  нопка _.
+15 % || "   +  "  нопка _+
+30 % || "            "  нопка _ 
+
+5 ===
+mono
+15 % || "   a  "  нопка _a
+15 % || "   b  "  нопка _b
+15 % || "   c  "  нопка _c
+15 % || "   d  "  нопка _d
+15 % || "   e  "  нопка _e
+15 % || "   f  "  нопка _f
+
+ќбработчики
+
+OBJECT PNUM XV
+OBJECT PNUM YV
+OBJECT STRING XS
+10 VALUE P
+1 VALUE TYPING
+
+VECT OPERATION
+
+: SETTEXT ( addr u control -- )
+  >BODY c.hwnd @ 0 12 ROT SendMessageA DROP
+;
+
+\ ' _X >BODY c.hwnd @ 0 7 ROT SendMessageA DROP
+S" 10" DROP ' _P SETTEXT
+\ S" 0." DROP ' _X SETTEXT
+
+: ErrMsg ( addr u -- )
+  WITH STRING
+    NEW >R
+    R@ <S
+    R@ >Z
+    " ќпа..."
+    SWAP
+    0
+    MsgBox DROP
+    R> DESTROY
+  ENDWITH
+;
+
+: ERRHND ( xt -- )
+  CATCH IF ER-A @ ER-U @ ErrMsg THEN
+;
+
+: :NONAME>
+  >R :NONAME R> POSTPONE LITERAL
+;
+
+: GET-P
+  _P
+  DUP 2 < OVER 16 > OR ABORT" Base must be: 2<=base<=16"
+  TO P
+;
+
+: GET-X
+  P
+  _X
+    XS <Z
+    XS UPPERCASE
+    XS >S
+  XV <STR              |CLASS
+;
+
+: GET
+  GET-P
+  GET-X
+;
+
+: PUT
+  P
+  XV >STR
+    XS <S
+    XS >Z
+  ['] _X SETTEXT       |CLASS
+  0 TO TYPING
+;
+
+: CLEAR
+\  ['] NOOP TO OPERATION
+\  0 XV PF VALUE !
+\  0 XV PI VALUE !
+\  -1 XV PF K !         |CLASS
+  S" " XS <S
+  XS >Z ['] _X SETTEXT
+;
+
+: APPLY-P
+  GET-X
+  GET-P
+  PUT
+;
+
+: OP+
+  YV XV PNUM+ |CLASS
+  ['] NOOP TO OPERATION
+;
+
+: OP-
+  YV XV PNUM- |CLASS
+  ['] NOOP TO OPERATION
+;
+
+: OP*
+  YV XV PNUM* |CLASS
+  ['] NOOP TO OPERATION
+;
+
+: OP/
+  YV XV PNUM/ |CLASS
+  ['] NOOP TO OPERATION
+;
+
+: CALC
+  GET
+  OPERATION
+  ['] NOOP TO OPERATION
+  PUT
+;
+
+: DO-IT
+  CALC
+  TO OPERATION
+  XV YV SIZEOF PNUM MOVE |CLASS
+  PUT
+;
+
+: K
+  TYPING 0= IF
+    CLEAR
+  THEN
+  1 TO TYPING
+  _X
+    XS <Z
+    XS UPPERCASE
+  XS +CHAR
+  XS >Z
+  ['] _X SETTEXT
+;
+
+' APPLY-P :NONAME> ERRHND ; дл€ нопки okP
+' CALC :NONAME> ERRHND ; дл€ нопки _=
+:NONAME
+  ['] OP+ DO-IT
+; :NONAME> ERRHND ; дл€ нопки _+
+:NONAME
+  ['] OP- DO-IT
+; :NONAME> ERRHND ; дл€ нопки _-
+:NONAME
+  ['] OP* DO-IT
+; :NONAME> ERRHND ; дл€ нопки _*
+:NONAME
+  ['] OP/ DO-IT
+; :NONAME> ERRHND ; дл€ нопки _/
+:NONAME
+  GET
+  XV SIGN @ NEGATE XV SIGN !
+  PUT
+; :NONAME> ERRHND ; дл€ нопки _+/-
+:NONAME
+  CLEAR 1 TO TYPING
+; :NONAME> ERRHND ; дл€ нопки _C
+:NONAME
+  [CHAR] 0 K
+; :NONAME> ERRHND ; дл€ нопки _0
+:NONAME
+  [CHAR] 1 K
+; :NONAME> ERRHND ; дл€ нопки _1
+:NONAME
+  [CHAR] 2 K
+; :NONAME> ERRHND ; дл€ нопки _2
+:NONAME
+  [CHAR] 3 K
+; :NONAME> ERRHND ; дл€ нопки _3
+:NONAME
+  [CHAR] 4 K
+; :NONAME> ERRHND ; дл€ нопки _4
+:NONAME
+  [CHAR] 5 K
+; :NONAME> ERRHND ; дл€ нопки _5
+:NONAME
+  [CHAR] 6 K
+; :NONAME> ERRHND ; дл€ нопки _6
+:NONAME
+  [CHAR] 7 K
+; :NONAME> ERRHND ; дл€ нопки _7
+:NONAME
+  [CHAR] 8 K
+; :NONAME> ERRHND ; дл€ нопки _8
+:NONAME
+  [CHAR] 9 K
+; :NONAME> ERRHND ; дл€ нопки _9
+:NONAME
+  [CHAR] A K
+; :NONAME> ERRHND ; дл€ нопки _a
+:NONAME
+  [CHAR] B K
+; :NONAME> ERRHND ; дл€ нопки _b
+:NONAME
+  [CHAR] C K
+; :NONAME> ERRHND ; дл€ нопки _c
+:NONAME
+  [CHAR] D K
+; :NONAME> ERRHND ; дл€ нопки _d
+:NONAME
+  [CHAR] E K
+; :NONAME> ERRHND ; дл€ нопки _e
+:NONAME
+  [CHAR] F K
+; :NONAME> ERRHND ; дл€ нопки _f
+:NONAME
+  [CHAR] . K
+; :NONAME> ERRHND ; дл€ нопки _.
+
+ онец-формы
