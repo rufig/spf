@@ -54,7 +54,7 @@ MESSAGES;
 :NONAME ." Compilation: <span class=comp>" TYPEHTML ." </span>" CR ; TO OnComp
 
 : file-content ( addr max name #name -- n )
-  R/O OPEN-FILE THROW >R
+  R/O OPEN-FILE IF DROP 2DROP 0 EXIT THEN >R
   R@ FILE-SIZE THROW D>S
   \ TUCK .S CR < IF 2DROP 0 R> CLOSE-FILE THROW EXIT THEN
   MIN
@@ -78,6 +78,8 @@ MESSAGES;
 
 : convert { ina inu outa outu cssa cssu \ -- }
  ina inu ['] FIND-FULLNAME CATCH IF TYPE ."  not found! Skipping..." CR EXIT THEN 2DROP
+ cssa cssu FILE-EXIST 0= IF cssa cssu TYPE ."  not found! Skipping..." CR EXIT THEN
+
  section 0!
  H-STDOUT
  outa outu R/W CREATE-FILE THROW TO H-STDOUT

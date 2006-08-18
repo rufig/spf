@@ -4,39 +4,31 @@
 \ ~ygrek
 \ 14.Jan.2006
 
+REQUIRE  RG_CreateKey  ~ac/lib/win/registry2.f
+REQUIRE  ENUM  ~ygrek/lib/enum.f
+REQUIRE  >ASCIIZ ~ygrek/lib/string.f
+REQUIRE  tabcontrol ~ygrek/~yz/lib/wincc.f
+
 MODULE: A-STR
-
-REQUIRE " ~ac/lib/str5.f
-
+ REQUIRE STR@ ~ac/lib/str5.f
 EXPORT
-
-: A" POSTPONE " ; IMMEDIATE
-: STR@ STR@ ;
-: '' '' ;
-: A"" POSTPONE "" ; IMMEDIATE
-: STRFREE STRFREE ;
-
+ : A" POSTPONE " ; IMMEDIATE
+ : STR@ STR@ ;
+ : A"" POSTPONE "" ; IMMEDIATE
+ : STRFREE STRFREE ;
 ;MODULE
 
-\ REQUIRE  load-bitmap   ~vsp/lib/images.f
-REQUIRE  RG_CreateKey  ~ac/lib/win/registry2.f
-REQUIRE  button  ~yz/lib/wincc.f
-REQUIRE  ENUM  ~ygrek/lib/enum.f
-REQUIRE  PRO ~profit/lib/bac4th.f
-REQUIRE  >ASCIIZ ~ygrek/lib/string.f
+VECT onClick-install
+VECT vect-generate
+
+STARTLOG 
+
+: ON-WINDOW-INIT ... ;
 
 :NONAME 0 VALUE ; ENUM values
+values  spf ntype TypeNstr ;
 
-values  edit-path spf ntype farmanager scriptmap explorer TypeNstr ;
-
-100 VALUE anime-step-ms
-: anim-strings PRO "  \\" CONT "  |" CONT "  /" CONT "  -" CONT ;
-: anime-status-main ( -- ) 
-  anim-strings ( a u )
-  0 winmain set-status 
-  anime-step-ms PAUSE ;
-
-: set-main-status ( z -- ) 2 0 DO anime-status-main LOOP  0 winmain set-status ;
+REQUIRE gui gui.f
 
 WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 
@@ -67,17 +59,18 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 ;
 
 : path spf ASCIIZ> ;
+
 : get-user-path
    spf 1024 ERASE
-   spf edit-path -text@ ;
+   spf gui::path@ ;
 
-PROC: install
+: install
 
  get-user-path
 
  HKEY_LOCAL_MACHINE EK !
 
- explorer -state@  farmanager -state@ OR  scriptmap -state@ OR IF
+ gui::explorer -state@  gui::farmanager -state@ OR  gui::scriptmap -state@ OR IF
    \ [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe]
    \ @="C:\\spf\\spf4.exe"
    path S" " S" SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" StrValue!
@@ -87,7 +80,7 @@ PROC: install
 
  HKEY_CLASSES_ROOT EK !
 
- explorer -state@ IF
+ gui::explorer -state@ IF
     \ [HKEY_CLASSES_ROOT\.spf]
     \ @="spf"
     \ "Content Type"="text/plain"
@@ -130,7 +123,7 @@ PROC: install
 
  HKEY_LOCAL_MACHINE EK !
 
- scriptmap -state@ IF
+ gui::scriptmap -state@ IF
  
    \ [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map]
    \ ".spf"="c:\\spf\\spf4.exe %s"
@@ -147,7 +140,7 @@ PROC: install
  THEN
 
 
- farmanager -state@ IF
+ gui::farmanager -state@ IF
 
   FindSPFType
 
@@ -158,22 +151,30 @@ PROC: install
   S" " S" View" TypeN StrValue!
  THEN
 
- " Registry values updated successfully" set-main-status
+ " Registry values updated successfully" gui::set-main-status
 
-PROC;
+;
+
+' install TO onClick-install
 
 \ double the slashes
 : DOUBLE-SLASHES ( buf a u -- )
  BOUNDS DO
   I C@ [CHAR] \ = IF 
-    [CHAR] \  OVER C! 1+ [CHAR] \ OVER C! 1+
-  ELSE 
+    [CHAR] \ OVER C! 1+
+    [CHAR] \ OVER C! 1+
+  ELSE
     I C@ OVER C! 1+ 
   THEN
  LOOP
  0 SWAP C! ;
 
-PROC: generate { \ h orig -- }
+HERE 
+ S" spf_install.template" A-STR::FILE 2DUP S, 0 C, SWAP FREE THROW SWAP 
+ VALUE @template
+ VALUE #template
+
+:NONAME { a u \ h orig -- }
 
  get-user-path
 
@@ -183,23 +184,20 @@ PROC: generate { \ h orig -- }
  spf orig ASCIIZ> DOUBLE-SLASHES
 
  FindSPFType
- S" spf_install.reg" R/W CREATE-FILE THROW TO h
+ a u R/W CREATE-FILE THROW TO h
 
-\ A" {S' spf_install.template' DEPTH . EVAL-FILE}" STR@ h WRITE-FILE THROW
- S" spf_install.template" A-STR::EVAL-FILE
- A" {s}" STR@ h WRITE-FILE THROW
+ @template #template A-STR::S@ h WRITE-FILE THROW
 
  h CLOSE-FILE THROW
 
- " File spf_install.reg written successfully" set-main-status
-PROC;
-
+ a u A" File {s} written successfully" STR@ DROP gui::set-main-status
+; TO vect-generate
 
 PROC: quit
   W: wm_close winmain send DROP
 PROC;
 
-: check ( -- )
+: initial-check ( -- )
  S" " S" SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" StrValue DUP
  IF
   A" Present : {s}" STR@ DROP 0 winmain set-status 
@@ -209,76 +207,31 @@ PROC;
  THEN
 ;
 
-MESSAGES: ttp
-520 :M  ." dsds" M;
-MESSAGES;
-
-: main { \ win -- }
+: main
   1024 ALLOCATE THROW TO spf
 
   WINDOWS...
-  0 dialog-window TO win
-  0 create-tooltip
-  " Arial Cyr" 10 create-font default-font
-  win TO winmain
-  " SP-Forth registry settings manager" win -text!
 
-  GRID
-    " Path to spf.exe : " label |
-    ===
-    edit  200 this limit-edit -xspan  this TO edit-path  
-        " Path to the SPF executable" this -tooltip! |
-    ===
-    GRID
-    " Associate .spf and .f file types with spf.exe in : " label |
-    ===
-    " Explorer" checkbox  this TO explorer  
-        " Check to associate forth files with spf.exe in Explorer. You will be able to run them by simply double-clicking. Uncheck to delete the current association" 
-        this -tooltip! 
-        ttp this -notify!
-\        this W: ttm_getmaxtipwidth ?send .
-\        50 this W: ttm_setmaxtipwidth common-tooltip-op
- \       this W: ttm_getmaxtipwidth ?send .
-         |
-    ===
-    " FAR Manager" checkbox  this TO farmanager 
-        " Check to associate *.f and *.spf files with spf.exe in FAR manager" this -tooltip! |
-    ===
-    " Script Map" checkbox  this TO scriptmap 
-        " Check to add forth files to the W3SVC script map" this -tooltip! |
-    -bevel
-    GRID; -xspan |
-    ===
-    "   Apply  " button   install this -command! 
-      " Checked boxes will result in setting the corresponding value in the registry. Cleared boxes will delete the setting from the registry" 
-      this -tooltip! |
-    " Generate .reg file" button  generate this -command! 
-      " Save the current settings to the .reg file so that you can manually incorporate it in the registry later" 
-      this -tooltip! |
-    "    Quit    " button      quit this -command! 
-      " Quit" this -tooltip! |
-  GRID;
+  gui::show
 
-    winmain create-status
+  ModuleName >ASCIIZ gui::edit-path -text!
+  TRUE gui::explorer -state!
+  TRUE gui::farmanager -state!
+  FALSE gui::scriptmap -state!
+  initial-check
 
-  winmain -grid!
-
-  ModuleName >ASCIIZ edit-path -text!
-  TRUE explorer -state!
-  TRUE farmanager -state!
-  FALSE scriptmap -state!
-  check
-
-  win wincenter
-  win winshow
+  ON-WINDOW-INIT
 
   ...WINDOWS
+
+  gui::cvs-stop EXECUTE
 
   spf FREE THROW 
 ;
 
 
 main
+CR .( Clean exit)
 
 BYE
 
