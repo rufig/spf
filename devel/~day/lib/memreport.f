@@ -18,7 +18,7 @@ REQUIRE MALLOCATE ~yz\lib\gmem.f
 : FREE-ORIG FREE ;
 : FREE GFREE ;
 
-REQUIRE list: staticlist.f
+REQUIRE list: ~day/lib/staticlist.f
 \ REQUIRE REPLACE-WORD lib\ext\patch.f
 
 : FREE FREE-ORIG ;
