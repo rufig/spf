@@ -3,8 +3,11 @@
 \
 \ ~ygrek
 \ 14.Jan.2006
+\
+\ 20.Aug.2006
+\ + мод
 
-DIS-OPT
+\ DIS-OPT
 
 REQUIRE  RG_CreateKey  ~ac/lib/win/registry2.f
 REQUIRE  ENUM  ~ygrek/lib/enum.f
@@ -24,7 +27,7 @@ EXPORT
 VECT onClick-install
 VECT vect-generate
 
-STARTLOG 
+\ STARTLOG 
 
 : ON-WINDOW-INIT ... ;
 

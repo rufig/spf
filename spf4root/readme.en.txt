@@ -16,7 +16,7 @@ INSTALLATION
 executable.
   If you've got an archive - unpack it to the desired folder. It is ready to
 use now. If you want to associate *.f and *.spf files with spf4.exe - run
-install.bat script, which will launch a GUI program for tweaking the
+manage.bat script, which will launch a GUI program for tweaking the
 registry settings. Alternatively you can edit \docs\install\spf_path_install.reg
 manually (specify the correct path to your spf4.exe) and run it. Now you can
 write your code, save it as the *.f file and execute it by simply
@@ -37,29 +37,28 @@ the setup process.
 
  del_cvs.cmd      - the batch script to delete the CVS-specific files from the
                     distribution. Dont use it unless you know what you're doing.
- envir.spf        - this file specifes the spf environment queried with the ENVIRONMENT? word
+ envir.spf        - this file specifies the spf environment queried with the ENVIRONMENT? word
  GPL.html         - license file
  help.fhlp        - default include for the lib/ext/help.f extension
- install.bat      - batch script to set/modify/erase SPF registry settings
+ manage.bat       - batch script to set/modify/erase SPF registry settings
  jpf375c.exe      - an older version of SPF used to build itself
  spf.err          - this file is used by SPF to display the error (THROW) description, if
                     it is absent you'll end up only with an error code if exception occurs
- spf.eng.err      - the same file in english
+ spf.eng.err      - the same file in English
  spf4.exe         - SPF itself ;)
  spf4.ini         - this file is included as a forth code at SPF startup. Place your
                     custom initialization here.
  whatsnew.txt     - version history
- whatsnew.eng.txt - same file in emglish
+ whatsnew.eng.txt - same file in English
 
 
 DOCUMENTATION
 
-  See the \docs\papers folder. The majority of the documentation is in russian
-now. If you need an english version, contact us, maybe the translation will be
+  See the \docs\papers folder. The majority of the documentation is in Russian
+now. If you need an English version, contact us, maybe the translation will be
 done. SPF extension (lib/ext/help.f) adds help support to the interpreter. It
-uses fhlp files, which can be converted to HTML for standalone use. By default,
-this is done during the install. You can regenerate HTML doc manually by
-launching makedoc.bat
+uses fhlp files, which can be converted to HTML for standalone use with
+manage.bat. If you have more questions - ask the at spf-dev mailing list.
 
 
 DEVELOPMENT
@@ -84,4 +83,4 @@ DEVELOPMENT
     http://www.forth.org.ru
 
 --
-Last updated : 11.Aug.2006
+Last updated : 20.Aug.2006

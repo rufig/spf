@@ -1,8 +1,3 @@
-\ Инcталлятор для SPF
-\ Прописывает значения в реестре или удаляет их оттуда
-\
-\ ~ygrek
-\ 14.Jan.2006
 
 REQUIRE button  ~yz/lib/wincc.f
 REQUIRE ENUM  ~ygrek/lib/enum.f
@@ -24,7 +19,7 @@ PREVIOUS
 REQUIRE ULIKE ~pinka/lib/like.f
 REQUIRE ShellGetDir ~ygrek/lib/win/shell.f
 
-: CVScmd S" cvs update" ;
+: CVScmd S" cvs update -d -P" ;
 
 MODULE: joopwin \ иначе W: и M: начинают конфликтовать
 
@@ -123,15 +118,20 @@ PREVIOUS
     -bevel
     GRID; -xspan -yfixed |
     ===
-    "   Apply  " button -xspan
-    ['] onClick-install this -command! 
-    " Checked boxes will result in setting the corresponding value in the registry. Cleared boxes will delete the setting from the registry" 
-    this -tooltip! |
+    GRID
+       "   Apply  " button
+       ['] onClick-install this -command! 
+       " Checked boxes will result in setting the corresponding value in the registry. Cleared boxes will delete the setting from the registry" 
+       this -tooltip! 
+        -xspan |
 
-    " Save .reg file" button -xspan
-    generate this -command! 
-    " Save the current settings to the .reg file so that you can manually incorporate them in the registry later" 
-    this -tooltip! |
+       " Save .reg file" button
+       generate this -command! 
+       " Save the current settings to the .reg file so that you can manually incorporate them in the registry later" 
+       this -tooltip! 
+       -xspan |
+    GRID; -xfixed |
+    ===
   GRID;
   ;
 
@@ -414,7 +414,18 @@ MESSAGES;
 : LINE GRID; -yfixed 0 -ymargin -center | === ;
 
 : text label -bottom ;
-: href text -href ;
+
+: shell-open ( z ctl -- )
+   >R >R
+   W: SW_SHOW \ nShowCmd
+   "" \ directory path empty
+   0 \ no parameters for 'open'
+   R> \ document path
+   " open" \ open action
+   R> \ window handle
+   ShellExecuteA 33 < IF ." ShellExecute error" THEN ;
+
+: href text -href LAMBDA{ PAD thisctl -text@ PAD thisctl shell-open } this -command! ;
 
 : T" [CHAR] " PARSE ['] " EVALUATE-WITH POSTPONE text POSTPONE | ; IMMEDIATE
 : L" [CHAR] " PARSE ['] " EVALUATE-WITH POSTPONE href POSTPONE | ; IMMEDIATE

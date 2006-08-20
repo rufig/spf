@@ -1,6 +1,5 @@
-\ Taken from ~yz/prog/tprint/tprint.f
-
 REQUIRE single-method ~yz/lib/combase.f 
+REQUIRE init->> ~yz/lib/data.f
 REQUIRE { lib/ext/locals.f
 REQUIRE [UNDEFINED] lib/include/tools.f
 
@@ -8,12 +7,21 @@ REQUIRE [UNDEFINED] lib/include/tools.f
  255 CONSTANT MAX_PATH
 [THEN]
 
-WINAPI: SHBrowseForFolder   SHELL32.DLL
-WINAPI: SHGetPathFromIDList SHELL32.DLL
-WINAPI: SHGetMalloc         SHELL32.DLL
+: MyWINAPI: 
+   >IN @
+     POSTPONE [DEFINED] IF DROP NextWord 2DROP EXIT THEN \ skip definition
+   >IN !
+   WINAPI:
+  ;
+
+MyWINAPI: SHBrowseForFolder   SHELL32.DLL
+MyWINAPI: SHGetPathFromIDList SHELL32.DLL
+MyWINAPI: SHGetMalloc         SHELL32.DLL
+MyWINAPI: ShellExecuteA       shell32.dll
 
 5 single-method ::Free
 
+\ Taken from ~yz/prog/tprint/tprint.f
 \ xt ( a u -- )
 : ShellGetDir { prompt hwnd xt \ shmalloc [ 8 CELLS ] binfo [ MAX_PATH ] dirname }
   binfo init->>
@@ -36,3 +44,12 @@ WINAPI: SHGetMalloc         SHELL32.DLL
   THEN
 ;
 
+(
+   W: SW_SHOW \ nShowCmd
+   "" \ directory path empty
+   0 \ no parameters for 'open'
+   R> \ document path
+   " open" \ open action
+   winmain -hwnd@ \ window handle
+   ShellExecuteA 33 < IF ." ShellExecute error" THEN ;
+  )
