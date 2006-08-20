@@ -4,6 +4,8 @@
 \ ~ygrek
 \ 14.Jan.2006
 
+DIS-OPT
+
 REQUIRE  RG_CreateKey  ~ac/lib/win/registry2.f
 REQUIRE  ENUM  ~ygrek/lib/enum.f
 REQUIRE  >ASCIIZ ~ygrek/lib/string.f
@@ -14,6 +16,7 @@ MODULE: A-STR
 EXPORT
  : A" POSTPONE " ; IMMEDIATE
  : STR@ STR@ ;
+ : '' '' ;
  : A"" POSTPONE "" ; IMMEDIATE
  : STRFREE STRFREE ;
 ;MODULE
@@ -28,7 +31,7 @@ STARTLOG
 :NONAME 0 VALUE ; ENUM values
 values  spf ntype TypeNstr ;
 
-REQUIRE gui gui.f
+REQUIRE gui ~ygrek/prog/install/gui.f
 
 WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 
@@ -169,8 +172,10 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
  LOOP
  0 SWAP C! ;
 
-HERE 
- S" spf_install.template" A-STR::FILE 2DUP S, 0 C, SWAP FREE THROW SWAP 
+HERE
+ ModuleDirName A" {s}devel/~ygrek/prog/install/spf_install.template" STR@ 
+ 2DUP FILE-EXIST 0= [IF] ." Template not found : " TYPE BYE [THEN]
+ A-STR::FILE 2DUP S, 0 C, SWAP FREE THROW SWAP 
  VALUE @template
  VALUE #template
 

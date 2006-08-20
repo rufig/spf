@@ -6,7 +6,7 @@
 
 REQUIRE button  ~yz/lib/wincc.f
 REQUIRE ENUM  ~ygrek/lib/enum.f
-MODULE: BAC4TH \ START conflicts
+MODULE: BAC4TH \ START conflict
 REQUIRE PRO ~profit/lib/bac4th.f
 ;MODULE
 REQUIRE >ASCIIZ ~ygrek/lib/string.f
@@ -24,8 +24,9 @@ PREVIOUS
 REQUIRE ULIKE ~pinka/lib/like.f
 REQUIRE ShellGetDir ~ygrek/lib/win/shell.f
 
+: CVScmd S" cvs update" ;
 
-MODULE: joopwin \ W: и M: начинают конфликтовать
+MODULE: joopwin \ иначе W: и M: начинают конфликтовать
 
 REQUIRE OpenDialog ~day/joop/win/filedialogs.f
 
@@ -127,9 +128,9 @@ PREVIOUS
     " Checked boxes will result in setting the corresponding value in the registry. Cleared boxes will delete the setting from the registry" 
     this -tooltip! |
 
-    " Generate .reg file" button -xspan
+    " Save .reg file" button -xspan
     generate this -command! 
-    " Save the current settings to the .reg file so that you can manually incorporate it in the registry later" 
+    " Save the current settings to the .reg file so that you can manually incorporate them in the registry later" 
     this -tooltip! |
   GRID;
   ;
@@ -220,6 +221,8 @@ PROC: convert-all { | buf name -- }
    1024 ALLOCATE THROW -> buf
    1024 ALLOCATE THROW -> name
 
+   " Wait a moment...." set-main-status
+
    listf lb-count 0 ?DO
     name 1024 ERASE
     buf 1024 ERASE
@@ -228,9 +231,11 @@ PROC: convert-all { | buf name -- }
 
     buf 0 name ASCIIZ> CUT-NAME STR-APPEND 
     buf ASCIIZ> S" .html" STR-APPEND
-    name ASCIIZ> buf ASCIIZ> S" fhlp.css"
+    name ASCIIZ> buf ASCIIZ> ModuleDirName A" {s}devel/~ygrek/doc/fhlp/fhlp.css" STR@
     fhlp::['] convert CATCH IF ['] TYPE1 TO TYPE 2DROP 2DROP 2DROP I . ." error" THEN
    LOOP
+
+   ModuleDirName A" I suppose you can find HTML doc in {s}" STR@ DROP set-main-status
 
    buf FREE THROW
    name FREE THROW
@@ -241,30 +246,37 @@ PROC;
    GRID
     " Files to convert" label -yfixed |
     ===
-    listbox -xspan -yspan
-    this TO listf |
+    listbox 
+    this TO listf 
+    " The list of fhlp files to convert" this -tooltip!
+    -xspan -yspan |
     GRID
       " Add" button 
       \ " add.bmp" load-bitmap bitmap-button \ this -image!
       add-file this -command!
+      " Add one fhlp file to the list" this -tooltip!
       -xspan |
       ===
       " Add folder" button 
       add-dir this -command!
+      " Add all *.fhlp files from the specified folder to the list" this -tooltip!
       -xspan |
       ===
       " Remove" button 
       remove-file this -command!
+      " Remove selected file from the list" this -tooltip!
       -xspan |
       ===
       " Remove All" button
       LAMBDA{ listf lb-clear } this -command!
+      " Clear the list" this -tooltip!
       -xspan |
       ===
     GRID; -xfixed |
     ===
     " Convert" button 
-    convert-all this -command! |
+    convert-all this -command! 
+    " Convert the files from the list to HTML" this -tooltip! |
    GRID;
    ;
 
@@ -332,24 +344,29 @@ PROC;
 PROC: cvs-stop
  hProcess 
  IF
-   0 hProcess TerminateProcess ERR THROW  
-   hProcess CLOSE-FILE THROW  0 TO hProcess 
+   0 hProcess TerminateProcess ERR 0= IF " CVS update aborted" set-main-status THEN
+   hProcess CLOSE-FILE THROW   0 TO hProcess 
  THEN
- thread IF thread STOP 0 TO thread THEN \ force thread kill
+ thread IF thread STOP  0 TO thread THEN \ force thread kill
  hWrite IF hWrite CLOSE-FILE THROW  0 TO hWrite THEN
  hRead IF hRead CLOSE-FILE THROW  0 TO hRead THEN
 PROC;
 
-PROC: cvs-update
+: do-cvs-up
  cvs-stop EXECUTE
+ " Trying to update from CVS" set-main-status
  \ S" out.log" R/W CREATE-FILE THROW DUP TO hFile DUP-HANDLE-INHERITED THROW
  CREATE-ANON-PIPE THROW TO hWrite TO hRead
 
  H-STDIN \ DUP-HANDLE-INHERITED THROW
  hWrite DUP-HANDLE-INHERITED THROW 
- S" cmd" ChildApp THROW TO hProcess
+ CVScmd ChildApp THROW  TO hProcess
 
  0 cvs-output-watcher START TO thread
+;
+
+PROC: cvs-update
+ ['] do-cvs-up CATCH IF CVScmd A" {''}{s}{''} failed to start!" STR@ DROP set-main-status THEN
 PROC;
 
 : cvs-grid
@@ -357,14 +374,22 @@ PROC;
    GRID
     " Update" button 
     cvs-update this -command!
+    " Start the CVS update process. You must be connected to the Internet to perform this action. The path to cvs.exe must be present in your system variable PATH" 
+    this -tooltip!
     -xspan |
-    " Stop" button 
+    " Abort" button
     cvs-stop this -command!
+    " Abort CVS updating process" this -tooltip!
+    -xspan |
+    " Clear" button
+    LAMBDA{ loglist lb-clear } this -command!
+    " Clear the log window" this -tooltip!
     -xspan |
    GRID; -xspan -yfixed |
    ===
    listbox
    DUP TO loglist
+   " The output of the CVS updating process" this -tooltip!
    -xspan -yspan |
    ===
   GRID;
@@ -376,10 +401,35 @@ PROC;
 MESSAGES: list1-notify
   M: LBN_SELCHANGE
    list1 -selected@ 
-   0 MAX 2 MIN 
+   0 MAX 3 MIN 
    tab1 switch-tab 
   M;
 MESSAGES;
+
+
+" Times New Roman Cyr" 10 underline create-font VALUE font-href
+
+: -href font-href this -font!  blue this -color! ;
+
+: LINE GRID; -yfixed 0 -ymargin -center | === ;
+
+: text label -bottom ;
+: href text -href ;
+
+: T" [CHAR] " PARSE ['] " EVALUATE-WITH POSTPONE text POSTPONE | ; IMMEDIATE
+: L" [CHAR] " PARSE ['] " EVALUATE-WITH POSTPONE href POSTPONE | ; IMMEDIATE
+
+
+: about-grid
+ GRID
+   GRID
+    GRID T" SP-Forth post install manager" LINE
+    GRID T" Visit" L" http://spf.sf.net" LINE
+    GRID T" RuFIG at" L" http://www.forth.org.ru" LINE
+    GRID T" 20.Aug.2006" LINE
+   GRID; -middle -center |
+ GRID;
+;
 
 : ctlxresize ( x ctl -- )
    DUP -ysize@ SWAP ctlresize ; 
@@ -391,6 +441,7 @@ MESSAGES;
   reg-grid " Registry" 0 0 this add-item
   doc-grid " Documentation" 0 1 this add-item
   cvs-grid " Source control" 0 2 this add-item
+  about-grid " About" 0 3 this add-item
   -xspan
   -yspan
 ;
@@ -408,6 +459,7 @@ MESSAGES;
      " Registry" this lb-addstring
      " Documentation" this lb-addstring
      " Source control" this lb-addstring 
+     " About" this lb-addstring
       -yspan -xspan |
   GRID; -yspan -xfixed
 ;
@@ -440,7 +492,6 @@ MESSAGES;
 
   winmain wincenter
   winmain winshow
-
 ;
 
 ;MODULE
