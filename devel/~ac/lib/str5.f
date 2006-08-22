@@ -244,6 +244,8 @@ CREATE _S""" CHAR " C,
   PARSE" POSTPONE STRLITERAL
 ; IMMEDIATE
 
+USER _LASTFILE 
+: LastFileFree _LASTFILE @ ?DUP IF FREE THROW _LASTFILE 0! THEN ;
 
 : FILE ( addr u -- addr1 u1 )
   { \ f mem }
@@ -253,6 +255,7 @@ CREATE _S""" CHAR " C,
   mem SWAP f READ-FILE THROW
   f CLOSE-FILE THROW
   mem SWAP
+  DUP IF OVER _LASTFILE ! THEN
 ;
 : S@ ( addr u -- addr2 u2 )
 \ вычислить {} в строке
