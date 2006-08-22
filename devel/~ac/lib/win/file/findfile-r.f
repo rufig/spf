@@ -3,6 +3,9 @@
 \ Рекурсивный обход каталогов и выполнение 
 \ групповых действий над файлами и каталогами.
 \ Каталоги ".." и "." в xt не передаются.
+\ Каталоги "." можно обрабатывать, если указать TRUE FIND-FILES.. !
+\ Можно выполнить xt только для одного файла, если вместо имени
+\ каталога подать на вход "имя_файла*".
 
 \ xt ( addr u data flag -- ) - процедура вызываемая для каждого файла
 \ addr u - путь и имя файла или каталога (готово для open-file, etc)
@@ -19,27 +22,34 @@ REQUIRE STR@             ~ac/lib/str2.f
 USER FIND-FILES-RL    \ уровень вложенности 0-...
 USER FIND-FILES-DEPTH \ ограничение вложенности, 0 - без ограничения,
                       \ 1 - только в указанном каталоге, ...
+USER FIND-FILES..
+USER FIND-FILES-U
 
+: IsNot..
+  2DUP S" .." COMPARE 0<> ROT ROT S" ." COMPARE 0<> AND
+;
 : FIND-FILES-R ( addr u xt -- )
 \ addr u - имя каталога для обхода
 \ xt ( addr u data flag -- ) - процедура вызываемая для каждого файла
 
   { addr u xt \ addr2 data id f dir }
 
-  addr u " {s}/*.*" -> addr2
+  FIND-FILES-RL @ 0= IF u FIND-FILES-U ! THEN
+  addr u S" *" SEARCH NIP NIP
+  addr u ROT IF " {s}" ELSE " {s}/*.*" THEN -> addr2
   /WIN32_FIND_DATA ALLOCATE THROW -> data
   data /WIN32_FIND_DATA ERASE
   data addr2 STR@ DROP FindFirstFileA -> id
   id -1 = IF data FREE DROP addr2 STRFREE EXIT THEN
   BEGIN
-    data cFileName ASCIIZ>
-    2DUP 2DUP S" .." COMPARE 0<> ROT ROT S" ." COMPARE 0<> AND
+    data cFileName ASCIIZ> 2DUP IsNot.. FIND-FILES.. @ OR
     IF
       data dwFileAttributes @ FILE_ATTRIBUTE_DIRECTORY AND 0<> -> dir
       addr u " {s}/{s}" DUP -> f STR@ data dir xt EXECUTE
       dir
       IF FIND-FILES-RL 1+!
          FIND-FILES-RL @ FIND-FILES-DEPTH @ < FIND-FILES-DEPTH @ 0= OR
+         data cFileName ASCIIZ> IsNot.. AND
          IF f STR@ xt RECURSE THEN
          FIND-FILES-RL @ 1- FIND-FILES-RL !
       THEN
