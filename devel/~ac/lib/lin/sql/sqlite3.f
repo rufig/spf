@@ -90,11 +90,18 @@ ALSO SO NEW: sqlite3.dll
 : db3_coltype ( n ppStmt -- n )
   2 sqlite3_column_type
 ;
+: sqlite3_prepare1
+  sqlite3_prepare
+;
+: sqlite3_prepare2
+  ['] sqlite3_prepare1 CATCH
+  ?DUP IF NIP NIP NIP NIP NIP NIP THEN \ добавим аппаратные exceptions в коды возврата
+;
 : db3_prepare { addr u sqh \ pzTail ppStmt -- pzTail ppStmt }
   DB3_DEBUG @ IF CR ." ====================" CR addr u TYPE CR THEN
 
   BEGIN \ ждем освобождени€ доступа к Ѕƒ
-    ^ pzTail ^ ppStmt u addr sqh 5 sqlite3_prepare DUP SQLITE_BUSY =
+    ^ pzTail ^ ppStmt u addr sqh 5 sqlite3_prepare2 DUP SQLITE_BUSY =
   WHILE
     DROP 1000 PAUSE
   REPEAT
@@ -215,6 +222,7 @@ ALSO SO NEW: sqlite3.dll
 
 USER _db3_get_1
 USER _db3_get_2
+USER _db3_gets
 
 : db3_get_id2_ { i par ppStmt -- flag }
   0 ppStmt db3_coli _db3_get_1 ! 
@@ -226,7 +234,24 @@ USER _db3_get_2
   >R 0 ['] db3_get_id2_ R> db3_exec
   _db3_get_1 @ _db3_get_2 @
 ;
+: db3_gets_ { i par ppStmt -- flag }
+  0 ppStmt db3_col _db3_gets S! 
+  FALSE
+;
+: db3_gets ( addr u sqh -- addr u )
+  _db3_gets 0!
+  >R 0 ['] db3_gets_ R> db3_exec
+  _db3_gets @ ?DUP IF STR@ ELSE S" " THEN
+;
 PREVIOUS
+
+: '>` ( addr u -- )
+  0 ?DO DUP C@ [CHAR] ' = IF [CHAR] ` OVER C! THEN 1+ LOOP DROP
+;
+: `? ( addr1 u1 -- addr2 u2 )
+  2DUP S" '" SEARCH NIP NIP IF " {s}" STR@ 2DUP '>` THEN
+;
+
 
 \EOF примеры:
 : kl \ можно подставл€ть в SQL-команду как :kl или $kl дл€ авто-биндинга
