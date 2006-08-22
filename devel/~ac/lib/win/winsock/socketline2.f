@@ -69,7 +69,7 @@ CONSTANT /sl
     u + addr sl_point !
   ELSE 2DROP THEN
 ;
-: SocketContRead ( addr-S -- )
+: SocketContRead2 ( addr-S -- ior )
   { addr \ a u }
   addr SocketGetPending -> u -> a
   a addr /sl + u MOVE
@@ -79,10 +79,10 @@ CONSTANT /sl
   LINE_BUFF_SIZE u -
   addr sl_socket @ ReadSocket
 \  DUP 10060 = IF a u DUMP CCR THEN
-  THROW
-\  u IF DROP ELSE THROW THEN \ ~ruv 16.08.2006
+  DUP IF NIP EXIT THEN SWAP ( 0 n )
   u + addr sl_point !
 ;
+: SocketContRead SocketContRead2 THROW ;
 
 \ SocketReadLine читает строку, ограниченную LF или CRLF
 \ Сам ограничитель в возвращаемую строку не включается.
@@ -91,38 +91,31 @@ CONSTANT /sl
 \ выдаваться следующими вызовами этой функции.
 \ Если разделитель не найден, и в буфере еще есть куда
 \ читать, то продолжается реальное чтение из сокета 
-\ (возможно блокирующее). После этого функция рекурсивно
-\ обращается сама к себе для проверки наличия разделителя, и т.д.
-\ Если буфер большой, а данные из сокета получаются мелкими 
-\ порциями, то возможна большая глубина рекурсивных вызовов...
-
-: SocketReadLine1 ( addr -- addr1 u1 )
+\ (возможно блокирующее).
+: SocketReadLine ( addr -- addr1 u1 )
   { addr \ pa1 pu1 acr }
-  addr SocketGetPending -> pu1 -> pa1
-  pa1 pu1 LT 1+ 1 SEARCH
-  IF
-      DROP -> acr
-      acr 1+ addr sl_last !
-      pa1 acr OVER - 2DUP + 1- C@ 13 = IF 1- 0 MAX THEN
-  ELSE
-     2DROP
-     pu1 LINE_BUFF_SIZE = 
-     IF
-        addr sl_point 0!
-        addr /sl + addr sl_last !
-        pa1 pu1 EXIT
-     THEN
-     addr SocketContRead addr RECURSE
-  THEN
-;
-: SocketReadLine ( addr -- addr1 u1 ) \ ~ruv 16.08.2006
-  DUP >R ['] SocketReadLine1 CATCH
-  ?DUP IF NIP ( ior )
-    DUP -1002 <> IF THROW THEN
-    R@ SocketGetPending NIP R> SocketReadFromPending
-    DUP IF ROT DROP EXIT THEN
-    2DROP THROW
-  THEN RDROP
+  BEGIN
+    addr SocketGetPending -> pu1 -> pa1
+    pa1 pu1 LT 1+ 1 SEARCH
+    IF
+        DROP -> acr
+        acr 1+ addr sl_last !
+        pa1 acr OVER - 2DUP + 1- C@ 13 = IF 1- 0 MAX THEN
+        EXIT
+    THEN  2DROP
+    pu1 LINE_BUFF_SIZE =
+    IF
+       addr sl_point 0!
+       addr /sl + addr sl_last !
+       pa1 pu1 EXIT
+    THEN
+    addr SocketContRead2
+    DUP -1002 = IF pu1 IF DROP
+       addr sl_point 0!
+       addr /sl + addr sl_last !
+       pa1 pu1 EXIT
+    THEN THEN THROW
+  AGAIN
 ;
 : CreateServerSocket ( port -- socket )
   { port \ s }
