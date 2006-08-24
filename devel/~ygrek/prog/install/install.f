@@ -232,8 +232,6 @@ PROC;
 
   ...WINDOWS
 
-  gui::cvs-stop EXECUTE
-
   spf FREE THROW 
 ;
 

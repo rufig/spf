@@ -55,7 +55,7 @@ values  edit-path farmanager scriptmap explorer ;
 
 100 VALUE anime-step-ms
 ALSO BAC4TH
-: anim-strings PRO "  \\" CONT "  |" CONT "  /" CONT "  -" CONT ;
+: anim-strings PRO "  \\" CONT "  |" CONT "  /" CONT "  -" CONT RDROP ;
 PREVIOUS
 : anime-status-main ( -- ) 
   anim-strings ( a u )
@@ -130,6 +130,16 @@ PREVIOUS
        " Save the current settings to the .reg file so that you can manually incorporate them in the registry later" 
        this -tooltip! 
        -xspan |
+
+       "    Quit    " button
+       LAMBDA{ 
+         W: wm_close winmain send DROP 
+       } this -command! 
+       -xspan |
+
+       "  About  " button
+       -xspan |
+
     GRID; -xfixed |
     ===
   GRID;
@@ -148,264 +158,6 @@ S" ~ygrek/prog/fhlp/convert.f" INCLUDED
 
 : pass { a1 u1 a2 u2 \ -- a u -1 | 0 }
    a1 u1 a2 u2 match IF a1 u1 u2 /STRING TRUE ELSE a1 u1 FALSE THEN ;
-
-ALSO joopwin
-
-FILTER: fhlp-files-filter
-  NAME" fhlp files" EXT" *.fhlp"
-  NAME" all files" EXT" *.*"
-;FILTER
-
-: lb-searchstring { a u lb | -- pos } \ -1 если не найдено
-   lb lb-count 0 ?DO
-    PAD I lb fromlist
-    PAD ASCIIZ> a u COMPARE 0= IF I UNLOOP EXIT THEN
-   LOOP
-   -1
-;
-
-: add-to-listf ( a u -- )
-   ModuleDirName pass DROP 
-   ( a u)
-   2DUP listf lb-searchstring -1 <> IF 2DROP EXIT THEN
-   DROP listf lb-addstring
-;
-
-PROC: add-file { | fdlg -- }
-  MyOpenDialog :new -> fdlg
-  ModuleDirName >ASCIIZ fdlg :initial!
-  fhlp-files-filter fdlg :setFilter
-  S" Select fhlp file to convert" fdlg :setTitle
-  fdlg :execute IF
-    fdlg :fileName add-to-listf
-  THEN
-  fdlg :free
-PROC;
-
-PREVIOUS 
-
-: add-dir-files ( a u -- )
-   LAMBDA{ ( a u data flag -- )
-     NIP
-     IF 2DROP EXIT THEN
-     2DUP S" *.fhlp" ULIKE 0= IF 2DROP EXIT THEN
-     add-to-listf 
-   }
-   FIND-FILES-R ;
-
-PROC: add-dir
-  " Select folder with *.fhlp files" winmain -hwnd@ 
-  LAMBDA{ ( a u -- )
-    2DUP TYPE CR
-    add-dir-files
-  }
-  ShellGetDir
-PROC;
-
-PROC: remove-file
-  listf -selected@ 
-  DUP -1 = IF DROP EXIT THEN
-      listf lb-deletestring
-PROC;
-
-: CUT-NAME ( a u -- a2 u2 )
-   2DUP 
-   CUT-PATH NIP
-   /STRING ;
-
-..: ON-WINDOW-INIT 
-     ModuleDirName A" {s}docs/help" STR@ add-dir-files ;..
-
-PROC: convert-all { | buf name -- }
-
-   1024 ALLOCATE THROW -> buf
-   1024 ALLOCATE THROW -> name
-
-   " Wait a moment...." set-main-status
-
-   listf lb-count 0 ?DO
-    name 1024 ERASE
-    buf 1024 ERASE
-
-    name I listf fromlist
-
-    buf 0 name ASCIIZ> CUT-NAME STR-APPEND 
-    buf ASCIIZ> S" .html" STR-APPEND
-    name ASCIIZ> buf ASCIIZ> ModuleDirName A" {s}devel/~ygrek/doc/fhlp/fhlp.css" STR@
-    fhlp::['] convert CATCH IF ['] TYPE1 TO TYPE 2DROP 2DROP 2DROP I . ." error" THEN
-   LOOP
-
-   ModuleDirName A" I suppose you can find HTML doc in {s}" STR@ DROP set-main-status
-
-   buf FREE THROW
-   name FREE THROW
-PROC;
-
-
-: doc-grid
-   GRID
-    " Files to convert" label -yfixed |
-    ===
-    listbox 
-    this TO listf 
-    " The list of fhlp files to convert" this -tooltip!
-    -xspan -yspan |
-    GRID
-      " Add" button 
-      \ " add.bmp" load-bitmap bitmap-button \ this -image!
-      add-file this -command!
-      " Add one fhlp file to the list" this -tooltip!
-      -xspan |
-      ===
-      " Add folder" button 
-      add-dir this -command!
-      " Add all *.fhlp files from the specified folder to the list" this -tooltip!
-      -xspan |
-      ===
-      " Remove" button 
-      remove-file this -command!
-      " Remove selected file from the list" this -tooltip!
-      -xspan |
-      ===
-      " Remove All" button
-      LAMBDA{ listf lb-clear } this -command!
-      " Clear the list" this -tooltip!
-      -xspan |
-      ===
-    GRID; -xfixed |
-    ===
-    " Convert" button 
-    convert-all this -command! 
-    " Convert the files from the list to HTML" this -tooltip! |
-   GRID;
-   ;
-
-
-0 VALUE hProcess \ handle of the running process
-0 VALUE hWrite
-0 VALUE hRead
-0 VALUE thread
-
- 0x00000100 CONSTANT FILE_ATTRIBUTE_TEMPORARY
- 0x04000000 CONSTANT FILE_FLAG_DELETE_ON_CLOSE
-
-: CREATE-FILE-MEMORY ( c-addr u fam -- fileid ior )
-  NIP SWAP >R >R
-  0  \ template
-  FILE_ATTRIBUTE_TEMPORARY FILE_FLAG_DELETE_ON_CLOSE OR 
-  CREATE_ALWAYS
-  SA \ secur
-  3 \ share
-  R> ( access=fam )
-  R> ( filename )
-  CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
-;
-
-0 VALUE loglist
-
-: add-to-log ( z -- )
-   BEGIN
-    loglist lb-count 100 >
-   WHILE
-    0 loglist lb-deletestring
-   REPEAT
-
-   loglist lb-addstring
-;
-
-:NONAME { | buf sz ch -- }
-  DROP
-  1024 ALLOCATE THROW -> buf
-  16 ALLOCATE THROW -> ch
-  0 -> sz
-  BEGIN
-    hProcess
-  WHILE
-    ch 1 hRead READ-FILE THROW 
-    IF
-      ch C@ 0x0A = sz 1000 > OR 
-      IF
-        buf sz >ASCIIZ add-to-log 
-        0 -> sz
-      ELSE
-        ch C@ 0x0D <> 
-        IF 
-          buf sz ch C@ CHAR-APPEND 
-          sz 1+ -> sz
-        THEN
-      THEN
-    THEN
-\    10 PAUSE
-  REPEAT
-  buf FREE THROW
-  ch FREE THROW
-; TASK: cvs-output-watcher  
-
-PROC: cvs-stop
- hProcess 
- IF
-   0 hProcess TerminateProcess ERR 0= IF " CVS update aborted" set-main-status THEN
-   hProcess CLOSE-FILE THROW   0 TO hProcess 
- THEN
- thread IF thread STOP  0 TO thread THEN \ force thread kill
- hWrite IF hWrite CLOSE-FILE THROW  0 TO hWrite THEN
- hRead IF hRead CLOSE-FILE THROW  0 TO hRead THEN
-PROC;
-
-: do-cvs-up
- cvs-stop EXECUTE
- " Trying to update from CVS" set-main-status
- \ S" out.log" R/W CREATE-FILE THROW DUP TO hFile DUP-HANDLE-INHERITED THROW
- CREATE-ANON-PIPE THROW TO hWrite TO hRead
-
- H-STDIN \ DUP-HANDLE-INHERITED THROW
- hWrite DUP-HANDLE-INHERITED THROW 
- CVScmd ChildApp THROW  TO hProcess
-
- 0 cvs-output-watcher START TO thread
-;
-
-PROC: cvs-update
- ['] do-cvs-up CATCH IF CVScmd A" {''}{s}{''} failed to start!" STR@ DROP set-main-status THEN
-PROC;
-
-: cvs-grid
-  GRID
-   GRID
-    " Update" button 
-    cvs-update this -command!
-    " Start the CVS update process. You must be connected to the Internet to perform this action. The path to cvs.exe must be present in your system variable PATH" 
-    this -tooltip!
-    -xspan |
-    " Abort" button
-    cvs-stop this -command!
-    " Abort CVS updating process" this -tooltip!
-    -xspan |
-    " Clear" button
-    LAMBDA{ loglist lb-clear } this -command!
-    " Clear the log window" this -tooltip!
-    -xspan |
-   GRID; -xspan -yfixed |
-   ===
-   listbox
-   DUP TO loglist
-   " The output of the CVS updating process" this -tooltip!
-   -xspan -yspan |
-   ===
-  GRID;
-;
-
-0 VALUE tab1
-0 VALUE list1
-
-MESSAGES: list1-notify
-  M: LBN_SELCHANGE
-   list1 -selected@ 
-   0 MAX 3 MIN 
-   tab1 switch-tab 
-  M;
-MESSAGES;
-
 
 " Times New Roman Cyr" 10 underline create-font VALUE font-href
 
@@ -445,36 +197,6 @@ MESSAGES;
 : ctlxresize ( x ctl -- )
    DUP -ysize@ SWAP ctlresize ; 
 
-: create-tabs ( -- ctl )
-  0 tabcontrol
-  this TO tab1
-  this add-default-icon
-  reg-grid " Registry" 0 0 this add-item
-  doc-grid " Documentation" 0 1 this add-item
-  cvs-grid " Source control" 0 2 this add-item
-  about-grid " About" 0 3 this add-item
-  -xspan
-  -yspan
-;
-
-: create-list ( -- ctl )
-  GRID
-     ( filler -yfixed
-     100 1 this ctlresize |)
-     " Settings" label -yfixed
-     100 this ctlxresize |
-     ===
-     listbox
-     DUP TO list1
-     list1-notify this -notify!
-     " Registry" this lb-addstring
-     " Documentation" this lb-addstring
-     " Source control" this lb-addstring 
-     " About" this lb-addstring
-      -yspan -xspan |
-  GRID; -yspan -xfixed
-;
-
 : show
 
   0 create-window TO winmain
@@ -487,14 +209,8 @@ MESSAGES;
   " SP-Forth post-install manager" winmain -text!
 
   GRID
-   create-list |
-   create-tabs |
+   reg-grid |
    ===
-    "    Quit    " button
-    LAMBDA{ 
-     cvs-stop EXECUTE
-     W: wm_close winmain send DROP 
-    } this -command! |
   GRID;
 
   winmain create-status
