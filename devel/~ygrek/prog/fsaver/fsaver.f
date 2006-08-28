@@ -4,6 +4,7 @@
 REQUIRE FrameWindow ~day\joop\win\FrameWindow.f
 REQUIRE Font ~day\joop\win\font.f
 REQUIRE NEXT-PARAM ~day\common\clparam.f
+REQUIRE " ~ac/lib/str5.f
 
 filelist.f
 config.f
@@ -24,6 +25,8 @@ CLASS: SaverWindow <SUPER FrameWindow
 : :nextFile ( -- a u )
    randomName 2DUP R/O OPEN-FILE IF S" What the hell?!" ShowMessage BYE ELSE inFile ! THEN
 ; 
+
+: :textColor! ( cr -- ) handle @ GetDC SetTextColor DROP ;
 
 : :init
    0 inFile !
@@ -85,9 +88,11 @@ W: WM_TIMER
      ELSE
        DROP
        inFile @ IF inFile @ CLOSE-FILE THROW THEN
-       50 0 DO own :scrollWindow LOOP
+       \ 50 0 DO own :scrollWindow LOOP
+       220 0 0 rgb own :textColor!
        own :nextFile own :addLine
-       50 0 DO own :scrollWindow LOOP
+       0 220 0 rgb own :textColor!
+       \ 50 0 DO own :scrollWindow LOOP
      THEN
    THEN
    0
@@ -97,10 +102,11 @@ W: WM_TIMER
 
 
 : RUN { \ w }
+   \ STARTLOG
    IDLE_PRIORITY_CLASS GetCurrentProcess
    SetPriorityClass DROP
    NEXT-PARAM 2DROP
-   NEXT-PARAM  DROP 1+ C@ DUP [CHAR] p = IF BYE THEN
+   NEXT-PARAM  DROP 1+ C@ \ DUP [CHAR] p = IF  S" preview" ShowMessage BYE THEN
    [CHAR] c =
    IF
       \ S" There aren't any options" ShowMessage
@@ -120,7 +126,7 @@ W: WM_TIMER
    BYE   
 ;
 
-
+\ RUN \EOF
 HERE IMAGE-BASE - 100000 + TO IMAGE-SIZE
 ' RUN MAINX !
 TRUE TO ?GUI

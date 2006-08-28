@@ -1,10 +1,14 @@
-REQUIRE DIR ~ac/lib/ns/files.f
 REQUIRE WildCMP-U ~pinka/lib/mask.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
+REQUIRE FIND-FILES-R ~ac/lib/win/file/findfile-r.f
 
 0 VALUE aPath
 
 MODULE: filelist
+
+0 [IF]
+
+S" ~ac/lib/ns/files.f" INCLUDED
 
 : ForEachWRstr { str xt wid \ s -- }
 \ xt: ( str item wid -- )
@@ -24,6 +28,7 @@ MODULE: filelist
     THEN
     wid WCDR
   REPEAT DROP ;
+[THEN]
 
 REQUIRE AddNode ~ac/lib/list/STR_LIST.f
 REQUIRE SGENRAND ~ygrek/lib/neilbawd/mersenne.f
@@ -34,12 +39,11 @@ VARIABLE List
 
 VARIABLE temp
 : ForEachWildMatch ( a u -- ) "" DUP >R STR+ R> List AddNode ;
-: (ForEachStr) 2DROP STR@ 2DUP S" *.f" WildCMP-U 0= IF ForEachWildMatch ELSE 2DROP THEN ;
+: (ForEachStr)  NIP IF 2DROP EXIT THEN \ directory
+    2DUP S" *.f" WildCMP-U 0= IF ForEachWildMatch ELSE 2DROP THEN ;
 
 : getFileNames
-    S" aPath ASCIIZ> ' DIR VOC: zx ALSO zx" EVALUATE
-    aPath ASCIIZ> " {s}" ['] (ForEachStr) CONTEXT @ ForEachWRstr 
-    S" PREVIOUS" EVALUATE ;
+    aPath ASCIIZ> ['] (ForEachStr) FIND-FILES-R ;
 
 : incer CREATE , DOES> @ 1+! ;
 ListSize incer ListIncer
