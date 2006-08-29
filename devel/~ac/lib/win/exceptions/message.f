@@ -22,6 +22,8 @@ DECIMAL
 ;
 \       ((((WORD  )(s)) << 10) | (WORD  )(p))
 USER EMBUF
+VARIABLE DenyGuiMessages
+: /dgm TRUE DenyGuiMessages ! ;
 
 : ErrorMessage ( errcode -- addr u )
   >R
@@ -34,11 +36,13 @@ USER EMBUF
 ;
 
 : Message { s -- }
+  DenyGuiMessages @ IF s STR@ TYPE CR EXIT THEN
   MB_ICONEXCLAMATION PROG-NAME DROP
   s STR@ DROP
   0 MessageBoxA DROP
 ;
 : MessageY/N { s -- flag }
+  DenyGuiMessages @ IF s STR@ TYPE ."  - No" CR FALSE EXIT THEN
   MB_YESNO PROG-NAME DROP
   s STR@ DROP 
   0 MessageBoxA IDYES =
