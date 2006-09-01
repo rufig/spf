@@ -15,6 +15,7 @@ WINAPI: IsWindowVisible          USER32.DLL
   ['] EnumWindow1 EnumWindows ERR
 ;
 
+\EOF
 
 : PWND
   DUP .
