@@ -23,7 +23,7 @@ write your code, save it as the *.f file and execute it by simply
 doubleclicking the source file.
   If you have an SFX package - just run it. The wizard will guide you through
 the setup process.
-  See the whatsnew.txt file for the version history.
+  See the whatsnew.en.txt file for the version history.
 
   Directories:
 
@@ -57,8 +57,8 @@ DOCUMENTATION
   See the \docs\papers folder. The majority of the documentation is in Russian
 now. If you need an English version, contact us, maybe the translation will be
 done. SPF extension (lib/ext/help.f) adds help support to the interpreter. It
-uses fhlp files, which can be converted to HTML for standalone use with
-manage.bat. If you have more questions - ask the at spf-dev mailing list.
+uses fhlp files, which can be converted to HTML for standalone use. If you have
+more questions - ask them at spf-dev mailing list.
 
 
 DEVELOPMENT
@@ -83,4 +83,4 @@ DEVELOPMENT
     http://www.forth.org.ru
 
 --
-Last updated : 20.Aug.2006
+Last updated : 02.Sep.2006
