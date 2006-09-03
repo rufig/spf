@@ -3,6 +3,7 @@ REQUIRE /STRING lib/include/string.f
 REQUIRE :M ~ygrek/~yz/lib/wincore.f
 REQUIRE OnText ~ygrek/prog/fhlp/parser.f 
 REQUIRE DateTime#GMT ~ac/lib/win/date/date-int.f
+REQUIRE LAY-PATH ~pinka/samples/2005/lib/lay-path.f
 
 ' OEM>ANSI TO ANSI><OEM
 
@@ -62,7 +63,7 @@ MESSAGES;
   R> CLOSE-FILE THROW ;
 
 : HTML-header ( cssa cssu a u -- )
- ." <HTML><HEAD><TITLE>" TYPE ." </TITLE>" CR
+ ." <HTML><HEAD><TITLE>" TYPEHTML ." </TITLE>" CR
  ." <META HTTP-EQUIV='Content-Type' CONTENT='text/html; charset=windows-1251'>" CR
  ." <STYLE type='text/css'>" CR
  2>R PAD 1024 2R> file-content PAD SWAP TYPE
@@ -79,6 +80,8 @@ MESSAGES;
 : convert { ina inu outa outu cssa cssu \ -- }
  ina inu ['] FIND-FULLNAME CATCH IF TYPE ."  not found! Skipping..." CR EXIT THEN 2DROP
  cssa cssu FILE-EXIST 0= IF cssa cssu TYPE ."  not found! Skipping..." CR EXIT THEN
+
+ outa outu LAY-PATH
 
  section 0!
  H-STDOUT
