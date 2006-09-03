@@ -124,3 +124,5 @@ EXPORT
 : with: ( "dir" -- ) NextWord with ;
 
 ;MODULE
+
+.( Loaded ~ygrek/lib/included.f) CR
