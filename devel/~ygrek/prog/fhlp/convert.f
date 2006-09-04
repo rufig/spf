@@ -17,6 +17,7 @@ MESSAGES: html
 M: < ." &lt;" TRUE M;
 M: > ." &gt;" TRUE M;
 M: & ." &amp;" TRUE M;
+M: " ." &quot;" TRUE M;
 MESSAGES;
 
 : TYPEHTML ( a u -- )
@@ -62,15 +63,17 @@ MESSAGES;
   R@ READ-FILE THROW
   R> CLOSE-FILE THROW ;
 
+CREATE MY-PAD 1024 ALLOT
+
 : HTML-header ( cssa cssu a u -- )
- ." <HTML><HEAD><TITLE>" TYPEHTML ." </TITLE>" CR
+ ." <HTML><HEAD><TITLE>" DUP 0= IF 2DROP S"  Unnamed" THEN TYPEHTML ." </TITLE>" CR
  ." <META HTTP-EQUIV='Content-Type' CONTENT='text/html; charset=windows-1251'>" CR
  ." <STYLE type='text/css'>" CR
- 2>R PAD 1024 2R> file-content PAD SWAP TYPE
+ MY-PAD 1024 2SWAP file-content MY-PAD SWAP TYPE
 \ ." <LINK rel='stylesheet' href='" TYPE ." ' type='text/css'>" CR
  ." </STYLE>" CR
  ." </HEAD>" CR
- ." <BODY bgcolor='white'> <div align='center'><table width='800'><tr><td><pre>" CR
+ ." <BODY bgcolor='white'><div align='center'><table width='800'><tr><td><pre>" CR
 ;
 
 : HTML-footer
@@ -89,7 +92,7 @@ MESSAGES;
 
  cssa cssu outa outu HTML-header
  ." <div class=date>Generated from <b>" ina inu TYPEHTML 
- ." </b> on " <# 0 0 TIME&DATE DateTime#GMT #> TYPEHTML ." </div>" CR
+ ." </b> on " <# 0 0 TIME&DATE DateTime# #> TYPEHTML ." </div>" CR
  ['] Run &INTERPRET !
   ina inu ['] INCLUDED CATCH 
  ['] INTERPRET_ &INTERPRET !

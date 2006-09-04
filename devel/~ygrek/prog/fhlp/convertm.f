@@ -1,64 +1,10 @@
-REQUIRE { lib/ext/locals.f
-REQUIRE /STRING lib/include/string.f
-REQUIRE :M ~ygrek/~yz/lib/wincore.f
-REQUIRE OnText ~ygrek/prog/fhlp/parser.f 
-REQUIRE DateTime#GMT ~ac/lib/win/date/date-int.f
-REQUIRE LAY-PATH ~pinka/samples/2005/lib/lay-path.f
-\ REQUIRE " ~ac/lib/str5.f
-
-' OEM>ANSI TO ANSI><OEM
+S" ~ygrek/prog/fhlp/convert.f" INCLUDED
 
 REQUIRE ENUM ~ygrek/lib/enum.f
 :NONAME 0 VALUE ; ENUM VALUE:
 
-VALUE: gCSSa gCSSu prevH ?WasText gINa gINu gPATHa gPATHu H-INDEX PREV-OUT-H H-PROJECT H-TOC ;
-
-VARIABLE section
-
-WARNING OFF
-: M: BL PARSE DROP C@ :M ;
-WARNING ON
-
-MESSAGES: html
-M: < ." &lt;" TRUE M;
-M: > ." &gt;" TRUE M;
-M: & ." &amp;" TRUE M;
-M: " ." &quot;" TRUE M;
-MESSAGES;
-
-: TYPEHTML ( a u -- )
-   BOUNDS ?DO
-    I C@ html ?find-in-xtable 0= IF I C@ EMIT THEN
-   LOOP
-;
-
-: NTYPE S>D <# #S #> TYPE ;
-
-:NONAME ( ." <b> Группа : </b>" TYPEHTML ." </b>" CR) 2DROP ; TO OnGroup
-
-:NONAME TYPEHTML CR ; TO OnText
-:NONAME 2DROP ." <div class=code>" ; TO OnCodeStart
-:NONAME 2DROP ." </div>" ; TO OnCodeEnd
-:NONAME 2DROP ( <div class=text>) TRUE TO ?WasText ; TO OnTextStart
-:NONAME 2DROP ( </div>) ; TO OnTextEnd
-:NONAME 2DROP ." <div class=pre>" ; TO OnPreStart
-:NONAME 2DROP ." </div>" ; TO OnPreEnd
-
-:NONAME ." <b> See also: </b><i>" TYPEHTML ." </i>" CR ; TO OnSee
-:NONAME ." <tt>" TYPEHTML ." </tt>" CR ; TO OnIndex
-:NONAME ." Interpretation: <span class=int>" TYPEHTML ." </span>" CR ; TO OnInt
-:NONAME ." <span class=run>" TYPEHTML ." </span>" CR ; TO OnRun
-:NONAME ." Compilation: <span class=comp>" TYPEHTML ." </span>" CR ; TO OnComp
-
-: file-content ( addr max name #name -- n )
-  R/O OPEN-FILE IF DROP 2DROP 0 EXIT THEN >R
-  R@ FILE-SIZE THROW D>S
-  \ TUCK .S CR < IF 2DROP 0 R> CLOSE-FILE THROW EXIT THEN
-  MIN
-  R@ READ-FILE THROW
-  R> CLOSE-FILE THROW ;
-
-CREATE MY-PAD 1024 ALLOT
+VALUE: gCSSa gCSSu prevH ?WasText gINa gINu gPATHa gPATHu H-INDEX PREV-OUT-H H-PROJECT H-TOC 
+ ?first-file ;
 
 : HTML-header ( cssa cssu a u -- )
  ." <HTML><HEAD><TITLE>" DUP 0= IF 2DROP S"  Unnamed" THEN TYPEHTML ." </TITLE>" CR
@@ -74,8 +20,6 @@ CREATE MY-PAD 1024 ALLOT
 : HTML-footer
  CR ." </pre></div></BODY></HTML>" CR
 ;
-
-REQUIRE STR-APPEND ~ygrek/lib/string.f
 
 : #0S ( ud n -- )
    HLD @ 2>R
@@ -161,10 +105,13 @@ REQUIRE STR-APPEND ~ygrek/lib/string.f
 :NONAME 2DROP 
   CR ." <hr>" 
   ." <b>From </b><i>" gINa gINu TYPEHTML ." </i>"
-  CR ." <b>Date </b><i>" <# 0 0 TIME&DATE DateTime#GMT #> TYPEHTML ." </i>"
+  CR ." <b>Date </b><i>" <# 0 0 TIME&DATE DateTime# #> TYPEHTML ." </i>"
   end-section ; TO OnSectionEnd
 
+:NONAME 2DROP TRUE TO ?WasText ; TO OnTextStart
+
 : start-index ( a u -- )
+   H-PROJECT OUT{ ." Index file=" 2DUP TYPEHTML CR }OUT
    R/W CREATE-FILE THROW TO H-INDEX
    H-INDEX OUT{ Index-Header }OUT ;
 
@@ -173,6 +120,7 @@ REQUIRE STR-APPEND ~ygrek/lib/string.f
   H-INDEX CLOSE-FILE THROW ;
 
 : start-toc ( a u -- )
+   H-PROJECT OUT{ ." Contents file=" 2DUP TYPEHTML CR }OUT
    R/W CREATE-FILE THROW TO H-TOC
    H-TOC OUT{ TOC-Header }OUT ;
 
@@ -182,23 +130,36 @@ REQUIRE STR-APPEND ~ygrek/lib/string.f
 
 : start-project ( a u -- )
    R/W CREATE-FILE THROW TO H-PROJECT
+   TRUE TO ?first-file
    H-PROJECT 
    OUT{
     ." [OPTIONS]" CR
     ." Compatibility=1.1 or later" CR
-    ." Full-text search=Yes" CR
-    ." Compiled file=spf_help_ru.chm" CR
-    ." Index file=spf_help_ru.hhk" CR
-    ." Contents file=spf_help_ru.hhc" CR 
-    ." Default topic=index.ru.htm" CR
-    ." Display compile progress=No" CR
+    \ ." Display compile progress=Yes" CR
     ." Language=0x419 Russian" CR 
-    ." Title=SPF help" CR 
-    CR
-    ." [FILES]" CR
    }OUT ;
 
+: project-start-file ( a u -- )
+   H-PROJECT OUT{ ." Default topic=" TYPEHTML CR }OUT ;
+
+: project-out-file ( a u -- )
+  H-PROJECT OUT{ ." Compiled file=" TYPEHTML CR }OUT ;
+
+: project-title ( a u -- )
+  H-PROJECT OUT{ ." Title=" TYPEHTML CR }OUT ;
+
+: project-full-search ( -- )
+  H-PROJECT OUT{ ." Full-text search=Yes" CR }OUT ;
+
+
 : add-file ( a u a1 u1 )
+   ?first-file IF 
+    H-PROJECT OUT{
+      CR
+      ." [FILES]" CR
+    }OUT
+    FALSE TO ?first-file 
+   THEN
    2OVER 2OVER H-INDEX OUT{ Index-Object }OUT
    2OVER 2OVER H-TOC OUT{ Index-Object }OUT
    2DROP H-PROJECT OUT{ TYPEHTML CR }OUT ;
@@ -263,15 +224,23 @@ REQUIRE STR-APPEND ~ygrek/lib/string.f
 
 \EOF
 
-S" Index.hhk" start-index
-S" project.hhp" start-project
-S" toc.hhc" start-toc
+S" project.hhp" start-project \ должна быть первой строчкой
+S" Index.hhk" start-index \ если нужен индекс
+S" toc.hhc" start-toc \ если нужна таблица содержания
 
-S" docs/help/SPForth.fhlp" S" qwe\" S" Some name" S" fhlp.css" convertm
+S" index.ru.htm" project-start-file \ указать начальный файл
+S" SPF help" project-title \ указать заголовок (почему-то не работает..)
+project-full-search \ полнотекстовый поиск
+S" spf_help_ru.chm" project-out-file \ выходной файл
+
+ S" index.ru.htm" S" Home" add-file \ добавить файл вручную
+
+
+S" docs/help/SPForth.fhlp" S" qwe\" S" Some name" S" fhlp.css" convertm \ добавить все секции из fhlp
 
 end-toc
 end-index
-end-project
+end-project \ не забыть закрыть!
 
 .( Done)
 BYE
