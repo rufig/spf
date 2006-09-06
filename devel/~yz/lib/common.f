@@ -43,7 +43,7 @@ CREATE "" 0 ,
 
 VARIABLE toadr  VARIABLE fromadr VARIABLE counter
 
-: char ( --c/-1) counter @ 1 <
+: common-char ( --c/-1) counter @ 1 <
   IF -1 ELSE counter 1-! fromadr @ C@ fromadr 1+! THEN ;
 : unchar  counter 1+! fromadr 1-! ;
 : c> ( c--) toadr @ C!  toadr 1+! ;
@@ -57,7 +57,7 @@ VARIABLE toadr  VARIABLE fromadr VARIABLE counter
   c: ' OF c: " ENDOF
   DUP c: 0 c: 9 1+ WITHIN IF
     c: 0 -
-    BEGIN ( n) char DUP c: 0 c: 9 1+ WITHIN WHILE
+    BEGIN ( n) common-char DUP c: 0 c: 9 1+ WITHIN WHILE
       ( n c) c: 0 - SWAP 10 * +
     REPEAT -1 <> IF unchar THEN
   THEN
@@ -66,9 +66,9 @@ VARIABLE toadr  VARIABLE fromadr VARIABLE counter
 : ESC-CZMOVE ( a # to --)
   toadr ! counter ! fromadr !
   BEGIN 
-    char CASE 
+    common-char CASE 
     -1 OF 0 ENDOF
-    c: \ OF char escape ENDOF
+    c: \ OF common-char escape ENDOF
     END-CASE
   DUP c> 0= UNTIL ;
 

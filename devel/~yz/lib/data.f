@@ -1,6 +1,8 @@
 \ Работа с данными
 \ Ю. Жиловец, 2002
 
+REQUIRE ZMOVE ~yz/lib/common.f
+
 USER ptr
 : init->> ( a -- )
   ptr ! ;

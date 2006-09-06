@@ -1,6 +1,8 @@
 \ Реализация методов интерфейсов
 \ Ю. Жиловец, 22.03.2002
 
+REQUIRE == ~yz/lib/common.f
+
 0
 CELL -- :pointer
 CELL -- :methods

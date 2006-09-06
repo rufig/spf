@@ -1,6 +1,8 @@
 \ Работа с вариантами
 \ Ю. Жиловец, 27.03.2002
 
+REQUIRE == ~yz/lib/common.f
+
 0
 2 -- :var-type
 6 -- :var-reserved
