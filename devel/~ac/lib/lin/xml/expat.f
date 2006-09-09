@@ -61,6 +61,13 @@ ALSO SO NEW: libexpat.dll
 
 \ ===== ќбработчики тэгов, "исполн€ющие" XML ==================================
 
+: SEARCH-ATTRIBUTE ( a u wid -- 0 | xt true ) \ ~ruv (пока не используетс€)
+  { a u wid \ [ 256 ] buf }
+  u 250 U> IF 0 EXIT THEN
+  [CHAR] @ buf C!
+  a buf CHAR+ u MOVE
+  buf u CHAR+ wid SEARCH-WORDLIST
+;
 : XML_ExecAttrs ( addr -- )
   BEGIN
     DUP @
@@ -69,11 +76,40 @@ ALSO SO NEW: libexpat.dll
     DUP @ R@ IF ASCIIZ> R> EXECUTE ELSE R> 2DROP THEN CELL+
   REPEAT DROP
 ;
+\ : >NAME  ( xt -- NFA )  \ ~ruv: определение зависит от реализации!
+\ и в этой версии SPF не работает, поэтому берем ~mak:
+
+\ : >NAME  4 - DUP BEGIN 1- 2DUP COUNT + U< 0= UNTIL NIP ;
+\ и подгон€ем
+
+: >NAME
+  4 - DUP
+  BEGIN
+    1- DUP C@ 0<> DUP
+    IF DROP 2DUP
+      COUNT + U< 0=
+    THEN
+  UNTIL NIP
+;
+
+USER XML_ParseDebug
+
 :NONAME ( **attrs *name *userData -- )
   TlsIndex@ >R DUP TlsIndex!
-  OVER ASCIIZ> CONTEXT @ SEARCH-WORDLIST
-  IF ALSO EXECUTE
-     2 PICK XML_ExecAttrs
+  OVER ASCIIZ> 
+  XML_ParseDebug @ IF CR ." X{ " 2DUP TYPE SPACE THEN
+  CONTEXT @ SEARCH-WORDLIST
+  IF DUP >NAME ?VOC \ предотвратить случайное совпадение с названием атрибута
+     IF
+       XML_ParseDebug @ IF ." found! " THEN
+       ALSO EXECUTE
+       2 PICK XML_ExecAttrs
+     ELSE
+       XML_ParseDebug @ IF ." isn't voc! " THEN
+       DROP
+       S" .NOTFOUND" CONTEXT @ SEARCH-WORDLIST
+       IF 2 PICK ASCIIZ> ROT EXECUTE THEN
+     THEN
   ELSE S" .NOTFOUND" CONTEXT @ SEARCH-WORDLIST
        IF 2 PICK ASCIIZ> ROT EXECUTE THEN
   THEN
