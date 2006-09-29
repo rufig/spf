@@ -12,6 +12,7 @@ With Help of
    Remake by Dmitry Yakimov
    cail: add new worddiv parameter
    Andrey Filatkin - remake for colorer take5
+   ygrek: + float wordset
 -->
    <type name="forth">
 
@@ -292,15 +293,54 @@ With Help of
       <word name="LTL"/>
    </keywords>
 
-   <!-- numbers -->
-   <regexp match="/(\s|^)\m(0x)?[\da-fA-F]+L?\M(\s|$)/" region="forNumb"/>
-   <regexp match="/\b[0-9]+\b/" region="forNumb"/>
+   <!-- + FLOAT WORDSET -->
+   <keywords ignorecase="yes" worddiv="[\s]" region="ForWord">
+      <word name="F!"/>
+      <word name="F*"/>
+      <word name="F+"/>
+      <word name="F."/>
+      <word name="F,"/>
+      <word name="F-"/>
+      <word name="F/"/>
+      <word name="F&lt;"/>
+      <word name="F="/>
+      <word name="F>"/>
+      <word name="F@"/>
+      <word name="FABORT"/>
+      <word name="FABS"/>
+      <word name="FALIGN"/>
+      <word name="FALIGNED"/>
+      <word name="FDEPTH"/>
+      <word name="FDROP"/>
+      <word name="FDUP"/>
+      <word name="FEXP"/>
+      <word name="FLN"/>
+      <word name="FLG"/>
+      <word name="FLITERAL"/>
+      <word name="FLOATS"/>
+      <word name="FMAX"/>
+      <word name="FMIN"/>
+      <word name="FNEGATE"/>
+      <word name="FSWAP"/>
+   </keywords>
 
-   <regexp match="/(TO|AT)\s+(\S+)/" region1="forResWord" region2="forWord"/>
 
-   <block start="/(\s|^)\m(\(\()\s+(\S+)\M(\s|$)/"  end="/(\s|^)(\)|\(\))\M(\s|$)/"
+   <!-- + Better numbers -->
+
+   <!-- hexadecimal -->
+   <regexp match="/(\s|^)\m0x[\da-fA-F]+L?\M(\s|$)/" region="forNumb"/>
+
+   <!-- decimal -->
+   <regexp match="/(\s|^)\m-?\d+\M(\s|$)/" region="forNumb"/>
+
+   <!-- float -->
+   <regexp match="/(\s|^)\m-?\d?\.?\d+[eE]((-\d)?\d*)?\M(\s|$)/" region="forNumb"/>
+
+   <regexp match="/(\s|^)(FTO|TO|AT)\s+(\S+)/" region1="forResWord" region2="forWord"/>
+
+   <!--block start="/(\s|^)\m(\(\()\s+(\S+)\M(\s|$)/"  end="/(\s|^)(\)|\(\))\M(\s|$)/"
        scheme="Forthint" region10="forResWord"
-       region02="forResWord" region03="forWord"/>
+       region02="forResWord" region03="forWord"/-->
 </scheme>
 
 <scheme name="forthcomp">
@@ -324,6 +364,7 @@ With Help of
       <word name="OF"/>
       <word name="ENDOF"/>
       <word name="CASE"/>
+      <word name="END-CASE"/> <!-- + END-CASE -->
       <word name="ENDCASE"/>
       <word name="IF"/>
       <word name="ELSE"/>
@@ -360,6 +401,7 @@ With Help of
       <word name="VOCABULARY"/>
       <word name="VECT"/>
       <word name="VALUE"/>
+      <word name="FVALUE"/> <!-- + FVALUE -->
       <word name="--"/>
       <word name="CODE"/>
       <word name="REQUIRE"/>
@@ -370,7 +412,8 @@ With Help of
    <inherit scheme="Forthint"/>
 
    <!-- def words -->
-   <block start="/(\s|^)\m(:|M:|\.\.:)\s+(\S+)\M(\s|$)/"  end="/(\s|^)(;|;\.\.)\M(\s|$)/"
+   <!-- + M: PROC: -->
+   <block start="/(\s|^)\m(:|M:|PROC:|\.\.:)\s+(\S+)\M(\s|$)/"  end="/(\s|^)(M;|PROC;|;|;\.\.)\M(\s|$)/"
        scheme="forthcomp" region00="Function" region10="forWord"
        region02="forWord" region03="forWordDefinition"/>
    <block start="/(\s|^)\m(:NONAME|:M)\M(\s|$)/"  end="/(\s|^);\M(\s|$)/"
@@ -382,14 +425,16 @@ With Help of
    <regexp match="/(\s|^)(CONSTANT)\s+(\S+)/"        region="Function" region2="forWord" region3="forWordDefinition"/>
    <regexp match="/(\s|^)(VOCABULARY)\s+(\S+)/"      region="Function" region2="forWord" region3="forWordDefinition"/>
    <regexp match="/(\s|^)(VECT)\s+(\S+)/"            region="Function" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(VALUE)\s+(\S+)/"           region="Function" region2="forWord" region3="forWordDefinition"/>
+   <!-- + fvalue -->
+   <regexp match="/(\s|^)(F?VALUE)\s+(\S+)/"         region="Function" region2="forWord" region3="forWordDefinition"/>
    <regexp match="/(\s|^)(--)\s+(\S+)/"              region="Function" region2="forWord" region3="forWordDefinition"/>
    <regexp match="/(\s|^)(CODE)\s+(\S+)/"            region="Function" region2="forWord" region3="forWordDefinition"/>
 
    <regexp match="/(\s|^)(REQUIRE)\s+(\S+)\s+(\S+)/"  region2="forWord" region3="forWord" region4="Path"/>
    <regexp match="/(\s|^)(CHAR)\s+(\S+)/" region2="forWord" region3="forString"/>
    <regexp match="/(\s|^)(\.\(\s)(.*?)(\))/" region2="forWord" region3="forString" region4="forWord"/>
-   <regexp match="/(')\s+(\S+)/"  region1="forResWord" region2="forWord"/>
+   <!-- + Correct tick -->
+   <regexp match="/(\s|^)(')\s+(\S+)/"  region2="forResWord" region3="forWord"/>
 
 </scheme>
 </type>
