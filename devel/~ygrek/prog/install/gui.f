@@ -8,18 +8,6 @@ REQUIRE >ASCIIZ ~ygrek/lib/string.f
 REQUIRE /STRING lib/include/string.f
 REQUIRE winlib-icons ~ygrek/~yz/lib/icons.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
-REQUIRE load-bitmap ~vsp/lib/images.f
-REQUIRE ChildApp ~ac/lib/win/process/child_app.f
-REQUIRE kill ~ac/lib/win/process/kill.f
-REQUIRE DUP-HANDLE-INHERITED ~ac/lib/win/process/pipes.f
-REQUIRE CREATE-ANON-PIPE ~ygrek/lib/win/pipes.f
-ALSO A-STR
-REQUIRE FIND-FILES-R ~ac/lib/win/file/findfile-r.f
-PREVIOUS
-REQUIRE ULIKE ~pinka/lib/like.f
-REQUIRE ShellGetDir ~ygrek/lib/win/shell.f
-
-: CVScmd S" cvs update -d -P" ;
 
 MODULE: joopwin \ иначе W: и M: начинают конфликтовать
 
@@ -51,7 +39,7 @@ MODULE: gui
 
 :NONAME 0 VALUE ; ENUM values
 
-values  edit-path farmanager scriptmap explorer ;
+values  edit-path farmanager scriptmap explorer farmanager-notice ;
 
 100 VALUE anime-step-ms
 ALSO BAC4TH
@@ -62,9 +50,6 @@ PREVIOUS
   0 winmain set-status 
   anime-step-ms PAUSE ;
 : set-main-status ( z -- ) 2 0 DO anime-status-main LOOP  0 winmain set-status ;
-
-HERE 0 , VALUE pNULL
-: s0 pNULL 1 ;
 
 ALSO joopwin
 
@@ -99,10 +84,10 @@ PREVIOUS
     -yfixed |
     ===
     GRID
-    " Associate .spf and .f file types with spf.exe in : " label |
+    " Associate .spf and .f file types with SPF in : " label |
     ===
     " Explorer" checkbox  this TO explorer  
-        " Check to associate forth files with spf.exe in Explorer. You will be able to run them by simply double-clicking. Uncheck to delete the current association" 
+        " Check to associate forth files with SPF in Explorer. You will be able to run them by simply double-clicking. Uncheck to delete the current association" 
         this -tooltip! 
         \ ttp this -notify!
 \        this W: ttm_getmaxtipwidth ?send .
@@ -111,7 +96,10 @@ PREVIOUS
          |
     ===
     " FAR Manager" checkbox  this TO farmanager 
-        " Check to associate *.f and *.spf files with spf.exe in FAR manager" this -tooltip! |
+        " Check to associate *.f and *.spf files with SPF in FAR manager" this -tooltip! 
+    -xfixed |
+    "  " label  this TO farmanager-notice 
+    -xspan |
     ===
     " Script Map" checkbox  this TO scriptmap 
         " Check to add forth files to the W3SVC script map" this -tooltip! |
@@ -135,9 +123,7 @@ PREVIOUS
        LAMBDA{ 
          W: wm_close winmain send DROP 
        } this -command! 
-       -xspan |
-
-       "  About  " button
+       " Quit" this -tooltip!
        -xspan |
 
     GRID; -xfixed |
@@ -146,67 +132,16 @@ PREVIOUS
   ;
 
 
-MODULE: fhlp
-S" ~ygrek/prog/fhlp/convert.f" INCLUDED
-;MODULE
-
-0 VALUE listf
-
-: match { a1 u1 a2 u2 \ -- -1 | 0 }
-   u1 u2 < IF FALSE EXIT THEN
-   a1 u2 a2 u2 COMPARE 0= ;
-
-: pass { a1 u1 a2 u2 \ -- a u -1 | 0 }
-   a1 u1 a2 u2 match IF a1 u1 u2 /STRING TRUE ELSE a1 u1 FALSE THEN ;
-
-" Times New Roman Cyr" 10 underline create-font VALUE font-href
-
-: -href font-href this -font!  blue this -color! ;
-
-: LINE GRID; -yfixed 0 -ymargin -center | === ;
-
-: text label -bottom ;
-
-: shell-open ( z ctl -- )
-   >R >R
-   W: SW_SHOW \ nShowCmd
-   "" \ directory path empty
-   0 \ no parameters for 'open'
-   R> \ document path
-   " open" \ open action
-   R> \ window handle
-   ShellExecuteA 33 < IF ." ShellExecute error" THEN ;
-
-: href text -href LAMBDA{ PAD thisctl -text@ PAD thisctl shell-open } this -command! ;
-
-: T" [CHAR] " PARSE ['] " EVALUATE-WITH POSTPONE text POSTPONE | ; IMMEDIATE
-: L" [CHAR] " PARSE ['] " EVALUATE-WITH POSTPONE href POSTPONE | ; IMMEDIATE
-
-
-: about-grid
- GRID
-   GRID
-    GRID T" SP-Forth post install manager" LINE
-    GRID T" Visit" L" http://spf.sf.net" LINE
-    GRID T" RuFIG at" L" http://www.forth.org.ru" LINE
-    GRID T" 20.Aug.2006" LINE
-   GRID; -middle -center |
- GRID;
-;
-
-: ctlxresize ( x ctl -- )
-   DUP -ysize@ SWAP ctlresize ; 
-
 : show
 
-  0 create-window TO winmain
+  0 dialog-window TO winmain
   W: COLOR_3DFACE syscolor winmain -bgcolor!
   0 create-tooltip
   0 300 W: TTM_SETMAXTIPWIDTH common-tooltip send DROP \ MultiLine tooltips
   75 3000 30 common-tooltip set-tooltip-delay
 
   " Arial Cyr" 10 create-font default-font
-  " SP-Forth post-install manager" winmain -text!
+  " SP-Forth registry settings manager" winmain -text!
 
   GRID
    reg-grid |

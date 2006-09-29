@@ -45,9 +45,12 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
   TypeNstr STRFREE
   2DUP A" {s}" TO TypeNstr \ remember the key
   \ CR TypeNstr STR@ TYPE
-  S" Description" 2SWAP StrValue
+  S" Mask" 2SWAP StrValue
   \ CR ntype . 2DUP TYPE
-  S" sp-forth files" COMPARE 0= IF -1 TO ntype DROP TRUE EXIT THEN \ DROP TRUE is a hack!!
+  \ 2DUP TYPE CR
+  ( a1 u1)
+  S" *.spf" SEARCH IF 2DROP -1 TO ntype DROP TRUE EXIT THEN \ DROP TRUE is a hack!!
+  2DROP
   ntype 1+ TO ntype
 ;
 
@@ -212,6 +215,15 @@ PROC;
  ELSE
   2DROP
   " No registry values present" 0 winmain set-status
+ THEN
+ FindSPFType
+ ntype -1 = IF
+   gui::farmanager windisable
+   gui::farmanager-notice >R
+   " (already present)" R@ -text!
+   " FAR manager *.spf association is present and wont be altered" R@ -tooltip!
+   \ red R@ -color!
+   RDROP
  THEN
 ;
 
