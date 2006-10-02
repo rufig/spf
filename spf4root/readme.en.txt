@@ -7,7 +7,7 @@ ABOUT
   SP-FORTH is a reliable and comfortable forth system producing optimized native
 code for the Intel x86 processors. Runs on MS Windows 9x, NT (there are also
 ports to Linux, Kolibri OS). SP-Forth is distributed under the terms of the GNU
-General Public License. Read GPL.html for details.
+General Public License. Read docs\license\gpl.en.txt for details.
 
 
 INSTALLATION
@@ -16,14 +16,14 @@ INSTALLATION
 executable.
   If you've got an archive - unpack it to the desired folder. It is ready to
 use now. If you want to associate *.f and *.spf files with spf4.exe - run
-manage.bat script, which will launch a GUI program for tweaking the
+docs\install\install.bat script, which will launch a GUI program for tweaking the
 registry settings. Alternatively you can edit \docs\install\spf_path_install.reg
 manually (specify the correct path to your spf4.exe) and run it. Now you can
 write your code, save it as the *.f file and execute it by simply
 doubleclicking the source file.
   If you have an SFX package - just run it. The wizard will guide you through
 the setup process.
-  See the whatsnew.en.txt file for the version history.
+  See the docs\whatsnew.eng.txt file for the version history.
 
   Directories:
 
@@ -35,21 +35,15 @@ the setup process.
 
   Files in the root directory:
 
- del_cvs.cmd      - the batch script to delete the CVS-specific files from the
-                    distribution. Dont use it unless you know what you're doing.
  envir.spf        - this file specifies the spf environment queried with the ENVIRONMENT? word
- GPL.html         - license file
  help.fhlp        - default include for the lib/ext/help.f extension
- manage.bat       - batch script to set/modify/erase SPF registry settings
  jpf375c.exe      - an older version of SPF used to build itself
  spf.err          - this file is used by SPF to display the error (THROW) description, if
                     it is absent you'll end up only with an error code if exception occurs
  spf.eng.err      - the same file in English
  spf4.exe         - SPF itself ;)
- spf4.ini         - this file is included as a forth code at SPF startup. Place your
-                    custom initialization here.
- whatsnew.txt     - version history
- whatsnew.eng.txt - same file in English
+ spf.ini          - This file can be customized and copied to spf4.ini which will be
+                    included by SPF at startup
 
 
 DOCUMENTATION
@@ -83,4 +77,4 @@ DEVELOPMENT
     http://www.forth.org.ru
 
 --
-Last updated : 02.Sep.2006
+Last updated : $Date$
