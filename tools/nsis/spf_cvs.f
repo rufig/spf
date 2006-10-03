@@ -1,7 +1,14 @@
+WARNING 0!
+
 REQUIRE FIND-FILES-R       ~ac/lib/win/file/findfile-r.f
 
-: SPF-PATH S" spf" ;
+\ : SPF-PATH S" spf" ;
 : SPF-PATH-LEN SPF-PATH NIP 1+ ;
+
+REQUIRE DateM>S ~ac/lib/win/date/date-int.f
+
+: MyDate# { d m y } y #N [CHAR] . HOLD m DateM>S HOLDS [CHAR] . HOLD d #N## ;
+: MY_DATE 0 0 <# TIME&DATE MyDate# DROP DROP DROP #> ;
 
 : PROD_NAME    S" {PROD_NAME}" ;
 : PROD_FILE    S" {PROD_FILE}" ;
@@ -53,6 +60,8 @@ REQUIRE FIND-FILES-R       ~ac/lib/win/file/findfile-r.f
   2DUP S" spf_cvs.f" SEARCH NIP NIP 0= R> AND >R
   2DUP S" make_spf_distr.bat" SEARCH NIP NIP 0= R> AND >R
   2DUP S" co.bat" SEARCH NIP NIP 0= R> AND >R
+  2DUP S" .md" SEARCH NIP NIP 0= R> AND >R
+  2DUP S" Makefile" SEARCH NIP NIP 0= R> AND >R
 
   R>
   0= IF 2DROP EXIT THEN

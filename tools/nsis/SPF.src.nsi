@@ -12,7 +12,7 @@
 !define VER_MAJOR 4
 !define VER_MINOR "18-test3"
 
-!define VER_DATE "29.Sep.2006"
+!define VER_DATE "{MY_DATE}"
 !define PROD_NAME "SP-Forth"
 !define PROD_FILE "spf-"
 !define PROD_VENDOR "RUFIG"
