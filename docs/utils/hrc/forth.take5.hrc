@@ -23,7 +23,7 @@ With Help of
       <region name="forWord"     parent="Keyword"/>
       <region name="forResWord"  parent="Label"/>
       <region name="forNumb"     parent="Number"/>
-      <region name="forWordDefinition"  parent="Identifier"/>
+      <region name="forWordDefinition"  parent="Keyword"/> <!-- Identifier ? -->
 
 <scheme name="Forthint">
 
@@ -409,8 +409,6 @@ With Help of
 </scheme>
 
 <scheme name="forth">
-   <inherit scheme="Forthint"/>
-
    <!-- def words -->
    <!-- + M: PROC: -->
    <block start="/(\s|^)\m(:|M:|PROC:|\.\.:)\s+(\S+)\M(\s|$)/"  end="/(\s|^)(M;|PROC;|;|;\.\.)\M(\s|$)/"
@@ -435,6 +433,8 @@ With Help of
    <regexp match="/(\s|^)(\.\(\s)(.*?)(\))/" region2="forWord" region3="forString" region4="forWord"/>
    <!-- + Correct tick -->
    <regexp match="/(\s|^)(')\s+(\S+)/"  region2="forResWord" region3="forWord"/>
+
+   <inherit scheme="Forthint"/>
 
 </scheme>
 </type>
