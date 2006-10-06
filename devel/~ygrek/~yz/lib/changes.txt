@@ -10,9 +10,11 @@ wincc.f
 [+] show-selected-tab
 [*] tabcontrol-notify
 [+] switch-tab
+[+] set-tooltip-delay
 
 
 winctl.f
+[+] generic-edit
 [+] password-edit
 [*] max-win-size - выключил обрезание размеров
 [+] INITMODAL SHOWMODAL LOOPMODAL HIDEMODAL

@@ -1,3 +1,10 @@
+\ $Id$
+\
+\ Выделено из WinLib
+\
+\ -----------------------------
+\ Windows-независимая часть
+
 REQUIRE ==   ~yz/lib/common.f
 REQUIRE { lib/ext/locals.f
 REQUIRE MGETMEM ~yz/lib/gmem.f

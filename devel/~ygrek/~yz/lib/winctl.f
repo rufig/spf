@@ -390,28 +390,30 @@ PROC: check-this-radio ( -- ) thisctl check-radio ;
   R@ ?invalidate
   R> adjust-height ;
 
-: edit ( -- ctl)
-  control edits (* es_autohscroll es_autovscroll ws_tabstop *) W: ws_ex_clientedge
-  create-control-exstyle  >R
-  ['] set-editfont -font R@ storeset
+: generic-edit { flags -- ctl }
+  control edits 
+  flags (* es_autohscroll es_autovscroll ws_tabstop *) OR 
+  W: ws_ex_clientedge 
+  create-control-exstyle >R 
   0xFFFFFF R@ -bgcolor!
+  R> ;
+
+: edit ( -- ctl)
+  0 generic-edit
+  >R
+  ['] set-editfont -font R@ storeset
   R@ adjust-height
   R> ;
 
 : password-edit ( -- ctl)
-  control edits (* es_password es_autohscroll es_autovscroll ws_tabstop *) W: ws_ex_clientedge
-  create-control-exstyle  >R
+  (* es_password *) generic-edit 
+  >R
   ['] set-editfont -font R@ storeset
-  0xFFFFFF R@ -bgcolor!
   R@ adjust-height
   R> ;
 
 : multiedit ( -- ctl)
-  control edits 
-  (* es_autohscroll es_autovscroll es_multiline es_wantreturn ws_tabstop *) 
-  W: ws_ex_clientedge create-control-exstyle >R 
-  0xFFFFFF R@ -bgcolor!
-  R> ;
+  (* es_multiline es_wantreturn *) generic-edit ;
 
 : limit-edit ( n ctl -- ) W: em_setlimittext wsend DROP ;
 
