@@ -1,6 +1,8 @@
 WARNING 0!
 
 REQUIRE FIND-FILES-R       ~ac/lib/win/file/findfile-r.f
+REQUIRE ONFALSE ~profit/lib/bac4th.f
+REQUIRE LIKE ~pinka/lib/like.f
 
 \ : SPF-PATH S" spf" ;
 : SPF-PATH-LEN SPF-PATH NIP 1+ ;
@@ -39,34 +41,39 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
 : />\ ( addr u -- )
   0 ?DO DUP I + C@ [CHAR] / = IF [CHAR] \ OVER I + C! THEN LOOP DROP
 ;
+
+
+: FILTER
+  PREDICATE
+  2DUP S" *.log" ULIKE ONFALSE
+  2DUP S" *\\CVS\\*" ULIKE ONFALSE
+  2DUP S" *.old" ULIKE ONFALSE
+  2DUP S" *.rar" ULIKE ONFALSE
+  2DUP S" *.bak" ULIKE ONFALSE
+  2DUP S" *.svn" ULIKE ONFALSE
+  2DUP S" *.7z" ULIKE ONFALSE
+  2DUP S" *.zip" ULIKE ONFALSE
+  2DUP S" *.RAR" ULIKE ONFALSE
+  2DUP S" *Entries.Log" ULIKE ONFALSE
+  2DUP S" *.pid" ULIKE ONFALSE
+  2DUP S" *-setup.exe" ULIKE ONFALSE
+  2DUP S" *spf_cvs.f" ULIKE ONFALSE
+  2DUP S" *make_spf_distr.bat" ULIKE ONFALSE
+  2DUP S" *co.bat" ULIKE ONFALSE
+  2DUP S" *.md" ULIKE ONFALSE
+  2DUP S" *Makefile" ULIKE ONFALSE
+  2DUP " {SPF-PATH}\\tools\\*" STR@ ULIKE ONFALSE
+  2DUP " {SPF-PATH}\\docs\\papers\\*.md.css" STR@ ULIKE ONFALSE
+  SUCCEEDS
+;
+
 : TT
   NIP
   IF 2DROP EXIT THEN
 
-  TRUE >R
-  2DUP S" .log" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" /CVS/" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" .old" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" .rar" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" .bak" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" .svn" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" .7z" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" .zip" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" .RAR" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" .ZIP" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" Entries.Log" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" .pid" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" -setup.exe" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" spf_cvs.f" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" make_spf_distr.bat" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" co.bat" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" .md" SEARCH NIP NIP 0= R> AND >R
-  2DUP S" Makefile" SEARCH NIP NIP 0= R> AND >R
-
-  R>
-  0= IF 2DROP EXIT THEN
-
   2DUP />\
+  FILTER 0= IF 2DROP EXIT THEN
+
   2DUP " {s}" STR@
   OVER >R +
   BEGIN
