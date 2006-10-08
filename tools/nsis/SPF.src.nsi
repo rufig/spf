@@ -16,7 +16,7 @@
 !define PROD_NAME "SP-Forth"
 !define PROD_FILE "spf-"
 !define PROD_VENDOR "RUFIG"
-!define PROD_ICON "spf\src\spf.ico"
+!define PROD_ICON "{SPF-PATH}\src\spf.ico"
 
 ;--------------------------------
 ; General
@@ -49,7 +49,7 @@ InstallDirRegKey HKLM "SOFTWARE\${PROD_VENDOR}\${PROD_NAME}" "InstallLocation"
 !define MUI_WELCOMEPAGE_TEXT "$(LWelcomeMainText)"
 
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "$(LLicenseFile)"
+!insertmacro MUI_PAGE_LICENSE "$(LLicenseData)"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -102,20 +102,26 @@ LangString LServiceHeader3 ${LANG_RUSSIAN} "Завершение установки"
 LangString LReadmeYN ${LANG_ENGLISH} "Do you want to read README?"
 LangString LReadmeYN ${LANG_RUSSIAN} "Будете читать README?"
 
-LicenseLangString LLicenseFile ${LANG_ENGLISH} "spf/docs/license/gpl.en.txt"
-LicenseLangString LLicenseFile ${LANG_RUSSIAN} "spf/docs/license/gpl.ru.txt"
+LicenseLangString LLicenseData ${LANG_ENGLISH} "{SPF-PATH}\docs\license\gpl.en.txt"
+LicenseLangString LLicenseData ${LANG_RUSSIAN} "{SPF-PATH}\docs\license\gpl.ru.txt"
+
+LangString LLicenseFile ${LANG_ENGLISH} "docs\license\gpl.en.txt"
+LangString LLicenseFile ${LANG_RUSSIAN} "docs\license\gpl.ru.txt"
 
 LangString LLinkLicense ${LANG_ENGLISH} "License"
 LangString LLinkLicense ${LANG_RUSSIAN} "Лицензия"
 
-LangString LLinkDocs ${LANG_ENGLISH} "Documentation"
-LangString LLinkDocs ${LANG_RUSSIAN} "Документация"
+LangString LDocsAll ${LANG_ENGLISH} "Documentation"
+LangString LDocsAll ${LANG_RUSSIAN} "Документация"
 
 LangString LRunManagerText ${LANG_ENGLISH} "Run registry settings manager"
 LangString LRunManagerText ${LANG_RUSSIAN} "Запустить настройку реестра" 
 
 LangString LReadmeFile ${LANG_ENGLISH} "readme.en.txt"
 LangString LReadmeFile ${LANG_RUSSIAN} "readme.ru.txt" 
+
+LangString LWhatsnewFile ${LANG_ENGLISH} "whatsnew.eng.txt"
+LangString LWhatsnewFile ${LANG_RUSSIAN} "whatsnew.txt" 
 
 LangString LViewReadmeText ${LANG_ENGLISH} "View README"
 LangString LViewReadmeText ${LANG_RUSSIAN} "Посмотреть README" 
@@ -230,10 +236,15 @@ Section "$(LSecStartMenuText)" SecStartMenu
   SetOutPath $INSTDIR
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\SPF.lnk" "$INSTDIR\spf4.exe"
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\ReadMe.lnk" "$INSTDIR\$(LReadmeFile)"
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\License.lnk" "$INSTDIR\$(LLicenseFile)"
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\ChangeLog.lnk" "$INSTDIR\docs\$(LWhatsnewFile)"
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
+  CreateDirectory "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)"
+
   SetOutPath $INSTDIR\docs
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LLinkDocs).lnk" "$INSTDIR\docs"
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\Особенности SPF.lnk" "$INSTDIR\docs\papers\intro.html"
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\spf_help.lnk" "$INSTDIR\docs\papers\spf_help.chm"
 
   ExecShell "open" "$SMPROGRAMS\${PROD_NAME}"
 

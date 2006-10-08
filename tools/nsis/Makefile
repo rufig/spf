@@ -2,19 +2,25 @@
 # Эти переменные отредактируйте по своим настройкам!
 #
 
-export spf4_notitle=D:\WORK\FORTH\spf4\spf4_notitle.exe
-export markdown=python D:\WORK\markdown\markdown-1-5.py
-export makensis="C:\Program Files\NSIS\makensis.exe"
+spf4_notitle=D:\WORK\FORTH\spf4\spf4_notitle.exe
+#markdown=python D:\WORK\markdown\markdown-1-5.py
+makensis="C:\Program Files\NSIS\makensis.exe"
 
-export spf_path=spf
+spf_path=..\..
+spf_tc=jpf375c.exe
 
 #########################################
+
+host=win
+delete=del
+
+ifneq ($(host),win)
+delete=rm -f
+endif
 
 export srcdir=$(shell cd)
 
 target: dist
-
-nsi: spf.nsi
 
 spf.nsi: spf_cvs.f spf.src.nsi
 	$(spf4_notitle) : SPF-PATH S" $(spf_path)" ; S" spf_cvs.f" INCLUDED T > spf_cvs.nsi BYE
@@ -23,8 +29,15 @@ spf.nsi: spf_cvs.f spf.src.nsi
 docs:
 	$(MAKE) -C $(spf_path)/docs/papers
 
-dist: docs nsi spf.nsi
+spf.exe: $(spf_path)\jpf375c.exe $(spf_path)\src\version.spf
+	copy $(spf_path)\spf4root\* $(spf_path)
+	cd $(spf_path) && $(spf_tc) src\spf.f
+
+dist: docs spf.exe spf.nsi
 	$(makensis) spf.nsi
 
 clean:
 	$(MAKE) -C $(spf_path)/docs/papers clean
+	$(delete) spf.nsi
+	$(delete) spf_cvs.nsi
+	$(delete) spf-*-setup.exe

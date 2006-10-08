@@ -7,6 +7,15 @@ REQUIRE LIKE ~pinka/lib/like.f
 \ : SPF-PATH S" spf" ;
 : SPF-PATH-LEN SPF-PATH NIP 1+ ;
 
+: double-slashed ( a u -- ) 
+    "" { p }
+    OVER + SWAP ?DO I 1 p STR+ I C@ [CHAR] \ = IF I 1 p STR+ THEN LOOP 
+    p ; 
+
+SPF-PATH double-slashed VALUE path\\
+
+: SPF-PATH-\\ path\\ STR@ ;
+
 REQUIRE DateM>S ~ac/lib/win/date/date-int.f
 
 : MyDate# { d m y } y #N [CHAR] . HOLD m DateM>S HOLDS [CHAR] . HOLD d #N## ;
@@ -62,8 +71,13 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
   2DUP S" *co.bat" ULIKE ONFALSE
   2DUP S" *.md" ULIKE ONFALSE
   2DUP S" *Makefile" ULIKE ONFALSE
-  2DUP " {SPF-PATH}\\tools\\*" STR@ ULIKE ONFALSE
-  2DUP " {SPF-PATH}\\docs\\papers\\*.md.css" STR@ ULIKE ONFALSE
+  2DUP " {SPF-PATH-\\}\\ac-lib3\\*" STR@ ULIKE ONFALSE
+  2DUP " {SPF-PATH-\\}\\spf3-src\\*" STR@ ULIKE ONFALSE
+  2DUP " {SPF-PATH-\\}\\linux\\*" STR@ ULIKE ONFALSE
+  2DUP " {SPF-PATH-\\}\\CVSROOT\\*" STR@ ULIKE ONFALSE
+  2DUP " {SPF-PATH-\\}\\spf4root\\*" STR@ ULIKE ONFALSE
+  2DUP " {SPF-PATH-\\}\\tools\\*" STR@ ULIKE ONFALSE
+  2DUP " {SPF-PATH-\\}\\docs\\papers\\*.md.css" STR@ ULIKE ONFALSE
   SUCCEEDS
 ;
 
