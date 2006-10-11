@@ -11,11 +11,14 @@ LEMPTY
 : L@ ( -- n ) LP @ CELL- @ ;  \ взять с L-стека, глубина стека не меняется
 
 : L> ( -- n ) \ снять с L-стека
-LDROP L@ ;
+L@  LDROP ;
 
 : >L ( n -- ) \ положить на L-стек
-LP @  ! LUNDROP ;
+LP @ !  LUNDROP ;
 
 \EOF
-REQUIRE SEE lib/ext/disasm.f
-SEE L@
+1 >L
+2 >L
+
+L> .
+L> .
