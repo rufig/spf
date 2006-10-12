@@ -1,3 +1,5 @@
+REQUIRE { lib\ext\locals.f
+
 : PRINT-FILE ( addr u -- )
   { \ a len f }
   R/O OPEN-FILE THROW -> f

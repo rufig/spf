@@ -5,6 +5,8 @@
 \ infile - windows.const
 \ outfile - stealconst.f
 
+REQUIRE { lib\ext\locals.f
+
 : steal { \ file const }
    S" windows.const" R/O OPEN-FILE THROW
    -> file

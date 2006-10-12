@@ -45,6 +45,7 @@
 
 REQUIRE OSVER lib\win\osver.f
 REQUIRE ||    ~ac/lib/temps.f
+REQUIRE [DEFINED] lib\include\tools.f
 
 [DEFINED] QuickSWL
 [IF]

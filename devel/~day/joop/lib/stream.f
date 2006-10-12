@@ -2,6 +2,7 @@
 \ Stream абстракный класс - не создавать, только наследовать!
 
 REQUIRE Object ~day\joop\oop.f
+REQUIRE { lib\ext\locals.f
 
 pvar: <position
 pvar: <size

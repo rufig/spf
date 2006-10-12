@@ -1,3 +1,4 @@
+\ $Id$
 
 \ двухсвязный список для небольшого кол-ва элементов
 
@@ -11,53 +12,152 @@ VALUE /node
 0
 CELL -- .listNodeSize
 CELL -- .listFirstNode
-\ CELL -- .listLastNode
+CELL -- .listLastNode
 VALUE /list
    
 : firstNode ( list -- addr | 0 )
+\ Получить первый элемент списка
    .listFirstNode @
 ;
-\ : lastNode ( list -- addr | 0 )
-\   .listLestNode @
-\ ;
+
+: CalculateLastNode ( list -- addr | 0 )
+\ Найти последний элемент списка проходом по нему
+   firstNode
+   DUP IF
+	   BEGIN
+    	  DUP .next @
+	   WHILE
+    	  .next @
+	   REPEAT
+	THEN
+;
+
+: lastNode ( list -- addr | 0 )
+\ Получить последний элемент списка
+   .listLastNode @
+;
 
 : listNodeSize ( list - u )
+\ Вернуть размер элемента списка
    .listNodeSize @
 ;
 
-: InsertNode ( addr list )
-   2DUP SWAP .list !
+: NextCircleNode ( node -- node1 )
+\ Вернуть следующий элемент списка, после последнего - первый
+	DUP .next @ ?DUP IF
+		NIP
+	ELSE
+		.list @ firstNode
+	THEN
+;
+: PrevCircleNode ( node -- node1 )
+\ Вернуть предыдущий элемент списка, после первого - последний
+	DUP .prev @ ?DUP IF
+		NIP
+	ELSE
+		.list @ lastNode
+	THEN
+;
+
+: InsertNodeBegin ( addr list )
+\ Вставить элемент addr в начало списка list, связать.
+   2DUP SWAP .list ! ( addr list )
    
-   DUP firstNode
+   DUP firstNode ( addr list first )
    ?DUP
-   IF
-       \ addr list fnode
-       ROT  2DUP .next ! \ list fnode addr
-       TUCK SWAP .prev !
-       SWAP
+   IF ( addr list first )
+       ROT  2DUP .next ! ( list first addr )
+       TUCK SWAP .prev ! ( list addr )
+       SWAP ( addr list )
+   ELSE ( addr list )
+       2DUP .listLastNode !
    THEN       
    .listFirstNode !
 ;
 
-: ZALLOCATE ( u -- addr ior )
+: InsertNodeAfter ( addr node list -- )
+   OVER 0= IF NIP InsertNodeBegin EXIT THEN
+
+   ROT SWAP
+   2DUP SWAP .list ! ( node addr list )
+   OVER SWAP .listLastNode !
+
+   2DUP .prev ! ( node addr )
+   OVER .next @ OVER .next !
+   DUP .next @ ?DUP
+   IF
+      OVER SWAP .prev !
+   THEN 
+   SWAP .next !
+;
+
+: InsertNodeEnd ( addr list )
+   DUP lastNode SWAP
+   InsertNodeAfter
+;
+
+: ZALLOCATE ( u -- addr )
+\ Выделить память в хипе, обнулить
    DUP ALLOCATE THROW
    TUCK SWAP 0 FILL
 ;
 
-: AllocateNode ( list -- addr | 0 )
+: ZALLOT ( u -- addr )
+\ Выделить память в словаре, обнулить
+   HERE OVER ALLOT
+   TUCK SWAP 0 FILL
+;
+
+: AllocateNodeBegin ( list -- addr | 0 )
+\ Создать элемент списка в хипе, вставить в список, вернуть адрес
    DUP .listNodeSize @ ZALLOCATE \ list addr
-   TUCK SWAP InsertNode
+   TUCK SWAP InsertNodeBegin
+;
+: AllocateNodeEnd ( list -- addr | 0 )
+\ Создать элемент списка в хипе, вставить в список, вернуть адрес
+   DUP .listNodeSize @ ZALLOCATE \ list addr
+   TUCK SWAP InsertNodeEnd
+;
+
+: AllocateNode
+   AllocateNodeBegin
+;
+
+: AllotNodeBegin ( list -- addr )
+\ Создать элемент списка в словаре, вставить в список, вернуть адрес
+   DUP .listNodeSize @ ZALLOT \ list addr
+   TUCK SWAP InsertNodeBegin
+;
+: AllotNodeEnd ( list -- addr )
+\ Создать элемент списка в словаре, вставить в список, вернуть адрес
+   DUP .listNodeSize @ ZALLOT \ list addr
+   TUCK SWAP InsertNodeEnd
 ;
 
 : list: ( u  "ccc" )
-\ u размер элемента
+\ Создать в словаре именованный список с данным размером элемента
   CREATE
     ,
     0 , \ first node
+    0 , \ last node
   DOES>
 ;
 
+: CreateList ( u -- addr )
+\ Создать в хипе список с данным размером элемента, вернуть адрес
+    /list ZALLOCATE TUCK !
+;
+
+: CreateStaticList ( u -- addr )
+\ Создать в словаре список с данным размером элемента, вернуть адрес
+    HERE
+    /list ALLOT
+    TUCK !
+    DUP CELL+ 0. ROT 2!
+;
+
 : ForEach ( xt list -- )
+\ Выполнить  xt для каждого элемента списка
 \ xt ( node -- )
    SWAP >R
    firstNode
@@ -69,10 +169,10 @@ VALUE /list
    REPEAT R> 2DROP
 ;
 
-: ?ForEach ( xt list -- node | 0 )
+: ?ForEachFrom ( xt node -- node | 0 )
+\ Выполнить  xt для каждого элемента списка начиная с элемента node
 \ xt ( node -- f ) если f = 0 то прекратить обход
    SWAP >R
-   firstNode
    BEGIN
       DUP
    WHILE
@@ -84,19 +184,41 @@ VALUE /list
    REPEAT R> 2DROP 0
 ;
 
+: ?ForEach ( xt list -- node | 0 )
+\ xt ( node -- f ) если f = 0 то прекратить обход
+   firstNode ?ForEachFrom
+;
+
 : ForEach:
-   ' POSTPONE LITERAL
+   ' 
+   STATE @ 
+   IF
+     POSTPONE LITERAL
      POSTPONE SWAP
      POSTPONE ForEach
+   ELSE SWAP ForEach
+   THEN
 ; IMMEDIATE
 
 : ?ForEach:
-   ' POSTPONE LITERAL
+   ' 
+   STATE @
+   IF
+     POSTPONE LITERAL
      POSTPONE SWAP
      POSTPONE ?ForEach
+   ELSE SWAP ?ForEach
+   THEN
 ; IMMEDIATE
 
 : FreeNode ( node -- )
+\ Удалить элемент списка
+   DUP DUP .list @ lastNode =
+   IF
+      DUP .list @ DUP lastNode .prev @
+      SWAP .listLastNode !      
+   THEN
+      
    >R
    R@ .prev @ ?DUP
    IF
@@ -117,6 +239,7 @@ VALUE /list
 ;
 
 : FreeList ( list -- )
+\ Удалить все элементы списка
    ['] FreeNode SWAP ForEach
 ;
 
@@ -129,72 +252,96 @@ VARIABLE listSize_
 
 : listSize ( list -- u )
     listSize_ 0!
-    ['] (listSize) SWAP ForEach
+    ForEach: (listSize)
     listSize_ @
 ;
 
-\EOF
+VARIABLE nth
+VARIABLE nfind
 
-.( =====================================) CR
+: (listNth)
+     DROP
+    nth @ nfind @ = 0=
+    nth 1+!
+;
+
+: list[] ( n list -- node | 0)
+   SWAP nfind !
+   DUP listSize 1- nfind @ <
+   IF
+      DROP 0 EXIT
+   THEN 
+
+   nth 0!
+   ?ForEach: (listNth)
+;
+
+: (PrintList)
+    >R
+    ."   item: " R@ . CR
+    ."   next: " R@ .next @ . CR
+    ."   prev: " R> .prev @ . CR
+
+;
+
+: PrintList ( list -- )
+    ." list " BASE @ SWAP DUP . CR
+    ."   last node: " DUP lastNode . CR
+    ."   first node: " DUP firstNode . CR
+    ForEach: (PrintList)
+    BASE !
+;
+
+\EOF
+TESTCASES staticlist.f
+
 /node
 CELL -- .val
 VALUE /myList
 
 /myList list: bullets
 
-0 VALUE lastAdded
-: add
-	bullets AllocateNode TO lastAdded
+: add ( u -- )
+    bullets AllocateNodeEnd .val !
 ;
 
-add lastAdded .val 1 SWAP !
-add lastAdded .val 2 SWAP !
-add lastAdded .val 3 SWAP !
-lastAdded FreeNode
-add lastAdded .val 4 SWAP !
+1 add
+2 add
+3 add
+4 add
 
-: print
-    .val @ . CR
-;
-' print bullets ForEach
+{ 2 bullets list[] .val @ -> 3 }
 
-BYE
+\ ====================
 
-\EOF
+VARIABLE sum
 
-/node
-CELL -- .val
-VALUE /myList
+: add .val @ sum +! ;
 
-/myList list: bullets
+bullets ForEach: add
 
-bullets AllocateNode .val 1 SWAP !
-bullets AllocateNode .val 2 SWAP !
-bullets AllocateNode .val 3 SWAP !
-bullets AllocateNode .val 4 SWAP !
+{ sum @ -> 10 }
 
-: print
-    .val @ . CR
-;
+\ =====================
 
-: (DeleteThird) ( node - f )
-    DUP .val @ 3 =
-    IF
-       FreeNode
-    ELSE DROP
-    THEN
-    -1
-;
+VARIABLE res
 
-: DeleteThird
-   ['] (DeleteThird) bullets ?ForEach DROP
-;
+: check ( node -- f ) DUP .val @ 3 = IF res ! 0 ELSE DROP -1 THEN ;
 
-: test
-   ['] print bullets ForEach
-   DeleteThird CR
-   ['] print bullets ForEach
-   bullets FreeList
-;
+bullets ?ForEach: check DROP
 
-test
+{ res @ .val @ -> 3 }
+
+\ =====================
+
+{ bullets listSize -> 4 }
+{ bullets CalculateLastNode -> bullets lastNode }
+{ bullets lastNode .prev @ -> bullets lastNode FreeNode bullets lastNode  }
+
+\ ==============
+bullets FreeList
+res 0!
+{ bullets listSize -> 0 }
+{ bullets lastNode -> 0 }
+
+END-TESTCASES

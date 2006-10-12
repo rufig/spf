@@ -2,6 +2,7 @@
 
   Пример из справки из раздела ООП к Win32Forth 4.1.
 )
+REQUIRE { lib\ext\locals.f
 REQUIRE CLASS: ~day\mc\microclass.f
 
 

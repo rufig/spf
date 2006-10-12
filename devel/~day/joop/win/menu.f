@@ -7,6 +7,7 @@
 
 REQUIRE RegisterClassExA  ~day\joop\win\wfunc.f
 REQUIRE Stack ~day\joop\lib\stack.f
+REQUIRE { lib\ext\locals.f
 
 USER-VALUE PopupStack
 
