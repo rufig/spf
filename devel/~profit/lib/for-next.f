@@ -1,6 +1,8 @@
 \ ÷икл FOR ... NEXT. »меет только одну переменную цикла,
 \ котора€ от начального значени€ снижаетс€ к нулю и потом выходит
 
+REQUIRE /TEST ~profit/lib/testing.f
+
 : FOR POSTPONE >R <MARK ;  IMMEDIATE
 
 : NEXT  ?COMP  0x24 0x0CFF W, C, 
@@ -14,7 +16,7 @@
 ;  IMMEDIATE
 DECIMAL
 
-\EOF
+/TEST
 : r 10 FOR R@ . NEXT ;
 
 REQUIRE SEE lib/ext/disasm.f

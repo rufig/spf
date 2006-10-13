@@ -1,4 +1,5 @@
 \ REQUIRE стек ~profit/lib/stacks.f
+REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE ON lib/ext/onoff.f
 REQUIRE FOR ~profit/lib/for-next.f
 REQUIRE буффер ~profit/lib/collectors.f
@@ -132,7 +133,7 @@ TO граница-обработки          BEGIN
 
 ;MODULE
 
-\EOF
+/TEST
 9 таблица раздватри \ три состояния 
 1 выполняет: ." I" ; 
 2 выполняет: ." II" ; 
@@ -142,7 +143,7 @@ TO граница-обработки          BEGIN
 5 раздватри 
 \ вывод: IV-IX
 
-\EOF
+/TEST
 256 таблица символы \ таблица обработчиков символов 
 все: ." не знаю такого" ; 
 разделители: ." разделитель, но не пробел" ; 
@@ -157,7 +158,7 @@ CHAR А CHAR Я диапазон: тоже-самое ;
 
 CR KEY символы CR
 
-\EOF
+/TEST
 VARIABLE счётчик 
 
 состояние не-считать 

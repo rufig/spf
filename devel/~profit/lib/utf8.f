@@ -1,7 +1,8 @@
 \ Раскодировка из UTF-8
 \ См. http://ru.wikipedia.org/wiki/Unicode
 
-REQUIRE { ~ac/lib/locals.f
+REQUIRE /TEST ~profit/lib/testing.f
+REQUIRE { lib/ext/locals.f
 REQUIRE fetchByte ~profit/lib/fetchWrite.f
 
 2 BASE !
@@ -59,7 +60,7 @@ REPEAT
 B @ 2 - ; \ end -- адрес введённого последнего символа
 
 
-\EOF
+/TEST
 2 BASE !
 CREATE a
 1010 C, 

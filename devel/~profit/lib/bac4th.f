@@ -1,3 +1,4 @@
+REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE >L ~profit/lib/lstack.f
 REQUIRE { lib/ext/locals.f
 REQUIRE (: ~yz/lib/inline.f
@@ -165,7 +166,7 @@ LIT, succ COMPILE,
 
 ;MODULE
 
-\EOF
+/TEST
 \ что-то вроде локальных переменных (локальные значения, но глобальные имена)...
 VARIABLE a
 VARIABLE b
