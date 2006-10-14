@@ -88,7 +88,7 @@ USER-CREATE ATIB
   >IN @ - NEGATE
 ;
 
-: NextWord ( -- c-addr u )
+: PARSE-WORD ( -- c-addr u )
   \ это слово теперь будем использовать в INTERPRET
   \ - удобнее: не использует WORD и, соответственно, не мусорит в HERE;
   \ и разделител€ми считает все что <=BL, в том числе TAB и CRLF
@@ -96,6 +96,8 @@ USER-CREATE ATIB
 \  >IN 1+! \ пропустили разделитель за словом
   >IN @ 1+ #TIB @ MIN >IN !   \ дл€ совместимости с spf3.16
 ;
+
+: NextWord PARSE-WORD ;
 
 : PARSE ( char "ccc<char>" -- c-addr u ) \ 94 CORE EXT
 \ ¬ыделить ccc, ограниченное символом char.
@@ -108,7 +110,7 @@ USER-CREATE ATIB
   >IN 1+!
 ;
 
-: SKIP ( char "ccc<char>" -- )
+: PSKIP ( char "ccc<char>" -- )
 \ ѕропустить разделители char.
   BEGIN
     DUP GetChar >R = R> AND
@@ -116,6 +118,10 @@ USER-CREATE ATIB
     >IN 1+!
   REPEAT DROP
 ;
+
+: SKIP \ это временно, конфликт с
+\ http://www.forth.org.ru/~mlg/mirror/home.earthlink.net/~neilbawd/toolbelt.html#SKIP
+ PSKIP ;
 
 \ PARSE и SKIP оставлены дл€ совместимости, больше не используютс€
 \ при трансл€ции исходного текста
