@@ -18,7 +18,7 @@ MODULE: bac4th
 
 : (ADR) R> DUP CELL+ >R ;
 
-: (NOT:)  R> RP@ >L  DUP @ >R  CELL+ >R ;
+: (NOT:)  R> RP@ >L  DUP @ >R (: LDROP ;) >R  CELL+ >R ;
 : (-NOT)  L> RP! ;
 
 EXPORT
@@ -61,6 +61,8 @@ RET,
 \ положить адрес начала последовательности шитого между словами на стек возвратов
 : BACK  ?COMP  0 RLIT, >MARK POSTPONE R> POSTPONE EXECUTE  8ACK ;  IMMEDIATE
 : TRACKING ?COMP 8ACK ?PAIRS  RET, >RESOLVE2 ;  IMMEDIATE
+\ BACK ... TRACKING -- это аналог (: ... ;) >R, и наоборот:
+\ (: ... ;) -- это аналог BACK ... TRACKING R>
 
 \ отрицание
 : NOT:  ?COMP POSTPONE (NOT:) 0 ,  >MARK N0T ; IMMEDIATE
