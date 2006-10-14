@@ -29,11 +29,11 @@ spf.nsi: spf_cvs.f spf.src.nsi
 docs:
 	$(MAKE) -C $(spf_path)/docs/papers
 
-spf.exe: $(spf_path)\jpf375c.exe $(spf_path)\src\version.spf
+$(spf_path)\spf4.exe: $(spf_path)\jpf375c.exe $(spf_path)\src\version.spf
 	copy $(spf_path)\spf4root\* $(spf_path)
 	cd $(spf_path) && $(spf_tc) src\spf.f
 
-dist: docs spf.exe spf.nsi
+dist: docs $(spf_path)\spf4.exe spf.nsi
 	$(makensis) spf.nsi
 
 clean:

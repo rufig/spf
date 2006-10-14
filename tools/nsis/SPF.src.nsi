@@ -178,7 +178,7 @@ FunctionEnd
 
 Function onFinishRun
 
- nsExec::Exec 'spf4.exe devel/~ygrek/prog/install/install.f'
+ nsExec::Exec '$INSTDIR\spf4.exe devel/~ygrek/prog/install/install.f'
 
 FunctionEnd
 
