@@ -218,10 +218,10 @@ PROC;
  THEN
  FindSPFType
  ntype -1 = IF
-   gui::farmanager windisable
+   \ gui::farmanager windisable
    gui::farmanager-notice >R
    " (already present)" R@ -text!
-   " FAR manager *.spf association is present and wont be altered" R@ -tooltip!
+   " FAR manager *.spf association is set in the registry" R@ -tooltip!
    \ red R@ -color!
    RDROP
  THEN

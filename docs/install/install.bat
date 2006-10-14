@@ -1,1 +1,1 @@
-..\..\spf4.exe devel/~ygrek/prog/install/install.f
+..\..\spf4.exe devel/~ygrek/prog/install/launcher.f

@@ -112,7 +112,7 @@ LangString LLinkLicense ${LANG_ENGLISH} "License"
 LangString LLinkLicense ${LANG_RUSSIAN} "Лицензия"
 
 LangString LDocsAll ${LANG_ENGLISH} "Documentation"
-LangString LDocsAll ${LANG_RUSSIAN} "Документация"
+LangString LDocsAll ${LANG_RUSSIAN} "Documentation"
 
 LangString LRunManagerText ${LANG_ENGLISH} "Run registry settings manager"
 LangString LRunManagerText ${LANG_RUSSIAN} "Запустить настройку реестра" 
@@ -178,7 +178,7 @@ FunctionEnd
 
 Function onFinishRun
 
- nsExec::Exec '$INSTDIR\spf4.exe devel/~ygrek/prog/install/install.f'
+ nsExec::Exec '$INSTDIR\spf4.exe devel/~ygrek/prog/install/launcher.f'
 
 FunctionEnd
 
