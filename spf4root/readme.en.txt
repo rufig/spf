@@ -1,16 +1,26 @@
 
-                        SP-Forth for Windows readme
+SP-Forth for Windows
+====================
 
 
 ABOUT
+=====
 
   SP-FORTH is a reliable and comfortable forth system producing optimized native
 code for the Intel x86 processors. Runs on MS Windows 9x, NT (there are also
-ports to Linux, Kolibri OS). SP-Forth is distributed under the terms of the GNU
-General Public License. Read docs\license\gpl.en.txt for details.
+ports to Linux, Kolibri OS).
+
+SP-Forth is free software, you can redistribute and/or modify it under the
+terms of the GNU General Public License. See docs\license\gpl.en.txt for
+details.
+
+SP-Forth is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
 
 
 INSTALLATION
+============
 
   SP-Forth for Windows is distributed as the RAR archive or the self-installing
 executable.
@@ -21,13 +31,13 @@ registry settings. Alternatively you can edit \docs\install\spf_path_install.reg
 manually (specify the correct path to your spf4.exe) and run it. Now you can
 write your code, save it as the *.f file and execute it by simply
 doubleclicking the source file.
-  If you have an SFX package - just run it. The wizard will guide you through
-the setup process.
-  See the docs\whatsnew.eng.txt file for the version history.
+  If you have an executable package - just run it. The wizard will guide you
+through the setup process.
+  See the docs\whatsnew.eng.txt file for the short overview of recent changes.
 
   Directories:
 
- \devel   - additional libraries and examples
+ \devel   - additional contributed libraries and examples
  \docs    - documentation
  \lib     - standard libraries, common ANS and non ANS extensions like float.f, locals.f ...
  \samples - debugged GUI and console mode samples.
@@ -47,6 +57,7 @@ the setup process.
 
 
 DOCUMENTATION
+=============
 
   See the \docs\papers folder. The majority of the documentation is in Russian
 now. If you need an English version, contact us, maybe the translation will be
@@ -56,25 +67,46 @@ more questions - ask them at spf-dev mailing list.
 
 
 DEVELOPMENT
+===========
 
-  The latest version can be downloaded from :
+The latest version can be downloaded from :
 
-    http://sourceforge.net/projects/spf/
+  https://spf.sourceforge.net
 
-    There you can also subscribe to the mailing list spf-dev, obtain latest
-    sources from CVS, post a bugreport.
+  You can obtain the latest sources from CVS. The repository for the anonymous
+  read-only access via pserver is ":pserver:anonymous@spf.cvs.sourceforge.net:/cvsroot/spf"
 
-  SPF projects (strongly recommended) :
+The first place to contact the developers is the spf-dev mailing list :
 
-    http://www.delosoft.com
-    http://forth-script.sf.net
-    http://acweb.sf.net
-    http://acfreeproxy.sf.net
-    http://acftp.sf.net
+  https://lists.sourceforge.net/lists/listinfo/spf-dev
 
-  Russian Forth Interest Group :
+A bugtracker is maintained at
 
-    http://www.forth.org.ru
+  http://activekitten.com/trac/spf/
 
---
+  You can report found bugs there. Please provide a comprehensive description
+  of the bug behaviour and ways to reproduce. Any errors or omissions in the
+  documentation can also be reported to the same address.
+
+Related projects (highly recommended) :
+
+  http://www.delosoft.com    - Forth systems for pocket computers
+  http://forth-script.sf.net - SP-Forth as CGI
+  http://acweb.sf.net        - web server for Win32
+  http://acfreeproxy.sf.net  - http proxy server
+  http://acftp.sf.net        - ftp server
+  http://nncron.ru           - scriptable unix-like cron scheduler
+
+Russian Forth Interest Group :
+
+  http://www.forth.org.ru
+
+
+AUTHORS
+=======
+
+Russian Forth Interest Group with the help of many contributors.
+Started by Andrey Cherezov in 1992
+
+----
 Last updated : $Date$
