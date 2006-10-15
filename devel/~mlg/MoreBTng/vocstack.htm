@@ -1,0 +1,323 @@
+	<html>
+	<title>
+Стек словарей T32
+	</title>
+	<body>
+	<h1>
+Исполнимый стек словарей T32
+	</h1>
+
+Механизм словарного поиска T32 несколько мощнее, чем то, что положено по
+стандарту.
+А именно, можно добавить на стек словарей нечто, не являющееся списком
+слов, но осуществляющее какой-то поиск или анализ слова наподобие словаря.
+	<p>
+	<b>
+Пример 1.
+	</b>
+Слова вида <code>&&</code><i>N</i>, где <i>N</i> - число, эквивалентны фразе
+<i>N</i><code>&nbsp;PICK</code>.
+	<p>
+	<pre>
+\ ( xt -- ) поместить функцию на стек словарей
+: func>order CELL- CELL- >ORDER ;
+
+\ скомпилировать или выполнить N PICK
+: _&&,
+	STATE @
+	IF	[COMPILE] LITERAL COMPILE PICK
+	ELSE	PICK
+	THEN
+;
+
+\ слово, которое будет работать на стеке словарей
+: do-&& ( addr len -- addr len )
+	( addr len -- n cfa 1 1 )
+	DUP 2 > ONTRUE
+	OVER S" &&" TUCK COMPARE 0= ONTRUE
+	2DUP 2 /STRING S$NUMBER?
+	IF	DROP NIP NIP ['] _&&, 1 1 RDROP
+	ELSE	2DROP
+	THEN
+;
+
+ECHOING ON
+
+['] do-&& func>order
+1 2 3 4 5 6 .S
+&&0 . &&3 .
+: tst &&0 . &&2 . ;
+tst
+see tst
+ORDER
+
+ECHOING OFF
+	</pre>
+Прогон (<tt><b>исходный текст </b></tt>и<tt><i> выдача</i></tt>):
+	<tt>
+	<br><b>
+['] do-&& func>order
+	<br>
+1 2 3 4 5 6 .S
+	</b><br><i>
+[6] 1 2 3 4 5 6 ;
+	</i><br><b>
+&&0 . &&3 .</i><i> 6 3</i>
+	<br><b>
+: tst &&0 . &&2 . ;
+	<br>
+tst</b><i> 6 4</i>
+	<br><b>
+see tst
+	</b><br><i>
+: tst     LIT [0] PICK . LIT [2] PICK . EXIT</i>
+	<br><b>
+ORDER
+	</b><br><i>
+400b7c4 func: do-&& 40e2ad4 FORTH ( FORTH )  40e2ad4 FORTH ( FORTH )  ;  40e2ad4
+ FORTH ( FORTH )</i>
+	</tt>
+	<p>
+Нетрудно заметить, что под CFA может оставаться дополнительная информация.
+А если к слову &&3 применить  <tt>'</tt> (штрих)?
+	<br><tt><b>
+' &&3
+	</b><br><i>
+ ok( 3 400b79c )
+	</i><br><b>
+>.NAMES
+	</b><br><i>
+_&&,  ok( 3 )
+	</i></tt><br>
+Нам повезло: система не зависла, а штрих вернул и cfa, и дополнительную
+информацию, хотя это на самом деле не совсем корректно (штриху положено
+возвращать только одно значение). Любое слово, выполняющее что-либо типа
+<code> ' SWAP </code>, на любом из слов <tt>&&</tt><i>N</i> скорее всего
+зависнет.
+	<p>
+А в следующем примере возникает ошибка:
+	<br><tt><b>
+: yyy POSTPONE &&3 ;
+	</b><br><i>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^ unfinished control structure, or data stack changed
+	</i></tt><br>
+Ничего удивительного:
+	<br><tt><b>
+IT (see)
+	</b><br><i>
+: yyy     _&&,  ok
+	</i></tt><br>
+т.е. вспомогательное слово <tt>_&&,</tt> скомпилировалось,
+а число 3 осталось на стеке.
+	<p>
+Поэтому:
+	<ul>
+	<li>
+Полностью совместимы с Форт-системой только слова, для которых в результате
+словарного поиска возвращается одно значение — CFA.
+	</li>
+	<li>
+Рекомендуется всегда, когда это возможно, возвращать для слова только одно
+значение — CFA.
+	</li>
+	<li>
+Если для слова в результате словарного поиска возвращается более одного
+значения, то не все компоненты Форт-системы смогут с ним справиться.
+Скорее всего Вы создадите конструкцию, с которой сможет справиться
+текстовый интерпретатор, однако не следует питать иллюзий на счет возможностей
+ее использования с остальными компонентами Форт-системы, такими как
+<tt>'</tt>, <tt>POSTPONE</tt>, <tt>[COMPILE]</tt>.
+	</li>
+	</ul>
+	<p>
+А теперь приведем еще один пример.
+	<p>
+	<b>
+Пример 2.
+	</b>
+Нахождение переопределенных фортовских слов.
+	<pre>
+\ ( xt -- ) поместить функцию на стек словарей
+: func>order CELL- CELL- >ORDER ;
+
+\ SEARCH-THREAD   ( addr len ^^1st -- addr len 0        0    0 )
+\                 ( addr len ^^1st -- addr len prev-lfa lfa -1 )
+
+\ продолжить поиск в цепочке слов -- см. SEARCH-THREAD , это почти то же самое
+: _CONTINUE-SEARCH	( addr len ^^1st -- addr len 0 )
+                        ( addr len ^^1st -- cfa flag flag )
+    SEARCH-THREAD       \ та же цепочка (нитка, thread)
+    IF
+            2NIP NIP ( lfa )
+		DUP TO LastFoundLFA
+            DUP
+                HEAD>
+            SWAP
+                HFLAGS@ &immediate AND
+                IF 1 ELSE -1 THEN DUP
+    ELSE
+            2DROP 0
+    THEN
+;
+
+: witholdnames	( addr len -- addr len )
+		( addr len -- cfa flag flag ; exit )
+    DUP ONTRUE				\ не пустая строка?
+    OVER C@ '~' = ONTRUE		\ начинается с '~' ?
+    R@ -ROT ( retaddr addr len )	\ retaddr - адрес остатка стека поиска
+	2DUP 2>R			\ сохраняем старое имя
+	1 /STRING			\ убираем '~' в начале
+    ROT TOKEN- ENTER	( addr len 0 )
+			( cfa flag flag )
+    IF	( где-то найдено, продолжить поиск там же)
+	2DROP
+	LastFoundNFA COUNT LastFoundLFA
+	    _CONTINUE-SEARCH ( addr len 0 )
+			     ( cfa flag flag )
+	IF	( вернуть старое CFA)
+		DUP RDROP RDROP RDROP EXIT
+	THEN
+    THEN   ( не найдено, вернуть '~' в имя и искать снова)
+    2DROP 2R>
+;
+	</pre>
+Здесь <tt><i>^^1st</i></tt> — указатель на указатель на первое имя в цепочке,
+например, адрес поля связи (поле связи содержит адрес следующего слова, так что
+это действительно адрес адреса заголовка).
+	<p>
+Слово <tt>ENTER</tt> определено как<nobr><code> : ENTER >R ; </code>,</nobr>
+оно имеет стековый эффект <nobr><i>( codeaddr -- )</i></nobr> и выполняет
+фрагмент шитого кода, находящийся по адресу <i>codeaddr</i>.
+У нас это слово используется в конструкции
+<nobr><code>R@ </code>...<code> TOKEN- ENTER</code></nobr>.
+Ничего особо страшного эта конструкция не делает, просто фрагмент
+шитого кода, начинающийся со слова <tt>witholdnames</tt>, рекурсивно
+вызывает сам себя. <code>R@</code> возвращает адрес следующего в шитом
+коде обращения к функции, а <code>TOKEN-</code> вычитает из него размер
+обращения к функции (compiled token, 4 байта) и получается адрес
+обращения к только что вызванной функции.
+	<p>
+Употребить <tt>RECURSE</tt> для этого нельзя, т.к. <tt>RECURSE</tt> — это
+рекурсивной вызов процедуры, а
+<nobr><code>R@ </code>...<code> TOKEN- ENTER</code></nobr> — это
+рекурсивной вызов и процедуры, и остающейся за ней части шитого кода.
+	<p>
+Таким образом, слово <tt>witholdnames</tt> рекурсивно вызывает себя, пока
+не "съест" все символы <tt>'~'</tt>, а затем начинает искать получившееся имя
+в оставшейся части стека словарей. Если имя не найдено, выполняется откат
+к предыдущему имени (у которого "съедено" на один символ <tt>'~'</tt> меньше)
+и снова выполняется поиск уже этого имени в оставшейся части стека словарей.
+	<p>
+Отличия слова <tt>_CONTINUE-SEARCH</tt> от модуля <tt>DOSEARCHVOC</tt>
+минимальны. Так как в перспективе — введение разбиения списков слов 
+на несколько цепочек (<i>multi-thread hashing</i>), процитируем исходники:
+	<small>
+	<pre>
+TDOES-LABEL DOSEARCHVOC ( addr len -- addr len )
+                        ( addr len -- cfa flag flag ; exit )
+    cell+ search-thread         \ 1 нитка !!!!!!!
+    IF
+            2NIP NIP ( lfa )
+		DUP TTO LastFoundLFA
+            DUP
+                HEAD>
+            SWAP
+                HFLAGS@ [&immediate] LITERAL AND
+                IF 1 ELSE -1 THEN DUP
+            RDROP EXIT
+    ELSE
+            2DROP
+    THEN
+;
+	</pre>
+	</small>
+	<p>
+Однако, вернемся к нашей презентации.
+Переопределим несколько раз имена <tt>foo</tt> и <tt>~bar</tt>:
+	<pre>
+: foo ." foo#1" ;
+: foo ." foo#2" ;
+: foo ." foo#3" ;
+: foo ." foo#4" ;
+: foo ." foo#5" ;
+
+: ~bar ." ~bar#1" ;
+: ~bar ." ~bar#2" ;
+: ~bar ." ~bar#3" ;
+: ~bar ." ~bar#4" ;
+: ~bar ." ~bar#5" ;
+	</pre>
+А теперь посмотрим, как все это будет работать.
+	<p>
+	<tt>
+	<b>
+' witholdnames func>order
+	</b><br><i>
+ ok
+	</i><br><b>
+ORDER
+	</b><br><i>
+400b7fc func: witholdnames 40e2ad4 FORTH ( FORTH )  40e2ad4 FORTH ( FORTH )  ;
+40e2ad4 FORTH ( FORTH )   ok
+	</i><br><b>
+foo
+	</b><br><i>
+foo#5 ok
+	</i><br><b>
+~foo
+	</b><br><i>
+foo#4 ok
+	</i><br><b>
+~~foo
+	</b><br><i>
+foo#3 ok
+	</i><br><b>
+~~~foo
+	</b><br><i>
+foo#2 ok
+	</i><br><b>
+~~~~foo
+	</b><br><i>
+foo#1 ok
+	</i><br><b>
+~~~~~foo
+	</b><br><i>
+'~~~~~foo' not found
+	</i><br><b>
+bar
+	</b><br><i>
+'bar' not found
+	</i><br><b>
+~bar
+	</b><br><i>
+~bar#5 ok
+	</i><br><b>
+~~bar
+	</b><br><i>
+~bar#4 ok
+	</i><br><b>
+~~~bar
+	</b><br><i>
+~bar#3 ok
+	</i><br><b>
+~~~~bar
+	</b><br><i>
+~bar#2 ok
+	</i><br><b>
+~~~~~bar
+	</b><br><i>
+~bar#1 ok
+	</i><br><b>
+~~~~~~bar
+	</b><br><i>
+'~~~~~~bar' not found
+	</i></tt>
+	<p>
+Все работает. Правда, если в новой версии T32 будет введено разбиение словаря
+на несколько подсписков, определение <tt>_CONTINUE-SEARCH</tt> придется
+переписать.
+	<p>
+	<hr>
+<i>М.Л.Гасаненко<br>Тимяшкино, 2000 г.</i>
+	</body>
+	<html>

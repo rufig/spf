@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="mlg">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.06 [en] (WinNT; I) [Netscape]">
+   <TITLE>ScatteredColonDef</TITLE>
+</HEAD>
+<BODY>
+<I><SUB>&nbsp;Author: M.L.Gassanenko</SUB></I>
+<BR><I><SUB>(c) M.L.Gassanenko, 1996-98</SUB></I>
+<BR><I><SUB>History:</SUB></I>
+<BR><I><SUB>ver. 1 — published in Forth Dimensions, v.XVII, n.5, Jan-Feb
+1996</SUB></I>
+<BR><I><SUB>ver.2.1 — converted to HTML</SUB></I>
+<BR><A HREF="ScatColn.zip">Download all in a PKZIP archive</A>
+<BR>&nbsp;
+<CENTER>
+<H1>
+Scattering a Colon Definition</H1></CENTER>
+
+<CENTER>M.L. Gassanenko
+<BR><TT>mlg@forth.org</TT></CENTER>
+
+<H2>
+The Problem</H2>
+The technique presented here is used in a prefix notation Forth assembler
+that performs initialization actions (variables resetting, etc.) every
+time before processing a new instruction. The assembler has many switches
+that get set according to the defaults and the instruction operands and
+then determine what to do. Some switches are "functional": executing they
+execute a Forth word, setting or resetting determines which word is to
+be executed. (The switches are implemented as multi-cfa words.) Due to
+these numerous switches definitions of instruction groups are as readable
+as instruction formats, but the initialization code grows. Had the initialization
+code been written as a separate definition, it would occupy two dense-typed
+block screens; sequential files could not be a solution because one dense
+screen of sequential file isn't better than two blocks.
+<P>So, the problem is that initialization actions belong to two different
+modules at the same time: to the module they initialize and to the general
+initialization module. We want to distribute these actions so that they
+will be located in the modules they initialize, but used as a single definition.
+<H2>
+The Solution</H2>
+The solution scatters the code of the initialization definition over the
+screens where the things to be initialized are used.
+<BR>The words ... , ..: , and ;.. are used as follows:
+<BLOCKQUOTE><TT>: INIT ... &lt;some initialization actions> ;</TT>
+<BR><TT>&lt;something></TT>
+<BR><TT>..: INIT &lt;more initialization actions> ;..</TT>
+<BR><TT>&lt;something></TT>
+<BR><TT>..: INIT &lt;more initialization actions> ;..</TT>
+<BR><TT>&lt;and so on></TT></BLOCKQUOTE>
+The generated code looks like this:
+<P><IMG SRC="ScatCode.JPG" ALT="How the generated code looks" HSPACE=10 VSPACE=10 HEIGHT=260 WIDTH=540>
+<BR>&nbsp;
+<H2>
+Implementation</H2>
+
+<P><BR>The implementation code below is unstandard, but very portable.
+<P>With the definitions:
+<P><TT>\ fetch/store a reference that e.g. follows a BRANCH</TT>
+<BR><TT>: REF@ ( orig -- dest ) DUP @ + ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+\ the branch addresses</TT>
+<BR><TT>: REF! ( dest orig -- ) TUCK - SWAP ! ;&nbsp;&nbsp;&nbsp;&nbsp;
+\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; are relative</TT>
+<P><TT>\ add size of a compiled token</TT>
+<BR><TT>: TOKEN+ ( addr -- addr' ) CELL+ ;</TT>
+<P>We might define:
+<P><TT>: >MARK&nbsp;&nbsp;&nbsp; ( -- orig ) HERE 0 , ;</TT>
+<BR><TT>: >RESOLVE ( orig -- ) HERE SWAP REF! ;</TT>
+<BR><TT>: &lt;MARK&nbsp;&nbsp;&nbsp; ( -- dest ) HERE ;</TT>
+<BR><TT>: &lt;RESOLVE ( dest -- ) HERE CELL ALLOT REF! ;</TT>
+<P>And now we can define:
+<P><TT>: ... COMPILE BRANCH >MARK >RESOLVE ; IMMEDIATE</TT>
+<BR><TT>: ..: ' >BODY TOKEN+ DUP REF@ SWAP >RESOLVE !CSP 400 ] ;</TT>
+<BR><TT>: ;.. 400 ?PAIRS ?CSP COMPILE BRANCH &lt;RESOLVE [COMPILE] [ ;
+IMMEDIATE</TT>
+<P>In F-PC there may be some problems with long jumps and long addresses.
+Note that a new branching word is defined:
+<P><TT>: BRANCHL 2R> REF@ 2>R ;</TT>
+<P>F-PC with its double-cell addresses isn't well-suited for return address
+manipulations and code generation tricks. The F-PC code is given below:
+<P><TT>anew scatter.seq</TT>
+<P><TT>: REF@L ( orig-seg orig-off --- dest-seg dest-off )</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2DUP&nbsp;&nbsp;
+2+ @L XSEG @ +&nbsp;&nbsp; -ROT&nbsp;&nbsp; @L ;</TT>
+<BR><TT>: REF!L ( dest-seg dest-off orig-seg orig-off --- )</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2DUP
+2>R&nbsp;&nbsp; !L&nbsp;&nbsp;&nbsp; XSEG @ - 2R> 2+ !L ;</TT>
+<BR><TT>: TOKEN+ 2+ ;</TT>
+<P><TT>: >MARKL&nbsp;&nbsp;&nbsp; ( -- Dorig ) XHERE 0 0 X, X, ;</TT>
+<BR><TT>: >RESOLVEL ( Dorig -- ) XHERE 2SWAP REF!L ;</TT>
+<BR><TT>: &lt;MARKL&nbsp;&nbsp;&nbsp; ( -- Ddest ) XHERE ;</TT>
+<BR><TT>: &lt;RESOLVEL ( Ddest -- ) XHERE 0 0 X, X, REF!L ;</TT>
+<P><TT>: BRANCHL 2R> REF@L 2>R ;</TT>
+<BR><TT>: >TCODE ( cfa -- seg off ) >BODY @ XSEG @ + 0 ;</TT>
+<P><TT>: ?PAIRS XOR ABORT" NON-PAIRED WORD" ;</TT>
+<P><TT>: ... COMPILE BRANCHL >MARKL >RESOLVEL ; IMMEDIATE</TT>
+<BR><TT>: ..: ' >TCODE TOKEN+ 2DUP REF@L 2SWAP >RESOLVEL !CSP 400 ] ;</TT>
+<BR><TT>: ;.. 400 ?PAIRS ?CSP COMPILE BRANCHL &lt;RESOLVEL [COMPILE] [
+; IMMEDIATE</TT>
+<H2>
+Why a Special Construct</H2>
+The evident benefit of this tool is that programmer does not have to modify
+the initialization definition when he adds a new mechanism to the growing
+program. Deleting of a mechanism also becomes painless: if you do not load
+a block, its initialization does not get compiled.
+<P>In F-PC this problem is usually solved by means of DEFER variables.
+We think that a special construct is better because it is:
+<P>1) laconic;
+<P>2) more readable: the purpose may be understood at the first glance;
+<P>3) uses no auxiliary names (which have no meaning in itself).
+<H2>
+Conclusion</H2>
+
+<P><BR>The technique presented here enables programmer to distribute fragments
+of code that should execute as one definition across the modules they logically
+belong to.
+<P><A HREF="scat-FIG.txt">Listing 1</A> — for the traditional architecture
+<BR><A HREF="scat-FPC.txt">Listing 2</A> — for F-PC
+<BR>&nbsp;
+<BR>&nbsp;
+<BR>&nbsp;
+</BODY>
+</HTML>

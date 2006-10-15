@@ -1,0 +1,23 @@
+\ Implementation of scattered colon definitions 
+\ for the "traditional" (ITC/DTC, FIG-Forth-like) model
+
+\ fetch/store a reference that e.g. follows a BRANCH
+: REF@ ( orig -- dest ) DUP @ + ;          \ the branch addresses
+: REF! ( dest orig -- ) TUCK - SWAP ! ;     \      are relative
+
+\ add size of a compiled token
+: TOKEN+ ( addr -- addr' ) CELL+ ;
+
+\ : >MARK    ( -- orig ) HERE 0 , ;
+\ : >RESOLVE ( orig -- ) HERE SWAP REF! ;
+\ : <MARK    ( -- dest ) HERE ;
+\ : <RESOLVE ( dest -- ) HERE CELL ALLOT REF! ;
+
+\ : BRANCH R> REF@ >R ;
+
+\ : ?PAIRS XOR ABORT" NON-PAIRED WORD" ;
+
+: ... COMPILE BRANCH >MARK >RESOLVE ; IMMEDIATE
+: ..: ' >BODY TOKEN+ DUP REF@ SWAP >RESOLVE !CSP 400 ] ;
+: ;.. 400 ?PAIRS ?CSP COMPILE BRANCH <RESOLVE [COMPILE] [ ; IMMEDIATE
+

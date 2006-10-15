@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="M.L.Gassanenko">
+   <TITLE>Context-Oriented Programming: additional comments</TITLE>
+</HEAD>
+<BODY>
+<pre>
+
+     Addendum to the "Context-Oriented Programming:
+          Evolution of Vocabularies" Paper
+
+               M.L.Gassanenko
+
+     (This material was presented on the EuroFORTH'93 conference,
+     in the oral talk, but was not included into the paper.)
+
+
+The context-oriented programming is assembled from the same techniques
+as object-oriented one. From implementational point of view the difference
+is that the virtual method tables are not associated with data.
+In particular, this allows to use late binding methods to handle
+primitive objects. But it is not the main difference.
+
+Both OOP and COP divide problems into levels, but they divide them
+differently (see fig.1 and fig.2).
+
+     _______________________________________________
+    /                                               \
+   /                 O B J E C T                     \      Yang
+   \                                                 /
+    \_______________________________________________/
+
+
+ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___  OOP
+
+          ___         ___         ___         ___
+         /   \ _ _ _ /   \ _ _ _ /   \ _ _ _ /   \
+         \___/       \___/       \___/       \___/
+
+             \       /   \       /   \       /
+                   E N V I R O N M E N T                    Yin
+               \   /       \   /       \   /
+                ___         ___         ___
+               /   \ _ _ _ /   \ _ _ _ /   \
+               \___/       \___/       \___/
+
+     Fig.1     The 2 levels of object-oriented programming.
+
+
+========================================================================
+
+
+          ___         ___         ___         ___
+         /   \ _ _ _ /   \ _ _ _ /   \ _ _ _ /   \
+         \___/       \___/       \___/       \___/
+
+             \       /   \       /   \       /
+                   E N V I R O N M E N T                    Yin
+               \   /       \   /       \   /
+                ___         ___         ___
+               /   \ _ _ _ /   \ _ _ _ /   \
+               \___/       \___/       \___/
+
+ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___  COP
+
+
+             P R I M I T I V E     O B J E C T S
+   ___     ___       ___       ___       ___       ___       ___
+  /   \   /   \     /   \     /   \     /   \     /   \     /   \
+  \___/   \___/     \___/     \___/     \___/     \___/     \___/
+
+   Yang    Yang      Yang      Yang      Yang      Yang      Yang
+
+     Fig.2     The 2 levels of context-oriented programming.
+
+========================================================================
+
+A MECHANISM is a SET OF TOOLS intended for work IN THE SAME APPLICATION
+AREA. Considering that we handle application areas only via functions,
+we may define a mechanism as A SET OF INTERRELATED FUNCTIONS meant to
+handle an application area, but this definition will imply that some
+resources do exist.
+
+     MECHANISM = INTERRELATED FUNCTIONS [ + RESOURCES ]
+                                             ^
+                                             |
+                                             optional
+
+The mechanisms may be nested, i.e. one may be implemented by means of
+another (fig.3).
+
+  ___________________________________________________________________
+ |                                                                   |
+ |     MEMORY: @ C@ ! C! CMOVE ...                                   |
+ |  ____________________________________       ___________________   |
+ | |                                    |     |                   |  |
+ | |   DICTIONARY: HERE ALLOT , C, ...  |     | INPUT STREAM:     |  |
+ | |   _______________________________  |     | >IN TIB #TIB      |  |
+ | |  |                               | |     |  ...              |  |
+ | |  |VOCABULARIES:  : ; CREATE      | |     |                   |  |
+ | |  |              FORGET FIND ...  | |     |                   |  |
+ | |  |                               | |     |___________________|  |
+ | |  |                               | |                            |
+ | |  |                               | |                            |
+ | |                                    |                            |
+ |                                                                   |
+ |                                                                   |
+ |          ... etc.                                                 |
+ |                                                                   |
+ |                                                                   |
+ |                                                                   |
+ |___________________________________________________________________|
+
+     Fig.3     Mechanisms in Forth.
+
+The mechanisms nesting diagrams (like this) reflect the system structure
+(important relations only, really everything is related!)
+as long as we consider the mechanisms as sets of functions. If we
+implement a function (or two, three) and stop using the mechanism
+functions, we should introduce another level and probably draw another
+diagram.
+
+
+              WHAT SHOULD WE DO STANDARDIZING FORTH
+       (thoughts after questions asked by other speakers)
+
+[At that time, the ANS Forth standard was about to appear, and many
+people in the Forth community, including me, considered the standard
+inadequate to Forth. Now we have a new situation, and the steps proposed
+below cannot be made now. This is what we could and probably should, but 
+did not do. -- MLG, 1999]
+
+1. We should specify the set of mechanisms that constitutes a Forth system.
+
+2. This set should be SUFFICIENT to build a Forth system without extra tools.
+
+3. We should specify nesting of the mechanisms (which ones are implemented
+   by means of others (which)).
+
+4. (!) We should NOT constrain use of these mecnanisms.
+
+Note the latter: restrictions on the use of mechanisms are introduced 
+*because* implementations of other mechanisms use these mechanisms.
+
+
+
+</pre>
+</BODY>
+</HTML>

@@ -1,0 +1,25 @@
+\ Implementation of scattered colon definitions for F-PC
+anew scatter_seq
+
+: REF@L ( orig-seg orig-off --- dest-seg dest-off )
+           2DUP   2+ @L XSEG @ +   -ROT   @L ;
+: REF!L ( dest-seg dest-off orig-seg orig-off --- )
+           2DUP 2>R   !L    XSEG @ - 2R> 2+ !L ;
+: TOKEN+ 2+ ;
+
+: >MARKL    ( -- Dorig ) XHERE 0 0 X, X, ;
+: >RESOLVEL ( Dorig -- ) XHERE 2SWAP REF!L ;
+: <MARKL    ( -- Ddest ) XHERE ;
+: <RESOLVEL ( Ddest -- ) XHERE 0 0 X, X, REF!L ;
+
+: BRANCHL 2R> REF@L 2>R ;
+: >TCODE ( cfa -- seg off ) >BODY @ XSEG @ + 0 ;
+
+: ?PAIRS XOR ABORT" NON-PAIRED WORD" ;
+
+: ... COMPILE BRANCHL >MARKL >RESOLVEL ; IMMEDIATE
+: ..: ' >TCODE TOKEN+ 2DUP REF@L 2SWAP >RESOLVEL !CSP 400 ] ;
+: ;.. 400 ?PAIRS ?CSP COMPILE BRANCHL <RESOLVEL [COMPILE] [ ; IMMEDIATE
+
+
+
