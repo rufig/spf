@@ -198,9 +198,9 @@ a @ CR ." a=" . ;
 : bt ." back" BACK ." ing" TRACKING ." track" ;
 : bt2 START ." back" EMERGE ." tracking" ;
 
-: 1-20 PRO 21 BEGIN DUP CONT DROP 1- ?DUP 0= UNTIL RDROP ; \ выдаёт числа от 1-го до 20-и
+: 1-20 PRO 21 BEGIN DUP CONT DROP 1- ?DUP 0= UNTIL ; \ выдаёт числа от 1-го до 20-и
 \ : 1-20  21 BEGIN DUP R@ ENTER DROP 1- ?DUP 0= UNTIL RDROP ;
-: //2 DUP 2 MOD ONFALSE ; \ пропускает только чётные числа
+: //2 PRO DUP 2 MOD ONFALSE CONT ; \ пропускает только чётные числа
 : 1-20. 1-20 //2  DUP . ;
 : 1-20X 1-20 ." X" ;
 : 1-20X1-20x 1-20 1-20 ." X" ;
