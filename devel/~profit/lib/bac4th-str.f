@@ -1,6 +1,7 @@
 \ Работа со строками, которые автоматически переносятся в кучу, 
 \ и автоматически (при откате) с неё снимаются
 \ bac4th strings AKA "бэкфортовы шнуры". Без понимания работ ~mlg по бэктрекингу лучше и не соваться
+\ см. http://fforum.winglion.ru/viewtopic.php?t=167
 
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE CONT ~profit/lib/bac4th.f
