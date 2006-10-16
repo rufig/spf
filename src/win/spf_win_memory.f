@@ -44,7 +44,7 @@ VARIABLE EXTRA-MEM
 
 : CREATE-PROCESS-HEAP ( -- )
 \ Создать хип процесса
-  GetProcessHeap SET-HEAP 
+  GetProcessHeap SET-HEAP
 ;
 
 DECIMAL
