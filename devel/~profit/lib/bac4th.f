@@ -1,3 +1,6 @@
+\ Бэкфорт, порт на SPF
+\ см. http://forth.org.ru/~mlg/index.html#bacforth
+
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE >L ~profit/lib/lstack.f
 REQUIRE { lib/ext/locals.f
@@ -6,15 +9,12 @@ REQUIRE (: ~yz/lib/inline.f
 MODULE: bac4th
 : ?PAIRS <> ABORT" unpaired" ;
 : >RESOLVE2 ( dest -- ) HERE SWAP ! ;
+: <RESOLVE ( org -- )	, ;
 
 12345 CONSTANT $TART
 5432 CONSTANT 8ACK
 4523 CONSTANT N0T
 466736473 CONSTANT a99reg4te
-411 CONSTANT 4ll
-473 CONSTANT 4r3
-07437 CONSTANT 07her
-
 
 : (ADR) R> DUP CELL+ >R ;
 
@@ -48,7 +48,10 @@ EXPORT
 <MARK $TART
 ; IMMEDIATE
 
-\ над DIVE надо ещё подумать...
+: DIVE ?COMP
+DUP $TART = IF OVER COMPILE, THEN
+; IMMEDIATE
+
 
 : EMERGE
 ?COMP
@@ -61,10 +64,10 @@ RET,
 \ положить адрес начала последовательности шитого между словами на стек возвратов
 : BACK  ?COMP  0 RLIT, >MARK POSTPONE R> POSTPONE EXECUTE  8ACK ;  IMMEDIATE
 : TRACKING ?COMP 8ACK ?PAIRS  RET, >RESOLVE2 ;  IMMEDIATE
-\ BACK ... TRACKING -- это аналог (: ... ;) >R, и наоборот:
+\ BACK ... TRACKING -- это аналог (: ... ;) >R , и наоборот,
 \ (: ... ;) -- это аналог BACK ... TRACKING R>
 
-\ отрицание
+\ квантор отрицания
 : NOT:  ?COMP POSTPONE (NOT:) 0 ,  >MARK N0T ; IMMEDIATE
 : -NOT  ?COMP N0T ?PAIRS POSTPONE (-NOT)  >RESOLVE2 ; IMMEDIATE
 
@@ -72,17 +75,21 @@ RET,
 : PREDICATE  ?COMP [COMPILE] NOT:  (: FALSE ;) RLIT, ; IMMEDIATE
 : SUCCEEDS   ?COMP TRUE LIT, [COMPILE] -NOT ; IMMEDIATE
 
+\ квантор общности, выраженный через два вложенных квантора отрицания
+: ALL [COMPILE] NOT: ; IMMEDIATE
+: ARE [COMPILE] NOT: ; IMMEDIATE
+\ Почему-то у mlg в дипломке согласно иллюстрации OTHER делает так (я несколько месяцев честно пытался понять этот перехлёст):
+\ : OTHER ?COMP  N0T ?PAIRS  >RESOLVE2 POSTPONE (-NOT) ; IMMEDIATE
+\ но должно так:
+: OTHER [COMPILE] -NOT ;  IMMEDIATE
+: WISE [COMPILE] -NOT ;  IMMEDIATE
+
 \ отсечение
 : CUT:   R>   RP@ >L   BACK L> DROP TRACKING   >R ;
 : -CUT   R>   L> RP!   >R ;
 : -NOCUT R>   L> RP@ - >R
 BACK R> RP@ + >L  TRACKING
 >R ;
-
-\ : ALL ?COMP POSTPONE (NOT:) 0 ,  >MARK 4ll  ; IMMEDIATE
-\ : ARE ?COMP 4ll ?PAIRS POSTPONE (NOT:) 0 ,  >MARK 4r3 ; IMMEDIATE
-\ : OTHER ?COMP 4r3 ?PAIRS POSTPONE (-NOT) SWAP >RESOLVE2 07her ; IMMEDIATE
-\ : WISE ?COMP 07her ?PAIRS POSTPONE (-NOT) >RESOLVE2 ; IMMEDIATE
 
 \ блок альтернатив
 : *>   ?COMP  204  0 RLIT, >MARK  203 ;  IMMEDIATE
@@ -92,7 +99,7 @@ BACK R> RP@ + >L  TRACKING
        >RESOLVE2  RET,  BEGIN  DUP 204 = 0= WHILE
        205 ?PAIRS  >RESOLVE2 REPEAT  DROP ; IMMEDIATE
 
-\ макросы для функций аггрегации, три параметра:
+\ макросы для функций агрегации, три параметра:
 \ Начальное значение результата
 \ Функция аггрегирования (конкатенация, суммирование логические сложение или умножение)
 \ Функция успеха, может включать в себя R> ENTER
@@ -198,13 +205,26 @@ a @ CR ." a=" . ;
 : 1-20X 1-20 ." X" ;
 : 1-20X1-20x 1-20 1-20 ." X" ;
 
+
+\ Подсчёт факториала
+: FACT  ( n -- x ) START
+DUP  2 < IF DROP 1 EXIT THEN
+DUP  1- DIVE  * EMERGE ;
+
+\ Посчёт числа Фибоначчи
+: FIB ( n -- f ) START DUP 3 < IF DROP 1 EXIT THEN DUP 1- DIVE SWAP 2 - DIVE + EMERGE ;
+
+
 : STACK  PRO  DEPTH 0  ?DO  DEPTH I - 1- PICK  CONT DROP LOOP ;  \ выдаёт стек
 : STACK. STACK DUP . ;  \ печатает стек
 
-: stack>10 PREDICATE STACK DUP 10 > ONTRUE DROP SUCCEEDS ;
-\ выдаёт true если на стеке есть число больше 10-и
+\ Выдаёт true если на стеке *есть* число больше 10-и
+: Estack>10 PREDICATE STACK DUP 10 > ONTRUE DROP SUCCEEDS ;
 \ DROP после ONTRUE нужен для убирания ненужного значения от генератора STACK, можно ли без него обойтись?
 \ может сбрасывать в блоках CUT: и PREDICATE вместе со стеком возвратов и стек данных тоже?
+
+\ Выдаёт true если на стеке *все* числа больше 10-и
+: Astack>10 PREDICATE ALL STACK ARE DUP 10 > ONTRUE OTHER DROP WISE SUCCEEDS ;
 
 : stack-sum ( x1 x2 ... xn -- x1 x2 ... xn sum  )
 +{ STACK DUP }+ ;
@@ -230,13 +250,3 @@ CR TYPE ;
 : el  R@ ENTER DROP ;
 : .{} CR ." { " DEPTH 0 ?DO I PICK COUNT TYPE SPACE LOOP ." } " ;
 : subsets C" first" el C" second" el C" third" el .{} ;
-
-\EOF
-: ALL ?COMP POSTPONE (NOT:) 0 ,  >MARK N0T ; IMMEDIATE
-: (ARE) R> RP@ >L BACK LDROP L> RP! TRACKING  >R ;
-: ARE ?COMP POSTPONE (ARE) ; IMMEDIATE
-: WISE ?COMP N0T ?PAIRS POSTPONE (-NOT)  >RESOLVE2 ;  IMMEDIATE
-
-: iter PRO *> 1 <*> 2 <*> 3 <* CONT DROP ;
-: check ;
-: r PREDICATE ALL iter ARE DUP 2 = ONFALSE WISE SUCCEEDS . ;
