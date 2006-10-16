@@ -30,12 +30,21 @@ HEX
 VARIABLE EXTRA-MEM
 4000 ' EXTRA-MEM EXECUTE !
 
-: CREATE-HEAP ( -- )
-\ Создать хип текущего потока.
-  0 8000 1 HeapCreate >R
+: SET-HEAP ( heap-id -- )
+  >R
   USER-OFFS @ EXTRA-MEM @ CELL+ + 8 R@ HeapAlloc CELL+ TlsIndex!
   R> THREAD-HEAP !
   R> R@ TlsIndex@ CELL- ! >R
+;
+
+: CREATE-HEAP ( -- )
+\ Создать хип текущего потока.
+  0 8000 1 HeapCreate SET-HEAP
+;
+
+: CREATE-PROCESS-HEAP ( -- )
+\ Создать хип процесса
+  GetProcessHeap SET-HEAP 
 ;
 
 DECIMAL

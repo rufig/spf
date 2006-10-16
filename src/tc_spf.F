@@ -382,12 +382,16 @@ ALSO TC
 
 PREVIOUS
 
-: WNDPROC: ( xt "name" -- )
+(  Отличие от WNDPROC - на выходе не вызываем USER-EXIT, 
+   потому что хип процесса полученную GetProcessHeap уничтожать не нужно, 
+   и потому что при завершении процесса нет необходимости вызывать AT-THREAD-FINISHING 
+   ~day  )
+
+: PROCESSPROC: ( xt "name" -- )
   HERE
   0 CELLS LIT,
   TC-FORTH-INSTANCE> COMPILE,
   SWAP COMPILE,
-  TC-<FORTH-INSTANCE COMPILE,
   RET,
   [T] HEADER [I]
   WNDPROC-CODE COMPILE,
