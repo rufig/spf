@@ -2,6 +2,7 @@
 \ слова с префиксом A_ работают аналогично соответствующим словам без A_,
 \ но используют другой стек для передачи  orig и dest.
 
+REQUIRE [IF] ~MAK\CompIF1.f
 REQUIRE [IFNDEF] ~nn\lib\ifdef.f
 
 [IFNDEF] AHEAD

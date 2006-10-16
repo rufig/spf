@@ -1,4 +1,4 @@
-REQUIRE [IF] ~MAK\CompIF.f
+REQUIRE [IF] ~MAK\CompIF1.f
 
 C" CS-DUP" FIND NIP 0=
 [IF] : CS-DUP 2DUP ;

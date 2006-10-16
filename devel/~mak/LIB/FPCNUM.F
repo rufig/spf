@@ -1,4 +1,4 @@
-REQUIRE [IF] ~MAK\CompIF.f
+REQUIRE [IF] ~MAK\CompIF1.f
 REQUIRE [IFNDEF] ~nn\lib\ifdef.f
 
 [IFNDEF] /STRING : /STRING DUP >R - SWAP R> + SWAP ;

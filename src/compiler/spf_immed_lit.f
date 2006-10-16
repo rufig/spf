@@ -92,7 +92,7 @@
 \ Время выполнения: ( -- char )
 \ Положить char, значение первого символа name, на стек.
   ?COMP
-  NextWord DROP C@ [COMPILE] LITERAL
+  PARSE-WORD DROP C@ [COMPILE] LITERAL
 ; IMMEDIATE
 
 : ABORT"   \ 94

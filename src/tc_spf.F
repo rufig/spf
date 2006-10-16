@@ -259,7 +259,7 @@ DECIMAL
 ;
 
 : HEADER
-   NextWord SHEADER
+   PARSE-WORD SHEADER
 ;
 
 ALSO ASSEMBLER ALSO ASM-HIDDEN
@@ -373,9 +373,9 @@ ALSO TC
   -1 , \ # of parameters
   HERE TC-WINAPLINK @ , TC-WINAPLINK ! ( связь )
   HERE DUP R@ CELL+ CELL+ !
-  NextWord HERE SWAP DUP ALLOT MOVE 0 C, \ имя функции
+  PARSE-WORD HERE SWAP DUP ALLOT MOVE 0 C, \ имя функции
   HERE DUP R> CELL+ !
-  NextWord HERE SWAP DUP ALLOT MOVE 0 C, \ имя библиотеки
+  PARSE-WORD HERE SWAP DUP ALLOT MOVE 0 C, \ имя библиотеки
   LoadLibraryA DUP 0= ABORT" Library not found"
   GetProcAddress 0= ABORT" Procedure not found"
 ;
@@ -492,7 +492,7 @@ C" SHERE-TAB-CUR" FIND NIP
 : POSTPONE \ 94
   ALSO TC-WL
   ?COMP
-  NextWord SFIND DUP
+  PARSE-WORD SFIND DUP
   0= IF -321 THROW THEN
   1 = IF COMPILE,
       ELSE S" COMPILE," TC-FINDOUT COMPILE, THEN
@@ -517,7 +517,7 @@ C" SHERE-TAB-CUR" FIND NIP
 
 : [CHAR]  \ 94
   ?COMP
-  NextWord DROP C@ TC-LIT, ; IMMEDIATE
+  PARSE-WORD DROP C@ TC-LIT, ; IMMEDIATE
 
 : IF  \ 94
   ?COMP 0 TC-?BRANCH, >MARK 1

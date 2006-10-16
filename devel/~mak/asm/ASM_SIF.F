@@ -1,4 +1,4 @@
-REQUIRE [IF] ~MAK\CompIF.f
+REQUIRE [IF] ~MAK\CompIF1.f
 
 C" I'" FIND NIP
 [IF]

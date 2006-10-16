@@ -1,5 +1,5 @@
 \ Аллокирование локального массива             Максимов М.О.
-REQUIRE [IF] ~MAK\CompIF.f
+REQUIRE [IF] ~MAK\CompIF1.f
 REQUIRE   { ~mak\locals.f
 
 : L_LOCALALLOC    ( n1 -- a1 )          \ allocate n1 bytes of return stack

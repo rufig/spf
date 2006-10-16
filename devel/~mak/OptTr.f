@@ -1,4 +1,5 @@
 \ наблюдение работы методов оптимизазии			Михаил Максимов
+REQUIRE [IF] ~MAK\CompIF1.f
 
 CREATE    DTST-TAB   0x800 CELLS ALLOT
           DTST-TAB   0x800 CELLS ERASE 

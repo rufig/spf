@@ -85,11 +85,13 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
   0< IF [CHAR] - HOLD THEN
 ;
 
+: (D.) ( d -- addr len )
+  DUP >R DABS <# #S R> SIGN #> ;
+
 : D. ( d -- ) \ 94 DOUBLE
 \ Вывести d на дисплей в свободном формате.
-  DUP >R DABS <# #S R> SIGN #>
-  TYPE SPACE
-;
+  (D.) TYPE SPACE ;
+
 
 : . ( n -- ) \ 94
 \ Напечатать n в свободном формате.

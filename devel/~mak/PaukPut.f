@@ -1,5 +1,5 @@
 \ Запись файла на ФПаук-сервер на 400 часов
-REQUIRE [IF] ~MAK\CompIF.f
+REQUIRE [IF] ~MAK\CompIF1.f
 
 : SOURCE-ID SOURCE-ID  STREAM-FILE ;
 REQUIRE  FILE ~ac\lib\str3.f 

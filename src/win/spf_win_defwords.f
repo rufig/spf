@@ -20,9 +20,9 @@ VARIABLE WINAPLINK
     HERE WINAPLINK @ , WINAPLINK ! ( связь )
   THEN
   HERE DUP R@ CELL+ CELL+ !
-  NextWord HERE SWAP DUP ALLOT MOVE 0 C, \ имя функции
+  PARSE-WORD HERE SWAP DUP ALLOT MOVE 0 C, \ имя функции
   HERE DUP R> CELL+ !
-  NextWord HERE SWAP DUP ALLOT MOVE 0 C, \ имя библиотеки
+  PARSE-WORD HERE SWAP DUP ALLOT MOVE 0 C, \ имя библиотеки
   LoadLibraryA DUP 0= IF -2009 THROW THEN \ ABORT" Library not found"
   GetProcAddress 0= IF -2010 THROW THEN \ ABORT" Procedure not found"
 ;

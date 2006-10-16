@@ -3,7 +3,7 @@
    BEGIN
      REFILL
    WHILE
-     2DUP NextWord COMPARE
+     2DUP PARSE-WORD COMPARE
      0= IF 2DROP INTERPRET TRUE EXIT THEN
    REPEAT 2DROP FALSE
 ;
@@ -38,7 +38,7 @@
   BEGIN
     REFILL
   WHILE ( n )
-    NextWord ['] ?SLITERAL CATCH
+    PARSE-WORD ['] ?SLITERAL CATCH
     IF 2DROP DROP S" Error while error decoding!" R> STATE ! EXIT THEN
     OVER = IF ( n )
       DROP >IN 0! [CHAR] \ PARSE

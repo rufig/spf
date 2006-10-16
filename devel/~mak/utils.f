@@ -1,5 +1,5 @@
  
-REQUIRE [IF] ~MAK\CompIF.f
+REQUIRE [IF] ~MAK\CompIF1.f
 
 C" H." FIND NIP 0=
 [IF]

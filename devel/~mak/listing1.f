@@ -1,6 +1,6 @@
 
 REQUIRE PLACE  ~mak\place.f 
-REQUIRE [IF] ~MAK\CompIF.f
+REQUIRE [IF] ~MAK\CompIF1.f
 REQUIRE DISASSEMBLER lib\ext\disasm.f 
 
 C" STREAM-FILE" FIND NIP

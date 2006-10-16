@@ -29,7 +29,7 @@
 \ Пропустить ведущие разделители. Выделить имя, ограниченное пробелами.
 \ Найти имя. Добавить семантику компиляции имени в текущее определение.
   ?COMP
-  NextWord SFIND DUP
+  PARSE-WORD SFIND DUP
   0= IF -321 THROW THEN
   1 = IF COMPILE,
       ELSE LIT, ['] COMPILE, COMPILE, THEN

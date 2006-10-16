@@ -5,7 +5,7 @@
   ò ä {812}105-92-03
   ò ð {812}552-47-64
 )
-REQUIRE [IF] ~MAK\CompIF.f
+REQUIRE [IF] ~MAK\CompIF1.f
 REQUIRE PLACE ~MAK\PLACE.f
 REQUIRE CASE  lib\ext\case.f
 
