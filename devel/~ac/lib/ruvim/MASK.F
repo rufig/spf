@@ -13,7 +13,7 @@
 \ (c) Ruvim Pinka
 
 
-\ REQUIRE ||  ~pinka/lib/temps.txt 
+REQUIRE ||  ~ac/lib/temps.f
 
 CHAR \ VALUE quote-char
 
