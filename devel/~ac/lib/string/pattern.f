@@ -1,3 +1,5 @@
+REQUIRE {             ~ac/lib/locals.f
+
 : EvalPattern ( addr u h -- )
   { a u hd \ t tl i o h }
   >IN @ -> i #TIB @ -> tl TIB -> t H-STDOUT -> o
