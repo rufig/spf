@@ -3,7 +3,7 @@
 S" lib\include\facil.f" INCLUDED
 
 : MONTH,
-   PARSE-WORD HERE OVER ALLOT
+   PARSE-NAME HERE OVER ALLOT
    SWAP CMOVE
 ;
 

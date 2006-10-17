@@ -25,7 +25,7 @@ VECT SHEADER
 ' SHEADER1 (TO) SHEADER
 
 : HEADER ( "name" -- )
-  PARSE-WORD SHEADER
+  PARSE-NAME SHEADER
 ;
 
 : CREATED ( addr u -- )
@@ -46,7 +46,7 @@ VECT SHEADER
 ;
 
 : CREATE ( "<spaces>name" -- ) \ 94
-   PARSE-WORD CREATED
+   PARSE-NAME CREATED
 ;
 
 : (DOES1) \ та часть, которая работает одновременно с CREATE (обычно)

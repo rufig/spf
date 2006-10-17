@@ -56,14 +56,14 @@ VECT ?SLITERAL
 \ если name не найдено.
 \ Во время интерпретации  ' name EXECUTE  равносильно  name.
   ALSO NON-OPT-WL CONTEXT !
-  PARSE-WORD SFIND 0= PREVIOUS
+  PARSE-NAME SFIND 0= PREVIOUS
   IF -321 THROW THEN (  -? )
 ;
 
 : CHAR ( "<spaces>name" -- char ) \ 94
 \ Пропустить ведущие разделители. Выделить имя, органиченное пробелами.
 \ Положить код его первого символа на стек.
-  PARSE-WORD DROP C@
+  PARSE-NAME DROP C@
 ;
 
 : BYE ( -- ) \ 94 TOOLS EXT
@@ -102,7 +102,7 @@ VECT ?SLITERAL
     NR>  SET-ORDER
     -2011 THROW                 THEN
     2R>                  REPEAT
-  NIP 0= IF 2DROP PARSE-WORD THEN
+  NIP 0= IF 2DROP PARSE-NAME THEN
   ['] EVAL-WORD CATCH
   NR> SET-ORDER THROW
  ELSE RDROP RDROP THEN
@@ -110,7 +110,7 @@ VECT ?SLITERAL
 
 : INTERPRET_ ( -> ) \ интерпретировать входной поток
   BEGIN
-    PARSE-WORD DUP
+    PARSE-NAME DUP
   WHILE
     SFIND ?DUP
     IF
@@ -360,6 +360,6 @@ USER INCLUDE-DEPTH
   ELSE 2DROP INCLUDED THEN
 ;
 : REQUIRE ( "word" "libpath" -- )
-  PARSE-WORD PARSE-WORD 2DUP + 0 SWAP C!
+  PARSE-NAME PARSE-NAME 2DUP + 0 SWAP C!
   REQUIRED
 ;

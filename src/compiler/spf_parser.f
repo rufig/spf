@@ -88,16 +88,18 @@ USER-CREATE ATIB
   >IN @ - NEGATE
 ;
 
-: PARSE-WORD ( -- c-addr u )
+: NextWord ( -- c-addr u )
   \ это слово теперь будем использовать в INTERPRET
   \ - удобнее: не использует WORD и, соответственно, не мусорит в HERE;
   \ и разделителями считает все что <=BL, в том числе TAB и CRLF
+
   SkipDelimiters ParseWord
 \  >IN 1+! \ пропустили разделитель за словом
   >IN @ 1+ #TIB @ MIN >IN !   \ для совместимости с spf3.16
 ;
 
-: NextWord PARSE-WORD ;
+\ http://www.complang.tuwien.ac.at/forth/ansforth/parse-name.html
+: PARSE-NAME NextWord ;
 
 : PARSE ( char "ccc<char>" -- c-addr u ) \ 94 CORE EXT
 \ Выделить ccc, ограниченное символом char.

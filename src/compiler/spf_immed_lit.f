@@ -92,7 +92,7 @@
 \ Время выполнения: ( -- char )
 \ Положить char, значение первого символа name, на стек.
   ?COMP
-  PARSE-WORD DROP C@ [COMPILE] LITERAL
+  PARSE-NAME DROP C@ [COMPILE] LITERAL
 ; IMMEDIATE
 
 : ABORT"   \ 94
