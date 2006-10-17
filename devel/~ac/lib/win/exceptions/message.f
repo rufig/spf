@@ -1,5 +1,6 @@
 REQUIRE {            ~ac/lib/locals.f
-REQUIRE STR@         ~ac/lib/str2.f
+REQUIRE STR@         ~ac/lib/str5.f
+REQUIRE [IF]          lib/include/tools.f
 
 WINAPI: MessageBoxA USER32.DLL
          6 CONSTANT IDYES
@@ -34,6 +35,8 @@ VARIABLE DenyGuiMessages
   FormatMessageA
   ?DUP IF EMBUF @ SWAP ( 2-) ELSE HERE 0 THEN
 ;
+
+[UNDEFINED] PROG-NAME [IF] : PROG-NAME S" SP-Forth" ; [THEN]
 
 : Message { s -- }
   DenyGuiMessages @ IF s STR@ TYPE CR EXIT THEN
