@@ -4,13 +4,13 @@
 
 : MODULE: ( "name" -- old-current )
 \ start a forth module
+   VOCABULARY GET-CURRENT
+   ALSO LATEST NAME> EXECUTE DEFINITIONS
+;
+
+: EXTEND-MODULE: ( "name" -- old-current )
 \ Если такой модуль уже существует, продолжить компиляцию в него
-  >IN @ ['] ' CATCH
-  IF >IN ! VOCABULARY GET-CURRENT
-     ALSO LATEST NAME> EXECUTE DEFINITIONS
-  ELSE 
-     NIP GET-CURRENT SWAP ALSO EXECUTE DEFINITIONS
-  THEN
+  ' GET-CURRENT SWAP ALSO EXECUTE DEFINITIONS
 ;
 
 : EXPORT ( old-current -- old-current )
