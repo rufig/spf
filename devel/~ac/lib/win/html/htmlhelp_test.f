@@ -31,7 +31,7 @@ VARIABLE WI
   TRUE
 ;
 : ZZ ( h -- )
-  ['] PWND SWAP ForEachChildWindow DROP
+  ['] PWND1 SWAP ForEachChildWindow DROP
 ;
 
 : TEST1
@@ -58,6 +58,8 @@ VARIABLE WI
   h MessageLoop
   h WindowDelete
 ;
-S" ESERV.ICO" LOAD-ICON16 -14 
-0 HH_DISPLAY_TOPIC 
-S" htmlhelp.chm::/ch05.html" DROP GetDesktopWindow HtmlHelpA DUP ZZ SetClassLongA DROP
+: TEST2
+  S" ESERV.ICO" LOAD-ICON16 -14 
+  0 HH_DISPLAY_TOPIC 
+  S" htmlhelp.chm::/ch05.html" DROP GetDesktopWindow HtmlHelpA DUP ZZ SetClassLongA DROP
+;
