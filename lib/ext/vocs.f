@@ -13,3 +13,20 @@
         DROP
 ;
 
+0x200 VALUE MAX-WORD-SIZE
+
+\ Opposite to CDR, might be slow!
+: NextNFA ( nfa1 -- nfa2 | 0 )
+    NEAR_NFA SWAP >R
+    BEGIN
+      1+ NEAR_NFA ( nfa addr )
+      OVER 0 >
+      ROT R@ <> AND
+      OVER R@ - MAX-WORD-SIZE > OR
+    UNTIL
+
+    DUP R> - MAX-WORD-SIZE >
+    IF DROP 0
+    ELSE  NEAR_NFA DROP
+    THEN
+;
