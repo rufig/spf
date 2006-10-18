@@ -21,6 +21,7 @@ REQUIRE [DEFINED] lib/include/tools.f
 \ REQUIRE [IF] ~mak\CompIF.f
 REQUIRE CASE lib\ext\case.f
 \ REQUIRE WITHIN lib\include\core-ext.f
+REQUIRE NextNFA lib\ext\vocs.f
 
 : DEFER VECT ;
 
@@ -1473,7 +1474,7 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
         IF      DIS-OP
                 S-BUF COUNT TYPE
         ELSE    DUP DIS-OP                                  
-                OVER BASE-ADDR - 6  H.R SPACE  
+                OVER BASE-ADDR - 6  H.R SPACE
                 DUP ROT 
                 2DUP - DUP>R 0x10 U> ABORT" DECOMPILER ERROR"
                 DO I C@ 2 H.N LOOP                           
@@ -1528,17 +1529,18 @@ TRUE VALUE SEE-KET-FL
 
 VARIABLE  COUNT-LINE
 
-: REST          ( ADR -- )
+: REST-AREA ( addr1 addr2 -- )
+\ if addr2 = 0 continue till RET instruction
                 20    COUNT-LINE !
                 0 TO MAX_REFERENCE
-                DUP TO NEXT-INST
+                SWAP DUP TO NEXT-INST
                 BEGIN
+                        \ We do not look for JMP's because there may be
+                         \ a jump in a forth word
                         CR
-                        NEXT-INST C@
-                        DUP  0xC3 <> 
-                        SWAP 0xE9 <> AND    \ NEXT, BEHIND US?
-                        NEXT-INST MAX_REFERENCE U< OR
-                        OVER HERE - 0x100 U> AND
+                        OVER 0= IF  NEXT-INST C@ 0xC3 <> 
+                                ELSE 2DUP < INVERT
+                                THEN
                 WHILE   INST
                         COUNT-LINE @ 1- DUP 0=  SEE-KET-FL AND
                            IF 9 EMIT ." \ Press <enter> | q | any" KEY UPC
@@ -1548,11 +1550,23 @@ VARIABLE  COUNT-LINE
                                 DROP 20    THEN
                            THEN
                         COUNT-LINE !
-                REPEAT  DROP ." END-CODE  "
+                REPEAT  2DROP ." END-CODE  "
                 ;
 
-: SEE       ( -- )
-            ' REST ;
+: REST ( addr -- )
+    0 REST-AREA
+;
+
+: SEE       ( "name" -- )
+    ' DUP NextNFA DUP 
+    IF NAME>C 1- \ Skip CFA field
+       BEGIN \ Skip alignment
+         DUP C@ 0=
+       WHILE 1-
+       REPEAT
+    THEN
+    ['] REST-AREA CATCH DROP
+;
 
 ONLY FORTH DEFINITIONS
 
