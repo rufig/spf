@@ -47,6 +47,8 @@ VECT dFailedSsl
        ELSE S" " 0 THEN
 ;
 : WriteSocket ( addr u s -- ior )
+   DUP 0= IF DROP 2DROP 12005 EXIT THEN
+  OVER 0= IF DROP 2DROP 0 EXIT THEN
   DUP uSSL_SOCKET @ =
   IF DROP uSSL_OBJECT @ SslWrite DUP 0 > IF DROP 0 EXIT THEN
      uSSL_OBJECT @ SSL_get_error NIP NIP
