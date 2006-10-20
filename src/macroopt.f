@@ -791,11 +791,14 @@ HEX  U. U. ." EAX>EBX" ABORT
 \ DROP FALSE TRUE EXIT
      ?OPlast     IF DROP FALSE TRUE EXIT THEN
   DUP @ :-SET U< IF DROP FALSE TRUE EXIT THEN
-\  TTTT IF HEX DUP @ U. THEN
-  DUP @ W@
+  DUP @
+  TTTT IF ." {" DUP U. DUP @ U. ." }"  THEN
+ W@
    DUP 4589 =     \ OPX N F  MOV     FC [EBP] , EAX 
   OVER 458B = OR  \ OPX N F  MOV     EAX , FC [EBP] 
-        IF DROP DUP @ 2+ C@  OP0 @ 2+ C@ =
+        IF DROP DUP @ 2+ C@  OP0 @ 2+ C@
+TTTT IF ." (" 2DUP U. U. ." )" THEN
+  =
            IF   CELL- TRUE TRUE
            ELSE  DUP @ W@ 458B = IF ?~EAX 0! THEN
                 CELL+ FALSE
@@ -925,7 +928,10 @@ TRUE ?~EAX !
 : EAX>ECX0  ( OPX - OPX' FLAG )
 
   DUP OP0 = IF  TRUE EXIT THEN
-  DUP @ W@
+  DUP @
+ TTTT IF ." <" DUP U. DUP W@ U. ." >" THEN
+
+ W@
   DUP EFFF AND 4589 =     \ OPX N F
         IF DROP CELL- FALSE EXIT THEN
 
@@ -1255,6 +1261,8 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
         THEN
   U. DUP @ @ U.  U. ." EAX>ECX" ABORT
 ;
+
+VECT VDBG
 
 : -EBPLIT   ( n OPX  -- n OPX' )
    DUP @  :-SET  U> 0= IF EXIT THEN
@@ -3881,36 +3889,8 @@ OP4 @ :-SET U< IF TRUE EXIT THEN
 
 OP1 @ W@             048B XOR    \	MOV     EAX , [ESP] 
 OP0 @ @ FFFFFF AND 24442B XOR OR \ 	SUB     EAX , 4 [ESP] 
-0= IF OP2 
-      BEGIN  ?EAX>ECX   ( OPX - OPX' FALSE | FALSE TRUE | OPX' TRUE TRUE )
-         IF T?EAX>ECX  
-         ELSE   CELL+ ?OPlast >R
-                DUP @ :-SET U< R> OR
-           IF   DROP FALSE TRUE
-           ELSE DUP >R
-                R@ CELL+ @ W@             048B XOR    \	MOV     EAX , [ESP] 
-                R>       @ @ FFFFFF AND 24442B XOR OR \ SUB     EAX , 4 [ESP] 
-            0=  IF   TRUE TRUE
-                ELSE CELL+ FALSE
-                THEN 
-            THEN
-         THEN 
-      UNTIL
-      IF M\ 70E DTST
-         CELL- 
-         ?~EAX @
-         IF  ECX:=EAX
-         ELSE  BEGIN EAX>ECX0 OVER OP1 = OR UNTIL
-               DUP OP1 <>
-               IF   BEGIN EAX>ECX  DROP DUP OP1 = UNTIL
-               THEN
-         THEN  DROP
-         OP2 ToOP0
-         FALSE   -7 ALLOT
-         ?EAX:=ECX M\ 70F DTST
-         EXIT  
-       THEN
-    THEN
+0= IF   TTTT IF VDBG THEN
+   THEN
 
 OP4 @ 2+ C@  
 OP3 @ 2+ C@ XOR 
