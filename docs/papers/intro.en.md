@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translated from intro.md (rev. 1.13) -->
+<!-- Translated from intro.md (rev. 1.14) -->
 
 ----
 
@@ -134,50 +134,49 @@ For example:
 <a id="module"/>
 ###[Modules][start]
 
-В SPF есть модули, которые позволяют скрывать некоторые внутренние слова
-библиотек выводя наружу только слова для взаимодействия.
+SPF has modules, which hide the internal implementation and leave visible the
+words of the outer interface.
 
-	MODULE: vasya-lib
-	\ внутренние слова
+	MODULE: john-lib
+	\ inner words
 	EXPORT
-	\ слова взаимодействия, видные снаружи, компилируются во внешний словарь.
+    \ interface words, compiled to the outer vocabulary, thus seen from the external world
 	DEFINITIONS
-	\ опять внутренние слова
+	\ inner words again
 	EXPORT
-	\ ну вы поняли :)
+	\ you get the idea :)
 	;MODULE
-Код `MODULE: vasya-lib` можно писать много раз - последующие вызовы будут
-докомпилировать слова в тот же модуль. На самом деле слово определённое через
-`MODULE:` это обычный [словарь](#voc).
+You can write `MODULE: john-lib` several times - all the consequent code will
+compile to the existing module, not overwriting it. Actually, the word defined
+by `MODULE:` is a simple [vocabulary](#voc).
 
 
 ----
 <a id="case"/>
 ###[Case sensitivity][start]
 
-SPF регистрозависим, то есть в этом режиме для него слова `CHAR` , `Char` и `char` -
-три разных слова. Этот режим можно выключить подключением файла
-`lib/ext/caseins.f`.
-
+SPF is case-sensitive, i.e. the words `CHAR`, `Char` and `char` are different
+words. Switching to case-insensitive mode is as simple as including file
+`lib/ext/caseins.f`. 
 
 
 ----
 <a id="numbers"/>
 ###[Inputing numbers][start]
 
-SPF позволяет вводить шестнадцатиричные числа вне зависимости от текущей системы
-счисления (значения переменной `BASE`) так:
+You can input the hexadecimal numbers at any time not depending on the current
+BASE in the following manner:
  
 	0x7FFFFFFF
-Вещественные числа можно вводить в формате `[+|-][dddd][.][dddd]e[+|-][dddd]`
-подключив либу `lib\include\float2.f`.
+Flaot numbers are recognized in form `[+|-][dddd][.][dddd]e[+|-][dddd]` after
+including `lib\include\float2.f`.
 
 
 ----
 <a id="struct"/>
 ###[Structures, records][start]
 
-Структуры в SPF создаются через слово `--` (оно же `FIELD`). Пример:
+Records are created with the `--` word (the same as `FIELD`). Example:
 
 	0
 	CHAR -- flag
@@ -185,85 +184,84 @@ SPF позволяет вводить шестнадцатиричные числа вне зависимости от текущей системы
 	10 CELLS -- arr
 	CONSTANT struct
 
-Слова `flag`, `field` и `arr` будут прибавлять к адресу своё смещение 
-относительно начала структуры. А в `struct` записан общий размер
-всей структуры. То есть, можно:
+The words `flag`, `field` и `arr` will add their offset to the address on the
+stack when executed. and the `struct` constant contains the size of the whole
+structure. Consider:
 
-	struct ALLOCATE THROW TO s \ взяли память из кучи под один экземпляр struct
-	1 s flag С!  10 s field ! \ записали значения в поля структуры
-	s arr 10 CELLS DUMP \ вывели содержимое массива в структуре
-	s FREE THROW \ сняли экземпляр struct
+    struct ALLOCATE THROW TO s \ requested memory from heap for the single struct instance
+	1 s flag С!  10 s field ! \ set the struct fields' values
+	s arr 10 CELLS DUMP \ output the contents of the array in struct
+	s FREE THROW \ free memory
 
-Структуры можно наследовать:
+Structures can be inherited:
 
 	0
 	CELL -- x
 	CELL -- y
-	CONSTANT point \ у point два поля
+	CONSTANT point \ point owns two fields
 	
 	point
 	CELL -- radius
-	CONSTANT circle \ у circle три поля: x, y, radius
+	CONSTANT circle \ circle owns: x, y, radius
 	
 	point
 	CELL -- w
 	CELL -- h
-	CONSTANT rect \ у rect четыре поля: x, y, w, h
+	CONSTANT rect \ rect owns: x, y, w, h
 
 ----
 <a id="forget"/>
 ###[Where is FORGET?][start]
 
-`FORGET` нет. Но есть `MARKER ( "name" -- )` (в `lib\include\core-ext.f` или в `~clf/marker.f`).
-
+No `FORGET`. But we have `MARKER ( "name" -- )` (use `lib\include\core-ext.f`).
 
 
 ----
 <a id="cls"/>
 ###[How to clear the stack with one word?][start]
 
-Наберите `lalala`. Или `bububu`. Или `лялятополя`. Возникнет ошибка и стек сбросится.
-На самом деле стек сбросит слово `ABORT`, которое будет вызвано если интерпретатор
-не найдёт введённое слово. Ну а на самом-самом деле - это делается так: `S0 @ SP!`
+Input `lalala`. Or `bububu`. Error occurs and the stack is cleared. Actually,
+the stack is emptied with `ABORT`, which is called when the interpreter cant
+find the word. And the proper way to clear stack is: `S0 @ SP!`
 
-__В FAQ__
+__To FAQ__
 
 
 ----
 <a id="debug"/>
 ###[Debugging facilities][start]
 
-Слово `STARTLOG` включает запись всего консольного вывода в лог-файл
-`spf.log` в текущей папке. `ENDLOG` соответственно выключает такое поведение.
+`STARTLOG` starts the logging of all console output to the `spf.log` file in
+the current directory. `ENDLOG`, respectively, stops such behaviour.
 
 
-__Подробнее!__
+__Need more!__
 
 
 ----
 <a id="comments"/>
 ###[Comments][start]
 
-В SPF есть комментарий до конца строки ` \ `. Есть и обычные, скобочные, комментарии,
-которые к тому же ещё и многострочные. То есть:
+Cooments to the end of line are ` \ `. There are also bracket-comments, which
+are multiline. So:
 
-	\ комментарий до конца строки
-	( комментарий
-	и даже в несколько строк )
-Есть слово `\EOF` которое делает комментарием всё идущее после него в файле. Таким
-образом удобно отделять примеры использования библиотеки от самой библиотеки.
+	\ comment till the eol
+	( comment
+	and here too )
+The word `\EOF` comments out everything till the end of file. It is useful to
+separate the library code from testing or examples of usage at the end of same
+file.
 
 	word1 word2
 	\EOF
-	комментарий до конца файла
-
+	comment till eof
 
 
 ----
 <a id="string"/>
 ###[Strings][start]
 
-В SPF в основном используются строки со счётчиком на стеке - т.е. два значения
+SPF в основном используются строки со счётчиком на стеке - т.е. два значения
 `(addr u)`. Для записи строковых литералов (строковых констант) используется
 слово `S"`, которое в зависимости от текущего режима выполняет несколько разные
 действия:
@@ -311,12 +309,12 @@ __Подробнее!__
 <a id="save"/>
 ###[Producing executable modules][start]
 
-Слово `SAVE ( a u -- )` сохраняет всю форт-систему, включая все словарные
-структуры (кроме временных!) в исполняемый модуль путь к которому задаётся
-строкой `a u`. Точка входа определяется value-переменной `<MAIN>` для
-консольного режима и переменной `MAINX` для GUI. Режим определяется
-value-переменными `?CONSOLE` и `?GUI`. `SPF-INIT?` контроллирует интерпретацию
-коммандной строки и подключение spf4.ini:
+`SAVE ( a u -- )` will save the whole system, including all the wordlists
+(except temporary ones!) to the executable file, with the path specified with
+as `a u`. Entry point is set with VALUE `<MAIN>` for the console mode and
+VARIABLE `MAINX`  for GUI. The mode itself is defined with either `?CONSOLE`
+or `?GUI`. `SPF-INIT?` controls interpretation of the command-line and
+auto-including spf4.ini:
 
 	0 TO SPF-INIT?
 	' ANSI>OEM TO ANSI><OEM
@@ -325,7 +323,7 @@ value-переменными `?CONSOLE` и `?GUI`. `SPF-INIT?` контроллирует интерпретацию
 	' run MAINX !
 	S" gui.exe" SAVE  
 
-или
+or
 
     ' run TO <MAIN>
 	S" console.exe" SAVE
@@ -335,39 +333,38 @@ value-переменными `?CONSOLE` и `?GUI`. `SPF-INIT?` контроллирует интерпретацию
 <a id="locals"/>
 ###[Local and temporary variables][start]
 
-Не входят в ядро, но подключаются:
+Not available in the kernel, but included.
 
 	REQUIRE { lib/ext/locals.f
 	
-	\ пример простого использования
-	: test { a b | c d }  \ a b инициализируюся со стека, c и d нулями
+	\ sample usage
+    : test { a b | c d }  \ a b get their values from the stack, c and d are zeroes
 	  a -> c
 	  b TO d
 	  c . d . ;
 	1 2 test
 	>1 2
 	> Ok
-Подробное описание и примеры использования смотрите в самой библиотеке.
-
+Full description and more examples available in the library itself.
 
 
 ----
 <a id="dll"/>
 ###[Using external DLLs][start]
 
-Пример:
+Example:
 
 	WINAPI: SevenZip 7-zip32.dll
-Если нужно подключить все функции из dll-файла то можно использовать
-либо:
+If you need to automatically use all dll exported functions as forth words,
+use either:
 
 	REQUIRE UseDLL ~nn/lib/usedll.f
-	UseDLL "имя_библиотеки"
+	UseDLL "DLL name"
 
-или:
+or:
 
 	REQUIRE DLL ~ac/lib/ns/dll-xt.f
-	DLL NEW: "имя_библиотеки" 
+	DLL NEW: "DLL name" 
 
 ----
 <a id="notfound"/>
@@ -489,5 +486,3 @@ USER-переменные при старте потока инициализируются нулём.
 
 ----
 ----
-
-<title>Особенности SPF</title>

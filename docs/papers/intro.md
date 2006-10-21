@@ -217,7 +217,7 @@ SPF позволяет вводить шестнадцатиричные числа вне зависимости от текущей системы
 <a id="forget"/>
 ###[Где FORGET?][start]
 
-`FORGET` нет. Но есть `MARKER ( "name" -- )` (в `lib\include\core-ext.f` или в `~clf/marker.f`).
+`FORGET` нет. Но есть `MARKER ( "name" -- )` (в `lib\include\core-ext.f`).
 
 
 
