@@ -791,14 +791,11 @@ HEX  U. U. ." EAX>EBX" ABORT
 \ DROP FALSE TRUE EXIT
      ?OPlast     IF DROP FALSE TRUE EXIT THEN
   DUP @ :-SET U< IF DROP FALSE TRUE EXIT THEN
-  DUP @
-  TTTT IF ." {" DUP U. DUP @ U. ." }"  THEN
- W@
+\  TTTT IF HEX DUP @ U. THEN
+  DUP @ W@
    DUP 4589 =     \ OPX N F  MOV     FC [EBP] , EAX 
   OVER 458B = OR  \ OPX N F  MOV     EAX , FC [EBP] 
-        IF DROP DUP @ 2+ C@  OP0 @ 2+ C@
-TTTT IF ." (" 2DUP U. U. ." )" THEN
-  =
+        IF DROP DUP @ 2+ C@  OP0 @ 2+ C@ =
            IF   CELL- TRUE TRUE
            ELSE  DUP @ W@ 458B = IF ?~EAX 0! THEN
                 CELL+ FALSE
@@ -928,10 +925,7 @@ TRUE ?~EAX !
 : EAX>ECX0  ( OPX - OPX' FLAG )
 
   DUP OP0 = IF  TRUE EXIT THEN
-  DUP @
- TTTT IF ." <" DUP U. DUP W@ U. ." >" THEN
-
- W@
+  DUP @ W@
   DUP EFFF AND 4589 =     \ OPX N F
         IF DROP CELL- FALSE EXIT THEN
 
@@ -1261,8 +1255,6 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
         THEN
   U. DUP @ @ U.  U. ." EAX>ECX" ABORT
 ;
-
-VECT VDBG
 
 : -EBPLIT   ( n OPX  -- n OPX' )
    DUP @  :-SET  U> 0= IF EXIT THEN
@@ -3887,10 +3879,6 @@ OP4 @ :-SET U< IF TRUE EXIT THEN
         EXIT   
     THEN
 
-OP1 @ W@             048B XOR    \	MOV     EAX , [ESP] 
-OP0 @ @ FFFFFF AND 24442B XOR OR \ 	SUB     EAX , 4 [ESP] 
-0= IF   TTTT IF VDBG THEN
-   THEN
 
 OP4 @ 2+ C@  
 OP3 @ 2+ C@ XOR 
