@@ -1,6 +1,8 @@
 \ Аллокирование локального массива             Максимов М.О.
 REQUIRE [IF] ~MAK\CompIF1.f
+REQUIRE [IFNDEF] ~nn\lib\ifdef.f
 REQUIRE   { ~mak\locals4.f
+REQUIRE   $! ~mak\place.f 
 
 : L_LOCALALLOC    ( n1 -- a1 )          \ allocate n1 bytes of return stack
                                         \ return a1 the address of the array
@@ -94,10 +96,15 @@ USER-VALUE uCnt_U
 	R@  $+!    R>  COUNT EVALUATE
 ;   IMMEDIATE
 
-: NestedObject { Obj \ rem$ -- class 'Obj } (* returns obj AND class, rewritten *)
+[IFNDEF] MAXSTRING
+80 CONSTANT MAXSTRING
+[THEN]
+
+: NestedObject { Obj \ rem$ -- class 'Obj } \ returns obj AND class, rewritten
             MAXSTRING LOCALALLOC: rem$
 ;
-\ EOF
+
+\EOF
 
 HEX
 : TT0
@@ -128,7 +135,6 @@ HEX
   TT2
 
 : TST
- F7_ED
  { \ XX YY ZZ }
   05 CELLS   LOCALALLOC  TO XX
   CR  RP@ 40 DUMP \  ABORT

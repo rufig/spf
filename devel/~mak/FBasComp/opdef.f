@@ -1,6 +1,6 @@
 \ ForthBasic operators    by ~ketma 
 
-REQUIRE GetChar ~ketmar\FBasComp\parser.f
+REQUIRE GetChar ~ketma\FBasComp\parser.f
 REQUIRE Expr ~mak\FBasComp\expr.f
 
 WORDLIST VALUE CmdVoc

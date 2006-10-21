@@ -11,7 +11,7 @@ CREATE ForBuff 100 ALLOT
 : <BASIC> ( -- )
  BEGIN REFILL
  WHILE
-   NextWord DUP
+   PARSE-NAME DUP
    IF   S" <\BASIC>"  COMPARE 0=  IF EXIT THEN
          0 TO InPos
           SOURCE 1+ TO InBuffSize TO InBuff

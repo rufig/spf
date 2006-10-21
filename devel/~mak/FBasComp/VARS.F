@@ -6,7 +6,7 @@
 \ int vtype       ; vInt or vStr   
 \ cstr vname
 
-REQUIRE $! ~ketmar\FBasComp\place.f
+REQUIRE $! ~mak\place.f
 
 1 CONSTANT vInt
 2 CONSTANT vStr

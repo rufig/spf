@@ -1,7 +1,7 @@
 \ FBasic main file     by ~ketma 
 WARNING 0!
 
-S" ~ketmar\FBasComp\parser.f" INCLUDED
+S" ~ketma\FBasComp\parser.f" INCLUDED
 S" ~mak\FBasComp\opdef.f" INCLUDED
 
 .( Forth BASIC Interpreter v0.3 by dRUG // Piranha) CR
