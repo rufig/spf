@@ -9,7 +9,9 @@ output=cat
 delete=rm -f
 endif
 
-target: intro.html
+docs = intro.html intro.en.html
+
+target: $(docs)
 
 %.html: %.md intro.md.css
 	$(output) ..\..\tools\markdown\html_header_1 > $@
@@ -19,4 +21,4 @@ target: intro.html
 	$(output) ..\..\tools\markdown\html_footer >> $@
 
 clean:
-	$(delete) intro.html
+	$(delete) $(docs)

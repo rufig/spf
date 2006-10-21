@@ -1,131 +1,128 @@
 <a id="start"/>
 
-Особенности SPF
-===============
+SPF peculiarities
+=================
 
-<title>Особенности SPF</title>
+<title>SPF peculiarities</title>
 
-<i>Краткое вступление для тех, кто уже знаком с какой-либо Форт-системой и
-стандартом ANS'94.</i>
+<i>A short introduction, for those already familiar with some
+Forth-system and ANS'94 standard.</i>
 
-<small>Последнее обновление: $Date$</small>
+<small>Last update: $Date$</small>
 
-<!-- $Revision$ -->
+<!-- Translated from intro.md (rev. 1.13) -->
 
 ----
 
-##Содержание
+##Contents
 
-* [Установил SPF4. И где здесь что-куда?](#devel)
-* [Оптимизатор](#opt)
-* [Поддержка ANS](#ans)
-* [Как запускать и подключать файлы?](#include)
+* [Installed SPF4. And whats next?](#devel)
+* [Optimizer](#opt)
+* [ANS support](#ans)
+* [How to run and include forth code?](#include)
 * [REQUIRE](#require)
-* [Модули](#module)
-* [Регистро-зависимость](#case)
-* [Ввод чисел](#numbers)
-* [Структуры](#struct)
-* [Где FORGET?](#forget)
-* [Как одним словом очистить стек?](#cls)
-* [Средства отладки](#debug)
-* [Комментарии](#comments)
-* [Строки](#string)
-* [Генерация исполняемых модулей (exe-файлов)](#save)
-* [Локальные и временные переменные](#locals)
-* [Подключение dll-библиотек](#dll)
-* [Слово NOTFOUND](#notfound)
+* [Modules](#module)
+* [Case sensitivity](#case)
+* [Inputing numbers](#numbers)
+* [Structures, records](#struct)
+* [Where is FORGET?](#forget)
+* [How to clear the stack with one word?](#cls)
+* [Debugging facilities](#debug)
+* [Comments](#comments)
+* [Strings](#string)
+* [Creating executable modules](#save)
+* [Local and temporary variables](#locals)
+* [Using extrnal DLLs](#dll)
+* [NOTFOUND](#notfound)
 * [Scattered colons](#scatcoln)
-* [Многозадачность](#task)
-* [Словари](#voc)
+* [Multitasking](#task)
+* [Vocabularies](#voc)
 
 ----
 <a id="devel"/>
-###[Установил SPF4. И где здесь что-куда?][start]
+###[Installed SPF4. And whats next?][start]
 
-Первое и самое важное - расположение ваших рабочих файлов. В дистрибутиве SPF
-есть каталог DEVEL, предназначенный для разработчиков (в том числе и вас).
-Создайте в ней ваш подкаталог, например, ~vasya. И теперь вы можете подключать ваши
-файлы написав сокращённый путь в виде `~vasya\prog\myprog.f`. Это упрощает
-взаимный доступ к библиотекам и программам. Общепринято библиотеки класть в
-подкаталог lib, а примеры программ в prog.
+The first and the most important thing - placement of your working files. In
+the SPF directory there is a subdir DEVEL for the developers' code (including
+yours). Create a subdir there, for example ~john. Now you can refer to your files
+in short form, `~john\prog\myprog.f`. Thus, the mutual access to contributed
+code is simplified. The general adopted convention is to place libraries in
+the subdirectory named lib, and example programs in prog.
 
-В каталоге DEVEL собраны наработки других SP-Forth'еров, с кратким (очень
-кратким) их обзором вы можете ознакомиться по адресу:
-<http://wiki.forth.org.ru/SPF_DEVEL>, либо пройтись по папке самому.
+The devel directory contains the contributed code of other SP-Forth'ers, the
+short(very short) list is available online:
+<http://wiki.forth.org.ru/SPF_DEVEL>, or you can scan the directory yourself.
 
 
 ----
 <a id="opt"/>
-###[Оптимизатор][start]
+###[Optimizer][start]
 
-SPF - форт-система с подпрограммным шитым кодом, то есть компиляция проходит
-сразу в исполняемый код в виде цепочек `CALL <адрес-cfa-слова>`. Этот код можно
-запускать и непосредственно, но в системе по-умолчанию есть ещё и оптимизатор, 
-который обрабатывает машкод для большего быстродействия, выполняя
-inline-подстановку и peephole-оптимизацию. Подробнее на ForthWiki:
-"[Оптимизирующий компилятор](http://wiki.forth.org.ru/оптимизирующий%20компилятор)".
+SPF uses the subroutine threaded code, i.e. the compiled code looks like the
+chains of `CALL <word-cfa-address>`. This code can be ran directly, but by
+default it is processed with the optimizer to gain a speedup at runtime. It
+performs inlining and peephole-optimization. More on ForthWiki (in russian):
+"[Optimizing compiler](http://wiki.forth.org.ru/optimizer)".
 
-**NB**: Если вдруг ваша программа начинает выкидывать неожиданные фортели -
-отключите временно оптимизатор словом `DIS-OPT` (включается обратно -
-`SET-OPT`), есть вероятность (очень маленькая!), что это может быть ошибка в
-оптимизаторе. Если это так - локализуйте её и отправьте автору. 
+**NB**: If suddenly your program fails to compile or behaves strangely, try to
+temporarily turn off the optimizer using `DIS-OPT` (turn on with `SET-OPT`),
+maybe (unlikely!) it is a bug in the optimizer. If so - cut the piece of code
+where it occurs and send to the author.
 
-Результат компиляции слова в виде машинного кода можно посмотреть вручную с
-помощью дизассемблера:
+You can observer the result of the word compilation as a native code with a
+disassembler:
 
 	REQUIRE SEE lib/ext/disasm.f
-	SEE слово
+	SEE word-in-interest
 
-или получить построчный листинг
+or get the line-by-line listing
 
 	REQUIRE INCLUDED_L ~mak/listing2.f
-	S" файл, машкод которого хотим посмотреть"  INCLUDED_L
-	\ листинг будет лежать рядом с подключаемым файлом
+	S" file, with the code in interest"  INCLUDED_L
+	\ the listing will be places in the file near to the file included
 
 
 ----
 <a id="ans"/>
-###[Поддержка ANS][start]
+###[ANS support][start]
 
-Максимального соответствия ANS'94 можно добиться подключив
-`lib/include/ansi.f`. Там определяются дополнительные наборы слов, некоторые
-заглушки и т. д.
-Также исправляется неприятная особенность слов из ядра для
-работы с файлами - `OPEN-FILE`, `CREATE-FILE` и другие слова неявно требуют строку
-оканчивающуюся нулём, тогда как по стандарту получают строку со счётчиком на
-стеке.
-
+Maximum ANS conformity is achieved by including `lib/include/ansi.f`.
+Additional words are defined, some of them dummies, etc. Also, a tricky
+behaviour of the FILE words is corrected - `OPEN-FILE`, `CREATE-FILE` and
+other such words implicitly treat the input string as zero-ended (ignoring the
+length parameter), though according to the standard it is a string buffer with
+the counter on the stack.
 
 ----
 <a id="include"/>
-###[Как запускать и подключать файлы?][start]
+###[How to run and include forth code?][start]
 
-В коммандной строке скормить файл SPF'у можно просто указав путь к нему в
-параметрах запуска, 
+Running the file from the command line is fairly simple, just provide it's path as
+a parameter for SPF, 
 
-	spf.exe ~vasya/prog/myprog.f
-Заметьте, что путь для включения могут быть как абсолютным, так и
-относительно каталога [devel](#devel).
+	spf.exe ~john/prog/myprog.f
+Note, that include path can be either absolute or relative to the
+[devel](#devel) directory. 
 
-В консоли SPF (в режиме интерпретации) достаточно набрать имя файла:
+In SPF console (interpretation mode) just type in the name of the file:
 
-	~vasya/prog/myprog.f
-В целях совместимости лучше подключать явно:
+	~john/prog/myprog.f
+For the compatibility reasons, it is better to include it in a standard way:
 
 	S" ~vasya/prog/myprog.f" INCLUDED
 
-Но правильнее всего использовать `REQUIRE`.
+But the recommended approach is to use `REQUIRE` word.
 
 
 ----
 <a id="require"/>
 ###[REQUIRE][start]
 
-В SPF есть нестандартное слово `REQUIRE ("word" "file" -- )`, где `word` - это
-слово которое определяется в файле `file`. Если оно уже 
-существует, `REQUIRE` считает что библиотека уже была подключена и не загружает её.
-Так избегается двойная загрузка библиотек.
-Например:
+SPF has a non-standard word `REQUIRE ("word" "file" -- )`, where `word` should
+be the one defined in `file`. If this word is already present in the 
+system, `REQUIRE` will consider the library already loaded. In this way, the
+duplicated loading of libraries is avoided.
+For example:
 
 	REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
 	REQUIRE ForEach-Word ~pinka/lib/words.f
@@ -135,7 +132,7 @@ inline-подстановку и peephole-оптимизацию. Подробнее на ForthWiki:
 
 ----
 <a id="module"/>
-###[Модули][start]
+###[Modules][start]
 
 В SPF есть модули, которые позволяют скрывать некоторые внутренние слова
 библиотек выводя наружу только слова для взаимодействия.
@@ -156,7 +153,7 @@ inline-подстановку и peephole-оптимизацию. Подробнее на ForthWiki:
 
 ----
 <a id="case"/>
-###[Регистро-зависимость][start]
+###[Case sensitivity][start]
 
 SPF регистрозависим, то есть в этом режиме для него слова `CHAR` , `Char` и `char` -
 три разных слова. Этот режим можно выключить подключением файла
@@ -166,7 +163,7 @@ SPF регистрозависим, то есть в этом режиме для него слова `CHAR` , `Char` и `cha
 
 ----
 <a id="numbers"/>
-###[Ввод чисел][start]
+###[Inputing numbers][start]
 
 SPF позволяет вводить шестнадцатиричные числа вне зависимости от текущей системы
 счисления (значения переменной `BASE`) так:
@@ -178,7 +175,7 @@ SPF позволяет вводить шестнадцатиричные числа вне зависимости от текущей системы
 
 ----
 <a id="struct"/>
-###[Структуры][start]
+###[Structures, records][start]
 
 Структуры в SPF создаются через слово `--` (оно же `FIELD`). Пример:
 
@@ -215,7 +212,7 @@ SPF позволяет вводить шестнадцатиричные числа вне зависимости от текущей системы
 
 ----
 <a id="forget"/>
-###[Где FORGET?][start]
+###[Where is FORGET?][start]
 
 `FORGET` нет. Но есть `MARKER ( "name" -- )` (в `lib\include\core-ext.f` или в `~clf/marker.f`).
 
@@ -223,7 +220,7 @@ SPF позволяет вводить шестнадцатиричные числа вне зависимости от текущей системы
 
 ----
 <a id="cls"/>
-###[Как одним словом очистить стек?][start]
+###[How to clear the stack with one word?][start]
 
 Наберите `lalala`. Или `bububu`. Или `лялятополя`. Возникнет ошибка и стек сбросится.
 На самом деле стек сбросит слово `ABORT`, которое будет вызвано если интерпретатор
@@ -234,10 +231,10 @@ __В FAQ__
 
 ----
 <a id="debug"/>
-###[Средства отладки][start]
+###[Debugging facilities][start]
 
 Слово `STARTLOG` включает запись всего консольного вывода в лог-файл
-`spf.log` в текущем каталоге. `ENDLOG` соответственно выключает такое поведение.
+`spf.log` в текущей папке. `ENDLOG` соответственно выключает такое поведение.
 
 
 __Подробнее!__
@@ -245,7 +242,7 @@ __Подробнее!__
 
 ----
 <a id="comments"/>
-###[Комментарии][start]
+###[Comments][start]
 
 В SPF есть комментарий до конца строки ` \ `. Есть и обычные, скобочные, комментарии,
 которые к тому же ещё и многострочные. То есть:
@@ -264,7 +261,7 @@ __Подробнее!__
 
 ----
 <a id="string"/>
-###[Строки][start]
+###[Strings][start]
 
 В SPF в основном используются строки со счётчиком на стеке - т.е. два значения
 `(addr u)`. Для записи строковых литералов (строковых констант) используется
@@ -312,13 +309,13 @@ __Подробнее!__
 
 ----
 <a id="save"/>
-###[Генерация исполняемых модулей (exe-файлов)][start]
+###[Producing executable modules][start]
 
 Слово `SAVE ( a u -- )` сохраняет всю форт-систему, включая все словарные
 структуры (кроме временных!) в исполняемый модуль путь к которому задаётся
 строкой `a u`. Точка входа определяется value-переменной `<MAIN>` для
 консольного режима и переменной `MAINX` для GUI. Режим определяется
-value-переменными `?CONSOLE` и `?GUI`. `SPF-INIT?` контролирует интерпретацию
+value-переменными `?CONSOLE` и `?GUI`. `SPF-INIT?` контроллирует интерпретацию
 коммандной строки и подключение spf4.ini:
 
 	0 TO SPF-INIT?
@@ -336,7 +333,7 @@ value-переменными `?CONSOLE` и `?GUI`. `SPF-INIT?` контролирует интерпретацию
 
 ----
 <a id="locals"/>
-###[Локальные и временные переменные][start]
+###[Local and temporary variables][start]
 
 Не входят в ядро, но подключаются:
 
@@ -356,7 +353,7 @@ value-переменными `?CONSOLE` и `?GUI`. `SPF-INIT?` контролирует интерпретацию
 
 ----
 <a id="dll"/>
-###[Подключение dll-библиотек][start]
+###[Using external DLLs][start]
 
 Пример:
 
@@ -374,7 +371,7 @@ value-переменными `?CONSOLE` и `?GUI`. `SPF-INIT?` контролирует интерпретацию
 
 ----
 <a id="notfound"/>
-###[Слово NOTFOUND][start]
+###[NOTFOUND][start]
 
 Если во время цикла `INTERPRET` не будет
 найдено очередное слово из входного потока - в текущем словаре ищется и
@@ -434,7 +431,7 @@ value-переменными `?CONSOLE` и `?GUI`. `SPF-INIT?` контролирует интерпретацию
 
 ----
 <a id="task"/>
-###[Многозадачность][start]
+###[Multitasking][start]
 
 Потоки создаются словом `TASK: ( xt -- task)` и запускаются словом 
 `START ( u task -- tid )`, 
@@ -470,7 +467,7 @@ USER-переменные при старте потока инициализируются нулём.
 
 ----
 <a id="voc"/>
-###[Словари][start]
+###[Vocabularies][start]
 
 Словари создаются либо стандартным `VOCABULARY ( "name" -- )` 
 либо словом `WORDLIST ( -- wid )`. 
@@ -492,3 +489,5 @@ USER-переменные при старте потока инициализируются нулём.
 
 ----
 ----
+
+<title>Особенности SPF</title>
