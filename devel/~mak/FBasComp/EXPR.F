@@ -37,8 +37,8 @@ REQUIRE Do+ ~mak\FBasComp\math.f
    WHILE
     Token DROP C@ NextToken
     CASE
-      [CHAR] + OF  "*/" Do+  ENDOF
-      [CHAR] - OF  "*/" Do-  ENDOF
+      [CHAR] + OF "*/" Do+  ENDOF
+      [CHAR] - OF "*/" Do-  ENDOF
     ENDCASE
   REPEAT
 ;

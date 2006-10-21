@@ -34,17 +34,17 @@ REQUIRE vInt ~ketma\FBasComp\vars.f
 : Do- ( vh1 vh2 -- vhres )
   LoadPars
   2DUP - IF  -666 THROW  THEN
-  vInt = IF  ." - "  ELSE  -666 THROW  THEN
+  vInt = IF  ." - "  ELSE -666 THROW THEN
 ;
 
 : Do* ( vh1 vh2 -- vhres )
   LoadPars
   2DUP - IF  -666 THROW  THEN
-  vInt = IF  ." * "  ELSE  -666 THROW  THEN
+  vInt = IF  ." * "  ELSE -666 THROW THEN
 ;
 
 : Do/ ( vh1 vh2 -- vhres )
   LoadPars
   2DUP - IF  -666 THROW  THEN
-  vInt = IF  ." / "  ELSE  -666 THROW  THEN
+  vInt = IF  ." / "  ELSE -666 THROW THEN
 ;
