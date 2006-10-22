@@ -23,7 +23,7 @@ Forth-system and ANS'94 standard.</i>
 * [REQUIRE](#require)
 * [Modules](#module)
 * [Case sensitivity](#case)
-* [Inputting numbers](#numbers)
+* [Numbers](#numbers)
 * [Structures, records](#struct)
 * [Where is FORGET?](#forget)
 * [How to clear the stack with one word?](#cls)
@@ -42,15 +42,15 @@ Forth-system and ANS'94 standard.</i>
 <a id="devel"/>
 ###[Installed SPF4. And what's next?][start]
 
-The first and the most important thing - placement of your working files. In
-the SPF directory there is a subdir DEVEL for the developers' code (including
+The first and the most important thing - placement of your working files. There is a
+subdir DEVEL in the SPF directory where all the the developers' code gathered (including
 yours). Create a subdir there, for example ~john. Now you can refer to your files
-in short form, `~john\prog\myprog.f`. Thus, the mutual access to contributed
-code is simplified. The general adopted convention is to place libraries in
-the subdirectory named lib, and example programs in prog.
+in short form, `~john\prog\myprog.f`. It simplifies mutual access to contributed
+code. The general convention is to place libraries in the subdirectory named lib,
+and example programs in prog.
 
 The devel directory contains the contributed code of other SP-Forth'ers, the
-short(very short) list is available online:
+short (very short) list and descriptions is available online:
 <http://wiki.forth.org.ru/SPF_DEVEL>, or you can scan the directory yourself.
 
 
@@ -64,12 +64,12 @@ default it is processed with the optimizer to gain a speedup at runtime. It
 performs inlining and peephole-optimization. More on ForthWiki (in russian):
 "[Optimizing compiler](http://wiki.forth.org.ru/optimizer)".
 
-**NB**: If suddenly your program fails to compile or behaves strangely, try to
+**NB**: If your program starts behaving in a strange way, try to
 temporarily turn off the optimizer using `DIS-OPT` (turn on with `SET-OPT`),
-maybe (unlikely!) it is a bug in the optimizer. If so - cut the piece of code
+probably, (unlikely!) you encountered with a bug in optimizer. If so - cut the piece of code
 where it occurs and send to the author.
 
-You can observer the result of the word compilation as a native code with a
+You can examine results of the word compilation as a native code with a
 disassembler:
 
 	REQUIRE SEE lib/ext/disasm.f
@@ -97,7 +97,7 @@ the counter on the stack.
 <a id="include"/>
 ###[How to run and include forth code?][start]
 
-Running the file from the command line is fairly simple, just provide it's path as
+Running the file from the command line is fairly simple, just write path as
 a parameter for SPF, 
 
 	spf.exe ~john/prog/myprog.f
@@ -120,8 +120,8 @@ But the recommended approach is to use `REQUIRE` word.
 
 SPF has a non-standard word `REQUIRE ("word" "file" -- )`, where `word` should
 be the one defined in `file`. If this word is already present in the 
-system, `REQUIRE` will consider the library already loaded. In this way, the
-duplicated loading of libraries is avoided.
+system, `REQUIRE` will consider the library already loaded. This prevents loading
+of the same libraries again.
 For example:
 
 	REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
@@ -162,7 +162,7 @@ words. Switching to case-insensitive mode is as simple as including file
 
 ----
 <a id="numbers"/>
-###[Inputting numbers][start]
+###[Numbers][start]
 
 You can input the hexadecimal numbers at any time not depending on the current
 BASE in the following manner:
@@ -220,7 +220,7 @@ No `FORGET`. But we have `MARKER ( "name" -- )` (use `lib\include\core-ext.f`).
 <a id="cls"/>
 ###[How to clear the stack with one word?][start]
 
-Input `lalala`. Or `bububu`. Error occurs and the stack is cleared. Actually,
+Write `lalala`. Or `bububu`. Error will occur and the stack will be cleared. In fact,
 the stack is emptied with `ABORT`, which is called when the interpreter cant
 find the word. And the proper way to clear stack is: `S0 @ SP!`
 
