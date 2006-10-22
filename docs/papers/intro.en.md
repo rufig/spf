@@ -16,14 +16,14 @@ Forth-system and ANS'94 standard.</i>
 
 ##Contents
 
-* [Installed SPF4. And whats next?](#devel)
+* [Installed SPF4. And what's next?](#devel)
 * [Optimizer](#opt)
 * [ANS support](#ans)
 * [How to run and include forth code?](#include)
 * [REQUIRE](#require)
 * [Modules](#module)
 * [Case sensitivity](#case)
-* [Inputing numbers](#numbers)
+* [Inputting numbers](#numbers)
 * [Structures, records](#struct)
 * [Where is FORGET?](#forget)
 * [How to clear the stack with one word?](#cls)
@@ -32,7 +32,7 @@ Forth-system and ANS'94 standard.</i>
 * [Strings](#string)
 * [Creating executable modules](#save)
 * [Local and temporary variables](#locals)
-* [Using extrnal DLLs](#dll)
+* [Using external DLLs](#dll)
 * [NOTFOUND](#notfound)
 * [Scattered colons](#scatcoln)
 * [Multitasking](#task)
@@ -40,7 +40,7 @@ Forth-system and ANS'94 standard.</i>
 
 ----
 <a id="devel"/>
-###[Installed SPF4. And whats next?][start]
+###[Installed SPF4. And what's next?][start]
 
 The first and the most important thing - placement of your working files. In
 the SPF directory there is a subdir DEVEL for the developers' code (including
@@ -162,13 +162,13 @@ words. Switching to case-insensitive mode is as simple as including file
 
 ----
 <a id="numbers"/>
-###[Inputing numbers][start]
+###[Inputting numbers][start]
 
 You can input the hexadecimal numbers at any time not depending on the current
 BASE in the following manner:
  
 	0x7FFFFFFF
-Flaot numbers are recognized in form `[+|-][dddd][.][dddd]e[+|-][dddd]` after
+Float numbers are recognized in form `[+|-][dddd][.][dddd]e[+|-][dddd]` after
 including `lib\include\float2.f`.
 
 
@@ -242,7 +242,7 @@ __Need more!__
 <a id="comments"/>
 ###[Comments][start]
 
-Cooments to the end of line are ` \ `. There are also bracket-comments, which
+Comments to the end of line are ` \ `. There are also bracket-comments, which
 are multiline. So:
 
 	\ comment till the eol
@@ -261,49 +261,46 @@ file.
 <a id="string"/>
 ###[Strings][start]
 
-SPF в основном используются строки со счётчиком на стеке - т.е. два значения
-`(addr u)`. Для записи строковых литералов (строковых констант) используется
-слово `S"`, которое в зависимости от текущего режима выполняет несколько разные
-действия:
+Mainly SPF uses strings with counter on the stack - i.e. two values `(addr u)`. 
+The string literals are defined with `S"`, which performs slightly different
+depending on the current state:
 
-* В режиме интерпретации строка находится во временном текстовом буфере разбора (`TIB`),
-и соответственно, работает только в пределах одной строки.
+* During interpretation state the string is located in the input parse buffer (`TIB`), 
+and so, it is valid only in this line of input.
 
-* В режиме компиляции строка вкомпилируется непосредственно в шитый код определяемого слова.
+* During compilation state the string is compiled directly into the word code area.
 
-Для удобства работы с WinAPI в конец строк добавляется дополнительный, завершающий
-нулевой байт.
+In order to simplify interaction with Windows API the additional zero byte is
+appended to the end of the string.
 
-Слово `S"` создаёт т. н. статическую строку, она находится или в буфере, или в словарной
-структуре SPF. Для работы со динамическими строками, которые резервируются в "куче" и снимаются
-оттуда есть библиотека `~ac\lib\str4.f`. Пример её использования:
+`S"` defines a so called static string, which is located in buffer, or in the
+code area. If you need dynamic string, the one that uses memory on the heap, 
+use `~ac\lib\str4.f`. Example of usage:
 
 	REQUIRE STR@ ~ac/lib/str4.f
-	"" VALUE r \ создаём пустую строку
-	" мама, мама, " VALUE m
-	" что я буду делать?" VALUE w
+	"" VALUE r \ create an empty string
+	" SP-Forth " VALUE m
+	" - the best!" VALUE w
 	m r S+  w r S+
 	r STYPE
-	> мама, мама, что я буду делать?
+	> SP-Forth - the best!
 
-Кроме конкатенации строк можно использовать и подстановку (в том числе и других строк):
+Additionally to such handy concatenation, library provides substitution:
 
 	" 2+2={2 2 +}" STYPE
 	> 2+2=4
 
-Исчерпывающее описание и более подробные примеры см. в самой библиотеке.
+Read full description and more examples in the library itself.
 
-Надо также заметить что в SPF поддерживается префикс слов `S-` и окончание `-ED`.
+Note, SPF utilizes word prefix `S-` and suffix `-ED`.
 
-`S-` означает что слово работает со строками со счётчиком (например есть
-`SFIND` и есть стандартный `FIND`, есть `SLITERAL` и `LITERAL`).
+`S-` means that the word takes two values denoting a string from the stack (e.g. 
+we have `SFIND` and standard `FIND`, `SLITERAL` and `LITERAL`, and so on).
 
-`-ED` есть в словах `CREATED`, `INCLUDED`, `REQUIRED`, `ALIGNED`. Он обозначает что это
-слово, в отличии от своего "корня", будет ожидать параметров со стека, а не брать его из
-входного потока (или из глобальной переменной, как в случае с `ALIGN` и `ALIGNED`).
-
-Например, стандартный `CREATE` берёт свой параметр из входного потока, тогда как `CREATED`
-явно забирает параметр со стека данных в виде начала строки и её длины.
+`-ED` in the words `CREATED`, `INCLUDED`, `REQUIRED`, `ALIGNED` means that the
+arguments are taken from the stack, contrary to the original words taking
+arguments from the input. Consider equivalent examples `CREATE some` and 
+`S" some" CREATED`.
 
 ----
 <a id="save"/>
@@ -370,18 +367,16 @@ or:
 <a id="notfound"/>
 ###[NOTFOUND][start]
 
-Если во время цикла `INTERPRET` не будет
-найдено очередное слово из входного потока - в текущем словаре ищется и
-вызывается слово `NOTFOUND ( a u -- )`. Если `NOTFOUND` не обрабатывает данное
-слово - он должен вывалиться с исключением. Иначе считается, что слово
-воспринято и трансляция продолжается. По умолчанию через `NOTFOUND` реализовано
-распознавание чисел, и доступ к вложенным словарям в виде:
+This word is called from the context vocabulary during the interpretation
+cycle when the word being parsed cannot be found. `NOTFOUND ( a u -- )` should
+throw an exception if it cant process the passed word either. Else INTERPRET
+considers the word valid and continues its work. By default `NOTFOUND`
+recognizes numbers, and provides access to the nested vocabularies:
 
 	vocname1:: wordname
 
-Правило хорошего тона - при переопределении `NOTFOUND` сначала вызвать его
-старый вариант, и если он не отвалится по исключению - выполнять свои
-действия. Пример:
+A good form to redefine `NOTFOUND` is to call its old xt first, and proceed
+with your own code only if it fails with exception. Example:
 
 	 : MY? ( a u -- ? ) S" !!" SEARCH >R 2DROP R> ;
 	 : DO-MY ( a u -- ) ." My NOTFOUND: " TYPE CR ;
@@ -394,7 +389,7 @@ or:
 	   THEN
 	   RDROP RDROP
 	   ;
-Или так:
+Or:
 
 	 : NOTFOUND ( a u -- )
 	   2DUP MY? IF DO-MY EXIT THEN
@@ -407,22 +402,23 @@ or:
 <a id="scatcoln"/>
 ###[Scattered colons][start]
 
-Расширяемые слова (описание техники: "[Scattering a Colon Definition][scatter]", на английском языке). 
-Позволяют уже после определения слова добавлять в него новые действия.
+Read the full description of this technique: "[Scattering a Colon
+Definition][scatter]" in English. Briefly: new actions can be added to the
+word after its compilation.
 
 	: INIT ... do1 ; 
-	\ если вызвать INIT здесь то выполнится do1
+	\ INIT called here will execute do1
 	..: INIT do2 ;.. 
-	\ если здесь - то do1 и do2 именно в таком порядке
+	\ here - do1 and do2 will be executed sequentially
 	..: INIT do3 ;.. 
-	\ и так далее
+	\ and so forth
 
-Подобного эффекта можно добиться и с помощью векторов, но так намного удобнее.
+You can achieve the same effect with vectors, but this way looks better.
 
-Через scattered colons в SPF реализованы слова `AT-THREAD-STARTING` и
-`AT-PROCESS-STARTING`, которые вызываются при старте потока и при старте
-процесса соответственно. Например библиотека `lib\include\float2.f` добавляет в
-`AT-THREAD-STARTING` действия по инициализации внутренних переменных.
+SPF uses scattered colons to define `AT-THREAD-STARTING` and
+`AT-PROCESS-STARTING`, which are called when the process and the thread are
+started, respectively. For example, `lib\include\float2.f` adds initialization
+of the inner variables in `AT-THREAD-STARTING`.
 
 [scatter]: http://www.forth.org.ru/~mlg/ScatColn/ScatteredColonDef.html
 
@@ -430,13 +426,13 @@ or:
 <a id="task"/>
 ###[Multitasking][start]
 
-Потоки создаются словом `TASK: ( xt -- task)` и запускаются словом 
+Thread are created with `TASK: ( xt -- task)` and started with
 `START ( u task -- tid )`, 
-`xt` это исполнимый токен который получит управление при старте потока и
-на стеке будет пользовательский параметр `u`. Возвращаемое значение `tid`
-используется для остановки потока снаружи словом `STOP ( tid -- )`.
-Приостановить поток на заданное время можно словом `PAUSE ( ms -- )`.
-Пример:
+`xt` is an executable token to get control at the thread start with one
+parameter on the stack - `u`. The returned value `tid` can be used to stop the
+thread from outside with `STOP ( tid -- )`. `PAUSE ( ms -- )` will pause the
+thread for the given time.
+E.g.:
 
 	REQUIRE { lib/ext/locals.f
 
@@ -456,30 +452,30 @@ or:
 
 	go
 
-Обычные переменные (`VARIABLE`, `VALUE`) будут разделять своё значение между
-потоками. Если же переменная должна быть локальной для потока - следует
-определять её словом `USER ( "name" -- )` или `USER-VALUE ( "name" -- )`.
-USER-переменные при старте потока инициализируются нулём.
+Variables defined with `VARIABLE`, `VALUE` etc will share their values among
+the threads. If you need a thread-local variable - define it with 
+`USER ("name" -- )` or `USER-VALUE ( "name" -- )`. 
+USER-variables are zero-initialized at thread start.
 
 
 ----
 <a id="voc"/>
 ###[Vocabularies][start]
 
-Словари создаются либо стандартным `VOCABULARY ( "name" -- )` 
-либо словом `WORDLIST ( -- wid )`. 
-Точнее, `WORDLIST` это более общее понятие - просто список слов. Есть
-также слово `TEMP-WORDLIST ( -- wid)` создающее временный словарь, который по
-окончании работы надо освободить из памяти словом `FREE-WORDLIST`, содержимое
-временного словаря не попадёт в образ системы при использовании слова `SAVE`.
-Слово `{{ ( "name" -- )` сделает словарь name контекстным, а слово `}}` вернёт как
-было. Пример:
+One creates vocabularies with standard word `VOCABULARY ( "name" -- )` 
+or `WORDLIST ( -- wid )`. 
+More precisely, `WORDLIST` is a more general object - just a list of words.
+The word `TEMP-WORDLIST ( -- wid)` will create a temporary wordlist, which
+must be freed with `FREE-WORDLIST`. The contents of the temporary wordlist
+won't be present in the SAVEd image.
+The word `{{ ( "name" -- )` will set `name` as a context vocabulary, and `}}`
+will fall back. Consider:
 
 	MODULE: my
 	: + * ;
 	;MODULE
 	{{ my 2 3 + . }}
-напечатает 6, а не 5.
+will print 6, not 5.
 
 
 [start]: #start
