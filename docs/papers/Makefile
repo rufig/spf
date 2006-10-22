@@ -1,12 +1,14 @@
 
 host=win
 
+ifeq ($(host),win)
 output=type
 delete=del
-
-ifneq ($(host),win)
+md_path="..\\..\\tools\\markdown\\"
+else
 output=cat
 delete=rm -f
+md_path=../../tools/markdown/
 endif
 
 docs = intro.html intro.en.html
@@ -14,11 +16,11 @@ docs = intro.html intro.en.html
 target: $(docs)
 
 %.html: %.md intro.md.css
-	$(output) ..\..\tools\markdown\html_header_1 > $@
+	$(output) $(md_path)html_header_1 > $@
 	$(output) intro.md.css >> $@
-	$(output) ..\..\tools\markdown\html_header_2 >> $@
-	markdown $< >> $@
-	$(output) ..\..\tools\markdown\html_footer >> $@
+	$(output) $(md_path)html_header_2 >> $@
+	python $(md_path)markdown-1-5.py $< >> $@
+	$(output) $(md_path)html_footer >> $@
 
 clean:
 	$(delete) $(docs)
