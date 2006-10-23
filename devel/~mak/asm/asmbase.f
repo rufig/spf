@@ -1,5 +1,6 @@
 
 ~mak\utils.f 
+REQUIRE PLACE ~MAK\PLACE.f
 
 CREATE  GetOp_STR  80 ALLOT
 C" SkipDelimiters" FIND NIP 0=
@@ -217,7 +218,7 @@ HERE 0 , CUR-PAB !
 C" 1-!" FIND NIP 0=
 [IF] 
 : 1-! ( ADDR -- )
-  DUP>R @ 1- R> ! ;
+  DUP >R @ 1- R> ! ;
 [THEN]
 
 C" ON" FIND NIP 0=

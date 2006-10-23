@@ -1,6 +1,6 @@
-REQUIRE [IF] ~MAK\CompIF1.f
+REQUIRE [IF] ~MAK\CompIF.f
 
-C" I'" FIND NIP
+C" I'" FIND NIP 0=
 [IF]
 : I'  BL WORD  FIND 0= IF -321 THROW THEN (  -? ) ;
 [THEN]
