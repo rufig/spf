@@ -122,6 +122,7 @@ S" src\compiler\spf_compile0.f"      INCLUDED
 TRUE TO INLINEVAR
 
 S" src\macroopt.f"                    INCLUDED
+M\ ' DROP (TO) DTST
 
 S" src\compiler\spf_compile.f"       INCLUDED
 S" src\compiler\spf_wordlist.f"      INCLUDED
