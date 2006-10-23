@@ -1,4 +1,4 @@
-\ ForthBasic expression calculator   by ~ketma 
+\ ForthBasic expression calculator   by ~ketma
 REQUIRE vInt ~mak\FBasComp\vars.f
 REQUIRE Do+ ~mak\FBasComp\math.f
 

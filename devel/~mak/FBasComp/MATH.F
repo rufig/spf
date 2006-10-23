@@ -1,6 +1,6 @@
 .( ForthBasic math operations  by ~ketma )
 
-REQUIRE vInt ~ketma\FBasComp\vars.f
+REQUIRE vInt ~mak\FBasComp\vars.f 
 
 : CEmitVarLoad ( h -- vt )
   DUP 10 > IF
