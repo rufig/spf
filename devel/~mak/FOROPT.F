@@ -1,4 +1,13 @@
 
+REQUIRE [IF] ~MAK\CompIF1.f
+REQUIRE INST ~mak\listing2.f 
+
+C" H." FIND NIP 0=
+[IF]
+ : H.  BASE @ HEX SWAP U. BASE !  ;
+\ OP1
+[THEN]
+
 : .OPX  @ DUP @  ."  @  @ " H. ." XOR OR \ " INST DROP ;
 : .OP3 CR ." OP3" OP3 .OPX ;
 : .OP2 CR ." OP2" OP2 .OPX ;
