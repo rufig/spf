@@ -475,10 +475,9 @@ END-CODE
 
 CODE S>D ( n -- d ) \ 94
 \ Преобразовать число n в двойное число d с тем же числовым значением.
-     CDQ
      LEA EBP, -4 [EBP]
      MOV [EBP], EAX
-     MOV EAX, EDX
+     SAR EAX, # 1F \ 31
      RET
 END-CODE
 
