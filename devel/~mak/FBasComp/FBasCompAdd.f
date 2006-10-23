@@ -25,7 +25,7 @@ CREATE ForBuff 100 ALLOT
  REPEAT
 ; IMMEDIATE
 
-\EOF test
+\ EOF test
 
 <BASIC>
 LET A=7+4*A-9

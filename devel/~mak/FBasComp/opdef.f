@@ -1,6 +1,6 @@
 \ ForthBasic operators    by ~ketma 
 
-REQUIRE GetChar ~ketma\FBasComp\parser.f
+REQUIRE kGetChar ~mak\FBasComp\parser.f
 REQUIRE Expr ~mak\FBasComp\expr.f
 
 WORDLIST VALUE CmdVoc
@@ -16,7 +16,7 @@ ALSO CmdVoc DUP CONTEXT ! CURRENT !
 
 : REM
   BEGIN
-    GetChar
+    kGetChar
     DUP EOL? SWAP EOF? OR
   UNTIL
   NextToken

@@ -38,12 +38,12 @@ VARIABLE (Token) MaxTokenLen ALLOT
 ;
 
 
-: GetChar ( -- c )
+: kGetChar ( -- c )
   InPos InBuffSize <
   IF  InBuff InPos + C@ InPos 1+ TO InPos  ELSE  -1  THEN
 ;
 
-: UngetChar ( -- )   InPos 1- TO InPos  ;
+: UnGetChar ( -- )   InPos 1- TO InPos  ;
 
 : UpChar ( c -- )
   DUP 96 >  OVER 123 <  AND  IF  32 -  THEN
@@ -67,34 +67,34 @@ VARIABLE (Token) MaxTokenLen ALLOT
 
 : SkipBlanks ( -- )
   BEGIN
-    GetChar
+    kGetChar
     DUP EOF?  IF  DROP  EXIT  THEN
-    DUP EOL?  IF  UngetChar  DROP  EXIT  THEN
+    DUP EOL?  IF  UnGetChar  DROP  EXIT  THEN
     Blank? 0=
   UNTIL
-  UngetChar
+  UnGetChar
 ;
 
 : NextChar ( -- c )
 \ skip blanks, get next character
-  SkipBlanks  GetChar
+  SkipBlanks  kGetChar
 ;
 
 \ : NOOP  ;
 
 : CollectToken ( valid?-cfa -- )
   BEGIN
-    GetChar UpChar  2DUP SWAP EXECUTE
+    kGetChar UpChar  2DUP SWAP EXECUTE
    WHILE
     +TokenCh
   REPEAT
-  2DROP UngetChar
+  2DROP UnGetChar
 ;
 
 : GetAlphaToken ( -- )
   ['] AlphaDigit? CollectToken
-  GetChar  36 =  IF  36 +TokenCh  THEN
-  UngetChar
+  kGetChar  36 =  IF  36 +TokenCh  THEN
+  UnGetChar
   tCmd TO TokenId
 ;
 
@@ -107,7 +107,7 @@ VARIABLE (Token) MaxTokenLen ALLOT
 : GetStrToken ( -- )
   0 (Token) C!
   BEGIN
-    GetChar  DUP 31 >  OVER 34 <> AND
+    kGetChar  DUP 31 >  OVER 34 <> AND
    WHILE
     +TokenCh
   REPEAT
@@ -117,14 +117,14 @@ VARIABLE (Token) MaxTokenLen ALLOT
 
 : GetDelToken ( c -- )
   CASE
-    60 ( <) OF  GetChar
+    60 ( <) OF  kGetChar
                 CASE
                   61  OF  61 +TokenCh  ENDOF
                   62  OF  62 +TokenCh  ENDOF
-                  UngetChar
+                  UnGetChar
                 ENDCASE
             ENDOF
-    61 ( =) OF  GetChar 62 =  IF  62 +TokenCh  ELSE  UngetChar  THEN  ENDOF
+    61 ( =) OF  kGetChar 62 =  IF  62 +TokenCh  ELSE  UnGetChar  THEN  ENDOF
   ENDCASE
   tDel TO TokenId
 ;

@@ -1,14 +1,14 @@
 \ FBasic main file     by ~ketma 
 WARNING 0!
 
-S" ~ketma\FBasComp\parser.f" INCLUDED
+S" ~mak\FBasComp\parser.f" INCLUDED
 S" ~mak\FBasComp\opdef.f" INCLUDED
 
 .( Forth BASIC Interpreter v0.3 by dRUG // Piranha) CR
 .( Apr, 2000 ) CR CR
 
 : IsEOF? ( -- eof )
-  GetChar EOF?  DUP 0=  IF  UngetChar  THEN
+  kGetChar EOF?  DUP 0=  IF  UnGetChar  THEN
 ;
 
 : Run ( -- )

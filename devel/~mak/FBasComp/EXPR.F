@@ -1,6 +1,7 @@
 \ ForthBasic expression calculator   by ~ketma
 REQUIRE vInt ~mak\FBasComp\vars.f
 REQUIRE Do+ ~mak\FBasComp\math.f
+REQUIRE TokenId ~mak\FBasComp\parser.f
 
 0 VALUE ('Expr)
 
