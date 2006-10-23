@@ -27,7 +27,7 @@ REQUIRE [IFNDEF] ~nn\lib\ifdef.f
                 FALSE TO DOUBLE?                \ initially not a double #
                 -1 TO DP-LOCATION
                 OVER C@ [CHAR] - =
-                OVER SWAP 0< AND DUP>R
+                OVER SWAP 0< AND DUP >R
                 IF      1 /STRING
                 THEN
                 DUP 0=

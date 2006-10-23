@@ -21,8 +21,6 @@ REQUIRE CASE lib\ext\case.f
 REQUIRE WITHIN lib\include\core-ext.f
 : DEFER VECT ;
 
-: DUP>R R> OVER >R >R ;
-
 : UMAX ( D1 D2  -- FLAG )
    2DUP U< IF NIP ELSE DROP THEN ;
 
@@ -325,7 +323,7 @@ C" NEAR_NFA" FIND NIP 0=
         COUNT DUP 3 RSHIFT REG .,  MOD-R/M ;
 
 : R/M,R  ( ADR -- ADR' )
-        COUNT DUP>R MOD-R/M ., R> 3 RSHIFT REG ;
+        COUNT DUP >R MOD-R/M ., R> 3 RSHIFT REG ;
 
 : R/M  ( ADR OP -- ADR' )
         2 AND
@@ -1172,7 +1170,7 @@ STR SCS SCAS
 : F6.  ( ADDR OP -- ADDR' )
 \ ??
         >R COUNT
-        DUP 3 RSHIFT 7 AND DUP>R S" TESTXXXXNOT NEG MUL IMULDIV IDIV" 4 SS. 3 SSPACES
+        DUP 3 RSHIFT 7 AND DUP >R S" TESTXXXXNOT NEG MUL IMULDIV IDIV" 4 SS. 3 SSPACES
         MOD-R/M
         R> 0= IF
                 R@ 1 AND IF IMM16/32
@@ -1457,7 +1455,7 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
         ELSE    DUP DIS-OP                                  
                 OVER BASE-ADDR - 6  H.R SPACE  
                 DUP ROT 
-                2DUP - DUP>R 0x10 U> ABORT" DECOMPILER ERROR"
+                2DUP - DUP >R 0x10 U> ABORT" DECOMPILER ERROR"
                 DO I C@ 2 H.N LOOP                           
                 R> 5 < IF 9 EMIT THEN
                 9 EMIT S-BUF COUNT TYPE
