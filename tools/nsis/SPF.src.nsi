@@ -10,7 +10,7 @@
 ; Configuration
 
 !define VER_MAJOR 4
-!define VER_MINOR "18-test3"
+!define VER_MINOR "18"
 
 !define VER_DATE "{MY_DATE}"
 !define PROD_NAME "SP-Forth"
@@ -117,11 +117,11 @@ LangString LDocsAll ${LANG_RUSSIAN} "Documentation"
 LangString LRunManagerText ${LANG_ENGLISH} "Run registry settings manager"
 LangString LRunManagerText ${LANG_RUSSIAN} "Запустить настройку реестра" 
 
-LangString LReadmeFile ${LANG_ENGLISH} "readme.en.txt"
-LangString LReadmeFile ${LANG_RUSSIAN} "readme.ru.txt" 
+LangString LReadmeFile ${LANG_ENGLISH} "docs\readme.en.txt"
+LangString LReadmeFile ${LANG_RUSSIAN} "docs\readme.ru.txt" 
 
-LangString LWhatsnewFile ${LANG_ENGLISH} "whatsnew.eng.txt"
-LangString LWhatsnewFile ${LANG_RUSSIAN} "whatsnew.txt" 
+LangString LWhatsnewFile ${LANG_ENGLISH} "docs\whatsnew.eng.txt"
+LangString LWhatsnewFile ${LANG_RUSSIAN} "docs\whatsnew.txt" 
 
 LangString LViewReadmeText ${LANG_ENGLISH} "View README"
 LangString LViewReadmeText ${LANG_RUSSIAN} "Посмотреть README" 
@@ -153,10 +153,8 @@ LangString LSecSPFDesc ${LANG_RUSSIAN} "${PROD_NAME}, библиотеки, документация, 
 LangString LAlreadyInstalledText ${LANG_ENGLISH} "It looks like ${PROD_NAME} is already present in '$INSTDIR'.$\r$\nOverwrite?$\r$\n(If you answer YES all the files will be overwritten.)"
 LangString LAlreadyInstalledText ${LANG_RUSSIAN} "Похоже, что ${PROD_NAME} уже установлен в '$INSTDIR'.$\r$\nПерезаписать поверх?$\r$\n(Если вы ответите ДА, все файлы будут перезаписаны.)"
 
-;LangString LWhatsnewFile ${LANG_ENGLISH} "whatsnew.en.txt"
-;LangString LWhatsnewFile ${LANG_RUSSIAN} "whatsnew.txt" 
-;LangString LViewWhatsnewText ${LANG_ENGLISH} "View Changelog"
-;LangString LViewWhatsnewText ${LANG_RUSSIAN} "Посмотреть историю изменений" 
+LangString LInitWarning ${LANG_ENGLISH}  "This version of SPF features major changes in the directory tree structure. So we recommend to install it in the fresh folder. Sorry for the inconvinience."
+LangString LInitWarning ${LANG_RUSSIAN}  "В этой версии SPF были внесены изменения в структуру каталогов, поэтому рекомендуется устанавливать в чистую папку. Извините за неудобства."
 
 LangString LUninstall ${LANG_ENGLISH} "To uninstall ${PROD_NAME}, stop its services and click 'Remove' button."
 LangString LUninstall ${LANG_RUSSIAN} "Если вы решили удалить ${PROD_NAME}, остановите его сервисы и нажмите 'Удалить' для продолжения."
@@ -208,7 +206,7 @@ Section "$(LSecSPFText)" SecSPF
   SectionIn RO ; obligatory
 
   IfFileExists $INSTDIR\spf4.exe 0 spf_clean_install
-    MessageBox MB_YESNO "$(LAlreadyInstalledText)" IDYES spf_clean_install
+    MessageBox MB_YESNO "$(LInitWarning)$\r$\n$(LAlreadyInstalledText)" IDYES spf_clean_install
     Abort
 
   spf_clean_install:
@@ -235,18 +233,18 @@ Section "$(LSecStartMenuText)" SecStartMenu
 
   SetOutPath $INSTDIR
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\SPF.lnk" "$INSTDIR\spf4.exe"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\ReadMe.lnk" "$INSTDIR\$(LReadmeFile)"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\License.lnk" "$INSTDIR\$(LLicenseFile)"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\ChangeLog.lnk" "$INSTDIR\docs\$(LWhatsnewFile)"
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
   CreateDirectory "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)"
 
   SetOutPath $INSTDIR\docs
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\ReadMe.lnk" "$INSTDIR\$(LReadmeFile)"
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\License.lnk" "$INSTDIR\$(LLicenseFile)"
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\ChangeLog.lnk" "$INSTDIR\$(LWhatsnewFile)"
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\Особенности SPF.lnk" "$INSTDIR\docs\papers\intro.html"
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\spf_help.lnk" "$INSTDIR\docs\papers\spf_help.chm"
 
-  ExecShell "open" "$SMPROGRAMS\${PROD_NAME}"
+;  ExecShell "open" "$SMPROGRAMS\${PROD_NAME}"
 
 SectionEnd
 

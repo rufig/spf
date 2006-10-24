@@ -3,38 +3,35 @@
 CVS hierarchy explained
 =======================
 
-./ac-lib3       - network-oriented library (refer to ac* servers)
+./ac-lib3       - ~ac libraries for spf3 (you shouldn't modify this dir)
 ./devel         - contributed code
 ./docs          - documentation
-./docs/help   	- ???
-./docs/install  - ???
-./docs/license 	- legal information (1)
-./docs/papers   - Papers and other documents
-./docs/utils    - Tools to build documentation (2)
-./lib	        - library source
-./linux         - SPF/Linux library (3)
-./samples       - imported source code (4)
+./docs/help     - fhlp files for lib/ext/help.f - interpreter embedded help system
+./docs/install  - post-install utilities (4)
+./docs/license  - legal information (1)
+./docs/papers   - main documentation
+./docs/utils    - extra utilities (2)
+./lib           - core libraries source
+./linux         - SPF/Linux porting stuff (3)
+./samples       - imported source code
 ./spf3-src      - previous SP-Forth version kernel source (5)
 ./spf4root      - should be removed
 ./src           - SP-Forth kernel source
 ./tools         - tools to create documentation and binary package
-                "Инструменты для сборки дистрибутива и оформления документации"
 
 Notes:
 
-(1)  Should it be named "legal" or moved to ./docs?
-(2)  Should it be moved to ./tools or ./lib?
+(1)  Can be renamed to "legal"
+(2)  Can be moved one level up.
 (3)  Should it be in ./lib/linux?
-(4)  Should be renamed to "import(ed)"?
-     Should be excluded from distribution/CVS?
-     The same problem as with CFAN.
-(5)  Should it be merged with ./src?
+(4)  Can be moved to ./docs/utils (./utils)
+(5)  Should it be merged with ./src? probably no, it is not used.
 
 More on hierarchy:
 
-1. ./tools is meant not to be included in distribution, 
-   it is used, e. g., for tools to build distribution.
-   Distribution is build from directories: 
+1. ./tools is meant not to be included in distribution,
+   it is used, e. g., for tools to build distribution, or SF.net website page.
+   Distribution is build from directories:
    devel, docs, lib, samples, src. (ygrek)
 
 Current development directions
@@ -42,11 +39,11 @@ Current development directions
 
 1. (In Russian) Расформировать ./spf4root, переместив:
 
-ENVIR.SPF -> ./lib ./samples
+ENVIR.SPF -> ./lib
 SPF.ERR -> ./lib
 SPF.eng.ERR -> ./lib
-help.fhlp -> ./lib
-spf4.ini -> ./lib или ./docs?
+help.fhlp -> ./lib ./docs ./docs/help ?
+spf4.ini -> ./lib?
 
 ygrek:
 
