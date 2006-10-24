@@ -1,0 +1,68 @@
+-*- coding: cp1251-dos; -*-
+
+CVS hierarchy explained
+=======================
+
+./ac-lib3       - network-oriented library (refer to ac* servers)
+./devel         - contributed code
+./docs          - documentation
+./docs/help   	- ???
+./docs/install  - ???
+./docs/license 	- legal information (1)
+./docs/papers   - Papers and other documents
+./docs/utils    - Tools to build documentation (2)
+./lib	        - library source
+./linux         - SPF/Linux library (3)
+./samples       - imported source code (4)
+./spf3-src      - previous SP-Forth version kernel source (5)
+./spf4root      - should be removed
+./src           - SP-Forth kernel source
+./tools         - tools to create documentation and binary package
+                "Инструменты для сборки дистрибутива и оформления документации"
+
+Notes:
+
+(1)  Should it be named "legal" or moved to ./docs?
+(2)  Should it be moved to ./tools or ./lib?
+(3)  Should it be in ./lib/linux?
+(4)  Should be renamed to "import(ed)"?
+     Should be excluded from distribution/CVS?
+     The same problem as with CFAN.
+(5)  Should it be merged with ./src?
+
+More on hierarchy:
+
+1. ./tools is meant not to be included in distribution, 
+   it is used, e. g., for tools to build distribution.
+   Distribution is build from directories: 
+   devel, docs, lib, samples, src. (ygrek)
+
+Current development directions
+==============================
+
+1. (In Russian) Расформировать ./spf4root, переместив:
+
+ENVIR.SPF -> ./lib ./samples
+SPF.ERR -> ./lib
+SPF.eng.ERR -> ./lib
+help.fhlp -> ./lib
+spf4.ini -> ./lib или ./docs?
+
+ygrek:
+
+Тут не против. Эти файлы видеть совсем ни за чем в корневом
+каталоге (кроме readme и spf4.ini). Т.е. принцип такой - легко доступно
+должно быть то, что часто используется /Шеннон :)
+И если перемещать эти все файлы - надо править в src.
+
+ASau:
+
+Возможно, надо подыскать размещение файлов получше.
+Для начала, стоит определиться с назначением spf4root.
+
+2. Provide better documentation
+
+docs/papers/spf_help.chm is obsolete, but has no substitute
+currently.  ygrek reports he failed to rebuild it.
+
+devel/~ygrek/docs/fhlp is working (ygrek).
