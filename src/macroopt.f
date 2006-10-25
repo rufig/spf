@@ -1978,9 +1978,9 @@ OP2 @ @ 9788D08B XOR OR \  8BD0           MOV     EDX , EAX
 OP2 @ C@ 50 XOR      \  50          PUSH    EAX
 OP1 @ W@ 4589 XOR OR \  8945FC            MOV     FC [EBP] , EAX
 OP0 @ W@ 48B XOR OR  \  8B0424             MOV     EAX , [ESP]
-0= IF  M\ 14C DTST
+0= IF  M\ 164 DTST
        OP0 OPexcise
-       FALSE  M\ 14D DTST
+       FALSE  M\ 165 DTST
        EXIT   
    THEN
 
@@ -2156,6 +2156,20 @@ OP1 @ C@ 50 XOR OR \ 	PUSH    EAX
        FALSE   M\ D31 DTST
        EXIT   
     THEN
+
+DUP C@ C3 XOR
+OP3 @ @ 458BD08B XOR OR \  8BD0           MOV     EDX , EAX  MOV     EAX , 0 [EBP]
+OP1 @ W@ 4589 XOR OR \  8945FC            MOV     FC [EBP] , EAX
+OP0 @ W@ C28B XOR OR \  8BC2              MOV     EAX , EDX
+0=  IF  M\ 166 DTST
+       OP3 OPexcise
+       OP0 OPexcise
+	558B OP1 @ W! \  MOV     EDX , 0 [EBP]
+	5589 OP0 @ W! \  MOV     FC [EBP] , EAX
+       FALSE  M\ 167 DTST
+       EXIT   
+   THEN
+
 
 OP4 @ :-SET U< IF TRUE EXIT THEN
 OP5 @ :-SET U< IF TRUE EXIT THEN
@@ -3665,6 +3679,19 @@ OP0 @ W@ C20B XOR OR  \ 0BC2           OR      EAX , EDX
        EXIT   
    THEN
 
+OP2 @ 2+ C@
+OP0 @ 2+ C@    XOR
+OP2 @ W@ 4589 XOR OR \ 8945FC            MOV     FC [EBP] , EAX
+OP1 @ W@ 458B XOR OR \ 8B4500            MOV     EAX , 0 [EBP]
+OP0 @ W@ 558B XOR OR \ 8B55FC            MOV     EDX , FC [EBP]
+0= IF  M\ 162 DTST
+	OP1 ToOP0 -3 ALLOT
+	OP0 2 OPinsert
+	D08B OP1 @ W!
+       FALSE  M\ 163 DTST
+       EXIT   
+   THEN
+
 OP3 @ :-SET U< IF TRUE EXIT THEN
 M\ PPPP
 
@@ -3851,6 +3878,7 @@ OP0 @ W@ 4589 XOR OR \  894500            MOV     0 [EBP] , EAX
        FALSE  M\ 141 DTST
        EXIT   
    THEN
+
 
 OP4 @ :-SET U< IF TRUE EXIT THEN
 
