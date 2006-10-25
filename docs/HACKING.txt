@@ -3,10 +3,10 @@
 CVS hierarchy explained
 =======================
 
-./ac-lib3       - ~ac libraries for spf3 (you shouldn't modify this dir)
+./ac-lib3       - ~ac libraries for SPF 3 (you shouldn't modify this dir)
 ./devel         - contributed code
 ./docs          - documentation
-./docs/help     - fhlp files for lib/ext/help.f - interpreter embedded help system
+./docs/help     - source files for embedded help system, see ./lib/ext/help.f
 ./docs/install  - post-install utilities (4)
 ./docs/license  - legal information (1)
 ./docs/papers   - main documentation
