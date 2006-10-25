@@ -51,6 +51,7 @@ USER-CREATE ERR-DATA [T] /err-data [I] TC-USER-ALLOT
 ;
 : ERR-STRING ( -- a u )
 \ формирует строку для LAST-WORD  по ERR-DATA
+  BASE @ DECIMAL
   <#
   ERR-LINE HOLDS
   LT LTL @ HOLDS
@@ -64,7 +65,7 @@ USER-CREATE ERR-DATA [T] /err-data [I] TC-USER-ALLOT
   S"  at: " HOLDS
   ERR-NUMBER DUP ABS 0 #S 2DROP 0< IF [CHAR] - HOLD THEN [CHAR] # HOLD
   S" Exception " HOLDS
-  0 0 #>
+  0 0 #> ROT BASE !
 ;
 : LAST-WORD ( -- )
   SEEN-ERR?
