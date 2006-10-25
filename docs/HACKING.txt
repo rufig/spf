@@ -34,6 +34,22 @@ More on hierarchy:
    Distribution is build from directories:
    devel, docs, lib, samples, src. (ygrek)
 
+
+Building from source
+====================
+
+To build SP-Forth from CVS source you need previous SP-Forth official build
+and source tree (./src and ./lib).
+
+Set working directory to that containing ./src and ./lib and command
+
+    spf-prev src/spf.f    (sh)
+    spf-prev src\spf.f    (cmd)
+
+where "spf-prev" is bootstrap executable name.
+The result is placed into current directory "spf4.exe" file.
+
+
 Current development directions
 ==============================
 
