@@ -77,7 +77,7 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
   2DUP " {SPF-PATH-\\}\\CVSROOT\\*" STR@ ULIKE ONFALSE
   2DUP " {SPF-PATH-\\}\\spf4root\\*" STR@ ULIKE ONFALSE
   2DUP " {SPF-PATH-\\}\\tools\\*" STR@ ULIKE ONFALSE
-  2DUP " {SPF-PATH-\\}\\docs\\papers\\*.md.css" STR@ ULIKE ONFALSE
+  2DUP " {SPF-PATH-\\}\\docs\\*.md.css" STR@ ULIKE ONFALSE
   SUCCEEDS
 ;
 

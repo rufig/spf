@@ -4,14 +4,14 @@ host=win
 ifeq ($(host),win)
 output=type
 delete=del
-md_path="..\\..\\tools\\markdown\\"
+md_path="..\\tools\\markdown\\"
 else
 output=cat
 delete=rm -f
-md_path=../../tools/markdown/
+md_path=../tools/markdown/
 endif
 
-docs = intro.html intro.en.html
+docs = intro.ru.html intro.en.html
 
 target: $(docs)
 

@@ -241,7 +241,8 @@ Section "$(LSecStartMenuText)" SecStartMenu
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\ReadMe.lnk" "$INSTDIR\$(LReadmeFile)"
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\License.lnk" "$INSTDIR\$(LLicenseFile)"
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\ChangeLog.lnk" "$INSTDIR\$(LWhatsnewFile)"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\Особенности SPF.lnk" "$INSTDIR\docs\papers\intro.html"
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\Особенности SPF.lnk" "$INSTDIR\docs\intro.ru.html"
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\SPF specific.lnk" "$INSTDIR\docs\intro.en.html"
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\spf_help.lnk" "$INSTDIR\docs\papers\spf_help.chm"
 
 ;  ExecShell "open" "$SMPROGRAMS\${PROD_NAME}"

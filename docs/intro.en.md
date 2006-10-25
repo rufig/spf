@@ -1,9 +1,9 @@
 <a id="start"/>
 
-SPF peculiarities
-=================
+SPF specific
+============
 
-<title>SPF peculiarities</title>
+<title>SPF specific</title>
 
 <i>A short introduction, for those already familiar with some
 Forth-system and ANS'94 standard.</i>
@@ -42,15 +42,15 @@ Forth-system and ANS'94 standard.</i>
 <a id="devel"/>
 ###[Installed SPF4. And what's next?][start]
 
-The first and the most important thing - placement of your working files. There is a
-subdir DEVEL in the SPF directory where all the the developers' code gathered (including
-yours). Create a subdir there, for example ~john. Now you can refer to your files
-in short form, `~john\prog\myprog.f`. It simplifies mutual access to contributed
-code. The general convention is to place libraries in the subdirectory named lib,
-and example programs in prog.
+The first and the most important - placement of your working files. There is a
+subdir `DEVEL` in the SPF directory where all the the developers' code is located
+(including yours). Create a subdir there, for example ~john. Now you can refer to 
+your files in short form, `~john\prog\myprog.f`. It simplifies mutual access to 
+contributed code. The general convention is to place libraries in the subdirectory 
+named `lib`, and example programs in `prog`.
 
-The devel directory contains the contributed code of other SP-Forth'ers, the
-short (very short) list and descriptions is available online:
+The `devel` directory contains the contributed code of other SP-Forth'ers, the
+short (very short) list with descriptions is available online:
 <http://wiki.forth.org.ru/SPF_DEVEL>, or you can scan the directory yourself.
 
 
@@ -66,10 +66,10 @@ performs inlining and peephole-optimization. More on ForthWiki (in russian):
 
 **NB**: If your program starts behaving in a strange way, try to
 temporarily turn off the optimizer using `DIS-OPT` (turn on with `SET-OPT`),
-probably, (unlikely!) you encountered with a bug in optimizer. If so - cut the piece of code
-where it occurs and send to the author.
+probably (unlikely!) you have encountered a bug in optimizer. If so - cut the
+piece of code where the bug occurs and send it to the author.
 
-You can examine results of the word compilation as a native code with a
+You can examine results of the word compilation as a native code with 
 disassembler:
 
 	REQUIRE SEE lib/ext/disasm.f
@@ -79,7 +79,7 @@ or get the line-by-line listing
 
 	REQUIRE INCLUDED_L ~mak/listing2.f
 	S" file, with the code in interest"  INCLUDED_L
-	\ the listing will be places in the file near to the file included
+	\ the listing will be placed in the file near to the file included
 
 
 ----
@@ -90,28 +90,29 @@ Maximum ANS conformity is achieved by including `lib/include/ansi.f`.
 Additional words are defined, some of them dummies, etc. Also, a tricky
 behaviour of the FILE words is corrected - `OPEN-FILE`, `CREATE-FILE` and
 other such words implicitly treat the input string as zero-ended (ignoring the
-length parameter), though according to the standard it is a string buffer with
-the counter on the stack.
+length parameter), though according to the standard it is an address/counter
+pair.
 
 ----
 <a id="include"/>
 ###[How to run and include forth code?][start]
 
-Running the file from the command line is fairly simple, just write path as
-a parameter for SPF, 
+* Running the file from the command line is fairly simple, just start SPF with 
+the file path as a command line parameter, 
 
-	spf.exe ~john/prog/myprog.f
-Note, that include path can be either absolute or relative to the
+		spf.exe ~john/prog/myprog.f
+
+	Note, that include path can be either absolute or relative to the
 [devel](#devel) directory. 
 
-In SPF console (interpretation mode) just type in the name of the file:
+* In SPF console (interpretation mode) just type in the name of the file:
 
-	~john/prog/myprog.f
-For the compatibility reasons, it is better to include it in a standard way:
+		~john/prog/myprog.f
+* For compatibility reasons, it is better to include it in a standard way:
 
-	S" ~vasya/prog/myprog.f" INCLUDED
+		S" ~vasya/prog/myprog.f" INCLUDED
 
-But the recommended approach is to use `REQUIRE` word.
+* But the recommended approach is to use `REQUIRE` word.
 
 
 ----
@@ -120,8 +121,8 @@ But the recommended approach is to use `REQUIRE` word.
 
 SPF has a non-standard word `REQUIRE ("word" "file" -- )`, where `word` should
 be the one defined in `file`. If this word is already present in the 
-system, `REQUIRE` will consider the library already loaded. This prevents loading
-of the same libraries again.
+system, `REQUIRE` will consider the library already loaded. This prevents from 
+loading the same libraries again.
 For example:
 
 	REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
@@ -164,7 +165,7 @@ words. Switching to case-insensitive mode is as simple as including file
 <a id="numbers"/>
 ###[Numbers][start]
 
-You can input the hexadecimal numbers at any time not depending on the current
+You can input the hexadecimal numbers at any time independently of the current
 BASE in the following manner:
  
 	0x7FFFFFFF
@@ -184,12 +185,12 @@ Records are created with the `--` word (the same as `FIELD`). Example:
 	10 CELLS -- arr
 	CONSTANT struct
 
-The words `flag`, `field` è `arr` will add their offset to the address on the
-stack when executed. and the `struct` constant contains the size of the whole
-structure. Consider:
+The words `flag`, `field` and `arr` will add their offset to the address on the
+stack when executed. And the `struct` constant contains the size of the whole
+record. Consider:
 
     struct ALLOCATE THROW TO s \ requested memory from heap for the single struct instance
-	1 s flag Ñ!  10 s field ! \ set the struct fields' values
+	1 s flag C!  10 s field ! \ set the struct fields' values
 	s arr 10 CELLS DUMP \ output the contents of the array in struct
 	s FREE THROW \ free memory
 
@@ -249,7 +250,7 @@ are multiline. So:
 	( comment
 	and here too )
 The word `\EOF` comments out everything till the end of file. It is useful to
-separate the library code from testing or examples of usage at the end of same
+separate the library code from testing or examples of usage at the end of the same
 file.
 
 	word1 word2
@@ -273,7 +274,7 @@ and so, it is valid only in this line of input.
 In order to simplify interaction with Windows API the additional zero byte is
 appended to the end of the string.
 
-`S"` defines a so called static string, which is located in buffer, or in the
+`S"` defines a so called static string, which is located in the buffer, or in the
 code area. If you need dynamic string, the one that uses memory on the heap, 
 use `~ac\lib\str4.f`. Example of usage:
 
@@ -307,11 +308,11 @@ arguments from the input. Consider equivalent examples `CREATE some` and
 ###[Producing executable modules][start]
 
 `SAVE ( a u -- )` will save the whole system, including all the wordlists
-(except temporary ones!) to the executable file, with the path specified with
+(except temporary ones!) to the executable file, with the path specified
 as `a u`. Entry point is set with VALUE `<MAIN>` for the console mode and
 VARIABLE `MAINX`  for GUI. The mode itself is defined with either `?CONSOLE`
 or `?GUI`. `SPF-INIT?` controls interpretation of the command-line and
-auto-including spf4.ini:
+spf4.ini auto-including:
 
 	0 TO SPF-INIT?
 	' ANSI>OEM TO ANSI><OEM
@@ -369,8 +370,8 @@ or:
 
 This word is called from the context vocabulary during the interpretation
 cycle when the word being parsed cannot be found. `NOTFOUND ( a u -- )` should
-throw an exception if it cant process the passed word either. Else INTERPRET
-considers the word valid and continues its work. By default `NOTFOUND`
+throw an exception if it cant process the passed word. Else INTERPRET
+considers the word valid and continues parsing. Default `NOTFOUND`
 recognizes numbers, and provides access to the nested vocabularies:
 
 	vocname1:: wordname
@@ -464,7 +465,7 @@ USER-variables are zero-initialized at thread start.
 
 One creates vocabularies with standard word `VOCABULARY ( "name" -- )` 
 or `WORDLIST ( -- wid )`. 
-More precisely, `WORDLIST` is a more general object - just a list of words.
+To be precise, `WORDLIST` is a more general object - just a list of words.
 The word `TEMP-WORDLIST ( -- wid)` will create a temporary wordlist, which
 must be freed with `FREE-WORDLIST`. The contents of the temporary wordlist
 won't be present in the SAVEd image.

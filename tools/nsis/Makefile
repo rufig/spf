@@ -27,7 +27,7 @@ spf.nsi: spf_cvs.f spf.src.nsi
 	$(spf4_notitle) : SPF-PATH S" $(spf_path)" ; S" spf_cvs.f" INCLUDED S" SPF.src.nsi" EVAL-FILE TYPE BYE > spf.nsi
 
 docs:
-	$(MAKE) -C $(spf_path)/docs/papers
+	$(MAKE) -C $(spf_path)/docs
 
 $(spf_path)\spf4.exe: $(spf_path)\jpf375c.exe $(spf_path)\src\version.spf
 	copy $(spf_path)\spf4root\* $(spf_path)
@@ -37,7 +37,7 @@ dist: docs $(spf_path)\spf4.exe spf.nsi
 	$(makensis) spf.nsi
 
 clean:
-	$(MAKE) -C $(spf_path)/docs/papers clean
+	$(MAKE) -C $(spf_path)/docs clean
 	$(delete) spf.nsi
 	$(delete) spf_cvs.nsi
 	$(delete) spf-*-setup.exe
