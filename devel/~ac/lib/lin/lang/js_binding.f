@@ -3,6 +3,7 @@
   $Id$
 
   Привязка JavaScript через SpiderMonkey - JS-движок из Mozilla.
+  Текущие версии dll для JS1.7 брать из FireFox2.
 
   http://www.mozilla.org/js/spidermonkey/apidoc/jsguide.html
   http://egachine.berlios.de/embedding-sm-best-practice/ar01s05.html
@@ -35,6 +36,7 @@ USER global
   cx @ 1 JS_GetOptions 64 ( JSOPTION_XML) OR cx @ 2 JS_SetOptions DROP \ работает в DeerPark
   0 0 0 cx @ 4 JS_NewObject DUP global ! 0= IF ABORT THEN
   global @ cx @ 2 JS_InitStandardClasses 1 <> IF ABORT THEN
+  S" 1.7" DROP 1 JS_StringToVersion cx @ 2 JS_SetVersion 0 <> IF ABORT THEN \ без этого не работают генераторы let/yield
 ;
 : JsVal> ( jval -- val type )
   DUP 1 AND 1 = IF 1 RSHIFT 1 EXIT THEN   \ val 1 int
@@ -127,5 +129,11 @@ S" order..qty.toString()" JE
 S" typeof([1])" JE
 S" typeof(1)" JE
 S" NaN" JE
-S" SyntaxError()" JE
-S" bug" JsEval . . CR
+\ S" SyntaxError()" JE
+\ S" bug" JsEval . . CR
+\ S" re=new RegExp(/g\[[^\]]+]/);testre=re.exec('abc[test]zzz[222]');testre.length" JE
+\ S" re=new RegExp('/./');testre=re.exec('abc[test]zzz[222]');testre.length" JE
+CHAR ' PARSE var it = Iterator({name:"Jack Bauer", username:"JackB", id:12345, agency:"CTU", region:"Los Angeles"})' JE
+S" it.next().toString()" JE
+S" function range(beg, end){ for(let i = beg; i < end; ++i) {yield i}}" JE
+S" [i * i for (i in range(0, 10))].toString()" JE
