@@ -7,25 +7,26 @@
 
 VECT FIND
 
-VECT SEARCH-WORDLIST    \ 94 SEARCH
-
-HEX \ ќптимизмровано by day (29.10.2000)
-\ ќптимизмровано by mak July 26th, 2001 - 15:45
-
-CODE SEARCH-WORDLIST1 ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
+VECT SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
 \ Ќайти определение, заданное строкой c-addr u в списке слов, идентифицируемом 
 \ wid. ≈сли определение не найдено, вернуть ноль.
 \ ≈сли определение найдено, вернуть выполнимый токен xt и единицу (1), если 
 \ определение немедленного исполнени€, иначе минус единицу (-1).
-       PUSH EDI
-       MOV ESI, EAX                  \ вход в список
-       MOV EDX, [EBP]                \ длина (счетчик)
-       MOV EDI, 4 [EBP]                \ искомое слово в ES:DI
 
-       A;  BB C, -1 W, 0 W, \    MOV EBX, # FFFF
+
+\ ќптимизировано by day (29.10.2000)
+\ ќптимизировано by mak July 26th, 2001 - 15:45
+ 
+CODE SEARCH-WORDLIST-NFA ( c-addr u wid -- 0 | nfa -1 )
+       PUSH EDI
+       MOV ESI, EAX               \ вход в список
+       MOV EDX, [EBP]             \ длина (счетчик)
+       MOV EDI, 4 [EBP]           \ искомое слово в ES:EDI
+
+       A;  0xBB C, -1 W, 0 W,     \ MOV EBX, # FFFF
        CMP EDX, # 3
        JB  SHORT @@8
-       A;  0xBB C,  -1 DUP W, W, \   MOV  EBX, # FFFFFFFF
+       A;  0xBB C,  -1 DUP W, W,  \ MOV  EBX, # FFFFFFFF
 @@8:   MOV EAX, [EDI]
        SHL EAX, # 8
        OR  EDX, EAX
@@ -33,11 +34,11 @@ CODE SEARCH-WORDLIST1 ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
        MOV AL, # 0
        DEC ESI
 @@3:
-       A;  25 C, FF C, 0 C, 0 W, \       AND EAX, # FF
+       A;  0x25 C, 0xFF C, 0 C, 0 W, \ AND EAX, # FF
        MOV ESI, 1 [ESI] [EAX]
 @@1:   OR ESI, ESI
-       JZ SHORT @@2                   \ конец поиска
-       MOV EAX, [ESI]
+       JZ SHORT @@2               \ конец поиска - закончилс€ список
+       MOV EAX, [ESI]             \ длина очередного слова
        AND EAX, EBX
        CMP EAX, EDX
        JNZ SHORT @@3              \ длины не равны - идем дальше
@@ -46,37 +47,38 @@ CODE SEARCH-WORDLIST1 ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
        CLD
        XOR ECX, ECX
        MOV CL, DL
-       PUSH EDI                  \ сохран€ем адрес начала искомого слова
+       PUSH ESI
+       PUSH EDI                   \ сохран€ем адрес начала искомого слова
        REPZ CMPS BYTE
        POP EDI
-       JZ SHORT @@5
-       MOV ESI, [ESI] [ECX]
+       JZ SHORT @@5               \ нашли!
+       POP EAX                    \ значение esi не интересует в случае неудачи
+       MOV ESI, [ESI] [ECX]       \ переходим к следующему слову
        JMP SHORT @@1
 @@2:
-       LEA EBP, 8 [EBP]
-       XOR EAX, EAX
-       JMP SHORT @@7                  \ выход с "не найдено"
+       LEA EBP, 8 [EBP]           \ чистим стек
+       XOR EAX, EAX               \ 0
+       JMP SHORT @@7              \ выход с "не найдено"
 
-@@5:   AND EDX, # FF
-       SUB ESI, EDX
-       A; B9 C, -1 DUP W, W, \   MOV ECX, # -1            \ "найдено"
-       SUB ESI, # 6
-       MOV AL, 4 [ESI]
-       A; 24 C, 01 C, \ AND AL, # 1
-       JZ SHORT @@6
-       NEG ECX
-@@6:   MOV EAX, [ESI]
+@@5:   POP ESI
+       DEC ESI                    \ передвигаемс€ от начала строки к NFA
+       MOV EAX, ESI
        LEA EBP, 4 [EBP]
        MOV [EBP], EAX
-       MOV EAX, ECX
+       A; 0xB8 C, -1 DUP W, W,  \ MOV EAX, # -1 \ "найдено"
 @@7:
        POP EDI
        RET
 END-CODE
 
-DECIMAL
+: SEARCH-WORDLIST2 
+  SEARCH-WORDLIST-NFA 0= IF 0 EXIT THEN
+  DUP 
+  NAME> SWAP ?IMMEDIATE 2* 1- \ IF 1 ELSE -1 THEN
+;
 
-' SEARCH-WORDLIST1 (TO) SEARCH-WORDLIST
+' SEARCH-WORDLIST2 (TO) SEARCH-WORDLIST
+
 
 USER-CREATE S-O 16 CELLS TC-USER-ALLOT \ пор€док поиска
 USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
