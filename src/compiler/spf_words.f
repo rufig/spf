@@ -22,7 +22,7 @@ USER W-CNT
     15 >OUT @ 15 MOD - DUP >OUT +! SPACES
     CDR
   REPEAT DROP KEY? IF KEY DROP THEN
-  CR CR ." Words: " W-CNT @ U. CR
+  CR CR ." Words: " BASE @ DECIMAL W-CNT @ U. BASE ! CR
 ;
 
 : WORDS ( -- ) \ 94 TOOLS
