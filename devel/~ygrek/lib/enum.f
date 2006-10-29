@@ -1,11 +1,11 @@
 \ yGREK
 \ 08.May.2005
 
-\ Развивая идею ~micro/lib/const.f
-\ Перечисление переменных в виде
+\ ╨рчтштр  шфх■ ~micro/lib/const.f
+\ ╧хЁхўшёыхэшх яхЁхьхээ√ї т тшфх
 \ floats a b c d e ;
 
-\ Пример в конце
+\ ╧ЁшьхЁ т ъюэЎх
 
 : CheckNextWord ( -- ? )
   BEGIN
@@ -20,25 +20,19 @@
   S" ;" COMPARE IF >IN ! TRUE ELSE DROP FALSE THEN
 ;
 
-: (enum)
-  DOES> @ ( xt ) >R
+: ENUM: ( xt -- )
+  >R
   BEGIN
    CheckNextWord
   WHILE
    R@ EXECUTE
   REPEAT
-  RDROP
-;
+  RDROP ;
 
-: ENUM
-  CREATE ,
-  (enum)
-  IMMEDIATE
-;
-
+: ENUM ( xt "name" -- ) CREATE , DOES> @ ENUM: POSTPONE IMMEDIATE ;
  
 \EOF
-\ Пример
+\ ╧ЁшьхЁ
 REQUIRE F. lib/include/float2.f
 
 :NONAME 1e FVALUE ; ENUM floats                          
@@ -46,14 +40,18 @@ REQUIRE F. lib/include/float2.f
 :NONAME CREATE DOES> DROP S" Hello,world" TYPE CR ; ENUM hellos
 :NONAME DUP CONSTANT 1 + ; ENUM 1+consts
 
-\ пример одинаково инициализированных переменных
+:NONAME 25 VALUE ; ENUM: d1 d2 ;
+
+d1 . .( = ) d2 . CR
+
+\ яЁшьхЁ юфшэръютю шэшЎшрышчшЁютрээ√ї яхЁхьхээ√ї
 consts a1
 a2 a3 
     a4 
 ;
 hellos h1 h2 h3 ; 
 
-\ пример инициализирумых переменных
+\ яЁшьхЁ шэшЎшрышчшЁєь√ї яхЁхьхээ√ї
 floats f1 f2 f3 ;
 
 10 1+consts c1 c2 c3 ; DROP
@@ -65,4 +63,5 @@ h1 h2 h3
 f1 G. CR 
 f2 G. CR
 f3 G. CR
-c1 . c2 . c3 .
+c1 . c2 . c3 . CR
+
