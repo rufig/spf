@@ -518,7 +518,7 @@ WINAPI: LoadIconA       USER32.DLL
 : create-window ( parent -- win/0)
   W: ws_overlappedwindow W: ws_ex_appwindow  
   create-window-with-styles
-  DUP IF W: color_window syscolor OVER -bgcolor! THEN ;
+  DUP IF W: color_3dface syscolor OVER -bgcolor! THEN ;
 
 : dialog-window ( parent -- win/0)
   DUP IF 
