@@ -13,71 +13,29 @@ VECT SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
 \ Если определение найдено, вернуть выполнимый токен xt и единицу (1), если 
 \ определение немедленного исполнения, иначе минус единицу (-1).
 
-
-\ Оптимизировано by day (29.10.2000)
-\ Оптимизировано by mak July 26th, 2001 - 15:45
- 
-CODE SEARCH-WORDLIST-NFA ( c-addr u wid -- 0 | nfa -1 )
-       PUSH EDI
-       MOV ESI, EAX               \ вход в список
-       MOV EDX, [EBP]             \ длина (счетчик)
-       MOV EDI, 4 [EBP]           \ искомое слово в ES:EDI
-
-       A;  0xBB C, -1 W, 0 W,     \ MOV EBX, # FFFF
-       CMP EDX, # 3
-       JB  SHORT @@8
-       A;  0xBB C,  -1 DUP W, W,  \ MOV  EBX, # FFFFFFFF
-@@8:   MOV EAX, [EDI]
-       SHL EAX, # 8
-       OR  EDX, EAX
-       AND EDX, EBX
-       MOV AL, # 0
-       DEC ESI
-@@3:
-       A;  0x25 C, 0xFF C, 0 C, 0 W, \ AND EAX, # FF
-       MOV ESI, 1 [ESI] [EAX]
-@@1:   OR ESI, ESI
-       JZ SHORT @@2               \ конец поиска - закончился список
-       MOV EAX, [ESI]             \ длина очередного слова
-       AND EAX, EBX
-       CMP EAX, EDX
-       JNZ SHORT @@3              \ длины не равны - идем дальше
-\ проверить всю строку
-       INC ESI
-       CLD
-       XOR ECX, ECX
-       MOV CL, DL
-       PUSH ESI
-       PUSH EDI                   \ сохраняем адрес начала искомого слова
-       REPZ CMPS BYTE
-       POP EDI
-       JZ SHORT @@5               \ нашли!
-       POP EAX                    \ значение esi не интересует в случае неудачи
-       MOV ESI, [ESI] [ECX]       \ переходим к следующему слову
-       JMP SHORT @@1
-@@2:
-       LEA EBP, 8 [EBP]           \ чистим стек
-       XOR EAX, EAX               \ 0
-       JMP SHORT @@7              \ выход с "не найдено"
-
-@@5:   POP ESI
-       DEC ESI                    \ передвигаемся от начала строки к NFA
-       MOV EAX, ESI
-       LEA EBP, 4 [EBP]
-       MOV [EBP], EAX
-       A; 0xB8 C, -1 DUP W, W,  \ MOV EAX, # -1 \ "найдено"
-@@7:
-       POP EDI
-       RET
-END-CODE
-
-: SEARCH-WORDLIST2 
-  SEARCH-WORDLIST-NFA 0= IF 0 EXIT THEN
-  DUP 
-  NAME> SWAP ?IMMEDIATE 2* 1- \ IF 1 ELSE -1 THEN
+: SEARCH-FOR-NFA ( a u nfa1|0 -- a u nfa2|0 )
+\ Найти nfa слова, заданного строкой имени a u,
+\ начиная поиск с nfa1 (включая)
+  BEGIN  ( a u NFA | a u 0 )
+    DUP
+  WHILE  ( a u NFA )
+    >R 2DUP R@ COUNT COMPARE R> SWAP
+  WHILE
+    CDR  ( a u NFA2 )
+  REPEAT THEN 
 ;
 
-' SEARCH-WORDLIST2 (TO) SEARCH-WORDLIST
+: SEARCH-WORDLIST-NFA ( c-addr u wid -- 0 | nfa -1 )
+   @ SEARCH-FOR-NFA NIP NIP ?DUP 0<> 
+;
+
+: SEARCH-WORDLIST3
+   SEARCH-WORDLIST-NFA 0= IF 0 EXIT THEN
+   DUP NAME>
+   SWAP ?IMMEDIATE IF 1 ELSE -1 THEN 
+;
+
+' SEARCH-WORDLIST3 (TO) SEARCH-WORDLIST
 
 
 USER-CREATE S-O 16 CELLS TC-USER-ALLOT \ порядок поиска
