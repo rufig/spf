@@ -343,6 +343,20 @@ WARNING @ WARNING 0!
   :
 ;
 
+\ создание экстра-заголовков дл€ вновь-созданных словарей:
+: WORDLIST
+  WORDLIST 
+  DUP update-wlhash
+;
+: VOCABULARY
+  VOCABULARY
+  VOC-LIST @ CELL+ update-wlhash
+;
+\ -- исправление редкой ситуации, когда первое обращение
+\    к словарю идет во врем€ компил€ции слова,
+\    как в ~af\lib\api-func.f со словарем API-FUNC-VOC
+
+
 WARNING !
 
     [DEFINED] SHEADER1                          [IF]
