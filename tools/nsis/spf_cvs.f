@@ -3,14 +3,12 @@ WARNING 0!
 REQUIRE FIND-FILES-R       ~ac/lib/win/file/findfile-r.f
 REQUIRE ONFALSE ~profit/lib/bac4th.f
 REQUIRE LIKE ~pinka/lib/like.f
+REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 
 \ : SPF-PATH S" spf" ;
 : SPF-PATH-LEN SPF-PATH NIP 1+ ;
 
-: double-slashed ( a u -- ) 
-    "" { p }
-    OVER + SWAP ?DO I 1 p STR+ I C@ [CHAR] \ = IF I 1 p STR+ THEN LOOP 
-    p ; 
+: double-slashed  ( a u -- s )  " {s}" DUP " \" " \\" replace-str- ;
 
 SPF-PATH double-slashed VALUE path\\
 
