@@ -1,4 +1,4 @@
-\ FILEMIN ( addr u -- n ) возвращает число минут, прошедших с момента 
+\ MINS-OLD ( addr u -- n ) возвращает число минут, прошедших с момента 
 \ последней записи в файл. Для свежесозданного - 0. Для несуществующего = -1.
 
 REQUIRE FIND-FILES-R       ~ac/lib/win/file/findfile.f 
@@ -8,7 +8,7 @@ WINAPI: GetFileAttributesExA KERNEL32.DLL
 
 600000000 CONSTANT nMINUTES
 
-: FILEMIN  { addr u \ data id -- n }
+: MINS-OLD  { addr u \ data id -- n }
 
   0 addr u + C!
   /WIN32_FIND_DATA ALLOCATE THROW -> data
@@ -23,5 +23,4 @@ WINAPI: GetFileAttributesExA KERNEL32.DLL
     -1
   THEN
 ;
-\ S" C:\spf4\devel\~ac\lib\win\file\filemin.f" FILEMIN .
-
+\ S" C:\spf4\devel\~ac\lib\win\file\filetime.f" MINS-OLD .
