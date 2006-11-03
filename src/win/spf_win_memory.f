@@ -32,9 +32,15 @@ VARIABLE EXTRA-MEM
 
 : SET-HEAP ( heap-id -- )
   >R
-  USER-OFFS @ EXTRA-MEM @ CELL+ + 8 R@ HeapAlloc CELL+ TlsIndex!
-  R> THREAD-HEAP !
-  R> R@ TlsIndex@ CELL- ! >R
+  USER-OFFS @ EXTRA-MEM @ CELL+ + 8 R@ 
+  HeapAlloc DUP
+  IF
+     CELL+ TlsIndex!
+     R> THREAD-HEAP !
+     R> R@ TlsIndex@ CELL- ! >R
+  ELSE
+     -300 THROW
+  THEN
 ;
 
 : CREATE-HEAP ( -- )
@@ -44,13 +50,16 @@ VARIABLE EXTRA-MEM
 
 : CREATE-PROCESS-HEAP ( -- )
 \ —оздать хип процесса
-  GetProcessHeap SET-HEAP
+ \ MSDN recommends using serialization for process heap
+  \ Heap returned by GetProcessHeap caused problems with forth GUI and we want 
+   \ to completely control our process heap
+  0 8000 0 HeapCreate SET-HEAP
 ;
 
 DECIMAL
 
 : DESTROY-HEAP ( -- )
-\ ”ничтожить хип текущего потока.
+\ ”ничтожить хип текущего потока или процесса
   THREAD-HEAP @ HeapDestroy DROP
 ;
 

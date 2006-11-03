@@ -383,8 +383,8 @@ ALSO TC
 PREVIOUS
 
 (  Отличие от WNDPROC - на выходе не вызываем USER-EXIT, 
-   потому что хип процесса полученную GetProcessHeap уничтожать не нужно, 
-   и потому что при завершении процесса нет необходимости вызывать AT-THREAD-FINISHING 
+   потому что при завершении процесса нет необходимости вызывать AT-THREAD-FINISHING,
+   AT-PROCESS-FINISHING вызовется в BYE в конце INIT
    ~day  )
 
 : PROCESSPROC: ( xt "name" -- )
