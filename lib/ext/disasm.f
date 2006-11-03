@@ -1444,19 +1444,16 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
 : VECT. ( ADDR -- ADDR' )
        CR DUP  BASE-ADDR - 6 H.R SPACE   
        ."  A; " DUP @ 8 H.R DUP CELL+ SWAP @ ."  ,  \ " WordByAddr TYPE
-\       2R> 2DROP
 ;
 
-: CONS. ( ADDR -- ADDR' )
+: CONS. ( ADDR -- )
        CR DUP BASE-ADDR - 6 H.R SPACE   
        ."  A; " @ 8 H.R ."  ,"
-       2R> 2DROP
 ;
 
-: USER. ( ADDR -- ADDR' )
+: USER. ( ADDR -- )
        CR DUP  BASE-ADDR - 6 H.R SPACE
-       ."  A; " @ 8 H.R ."  , \ Relative in heap [hex]" CELL+
-       2R> 2DROP
+       ."  A; " @ 8 H.R ."  , \ Relative in heap [hex]" \ CELL+ 
 ;
 
 : UVAL. ( ADDR -- ADDR' )
@@ -1464,9 +1461,7 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
        ."  A; " DUP @ 8 H.R ."  , \ Relative in heap [hex]" CELL+
 ;
 
-: CODE. ( ADDR -- ADDR' )
-       40 DUMP 2R> 2DROP
-;
+: CODE. ( ADDR -- ) 40 DUMP ;
 
 : INST  ( ADR -- ADR' )
         DUP TO NEXT-INST
@@ -1485,10 +1480,10 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
                     CASE
                    ['] _CLITERAL-CODE OF  X".   ENDOF
                    ['] _SLITERAL-CODE OF  X".   ENDOF
-                   ['] _VECT-CODE     OF  VECT. ENDOF
-                   ['] _CONSTANT-CODE OF  CONS. ENDOF
-                   ['] _USER-CODE     OF  USER. ENDOF
-                   ['] _CREATE-CODE   OF  CODE. ENDOF
+                   ['] _VECT-CODE     OF  VECT. 2DROP RDROP ENDOF
+                   ['] _CONSTANT-CODE OF  CONS. DROP RDROP ENDOF
+                   ['] _USER-CODE     OF  USER. DROP RDROP ENDOF
+                   ['] _CREATE-CODE   OF  CODE. DROP RDROP ENDOF
                    ['] _USER-VALUE-CODE OF UVAL. ENDOF
                    ['] _FLIT-CODE10   OF  FLIT10. ENDOF
                    ['] _FLIT-CODE8    OF  FLIT8. ENDOF
