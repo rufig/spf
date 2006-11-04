@@ -26,7 +26,10 @@ HEX
   SetOP  0x68 C, DP @ 4 ALLOT
   SetOP  0x52 C,    \ PUSH EDX
   SetOP  0x53 C,    \ PUSH EBX
-  4 ALIGN-NOP
+
+  \ to fit body of cycle in one cache line 
+   \ we should align to 16 (default value for ALIGN-BYTES) (~day)
+  ALIGN-BYTES @ ALIGN-NOP
   DP @ DUP TO :-SET
 ; IMMEDIATE
 
