@@ -148,8 +148,14 @@ USER ALIGN-BYTES
 
 : ALIGNED ( addr -- a-addr ) \ 94
 \ a-addr - первый выровненный адрес, больший или равный addr.
-  ALIGN-BYTES @ 2DUP
-  MOD DUP IF - + ELSE 2DROP THEN
+  ALIGN-BYTES @ 16 =
+  IF
+    \ Try to avoid slow division, 16 is a default align value
+    15 + 0xFFFFFFF0 AND
+  ELSE
+    ALIGN-BYTES @ 2DUP
+    MOD DUP IF - + ELSE 2DROP THEN
+  THEN
 ;
 : ALIGN ( -- ) \ 94
 \ Если указатель пространства данных не выровнен -
