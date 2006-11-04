@@ -759,7 +759,7 @@ CODE D< ( d1 d2 -- flag ) \ DOUBLE
      MOV EDX, [EBP]
      CMP 8 [EBP], EDX
      SBB 4 [EBP], EAX
-     MOV EAX, # 0
+     XOR EAX, EAX
      JGE SHORT @@1
        DEC EAX
 @@1: LEA EBP, 0C [EBP]
@@ -771,7 +771,7 @@ CODE D> ( d1 d2 -- flag ) \ DOUBLE
      MOV EDX, 8 [EBP]
      CMP [EBP], EDX
      SBB EAX, 4 [EBP]
-     MOV EAX, # 0
+     XOR EAX, EAX
      JGE SHORT @@1
        DEC EAX
 @@1: LEA EBP, 0C [EBP]
