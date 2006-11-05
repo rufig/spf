@@ -1,8 +1,7 @@
-WINAPI: SetEnvironmentVariableA KERNEL32.DLL
-
 REQUIRE { ~ac/lib/locals.f
 REQUIRE ZPLACE ~nn/lib/az.f
 
+WINAPI: SetEnvironmentVariableA KERNEL32.DLL
 \ WINAPI: GetEnvironmentVariableA KERNEL32.DLL
 
 : GETENV { a1 u1 \ buf len -- a2 u2 ior }

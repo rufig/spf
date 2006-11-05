@@ -1,4 +1,4 @@
-REQUIRE { ~nn/lib/locals.f
+REQUIRE { ~ac/lib/locals.f
 REQUIRE /STRING lib/include/string.f
 REQUIRE S>NUM ~nn/lib/s2num.f
 

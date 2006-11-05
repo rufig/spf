@@ -1,3 +1,5 @@
+REQUIRE [IF] lib/include/tools.f
+
 C" [DEFINED]" FIND NIP 0=
 [IF]
 : [DEFINED] ( -- f ) \ "name"
