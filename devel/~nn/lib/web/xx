@@ -1,0 +1,42 @@
+SP-Forth 3.75 (20.Nov.2000) ANS FORTH 94 for Win95/98/NT/2000
+Copyright (C) 1992-2000  A.Cherezov  http://www.forth.org.ru/
+
+Loading WINCON extension...Ok.
+Make for debugging
+ Ok.
+Subst inp: HTTP/1.0 200 OK%CRLF%%CRLF%%FILENAME @ ASCIIZ> FILE%
+subst enter: 0 0 0 0 0 
+SUBST+: HTTP/1.0 200 OK
+SUBST+: 
+
+SUBST+: 
+SUBST+: 
+
+SUBST+: 
+subst enter: 52 4974943 21903044 256 19 
+SUBST+: <HTML>
+<HEAD><TITLE>Hello</TITLE></HEAD>
+<BODY>
+<h1>Hello</h1>
+
+</BODY>
+</HTML>
+subst exit: 19 256 21903044 52 4974943 
+SUBST+: <HTML>
+<HEAD><TITLE>Hello</TITLE></HEAD>
+<BODY>
+<h1>Hello</h1>
+
+</BODY>
+</HTML>
+SUBST+: 
+subst exit: 0 0 0 0 0 
+Subst out: HTTP/1.0 200 OK
+
+<HTML>
+<HEAD><TITLE>Hello</TITLE></HEAD>
+<BODY>
+<h1>Hello</h1>
+
+</BODY>
+</HTML>
