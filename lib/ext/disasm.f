@@ -1496,6 +1496,21 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
 : DIS-DD   CR .S" DD " @+ H.>S ;
 : DIS-DS   CR .S" STRING " 0x22 EMIT>S COUNT 2DUP >S + 0x22 EMIT>S ;
 
+: FIND-REST-END ( xt -- addr | 0)
+    DUP NextNFA DUP
+    IF 
+      NIP
+      NAME>C 1- \ Skip CFA field
+    ELSE
+      DROP
+      DP @ - ABS 100 > IF 0 EXIT THEN \ no applicable end found
+      DP @
+    THEN
+
+    BEGIN \ Skip alignment
+      DUP C@ 0= WHILE 1- 
+    REPEAT ;
+
 FORTH DEFINITIONS
 
 : DIS  ( ADR -- )
@@ -1553,14 +1568,7 @@ VARIABLE  COUNT-LINE
 ;
 
 : SEE       ( "name" -- )
-    ' DUP NextNFA DUP 
-    IF NAME>C 1- \ Skip CFA field
-       BEGIN \ Skip alignment
-         DUP C@ 0=
-       WHILE 1-
-       REPEAT
-    THEN
-    ['] REST-AREA CATCH DROP
+    ' DUP FIND-REST-END ['] REST-AREA CATCH DROP
 ;
 
 ONLY FORTH DEFINITIONS
