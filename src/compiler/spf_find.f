@@ -13,29 +13,84 @@ VECT SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
 \ ≈сли определение найдено, вернуть выполнимый токен xt и единицу (1), если 
 \ определение немедленного исполнени€, иначе минус единицу (-1).
 
-: SEARCH-FOR-NFA ( a u nfa1|0 -- a u nfa2|0 )
-\ Ќайти nfa слова, заданного строкой имени a u,
-\ начина€ поиск с nfa1 (включа€)
-  BEGIN  ( a u NFA | a u 0 )
-    DUP
-  WHILE  ( a u NFA )
-    >R 2DUP R@ COUNT COMPARE R> SWAP
-  WHILE
-    CDR  ( a u NFA2 )
-  REPEAT THEN 
-;
+\ ќптимизировано by day (29.10.2000)
+\ ќптимизировано by mak July 26th, 2001 - 15:45
+
+CODE CDR-BY-NAME ( c-addr u nfa1|0 -- c-addr u nfa1|nfa2|0 )
+\ тоже, что и CDR (см. в spf_wordlist.f), но кроме конца списка стопором €вл€етс€ и заданное им€.
+\  од наследован от SEARCH-WORDLIST, by ~ygrek Nov.2006
+      PUSH EDI
+      MOV ESI, EAX                  \ вход в список
+      MOV EDX, [EBP]                \ длина (счетчик)
+      MOV EDI, 4 [EBP]              \ искомое слово в ES:DI
+
+      A;  0xBB C, -1 W, 0 W, \    MOV EBX, # FFFF
+      CMP EDX, # 3
+      JB  SHORT @@8
+      A;  0xBB C,  -1 DUP W, W, \   MOV  EBX, # FFFFFFFF
+@@8:   MOV EAX, [EDI]
+      SHL EAX, # 8
+      OR  EDX, EAX
+      AND EDX, EBX
+      MOV AL, # 0
+      A;  0x25 C, 0xFF C, 0 C, 0 W, \       AND EAX, # FF
+      JMP @@1
+@@3:
+      A;  0x25 C, 0xFF C, 0 C, 0 W, \       AND EAX, # FF
+      MOV ESI, 1 [ESI] [EAX]
+@@1:   OR ESI, ESI
+      JZ SHORT @@2                   \ конец поиска
+      MOV EAX, [ESI]
+      AND EAX, EBX
+      CMP EAX, EDX
+      JNZ SHORT @@3              \ длины не равны - идем дальше
+\ проверить всю строку
+      INC ESI
+      CLD
+      XOR ECX, ECX
+      MOV CL, DL
+      PUSH ESI
+      PUSH EDI                  \ сохран€ем адрес начала искомого слова
+      REPZ CMPS BYTE
+      POP EDI
+      JZ SHORT @@5
+      POP EAX                   \ значение esi не интересует в случае неудачи
+      MOV ESI, [ESI] [ECX]
+      JMP SHORT @@1
+@@2:
+      XOR EAX, EAX
+      JMP SHORT @@7                  \ выход с "не найдено"
+
+@@5:   POP ESI
+      DEC ESI               \   передвигаемс€ от начала строки к NFA
+      MOV EAX, ESI
+@@7:
+      POP EDI
+      RET
+END-CODE
+
+\ форт-реализаци€:
+\ : CDR-BY-NAME ( a u nfa1|0 -- a u nfa2|0 )
+\  BEGIN  ( a u NFA | a u 0 )
+\    DUP
+\  WHILE  ( a u NFA )
+\    >R 2DUP R@ COUNT COMPARE R> SWAP
+\  WHILE
+\    CDR  ( a u NFA2 )
+\  REPEAT THEN 
+\ ;
 
 : SEARCH-WORDLIST-NFA ( c-addr u wid -- 0 | nfa -1 )
-   @ SEARCH-FOR-NFA NIP NIP ?DUP 0<> 
+   @ CDR-BY-NAME NIP NIP ?DUP 0<>
 ;
 
-: SEARCH-WORDLIST3
+: SEARCH-WORDLIST1
    SEARCH-WORDLIST-NFA 0= IF 0 EXIT THEN
    DUP NAME>
-   SWAP ?IMMEDIATE IF 1 ELSE -1 THEN 
+   SWAP ?IMMEDIATE IF 1 EXIT THEN -1
 ;
 
-' SEARCH-WORDLIST3 (TO) SEARCH-WORDLIST
+' SEARCH-WORDLIST1 (TO) SEARCH-WORDLIST
 
 
 USER-CREATE S-O 16 CELLS TC-USER-ALLOT \ пор€док поиска
