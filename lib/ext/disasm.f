@@ -1461,7 +1461,15 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
        ."  A; " DUP @ 8 H.R ."  , \ Relative in heap [hex]" CELL+
 ;
 
-: CODE. ( ADDR -- ) 40 DUMP ;
+: CODE. ( ADDR -- )  
+        DUP NextNFA
+        ?DUP 
+        IF OVER - 5 -
+        ELSE 40
+        THEN 
+        ." Size of data: ~" DUP .
+        DUMP
+;
 
 : INST  ( ADR -- ADR' )
         DUP TO NEXT-INST
@@ -1504,7 +1512,7 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
     ELSE
       DROP
       DP @ - ABS 100 > IF 0 EXIT THEN \ no applicable end found
-      DP @
+      DP @ 1-
     THEN
 
     BEGIN \ Skip alignment
