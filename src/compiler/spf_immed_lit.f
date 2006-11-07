@@ -39,7 +39,7 @@
 : CLITERAL ( addr -- )
   STATE @ IF
             ['] _CLITERAL-CODE COMPILE,
-            COUNT DUP C,
+            COUNT DUP C, CHARS
             HERE SWAP DUP ALLOT MOVE 0 C,
           THEN
 ; IMMEDIATE
@@ -79,7 +79,7 @@
 \ Вывести ccc на экран.
   ?COMP
   ['] _CLITERAL-CODE COMPILE,
-  [CHAR] " PARSE DUP C,
+  [CHAR] " PARSE DUP C, CHARS
   HERE SWAP DUP ALLOT MOVE 0 C,
   ['] (.") COMPILE,
 ; IMMEDIATE
@@ -114,7 +114,7 @@
 \ -2 THROW, выводя ccc, если на стеке исключений нет кадра исключений.
   ?COMP
   ['] _CLITERAL-CODE COMPILE,
-  [CHAR] " PARSE DUP C,
+  [CHAR] " PARSE DUP C, CHARS
   HERE SWAP DUP ALLOT MOVE 0 C,
   ['] (ABORT") COMPILE,
 ; IMMEDIATE

@@ -759,7 +759,7 @@ CODE D< ( d1 d2 -- flag ) \ DOUBLE
      MOV EDX, [EBP]
      CMP 8 [EBP], EDX
      SBB 4 [EBP], EAX
-     XOR EAX, EAX
+     MOV EAX, # 0
      JGE SHORT @@1
        DEC EAX
 @@1: LEA EBP, 0C [EBP]
@@ -771,7 +771,7 @@ CODE D> ( d1 d2 -- flag ) \ DOUBLE
      MOV EDX, 8 [EBP]
      CMP [EBP], EDX
      SBB EAX, 4 [EBP]
-     XOR EAX, EAX
+     MOV EAX, # 0
      JGE SHORT @@1
        DEC EAX
 @@1: LEA EBP, 0C [EBP]
@@ -1004,8 +1004,6 @@ CODE CMOVE ( c-addr1 c-addr2 u -- ) \ 94 STRING
        MOV EDI, EDX
        RET
 END-CODE
-
-: QCMOVE CMOVE ;
 
 CODE CMOVE> ( c-addr1 c-addr2 u -- ) \ 94 STRING
 \ ≈сли u больше нул€, копировать u последовательных символов из пространства 

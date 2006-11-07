@@ -81,7 +81,7 @@ DECIMAL
 : S, ( addr u -- )
 \ Зарезервировать u байт пространства данных 
 \ и поместить туда содержимое u байт из addr.
-  DP @ SWAP DUP ALLOT CMOVE
+  CHARS DP @ SWAP DUP ALLOT CMOVE
 ;
 
 : S", ( addr u -- ) 
@@ -146,17 +146,21 @@ DECIMAL
 
 USER ALIGN-BYTES
 
-: ALIGNED ( addr -- a-addr ) \ 94
-\ a-addr - первый выровненный адрес, больший или равный addr.
-  ALIGN-BYTES @ 16 =
+: ALIGN-TO ( addr u -- addr1 )
+  DUP 16 =
   IF
     \ Try to avoid slow division, 16 is a default align value
-    15 + 0xFFFFFFF0 AND
+    1- + 0xFFFFFFF0 AND
   ELSE
-    ALIGN-BYTES @ 2DUP
-    MOD DUP IF - + ELSE 2DROP THEN
+    2DUP MOD DUP IF - + ELSE 2DROP THEN
   THEN
 ;
+
+: ALIGNED ( addr -- a-addr ) \ 94
+\ a-addr - первый выровненный адрес, больший или равный addr.
+  ALIGN-BYTES @ ALIGN-TO
+;
+
 : ALIGN ( -- ) \ 94
 \ Если указатель пространства данных не выровнен -
 \ выровнять его.
@@ -165,7 +169,6 @@ USER ALIGN-BYTES
 
 : ALIGN-NOP ( n -- )
 \ выровнять HERE на n и заполнить NOP
-  HERE DUP ROT 2DUP
-  MOD DUP IF - + ELSE 2DROP THEN
+  HERE DUP ROT ALIGN-TO
   OVER - DUP ALLOT 0x90 FILL
 ;

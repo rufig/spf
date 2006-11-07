@@ -36,12 +36,14 @@ VECT SHEADER
 \ name Выполнение: ( -- a-addr )
 \ a-addr - адрес поля данных name. Семантика выполнения name может
 \ быть расширена с помощью DOES>.
-  ALIGN-BYTES @ 1 ALIGN-BYTES !
-  -ROT SHEADER 4 ALIGN-BYTES !
-  HERE 5 + ALIGNED 5 -
-  HERE - ALLOT HERE LAST-CFA @ !
-  ALIGN-BYTES !
-  HERE DOES>A ! ( для DOES )
+  SHEADER
+  ALIGN-BYTES @ DUP 4 >
+  IF 5 - ALLOT
+  ELSE 1 - ALLOT
+  THEN
+
+  HERE DUP LAST-CFA @ !
+  DOES>A ! ( для DOES )
   ['] _CREATE-CODE COMPILE,
 ;
 

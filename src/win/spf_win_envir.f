@@ -42,11 +42,11 @@
     IF 2DROP DROP S" Error while error decoding!" R> STATE ! EXIT THEN
     OVER = IF ( n )
       DROP >IN 0! [CHAR] \ PARSE
-      TUCK SYSTEM-PAD SWAP MOVE
+      TUCK SYSTEM-PAD SWAP CHARS MOVE
       SYSTEM-PAD SWAP   R> STATE ! EXIT
     THEN
   REPEAT ( n ) 0
-  <# SOURCE SWAP 1+ SWAP 1- HOLDS #S #> \ Unknown error
+  <# SOURCE SWAP CHAR+ SWAP 1 - HOLDS #S #> \ Unknown error
   R> STATE !
 ;
 
@@ -58,7 +58,7 @@
   S" SPF.ERR" +ModuleDirName
   R/O OPEN-FILE-SHARED
   IF DROP DUP >R ABS 0 <# #S R> SIGN S" ERROR #" HOLDS #>
-     TUCK SYSTEM-PAD SWAP MOVE SYSTEM-PAD SWAP
+     TUCK SYSTEM-PAD SWAP CHARS MOVE SYSTEM-PAD SWAP
   ELSE
     DUP >R
     ['] (DECODE-ERROR) RECEIVE-WITH DROP
@@ -84,7 +84,7 @@
     CELL+ @ ASCIIZ> 
     <# HOLDS S" Forth: Can't load a library " HOLDS 0. #>
     DUP ER-U !
-    SYSTEM-PAD SWAP MOVE
+    SYSTEM-PAD SWAP CHARS MOVE
     SYSTEM-PAD ER-A ! -2 THROW
 ;
 
@@ -96,7 +96,7 @@
     <# HOLDS S"  in a library " HOLDS HOLDS
        S" Forth: Can't find a proc " HOLDS 0. #>
     DUP ER-U !
-    SYSTEM-PAD SWAP MOVE
+    SYSTEM-PAD SWAP CHARS MOVE
     SYSTEM-PAD ER-A ! -2 THROW
 ;
 

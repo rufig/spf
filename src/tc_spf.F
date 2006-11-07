@@ -232,7 +232,7 @@ DECIMAL
 ;
 
 : S", ( addr u -- ) \ компил€ци€ строки, заданной addr u, в виде строки со счетчиком
-  DUP C, DP @ SWAP DUP ALLOT QCMOVE
+  DUP C, DP @ SWAP DUP ALLOT CMOVE
 ;
 
 : +SWORD ( addr u wid -> ) \ добавление заголовка статьи с именем,
@@ -473,7 +473,7 @@ ALSO TC-IMM DEFINITIONS PREVIOUS
 
 : C"   \ 94 CORE EXT
   [CHAR] " WORD DUP COUNT NIP 1+
-  DUP ALLOCATE THROW DUP >R SWAP QCMOVE R>   \ WORD кладЄт строку в HERE :(
+  DUP ALLOCATE THROW DUP >R SWAP CMOVE R>   \ WORD кладЄт строку в HERE :(
   STATE @
   IF DUP [ ALSO TC-IMM ] [COMPILE] CLITERAL [ PREVIOUS ] FREE THROW THEN
 

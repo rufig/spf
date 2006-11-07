@@ -45,7 +45,7 @@ C" LAST-HERE" FIND NIP 0= VALUE INLINEVAR
 
 
 : ," ( addr u -- )
-    DUP C, HERE OVER ALLOT
+    DUP C, CHARS HERE OVER ALLOT
     SWAP CMOVE 0 C, ;
 
 S" src\spf_date.f"                INCLUDED

@@ -5,11 +5,6 @@
 : C>S ( c -- n )  0xFF AND [ 0x7F INVERT ] LITERAL XOR 0x80 + ;
 [THEN]
 
-[UNDEFINED] QCMOVE
-[IF]
-: QCMOVE CMOVE ;
-[THEN]
-
 BASE @ HEX
 
 \ : REL! ( ADDR' ADDR  --  )
@@ -64,7 +59,7 @@ DROP
 ;
 
 : ToOP0 ( OPn -- )
-     OP0 OpBuffSize CELL- QCMOVE ;
+     OP0 OpBuffSize CELL- CMOVE ;
 
 0x11 CELLS DUP CONSTANT JpBuffSize
 
@@ -115,7 +110,7 @@ DROP
  DP @ JP0 ! ;
 
 \ : ToJP0 ( OPn -- )
-\     JP0 JpBuffSize CELL- QCMOVE
+\     JP0 JpBuffSize CELL- CMOVE
 \ JP0 JpBuffSize + CELL- 0!  ;
 
 : ?SET DP @
@@ -370,7 +365,7 @@ M\ VECT DTST
       R@ OP_SIZE NEGATE
       R@ OP0 DO DUP I +! CELL +LOOP 
       ALLOT      
-      R@ CELL+ R@ OpBuffSize CELL- R> - OP0 + QCMOVE
+      R@ CELL+ R@ OpBuffSize CELL- R> - OP0 + CMOVE
 ;
 : ?OPlast  ( OPX -- OPX flag )
      DUP OP0 OpBuffSize + CELL- CELL- U> ;

@@ -17,7 +17,7 @@ TC-USER-ALLOT \ Область форматного преобразования - обязательно перед PAD
 
 USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ c-addr - адрес области для промежуточной обработки данных.
-1024 TC-USER-ALLOT
+1024 CHARS TC-USER-ALLOT
 
 
 : HEX ( -- ) \ 94 CORE EXT
@@ -176,7 +176,7 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
     IF R> R> EXIT THEN     \ ud n  ( ud = udh udl )
     SWAP BASE @ UM* DROP   \ udl n udh*base
     ROT BASE @ UM* D+      \ (n udh*base)+(udl*baseD)
-    R> 1+ R> 1-
+    R> CHAR+ R> 1-
   REPEAT
 ;
 

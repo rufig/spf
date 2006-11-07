@@ -45,7 +45,7 @@ VECT ?SLITERAL
 \ В конец строки помещается пробел, не включаемый в длину строки.
 \ Программа может изменять символы в строке.
   DUP SKIP PARSE 255 MIN
-  DUP SYSTEM-PAD C! SYSTEM-PAD 1+ SWAP QCMOVE
+  DUP SYSTEM-PAD C! SYSTEM-PAD CHAR+ SWAP CMOVE
   0 SYSTEM-PAD COUNT + C!
   SYSTEM-PAD
 ;
@@ -261,8 +261,8 @@ VECT PROCESS-ERR ( ior -- ior ) \ обработать ошибку трансляции (файла).
 : HEAP-COPY ( addr u -- addr1 )
 \ скопировать строку в хип и вернуть её адрес в хипе
   DUP 0< IF 8 THROW THEN
-  DUP 1+ ALLOCATE THROW DUP >R
-  SWAP DUP >R MOVE
+  DUP CHAR+ ALLOCATE THROW DUP >R
+  SWAP DUP >R CHARS MOVE
   0 R> R@ + C! R>
 ;
 

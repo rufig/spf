@@ -8,7 +8,7 @@ VECT (ABORT")
 USER ER-A
 USER ER-U
 
-128 CONSTANT /errstr_
+128 CHARS CONSTANT /errstr_
 0 \
 1 CELLS     -- err.number
 1 CELLS     -- err.line#
@@ -99,12 +99,12 @@ USER-CREATE ERR-DATA [T] /err-data [I] TC-USER-ALLOT
   >IN @      ERR-DATA err.in#   !
   SOURCE /errstr_ MIN  DUP 
              ERR-DATA err.line C!   
-             ERR-DATA err.line 1+ SWAP CMOVE
+             ERR-DATA err.line CHAR+ SWAP CHARS CMOVE
           0  ERR-DATA err.line COUNT + C!
   CURFILE @ ?DUP IF ASCIIZ> ELSE S" H-STDIN" THEN
   /errstr_ MIN  DUP 
              ERR-DATA err.file C!
-             ERR-DATA err.file 1+ SWAP MOVE
+             ERR-DATA err.file CHAR+ SWAP CHARS MOVE
           0  ERR-DATA err.file COUNT + C!
   NOTSEEN-ERR
 ;

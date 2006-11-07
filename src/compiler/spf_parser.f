@@ -130,5 +130,5 @@ USER-CREATE ATIB
 
 : SKIP1 ( addr u -- addr+1 u-1 )
    DUP 0 >
-   IF 1- SWAP 1+ SWAP THEN
+   IF 1 - SWAP CHAR+ SWAP THEN
 ;

@@ -8,7 +8,7 @@
 : ?SLITERAL1 ( c-addr u -> ... )
   \ преобразовать строку в число
   0 0 2SWAP
-  OVER C@ [CHAR] - = IF 1- SWAP 1+ SWAP TRUE ELSE FALSE THEN >R
+  OVER C@ [CHAR] - = IF 1 - SWAP CHAR+ SWAP TRUE ELSE FALSE THEN >R
   >NUMBER
   DUP 1 > IF -2001 THROW THEN \ ABORT" -?"
   IF C@ [CHAR] . <> IF -2002 THROW THEN \ ABORT" -??"

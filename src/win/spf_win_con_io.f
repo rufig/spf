@@ -86,7 +86,7 @@ VECT TYPE
   0 >R RP@ H-STDIN GetNumberOfConsoleInputEvents DROP R>
 ;
 
-CREATE INPUT_RECORD ( /INPUT_RECORD) 20 2 * ALLOT
+CREATE INPUT_RECORD ( /INPUT_RECORD) 20 2 * CHARS ALLOT
 
 : ControlKeysMask ( -- u )
 \ вернуть маску управляющих клавиш для последнего клавиатурного события.

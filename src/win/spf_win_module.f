@@ -7,7 +7,7 @@ USER CURFILE
 : CUT-PATH ( a u -- a u1 )
 \ из строки "path\name" выделить строку "path\"
   OVER +
-  BEGIN 2DUP <> WHILE DUP C@ is_path_delimiter 0= WHILE 1- REPEAT 1+ THEN
+  BEGIN 2DUP <> WHILE DUP C@ is_path_delimiter 0= WHILE 1- REPEAT CHAR+ THEN
   \ DUP 0!  \ ~ruv (to anfilat): не дќлжно тут затирать поданный буфер!
   OVER -
 ;
@@ -24,7 +24,7 @@ USER CURFILE
 : +ModuleDirName ( addr u -- addr2 u2 )
   2>R
   ModuleDirName 2DUP +
-  2R> DUP >R ROT SWAP 1+ MOVE 
+  2R> DUP >R ROT SWAP CHAR+ CHARS MOVE 
   R> +
 ;
 
@@ -32,9 +32,9 @@ USER CURFILE
 \ ƒобавить addr u к полный_путь_приложени€+devel\
   2>R
   ModuleDirName 2DUP +
-  S" devel\" ROT SWAP MOVE
+  S" devel\" ROT SWAP CHARS MOVE
   6 + 2DUP +
-  2R> DUP >R ROT SWAP 1+ MOVE 
+  2R> DUP >R ROT SWAP CHAR+ CHARS MOVE 
   R> +
 ;
 : SOURCE-NAME ( -- a u )
