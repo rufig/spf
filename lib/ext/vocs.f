@@ -16,6 +16,7 @@
 0x200 VALUE MAX-WORD-SIZE
 
 \ Opposite to CDR, might be slow!
+ \ It does not take wordlists into account.
 : NextNFA ( nfa1 -- nfa2 | 0 )
     NEAR_NFA SWAP >R
     BEGIN
@@ -29,4 +30,25 @@
     IF DROP 0
     ELSE  NEAR_NFA DROP
     THEN
+;
+
+: ?NFAInVoc ( nfa voc -- f )
+    @ \ last nfa
+    BEGIN  ( nfa 'nfa )
+      DUP
+    WHILE
+      2DUP = IF 2DROP TRUE EXIT THEN
+      CDR
+    REPEAT 2DROP 0
+;
+
+: VocByNFA ( nfa -- wid | 0 )
+    VOC-LIST
+    BEGIN @ DUP WHILE ( nfa voc )
+           2DUP CELL+ ?NFAInVoc
+           IF
+              NIP CELL+ EXIT
+           THEN
+    REPEAT
+    2DROP 0
 ;
