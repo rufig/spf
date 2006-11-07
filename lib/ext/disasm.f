@@ -1465,8 +1465,9 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
         DUP NextNFA
         ?DUP 
         IF OVER - 5 -
-        ELSE 40
-        THEN 
+        ELSE
+           DUP DP @ SWAP - ABS DUP 512 > IF DROP 40 THEN \ no applicable end found
+        THEN
         ." Size of data: ~" DUP .
         DUMP
 ;
