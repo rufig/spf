@@ -87,7 +87,7 @@ S" lang\base.txt" BaseLStrings INCLUDED-STRINGS
     BEGIN
       1+ DUP C@ DUP 0x0A = SWAP 0 = OR
     UNTIL 1+
-    SWAP 2DUP - R> SWAP - 1+ 1 MAX QCMOVE
+    SWAP 2DUP - R> SWAP - 1+ 1 MAX CMOVE
     ClBuf        0 WM_SETTEXT    SendToClVoid
     0xFFFE  0xFFFE EM_SETSEL     SendToClVoid
     GETLINECOUNT 0 EM_LINESCROLL SendToClVoid
