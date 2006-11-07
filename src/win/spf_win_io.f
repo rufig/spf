@@ -244,13 +244,6 @@ USER lpNumberOfBytesWritten
   FlushFileBuffers ERR
 ;
 
-: FILE-EXIST ( addr u -- flag )
-  R/O OPEN-FILE-SHARED ?DUP
-  IF NIP DUP 2 =
-        OVER 3 = OR
-        OVER 206 = OR
-        SWAP 123 = OR
-        0=
-  ELSE CLOSE-FILE THROW TRUE
-  THEN
+: FILE-EXIST ( addr u -- f )
+    DROP GetFileAttributesA -1 = 0=
 ;

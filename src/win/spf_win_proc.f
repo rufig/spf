@@ -5,6 +5,7 @@
 
 WINAPI: GetStdHandle                  KERNEL32.DLL
 WINAPI: GetLastError                  KERNEL32.DLL
+WINAPI: GetFileAttributesA            KERNEL32.DLL
 WINAPI: CloseHandle                   KERNEL32.DLL
 WINAPI: CreateFileA                   KERNEL32.DLL
 WINAPI: DeleteFileA                   KERNEL32.DLL
