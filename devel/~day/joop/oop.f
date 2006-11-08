@@ -14,6 +14,7 @@
 REQUIRE MODULE: lib\ext\spf_modules.f
 REQUIRE [IF]    lib\include\tools.f
 
+
 HERE
 
 MODULE: OO_Support
@@ -301,6 +302,18 @@ ALSO ClassContext DEFINITIONS
    DUP .variables @ @ R@ .variables @ !
    R> .parent !
 ;
+
+[DEFINED] QuickSWL [IF]
+GET-CURRENT ALSO OO_Support ALSO ClassContext DEFINITIONS
+: <SUPER
+  <SUPER
+  _CURCLASS @ DUP
+  .methods   @ REFRESH-WLHASH
+  .variables @ REFRESH-WLHASH
+;
+PREVIOUS PREVIOUS SET-CURRENT
+
+[THEN]
 
 : ;CLASS PREVIOUS PREVIOUS
          _OLDCURRENT @ SET-CURRENT
