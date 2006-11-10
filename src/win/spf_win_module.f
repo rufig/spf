@@ -6,10 +6,10 @@ USER CURFILE
 
 : CUT-PATH ( a u -- a u1 )
 \ из строки "path\name" выделить строку "path\"
-  OVER +
-  BEGIN 2DUP <> WHILE DUP C@ is_path_delimiter 0= WHILE 1- REPEAT CHAR+ THEN
+  CHARS OVER +
+  BEGIN 2DUP <> WHILE DUP C@ is_path_delimiter 0= WHILE CHAR- REPEAT CHAR+ THEN
   \ DUP 0!  \ ~ruv (to anfilat): не дќлжно тут затирать поданный буфер!
-  OVER -
+  OVER - >CHARS
 ;
 
 : ModuleName ( -- addr u )
