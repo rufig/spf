@@ -32,7 +32,7 @@
     THEN
 ;
 
-: ?NFAInVoc ( nfa voc -- f )
+: NFAInVoc? ( nfa voc -- f )
     @ \ last nfa
     BEGIN  ( nfa 'nfa )
       DUP
@@ -45,7 +45,7 @@
 : VocByNFA ( nfa -- wid | 0 )
     VOC-LIST
     BEGIN @ DUP WHILE ( nfa voc )
-           2DUP CELL+ ?NFAInVoc
+           2DUP CELL+ NFAInVoc?
            IF
               NIP CELL+ EXIT
            THEN
