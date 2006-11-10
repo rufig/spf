@@ -21,9 +21,24 @@
 \ Прибавить размер символа к c-addr1 и получить c-addr2.
   1+
 ;
+: CHAR- ( c-addr1 -- c-addr2 ) \ 94
+\ Вычесть размер символа из c-addr1 и получить c-addr2.
+  1-
+;
 : CHARS ( n1 -- n2 ) \ 94
 \ n2 - размер n1 символов.
 ; IMMEDIATE
+
+: >CHARS ( n1 -- n2 ) \ "to-chars"
+\ n2 - число символов в n1
+; IMMEDIATE
+
+: >CELLS ( n1 -- n2 ) \ "to-cells" [http://forth.sourceforge.net/word/to-cells/index.html]
+\ Convert n1, the number of bytes, to n2, the corresponding number
+\ of cells. If n1 does not correspond to a whole number of cells, the
+\ rounding direction is system-defined.
+  2 RSHIFT
+;
 
 : MOVE ( addr1 addr2 u -- ) \ 94
 \ Если u больше нуля, копировать содержимое u байт из addr1 в addr2.
