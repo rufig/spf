@@ -75,6 +75,7 @@ ValidateThreadHeap>
 ;
 : STR+ { addr u s -- }
 \ DEBUG @ IF ." STR+:" addr u TYPE CR THEN
+  u 0 < IF 0xC000000D THROW THEN
   s s@ DUP @
   u + 9 + RESIZE THROW DUP DUP s s!
   XCOUNT + addr SWAP u CMOVE
