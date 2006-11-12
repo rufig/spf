@@ -141,10 +141,11 @@ BL     CHOLD: BL#
 ;
 
 : TO-CONTEXT ( wl ) >R GET-ORDER R> SWAP 1+ SET-ORDER ;
+: GET-CONTEXT ( -- wl ) GET-ORDER SWAP >R 1- 0 ?DO DROP LOOP R> ;
 
 : METHODS ( ta) 
    DUP CLS ! .wl @ DUP SET-CURRENT
-   TO-CONTEXT ; ( ALSO CONTEXT !)
+   TO-CONTEXT ;
 
 CREATE FIRST-OBJCHAIN
 0 ,
@@ -347,6 +348,7 @@ CLASS MetaClass
 : abort ( f addr u )
     ROT
     IF
+       1 returnStack.
        <# R@ WordByAddr HOLDS [CHAR] . HOLD name HOLDS S"  in " HOLDS HOLDS 0. #>
        TUCK PAD SWAP CMOVE
        PAD SWAP
@@ -512,5 +514,15 @@ SET-CURRENT PREVIOUS
 
 : HypeDisposeVoc HypeDisposeVoc ;
 
+
+\ Methods inheritance
+
+: INHERIT ( -- )
+   SMUDGE
+   LATEST COUNT 
+   CLASS@ .super @ 
+   ROT ROT MFIND DROP COMPILE,
+   SMUDGE
+; IMMEDIATE
 
 ;MODULE
