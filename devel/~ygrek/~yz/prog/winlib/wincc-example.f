@@ -4,6 +4,7 @@
 DIS-OPT \ для SPF ниже 4.10 под NT
 REQUIRE toolbar ~yz/lib/wincc.f
 SET-OPT 
+REQUIRE def-small-icon-il ~ygrek/~yz/lib/icons.f
 
 0 VALUE t
 0 VALUE hd
@@ -30,22 +31,13 @@ PROC: change-tab
   t -selected@ t switch-tab
 PROC;
 
-WINAPI: ImageList_Create      COMCTL32.DLL
-WINAPI: ImageList_ReplaceIcon COMCTL32.DLL
-WINAPI: ImageList_GetImageCount COMCTL32.DLL
-
-: create-il ( size -- il )
-  >R 5 5 W: ilc_color8 R> DUP ImageList_Create ;
-: add-icon ( resno il -- ) 
-  >R IMAGE-BASE LoadIconA -1 R> ImageList_ReplaceIcon DROP ;
-
 WINAPI: FindFirstFileA KERNEL32.DLL
 WINAPI: FindNextFileA  KERNEL32.DLL
 WINAPI: FindClose      KERNEL32.DLL
 
 : fill-listview { \ no fh [ 400 ] fdata }
-  32 create-il DUP 1 SWAP add-icon W: lvsil_normal lv -imagelist!
-  16 create-il DUP 1 SWAP add-icon W: lvsil_small  lv -imagelist!
+  def-small-icon-il lv -imagelist!
+  def-normal-icon-il lv -imagelist!
   " Имя файла" 0 0 lv add-column
   " Размер" 1 1 lv add-column
   fdata " *.f" FindFirstFileA TO fh
@@ -92,7 +84,7 @@ WINAPI: FindClose      KERNEL32.DLL
   100 1 hd -iwidth!
   100 2 hd -iwidth!
   \ 
-  16 create-il DUP 1 SWAP add-icon 0 tv -imagelist!
+  def-small-icon-il tv -imagelist!
   " yz" 0 0 0 W: tvi_first 0 tv add-item >R
   " prog" 0 0 0 W: tvi_first R> tv add-item >R
   " winlib" 0 0 0 W: tvi_first R> tv add-item >R
@@ -109,7 +101,7 @@ WINAPI: FindClose      KERNEL32.DLL
 : make-tabs
   0 tabcontrol 
   this TO t
-  16 create-il DUP 1 SWAP add-icon 0 t -imagelist!
+  def-small-icon-il t -imagelist!
   tab1 " Первая" 0 0 this add-item
   tab2 " Вторая" 0 1 this add-item
   tab3 " Третья" 0 2 this add-item

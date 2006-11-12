@@ -373,43 +373,45 @@ PROC;
   tab -selected@ tab -iparam@ map-grid
 ;
 
+: hide-selected-tab ( ctl -- )
+  DUP -selected@ SWAP -iparam@ hide-grid ;
+
+: show-selected-tab ( ctl -- )
+  DUP map-current-tab-grid
+  DUP -selected@ SWAP -iparam@ show-grid ;
+
 PROC: tab-show { ctl -- }
   ctl -selected@ -1 = IF EXIT THEN
-  ctl map-current-tab-grid
+  ctl show-selected-tab
   ctl winshow
-  ctl -selected@ ctl -iparam@ show-grid
 PROC;
 
 PROC: tab-hide { ctl -- }
   ctl -selected@ -1 = IF EXIT THEN
+  ctl hide-selected-tab
   ctl winhide
-  ctl -selected@ ctl -iparam@ hide-grid
 PROC;
 
-PROC: tab-resize ( x y tab -- )
+PROC: tab-resize ( x y ctl -- )
   DUP >R resize R> map-current-tab-grid
 PROC;
 
-: hide-selected-tab ( ctl -- )
-   DUP -selected@ SWAP -iparam@ hide-grid ;
+: switch-tab { i ctl -- }
+   ctl hide-selected-tab
+   i 0 W: TCM_SETCURSEL ctl send DROP
+   ctl show-selected-tab ;
 
-: show-selected-tab ( ctl -- )
-   DUP map-current-tab-grid
-   DUP -selected@ SWAP -iparam@ show-grid ;
 
-: switch-tab { i tab -- }
-   tab hide-selected-tab
-   i 0  W: TCM_SETCURSEL tab send DROP
-   tab show-selected-tab ;
 
 MESSAGES: tabcontrol-notify
 
 M: tcn_selchanging
-  thisctl hide-selected-tab
+   thisctl hide-selected-tab
 M;
 
 M: tcn_selchange
-  thisctl show-selected-tab
+   thisctl -command@ EXECUTE
+   thisctl show-selected-tab
 M;
 
 MESSAGES;
