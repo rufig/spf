@@ -84,14 +84,14 @@ VARIABLE lma
    DUP IF - + CLASS@ .size ! ELSE 2DROP DROP THEN
 ;
 
-VARIABLE ?AlignFields
+VARIABLE AlignFields?
 
 : DoNotAlign
-   0 ?AlignFields !
+   0 AlignFields? !
 ;
 
 : AlignDefs ( n -- )
-   ?AlignFields @ 0= IF DROP EXIT THEN
+   AlignFields? @ 0= IF DROP EXIT THEN
    
    DUP 1 = OVER 2 = OR IF DROP 2 ALIGN-CUSTOM EXIT THEN
    DUP 4 = SWAP 7 > OR IF 4 ALIGN-CUSTOM EXIT THEN
@@ -154,7 +154,7 @@ CREATE FIRST-OBJCHAIN
 
 : CLASS ( "c ")
    GET-CURRENT PREVIOUS-CURRENT ! 
-   -1 ?AlignFields !
+   -1 AlignFields? !
    CREATE HERE 
    /class ALLOT
    DUP DUP .self !
@@ -304,7 +304,7 @@ VOCABULARY HypeDisposeVoc
 
 GET-CURRENT ALSO HypeDisposeVoc DEFINITIONS
 
-: ; S" HYPE::DISPOSE-SUBOBJECTS SUPER dispose " EVALUATE PREVIOUS POSTPONE ; ; IMMEDIATE
+: ; S" HYPE::DISPOSE-SUBOBJECTS SUPER dispose " EVALUATE PREVIOUS S" ;" EVAL-WORD ; IMMEDIATE
 
 PREVIOUS SET-CURRENT
 
