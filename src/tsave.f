@@ -1,3 +1,4 @@
+\ -*- coding: cyrillic-alternativnyj; -*-
 ( addr_exe u_exe addr_fres u_fres -- )
 \ Сохраняет текущюю форт систему в exe с ресурсами из fres файла;
 \ если ресурсы не нужны, то u_fres = 0.

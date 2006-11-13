@@ -1,3 +1,4 @@
+\ -*- coding: cyrillic-alternativnyj; -*-
 \ Оптимизирующий макроподстановшик        Максимов М.О.
 
 [UNDEFINED] C>S
