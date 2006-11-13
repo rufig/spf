@@ -393,11 +393,15 @@ dispose:
 
 ;CLASS
 
-CCustomWindow SUBCLASS CGenericButton
+CCustomWindow SUBCLASS CChildWindow 
 
 init:
     WS_CHILD WS_VISIBLE OR SUPER style !
 ;
+
+;CLASS
+
+CChildWindow SUBCLASS CGenericButton
 
 : createClass S" BUTTON" DROP ;
 
@@ -415,11 +419,7 @@ init: BS_CHECKBOX SUPER style OR! ;
 
 ;CLASS
 
-CCustomWindow SUBCLASS CStatic
-
-init:
-    WS_CHILD WS_VISIBLE OR SUPER style !
-;
+CChildWindow SUBCLASS CStatic
 
 : createClass S" STATIC" DROP ;
 

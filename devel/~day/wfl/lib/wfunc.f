@@ -265,3 +265,7 @@ CREATE   CC_INITS 8 , BASE @ HEX 3FFF , BASE !
   S" RICHED20.DLL" DROP LoadLibraryA DROP
   TRUE CC_INIT !
 ;
+
+: Rect>Win ( x y w h -- height width y x )
+    SWAP 2SWAP SWAP
+;
