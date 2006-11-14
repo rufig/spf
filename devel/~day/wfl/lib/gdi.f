@@ -107,8 +107,6 @@ CGDIObject SUBCLASS CBrush
     SUPER handle @ IF SUPER releaseObject THEN
     CreateSolidBrush DUP -WIN-THROW
     DUP SUPER handle !
-
-    SUPER handle @ .
 ;
 
 

@@ -77,15 +77,9 @@ CLASS CMessageLoop
           msg toString TYPE CR
        THEN
 
-       \ For modeless dialogs
-       msg addr
-       msg hwnd @
-       IsDialogMessage 0=
-       IF
-         msg addr DUP 
-         TranslateMessage DROP
-         DispatchMessageA DROP
-       THEN
+       msg addr DUP
+       TranslateMessage DROP
+       DispatchMessageA DROP
     THEN
   REPEAT
   msg wParam @

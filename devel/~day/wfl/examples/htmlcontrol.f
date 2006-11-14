@@ -31,8 +31,8 @@ WS_POPUP WS_SYSMENU OR WS_CAPTION OR DS_MODALFRAME OR
 DS_CENTER OR
 
 DIALOG: HTMLDialog ActiveX hosting example in dialog!
-      leftCtlID   1 1 200 297   0 LTEXT
-      rightCtlID  205 1 200 297 0 LTEXT
+      leftCtlID   2 2 200 297   0 LTEXT
+      rightCtlID  205 2 200 297 0 LTEXT
 DIALOG;
 
 : winTest ( -- n )
