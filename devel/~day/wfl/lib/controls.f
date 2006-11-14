@@ -25,7 +25,11 @@ CChildWindow SUBCLASS CStatic
 
 CChildWindow SUBCLASS CEdit
 
-: createClass " EDIT" DROP ;
+: createClass S" EDIT" DROP ;
+
+init: ES_AUTOHSCROLL WS_TABSTOP OR SUPER style OR! 
+      WS_EX_CLIENTEDGE SUPER exStyle OR!
+;
 
 ;CLASS
 
