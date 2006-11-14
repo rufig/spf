@@ -85,10 +85,15 @@ W: WM_COMMAND  ( lpar wpar msg hwnd )
    2DROP 2DROP TRUE
 ;
 
-\ W: WM_NOTIFY ( lpar wpar msg hwnd )
+W: WM_NOTIFY ( lpar wpar msg hwnd )
 \ Send N: message by id
-\    2DROP 2DROP TRUE
-\ ;
+    3 PICK ( nmhdr ) DUP 2 CELLS + @ ( code )
+    [CHAR] N 5 PICK sendWinMessage 0=
+    IF
+       2DROP inheritWinMessage
+    ELSE >R 2DROP 2DROP R>
+    THEN
+;
 
 \ W: WM_NCCREATE
 \    DefWindowProcA
@@ -146,6 +151,11 @@ W: WM_NCDESTROY ( lpar wpar msg hwnd )
     thunk-xt@ ( xt hwnd )
     GWL_WNDPROC hWnd@
     SetWindowLongA -wthrow
+;
+
+: set ( hwnd )
+    oldWndProc@ IF detach THEN
+    hWnd !
 ;
 
 dispose:
@@ -398,29 +408,5 @@ CCustomWindow SUBCLASS CChildWindow
 init:
     WS_CHILD WS_VISIBLE OR SUPER style !
 ;
-
-;CLASS
-
-CChildWindow SUBCLASS CGenericButton
-
-: createClass S" BUTTON" DROP ;
-
-;CLASS
-
-CGenericButton SUBCLASS CButton
-
-init: BS_PUSHBUTTON SUPER style OR! ;
-
-;CLASS
-
-CGenericButton SUBCLASS CCheckBox
-
-init: BS_CHECKBOX SUPER style OR! ;
-
-;CLASS
-
-CChildWindow SUBCLASS CStatic
-
-: createClass S" STATIC" DROP ;
 
 ;CLASS

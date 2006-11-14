@@ -14,6 +14,7 @@ CLASS CMessageFilter
 CLASS CWinMessage
 
 OBJ-SIZE
+    0 DEFS addr
     VAR hwnd
     VAR message
     VAR wParam
@@ -23,8 +24,6 @@ OBJ-SIZE
 
 OBJ-SIZE SWAP - 
 CONSTANT /MSG
-
-: addr ( -- addr ) hwnd ;
 
 : toString ( -- addr u )
      BASE @ >R HEX

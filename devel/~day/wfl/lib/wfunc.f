@@ -237,8 +237,8 @@ WM_USER 0x1C00 + CONSTANT OCM_BASE
 ;
 
 : W: [CHAR] W CreateMsgProcessor ; \ windows message
-: C: [CHAR] C CreateMsgProcessor ; \ WM_COMMAND
-: N: [CHAR] N CreateMsgProcessor ; \ WM_NOTIFY
+: C: [CHAR] C CreateMsgProcessor ; \ WM_COMMAND ( code -- )
+: N: [CHAR] N CreateMsgProcessor ; \ WM_NOTIFY ( nmhdr -- retCode )
 : M: [CHAR] M CreateMsgProcessor ; \ Menu items
 : A: [CHAR] A CreateMsgProcessor ; \ Accelerator
 : X: [CHAR] X CreateMsgProcessor ; \ Fast comment this method

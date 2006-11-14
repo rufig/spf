@@ -73,6 +73,10 @@ C: IDCANCEL  ( code -- )
     DROP IDCANCEL endDialog
 ;
 
+W: WM_CLOSE
+    2DROP 2DROP IDCANCEL endDialog 0
+;
+
 : showModal ( template parent-obj -- result )
     || R: parent-obj R: template ||
     SELF
@@ -87,6 +91,10 @@ C: IDCANCEL  ( code -- )
     || CWindow wnd ||
     SUPER checkWindow GetDlgItem wnd hWnd !
     wnd getStrText
+;
+
+: getDlgItem ( id -- hwnd )
+    SUPER checkWindow GetDlgItem DUP SUPER -wthrow
 ;
 
 ;CLASS

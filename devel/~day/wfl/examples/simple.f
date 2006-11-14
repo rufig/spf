@@ -4,7 +4,7 @@ REQUIRE CWindow ~day\wfl\wfl.f
 
 CFrameWindow SUBCLASS CVerySimpleWindow
 
-W: WM_DESTROY
+W: WM_DESTROY ( lpar wpar msg hwnd -- n )
    2DROP 2DROP 0
    0 PostQuitMessage DROP
 ;

@@ -1,37 +1,46 @@
-( Simple activeX hosting example )
+( Simple activeX hosting example in dialog! )
 
 REQUIRE CWindow ~day\wfl\wfl.f
 
-CFrameWindow SUBCLASS CVerySimpleWindow
+101 CONSTANT leftCtlID
+102 CONSTANT rightCtlID
 
-W: WM_DESTROY
-   2DROP 2DROP 0
-   0 PostQuitMessage DROP
+CDialog SUBCLASS CHtmlDialog
+
+	CWebBrowser OBJ ctl 
+	CWebBrowser OBJ ctl2
+
+W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
+  2DROP 2DROP
+
+   \ file system
+   ctl className leftCtlID SUPER getDlgItem ctl attach
+   S" c:\" ctl navigate
+  
+   \ web site
+   ctl className rightCtlID SUPER getDlgItem ctl2 attach
+   S" http://forth.org.ru" ctl2 navigate
+
+  TRUE
 ;
 
 ;CLASS
 
+0 0 410 300
+WS_POPUP WS_SYSMENU OR WS_CAPTION OR DS_MODALFRAME OR
+DS_CENTER OR
+
+DIALOG: HTMLDialog ActiveX hosting example in dialog!
+      leftCtlID   1 1 200 297   0 LTEXT
+      rightCtlID  205 1 200 297 0 LTEXT
+DIALOG;
+
 : winTest ( -- n )
-  || CVerySimpleWindow wnd CMessageLoop loop CWebBrowser ctl CWebBrowser ctl2 ||
+  || CHtmlDialog dlg ||
 
   StartCOM
 
-  0 wnd create DROP
-  0 50 50 830 540 Rect>Win wnd moveWindow
-  SW_SHOW wnd showWindow
-
-  \ file dir
-  0 wnd this ctl create
-  0 10 10 400 500 Rect>Win ctl moveWindow
-  S" c:\" ctl navigate
-
-  
-  \ wen site
-  0 wnd this ctl2 create
-  0 410 10 400 500 Rect>Win ctl2 moveWindow
-  S" http://forth.org.ru" ctl2 navigate
-
-  loop run
+  HTMLDialog 0 dlg showModal
 
   EndCOM
 ;

@@ -3,16 +3,6 @@
 REQUIRE CWindow ~day\wfl\wfl.f
 
 
-CFrameWindow SUBCLASS CMainWindow
-
-W: WM_DESTROY
-   2DROP 2DROP 0
-   0 PostQuitMessage DROP
-;
-
-;CLASS
-
-
 CButton SUBCLASS CColorButton
 
          VAR captured
@@ -97,18 +87,36 @@ W: WM_PAINT
 
 ;CLASS
 
+CFrameWindow SUBCLASS CMainWindow
+
+     CColorButton OBJ btn
+
+12345 CONSTANT btnID
+
+W: WM_CREATE ( lpar wpar msg hwnd -- n )
+    2DROP 2DROP
+
+    btnID SELF btn create 
+    btn attach
+  
+    0 50 200 100 100 btn moveWindow
+    FALSE
+;
+
+W: WM_DESTROY ( lpar wpar msg hwnd -- n )
+   2DROP 2DROP 0
+   0 PostQuitMessage DROP
+;
+
+;CLASS
+
 : winTest ( -- n )
-  || CMainWindow wnd CColorButton btn CMessageLoop loop ||
+  || CMainWindow wnd CMessageLoop loop ||
 
   0 wnd create DROP
   SW_SHOW wnd showWindow
 
   S" test window" wnd setText
-
-  12345 wnd this btn create 
-  btn attach
-  
-  0 50 200 100 100 btn moveWindow
 
   loop run
 ;

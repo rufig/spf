@@ -31,10 +31,13 @@ CONSTANT /DLGTEMPLATE
 2 -- DLGITEMTEMPLATE.id
 CONSTANT /DLGITEMTEMPLATE
 
+: L, ( addr u )
+   0 ?DO DUP I + C@ W, LOOP DROP 
+   0 W,
+;
+
 : L" ( "ccc" -- ) \ ******* компиляция строки в UNICODE
-  [CHAR] " PARSE
-  0 ?DO DUP I + C@ W, LOOP DROP 
-  0 W,
+  [CHAR] " PARSE L,
 ;
 
 : DIALOG: ( x y cx cy style "name" -- dlg 0 )
@@ -61,10 +64,14 @@ CONSTANT /DLGITEMTEMPLATE
   SWAP DLGTEMPLATE.cdit W!
 ;
 
-: DIALOG_ITEM ( N id x y cx cy style class_id -- N+1 )
+: DIALOG_ITEM ( N id x y cx cy style class_id predefined? -- N+1 )
   || D: t ||
   HERE DUP t ! /DLGITEMTEMPLATE DUP ALLOT ERASE
-  -1 W, W, \ class_id
+
+  IF -1 W, W, \ class_id
+  ELSE L, 
+  THEN
+
   WS_VISIBLE OR WS_CHILD OR
   t @ DLGITEMTEMPLATE.style !
   t @ DLGITEMTEMPLATE.cy   W!
@@ -83,12 +90,16 @@ CONSTANT /DLGITEMTEMPLATE
 ;
 
 : EDITTEXT ( N id x y cx cy style -- N+1 )
-  WS_BORDER OR WS_TABSTOP OR DI_Edit DIALOG_ITEM
+   WS_TABSTOP OR WS_BORDER OR DI_Edit TRUE DIALOG_ITEM
 ;
 
 : PUSHBUTTON ( N id x y cx cy -- N+1 )
-  WS_TABSTOP DI_Button DIALOG_ITEM
+   WS_TABSTOP OR DI_Button TRUE DIALOG_ITEM
 ;
-: LTEXT ( N id x y cx cy -- N+1 )
-  0 DI_Static DIALOG_ITEM
+: LTEXT ( N id x y cx cy style -- N+1 )
+   WS_TABSTOP OR DI_Static TRUE DIALOG_ITEM
+;
+
+: LISTVIEW ( N id x y cx cy style -- N+1 )
+   S" SysListView32" FALSE DIALOG_ITEM
 ;

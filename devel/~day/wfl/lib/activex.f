@@ -17,7 +17,7 @@ WINAPI: CoUninitialize    OLE32.DLL
    CoUninitialize DROP
 ;
 
-CCustomWindow SUBCLASS CAxControl
+CChildWindow SUBCLASS CAxControl
 
      CWinClass OBJ class
                VAR control \ idispatch interface
@@ -38,25 +38,30 @@ init:
    * A fragment of HTML such as "MSHTML:<HTML><BODY>This is a line of text</BODY></HTML>" 
 )
 
-: create ( addr u id parent-obj )
-     2SWAP DROP COM::>unicodebuf
-
-     || R: ustr ||
-
-     SUPER create ( hwnd )
-
-     ustr @
+: createControl ( addr u )
+     DROP COM::>unicodebuf
+     DUP >R
+     SUPER checkWindow SWAP
      0 0 2SWAP
      AtlAxCreateControl
      S" Unable to create activex control" SUPER abort
-
-     ustr @ FREE THROW
+     R> FREE THROW
 
      control SUPER checkWindow AtlAxGetControl
      S" Unable to get activex control" SUPER abort
 
      control COM::IID_IDispatch control @ COM:: ::QueryInterface
      S" Control does not support IDispatch" SUPER abort
+;
+
+: create ( addr u id parent-obj )
+     SUPER create DROP
+     createControl
+;
+
+: attach ( addr u hwnd )
+     SUPER attach
+     createControl
 ;
 
 ;CLASS

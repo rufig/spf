@@ -28,6 +28,10 @@ REQUIRE CMessageLoop ~day\wfl\lib\messageloop.f
 
 REQUIRE CWindow      ~day\wfl\lib\window.f
 
+S" ~yz\cons\commctrl.const" ADD-CONST-VOC
+
+REQUIRE CListView         ~day\wfl\lib\controls.f
+
 REQUIRE DIALOG:      ~day\wfl\lib\dialogtemplates.f
 REQUIRE CDialog      ~day\wfl\lib\dialog.f
 

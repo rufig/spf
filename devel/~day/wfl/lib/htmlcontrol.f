@@ -2,10 +2,11 @@
 
 CAxControl SUBCLASS CWebBrowser
 
-: create ( id parent )
-    S" SHDocVw.InternetExplorer" 2SWAP SUPER create
-;
+: className S" SHDocVw.InternetExplorer" ;
 
+: create ( id parent )
+    className 2SWAP SUPER create
+;
 
 : goHome
     SUPER control @ [[ GoHome ]]
