@@ -1,3 +1,6 @@
+( Originally created by ~ac in ~ac\lib\win\window\dialog_creating.f )
+
+REQUIRE ADD-CONST-VOC ~day\wincons\wc.f
 
 \ Êëàññû DialogBoxControls
 BASE @ HEX
@@ -65,20 +68,19 @@ CONSTANT /DLGITEMTEMPLATE
 ;
 
 : DIALOG_ITEM ( N id x y cx cy style class_id predefined? -- N+1 )
-  || D: t ||
-  HERE DUP t ! /DLGITEMTEMPLATE DUP ALLOT ERASE
+  HERE DUP >R /DLGITEMTEMPLATE DUP ALLOT ERASE
 
   IF -1 W, W, \ class_id
   ELSE L, 
   THEN
 
   WS_VISIBLE OR WS_CHILD OR
-  t @ DLGITEMTEMPLATE.style !
-  t @ DLGITEMTEMPLATE.cy   W!
-  t @ DLGITEMTEMPLATE.cx   W!
-  t @ DLGITEMTEMPLATE.y    W!
-  t @ DLGITEMTEMPLATE.x    W!
-  t @ DLGITEMTEMPLATE.id   W!
+  R@ DLGITEMTEMPLATE.style !
+  R@ DLGITEMTEMPLATE.cy   W!
+  R@ DLGITEMTEMPLATE.cx   W!
+  R@ DLGITEMTEMPLATE.y    W!
+  R@ DLGITEMTEMPLATE.x    W!
+  R> DLGITEMTEMPLATE.id   W!
   >IN @ #TIB @ <
   IF L" ELSE 0 W, THEN  \ title (initial text)
   HERE 4 MOD 2 = IF -2 ALLOT BL W, 0 W, THEN \ ýõ, MS, MS ... :)
@@ -101,5 +103,5 @@ CONSTANT /DLGITEMTEMPLATE
 ;
 
 : LISTVIEW ( N id x y cx cy style -- N+1 )
-   S" SysListView32" FALSE DIALOG_ITEM
+  WS_TABSTOP OR WS_BORDER OR S" SysListView32" FALSE DIALOG_ITEM
 ;

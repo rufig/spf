@@ -121,7 +121,7 @@ W: WM_DESTROY ( lpar wpar msg hwnd -- n )
   loop run
 ;
 
-\ TRUE TO TRACE-WINMESSAGES
+TRUE TO TRACE-WINMESSAGES
 winTest
 
 \EOF

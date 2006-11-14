@@ -61,8 +61,15 @@ CWindow SUBCLASS CDialog
     THEN
 ;
 
-: show ( template -- hwnd )
-   \ TODO
+\ create modeless dialog
+: show ( template parent-obj -- hwnd )
+    || R: parent-obj R: template ||
+    SELF
+    ['] BaseDlgProc
+    parent-obj @ DUP IF ^ checkWindow THEN
+    template @
+    HINST
+    CreateDialogIndirectParamA
 ;
 
 : endDialog ( n )
@@ -91,10 +98,6 @@ W: WM_CLOSE
     || CWindow wnd ||
     SUPER checkWindow GetDlgItem wnd hWnd !
     wnd getStrText
-;
-
-: getDlgItem ( id -- hwnd )
-    SUPER checkWindow GetDlgItem DUP SUPER -wthrow
 ;
 
 ;CLASS

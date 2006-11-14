@@ -29,7 +29,7 @@ CLASS CDCHandle
 ;
 
 : setTextColor ( colorref )
-   checkDC SetTextColor -WIN-THROW
+   checkDC SetTextColor  DROP \ -WIN-THROW
 ;
 
 ;CLASS

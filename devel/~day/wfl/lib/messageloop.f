@@ -54,12 +54,39 @@ CONSTANT /MSG
 
 ;CLASS
 
+0x100 CONSTANT  WM_KEYFIRST
+0x108 CONSTANT  WM_KEYLAST
+
+: >= < 0= ;
+: <= > 0= ;
+
+WM_USER 117 + CONSTANT PSM_ISDIALOGMESSAGE
+
 CLASS CMessageLoop
 
      CWinMessage OBJ msg
 
+\ process keyboard for modeless dialogs and property sheets
+ \ a bit hackish
 : pretranslateMessage ( -- f )
-    FALSE \ not translated
+    || D: activeWnd ||
+    GetActiveWindow activeWnd !
+
+    GWL_EXSTYLE activeWnd @ GetWindowLongA
+    WS_EX_CONTROLPARENT AND
+    IF
+       msg addr 0 PSM_ISDIALOGMESSAGE activeWnd @ SendMessageA
+       IF TRUE EXIT THEN
+
+       msg message @ DUP WM_KEYFIRST >=
+       SWAP WM_KEYLAST <= AND \ for speed
+       IF
+          \ translate dialog key
+          msg addr activeWnd @ IsDialogMessage
+       ELSE FALSE \ not translated
+       THEN
+    ELSE FALSE
+    THEN
 ;
 
 : idleLoop
@@ -70,13 +97,13 @@ CLASS CMessageLoop
     idleLoop
     0 0 0 msg addr GetMessageA
   WHILE
+    TRACE-WINMESSAGES 
+    IF
+       msg toString TYPE CR
+    THEN
+
     pretranslateMessage 0=
     IF
-       TRACE-WINMESSAGES 
-       IF
-          msg toString TYPE CR
-       THEN
-
        msg addr DUP
        TranslateMessage DROP
        DispatchMessageA DROP

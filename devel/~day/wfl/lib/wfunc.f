@@ -214,7 +214,7 @@ VARIABLE lpFormatMessage
 
 : WIN-THROW ( n )
    0= INVERT GetLastError 0= INVERT AND 
-   IF HYPE::MetaClass ^ returnStack.
+   IF 0 HYPE::MetaClass ^ returnStack.
       GetLastError FormatMessage 
       ER-U ! ER-A ! -2 THROW
    THEN
@@ -268,4 +268,10 @@ CREATE   CC_INITS 8 , BASE @ HEX 3FFF , BASE !
 
 : Rect>Win ( x y w h -- height width y x )
     SWAP 2SWAP SWAP
+;
+
+: ToPixels { x y \ base -- x2 y2 }
+    GetDialogBaseUnits  -> base
+    x base LOWORD * 2 RSHIFT ( 4 /)
+    y base HIWORD * 3 RSHIFT ( 8 /)
 ;

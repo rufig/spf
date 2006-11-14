@@ -273,6 +273,10 @@ CWinMessageReceiver SUBCLASS CWindow
    MoveWindow SUPER -wthrow
 ;
 
+: getDlgItem ( id -- hwnd )
+    SUPER checkWindow GetDlgItem DUP SUPER -wthrow
+;
+
 ;CLASS
 
 CLASS CWinClass

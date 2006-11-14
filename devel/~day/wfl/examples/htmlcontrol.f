@@ -11,7 +11,7 @@ CDialog SUBCLASS CHtmlDialog
 	CWebBrowser OBJ ctl2
 
 W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
-  2DROP 2DROP
+   2DROP 2DROP
 
    \ file system
    ctl className leftCtlID SUPER getDlgItem ctl attach
