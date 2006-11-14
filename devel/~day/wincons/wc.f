@@ -37,6 +37,7 @@ VARIABLE ChainOfConst
   WHILE
     DUP CELL+ @ TO CURRENT-VOC
     0 CURRENT-VOC 2 CELLS + @ 1-
+    DUP 0 < ABORT" The file is corrupted or contains zero constants"
     _SEARCH-CONST IF NIP -1 EXIT THEN
   REPEAT
   0
@@ -60,10 +61,12 @@ TRUE WARNING !
   R/O TryOpenFile 0= IF >R
     R@ FILE-SIZE THROW DROP \ size
     DUP ALLOCATE THROW DUP ROT \ addr addr size
-    R@ READ-FILE THROW DROP
+    R@ READ-FILE THROW 0 = ABORT" Read zero bytes from const file"
     R> CLOSE-FILE THROW
     HERE
     ChainOfConst @ ,  SWAP ,  ChainOfConst !
+  ELSE
+    -1 ABORT" Missing file with constants"
   THEN
 ;
 
