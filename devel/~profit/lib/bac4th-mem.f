@@ -1,18 +1,29 @@
-REQUIRE CONT ~profit/lib/bac4th.f 
+REQUIRE CONT ~profit/lib/bac4th.f
 \ REQUIRE MemReport ~day/lib/memreport.f
 
+: FREEB2 ( addr --> addr \ <-- addr ) R> EXECUTE FREE THROW ;
+: FREEB ( addr --> addr \ <-- ) R> OVER >R EXECUTE R> FREE THROW ;
 
-: FREEB ( addr --> addr \ <-- addr ) R> EXECUTE FREE THROW ;
-: FREEB2 ( addr --> addr \ <-- ) R> OVER >R EXECUTE R> FREE THROW ;
+: BALLOCATE2  ( n --> addr \ <-- addr ) PRO ALLOCATE THROW FREEB2 CONT ;
+\ »з кучи снимаетс€ кусок в n байт, при откате пам€ть снимаетс€, при этом адрес 
+\ берЄтс€ со стека, поэтому последующие определение должны это учитывать
+\ ѕотенциально лучше тем, что можно выделенную пам€ть вывести за скобки одного
+\ определени€, подставив вместо адреса заглушку. (1)
+\ ќбъективно хуже тем что манипул€ции со стеком несколько осложн€ютс€ тем,
+\ об€зательно надо оставл€ть адрес пам€ти на стеке при откате.
 
-: BALLOCATE ( n --> addr \ <-- addr ) PRO ALLOCATE THROW FREEB CONT ;
-: BALLOCATE ( n --> addr \ <-- addr ) PRO ALLOCATE THROW FREEB2 CONT ;
+
+: BALLOCATE  ( n --> addr  \ <-- ) PRO ALLOCATE THROW FREEB CONT ;
+\ »з кучи снимаетс€ кусок в n байт, при откате пам€ть снимаетс€, при этом адрес
+\ хранитс€ на стеке возратов и дополнительно на стеке параметров сохран€ть ничего 
+\ не надо.
+\ ѕроблема (1) также потенциально (не опробовано) может быть решена структурными
+\ отсечени€ми, которые могут убрать откат, в котором хранитс€ действие по сн€тию
+\ пам€ти из кучи
 
 
 \EOF
+: r1 100 BALLOCATE2 DUP CR . 100 BALLOCATE2 DUP CR . ; r1
+: r2 100 BALLOCATE CR . 100 BALLOCATE CR . ; r2
 
-: r
-100 ALLOCATE THROW FREEB2 .
-100 BALLOCATE .
-; r
-MemReport
+ MemReport
