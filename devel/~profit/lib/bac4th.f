@@ -123,6 +123,9 @@ LIT, succ COMPILE,
 : +{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }+ ?COMP ['] +! ['] @ }agg ; IMMEDIATE
 
+: *{ ?COMP 1 LIT, agg{ ; IMMEDIATE
+: }* ?COMP (: DUP @ ROT * SWAP !  ;) ['] @ }agg ; IMMEDIATE
+
 : &{ ?COMP -1 LIT, agg{ ; IMMEDIATE
 : }& ?COMP (: DUP @ ROT AND SWAP ! ;) ['] @ }agg ; IMMEDIATE
 
@@ -198,20 +201,22 @@ a @ CR ." a=" . ;
 : bt ." back" BACK ." ing" TRACKING ." track" ;
 : bt2 START ." back" EMERGE ." tracking" ;
 
-: 1-20 PRO 21 BEGIN DUP CONT DROP 1- ?DUP 0= UNTIL ; \ выдаёт числа от 1-го до 20-и
+: INTSTO ( n <-->x ) PRO 0 DO I CONT DROP LOOP ; \ генерирует числа от 0 до n-1
+: 1-20 ( <-->x ) PRO 20 INTSTO CONT ; \ выдаёт числа от 1-го до 20-и
 \ : 1-20  21 BEGIN DUP R@ ENTER DROP 1- ?DUP 0= UNTIL RDROP ;
 : //2 PRO DUP 2 MOD ONFALSE CONT ; \ пропускает только чётные числа
 : 1-20. 1-20 //2  DUP . ;
 : 1-20X 1-20 ." X" ;
 : 1-20X1-20x 1-20 1-20 ." X" ;
 
-
 \ Подсчёт факториала
 : FACT  ( n -- x ) START
 DUP  2 < IF DROP 1 EXIT THEN
 DUP  1- DIVE  * EMERGE ;
 
-\ Посчёт числа Фибоначчи
+: FACT ( n -- !n ) *{ INTSTO 1+ DUP }* ;
+
+\ Подсчёт числа Фибоначчи
 : FIB ( n -- f ) START DUP 3 < IF DROP 1 EXIT THEN DUP 1- DIVE SWAP 2 - DIVE + EMERGE ;
 
 
