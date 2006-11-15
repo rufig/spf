@@ -288,6 +288,16 @@ CWinMessageReceiver SUBCLASS CWindow
     SUPER checkWindow InvalidateRgn DROP
 ;
 
+: modifyStyle ( n-add n-remove )
+    GWL_STYLE SUPER checkWindow GetWindowLongA
+    DUP SUPER -wthrow
+
+    ROT OR
+    SWAP INVERT AND
+    GWL_STYLE SUPER checkWindow SetWindowLongA 
+    SUPER -wthrow
+;
+
 ;CLASS
 
 CLASS CWinClass

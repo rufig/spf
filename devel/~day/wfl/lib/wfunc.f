@@ -267,10 +267,6 @@ CREATE   CC_INITS 8 , BASE @ HEX 3FFF , BASE !
   TRUE CC_INIT !
 ;
 
-: Rect>Win ( x y w h -- height width y x )
-    SWAP 2SWAP SWAP
-;
-
 : ToPixels { x y \ base -- x2 y2 }
     GetDialogBaseUnits  -> base
     x base LOWORD * 2 RSHIFT ( 4 /)

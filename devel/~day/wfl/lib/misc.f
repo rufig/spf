@@ -61,6 +61,10 @@ CLASS CRect
     r hw r yx
 ;
 
+: Rect>Win ( x y w h -- height width y x )
+    SWAP 2SWAP SWAP
+;
+
 : MoveRect ( bottom right top left deltax deltay -- )
     || CRect r ||
     2>R  r ! 2R>
