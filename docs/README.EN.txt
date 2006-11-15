@@ -33,7 +33,7 @@ write your code, save it as the *.f file and execute it by simply
 doubleclicking the source file.
   If you have an executable package - just run it. The wizard will guide you
 through the setup process.
-  See the docs\whatsnew.eng.txt file for the short overview of recent changes.
+  See the docs\whatsnew.en.txt file for the short overview of recent changes.
 
   Directories:
 
@@ -45,21 +45,16 @@ through the setup process.
 
   Files in the root directory:
 
- envir.spf        - this file specifies the spf environment queried with the ENVIRONMENT? word
  help.fhlp        - default include for the lib/ext/help.f extension
  jpf375c.exe      - an older version of SPF used to build itself
- spf.err          - this file is used by SPF to display the error (THROW) description, if
-                    it is absent you'll end up only with an error code if exception occurs
- spf.eng.err      - the same file in English
  spf4.exe         - SPF itself ;)
- spf.ini          - This file can be customized and copied to spf4.ini which will be
-                    included by SPF at startup
+ spf4.ini          - This file is automatically included by SPF at startup
 
 
 DOCUMENTATION
 =============
 
-  See the \docs\papers folder. The majority of the documentation is in Russian
+  See the \docs directory. The majority of the documentation is in Russian
 now. If you need an English version, contact us, maybe the translation will be
 done. SPF extension (lib/ext/help.f) adds help support to the interpreter. It
 uses fhlp files, which can be converted to HTML for standalone use. If you have
@@ -95,7 +90,7 @@ Related projects (highly recommended) :
   http://acweb.sf.net        - web server for Win32
   http://acfreeproxy.sf.net  - http proxy server
   http://acftp.sf.net        - ftp server
-  http://nncron.ru           - scriptable unix-like cron scheduler
+  http://nncron.ru           - scriptable unix-like cron scheduler for Windows
 
 Russian Forth Interest Group :
 

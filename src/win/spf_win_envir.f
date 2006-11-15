@@ -21,7 +21,11 @@
 
   SFIND IF EXECUTE TRUE EXIT THEN
 
-  S" ENVIR.SPF" +ModuleDirName
+  S" lib/ENVIR.SPF" +ModuleDirName 2DUP FILE-EXIST 0= 
+  IF
+    2DROP
+    S" ENVIR.SPF" +ModuleDirName
+  THEN
 
   R/O OPEN-FILE-SHARED 0=
   IF  DUP >R  
@@ -55,7 +59,11 @@
 \ ошибки n при условии u.
 \ Scattered Colon.
   ... DROP
-  S" SPF.ERR" +ModuleDirName
+  S" lib/SPF.ERR" +ModuleDirName 2DUP FILE-EXIST 0=
+  IF
+     2DROP
+     S" SPF.ERR" +ModuleDirName
+  THEN
   R/O OPEN-FILE-SHARED
   IF DROP DUP >R ABS 0 <# #S R> SIGN S" ERROR #" HOLDS #>
      TUCK SYSTEM-PAD SWAP CHARS MOVE SYSTEM-PAD SWAP
