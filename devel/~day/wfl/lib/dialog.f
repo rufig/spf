@@ -67,7 +67,7 @@ CWindow SUBCLASS CDialog
     SELF
     ['] BaseDlgProc
     parent-obj @ DUP IF ^ checkWindow THEN
-    template @
+    template @ @
     HINST
     CreateDialogIndirectParamA
 ;
@@ -89,7 +89,7 @@ W: WM_CLOSE
     SELF
     ['] BaseDlgProc
     parent-obj @ DUP IF ^ checkWindow THEN
-    template @
+    template @ @
     HINST
     DialogBoxIndirectParamA
 ;

@@ -124,3 +124,40 @@ CBrush SUBCLASS CBrushHandle
 init: FALSE SUPER ?own ! ;
 
 ;CLASS
+
+
+CLASS CLOGFONT
+   0 DEFS addr
+   VAR lfHeight 
+   VAR lfWidth
+   VAR lfEscapement 
+   VAR lfOrientation 
+   VAR lfWeight 
+   VAR lfItalic 
+   VAR lfUnderline 
+   VAR lfStrikeOut 
+   VAR lfCharSet 
+   VAR lfOutPrecision 
+   VAR lfClipPrecision 
+   VAR lfQuality
+   VAR lfPitchAndFamily 
+   VAR lfFaceName 
+;CLASS
+
+WINAPI: CreateFontIndirectA GDI32.DLL
+
+CGDIObject SUBCLASS CFont
+
+: create ( lfHeight lfWeight addr u )
+    || CLOGFONT lf ||
+
+    SUPER handle @ IF SUPER releaseObject THEN
+
+    DROP lf lfFaceName !
+    lf lfWeight !
+    lf lfHeight !
+
+    lf addr CreateFontIndirectA SUPER handle !
+;
+
+;CLASS

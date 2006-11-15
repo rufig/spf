@@ -116,6 +116,7 @@ WINAPI: CreateFontA       GDI32.DLL
 WINAPI: DeleteObject     GDI32.DLL
 WINAPI: StretchBlt       GDI32.DLL
 WINAPI: DeleteDC         GDI32.DLL
+WINAPI: InvalidateRgn    USER32.DLL
 
 WINAPI: SetCapture       USER32.DLL
 WINAPI: ReleaseCapture       USER32.DLL

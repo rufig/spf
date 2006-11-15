@@ -37,3 +37,5 @@ REQUIRE CDialog      ~day\wfl\lib\dialog.f
 
 REQUIRE CAXControl   ~day\wfl\lib\activex.f
 REQUIRE CHTMLControl ~day\wfl\lib\htmlcontrol.f
+
+REQUIRE CURLLabel    ~day\wfl\controls\urllabel.f

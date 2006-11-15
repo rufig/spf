@@ -277,6 +277,10 @@ CWinMessageReceiver SUBCLASS CWindow
     SUPER checkWindow GetDlgItem DUP SUPER -wthrow
 ;
 
+: invalidate ( fErase hRgn -- )
+    SUPER checkWindow InvalidateRgn DROP
+;
+
 ;CLASS
 
 CLASS CWinClass

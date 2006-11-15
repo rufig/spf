@@ -60,8 +60,6 @@ CONSTANT /DLGITEMTEMPLATE
   >IN @ #TIB @ <
   IF L" HERE 4 MOD 2 = IF -2 ALLOT BL , THEN
   ELSE 0 W, THEN  \ title
-
-  DOES> @
 ;
 : DIALOG; ( dlg n -- )
   SWAP DLGTEMPLATE.cdit W!
