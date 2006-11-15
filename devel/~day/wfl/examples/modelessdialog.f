@@ -23,6 +23,9 @@ Dialog1 0 dlg2 show DROP
 SW_SHOW dlg1 showWindow
 SW_SHOW dlg2 showWindow
 
+TRUE dlg1 getWindowRect 60 60 ToPixels MoveRect Rect>Width dlg1 moveWindow
+
+
 CMessageLoop NEW msgloop
 
 msgloop run

@@ -273,6 +273,13 @@ CWinMessageReceiver SUBCLASS CWindow
    MoveWindow SUPER -wthrow
 ;
 
+: getWindowRect ( -- height width y x )
+   || CRect r ||
+   r addr SUPER checkWindow 
+   GetWindowRect SUPER -wthrow
+   r @
+;
+
 : getDlgItem ( id -- hwnd )
     SUPER checkWindow GetDlgItem DUP SUPER -wthrow
 ;

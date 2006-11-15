@@ -18,20 +18,6 @@ CLASS CRect
     bottom @ top @ -
 ;
 
-: ! ( bottom right top left )
-    left !
-    top !
-    right !
-    bottom !
-;
-
-: @ ( bottom right top left )
-    bottom @
-    right @
-    top @
-    left @
-;
-
 : hw ( -- height width )
     height
     width
@@ -47,6 +33,40 @@ CLASS CRect
     ." top " top @ . CR
     ." right " right @ . CR
     ." bottom " bottom @ . CR
+    ." width " width . CR
+    ." height " height . CR
+;
+
+\ The last definitions in class
+
+: ! ( bottom right top left )
+    left !
+    top !
+    right !
+    bottom !
+;
+
+: @ ( bottom right top left )
+    bottom @
+    right @
+    top @
+    left @
 ;
 
 ;CLASS
+
+: Rect>Width ( bottom right top left -- height width top left )
+    || CRect r ||
+    r !
+    r hw r yx
+;
+
+: MoveRect ( bottom right top left deltax deltay -- )
+    || CRect r ||
+    2>R  r ! 2R>
+    DUP r top +!
+        r bottom +!
+    DUP r left +!
+        r right +!
+    r @
+;
