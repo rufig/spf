@@ -27,12 +27,9 @@ Notes:
 (4)  Can be moved to ./docs/utils (./utils)
 (5)  Should it be merged with ./src? probably no, it is not used.
 
-More on hierarchy:
+Notes:
 
-1. ./tools is meant not to be included in distribution,
-   it is used, e. g., for tools to build distribution, or SF.net website page.
-   Distribution is build from directories:
-   devel, docs, lib, samples, src. (ygrek)
+1. Distribution is build from directories: devel, docs, lib, samples, src.
 
 
 Building from source
@@ -48,34 +45,3 @@ Set working directory to that containing ./src and ./lib and command
 
 where "spf-prev" is bootstrap executable name.
 The result is placed into current directory "spf4.exe" file.
-
-
-Current development directions
-==============================
-
-1. (In Russian) Расформировать ./spf4root, переместив:
-
-ENVIR.SPF -> ./lib
-SPF.ERR -> ./lib
-SPF.eng.ERR -> ./lib
-help.fhlp -> ./lib ./docs ./docs/help ?
-spf4.ini -> ./lib?
-
-ygrek:
-
-Тут не против. Эти файлы видеть совсем ни за чем в корневом
-каталоге (кроме readme и spf4.ini). Т.е. принцип такой - легко доступно
-должно быть то, что часто используется /Шеннон :)
-И если перемещать эти все файлы - надо править в src.
-
-ASau:
-
-Возможно, надо подыскать размещение файлов получше.
-Для начала, стоит определиться с назначением spf4root.
-
-2. Provide better documentation
-
-docs/papers/spf_help.chm is obsolete, but has no substitute
-currently.  ygrek reports he failed to rebuild it.
-
-devel/~ygrek/docs/fhlp is working (ygrek).
