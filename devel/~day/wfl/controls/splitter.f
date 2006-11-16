@@ -1,6 +1,7 @@
 
 
 CChildWindow SUBCLASS CPanel
+;CLASS
 
 CChildWindow SUBCLASS CSplitter
 
