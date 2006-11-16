@@ -18,12 +18,10 @@ DUP >R
 ( длина старое выделенная-память )
 ROT CMOVE R> ( адрес-участка-кода-в-куче ) ;
 
-: BcompiledCode PRO compiledCode FREEB2 CONT ;
-
 \EOF
 REQUIRE SEE lib/ext/disasm.f
 
-: s ( n -- ) S" LITERAL +" BcompiledCode REST ;
+: s ( n -- ) S" LITERAL +" compiledCode FREEB REST ;
 
 : r 4 0 DO CR CR I . I s LOOP ;
 r
