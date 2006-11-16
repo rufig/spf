@@ -26,7 +26,7 @@
        WM_CTLCOLORLISTBOX ?child!
        WM_CTLCOLORMSGBOX ?child!
        WM_CTLCOLORSCROLLBAR ?child!
-       WM_CTLCOLORSTATIC ?child!  
+       WM_CTLCOLORSTATIC ?child!
     ENDCASE
 
     child @ ?DUP
