@@ -61,14 +61,28 @@ W: WM_LBUTTONDOWN
     1 pressed !
     0 0 SUPER invalidate
     setCursor
+    SUPER hWnd@ SetCapture DROP    
+    2DROP 2DROP 0
+;
+
+W: WM_CANCELMODE
+    pressed 0!
+    2DROP 2DROP 0
+;
+
+WM_USER 1000 + CONSTANT WM_EXECUTE
+
+W: WM_EXECUTE
+    execute DROP
     2DROP 2DROP 0
 ;
 
 W: WM_LBUTTONUP
     0 pressed !
+    ReleaseCapture DROP
     0 0 SUPER invalidate
     setCursor
-    execute DROP
+    0 0 WM_EXECUTE SUPER postMessage
     2DROP 2DROP 0
 ;
 
