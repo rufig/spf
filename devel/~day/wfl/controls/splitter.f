@@ -1,0 +1,16 @@
+
+
+CChildWindow SUBCLASS CPanel
+
+CChildWindow SUBCLASS CSplitter
+
+W: WM_LBUTTONDOWN
+;
+
+W: WM_LBUTTONUP
+;
+
+W: WM_MOUSEMOVE
+;
+
+;CLASS

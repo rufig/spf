@@ -27,9 +27,7 @@ CChildWindow SUBCLASS CEdit
 
 : createClass S" EDIT" DROP ;
 
-init: ES_AUTOHSCROLL WS_TABSTOP OR SUPER style OR! 
-      WS_EX_CLIENTEDGE SUPER exStyle OR!
-;
+init: ES_AUTOHSCROLL WS_BORDER OR SUPER style OR! ;
 
 ;CLASS
 

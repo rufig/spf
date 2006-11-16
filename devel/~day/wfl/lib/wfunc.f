@@ -272,3 +272,15 @@ CREATE   CC_INITS 8 , BASE @ HEX 3FFF , BASE !
     x base LOWORD * 2 RSHIFT ( 4 /)
     y base HIWORD * 3 RSHIFT ( 8 /)
 ;
+
+
+: LOAD-FILE ( addr u -- addr1 u1 )
+  { \ a len f }
+  R/O OPEN-FILE THROW -> f
+  f FILE-SIZE THROW DROP -> len
+  len 1+ ALLOCATE THROW -> a
+  0 a len + C!
+  a len f READ-FILE THROW -> len 
+  f CLOSE-FILE THROW
+  a len
+;  

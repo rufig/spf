@@ -65,7 +65,7 @@ CLASS CRect
     SWAP 2SWAP SWAP
 ;
 
-: MoveRect ( bottom right top left deltax deltay -- )
+: MoveRect ( bottom right top left deltax deltay -- bottom1 right1 top1 left1 )
     || CRect r ||
     2>R  r ! 2R>
     DUP r top +!
@@ -73,4 +73,13 @@ CLASS CRect
     DUP r left +!
         r right +!
     r @
+;
+
+: MoveRectXY ( bottom right top left deltax deltay -- bottom right top1 left1 )
+    >R + SWAP R> + SWAP
+;
+
+: MoveRectWH ( bottom right top left deltax deltay -- bottom1 right1 top left )
+    2SWAP 2>R
+    MoveRectXY 2R>
 ;

@@ -39,3 +39,6 @@ REQUIRE CAXControl   ~day\wfl\lib\activex.f
 REQUIRE CHTMLControl ~day\wfl\lib\htmlcontrol.f
 
 REQUIRE CURLLabel    ~day\wfl\controls\urllabel.f
+REQUIRE CSplitter    ~day\wfl\controls\splitter.f
+
+REQUIRE CFileOpenDialog ~day\wfl\lib\commondialogs.f

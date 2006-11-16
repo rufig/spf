@@ -7,7 +7,7 @@ WINAPI: ShellExecuteA       shell32.dll
 
 32649 CONSTANT IDC_HAND
 
-CChildWindow SUBCLASS CUrlLabel
+CStatic SUBCLASS CUrlLabel
 
 	CString OBJ url
 	VAR pressed 
@@ -77,6 +77,11 @@ W: WM_LBUTTONUP
 
     \ set SS_NOTIFY style to get mouse messages
     SS_NOTIFY 0 SUPER modifyStyle
+;
+
+: create ( id parent-obj )
+    SUPER create
+    SUPER checkWindow attach
 ;
 
 ;CLASS

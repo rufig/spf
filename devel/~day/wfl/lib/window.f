@@ -221,13 +221,8 @@ CWinMessageReceiver SUBCLASS CWindow
 ;
 
 : setText ( c-addr u -- )
-   2DUP + C@
-   IF
-     HEAP-COPY DUP 0 WM_SETTEXT sendMessage DROP
-     FREE THROW
-   ELSE
-     DROP 0 WM_SETTEXT sendMessage DROP
-   THEN
+   HEAP-COPY DUP 0 WM_SETTEXT sendMessage DROP
+   FREE THROW
 ;
 
 : getText ( addr u -- u1 )
@@ -298,9 +293,19 @@ CWinMessageReceiver SUBCLASS CWindow
     SUPER -wthrow
 ;
 
+: destroyWindow 
+    SUPER checkWindow DestroyWindow SUPER -wthrow
+;
+
+: setFocus
+    SUPER checkWindow SetFocus DROP
+;
+
 ;CLASS
 
 CLASS CWinClass
+
+     0 DEFS addr
 
 OBJ-SIZE
      VAR     cbSize
@@ -346,7 +351,7 @@ init:
 
 : register ( -- atom )
     unregister
-    cbSize RegisterClassExA 0xFFFF AND DUP -WIN-THROW
+    addr RegisterClassExA 0xFFFF AND DUP -WIN-THROW
     DUP atom !
 ;
 
@@ -431,7 +436,7 @@ dispose:
 CCustomWindow SUBCLASS CChildWindow 
 
 init:
-    WS_CHILD WS_VISIBLE OR SUPER style !
+    WS_CHILD WS_VISIBLE OR WS_TABSTOP OR SUPER style !
 ;
 
 ;CLASS
