@@ -7,6 +7,7 @@ REQUIRE CWindow ~day\wfl\wfl.f
 CDialog SUBCLASS CTestDialog
 
        CUrlLabel OBJ label
+       CEventButton  OBJ eventBtn
 
 \ Let a messages such WM_CTLCOLORSTATIC be reflected
  \ we catch it in urllabel
@@ -20,11 +21,22 @@ CDialog SUBCLASS CTestDialog
 ;
 
 
+( it is not called as HYPE method, just as FORTH word, so 
+  do not call SELF here )
+
+: btnClick ( button-obj )
+    || CWindow wnd ||
+    DROP S" button pressed!" wnd showMessage
+;
+
 W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
    2DROP 2DROP
 
    S" http://forth.org.ru" label setURL
    urlLabelID SUPER getDlgItem label attach
+
+   20 80 60 20 Rect>Pixels ['] btnClick SELF eventBtn createSimple
+
    TRUE
 ;
 

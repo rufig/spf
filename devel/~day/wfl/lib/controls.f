@@ -11,6 +11,32 @@ init: BS_PUSHBUTTON SUPER style OR! ;
 
 ;CLASS
 
+CButton SUBCLASS CEventButton
+
+       VAR xt ( button-obj )
+
+: setHandler ( xt -- )
+    xt !
+;
+
+: create ( id parent -- hwnd )
+    SUPER create DUP SUPER attach
+;
+
+: createSimple ( height width top left xt parent )
+    0 SWAP create DROP
+    setHandler
+    2>R 0 ROT ROT 2R> SUPER moveWindow
+
+;
+
+W: WM_LBUTTONUP
+    xt @ ?DUP IF SELF SWAP EXECUTE THEN
+    SUPER inheritWinMessage
+;
+
+;CLASS
+
 CGenericButton SUBCLASS CCheckBox
 
 init: BS_CHECKBOX SUPER style OR! ;

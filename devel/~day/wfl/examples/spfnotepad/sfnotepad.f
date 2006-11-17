@@ -4,6 +4,7 @@ REQUIRE CurrentTimeSql ~ac\lib\win\date\unixtime.f
 
 \ TODO: на пробеле и enter setUndoPoint
 \ TODO: внизу вывод после запуска со сплиттером
+\ TODO: подсветка синтаксиса
 
 : ID: CREATE DUP , 1+ DOES> @ ;
 
@@ -31,6 +32,7 @@ CFrameWindow SUBCLASS CScintillaNotepad
 
         CScintillaForthEdit OBJ edit
         CString OBJ fileName
+        CString OBJ commandLine
 
 123 CONSTANT editID
 
@@ -94,6 +96,11 @@ FILTER: fn
 
 : saveFile (  -- )
    fileName @ STR@ saveFileName
+;
+
+: run
+   saveFile
+   \ TODO
 ;
 
 : checkSave

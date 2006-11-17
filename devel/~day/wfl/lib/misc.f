@@ -83,3 +83,8 @@ CLASS CRect
     2SWAP 2>R
     MoveRectXY 2R>
 ;
+
+\ pixels to units ( bottom right top left -- bottom1 right top1 left1 ) 
+: Rect>Pixels
+    ToPixels 2SWAP ToPixels 2SWAP
+;
