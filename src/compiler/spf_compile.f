@@ -81,7 +81,7 @@ DECIMAL
 : S, ( addr u -- )
 \ Зарезервировать u байт пространства данных 
 \ и поместить туда содержимое u байт из addr.
-  CHARS DP @ SWAP DUP ALLOT CMOVE
+  CHARS DP @ SWAP DUP ALLOT MOVE
 ;
 
 : S", ( addr u -- ) 
