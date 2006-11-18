@@ -9,6 +9,7 @@ WARNING 0!
 
 S" lib\ext\spf-asm.f"            INCLUDED
 S" lib\include\tools.f"          INCLUDED
+S" src\spf_compileoptions.f"     INCLUDED
 
 ALSO ASSEMBLER DEFINITIONS
 PREVIOUS DEFINITIONS
@@ -49,6 +50,7 @@ C" LAST-HERE" FIND NIP 0= VALUE INLINEVAR
     SWAP CMOVE 0 C, ;
 
 S" src\spf_date.f"                INCLUDED
+S" src\spf_xmlhelp.f"             INCLUDED
 S" src\tc_spf.f"                  INCLUDED
 
 WARNING 0! \ чтобы не было сообщений isn't unique
@@ -59,7 +61,7 @@ WARNING 0! \ чтобы не было сообщений isn't unique
 \ ¬озврата из подпрограммы не будет - адрес на стеке
 \ возвратов может использоватьс€ дл€ fixups.
 
-HERE  DUP HEX U. \ KEY DROP
+HERE  DUP HEX .( Base address of the image 0x) U. \ KEY DROP
 HERE TC-CALL,
 \ ==============================================================
 \ ќсновные низкоуровневые слова ‘орта,
@@ -193,6 +195,11 @@ S"  DONE " GetCommandLineA ASCIIZ> S"  " SEARCH 2DROP SWAP 1+ MOVE
 \ на стеке - token слова INIT целевой системы, запускаем еЄ дл€
 \ того чтобы она сама себ€ сохранила в spf37x.exe выполнением слова DONE,
 \ переданного ей в командной строке
+
+CREATE-XML-HELP
+[IF]
+FINISH-XMLHELP
+[THEN]
 
 \ SEE CATCH
 EXECUTE
