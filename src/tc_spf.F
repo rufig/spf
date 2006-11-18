@@ -689,3 +689,6 @@ ONLY FORTH DEFINITIONS ALSO TC
 ' TC-?SLITERAL TO ?SLITERAL
 0xE9 ' COMPILE, C!
 ' MCOMPILE,  ' COMPILE, 1+ CELL+ - ' COMPILE, 1+ !
+
+\ Avoid words of targec compiler in spf xml help
+HERE TO TC-IMAGE-BASE
