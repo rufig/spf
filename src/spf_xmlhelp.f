@@ -236,6 +236,14 @@ SPECIAL > &gt;
 
 : StartColonHelp ( primitive? )
 
+  \ Skip words of target compiler
+  GET-CURRENT CELL+ @ ( name )
+  ?DUP 
+  IF
+     COUNT S" TC-IMM" COMPARE 0=
+     IF DROP EXIT THEN
+  THEN
+
   EndModuleComment
   generateHelp? 0= IF DROP EXIT THEN
 
