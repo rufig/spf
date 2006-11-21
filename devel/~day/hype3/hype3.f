@@ -16,8 +16,6 @@ CELL -- .nfa
 CELL -- .objchain
 CONSTANT /class
 
-: LIT, ( x) POSTPONE LITERAL ;
-
 USER-VALUE SELF
 
 \ For nested objects
@@ -152,11 +150,11 @@ CREATE FIRST-OBJCHAIN
 0 ,
 0 ,
 
-: CLASS ( "c ")
+: (CLASS) ( n "c ")
    GET-CURRENT PREVIOUS-CURRENT ! 
    -1 AlignFields? !
    CREATE HERE 
-   /class ALLOT
+   SWAP ALLOT
    DUP DUP .self !
    CELL OVER .size ! \ pointer to class
    WORDLIST OVER .wl !
@@ -167,8 +165,10 @@ CREATE FIRST-OBJCHAIN
    0 OVER .super !
    LATEST OVER .nfa !
    FIRST-OBJCHAIN OVER .objchain !
-   METHODS  
+   METHODS 
 ;
+
+: CLASS /class (CLASS) ;
 
 : ;CLASS ( ) 
     CLASS@ DROP PREVIOUS PREVIOUS-CURRENT @ SET-CURRENT 
@@ -361,10 +361,14 @@ CLASS MetaClass
 
 ;CLASS
 
+: (SUBCLASS)
+    CLASS@ ( ta ca )
+    OVER .size @ OVER .size !
+    .super ! 
+;
+
 : SUBCLASS ( ta "c ") 
-     CLASS CLASS@ ( ta ca )
-     OVER .size @ OVER .size !
-     .super ! 
+     CLASS (SUBCLASS)
 ;
 
 MetaClass SUBCLASS ProtoObj
@@ -396,6 +400,10 @@ MetaClass SUBCLASS ProtoObj
 ;
 
 EXPORT
+
+: CLASS ProtoObj SUBCLASS ;
+
+: SUBCLASS SUBCLASS ;
 
 : DEFS ( n "f ")
    CREATE DUP AlignDefs OBJ-SIZE , CLASS@ .size +!
@@ -435,10 +443,6 @@ EXPORT
 ;
  
 : VAR 1 CELLS DEFS ;
-
-: CLASS ProtoObj SUBCLASS ;
-
-: SUBCLASS SUBCLASS ;
 
 : ;CLASS
     \ default constructor and destructor to initialize
