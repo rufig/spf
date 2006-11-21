@@ -19,12 +19,16 @@
     THEN
 ;
 
-: mem_abort
-   ABORT" corrupted heap"
+: mem_abort1
+   ABORT" corrupted heap at the beginning of block"
+;
+
+: mem_abort2
+   ABORT" corrupted heap at the end of block"
 ;
 
 : FREE
-    DUP CELL- @ mem_stub <> mem_abort
-    DUP DUP CELL- CELL- @ + @ mem_stub <> mem_abort
+    DUP CELL- @ mem_stub <> mem_abort1
+    DUP DUP CELL- CELL- @ + @ mem_stub <> mem_abort2
     2 CELLS - FREE
 ;

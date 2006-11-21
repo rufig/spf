@@ -33,6 +33,18 @@
     REPEAT RDROP
 ;
 
+\ Возвращает параметр плюс xt получает параметры до вызова
+: ITERATE-LIST2 ( list xt -- f )
+    >R
+    BEGIN @ ?DUP
+    WHILE DUP CELL+ R@ 
+          ROT >R
+          EXECUTE IF 2R> 2DROP TRUE EXIT 
+                  ELSE R>
+                  THEN
+    REPEAT RDROP 0
+;
+
 VARIABLE CHAINS
 
 \ Первоначальная компиляция CHAINS и 4 + в DOES> для того, чтобы
