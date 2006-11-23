@@ -20,8 +20,12 @@ CODE CDR-BY-NAME ( c-addr u nfa1|0 -- c-addr u nfa1|nfa2|0 )
 \ тоже, что и CDR (см. в spf_wordlist.f), но кроме конца списка стопором является и заданное имя.
 \ Код наследован от SEARCH-WORDLIST, by ~ygrek Nov.2006
       PUSH EDI
-      MOV ESI, EAX                  \ вход в список
+
       MOV EDX, [EBP]                \ длина (счетчик)
+      OR EDX, EDX 		    
+      JZ SHORT @@2                  \ если длина ноль - сразу на выход 
+
+      MOV ESI, EAX                  \ вход в список
       MOV EDI, 4 [EBP]              \ искомое слово в ES:DI
 
       A;  0xBB C, -1 W, 0 W, \    MOV EBX, # FFFF
@@ -61,7 +65,8 @@ CODE CDR-BY-NAME ( c-addr u nfa1|0 -- c-addr u nfa1|nfa2|0 )
       XOR EAX, EAX
       JMP SHORT @@7                  \ выход с "не найдено"
 
-@@5:   POP ESI
+@@5:  
+      POP ESI
       DEC ESI               \   передвигаемся от начала строки к NFA
       MOV EAX, ESI
 @@7:
