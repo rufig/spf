@@ -4,16 +4,16 @@
 ( See example below )
 
 \ TODO: Semiautomatic compilation of typelib and c++ headers
-\ Разбор inproc \ outproc сервера
-\ Реализовать IDispatch
+\ Реализовать IDispatch - как описывать информацию о типах?
 \ ActiveX компонент
+\ Inproc server in dll
 
 0 VALUE COM-TRACE
 
 REQUIRE HYPE          ~day\hype3\hype3.f
 REQUIRE WTHROW         lib\win\winerr.f
-REQUIRE INHERIT-CHAIN ~day\common\link.f
 REQUIRE InsertNodeEnd ~day\lib\staticlist.f
+REQUIRE RG_QueryValue  ~ac\lib\win\registry2.f
 
 MODULE: UUID
 
@@ -45,6 +45,23 @@ WINAPI: CoDisconnectObject    OLE32.DLl
 WINAPI: CoCreateInstance      OLE32.DLL
 WINAPI: MessageBoxA           USER32.DLL
 WINAPI: CoGetClassObject      OLE32.DLL
+WINAPI: InterlockedIncrement  KERNEL32.DLL
+WINAPI: InterlockedDecrement   KERNEL32.DLL
+
+: COM-THROW ( n -- )
+    DUP S_OK = 0=
+    IF
+       WIN_ERROR DECODE-ERROR  ER-U ! ER-A ! -2 THROW
+    ELSE DROP
+    THEN
+;
+
+WINAPI: CoInitializeEx   OLE32.DLL
+
+: ComInitApartment ( -- ior )
+    2 ( COINIT_APARTMENTTHREADED  )
+    0 CoInitializeEx
+;
 
 MODULE: HYPE
 
@@ -59,8 +76,8 @@ MODULE: HYPE
 ;
 
 : ComCall. ( obj xt )
-   ." Called " WordByAddr TYPE ."  of class "
-   ^ name TYPE
+   ." Called " SWAP ^ name TYPE S" ::" TYPE
+   WordByAddr TYPE
 ;
 
 : EnterComMethod ( x*i com-obj xt n -- ior )
@@ -173,13 +190,10 @@ EXPORT
     1 CLASS@ .methodscount +!
 ;
 
-
-ICLASS IUnknown {00000000-0000-0000-C000-000000000046}
-
+ICLASS CComBase {00000000-0000-0000-0000-000000000000}
     \ Should be in this order
     VAR threadUserData \ memory context, it is used in EnterComMethod
     VAR vmt             \ vmt gives us addr of COM object
-    VAR refCount
 
 : init
     TlsIndex@ threadUserData !
@@ -224,25 +238,114 @@ ICLASS IUnknown {00000000-0000-0000-C000-000000000046}
     SELF DUP @ FreeNestedObjects
 ;
 
+: clsidstr ( addr u -- u1 )
+    SWAP clsid UUID:: StringFromGUID2
+;
+
+: UHOLDS ( addr u )
+    TUCK + SWAP 0 ?DO DUP I - 1- 0 HOLD C@ HOLD LOOP DROP
+;
+
+: register ( addr1 u1 addr2 u2 version local? -- ior )
+\ addr1 u1 - name
+\ addr2 u2 - progid
+    { \ r h r2 }
+    <# 
+       PAD 100 clsidstr PAD SWAP 2* HOLDS 
+       S" CLSID\" UHOLDS 0. #> DROP 
+    UUID:: unicode>buf DUP >R ASCIIZ>
+
+    HKEY_CLASSES_ROOT
+    RG_CreateKey THROW -> r
+
+    2OVER HKEY_CLASSES_ROOT
+    RG_CreateKey THROW -> r2
+
+    IF
+       S" LocalServer32"
+    ELSE S" InprocServer32"
+    THEN
+    r RG_CreateKey THROW -> h
+
+    256 PAD 0 GetModuleFileNameA PAD SWAP
+    REG_SZ S" "
+    h RG_SetValue
+    h RegCloseKey DROP
+
+    S" ProgID" r RG_CreateKey THROW -> h
+    BASE @ >R DECIMAL
+    S>D <# #S 2DROP [CHAR] . HOLD 2DUP HOLDS 0. #> 2DUP
+    R> BASE !
+    REG_SZ S" "
+    h RG_SetValue
+    h RegCloseKey DROP
+
+    S" CurVer" r2 RG_CreateKey THROW -> h
+    REG_SZ S" "
+    h RG_SetValue
+    h RegCloseKey DROP
+
+    <# 
+       PAD 100 clsidstr PAD SWAP 2* HOLDS 0. #> DROP
+    UUID:: unicode>buf DUP >R ASCIIZ> \ clsid
+
+    S" CLSID" r2 RG_CreateKey THROW -> h
+    REG_SZ S" "
+    h RG_SetValue
+    h RegCloseKey DROP
+
+    S" VersionIndependentProgID" r RG_CreateKey THROW -> h
+    2DUP REG_SZ S" "
+    h RG_SetValue
+    h RegCloseKey DROP
+
+    2SWAP 2DUP REG_SZ S" " r  RG_SetValue
+               REG_SZ S" " r2 RG_SetValue 
+
+    r2 r SELF => registerCustom
+
+    R> FREE THROW
+    R> FREE THROW
+    r2 RegCloseKey DROP
+    r RegCloseKey DROP
+;
+
+: registerCustom ( hkey1 hkey2 ) 2DROP 
+\ hkey1 - SPF.ExeSrv.1
+\ hkey2 - CLSID\
+;
+
+;ICLASS
+
+: ISUBCLASS
+    ICLASS (SUBCLASS)
+;
+
+CComBase ISUBCLASS IUnknown {00000000-0000-0000-C000-000000000046}
+
+    VAR refCount
+
 : QueryInterface ( ppvObject iid - hresult )
+     DUP 0= OVER 0= OR IF 2DROP E_INVALIDARG EXIT THEN
+
      COM-TRACE IF ." , asked for interface " DUP UUID:: .guid THEN
      SELF @ HasInterface  COM-TRACE IF DUP 0= IF ."  - not" THEN ."  found" THEN
      IF
-        iself SWAP !
+        SUPER iself SWAP !
         SELF ^ AddRef DROP S_OK
      ELSE 0! UUID:: E_NOINTERFACE
      THEN
 ; METHOD
 
 : AddRef ( -- cnt )
-    refCount DUP @ 1+ TUCK SWAP !
+    refCount InterlockedIncrement
 ; METHOD
 
 : Release ( -- cnt )
 \ Overload release in case you store object in some exotic storage
-    refCount @ 1- refCount !
+    refCount InterlockedDecrement
 
-    refCount @ 0= 
+    0= 
     IF
        \ in forth vocabulary?
        SELF DUP IMAGE-BASE HERE WITHIN 0=
@@ -258,44 +361,23 @@ ICLASS IUnknown {00000000-0000-0000-C000-000000000046}
 
 ;ICLASS
 
-
-: ISUBCLASS
-    ICLASS (SUBCLASS)
-;
-
 : ICLASS IUnknown ISUBCLASS ;
-
-\ All instances should be static!
 
 ICLASS IClassFactory {00000001-0000-0000-C000-000000000046}
 
-VARIABLE lockCount
-
-    VAR registeredClassID
-
-CHAIN childClasses
-
-: (findClass) ( riid a-class -- riid 0 | riid class -1 )
-    @ 2DUP HasInterface
-    IF
-       TRUE
-    ELSE DROP
-    THEN
-(
-    @ 2DUP .clsid UUID:: guid=
-    IF
-       TRUE
-    ELSE DROP 0
-    THEN )
-;
-
+	VAR lockCount
+	VAR registeredClassID
+	VAR childClass
+		
 : CreateInstance ( ppvObject riid pUnkOuter -- hresult )
     IF 2DROP CLASS_E_NOAGGREGATION EXIT THEN
+    DUP 0= OVER 0= OR IF 2DROP E_INVALIDARG EXIT THEN
+
     OVER 0!
     \ find class
-    childClasses ['] (findClass) ITERATE-LIST2
+    DUP childClass @ HasInterface
     IF
-       ['] NewObj CATCH 0= ( obj f )
+       childClass @ ['] NewObj CATCH 0= ( obj f )
        IF
           ^ QueryInterface
        ELSE 2DROP E_OUTOFMEMORY
@@ -305,21 +387,23 @@ CHAIN childClasses
 ; METHOD
 
 : LockServer ( fLock -- hresult )
-    IF 1 ELSE -1 THEN
-    lockCount +! S_OK
+    lockCount SWAP
+    IF InterlockedIncrement 
+    ELSE InterlockedDecrement
+    THEN  DROP S_OK
 ; METHOD
 
-: addClass ( hype-class )
+: setClass ( hype-class )
     IUnknown .clsid OVER
     HasInterface 0= ABORT" COM interface required"
-    childClasses LINK, ,
+    childClass !
 ;
 
 : registerLocalServer ( -- ior )
     registeredClassID
     REGCLS_MULTIPLEUSE
     CLSCTX_LOCAL_SERVER
-    SUPER iself  \ Pointer to the IUnknown interface 
+    SUPER iself  \ Pointer to the IUnknown interface of class factory
     SUPER clsid   \ CLSID to be registered
     CoRegisterClassObject
 ;
@@ -335,13 +419,26 @@ CHAIN childClasses
 
 ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
 
-: GetTypeInfoCount ( pctinfo -- 0 | 1 )
+
+: GetTypeInfoCount ( pctinfo -- hresult )
+     DUP 0= IF DROP E_INVALIDARG EXIT THEN
+     1 SWAP ! S_OK
 ; METHOD
 
 : GetTypeInfo   ( ppTInfo lcid iTInfo -- hresult )
+     NIP
+     OVER 0!
+\     0 = 0= IF DROP DISP_E_BADINDEX THEN
+     DUP 0= IF DROP E_INVALIDARG EXIT THEN
+ \    typeInfo addRef DROP
+  \   typeInfo iself SWAP !
+     S_OK
 ; METHOD
 
 : GetIDsOfNames ( rgDispId lcid cNames rgszNames riid -- hresult )
+     DROP
+
+     
 ; METHOD
 
 : Invoke        ( puArgErr pExcepInfo pVarResult pDispParams wFlags lcid riid dispIdMember -- hresult )
@@ -349,92 +446,7 @@ ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
 
 ;ICLASS
 
-\ global object, always should be static
+\ It will present in every server, so create it
 IClassFactory NEW AppClassFactory
 
-IUnknown ISUBCLASS IForth {9F7A5561-8BD8-4B0D-93EC-A79A19C99330}
-
-: Test ." Test method called" S_OK ; METHOD
-
-: Evaluate ( ppRetVal rgszString -- hresult )
-     PAD SWAP UUID:: unicode>
-     PAD ASCIIZ> EVALUATE SWAP ! S_OK
-; METHOD
-
-;ICLASS
-
-: COM-THROW ( n -- )
-    DUP S_OK = 0=
-    IF
-       WIN_ERROR DECODE-ERROR  ER-U ! ER-A ! -2 THROW
-    ELSE DROP
-    THEN
-;
-
 ;MODULE
-
-\EOF ( Example )
-\ TRUE TO COM-TRACE
-
-UUID:: ComInit COM-THROW
-
-IForth AppClassFactory addClass
-AppClassFactory registerLocalServer COM-THROW
-.( Local com server registered OK ) CR
-
-VARIABLE vClass
-
-: GetClassObject ( -- ior )
-    vClass
-    AppClassFactory clsid
-    0
-    CLSCTX_LOCAL_SERVER
-    AppClassFactory clsid
-    CoGetClassObject
-;
-
-WARNING 0!
-REQUIRE IID_NULL ~ac\lib\win\com\com.f
-
-IID_IUnknown Interface: IID_Forth {9F7A5561-8BD8-4B0D-93EC-A79A19C99330}
-    Method: ::Test ( -- hresult )
-Interface;
-
-VARIABLE vForth
-
-CR 
-.( Create instance of IForth manually ) CR
-GetClassObject COM-THROW
-
-.( Got class ) vClass @ . .( AppClassFactory object is ) AppClassFactory iself . CR
-vForth IForth ^ clsid 0 vClass @ ::CreateInstance COM-THROW
-
-.( Call test method: )
-vForth @ ::Test COM-THROW
-
-CR .( Delete created object )
-vForth @ ::Release COM-THROW
-vForth 0!
-
-CR .( Create instance of IForth via CoCreateInstance ) CR
-
-: CreateForthInstance ( -- ior )
-    vForth    
-    \ IForth ^ clsid
-    IUnknown ^ clsid \ Why IForth does not work here?
-    CLSCTX_LOCAL_SERVER
-    0
-    AppClassFactory clsid
-    CoCreateInstance
-;
-
-CreateForthInstance COM-THROW
-
-.( Call test method: )
-vForth @ ::Test COM-THROW
-
-CR .( Delete created object )
-vForth @ ::Release COM-THROW
-vForth 0!
-
-AppClassFactory revokeLocalServer COM-THROW .( Local server destroyed OK )
