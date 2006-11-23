@@ -337,7 +337,7 @@ Not available in the kernel, but included.
 	
 	\ sample usage
     : test { a b | c d }  \ a b get their values from the stack, c and d are zeroes
-	  a -> c
+	  a TO c
 	  b TO d
 	  c . d . ;
 	1 2 test
