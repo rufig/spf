@@ -71,13 +71,17 @@ SP-Forth для Windows распространяется как RAR архив или как
 
     для SPF/3.70 2002 года.
 
-3.  [~yz](../devel/~yz/index.html)
+3.  [Краткий список библиотек](devel.ru.html)
+
+    Описание дополнительных библиотек из поставки SPF
+
+4.  [~yz](../devel/~yz/index.html)
 
     Документация к [библиотекам](../devel/~yz/lib.html) Юрия Жиловца.
 
     В том числе к [WinLib](../devel/~yz/winlib.html)
 
-4.  [HYPE 3](../devel/~day/hype3/reference.pdf)
+5.  [HYPE 3](../devel/~day/hype3/reference.pdf)
 
     Библиотека поддержки парадигмы ООП от Дмитрия Якимова.
 

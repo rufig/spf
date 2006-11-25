@@ -1,7 +1,7 @@
-Описание библиотек из devel
-===========================
+SP-Forth: Дополнительные библиотеки
+===================================
 
-<title>Описание библиотек из devel</title>
+<title>SP-Forth: Дополнительные библиотеки</title>
 
 <small>$Date$</small>
 
@@ -67,7 +67,7 @@
 * REQUIRE ListAllocate <a href='../devel/~af/lib/simple_hash.f'>~af/lib/simple_hash.f</a> 
 * REQUIRE HASH-TABLE <a href='../devel/~yz/lib/hash.f'>~yz/lib/hash.f</a> 
 
-( Сравнение быстродействия в <a href='../devel/~pinka/samples/2003/test-hash/'>SpfLib:~pinka/samples/2003/test-hash/</a>)
+( Сравнение быстродействия в <a href='../devel/~pinka/samples/2003/test-hash/'>~pinka/samples/2003/test-hash/</a>)
 
 * REQUIRE HASH <a href='../devel/~day/common/hash.f'>~day/common/hash.f</a> \\ функция вычисления хэша 
 

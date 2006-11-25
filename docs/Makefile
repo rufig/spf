@@ -11,7 +11,7 @@ delete=rm -f
 md_path=../tools/markdown/
 endif
 
-docs = intro.ru.html intro.en.html readme.ru.html readme.en.html devel.ru.html
+docs = intro.ru.html intro.en.html readme.ru.html readme.en.html devel.ru.html devel.en.html
 
 target: $(docs)
 

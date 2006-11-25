@@ -63,9 +63,14 @@ DOCUMENTATION
 See the `/docs` directory. The majority of the documentation is in Russian for
 now. If you need an English version, contact us, maybe the translation will be done.
 
-1. [SPF specifics](intro.en.html)
+1.  [SPF specifics](intro.en.html)
 
-   If you are familiar with Forth, but not with SPF.
+    If you are familiar with Forth, but not with SPF.
+
+2.  [Short overview of libraries](devel.en.html)
+
+    Addirtional libraries in SPF distribution
+
 
 SPF extension (`lib/ext/help.f`) adds help support to the interpreter with the word `HELP`.
 
