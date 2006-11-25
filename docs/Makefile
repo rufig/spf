@@ -11,15 +11,18 @@ delete=rm -f
 md_path=../tools/markdown/
 endif
 
-docs = intro.ru.html intro.en.html readme.ru.html readme.en.html
+docs = intro.ru.html intro.en.html readme.ru.html readme.en.html devel.ru.html
 
 target: $(docs)
 
-%.html: %.md intro.md.css
+#devel.ru.html: css = devel.md.css
+%.html: css = intro.md.css
+
+%.html: %.md
 	$(output) $(md_path)html_header_1 > $@
-	$(output) intro.md.css >> $@
+	$(output) $(css) >> $@
 	$(output) $(md_path)html_header_2 >> $@
-	python $(md_path)markdown-1-5.py $< >> $@
+	python $(md_path)markdown-1-5.py $(patsubst %.html,%.md,$@) >> $@
 	$(output) $(md_path)html_footer >> $@
 
 clean:
