@@ -2,6 +2,8 @@
 SP-Forth для Windows
 ====================
 
+<title>SP-Forth для Windows</title>
+
 <!-- $Revision$ -->
 
 ОПИСАНИЕ

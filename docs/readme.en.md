@@ -2,7 +2,9 @@
 SP-Forth for Windows
 ====================
 
-<!-- Translated from readme.ru.md (rev. 1.1) -->
+<title>SP-Forth for Windows</title>
+
+<!-- Translated from readme.ru.md (rev. 1.2) -->
 
 ABOUT
 -----
