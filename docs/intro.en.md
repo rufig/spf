@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translated from intro.md (rev. 1.14) -->
+<!-- Translated from intro.ru.md (rev. 1.2) -->
 
 ----
 
@@ -427,7 +427,7 @@ of the inner variables in `AT-THREAD-STARTING`.
 <a id="task"/>
 ###[Multitasking][start]
 
-Thread are created with `TASK: ( xt -- task)` and started with
+Threads are created with `TASK: ( xt -- task)` and started with
 `START ( u task -- tid )`, 
 `xt` is an executable token to get control at the thread start with one
 parameter on the stack - `u`. The returned value `tid` can be used to stop the
