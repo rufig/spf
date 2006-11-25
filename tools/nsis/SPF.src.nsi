@@ -117,8 +117,8 @@ LangString LDocsAll ${LANG_RUSSIAN} "Documentation"
 LangString LRunManagerText ${LANG_ENGLISH} "Run registry settings manager"
 LangString LRunManagerText ${LANG_RUSSIAN} "Запустить настройку реестра" 
 
-LangString LReadmeFile ${LANG_ENGLISH} "docs\readme.en.txt"
-LangString LReadmeFile ${LANG_RUSSIAN} "docs\readme.ru.txt" 
+LangString LReadmeFile ${LANG_ENGLISH} "docs\readme.en.html"
+LangString LReadmeFile ${LANG_RUSSIAN} "docs\readme.ru.html" 
 
 LangString LWhatsnewFile ${LANG_ENGLISH} "docs\whatsnew.eng.txt"
 LangString LWhatsnewFile ${LANG_RUSSIAN} "docs\whatsnew.txt" 
