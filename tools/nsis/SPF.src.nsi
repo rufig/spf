@@ -120,8 +120,8 @@ LangString LRunManagerText ${LANG_RUSSIAN} "Запустить настройку реестра"
 LangString LReadmeFile ${LANG_ENGLISH} "docs\readme.en.html"
 LangString LReadmeFile ${LANG_RUSSIAN} "docs\readme.ru.html" 
 
-LangString LWhatsnewFile ${LANG_ENGLISH} "docs\whatsnew.eng.txt"
-LangString LWhatsnewFile ${LANG_RUSSIAN} "docs\whatsnew.txt" 
+LangString LWhatsnewFile ${LANG_ENGLISH} "docs\whatsnew.en.txt"
+LangString LWhatsnewFile ${LANG_RUSSIAN} "docs\whatsnew.ru.txt" 
 
 LangString LViewReadmeText ${LANG_ENGLISH} "View README"
 LangString LViewReadmeText ${LANG_RUSSIAN} "Посмотреть README" 
@@ -241,8 +241,10 @@ Section "$(LSecStartMenuText)" SecStartMenu
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\ReadMe.lnk" "$INSTDIR\$(LReadmeFile)"
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\License.lnk" "$INSTDIR\$(LLicenseFile)"
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\ChangeLog.lnk" "$INSTDIR\$(LWhatsnewFile)"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\Особенности SPF.lnk" "$INSTDIR\docs\intro.ru.html"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\SPF specific.lnk" "$INSTDIR\docs\intro.en.html"
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\intro (russian).lnk" "$INSTDIR\docs\intro.ru.html"
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\intro (english).lnk" "$INSTDIR\docs\intro.en.html"
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\devel (russian).lnk" "$INSTDIR\docs\devel.ru.html"
+  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\devel (english).lnk" "$INSTDIR\docs\devel.en.html"
   CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\spf_help.lnk" "$INSTDIR\docs\papers\spf_help.chm"
 
 ;  ExecShell "open" "$SMPROGRAMS\${PROD_NAME}"
