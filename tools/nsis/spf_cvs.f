@@ -1,12 +1,14 @@
 WARNING 0!
 
+REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
 REQUIRE FIND-FILES-R       ~ac/lib/win/file/findfile-r.f
 REQUIRE ONFALSE ~profit/lib/bac4th.f
 REQUIRE LIKE ~pinka/lib/like.f
 REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
+REQUIRE /STRING lib/include/string.f
 
 \ : SPF-PATH S" spf" ;
-: SPF-PATH-LEN SPF-PATH NIP 1+ ;
+: SPF-PATH-LEN SPF-PATH NIP ;
 
 : double-slashed  ( a u -- s )  " {s}" DUP " \" " \\" replace-str- ;
 
@@ -51,9 +53,33 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
   0 ?DO DUP I + C@ [CHAR] / = IF [CHAR] \ OVER I + C! THEN LOOP DROP
 ;
 
-
-: FILTER
+: FILTER ( a u -- a u ? )
+  START 
+   PREDICATE
+    2DUP " {SPF-PATH}\spf4.exe" STR@ COMPARE-U 0= ONFALSE
+    2DUP " {SPF-PATH}\jpf375c.exe" STR@ COMPARE-U 0= ONFALSE
+    2DUP " {SPF-PATH}\spf4.ini" STR@ COMPARE-U 0= ONFALSE
+    2DUP " {SPF-PATH}\help.fhlp" STR@ COMPARE-U 0= ONFALSE
+    2DUP " {SPF-PATH}\uninstall.exe" STR@ COMPARE-U 0= ONFALSE
+   SUCCEEDS
+  EMERGE 0= IF TRUE EXIT THEN \ эти файлы из корня без дальнейших проверок пропускаем на выход
+ 
+  \ Иначе
   PREDICATE
+
+  START
+    \ пропускать только файлы из следующих каталогов
+    PREDICATE     
+    2DUP " {SPF-PATH-\\}\\devel\\*" STR@ ULIKE ONFALSE
+    2DUP " {SPF-PATH-\\}\\docs\\*" STR@ ULIKE ONFALSE
+    2DUP " {SPF-PATH-\\}\\lib\\*" STR@ ULIKE ONFALSE
+    2DUP " {SPF-PATH-\\}\\samples\\*" STR@ ULIKE ONFALSE
+    2DUP " {SPF-PATH-\\}\\src\\*" STR@ ULIKE ONFALSE
+    SUCCEEDS
+  EMERGE
+  ONFALSE \ двойное отрицание, т.е. тут только те что попали под один из фильтров выше
+
+  \ и из них не пропускать такие файлы
   2DUP S" *.log" ULIKE ONFALSE
   2DUP S" *\\CVS\\*" ULIKE ONFALSE
   2DUP S" *.old" ULIKE ONFALSE
@@ -71,41 +97,39 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
   2DUP S" *co.bat" ULIKE ONFALSE
   2DUP S" *.md" ULIKE ONFALSE
   2DUP S" *Makefile" ULIKE ONFALSE
-  2DUP " {SPF-PATH-\\}\\ac-lib3\\*" STR@ ULIKE ONFALSE
-  2DUP " {SPF-PATH-\\}\\spf3-src\\*" STR@ ULIKE ONFALSE
-  2DUP " {SPF-PATH-\\}\\linux\\*" STR@ ULIKE ONFALSE
-  2DUP " {SPF-PATH-\\}\\CVSROOT\\*" STR@ ULIKE ONFALSE
-  2DUP " {SPF-PATH-\\}\\spf4root\\*" STR@ ULIKE ONFALSE
-  2DUP " {SPF-PATH-\\}\\tools\\*" STR@ ULIKE ONFALSE
   2DUP " {SPF-PATH-\\}\\docs\\*.md.css" STR@ ULIKE ONFALSE
   SUCCEEDS
 ;
 
-: TT
+
+: FILE-FILTER ( a u f1 f2 -- a u ? )
   NIP
-  IF 2DROP EXIT THEN
+  IF 0 EXIT THEN
 
   2DUP />\
-  FILTER 0= IF 2DROP EXIT THEN
+  FILTER
+;
+
+: NSI-FILTER ( a u f1 f2 -- )
+  FILE-FILTER
+  0= IF 2DROP EXIT THEN
 
   2DUP " {s}" STR@
-  OVER >R +
-  BEGIN
-    1- DUP C@ [CHAR] \ = OVER R@ = OR
-    IF 0 SWAP 1+ C! TRUE ELSE FALSE THEN
-  UNTIL 
-  R> ASCIIZ>
-  SPF-PATH-LEN - SWAP SPF-PATH-LEN + SWAP
-  1- 0 MAX
-  ?DUP
-  IF
-    "  SetOutPath $INSTDIR\{s}" STYPE CR
-  ELSE
-    DROP "  SetOutPath $INSTDIR" STYPE CR
-  THEN
+  CUT-PATH 
+  1-
+  DUP SPF-PATH-LEN < ABORT" STRANGE"
+  SPF-PATH-LEN /STRING
+  "  SetOutPath $INSTDIR{s}" STYPE CR
   "  File {''}{s}{''}" STYPE CR
 ;
 
+: RAR-FILTER
+  FILE-FILTER
+  0= IF 2DROP EXIT THEN
+
+  CR TYPE ;
+
 : INI S" {INI}" ;
 
-: T SPF-PATH ['] TT FIND-FILES-R ;
+: NSI-LIST SPF-PATH ['] NSI-FILTER FIND-FILES-R ;
+: RAR-LIST SPF-PATH ['] RAR-FILTER FIND-FILES-R ;

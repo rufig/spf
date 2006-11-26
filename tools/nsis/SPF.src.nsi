@@ -2,15 +2,16 @@
 
 ;--------------------------------
 ; Include Modern UI
-
 !include "MUI.nsh"
-;!include "LogicLib.nsh"
+
+;--------------------------------
+; Define SPF-PATH SPF-VER-MAJOR and SPF-VER-MINOR 
 
 ;--------------------------------
 ; Configuration
 
-!define VER_MAJOR 4
-!define VER_MINOR "18"
+!define VER_MAJOR "{SPF-VER-MAJOR}"
+!define VER_MINOR "{SPF-VER-MINOR}"
 
 !define VER_DATE "{MY_DATE}"
 !define PROD_NAME "SP-Forth"
@@ -250,7 +251,7 @@ Section "$(LSecSPFText)" SecSPF
   SetOutPath $INSTDIR
   WriteUninstaller uninstall.exe
 
-  {S" SPF_cvs.nsi" FILE}
+  {S" spf_cvs.nsi" FILE}
 
 ;     NSISdl::download http://www.forth.org.ru/bin.rar bin.rar
 ;       Pop $R0 ;Get the return value

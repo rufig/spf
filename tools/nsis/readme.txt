@@ -13,6 +13,7 @@
 * upx (не обязательно) <http://upx.sourceforge.net>
 * python <http://www.python.org>
 * GNU make <http://mingw.org/download.shtml> <http://www.gnu.org/software/make/>
+* WinRAR <http://www.rarlabs.com>
 
 ## Для чего нужен python?
 
@@ -31,6 +32,6 @@ Markdown это простая разметка(подобно Wiki) текстовых файлов.
 1. Скопировать jpf375c.exe в корневой каталог рабочей копии.
 2. Перейти в каталог tools/nsis.
 3. Проверить (отредактировать) параметры в Makefile
-4. Запустить make
+4. Дать команду make
 
 Всё.

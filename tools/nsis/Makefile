@@ -3,11 +3,16 @@
 #
 
 spf4_notitle=D:\WORK\FORTH\spf4\spf4_notitle.exe
-#markdown=python D:\WORK\markdown\markdown-1-5.py
 makensis="C:\Program Files\NSIS\makensis.exe"
+winrar="C:\Program Files\WinRAR\rar.exe"
 
 spf_path=..\..
 spf_tc=jpf375c.exe
+
+#########################################
+
+spf_ver_major=4
+spf_ver_minor=18-test5
 
 #########################################
 
@@ -18,14 +23,25 @@ ifneq ($(host),win)
 delete=rm -f
 endif
 
-export srcdir=$(shell cd)
+exe=spf-$(spf_ver_major)$(spf_ver_minor)-setup.exe
+arch=spf-$(spf_ver_major)$(spf_ver_minor).rar
+spf_script=$(spf4_notitle) : SPF-VER-MAJOR S" $(spf_ver_major)" ; : SPF-VER-MINOR S" $(spf_ver_minor)" ; : SPF-PATH S" $(spf_path)" ; S" spf_cvs.f" INCLUDED
 
-target: dist
+all: $(exe) $(arch)
 
-spf.nsi: spf_cvs.f spf.src.nsi
-	$(spf4_notitle) : SPF-PATH S" $(spf_path)" ; S" spf_cvs.f" INCLUDED T > spf_cvs.nsi BYE
-	$(spf4_notitle) : SPF-PATH S" $(spf_path)" ; S" spf_cvs.f" INCLUDED S" SPF.src.nsi" EVAL-FILE TYPE BYE > spf.nsi
+.PHONY: all docs clean cleanall
 
+spf_cvs.nsi: spf_cvs.f
+	$(spf_script) NSI-LIST > $@ BYE
+
+spf.nsi: spf.src.nsi spf_cvs.nsi spf_cvs.f
+	$(spf_script) S" spf.src.nsi" EVAL-FILE TYPE BYE > $@
+
+spf.lst: spf_cvs.f
+	$(spf_script) RAR-LIST > $@ BYE
+
+# т.к. docs это абстрактная цель, то дистр будет пересобираться каждый раз при запуске make
+# чтобы этого избежать, уберите docs из пререквизитов целей $(exe) и $(rar)
 docs:
 	$(MAKE) -C $(spf_path)/docs
 
@@ -33,11 +49,15 @@ $(spf_path)\spf4.exe: $(spf_path)\jpf375c.exe $(spf_path)\src\version.spf
 	copy $(spf_path)\spf4root\* $(spf_path)
 	cd $(spf_path) && $(spf_tc) src\spf.f
 
-dist: docs $(spf_path)\spf4.exe spf.nsi
+$(exe): docs $(spf_path)\spf4.exe spf.nsi
 	$(makensis) spf.nsi
+
+$(arch): docs $(spf_path)\spf4.exe spf.lst
+	$(winrar) a -m5 -s $(arch) @spf.lst
 
 clean:
 	$(MAKE) -C $(spf_path)/docs clean
-	$(delete) spf.nsi
-	$(delete) spf_cvs.nsi
-	$(delete) spf-*-setup.exe
+	$(delete) spf.nsi spf.lst spf_cvs.nsi 
+
+cleanall: clean
+	$(delete) $(exe) $(arch)
