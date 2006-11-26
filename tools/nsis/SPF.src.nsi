@@ -179,7 +179,7 @@ LangString LUninstall ${LANG_RUSSIAN} "Если вы решили удалить ${PROD_NAME}, оста
 LangString LWelcomeHeaderText ${LANG_ENGLISH} "Welcome to the ${PROD_NAME} Setup Wizard"
 LangString LWelcomeHeaderText ${LANG_RUSSIAN} "Вас приветствует мастер установки ${PROD_NAME}"
 
-LangString LWelcomeMainText ${LANG_ENGLISH} "This wizard will guide you through the installation of ${PROD_NAME} ${VER_MAJOR}.${VER_MINOR}.\r\n\r\nIf you have previously installed ${PROD_NAME} and it is currently running, please exit ${PROD_NAME} first before continuing this installation.\r\n\r\n$(LInitWarning)\r\n\r\n$_CLICK"
+LangString LWelcomeMainText ${LANG_ENGLISH} "This wizard will install ${PROD_NAME} ${VER_MAJOR}.${VER_MINOR}.\r\n\r\nIf you have previously installed ${PROD_NAME} and it is currently running, please exit ${PROD_NAME} first before continuing this installation.\r\n\r\n$(LInitWarning)\r\n\r\n$_CLICK"
 LangString LWelcomeMainText ${LANG_RUSSIAN} "Эта программа установит ${PROD_NAME} ${VER_MAJOR}.${VER_MINOR} на Ваш компьютер.\r\n\r\nЕсли вы ранее устанавливали ${PROD_NAME} и он сейчас запущен, пожалуйста завершите ${PROD_NAME} до начала установки.\r\n\r\n$(LInitWarning)\r\n\r\n$_CLICK"
 
 LangString LAssocPresentWarn ${LANG_ENGLISH} "Extension '$R0' is already associated as '$R1'.$\r$\nDo you want to overwrite this association?"
