@@ -57,9 +57,9 @@ InstallDirRegKey HKLM "SOFTWARE\${PROD_VENDOR}\${PROD_NAME}" "InstallLocation"
 !define MUI_FINISHPAGE_LINK "$(LSupportText)"
 !define MUI_FINISHPAGE_LINK_LOCATION "$(LSupportLink)"
 
-!define MUI_FINISHPAGE_RUN
-!define MUI_FINISHPAGE_RUN_FUNCTION onFinishRun
-!define MUI_FINISHPAGE_RUN_TEXT "$(LRunManagerText)"
+;!define MUI_FINISHPAGE_RUN
+;!define MUI_FINISHPAGE_RUN_FUNCTION onFinishRun
+;!define MUI_FINISHPAGE_RUN_TEXT "$(LRunManagerText)"
 
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\$(LReadmeFile)"
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "$(LViewReadmeText)"
@@ -108,29 +108,44 @@ LicenseLangString LLicenseData ${LANG_RUSSIAN} "{SPF-PATH}\docs\license\gpl.ru.t
 LangString LLicenseFile ${LANG_ENGLISH} "docs\license\gpl.en.txt"
 LangString LLicenseFile ${LANG_RUSSIAN} "docs\license\gpl.ru.txt"
 
-LangString LLinkLicense ${LANG_ENGLISH} "License"
-LangString LLinkLicense ${LANG_RUSSIAN} "Лицензия"
-
-LangString LDocsAll ${LANG_ENGLISH} "Documentation"
-LangString LDocsAll ${LANG_RUSSIAN} "Documentation"
-
-LangString LRunManagerText ${LANG_ENGLISH} "Run registry settings manager"
-LangString LRunManagerText ${LANG_RUSSIAN} "Запустить настройку реестра" 
-
 LangString LReadmeFile ${LANG_ENGLISH} "docs\readme.en.html"
 LangString LReadmeFile ${LANG_RUSSIAN} "docs\readme.ru.html" 
 
 LangString LWhatsnewFile ${LANG_ENGLISH} "docs\whatsnew.en.txt"
 LangString LWhatsnewFile ${LANG_RUSSIAN} "docs\whatsnew.ru.txt" 
 
+LangString LIntroFile ${LANG_ENGLISH} "docs\intro.en.html"
+LangString LIntroFile ${LANG_RUSSIAN} "docs\intro.ru.html" 
+
+LangString LDevelFile ${LANG_ENGLISH} "docs\devel.en.html"
+LangString LDevelFile ${LANG_RUSSIAN} "docs\devel.ru.html" 
+
+LangString LLinkLicense ${LANG_ENGLISH} "License"
+LangString LLinkLicense ${LANG_RUSSIAN} "Лицензия"
+
+LangString LDocsAll ${LANG_ENGLISH} "Documentation"
+LangString LDocsAll ${LANG_RUSSIAN} "Documentation"
+
+;LangString LRunManagerText ${LANG_ENGLISH} "Run registry settings manager"
+;LangString LRunManagerText ${LANG_RUSSIAN} "Запустить настройку реестра" 
+
 LangString LViewReadmeText ${LANG_ENGLISH} "View README"
 LangString LViewReadmeText ${LANG_RUSSIAN} "Посмотреть README" 
+
+;-------------
+; Sections
 
 LangString LSecUnRegValText ${LANG_ENGLISH} "Add/Remove Programs"
 LangString LSecUnRegValText ${LANG_RUSSIAN} "Add/Remove Programs"
 
 LangString LSecUnRegValDesc ${LANG_ENGLISH} "Register ${PROD_NAME} in system registry so you can manage it through Add/Remove Programs"
 LangString LSecUnRegValDesc ${LANG_RUSSIAN} "Зарегистрировать ${PROD_NAME} в системном реестре, так что вы сможете легко изменить установку с помощью Add/Remove Programs"
+
+LangString LSecAssociateText ${LANG_ENGLISH} "File extensions"
+LangString LSecAssociateText ${LANG_RUSSIAN} "Расширения файлов"
+
+LangString LSecAssociateDesc ${LANG_ENGLISH} "Associate *.spf, *.f file extensions with ${PROD_NAME}"
+LangString LSecAssociateDesc ${LANG_RUSSIAN} "Зарегистрировать расширения файлов *.spf и *.f на ${PROD_NAME}"
 
 LangString LSecStartMenuText ${LANG_ENGLISH} "Start Menu"
 LangString LSecStartMenuText ${LANG_RUSSIAN} "Главное Меню"
@@ -143,6 +158,8 @@ LangString LSecDesktopText ${LANG_RUSSIAN} "Рабочий стол"
 
 LangString LSecDesktopDesc ${LANG_ENGLISH} "Add shortcut to the Desktop"
 LangString LSecDesktopDesc ${LANG_RUSSIAN} "Добавить ярлык на рабочий стол"
+
+;-------------
 
 LangString LSecSPFText ${LANG_ENGLISH} "${PROD_NAME}"
 LangString LSecSPFText ${LANG_RUSSIAN} "${PROD_NAME}"
@@ -162,8 +179,11 @@ LangString LUninstall ${LANG_RUSSIAN} "Если вы решили удалить ${PROD_NAME}, оста
 LangString LWelcomeHeaderText ${LANG_ENGLISH} "Welcome to the ${PROD_NAME} Setup Wizard"
 LangString LWelcomeHeaderText ${LANG_RUSSIAN} "Вас приветствует мастер установки ${PROD_NAME}"
 
-LangString LWelcomeMainText ${LANG_ENGLISH} "This wizard will guide you through the installation of ${PROD_NAME} ${VER_MAJOR}.${VER_MINOR}.\r\n\r\nIf you have previously installed ${PROD_NAME} and it is currently running, please exit ${PROD_NAME} first before continuing this installation.\r\n\r\n$_CLICK"
-LangString LWelcomeMainText ${LANG_RUSSIAN} "Эта программа установит ${PROD_NAME} ${VER_MAJOR}.${VER_MINOR} на Ваш компьютер.\r\n\r\nЕсли вы ранее устанавливали ${PROD_NAME} и он сейчас запущен, пожалуйста завершите ${PROD_NAME} до начала установки.\r\n\r\n$_CLICK"
+LangString LWelcomeMainText ${LANG_ENGLISH} "This wizard will guide you through the installation of ${PROD_NAME} ${VER_MAJOR}.${VER_MINOR}.\r\n\r\nIf you have previously installed ${PROD_NAME} and it is currently running, please exit ${PROD_NAME} first before continuing this installation.\r\n\r\n$(LInitWarning)\r\n\r\n$_CLICK"
+LangString LWelcomeMainText ${LANG_RUSSIAN} "Эта программа установит ${PROD_NAME} ${VER_MAJOR}.${VER_MINOR} на Ваш компьютер.\r\n\r\nЕсли вы ранее устанавливали ${PROD_NAME} и он сейчас запущен, пожалуйста завершите ${PROD_NAME} до начала установки.\r\n\r\n$(LInitWarning)\r\n\r\n$_CLICK"
+
+LangString LAssocPresentWarn ${LANG_ENGLISH} "Extension '$R0' is already associated as '$R1'.$\r$\nDo you want to overwrite this association?"
+LangString LAssocPresentWarn ${LANG_RUSSIAN} "Расширение '$R0' уже зарегистрировано, как '$R1'.$\r$\nВы уверены что хотите перезаписать?"
 
 ;--------------------------------
 ; Installer Functions
@@ -174,26 +194,36 @@ Function .onInit
 
 FunctionEnd
 
-Function onFinishRun
+;Function onFinishRun
+; nsExec::Exec '$INSTDIR\spf4.exe devel/~ygrek/prog/install/launcher.f'
+;FunctionEnd
 
- nsExec::Exec '$INSTDIR\spf4.exe devel/~ygrek/prog/install/launcher.f'
-
+Function Associate
+	; $R0 should contain the prefix to associate
+	Push $R1
+	ReadRegStr $R1 HKCR $R0 ""
+	StrCmp $R1 "" Associate.doRegister
+	StrCmp $R1 "spf" Associate.end
+        MessageBox MB_YESNO "$(LAssocPresentWarn)" IDYES Associate.doRegister
+        Goto Associate.end
+Associate.doRegister:
+	WriteRegStr HKCR $R0 "" "spf"
+	WriteRegStr HKCR $R0 "Content Type" "text/plain"
+Associate.end:
+	pop $R1
 FunctionEnd
 
-Function .onInstSuccess
-
-;${Switch} $LANGUAGE
-;   ${Case} ${LANG_ENGLISH}
-;   ${Break}
-;   ${Case} ${LANG_RUSSIAN}
-;    MessageBox MB_YESNO "$(LReadmeYN)" IDNO NoReadme
-;    Exec "notepad.exe $INSTDIR\README.txt" ; view readme or whatever, if you want.
-;   ${Break}
-;${EndSwitch}
-
-;    NoReadme:
-;    ExecShell "open" "$SMPROGRAMS\${PROD_NAME}"
-
+Function un.unlink
+	; $R0 should contain the prefix to unlink
+	Push $R1
+	ReadRegStr $R1 HKCR $R0 ""
+	StrCmp $R1 "spf" un.unlink.doUnlink
+	Goto un.unlink.end
+un.unlink.doUnlink:
+	; The extension is associated with SPF, so we must destroy it!
+	DeleteRegKey HKCR $R0
+un.unlink.end:	
+	pop $R1
 FunctionEnd
 
 ;--------------------------------
@@ -229,23 +259,25 @@ SectionEnd ; end the section
 ; Start menu shortcuts
 Section "$(LSecStartMenuText)" SecStartMenu
 
+  SetOutPath $INSTDIR
+
   CreateDirectory "$SMPROGRAMS\${PROD_NAME}"
 
-  SetOutPath $INSTDIR
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\SPF.lnk" "$INSTDIR\spf4.exe"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+     CreateShortCut "$SMPROGRAMS\${PROD_NAME}\SPF.lnk" "$INSTDIR\spf4.exe"
+
+  ; hide uninstall in extra folder %)
+  CreateDirectory "$SMPROGRAMS\${PROD_NAME}\Uninstall"
+
+     CreateShortCut "$SMPROGRAMS\${PROD_NAME}\Uninstall\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
   CreateDirectory "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)"
 
-  SetOutPath $INSTDIR\docs
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\ReadMe.lnk" "$INSTDIR\$(LReadmeFile)"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\License.lnk" "$INSTDIR\$(LLicenseFile)"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\ChangeLog.lnk" "$INSTDIR\$(LWhatsnewFile)"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\intro (russian).lnk" "$INSTDIR\docs\intro.ru.html"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\intro (english).lnk" "$INSTDIR\docs\intro.en.html"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\devel (russian).lnk" "$INSTDIR\docs\devel.ru.html"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\devel (english).lnk" "$INSTDIR\docs\devel.en.html"
-  CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\spf_help.lnk" "$INSTDIR\docs\papers\spf_help.chm"
+     CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\ReadMe.lnk" "$INSTDIR\$(LReadmeFile)"
+     CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\License.lnk" "$INSTDIR\$(LLicenseFile)"
+     CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\ChangeLog.lnk" "$INSTDIR\$(LWhatsnewFile)"
+     CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\intro.lnk" "$INSTDIR\$(LIntroFile)"
+     CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\devel.lnk" "$INSTDIR\$(LDevelFile)"
+     CreateShortCut "$SMPROGRAMS\${PROD_NAME}\$(LDocsAll)\spf_help.lnk" "$INSTDIR\docs\papers\spf_help.chm"
 
 ;  ExecShell "open" "$SMPROGRAMS\${PROD_NAME}"
 
@@ -261,6 +293,27 @@ Section "$(LSecDesktopText)" SecDesktop
 SectionEnd
 
 ;--------------------------------
+; File extensions associations
+Section "$(LSecAssociateText)" SecAssociate
+
+WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" "" '$INSTDIR\spf4.exe'
+WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" "Path" '$INSTDIR'
+
+WriteRegStr HKCR "spf" "" "SP-Forth file"
+WriteRegStr HKCR "spf\Shell\open\command" "" '"$INSTDIR\spf4.exe" "%1"'
+WriteRegStr HKCR "spf\DefaultIcon" "" '"$INSTDIR\spf4.exe",0'
+
+push $R0
+	StrCpy $R0 ".spf" 
+	Call Associate
+	
+	StrCpy $R0 ".f"
+	Call Associate
+pop $R0
+
+SectionEnd
+
+;--------------------------------
 ; Uninstaller registry values
 Section "$(LSecUnRegValText)" SecUnRegVal
 
@@ -268,18 +321,18 @@ Section "$(LSecUnRegValText)" SecUnRegVal
   WriteRegStr HKLM "SOFTWARE\${PROD_VENDOR}\${PROD_NAME}" VersionMajor ${VER_MAJOR}
   WriteRegStr HKLM "SOFTWARE\${PROD_VENDOR}\${PROD_NAME}" VersionMinor ${VER_MINOR}
 
-  WriteRegExpandStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegExpandStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "InstallLocation" "$INSTDIR"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "DisplayName" "${PROD_NAME}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "DisplayIcon" "$INSTDIR\spf4.exe,0"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "DisplayVersion" "${VER_MAJOR}.${VER_MINOR}"
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "VersionMajor" "${VER_MAJOR}"
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "VersionMinor" "${VER_MINOR}"
-  WriteRegExpandStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "Publisher" "${PROD_VENDOR}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "URLInfoAbout" "http://www.forth.org.ru/"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "URLUpdateInfo" "http://sourceforge.net/projects/spf/"
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "NoModify" "1"
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "NoRepair" "1"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "UninstallString" '$INSTDIR\uninstall.exe'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "InstallLocation" '$INSTDIR'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "DisplayName" '${PROD_NAME}'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "DisplayIcon" '$INSTDIR\spf4.exe,0'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "DisplayVersion" '${VER_MAJOR}.${VER_MINOR}'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "VersionMajor" '${VER_MAJOR}'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "VersionMinor" '${VER_MINOR}'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "Publisher" '${PROD_VENDOR}'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "URLInfoAbout" 'http://www.forth.org.ru/'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "URLUpdateInfo" 'http://spf.sourceforge.net'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}" "NoRepair" 1
 
 SectionEnd
 
@@ -288,6 +341,7 @@ SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecSPF} "$(LSecSPFDesc)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecAssociate} "$(LSecAssociateDesc)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStartMenu} "$(LSecStartMenuDesc)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop} "$(LSecDesktopDesc)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecUnRegVal} "$(LSecUnRegValDesc)"
@@ -318,6 +372,16 @@ Section "Uninstall"
   RMDir /r $INSTDIR
 
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROD_NAME}"
+
+  DeleteRegKey HKLM "SOFTWARE\${PROD_VENDOR}\${PROD_NAME}"
+
+  push $R0
+	StrCpy $R0 ".spf" 
+	Call un.unlink
+	
+	StrCpy $R0 ".f"
+	Call un.unlink
+  pop $R0
 
   SetDetailsPrint both
 
