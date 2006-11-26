@@ -43,6 +43,7 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
 : SecUnRegVal  S" {SecUnRegVal}" ;
 : SecStartMenu S" {SecStartMenu}" ;
 : SecDesktop   S" {SecDesktop}" ;
+: SecAssociate S" {SecAssociate}" ;
 
 \ ïîäãîòîâèòü äàííûå äëÿ NSIS
 : />\ ( addr u -- )
