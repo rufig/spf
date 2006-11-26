@@ -44,6 +44,7 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
 : SecStartMenu S" {SecStartMenu}" ;
 : SecDesktop   S" {SecDesktop}" ;
 : SecAssociate S" {SecAssociate}" ;
+: SecShortcuts S" {SecShortcuts}" ;
 
 \ ïîäãîòîâèòü äàííûå äëÿ NSIS
 : />\ ( addr u -- )

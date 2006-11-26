@@ -135,8 +135,8 @@ LangString LViewReadmeText ${LANG_RUSSIAN} "Посмотреть README"
 ;-------------
 ; Sections
 
-LangString LSecUnRegValText ${LANG_ENGLISH} "Add/Remove Programs"
-LangString LSecUnRegValText ${LANG_RUSSIAN} "Add/Remove Programs"
+LangString LSecUnRegValText ${LANG_ENGLISH} "Add/Remove"
+LangString LSecUnRegValText ${LANG_RUSSIAN} "Add/Remove"
 
 LangString LSecUnRegValDesc ${LANG_ENGLISH} "Register ${PROD_NAME} in system registry so you can manage it through Add/Remove Programs"
 LangString LSecUnRegValDesc ${LANG_RUSSIAN} "Зарегистрировать ${PROD_NAME} в системном реестре, так что вы сможете легко изменить установку с помощью Add/Remove Programs"
@@ -146,6 +146,12 @@ LangString LSecAssociateText ${LANG_RUSSIAN} "Расширения файлов"
 
 LangString LSecAssociateDesc ${LANG_ENGLISH} "Associate *.spf, *.f file extensions with ${PROD_NAME}"
 LangString LSecAssociateDesc ${LANG_RUSSIAN} "Зарегистрировать расширения файлов *.spf и *.f на ${PROD_NAME}"
+
+LangString LSecShortcutsText ${LANG_ENGLISH} "Shortcuts"
+LangString LSecShortcutsText ${LANG_RUSSIAN} "Ярлыки"
+
+LangString LSecShortcutsDesc ${LANG_ENGLISH} "Add shortcuts"
+LangString LSecShortcutsDesc ${LANG_RUSSIAN} "Добавить ярлыки"
 
 LangString LSecStartMenuText ${LANG_ENGLISH} "Start Menu"
 LangString LSecStartMenuText ${LANG_RUSSIAN} "Главное Меню"
@@ -254,6 +260,28 @@ Section "$(LSecSPFText)" SecSPF
 
 SectionEnd ; end the section
 
+;--------------------------------
+; File extensions associations
+Section "$(LSecAssociateText)" SecAssociate
+
+WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" "" '$INSTDIR\spf4.exe'
+WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" "Path" '$INSTDIR'
+
+WriteRegStr HKCR "spf" "" "SP-Forth file"
+WriteRegStr HKCR "spf\Shell\open\command" "" '"$INSTDIR\spf4.exe" "%1"'
+WriteRegStr HKCR "spf\DefaultIcon" "" '"$INSTDIR\spf4.exe",0'
+
+push $R0
+	StrCpy $R0 ".spf" 
+	Call Associate
+	
+	StrCpy $R0 ".f"
+	Call Associate
+pop $R0
+
+SectionEnd
+
+SectionGroup /e "$(LSecShortcutsText)" SecShortcuts
 
 ;--------------------------------
 ; Start menu shortcuts
@@ -292,26 +320,7 @@ Section "$(LSecDesktopText)" SecDesktop
 
 SectionEnd
 
-;--------------------------------
-; File extensions associations
-Section "$(LSecAssociateText)" SecAssociate
-
-WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" "" '$INSTDIR\spf4.exe'
-WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" "Path" '$INSTDIR'
-
-WriteRegStr HKCR "spf" "" "SP-Forth file"
-WriteRegStr HKCR "spf\Shell\open\command" "" '"$INSTDIR\spf4.exe" "%1"'
-WriteRegStr HKCR "spf\DefaultIcon" "" '"$INSTDIR\spf4.exe",0'
-
-push $R0
-	StrCpy $R0 ".spf" 
-	Call Associate
-	
-	StrCpy $R0 ".f"
-	Call Associate
-pop $R0
-
-SectionEnd
+SectionGroupEnd
 
 ;--------------------------------
 ; Uninstaller registry values
@@ -340,11 +349,12 @@ SectionEnd
 ; Sections' descriptions
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecSPF} "$(LSecSPFDesc)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecSPF}       "$(LSecSPFDesc)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecAssociate} "$(LSecAssociateDesc)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecShortcuts} "$(LSecShortcutsDesc)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStartMenu} "$(LSecStartMenuDesc)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop} "$(LSecDesktopDesc)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecUnRegVal} "$(LSecUnRegValDesc)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop}   "$(LSecDesktopDesc)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecUnRegVal}  "$(LSecUnRegValDesc)"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;--------------------------------
