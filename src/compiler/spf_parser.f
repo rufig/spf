@@ -100,6 +100,8 @@ USER-CREATE ATIB
 
 \ http://www.complang.tuwien.ac.at/forth/ansforth/parse-name.html
 : PARSE-NAME NextWord ;
+\ по моим наблюдениям, используется чаще ~mak
+: PARSE-WORD NextWord ;
 
 : PARSE ( char "ccc<char>" -- c-addr u ) \ 94 CORE EXT
 \ Выделить ccc, ограниченное символом char.
