@@ -1,6 +1,8 @@
 ( example of using of different controls )
 
-REQUIRE CWindow ~day\wfl\wfl.f
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+NEEDS ~day\wfl\wfl.f
+NEEDS ~day\wfl\controls\urllabel.f
 
 101 CONSTANT urlLabelID
 
@@ -13,7 +15,6 @@ CDialog SUBCLASS CTestDialog
  \ we catch it in urllabel
 : message ( lpar wpar msg hwnd -- n )
     || CWinMessage msg ||
-
     msg copy INHERIT
 
     msg @ ReflectNotifications
@@ -25,8 +26,7 @@ CDialog SUBCLASS CTestDialog
   do not call SELF here )
 
 : btnClick ( button-obj )
-    || CWindow wnd ||
-    DROP S" button pressed!" wnd showMessage
+    S" button pressed!" ROT ^ showMessage
 ;
 
 W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
@@ -43,7 +43,7 @@ W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
 ;CLASS
 
 0 0 200 150
-WS_POPUP WS_SYSMENU OR WS_CAPTION OR DS_MODALFRAME OR
+WS_POPUP WS_SYSMENU OR WS_CAPTION OR DS_MODALFRAME OR WS_SIZEBOX OR
 DS_CENTER OR
 
 DIALOG: TestDialog Different controls

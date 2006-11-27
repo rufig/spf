@@ -1,6 +1,8 @@
-REQUIRE CWindow        ~day\wfl\wfl.f
-REQUIRE CScintillaEdit ~day\wfl\controls\scintilla\scintilla.f
-REQUIRE CurrentTimeSql ~ac\lib\win\date\unixtime.f
+
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+NEEDS ~day\wfl\wfl.f
+NEEDS ~day\wfl\controls\scintilla\scintilla.f
+NEEDS ~ac\lib\win\date\unixtime.f
 
 \ TODO: на пробеле и enter setUndoPoint
 \ TODO: внизу вывод после запуска со сплиттером

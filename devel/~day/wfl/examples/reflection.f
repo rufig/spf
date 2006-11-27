@@ -1,6 +1,7 @@
 ( Example of reflection of notifications from parent to child )
 
-REQUIRE CWindow ~day\wfl\wfl.f
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+NEEDS ~day\wfl\wfl.f
 
 CStatic SUBCLASS CColorStatic
        

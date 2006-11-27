@@ -1,6 +1,7 @@
 ( Simple activeX hosting example )
 
-REQUIRE CWindow ~day\wfl\wfl.f
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+NEEDS ~day\wfl\wfl.f
 
 CFrameWindow SUBCLASS CVerySimpleWindow
 

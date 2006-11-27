@@ -1,6 +1,7 @@
 ( Simple activeX hosting example in dialog! )
 
-REQUIRE CWindow ~day\wfl\wfl.f
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+NEEDS ~day\wfl\wfl.f
 
 101 CONSTANT leftCtlID
 102 CONSTANT rightCtlID

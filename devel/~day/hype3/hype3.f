@@ -2,8 +2,10 @@
 \ upgrade by:
 \ (c) Dmitry Yakimov 2006, support@activekitten.com
 
-REQUIRE [DEFINED]  lib\include\tools.f
-REQUIRE VocByNFA   lib\ext\vocs.f
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+
+NEEDED [IF]  lib\include\tools.f
+NEEDS        lib\ext\vocs.f
 
 MODULE: HYPE
 
@@ -421,13 +423,18 @@ EXPORT
 ;
 
 : OBJ-SEND, ( class shift addr u )
-   2>R SWAP 2R> MFIND DROP ( shift xt )
+   2>R SWAP 2R> MFIND -1 = ( shift xt )
    STATE @
-   IF
-     LIT, LIT,
-     ['] (send-obj) COMPILE,
+   IF \ compilation
+     IF \ nonimmediate     
+        LIT, LIT,
+        ['] (send-obj) COMPILE,
+     ELSE \ again object 
+          ( shift xt )
+          NIP EXECUTE
+     THEN
    ELSE
-     SWAP (send-obj)
+     DROP SWAP (send-obj)     
    THEN
 ;
 

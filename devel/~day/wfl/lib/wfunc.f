@@ -1,4 +1,7 @@
+REQUIRE HYPE      ~day\hype3\hype3.f
 REQUIRE ADD-CONST-VOC ~day\wincons\wc.f
+REQUIRE { lib\ext\locals.f
+
 \ DAY FEB-2000
 
 0 CONSTANT WFUNC
@@ -283,3 +286,11 @@ CREATE   CC_INITS 8 , BASE @ HEX 3FFF , BASE !
   f CLOSE-FILE THROW
   a len
 ;  
+
+: W>S ( w -- s )
+\ расширить знак 16 -> 32
+   DUP 0x8000 AND
+   IF \ отрицательное число
+      0xFFFF0000 OR
+   THEN
+;

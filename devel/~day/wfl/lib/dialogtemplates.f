@@ -1,6 +1,8 @@
 ( Originally created by ~ac in ~ac\lib\win\window\dialog_creating.f )
 
-REQUIRE ADD-CONST-VOC ~day\wincons\wc.f
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+
+NEEDS ~day\wincons\wc.f
 
 \ Классы DialogBoxControls
 BASE @ HEX

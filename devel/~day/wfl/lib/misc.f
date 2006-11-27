@@ -1,4 +1,21 @@
 
+CLASS CPoint
+
+   0 DEFS addr
+   VAR x
+   VAR y
+
+: ! ( x y )
+   y !
+   x !
+;
+
+: @ ( -- x y )
+   x @
+   y @
+;
+
+;CLASS
 
 CLASS CRect
 

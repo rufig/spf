@@ -31,8 +31,8 @@
 
 )
 
-REQUIRE HYPE ~day\hype3\hype3.f
-
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+NEEDS ~day\hype3\hype3.f
 
 VOCABULARY objLocalsSupport
 
@@ -80,7 +80,7 @@ USER uAddDepth
 ;
 
 : ClassNormalizedSize ( ta -- size )
-    HYPE::.size @ AlignToCELL CELL/
+    ^ size AlignToCELL CELL/
 ;
 : CompileInitObj ( ta )
     uPrevCurrent @ ALSO CONTEXT ! DEFINITIONS
@@ -198,8 +198,6 @@ WARNING @ WARNING 0!
 
 : ;  LocalsCleanup POSTPONE ; ; IMMEDIATE
 
-\ ===
-
 WARNING !
 
 SET-CURRENT
@@ -208,6 +206,9 @@ SET-CURRENT
   LocalsStartup
   BEGIN
     BL SKIP PeekChar [CHAR] | <>
+    CharAddr 2 S" --" COMPARE 0=
+    IF [CHAR] | SkipUpTo 0 ELSE TRUE THEN
+    AND
   WHILE
     ' EXECUTE CREATE LocalsDoes@ IMMEDIATE
   REPEAT

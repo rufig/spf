@@ -1,4 +1,5 @@
-REQUIRE CWindow ~day\wfl\wfl.f
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+NEEDS ~day\wfl\wfl.f
 
 0 0 100 50
 WS_POPUP WS_SYSMENU OR WS_CAPTION OR DS_MODALFRAME OR

@@ -1,7 +1,7 @@
 ( Example of subclassed button. We filter windows messages in a queue of the button )
 
-REQUIRE CWindow ~day\wfl\wfl.f
-
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+NEEDS ~day\wfl\wfl.f
 
 CButton SUBCLASS CColorButton
 

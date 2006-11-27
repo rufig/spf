@@ -1,13 +1,15 @@
 
 0 CONSTANT WFL
 
-REQUIRE CASE         lib\ext\case.f
+REQUIRE WL-MODULES ~day\lib\includemodule.f
 
-REQUIRE || ~day\hype3\locals.f
+NEEDS    lib\ext\case.f
+
+NEEDS   ~day\hype3\locals.f
 
 MODULE: COM
 
-REQUIRE CLSCTX_LOCAL_SERVER ~yz/lib/automate.f
+NEEDS              ~yz/lib/automate.f
 
 EXPORT
 
@@ -16,29 +18,26 @@ EXPORT
 ;MODULE
 
 
-REQUIRE CString ~day\hype3\lib\string.f
-REQUIRE CreateMsgProcessor ~day\wfl\lib\wfunc.f
-REQUIRE ObjExtern ~day\wfl\lib\thunk.f
-REQUIRE MENU      ~day\wfl\lib\menu.f
-REQUIRE CRect     ~day\wfl\lib\misc.f
-REQUIRE CDC          ~day\wfl\lib\gdi.f
-REQUIRE ReflectNotifications ~day\wfl\lib\reflection.f
+NEEDS ~day\hype3\lib\string.f
+NEEDS ~day\wfl\lib\wfunc.f
+NEEDS ~day\wfl\lib\thunk.f
+NEEDS ~day\wfl\lib\menu.f
+NEEDS ~day\wfl\lib\misc.f
+NEEDS ~day\wfl\lib\gdi.f
+NEEDS ~day\wfl\lib\reflection.f
 
-REQUIRE CMessageLoop ~day\wfl\lib\messageloop.f 
+NEEDS ~day\wfl\lib\messageloop.f 
 
-REQUIRE CWindow      ~day\wfl\lib\window.f
+NEEDS ~day\wfl\lib\window.f
 
 S" ~yz\cons\commctrl.const" ADD-CONST-VOC
 
-REQUIRE CListView         ~day\wfl\lib\controls.f
+NEEDS ~day\wfl\lib\controls.f
 
-REQUIRE DIALOG:      ~day\wfl\lib\dialogtemplates.f
-REQUIRE CDialog      ~day\wfl\lib\dialog.f
+NEEDS ~day\wfl\lib\dialogtemplates.f
+NEEDS ~day\wfl\lib\dialog.f
 
-REQUIRE CAXControl   ~day\wfl\lib\activex.f
-REQUIRE CHTMLControl ~day\wfl\lib\htmlcontrol.f
+NEEDS ~day\wfl\lib\activex.f
+NEEDS ~day\wfl\lib\htmlcontrol.f
 
-REQUIRE CURLLabel    ~day\wfl\controls\urllabel.f
-REQUIRE CSplitter    ~day\wfl\controls\splitter.f
-
-REQUIRE CFileOpenDialog ~day\wfl\lib\commondialogs.f
+NEEDS ~day\wfl\lib\commondialogs.f

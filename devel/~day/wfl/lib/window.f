@@ -301,6 +301,13 @@ CWinMessageReceiver SUBCLASS CWindow
     SUPER checkWindow SetFocus DROP
 ;
 
+: clientToScreen ( x y -- x1 y1 )
+    || CPoint p ||
+    p !
+    p addr SUPER checkWindow ClientToScreen SUPER -wthrow
+    p @
+;
+
 ;CLASS
 
 CLASS CWinClass
@@ -436,7 +443,17 @@ dispose:
 CCustomWindow SUBCLASS CChildWindow 
 
 init:
-    WS_CHILD WS_VISIBLE OR WS_TABSTOP OR SUPER style !
+    WS_VISIBLE WS_CHILD OR WS_TABSTOP OR SUPER style OR!
+;
+
+;CLASS
+
+CChildWindow SUBCLASS CChildCustomWindow
+
+      CWinClass OBJ class
+
+: createClass ( -- atom )
+    class register
 ;
 
 ;CLASS

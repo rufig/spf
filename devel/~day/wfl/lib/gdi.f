@@ -1,16 +1,14 @@
 
+WINAPI: GetSysColorBrush USER32.DLL
+WINAPI: CreateBitmap     GDI32.DLL
+WINAPI: CreatePatternBrush GDI32.DLL
+WINAPI: MoveToEx         GDI32.DLL
+WINAPI: LineTo           GDI32.DLL
 
 CLASS CDCHandle
+
     VAR handle
     VAR hWnd
-
-: create ( hwnd -- hdc )
-    DUP GetDC DUP -WIN-THROW
-    DUP CreateCompatibleDC DUP -WIN-THROW
-    DUP handle !
-
-    ROT ROT SWAP ReleaseDC DROP
-;
 
 : checkDC ( -- hdc )
     handle @
@@ -29,7 +27,12 @@ CLASS CDCHandle
 ;
 
 : setTextColor ( colorref )
-   checkDC SetTextColor  DROP \ -WIN-THROW
+   checkDC SetTextColor -WIN-THROW
+;
+
+: line ( x1 y1 x2 y2 )
+   2SWAP SWAP 0 ROT ROT checkDC MoveToEx -WIN-THROW
+   SWAP checkDC LineTo -WIN-THROW
 ;
 
 ;CLASS
@@ -41,6 +44,11 @@ CDCHandle SUBCLASS CDC
 
 init:
     TRUE ?own !
+;
+
+: create ( hwnd -- hdc )
+    GetDC DUP -WIN-THROW
+    DUP SUPER handle !
 ;
 
 dispose:
@@ -107,6 +115,32 @@ CGDIObject SUBCLASS CBrush
     SUPER handle @ IF SUPER releaseObject THEN
     CreateSolidBrush DUP -WIN-THROW
     DUP SUPER handle !
+;
+
+: getSysColorBrush ( index -- brush )
+    GetSysColorBrush DUP -WIN-THROW
+    DUP SUPER handle !
+;
+
+CREATE HalftonePattern 16 ALLOT
+
+: fillHalftonePattern
+    8 0 DO
+      0x5555 I 1 AND LSHIFT
+      HalftonePattern I 2* + W!
+    LOOP
+;
+
+fillHalftonePattern
+
+: createHalftoneBrush ( -- brush )
+    HalftonePattern
+    1 1
+    8 8 
+    CreateBitmap DUP -WIN-THROW
+    DUP CreatePatternBrush DUP -WIN-THROW
+    DUP SUPER handle !
+    SWAP DeleteObject -WIN-THROW
 ;
 
 

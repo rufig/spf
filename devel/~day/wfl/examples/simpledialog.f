@@ -1,6 +1,7 @@
 ( Simple modal dialog example )
 
-REQUIRE CWindow ~day\wfl\wfl.f
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+NEEDS ~day\wfl\wfl.f
 
 101 CONSTANT loginID
 102 CONSTANT pswID

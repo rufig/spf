@@ -1,3 +1,4 @@
+( Standard Windows controls )
 
 CChildWindow SUBCLASS CGenericButton
 

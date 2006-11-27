@@ -51,13 +51,13 @@ CWindow SUBCLASS CDialog
 
     msg @ skipMsgResult? 0=
     IF
+        0 SetLastError DROP
         DWL_MSGRESULT
         SUPER hWnd @ DUP
         IF
-           0 SetLastError DROP
            SetWindowLongA SUPER -wthrow 0
-        ELSE 2DROP DROP
-        THEN        
+        ELSE 2DROP
+        THEN
     THEN
 ;
 
