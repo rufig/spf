@@ -17,6 +17,8 @@ EXPORT
 
 ;MODULE
 
+NEEDS  ~day\wincons\wc.f
+S" ~yz\cons\commctrl.const" ADD-CONST-VOC
 
 NEEDS ~day\hype3\lib\string.f
 NEEDS ~day\wfl\lib\wfunc.f
@@ -29,8 +31,6 @@ NEEDS ~day\wfl\lib\reflection.f
 NEEDS ~day\wfl\lib\messageloop.f 
 
 NEEDS ~day\wfl\lib\window.f
-
-S" ~yz\cons\commctrl.const" ADD-CONST-VOC
 
 NEEDS ~day\wfl\lib\controls.f
 

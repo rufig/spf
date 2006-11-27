@@ -318,7 +318,7 @@ CLASS MetaClass
 : class ( -- ta ) SELF @ ;
 : isClass ( -- f ) class SELF = ;
 
-: also ( -- ) SELF @ .wl @ ALSO TO-CONTEXT ;
+: also ( -- ) SELF @ .wl @ TO-CONTEXT ;
 
 \ save\load objects
 

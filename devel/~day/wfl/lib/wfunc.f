@@ -1,6 +1,8 @@
-REQUIRE HYPE      ~day\hype3\hype3.f
-REQUIRE ADD-CONST-VOC ~day\wincons\wc.f
-REQUIRE { lib\ext\locals.f
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+
+NEEDS  ~day\hype3\hype3.f
+NEEDS  ~day\wincons\wc.f
+NEEDED {   lib\ext\locals.f
 
 \ DAY FEB-2000
 

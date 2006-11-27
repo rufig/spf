@@ -1,5 +1,7 @@
 
-REQUIRE HYPE ~day\hype3\hype3.f
+
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+NEEDS  ~day\hype3\hype3.f
 
 WINAPI: GetOpenFileNameA COMDLG32.DLL
 WINAPI: GetSaveFileNameA COMDLG32.DLL
@@ -87,6 +89,7 @@ COpenFileDialog SUBCLASS CSaveFileDialog
 
 
 ;CLASS
+
 
 COpenFileDialog ^ also
 

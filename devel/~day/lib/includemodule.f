@@ -3,7 +3,7 @@
 
 WORDLIST CONSTANT WL-MODULES
 
-: MODULEHASH ( addr u -- )
+: MODULEHASH ( addr u -- addr1 u1 )
     0 HASH GET-CURRENT
     BASE @ >R HEX
     <# #S #>
