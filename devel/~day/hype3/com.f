@@ -10,16 +10,20 @@
 
 0 VALUE COM-TRACE
 
-REQUIRE HYPE          ~day\hype3\hype3.f
-REQUIRE WTHROW         lib\win\winerr.f
-REQUIRE InsertNodeEnd ~day\lib\staticlist.f
-REQUIRE RG_QueryValue  ~ac\lib\win\registry2.f
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+NEEDS              ~day\hype3\hype3.f
+NEEDS              ~day\hype3\locals.f
+NEEDS               lib\win\winerr.f
+NEEDS              ~ac\lib\win\registry2.f
+NEEDS              ~day\common\link.f
 
 MODULE: UUID
 
-S" ~yz/lib/UUID.f" INCLUDED
+NEEDS              ~yz/lib/UUID.f
 
 ;MODULE
+
+NEEDS              ~day\hype3\lib\string.f
 
 DECIMAL
        1 CONSTANT REGCLS_MULTIPLEUSE
@@ -111,51 +115,46 @@ MODULE: HYPE
   ['] _WNDPROC-CODE COMPILE,
   ,
 ;
- 
-/node
+
+( format of chain )
+0
 CELL -- .xt
-CONSTANT /mlist
+CELL -- .methodnfa
+2    -- .nmethod
+CONSTANT /ichain
 
 /class
 CELL -- .vmt
 CELL -- .methodscount
+CELL -- .methodschain
   16 -- .clsid
 CONSTANT /iclass
 
-USER-VALUE mlist
-USER VMT-ADDR
-
-: vmt! ( node )
-   .xt @  VMT-ADDR @ !
-   CELL VMT-ADDR +!
+: vmt! ( node -- f )
+   DUP .nmethod W@ CELLS CLASS@ .vmt @ +
+   SWAP .xt @ SWAP ! 0
 ;
 
-: FulfillVMT
-   \ get size of parent vmt
-   CLASS@ .super @ DUP
-   IF
-      .methodscount @
-   THEN DUP >R
-        
+: fillVMT ( chain )
+    @ DUP 0= 
+    IF DROP EXIT 
+    ELSE
+       \ prevent overflow of data stack
+       DUP CELL+ >R RECURSE
+       R@ .xt @
+       R> .nmethod W@ CELLS CLASS@ .vmt @ + !
+    THEN
+;
+
+: FulfillVMT         
    \ create vmt
-   CLASS@ .methodscount @ +
+   CLASS@ .methodscount @
    HERE SWAP CELLS ALLOT
    CLASS@ .vmt !
 
-   \ fix count of methods
-   R@ CLASS@ .methodscount +!
 
-   \ copy parent's vmt
-   R@
-   IF ( super-vmt-size )
-      CLASS@ .super @ .vmt @
-      CLASS@ .vmt @ R@ CELLS MOVE
-   THEN
-   HEX
-
-   \ fill out vmt
-   CLASS@ .vmt @ R> CELLS + VMT-ADDR !
-   ['] vmt! mlist ForEach DECIMAL
+   \ fill out vmt, in reverse order to handle overloaded methods
+   CLASS@ .methodschain fillVMT
 ;
 
 : HasInterface ( iid ta -- f )
@@ -165,13 +164,26 @@ USER VMT-ADDR
     UNTIL 2DROP FALSE
 ;
 
+: (findmethod) ( addr u data -- n -1 | addr u 0 )
+    >R 2DUP R@ .methodnfa @ COUNT COMPARE 0=
+    IF 
+       2DROP R> .nmethod W@ TRUE
+    ELSE R> DROP 0
+    THEN
+;
+
+: MethodByName ( addr u class -- n -1 | 0 )
+    .methodschain ['] (findmethod) ITERATE-LIST2
+    DUP 0= IF NIP NIP THEN
+;
+
 EXPORT
 
 : ICLASS
     /iclass (CLASS)
     CLASS@ .methodscount 0!
+    CLASS@ .methodschain 0!
     CLASS@ .vmt 0!
-    /mlist CreateList TO mlist
 
     PARSE-NAME DUP 0= ABORT" You should define com interface"
     OVER + 0 SWAP C!
@@ -180,15 +192,156 @@ EXPORT
 
 : ;ICLASS
     FulfillVMT
-    mlist FreeList
-    mlist FREE THROW
     ;CLASS
 ;
 
+(
+VOCABULARY VOC-VARIANTS
+GET-CURRENT ALSO VOC-VARIANTS DEFINITIONS
+
+ALSO objLocalsSupport
+
+R: SUBCLASS BOOL
+11 CONSTANT id
+;CLASS
+
+R: SUBCLASS char
+10 CONSTANT id
+;CLASS
+
+R: SUBCLASS REFIID
+13 CONSTANT id
+;CLASS
+
+R: SUBCLASS void**
+
+;CLASS
+
+: ; PREVIOUS S" ;" EVAL-WORD ; IMMEDIATE
+
+SET-CURRENT PREVIOUS PREVIOUS
+
+: I|
+    POSTPONE ||
+; IMMEDIATE
+)
+
 : METHOD
-    LAST @ NAME> COMPROC mlist AllocateNodeEnd .xt !
-    1 CLASS@ .methodscount +!
+    ( we try to overload method? )
+    LAST @ COUNT CLASS@ MethodByName 0=
+
+    CLASS@ .methodschain LINK,
+    HERE >R
+    /ichain ALLOT
+
+    LAST @ NAME> COMPROC R@ .xt !
+    LAST @ R@ .methodnfa !
+
+    IF  \ new method
+       CLASS@ .methodscount DUP @ SWAP 1+!
+    THEN R> .nmethod W!
 ;
+
+ProtoObj SUBCLASS CComRegisterHelper
+
+    CString OBJ threadingModel
+    CString OBJ progID
+    CString OBJ comment
+    VAR inproc?
+    VAR version
+
+: setInproc ( -- ) TRUE inproc? ! ;
+: setLocal FALSE inproc? ! ;
+
+: setModel ( addr u ) threadingModel S! ;
+: setProgID ( addr u ) progID S! ;
+: setComment ( addr u ) comment S! ;
+: setVersion ( n ) version ! ;
+
+init:
+    1 setVersion
+    setLocal
+;
+
+: UHOLDS ( addr u )
+    TUCK + SWAP 0 ?DO DUP I - 1- 0 HOLD C@ HOLD LOOP DROP
+;
+
+: register ( class ) 
+    { class \ r h r2 }
+
+    <# 
+       PAD 100 class => clsidstr PAD SWAP 2* HOLDS 
+       S" CLSID\" UHOLDS 0. #> DROP 
+    UUID:: unicode>buf DUP >R ASCIIZ>
+
+    HKEY_CLASSES_ROOT
+    RG_CreateKey THROW -> r
+
+    progID @ STR@ HKEY_CLASSES_ROOT
+    RG_CreateKey THROW -> r2
+
+    inproc? @ 0=
+    IF
+       S" LocalServer32"
+    ELSE S" InprocServer32"
+    THEN
+    r RG_CreateKey THROW -> h
+
+    256 PAD 0 GetModuleFileNameA PAD SWAP
+    REG_SZ S" "
+    h RG_SetValue
+
+    threadingModel @ STR@
+    REG_SZ
+    S" ThreadingModel" h RG_SetValue
+
+    h RegCloseKey DROP
+
+    S" ProgID" r RG_CreateKey THROW -> h
+    BASE @ >R DECIMAL
+    version @ S>D <# #S 2DROP [CHAR] . HOLD progID @ STR@ HOLDS 0. #> 2DUP
+    R> BASE !
+    REG_SZ S" "
+    h RG_SetValue
+    h RegCloseKey DROP
+
+    S" CurVer" r2 RG_CreateKey THROW -> h
+    REG_SZ S" "
+    h RG_SetValue
+    h RegCloseKey DROP
+
+    <# 
+       PAD 100 class => clsidstr PAD SWAP 2* HOLDS 0. #> DROP
+    UUID:: unicode>buf DUP >R ASCIIZ> \ clsid
+
+    S" CLSID" r2 RG_CreateKey THROW -> h
+    REG_SZ S" "
+    h RG_SetValue
+    h RegCloseKey DROP
+
+    S" VersionIndependentProgID" r RG_CreateKey THROW -> h
+    progID @ STR@ REG_SZ S" "
+    h RG_SetValue
+    h RegCloseKey DROP
+
+    comment @ STR@ 2DUP
+    REG_SZ S" " r  RG_SetValue
+    REG_SZ S" " r2 RG_SetValue 
+
+    r r2 SELF => registerCustom
+
+    R> FREE THROW
+    R> FREE THROW
+    r2 RegCloseKey DROP
+    r RegCloseKey DROP
+;
+
+: registerCustom ( h1 h2 )
+    2DROP
+;
+
+;CLASS
 
 ICLASS CComBase {00000000-0000-0000-0000-000000000000}
     \ Should be in this order
@@ -212,7 +365,7 @@ ICLASS CComBase {00000000-0000-0000-0000-000000000000}
 : class ( -- ta ) SELF @ ;
 : isClass ( -- f ) class SELF = ;
 
-: also ( -- ) SELF @ .wl @ ALSO TO-CONTEXT ;
+: also ( -- ) SELF @ .wl @ TO-CONTEXT ;
 
 \ save\load objects
 
@@ -242,83 +395,12 @@ ICLASS CComBase {00000000-0000-0000-0000-000000000000}
     SWAP clsid UUID:: StringFromGUID2
 ;
 
-: UHOLDS ( addr u )
-    TUCK + SWAP 0 ?DO DUP I - 1- 0 HOLD C@ HOLD LOOP DROP
-;
-
-: register ( addr1 u1 addr2 u2 version local? -- ior )
-\ addr1 u1 - name
-\ addr2 u2 - progid
-    { \ r h r2 }
-    <# 
-       PAD 100 clsidstr PAD SWAP 2* HOLDS 
-       S" CLSID\" UHOLDS 0. #> DROP 
-    UUID:: unicode>buf DUP >R ASCIIZ>
-
-    HKEY_CLASSES_ROOT
-    RG_CreateKey THROW -> r
-
-    2OVER HKEY_CLASSES_ROOT
-    RG_CreateKey THROW -> r2
-
-    IF
-       S" LocalServer32"
-    ELSE S" InprocServer32"
-    THEN
-    r RG_CreateKey THROW -> h
-
-    256 PAD 0 GetModuleFileNameA PAD SWAP
-    REG_SZ S" "
-    h RG_SetValue
-    h RegCloseKey DROP
-
-    S" ProgID" r RG_CreateKey THROW -> h
-    BASE @ >R DECIMAL
-    S>D <# #S 2DROP [CHAR] . HOLD 2DUP HOLDS 0. #> 2DUP
-    R> BASE !
-    REG_SZ S" "
-    h RG_SetValue
-    h RegCloseKey DROP
-
-    S" CurVer" r2 RG_CreateKey THROW -> h
-    REG_SZ S" "
-    h RG_SetValue
-    h RegCloseKey DROP
-
-    <# 
-       PAD 100 clsidstr PAD SWAP 2* HOLDS 0. #> DROP
-    UUID:: unicode>buf DUP >R ASCIIZ> \ clsid
-
-    S" CLSID" r2 RG_CreateKey THROW -> h
-    REG_SZ S" "
-    h RG_SetValue
-    h RegCloseKey DROP
-
-    S" VersionIndependentProgID" r RG_CreateKey THROW -> h
-    2DUP REG_SZ S" "
-    h RG_SetValue
-    h RegCloseKey DROP
-
-    2SWAP 2DUP REG_SZ S" " r  RG_SetValue
-               REG_SZ S" " r2 RG_SetValue 
-
-    r2 r SELF => registerCustom
-
-    R> FREE THROW
-    R> FREE THROW
-    r2 RegCloseKey DROP
-    r RegCloseKey DROP
-;
-
-: registerCustom ( hkey1 hkey2 ) 2DROP 
-\ hkey1 - SPF.ExeSrv.1
-\ hkey2 - CLSID\
-;
-
 ;ICLASS
 
 : ISUBCLASS
-    ICLASS (SUBCLASS)
+    ICLASS DUP (SUBCLASS)
+    DUP .methodschain @ CLASS@ .methodschain !
+    .methodscount @ CLASS@ .methodscount !
 ;
 
 CComBase ISUBCLASS IUnknown {00000000-0000-0000-C000-000000000046}
@@ -326,6 +408,8 @@ CComBase ISUBCLASS IUnknown {00000000-0000-0000-C000-000000000046}
     VAR refCount
 
 : QueryInterface ( ppvObject iid - hresult )
+\    I| REFIID iid void** ppvObj |
+
      DUP 0= OVER 0= OR IF 2DROP E_INVALIDARG EXIT THEN
 
      COM-TRACE IF ." , asked for interface " DUP UUID:: .guid THEN

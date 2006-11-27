@@ -1,6 +1,8 @@
-REQUIRE IUnknown   ~day\hype3\com.f
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+
+NEEDS   ~day\hype3\com.f
 WARNING 0!
-REQUIRE IID_NULL ~ac\lib\win\com\com.f
+NEEDS   ~ac\lib\win\com\com.f
 
 \ TRUE TO COM-TRACE
 
@@ -39,6 +41,7 @@ CR
 GetClassObject COM-THROW
 
 .( Got class ) vClass @ . .( AppClassFactory object is ) AppClassFactory iself . CR
+
 vForth IForth ^ clsid 0 vClass @ ::CreateInstance COM-THROW
 
 .( Call test method: )
