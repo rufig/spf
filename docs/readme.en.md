@@ -10,8 +10,8 @@ ABOUT
 -----
 
 SP-FORTH is a reliable and comfortable forth system producing optimized native
-code for the Intel x86 processors. Runs on MS Windows 9x, NT (there are also
-ports to Linux, Kolibri OS).
+code for the Intel x86 processors. SP-Forth runs on MS Windows 9x, NT 
+(Linux and Kolibri OS ports exist).
 
 SP-Forth is free software, you can redistribute and/or modify it under the
 terms of the GNU General Public License. See
@@ -25,7 +25,7 @@ PARTICULAR PURPOSE.
 INSTALLATION
 ------------
 
-SP-Forth for Windows is distributed as the RAR archive or the self-installing
+SP-Forth (SPF) for Windows is distributed as the RAR archive or the self-installing
 executable.
 
 If you've got an archive - unpack it to the desired folder. It is ready to
@@ -45,7 +45,7 @@ Directories:
 
 * `/devel`   - additional contributed libraries and examples
 * `/docs`    - documentation
-* `/lib`     - standard libraries, common ANS and non ANS extensions like `float.f`, `locals.f` ...
+* `/lib`     - standard libraries, common ANS and non-ANS extensions like `float.f`, `locals.f` ...
 * `/samples` - debugged GUI and console mode samples.
 * `/src`     - full sources with comments and compile.bat file.
 
@@ -53,7 +53,7 @@ Files in the root directory:
 
 * `help.fhlp`        - default include for the `lib/ext/help.f` extension
 * `jpf375c.exe`      - an older version of SPF used to build itself
-* `spf4.exe`         - SPF itself ;)
+* `spf4.exe`         - SPF itself
 * `spf4.ini`         - This file is automatically included by SPF at startup
 
 
@@ -61,7 +61,7 @@ DOCUMENTATION
 -------------
 
 See the `/docs` directory. The majority of the documentation is in Russian for
-now. If you need an English version, contact us, maybe the translation will be done.
+now. If you need an English version, contact us, the translation will be done.
 
 1.  [SPF specifics](intro.en.html)
 
