@@ -54,20 +54,17 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
 ;
 
 : FILTER ( a u -- a u ? )
-  START 
-   PREDICATE
+  PREDICATE
     2DUP " {SPF-PATH}\spf4.exe" STR@ COMPARE-U 0= ONFALSE
     2DUP " {SPF-PATH}\jpf375c.exe" STR@ COMPARE-U 0= ONFALSE
     2DUP " {SPF-PATH}\spf4.ini" STR@ COMPARE-U 0= ONFALSE
     2DUP " {SPF-PATH}\help.fhlp" STR@ COMPARE-U 0= ONFALSE
     2DUP " {SPF-PATH}\uninstall.exe" STR@ COMPARE-U 0= ONFALSE
-   SUCCEEDS
-  EMERGE 0= IF TRUE EXIT THEN \ эти файлы из корня без дальнейших проверок пропускаем на выход
+  SUCCEEDS
+  0= IF TRUE EXIT THEN \ эти файлы из корня без дальнейших проверок пропускаем на выход
  
   \ Иначе
   PREDICATE
-
-  START
     \ пропускать только файлы из следующих каталогов
     PREDICATE     
     2DUP " {SPF-PATH-\\}\\devel\\*" STR@ ULIKE ONFALSE
@@ -76,7 +73,6 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
     2DUP " {SPF-PATH-\\}\\samples\\*" STR@ ULIKE ONFALSE
     2DUP " {SPF-PATH-\\}\\src\\*" STR@ ULIKE ONFALSE
     SUCCEEDS
-  EMERGE
   ONFALSE \ двойное отрицание, т.е. тут только те что попали под один из фильтров выше
 
   \ и из них не пропускать такие файлы
