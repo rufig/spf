@@ -11,6 +11,12 @@ MODULE: bac4th
 : >RESOLVE2 ( dest -- ) HERE SWAP ! ;
 : <RESOLVE ( org -- )	, ;
 
+
+: CALL, ( ADDR -> ) \ скомпилировать инструкцию ADDR CALL
+  ?SET SetOP SetJP 0xE8 C,
+  DUP IF DP @ CELL+ - THEN ,    DP @ TO LAST-HERE
+;
+
 12345 CONSTANT $TART
 5432 CONSTANT 8ACK
 4523 CONSTANT N0T
@@ -18,13 +24,28 @@ MODULE: bac4th
 
 : (ADR) R> DUP CELL+ >R ;
 
-: (NOT:)  R> RP@ >L  DUP @ >R (: LDROP ;) >R  CELL+ >R ;
+EXPORT
+
+\ задать действия при откате ( BACK .. TRACKING ), или, иначе говоря,
+\ положить адрес начала последовательности шитого между словами на стек возвратов
+: BACK  ?COMP  0 CALL, >MARK 8ACK ;  IMMEDIATE
+: TRACKING ?COMP  8ACK ?PAIRS  RET, >RESOLVE1 ;  IMMEDIATE
+\ BACK ... TRACKING -- это аналог (: ... ;) >R , и наоборот,
+\ (: ... ;) -- это аналог BACK ... TRACKING R>
+
+DEFINITIONS
+
+: (NOT:)  R> RP@ >L  DUP @ >R BACK LDROP TRACKING  CELL+ >R ;
 : (-NOT)  L> RP! ;
+: (-NOT2) R> L> RP! >R ;
 
 EXPORT
 
 : ENTER EXECUTE ; ( \ это тоже самое, но что быстрее?
 : ENTER   >R ;        \ )
+\ На ~profit/prog/forth-wizard/forth-wizard-depth-bac4th.f разницы нет.
+\ На ~profit/prog/forth-wizard/forth-wizard-width.f для maxOperations=10 с >R'ом -- 3:22, с EXECUTE -- 3:52
+
 
 
 : ONFALSE IF RDROP THEN ;
@@ -42,7 +63,7 @@ EXPORT
 : BC!   R> OVER DUP C@ SWAP 2>R -ROT C!  ENTER 2R> C! ;
 
 
-: START ( -- org dest $TART )
+: START{ ( -- org dest $TART )
 ?COMP
 0 RLIT, >MARK
 <MARK $TART
@@ -53,19 +74,12 @@ DUP $TART = IF OVER COMPILE, THEN
 ; IMMEDIATE
 
 
-: EMERGE
+: }EMERGE
 ?COMP
 $TART ?PAIRS DROP
 RET,
 >RESOLVE2
 ; IMMEDIATE
-
-\ задать действия при откате ( BACK .. TRACKING ), или, иначе говоря,
-\ положить адрес начала последовательности шитого между словами на стек возвратов
-: BACK  ?COMP  0 RLIT, >MARK POSTPONE R> POSTPONE EXECUTE  8ACK ;  IMMEDIATE
-: TRACKING ?COMP 8ACK ?PAIRS  RET, >RESOLVE2 ;  IMMEDIATE
-\ BACK ... TRACKING -- это аналог (: ... ;) >R , и наоборот,
-\ (: ... ;) -- это аналог BACK ... TRACKING R>
 
 \ квантор отрицания
 : NOT:  ?COMP POSTPONE (NOT:) 0 ,  >MARK N0T ; IMMEDIATE
@@ -73,7 +87,7 @@ RET,
 
 \ предикат, преобразование успеха/неуспеха в логическое значение
 : PREDICATE  ?COMP [COMPILE] NOT:  (: FALSE ;) RLIT, ; IMMEDIATE
-: SUCCEEDS   ?COMP TRUE LIT, [COMPILE] -NOT ; IMMEDIATE
+: SUCCEEDS   ?COMP TRUE LIT, N0T ?PAIRS POSTPONE (-NOT2) >RESOLVE2 ; IMMEDIATE
 
 \ квантор общности, выраженный через два вложенных квантора отрицания
 : ALL [COMPILE] NOT: ; IMMEDIATE
@@ -104,8 +118,7 @@ BACK R> RP@ + >L  TRACKING
 \ Функция аггрегирования (конкатенация, суммирование логические сложение или умножение)
 \ Функция успеха, может включать в себя R> ENTER
 
-\ во время исполнения на стеке должно лежать начальное значение
-: agg{ ( -- ) ?COMP
+: agg{ ( init -- ) ?COMP
 POSTPONE (ADR) HERE 0 ,
 POSTPONE !
 0 RLIT, >MARK
@@ -123,12 +136,14 @@ LIT, succ COMPILE,
 : +{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }+ ?COMP ['] +! ['] @ }agg ; IMMEDIATE
 
+: MAX{ ?COMP 0 LIT, agg{ ; IMMEDIATE
+: }MAX ?COMP (: DUP @ ROT MAX SWAP !  ;) ['] @ }agg ; IMMEDIATE
+
 : *{ ?COMP 1 LIT, agg{ ; IMMEDIATE
 : }* ?COMP (: DUP @ ROT * SWAP !  ;) ['] @ }agg ; IMMEDIATE
 
 : &{ ?COMP -1 LIT, agg{ ; IMMEDIATE
 : }& ?COMP (: DUP @ ROT AND SWAP ! ;) ['] @ }agg ; IMMEDIATE
-
 
 : |{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }| ?COMP (: DUP @ ROT OR SWAP ! ;) ['] @ }agg ; IMMEDIATE
@@ -199,7 +214,7 @@ r2
 a @ CR ." a=" . ;
 
 : bt ." back" BACK ." ing" TRACKING ." track" ;
-: bt2 START ." back" EMERGE ." tracking" ;
+: bt2 START{ ." back" }EMERGE ." tracking" ;
 
 : INTSTO ( n <-->x ) PRO 0 DO I CONT DROP LOOP ; \ генерирует числа от 0 до n-1
 : 1-20 ( <-->x ) PRO 20 INTSTO CONT ; \ выдаёт числа от 1-го до 20-и
@@ -210,14 +225,14 @@ a @ CR ." a=" . ;
 : 1-20X1-20x 1-20 1-20 ." X" ;
 
 \ Подсчёт факториала
-: FACT  ( n -- x ) START
+: FACT  ( n -- x ) START{
 DUP  2 < IF DROP 1 EXIT THEN
-DUP  1- DIVE  * EMERGE ;
+DUP  1- DIVE  * }EMERGE ;
 
 : FACT ( n -- !n ) *{ INTSTO 1+ DUP }* ;
 
 \ Подсчёт числа Фибоначчи
-: FIB ( n -- f ) START DUP 3 < IF DROP 1 EXIT THEN DUP 1- DIVE SWAP 2 - DIVE + EMERGE ;
+: FIB ( n -- f ) START{ DUP 3 < IF DROP 1 EXIT THEN DUP 1- DIVE SWAP 2 - DIVE + }EMERGE ;
 
 
 : STACK  PRO  DEPTH 0  ?DO  DEPTH I - 1- PICK  CONT DROP LOOP ;  \ выдаёт стек
@@ -238,6 +253,16 @@ DUP  1- DIVE  * EMERGE ;
 : stack-or |{ STACK DUP }| ;
 
 : sempty NOT: STACK -NOT ." стек пуст" ;
+
+: notF ( f -- ) NOT: DUP ONTRUE -NOT ." F" ; \ если f=false, то выводит "F"
+: notT ( f -- ) NOT: NOT: DUP ONTRUE -NOT -NOT ." T" ; \ если f=true, то выводит "T"
+: ps. ( f -- ) PREDICATE DUP ONTRUE SUCCEEDS . ; \ просто выводит логическое значение
+: pns. ( f -- ) PREDICATE NOT: DUP ONTRUE -NOT SUCCEEDS . ; \ выводит обратное логическое значение
+
+: bool PRO *> TRUE <*> FALSE <* CONT DROP ;
+: check bool *> CR DUP . ." notF=" notF <*> CR DUP . ." notT=" notT <*> CR DUP . ." ps.=" ps. <*> CR DUP . ." pns.=" pns. <* ;
+
+
 
 : alter PRO
 *> S" first" <*> S" second" <*
