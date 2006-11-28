@@ -32,7 +32,7 @@ t l + e MIN
 t - t SWAP
 >STR CONT STRFREE ;
 
-: byChar ( c <--> xt )  PRO S" LITERAL =" compiledCode FREEB CONT ;
+: byChar ( c <--> xt )  PRO S" LITERAL =" compiledCode CONT ;
 \ : byRows ( <--> xt ) PRO S" 2* 23 - ABS 3 ="  compiledCode CONT ;
 \ : byRows ( -- xt ) (: 2* 23 - ABS 3 = ;) ;
 :NONAME 2* 23 - ABS 3 = ; \ 13 или 10
@@ -58,10 +58,10 @@ ELSE a u >STR CONT STRFREE THEN ; \ если нету -- одну
 PRO { a u c -- }
 a TO previousAddress
 a u + a u c
-START
+START{
 find
 DUP previousAddress - previousAddress SWAP >STR CONT STRFREE
-DUP 1+ TO previousAddress EMERGE
+DUP 1+ TO previousAddress }EMERGE
 previousAddress - previousAddress SWAP >STR CONT STRFREE \ обработаем и последнее слово не кончающееся на char
 ;
 
