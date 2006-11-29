@@ -53,57 +53,68 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
   0 ?DO DUP I + C@ [CHAR] / = IF [CHAR] \ OVER I + C! THEN LOOP DROP
 ;
 
+\ эти файлы из корня без дальнейших проверок пропускаем в список
+: root-files=>
+   PRO 
+   S" spf4.exe" CONT
+   S" jpf375c.exe" CONT 
+   S" spf4.ini" CONT
+   S" help.fhlp" CONT
+   S" uninstall.exe" CONT ;
+
+\ пропускать только файлы из следующих каталогов
+: root-dirs=> 
+   PRO 
+   S" devel" CONT
+   S" docs" CONT
+   S" lib" CONT
+   S" samples" CONT
+   S" src" CONT ;
+
+\ не пропускать такие файлы
+: exceptions=>
+  PRO
+  S" *.log" CONT
+  S" *\\CVS\\*" CONT
+  S" *.old" CONT
+  S" *.rar" CONT
+  S" *.bak" CONT
+  S" *.svn" CONT
+  S" *.7z" CONT
+  S" *.zip" CONT
+  S" *.RAR" CONT
+  S" *Entries.Log" CONT
+  S" *.pid" CONT
+  S" *-setup.exe" CONT
+  S" *.md" CONT
+  S" *.md.css" CONT
+  S" *Makefile" CONT ;
+
+
 : FILTER ( a u -- a u ? )
-  PREDICATE
-    2DUP " {SPF-PATH}\spf4.exe" STR@ COMPARE-U 0= ONFALSE
-    2DUP " {SPF-PATH}\jpf375c.exe" STR@ COMPARE-U 0= ONFALSE
-    2DUP " {SPF-PATH}\spf4.ini" STR@ COMPARE-U 0= ONFALSE
-    2DUP " {SPF-PATH}\help.fhlp" STR@ COMPARE-U 0= ONFALSE
-    2DUP " {SPF-PATH}\uninstall.exe" STR@ COMPARE-U 0= ONFALSE
-  SUCCEEDS
-  0= IF TRUE EXIT THEN \ эти файлы из корня без дальнейших проверок пропускаем на выход
- 
-  \ Иначе
-  PREDICATE
-    \ пропускать только файлы из следующих каталогов
-    PREDICATE     
-    2DUP " {SPF-PATH-\\}\\devel\\*" STR@ ULIKE ONFALSE
-    2DUP " {SPF-PATH-\\}\\docs\\*" STR@ ULIKE ONFALSE
-    2DUP " {SPF-PATH-\\}\\lib\\*" STR@ ULIKE ONFALSE
-    2DUP " {SPF-PATH-\\}\\samples\\*" STR@ ULIKE ONFALSE
-    2DUP " {SPF-PATH-\\}\\src\\*" STR@ ULIKE ONFALSE
-    SUCCEEDS
-  ONFALSE \ двойное отрицание, т.е. тут только те что попали под один из фильтров выше
+   PREDICATE 
+     root-files=> 
+     " {SPF-PATH}\{s}" STR@ 
+     2OVER COMPARE-U 0= ONTRUE
+   SUCCEEDS IF TRUE EXIT THEN
 
-  \ и из них не пропускать такие файлы
-  2DUP S" *.log" ULIKE ONFALSE
-  2DUP S" *\\CVS\\*" ULIKE ONFALSE
-  2DUP S" *.old" ULIKE ONFALSE
-  2DUP S" *.rar" ULIKE ONFALSE
-  2DUP S" *.bak" ULIKE ONFALSE
-  2DUP S" *.svn" ULIKE ONFALSE
-  2DUP S" *.7z" ULIKE ONFALSE
-  2DUP S" *.zip" ULIKE ONFALSE
-  2DUP S" *.RAR" ULIKE ONFALSE
-  2DUP S" *Entries.Log" ULIKE ONFALSE
-  2DUP S" *.pid" ULIKE ONFALSE
-  2DUP S" *-setup.exe" ULIKE ONFALSE
-  2DUP S" *spf_cvs.f" ULIKE ONFALSE
-  2DUP S" *make_spf_distr.bat" ULIKE ONFALSE
-  2DUP S" *co.bat" ULIKE ONFALSE
-  2DUP S" *.md" ULIKE ONFALSE
-  2DUP S" *Makefile" ULIKE ONFALSE
-  2DUP " {SPF-PATH-\\}\\docs\\*.md.css" STR@ ULIKE ONFALSE
-  SUCCEEDS
+   PREDICATE
+     root-dirs=> 
+     " {SPF-PATH-\\}\\{s}\\*" STR@ 2OVER 2SWAP ULIKE ONTRUE
+   SUCCEEDS 0= IF FALSE EXIT THEN
+
+   PREDICATE
+     exceptions=>
+     2OVER 2SWAP ULIKE ONTRUE
+   SUCCEEDS 
+   0= 
 ;
-
 
 : FILE-FILTER ( a u f1 f2 -- a u ? )
   NIP
   IF 0 EXIT THEN
 
-  2DUP />\
-  FILTER
+  2DUP />\ FILTER
 ;
 
 : NSI-FILTER ( a u f1 f2 -- )
