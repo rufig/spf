@@ -97,14 +97,14 @@ USER-CREATE ERR-DATA [T] /err-data [I] TC-USER-ALLOT
   ERR-DATA err.number !
   CURSTR @   ERR-DATA err.line# !
   >IN @      ERR-DATA err.in#   !
-  SOURCE /errstr_ MIN  DUP 
+  SOURCE /errstr_ >CHARS UMIN  DUP
              ERR-DATA err.line C!   
-             ERR-DATA err.line CHAR+ SWAP CHARS CMOVE
-          0  ERR-DATA err.line COUNT + C!
+             ERR-DATA err.line CHAR+ SWAP  CMOVE
+          0  ERR-DATA err.line COUNT CHARS + C!
   CURFILE @ ?DUP IF ASCIIZ> ELSE S" H-STDIN" THEN
-  /errstr_ MIN  DUP 
+  /errstr_ >CHARS UMIN  DUP
              ERR-DATA err.file C!
              ERR-DATA err.file CHAR+ SWAP CHARS MOVE
-          0  ERR-DATA err.file COUNT + C!
+          0  ERR-DATA err.file COUNT CHARS + C!
   NOTSEEN-ERR
 ;
