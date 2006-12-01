@@ -225,8 +225,6 @@ Write `lalala`. Or `bububu`. Error will occur and the stack will be cleared. In 
 the stack is emptied with `ABORT`, which is called when the interpreter cant
 find the word. And the proper way to clear stack is: `S0 @ SP!`
 
-__To FAQ__
-
 
 ----
 <a id="debug"/>
@@ -235,8 +233,7 @@ __To FAQ__
 `STARTLOG` starts the logging of all console output to the `spf.log` file in
 the current directory. `ENDLOG`, respectively, stops such behaviour.
 
-
-__Need more!__
+More in [devel](devel.en.html)
 
 
 ----

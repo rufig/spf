@@ -1,4 +1,4 @@
-4.18
+1 December 2006   Version 4.18
 
 * Increased default buffers size.
 ! ERROR2 save and restore BASE
@@ -21,6 +21,7 @@
 + CHAR- >CHARS >CELLS (see CUT-PATH, spf_win_module.f)
 * Optimized FILE-EXIST
 ! minor fixes and improvements
+! Version 4.18.000
 
 libs:
 + lib/include/ansi.f - ANS compatibility from Ilya S. Potrepalov
@@ -32,6 +33,7 @@ libs:
 
 misc:
 + docs/intro
++ docs/devel
 + NSIS installer
 
 
