@@ -177,8 +177,8 @@ LangString LSecSPFDesc ${LANG_RUSSIAN} "${PROD_NAME}, библиотеки, документация, 
 LangString LAlreadyInstalledText ${LANG_ENGLISH} "It looks like ${PROD_NAME} is already present in '$INSTDIR'.$\r$\nOverwrite?$\r$\n(If you answer YES all the files will be overwritten.)"
 LangString LAlreadyInstalledText ${LANG_RUSSIAN} "Похоже, что ${PROD_NAME} уже установлен в '$INSTDIR'.$\r$\nПерезаписать поверх?$\r$\n(Если вы ответите ДА, все файлы будут перезаписаны.)"
 
-LangString LInitWarning ${LANG_ENGLISH}  "This version of SPF features major changes in the directory tree structure. So we recommend to install it in the fresh folder. Sorry for the inconvinience."
-LangString LInitWarning ${LANG_RUSSIAN}  "В этой версии SPF были внесены изменения в структуру каталогов, поэтому рекомендуется устанавливать в чистую папку. Извините за неудобства."
+LangString LInitWarning ${LANG_ENGLISH}  "This version of SPF features some changes in the directory tree structure. So we recommend to install it in the fresh folder. Sorry for the inconvinience."
+LangString LInitWarning ${LANG_RUSSIAN}  "В этой версии SPF были внесены небольшие изменения в структуру каталогов, поэтому рекомендуется устанавливать в чистую папку. Извините за неудобства."
 
 LangString LUninstall ${LANG_ENGLISH} "To uninstall ${PROD_NAME}, stop its services and click 'Remove' button."
 LangString LUninstall ${LANG_RUSSIAN} "Если вы решили удалить ${PROD_NAME}, остановите его сервисы и нажмите 'Удалить' для продолжения."
