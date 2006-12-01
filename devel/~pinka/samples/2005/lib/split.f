@@ -14,7 +14,7 @@
   2R> 2DROP FALSE
 ;
 \ Без локальных переменных. 
-\ С ними проще сделать, а работает на 20-30% медленней (см. split-test.f)
+\ С ними проще сделать, а работает на 15-20% медленней (см. split-test.f)
 
 : SPLIT ( a u a-key u-key -- a-left u-left  a-right u-right  true  |  a u false )
 \ вариант дает более 'логичный' порядок на выходе: левая_часть правая_часть
@@ -44,3 +44,33 @@
   ROT UMIN >R OVER R@ MOVE R>
 ;
 \ see also  ~mak\place.f 
+
+
+\ 01.Dec.2006 added:
+
+: REPLACE- ( a u a-k u-k a-new u-new -- a u3 )
+\ заменяет "на месте". Перемещает на каждом шаге весь оставшийся кусок. Без проверки границ.
+  5 PICK >R 2>R 2SWAP
+  ( a-k u-k  a-rest u-rest )
+  BEGIN 2OVER SPLIT- WHILE ( a-k u-k  a-r u-r a-l u-l )
+    + R@ OVER >R + SWAP ( a-k u-k   a-r a-dest2 u-r )
+    2DUP 2>R MOVE 2R> ( a-k u-k   a-rest u-rest )
+    R> ( a-k u-k  a-rest u-rest   a-dest1 )
+    2R> 2DUP 2>R  ( a-k u-k  a-rest u-rest   a-dest1 a-src u-src )
+    ROT SWAP MOVE
+  REPEAT ( a-k u-k  a-rest u-rest )
+  + NIP NIP RDROP RDROP
+  R> TUCK -
+;
+\ S" How are you?" ( placeholder )  S" How" S" Where, where" REPLACE- TYPE CR SOURCE TYPE CR
+
+: ENLARGE ( a1 u1 a-dst u-dst-max -- a-rest u-rest )
+  DUP >R ROT UMIN DUP >R 2DUP + >R  MOVE R> 2R> -
+;
+: REPLACE-TO ( a u a-k u-k a-new u-new a-dst u-dst-max -- a-dst u )
+\ делает замену в указанный буфер  с проверкой границ.
+  OVER >R  2SWAP 2>R 2>R  2SWAP
+  BEGIN 2OVER SPLIT- WHILE 2R> ENLARGE 2R@ 2SWAP ENLARGE 2>R REPEAT 2SWAP 2DROP
+  2R> ENLARGE DROP ( a2 ) RDROP RDROP R> TUCK -
+;
+\ S" How are you?" S" How" S" Where" S" placeholder to place string here" REPLACE-TO TYPE
