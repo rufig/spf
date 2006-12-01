@@ -12,7 +12,7 @@ spf_tc=jpf375c.exe
 #########################################
 
 spf_ver_major=4
-spf_ver_minor=18-test5
+spf_ver_minor=18
 
 #########################################
 
@@ -57,7 +57,7 @@ $(arch): docs $(spf_path)\spf4.exe spf.lst
 
 clean:
 	$(MAKE) -C $(spf_path)/docs clean
-	$(delete) spf.nsi spf.lst spf_cvs.nsi 
+	$(delete) spf.nsi spf.lst spf_cvs.nsi
 
 cleanall: clean
 	$(delete) $(exe) $(arch)
