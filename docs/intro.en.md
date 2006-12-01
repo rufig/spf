@@ -50,8 +50,8 @@ contributed code. The general convention is to place libraries in the subdirecto
 named `lib`, and example programs in `prog`.
 
 The `devel` directory contains the contributed code of other SP-Forth'ers, the
-short (very short) list with descriptions is available online:
-<http://wiki.forth.org.ru/SPF_DEVEL>, or you can scan the directory yourself.
+short (very short) list with descriptions is available: 
+[SPF_DEVEL](devel.en.html), or you can scan the directory yourself.
 
 
 ----

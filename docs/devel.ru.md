@@ -46,7 +46,7 @@ SP-Forth: Дополнительные библиотеки
 * REQUIRE { <a href='../lib/ext/locals.f'>lib/ext/locals.f</a> \\ Локальные переменные 
 * REQUIRE LAMBDA{ <a href='../devel/~pinka/lib/lambda.f'>~pinka/lib/lambda.f</a> \\ :NONAME но внутри компилируемого определения 
 * REQUIRE (: <a href='../devel/~yz/lib/inline.f'>~yz/lib/inline.f</a> \\ аналог лямбда-конструкций 
-* REQUIRE CONT <a href='../devel/~profit/lib/bac4th.f'>~profit/lib/bac4th.f</a> \\ бэктрекинг, описание в <a href='http://www.forth.org.ru/~mlg/#bacforth'>http://www.forth.org.ru/~mlg/#bacforth</a> 
+* REQUIRE CONT <a href='../devel/~profit/lib/bac4th.f'>~profit/lib/bac4th.f</a> \\ бэктрекинг, описание в <a href='../devel/~mlg/index.html#bacforth'>~mlg/#bacforth</a> 
 
 ### \\ Средства отладки 
 * REQUIRE HeapEnum <a href='../devel/~ac/lib/memory/heap_enum2.f'>~ac/lib/memory/heap_enum2.f</a> \\ перечисление выделенных кусков памяти на хипе 

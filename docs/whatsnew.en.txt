@@ -4,7 +4,7 @@
 ! ERROR2 save and restore BASE
 + PARSE-NAME synonym NextWord (forth200x)
 + PSKIP synonym SKIP (forth200x)
-* Head access serialization is now inherited from the heap flag. For the
+* Heap access serialization is now inherited from the heap flag. For the
   thread-heaps - no serialization, for process heap - yes.
 * speed-up some core words
 * fixes in optimizer

@@ -4,13 +4,13 @@ SP-Forth for Windows
 
 <title>SP-Forth for Windows</title>
 
-<!-- Translated from readme.ru.md (rev. 1.2) -->
+<!-- Translated from readme.ru.md (rev. 1.3) -->
 
 ABOUT
 -----
 
 SP-FORTH is a reliable and comfortable forth system producing optimized native
-code for the Intel x86 processors. SP-Forth runs on MS Windows 9x, NT 
+code for the Intel x86 processors. SP-Forth runs on MS Windows 9x, NT
 (Linux and Kolibri OS ports exist).
 
 SP-Forth is free software, you can redistribute and/or modify it under the
@@ -69,7 +69,7 @@ now. If you need an English version, contact us, the translation will be done.
 
 2.  [Short overview of libraries](devel.en.html)
 
-    Addirtional libraries in SPF distribution
+    Additional libraries in SPF distribution
 
 
 SPF extension (`lib/ext/help.f`) adds help support to the interpreter with the word `HELP`.
