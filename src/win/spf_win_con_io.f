@@ -1,3 +1,5 @@
+\ $Id$
+
 ( Консольный ввод-вывод.
   Windows-зависимые слова.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org

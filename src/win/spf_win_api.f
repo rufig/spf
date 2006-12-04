@@ -1,3 +1,5 @@
+\ $Id$
+
 ( Процедуры времени выполнения для WINAPI и WNDPROC
   Windows-зависимые слова.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org

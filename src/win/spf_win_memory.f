@@ -1,3 +1,5 @@
+\ $Id$
+
 ( ”правление пам€тью.
   Windows-зависимые слова.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org

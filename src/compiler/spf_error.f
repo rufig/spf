@@ -1,3 +1,5 @@
+\ $Id$
+
 ( ќбработка ошибок.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org
   –евизи€: Cент€брь 1999

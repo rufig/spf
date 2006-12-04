@@ -1,3 +1,5 @@
+\ $Id$
+
 ( »спользуемые €дром функции Windows.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org
   –евизи€ - сент€брь 1999

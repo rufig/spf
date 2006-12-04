@@ -1,3 +1,4 @@
+\ $Id$
 
 : (ENVIR?) ( addr u -- false | i*x true )
    BEGIN

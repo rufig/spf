@@ -1,3 +1,5 @@
+\ $Id$
+
 USER CURFILE
 
 : is_path_delimiter ( c -- flag )

@@ -1,3 +1,5 @@
+\ $Id$
+
 VARIABLE CGI?
 VARIABLE POST?
 

@@ -1,3 +1,5 @@
+\ $Id$
+
 (  Working with forth modules
    Copyright [C] 2000 D.Yakimov day@forth.org.ru
 )
