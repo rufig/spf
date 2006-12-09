@@ -22,6 +22,7 @@ WM_USER 1501 + CONSTANT MSG_GETSPLITTERCONTROLLER
 WINAPI: SetROP2  GDI32.DLL
 WINAPI: PatBlt   GDI32.DLL
 WINAPI: DrawEdge USER32.DLL
+WINAPI: GetCapture USER32.DLL
 
 ( Window that can resize itself according to parent size )
 
@@ -48,7 +49,7 @@ CChildCustomWindow SUBCLASS CSplitter
 : cursorAddr SUPER class hCursor ;
 
 init:
-    IDC_SIZEWE  setCursor
+    IDC_SIZEWE setCursor
     COLOR_BTNFACE GetSysColorBrush SUPER class hbrBackground !
 ;
 
@@ -77,8 +78,8 @@ W: WM_LBUTTONDBLCLK
 ;
 
 W: WM_LBUTTONUP
-    ReleaseCapture DROP
-    2DROP 2DROP 0
+    2DROP DROP DUP LOWORD SWAP HIWORD 
+    getController ^ buttonUp 0
 ;
 
 W: WM_MOUSEMOVE
@@ -267,7 +268,7 @@ W: MSG_GETSPLITTERCONTROLLER
 ;
 
 : moveSplitter ( x -- )
-    100 * cx @ /
+    100 * cx @ splitWidth @ 2/ - /
     0 MAX 100 MIN
     splitRatio !
     update
@@ -283,18 +284,32 @@ W: MSG_GETSPLITTERCONTROLLER
     b createHalftoneBrush dc selectObject DROP
 
     PATINVERT
-    cy @ 1-
-    splitWidth @  vswap
+    cy @
+    splitWidth @ vswap
     0
     dragX @ vswap
+    splitWidth @ 2/ vertical? @ IF - ELSE >R SWAP R> - SWAP THEN
     dc handle @
     PatBlt SUPER -wthrow
 ;
 
 : captureChanged
-    \ erase previoud divider
+    \ erase previous divider
     drawMark
-    dragX @ splitWidth @ 2/ + moveSplitter
+    dragX @ moveSplitter
+;
+
+: setDragX ( x )
+    W>S dragStart @ + 
+    splitWidth @ 2/ MAX
+    cx @ splitWidth @ 2/ - MIN
+    dragX !
+;
+
+: buttonUp ( x y )
+    vdrop
+    setDragX
+    ReleaseCapture DROP
 ;
 
 : buttonDown ( x y )
@@ -302,24 +317,25 @@ W: MSG_GETSPLITTERCONTROLLER
     splitter hWnd @ SetCapture DROP
     splitter clientToScreen vdrop ( xSplitter )
     0 0 parent clientToScreen vdrop ( xParent  )
-    - R@ - splitWidth @ 2/ - DUP dragStart !
+    -
+    DUP  dragX !
+    R> - ( start of control )
+    dragStart !
 
-    R> + dragX !    
 
     drawMark
 ;
 
 : mouseMove ( x y -- )
+    GetCapture splitter hWnd @ = 0= IF 2DROP EXIT THEN
+
     vdrop
   
     \ erase previous 
     drawMark
 
     \ draw new
-    W>S dragStart @ + 
-    splitWidth @ 2/ MAX 
-    cx @ splitWidth @ - MIN dragX !
-
+    setDragX
     drawMark
 ;
 
