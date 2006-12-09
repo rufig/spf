@@ -133,11 +133,12 @@ CChildCustomWindow SUBCLASS CSplitterController
 
     VAR vertical?
 
-: upperPane POSTPONE leftPane ; IMMEDIATE
-: bottomPane POSTPONE rightPane ; IMMEDIATE
+: upperPane leftPane ;
+: bottomPane rightPane ;
+: getWidth 6 ;
 
 init:
-    6 splitWidth !
+    getWidth splitWidth !
     50 splitRatio !
     WS_CHILD SUPER style !
     TRUE vertical? !
