@@ -31,6 +31,10 @@ init: WS_CHILD WS_VISIBLE OR SUPER style !
       WS_EX_CONTROLPARENT SUPER exStyle !
 ;
 
+: splitterController ( -- obj | 0 )
+    0 0 MSG_GETSPLITTERCONTROLLER SUPER hWnd @ GetParent SendMessageA
+;
+
 ;CLASS
 
 CChildCustomWindow SUBCLASS CSplitter
@@ -135,10 +139,11 @@ CChildCustomWindow SUBCLASS CSplitterController
 
 : upperPane leftPane ;
 : bottomPane rightPane ;
-: getWidth 6 ;
+
+: splitterWidth splitter getClientRect 2DROP NIP ;
 
 init:
-    getWidth splitWidth !
+    6 splitWidth !
     50 splitRatio !
     WS_CHILD SUPER style !
     TRUE vertical? !

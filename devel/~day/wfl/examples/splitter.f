@@ -13,7 +13,10 @@ CPanel SUBCLASS CPercentPanel
     SUPER getParent p hWnd !
     p getClientRect 2DROP NIP
     DUP 0= IF EXIT THEN
-    CSplitterController ^ getWidth 2* -
+
+    \ учтем ширину сплиттера
+    SUPER splitterController 
+    ?DUP IF ^ splitterWidth 2* - THEN
 
     SUPER getClientRect 2DROP NIP ( w1 w0 )
     100 * SWAP /
