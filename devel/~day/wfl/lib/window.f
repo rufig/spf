@@ -308,6 +308,11 @@ CWinMessageReceiver SUBCLASS CWindow
     p @
 ;
 
+: getParent ( -- hwnd )
+    SUPER checkWindow GetParent
+    DUP SUPER -wthrow
+;
+
 ;CLASS
 
 CLASS CWinClass

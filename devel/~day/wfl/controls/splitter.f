@@ -114,8 +114,12 @@ W: WM_PAINT
 
 CChildCustomWindow SUBCLASS CSplitterController
 
-    CPanel OBJ leftPane
-    CPanel OBJ rightPane
+    VAR leftPane
+    VAR rightPane
+
+    VAR leftPaneOwner
+    VAR rightPaneOwner
+
     CSplitter OBJ splitter
     CWindow OBJ parent \ own all windows
 
@@ -137,6 +141,11 @@ init:
     50 splitRatio !
     WS_CHILD SUPER style !
     TRUE vertical? !
+;
+
+dispose:
+    leftPaneOwner @ IF leftPane @ FreeObj THEN
+    rightPaneOwner @ IF rightPane @ FreeObj THEN
 ;
 
 : setHorizontal
@@ -166,12 +175,12 @@ init:
     Rect>Win splitter moveWindow
 
     \ resize panes
-    TRUE 0 0 xSplit @ cy @ ?rotate Rect>Win leftPane moveWindow
+    TRUE 0 0 xSplit @ cy @ ?rotate Rect>Win leftPane @ ^ moveWindow
     TRUE xSplit @ splitWidth @ + 
          0
          cx @ xSplit @ - splitWidth @ -
          cy @ ?rotate Rect>Win
-         rightPane moveWindow
+         rightPane @ ^ moveWindow
 
     \ force paint splitter
     0 0 splitter invalidate
@@ -181,6 +190,7 @@ init:
 
 : createSplitter ( parent-obj -- )
     DUP DUP ^ hWnd @ parent hWnd !
+    DUP ^ getClientRect 2DROP cx ! cy !
 
     ID_SPLITTER SWAP splitter create DROP
 
@@ -190,18 +200,41 @@ init:
     update
 ;
 
+: setLeftPane ( obj parent-obj )
+     OVER leftPane !
+     ID_LEFT_PANEL SWAP ROT ^ create DROP
+;
+
+: setRightPane ( obj parent-obj )
+     OVER rightPane !
+     ID_RIGHT_PANEL SWAP ROT ^ create DROP
+;
+
+: setUpperPane ( obj parent-obj )
+     setLeftPane
+;
+: getLeftPane leftPane @ ;
+: getRightPane rightPane @ ;
+: getUpperPane getLeftPane ;
+: getBottomPane getRightPane ;
+
+: setBottomPane ( obj parent-obj )
+     setRightPane
+;
+
+
 : createPanels ( parent-obj )
+    CPanel NewObj OVER setLeftPane
+    CPanel NewObj SWAP setRightPane
 
-    ID_LEFT_PANEL OVER leftPane create DROP
-    ID_RIGHT_PANEL OVER rightPane create DROP
-
-    ^ getClientRect 2DROP cx ! cy !
+    TRUE leftPaneOwner !
+    TRUE rightPaneOwner !
 ;
 
 W: WM_SIZE ( lpar wpar msg hwnd -- n )
 \ change size of parent window
 
-    leftPane hWnd @ 0= ABORT" SplitterController: Create panels before!"
+    leftPane @ ^ hWnd @ 0= ABORT" SplitterController: Create panels before!"
 
     \ we are looking for parent messages only
     DUP parent hWnd @ =
