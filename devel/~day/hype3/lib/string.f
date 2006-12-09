@@ -15,6 +15,10 @@ dispose: str @ ?DUP IF STRFREE THEN ;
     str !
 ;
 
+: S! ( addr u -- )
+    str @ STR!
+;
+
 : @ str @ ;
 
 ;CLASS

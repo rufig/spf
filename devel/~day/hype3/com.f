@@ -152,7 +152,6 @@ CONSTANT /iclass
    HERE SWAP CELLS ALLOT
    CLASS@ .vmt !
 
-
    \ fill out vmt, in reverse order to handle overloaded methods
    CLASS@ .methodschain fillVMT
 ;

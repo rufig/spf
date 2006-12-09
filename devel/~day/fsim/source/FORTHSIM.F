@@ -749,7 +749,9 @@ Usage: FORTHSIM file_name.fs
 
 lib\ext\caseins.f
 
-\ S" ..\test.fs" INCLUDED  BYE
+\ STARTLOG S" ..\test.fs" INCLUDED  BYE
  TRUE TO ?GUI
  ' RUN MAINX !
+
+ HERE IMAGE-BASE - 30000 + TO IMAGE-SIZE
  S" ..\forthsim.exe" SAVE BYE

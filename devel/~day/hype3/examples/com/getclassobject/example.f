@@ -1,3 +1,6 @@
+( Example of COM server that exists in the same apartment that a client is
+  so there is no need to register typelib, custom interface and so on )
+
 REQUIRE WL-MODULES ~day\lib\includemodule.f
 
 NEEDS   ~day\hype3\com.f

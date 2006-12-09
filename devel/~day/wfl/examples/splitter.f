@@ -11,13 +11,13 @@ CFrameWindow SUBCLASS CVerySimpleWindow
 
 W: WM_CREATE
    2DROP 2DROP
-   \ hsplitter setHorizontal
+   hsplitter setHorizontal
    SELF hsplitter createPanels
    SELF hsplitter createSplitter
 
-(   hsplitter upperPane this DUP
+   hsplitter upperPane this DUP
    vsplitter createPanels
-   vsplitter createSplitter )
+   vsplitter createSplitter
    0
 ;
 

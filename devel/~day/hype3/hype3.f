@@ -422,16 +422,31 @@ EXPORT
    SELF+ @ SWAP SEND
 ;
 
+: (enter-subobject) ( shift -- R: prev-self )
+   SELF SWAP SELF+ @ TO SELF
+   R> SWAP >R >R
+;
+
+: (exit-subobject)
+   R> R> TO SELF >R
+;
+
+\ with support of syntax: var var var prop
+
 : OBJ-SEND, ( class shift addr u )
-   2>R SWAP 2R> MFIND -1 = ( shift xt )
+   2>R SWAP 2R> MFIND
    STATE @
    IF \ compilation
+     -1 = ( shift xt )
      IF \ nonimmediate     
         LIT, LIT,
         ['] (send-obj) COMPILE,
-     ELSE \ again object 
+     ELSE \ again object
           ( shift xt )
-          NIP EXECUTE
+          SWAP LIT,
+          ['] (enter-subobject) COMPILE,
+          EXECUTE
+          ['] (exit-subobject) COMPILE,
      THEN
    ELSE
      DROP SWAP (send-obj)     

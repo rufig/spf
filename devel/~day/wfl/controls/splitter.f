@@ -1,3 +1,21 @@
+( Dmitry Yakimov 2006
+  Контроллер сплиттера включает в себя сам сплиттер и два окна-панели.
+  И сплиттер и панели являются дочерними по отношению к окну на котором
+  они находятся. Контроллер управляет сплиттером и панелями, изменяет размеры
+  панелей и положение сплиттера. 
+
+  Особенность в том что контролеер является окном и перехватывает сообщение
+  WM_SIZE окна родителя для того чтобы при изменении окна родителя соответсвенно
+  изменить и размеры панелей.
+
+  Пример:
+         CSplitterController OBJ vsplitter
+
+W: WM_CREATE \ Или WM_INITDIALOG
+   SELF hsplitter createPanels
+   SELF hsplitter createSplitter
+   ...
+)
 
 WM_USER 1501 + CONSTANT MSG_GETSPLITTERCONTROLLER
 
@@ -10,7 +28,7 @@ WINAPI: DrawEdge USER32.DLL
 CChildCustomWindow SUBCLASS CPanel
 
 init: WS_CHILD WS_VISIBLE OR SUPER style ! 
-      WS_EX_CLIENTEDGE WS_EX_CONTROLPARENT OR SUPER exStyle !
+      WS_EX_CONTROLPARENT SUPER exStyle !
 ;
 
 ;CLASS
@@ -19,8 +37,14 @@ CChildCustomWindow SUBCLASS CSplitter
 
           VAR controller
 
+: setCursor ( id -- )
+     0 LoadCursorA SUPER class hCursor !
+;
+
+: cursorAddr SUPER class hCursor ;
+
 init:
-    IDC_SIZEWE 0 LoadCursorA SUPER class hCursor !
+    IDC_SIZEWE  setCursor
     COLOR_BTNFACE GetSysColorBrush SUPER class hbrBackground !
 ;
 
@@ -39,6 +63,11 @@ W: WM_CAPTURECHANGED
 ;
 
 W: WM_LBUTTONDOWN
+    2DROP DROP DUP LOWORD SWAP HIWORD 
+    getController ^ buttonDown 0
+;
+
+W: WM_LBUTTONDBLCLK
     2DROP DROP DUP LOWORD SWAP HIWORD 
     getController ^ buttonDown 0
 ;
@@ -104,7 +133,7 @@ CChildCustomWindow SUBCLASS CSplitterController
 : bottomPane POSTPONE rightPane ; IMMEDIATE
 
 init:
-    7 splitWidth !
+    6 splitWidth !
     50 splitRatio !
     WS_CHILD SUPER style !
     TRUE vertical? !
@@ -112,7 +141,7 @@ init:
 
 : setHorizontal
     FALSE vertical? !
-    IDC_SIZENS 0 LoadCursorA splitter class hCursor !
+    IDC_SIZENS splitter setCursor
 ;
 
 \ invisible window
@@ -133,19 +162,20 @@ init:
     || R: xSplit ||
 
     \ move splitter but do not paint
-    0 xSplit @ 0 splitWidth @ cy 1- @ ?rotate
+    0 xSplit @ 0 splitWidth @ cy @ ?rotate
     Rect>Win splitter moveWindow
 
     \ resize panes
-    TRUE 0 0 xSplit @ cy @ 1- ?rotate Rect>Win leftPane moveWindow
+    TRUE 0 0 xSplit @ cy @ ?rotate Rect>Win leftPane moveWindow
     TRUE xSplit @ splitWidth @ + 
          0
          cx @ xSplit @ - splitWidth @ -
-         cy @ 1- ?rotate Rect>Win
+         cy @ ?rotate Rect>Win
          rightPane moveWindow
 
     \ force paint splitter
     0 0 splitter invalidate
+
     splitter updateWindow
 ;
 
@@ -225,7 +255,7 @@ W: MSG_GETSPLITTERCONTROLLER
 : captureChanged
     \ erase previoud divider
     drawMark
-    dragX @ moveSplitter
+    dragX @ splitWidth @ 2/ + moveSplitter
 ;
 
 : buttonDown ( x y )
@@ -249,7 +279,7 @@ W: MSG_GETSPLITTERCONTROLLER
     \ draw new
     W>S dragStart @ + 
     splitWidth @ 2/ MAX 
-    cx @ splitWidth @ 2/ - MIN dragX !
+    cx @ splitWidth @ - MIN dragX !
 
     drawMark
 ;
