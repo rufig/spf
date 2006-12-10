@@ -43,6 +43,10 @@
 : SEATED- ( a-dst u-dst a-src u-src -- a-dst u )
   ROT UMIN >R OVER R@ MOVE R>
 ;
+: SEATED ( a-src u-src a-dst u-dst -- a-dst u )
+  ROT UMIN 2DUP 2>R MOVE 2R>
+;
+
 \ see also  ~mak\place.f 
 
 
@@ -64,13 +68,19 @@
 ;
 \ S" How are you?" ( placeholder )  S" How" S" Where, where" REPLACE- TYPE CR SOURCE TYPE CR
 
-: ENLARGE ( a1 u1 a-dst u-dst-max -- a-rest u-rest )
+: CROP ( a1 u1 a-dst u-dst-max -- a-rest u-rest )
   DUP >R ROT UMIN DUP >R 2DUP + >R  MOVE R> 2R> -
 ;
+: CROP- ( a-dst u-dst-max a1 u1 -- a-rest u-rest )
+  ROT DUP >R UMIN >R SWAP R@ 2DUP + >R MOVE R> 2R> -
+;
+
 : REPLACE-TO ( a u a-k u-k a-new u-new a-dst u-dst-max -- a-dst u )
 \ делает замену в указанный буфер  с проверкой границ.
   OVER >R  2SWAP 2>R 2>R  2SWAP
-  BEGIN 2OVER SPLIT- WHILE 2R> ENLARGE 2R@ 2SWAP ENLARGE 2>R REPEAT 2SWAP 2DROP
-  2R> ENLARGE DROP ( a2 ) RDROP RDROP R> TUCK -
+  BEGIN 2OVER SPLIT- WHILE 2R> CROP 2R@ 2SWAP CROP 2>R REPEAT 2SWAP 2DROP
+  2R> CROP DROP ( a2 ) RDROP RDROP R> TUCK -
 ;
 \ S" How are you?" S" How" S" Where" S" placeholder to place string here" REPLACE-TO TYPE
+
+\ много параметров... какой тут стек удобней, еще не понятно.
