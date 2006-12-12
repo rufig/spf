@@ -8,27 +8,13 @@ NEEDS ~day\wfl\controls\splitter.f
 
 CPanel SUBCLASS CPercentPanel
 
-: getPercent ( -- n )
-    || CWindow p ||
-    SUPER getParent p hWnd !
-    p getClientRect 2DROP NIP
-    DUP 0= IF EXIT THEN
-
-    \ учтем ширину сплиттера
-    SUPER splitterController 
-    ?DUP IF ^ splitterWidth 2* - THEN
-
-    SUPER getClientRect 2DROP NIP ( w1 w0 )
-    100 * SWAP /
-;
-
 : drawPercent ( dc )
     || R: dc CRect r ||
     SUPER getClientRect r !
 
     DT_VCENTER DT_CENTER OR DT_SINGLELINE OR
     r addr
-    getPercent S>D <# [CHAR] % HOLD #S #> SWAP
+    SUPER getPercent 100 / S>D <# [CHAR] % HOLD #S #> SWAP
     dc @
     DrawTextA SUPER -wthrow
 ;

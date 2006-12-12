@@ -36,6 +36,22 @@ init: WS_CHILD WS_VISIBLE OR SUPER style !
     0 0 MSG_GETSPLITTERCONTROLLER SUPER hWnd @ GetParent SendMessageA
 ;
 
+\ percent * 100
+
+: getPercent ( -- n )
+    || CWindow p ||
+    SUPER getParent p hWnd !
+    p getClientRect 2DROP NIP
+    DUP 0= IF EXIT THEN
+
+    \ учтем ширину сплиттера
+    splitterController 
+    ?DUP IF ^ splitterWidth 2* - THEN
+
+    SUPER getClientRect 2DROP NIP ( w1 w0 )
+    10000 * SWAP /
+;
+
 ;CLASS
 
 CChildCustomWindow SUBCLASS CSplitter
@@ -117,6 +133,8 @@ W: WM_PAINT
 1 CONSTANT ID_RIGHT_PANEL
 2 CONSTANT ID_SPLITTER
 
+10000 CONSTANT SPLIT_INTERVAL
+
 CChildCustomWindow SUBCLASS CSplitterController
 
     VAR leftPane
@@ -128,7 +146,7 @@ CChildCustomWindow SUBCLASS CSplitterController
     CSplitter OBJ splitter
     CWindow OBJ parent \ own all windows
 
-    VAR splitRatio \ in %
+    VAR splitRatio \ 0 .. SPLIT_INTERVAL
     VAR splitWidth
     VAR cx
     VAR cy
@@ -145,7 +163,7 @@ CChildCustomWindow SUBCLASS CSplitterController
 
 init:
     6 splitWidth !
-    50 splitRatio !
+    SPLIT_INTERVAL 2/ splitRatio !
     WS_CHILD SUPER style !
     TRUE vertical? !
 ;
@@ -168,7 +186,7 @@ dispose:
 
 : update ( -- )
 
-    cx @ splitRatio @ * 100 / ( xSplit or ySplit )
+    cx @ splitRatio @ * SPLIT_INTERVAL / ( xSplit or ySplit )
     0 MAX
     DUP splitWidth @ + cx @ >
     IF
@@ -268,8 +286,8 @@ W: MSG_GETSPLITTERCONTROLLER
 ;
 
 : moveSplitter ( x -- )
-    100 * cx @ splitWidth @ 2/ - /
-    0 MAX 100 MIN
+    SPLIT_INTERVAL * cx @ /
+    0 MAX SPLIT_INTERVAL MIN
     splitRatio !
     update
 ;
