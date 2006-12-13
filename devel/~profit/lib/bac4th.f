@@ -55,12 +55,13 @@ EXPORT
 : CONT L> >R R@ ENTER R> >L ;
 
 \ обратимые операции
-: RESTB  R>  OVER >R  ENTER   R> ;
-: 2RESTB R>  -ROT 2DUP 2>R ROT  ENTER   2R> ;
-: SWAPB  R> ENTER  SWAP ;
-: BDROP  R>  SWAP >R  ENTER  R> ;
-: B!   R> OVER DUP @  SWAP 2>R -ROT !  ENTER 2R> ! ;
-: BC!   R> OVER DUP C@ SWAP 2>R -ROT C!  ENTER 2R> C! ;
+: RESTB  ( n --> n  / n <--  ) R>  OVER >R  ENTER   R> ;
+: 2RESTB ( d --> d  / d <--  ) R>  -ROT 2DUP 2>R ROT  ENTER   2R> ;
+: SWAPB  ( a b <--> b a )      R> ENTER  SWAP ;
+: BDROP  ( n <--> )            R>  SWAP >R  ENTER  R> ;
+: KEEP   ( addr --> / <-- )    R> SWAP DUP @  2>R ENTER 2R> SWAP ! ;
+: B!     ( n addr --> / <-- )  R> OVER DUP @  2>R -ROT !  ENTER 2R> SWAP ! ;
+: BC!    ( n addr --> / <-- )  R> OVER DUP C@ 2>R -ROT C!  ENTER 2R> SWAP C! ;
 
 
 : START{ ( -- org dest $TART )
@@ -99,11 +100,16 @@ RET,
 : WISE [COMPILE] -NOT ;  IMMEDIATE
 
 \ отсечение
-: CUT:   R>   RP@ >L   BACK L> DROP TRACKING   >R ;
-: -CUT   R>   L> RP!   >R ;
-: -NOCUT R>   L> RP@ - >R
-BACK R> RP@ + >L  TRACKING
->R ;
+: CUT:                           \ отметить начало отсекаемого фрагм.
+    R>  RP@ >L                   \ адр. вершины стека возвр.--> на L-стек
+        BACK LDROP TRACKING      \ а при откате - убрать эту отметку
+    >R ;
+: -CUT      R> L> RP! >R ;       \ убрать точки возврата до отметки
+: -NOCUT                         \ убрать отметку, но не точки возврата
+    R>
+      L> RP@ - >R                \ сохранить относит. адрес отметки
+      BACK R> RP@ + >L  TRACKING \ восстановить его при откате
+    >R ;
 
 \ блок альтернатив
 : *>   ?COMP  204  0 RLIT, >MARK  203 ;  IMMEDIATE
@@ -263,9 +269,12 @@ DUP  1- DIVE  * }EMERGE ;
 : check bool *> CR DUP . ." notF=" notF <*> CR DUP . ." notT=" notT <*> CR DUP . ." ps.=" ps. <*> CR DUP . ." pns.=" pns. <* ;
 
 
-
 : alter PRO
 *> S" first" <*> S" second" <*
+CR TYPE ;
+
+: firstInAlter PRO CUT:
+*> S" first" <*> S" second" <* -CUT
 CR TYPE ;
 
 \ перебор всех подмножеств конструкцией AMONG  ...  EACH  ...  ITERATE
