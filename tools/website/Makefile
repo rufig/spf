@@ -12,5 +12,10 @@ update:
 docs:
 	$(MAKE) -C $(spf)/docs host=linux
 
-www: update docs
-	cp $(spf)/docs/*.html $(web)/docs
+www: update docs web
+
+# copy to the web space only newly generated files
+web:
+	if test -f "$(spf)/docs/mark.new"; then \
+	cd $(spf)/docs && cp $(shell cat $(spf)/docs/mark.new) $(web)/docs; \
+	fi

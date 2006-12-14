@@ -13,7 +13,10 @@ endif
 
 docs = intro.ru.html intro.en.html readme.ru.html readme.en.html devel.ru.html devel.en.html
 
-target: $(docs)
+target: clean_mark $(docs)
+
+clean_mark:
+	$(delete) mark.new
 
 #devel.ru.html: css = devel.md.css
 %.html: css = intro.md.css
@@ -24,6 +27,8 @@ target: $(docs)
 	$(output) $(md_path)html_header_2 >> $@
 	python $(md_path)markdown-1-5.py $(patsubst %.html,%.md,$@) >> $@
 	$(output) $(md_path)html_footer >> $@
+	echo $@ >> mark.new
 
 clean:
 	$(delete) $(docs)
+	$(delete) mark.new
