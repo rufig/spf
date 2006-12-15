@@ -65,7 +65,7 @@ CChildCustomWindow SUBCLASS CSplitter
 : cursorAddr SUPER class hCursor ;
 
 init:
-    IDC_SIZEWE setCursor
+    IDC_SIZEWE setCursor    
     COLOR_BTNFACE GetSysColorBrush SUPER class hbrBackground !
 ;
 
@@ -107,7 +107,7 @@ W: WM_MOUSEMOVE
 ;
 
 W: WM_PAINT
-    || CPaintDC dc CRect r CBrush b ||
+    || CPaintDC dc CRect r CBrush b CPen p ||
     NIP NIP NIP
     dc create DROP
 
@@ -115,15 +115,31 @@ W: WM_PAINT
     COLOR_3DFACE b getSysColorBrush
     dc fillRect
 
-    getController ^ vertical? @ 0=
-    IF
-      BF_BOTTOM BF_TOP OR
-    ELSE BF_LEFT BF_RIGHT OR
-    THEN
+    getController ^ drawSplitter? @ 0= IF 0 EXIT THEN
 
-    EDGE_RAISED
-    r addr
-    dc handle @ DrawEdge DROP
+    COLOR_3DSHADOW GetSysColor p createSimple dc selectObject >R
+    getController ^ vertical? @ >R
+    0 0 0 dc handle @ MoveToEx SUPER -wthrow
+    
+    R@
+    IF r height 0
+    ELSE 0 r width
+    THEN dc handle @ LineTo SUPER -wthrow
+
+    0 R@
+    IF
+         0 r right @ 1-
+    ELSE r height 1- 0
+    THEN dc handle @ MoveToEx SUPER -wthrow
+
+    R@
+    IF
+       r height r right @ 1- 
+    ELSE r height 1- r width
+    THEN dc handle @ LineTo SUPER -wthrow
+
+    R> DROP
+    R> dc selectObject DROP
     0
 ;
 
@@ -155,6 +171,7 @@ CChildCustomWindow SUBCLASS CSplitterController
     VAR dragX
 
     VAR vertical?
+    VAR drawSplitter?
 
 : upperPane leftPane ;
 : bottomPane rightPane ;
@@ -162,7 +179,7 @@ CChildCustomWindow SUBCLASS CSplitterController
 : splitterWidth splitter getClientRect 2DROP NIP ;
 
 init:
-    6 splitWidth !
+    4 splitWidth !
     SPLIT_INTERVAL 2/ splitRatio !
     WS_CHILD SUPER style !
     TRUE vertical? !
@@ -196,16 +213,25 @@ dispose:
     || R: xSplit ||
 
     \ move splitter but do not paint
+
     0 xSplit @ 0 splitWidth @ cy @ ?rotate
     Rect>Win splitter moveWindow
 
     \ resize panes
-    TRUE 0 0 xSplit @ cy @ ?rotate Rect>Win leftPane @ ^ moveWindow
-    TRUE xSplit @ splitWidth @ + 
-         0
-         cx @ xSplit @ - splitWidth @ -
-         cy @ ?rotate Rect>Win
-         rightPane @ ^ moveWindow
+    vertical? @
+    IF
+       TRUE 0 0 xSplit @ cy @ 
+    ELSE TRUE 0 0 cy @ xSplit @
+    THEN Rect>Win leftPane @ ^ moveWindow
+
+    vertical? @
+    IF
+       TRUE xSplit @ splitWidth @ + 0
+       cx @ xSplit @ - splitWidth @ - cy @ 
+    ELSE
+       TRUE 0 xSplit @ splitWidth @ +
+       cy @ cx @ xSplit @ - splitWidth @ -
+    THEN Rect>Win rightPane @ ^ moveWindow
 
     \ force paint splitter
     0 0 splitter invalidate
@@ -215,13 +241,13 @@ dispose:
 
 : createSplitter ( parent-obj -- )
     DUP DUP ^ hWnd @ parent hWnd !
-    DUP ^ getClientRect 2DROP cx ! cy !
 
-    ID_SPLITTER SWAP splitter create DROP
+    ID_SPLITTER OVER splitter create DROP
 
     0 SWAP SUPER create DROP
     parent hWnd @ SUPER attach
 
+    ^ getClientRect 2DROP vertical? @ 0= IF SWAP THEN cx ! cy !
     update
 ;
 
@@ -265,15 +291,14 @@ W: WM_SIZE ( lpar wpar msg hwnd -- n )
     DUP parent hWnd @ =
     IF
        3 PICK DUP
-       vertical? @ 0=
-       IF 
-         LOWORD cy !
-         HIWORD cx !
+       vertical? @
+       IF
+          LOWORD cx !
+          HIWORD cy !
        ELSE
-         LOWORD cx !
-         HIWORD cy !
+          LOWORD cy !
+          HIWORD cx !
        THEN
-
        update
     
        SUPER inheritWinMessage
@@ -292,6 +317,13 @@ W: MSG_GETSPLITTERCONTROLLER
     update
 ;
 
+: setPercent ( n -- )
+    SPLIT_INTERVAL 100 / *
+    0 MAX SPLIT_INTERVAL MIN
+    splitRatio !
+    update
+;
+
 : vswap vertical? @ 0= IF SWAP THEN ;
 : vdrop  vertical? @ 0= IF NIP ELSE DROP THEN ;
 : vover vertical? @ 0= IF DUP ELSE OVER THEN ;
@@ -303,7 +335,7 @@ W: MSG_GETSPLITTERCONTROLLER
 
     PATINVERT
     cy @
-    splitWidth @ vswap
+    splitWidth @ 1+ vswap
     0
     dragX @ vswap
     splitWidth @ 2/ vertical? @ IF - ELSE >R SWAP R> - SWAP THEN

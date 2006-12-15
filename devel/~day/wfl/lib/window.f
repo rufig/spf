@@ -293,6 +293,17 @@ CWinMessageReceiver SUBCLASS CWindow
     SUPER -wthrow
 ;
 
+
+: modifyStyleEx ( n-add n-remove )
+    GWL_EXSTYLE SUPER checkWindow GetWindowLongA
+    DUP SUPER -wthrow
+
+    ROT OR
+    SWAP INVERT AND
+    GWL_EXSTYLE SUPER checkWindow SetWindowLongA 
+    SUPER -wthrow
+;
+
 : destroyWindow 
     SUPER checkWindow DestroyWindow SUPER -wthrow
 ;

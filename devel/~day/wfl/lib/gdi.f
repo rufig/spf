@@ -103,7 +103,7 @@ CGDIObject SUBCLASS CPen
     DUP SUPER handle !
 ;
 
-: createSimple ( color pen -- hPen )
+: createSimple ( color -- hPen )
     1 PS_SOLID create
 ;
 

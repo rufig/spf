@@ -93,11 +93,13 @@ CChildWindow SUBCLASS CListView
 
 : createClass S" SysListView32" DROP ;
 
+init:  WS_EX_CLIENTEDGE SUPER exStyle ! ;
+
 : insertItem ( lvitem-obj )
      ^ addr
      0
      LVM_INSERTITEM
-     SUPER sendMessage -1 = SUPER wthrow
+     SUPER sendMessage DROP
 ;
 
 : insertString ( data addr u )
@@ -121,6 +123,65 @@ CChildWindow SUBCLASS CListView
      LVM_INSERTCOLUMN SUPER sendMessage
      -1 = SUPER wthrow
 
+;
+
+;CLASS
+
+CLASS CTVITEM
+    0 DEFS addr
+    VAR mask
+    VAR hItem
+    VAR state
+    VAR stateMask
+    VAR pszText
+    VAR cchTextMax
+    VAR iImage
+    VAR iSelectedImage
+    VAR cChildren
+    VAR lParam
+;CLASS
+
+CLASS CTVINSERTSTRUCT
+    0 DEFS addr
+    VAR hParent
+    VAR hInsertAfter
+    \ TV_ITEM
+    VAR mask
+    VAR hItem
+    VAR state
+    VAR stateMask
+    VAR pszText
+    VAR cchTextMax
+    VAR iImage
+    VAR iSelectedImage
+    VAR cChildren
+    VAR lParam
+;CLASS
+
+CChildWindow SUBCLASS CTreeView 
+
+init:  WS_EX_CLIENTEDGE SUPER exStyle ! ;
+: createClass S" SysTreeView32" DROP ;
+
+: insertItem ( tvinsertstruct-obj -- HTREEITEM )
+     ^ addr
+     0
+     TVM_INSERTITEMA
+     SUPER sendMessage
+;
+
+: insertString ( addr u hParent -- HTREEITEM )
+    || CTVINSERTSTRUCT tvi ||
+    tvi hParent !
+    DROP tvi pszText !
+    TVIF_TEXT tvi mask !
+    tvi this insertItem
+;
+
+: expand ( hitem )
+    TVE_EXPAND
+    TVM_EXPAND
+    SUPER sendMessage DROP
 ;
 
 ;CLASS

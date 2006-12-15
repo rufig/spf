@@ -2,6 +2,7 @@
 
 WINAPI: AtlAxCreateControl ATL.DLL
 WINAPI: AtlAxGetControl    ATL.DLL
+WINAPI: AtlAxWinInit       ATL.DLL
 
 WINAPI: CoInitializeEx  OLE32.DLL
 WINAPI: CoUninitialize    OLE32.DLL
@@ -39,6 +40,8 @@ init:
 )
 
 : createControl ( addr u )
+     AtlAxWinInit DROP
+
      DROP COM::>unicodebuf
      DUP >R
      SUPER checkWindow SWAP
@@ -54,8 +57,8 @@ init:
      S" Control does not support IDispatch" SUPER abort
 ;
 
-: create ( addr u id parent-obj )
-     SUPER create DROP
+: create ( addr u id parent-obj -- hwnd )
+     SUPER create ROT ROT
      createControl
 ;
 

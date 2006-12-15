@@ -41,6 +41,15 @@ W: WM_CREATE
    2DROP 2DROP
    hsplitter setHorizontal
 
+   \ Мы не назначаем стиль WS_EX_CLIENTEDGE панелям, как в complexsplitter
+    \ примере, значит мы должны отрисовать сплиттер сами
+   TRUE hsplitter drawSplitter? !
+   TRUE vsplitter drawSplitter? !
+
+   \ увеличим немного ширину
+   6 hsplitter splitWidth !
+   6 vsplitter splitWidth !
+
    \ простое создание панелей
     \ контроллер сам создаст и удалит панели
 

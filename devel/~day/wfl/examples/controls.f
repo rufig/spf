@@ -57,3 +57,15 @@ DIALOG;
 ;
 
 winTest
+
+\EOF
+TRUE  TO ?GUI
+FALSE TO ?CONSOLE
+FALSE TO TRACE-WINMESSAGES
+
+: winTest
+   winTest BYE
+;
+
+' winTest MAINX !
+   S" test.exe" SAVE BYE

@@ -1,8 +1,6 @@
 ( export hype3 interfaces to automation, creation of COM objects )
 \ (c) 2006 Dmitry Yakimov, support@activekitten.com
 
-( See example below )
-
 \ TODO: Semiautomatic compilation of typelib and c++ headers
 \ Реализовать IDispatch - как описывать информацию о типах?
 \ ActiveX компонент

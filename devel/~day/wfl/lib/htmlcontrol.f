@@ -1,10 +1,12 @@
-
+\ TODO:
+\ http://msdn.microsoft.com/workshop/browser/hosting/wbcustomization.asp
+\ http://www.codeguru.com/cpp/com-tech/atl/atl/article.php/c11007/
 
 CAxControl SUBCLASS CWebBrowser
 
 : className S" SHDocVw.InternetExplorer" ;
 
-: create ( id parent )
+: create ( id parent-obj -- hwnd )
     className 2SWAP SUPER create
 ;
 
