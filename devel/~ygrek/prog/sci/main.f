@@ -83,7 +83,7 @@ MODULE: style
    [ PREVIOUS ]
    FIND-CONST , ;
 
-C" SendMessageA" FIND NIP 0= [IF] WINAPI: SendMessageA KERNEL32.DLL [THEN]
+C" SendMessageA" FIND NIP 0= [IF] WINAPI: SendMessageA USER32.DLL [THEN]
 
 : send-message ( wparam lparam msg hwnd -- result) 2>R SWAP 2R> SendMessageA ;
 
@@ -206,7 +206,7 @@ C" SendMessageA" FIND NIP 0= [IF] WINAPI: SendMessageA KERNEL32.DLL [THEN]
 
 : matching ( a u s -- s )
    TO s
-   START MATCH=> 2DUP s ASTR::STR+ S"  " s ASTR::STR+ EMERGE s ;
+   START{ MATCH=> 2DUP s ASTR::STR+ S"  " s ASTR::STR+ }EMERGE s ;
 
 \ : z S" RE" ASTR::"" matching ASTR::STR@ TYPE ; \EOF
 \ : z S" CR" MATCH=> 2DUP TYPE CR ; \EOF
@@ -415,7 +415,7 @@ MESSAGES;
    ;
 
 : Scintilla-init
-    PREDICATE sci-dll=> LoadLibraryA ONTRUE DROP SUCCEEDS TRUE ABORT" Failed to load scinitilla dll" ;
+    PREDICATE sci-dll=> LoadLibraryA ONTRUE DROP SUCCEEDS 0= ABORT" Failed to load scintilla dll" ;
 
 : load-file ( a u -- )
    ClearDocumentStyle DROP
