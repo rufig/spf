@@ -155,4 +155,3 @@ PROC: mode4  lv report-view     PROC;
 \ ' run MAINX !
 \ S" wincñ-example.exe" SAVE  
 run
-BYE
