@@ -94,6 +94,8 @@ reporter
    <*>
     S" dc:creator" tag reporter STYPEHTML
    <*>
+    " <guid isPermaLink={''}false{''}>{ticket STR@}-{changetime STR@}</guid>" CR STYPE
+   <*>
     S" link" tag ticket STR@ au->n " http://www.activekitten.com/trac/spf/ticket/{n}" STYPE
    <* ;
 
