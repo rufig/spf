@@ -28,10 +28,11 @@ With Help of
 <scheme name="Forthint">
 
    <!-- comments -->
-   <regexp match="/(\s|^)\\((\s.*$)|$)/" region="forComment"/>
+   <block start="/(\s|^)\\(\s|$)/" end="/$/" scheme="Comment" region="forComment"/>
    <block start="/(\s|^)\((\s|$)/" end="/\)/" scheme="Comment" region="forComment"/>
    <block start="/(\s|^)\(\*(\s|$)/" end="/(\s|^)\*\)\M(\s|$)/" scheme="Comment" region="forComment"/>
    <!-- strings -->
+   <regexp match='/(\s|^)(\"\")/' region2="forWord"/>
    <regexp match='/(\s|^)(\S+(\"\s))(.*?)(\")/' region2="forWord" region4="forString" region5="forWord"/>
    <block start='/(\s|^)\"(\s|$)/' end='/\"/' scheme="Comment" region="forString" region00="forWord" region10="forWord"/>
 
