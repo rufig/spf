@@ -40,6 +40,13 @@ DECIMAL
 0x800401F0  CONSTANT CO_E_NOTINITIALIZED
 0x80040110  CONSTANT CLASS_E_NOAGGREGATION 
 0x8007000E  CONSTANT E_OUTOFMEMORY
+0x80004001  CONSTANT E_NOTIMPL
+0x80020006  CONSTANT DISP_E_UNKNOWNNAME
+0x8002000E  CONSTANT DISP_E_BADPARAMCOUNT
+0x80020008  CONSTANT DISP_E_BADVARTYPE
+0x80020009  CONSTANT DISP_E_EXCEPTION
+
+-1 CONSTANT DISPID_UNKNOWN
 
 WINAPI: CoRegisterClassObject OLE32.DLL
 WINAPI: CoRevokeClassObject   OLE32.DLL
@@ -50,12 +57,29 @@ WINAPI: CoGetClassObject      OLE32.DLL
 WINAPI: InterlockedIncrement  KERNEL32.DLL
 WINAPI: InterlockedDecrement   KERNEL32.DLL
 
+WINAPI: VariantInit       OLEAUT32.DLL
+WINAPI: VariantClear      OLEAUT32.DLL
+WINAPI: VariantChangeType OLEAUT32.DLL
+WINAPI: VariantCopy       OLEAUT32.DLL
+WINAPI: SysAllocString    OLEAUT32.DLL
+WINAPI: SysFreeString     OLEAUT32.DLL
+
 : COM-THROW ( n -- )
     DUP S_OK = 0=
     IF
        WIN_ERROR DECODE-ERROR  ER-U ! ER-A ! -2 THROW
     ELSE DROP
     THEN
+;
+
+\ put log file near *.exe file
+: STARTLOG2
+  ENDLOG
+  S" spf.log" +ModuleDirName  W/O     ( S: addr count attr -- )
+  CREATE-FILE-SHARED  ( S: addr count attr -- handle ior )
+  IF DROP
+  ELSE TO H-STDLOG 
+  THEN
 ;
 
 WINAPI: CoInitializeEx   OLE32.DLL
@@ -192,47 +216,17 @@ EXPORT
     ;CLASS
 ;
 
-(
-VOCABULARY VOC-VARIANTS
-GET-CURRENT ALSO VOC-VARIANTS DEFINITIONS
-
-ALSO objLocalsSupport
-
-R: SUBCLASS BOOL
-11 CONSTANT id
-;CLASS
-
-R: SUBCLASS char
-10 CONSTANT id
-;CLASS
-
-R: SUBCLASS REFIID
-13 CONSTANT id
-;CLASS
-
-R: SUBCLASS void**
-
-;CLASS
-
-: ; PREVIOUS S" ;" EVAL-WORD ; IMMEDIATE
-
-SET-CURRENT PREVIOUS PREVIOUS
-
-: I|
-    POSTPONE ||
-; IMMEDIATE
-)
-
 : METHOD
     ( we try to overload method? )
-    LAST @ COUNT CLASS@ MethodByName 0=
+    GET-CURRENT @ ( last method of the class )
+    COUNT CLASS@ MethodByName 0=
 
     CLASS@ .methodschain LINK,
     HERE >R
     /ichain ALLOT
 
-    LAST @ NAME> COMPROC R@ .xt !
-    LAST @ R@ .methodnfa !
+    GET-CURRENT @ NAME> COMPROC R@ .xt !
+    GET-CURRENT @ R@ .methodnfa !
 
     IF  \ new method
        CLASS@ .methodscount DUP @ SWAP 1+!
@@ -405,8 +399,6 @@ CComBase ISUBCLASS IUnknown {00000000-0000-0000-C000-000000000046}
     VAR refCount
 
 : QueryInterface ( ppvObject iid - hresult )
-\    I| REFIID iid void** ppvObj |
-
      DUP 0= OVER 0= OR IF 2DROP E_INVALIDARG EXIT THEN
 
      COM-TRACE IF ." , asked for interface " DUP UUID:: .guid THEN
@@ -485,7 +477,7 @@ ICLASS IClassFactory {00000001-0000-0000-C000-000000000046}
     REGCLS_MULTIPLEUSE
     CLSCTX_LOCAL_SERVER
     SUPER iself  \ Pointer to the IUnknown interface of class factory
-    SUPER clsid   \ CLSID to be registered
+    childClass @ ^ clsid
     CoRegisterClassObject
 ;
 
@@ -498,31 +490,261 @@ ICLASS IClassFactory {00000001-0000-0000-C000-000000000046}
 
 ;ICLASS
 
+VOCABULARY ENUM-VOC
+GET-CURRENT ALSO ENUM-VOC DEFINITIONS
+
+VARIABLE LastEnum
+
+FALSE WARNING !
+
+: = 
+    PARSE-NAME 2DUP + 1- C@ 
+    [CHAR] , = IF 1- THEN
+    NOTFOUND LastEnum @ !
+;
+
+: NOTFOUND ( addr u -- )
+    CREATED HERE LastEnum ! 0 ,
+    DOES> @
+;
+
+: , ;
+
+TRUE WARNING !
+
+
+: { ;
+: } PREVIOUS ;
+
+SET-CURRENT PREVIOUS
+
+: enum ( "name" )
+    0 PARSE 2DROP
+    ALSO ENUM-VOC
+;
+
+DECIMAL
+
+enum VARENUM
+    {	
+    	VT_EMPTY	= 0,
+	VT_NULL	= 1,
+	VT_I2	= 2,
+	VT_I4	= 3,
+	VT_R4	= 4,
+	VT_R8	= 5,
+	VT_CY	= 6,
+	VT_DATE	= 7,
+	VT_BSTR	= 8,
+	VT_DISPATCH	= 9,
+	VT_ERROR	= 10,
+	VT_BOOL	= 11,
+	VT_VARIANT	= 12,
+	VT_UNKNOWN	= 13,
+	VT_DECIMAL	= 14,
+	VT_I1	= 16,
+	VT_UI1	= 17,
+	VT_UI2	= 18,
+	VT_UI4	= 19,
+	VT_I8	= 20,
+	VT_UI8	= 21,
+	VT_INT	= 22,
+	VT_UINT	= 23,
+	VT_VOID	= 24,
+	VT_HRESULT	= 25,
+	VT_PTR	= 26,
+	VT_SAFEARRAY	= 27,
+	VT_CARRAY	= 28,
+	VT_USERDEFINED	= 29,
+	VT_LPSTR	= 30,
+	VT_LPWSTR	= 31,
+	VT_RECORD	= 36,
+	VT_INT_PTR	= 37,
+	VT_UINT_PTR	= 38,
+	VT_FILETIME	= 64,
+	VT_BLOB	= 65,
+	VT_STREAM	= 66,
+	VT_STORAGE	= 67,
+	VT_STREAMED_OBJECT	= 68,
+	VT_STORED_OBJECT	= 69,
+	VT_BLOB_OBJECT	= 70,
+	VT_CF	= 71,
+	VT_CLSID	= 72,
+	VT_VERSIONED_STREAM	= 73,
+	VT_BSTR_BLOB	= 0xFFF,
+	VT_VECTOR	= 0x1000,
+	VT_ARRAY	= 0x2000,
+	VT_BYREF	= 0x4000,
+	VT_RESERVED	= 0x8000,
+	VT_ILLEGAL	= 0xFFFF,
+	VT_ILLEGALMASKED	= 0xFFF,
+	VT_TYPEMASK	= 0xFFF
+}
+
+: W>S ( w -- s )
+\ 16 -> 32
+   DUP 0x8000 AND
+   IF
+      0xFFFF0000 OR
+   THEN
+;
+
+1 CONSTANT DISPATCH_METHOD
+0x2 CONSTANT DISPATCH_PROPERTYGET
+0x4 CONSTANT DISPATCH_PROPERTYPUT
+0x8 CONSTANT DISPATCH_PROPERTYPUTREF
+
+: IsHypeProperty ( xt -- f )
+   DUP C@ 0xE8 = \ call
+   IF
+      DUP 1+ @ + DUP DUP C@ 0xE8 =
+      IF 1+ @ ['] (DOES1) SWAP CFL + - =
+      ELSE DROP 0
+      THEN
+   ELSE DROP 0
+   THEN
+;
+
+USER VarType
+
 ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
 
 
+\ We do not provide type information yet
+ \ To do it we need either to create type lib or to describe type info
+  \ in a forth code
+
 : GetTypeInfoCount ( pctinfo -- hresult )
      DUP 0= IF DROP E_INVALIDARG EXIT THEN
-     1 SWAP ! S_OK
+     0 SWAP ! S_OK
 ; METHOD
 
 : GetTypeInfo   ( ppTInfo lcid iTInfo -- hresult )
-     NIP
-     OVER 0!
-\     0 = 0= IF DROP DISP_E_BADINDEX THEN
-     DUP 0= IF DROP E_INVALIDARG EXIT THEN
- \    typeInfo addRef DROP
-  \   typeInfo iself SWAP !
-     S_OK
+     2DROP 0! E_NOTIMPL
 ; METHOD
 
-: GetIDsOfNames ( rgDispId lcid cNames rgszNames riid -- hresult )
-     DROP
+: GetIDsOfNames  { rgDispId lcid cNames rgszNames riid \ result -- hresult }
+\ in this version parameters of methods are omitted
 
+     rgszNames @
+     UUID:: unicode>buf DUP >R
+     ASCIIZ> COM-TRACE IF ." GetIDsOfNames: " 2DUP TYPE THEN
+
+     SELF @ ROT ROT (MFIND)
+     0= IF DISPID_UNKNOWN DISP_E_UNKNOWNNAME -> result THEN
+
+     rgDispId TUCK ! CELL+ -> rgDispId
+     R> FREE THROW
+
+     result
+; METHOD
+
+: BSTR> ( bstr -- addr2 u2 )
+     UUID:: unicode>buf ASCIIZ>
+;
+
+: >BSTR ( addr u -- bstr )
+     DROP UUID:: >unicodebuf SysAllocString
+;
+
+: vararg@ { p \ type fetch addr -- args }
+     p W@
+     DUP VT_BYREF AND 
+     IF 
+        VT_BYREF INVERT AND
+        TRUE -> fetch
+     THEN -> type
+
+     p 2 CELLS + fetch IF @ THEN -> addr
+     type VT_UI4 =
+     type VT_I4  = OR
+     type VT_INT = OR
+     type VT_UINT = OR
+     IF
+         addr @ EXIT
+     THEN
+
+     type VT_I8 =
+     type VT_UI8 = OR
+     IF addr 2@ EXIT THEN
+
+     type VT_UI2 =
+     IF  addr W@ EXIT THEN
+
+     type VT_I2 =
+     type VT_BOOL = OR
+     IF addr W@ W>S EXIT THEN
+
+     type VT_UI1 = 
+     IF addr C@ EXIT THEN
+
+     type VT_I1 =
+     IF addr C@ C>S EXIT THEN
+
+     type VT_VARIANT =
+     IF addr @ RECURSE EXIT THEN
+
+     type VT_BSTR = 
+     IF addr @ BSTR> EXIT THEN
+;
+
+: varargs@ { p }
+     p 2 CELLS + @ 0
+     ?DO
+        p @ I 4 * CELLS + vararg@
+     LOOP
+;
+
+  VAR testVar
+
+: bool 0= 0= ;
+
+: Invoke  { puArgErr pExcepInfo pVarResult pDispParams wFlags lcid riid dispIdMember \ spInvoke -- hresult }
+     0 VarType !
+     SP@ DUP -> spInvoke  S0 !
+     pDispParams varargs@
+
+     dispIdMember CATCH ?DUP
+     IF
+        spInvoke SP!
+        pExcepInfo W!
+        dispIdMember WordByAddr 
+        <# HOLDS [CHAR] : HOLD SUPER name HOLDS 0. #>
+        >BSTR pExcepInfo CELL+ !
+        DISP_E_EXCEPTION EXIT
+     THEN
      
-; METHOD
+     \ variable?
+     dispIdMember IsHypeProperty
+     IF
+        wFlags DISPATCH_METHOD AND bool
+        wFlags DISPATCH_PROPERTYGET AND bool OR
+        IF
+            @ VT_I4 pVarResult W!
+            pVarResult 2 CELLS + !
+            spInvoke SP!
+            S_OK EXIT           
+        ELSE
+            SP@ spInvoke -
+            -8 =
+            IF
+               ! 
+               spInvoke SP!
+               S_OK  EXIT
+            ELSE
+                \ BSTR to forth variable
+                NIP !
+                spInvoke SP!
+                S_OK EXIT
+            THEN
+        THEN
+     THEN
 
-: Invoke        ( puArgErr pExcepInfo pVarResult pDispParams wFlags lcid riid dispIdMember -- hresult )
+     SP@ spInvoke -
+     0 = IF S_OK EXIT THEN
+
+     spInvoke SP!
+     DISP_E_BADPARAMCOUNT
 ; METHOD
 
 ;ICLASS
@@ -531,3 +753,31 @@ ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
 IClassFactory NEW AppClassFactory
 
 ;MODULE
+
+\EOF
+
+: IsHypeProperty ( xt -- f )
+   DUP C@ 0xE8 = \ call
+   IF
+      DUP 1+ @ + DUP DUP C@ 0xE8 =
+      IF 1+ @ ['] (DOES1) SWAP CFL + - =
+      ELSE DROP 0
+      THEN
+   ELSE DROP 0
+   THEN
+;
+
+
+CLASS Test 
+
+  VAR prop
+
+: method NOOP ;
+
+: testProp ['] prop IsHypeProperty . ;
+: testMethod ['] method IsHypeProperty . ;
+
+;CLASS
+
+Test ^ testProp
+Test ^ testMethod

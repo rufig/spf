@@ -29,7 +29,7 @@ VARIABLE vClass
     AppClassFactory clsid
     0
     CLSCTX_LOCAL_SERVER
-    AppClassFactory clsid
+    IForth ^ clsid
     CoGetClassObject
 ;
 
