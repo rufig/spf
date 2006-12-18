@@ -48,6 +48,20 @@ REQUIRE S>NUM ~nn/lib/s2num.f
 
 : POP-BASE ( -- )  R> R> BASE ! >R ;
 
+\EOF
+
+DECIMAL
+ B# 101010 .
+
+: TH-TEST
+  PUSH-OCTAL
+   8 .
+  POP-BASE
+   8 .
+;
+
+TH-TEST
+
 
 
 
