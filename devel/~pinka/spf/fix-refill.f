@@ -21,6 +21,7 @@
 
 REQUIRE REPLACE-WORD lib\ext\patch.f
 REQUIRE SPLIT- ~pinka\samples\2005\lib\split.f
+REQUIRE UNBROKEN ~pinka\samples\2005\lib\split-white.f
 
 REQUIRE Included ~pinka\lib\ext\requ.f
 

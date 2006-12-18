@@ -27,5 +27,6 @@ VARIABLE B9  \ конец буфера, граница
 : NEXT-LINE ( -- a u true | false )
   BEGIN  REST >CHARS SPLIT-LINE IF CHARS REST! TRUE EXIT THEN CHARS CARRY
   VACANT DUP WHILE readout? WHILE REST+! REPEAT THEN 2DROP
-  REST DUP IF 2DUP ELAPSE >CHARS TRUE EXIT THEN NIP ( false )
+  REST DUP IF >CHARS UNBROKEN 2DUP CHARS ELAPSE TRUE EXIT THEN NIP ( false )
 ;
+\ т.к. буфер -- это внутреннее дело модуля, строку можем резать по пробельному символу!
