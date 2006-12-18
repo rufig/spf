@@ -40,7 +40,7 @@ VALUE byRows
 
 : find ( a u c <--> a1 )
 \ находит в строке a u все символы c и генерирует вызовы для каждого символа
-PRO { a u c -- } CR
+PRO { a u c -- }
 a u + a ?DO I C@ c EXECUTE IF I CONT DROP THEN LOOP ;
 
 : divide ( a u c <--> s1 )
