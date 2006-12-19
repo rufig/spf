@@ -149,6 +149,7 @@ CONSTANT /ichain
 CELL -- .vmt
 CELL -- .methodscount
 CELL -- .methodschain
+CELL -- .instancesnumber \ number of instances created
   16 -- .clsid
 CONSTANT /iclass
 
@@ -204,6 +205,7 @@ EXPORT
     /iclass (CLASS)
     CLASS@ .methodscount 0!
     CLASS@ .methodschain 0!
+    CLASS@ .instancesnumber 0!
     CLASS@ .vmt 0!
 
     PARSE-NAME DUP 0= ABORT" You should define com interface"
@@ -386,6 +388,10 @@ ICLASS CComBase {00000000-0000-0000-0000-000000000000}
     SWAP clsid UUID:: StringFromGUID2
 ;
 
+: instances ( -- n )
+    SELF @ .instancesnumber @
+;
+
 ;ICLASS
 
 : ISUBCLASS
@@ -412,11 +418,13 @@ CComBase ISUBCLASS IUnknown {00000000-0000-0000-C000-000000000046}
 
 : AddRef ( -- cnt )
     refCount InterlockedIncrement
+    SELF @ .instancesnumber InterlockedIncrement DROP
 ; METHOD
 
 : Release ( -- cnt )
 \ Overload release in case you store object in some exotic storage
     refCount InterlockedDecrement
+    SELF @ .instancesnumber InterlockedDecrement DROP
 
     0= 
     IF
@@ -463,7 +471,7 @@ ICLASS IClassFactory {00000001-0000-0000-C000-000000000046}
     lockCount SWAP
     IF InterlockedIncrement 
     ELSE InterlockedDecrement
-    THEN  DROP S_OK
+    THEN  COM-TRACE IF BL EMIT . ELSE DROP THEN S_OK
 ; METHOD
 
 : setClass ( hype-class )
@@ -599,13 +607,57 @@ enum VARENUM
    IF
       DUP 1+ @ + DUP DUP C@ 0xE8 =
       IF 1+ @ ['] (DOES1) SWAP CFL + - =
-      ELSE DROP 0
+      ELSE 2DROP 0
       THEN
    ELSE DROP 0
    THEN
 ;
 
+
+\ Variant variables
+ProtoObj SUBCLASS ComVar
+   0 DEFS addr
+   2 DEFS type
+   6 DEFS reserved
+   8 DEFS value
+
+init: addr VariantInit ;
+
+: set ( variant )
+   addr VariantCopy COM-THROW
+;
+
+: objAddr
+    value
+    type W@ VT_BYREF AND
+    IF @ THEN
+;
+
+;CLASS
+
+ComVar SUBCLASS ComString
+;CLASS
+
+ComVar SUBCLASS ComInt
+
+: @ SUPER objAddr @ ;
+: ! SUPER objAddr ! ;
+
+;CLASS
+
+\ Forth method could override VT_BSTR and set its own type in VarType
+ \ In this case a method should return an address of variant data (bstr and so on)
 USER VarType
+
+: BSTR> ( bstr -- addr2 u2 )
+     UUID:: unicode>buf ASCIIZ>
+;
+
+: >BSTR ( addr u -- bstr )
+     DROP UUID:: >unicodebuf SysAllocString
+;
+
+: bool 0= 0= ;
 
 ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
 
@@ -639,14 +691,6 @@ ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
      result
 ; METHOD
 
-: BSTR> ( bstr -- addr2 u2 )
-     UUID:: unicode>buf ASCIIZ>
-;
-
-: >BSTR ( addr u -- bstr )
-     DROP UUID:: >unicodebuf SysAllocString
-;
-
 : vararg@ { p \ type fetch addr -- args }
      p W@
      DUP VT_BYREF AND 
@@ -664,9 +708,15 @@ ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
          addr @ EXIT
      THEN
 
+     type VT_R4 =
+     IF addr @ DATA>FLOAT32 EXIT THEN
+
+     type VT_R8 =
+     IF addr 2@ SWAP DATA>FLOAT EXIT THEN
+
      type VT_I8 =
      type VT_UI8 = OR
-     IF addr 2@ EXIT THEN
+     IF addr 2@ SWAP EXIT THEN
 
      type VT_UI2 =
      IF  addr W@ EXIT THEN
@@ -695,10 +745,6 @@ ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
      LOOP
 ;
 
-  VAR testVar
-
-: bool 0= 0= ;
-
 : Invoke  { puArgErr pExcepInfo pVarResult pDispParams wFlags lcid riid dispIdMember \ spInvoke -- hresult }
      0 VarType !
      SP@ DUP -> spInvoke  S0 !
@@ -713,7 +759,7 @@ ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
         >BSTR pExcepInfo CELL+ !
         DISP_E_EXCEPTION EXIT
      THEN
-     
+
      \ variable?
      dispIdMember IsHypeProperty
      IF
@@ -738,8 +784,37 @@ ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
                 S_OK EXIT
             THEN
         THEN
+     ELSE \ Forth word
+        wFlags DISPATCH_METHOD AND bool
+        wFlags DISPATCH_PROPERTYGET AND bool OR
+        IF
+           SP@ spInvoke - DUP
+           -4 =
+           IF DROP 
+              VarType @ ?DUP 0= IF VT_I4 THEN
+              pVarResult W!
+              pVarResult 2 CELLS + !
+              spInvoke SP!
+              S_OK EXIT
+           THEN
+
+           -8 =
+           IF \ string or double
+              VarType @ ?DUP 0= IF VT_BSTR THEN
+              DUP pVarResult W!
+              VT_BSTR =
+              IF
+                 >BSTR pVarResult 2 CELLS + !
+              ELSE
+                 SWAP pVarResult 2 CELLS + 2!
+              THEN
+              spInvoke SP!
+              S_OK EXIT
+           THEN
+        THEN
      THEN
 
+     \ Forth word
      SP@ spInvoke -
      0 = IF S_OK EXIT THEN
 
@@ -756,23 +831,12 @@ IClassFactory NEW AppClassFactory
 
 \EOF
 
-: IsHypeProperty ( xt -- f )
-   DUP C@ 0xE8 = \ call
-   IF
-      DUP 1+ @ + DUP DUP C@ 0xE8 =
-      IF 1+ @ ['] (DOES1) SWAP CFL + - =
-      ELSE DROP 0
-      THEN
-   ELSE DROP 0
-   THEN
-;
-
 
 CLASS Test 
 
   VAR prop
 
-: method NOOP ;
+: method WORDS ;
 
 : testProp ['] prop IsHypeProperty . ;
 : testMethod ['] method IsHypeProperty . ;

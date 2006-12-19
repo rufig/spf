@@ -5,7 +5,8 @@ REQUIRE WL-MODULES ~day\lib\includemodule.f
 NEEDS  ~day\hype3\com.f
 NEEDS  ~day\common\clparam.f
 NEEDS  ~ac\lib\string\compare-u.f
-NEEDS ~day\wfl\lib\messageloop.f
+NEEDS  ~day\wfl\lib\messageloop.f
+NEEDS  lib\include\float2.f
 
 \ Event that is signaled when there is zero objects and we should
  \ to destroy a server
@@ -17,14 +18,32 @@ WINAPI: WaitForSingleObject  KERNEL32.DLL
 WINAPI: GetCurrentProcessId  KERNEL32.DLL
 WINAPI: PostThreadMessageA   USER32.DLL
 
+WINAPI: GlobalAlloc KERNEL32.DLL
+
 IDispatch ISUBCLASS IForth {9F7A5561-8BD8-4B0D-93EC-A79A19C99330}
 
+  VAR testVar
 
-: testMethod ;
+\ return string
+: testMethod1 S" Hello, world" ;
+
+\ return custom variant type - a byte (-10) in this case
+: testMethod2 ( -- vardata )
+    VT_I1 VarType ! -10 
+;
+
+\ return complex custom variant type - a double float value
+: testMethod3 ( R: r1 r2 -- vardata )
+    F+ VT_R8 VarType !
+    FLOAT>DATA
+;
 
 : Release ( cnt )
-     SUPER Release DUP 0= 
-     IF quitEvent @ SetEvent DROP THEN
+     SUPER Release
+
+     \ get number of all AddRef's of this class
+      \ and if it is zero than unload COM factory
+     SUPER instances 0= IF quitEvent @ SetEvent DROP THEN
 ; METHOD
 
 ;ICLASS
