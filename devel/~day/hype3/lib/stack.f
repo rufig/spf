@@ -6,8 +6,12 @@ CLASS CStack
 
    CELL PROPERTY data \ addres
    CELL PROPERTY count
+   CELL PROPERTY maxData
 
 : setSize ( n )
+\ n in cells!
+   DUP maxData !
+   CELLS
    data@ ?DUP
    IF
       SWAP RESIZE THROW
@@ -17,7 +21,7 @@ CLASS CStack
 ;
 
 init:
-    1024 setSize
+    2 setSize
 ;
 
 : checkEmpty
@@ -26,15 +30,23 @@ init:
 
 : pop ( -- n )
     checkEmpty
-    CELL NEGATE count +!
-    data@ count@ + @
+    -1 count +!
+    data@ count@ CELLS + @
+;
+
+: incStack
+    count@ maxData@ < 0= \ >=
+    IF
+      maxData@ 3 * 2/ setSize
+    THEN
 ;
 
 : push
-   data@ count@ + !
-   CELL count +!
+   incStack
+   data@ count@ CELLS + !
+   count 1+!
 ;
-
+      	
 : top ( -- n )
     pop DUP push
 ;
@@ -42,3 +54,22 @@ init:
 dispose: data@ ?DUP IF FREE THROW THEN ;
 
 ;CLASS
+
+\EOF
+CStack NEW stack
+
+10 ALLOCATE THROW stack push
+10 ALLOCATE THROW stack push
+10 ALLOCATE THROW stack push
+10 ALLOCATE THROW stack push
+10 ALLOCATE THROW stack push
+
+stack count@ . 
+
+: freeStrings
+     BEGIN
+       stack count
+     WHILE
+       stack pop FREE THROW
+     REPEAT
+;

@@ -2,9 +2,7 @@
 \ (c) 2006 Dmitry Yakimov, support@activekitten.com
 
 \ TODO: Semiautomatic compilation of typelib and c++ headers
-\ Реализовать IDispatch - как описывать информацию о типах?
 \ ActiveX компонент
-\ Inproc server in dll
 
 0 VALUE COM-TRACE
 
@@ -14,6 +12,8 @@ NEEDS              ~day\hype3\locals.f
 NEEDS               lib\win\winerr.f
 NEEDS              ~ac\lib\win\registry2.f
 NEEDS              ~day\common\link.f
+NEEDS              ~day\hype3\lib\stack.f
+NEEDS              ~day\lib\unicode.f
 
 MODULE: UUID
 
@@ -213,10 +213,14 @@ EXPORT
     CLASS@ .clsid UUID:: >clsid
 ;
 
+PREVIOUS
+\ we should get ;CLASS from FORTH
 : ;ICLASS
-    FulfillVMT
+    HYPE:: FulfillVMT
     ;CLASS
 ;
+
+ALSO HYPE
 
 : METHOD
     ( we try to overload method? )
@@ -620,6 +624,7 @@ ProtoObj SUBCLASS ComVar
    2 DEFS type
    6 DEFS reserved
    8 DEFS value
+   2 DEFS decimalPart
 
 init: addr VariantInit ;
 
@@ -632,6 +637,8 @@ init: addr VariantInit ;
     type W@ VT_BYREF AND
     IF @ THEN
 ;
+
+dispose: addr VariantClear COM-THROW ;
 
 ;CLASS
 
@@ -650,17 +657,19 @@ ComVar SUBCLASS ComInt
 USER VarType
 
 : BSTR> ( bstr -- addr2 u2 )
-     UUID:: unicode>buf ASCIIZ>
+     -1 unicode>
 ;
 
 : >BSTR ( addr u -- bstr )
-     DROP UUID:: >unicodebuf SysAllocString
+     >unicode DROP DUP
+     SysAllocString SWAP FREE THROW
 ;
 
 : bool 0= 0= ;
 
 ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
 
+     CStack OBJ strStack \ stack of strings to delete automagically
 
 \ We do not provide type information yet
  \ To do it we need either to create type lib or to describe type info
@@ -735,7 +744,7 @@ ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
      IF addr @ RECURSE EXIT THEN
 
      type VT_BSTR = 
-     IF addr @ BSTR> EXIT THEN
+     IF addr @ BSTR> OVER strStack push EXIT THEN
 ;
 
 : varargs@ { p }
@@ -745,20 +754,41 @@ ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
      LOOP
 ;
 
+: freeStrings
+     BEGIN
+       strStack count@
+     WHILE
+       strStack pop FREE THROW
+     REPEAT
+;
+
+: cleanupParams
+     freeStrings
+     BEGIN
+        FDEPTH
+     WHILE FDROP
+     REPEAT
+;
+
 : Invoke  { puArgErr pExcepInfo pVarResult pDispParams wFlags lcid riid dispIdMember \ spInvoke -- hresult }
      0 VarType !
      SP@ DUP -> spInvoke  S0 !
+
      pDispParams varargs@
 
      dispIdMember CATCH ?DUP
      IF
         spInvoke SP!
+        cleanupParams
+
         pExcepInfo W!
         dispIdMember WordByAddr 
         <# HOLDS [CHAR] : HOLD SUPER name HOLDS 0. #>
         >BSTR pExcepInfo CELL+ !
         DISP_E_EXCEPTION EXIT
      THEN
+
+     cleanupParams
 
      \ variable?
      dispIdMember IsHypeProperty

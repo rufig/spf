@@ -38,6 +38,16 @@ IDispatch ISUBCLASS IForth {9F7A5561-8BD8-4B0D-93EC-A79A19C99330}
     FLOAT>DATA
 ;
 
+\ string concatenation
+ \ mind that we could return a BSTR and VT_BSTR in VarType
+: testMethod4 ( addr1 u1 addr2 u2 add3 u3 -- addr u )
+    "" >R
+    R@ STR+ R@ STR+ R@ STR+
+    R@ STR@ TUCK PAD SWAP MOVE
+    R> STRFREE
+    PAD SWAP
+;
+
 : Release ( cnt )
      SUPER Release
 

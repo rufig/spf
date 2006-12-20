@@ -42,8 +42,7 @@ init:
 : createControl ( addr u )
      AtlAxWinInit DROP
 
-     DROP COM::>unicodebuf
-     DUP >R
+     >unicode DROP DUP >R
      SUPER checkWindow SWAP
      0 0 2SWAP
      AtlAxCreateControl

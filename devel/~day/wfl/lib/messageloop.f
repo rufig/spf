@@ -5,6 +5,7 @@ NEEDS ~day\hype3\hype3.f
 NEEDS ~day\wincons\wc.f
 NEEDS ~day\hype3\locals.f
 NEEDS ~day\wfl\lib\wfunc.f
+NEEDS ~day\lib\macros.f
 
 0 VALUE TRACE-WINMESSAGES
 

@@ -128,8 +128,6 @@ WINAPI: ReleaseCapture       USER32.DLL
 
 \ strings
 WINAPI: SetPriorityClass KERNEL32.DLL
-WINAPI: MultiByteToWideChar KERNEL32.DLL
-WINAPI: WideCharToMultiByte KERNEL32.DLL
 WINAPI: GetCurrentProcess KERNEL32.DLL
 WINAPI: GetCurrentThreadId  KERNEL32.DLL
 

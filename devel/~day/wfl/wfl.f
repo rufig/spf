@@ -20,6 +20,7 @@ EXPORT
 NEEDS  ~day\wincons\wc.f
 S" ~yz\cons\commctrl.const" ADD-CONST-VOC
 
+NEEDS ~day\lib\unicode.f
 NEEDS ~day\hype3\lib\string.f
 NEEDS ~day\wfl\lib\wfunc.f
 NEEDS ~day\wfl\lib\thunk.f
