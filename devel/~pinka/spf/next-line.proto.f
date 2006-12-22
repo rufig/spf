@@ -1,4 +1,5 @@
 \ 05.Dec.2006 ruvim@forth.org.ru
+\ $Id$
 \ прототип объекта, представленный исходным кодом
 \ arche
 
@@ -23,10 +24,12 @@ VARIABLE B9  \ конец буфера, граница
 : ELAPSE ( a u -- ) + R ! ;
 : REST! ( a u -- ) DROP R ! ;
 : REST+! ( a u -- ) + W ! ;
+: ?UNBROKEN ( a u -- a u1 ) W @ B9 @ - 0= IF UNBROKEN THEN ;
 
 : NEXT-LINE ( -- a u true | false )
   BEGIN  REST >CHARS SPLIT-LINE IF CHARS REST! TRUE EXIT THEN CHARS CARRY
   VACANT DUP WHILE readout? WHILE REST+! REPEAT THEN 2DROP
-  REST DUP IF >CHARS UNBROKEN 2DUP CHARS ELAPSE TRUE EXIT THEN NIP ( false )
+  REST DUP IF >CHARS ?UNBROKEN 2DUP CHARS ELAPSE TRUE EXIT THEN NIP ( false )
 ;
 \ т.к. буфер -- это внутреннее дело модул€, строку можем резать по пробельному символу!
+\ если строка последн€€ в файле (то бишь, в буфере место еще есть), то UNBROKEN ненужен.
