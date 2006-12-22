@@ -124,7 +124,7 @@ RET,
 \ Функция аггрегирования (конкатенация, суммирование логические сложение или умножение)
 \ Функция успеха, может включать в себя R> ENTER
 
-: agg{ ( init -- ) ?COMP
+: agg{ ( -- ) ?COMP
 POSTPONE (ADR) HERE 0 ,
 POSTPONE !
 0 RLIT, >MARK
@@ -200,6 +200,7 @@ LIT, succ COMPILE,
 ;MODULE
 
 /TEST
+\ REQUIRE SEE lib/ext/disasm.f
 \ что-то вроде локальных переменных (локальные значения, но глобальные имена)...
 VARIABLE a
 VARIABLE b
@@ -285,7 +286,8 @@ CR TYPE ;
     ITERATE
         CR STACK. ;        \ распечатать стек с новой строки
 
-\ перебор всех подмножеств, из статьи Dynamic Code Generation
+\ перебор всех подмножеств, из статьи Dynamically Structured Codes
+\ http://dec.bournemouth.ac.uk/forth/euro/ef99/gassanenko99b.pdf
 : el  R@ ENTER DROP ;
 : .{} CR ." { " DEPTH 0 ?DO I PICK COUNT TYPE SPACE LOOP ." } " ;
 : subsets C" first" el C" second" el C" third" el .{} ;
