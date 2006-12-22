@@ -36,7 +36,7 @@ t - t SWAP
 \ : byRows ( <--> xt ) PRO S" 2* 23 - ABS 3 ="  compiledCode CONT ;
 \ : byRows ( -- xt ) (: 2* 23 - ABS 3 = ;) ;
 :NONAME 2* 23 - ABS 3 = ; \ 13 или 10
-VALUE byRows 
+CONSTANT byRows 
 
 : find ( a u c <--> a1 )
 \ находит в строке a u все символы c и генерирует вызовы для каждого символа
@@ -52,18 +52,23 @@ DUP a - a SWAP >STR CONT STRFREE
 1+ a u + OVER - >STR CONT STRFREE
 ELSE a u >STR CONT STRFREE THEN ; \ если нету -- одну
 
-: split ( a u c <--> s1  )
-\ разбивает строку a u символами c и генерирует вызов для каждой последовательности
-\ между этими символами с автоматическим выделением и снятием памяти
+: split-patch ( a u c <--> addr u  )
+\ разбивает строку a u символами c и генерирует вызов для каждого
+\ *отрезка* в строке a u
 PRO { a u c -- }
 a TO previousAddress
 a u + a u c
 START{
 find
-DUP previousAddress - previousAddress SWAP >STR CONT STRFREE
+DUP previousAddress - previousAddress SWAP CONT 2DROP
 DUP 1+ TO previousAddress }EMERGE
-previousAddress - previousAddress SWAP >STR CONT STRFREE \ обработаем и последнее слово не кончающееся на char
+previousAddress - previousAddress SWAP CONT 2DROP \ обработаем и последний отрезок, не кончающийся на char
 ;
+
+: split ( a u c <--> s1  )
+\ разбивает строку a u символами c и генерирует вызов для каждой последовательности
+\ между этими символами с автоматическим выделением и снятием памяти
+PRO split-patch 2DUP >STR CONT STRFREE ;
 
 : notEmpty ( s <--> s ) PRO DUP STR@ NIP ONTRUE CONT ; \ отфильтровывает пустые строки
 
@@ -110,7 +115,7 @@ CR r7
 
 \ вывод: 2*2=4?
 
-: r8 concat{ S"     mary  has  a  sheep  " BL byChar split notEmpty DUP STR@ }concat ."  [" DUP STR@ TYPE ." ]" ;
+: r8 concat{ S"     mary  has  a  sheep" BL byChar split notEmpty DUP STR@ }concat ."  [" DUP STR@ TYPE ." ]" ;
 \ убирает все пробелы в строке
 \ вывод: [maryhasasheep]
  CR r8
