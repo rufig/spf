@@ -1,8 +1,8 @@
 \ auto-memoize
 \
-\ memoize - сохранение промежуточных результатов вычислений рекурсивной функции
-\ авто-memoize - это конструкция превращающая каждую рекурсивную функцию в её
-\                memoize'ованную версию
+\ memoize - ёюїЁрэхэшх яЁюьхцєЄюўэ√ї Ёхчєы№ЄрЄют т√ўшёыхэшщ ЇєэъЎшш
+\ ртЄю-memoize - ¤Єю ъюэёЄЁєъЎш  яЁхтЁр∙р■∙р  ы■сє■ ЇєэъЎш■ (CELL -> CELL) т х╕
+\                memoize'ютрээє■ тхЁёш■
 \ 
 \ restrictions of this implementation:
 \ recursive function must use run-time lookup and the name of the
