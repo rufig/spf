@@ -6,6 +6,9 @@
   Модуль расширения, использующий эту ячейку для своих нужд,
   должен переопределить слово WID-EXTRA
   с тем, чтобы оно продолжало давать свободную ячейку.
+
+  Модуль предоставляет цепочку AT-WORDLIST-CREATING [ wid -- wid ]
+  вызываемую при создании нового списка слов.
 )
 
 REQUIRE [UNDEFINED] lib\include\tools.f
@@ -16,16 +19,19 @@ WARNING @  WARNING 0!
 
 MODULE: WidExtraSupport
 
-Include enum-vocs.f
+Require ENUM-VOCS enum-vocs.f
 
 2 CELLS CONSTANT /THIS-EXTR   \ [ free cell | voc class ]
 
 : MAKE-EXTR ( wid -- )
-  GET-CURRENT >R  DUP SET-CURRENT
   HERE DUP /THIS-EXTR DUP ALLOT ERASE
   ( wid here )
   OVER CLASS@ OVER CELL+ !
   SWAP CLASS!
+;
+: MAKE-EXTR2 ( wid -- ) \ не используется; на случай словарей, созданных минуя слово WORDLIST
+  GET-CURRENT >R  DUP SET-CURRENT
+  MAKE-EXTR
   R> SET-CURRENT
 ;
 
@@ -93,7 +99,8 @@ WARNING !
 ;
 ' VOCABULARY SWAP REPLACE-WORD  \ чтобы повлияло и на 'MODULE:', и было совместимо со storage.f
 
-' MAKE-EXTR ENUM-VOCS \ фикс существующих словарей
+
+' MAKE-EXTR ENUM-VOCS \ фикс существующих словарей (!!!)
 
 ;MODULE
 

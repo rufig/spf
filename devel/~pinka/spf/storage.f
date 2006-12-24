@@ -53,7 +53,7 @@ S" storage-core.f" Included
 \ расширение простейшего хранилища:
 
 ..: AT-FORMATING ( -- )
-  ALIGN HERE STORAGE-EXTRA !
+  ( ALIGN) HERE STORAGE-EXTRA !
   0 ,       \ 0, current wid
   0 ,       \ 1, extra
   HERE 0 ,  \ 2, default wid
@@ -91,7 +91,7 @@ CREATE _VOC-LIST-EMPTY 0 ,
 ;
 
 ( old-voc-list@ )
-HERE IMAGE-SIZE HERE IMAGE-BASE - - ( addr u ) \ see  lib/include/core-ext.f
+ALIGN HERE IMAGE-SIZE HERE IMAGE-BASE - - ( addr u ) \ see  lib/include/core-ext.f
 FORMAT
   DUP MOUNT \ (!!!)
   FORTH-WORDLIST SET-CURRENT
@@ -113,7 +113,7 @@ Include enum-vocs.f  \ чтобы использовали новый VOC-LIST
 \ необходимо чтобы словарь знал свое хранилище.
 
 Require WID-EXTRA  wid-extra.f
-\ там определят и WORDLIST с учетом нового VOC-LIST
+\ там определяется и WORDLIST с учетом нового VOC-LIST
 
 MODULE: WidStorageSupport
 
@@ -138,7 +138,7 @@ EXPORT
 ;MODULE
 
 \ переопределяем все слова, завязанные на SET-CURRENT
-\ (т.к. оптимизатор делал подстановку, и перехвата причинного слова недостаточно)
+\ (т.к. оптимизатор делал подстановку, и перехвата только причинного слова недостаточно)
 
 ' SET-CURRENT
 : SET-CURRENT ( wid -- )
@@ -163,17 +163,26 @@ EXPORT
 
 
 \ =====
-\ Временные словари
+\ Временные хранилища и словари
+
+: AT-STORAGE-DELETING ( -- ) ... ;
+
+: NEW-STORAGE ( size -- h )
+  DUP ALLOCATE THROW SWAP 
+  2DUP ERASE FORMAT
+;
+: DEL-STORAGE ( h -- )
+  PUSH-MOUNT AT-STORAGE-DELETING POP-MOUNT FREE THROW
+;
 
 : TEMP-WORDLIST ( -- wid )
-\ создаст временное хранилище (в виртуальной памяти) 
+\ создаст временное хранилище в текущей куче (хипе)
 \ и в нем словарь
-  WL_SIZE ALLOCATE THROW WL_SIZE
-  2DUP ERASE FORMAT PUSH-MOUNT
+  WL_SIZE NEW-STORAGE PUSH-MOUNT
   DEFAULT-WORDLIST  POP-MOUNT DROP
 ;
 : FREE-WORDLIST ( wid -- )
-  WL-STORAGE FREE THROW
+  WL-STORAGE DEL-STORAGE
 ;
 
 WARNING !

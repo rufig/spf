@@ -24,7 +24,8 @@
 : AT-MOUNTING    ( -- ) ... ;
 : AT-DISMOUNTING ( -- ) ... ;
 : AT-FORMATING   ( -- ) ... ;
-\ когда иницируются данные события, целевое хранилище еще|уже является текущим.
+\ когда инициируются данные события,
+\ целевое хранилище еще|уже является текущим.
 
 
 : STORAGE-ID ( -- h )
@@ -56,7 +57,7 @@
   DISMOUNT DROP
   DUP IF DUP @  (MOUNT)  AT-MOUNTING  EXIT THEN DROP
 ;
-: PUSH-MOUNT ( h -- )
+: PUSH-MOUNT ( h -- ) \ применять к одному хранилищу не более чем единыжды
   DISMOUNT OVER CELL+ CELL+ !
   MOUNT
 ;
