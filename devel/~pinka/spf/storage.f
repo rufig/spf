@@ -1,0 +1,179 @@
+\ 23.Dec.2006 Sat 16:08, ruvim@forth.org.ru
+\ $Id$
+( Поддержка полноценных хранилищ для SPF4.
+  Определяемое ниже хранилище основанно на простейшем [storage-core.f]
+  и имеет следующие дополнения:
+    - текущий список слов для добавления,
+    - список слов по умолчанию, для вновь созданных хранилищ,
+    - список словарей [списков слов, VOC-LIST], он тоже привязан к хранилищу.
+
+  Словари расширены знанием свого хранилища, чтобы
+  SET-CURRENT устанавливало текущим и хранилище,
+  в котором располагается словарь.
+
+  Модуль предоставляет новые варианты слов
+  TEMP-WORDLIST - создает временное хранилище и в нем словарь,
+  и FREE-WORDLIST - освобождающее хранилище, в котором расположен словарь.
+
+  Модуль определяет слово UNUSED, учитывающее текущее хранилище, поэтому 
+  при использовании lib/include/core-ext.f оно должно быть подключено раньше,
+  т.к. в нем UNUSED тоже определяется.
+
+  Пока, на испытательном этапе, несовместимо с quick-swl*.f !!!
+)
+
+REQUIRE Included ~pinka\lib\ext\requ.f
+REQUIRE REPLACE-WORD lib\ext\patch.f
+
+
+WARNING @  WARNING 0!
+
+: AT-SAVING-BEFORE ... ;
+: AT-SAVING-AFTER ... ;
+
+: SAVE ( addr u -- )
+  AT-SAVING-BEFORE
+  SAVE
+  AT-SAVING-AFTER
+;
+\ Т.к. надо сбросить базовое хранилище перед сохранением.
+
+
+' DP
+USER DP ( -- addr ) \ переменная, содержащая HERE сегмента данных
+
+DUP EXECUTE @ DP !  ' DP SWAP REPLACE-WORD
+\ заменили старое DP, чтобы не переопределять все откладывающие слова
+
+USER STORAGE \ текущее хранилище. 
+              \ Для вновь созданного потока будет неопределеным.
+
+S" storage-core.f" Included
+
+\ расширение простейшего хранилища:
+
+..: AT-FORMATING ( -- )
+  ALIGN HERE STORAGE-EXTRA !
+  0 ,       \ 0, current wid
+  0 ,       \ 1, extra
+  HERE 0 ,  \ 2, default wid
+  0 ,       \ 3, voc-list
+  WORDLIST
+  DUP STORAGE-EXTRA @ ! \ to current
+  SWAP !                \ to default
+;..
+
+..: AT-DISMOUNTING ( -- )
+  CURRENT @  STORAGE-EXTRA @  !  CURRENT 0!
+;..
+
+..: AT-MOUNTING ( -- )
+  STORAGE-EXTRA @  @ CURRENT !
+;..
+
+: DEFAULT-WORDLIST ( -- wid )
+  STORAGE-EXTRA @  CELL+ CELL+ @
+;
+
+VOC-LIST @ ' VOC-LIST 
+( old-voc-list@  'voc-list )
+
+CREATE _VOC-LIST-EMPTY 0 , 
+\ если кто-то захочет перебирать словари без подключения хранилища.
+
+: VOC-LIST ( -- addr )
+  STORAGE-ID IF STORAGE-EXTRA @ 3 CELLS + EXIT THEN _VOC-LIST-EMPTY
+;
+' VOC-LIST SWAP REPLACE-WORD
+
+: STORAGE-EXTRA ( -- a ) \ свободная ячейка
+  STORAGE-EXTRA @ CELL+
+;
+
+( old-voc-list@ )
+HERE IMAGE-SIZE HERE IMAGE-BASE - - ( addr u ) \ see  lib/include/core-ext.f
+FORMAT
+  DUP MOUNT \ (!!!)
+  FORTH-WORDLIST SET-CURRENT
+CONSTANT FORTH-STORAGE  \ базовое хранилище форт-системы
+
+( old-voc-list@ ) VOC-LIST !  \ список словарей базового хранилища
+
+..: AT-PROCESS-STARTING  FORTH-STORAGE MOUNT ;..
+
+..: AT-SAVING-BEFORE FLUSH-STORAGE ;..
+
+
+\ ==================================================
+
+Include enum-vocs.f  \ чтобы использовали новый VOC-LIST
+
+\ ========
+\ Чтобы при SET-CURRENT текущим становилось и хранилище, в котором расположен словарь,
+\ необходимо чтобы словарь знал свое хранилище.
+
+Require WID-EXTRA  wid-extra.f
+\ там определят и WORDLIST с учетом нового VOC-LIST
+
+MODULE: WidStorageSupport
+
+: MAKE-EXTR ( wid -- )
+  ALIGN HERE STORAGE-ID , 0 ,
+  SWAP WID-EXTRA !
+;
+
+..: AT-WORDLIST-CREATING DUP MAKE-EXTR ;..
+
+EXPORT
+
+: WL-STORAGE ( wid -- h-storage )
+  WID-EXTRA @ @
+;
+: WID-EXTRA ( wid -- addr )
+  WID-EXTRA @ CELL+
+;
+
+' MAKE-EXTR ENUM-VOCS  \ прописываю STORAGE-ID для существующих словарей
+
+;MODULE
+
+\ переопределяем все слова, завязанные на SET-CURRENT
+\ (т.к. оптимизатор делал подстановку, и перехвата причинного слова недостаточно)
+
+' SET-CURRENT
+: SET-CURRENT ( wid -- )
+  DUP WL-STORAGE MOUNT  CURRENT !
+;
+' SET-CURRENT SWAP REPLACE-WORD
+
+' DEFINITIONS
+: DEFINITIONS ( -- ) \ 94 SEARCH
+  CONTEXT @ SET-CURRENT
+;
+' DEFINITIONS  SWAP REPLACE-WORD
+
+' MODULE:
+: MODULE: ( "name" -- old-current )
+  >IN @ 
+  ['] ' CATCH
+  IF >IN ! VOCABULARY LATEST NAME> ELSE NIP THEN
+  GET-CURRENT SWAP ALSO EXECUTE DEFINITIONS
+;
+' MODULE: SWAP REPLACE-WORD
+
+
+\ =====
+\ Временные словари
+
+: TEMP-WORDLIST ( -- wid )
+\ создаст временное хранилище (в виртуальной памяти) 
+\ и в нем словарь
+  WL_SIZE ALLOCATE THROW WL_SIZE
+  2DUP ERASE FORMAT PUSH-MOUNT
+  DEFAULT-WORDLIST  POP-MOUNT DROP
+;
+: FREE-WORDLIST ( wid -- )
+  WL-STORAGE FREE THROW
+;
+
+WARNING !
