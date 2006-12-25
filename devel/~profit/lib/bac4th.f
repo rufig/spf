@@ -59,6 +59,8 @@ EXPORT
 : 2RESTB ( d --> d  / d <--  ) R>  -ROT 2DUP 2>R ROT  ENTER   2R> ;
 : SWAPB  ( a b <--> b a )      R> ENTER  SWAP ;
 : BDROP  ( n <--> )            R>  SWAP >R  ENTER  R> ;
+: DROPB  ( n --> n / <-- n )   R>  ENTER DROP ;
+: 2DROPB ( n --> n / <-- n )   R>  ENTER 2DROP ;
 : KEEP   ( addr --> / <-- )    R> SWAP DUP @  2>R ENTER 2R> SWAP ! ;
 : B!     ( n addr --> / <-- )  R> OVER DUP @  2>R -ROT !  ENTER 2R> SWAP ! ;
 : BC!    ( n addr --> / <-- )  R> OVER DUP C@ 2>R -ROT C!  ENTER 2R> SWAP C! ;
