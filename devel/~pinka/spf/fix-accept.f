@@ -18,6 +18,9 @@ TURN-BUF
 
 EXPORT
 
+: READOUT-STDIN ( a u -- a u1 )
+  READOUT
+;
 : NEXT-LINE-STDIN ( -- a u true | false )
   NEXT-LINE
 ;

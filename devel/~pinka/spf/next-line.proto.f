@@ -33,3 +33,14 @@ VARIABLE B9  \ конец буфера, граница
 ;
 \ т.к. буфер -- это внутреннее дело модуля, строку можем резать по пробельному символу!
 \ если строка последняя в файле (то бишь, в буфере место еще есть), то UNBROKEN ненужен.
+
+: READOUT ( addr u -- addr u2 )
+\ Чтение бинарных данных из потока;
+\ доступно лишь то, что еще не взял NEXT-LINE
+  OVER >R
+  DUP REST ROT OVER ( u u-rest ) U< IF
+  ( addr u a-rest u-rest ) ( R: addr )
+    DROP OVER 2DUP ELAPSE R> SWAP MOVE EXIT
+  THEN
+  CROP- readout? DROP + R> TUCK -
+;

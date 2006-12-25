@@ -15,15 +15,10 @@ EXPORT
 
 : READOUT-SOURCE ( addr u1 -- addr u2 )
 \ „тение бинарных данных из входного потока 
-\ (пока, кроме умолчательного STDIN, т.е. только при SOURCE-ID > 0 ).
 \ “о, что уже вз€л REFILL, тут недоступно.
-  SOURCE-ID 0 > 0= IF DROP 0 EXIT THEN
-  OVER >R
-  DUP REST ROT OVER ( u1 u-rest ) U< IF
-  ( addr u1 a-rest u-rest ) ( R: addr )
-    DROP OVER 2DUP ELAPSE R> SWAP MOVE EXIT
-  THEN
-  CROP- readout? DROP + R> TUCK -
+  SOURCE-ID 0 > IF READOUT EXIT THEN
+  SOURCE-ID 0= IF READOUT-STDIN EXIT THEN
+  DROP 0
 ;
 
 : SAVE-SOURCE ( -- i*x i )
