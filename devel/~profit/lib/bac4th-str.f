@@ -8,6 +8,7 @@ REQUIRE CONT ~profit/lib/bac4th.f
 REQUIRE FREEB ~profit/lib/bac4th-mem.f
 REQUIRE compiledCode ~profit/lib/bac4th-closures.f
 REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE LOCAL ~profit/lib/static.f
 
 MODULE: bac4th-str
 
@@ -32,32 +33,27 @@ t l + e MIN
 t - t SWAP
 >STR CONT STRFREE ;
 
+\ Генерирует функцию сравнивающую на равенство с числом
 : byChar ( c <--> xt )  PRO S" LITERAL =" compiledCode CONT ;
+
+\ Функция сравнения символа на перевод строки
 \ : byRows ( <--> xt ) PRO S" 2* 23 - ABS 3 ="  compiledCode CONT ;
 \ : byRows ( -- xt ) (: 2* 23 - ABS 3 = ;) ;
 :NONAME 2* 23 - ABS 3 = ; \ 13 или 10
-CONSTANT byRows 
+CONSTANT byRows
 
-: find ( a u c <--> a1 )
-\ находит в строке a u все символы c и генерирует вызовы для каждого символа
-PRO { a u c -- }
-a u + a ?DO I C@ c EXECUTE IF I CONT DROP THEN LOOP ;
+: find ( a u f <--> a1 )
+\ находит в строке a u все символы, на которых функция f даст TRUE и генерирует вызовы для каждого символа
+\ Функция f ( с -- 0|-1 ) получает на входе значение символа и выводит логическое значение
+PRO { a u f -- }
+a u + a ?DO I C@ f EXECUTE IF I CONT DROP THEN LOOP ;
 
-: divide ( a u c <--> s1 )
-\ разбивает строку a u первым символом c и генерирует два вызова со строками
-\ перед символом и после с автоматическим выделением и снятием памяти
-PRO { a u c -- }
-a u c PREDICATE find SUCCEEDS IF \ если есть искомый символ, то генерируем две строки
-DUP a - a SWAP >STR CONT STRFREE
-1+ a u + OVER - >STR CONT STRFREE
-ELSE a u >STR CONT STRFREE THEN ; \ если нету -- одну
-
-: split-patch ( a u c <--> addr u  )
-\ разбивает строку a u символами c и генерирует вызов для каждого
-\ *отрезка* в строке a u
-PRO { a u c -- }
+: split-patch ( a u f <--> addr u  )
+\ разбивает строку a u символами, на которых функция f даст TRUE и генерирует 
+\ вызов для каждого *отрезка* в строке a u
+PRO { a u f -- }
 a TO previousAddress
-a u + a u c
+a u + a u f
 START{
 find
 DUP previousAddress - previousAddress SWAP CONT 2DROP
@@ -65,10 +61,16 @@ DUP 1+ TO previousAddress }EMERGE
 previousAddress - previousAddress SWAP CONT 2DROP \ обработаем и последний отрезок, не кончающийся на char
 ;
 
-: split ( a u c <--> s1  )
-\ разбивает строку a u символами c и генерирует вызов для каждой последовательности
-\ между этими символами с автоматическим выделением и снятием памяти
+: split ( a u f <--> s1  )
+\ разбивает строку a u символами, на которых функция f даст TRUE и генерирует вызов для 
+\ каждой последовательности между этими символами с автоматическим выделением и снятием памяти
 PRO split-patch 2DUP >STR CONT STRFREE ;
+
+: last-patch ( a u f <--> addr u ) PRO LOCAL a LOCAL len
+START{ split-patch DUP len ! OVER a ! }EMERGE a @ len @ CONT 2DROP ;
+
+: last ( a u f <--> s1  )
+PRO last-patch 2DUP >STR CONT STRFREE ;
 
 : notEmpty ( s <--> s ) PRO DUP STR@ NIP ONTRUE CONT ; \ отфильтровывает пустые строки
 
@@ -120,7 +122,7 @@ CR r7
 \ вывод: [maryhasasheep]
  CR r8
 
-: r9 S" a1=123==456" [CHAR] = byChar divide DUP ."  [" STR@ TYPE ." ]" ;
+\ : r9 S" a1=123==456" [CHAR] = byChar divide DUP ."  [" STR@ TYPE ." ]" ;
 \ разбивает строку на две части
 \ вывод: [a1] [123==456]
 \ и снова CUT оставляет мусор
