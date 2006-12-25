@@ -4,6 +4,9 @@
 \ внизу) можно использовать как полностью bac4th-совместимые
 \ локальные переменные.
 
+\ ѕри использовании в bac4th-словах, LOCAL надо размещать
+\ *после* PRO
+
 MODULE: static
 \ также определено в ~profit/lib/bac4th.f
 \ см. ~mlg/BacFORTH-88/BF-Diplom.html и/или
@@ -14,17 +17,19 @@ USER widLocals
 widLocals 0!
 
 USER widHere
+USER widCurrent
 
 : ADD-ORDER ( wid -- ) ALSO CONTEXT ! ;
 
 : END-STATIC widLocals @  IF \ ѕроверка на наличие локального словар€ сделана на вс€кий пожарный (мало ли?)
-HERE PREVIOUS DEFINITIONS
+HERE PREVIOUS widCurrent @ SET-CURRENT \ ¬осстанавливаем стек словарей и CURRENT
 widLocals @ FREE-WORDLIST
 DP ! widLocals 0!         THEN ;
 
 : (;) ?COMP END-STATIC S" ;" EVAL-WORD ;
 
 : CREATE-LOCAL-WORDLIST ( -- )      \ —оздаЄм словарь локальных переменных
+GET-CURRENT widCurrent !            \ «апоминаем CURRENT
 TEMP-WORDLIST ADD-ORDER DEFINITIONS \ —оздаЄм временным словарь, делаем его текущим
 S" ;" CREATED IMMEDIATE             \ ¬писываем в словарь слово ; которое будет заканчивать работу лок. переменных
 DOES> DROP (;) ;
