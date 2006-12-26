@@ -1,4 +1,3 @@
-\ -*- coding: cyrillic-alternativnyj; -*-
 \ Оптимизирующий макроподстановшик        Максимов М.О.
 
 [UNDEFINED] C>S
@@ -4053,9 +4052,11 @@ OS\ AND EC    = M_WL DROP 1+  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
 
 : A_,_STEP  2_,_STEP 4_,_STEP_ 4_,_STEP_ ;
 
-: 1A_,_STEP 1_,_STEP DUP @ + DP @ - , CELL+ ;
+: 0A_,_STEP DUP DUP @ + DP @ - , CELL+ ;
 
-: 2A_,_STEP 2_,_STEP DUP @ + DP @ - , CELL+ ;
+: 1A_,_STEP 1_,_STEP 0A_,_STEP ;
+
+: 2A_,_STEP 2_,_STEP 0A_,_STEP ;
 
 : _INLINE,  (  CFA  --  )
 \  ." ^" DUP H.
@@ -4091,6 +4092,7 @@ OS\ AND EC = M_WL   1_,_STEP  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
 \ 0111.XXXX
   DUP  F0 AND 70 = M_WL  2_,_STEP     REPEAT
 
+  DUP   0E8 = M_WL 1A_,_STEP      REPEAT  \  CALL
   DUP   0E9 = M_WL 1A_,_STEP      REPEAT  \  JMP
   DROP
   DUP W@
@@ -4162,7 +4164,7 @@ OS\ AND EC = M_WL   1_,_STEP  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
   DUP 2404FF = M_WL 3_,_STEP      REPEAT \ INC [ESP]
   DUP 18B60F = M_WL 3_,_STEP      REPEAT \ MOVZX EBX, BYTE PTR [EAX]
   DUP7B?      WHILE 7_,_STEP      REPEAT
- ." @COD, ERROR" ABORT
+  HEX U. ." @COD, ERROR" ABORT
 ;
 
 : OPT_CLOSE
@@ -4170,7 +4172,10 @@ OS\ AND EC = M_WL   1_,_STEP  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
 
 :  OPT_INIT   ?SET -EVEN-EBP  ;
 
-: INLINE, ( CFA --  )   OPT_INIT  _INLINE, OPT_CLOSE ;
+: INLINE, ( CFA --  ) \ F7_ED
+  OPT_INIT
+  _INLINE,
+ OPT_CLOSE ;
 
 : MACRO, INLINE, ;
 : XC_J
