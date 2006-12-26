@@ -112,14 +112,14 @@ Include enum-vocs.f  \ чтобы использовали новый VOC-LIST
 \ Чтобы при SET-CURRENT текущим становилось и хранилище, в котором расположен словарь,
 \ необходимо чтобы словарь знал свое хранилище.
 
-Require WID-EXTRA  wid-extra.f
+Require WidExtraSupport  wid-extra.f
 \ там определяется и WORDLIST с учетом нового VOC-LIST
+\ и ячейка WID-STORAGEA
 
-MODULE: WidStorageSupport
+MODULE: WidExtraSupport
 
 : MAKE-EXTR ( wid -- )
-  ALIGN HERE STORAGE-ID , 0 ,
-  SWAP WID-EXTRA !
+  STORAGE-ID SWAP WID-STORAGEA !
 ;
 
 ..: AT-WORDLIST-CREATING DUP MAKE-EXTR ;..
@@ -127,10 +127,7 @@ MODULE: WidStorageSupport
 EXPORT
 
 : WL-STORAGE ( wid -- h-storage )
-  WID-EXTRA @ @
-;
-: WID-EXTRA ( wid -- addr )
-  WID-EXTRA @ CELL+
+  WID-STORAGEA @
 ;
 
 ' MAKE-EXTR ENUM-VOCS  \ прописываю STORAGE-ID для существующих словарей

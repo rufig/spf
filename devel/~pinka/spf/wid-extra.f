@@ -3,12 +3,16 @@
   с целью их расширени€.  од вынесен из quick-swl3.f
 
   —лово WID-EXTRA [ wid -- addr ] дает свободую €чейку дл€ использовани€.
-  ћодуль расширени€, использующий эту €чейку дл€ своих нужд,
-  должен переопределить слово WID-EXTRA
-  с тем, чтобы оно продолжало давать свободную €чейку.
+   аждый модуль расширени€, который берет эту €чейку дл€ своих нужд,
+  должен переопределить слово WID-EXTRA с тем, чтобы оно продолжало 
+  давать свободную €чейку.
 
   ћодуль предоставл€ет цепочку AT-WORDLIST-CREATING [ wid -- wid ]
   вызываемую при создании нового списка слов.
+
+  »спользует €чейку "класс словар€" в заголовке словар€ дл€ расширени€ заголовка,
+  и переопредел€ет CLASS! и CLASS@ 
+  [ т.к. предназначение их старой €чейки в заголовке переназначено ;]
 )
 
 REQUIRE [UNDEFINED] lib\include\tools.f
@@ -21,12 +25,12 @@ MODULE: WidExtraSupport
 
 Require ENUM-VOCS enum-vocs.f
 
-2 CELLS CONSTANT /THIS-EXTR   \ [ free cell | voc class ]
+4 CELLS CONSTANT /THIS-EXTR   \ [ hash-table | storage-id | voc class | free cell ]
 
 : MAKE-EXTR ( wid -- )
   HERE DUP /THIS-EXTR DUP ALLOT ERASE
   ( wid here )
-  OVER CLASS@ OVER CELL+ !
+  OVER CLASS@ OVER CELL+ CELL+ !
   SWAP CLASS!
 ;
 : MAKE-EXTR2 ( wid -- ) \ не используетс€; на случай словарей, созданных мину€ слово WORDLIST
@@ -38,15 +42,24 @@ Require ENUM-VOCS enum-vocs.f
 EXPORT
 
 : WID-EXTRA ( wid -- a )  \ будет свободна€ дл€ других расширений €чейка
-  [ 3 CELLS ] LITERAL + \ an old "class of vocabulary" cell
-  @
+  3 CELLS + \ an old "class of vocabulary" cell 
+  @  3 CELLS +  \ оптимизатор тут все правильно сделает :)
 ;
 
 DEFINITIONS
 
 : WID-CLASSA ( wid -- a )
-  WID-EXTRA CELL+
+  WID-EXTRA CELL-
 ;
+
+: WID-STORAGEA ( wid -- a )
+  WID-EXTRA CELL- CELL-
+;
+
+: WID-CACHEA ( wid -- a )
+  WID-EXTRA 3 CELLS -  \ и тут оптимизатор все правильно сделает :)
+;
+
 
 EXPORT
 
@@ -80,6 +93,12 @@ WARNING !
 
 ' WORDLIST SWAP REPLACE-WORD
 
+: TEMP-WORDLIST ( -- wid )
+  GET-CURRENT >R
+  TEMP-WORDLIST DUP SET-CURRENT DUP MAKE-EXTR ( wid ) AT-WORDLIST-CREATING ( wid )
+  R> SET-CURRENT
+;
+
 \ : VOCABULARY
 \   VOCABULARY  VOC-LIST @ CELL+
 \   DUP MAKE-EXTR AT-WORDLIST-CREATING DROP
@@ -101,6 +120,8 @@ WARNING !
 
 
 ' MAKE-EXTR ENUM-VOCS \ фикс существующих словарей (!!!)
+
+Include enum-vocs.f \ переопределение на новый CLASS@
 
 ;MODULE
 
