@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translated from intro.ru.md (rev. 1.2) -->
+<!-- Translated from intro.ru.md (rev. 1.5) -->
 
 ----
 
@@ -407,8 +407,9 @@ word after its compilation.
 	: INIT ... do1 ; 
 	\ INIT called here will execute do1
 	..: INIT do2 ;.. 
-	\ here - do1 and do2 will be executed sequentially
+	\ here - do2 and do1 will be executed sequentially
 	..: INIT do3 ;.. 
+	\ equal to : INIT do2 do3 do1 ;
 	\ and so forth
 
 You can achieve the same effect with vectors, but this way looks better.
