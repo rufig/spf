@@ -5,6 +5,9 @@
 ( Расширение SPF [зависит от реализации!]
    воплощает быстрый поиск по словарю за счет использования хэш-таблиц.
 
+  Дает 30-35% выигрыша на трансляции кэшированных системой файлов,
+  до 43% вкупе с fix-refill.f.
+
   Хэш-таблицы создаются динамически, по SAVE не сохраняются.
 
   Особенности:
@@ -13,33 +16,24 @@
     Возможна утечка хипа процесса, если не делать FREE-WORDLIST 
     на каждый TEMP-WORDLIST
 )
-( Переопределяет FREE-WORDLIST  и MARKER /если он есть/
-  Поэтому, следует подгружать quick-swl.f до того, 
-   как эти слова могут быть использованы в определениях.
-  [ в том числе, до locals.f ]
-  
-  Использует вектор SHEADER и переопределяет слова ":" ";"
+( Модуль переопределяет FREE-WORDLIST [если нету AT-STORAGE-DELETING ],
+  вектор SHEADER и слова ":" ";" [ловит события].
+  Поэтому, его следует подгружать до того, 
+  как эти слова могут быть использованы в определениях
+  [ в том числе, до locals.f ], но после storage.f [!!!]
 
-  Заменяет вектор SEARCH-WORDLIST - метод поиска в стандартных словарях SPF
-  Использует ячейку "класс словаря" в заголовке словаря для расширения заголовка.
-  Переопределяет CLASS! и CLASS@ 
-  [ т.к. предназначение их старой ячейки в заголовке переназначено ;]
+  Dec.2006: поддржека MARKER убрана, т.к. он все-равно не отслеживает списки слов.
+
+  Заменяет вектор SEARCH-WORDLIST -- метод поиска в стандартных словарях SPF.
 )
 
 REQUIRE HEAP-ID     ~pinka\spf\mem.f
 REQUIRE [UNDEFINED] lib\include\tools.f
 REQUIRE HASH!       ~pinka\lib\hash-table.f 
 
+REQUIRE WidExtraSupport ~pinka\spf\wid-extra.f
 
-[UNDEFINED] ENUM-VOCS [IF]
-: ENUM-VOCS ( xt -- )
-\ xt ( wid -- )
-  >R VOC-LIST @ BEGIN DUP WHILE
-    DUP CELL+ ( a wid ) R@ ROT >R
-    EXECUTE R> @
-  REPEAT DROP RDROP
-;
-[THEN]
+FORTH-WORDLIST VALUE w
 
 [UNDEFINED] WL-#WORDS [IF]
 : WL-#WORDS ( wid -- n )
@@ -54,14 +48,11 @@ REQUIRE HASH!       ~pinka\lib\hash-table.f
 
 MODULE: QuickSWL-Support
 
-3 CELLS CONSTANT /THIS-EXTR   \ [ free cell | addr of hash-hdr | voc class ]
+ALSO WidExtraSupport
 
-: MAKE-EXTR ( wid -- )
-  GET-CURRENT >R  DUP SET-CURRENT
-  HERE SWAP CLASS!
-  HERE /THIS-EXTR DUP ALLOT ERASE
-  R> SET-CURRENT
-;
+: WID-CACHEA WID-CACHEA ;
+
+PREVIOUS
 
 EXPORT
 
@@ -69,40 +60,6 @@ EXPORT
  \ размер хэш-таблиц для вновь создаваемых словарей.
  \ При инициализации на этапе AT-PROCESS-STARTING 
  \   размер таблиц берется как 3*n, где n -число слов в словаре.
-
-: WID-EXTRA ( wid -- a )  \ будет свободная для других расширений ячейка
-  DUP [ 3 CELLS ] LITERAL + \ a "class of vocabulary" cell
-  @ DUP IF NIP EXIT THEN DROP
-  DUP MAKE-EXTR RECURSE
-;
-
-DEFINITIONS
-
-: WID-EHA ( wid -- a ) \ this extra header, for hash
-  WID-EXTRA CELL+
-;
-: WID-CLASSA ( wid -- a )
-  WID-EXTRA [ 2 CELLS ] LITERAL +
-;
-
-
-EXPORT
-WARNING @ WARNING 0!
-: CLASS! ( cls wid -- ) WID-CLASSA ! ;
-: CLASS@ ( wid -- cls ) WID-CLASSA @ ;
-WARNING !
-
-: ENUM-FORTH-VOCS ( xt -- )
-\ перебор только обычных форт-словарей (у которых CLASS равен 0 или FORTH-WORDLIST )
-\ xt ( wid -- )
-  >R VOC-LIST @ BEGIN DUP WHILE
-    DUP CELL+ ( a wid ) 
-    DUP CLASS@ DUP 0= SWAP FORTH-WORDLIST = OR
-    IF R@ ROT >R  EXECUTE R> ELSE DROP THEN
-    @
-  REPEAT DROP RDROP
-;
-
 
 DEFINITIONS
 
@@ -115,17 +72,22 @@ CONSTANT /exth
   и из wid можно получить exth
 )
 
+
+: wid-exth? ( wid -- exth true | false )
+  WID-CACHEA @ DUP IF TRUE EXIT THEN DROP FALSE
+;
+
 : wid-exth ( wid -- exth )
-  DUP WID-EHA @ ?DUP IF NIP EXIT THEN
+  DUP WID-CACHEA @ DUP IF NIP EXIT THEN  DROP
   ( wid )
   HEAP-ID >R  HEAP-GLOBAL
 
   DUP WL-#WORDS 3 * #WL-HASH UMAX new-hash
-
-  /exth ALLOCATE THROW ( wid h exth )
+  /exth ALLOCATE THROW ( wid htbl exth )
   TUCK .hash !
-  2DUP SWAP WID-EHA !
-  TUCK .wid !
+  2DUP SWAP WID-CACHEA !
+  TUCK .wid !  ( exth )
+
   R> HEAP-ID!
 ;
 : WL-HASH ( wid -- hash-table )
@@ -175,35 +137,10 @@ USER-VALUE hash
   HEAP-ID >R  HEAP-GLOBAL
     .hash @    >R
     DUP COUNT  R> HASH!N
-  R> HEAP-ID!               ELSE
+  R> HEAP-ID!              ELSE
   \ чтобы при сцеплении списков все слова добавлялись
-  NIP update-hash           THEN
+  NIP update-hash          THEN
 ;
-
-
-: reduce-hash ( last  wid  -- )
-\ Исключить из хэш-таблицы слова от wid @ до last
-\ last должно иметь место в цепочке словаря wid
-\ ( для MARKER ) ( для MARKER не подходит, - 25.Mar.2004 )
-
-  DUP wid-exth ?DUP 0= IF 2DROP EXIT THEN >R
-  @ ( l2  l )
-  OVER R@ .last  !
-  R> .hash @ TO hash
-
-  HEAP-ID >R  HEAP-GLOBAL
-
-  ( l2 l )          BEGIN
-  2DUP <>           WHILE
-  DUP COUNT hash -HASH
-  CDR DUP 0=        UNTIL THEN 2DROP
-
-  R> HEAP-ID!
-;
-( Если слово было переопределено,
-  то после reduce-hash  предыдущая версия останется недоступной..
-  Поэтому в MARKER используем REFRESH-WLHASH
-)
 
 EXPORT
 
@@ -218,11 +155,6 @@ EXPORT
   IF 1 ELSE -1 THEN 
   EXIT              ELSE 0 THEN
 ;
-( для сочетания с MARKER можно было бы в QuickSWL проверять,
-   что найденное через хэш слово находиться ниже последенего слова в словаре 
-   [ или до границы HERE ], но такая проверка криво работает 
-   при сцеплении списков в порядке, отличном от их следования в ОП.
-)
 
 : REFRESH-WLHASH ( wid -- )
 \ Обновить хэш-таблицу словаря (на случай, если она стала неадекватной..)
@@ -238,50 +170,47 @@ EXPORT
   R> HEAP-ID!
   update-wlhash
 ;
+: REFRESH-WLCACHE REFRESH-WLHASH ;
+
+: DEL-WLHASH ( wid -- )
+  wid-exth? 0= IF EXIT THEN
+  HEAP-ID >R  HEAP-GLOBAL
+     ( exth ) >R
+     R@ .hash @ del-hash
+     R@ .wid  @ WID-CACHEA 0!
+     R> FREE THROW
+  R> HEAP-ID!
+;
+
+
+[DEFINED] AT-STORAGE-DELETING [IF]
+
+..: AT-STORAGE-DELETING ['] DEL-WLHASH ENUM-FORTH-VOCS ;..
+
+[ELSE]
 
 WARNING @ WARNING 0!
 
 : FREE-WORDLIST ( wid -- )
-  DUP wid-exth DUP
-   ( wid exth exth )
-   HEAP-ID >R  HEAP-GLOBAL
-     .hash @ del-hash
-      FREE THROW
-   R> HEAP-ID!
-
-  FREE-WORDLIST
+  DUP DEL-WLHASH  FREE-WORDLIST
 ;
-
-[DEFINED] MARKER [IF]
-
-: MARKER
-  WARNING @ >R WARNING 0!
-    LATEST
-    >IN @ >R  MARKER LATEST NAME>  R> >IN ! 
-    ( last marker-xt )
-    CREATE
-     , , GET-CURRENT ,
-  R> WARNING !
-
-  DOES> 
-    DUP 0 CELLS +  @ EXECUTE
-        2 CELLS +  @ REFRESH-WLHASH
-;
-[THEN]
 
 WARNING !
 
+[THEN]
+
+
 DEFINITIONS
 
-: WID-EHA0! ( wid -- )
-  WID-EHA 0!
+: WID-CACHEA0! ( wid -- )
+  WID-CACHEA 0!
 ;
 : erase-refer ( -- )
 \ ( аналогично ERASE-IMPORTS )
 \ хэш-таблицы динамические, живут только в ОП,
 \ поэтому после запуска процесса ссылки на exth в заголовках словарей
 \ будут не действительны. Их надо обнулить. 
-  ['] WID-EHA0! ENUM-FORTH-VOCS
+  ['] WID-CACHEA0! ENUM-FORTH-VOCS
 ;
 
 : update-hashes ( -- )
@@ -293,7 +222,10 @@ DEFINITIONS
   не используется.
 
   Использование локального хипа потока наложило бы ограничения
-  на режимы разнопоточной компиляции...
+  на режимы разнопоточной компиляции.
+
+  Как вариант, можно использовать хип, в котором создано хранилище,
+  в котором словарь.
 )
 
 VECT 0SWL  \ иниц.-ия модуля QuickSWL  при запуске системы..
@@ -319,7 +251,7 @@ USER LAST-WID
 USER-VALUE NOW-COLON?
 
 : SHEADER(SWL) ( addr u -- )
-  GET-CURRENT DUP LAST-WID ! WID-EXTRA DROP \ иниц.ия, если свежий.
+  GET-CURRENT LAST-WID !
 
   [ ' SHEADER BEHAVIOR COMPILE, ]
   NOW-COLON?
@@ -341,21 +273,12 @@ WARNING @ WARNING 0!
 : : ( C: "<spaces>name" -- colon-sys ) \ 94
   TRUE TO NOW-COLON?
   :
-;
+; \ ';' вызовет уже LatestWord2Hash (!!!)
 
-\ создание экстра-заголовков для вновь-созданных словарей:
-: WORDLIST
-  WORDLIST 
-  DUP update-wlhash
-;
-: VOCABULARY
-  VOCABULARY
-  VOC-LIST @ CELL+ update-wlhash
-;
-\ -- исправление редкой ситуации, когда первое обращение
-\    к словарю идет во время компиляции слова,
-\    как в ~af\lib\api-func.f со словарем API-FUNC-VOC
 
+\ Создание кэш-заголовка (exth) для вновь-создаваемых словарей:
+
+..: AT-WORDLIST-CREATING DUP update-wlhash ;..
 
 WARNING !
 
