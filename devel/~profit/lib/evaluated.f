@@ -7,7 +7,9 @@ RET, \ заканчиваем определение
 STATE 0! \ выключаем компил€цию
 ;
 
-: EVALUATED ( addr u -- addr-xt u-xt ) \ компилирует строку в словарь, выдаЄт адрес и длину сгенерированного шитого кода
+: EVALUATED ( addr u -- addr-xt u-xt ) \ компилирует строку в словарь
+\ выдаЄт адрес и длину сгенерированного шитого кода,
+\ возвращает словарь в исходное состо€ние
 HERE >R
 EVALUATE,
 HERE \ текущее значение HERE, после компил€ции
@@ -17,5 +19,12 @@ R@ \ старое значение HERE, перед ней
 - ( новое-старое ) \ подсчитываем длину скомпилированной последовательности
 R> SWAP ;
 
+: COPY-CODE ( xt dest -- ) HERE SWAP DP ! SWAP INLINE, RET, DP ! ;
+
 : EVALUATED-HEAP ( addr u -- xt ) \ компилирует строку в заводимую область в куче
-EVALUATED HEAP-COPY ;
+EVALUATED ALLOCATE THROW TUCK COPY-CODE ;
+
+\EOF
+REQUIRE SEE lib/ext/disasm.f
+
+: r 1 S" LITERAL SFIND RECURSE " EVALUATED-HEAP REST ; r
