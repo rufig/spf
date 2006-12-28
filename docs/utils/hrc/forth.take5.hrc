@@ -295,7 +295,7 @@ With Help of
    </keywords>
 
    <!-- + FLOAT WORDSET -->
-   <keywords ignorecase="yes" worddiv="[\s]" region="ForWord">
+   <keywords ignorecase="yes" worddiv="[\s]" region="forWord">
       <word name="F!"/>
       <word name="F*"/>
       <word name="F+"/>
