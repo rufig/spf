@@ -26,27 +26,19 @@ MODULE: bac4th
 
 EXPORT
 
-\ задать действия при откате ( BACK .. TRACKING ), или, иначе говоря,
-\ положить адрес начала последовательности шитого между словами на стек возвратов
-: BACK  ?COMP  0 CALL, >MARK 8ACK ;  IMMEDIATE
-: TRACKING ?COMP  8ACK ?PAIRS  RET, >RESOLVE1 ;  IMMEDIATE
-\ BACK ... TRACKING -- это аналог (: ... ;) >R , и наоборот,
-\ (: ... ;) -- это аналог BACK ... TRACKING R>
+\ : ENTER POSTPONE EXECUTE ; IMMEDIATE ( \ это тоже самое, но что быстрее?
+: ENTER   >R ;                           \ )
+\ На ~profit/prog/forth-wizard/forth-wizard-depth-bac4th.f разницы нет.
+\ На ~profit/prog/forth-wizard/forth-wizard-width.f для maxOperations=10 с >R'ом -- 3:22, с EXECUTE -- 3:52
 
 DEFINITIONS
 
-: (NOT:)  R> RP@ >L  DUP @ >R BACK LDROP TRACKING  CELL+ >R ;
+
+: (NOT:)  R> RP@ >L  DUP @ >R CELL+ ENTER LDROP ;
 : (-NOT)  L> RP! ;
 : (-NOT2) R> L> RP! >R ;
 
 EXPORT
-
-: ENTER EXECUTE ; ( \ это тоже самое, но что быстрее?
-: ENTER   >R ;        \ )
-\ На ~profit/prog/forth-wizard/forth-wizard-depth-bac4th.f разницы нет.
-\ На ~profit/prog/forth-wizard/forth-wizard-width.f для maxOperations=10 с >R'ом -- 3:22, с EXECUTE -- 3:52
-
-
 
 : ONFALSE IF RDROP THEN ;
 : ONTRUE 0= IF RDROP THEN ;
@@ -57,6 +49,7 @@ EXPORT
 \ обратимые операции
 : RESTB  ( n --> n  / n <--  ) R>  OVER >R  ENTER   R> ;
 : 2RESTB ( d --> d  / d <--  ) R>  -ROT 2DUP 2>R ROT  ENTER   2R> ;
+: BSWAP  ( a b <--> b a )      SWAP R> ENTER  SWAP ;
 : SWAPB  ( a b <--> b a )      R> ENTER  SWAP ;
 : BDROP  ( n <--> )            R>  SWAP >R  ENTER  R> ;
 : DROPB  ( n --> n / <-- n )   R>  ENTER DROP ;
@@ -65,6 +58,13 @@ EXPORT
 : B!     ( n addr --> / <-- )  R> OVER DUP @  2>R -ROT !  ENTER 2R> SWAP ! ;
 : BC!    ( n addr --> / <-- )  R> OVER DUP C@ 2>R -ROT C!  ENTER 2R> SWAP C! ;
 
+
+\ задать действия при откате ( BACK .. TRACKING ), или, иначе говоря,
+\ положить адрес начала последовательности шитого между словами на стек возвратов
+: BACK  ?COMP  0 CALL, >MARK 8ACK ;  IMMEDIATE
+: TRACKING ?COMP  8ACK ?PAIRS  RET, >RESOLVE1 ;  IMMEDIATE
+\ BACK ... TRACKING -- это аналог (: ... ;) >R , и наоборот,
+\ (: ... ;) -- это аналог BACK ... TRACKING R>
 
 : START{ ( -- org dest $TART )
 ?COMP
@@ -138,8 +138,7 @@ a99reg4te ;
 OVER
 LIT, agg COMPILE,
 RET, >RESOLVE2
-LIT, succ COMPILE,
-;
+LIT, succ COMPILE, ;
 
 : +{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }+ ?COMP ['] +! ['] @ }agg ; IMMEDIATE
