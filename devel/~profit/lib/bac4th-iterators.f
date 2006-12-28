@@ -1,13 +1,20 @@
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE CONT ~profit/lib/bac4th.f
+REQUIRE LOCAL ~profit/lib/static.f
 
-: iterateByBytes ( addr u <--> caddr ) PRO      OVER + SWAP ?DO I CONT DROP     LOOP ;
-: iterateByWords ( addr u <--> waddr ) PRO      OVER + SWAP ?DO I CONT DROP     2 +LOOP ;
-: iterateByCells ( addr u <--> addr ) PRO       OVER + SWAP ?DO I CONT DROP     CELL +LOOP ;
+: iterateBy  ( addr u step --> addr \ addr <-- addr ) PRO LOCAL step step !
+OVER + SWAP ?DO
+I CONT DROP
+step @ +LOOP ;
 
-: iterateByByteValues ( addr u <--> caddr ) PRO OVER + SWAP ?DO I C@ CONT DROP  LOOP ;
-: iterateByWordValues ( addr u <--> waddr ) 2* PRO OVER + SWAP ?DO I W@ CONT DROP  2 +LOOP ;
-: iterateByCellValues ( addr u <--> addr ) CELLS PRO  OVER + SWAP ?DO I @ CONT DROP   CELL +LOOP ;
+: iterateByBytes ( addr u <--> caddr ) PRO 1 iterateBy CONT ;
+: iterateByWords ( addr u <--> waddr ) PRO 2 iterateBy CONT ;
+: iterateByCells ( addr u <--> addr )  PRO CELL iterateBy CONT ;
+: iterateByDCells ( addr u <--> qaddr ) PRO 2 CELLS iterateBy CONT ;
+
+: iterateByByteValues ( addr n <--> caddr ) PRO      iterateByBytes C@ CONT ;
+: iterateByWordValues ( addr n <--> waddr ) PRO 2*   iterateByWords W@ CONT ;
+: iterateByCellValues ( addr n <--> addr )  PRO CELLS iterateByCells @ CONT ;
 
 /TEST
 : r S" abc" iterateByByteValues DUP EMIT ." _"  ;
