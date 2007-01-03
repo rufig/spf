@@ -21,8 +21,9 @@ MODULE: ACCEPT-Autocompletion
 0 VALUE _y \ номер строки на консоли
 0 VALUE in-history \ состояние перебора истории
 0 VALUE history \ список строк истории
+0 VALUE _cursor
 
-: history-file S" history" +ModuleDirName ;
+: history-file S" spf.history" +ModuleDirName ;
 
 /node 
 CELL -- .val
@@ -77,8 +78,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    R> _addr -
 ;
 
-: accept-one ( c -- )
-\ обработка одного символа
+: accept-ascii ( c -- ? )
    DUP 9 = \ tab
    IF 
      DROP
@@ -90,35 +90,73 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
      CDR
      CDR-BY-NAME-START
      NIP NIP ?DUP IF COUNT put TO _in ELSE _last TO _in THEN
-     EXIT 
+     _in TO _cursor
+     TRUE EXIT
    THEN
+
    DUP 8 = \ bksp
    IF
-     0 TO in-history
      DROP
-     _in 1 MAX 1- TO _in 
+     0 TO in-history
+     _cursor 0= IF TRUE EXIT THEN
+     _addr _cursor + DUP 1- _in _cursor - CMOVE
+     _in 1 MAX 1- TO _in
      _in TO _last
+     _cursor 1- TO _cursor
+     TRUE EXIT
+   THEN
+
+   DUP 13 = IF
+     DROP
+     0 TO in-history
+     FALSE EXIT 
+   THEN
+
+   DUP 32 < IF DROP FALSE EXIT THEN
+
+   \ put one char
+   0 TO in-history
+   _addr _cursor + DUP 1+ _in _cursor - CMOVE>
+   _addr _cursor + C!
+   _in 1+ TO _in
+   _cursor 1+ TO _cursor
+   _in TO _last
+   TRUE ;
+
+: accept-scan ( c -- )
+   DUP 72 = IF \ up arrow
+     DROP
+     in-history DUP 0= IF DROP history firstNode THEN
+     PrevCircleNode TO in-history
+     0 TO _last
+     in-history .val @ STR@ put DUP TO _in TO _last
+     _in TO _cursor
      EXIT
    THEN
-   DUP 14 = IF \ C-N
+   DUP 80 = IF \ down arrow
+     DROP
      in-history DUP 0= IF DROP history firstNode THEN
+     NextCircleNode TO in-history
      0 TO _last
-     DUP .val @ STR@ put DUP TO _in TO _last
-         NextCircleNode TO in-history
+     in-history .val @ STR@ put DUP TO _in TO _last
+     _in TO _cursor
+     EXIT
    THEN
-   DUP 2 = IF \ C-B
-     in-history DUP 0= IF DROP history firstNode THEN
-     0 TO _last
-     DUP .val @ STR@ put DUP TO _in TO _last
-         PrevCircleNode TO in-history
+   DUP 75 = IF \ left arrow
+     DROP
+     _cursor 1 MAX 1- TO _cursor
+     EXIT
    THEN
-   DUP 32 < IF DROP EXIT THEN
-   0 TO in-history
-   \ put one char
-   _addr _in + C!
-   _in 1 + TO _in
-   _in TO _last
-;
+   DUP 77 = IF
+     DROP
+     _cursor 1+ _in MIN TO _cursor
+     EXIT
+   THEN
+   DROP ;
+
+: accept-one ( c -1|0 -- ? )
+\ обработка одного символа
+   IF accept-ascii ELSE accept-scan TRUE THEN ;
 
 : \STRING ( a u n -- a+u-n n ) OVER MIN >R + R@ - R> ;
 
@@ -129,32 +167,39 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
 \   LT LTL @ TO-LOG _y .TO-LOG _in .TO-LOG
    0 _y AT-XY
    _y CLEAR-LINE
-   _addr _in DUP MAX-X > IF MAX-X \STRING THEN TYPE 
+   _addr _in TYPE
+   _cursor _y AT-XY
+\   _addr _in DUP MAX-X > IF MAX-X \STRING THEN TYPE 
 ;
 
-: skey
-\ получить подходящий символ
+: skey ( -- c -1|0 )
+\ получить событие с клавиатуры
+\ -1 - код ASCII
+\  0 - скан код
    BEGIN
     EKEY
-    EKEY>CHAR IF EXIT THEN
-    DROP
-   AGAIN
-;
+    EKEY>CHAR IF TRUE EXIT THEN
+    EKEY>SCAN IF FALSE EXIT ELSE DROP THEN
+   AGAIN ;
 
 \ --------------------------------
 
 : List=> ( list -- ) R> SWAP ForEach ;
+
+: >STR ( a u -- s ) "" >R R@ STR+ R> ;
+
+: add-history ( s -- ) history AllocateNodeEnd .val ! ;
 
 : load-history
   /history CreateList TO history
   START{
    history-file FileLines=>
    DUP
-   STR@
-   "" >R R@ STR+ R>
-   history AllocateNodeEnd .val !
+   STR@ >STR add-history
   }EMERGE 
-  "" history AllocateNodeEnd .val ! \ всегда есть один элемент в списке!
+  history listSize 0= IF
+   "" add-history \ всегда есть один элемент в списке!
+  THEN
   ;
 
 : htype history List=> .val @ STR@ CR TYPE ;
@@ -172,23 +217,21 @@ EXPORT
    0 TO in-history
    0 TO _in
    0 TO _last
+   0 TO _cursor
    AT-XY? TO _y DROP
   BEGIN
    _in 1+ _n1 > IF _in EXIT THEN
-   skey 
-   DUP 13 <>
+   skey accept-one 
   WHILE
-   accept-one 
    display
-\   CR _in . _last . 
   REPEAT
   CR
-  DROP
   START{
    history List=> .val @ STR@ _addr _in SAFE-COMPARE 0= ONTRUE 0 TO _addr
   }EMERGE
-  _addr IF
-   _addr _in " {s}" history AllocateNodeBegin .val ! \ добавили в историю
+  _addr _in AND 
+  IF
+   _addr _in " {s}" add-history \ добавили в историю
    _addr _in history-file ATTACH-LINE-CATCH DROP
   THEN
   _in
