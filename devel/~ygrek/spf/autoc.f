@@ -1,8 +1,8 @@
 \ $Id$
 \
-\ Автодополнение в консоли SPF
+\ Дополнение слов в консоли SPF
 \
-\ Перебор ваиантов дополнения - Tab
+\ Перебор вариантов дополнения - Tab
 \ История ввода - стрелки вниз/вверх
 
 REQUIRE /STRING lib/include/string.f
@@ -79,7 +79,6 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
 : accept-ascii ( c -- ? )
    DUP 9 = \ tab
    IF 
-     DROP
      0 TO in-history
      _addr _in scanback \ last full word
      CONTEXT @ SEARCH-WORDLIST-NFA 0= IF CONTEXT @ @ THEN 
@@ -89,28 +88,23 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
      CDR-BY-NAME-START
      NIP NIP ?DUP IF COUNT put TO _in ELSE _last TO _in THEN
      _in TO _cursor
-     TRUE EXIT
    THEN
 
    DUP 8 = \ bksp
    IF
-     DROP
      0 TO in-history
      _cursor 0= IF TRUE EXIT THEN
      _addr _cursor + DUP 1- _in _cursor - CMOVE
      _in 1 MAX 1- TO _in
      _in TO _last
      _cursor 1- TO _cursor
-     TRUE EXIT
    THEN
 
    DUP 13 = IF
-     DROP
      0 TO in-history
-     FALSE EXIT 
    THEN
 
-   DUP 32 < IF DROP FALSE EXIT THEN
+   DUP 32 < IF DROP EXIT THEN
 
    \ put one char
    0 TO in-history
@@ -118,43 +112,46 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    _addr _cursor + C!
    _in 1+ TO _in
    _cursor 1+ TO _cursor
-   _in TO _last
-   TRUE ;
+   _in TO _last ;
 
 : accept-scan ( c -- )
    DUP 72 = IF \ up arrow
-     DROP
      in-history DUP 0= IF DROP history firstNode THEN
      PrevCircleNode TO in-history
      0 TO _last
      in-history .val @ STR@ put DUP TO _in TO _last
      _in TO _cursor
-     EXIT
    THEN
    DUP 80 = IF \ down arrow
-     DROP
      in-history DUP 0= IF DROP history firstNode THEN
      NextCircleNode TO in-history
      0 TO _last
      in-history .val @ STR@ put DUP TO _in TO _last
      _in TO _cursor
-     EXIT
    THEN
    DUP 75 = IF \ left arrow
-     DROP
      _cursor 1 MAX 1- TO _cursor
-     EXIT
    THEN
-   DUP 77 = IF
-     DROP
+   DUP 77 = IF \ right arrow
      _cursor 1+ _in MIN TO _cursor
-     EXIT
+   THEN
+   DUP 71 = IF \ Home
+     0 TO _cursor
+   THEN
+   DUP 79 = IF \ End
+     _in TO _cursor
+   THEN
+   DUP 83 = IF \ Delete
+     0 TO in-history
+     _addr _cursor + DUP 1+ SWAP _in _cursor - CMOVE
+     _in 1 MAX 1- TO _in
+     _in TO _last
    THEN
    DROP ;
 
 : accept-one ( c -1|0 -- ? )
 \ обработка одного символа
-   IF accept-ascii ELSE accept-scan TRUE THEN ;
+   IF DUP accept-ascii 13 <> ELSE accept-scan TRUE THEN ;
 
 : \STRING ( a u n -- a+u-n n ) OVER MIN >R + R@ - R> ;
 : MAX-X MAX-XY DROP 1- ;
@@ -222,7 +219,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
   START{
    history List=> .val @ STR@ _addr _in SAFE-COMPARE 0= ONTRUE 0 TO _addr
   }EMERGE
-  _addr _in AND 
+  _addr 0 <> _in 0 <> AND 
   IF
    _addr _in " {s}" add-history \ добавили в историю
    _addr _in history-file ATTACH-LINE-CATCH DROP
