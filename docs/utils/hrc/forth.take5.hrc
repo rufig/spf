@@ -23,6 +23,7 @@ With Help of
       <region name="forWord"     parent="Keyword"/>
       <region name="forResWord"  parent="Label"/>
       <region name="forNumb"     parent="Number"/>
+      <region name="forExtWords" parent="VarStrong"/>
       <region name="forWordDefinition"  parent="Keyword"/> <!-- Identifier ? -->
 
 <scheme name="Forthint">
@@ -30,11 +31,24 @@ With Help of
    <!-- comments -->
    <block start="/(\s|^)\\(\s|$)/" end="/$/" scheme="Comment" region="forComment"/>
    <block start="/(\s|^)\((\s|$)/" end="/\)/" scheme="Comment" region="forComment"/>
+   <block start="/0\s+\[if\]/i" end="/\[then\]/i" scheme="Comment" region="forComment"/>
    <block start="/(\s|^)\(\*(\s|$)/" end="/(\s|^)\*\)\M(\s|$)/" scheme="Comment" region="forComment"/>
+
    <!-- strings -->
+   <!-- empty string - two quotes -->
    <regexp match='/(\s|^)(\"\")/' region2="forWord"/>
+   <!-- generic strings -->
    <regexp match='/(\s|^)(\S+(\"\s))(.*?)(\")/' region2="forWord" region4="forString" region5="forWord"/>
+   <!-- single quote strigns -->
    <block start='/(\s|^)\"(\s|$)/' end='/\"/' scheme="Comment" region="forString" region00="forWord" region10="forWord"/>
+
+   <!-- Numbers -->
+   <!-- hexadecimal -->
+   <regexp match="/(\s|^)\m0x[\da-fA-F]+L?\M(\s|$)/" region="forNumb"/>
+   <!-- decimal -->
+   <regexp match="/(\s|^)\m-?\d+\M(\s|$)/" region="forNumb"/>
+   <!-- float -->
+   <regexp match="/(\s|^)\m-?\d?\.?\d+[eE]((-\d)?\d*)?\M(\s|$)/" region="forNumb"/>
 
    <keywords ignorecase="yes" worddiv="[\s]" region="forWord">
      <word name="CLOSE-FILE"/>
@@ -294,7 +308,7 @@ With Help of
       <word name="LTL"/>
    </keywords>
 
-   <!-- + FLOAT WORDSET -->
+   <!-- FLOAT WORDSET -->
    <keywords ignorecase="yes" worddiv="[\s]" region="forWord">
       <word name="F!"/>
       <word name="F*"/>
@@ -325,19 +339,47 @@ With Help of
       <word name="FSWAP"/>
    </keywords>
 
-
-   <!-- + Better numbers -->
-
-   <!-- hexadecimal -->
-   <regexp match="/(\s|^)\m0x[\da-fA-F]+L?\M(\s|$)/" region="forNumb"/>
-
-   <!-- decimal -->
-   <regexp match="/(\s|^)\m-?\d+\M(\s|$)/" region="forNumb"/>
-
-   <!-- float -->
-   <regexp match="/(\s|^)\m-?\d?\.?\d+[eE]((-\d)?\d*)?\M(\s|$)/" region="forNumb"/>
-
    <regexp match="/(\s|^)(FTO|TO|AT)\s+(\S+)/" region1="forResWord" region2="forWord"/>
+
+   <!-- Key words for OpenBoot programming LNM -->
+   <keywords ignorecase="yes" worddiv="[\s\[\]\{\}\(\)]" region="forExtWords">
+      <word name="!nt"/>
+      <word name="@nt"/>
+      <word name="br+"/>
+      <word name="br-"/>
+      <word name="br0"/>
+      <word name="ddo"/>
+      <word name="decode-2int"/>
+      <word name="decode-int"/>
+      <word name="decode-phys"/>
+      <word name="decode-string"/>
+      <word name="device-name"/>
+      <word name="DICTLIST"/>
+      <word name="encode+"/>
+      <word name="encode-2int"/>
+      <word name="encode-bytes"/>
+      <word name="encode-int"/>
+      <word name="encode-phys"/>
+      <word name="encode-string"/>
+      <word name="end0"/>
+      <word name="end1"/>
+      <word name="ex"/>
+      <word name="ex+"/>
+      <word name="ex-"/>
+      <word name="ex0"/>
+      <word name="external"/>
+      <word name="finish-device"/>
+      <word name="headers"/>
+      <word name="if+"/>
+      <word name="if-"/>
+      <word name="if0"/>
+      <word name="my-self"/>
+      <word name="NAMEBASE"/>
+      <word name="new-device"/>
+      <word name="PROPERTY"/>
+      <word name="rp"/>
+      <word name="TVOCABULARY"/>
+   </keywords>
 
    <!--block start="/(\s|^)\m(\(\()\s+(\S+)\M(\s|$)/"  end="/(\s|^)(\)|\(\))\M(\s|$)/"
        scheme="Forthint" region10="forResWord"
@@ -357,15 +399,17 @@ With Help of
    <block start="/(\s|^)\m\[\M(\s|$)/" end="/(\s|^)(\]|\;)\M(\s|$)/" scheme="forth" region="Insertion" region00="forResWord" region10="forResWord"/>
 
    <!-- LNM: Local variables -->
-   <regexp match="/(\s|^)(\{\s+)([^\|\\].*?\s+)?((\||\\)\s+(.*?\s+))?((\-\-)\s+(.*?\s+))?(\})/"
-           region2="Symbol" region3="Parameter" region5="Symbol" region6="Var"
-           region8="Symbol" region9="Comment" region0="Symbol"/>
+   <regexp match="/(\s|^)(\{)\s+((.*?\s+)*?)((\||\\)\s+((.*?\s+)*?))?((\-\-)\s+(.*?))?(\}\s)/"
+           region2="forWord" region6="forWord" region7="forNumb"
+           regiona="forWord" regionb="forComment" regionc="forWord"/>
+           <!-- region3="forNumb" -->
 
+   <!-- general syntax constructs -->
    <keywords ignorecase="yes" worddiv="[\s]" region="forResWord">
       <word name="OF"/>
       <word name="ENDOF"/>
       <word name="CASE"/>
-      <word name="END-CASE"/> <!-- + END-CASE -->
+      <word name="END-CASE"/>
       <word name="ENDCASE"/>
       <word name="IF"/>
       <word name="ELSE"/>
@@ -390,6 +434,7 @@ With Help of
       <word name="}}"/>
    </keywords>
 
+   <!-- Defining words -->
    <keywords ignorecase="yes" worddiv="[\s]" region="forWord">
       <word name=":"/>
       <word name="'"/>
@@ -409,8 +454,10 @@ With Help of
    </keywords>
 </scheme>
 
+
 <scheme name="forth">
-   <!-- def words -->
+
+   <!-- defining words -->
    <!-- + M: PROC: -->
    <block start="/(\s|^)\m(:|M:|PROC:|\.\.:)\s+(\S+)\M(\s|$)/"  end="/(\s|^)(M;|PROC;|;|;\.\.)\M(\s|$)/"
        scheme="forthcomp" region00="Function" region10="forWord"
@@ -424,7 +471,6 @@ With Help of
    <regexp match="/(\s|^)(CONSTANT)\s+(\S+)/"        region="Function" region2="forWord" region3="forWordDefinition"/>
    <regexp match="/(\s|^)(VOCABULARY)\s+(\S+)/"      region="Function" region2="forWord" region3="forWordDefinition"/>
    <regexp match="/(\s|^)(VECT)\s+(\S+)/"            region="Function" region2="forWord" region3="forWordDefinition"/>
-   <!-- + fvalue -->
    <regexp match="/(\s|^)(F?VALUE)\s+(\S+)/"         region="Function" region2="forWord" region3="forWordDefinition"/>
    <regexp match="/(\s|^)(--)\s+(\S+)/"              region="Function" region2="forWord" region3="forWordDefinition"/>
    <regexp match="/(\s|^)(CODE)\s+(\S+)/"            region="Function" region2="forWord" region3="forWordDefinition"/>
@@ -432,7 +478,6 @@ With Help of
    <regexp match="/(\s|^)(REQUIRE)\s+(\S+)\s+(\S+)/"  region2="forWord" region3="forWord" region4="Path"/>
    <regexp match="/(\s|^)(CHAR)\s+(\S+)/" region2="forWord" region3="forString"/>
    <regexp match="/(\s|^)(\.\(\s)(.*?)(\))/" region2="forWord" region3="forString" region4="forWord"/>
-   <!-- + Correct tick -->
    <regexp match="/(\s|^)(')\s+(\S+)/"  region2="forResWord" region3="forWord"/>
 
    <inherit scheme="Forthint"/>
