@@ -1,7 +1,9 @@
 \ $Id$
 \
 \ Автодополнение в консоли SPF
-\ Временно перебор истории - Ctrl-B Ctrl-N
+\
+\ Перебор ваиантов дополнения - Tab
+\ История ввода - стрелки вниз/вверх
 
 REQUIRE /STRING lib/include/string.f
 REQUIRE AT-XY ~day/common/console.f
@@ -21,7 +23,7 @@ MODULE: ACCEPT-Autocompletion
 0 VALUE _y \ номер строки на консоли
 0 VALUE in-history \ состояние перебора истории
 0 VALUE history \ список строк истории
-0 VALUE _cursor
+0 VALUE _cursor \ позиция в строке на которую указывает видимый курсор
 
 : history-file S" spf.history" +ModuleDirName ;
 
@@ -58,7 +60,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    SEARCH NIP IF R> <> ELSE DROP RDROP -1 THEN ;
 
 : CDR-BY-NAME-START ( a u nfa1|0 -- a u nfa2|0 )
-\ найти следующее слово в списке начинающееся на a u
+\ найти следующее слово в списке слов начинающееся на a u
  BEGIN  ( a u NFA | a u 0 )
    DUP
  WHILE  ( a u NFA )
@@ -68,15 +70,11 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
  REPEAT THEN 
 ;
 
-: expand ( a a1 u1 -- a a1+u1-a )
-   + OVER - ;
-
 : put ( a u -- in )
 \ поместить строку начиная от _last
    _last OVER + _n1 > IF 2DROP _in EXIT THEN
    >R _addr _last scanback DROP R> 2DUP + >R CMOVE 
-   R> _addr -
-;
+   R> _addr - ;
 
 : accept-ascii ( c -- ? )
    DUP 9 = \ tab
@@ -159,7 +157,6 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    IF accept-ascii ELSE accept-scan TRUE THEN ;
 
 : \STRING ( a u n -- a+u-n n ) OVER MIN >R + R@ - R> ;
-
 : MAX-X MAX-XY DROP 1- ;
 
 : display
@@ -185,9 +182,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
 \ --------------------------------
 
 : List=> ( list -- ) R> SWAP ForEach ;
-
 : >STR ( a u -- s ) "" >R R@ STR+ R> ;
-
 : add-history ( s -- ) history AllocateNodeEnd .val ! ;
 
 : load-history
@@ -209,9 +204,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    a1 0= IF TRUE EXIT THEN
    a u a1 u1 COMPARE ;
 
-EXPORT
-
-: ACCEPT2 ( a u -- n )
+: ACCEPT-WITH-AUTOCOMPLETION ( a u -- n )
    TO _n1
    TO _addr
    0 TO in-history
@@ -238,6 +231,6 @@ EXPORT
 ;
 
 load-history
-' ACCEPT2 TO ACCEPT
+' ACCEPT-WITH-AUTOCOMPLETION TO ACCEPT
 
 ;MODULE
