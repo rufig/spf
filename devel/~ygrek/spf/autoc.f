@@ -21,6 +21,7 @@ MODULE: ACCEPT-Autocompletion
 0 VALUE _in \ длина текста
 0 VALUE _last \ позиция последнего символа введённого руками (не автодополнением)
 0 VALUE _y \ номер строки на консоли
+0 VALUE _x \ номер колонки
 0 VALUE in-history \ состояние перебора истории
 0 VALUE history \ список строк истории
 0 VALUE _cursor \ позиция в строке на которую указывает видимый курсор
@@ -38,9 +39,9 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
   CONSOLE_SCREEN_BUFFER_INFO H-STDOUT GetConsoleScreenBufferInfo DROP
   CONSOLE_SCREEN_BUFFER_INFO 4 + DUP W@ SWAP 2+ W@ ;
 
-: CLEAR-LINE ( y -- )
+: CLEAR-LINE ( x y -- )
 \ очистить строку
-   0 SWAP 16 LSHIFT OR 0 >R RP@ SWAP MAX-XY NIP BL H-STDOUT FillConsoleOutputCharacterA R> 2DROP ;
+   16 LSHIFT OR 0 >R RP@ SWAP MAX-XY NIP BL H-STDOUT FillConsoleOutputCharacterA R> 2DROP ;
 
 : scanback ( addr u -- a' u' )
 \ найти начало слова (сканирование назад по строке)
@@ -93,7 +94,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    DUP 8 = \ bksp
    IF
      0 TO in-history
-     _cursor 0= IF TRUE EXIT THEN
+     _cursor 0= IF DROP EXIT THEN
      _addr _cursor + DUP 1- _in _cursor - CMOVE
      _in 1 MAX 1- TO _in
      _in TO _last
@@ -159,10 +160,10 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
 : display
 \ показать буфер
 \   LT LTL @ TO-LOG _y .TO-LOG _in .TO-LOG
-   0 _y AT-XY
-   _y CLEAR-LINE
+   _x _y AT-XY
+   _x _y CLEAR-LINE
    _addr _in TYPE
-   _cursor _y AT-XY
+   _cursor _x + _y AT-XY
 \   _addr _in DUP MAX-X > IF MAX-X \STRING THEN TYPE 
 ;
 
@@ -208,7 +209,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    0 TO _in
    0 TO _last
    0 TO _cursor
-   AT-XY? TO _y DROP
+   AT-XY? TO _y TO _x
   BEGIN
    _in 1+ _n1 > IF _in EXIT THEN
    skey accept-one 
