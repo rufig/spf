@@ -10,7 +10,11 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translated from intro.ru.md (rev. 1.5) -->
+<!-- Translated from intro.ru.md (rev. 1.6) -->
+
+----
+
+[[Russian](intro.ru.html)] [[English](intro.en.html)]
 
 ----
 
@@ -21,6 +25,7 @@ Forth-system and ANS'94 standard.</i>
 * [ANS support](#ans)
 * [How to run and include forth code?](#include)
 * [REQUIRE](#require)
+* [INCLUDED search path](#included-path)
 * [Modules](#module)
 * [Case sensitivity](#case)
 * [Numbers](#numbers)
@@ -129,6 +134,38 @@ For example:
 	REQUIRE ForEach-Word ~pinka/lib/words.f
 	REQUIRE ENUM ~nn/lib/enum.f
 
+
+----
+<a id="included-path"/>
+###[INCLUDED search path][start]
+
+`S" file.f" INCLUDED` will search following locations in specified order 
+
+* the short name `file.f` (i.e. in the current directory)
+* `PATH_TO_SPF.EXE\devel\file.f` (thus allowing to use other spf developers' code), 
+* `PATH_TO_SPF.EXE\file.f` (thus including standard libraries and other files from SPF distribution). 
+
+If you need to specify more paths (for example to use some forth code shared between
+several forth systems, or whatever - any code that is not in the spf
+files subtree and cannot be addressed relatively from your current
+file), then you can either redefine `FIND-FULLNAME` (which is `VECT`) or use
+external lib - `~ygrek/lib/included.f`. All you need is to write in
+spf4.ini
+
+	~ygrek/lib/included.f
+	with: my_path\
+	S" my path with spaces/" with
+
+or
+
+	MODULE: included_path
+	 CREATE my_path/
+	 S" My path with spaces/" CREATED
+	;MODULE
+
+and all the files will be searched in `my_path` in addition to the
+earlier described algorithm (`my_path` can be either absolute or relative
+spf.exe). 
 
 
 ----
