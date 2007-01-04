@@ -11,6 +11,9 @@
 
   Обращение к невыделенному [пусть и зарезервированному] куску вызовет AV
 
+  Конечно же общее кол-во зарезервированной памяти не может превышать 2Гб, 
+  исчерпание адресного пространства
+
   http://msdn2.microsoft.com/en-us/library/aa366887.aspx
 ) 
 
@@ -57,7 +60,7 @@ WINAPI: VirtualFree KERNEL32.DLL
 MODULE: MEM
 
 \ Зарезервировать кусок памяти размером u байт
-\ Память при этом не выделяется, т.е. можно запрашивать хоть несколько Гб
+\ Память при этом не выделяется, но становится недоступной для последующих ALLOCATE и RESERVE 
 : RESERVE ( u -- addr ior )
    >R PAGE_NOACCESS MEM_RESERVE R> 0 VirtualAlloc DUP ERR ;
 
@@ -66,7 +69,7 @@ MODULE: MEM
 : COMMIT ( addr u -- ior )
    PAGE_EXECUTE_READWRITE MEM_COMMIT 2SWAP SWAP VirtualAlloc ERR ;
 
-\ Освободить память и снять резервирование(addr - тот который вернул RESERVE)
+\ Освободить память и снять резервирование (addr - тот который вернул RESERVE)
 : RELEASE ( addr -- ior )
    MEM_RELEASE 0 ROT VirtualFree ERR ;
 
@@ -78,7 +81,7 @@ MODULE: MEM
 
 ALSO MEM
 
-5000 MB RESERVE THROW ( addr )
+1000 MB RESERVE THROW ( addr )
 
 DUP 10 MB COMMIT THROW
 DUP 10 MB 1 FILL
