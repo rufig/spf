@@ -10,9 +10,11 @@ REQUIRE AT-XY ~day/common/console.f
 REQUIRE InsertNodeEnd ~day/lib/staticlist.f
 REQUIRE FileLines=> ~ygrek/lib/filelines.f
 REQUIRE ATTACH-LINE-CATCH ~pinka/samples/2005/lib/append-file.f
+REQUIRE [IF] lib/include/tools.f
+
+C" ACCEPT-Autocompletion" FIND NIP [IF] \EOF [THEN]
 
 WINAPI: GetConsoleScreenBufferInfo KERNEL32.DLL
-
 
 MODULE: ACCEPT-Autocompletion
 
