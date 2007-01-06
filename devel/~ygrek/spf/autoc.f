@@ -4,6 +4,9 @@
 \
 \ Перебор вариантов дополнения - Tab
 \ История ввода - стрелки вниз/вверх
+\ Очистить текущий ввод - Esc
+\ Навигация - Home, End, стрелки влево/вправо
+\ Удаление - Bksp, Del
 
 REQUIRE /STRING lib/include/string.f
 REQUIRE AT-XY ~day/common/console.f
@@ -11,7 +14,9 @@ REQUIRE InsertNodeEnd ~day/lib/staticlist.f
 REQUIRE FileLines=> ~ygrek/lib/filelines.f
 REQUIRE ATTACH-LINE-CATCH ~pinka/samples/2005/lib/append-file.f
 REQUIRE [IF] lib/include/tools.f
+REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 
+\ повторная загрузка не нужна
 C" ACCEPT-Autocompletion" FIND NIP [IF] \EOF [THEN]
 
 WINAPI: GetConsoleScreenBufferInfo KERNEL32.DLL
@@ -79,17 +84,22 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    >R _addr _last scanback DROP R> 2DUP + >R CMOVE 
    R> _addr - ;
 
+: nfa-of-input ( -- nfa -1 | 0 )
+   _addr _in scanback \ last full word
+   CONTEXT @ SEARCH-WORDLIST-NFA ;
+
+: completion ( nfa1 -- nfa2 )
+   _addr _last scanback \ last realpart word
+   ROT
+   CDR-BY-NAME-START
+   NIP NIP ;
+
 : accept-ascii ( c -- ? )
    DUP 9 = \ tab
    IF 
      0 TO in-history
-     _addr _in scanback \ last full word
-     CONTEXT @ SEARCH-WORDLIST-NFA 0= IF CONTEXT @ @ THEN 
-     _addr _last scanback \ last realpart word
-     ROT
-     CDR
-     CDR-BY-NAME-START
-     NIP NIP ?DUP IF COUNT put TO _in ELSE _last TO _in THEN
+     nfa-of-input 0= IF CONTEXT @ @ ELSE CDR THEN 
+     completion DUP IF COUNT put TO _in ELSE DROP _last TO _in THEN
      _in TO _cursor
    THEN
 
@@ -106,6 +116,13 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    DUP 13 = IF
      0 TO in-history
    THEN
+        
+   DUP 27 = IF \ Esc - очистить ввод
+     0 TO in-history
+     0 TO _cursor
+     0 TO _in
+     0 TO _last
+   THEN
 
    DUP 32 < IF DROP EXIT THEN
 
@@ -115,7 +132,19 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    _addr _cursor + C!
    _in 1+ TO _in
    _cursor 1+ TO _cursor
-   _in TO _last ;
+   _in TO _last 
+
+   EXIT \ эксперименатльная фича %)
+   
+   \ ?AUTOCOMPLETION 0= IF EXIT THEN
+   \ если на вводе готовое слово - ничего не делаем
+   nfa-of-input IF DROP EXIT THEN
+   \ иначе ищем дополнение
+   CONTEXT @ @ completion DUP 0= IF DROP EXIT THEN \ если их нет - выходим
+   DUP CDR completion IF DROP EXIT THEN \ если их больше одного - тоже выходим
+   \ иначе подставляем сразу!
+   COUNT put TO _in 
+   _in TO _cursor ;
 
 : accept-scan ( c -- )
    DUP 72 = IF \ up arrow
@@ -184,6 +213,11 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
 : List=> ( list -- ) R> SWAP ForEach ;
 : >STR ( a u -- s ) "" >R R@ STR+ R> ;
 : add-history ( s -- ) history AllocateNodeEnd .val ! ;
+: dump-history ( -- ) \ всю историю в файл заново
+   \ очистить файл
+   history-file R/W CREATE-FILE THROW CLOSE-FILE THROW 
+   \ записать весь список
+   LAMBDA{ .val @ STR@ history-file ATTACH-LINE-CATCH DROP } history ForEach ;
 
 : load-history
   /history CreateList TO history
@@ -194,8 +228,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
   }EMERGE 
   history listSize 0= IF
    "" add-history \ всегда есть один элемент в списке!
-  THEN
-  ;
+  THEN ;
 
 : htype history List=> .val @ STR@ CR TYPE ;
 
@@ -219,11 +252,16 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    display
   REPEAT
   CR
-  START{
-   history List=> .val @ STR@ _addr _in SAFE-COMPARE 0= ONTRUE 0 TO _addr
-  }EMERGE
-  _addr 0 <> _in 0 <> AND 
+  _in 0= IF _in EXIT THEN
+  LAMBDA{
+   DUP .val @ STR@ _addr _in SAFE-COMPARE 0= IF .val @ add-history FALSE ELSE DROP TRUE THEN
+  } history ?ForEach
+  DUP 
   IF
+    FreeNode 
+    dump-history
+  ELSE
+   DROP
    _addr _in " {s}" add-history \ добавили в историю
    _addr _in history-file ATTACH-LINE-CATCH DROP
   THEN
