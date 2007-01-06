@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translated from intro.ru.md (rev. 1.6) -->
+<!-- Translated from intro.ru.md (rev. 1.7) -->
 
 ----
 
@@ -149,10 +149,10 @@ If you need to specify more paths (for example to use some forth code shared bet
 several forth systems, or whatever - any code that is not in the spf
 files subtree and cannot be addressed relatively from your current
 file), then you can either redefine `FIND-FULLNAME` (which is `VECT`) or use
-external lib - `~ygrek/lib/included.f`. All you need is to write in
+external lib - `~ygrek/spf/included.f`. All you need is to write in
 spf4.ini
 
-	~ygrek/lib/included.f
+	~ygrek/spf/included.f
 	with: my_path\
 	S" my path with spaces/" with
 
@@ -305,8 +305,8 @@ and so, it is valid only in this line of input.
 
 * During compilation state the string is compiled directly into the word code area.
 
-In order to simplify interaction with Windows API the additional zero byte is
-appended to the end of the string.
+**NB**: In order to simplify interaction with Windows API the additional zero byte is
+compiled directly after the symbols of the string (it is not represented in counter).
 
 `S"` defines a so called static string, which is located in the buffer, or in the
 code area. If you need dynamic string, the one that uses memory on the heap, 
