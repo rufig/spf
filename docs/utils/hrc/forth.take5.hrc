@@ -31,7 +31,7 @@ With Help of
    <!-- comments -->
    <block start="/(\s|^)\\(\s|$)/" end="/$/" scheme="Comment" region="forComment"/>
    <block start="/(\s|^)\((\s|$)/" end="/\)/" scheme="Comment" region="forComment"/>
-   <block start="/0\s+\[if\]/i" end="/\[then\]/i" scheme="Comment" region="forComment"/>
+   <block start="/(\s|^)0\s+\[if\]/i" end="/\[then\]/i" scheme="Comment" region="forComment"/>
    <block start="/(\s|^)\(\*(\s|$)/" end="/(\s|^)\*\)\M(\s|$)/" scheme="Comment" region="forComment"/>
 
    <!-- strings -->
