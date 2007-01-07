@@ -188,12 +188,15 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
 : \STRING ( a u n -- a+u-n n ) OVER MIN >R + R@ - R> ;
 : MAX-X MAX-XY DROP 1- ;
 
-: display
+: display ( ? -- )
 \ показать буфер
 \   LT LTL @ TO-LOG _y .TO-LOG _in .TO-LOG
    _x _y AT-XY
    _x _y CLEAR-LINE
+   H-STDLOG >R
+   0= IF 0 TO H-STDLOG THEN \ don't want it to appear in spf.log
    _addr _in TYPE
+   R> TO H-STDLOG
    _cursor _x + _y AT-XY
 \   _addr _in DUP MAX-X > IF MAX-X \STRING THEN TYPE 
 ;
@@ -249,8 +252,9 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    _in 1+ _n1 > IF _in EXIT THEN
    skey accept-one 
   WHILE
-   display
+   FALSE display
   REPEAT
+  TRUE display
   CR
   _in 0= IF _in EXIT THEN
   LAMBDA{
