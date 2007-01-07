@@ -3,14 +3,12 @@
 
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE >L ~profit/lib/lstack.f
-REQUIRE { lib/ext/locals.f
 REQUIRE (: ~yz/lib/inline.f
 
 MODULE: bac4th
 : ?PAIRS <> ABORT" unpaired" ;
 : >RESOLVE2 ( dest -- ) HERE SWAP ! ;
 : <RESOLVE ( org -- )	, ;
-
 
 : CALL, ( ADDR -> ) \ скомпилировать инструкцию ADDR CALL
   ?SET SetOP SetJP 0xE8 C,
@@ -43,8 +41,12 @@ EXPORT
 : ONFALSE IF RDROP THEN ;
 : ONTRUE 0= IF RDROP THEN ;
 
+: R@ENTER, 0xFF C, 0x14 C, 0x24 C, ; \ CALL [ESP]
+\ POSTPONE R@ POSTPONE EXECUTE
+
 : PRO R> R> >L ENTER LDROP ;
-: CONT L> >R R@ ENTER R> >L ;
+\ : CONT L> >R R@ ENTER R> >L ;
+: CONT (: L> >R ;) INLINE, R@ENTER, (: R> >L ;) INLINE, ; IMMEDIATE
 
 \ обратимые операции
 : RESTB  ( n --> n  / n <--  ) R>  OVER >R  ENTER   R> ;
@@ -83,6 +85,10 @@ $TART ?PAIRS DROP
 RET,
 >RESOLVE2
 ; IMMEDIATE
+
+: S| PRO BACK SP! TRACKING SP@ BDROP CONT ; \ Восстановление стека
+\ Нужно для обеспечения баланса стека при прямом и обратном ходе, при наличии таких
+\ опасных процедур как отсечения (NOT: -NOT или CUT: -CUT)
 
 \ квантор отрицания
 : NOT:  ?COMP POSTPONE (NOT:) 0 ,  >MARK N0T ; IMMEDIATE
@@ -133,12 +139,13 @@ POSTPONE !
 a99reg4te ;
 
 \ во время исполнения на стеке должно лежать значение которое надо при-обработать к начальному (добавить, сконкатенировать, умножить и т.д.)
-: }agg { agg succ -- }
-?COMP  a99reg4te ?PAIRS
+: }agg ( agg succ -- )
+?COMP  SWAP 2>R
+a99reg4te ?PAIRS
 OVER
-LIT, agg COMPILE,
+LIT, R> COMPILE,
 RET, >RESOLVE2
-LIT, succ COMPILE, ;
+LIT, R> COMPILE, ;
 
 : +{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }+ ?COMP ['] +! ['] @ }agg ; IMMEDIATE
