@@ -1,10 +1,17 @@
+\ $Id$
+\ 
 \ std::vector :)
+\ Динамический буфер
 \ Использует глобальную память процесса
 
+MODULE: yz \ импортирует слишком много всего - конфликт возможен - предотвращаем
 REQUIRE MGETMEM ~yz/lib/gmem.f
+;MODULE
 REQUIRE ACCERT( lib/ext/debug/accert.f
 
 MODULE: std:vector
+
+3 ACCERT-LEVEL !
 
 0
 CELL -- .ptr
@@ -39,20 +46,20 @@ EXPORT
 
 : vresize ( n v -- )
   \ .resize @ EXECUTE
-  ACCERT3( CR ." resize=" OVER . )
+  ACCERT2( CR ." resize=" OVER . )
    DUP vptr 0=
    IF 
-    ACCERT3( CR ." NEW" )
-     2DUP .msize! 2DUP SWAP delta + OVER cells MGETMEM SWAP .ptr ! 
+    ACCERT2( CR ." NEW" )
+     2DUP .msize! 2DUP SWAP delta + OVER cells yz::MGETMEM SWAP .ptr ! 
    ELSE
-    ACCERT3( CR ." RESIZE" )
+    ACCERT2( CR ." RESIZE" )
      2DUP .msize @ > IF 
        2DUP .msize! 
        2DUP SWAP delta + OVER cells SWAP vptr SWAP MRESIZE OVER .ptr ! THEN
    THEN
-   ACCERT3( CR DUP . OVER . )
+   ACCERT2( CR DUP . OVER . )
    .size ! 
-   ACCERT3( CR ." resize done" )
+   ACCERT2( CR ." resize done" )
    ;
 
 \ static 
@@ -61,17 +68,17 @@ EXPORT
 
 \ dynamic
 : vector ( n -- v )
-   0 /SIZE MGETMEM init ;
+   0 /SIZE yz::MGETMEM init ;
 
 : vsize .size @ ;
 
 : v[]  ( n v -- a ) >R DUP 1+ R@ vsize > IF RDROP CR . ." Index out of" ABORT THEN R@ cells R> vptr + ;
 
 : ~vector ( v -- )
-  DUP vptr MFREE 0= IF -9 THROW THEN
+  DUP vptr yz::MFREE 0= IF -9 THROW THEN
   DUP static? IF erase EXIT THEN
   DUP erase
-  MFREE 0= IF -9 THROW THEN ;
+  yz::MFREE 0= IF -9 THROW THEN ;
 
 ;MODULE
 
