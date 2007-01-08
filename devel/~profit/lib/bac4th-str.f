@@ -35,19 +35,24 @@ t - t SWAP ;
 : copy ( a u i l --> s \ <-- s ) PRO copy-patch S>STR CONT ;
 
 \ Генерирует функцию сравнивающую на равенство с числом
-: byChar ( c <--> xt )  PRO S" LITERAL =" compiledCode CONT ;
+: byChar ( c <--> xt )  PRO S" C@ LITERAL =" compiledCode CONT ;
+\ Обратите внимание -----------^
+\ Взятие символа переносится в генерируемый код снаружи функций find , split и прочих
+\ Таким образом, становится возможным использовать их не только для работы с массивом 
+\ однобайтных символов но и, с допустим, с текстом в UTF-8... Э-э-э, а iterateByBytes ?.!. Хм...
+\ Облом...
 
 \ Функция сравнения символа на перевод строки
 \ : byRows ( <--> xt ) PRO S" 2* 23 - ABS 3 ="  compiledCode CONT ;
 \ : byRows ( -- xt ) (: 2* 23 - ABS 3 = ;) ;
-:NONAME 2* 23 - ABS 3 = ; \ 13 или 10
+:NONAME C@ 2* 23 - ABS 3 = ; \ 13 или 10
 CONSTANT byRows
 
 : find ( a u f <--> a1 )
 \ находит в строке a u все символы, на которых функция f даст TRUE и генерирует вызовы для каждого символа
 \ Функция f ( с -- 0|-1 ) получает на входе значение символа и выводит логическое значение
 PRO LOCAL f f !
-iterateByBytes DUP C@ f @ EXECUTE IF CONT THEN ;
+iterateByBytes DUP f @ EXECUTE IF CONT THEN ;
 
 : split-patch ( a u f <--> addr u  )
 \ разбивает строку a u символами, на которых функция f даст TRUE и генерирует 
@@ -58,7 +63,7 @@ OVER LOCAL p p ! \ p -- пред. отметка, перед запуском цикла равна началу строки
 START{
 f @ find ( addr ) \ получаем адреса где искомые символы
 DUP p @ -  p @ SWAP CONT 2DROP \ от предыдущего до текущего найденного символа строку выводим
-DUP CHAR+ p ! }EMERGE
+DUP 1+ p ! }EMERGE
 
 p @  e @ p @ - CONT 2DROP \ обработаем и последний отрезок, не кончающийся на char
 ;
