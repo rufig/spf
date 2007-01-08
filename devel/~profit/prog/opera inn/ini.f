@@ -1,7 +1,7 @@
 REQUIRE FileLines=> ~ygrek/lib/filelines.f
-REQUIRE S>STR ~profit/lib/bac4th-str.f
+REQUIRE S> ~profit/lib/bac4th-str.f
 REQUIRE restOfString ~profit/lib/strings.f 
-REQUIRE seq{ ~profit/lib/bac4th-sequence.f
+REQUIRE arr{ ~profit/lib/bac4th-sequence.f
 
 
 VARIABLE section
@@ -39,12 +39,14 @@ isComment @     DROPB <*> \ потом коментарийность,
 S>              DROPB <*> \ потом имя значения,
 restOfString S> DROPB <*  \ потом -- значение.
 
-}arr ( addr u ) \ массив из record
-record iterateBy
+}arr ( addr u ) \ массив из record 
+
+record iterateBy \ проход по массиву, прыгаем через record ячеек в каждой итерации
 DUP commentFlag @ CR IF ." ;" THEN
 DUP secName @ STR@ TYPE
 DUP setting @ SPACE STR@ TYPE
-DUP value @ DUP STR@ NIP IF ." =" STR@ TYPE THEN
+DUP value @ DUP STR@ NIP IF ." =" STR@ TYPE ELSE DROP THEN
+
 ;
 
  S" C:\Program Files\Opera\defaults\standard_voice.ini" r
