@@ -89,8 +89,6 @@ CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
 
 : ETHROW DUP IF explain CR TYPE CR -1 THROW ELSE DROP THEN ;
 
-EXPORT
-
 \ Установить TCP соединение с указанным хостом (FQDN, не IP!)
 \ Если proxy-port = 0, то соединение идёт напрямую
 \ Если ior = 0 то соединение установлено - сокет sock
@@ -111,7 +109,7 @@ EXPORT
 \ Попробуем добыть страничку через Tor
 : test { | s }
   SocketsStartup THROW
-  S" forth.org.ru" 80 S" localhost" 9050 ConnectHostViaProxy SOCKS5::ETHROW SocketLine TO s
+  S" forth.org.ru" 80 S" localhost" 9050 SOCKS5::ConnectHostViaProxy SOCKS5::ETHROW SocketLine TO s
 " GET / HTTP/1.0
 Host: www.forth.org.ru
 Connection: close
