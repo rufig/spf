@@ -10,17 +10,26 @@
 \ REQUIRE MemReport ~day/lib/memreport.f
 REQUIRE CONT ~profit/lib/bac4th.f 
 REQUIRE FREEB ~profit/lib/bac4th-mem.f
-REQUIRE EVALUATED-HEAP ~profit/lib/evaluated.f
+\ REQUIRE EVALUATED-HEAP ~profit/lib/evaluated.f
+REQUIRE VC-COMPILED ~profit/lib/compile2Heap.f
+REQUIRE STR@ ~ac/lib/str4.f
 
-: compiledCode ( addr u -- addr-code )
-PRO EVALUATED-HEAP FREEB CONT ;
+: compiledCode ( addr u -- addr-code ) PRO LOCAL t
+CREATE-VC t !
+t @ VC-COMPILED
+t @ VC-RET,
+t @ XT-VC CONT
+t @ DESTROY-VC ;
+
+: STRcompiledCode ( s --> ) PRO LOCAL s DUP s ! STR@ compiledCode s @ STRFREE CONT ;
 
 \EOF
 REQUIRE SEE lib/ext/disasm.f
 
-: s ( n -- ) S" LITERAL +" compiledCode REST ;
+: b HERE 1 2DROP ;
 
-: r 4 0 DO CR CR I . I s LOOP ;
+: s ( n -- ) S" b LITERAL + " compiledCode REST CR CR ;
+
+: r 4 0 DO I . I s LOOP ;
 r
-
-MemReport
+\ MemReport
