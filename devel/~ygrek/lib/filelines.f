@@ -1,7 +1,7 @@
 \ Построчное чтение файла
 \ READ-LINE модифицирован чтобы возвращать флаг
 
-REQUIRE STR@ ~ac/lib/str5.f
+REQUIRE STR@ ~ac/lib/str4.f
 REQUIRE PRO ~profit/lib/bac4th.f
 REQUIRE { lib/ext/locals.f
 
@@ -56,6 +56,5 @@ CREATE buf 1026 ALLOT
 
 \EOF
 
-: TEST S" fi4lelines.f" FileLines=> CR DUP STR@ TYPE ;
+: TEST S" filelines.f" FileLines=> CR DUP STR@ TYPE ;
 TEST
-
