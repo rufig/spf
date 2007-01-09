@@ -54,7 +54,7 @@
         THEN THROW TO handle ;
 
 \ найти аналогичную запись в файле
-: search ( asc # --> n true/asc # false )
+: search ( asc # --> n true | asc # false )
          handle IF ELSE init THEN
 
          go-up 0 >R
@@ -65,7 +65,7 @@
          THEN RDROP 2DROP FALSE ;
 
 \ вернуть номер сообщения
-: add ( asc # --> n / false ) search IF EXIT ELSE new THEN ;
+: add ( asc # --> n | false ) search IF EXIT ELSE new THEN ;
 
 \ передать сообщение об ошибке обработчику ошибок
 : emsg   ER-U ! ER-A ! -2 THROW ;

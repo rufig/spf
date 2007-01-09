@@ -1,5 +1,5 @@
 \ Автоматическое тестирование библиотек, кода.
-\ 14-10-2006 written by mOleg for SPF4.17 ( mininoleg@yahoo.com )
+\ 14-10-2006 written by ~mOleg for SPF4.17
 
 \ 10-11-2006 решение проблемы необработки литералов стандартным EVAL-WORD
 : eval-word
@@ -51,8 +51,8 @@ VOCABULARY tests
            ALSO tests DEFINITIONS
 
 \ векторизация этих слов позволяет просто расширять набор инструментов
-USER-VECT is-delimiter
-USER-VECT action
+        USER-VECT is-delimiter
+        USER-VECT action
 
 \ основной цикл
 : process ( --> )
@@ -263,11 +263,11 @@ comment;
 
 test: \ автоматически себя тестируем, если присутствует соответствующий ключ
 
-S" .\lib\include\core-ext.f" testlib
-S" .\lib\include\double.f"   testlib
-S" .\lib\include\string.f"   testlib
-S" .\lib\include\tools.f"    testlib
-S" .\lib\include\facil.f"    testlib
+ S" .\lib\include\core-ext.f" testlib
+ S" .\lib\include\double.f"   testlib
+ S" .\lib\include\string.f"   testlib
+ S" .\lib\include\tools.f"    testlib
+ S" .\lib\include\facil.f"    testlib
 
 ;test
 
