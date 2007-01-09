@@ -102,7 +102,7 @@ EXPORT
    search_list list-random-quote ?DUP 0= IF " cannot find quote" ELSE .val @ THEN ;
 
 : register-quote ( quote-au author-au -- )
-   " {s} {s}" STR@ quotes-file ATTACH-LINE-CATCH DROP LSTRFREE 
+   " {s} {s}" DUP STR@ quotes-file ATTACH-LINE-CATCH DROP STRFREE 
    load-quotes
    ;
 
