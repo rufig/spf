@@ -113,7 +113,7 @@ WINAPI: GetTickCount KERNEL32.DLL
    \ GetTickCount .
    \ 2DUP GetTickCount " {n}.dat" STR@ ATTACH-CATCH DROP LSTRFREE
 
-   ['] RECEIVED CATCH IF CR S" Received data processing failed!" ECHO CR ECHO THEN
+   ['] RECEIVED CATCH IF 2DROP CR S" Received data processing failed!" ECHO THEN
 
    AGAIN ; TASK: ReceiveTask
 
@@ -142,6 +142,10 @@ WINAPI: GetTickCount KERNEL32.DLL
    ?LOGSAY IF 2OVER 2OVER nickname STR@ " {s} ({s}): {s}" DUP STR@ ECHO STRFREE THEN
    " PRIVMSG {s} :{s}" DUP sCMD STRFREE ;
 : S-SAY ( a u -- ) current-channel S-SAY-TO ;
+
+: S-NOTICE-TO ( text-au targer-au -- )
+   ?LOGSAY IF 2OVER 2OVER nickname STR@ " {s} ({s}): {s}" DUP STR@ ECHO STRFREE THEN
+   " NOTICE {s} :{s}" DUP sCMD STRFREE ;
 
 \ -----------------------------------------------------------------------
 

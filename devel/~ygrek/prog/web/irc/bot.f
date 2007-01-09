@@ -9,7 +9,7 @@ REQUIRE quotes ~ygrek/prog/web/irc/quotes.f
 
 DIS-OPT
 
-: kkv-extract [CHAR] $ PARSE HERE >R S", R> COUNT ;
+: kkv-extract [CHAR] $ PARSE -TRAILING HERE >R S", R> COUNT ;
 : $Date: kkv-extract ;
 : $Revision: kkv-extract ;
 
@@ -34,7 +34,10 @@ MODULE: BOT-COMMANDS
     STR@ S-REPLY
     TRUE TO ?check ;
 
-: !Q !q ;
+: !bar 
+   S" Just for testing" determine-sender S-NOTICE-TO
+   TRUE TO ?check
+;
 
 : !aq
     SkipDelimiters
@@ -67,11 +70,11 @@ MODULE: BOT-COMMANDS
 
     CVS-DATE
     CVS-REVISION
-    " IRC bot written in SP-Forth (http://spf.sf.net). alpha. rev. {s} {s}" DUP STR@ S-REPLY STRFREE
-    S" Available commands - !q, !aq, !help. (Use '!help !cmd' for more info)." S-REPLY
+    " IRC bot in SP-Forth (http://spf.sf.net). Rev. {s} ({s})" DUP STR@ S-REPLY STRFREE
+    S" Available commands - !q, !aq, !help. (Use '!help !<command>' for more info)." S-REPLY
  ;
 
-: NOTFOUND 2DROP ;
+: NOTFOUND 2DROP ; \ -1 THROW
 
 ;MODULE
 
@@ -84,7 +87,7 @@ MODULE: BOT-COMMANDS
    FALSE TO ?check
 
    GET-ORDER
-   BOT-COMMANDS
+   ONLY BOT-COMMANDS
    trailing EVALUATE
    SET-ORDER
 
