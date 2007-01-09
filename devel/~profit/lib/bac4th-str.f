@@ -24,7 +24,8 @@ MODULE: bac4th-str
 EXPORT
 
 : S> ( a u -- s ) "" DUP >R STR+ R> ;
-: S>STR ( a u --> s ) PRO S> CONT STRFREE ;
+: S>STR ( a u --> s \ <-- s ) PRO S> CONT STRFREE ;
+: S>STR2 ( a u --> s \ <-- )  PRO S> BACK STRFREE TRACKING RESTB CONT ;
 
 : copy-patch { a u i l \ e t -- a+i l }
 a u + TO e
