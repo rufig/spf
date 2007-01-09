@@ -45,8 +45,9 @@ EXPORT
 \ POSTPONE R@ POSTPONE EXECUTE
 
 : PRO R> R> >L ENTER LDROP ;
-\ : CONT L> >R R@ ENTER R> >L ;
-: CONT (: L> >R ;) INLINE, R@ENTER, (: R> >L ;) INLINE, ; IMMEDIATE
+: CONT L> >R R@ ENTER R> >L ;
+\ : CONT (: L> >R ;) INLINE, R@ENTER, (: R> >L ;) INLINE, ; IMMEDIATE
+\ Отключение оптимизатора ломает INLINE,
 
 \ обратимые операции
 : RESTB  ( n --> n  / n <--  ) R>  OVER >R  ENTER   R> ;
