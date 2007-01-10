@@ -1,7 +1,7 @@
-\ Автоматическое тестирование библиотек, кода.
+\ └тЄюьрЄшўхёъюх ЄхёЄшЁютрэшх сшсышюЄхъ, ъюфр.
 \ 14-10-2006 written by ~mOleg for SPF4.17
 
-\ 10-11-2006 решение проблемы необработки литералов стандартным EVAL-WORD
+\ 10-11-2006 Ёх°хэшх яЁюсыхь√ эхюсЁрсюЄъш ышЄхЁрыют ёЄрэфрЁЄэ√ь EVAL-WORD
 : eval-word
     SFIND ?DUP
     IF
@@ -13,48 +13,48 @@
          ELSE 2DROP ?SLITERAL THEN
     THEN ;
 
-\ секция настроек -----------------------------------------------------------
+\ ёхъЎш  эрёЄЁюхъ -----------------------------------------------------------
 
-\ внимание: один из Create всегда должен быть раскомментирован !!!
+\ тэшьрэшх: юфшэ шч Create тёхуфр фюыцхэ с√Є№ ЁрёъюььхэЄшЁютрэ !!!
 
-CREATE russian   \ сообщения на русском языке
+CREATE russian   \ ёююс∙хэш  эр Ёєёёъюь  ч√ъх
 \ CREATE english   \ select english messages
 
-\ если хотим тестировать эту либу и все последующие
+\ хёыш їюЄшь ЄхёЄшЁютрЄ№ ¤Єє ышсє ш тёх яюёыхфє■∙шх
 \ CREATE testing
 
-\ -- слова, которых не хватает в СПФ ----------------------------------------
+\ -- ёыютр, ъюЄюЁ√ї эх їтрЄрхЄ т ╤╧╘ ----------------------------------------
 
-\ то же что и : только имя приходит на вершине стека данных в виде строки
-\ со счетчиком:   S" name" S: код слова ;
+\ Єю цх ўЄю ш : Єюы№ъю шь  яЁшїюфшЄ эр тхЁ°шэх ёЄхър фрээ√ї т тшфх ёЄЁюъш
+\ ёю ёўхЄўшъюь:   S" name" S: ъюф ёыютр ;
 : S: ( asc # --> ) SHEADER ] HIDE ;
 
-\ берем очередную лексему до тех пор, пока не конец потока
-\ в случае окончания потока возвращаем 0 0 вместо строки и ее длинны
-\ полезная идея взята из СМАЛ32.
+\ схЁхь юўхЁхфэє■ ыхъёхьє фю Єхї яюЁ, яюър эх ъюэхЎ яюЄюър
+\ т ёыєўрх юъюэўрэш  яюЄюър тючтЁр∙рхь 0 0 тьхёЄю ёЄЁюъш ш хх фышээ√
+\ яюыхчэр  шфх  тч Єр шч ╤╠└╦32.
 : iNextWord ( --> asc # )
             NextWord
 
             DUP IF EXIT ELSE 2DROP THEN
 
-            REFILL IF RECURSE   \ здесь можно было бы просто NextWord
+            REFILL IF RECURSE   \ чфхё№ ьюцэю с√ыю с√ яЁюёЄю NextWord
                     ELSE 0 0
                    THEN ;
 
-\ зря этого слова нет в СПФ
+\ чЁ  ¤Єюую ёыютр эхЄ т ╤╧╘
 : IS POSTPONE TO ; IMMEDIATE
 
 \ ---------------------------------------------------------------------------
 
-\ все слова кроме интерфейсных прячем в отдельный словарь
+\ тёх ёыютр ъЁюьх шэЄхЁЇхщёэ√ї яЁ ўхь т юЄфхы№э√щ ёыютрЁ№
 VOCABULARY tests
            ALSO tests DEFINITIONS
 
-\ векторизация этих слов позволяет просто расширять набор инструментов
+\ тхъЄюЁшчрЎш  ¤Єшї ёыют яючтюы хЄ яЁюёЄю Ёрё°шЁ Є№ эрсюЁ шэёЄЁєьхэЄют
         USER-VECT is-delimiter
         USER-VECT action
 
-\ основной цикл
+\ юёэютэющ Ўшъы
 : process ( --> )
           BEGIN iNextWord DUP WHILE
                 2DUP is-delimiter WHILE
@@ -62,8 +62,8 @@ VOCABULARY tests
            REPEAT 2DROP EXIT
           THEN CR ." test section not finished" CR ABORT ;
 
-\ ищем слово идентифицируемое строкой в контексте
-\ кстати, может в специальном словаре искать: каком-нибудь settings ?
+\ ш∙хь ёыютю шфхэЄшЇшЎшЁєхьюх ёЄЁюъющ т ъюэЄхъёЄх
+\ ъёЄрЄш, ьюцхЄ т ёяхЎшры№эюь ёыютрЁх шёърЄ№: ъръюь-эшсєф№ settings ?
 : ?keyword ( asc " --> flag )
            SFIND
            IF DROP TRUE
@@ -72,21 +72,21 @@ VOCABULARY tests
 
 \ ---------------------------------------------------------------------------
 
-\ имя, которое оканчивает тестовую секцию
+\ шь , ъюЄюЁюх юърэўштрхЄ ЄхёЄютє■ ёхъЎш■
 : test-delimiter  ( --> asc # ) S" ;test" ;
 
-\ так быстрее, чем каждый раз искать в словарях ограничитель через SFIND
+\ Єръ с√ёЄЁхх, ўхь ърцф√щ Ёрч шёърЄ№ т ёыютрЁ ї юуЁрэшўшЄхы№ ўхЁхч SFIND
 : is-test-delimiter ( asc # --> false|nfalse ) test-delimiter COMPARE ;
 
-\ а это другая альтернатива 8)
+\ р ¤Єю фЁєур  ры№ЄхЁэрЄштр 8)
 : work-delimiter    ( --> asc # ) S" ;work" ;
 : is-work-delimiter ( asc # --> false|nfalse ) work-delimiter COMPARE ;
 
-\ а это поддержка коментариев в стиле СМАЛ32
+\ р ¤Єю яюффхЁцър ъюьхэЄрЁшхт т ёЄшых ╤╠└╦32
 : comm-delimiter    ( --> asc # ) S" comment;" ;
 : is-comm-delimiter ( asc # --> false|nfalse ) comm-delimiter COMPARE ;
 
-\ а это поддежка различных языков
+\ р ¤Єю яюффхцър Ёрчышўэ√ї  ч√ъют
 : rus-delimiter     ( --> asc # ) S" ;rus" ;
 : is-rus-delimiter ( asc # --> false|nfalse ) rus-delimiter COMPARE ;
 : eng-delimiter     ( --> asc # ) S" ;eng" ;
@@ -97,9 +97,9 @@ VOCABULARY tests
         PREVIOUS DEFINITIONS
                  ALSO tests
 
-\ во время тестирования весь текст между ограничителями интерпретируется
-\ или пропускается.
-\ Можно использовать внутри определений!
+\ тю тЁхь  ЄхёЄшЁютрэш  тхё№ ЄхъёЄ ьхцфє юуЁрэшўшЄхы ьш шэЄхЁяЁхЄшЁєхЄё 
+\ шыш яЁюяєёърхЄё .
+\ ╠юцэю шёяюы№чютрЄ№ тэєЄЁш юяЁхфхыхэшщ!
 : test: S" testing" ?keyword
          IF    ['] eval-word IS action
           ELSE ['] 2DROP IS action
@@ -107,13 +107,13 @@ VOCABULARY tests
         ['] is-test-delimiter IS is-delimiter
         process ; IMMEDIATE
 
-\ если ограничитель встречен во входном потоке, то значит по каким-то
-\ причинам пропущено начало секции тестирования
+\ хёыш юуЁрэшўшЄхы№ тёЄЁхўхэ тю тїюфэюь яюЄюъх, Єю чэрўшЄ яю ъръшь-Єю
+\ яЁшўшэрь яЁюяє∙хэю эрўрыю ёхъЎшш ЄхёЄшЁютрэш 
 test-delimiter S: CR ." testing delimiters unpaired!" ABORT ; IMMEDIATE
 
 
-\ проходят действия обратные тестированию, то есть во время тестирования
-\ данная секция выполняться не будет! но в другое время будет.
+\ яЁюїюф Є фхщёЄтш  юсЁрЄэ√х ЄхёЄшЁютрэш■, Єю хёЄ№ тю тЁхь  ЄхёЄшЁютрэш 
+\ фрээр  ёхъЎш  т√яюыэ Є№ё  эх сєфхЄ! эю т фЁєуюх тЁхь  сєфхЄ.
 : work: S" testing" ?keyword
          IF    ['] 2DROP IS action
           ELSE ['] eval-word IS action
@@ -124,7 +124,7 @@ test-delimiter S: CR ." testing delimiters unpaired!" ABORT ; IMMEDIATE
 work-delimiter S: CR ." working delimiters unpaired!" ABORT ; IMMEDIATE
 
 
-\ поддержка коментариев в стиле СМАЛ32
+\ яюффхЁцър ъюьхэЄрЁшхт т ёЄшых ╤╠└╦32
 : comment: ['] 2DROP IS action
            ['] is-comm-delimiter IS is-delimiter
            process ; IMMEDIATE
@@ -132,7 +132,7 @@ work-delimiter S: CR ." working delimiters unpaired!" ABORT ; IMMEDIATE
 comm-delimiter S: CR ." comments unpaired!" ABORT ; IMMEDIATE
 
 
-\ поддержка языков
+\ яюффхЁцър  ч√ъют
 : rus:  S" russian" ?keyword
          IF    ['] eval-word IS action
           ELSE ['] 2DROP IS action
@@ -147,7 +147,7 @@ comm-delimiter S: CR ." comments unpaired!" ABORT ; IMMEDIATE
         ['] is-eng-delimiter IS is-delimiter
         process ; IMMEDIATE
 
-rus-delimiter S: CR ." пропущено начало секции rus!" ABORT ; IMMEDIATE
+rus-delimiter S: CR ." яЁюяє∙хэю эрўрыю ёхъЎшш rus!" ABORT ; IMMEDIATE
 eng-delimiter S: CR ." eng section start is missed!" ABORT ; IMMEDIATE
 
         PREVIOUS
@@ -155,35 +155,35 @@ eng-delimiter S: CR ." eng section start is missed!" ABORT ; IMMEDIATE
 
         ALSO tests DEFINITIONS
 
-        0 VALUE marker  \ запоминаем глубину стека
-        0 VALUE tester  \ запоминаем глубину стека 8)
+        0 VALUE marker  \ чряюьшэрхь уыєсшэє ёЄхър
+        0 VALUE tester  \ чряюьшэрхь уыєсшэє ёЄхър 8)
 
-\ в какую сторону направлен дисбаланс стека?
+\ т ъръє■ ёЄюЁюэє эряЁртыхэ фшёсрырэё ёЄхър?
 : ?where ( delta --> )
-         0< IF  rus: ." На стеке оставлены лишние значения" ;rus
+         0< IF  rus: ." ═р ёЄхъх юёЄртыхэ√ ыш°эшх чэрўхэш " ;rus
                 eng: ." Data stack overflow." ;eng
              ELSE
-                rus: ." Cо стека сняты лишние значения" ;rus
+                rus: ." Cю ёЄхър ёэ Є√ ыш°эшх чэрўхэш " ;rus
                 eng: ." Data stack underflow." ;eng
             THEN ;
 
-\ проверяем, не было ли изменений на стеке
+\ яЁютхЁ хь, эх с√ыю ыш шчьхэхэшщ эр ёЄхъх
 : ?changes ( 0x --> flag )
            tester marker - CELL / DUP >R >R
            BEGIN R> 1- DUP WHILE >R
                        0=  WHILE
-            REPEAT rus: ." Изменения на вершине стека данных " ;rus
+            REPEAT rus: ." ╚чьхэхэш  эр тхЁ°шэх ёЄхър фрээ√ї " ;rus
                    eng: ." data stack contents is changed " ;eng
                    2R> -
 
-                   rus: ." изменено " . ." -ое значение." ;rus
+                   rus: ." шчьхэхэю " . ." -юх чэрўхэшх." ;rus
                    eng: . ." -th value changed." ;eng
 
                    EXIT
            THEN RDROP RDROP
            ." √" ;
 
-\ есть ли изменения на стеке?
+\ хёЄ№ ыш шчьхэхэш  эр ёЄхъх?
 : ?violations ( --> )
               SP@ marker - DUP
               IF ?where
@@ -191,14 +191,14 @@ eng-delimiter S: CR ." eng section start is missed!" ABORT ; IMMEDIATE
               THEN ;
 
 
-        0 VALUE standoff \ отражает вложенность либ во время included
+        0 VALUE standoff \ юЄЁрцрхЄ тыюцхээюёЄ№ ышс тю тЁхь  included
 
         PREVIOUS DEFINITIONS
                  ALSO tests
 
 \ ---------------------------------------------------------------------------
 
-\ определяем собственный included
+\ юяЁхфхы хь ёюсёЄтхээ√щ included
 : INCLUDED ( asc # --> )
            0x0D EMIT standoff DUP SPACES 3 + TO standoff
 
@@ -212,7 +212,7 @@ eng-delimiter S: CR ." eng section start is missed!" ABORT ; IMMEDIATE
 
          standoff 3 - 0 MAX TO standoff
 
-           IF rus: ." Проблемы со сборкой либы." CR ;rus
+           IF rus: ." ╧Ёюсыхь√ ёю ёсюЁъющ ышс√." CR ;rus
               eng: ." Can't make the library."   CR ;eng
               ERR-STRING TYPE
 
@@ -224,7 +224,7 @@ eng-delimiter S: CR ." eng section start is missed!" ABORT ; IMMEDIATE
 
         PREVIOUS
 
-\ взято из пакета СПФ.
+\ тч Єю шч яръхЄр ╤╧╘.
 : MARKER ( "<spaces>name" -- ) \ 94 CORE EXT
          HERE
          GET-CURRENT ,
@@ -239,8 +239,8 @@ eng-delimiter S: CR ." eng section start is missed!" ABORT ; IMMEDIATE
 
 \ ---------------------------------------------------------------------------
 
-\ теперь все, что хотим протестировать, но при этом, хотим чтобы не
-\ осталось в форт-системе, подключаем этим словом.
+\ ЄхяхЁ№ тёх, ўЄю їюЄшь яЁюЄхёЄшЁютрЄ№, эю яЁш ¤Єюь, їюЄшь ўЄюс√ эх
+\ юёЄрыюё№ т ЇюЁЄ-ёшёЄхьх, яюфъы■ўрхь ¤Єшь ёыютюь.
 : testlib ( asc # --> )
           S" MARKER remove " EVALUATE
           INCLUDED
@@ -249,19 +249,19 @@ eng-delimiter S: CR ." eng section start is missed!" ABORT ; IMMEDIATE
 
 
 comment:
-        теперь для тестирования библиотеки достаточно ее подключить с
- помощью S" path\name" testlib. Во время сборки библиотечки ее тестирование
- вестись будет лишь в случае, если автор либы это предусмотрел. Но кроме
- этого контролируются ситуации, когда после подключения библиотечки
- наблюдается дисбаланс на стеке данных: переполнение\переопустошение либо
- изменение стека на определенную глубину ( если нужно отслеживать изменение
- стека на большую, чем сейчас глубину(10 ячеек), необходимо увеличить кол-во
- нулей в included. После подключения весь скомпилированный код удаляется.
+        ЄхяхЁ№ фы  ЄхёЄшЁютрэш  сшсышюЄхъш фюёЄрЄюўэю хх яюфъы■ўшЄ№ ё
+ яюью∙№■ S" path\name" testlib. ┬ю тЁхь  ёсюЁъш сшсышюЄхўъш хх ЄхёЄшЁютрэшх
+ тхёЄшё№ сєфхЄ ыш°№ т ёыєўрх, хёыш ртЄюЁ ышс√ ¤Єю яЁхфєёьюЄЁхы. ═ю ъЁюьх
+ ¤Єюую ъюэЄЁюышЁє■Єё  ёшЄєрЎшш, ъюуфр яюёых яюфъы■ўхэш  сшсышюЄхўъш
+ эрсы■фрхЄё  фшёсрырэё эр ёЄхъх фрээ√ї: яхЁхяюыэхэшх\яхЁхюяєёЄю°хэшх ышсю
+ шчьхэхэшх ёЄхър эр юяЁхфхыхээє■ уыєсшэє ( хёыш эєцэю юЄёыхцштрЄ№ шчьхэхэшх
+ ёЄхър эр сюы№°є■, ўхь ёхщўрё уыєсшэє(10  ўххъ), эхюсїюфшью єтхышўшЄ№ ъюы-тю
+ эєыхщ т included. ╧юёых яюфъы■ўхэш  тхё№ ёъюьяшышЁютрээ√щ ъюф єфры хЄё .
 comment;
 
 \ ---------------------------------------------------------------------------
 
-test: \ автоматически себя тестируем, если присутствует соответствующий ключ
+test: \ ртЄюьрЄшўхёъш ёхс  ЄхёЄшЁєхь, хёыш яЁшёєЄёЄтєхЄ ёююЄтхЄёЄтє■∙шщ ъы■ў
 
  S" .\lib\include\core-ext.f" testlib
  S" .\lib\include\double.f"   testlib
@@ -273,7 +273,7 @@ test: \ автоматически себя тестируем, если присутствует соответствующий ключ
 
 comment:
 
-нужно добавить проверку баланса стека для кода между test: ;test
-- выдавать предупреждения
+эєцэю фюсртшЄ№ яЁютхЁъє срырэёр ёЄхър фы  ъюфр ьхцфє test: ;test
+- т√фртрЄ№ яЁхфєяЁхцфхэш 
 
 comment;

@@ -1,7 +1,7 @@
 \ 30-11-2000 Programmable interval counter.
 
 Unit: 82C54
-      \ смещение регистров относительно базового адреса.
+      \ ёьх∙хэшх ЁхушёЄЁют юЄэюёшЄхы№эю срчютюую рфЁхёр.
        F: FirstChanel     ;F
        F: SecondChanel 1+ ;F
        F: ThridChanel  2+ ;F
