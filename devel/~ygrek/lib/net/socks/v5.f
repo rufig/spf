@@ -50,6 +50,7 @@ CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
 
 : ProxyStep2 ( a u port sock -- )
   500 ALLOCATE THROW { sock buf } \ хватит т.к. в пакете меньше 10 ячеек + FQDN который меньше 256
+  255 MIN \ prevent buffer overflow
   buf step2 
   buf COUNT \ 2DUP DUMP
   sock WriteSocket -7 err
@@ -71,7 +72,7 @@ CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
   THEN
   buf FREE THROW ;
 
-\ Обьяснить ior возврщаемый этим модулем
+\ Обьяснить ior возвращаемый этим модулем
 : explain ( ior -- a u )
    CASE
       0 OF 0 0 ENDOF
@@ -87,12 +88,14 @@ CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
     -10 OF S" Step2: Domain format unsupported" ENDOF
    ENDCASE ;
 
+\ EXPORT
+
 : ETHROW DUP IF explain CR TYPE CR -1 THROW ELSE DROP THEN ;
 
 \ Установить TCP соединение с указанным хостом (FQDN, не IP!)
-\ Если proxy-port = 0, то соединение идёт напрямую
-\ Если ior = 0 то соединение установлено - сокет sock
-\
+\ через SOCKS5 прокси "proxy-au:proxy-port"
+\ Если proxy-port = 0, то соединение идёт напрямую, минуя прокси
+\ Если соединение установлено - ior = 0
 : ConnectHostViaProxy ( host-au port proxy-au proxy-port -- sock ior ) 
    DUP 0= IF DROP 2DROP ConnectHost EXIT THEN
    ['] ProxyStep1 CATCH DUP IF 0 SWAP EXIT ELSE DROP THEN
