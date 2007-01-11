@@ -303,7 +303,7 @@ M\ VECT DTST
   DUP  3FFFFD AND 050489 =    \  MOV   X [EAX*_] , EAX  | MOV EAX , X [EAX*_]
 \ XX00.0101 0000.0100 1000.1X01
   OVER 3FFFFB AND 050489 = OR \  MOV   X [EAX*_] , EAX  | LEA EAX , X [EAX*_]
-
+  OVER 80B60F = OR \ MOVZX EAX, BYTE PTR [EAX]
 ;
 
  0 VALUE TTTT
@@ -829,6 +829,8 @@ TRUE ?~EAX !
         IF
   DUP F8D1 <>       \ SAR     EAX , 1 
         IF
+  DUP E8C1 <>       \ SHR     EAX , 1 
+        IF
   DUP D8F7 <>       \ NEG     EAX 
         IF
   DUP D0F7 <>       \ NOT     EAX 
@@ -1100,6 +1102,11 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
   DUP F8D1 =       \ SAR     EAX , 1 
         IF DROP
            F9  OVER @ 1+ C!  CELL- FALSE EXIT
+        THEN
+
+  DUP E8C1 =       \ SAR     EAX , 1 
+        IF DROP
+           E9  OVER @ 1+ C!  CELL- FALSE EXIT
         THEN
 
   DUP 4589 =     \ OPX N F  MOV     FC [EBP] , EAX 
@@ -3189,6 +3196,20 @@ OP0 @ 2+ C@    XOR OR
 0=  IF   M\ C30 DTST
        OP1 ToOP0
        FALSE -3 ALLOT  M\ C31 DTST
+       EXIT   
+    THEN
+
+OP2 @ 2+ C@
+OP0 @ 2+ C@    XOR
+OP2 @ W@ 4589 XOR OR \ 579DE0 8945FC            MOV     FC [EBP] , EAX
+OP1 @ C@   25 XOR OR \ 579DE3 2555555555  AND     EAX , # 55555555
+OP0 @ W@ 558B XOR OR \ 579DE8 8B55FC            MOV     EDX , FC [EBP]
+0= IF   M\ C32 DTST
+	OP2 OPexcise
+	OP1 02 OPinsert
+	D08B OP2 @ W!    \ MOV     EDX , EAX
+       OP1 ToOP0
+       FALSE -3 ALLOT  M\ C33 DTST
        EXIT   
     THEN
 
