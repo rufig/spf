@@ -10,6 +10,14 @@
 
   <xsl:param name="htmlhelp.hhc.binary" select="0"/>
   <xsl:param name="htmlhelp.hhc.folders.instead.books" select="0"/>
+
+  <xsl:param name="base.dir" select="parts"></xsl:param>
+
   <xsl:param name="toc.section.depth" select="4"/>
+  <xsl:param name="generate.toc">
+  chapter nop
+  section nop
+  </xsl:param>
+
 
 </xsl:stylesheet>

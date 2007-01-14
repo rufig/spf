@@ -9,8 +9,9 @@ all: $(docs)
 
 force: clean-all all
 
-devel.html: *.docbook devel.html.single.xsl devel.basic.xsl
+devel.html: *.docbook devel.html.single.xsl devel.basic.xsl devel.html.chunked.xsl
 	xsltproc --nonet devel.html.single.xsl $(patsubst %.html,%.docbook,$@) > $@
+	xsltproc --nonet devel.html.chunked.xsl devel.docbook
 
 devel.chm: *.docbook devel.chm.xsl devel.basic.xsl
 	xsltproc --nonet devel.chm.xsl devel.docbook
@@ -18,7 +19,7 @@ devel.chm: *.docbook devel.chm.xsl devel.basic.xsl
 
 clean:
 	del *.hhp, *.hhc, *.hhk
-	del ch*.html, index.html, pr01.html
+	del ch*.html, index.html, pr??.html, ix??.html
 
 clean-all: clean
 	del $(docs)

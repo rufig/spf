@@ -3,10 +3,6 @@
 
   <xsl:param name="generate.legalnotice.link" select="1"/>
   <xsl:param name="suppress.navigation" select="0"/>
-  <xsl:param name="generate.toc">
-  chapter nop
-  section nop
-  </xsl:param>
   <!--xsl:param name="process.empty.source.toc" select="1"></xsl:param-->
   <!--xsl:param name="admon.graphics" select="1"/-->
   <!--xsl:param name="admon.graphics.path">gfx/</xsl:param-->
