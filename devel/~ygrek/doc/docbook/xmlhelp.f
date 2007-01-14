@@ -1,6 +1,7 @@
 \ (c) 2006 Dmitry Yakimov, support@activekitten.com
 
 \ немного подправлено чтобы работать автономно
+\ + более корректное выдирание комментов из слова
 
 REQUIRE [IF] lib/include/tools.f
 
@@ -35,6 +36,8 @@ VARIABLE xmlIndent
 0 VALUE includeBody?
 0 VALUE generateHelp?
 0 VALUE comment?
+0 VALUE str-of-comments \ номер строки из которой были выдраны коменты в последний раз
+                        \ для того чтобы взять только те комменты которые идут _сразу_ после слова
 0x1FFFFFFF VALUE TC-IMAGE-BASE
 
 : XMLHELP-ON
@@ -173,9 +176,11 @@ SPECIAL > &gt;
 
 : \
    comment? moduleComment? OR
+   CURSTR @ DUP . str-of-comments 1+ DUP ." ?= " . = AND
    IF 
       BL SKIP BL HELP-EMIT
       0 PARSE HandleSpecialChars (HELP-OUT)
+      CURSTR @ TO str-of-comments
    ELSE
       POSTPONE \
    THEN
@@ -283,6 +288,8 @@ SPECIAL > &gt;
 
   CLOSE-TAG
   StartComment
+
+  CURSTR @ CR DUP . TO str-of-comments
 
   R> >IN !
 ;

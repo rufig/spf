@@ -4,6 +4,7 @@
   [
   <!ENTITY chap1 SYSTEM "staticlist.docbook">
   <!ENTITY chap2 SYSTEM "hash-table.docbook"> 
+  <!ENTITY chap3 SYSTEM "queue_pr.docbook"> 
 ]>
 
 <book>
@@ -23,4 +24,5 @@
 
   &chap1;
   &chap2;
+  &chap3;
 </book>
