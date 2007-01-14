@@ -4,7 +4,7 @@
 
   <xsl:template match="forthsourcecode">
   <xsl:for-each select="module">          <!-- Для каждого файла-->
-  <chapter>                               <!-- Раздел-->
+  <section>                               <!-- Раздел-->
     <xsl:attribute name="id">
       <xsl:value-of select="generate-id()"/>
     </xsl:attribute>
@@ -12,9 +12,9 @@
       <xsl:value-of select="@name"/>      <!-- Имя файла-->
     </title>
 
-    <section id="toc-section">            <!-- Оглавление-->
-      <para>{DESCRIPTION}</para>
-      <toc id="toc"/>
+    <section id="toc-section">
+      <para>{DESCRIPTION}</para>          <!-- Описание (подставляется снаружи)-->
+      <toc id="toc"/>                     <!-- Оглавление-->
     </section>
 
     <xsl:for-each select="colon">         <!-- Для каждого определения через двоеточие-->
@@ -37,13 +37,18 @@
         </emphasis>
       </para>
       <para>
-        <xsl:value-of select="comment"/>  <!-- Комментарии-->
+        <xsl:for-each select="comment">  <!-- Комментарии-->
+          <xsl:value-of select="."/>
+           <xsl:if test="not (position()=last())">
+               <sbr/>                    <!-- Перевод строки (кроме последней)-->
+          </xsl:if>
+        </xsl:for-each>
       </para>
     </section>
     </xsl:if>
     </xsl:for-each>
 
-  </chapter>
+  </section>
   </xsl:for-each>
   </xsl:template>
 </xsl:stylesheet>

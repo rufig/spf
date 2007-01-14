@@ -170,16 +170,17 @@ SPECIAL > &gt;
 
 : StartComment
     +indent
-    S" <comment>" HELP-OUT
     TRUE TO comment?
 ;
 
 : \
    comment? moduleComment? OR
-   CURSTR @ DUP . str-of-comments 1+ DUP ." ?= " . = AND
+   CURSTR @ str-of-comments 1+ = AND
    IF 
-      BL SKIP BL HELP-EMIT
+      BL SKIP \ BL HELP-EMIT
+      S" <comment>" HELP-OUT
       0 PARSE HandleSpecialChars (HELP-OUT)
+      S" </comment>" HELP-OUT crh
       CURSTR @ TO str-of-comments
    ELSE
       POSTPONE \
@@ -188,15 +189,15 @@ SPECIAL > &gt;
 
 : StartModuleComment
     +indent
-    S" <comment>" HELP-OUT
+    S" <comment>" HELP-OUT crh
     TRUE TO moduleComment?
 ;
 
 : EndModuleComment
    moduleComment?
    IF
-     S" </comment>" HELP-OUT crh
      -indent
+     S" </comment>" HELP-OUT crh
      FALSE TO moduleComment?
    THEN
 ;
@@ -289,7 +290,7 @@ SPECIAL > &gt;
   CLOSE-TAG
   StartComment
 
-  CURSTR @ CR DUP . TO str-of-comments
+  CURSTR @ TO str-of-comments
 
   R> >IN !
 ;
@@ -302,7 +303,7 @@ XMLHELP-OFF
 : EndColonHelp
    comment?
    IF
-      crh S" </comment>" HELP-OUT crh
+      crh \ S" </comment>" HELP-OUT crh
       -indent 
       S" </colon>" HELP-OUT crh
       0 TO comment?

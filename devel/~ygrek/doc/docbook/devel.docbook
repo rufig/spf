@@ -1,10 +1,11 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="windows-1251"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
   "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd" 
   [
-  <!ENTITY chap1 SYSTEM "staticlist.docbook">
-  <!ENTITY chap2 SYSTEM "hash-table.docbook"> 
-  <!ENTITY chap3 SYSTEM "queue_pr.docbook"> 
+  <!ENTITY chap-staticlist SYSTEM "staticlist.docbook">
+  <!ENTITY chap-hash-table SYSTEM "hash-table.docbook"> 
+  <!ENTITY chap-queue_pr SYSTEM "queue_pr.docbook"> 
+  <!ENTITY chap-sockets SYSTEM "sockets.docbook"> 
 ]>
 
 <book>
@@ -22,7 +23,29 @@
 
   <index type="word" id="index"/>
 
-  &chap1;
-  &chap2;
-  &chap3;
+  <chapter id="algo">
+  <title>Algorithms and data structures</title>
+  <section id="algo-desc">
+   <title>Description</title>
+   <para>
+     Алгоритмы и структуры данных, как то списки, деревья, хэши итп
+   </para>
+  </section>
+  &chap-staticlist;
+  &chap-hash-table;
+  &chap-queue_pr;
+  </chapter>
+
+  <chapter id="net">
+  <title>Network</title>
+  <section id="net-desc">
+   <title>Description</title>
+   <para>
+     Либы для работы с сетью : сокеты, HTTP, FTP, почта, итд
+   </para>
+  </section>
+  &chap-sockets;
+  </chapter>
+
+
 </book>

@@ -3,12 +3,14 @@
 
   <xsl:include href="devel.basic.xsl"/>
 
-  <xsl:param name="base.dir" select="'chunks\'"></xsl:param>
+  <xsl:param name="base.dir" select="'chunked\'"></xsl:param>
 
-  <xsl:param name="root.filename" select="'devel'"></xsl:param>
+  <xsl:param name="root.filename" select="'index'"></xsl:param>
 
-  <!--xsl:param name="toc.section.depth" select="1"/-->
-  <xsl:param name="toc.max.depth">1</xsl:param>
+  <xsl:param name="toc.section.depth" select="1"/>
+  <xsl:param name="toc.max.depth">2</xsl:param>
+  <xsl:param name="chunk.section.depth" select="1"></xsl:param>
+  <xsl:param name="chunk.first.sections" select="0"></xsl:param>
   <xsl:param name="generate.toc">
   book toc
   chapter toc
