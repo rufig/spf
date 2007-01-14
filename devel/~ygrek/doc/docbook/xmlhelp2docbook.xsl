@@ -13,7 +13,15 @@
     </title>
 
     <section id="toc-section">
-      <para>{DESCRIPTION}</para>          <!-- Описание (подставляется снаружи)-->
+      <!--para>{DESCRIPTION}</para-->          <!-- Описание (подставляется снаружи)-->
+      <para>                              <!-- Описание (из либы)-->
+      <xsl:for-each select="comment">
+        <xsl:value-of select="."/>
+        <xsl:if test="not (position()=last())">
+            <sbr/>                    <!-- Перевод строки (кроме последней)-->
+        </xsl:if>
+      </xsl:for-each>
+      </para>
       <toc id="toc"/>                     <!-- Оглавление-->
     </section>
 

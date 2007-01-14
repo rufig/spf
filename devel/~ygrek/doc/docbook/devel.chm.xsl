@@ -13,10 +13,14 @@
   <xsl:param name="htmlhelp.hhc.binary" select="0"/>
   <xsl:param name="htmlhelp.hhc.folders.instead.books" select="0"/>
 
+  <!--xsl:param name="htmlhelp.hhc.show.root" select="0"></xsl:param>
+  <xsl:param name="htmlhelp.default.topic" select="'pr01.html'"/-->
+
   <xsl:param name="toc.section.depth" select="1"/>
   <xsl:param name="htmlhelp.hhc.section.depth" select="1"/>
   <xsl:param name="generate.toc">
-  chapter nop
+  book toc
+  chapter toc
   section nop
   </xsl:param>
 

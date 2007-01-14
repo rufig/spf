@@ -189,7 +189,6 @@ SPECIAL > &gt;
 
 : StartModuleComment
     +indent
-    S" <comment>" HELP-OUT crh
     TRUE TO moduleComment?
 ;
 
@@ -197,7 +196,6 @@ SPECIAL > &gt;
    moduleComment?
    IF
      -indent
-     S" </comment>" HELP-OUT crh
      FALSE TO moduleComment?
    THEN
 ;
@@ -281,11 +279,19 @@ SPECIAL > &gt;
 
   SOURCE-NAME S" source" ATTRIBUTE-OUT
 
-  PARSE-NAME S" (" COMPARE 0=
+  PARSE-NAME 
+  2DUP S" (" COMPARE 0=
   IF
+     2DROP
      S"  params=" (HELP-OUT) "h
      [CHAR] ) PARSE HandleSpecialChars HELP-OUT() "h 
+  ELSE
+     S" {" COMPARE 0= IF
+       S"  params=" (HELP-OUT) "h
+       [CHAR] } PARSE HandleSpecialChars HELP-OUT() "h 
+     THEN
   THEN   
+
 
   CLOSE-TAG
   StartComment

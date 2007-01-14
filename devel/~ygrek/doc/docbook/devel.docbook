@@ -2,10 +2,11 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
   "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd" 
   [
-  <!ENTITY chap-staticlist SYSTEM "staticlist.docbook">
-  <!ENTITY chap-hash-table SYSTEM "hash-table.docbook"> 
-  <!ENTITY chap-queue_pr SYSTEM "queue_pr.docbook"> 
-  <!ENTITY chap-sockets SYSTEM "sockets.docbook"> 
+  <!ENTITY chap-staticlist SYSTEM "source/staticlist.docbook">
+  <!ENTITY chap-hash-table SYSTEM "source/hash-table.docbook"> 
+  <!ENTITY chap-queue_pr SYSTEM "source/queue_pr.docbook"> 
+  <!ENTITY chap-sockets SYSTEM "source/sockets.docbook"> 
+  <!ENTITY chap-curl SYSTEM "source/curl.docbook"> 
 ]>
 
 <book>
@@ -45,6 +46,7 @@
    </para>
   </section>
   &chap-sockets;
+  &chap-curl;
   </chapter>
 
 
