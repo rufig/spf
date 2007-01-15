@@ -339,7 +339,7 @@ With Help of
       <word name="FSWAP"/>
    </keywords>
 
-   <regexp match="/(\s|^)(FTO|TO|AT)\s+(\S+)/" region1="forResWord" region2="forWord"/>
+   <regexp match="/(\s|^)(FTO|TO|AT)\s+(\S+)/i" region1="forResWord" region2="forWord"/>
 
    <!-- Key words for OpenBoot programming LNM -->
    <keywords ignorecase="yes" worddiv="[\s\[\]\{\}\(\)]" region="forExtWords">
@@ -389,11 +389,11 @@ With Help of
 <scheme name="forthcomp">
    <inherit scheme="Forthint"/>
 
-   <regexp match='/(\s|^)((\.|ABORT)\"\s)(.*?)(\")/' region2="forWord" region4="forString" region5="forWord"/>
-   <regexp match="/(\s|^)(\[CHAR\])\s+(\S+)/"   region2="forResWord" region3="forString"/>
+   <regexp match='/(\s|^)((\.|ABORT)\"\s)(.*?)(\")/i' region2="forWord" region4="forString" region5="forWord"/>
+   <regexp match="/(\s|^)(\[CHAR\])\s+(\S+)/i"   region2="forResWord" region3="forString"/>
    <regexp match="/(\['\])\s+(\S+)/"  region1="forResWord" region2="forWord"/>
-   <regexp match="/(\s|^)(POSTPONE)\s+(\S+)/" region2="forResWord" region3="forWord"/>
-   <regexp match="/(\s|^)(\[COMPILE\])\s+(\S+)/" region2="forResWord" region3="forWord"/>
+   <regexp match="/(\s|^)(POSTPONE)\s+(\S+)/i" region2="forResWord" region3="forWord"/>
+   <regexp match="/(\s|^)(\[COMPILE\])\s+(\S+)/i" region2="forResWord" region3="forWord"/>
 
    <!-- Immediate -->
    <block start="/(\s|^)\m\[\M(\s|$)/" end="/(\s|^)(\]|\;)\M(\s|$)/" scheme="forth" region="Insertion" region00="forResWord" region10="forResWord"/>
@@ -462,21 +462,21 @@ With Help of
    <block start="/(\s|^)\m(:|M:|PROC:|\.\.:)\s+(\S+)\M(\s|$)/"  end="/(\s|^)(M;|PROC;|;|;\.\.)\M(\s|$)/"
        scheme="forthcomp" region00="Function" region10="forWord"
        region02="forWord" region03="forWordDefinition"/>
-   <block start="/(\s|^)\m(:NONAME|:M)\M(\s|$)/"  end="/(\s|^);\M(\s|$)/"
+   <block start="/(\s|^)\m(:NONAME|:M)\M(\s|$)/i"  end="/(\s|^);\M(\s|$)/"
        scheme="forthcomp" region00="Function" region10="forWord" region02="forWord"/>
-   <regexp match="/(\s|^)(WINAPI:)\s+(\S+)\s+(\S+)/" region="Function" region2="forWord" region3="forWordDefinition" region4="Path"/>
-   <regexp match="/(\s|^)(CREATE)\s+(\S+)/"          region="Function" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(VARIABLE)\s+(\S+)/"        region="Function" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(USER(-VALUE)?)\s+(\S+)/"   region="Function" region2="forWord" region4="forWordDefinition"/>
-   <regexp match="/(\s|^)(CONSTANT)\s+(\S+)/"        region="Function" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(VOCABULARY)\s+(\S+)/"      region="Function" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(VECT)\s+(\S+)/"            region="Function" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(F?VALUE)\s+(\S+)/"         region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(WINAPI:)\s+(\S+)\s+(\S+)/i" region="Function" region2="forWord" region3="forWordDefinition" region4="Path"/>
+   <regexp match="/(\s|^)(CREATE)\s+(\S+)/i"          region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(VARIABLE)\s+(\S+)/i"        region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(USER(-VALUE)?)\s+(\S+)/i"   region="Function" region2="forWord" region4="forWordDefinition"/>
+   <regexp match="/(\s|^)(CONSTANT)\s+(\S+)/i"        region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(VOCABULARY)\s+(\S+)/i"      region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(VECT)\s+(\S+)/i"            region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(F?VALUE)\s+(\S+)/i"         region="Function" region2="forWord" region3="forWordDefinition"/>
    <regexp match="/(\s|^)(--)\s+(\S+)/"              region="Function" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(CODE)\s+(\S+)/"            region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(CODE)\s+(\S+)/i"            region="Function" region2="forWord" region3="forWordDefinition"/>
 
-   <regexp match="/(\s|^)(REQUIRE)\s+(\S+)\s+(\S+)/"  region2="forWord" region3="forWord" region4="Path"/>
-   <regexp match="/(\s|^)(CHAR)\s+(\S+)/" region2="forWord" region3="forString"/>
+   <regexp match="/(\s|^)(REQUIRE)\s+(\S+)\s+(\S+)/i"  region2="forWord" region3="forWord" region4="Path"/>
+   <regexp match="/(\s|^)(CHAR)\s+(\S+)/i" region2="forWord" region3="forString"/>
    <regexp match="/(\s|^)(\.\(\s)(.*?)(\))/" region2="forWord" region3="forString" region4="forWord"/>
    <regexp match="/(\s|^)(')\s+(\S+)/"  region2="forResWord" region3="forWord"/>
 
