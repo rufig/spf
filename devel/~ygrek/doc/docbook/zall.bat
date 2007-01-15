@@ -1,5 +1,5 @@
-cmd/c zxmlhelp source/hash-table ~pinka/lib/hash-table.f
-cmd/c zdocbook source/hash-table
+REM cmd/c zxmlhelp source/hash-table ~pinka/lib/hash-table.f
+REM cmd/c zdocbook source/hash-table
 
 cmd/c zxmlhelp source/staticlist ~day/lib/staticlist.f
 cmd/c zdocbook source/staticlist

@@ -35,22 +35,41 @@
         <xsl:value-of select="@name"/>    <!-- Имя слова-->
       </title>
       <indexterm type="word">
-        <primary>
+        <primaryie>
           <xsl:value-of select="@name"/>  <!-- Индекс по имени слова-->
-        </primary>
+        </primaryie>
       </indexterm>
       <para>
         <emphasis>
         <xsl:value-of select="@params"/>  <!-- Стековая нотация-->
         </emphasis>
       </para>
+      <xsl:variable name="FirstComment">
+        <xsl:value-of select="comment"/>
+      </xsl:variable>
+
       <para>
-        <xsl:for-each select="comment">  <!-- Комментарии-->
-          <xsl:value-of select="."/>
-           <xsl:if test="not (position()=last())">
-               <sbr/>                    <!-- Перевод строки (кроме последней)-->
-          </xsl:if>
-        </xsl:for-each>
+      <xsl:choose>
+        <xsl:when test="string-length($FirstComment)!=0">
+
+          <xsl:for-each select="comment">  <!-- Комментарии-->
+            <xsl:value-of select="."/>
+             <xsl:if test="not (position()=last())">
+                 <sbr/>                    <!-- Перевод строки (кроме последней)-->
+            </xsl:if>
+          </xsl:for-each>
+
+        </xsl:when>
+        <xsl:otherwise>
+
+          <xsl:call-template name="allstack">
+            <xsl:with-param name = "S" >
+              <xsl:value-of select="@params" />
+            </xsl:with-param>
+          </xsl:call-template>
+
+        </xsl:otherwise>
+      </xsl:choose>
       </para>
     </section>
     </xsl:if>
@@ -59,4 +78,59 @@
   </section>
   </xsl:for-each>
   </xsl:template>
+
+
+  <xsl:template name = "allstack" >
+    <xsl:param name = "S"/>
+
+    <variablelist>
+
+    <xsl:call-template name = "allstack-norm" >
+       <xsl:with-param name = "S" >
+         <xsl:value-of select="normalize-space($S)" />
+       </xsl:with-param>
+    </xsl:call-template>
+
+    </variablelist>
+
+  </xsl:template>
+
+  <xsl:template name = "allstack-norm" >
+      <xsl:param name = "S"/>
+
+      <xsl:variable name="Word">
+        <xsl:value-of select="substring-before($S,' ')"/>
+      </xsl:variable>
+
+      <xsl:if test="string-length($Word)>0">
+
+         <xsl:if test="$Word != '|' and $Word != '\' and $Word != '--'">
+
+            <xsl:if test="$Word!='(' and $Word!='{'">
+
+                <varlistentry>                      <!-- Описание параметров - шаблон -->
+                  <term>
+                    <xsl:value-of select="$Word"/>
+                  </term>
+                  <listitem>
+                  <simpara>
+                  <xsl:text> </xsl:text>
+                  </simpara>
+                  </listitem>
+                </varlistentry>
+
+            </xsl:if>
+
+            <xsl:call-template name = "allstack-norm" >
+              <xsl:with-param name = "S" >
+                 <xsl:value-of select="substring-after($S,' ')" />
+              </xsl:with-param>
+            </xsl:call-template>
+
+         </xsl:if>
+
+      </xsl:if>
+
+  </xsl:template>
+
 </xsl:stylesheet>

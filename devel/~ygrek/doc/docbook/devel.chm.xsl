@@ -18,6 +18,9 @@
 
   <xsl:param name="toc.section.depth" select="1"/>
   <xsl:param name="htmlhelp.hhc.section.depth" select="1"/>
+
+  <xsl:param name="htmlhelp.chunk.first.sections" select="0"></xsl:param>
+
   <xsl:param name="generate.toc">
   book toc
   chapter toc
