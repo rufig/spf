@@ -38,7 +38,7 @@ S" tools.f" INCLUDED  \ можно убрать, но тогда нужно убирать и все [IF]-ы и т.п.
                    BEGIN DUP WHILE
                          >R 2DUP R@ identify WHILE
                          R> CDR
-                   REPEAT
+                    REPEAT
                      2DROP R@ NAME>C @
                            R> ?IMMEDIATE TRUE
                    THEN ;
