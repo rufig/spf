@@ -98,8 +98,8 @@ USER XML_ParseDebug
   TlsIndex@ >R DUP TlsIndex!
   OVER ASCIIZ> 
   XML_ParseDebug @ IF CR ." X{ " 2DUP TYPE SPACE THEN
-  CONTEXT @ SEARCH-WORDLIST
-  IF DUP >NAME ?VOC \ предотвратить случайное совпадение с названием атрибута
+  CONTEXT @ SEARCH-WORDLIST-NFA
+  IF DUP NAME> SWAP ?VOC \ предотвратить случайное совпадение с названием атрибута
      IF
        XML_ParseDebug @ IF ." found! " THEN
        ALSO EXECUTE
