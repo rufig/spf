@@ -191,7 +191,6 @@ BASE !
 ;
 
 : CreateLocArray
-  [CHAR] [ SKIP
   ProcessLocRec
   CREATE ,
 ;
@@ -257,6 +256,53 @@ WARNING @ WARNING 0!
 
 \ ===
 
+\ { ... | ... -- _____ }
+: ParseLocals3
+  BEGIN
+   PARSE-NAME
+   DUP 0= ABORT" Locals bad syntax (3)"
+   2DUP S" }" COMPARE 0= IF 2DROP EXIT THEN
+   2DROP
+  AGAIN
+;
+
+\ { ... | _____ -- ... }
+: ParseLocals2
+  BEGIN
+   PARSE-NAME
+   DUP 0= ABORT" Locals bad syntax (2)"
+   2DUP S" --" COMPARE 0= IF 2DROP ParseLocals3 EXIT THEN
+   2DUP S" }" COMPARE 0= IF 2DROP EXIT THEN
+   2DUP S" [" COMPARE 0= 
+   IF 
+     2DROP CreateLocArray LocalsRecDoes@
+   ELSE 
+     CREATED
+     LATEST DUP C@ + C@
+     [CHAR] [ =
+     IF
+       LocalsRecDoes@2
+     ELSE
+       LocalsDoes@ 1 
+     THEN
+   THEN
+   uLocalsUCnt +! IMMEDIATE
+  AGAIN
+;
+
+\ { _____ | ... -- ... }
+: ParseLocals1
+  BEGIN
+    PARSE-NAME
+    DUP 0= ABORT" Locals bad syntax (1)"
+    2DUP S" |" COMPARE 0= IF 2DROP ParseLocals2 EXIT THEN
+    2DUP S" \" COMPARE 0= IF 2DROP ParseLocals2 EXIT THEN
+    2DUP S" --" COMPARE 0= IF 2DROP ParseLocals3 EXIT THEN
+    2DUP S" }" COMPARE 0= IF 2DROP EXIT THEN
+
+    CREATED LocalsDoes@ IMMEDIATE
+  AGAIN ;
+
 \  uLocalsCnt  @ ?DUP 
 \  IF CELLS RLIT, ['] (LocalsExit) RLIT, THEN
 
@@ -268,47 +314,11 @@ WARNING !
 
 \ =====================================================================
 
-
 EXPORT
 
 : {
   LocalsStartup
-  BEGIN
-    BL SKIP PeekChar DUP [CHAR] \ <> 
-                    OVER [CHAR] | <> AND
-                    OVER [CHAR] - <> AND
-                    OVER [CHAR] } <> AND
-                    SWAP [CHAR] ) <> AND
-  WHILE
-    CREATE LocalsDoes@ IMMEDIATE
-  REPEAT
-
-  PeekChar >IN 1+! DUP [CHAR] } <>
-  IF
-    DUP [CHAR] \ =
-    SWAP [CHAR] | = OR
-    IF
-      BEGIN
-        BL SKIP PeekChar DUP DUP [CHAR] - <> SWAP [CHAR] } <> AND
-        SWAP [CHAR] ) <> AND
-      WHILE
-        PeekChar [CHAR] [ =
-        IF CreateLocArray LocalsRecDoes@
-        ELSE
-             CREATE LATEST DUP C@ + C@
-             [CHAR] [ =
-             IF  
-               LocalsRecDoes@2
-             ELSE
-               LocalsDoes@ 1 
-             THEN
-        THEN
-        uLocalsUCnt +!
-        IMMEDIATE
-      REPEAT
-    THEN
-    [CHAR] } PARSE 2DROP
-  ELSE DROP THEN
+  ParseLocals1
   CompileLocalsInit
 ;; IMMEDIATE
 
