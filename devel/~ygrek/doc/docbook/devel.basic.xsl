@@ -9,6 +9,8 @@
 
   <!--xsl:param name="html.stylesheet" select="'simple.css'"/-->
 
+  <xsl:param name="l10n.gentext.default.language" select="'ru'"></xsl:param>
+
   <xsl:template name="user.header.navigation">
     <hr></hr>
     <p>

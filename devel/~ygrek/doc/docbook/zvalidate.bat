@@ -1,0 +1,1 @@
+xmllint --valid --noout devel.docbook 2> zvalidate.log

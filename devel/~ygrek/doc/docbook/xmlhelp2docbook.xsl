@@ -3,64 +3,61 @@
   <xsl:output encoding="windows-1251" method="xml" indent="yes"/>
 
   <xsl:template match="forthsourcecode">
-  <xsl:for-each select="module">          <!-- „«ï ª ¦¤®£® ä ©« -->
-  <section>                               <!--  §¤¥«-->
+  <xsl:for-each select="module">          <!-- Äëÿ êàæäîãî ôàéëà-->
+  <section>                               <!-- Ðàçäåë-->
     <xsl:attribute name="id">
       <xsl:value-of select="generate-id()"/>
     </xsl:attribute>
     <title>
-      <xsl:value-of select="@name"/>      <!-- ˆ¬ï ä ©« -->
+      <xsl:value-of select="@name"/>      <!-- Èìÿ ôàéëà-->
     </title>
 
     <section id="toc-section">
-      <!--para>{DESCRIPTION}</para-->          <!-- Ž¯¨á ­¨¥ (¯®¤áâ ¢«ï¥âáï á­ àã¦¨)-->
-      <para>                              <!-- Ž¯¨á ­¨¥ (¨§ «¨¡ë)-->
-      <xsl:for-each select="comment">
-        <xsl:value-of select="."/>
-        <xsl:if test="not (position()=last())">
-            <sbr/>                    <!-- ¥à¥¢®¤ áâà®ª¨ (ªà®¬¥ ¯®á«¥¤­¥©)-->
-        </xsl:if>
-      </xsl:for-each>
-      </para>
-      <toc id="toc"/>                     <!-- Ž£« ¢«¥­¨¥-->
+      <!--para>{DESCRIPTION}</para-->          <!-- Îïèñàíèå (ïîäñòàâëÿåòñÿ ñíàðóæè)-->
+      <title>
+      Îïèñàíèå
+      </title>
+      <xsl:call-template name="print-comments"/>
     </section>
 
-    <xsl:for-each select="colon">         <!-- „«ï ª ¦¤®£® ®¯à¥¤¥«¥­¨ï ç¥à¥§ ¤¢®¥â®ç¨¥-->
-    <xsl:if test="@vocabulary='FORTH'">   <!-- ’®«ìª® â¥ çâ® íªá¯®àâ¨àãîâáï ¢ ®¡é¨© á«®¢ àì-->
+    <xsl:for-each select="colon">         <!-- Äëÿ êàæäîãî îïðåäåëåíèÿ ÷åðåç äâîåòî÷èå-->
+    <xsl:if test="@vocabulary='FORTH'">   <!-- Òîëüêî òå ÷òî ýêñïîðòèðóþòñÿ â îáùèé ñëîâàðü-->
     <section>
       <xsl:attribute name="id">
         <xsl:value-of select="generate-id()"/>
       </xsl:attribute>
       <title>
-        <xsl:value-of select="@name"/>    <!-- ˆ¬ï á«®¢ -->
+        <xsl:value-of select="@name"/>    <!-- Èìÿ ñëîâà-->
       </title>
       <indexterm type="word">
-        <primaryie>
-          <xsl:value-of select="@name"/>  <!-- ˆ­¤¥ªá ¯® ¨¬¥­¨ á«®¢ -->
-        </primaryie>
+        <primary>
+          <xsl:value-of select="@name"/>  <!-- Èíäåêñ ïî èìåíè ñëîâà-->
+        </primary>
+        <!--primaryie>
+          <xsl:value-of select="parent::module/@name"/>
+        </primaryie-->
       </indexterm>
       <para>
         <emphasis>
-        <xsl:value-of select="@params"/>  <!-- ‘â¥ª®¢ ï ­®â æ¨ï-->
+        <xsl:value-of select="@params"/>  <!-- Ñòåêîâàÿ íîòàöèÿ-->
         </emphasis>
       </para>
+
       <xsl:variable name="FirstComment">
         <xsl:value-of select="comment"/>
       </xsl:variable>
 
-      <para>
       <xsl:choose>
+
         <xsl:when test="string-length($FirstComment)!=0">
 
-          <xsl:for-each select="comment">  <!-- Š®¬¬¥­â à¨¨-->
-            <xsl:value-of select="."/>
-             <xsl:if test="not (position()=last())">
-                 <sbr/>                    <!-- ¥à¥¢®¤ áâà®ª¨ (ªà®¬¥ ¯®á«¥¤­¥©)-->
-            </xsl:if>
-          </xsl:for-each>
+          <xsl:call-template name="print-comments"/>
 
         </xsl:when>
+
         <xsl:otherwise>
+
+          <simpara><xsl:text> </xsl:text></simpara>
 
           <xsl:call-template name="allstack">
             <xsl:with-param name = "S" >
@@ -69,8 +66,9 @@
           </xsl:call-template>
 
         </xsl:otherwise>
+
       </xsl:choose>
-      </para>
+
     </section>
     </xsl:if>
     </xsl:for-each>
@@ -79,21 +77,95 @@
   </xsl:for-each>
   </xsl:template>
 
+  <!-- *********************************************************** -->
+
+  <xsl:template name="print-comments">
+
+      <para>
+      <xsl:for-each select="comment">          <!-- Îïèñàíèå (èç ëèáû)-->
+        <xsl:value-of select="."/>
+        <xsl:if test="position()!=last()">
+          <sbr/>                             <!-- THIS BREAKS VALIDATION !!! -->
+        </xsl:if>
+      </xsl:for-each>
+      </para>
+
+
+  </xsl:template>
+
+
+  <!-- *********************************************************** -->
+
+  <!-- Ïîäãîòàâëèâàåò øàáëîíû äëÿ îïèñàíèÿ ïàðàìåòðîâ -->
 
   <xsl:template name = "allstack" >
     <xsl:param name = "S"/>
 
-    <variablelist>
-
-    <xsl:call-template name = "allstack-norm" >
+    <xsl:call-template name = "allstack-norm-try" >
        <xsl:with-param name = "S" >
          <xsl:value-of select="normalize-space($S)" />
        </xsl:with-param>
     </xsl:call-template>
 
-    </variablelist>
+  </xsl:template>
+
+  <!-- *********************************************************** -->
+
+  <!-- Ôóíêöèÿ ïðîâåðÿåò ÷òî ó íàñ åñòü ïàðàìåòðû êîòîðûå ñëåäàåò îïèñàòü
+       è â ñëó÷àå óñïåõà âûçûâàåò allstak-norm
+  -->
+
+  <xsl:template name = "allstack-norm-try" >
+      <xsl:param name = "S"/>
+
+      <xsl:variable name="Word">
+        <xsl:value-of select="substring-before($S,' ')"/>
+      </xsl:variable>
+
+      <xsl:if test="string-length($Word)>0">
+
+         <xsl:if test="$Word != '|' and $Word != '\' and $Word != '--'">
+
+          <xsl:choose>
+
+            <xsl:when test="$Word!='(' and $Word!='{'">
+
+            <!-- There are stack parameters so we can safely instantiate variablelist -->
+
+               <variablelist>
+
+               <xsl:call-template name = "allstack-norm" >
+                  <xsl:with-param name = "S" >
+                    <xsl:value-of select="$S" />
+                  </xsl:with-param>
+               </xsl:call-template>
+
+               </variablelist>
+
+            </xsl:when>
+
+            <xsl:otherwise>
+
+            <!-- Else try till we become sure that we get a valid stack parameter-->
+
+              <xsl:call-template name = "allstack-norm-try" >
+                <xsl:with-param name = "S" >
+                   <xsl:value-of select="substring-after($S,' ')" />
+                </xsl:with-param>
+              </xsl:call-template>
+
+            </xsl:otherwise>
+
+          </xsl:choose>
+
+      </xsl:if>
+
+    </xsl:if>
 
   </xsl:template>
+
+
+  <!-- *********************************************************** -->
 
   <xsl:template name = "allstack-norm" >
       <xsl:param name = "S"/>
@@ -108,7 +180,7 @@
 
             <xsl:if test="$Word!='(' and $Word!='{'">
 
-                <varlistentry>                      <!-- Ž¯¨á ­¨¥ ¯ à ¬¥âà®¢ - è ¡«®­ -->
+                <varlistentry>                      <!-- Îïèñàíèå ïàðàìåòðîâ - øàáëîí -->
                   <term>
                     <xsl:value-of select="$Word"/>
                   </term>
@@ -132,5 +204,7 @@
       </xsl:if>
 
   </xsl:template>
+
+  <!-- *********************************************************** -->
 
 </xsl:stylesheet>

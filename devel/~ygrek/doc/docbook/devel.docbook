@@ -25,9 +25,9 @@
   <index type="word" id="index"/>
 
   <chapter id="algo">
-  <title>Algorithms and data structures</title>
+  <title>Алгоритмы и структуры данных</title>
   <section id="algo-desc">
-   <title>Description</title>
+   <title>Описание</title>
    <para>
      Алгоритмы и структуры данных, как то списки, деревья, хэши итп
    </para>
@@ -38,11 +38,11 @@
   </chapter>
 
   <chapter id="net">
-  <title>Network</title>
+  <title>Сеть</title>
   <section id="net-desc">
-   <title>Description</title>
+   <title>Описание</title>
    <para>
-     Либы для работы с сетью : сокеты, HTTP, FTP, почта, итд
+     Сокеты, HTTP, FTP, почта, итд
    </para>
   </section>
   &chap-sockets;
