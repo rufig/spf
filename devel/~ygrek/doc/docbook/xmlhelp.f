@@ -2,8 +2,12 @@
 
 \ немного подправлено чтобы работать автономно
 \ + более корректное выдирание комментов из слова
+\ + выдираются комменты идущие непосредственно перед словом
+
+MODULE: xmlhelp-generator
 
 REQUIRE [IF] lib/include/tools.f
+REQUIRE STR@ ~ac/lib/str4.f
 
 : PARSE-NAME NextWord ;
 
@@ -19,6 +23,7 @@ REQUIRE [IF] lib/include/tools.f
   DUP C, S,
 ;
 
+EXPORT
 
 (
 
@@ -38,7 +43,8 @@ VARIABLE xmlIndent
 0 VALUE comment?
 0 VALUE str-of-comments \ номер строки из которой были выдраны коменты в последний раз
                         \ для того чтобы взять только те комменты которые идут _сразу_ после слова
-0x1FFFFFFF VALUE TC-IMAGE-BASE
+"" VALUE comments-storage \ хранилище комментариев между словами
+\ 0x1FFFFFFF VALUE TC-IMAGE-BASE
 
 : XMLHELP-ON
     TRUE TO generateHelp?
@@ -124,7 +130,7 @@ CHAIN SPECIAL-CHARS
 
 SPECIAL & &amp;
 SPECIAL ' &apos;
-SPECIAL " &quot;
+SPECIAL " &quot; \ "
 SPECIAL < &lt;
 SPECIAL > &gt;
 
@@ -175,15 +181,21 @@ SPECIAL > &gt;
 
 : \
    comment? moduleComment? OR
-   CURSTR @ str-of-comments 1+ = AND
-   IF 
-      BL SKIP \ BL HELP-EMIT
-      S" <comment>" HELP-OUT
-      0 PARSE HandleSpecialChars (HELP-OUT)
-      S" </comment>" HELP-OUT crh
-      CURSTR @ TO str-of-comments
+   IF
+     CURSTR @ str-of-comments 1+ = 
+     IF 
+        BL SKIP \ BL HELP-EMIT
+        S" <comment>" HELP-OUT
+        0 PARSE HandleSpecialChars (HELP-OUT)
+        S" </comment>" HELP-OUT crh
+        CURSTR @ TO str-of-comments
+     ELSE
+        POSTPONE \
+     THEN
    ELSE
-      POSTPONE \
+    CURSTR @ str-of-comments 1+ <> IF comments-storage STRFREE "" TO comments-storage THEN
+    CURSTR @ TO str-of-comments
+    0 PARSE HandleSpecialChars " <comment>{s}</comment>" comments-storage S+
    THEN
 ; IMMEDIATE
 
@@ -296,6 +308,11 @@ SPECIAL > &gt;
   CLOSE-TAG
   StartComment
 
+  CURSTR @ str-of-comments 1+ = \ comments strictly before the word definition
+  IF
+   comments-storage STR@ HELP-OUT
+  THEN
+
   CURSTR @ TO str-of-comments
 
   R> >IN !
@@ -314,6 +331,7 @@ XMLHELP-OFF
       S" </colon>" HELP-OUT crh
       0 TO comment?
    THEN
+   "" TO comments-storage
 ;
 
 :: ; POSTPONE ;
@@ -344,3 +362,5 @@ XMLHELP-OFF
       docHandle CLOSE-FILE THROW
     THEN
 ;
+
+;MODULE
