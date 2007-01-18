@@ -7,21 +7,26 @@
 \ Очистить текущий ввод - Esc
 \ Навигация - Home, End, стрелки влево/вправо
 \ Удаление - Bksp, Del
+\
+\ Просто подключите эту либу и всё.
+
+REQUIRE [IF] lib/include/tools.f
+
+\ повторная загрузка не нужна
+C" ACCEPT-Autocompletion" FIND NIP [IF] \EOF [THEN]
+
+MODULE: ACCEPT-Autocompletion
+
+\ Прячем все либы внутрь т.к. могут быть конфликты неприятные
 
 REQUIRE /STRING lib/include/string.f
 REQUIRE AT-XY ~day/common/console.f
 REQUIRE InsertNodeEnd ~day/lib/staticlist.f
 REQUIRE FileLines=> ~ygrek/lib/filelines.f
 REQUIRE ATTACH-LINE-CATCH ~pinka/samples/2005/lib/append-file.f
-REQUIRE [IF] lib/include/tools.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 
-\ повторная загрузка не нужна
-C" ACCEPT-Autocompletion" FIND NIP [IF] \EOF [THEN]
-
 WINAPI: GetConsoleScreenBufferInfo KERNEL32.DLL
-
-MODULE: ACCEPT-Autocompletion
 
 0 VALUE _addr \ адрес буфера для ACCEPT
 0 VALUE _n1 \ длина буфера для ACCEPT
