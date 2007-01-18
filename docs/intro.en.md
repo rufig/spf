@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translated from intro.ru.md (rev. 1.7) -->
+<!-- Translated from intro.ru.md rev. 1.8 -->
 
 ----
 
@@ -92,11 +92,16 @@ or get the line-by-line listing
 ###[ANS support][start]
 
 Maximum ANS conformity is achieved by including `lib/include/ansi.f`.
-Additional words are defined, some of them dummies, etc. Also, a tricky
-behaviour of the FILE words is corrected - `OPEN-FILE`, `CREATE-FILE` and
-other such words implicitly treat the input string as zero-ended (ignoring the
-length parameter), though according to the standard it is an address/counter
-pair.
+Additional words are defined, some of them dummies, etc. 
+
+Also, a non-standard optimization of FILE wordset is fixed - `OPEN-FILE`,
+`CREATE-FILE` and other implicitly treat the input string as zero-ended (ignoring the
+length parameter). `lib/include/ansi-file.f` will add an extra zero byte in
+such case, after copying the file name to the dynamic buffer, which remains
+allocated for future use. You don't really need such behaviour when
+defining file names with string literal `S"` or string libraries
+`~ac/lib/str*.f`, as they ensure there is an extra zero byte. Though it can be
+helpful for using non-SPF libraries.
 
 ----
 <a id="include"/>
@@ -124,15 +129,19 @@ the file path as a command line parameter,
 <a id="require"/>
 ###[REQUIRE][start]
 
-SPF has a non-standard word `REQUIRE ("word" "file" -- )`, where `word` should
-be the one defined in `file`. If this word is already present in the 
-system, `REQUIRE` will consider the library already loaded. This prevents from 
-loading the same libraries again.
+SPF has a non-standard word `REQUIRE ("word" "file" -- )`, where `word` is
+some word defined in the library `file`. If `word` is present in the 
+context vocabulary, `REQUIRE` will consider the library already loaded. 
+This prevents from loading the same libraries again. At contrary, if `REQUIRE`
+fails to find `word` - the library is included as always (via `INCLUDED`).
 For example:
 
 	REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
 	REQUIRE ForEach-Word ~pinka/lib/words.f
 	REQUIRE ENUM ~nn/lib/enum.f
+
+**NB:** Always select the most unique word from the included library as the
+first argument for `REQUIRE`.
 
 
 ----
