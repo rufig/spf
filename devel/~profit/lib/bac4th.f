@@ -10,7 +10,7 @@ MODULE: bac4th
 : >RESOLVE2 ( dest -- ) HERE SWAP ! ;
 : <RESOLVE ( org -- )	, ;
 
-: CALL, ( ADDR -> ) \ скомпилировать инструкцию ADDR CALL
+: CALL, ( ADDR -- ) \ скомпилировать инструкцию ADDR CALL
   ?SET SetOP SetJP 0xE8 C,
   DUP IF DP @ CELL+ - THEN ,    DP @ TO LAST-HERE
 ;
@@ -20,14 +20,12 @@ MODULE: bac4th
 4523 CONSTANT N0T
 466736473 CONSTANT a99reg4te
 
-: (ADR) R> DUP CELL+ >R ;
+: (ADR2) R> DUP CELL+ CELL+ >R ;
 
 EXPORT
 
-\ : ENTER POSTPONE EXECUTE ; IMMEDIATE ( \ это тоже самое, но что быстрее?
+: ENTER POSTPONE EXECUTE ; IMMEDIATE ( \ это тоже самое, но что быстрее?
 : ENTER   >R ;                           \ )
-\ На ~profit/prog/forth-wizard/forth-wizard-depth-bac4th.f разницы нет.
-\ На ~profit/prog/forth-wizard/forth-wizard-width.f для maxOperations=10 с >R'ом -- 3:22, с EXECUTE -- 3:52
 
 DEFINITIONS
 
@@ -45,13 +43,44 @@ EXPORT
 \ POSTPONE R@ POSTPONE EXECUTE
 
 : PRO R> R> >L ENTER LDROP ;
-: CONT L> >R R@ ENTER R> >L ;
+\ : CONT L> >R R@ ENTER R> >L ;
+: CONT L> >R [ R@ENTER, ] R> >L ;
 \ : CONT (: L> >R ;) INLINE, R@ENTER, (: R> >L ;) INLINE, ; IMMEDIATE
 \ Отключение оптимизатора ломает INLINE,
 
+: RUSH
+0x8B C, 0xD8 C,         \ MOV EBX, EAX
+0x8B C, 0x45 C, 0x00 C, \ MOV EAX, 0 [EBP]
+0x8D C, 0x6D C, 0x04 C, \ LEA EBP, 4 [EBP]
+0xFF C, 0xE3 C,         \ JMP EBX
+; IMMEDIATE
+
+: RUSH> ?COMP ' BRANCH, ; IMMEDIATE \ Да-да, это GOTO...
+
 \ обратимые операции
-: RESTB  ( n --> n  / n <--  ) R>  OVER >R  ENTER   R> ;
-: 2RESTB ( d --> d  / d <--  ) R>  -ROT 2DUP 2>R ROT  ENTER   2R> ;
+\ : RESTB  ( n --> n  / n <--  ) R>  OVER >R  ENTER   R> ; ( 
+: RESTB [
+0x5B C,                 \ POP EBX
+0x50 C,                 \ PUSH EAX
+0xFF C, 0xD3 C,         \ CALL EBX
+0x89 C, 0x45 C, 0xFC C, \ MOV -4 [EBP] , EAX
+0x58 C,                 \ POP EAX
+0x8D C, 0x6D C, 0xFC C, \ LEA EBP, -4 [EBP]
+] ; \ )
+
+
+\ : 2RESTB ( d --> d  / d <--  ) R>  -ROT 2DUP 2>R ROT  ENTER   2R> ; (
+: 2RESTB [
+0x5B C,                 \ POP EBX
+0xFF C, 0x75 C, 0x00 C, \ PUSH [EBP]
+0x50 C,                 \ PUSH EAX
+0xFF C, 0xD3 C,         \ CALL EBX
+0x89 C, 0x45 C, 0xFC C, \ MOV -4 [EBP] , EAX
+0x58 C,                 \ POP EAX
+0x8D C, 0x6D C, 0xF8 C, \ LEA EBP, -8 [EBP]
+0x8F C, 0x45 C, 0x00 C, \ POP [EBP]
+] ; \ )
+
 : BSWAP  ( a b <--> b a )      SWAP R> ENTER  SWAP ;
 : SWAPB  ( a b <--> b a )      R> ENTER  SWAP ;
 : BDROP  ( n <--> )            R>  SWAP >R  ENTER  R> ;
@@ -134,22 +163,32 @@ RET,
 \ Функция успеха, может включать в себя R> ENTER
 
 : agg{ ( -- ) ?COMP
-POSTPONE (ADR) HERE 0 ,
+POSTPONE (ADR2) HERE 0 , 0 , \ храним два значения: накопитель и кол-во итераций
 POSTPONE !
 0 RLIT, >MARK
 a99reg4te ;
 
+: {agg} ( intermed -- ) >R
+DUP a99reg4te ?PAIRS
+ROT DUP LIT, -ROT
+POSTPONE @
+R> COMPILE, ;
+
 \ во время исполнения на стеке должно лежать значение которое надо при-обработать к начальному (добавить, сконкатенировать, умножить и т.д.)
 : }agg ( agg succ -- )
-?COMP  SWAP 2>R
+?COMP  >R >R
 a99reg4te ?PAIRS
 OVER
 LIT, R> COMPILE,
+OVER CELL+ LIT, POSTPONE 1+!
 RET, >RESOLVE2
 LIT, R> COMPILE, ;
 
 : +{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }+ ?COMP ['] +! ['] @ }agg ; IMMEDIATE
+
+: len{ ?COMP 0 LIT, agg{ ; IMMEDIATE
+: }len ?COMP ['] 2DROP (: CELL+ @ ;) }agg ; IMMEDIATE
 
 : MAX{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }MAX ?COMP (: DUP @ ROT MAX SWAP !  ;) ['] @ }agg ; IMMEDIATE
@@ -162,6 +201,8 @@ LIT, R> COMPILE, ;
 
 : |{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }| ?COMP (: DUP @ ROT OR SWAP ! ;) ['] @ }agg ; IMMEDIATE
+
+: {} ?COMP ['] NOOP {agg} ; IMMEDIATE \ промежуточный результат
 
 \ Блок AMONG  ...  EACH  ...  ITERATE
 \ порождается код:
@@ -209,66 +250,93 @@ LIT, R> COMPILE, ;
 ;MODULE
 
 /TEST
+
+: EMPTY S0 @ SP! ;
+
 \ REQUIRE SEE lib/ext/disasm.f
 \ что-то вроде локальных переменных (локальные значения, но глобальные имена)...
 VARIABLE a
 VARIABLE b
+
 : r
 10 a B!
 a @ 1+ b B!
-CR ." r2.a=" a @ .
+." r2.a=" a @ .
 ." r2.b=" b @ . ;
 
-: r2
+: localsTest
 5 a B!
+." r.a=" a @ .
 r
-CR ." r.a=" a @ . ;
-
-: locals
-100 a !
-r2
-a @ CR ." a=" . ;
+." r.a=" a @ . ;
+>> localsTest
 
 : bt ." back" BACK ." ing" TRACKING ." track" ;
+>> bt
 : bt2 START{ ." back" }EMERGE ." tracking" ;
+>> bt2
 
 : INTSTO ( n <-->x ) PRO 0 DO I CONT DROP LOOP ; \ генерирует числа от 0 до n-1
 : 1-20 ( <-->x ) PRO 20 INTSTO CONT ; \ выдаёт числа от 1-го до 20-и
 \ : 1-20  21 BEGIN DUP R@ ENTER DROP 1- ?DUP 0= UNTIL RDROP ;
 : //2 PRO DUP 2 MOD ONFALSE CONT ; \ пропускает только чётные числа
 : 1-20. 1-20 //2  DUP . ;
+>> 1-20.
 : 1-20X 1-20 ." X" ;
+>> 1-20X
 : 1-20X1-20x 1-20 1-20 ." X" ;
+>> 1-20X1-20x
 
 \ Подсчёт факториала
 : FACT  ( n -- x ) START{
 DUP  2 < IF DROP 1 EXIT THEN
 DUP  1- DIVE  * }EMERGE ;
+>> 10 FACT .
 
-: FACT ( n -- !n ) *{ INTSTO 1+ DUP }* ;
+: FACT2 ( n -- !n ) *{ INTSTO 1+ DUP }* ;
+>> 10 FACT2 .
 
 \ Подсчёт числа Фибоначчи
 : FIB ( n -- f ) START{ DUP 3 < IF DROP 1 EXIT THEN DUP 1- DIVE SWAP 2 - DIVE + }EMERGE ;
+>> 10 FIB .
 
 
 : STACK  PRO  DEPTH 0  ?DO  DEPTH I - 1- PICK  CONT DROP LOOP ;  \ выдаёт стек
 : STACK. STACK DUP . ;  \ печатает стек
+>> 1 2 3 STACK.
+>> EMPTY STACK.
+>> 1 STACK. DROP
+
+: DEPTH-b len{ STACK }len ;
+>> 11 32 73 DEPTH-b . EMPTY
 
 \ Выдаёт true если на стеке *есть* число больше 10-и
 : Estack>10 PREDICATE STACK DUP 10 > ONTRUE DROP SUCCEEDS ;
 \ DROP после ONTRUE нужен для убирания ненужного значения от генератора STACK, можно ли без него обойтись?
 \ может сбрасывать в блоках CUT: и PREDICATE вместе со стеком возвратов и стек данных тоже?
+>> 1 2 Estack>10 . EMPTY
+>> 1 20 Estack>10 . EMPTY
 
 \ Выдаёт true если на стеке *все* числа больше 10-и
 : Astack>10 PREDICATE ALL STACK ARE DUP 10 > ONTRUE OTHER DROP WISE SUCCEEDS ;
+>> 1 2  Astack>10 . EMPTY
+>> 1 20 Astack>10 . EMPTY
+>> 20 30 Astack>10 . EMPTY
 
 : stack-sum ( x1 x2 ... xn -- x1 x2 ... xn sum  )
 +{ STACK DUP }+ ;
 \ сумма значений на стеке
+>> 20 30 stack-sum . EMPTY
+>> EMPTY stack-sum .
 
 : stack-or |{ STACK DUP }| ;
+>> TRUE FALSE FALSE stack-or . EMPTY
+>> FALSE FALSE stack-or . EMPTY
 
-: sempty NOT: STACK -NOT ." стек пуст" ;
+: sempty NOT: STACK -NOT ." stack is empty" ;
+>> EMPTY sempty
+>> 1 sempty
+EMPTY
 
 : notF ( f -- ) NOT: DUP ONTRUE -NOT ." F" ; \ если f=false, то выводит "F"
 : notT ( f -- ) NOT: NOT: DUP ONTRUE -NOT -NOT ." T" ; \ если f=true, то выводит "T"
@@ -281,11 +349,13 @@ DUP  1- DIVE  * }EMERGE ;
 
 : alter PRO
 *> S" first" <*> S" second" <*
-CR TYPE ;
+TYPE SPACE ;
+>> alter
 
 : firstInAlter PRO CUT:
 *> S" first" <*> S" second" <* -CUT
-CR TYPE ;
+TYPE ;
+>> firstInAlter
 
 \ перебор всех подмножеств конструкцией AMONG  ...  EACH  ...  ITERATE
 : SUBSETS
@@ -298,5 +368,6 @@ CR TYPE ;
 \ перебор всех подмножеств, из статьи Dynamically Structured Codes
 \ http://dec.bournemouth.ac.uk/forth/euro/ef99/gassanenko99b.pdf
 : el  R@ ENTER DROP ;
-: .{} CR ." { " DEPTH 0 ?DO I PICK COUNT TYPE SPACE LOOP ." } " ;
+: .{} CR ." { " BACK ." } " TRACKING   STACK DUP COUNT TYPE SPACE ;
 : subsets C" first" el C" second" el C" third" el .{} ;
+>> subsets
