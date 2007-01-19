@@ -1,4 +1,5 @@
 REQUIRE /TEST ~profit/lib/testing.f
+
 CREATE L0   \ начало стека
 100 CELLS ALLOT  \ занять 100 ячеек
 VARIABLE LP    \ указатель вершины стека
@@ -18,8 +19,4 @@ L@  LDROP ;
 LP @ !  LUNDROP ;
 
 /TEST
-1 >L
-2 >L
-
-L> .
-L> .
+>> 1 >L  2 >L  L> . L> .

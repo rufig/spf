@@ -1,6 +1,7 @@
-\ Работа со строками, которые автоматически переносятся в кучу, 
+\ Работа со строками, которые автоматически переносятся в кучу,
 \ и автоматически (при откате) с неё снимаются
-\ bac4th strings AKA "бэкфортовы шнуры". Без понимания работ ~mlg по бэктрекингу лучше и не соваться
+\ bac4th strings AKA "бэкфортовы шнуры". Без понимания работ
+\ ~mlg по бэктрекингу лучше и не соваться
 \ см. http://fforum.winglion.ru/viewtopic.php?t=167
 
 REQUIRE /TEST ~profit/lib/testing.f
@@ -41,13 +42,21 @@ t - t SWAP ;
 \ Взятие символа переносится в генерируемый код снаружи функций find , split и прочих
 \ Таким образом, становится возможным использовать их не только для работы с массивом 
 \ однобайтных символов но и, с допустим, с текстом в UTF-8... Э-э-э, а iterateByBytes ?.!. Хм...
-\ Облом...
+\ Облом... Надо подумать.
 
 \ Функция сравнения символа на перевод строки
 \ : byRows ( <--> xt ) PRO S" 2* 23 - ABS 3 ="  compiledCode CONT ;
 \ : byRows ( -- xt ) (: 2* 23 - ABS 3 = ;) ;
 :NONAME C@ 2* 23 - ABS 3 = ; \ 13 или 10
 CONSTANT byRows
+
+\ Функция сравнения символа на "пустоту", т. е. или пробел, или табуляция или ещё что...
+:NONAME C@ 33 < ; \ Меньше или равно 32-м, то есть если символ -- разделитель.
+CONSTANT byWhites
+
+\ Функция сравнения символа на не-"пустоту"
+:NONAME C@ 32 > ; \ Больше 32-х, то есть если символ не является разделителем.
+CONSTANT byNotWhites
 
 : find ( a u f <--> a1 )
 \ находит в строке a u все символы, на которых функция f даст TRUE и генерирует вызовы для каждого символа
@@ -115,44 +124,45 @@ split notEmpty CONT ;
 ;MODULE
 
 /TEST
-: e S" forth" 3 2 copy DUP STR@ TYPE ; CR e
+: copy3-2 3 2 copy DUP STR@ TYPE ;
+>> S" forth" copy3-2
 
 : r S" mary has sheep" [CHAR] a byChar find DUP C@ EMIT ;
 \ находим все символы 'a'
 \ CR r
 
-: r2 S"  mary  has a  sheep" BL byChar split notEmpty ."  [" DUP STR@ TYPE ." ]" ;
+: split2Words BL byChar split notEmpty ."  [" DUP STR@ TYPE ." ]" ;
 \ делим на слова. Каждое слово -- не отрезок из главной строки, он перенесён в кучу 
 \ и автоматически при отходе назад из кучи снимается
 \ вывод: [mary] [has] [a] [sheep]
- CR r2
+>> S"  mary  has a  sheep" split2Words
 
-: r3 S" antigua labrador abracadabra"  BL byChar split DUP STR@ [CHAR] a byChar split notEmpty ."  [" DUP STR@ TYPE ." ]" ;
+: split2WordsAndByA BL byChar split DUP STR@ [CHAR] a byChar split notEmpty ."  [" DUP STR@ TYPE ." ]" ;
 \ делим на слова и на отрезки между буквам 'a' в словах.
 \ вывод: [ntigu] [l] [br] [dor] [br] [c] [d] [br]
-CR r3
+>> S" antigua labrador abracadabra" split2WordsAndByA
 
-: r4 S" antigua labrador abracadabra"  BL byChar CUT: split -CUT ."  [" DUP STR@ TYPE ." ]" ;
+: firstWord BL byChar CUT: split -CUT ."  [" DUP STR@ TYPE ." ]" ;
 \ только первая сгенерированная последовательность
 \ вывод: [antigua]
 \ внимание, в этом примере на стеке остаётся мусор, не говоря уже о том что он протекает по памяти
 \ так как CUT убирает освобождение памяти занятой внутри split со стека возвратов
-\ CR r4
+>> S" antigua labrador abracadabra" firstWord
 
-: r7 concat{ *> concat{ *> S" 2" <*> S" *2" <* }concat DUP STR@ <*> S" =4" <*> S" ?" <* }concat DUP STR@ TYPE ;
-CR r7
+: "2"+"*2"+"=4"+"?" concat{ *> concat{ *> S" 2" <*> S" *2" <* }concat DUP STR@ <*> S" =4" <*> S" ?" <* }concat DUP STR@ TYPE ;
+>> "2"+"*2"+"=4"+"?"
 
 \ вывод: 2*2=4?
 
-: r8 concat{ S"     mary  has  a  sheep" BL byChar split notEmpty DUP STR@ }concat ."  [" DUP STR@ TYPE ." ]" ;
+: splitNmerge concat{ BL byChar split notEmpty DUP STR@ }concat ."  [" DUP STR@ TYPE ." ]" ;
 \ убирает все пробелы в строке
 \ вывод: [maryhasasheep]
- CR r8
+>> S"   mary   has  a  sheep" splitNmerge
 
-: r9 S" a1=123==456" [CHAR] = byChar divide-patch 2SWAP TYPE SPACE TYPE ;
+: divideBy= [CHAR] = byChar divide-patch 2SWAP TYPE SPACE TYPE ;
 \ разбивает строку на две части
 \ вывод: [a1] [123==456]
-CR r9
+>> S" a1=123==456" divideBy=
 
 : printFile  S" C:\lang\spf\devel\~profit\lib\bac4th-str.f" iterateStrings DUP STR@ CR TYPE ;
 \ вывод файла на печать
