@@ -3,9 +3,12 @@
 \ В комбинации с словом B! или KEEP (слово LOCAL, см. пример
 \ внизу) можно использовать как полностью bac4th-совместимые
 \ локальные переменные.
+\ Описание и обсуждение: http://fforum.winglion.ru/viewtopic.php?t=409
 
 \ При использовании в bac4th-словах, LOCAL надо размещать
 \ *после* PRO
+
+REQUIRE /TEST ~profit/lib/testing.f
 
 MODULE: static
 \ также определено в ~profit/lib/bac4th.f
@@ -39,27 +42,41 @@ CREATE-LOCAL-WORDLIST                  \ Если в первый раз, то он создаётся и ус
 CONTEXT @ widLocals !           ELSE
 widHere @ DP !  DEFINITIONS     THEN ; \ Если словарь уже создан, то возрашаем тамошний HERE и начинаем опять писать в него слова
 
+
+: STATIC=>
+HERE LAST @ NAME> =                \ еще ничего не компилировалось 
+IF R> EXECUTE HERE LAST @ NAME>C ! \ пишем ячейку, сдвигаем поле кода
+ELSE                               \ шитый код уже есть, тогда ячейку внедряем
+0 BRANCH, >MARK                    \ jmp HERE+ячейка , перескакиваем ячейку 
+R> EXECUTE                         \ здесь делаем компиляцию переменной (-ых)
+1 >RESOLVE THEN                    \ ставим ссылку jmp на сюда 
+LAST @ HERE                        \ отмечаем HERE внутри определения, сохраняем LAST
+CURRENT @  WARNING @  WARNING 0!   \ конфликты по именам игнорируем 
+LOCAL-WORDLIST                     \ создаём или переходим во временный словарь локальных переменных 
+CREATE IMMEDIATE                   \ создаём в временном словаре имя локальной переменной 
+WARNING !
+OVER CELL - ,                      \ присваиваем слову временного словаря ячейку 
+HERE widHere !                     \ отмечаем HERE внутри словаря 
+SET-CURRENT 
+DP ! LAST !                        \ возращаем HERE внутри определения, восстанавливаем LAST
+DOES> @ LIT, ;
+
+VARIABLE staticLen
+
+: >numb 0. 2SWAP >NUMBER 2DROP D>S ;
+
 EXPORT
 : STATIC ( "name -- ) ?COMP 
-HERE LAST @ NAME> =              \ еще ничего не компилировалось 
-IF  0 , HERE LAST @ NAME>C !     \ пишем ячейку, сдвигаем поле кода
-ELSE                             \ шитый код уже есть, поэтому ячейку внедряем
-0 BRANCH, >MARK                  \ jmp HERE+ячейка , перескакиваем ячейку 
+STATIC=>
 \ ALIGN                          \ дизассемблеру это может не понравится, хотя работать будет... 
 0 ,                              \ сама ячейка, пишем ноль 
-1 >RESOLVE                       \ ставим ссылку jmp на сюда 
-THEN 
+; IMMEDIATE
 
-LAST @ HERE                      \ отмечаем HERE внутри определения, сохраняем LAST
-CURRENT @  WARNING @  WARNING 0! \ конфликты по именам игнорируем 
-LOCAL-WORDLIST                   \ создаём или переходим во временный словарь локальных переменных 
-CREATE IMMEDIATE                 \ создаём в временном словаре имя локальной переменной 
-WARNING ! 
-OVER CELL - ,                    \ присваиваем слову временного словаря ячейку 
-HERE widHere !                   \ отмечаем HERE внутри словаря 
-SET-CURRENT 
-DP ! LAST !                      \ возращаем HERE внутри определения, восстанавливаем LAST
-DOES> @ LIT, ; IMMEDIATE
+: STATIC# ( len "name -- ) ?COMP
+NextWord >numb staticLen !  \ запоминаем длину статического массива (в ячейках!)
+STATIC=> staticLen @ 0 DO 0 , LOOP \ записываем ячейки
+; IMMEDIATE
+
 
 : LOCAL ( "name -- ) [COMPILE] STATIC
 widLocals @ @ NAME> EXECUTE
@@ -67,14 +84,14 @@ POSTPONE KEEP ; IMMEDIATE
 
 ;MODULE
 
-\EOF
+/TEST
 : previousValue
 STATIC a
 a @
 SWAP a ! ;
 
 REQUIRE SEE lib/ext/disasm.f
-SEE previousValue
+>> SEE previousValue
 
 \ 559330 E904000000       JMP     559339  ( previousValue+9  )
 \ 559335 0000             ADD     [EAX] , AL
@@ -84,19 +101,10 @@ SEE previousValue
 \ 559340 891535935500     MOV     559335  ( previousValue+5  ) , EDX
 \ 559346 C3               RET     NEAR
 
-1 previousValue .
-2 previousValue .
-3 previousValue .
-
-: sum ( a b -- )
-STATIC a
-STATIC b
-a ! b !
-
-a @ b @ +
-
-STATIC c c !
-c @ ;
+>> 1 previousValue .
+>> 2 previousValue .
+>> 3 previousValue .
+>> 10 previousValue .
 
 : fact ( n -- n! ) \ Не самый удачный пример, согласен.
 DUP 0=      IF     \ Но тем не менее показывает как сохраняются локальные
@@ -105,3 +113,23 @@ LOCAL n            \ Тоже самое что и STATIC n  n KEEP
 DUP n !
 1- RECURSE
 n @ *       THEN ;
+
+>> 10 fact .
+
+
+0
+CELL -- a
+CELL -- b
+CELL -- c
+DROP
+
+: sum ( a b -- )
+STATIC# 3 s
+s a ! s b !
+
+s a @
+s b @ + 
+s c !
+s c @ ;
+
+>> 1 3 sum .
