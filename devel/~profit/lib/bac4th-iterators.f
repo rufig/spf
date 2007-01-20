@@ -54,10 +54,6 @@ STRcompiledCode ENTER CONT ;
 
 \ Но не только не летает, но оказывается *медленнее* чем DO LOOP !
 
-REQUIRE SEE lib/ext/disasm.f
-
-\ Тож самое... Тормоза...
-
 : iterateBy ( start len step --> i \ i <-- i )
 2DUP 6 LSHIFT ( 2* 2* 2* 2* 2* 2* ) SWAP ABS >
 \ Решаем: если кол-во итераций в цикле будет меньше чем, скажем 64 (взято с потолка),
@@ -83,6 +79,9 @@ IF RUSH> iterateBy2 ELSE
 
 : 10-3. 10 -3 1 iterateBy DUP . ;
 >> 10-3.
+
+: 1-100. 1 100 1 iterateBy DUP . ;
+>> 1-100.
 
 : printByOneReverse reverse iterateByByteValues DUP EMIT ." _" ;
 >> S" abc" printByOneReverse
