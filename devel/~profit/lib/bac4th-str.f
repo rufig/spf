@@ -142,11 +142,12 @@ split notEmpty CONT ;
 \ вывод: [ntigu] [l] [br] [dor] [br] [c] [d] [br]
 >> S" antigua labrador abracadabra" split2WordsAndByA
 
-: firstWord BL byChar CUT: split -CUT ."  [" DUP STR@ TYPE ." ]" ;
+: firstWord BL 2DROPB DROPB S|  CUT: byChar split -CUT ."  [" DUP STR@ TYPE ." ]" ;
 \ только первая сгенерированная последовательность
 \ вывод: [antigua]
 \ внимание, в этом примере на стеке остаётся мусор, не говоря уже о том что он протекает по памяти
 \ так как CUT убирает освобождение памяти занятой внутри split со стека возвратов
+\ Мусор убираем стековым контролем: 2DROPB DROPB S|
 >> S" antigua labrador abracadabra" firstWord
 
 : "2"+"*2"+"=4"+"?" concat{ *> concat{ *> S" 2" <*> S" *2" <* }concat DUP STR@ <*> S" =4" <*> S" ?" <* }concat DUP STR@ TYPE ;
