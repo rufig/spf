@@ -1392,8 +1392,6 @@ TRUE VALUE  ~BR-OPT
 ;
 M\  VARIABLE VPPP : PPPP DUP VPPP @ <> IF 0 @ THEN ;
 
-VECT FPOP
-
 : ?EAX=RULES ( ADDR  -- ADDR' FLAG )
 
    BEGIN  OP1 @ :-SET
@@ -2172,6 +2170,19 @@ OP0 @ W@ C28B XOR OR \  8BC2              MOV     EAX , EDX
        EXIT   
    THEN
 
+DUP C@ C3 XOR
+OP3 @ W@ D08B XOR OR \ 5822F8 8BD0              MOV     EDX , EAX
+OP2 @ W@ 458B XOR OR \ 5822FA 8B4508            MOV     EAX , 8 [EBP]
+OP1 @ W@ 1089 XOR OR \ 5822FD 8910              MOV     [EAX] , EDX
+OP0 @ W@ 458B XOR OR \ 5822FF 8B450C            MOV     EAX , C [EBP]
+0= IF  M\ 156 DTST
+       OP3 OPexcise
+       558B  OP2 @ W!     \ MOV     EDX , 8 [EBP]
+       0289  OP1 @ W!     \ MOV     [EDX] , EAX
+       FALSE  M\ 157 DTST
+       EXIT   
+   THEN
+
 
 OP4 @ :-SET U< IF TRUE EXIT THEN
 OP5 @ :-SET U< IF TRUE EXIT THEN
@@ -2817,6 +2828,15 @@ OP0 @ W@ F7FF AND E0C1 XOR OR	\ C1E804            SH[R|L]     EAX , 4
        OP1 @ 1+ !
        OP0 OPexcise
        FALSE  M\ 49 DTST
+       EXIT   
+   THEN
+DUP C@ C3 XOR
+OP1 @ W@ CA8B XOR OR \ 582148 8BCA              MOV     ECX , EDX
+OP0 @ W@ C12B XOR OR \ 58214A 2BC1              SUB     EAX , ECX
+0= IF  M\ 180 DTST
+       C22B  OP1 @ W! \    SUB     EAX , ECX
+       OP0 OPexcise
+       FALSE  M\ 181 DTST
        EXIT   
    THEN
 
@@ -3708,6 +3728,30 @@ OP0 @ W@ 558B XOR OR \ 8B55FC            MOV     EDX , FC [EBP]
        EXIT   
    THEN
 
+DUP C@ C3 XOR
+OP2 @ W@ 4D8B XOR OR \ 582055 8B4D04            MOV     ECX , 4 [EBP]
+OP1 @ W@ 5589 XOR OR \ 582058 895504            MOV     4 [EBP] , EDX
+OP0 @ @ FFFFFF AND 1048D XOR OR \ 58205B 8D0401         LEA     EAX , [ECX] [EAX]
+0= IF  M\ 168 DTST
+	4503 OP2 @ W! \ ADD     EAX , 4 [EBP]
+       OP0 OPexcise
+       FALSE  M\ 169 DTST
+       EXIT   
+   THEN
+
+DUP C@ C3 XOR
+OP2 @ W@ 558B XOR OR \ 582202 8B5500            MOV     EDX , 0 [EBP]
+OP1 @ W@ 4503 XOR OR \ 582205 034504            ADD     EAX , 4 [EBP]
+OP0 @ W@ C22B XOR OR \ 582208 2BC2              SUB     EAX , EDX
+0= IF  M\ 170 DTST
+	OP2 @ 2+ C@
+       OP2 OPexcise
+	452B OP0 @ W! C, \  SUB     EAX , 0 [EBP]	
+       FALSE  M\ 171 DTST
+       EXIT   
+   THEN
+
+
 OP3 @ :-SET U< IF TRUE EXIT THEN
 M\ PPPP
 
@@ -3894,7 +3938,6 @@ OP0 @ W@ 4589 XOR OR \  894500            MOV     0 [EBP] , EAX
        FALSE  M\ 141 DTST
        EXIT   
    THEN
-
 
 OP4 @ :-SET U< IF TRUE EXIT THEN
 
