@@ -82,7 +82,7 @@ IF RUSH> iterateBy2 ELSE
    RUSH> iterateBy4 THEN ;
 \ иначе, если больше чем 64, -- то генерируем цикл и пускаем в нём
 
-\ : iterateBy POSTPONE iterateBy2 ; IMMEDIATE
+\ : iterateBy RUSH> iterateBy1 ;
 
 : iterateByBytes ( addr u <--> caddr )        1 RUSH> iterateBy ;
 : iterateByWords ( addr u <--> waddr )        2 RUSH> iterateBy ;
