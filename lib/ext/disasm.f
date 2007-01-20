@@ -1565,7 +1565,7 @@ VARIABLE  COUNT-LINE
                            IF 9 EMIT ." \ Press <enter> | q | any" KEY UPC
                             DUP   0xD = IF 2DROP 1  ELSE
                               DUP [CHAR] Q = SWAP 0x1B =
-                              OR IF  2DROP CR EXIT    THEN
+                              OR IF DROP 2DROP CR EXIT    THEN
                                 DROP 20    THEN
                            THEN
                         COUNT-LINE !
