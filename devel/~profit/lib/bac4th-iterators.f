@@ -19,7 +19,7 @@ OVER + SWAP ?DO
 I CONT DROP
 step @ +LOOP ;
 
-: iterateBy2  ( start len step --> i \ i <-- i ) PRO LOCAL step step ! 
+: iterateBy2  ( start len step --> i \ i <-- i ) PRO LOCAL step step !
 OVER +
 2DUP = IF 2DROP EXIT THEN
 LOCAL end DUP end !
@@ -40,37 +40,21 @@ THEN DROP ;
 \ Переписал, должно летать:
 
 : iterateBy3  ( start len step --> i \ i <-- i ) PRO
-OVER 0 > 0= IF 2DROP EXIT THEN \ если длина нулевая или меньше, значит делать больше нам нечего..
+OVER 0= IF 2DROP DROP EXIT THEN \ если длина нулевая или меньше, значит делать больше нам нечего..
 >R
 OVER + ( start end  R: step )
 SWAP R> SWAP ( end step start )
-" PRO
-LITERAL
+" LITERAL
 BEGIN [ 2SWAP ]
-CONT
+[ R@ENTER, ]
 LITERAL +
 DUP LITERAL < 0= UNTIL
-DROP "
+DROP RDROP"
 STRcompiledCode ENTER CONT ;
 
 \ Но не только не летает, но оказывается *медленнее* чем DO LOOP !
 
-\ Хорошо, попробуем уже хаками:
-: iterateBy4  ( start len step --> i \ i <-- i )
-OVER 0 > 0= IF 2DROP EXIT THEN \ если длина нулевая или меньше, значит делать больше нам нечего..
->R
-OVER + ( start end  R: step )
-SWAP R> SWAP ( end step start )
-R> SWAP ( end step succ-xt start )
-
-"
-LITERAL
-BEGIN [ ROT >R 2SWAP R> ]
-[ COMPILE, ]
-LITERAL +
-DUP LITERAL < 0= UNTIL
-DROP "
-STRcompiledCode ( xt )  >R ;
+REQUIRE SEE lib/ext/disasm.f
 
 \ Тож самое... Тормоза...
 
@@ -79,7 +63,7 @@ STRcompiledCode ( xt )  >R ;
 \ Решаем: если кол-во итераций в цикле будет меньше чем, скажем 64 (взято с потолка),
 IF RUSH> iterateBy2 ELSE
 \ то циклуем статически,
-   RUSH> iterateBy4 THEN ;
+   RUSH> iterateBy3 THEN ;
 \ иначе, если больше чем 64, -- то генерируем цикл и пускаем в нём
 
 \ : iterateBy RUSH> iterateBy1 ;
