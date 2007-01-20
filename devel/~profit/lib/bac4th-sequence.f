@@ -44,9 +44,11 @@
 \ снимается.
 
 \ REQUIRE MemReport ~day/lib/memreport.f
+REQUIRE /TEST ~profit/lib/testing.f
+REQUIRE writeCell ~profit/lib/fetchWrite.f 
 REQUIRE (: ~yz/lib/inline.f
 REQUIRE CONT ~profit/lib/bac4th.f
-REQUIRE FREEB ~profit/lib/bac4th-mem.f
+REQUIRE BALLOCATE ~profit/lib/bac4th-mem.f
 REQUIRE CREATE-VC ~profit/lib/compile2Heap.f
 
 MODULE: bac4th-sequence
@@ -57,37 +59,42 @@ MODULE: bac4th-sequence
 START{ t @ VC- POSTPONE RDROP RET, }EMERGE \ или так )
 t @ XT-VC CONT
 t @ DESTROY-VC
-;
-CONSTANT (}seq) \ процедура успеха }seq
+; CONSTANT (}seq) \ процедура успеха }seq
 
-EXPORT
-
-: seq{ ( -- ) ?COMP POSTPONE CREATE-VC agg{ ; IMMEDIATE
-
-: }seq ( n -- xt ) ?COMP (: @ VC-
-DUP LIT,
-R@ENTER, POSTPONE DROP ;) (}seq) }agg ; IMMEDIATE
-
-: }seq2 ( n -- xt ) ?COMP (: @ VC-
-2DUP DLIT,
-R@ENTER, POSTPONE 2DROP ;) (}seq) }agg ; IMMEDIATE
-
-: }seq3 ( n -- xt ) ?COMP (: @ VC-
-ROT DUP LIT, -ROT 2DUP DLIT,
-R@ENTER, POSTPONE 2DROP POSTPONE DROP ;) (}seq) }agg ; IMMEDIATE
-
-: }seq4 ( n -- xt ) ?COMP (: @ VC-
-2OVER DLIT, 2DUP DLIT,
-R@ENTER, POSTPONE 2DROP POSTPONE 2DROP ;) (}seq) }agg ; IMMEDIATE
-
-DEFINITIONS
+: RET,-1ALLOT  0xC3 DP @ C! ; \ установка шлагбаума для кода, чтобы не лез куда не надо
+\ шлагбаум "автоматически" сломается при попытке преодолеть его (читай: компиляции)
 
 : __ CELL -- ;
+: --ALIGN CELL /MOD SWAP IF 1+ THEN CELL * ;
 
 0
+1 -- rlit
 __ handle  \ поле виртуального кодофайла
+1 -- ret
+--ALIGN
 __ counter \ счётчик кол-ва введённых ячеек
 CONSTANT arr-struct \ дополнительная структура
+
+:NONAME
+arr-struct ALLOCATE THROW >R
+CREATE-VC
+START{ DUP VC- RET,-1ALLOT }EMERGE
+R@ handle ! R@ counter 0!
+0x68 R@ rlit C!  0xC3 R@ ret C!
+R> ; CONSTANT (arr{)
+
+:NONAME
+PRO LOCAL t @ t !
+
+
+['] RDROP
+t @ handle @ VC-COMPILE,
+t @ handle @ VC-RET, \ закрываем итератор
+
+t @ CONT \ делаем нырок
+t @ handle @ DESTROY-VC
+t @ FREE THROW \ снимаем и дополнительную структуру
+; CONSTANT (}seq) \ процедура успеха }seq
 
 
 :NONAME PRO LOCAL t LOCAL array LOCAL runner
@@ -115,27 +122,56 @@ CONSTANT (}arr) \ процедура успеха }arr
 
 EXPORT
 
-: arr{ ( -- ) ?COMP
-(: arr-struct ALLOCATE THROW >R CREATE-VC R@ handle ! R@ counter 0! R> ;) \ инициализация доп. структуры
-\ INLINE, ( \ или так, то есть применением INLINE, как структурного POSTPONE
-COMPILE,  \ или так, что более надёжно, и не конфликтует с MemReport (???) )
-agg{ ; IMMEDIATE
+: seq{ ( -- ) ?COMP (arr{) COMPILE, agg{ ; IMMEDIATE
 
-: }arr ( n -- xt ) ?COMP (: @ DUP counter 1+!
+: }seq ( n -- xt ) ?COMP (: @
+DUP counter 1+!
 handle @ VC-
 DUP LIT,
-R@ENTER, POSTPONE DROP ;) (}arr) }agg ; IMMEDIATE
+R@ENTER, POSTPONE DROP
+RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
+
+: }seq2 ( n -- xt ) ?COMP (: @
+DUP counter 1+!
+handle @ VC-
+2DUP DLIT,
+R@ENTER, POSTPONE 2DROP
+RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
+
+: }seq3 ( n -- xt ) ?COMP (: @
+DUP counter 1+!
+handle @ VC-
+ROT DUP LIT, -ROT 2DUP DLIT,
+R@ENTER, POSTPONE 2DROP POSTPONE DROP
+RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
+
+: }seq4 ( n -- xt ) ?COMP (: @
+DUP counter 1+!
+handle @ VC-
+2OVER DLIT, 2DUP DLIT,
+R@ENTER, POSTPONE 2DROP POSTPONE 2DROP
+RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
+
+: {seq} ( -- xt ) ?COMP (: ;) {agg} ; IMMEDIATE
+
+: {#} ( xt -- u ) counter @ ;
+
+: seq>arr ( xt --> addr u ) PRO LOCAL arr LOCAL runner
+DUP {#} BALLOCATE DUP arr ! runner !
+START{ ENTER DUP runner writeCell }EMERGE
+arr @ runner @ OVER - CONT ;
 
 ;MODULE
 
-
-\EOF
+/TEST
 : INTSTO PRO 0 DO I CONT DROP LOOP ;
 : INTSFROMTO PRO SWAP 1+ SWAP DO I CONT DROP LOOP ;
 
-REQUIRE SEE lib/ext/disasm.f
-: r seq{ 10 INTSTO }seq ( xt ) ." generated code:" DUP REST CR ." execute:" ENTER DUP . ;
+: list-xt-generated seq{ 5 INTSTO }seq ( xt ) DUP {#} ." length: " . CR ." execute:" ENTER DUP . ;
+$> list-xt-generated
 
+: intermediate seq{ 5 INTSTO CR {seq} START{ ENTER DUP . }EMERGE }seq ( xt ) ENTER ;
+$> intermediate
 
 : a PRO \ Список чисел
 1 CONT DROP
@@ -149,9 +185,11 @@ REQUIRE SEE lib/ext/disasm.f
 4 CONT DROP 
 6 CONT DROP ;
 
+: number= ( a b -- a b f ) 2DUP = ;
+
 : union PRO *> a <*> b <* CONT ; \ Объединение (скорее -- конкатенация)
-: cross PRO a b 2DUP = ONTRUE CONT ; \ Пересечение
-: subtr PRO a S| NOT: b 2DUP = ONTRUE -NOT CONT ; \ Вычитание? (забыл как правильно)
+: cross PRO a b number= ONTRUE CONT ; \ Пересечение
+: subtr PRO a S| NOT: b number= ONTRUE -NOT CONT ; \ Вычитание? (забыл как правильно)
 
 : 4ops
 START{ CR ." a="   a     DUP . }EMERGE
@@ -159,7 +197,7 @@ START{ CR ." b="   b     DUP . }EMERGE
 START{ CR ." a+b=" union DUP . }EMERGE
 START{ CR ." axb=" cross DUP . }EMERGE
 START{ CR ." a-b=" subtr DUP . }EMERGE ;
-4ops CR
+CR $> 4ops
 
  \ Объединение, но теперь можно задавать аргументы, говоря какие множества надо объединять 
 : union ( a b -- a+b ) PRO LOCAL b b ! LOCAL a a !
@@ -171,12 +209,15 @@ START{ CR ." a-b=" subtr DUP . }EMERGE ;
 a @ ENTER b @ ENTER f @ ENTER ONTRUE CONT ;
 \ Операцию сравнения двух значений выносим в аргумент тоже, причём со стеком 
 \ пусть она сама разбирается: f ( ... -- 0|-1 )
-: cross-number ( a b -- axb ) PRO (: 2DUP = ;) cross CONT ;
+: cross-number ( a b -- axb ) PRO ['] number=  cross CONT ;
 
-: subtr ( a b f -- a-b ) PRO LOCAL f f ! LOCAL b b ! LOCAL a a !
-a @ ENTER
+: not-in ( a b f --> \ <-- ) PRO LOCAL f f ! LOCAL b b !
 S| NOT: b @ ENTER f @ ENTER ONTRUE -NOT CONT ;
-: subtr-number PRO (: 2DUP = ;) subtr CONT ;
+
+: subtr ( a b f -- a-b ) PRO LOCAL f f ! LOCAL b b !
+ENTER b @ f @ not-in CONT ;
+
+: subtr-number PRO ['] number= subtr CONT ;
 
 : head ( a -- ... ) CUT: ENTER -CUT ;
 : tail ( a -- ... a' ) CUT: ENTER R@ -CUT ;
@@ -210,13 +251,13 @@ seq{ 0..4 @  2..5 @ cross-number }seq
 seq{ 0..4 @  2..5 @ subtr-number }seq
 union }seq
 CR ." [0..4]x[2..5] + [0..4]-[2..5]=" ENTER DUP . }EMERGE ;
-seq4ops
-
+$> seq4ops
 
 REQUIRE split-patch ~profit/lib/bac4th-str.f
 REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
 
-: cross-str PRO (: 2OVER 2OVER COMPARE-U 0= ;) cross CONT ;
+: str= ( d1 d2 -- d1 d2 f ) 2OVER 2OVER COMPARE-U 0= ;
+: cross-str PRO ['] str= cross CONT ;
 
 : commonWord
 seq{ S" kiwi apple lemon orange"
@@ -225,20 +266,34 @@ seq{ S" peach cherry lemon kiwi feyhoa"
 BL byChar split-patch }seq2 ( list-xt1 list-xt2 )
 cross-str 2DUP TYPE SPACE ;
 
-CR commonWord
-\ должно выйти: kiwi lemon 
-
-: arr1 arr{ a }arr DUMP ;
-arr1
+CR $> commonWord
+\ должно выйти: kiwi lemon
+: dump-arr seq{ a }seq seq>arr DUMP ;
+CR $> dump-arr
 
 REQUIRE iterateBy ~profit/lib/bac4th-iterators.f
 
-: arr2 arr{
-S" ac day mlg pinka profit" BL byChar split-patch \ делим на слова-отрезки
+: TAKE-TWO PRO *> <*> BSWAP <* CONT ;
+
+: arr2 seq{
+BL byChar split-patch \ делим на слова-отрезки
 ( addr u )
-*> <*> BSWAP <*   \ "удвоение" успехов, то есть: посылаем }arr оба числа на стеке
-}arr ( addr u )   \ теперь у нас массив двойных значений
+0 .
+TAKE-TWO          \ "удвоение" успехов, то есть: посылаем }arr оба числа на стеке
+1 .
+}seq 2 .
+seq>arr ( addr u )   \ теперь у нас массив двойных значений
+3 .
+EXIT
 2 CELLS iterateBy \ делаем по нему проход, прыгая по две ячейки зараз
 DUP 2@ CR TYPE ;
-arr2
+
+CR $> S" ac day mlg pinka profit" arr2
 \ MemReport
+\EOF
+: uniqueSeq seq{
+BL byChar split-patch \ делим на слова-отрезки
+{seq} ['] str= not-in
+}seq2 ENTER 2DUP CR TYPE ;
+
+$> S" kiwi apple lemon kiwi apple orange" uniqueSeq

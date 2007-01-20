@@ -91,7 +91,7 @@ a @
 SWAP a ! ;
 
 REQUIRE SEE lib/ext/disasm.f
->> SEE previousValue
+$> SEE previousValue
 
 \ 559330 E904000000       JMP     559339  ( previousValue+9  )
 \ 559335 0000             ADD     [EAX] , AL
@@ -101,10 +101,10 @@ REQUIRE SEE lib/ext/disasm.f
 \ 559340 891535935500     MOV     559335  ( previousValue+5  ) , EDX
 \ 559346 C3               RET     NEAR
 
->> 1 previousValue .
->> 2 previousValue .
->> 3 previousValue .
->> 10 previousValue .
+$> 1 previousValue .
+$> 2 previousValue .
+$> 3 previousValue .
+$> 10 previousValue .
 
 : fact ( n -- n! ) \ Ќе самый удачный пример, согласен.
 DUP 0=      IF     \ Ќо тем не менее показывает как сохран€ютс€ локальные
@@ -114,7 +114,7 @@ DUP n !
 1- RECURSE
 n @ *       THEN ;
 
->> 10 fact .
+$> 10 fact .
 
 
 0
@@ -132,4 +132,4 @@ s b @ +
 s c !
 s c @ ;
 
->> 1 3 sum .
+$> 1 3 sum .

@@ -75,16 +75,16 @@ IF RUSH> iterateBy2 ELSE
 
 /TEST
 : printByOne iterateByByteValues DUP EMIT ." _" ;
->> S" abc" printByOne
+$> S" abc" printByOne
 
 : 10-3. 10 -3 1 iterateBy DUP . ;
->> 10-3.
+$> 10-3.
 
 : 1-100. 1 100 1 iterateBy DUP . ;
->> 1-100.
+$> 1-100.
 
 : printByOneReverse reverse iterateByByteValues DUP EMIT ." _" ;
->> S" abc" printByOneReverse
+$> S" abc" printByOneReverse
 
 : s 100 0 DO +{ 1 200000 1 iterateBy DUP }+ . LOOP ;
 \ ResetProfiles s .AllStatistic

@@ -28,7 +28,7 @@ DUP 0= IF EXIT THEN
 
 CREATE tmp
 HERE
->> 0 , 1 , 3 , 5 , 6 , 10 , 20 , 33 , 123 , 231 , 400 ,
+$> 0 , 1 , 3 , 5 , 6 , 10 , 20 , 33 , 123 , 231 , 400 ,
 HERE SWAP - CELL / VALUE len
 
 0 VALUE n
@@ -38,6 +38,6 @@ HERE SWAP - CELL / VALUE len
 0 len
 :NONAME ( i -- f )  CELLS tmp + @ n - NEGATE SGN ;
 3DUP 3DUP
->> 10 TO n binary-search . .
->> 400 TO n binary-search . .
->> 8 TO n binary-search . .
+$> 10 TO n binary-search . .
+$> 400 TO n binary-search . .
+$> 8 TO n binary-search . .

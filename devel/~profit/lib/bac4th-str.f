@@ -125,7 +125,7 @@ split notEmpty CONT ;
 
 /TEST
 : copy3-2 3 2 copy DUP STR@ TYPE ;
->> S" forth" copy3-2
+$> S" forth" copy3-2
 
 : r S" mary has sheep" [CHAR] a byChar find DUP C@ EMIT ;
 \ находим все символы 'a'
@@ -135,35 +135,35 @@ split notEmpty CONT ;
 \ делим на слова. Каждое слово -- не отрезок из главной строки, он перенесён в кучу 
 \ и автоматически при отходе назад из кучи снимается
 \ вывод: [mary] [has] [a] [sheep]
->> S"  mary  has a  sheep" split2Words
+$> S"  mary  has a  sheep" split2Words
 
 : split2WordsAndByA BL byChar split DUP STR@ [CHAR] a byChar split notEmpty ."  [" DUP STR@ TYPE ." ]" ;
 \ делим на слова и на отрезки между буквам 'a' в словах.
 \ вывод: [ntigu] [l] [br] [dor] [br] [c] [d] [br]
->> S" antigua labrador abracadabra" split2WordsAndByA
+$> S" antigua labrador abracadabra" split2WordsAndByA
 
-: firstWord BL 2DROPB DROPB S|  CUT: byChar split -CUT ."  [" DUP STR@ TYPE ." ]" ;
+: firstWord BL byChar 2DROPB DROPB S| CUT: split -CUT ."  [" DUP STR@ TYPE ." ]" ;
 \ только первая сгенерированная последовательность
 \ вывод: [antigua]
 \ внимание, в этом примере на стеке остаётся мусор, не говоря уже о том что он протекает по памяти
 \ так как CUT убирает освобождение памяти занятой внутри split со стека возвратов
 \ Мусор убираем стековым контролем: 2DROPB DROPB S|
->> S" antigua labrador abracadabra" firstWord
+$> S" antigua labrador abracadabra" firstWord
 
 : "2"+"*2"+"=4"+"?" concat{ *> concat{ *> S" 2" <*> S" *2" <* }concat DUP STR@ <*> S" =4" <*> S" ?" <* }concat DUP STR@ TYPE ;
->> "2"+"*2"+"=4"+"?"
+$> "2"+"*2"+"=4"+"?"
 
 \ вывод: 2*2=4?
 
 : splitNmerge concat{ BL byChar split notEmpty DUP STR@ }concat ."  [" DUP STR@ TYPE ." ]" ;
 \ убирает все пробелы в строке
 \ вывод: [maryhasasheep]
->> S"   mary   has  a  sheep" splitNmerge
+$> S"   mary   has  a  sheep" splitNmerge
 
 : divideBy= [CHAR] = byChar divide-patch 2SWAP TYPE SPACE TYPE ;
 \ разбивает строку на две части
 \ вывод: [a1] [123==456]
->> S" a1=123==456" divideBy=
+$> S" a1=123==456" divideBy=
 
 : printFile  S" C:\lang\spf\devel\~profit\lib\bac4th-str.f" iterateStrings DUP STR@ CR TYPE ;
 \ вывод файла на печать

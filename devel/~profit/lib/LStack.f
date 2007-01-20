@@ -19,4 +19,4 @@ L@  LDROP ;
 LP @ !  LUNDROP ;
 
 /TEST
->> 1 >L  2 >L  L> . L> .
+$> 1 >L  2 >L  L> . L> .

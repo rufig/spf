@@ -131,7 +131,7 @@ t VC-RET,
 t XT-VC REST CR
 t ( XT-VC ) EXECUTE ;
 
->> r
+$> r
 
 t DESTROY-VC
 \ MemReport
