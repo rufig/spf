@@ -19,9 +19,9 @@ OVER + SWAP ?DO
 I CONT DROP
 step @ +LOOP ;
 
-: iterateBy2  ( start len step --> i \ i <-- i ) PRO LOCAL step step !
+: iterateBy2  ( start len step --> i \ i <-- i ) PRO
+LOCAL step step !
 OVER +
-2DUP = IF 2DROP EXIT THEN
 LOCAL end DUP end !
 OVER > IF
 BEGIN
@@ -40,21 +40,30 @@ THEN DROP ;
 \ Переписал, должно летать:
 
 : iterateBy3  ( start len step --> i \ i <-- i ) PRO
-OVER 0= IF 2DROP DROP EXIT THEN \ если длина нулевая или меньше, значит делать больше нам нечего..
->R
+OVER >R >R
 OVER + ( start end  R: step )
 SWAP R> SWAP ( end step start )
+R> 0 > IF
 " LITERAL
 BEGIN [ 2SWAP ]
 [ R@ENTER, ]
 LITERAL +
 DUP LITERAL < 0= UNTIL
 DROP RDROP"
+ELSE
+" LITERAL
+BEGIN [ 2SWAP ]
+[ R@ENTER, ]
+LITERAL -
+DUP LITERAL > 0= UNTIL
+DROP RDROP"
+THEN
 STRcompiledCode ENTER CONT ;
 
 \ Но не только не летает, но оказывается *медленнее* чем DO LOOP !
 
 : iterateBy ( start len step --> i \ i <-- i )
+OVER 0= IF 2DROP DROP RDROP EXIT THEN \ если длина нулевая или меньше, значит делать больше нам нечего..
 2DUP 6 LSHIFT ( 2* 2* 2* 2* 2* 2* ) SWAP ABS >
 \ Решаем: если кол-во итераций в цикле будет меньше чем, скажем 64 (взято с потолка),
 IF RUSH> iterateBy2 ELSE
@@ -62,7 +71,8 @@ IF RUSH> iterateBy2 ELSE
    RUSH> iterateBy3 THEN ;
 \ иначе, если больше чем 64, -- то генерируем цикл и пускаем в нём
 
-\ : iterateBy RUSH> iterateBy1 ;
+  \ : iterateBy RUSH> iterateBy1 ;
+\ ^-- разбить в случае аварии программы
 
 : iterateByBytes ( addr u <--> caddr )        1 RUSH> iterateBy ;
 : iterateByWords ( addr u <--> waddr )        2 RUSH> iterateBy ;
@@ -82,6 +92,13 @@ $> 10-3.
 
 : 1-100. 1 100 1 iterateBy DUP . ;
 $> 1-100.
+
+: 150-50. 150 -100 1 iterateBy DUP . ;
+$> 150-50.
+
+: 0. 150 0 1 iterateBy DUP . ;
+$> 0.
+
 
 : printByOneReverse reverse iterateByByteValues DUP EMIT ." _" ;
 $> S" abc" printByOneReverse
