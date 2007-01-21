@@ -36,26 +36,26 @@ DEFINITIONS
 
 EXPORT
 
-: ONFALSE IF RDROP THEN ;
-: ONTRUE 0= IF RDROP THEN ;
+: ONFALSE ( f -- ) IF RDROP THEN ;   \ Откат если f=true, то есть _пропускает_ только f=0
+: ONTRUE ( f -- ) 0= IF RDROP THEN ; \ Откат если f=false
 
 : R@ENTER, 0xFF C, 0x14 C, 0x24 C, ; \ CALL [ESP]
 \ POSTPONE R@ POSTPONE EXECUTE
 
-: PRO R> R> >L ENTER LDROP ;
+: PRO R> R> >L ENTER LDROP ;      \ Делает текущий исполняемый код откатным, ставится в начало
 \ : CONT L> >R R@ ENTER R> >L ;
-: CONT L> >R [ R@ENTER, ] R> >L ;
+: CONT L> >R [ R@ENTER, ] R> >L ; \ Выполняет успех в таком коде (в слове где в начале есть PRO )
 \ : CONT (: L> >R ;) INLINE, R@ENTER, (: R> >L ;) INLINE, ; IMMEDIATE
 \ Отключение оптимизатора ломает INLINE,
 
-: RUSH
+: RUSH ( xt -- )        \ Безусловный переход по адресу стеке
 0x8B C, 0xD8 C,         \ MOV EBX, EAX
 0x8B C, 0x45 C, 0x00 C, \ MOV EAX, 0 [EBP]
 0x8D C, 0x6D C, 0x04 C, \ LEA EBP, 4 [EBP]
 0xFF C, 0xE3 C,         \ JMP EBX
 ; IMMEDIATE
 
-: RUSH> ?COMP ' BRANCH, ; IMMEDIATE \ Да-да, это GOTO...
+: RUSH> ( "name ) ?COMP ' BRANCH, ; IMMEDIATE \ Да-да, это GOTO...
 
 \ обратимые операции
 \ : RESTB  ( n --> n  / n <--  ) R>  OVER >R  ENTER   R> ; ( 
