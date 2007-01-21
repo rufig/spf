@@ -23,21 +23,18 @@
 
 \ REQUIRE MemReport ~day/lib/memreport.f
 REQUIRE /TEST ~profit/lib/testing.f
+REQUIRE __ ~profit/lib/cellfield.f
 REQUIRE LOCAL ~profit/lib/static.f
 REQUIRE CONT ~profit/lib/bac4th.f
 
 MODULE: codepatches
 30 CONSTANT luft  \ сколько байт допуска
 
-: __ CELL -- ;
-
-: --ALIGN CELL /MOD SWAP IF 1+ THEN CELL * ;
-
 0
 1 -- rlit     \ инструкци€ PUSH (0x64)
 __ firstBlock \ первый кусок зан€той под кодофайл пам€ти
 1 -- ret      \ инструкци€ RET (0xC3)
---ALIGN       \ выравниваем по €чейке
+__ALIGN       \ выравниваем по €чейке
 __ block      \ размер кусков, которыми надо брать пам€ть дл€ кода
 __ there      \ сохран€емый HERE в этом виртуальном кодофайле
 __ lastBlock  \ последний кусок
