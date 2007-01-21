@@ -1,7 +1,7 @@
 \ Слова:
-\ seq{ ... }seq
+\ seq{ ... }seq (генерация списка-итератора с последовательным доступом)
 \ и
-\ arr{ ... }arr
+\ arr{ ... }arr (генерация массива)
 
 
 \ seq{ ... }seq оставляет на стеке xt -- адрес участка кода, который генерирует
@@ -38,40 +38,30 @@
 \ такого итератора можно получив кол-во занесённых в него элементов, можно
 \ брать из памяти сплошной участок кода. Так работает arr{ ... }arr
 
-\ arr{ ... }arr оставляет на стеке адрес начала массива и его длину.
+\ arr{ ... }arr оставляет на стеке адрес начала массива и его длину (в байтах).
 \ Массив сгенерирован из верхних значений остающихся на стеке после 
 \ каждого успеха итераторов между скобками. При откате этот массив
 \ снимается.
 
 \ REQUIRE MemReport ~day/lib/memreport.f
 REQUIRE /TEST ~profit/lib/testing.f
-REQUIRE writeCell ~profit/lib/fetchWrite.f 
+REQUIRE __ ~profit/lib/cellfield.f
+REQUIRE writeCell ~profit/lib/fetchWrite.f
 REQUIRE (: ~yz/lib/inline.f
 REQUIRE CONT ~profit/lib/bac4th.f
-REQUIRE BALLOCATE ~profit/lib/bac4th-mem.f
 REQUIRE CREATE-VC ~profit/lib/compile2Heap.f
+REQUIRE FREEB ~profit/lib/bac4th-mem.f
 
 MODULE: bac4th-sequence
-
-:NONAME PRO LOCAL t
-@ t !
-\ ['] RDROP t @ VC-COMPILE,  t @ VC-RET, ( \ или так,
-START{ t @ VC- POSTPONE RDROP RET, }EMERGE \ или так )
-t @ XT-VC CONT
-t @ DESTROY-VC
-; CONSTANT (}seq) \ процедура успеха }seq
 
 : RET,-1ALLOT  0xC3 DP @ C! ; \ установка шлагбаума для кода, чтобы не лез куда не надо
 \ шлагбаум "автоматически" сломается при попытке преодолеть его (читай: компиляции)
 
-: __ CELL -- ;
-: --ALIGN CELL /MOD SWAP IF 1+ THEN CELL * ;
-
 0
 1 -- rlit
-__ handle  \ поле виртуального кодофайла
+__ handle  \ поле виртуального кодофайла (он одновременно представляет собой и исполняемый адрес)
 1 -- ret
---ALIGN
+__ALIGN
 __ counter \ счётчик кол-ва введённых ячеек
 CONSTANT arr-struct \ дополнительная структура
 
@@ -81,48 +71,22 @@ CREATE-VC
 START{ DUP VC- RET,-1ALLOT }EMERGE
 R@ handle ! R@ counter 0!
 0x68 R@ rlit C!  0xC3 R@ ret C!
-R> ; CONSTANT (arr{)
+R> ; CONSTANT (seq{)
+
 
 :NONAME
 PRO LOCAL t @ t !
-
-
 ['] RDROP
 t @ handle @ VC-COMPILE,
 t @ handle @ VC-RET, \ закрываем итератор
-
 t @ CONT \ делаем нырок
 t @ handle @ DESTROY-VC
 t @ FREE THROW \ снимаем и дополнительную структуру
 ; CONSTANT (}seq) \ процедура успеха }seq
 
-
-:NONAME PRO LOCAL t LOCAL array LOCAL runner
-@ t !
-
-START{ t @ handle @ VC- POSTPONE RDROP RET, }EMERGE
-
-t @ counter @ \ теперь мы знаем длину данных
-CELLS ALLOCATE THROW DUP array ! \ берём под них цельный массив
-runner ! \ ставим бегунок на начало массива
-
-START{
-t @ handle @ XT-VC ENTER \ выполняем готовый итератор
-DUP runner @ ! CELL runner +! \ переносим по одному данные из итератора в массив
-}EMERGE
-
-t @ handle @ DESTROY-VC \ итератор после выполнения и переноса его данных в массив больше не нужен
-array @  t @ counter @ CELLS ( addr u )
-
-t @ FREE THROW \ снимаем и дополнительную структуру
-( addr u ) CONT \ делаем нырок
-array @ FREE THROW \ освобождаем сгенерированный массив
-;
-CONSTANT (}arr) \ процедура успеха }arr
-
 EXPORT
 
-: seq{ ( -- ) ?COMP (arr{) COMPILE, agg{ ; IMMEDIATE
+: seq{ ( -- ) ?COMP (seq{) COMPILE, agg{ ; IMMEDIATE
 
 : }seq ( n -- xt ) ?COMP (: @
 DUP counter 1+!
@@ -156,10 +120,22 @@ RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
 
 : {#} ( xt -- u ) counter @ ;
 
-: seq>arr ( xt --> addr u ) PRO LOCAL arr LOCAL runner
-DUP {#} BALLOCATE DUP arr ! runner !
-START{ ENTER DUP runner writeCell }EMERGE
-arr @ runner @ OVER - CONT ;
+: seq>arr ( xt -- addr u ) LOCAL arr LOCAL runner
+DUP {#} CELLS ALLOCATE THROW DUP arr ! runner !
+START{  ENTER DUP runner writeCell }EMERGE
+arr @ runner @ OVER - ;
+
+: arr{
+(: 2 CELLS ALLOCATE THROW ;) COMPILE,
+agg{
+[COMPILE] seq{
+; IMMEDIATE
+
+: }arr
+[COMPILE] }seq
+(: @ SWAP seq>arr ROT 2! ;)
+(: PRO @ DUP 2@ ROT FREE THROW SWAP FREEB SWAP CONT ;)
+}agg ; IMMEDIATE
 
 ;MODULE
 
@@ -268,32 +244,28 @@ cross-str 2DUP TYPE SPACE ;
 
 CR $> commonWord
 \ должно выйти: kiwi lemon
-: dump-arr seq{ a }seq seq>arr DUMP ;
+: dump-arr arr{ a }arr DUMP ;
 CR $> dump-arr
 
-REQUIRE iterateBy ~profit/lib/bac4th-iterators.f
-
-: TAKE-TWO PRO *> <*> BSWAP <* CONT ;
-
-: arr2 seq{
-BL byChar split-patch \ делим на слова-отрезки
-( addr u )
-0 .
-TAKE-TWO          \ "удвоение" успехов, то есть: посылаем }arr оба числа на стеке
-1 .
-}seq 2 .
-seq>arr ( addr u )   \ теперь у нас массив двойных значений
-3 .
-EXIT
-2 CELLS iterateBy \ делаем по нему проход, прыгая по две ячейки зараз
-DUP 2@ CR TYPE ;
-
-CR $> S" ac day mlg pinka profit" arr2
-\ MemReport
-\EOF
 : uniqueSeq seq{
 BL byChar split-patch \ делим на слова-отрезки
 {seq} ['] str= not-in
 }seq2 ENTER 2DUP CR TYPE ;
 
 $> S" kiwi apple lemon kiwi apple orange" uniqueSeq
+\ MemReport
+
+REQUIRE iterateBy ~profit/lib/bac4th-iterators.f
+
+: TAKE-TWO PRO *> <*> BSWAP <* CONT ;
+
+: arr-test arr{
+BL byChar split-patch \ делим на слова-отрезки
+( addr u )
+TAKE-TWO          \ "удвоение" успехов, то есть: посылаем }arr оба числа на стеке
+}arr
+( addr u )   \ теперь у нас массив двойных значений
+2 CELLS iterateBy \ делаем по нему проход, прыгая по две ячейки зараз
+DUP 2@ CR TYPE ;
+
+CR $> S" ac day mlg pinka profit" arr-test
