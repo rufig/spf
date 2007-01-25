@@ -472,8 +472,10 @@ With Help of
    <regexp match="/(\s|^)(VOCABULARY)\s+(\S+)/i"      region="Function" region2="forWord" region3="forWordDefinition"/>
    <regexp match="/(\s|^)(VECT)\s+(\S+)/i"            region="Function" region2="forWord" region3="forWordDefinition"/>
    <regexp match="/(\s|^)(F?VALUE)\s+(\S+)/i"         region="Function" region2="forWord" region3="forWordDefinition"/>
-   <regexp match="/(\s|^)(--)\s+(\S+)/"              region="Function" region2="forWord" region3="forWordDefinition"/>
+   <regexp match="/(\s|^)(--)\s+(\S+)/"               region="Function" region2="forWord" region3="forWordDefinition"/>
    <regexp match="/(\s|^)(CODE)\s+(\S+)/i"            region="Function" region2="forWord" region3="forWordDefinition"/>
+
+   <regexp match="/(\s|^)(TASK:)\s+(\S+)/i"           region="Function" region2="forWord" region3="forWordDefinition"/>
 
    <regexp match="/(\s|^)(REQUIRE)\s+(\S+)\s+(\S+)/i"  region2="forWord" region3="forWord" region4="Path"/>
    <regexp match="/(\s|^)(CHAR)\s+(\S+)/i" region2="forWord" region3="forString"/>
