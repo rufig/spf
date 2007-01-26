@@ -1,31 +1,36 @@
 \ Бэкфорт, порт на SPF
 \ см. http://forth.org.ru/~mlg/index.html#bacforth
+\ Копия есть в дистрибутиве: папка SPF/devel/~mlg/index.html#bacforth
+
 
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE >L ~profit/lib/lstack.f
 REQUIRE (: ~yz/lib/inline.f
 
 MODULE: bac4th
-: ?PAIRS <> ABORT" unpaired" ;
-: >RESOLVE2 ( dest -- ) HERE SWAP ! ;
-: <RESOLVE ( org -- )	, ;
+
+\ Переопределены стандартные компилирующие слова, так как в SPF они работают "непривычно"
+: ?PAIRS <> ABORT" unpaired" ; \ Проверка на парность структурных операторов
+: >RESOLVE2 ( dest -- ) HERE SWAP ! ; \ "Старое" разрешение ссылок вперёд
 
 : CALL, ( ADDR -- ) \ скомпилировать инструкцию ADDR CALL
   ?SET SetOP SetJP 0xE8 C,
   DUP IF DP @ CELL+ - THEN ,    DP @ TO LAST-HERE
 ;
 
+\ Константы признаки для проверки парности структурных операторов
 12345 CONSTANT $TART
 5432 CONSTANT 8ACK
 4523 CONSTANT N0T
 466736473 CONSTANT a99reg4te
 
-: (ADR) R> DUP CELL+ >R ;
+: (ADR) R> DUP CELL+ >R ; \ Инструкция для хранения переменных в шитом коде
 
 EXPORT
 
-: ENTER POSTPONE EXECUTE ; IMMEDIATE ( \ это тоже самое, но что быстрее?
-: ENTER   >R ;                           \ )
+\ Выполнение вектора исполнения xt (не совсем тоже самое что и EXECUTE)
+: ENTER ( xt -- ) POSTPONE EXECUTE ; IMMEDIATE ( \ это тоже самое, но что быстрее?
+: ENTER           >R ;                           \ )
 
 DEFINITIONS
 
@@ -48,7 +53,7 @@ EXPORT
 \ : CONT (: L> >R ;) INLINE, R@ENTER, (: R> >L ;) INLINE, ; IMMEDIATE
 \ Отключение оптимизатора ломает INLINE,
 
-: RUSH ( xt -- )        \ Безусловный переход по адресу стеке
+: RUSH ( xt -- )        \ Безусловный переход по адресу на стеке
 0x8B C, 0xD8 C,         \ MOV EBX, EAX
 0x8B C, 0x45 C, 0x00 C, \ MOV EAX, 0 [EBP]
 0x8D C, 0x6D C, 0x04 C, \ LEA EBP, 4 [EBP]
@@ -57,9 +62,11 @@ EXPORT
 
 : RUSH> ( "name ) ?COMP ' BRANCH, ; IMMEDIATE \ Да-да, это GOTO...
 
-\ обратимые операции
-\ : RESTB  ( n --> n  / n <--  ) R>  OVER >R  ENTER   R> ; ( 
-: RESTB [
+\ Обратимые операции
+
+\ Не изменяя стек при прямом проходе, на откатном ходу кладёт на стек сохранённое значение вершины стека
+\ : RESTB ( n --> n  / n <--  )  R>  OVER >R  ENTER   R> ; ( 
+  : RESTB ( n --> n  / n <--  ) [
 0x5B C,                 \ POP EBX
 0x50 C,                 \ PUSH EAX
 0xFF C, 0xD3 C,         \ CALL EBX
@@ -69,6 +76,7 @@ EXPORT
 ] ; \ )
 
 
+\ Аналог RESTB для двойных значений
 \ : 2RESTB ( d --> d  / d <--  ) R>  -ROT 2DUP 2>R ROT  ENTER   2R> ; (
 : 2RESTB [
 0x5B C,                 \ POP EBX
@@ -81,13 +89,33 @@ EXPORT
 0x8F C, 0x45 C, 0x00 C, \ POP [EBP]
 ] ; \ )
 
+\ Откатываемый SWAP, т.е. выполняет SWAP и на прямом и на обратном ходу,
+\ откатывая стек к начальному положению
 : BSWAP  ( a b <--> b a )      SWAP R> ENTER  SWAP ;
-: SWAPB  ( a b <--> b a )      R> ENTER  SWAP ;
+\ Этимология: B-SWAP -- это Bactrackable SWAP , то есть: "откатный SWAP"
+
+\ SWAP при откате, т.е. на прямом ходу ничего не делает, на обратном ходу
+\ -- выполняет SWAP.
+: SWAPB  ( a b --> a b \  b a <-- a b )      R> ENTER  SWAP ;
+\ Этимология: SWAP-B -- это SWAP when Backtracking, то есть: "SWAP при откате"
+
+\ Откатываемый DROP
 : BDROP  ( n <--> )            R>  SWAP >R  ENTER  R> ;
+
+\ DROP при откате, этим словом можно приводить обычные значения на стеке
+\ к итерируемым значениям, нужных для некоторых агрегаторов (типа seq{ }seq)
 : DROPB  ( n --> n / <-- n )   R>  ENTER DROP ;
+
+\ Двойной DROP при откате
 : 2DROPB ( n --> n / <-- n )   R>  ENTER 2DROP ;
+
+\ Восстановление значения переменной addr при откате
 : KEEP   ( addr --> / <-- )    R> SWAP DUP @  2>R ENTER 2R> SWAP ! ;
+
+\ Запись значения в переменную addr с восстановлением при откате
 : B!     ( n addr --> / <-- )  R> OVER DUP @  2>R -ROT !  ENTER 2R> SWAP ! ;
+
+\ Запись байта в переменную addr с восстановлением при откате
 : BC!    ( n addr --> / <-- )  R> OVER DUP C@ 2>R -ROT C!  ENTER 2R> SWAP C! ;
 
 
@@ -98,17 +126,20 @@ EXPORT
 \ BACK ... TRACKING -- это аналог (: ... ;) >R , и наоборот,
 \ (: ... ;) -- это аналог BACK ... TRACKING R>
 
+\ Открывающая скобка "суперцикла"
 : START{ ( -- org dest $TART )
 ?COMP
 0 RLIT, >MARK
 <MARK $TART
 ; IMMEDIATE
 
+\ Рекурсивный нырок внутри суперцикла в самое себя
 : DIVE ?COMP
 DUP $TART = IF OVER COMPILE, THEN
 ; IMMEDIATE
 
 
+\ Закрывающая скобка "суперцикла"
 : }EMERGE
 ?COMP
 $TART ?PAIRS DROP
@@ -116,9 +147,10 @@ RET,
 >RESOLVE2
 ; IMMEDIATE
 
-: S| PRO BACK SP! TRACKING SP@ BDROP CONT ; \ Восстановление стека
+\ Восстановление стека
 \ Нужно для обеспечения баланса стека при прямом и обратном ходе, при наличии таких
 \ опасных процедур как отсечения (NOT: -NOT или CUT: -CUT)
+: S| PRO BACK SP! TRACKING SP@ BDROP CONT ;
 
 \ квантор отрицания
 : NOT:  ?COMP POSTPONE (NOT:) 0 ,  >MARK N0T ; IMMEDIATE
@@ -160,7 +192,7 @@ RET,
 \ макросы для функций агрегации, три параметра:
 \ Начальное значение результата
 \ Функция аггрегирования (конкатенация, суммирование логические сложение или умножение)
-\ Функция успеха, может включать в себя R> ENTER
+\ Функция успеха, может включать в себя PRO CONT или R> ENTER
 
 : agg{ ( -- ) ?COMP
 POSTPONE (ADR) HERE 0 , \ храним значение накопителя
@@ -183,21 +215,27 @@ LIT, R> COMPILE,
 RET, >RESOLVE2
 LIT, R> COMPILE, ;
 
+\ Сумматор итерируемых значений. 
 : +{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }+ ?COMP ['] +! ['] @ }agg ; IMMEDIATE
 
+\ Определение максимума среди итерируемых значений
 : MAX{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }MAX ?COMP (: DUP @ ROT MAX SWAP !  ;) ['] @ }agg ; IMMEDIATE
 
+\ Произведение итерируемых значений. 
 : *{ ?COMP 1 LIT, agg{ ; IMMEDIATE
 : }* ?COMP (: DUP @ ROT * SWAP !  ;) ['] @ }agg ; IMMEDIATE
 
+\ Лог. произведение итерируемых значений. 
 : &{ ?COMP -1 LIT, agg{ ; IMMEDIATE
 : }& ?COMP (: DUP @ ROT AND SWAP ! ;) ['] @ }agg ; IMMEDIATE
 
+\ Лог. сложение итерируемых значений. 
 : |{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }| ?COMP (: DUP @ ROT OR SWAP ! ;) ['] @ }agg ; IMMEDIATE
 
+\ Выдача промежуточных результатов агрегатора
 : {} ?COMP ['] NOOP {agg} ; IMMEDIATE \ промежуточный результат
 
 \ Блок AMONG  ...  EACH  ...  ITERATE
