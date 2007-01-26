@@ -55,9 +55,9 @@ CELL+ DUP R@ there !
 R@ block @ + luft - R@ limit ! RDROP ;
 
 : HERE DP @ ; \ HERE из системы -- не то же самое что и DP @ 
-              \ кроме взятия значения DP также отграничивается
-              \ текущим адресом оптимизатор что для этого 
-              \ применения нежелательно
+              \ Кроме взятия значения DP в HERE также 
+              \ отграничивается текущим адресом оптимизатор,
+              \ что для этого применения нежелательно.
 
 
 EXPORT
@@ -84,16 +84,14 @@ DUP 0= UNTIL DROP ;
 
 
 : VC- ( ... vc --> \ <-- ) PRO LOCAL vc vc !
-LOCAL savedHere HERE savedHere !
-vc @ there @ DP !
+vc @ there @ DP B! \ запись в переменную DP с восстановлением при откате
 CONT
 HERE vc @ there !
 HERE vc @ limit @ >  IF
 vc @ lastBlock @
 vc @ allocatePatch
 vc @ lastBlock @ SWAP !
-vc @ there @ BRANCH, THEN
-savedHere @ DP ! ;
+vc @ there @ BRANCH, THEN ;
 
 : VC-COMPILE, ( xt vc -- ) VC- COMPILE, ;
 : VC-, ( n vc -- ) VC- , ;
