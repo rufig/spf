@@ -271,7 +271,7 @@ CONSTANT /ci
 VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
 
 : FreeStmt { fodbc -- }
-  fodbc odbcStat @ ?DUP IF SQLFreeStmt DROP fodbc odbcStat 0! THEN
+  fodbc odbcStat @ ?DUP IF 0 SWAP SQLFreeStmt DROP fodbc odbcStat 0! THEN
 ;
 : ExecSQL ( S" statement" fodbc -- ior )
   { sta stu fodbc }
