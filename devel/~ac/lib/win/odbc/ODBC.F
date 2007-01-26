@@ -126,13 +126,6 @@ VECT vSQLDumpError ' SQLDumpError TO vSQLDumpError
      fodbc odbcConn  fodbc odbcEnv @ SQLAllocConnect SQL_OK? fodbc SWAP
   ELSE fodbc FALSE THEN
 ;
-: StopSQL ( fodbc -- )
-  { fodbc }
-\  fodbc odbcConn @ SQLDisconnect DROP
-  fodbc odbcConn @ SQLFreeConnect DROP
-  fodbc odbcEnv  @ SQLFreeEnv DROP
-  fodbc FREE DROP
-;
 : ConnectSQL ( S" data source" S" name" S" pass" fodbc -- ior )
   { ds-a ds-u login-a login-u pass-a pass-u fodbc }
   ds-a ds-u         fodbc odbcSrc   2!
@@ -143,7 +136,6 @@ VECT vSQLDumpError ' SQLDumpError TO vSQLDumpError
   fodbc odbcConn @
   SQLConnect
 ;
-
 : ReconnectSQL { fodbc -- ior }
   fodbc odbcConn @ SQLDisconnect DROP
 
@@ -278,9 +270,13 @@ CONSTANT /ci
 ;
 VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
 
+: FreeStmt { fodbc -- }
+  fodbc odbcStat @ ?DUP IF SQLFreeStmt DROP fodbc odbcStat 0! THEN
+;
 : ExecSQL ( S" statement" fodbc -- ior )
   { sta stu fodbc }
   sta stu vSQLLastQuery
+  fodbc FreeStmt \ освободим предыдущий запрос, если был
   fodbc odbcStat  fodbc odbcConn @  SQLAllocStmt
   DUP SQL_OK?
   IF DROP
@@ -293,9 +289,20 @@ VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
 : FreeExec { fodbc -- }
 \  fodbc odbcStat @ SQLCloseCursor DROP
 \  0 ( SQL_COMMIT) fodbc odbcEnv @ 1 ( SQL_HANDLE_ENV) SQLEndTran DROP
-  0 fodbc odbcStat @ SQLFreeStmt DROP
-  fodbc odbcConn @ SQLDisconnect DROP
+  fodbc FreeStmt
+  fodbc odbcConn @ ?DUP IF SQLDisconnect DROP fodbc odbcConn 0! THEN
+( disconnect нужен после каждого UPDATE для некоторых ODBC-драйверов...
+  но при нескольких запросах per connect лучше не пользоваться FreeExec )
 ;
+: StopSQL ( fodbc -- )
+  { fodbc }
+\  fodbc odbcConn @ SQLDisconnect DROP
+  fodbc FreeStmt
+  fodbc odbcConn @ ?DUP IF DUP SQLDisconnect DROP SQLFreeConnect DROP THEN
+  fodbc odbcEnv  @ SQLFreeEnv DROP
+  fodbc FREE DROP
+;
+
 : ExecSQLfile ( S" filename" fodbc -- ior )
   { fa fu fodbc \ f size mem }
   fa fu R/O OPEN-FILE-SHARED ?DUP IF NIP EXIT THEN
