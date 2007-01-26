@@ -10,7 +10,7 @@ REQUIRE SqlInit   ~ac/lib/win/odbc/xmldb2.f
   StartSQL 0= IF DROP 0 EXIT THEN
   DUP >R
   ConnectFile SQL_OK?
-  0= IF RDROP EXIT THEN
+  0= IF RDROP 0 EXIT THEN
   R>
 ;
 : db_gets ( addr u sqh -- addr u ... )
@@ -47,12 +47,14 @@ REQUIRE SqlInit   ~ac/lib/win/odbc/xmldb2.f
   REPEAT
 ;
 
+USER SqlQT
+
 \ ## возвращается первое поле первой строки от query
 
 : oid_query { $query -- id }
-  SqlQ @ 0= IF 70104 THROW THEN
+  SqlQT @ 0= IF 70104 THROW THEN
 
-  $query STR@ SqlQ @ db_gets 0 0 2SWAP >NUMBER 2DROP D>S \ $query STRFREE
+  $query STR@ SqlQT @ db_gets 0 0 2SWAP >NUMBER 2DROP D>S \ $query STRFREE
 ;
 
 \ ## выполнить первый запрос, если query вернул более 0 строк, иначе второй
@@ -60,13 +62,13 @@ REQUIRE SqlInit   ~ac/lib/win/odbc/xmldb2.f
 \ ## (т.е. условная вставка записи в базу)
 
 : oreg_query { $query $query1 $query2 \ id -- id }
-  SqlQ @ 0= IF 70105 THROW THEN
+  SqlQT @ 0= IF 70105 THROW THEN
 
   $query oid_query DUP -> id \ $query там НЕ освободилось
   IF
-    $query1 STR@ SqlQ @ db_exec_
+    $query1 STR@ SqlQT @ db_exec_
   ELSE
-    $query2 STR@ SqlQ @ db_exec_ \ SQH @ db3_insert_id -> id
+    $query2 STR@ SqlQT @ db_exec_ \ SQH @ db3_insert_id -> id
     $query oid_query -> id \ повторный запрос, чтобы не зависеть от ON CONFLICT
                           \ и вставок в других потоках
   THEN
@@ -99,23 +101,23 @@ USER SqS
   TRUE
 ;
 : oxquery ( addr u -- addr2 u2 )
-  SqlQ @ 0= IF 70106 THROW THEN
+  SqlQT @ 0= IF 70106 THROW THEN
 
   " <table class='sortable' id='sp_table' cellpadding='0' cellspacing='0'>" SqS !
-  0 ['] (oxquery) SqlQ @ db_exec
+  0 ['] (oxquery) SqlQT @ db_exec
   " </tbody></table>" SqS @ S+
   SqS @ STR@
 ;
 
 \EOF
 
-S" DRIVER=MySQL ODBC 3.51 Driver;UID=root; SERVER=localhost; DATABASE=test; PASSWORD=test" db_open SqlQ !
-SqlQ @ .
+S" DRIVER=MySQL ODBC 3.51 Driver;UID=root; SERVER=localhost; DATABASE=test; PASSWORD=test" db_open SqlQT !
+SqlQT @ .
 
-S" select password span from users where email='ac@eserv.ru'" SqlQ @ db_gets TYPE CR
+S" select password span from users where email='ac@eserv.ru'" SqlQT @ db_gets TYPE CR
 
-S" select concat(sqrt(5),'-a-',now()),cos(0.5)" SqlQ @ db_gets TYPE SPACE TYPE CR
-S" select NULL"  SqlQ @ db_gets . . CR
+S" select concat(sqrt(5),'-a-',now()),cos(0.5)" SqlQT @ db_gets TYPE SPACE TYPE CR
+S" select NULL"  SqlQT @ db_gets . . CR
 
 " select 25*25" oid_query .
 " select id from users where email='ac@eserv.ru'" oid_query .
