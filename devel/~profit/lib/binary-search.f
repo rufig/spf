@@ -24,7 +24,8 @@ DUP f @ EXECUTE 0= IF NIP TRUE EXIT THEN \ доп. проверка на краевой случай
 
 : SGN ( x -- sgn(x)
 DUP 0= IF EXIT THEN
-0< IF -1 EXIT THEN 1  ;
+ 0< IF -1 EXIT THEN
+1 ;
 
 CREATE tmp
 HERE

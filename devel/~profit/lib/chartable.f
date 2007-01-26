@@ -25,7 +25,7 @@ MODULE: chartable
 VARIABLE /סטלגמכ
 EXPORT
 
-: סטלגמכ ( -- c ) /סטלגמכ @ ;
+: סטלגמכ ( -- c ) /סטלגמכ @ ; \ גûהא¸ע עוךףשטי סטלגמכ
 
 ' NOOP CONSTANT מעהûץא‏ע
 
