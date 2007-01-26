@@ -3,6 +3,10 @@
 \ и
 \ arr{ ... }arr (генерация массива)
 
+\ {#} ( list-xt -- u ) выдаёт длину списка-итератора.
+
+\ {seq} ( -- list-xt ) выдача промежуточного списка, генерируемого в данный 
+\ момент.
 
 \ seq{ ... }seq оставляет на стеке xt -- адрес участка кода, который генерирует
 \ те же значения что и итераторы между скобками seq{ ... }seq
@@ -30,18 +34,30 @@
 
 \ Кроме того, над полученными таким образом итераторами становится возможно
 \ выполнять некие действия, например объединять их значения в один список-
-\ итератор, брать их пересечение и т.д. (см. слова union , cross )
+\ итератор, брать их пересечение и т.д. (см. слова union , cross ).
 
 \ Следует понимать что эти генерируемые итераторы не являются полноценными
-\ структурами данных, так как позволяют только последовательный доступ к данным.
+\ структурами данных, так как позволяют только последовательный доступ к данным
+\ не говоря уже о невозможности менять их значения.
+
 \ Как вариант, можно использовать их как промежуточный этап, после получения
-\ такого итератора можно получив кол-во занесённых в него элементов, можно
-\ брать из памяти сплошной участок кода. Так работает arr{ ... }arr
+\ такого итератора можно получив кол-во занесённых в него элементов, брать 
+\ из памяти сплошной участок кода. Так работает arr{ ... }arr который
+\ снимает проблемы списков-итераторов.
 
 \ arr{ ... }arr оставляет на стеке адрес начала массива и его длину (в байтах).
-\ Массив сгенерирован из верхних значений остающихся на стеке после 
-\ каждого успеха итераторов между скобками. При откате этот массив
-\ снимается.
+\ Массив сгенерирован из верхних значений остающихся на стеке после каждого 
+\ успеха итераторов между скобками. При откате этот массив снимается.
+
+\ Как внутри seq{ }seq так и внутри arr{ }arr работает слово {seq} которое
+\ выдаёт промежуточное значение формируемого списка. {seq} всегда выдаёт
+\ список-итератор (внутри arr{ }arr -- тоже).
+
+\ TODO: На данный момент реализация {seq} позволяет использовать его
+\ только непосредственно внутри скобок arr/seq, пока не допуская
+\ вкладывания его в другие структуры.
+
+\ {seq} {#} будет выдавать текущий номер итерации, считая от нуля.
 
 \ REQUIRE MemReport ~day/lib/memreport.f
 REQUIRE /TEST ~profit/lib/testing.f
@@ -49,6 +65,7 @@ REQUIRE __ ~profit/lib/cellfield.f
 REQUIRE writeCell ~profit/lib/fetchWrite.f
 REQUIRE (: ~yz/lib/inline.f
 REQUIRE CONT ~profit/lib/bac4th.f
+REQUIRE LOCAL ~profit/lib/static.f
 REQUIRE CREATE-VC ~profit/lib/compile2Heap.f
 REQUIRE FREEB ~profit/lib/bac4th-mem.f
 
@@ -63,15 +80,15 @@ __ handle  \ поле виртуального кодофайла (он одновременно представляет собой и и
 1 -- ret
 __ALIGN
 __ counter \ счётчик кол-ва введённых ячеек
-CONSTANT arr-struct \ дополнительная структура
+CONSTANT seq-struct \ дополнительная структура
 
 :NONAME
-arr-struct ALLOCATE THROW >R
+seq-struct ALLOCATE THROW >R
 CREATE-VC
 START{ DUP VC- RET,-1ALLOT }EMERGE
 R@ handle ! R@ counter 0!
 0x68 R@ rlit C!  0xC3 R@ ret C!
-R> ; CONSTANT (seq{)
+R> ; CONSTANT (seq{) \ процедура инициализации seq{
 
 
 :NONAME
@@ -86,43 +103,50 @@ t @ FREE THROW \ снимаем и дополнительную структуру
 
 EXPORT
 
+\ Общая открывающая скобка для генерации всех видов списков-итераторов
 : seq{ ( -- ) ?COMP (seq{) COMPILE, agg{ ; IMMEDIATE
 
-: }seq ( n -- xt ) ?COMP (: @
+\ Закрывающая скобка для генерации списков-итераторов одинарных значений
+: }seq ( n -- list-xt ) ?COMP (: @
 DUP counter 1+!
 handle @ VC-
 DUP LIT,
 R@ENTER, POSTPONE DROP
 RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
 
-: }seq2 ( n -- xt ) ?COMP (: @
+\ Закрывающая скобка для двойных значений
+: }seq2 ( n -- list-xt ) ?COMP (: @
 DUP counter 1+!
 handle @ VC-
 2DUP DLIT,
 R@ENTER, POSTPONE 2DROP
 RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
 
-: }seq3 ( n -- xt ) ?COMP (: @
+\ Закрывающая скобка для тройных значений
+: }seq3 ( n -- list-xt ) ?COMP (: @
 DUP counter 1+!
 handle @ VC-
 ROT DUP LIT, -ROT 2DUP DLIT,
 R@ENTER, POSTPONE 2DROP POSTPONE DROP
 RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
 
-: }seq4 ( n -- xt ) ?COMP (: @
+\ Закрывающая скобка для квартетов значений
+: }seq4 ( n -- list-xt ) ?COMP (: @
 DUP counter 1+!
 handle @ VC-
 2OVER DLIT, 2DUP DLIT,
 R@ENTER, POSTPONE 2DROP POSTPONE 2DROP
 RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
 
-: {seq} ( -- xt ) ?COMP (: ;) {agg} ; IMMEDIATE
+: {seq} ( -- list-xt ) ?COMP (: ;) {agg} ; IMMEDIATE
 
-: {#} ( xt -- u ) counter @ ;
+: {#} ( list-xt -- u ) counter @ ;
 
-: seq>arr ( xt -- addr u ) LOCAL arr LOCAL runner
+\ Перенос значений списка-итератора в последовательный массив в памяти
+: seq>arr ( list-xt -- addr u ) LOCAL arr LOCAL runner
 DUP {#} CELLS ALLOCATE THROW DUP arr ! runner !
-START{  ENTER DUP runner writeCell }EMERGE
+START{ ( list-xt ) ENTER
+DUP runner writeCell }EMERGE
 arr @ runner @ OVER - ;
 
 : arr{
@@ -143,10 +167,12 @@ agg{
 : INTSTO PRO 0 DO I CONT DROP LOOP ;
 : INTSFROMTO PRO SWAP 1+ SWAP DO I CONT DROP LOOP ;
 
-: list-xt-generated seq{ 5 INTSTO }seq ( xt ) DUP {#} ." length: " . CR ." execute:" ENTER DUP . ;
+: list. ( list-xt -- ) ENTER DUP . ;
+
+: list-xt-generated seq{ 5 INTSTO }seq ( list-xt ) DUP {#} ." length: " . CR ." execute:" list. ;
 $> list-xt-generated
 
-: intermediate seq{ 5 INTSTO CR {seq} START{ ENTER DUP . }EMERGE }seq ( xt ) ENTER ;
+: intermediate seq{ 5 INTSTO  CR {seq} list.  }seq ( xt ) ENTER ;
 $> intermediate
 
 : a PRO \ Список чисел
@@ -203,21 +229,21 @@ ENTER b @ f @ not-in CONT ;
 seq{ 4 INTSTO }seq 0..4 ! \ от 0 до 4-х
 seq{ 5 2 INTSFROMTO }seq 2..5 ! \ "от двух до пяти" (с)
 
-CR ." [0..4]=" START{ 0..4 @ ENTER DUP . }EMERGE
-CR ." [2..5]=" START{ 2..5 @ ENTER DUP . }EMERGE
+CR ." [0..4]=" 0..4 @ list.
+CR ." [2..5]=" 2..5 @ list.
 
 CR ." head[0..4]=" 0..4 @ head . \ выводим только одно, первое значение
-CR ." tail[0..4]=" 0..4 @ tail START{ ENTER DUP . }EMERGE
+CR ." tail[0..4]=" 0..4 @ tail list.
 
 START{
 seq{ 0..4 @  2..5 @ union }seq
 CR ." [0..4]+[2..5]="
-ENTER DUP . }EMERGE
+list. }EMERGE
 
 START{
 seq{ 0..4 @  2..5 @ cross-number }seq
 CR ." [0..4]x[2..5]="
-ENTER DUP . }EMERGE
+list. }EMERGE
 
 START{ seq{ 0..4 @  2..5 @ subtr-number }seq
 CR ." [0..4]-[2..5]=" ENTER DUP . }EMERGE
@@ -226,33 +252,34 @@ START{ seq{
 seq{ 0..4 @  2..5 @ cross-number }seq
 seq{ 0..4 @  2..5 @ subtr-number }seq
 union }seq
-CR ." [0..4]x[2..5] + [0..4]-[2..5]=" ENTER DUP . }EMERGE ;
+CR ." [0..4]x[2..5] + [0..4]-[2..5]=" list. }EMERGE ;
 $> seq4ops
 
 REQUIRE split-patch ~profit/lib/bac4th-str.f
 REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
 
-: str= ( d1 d2 -- d1 d2 f ) 2OVER 2OVER COMPARE-U 0= ;
-: cross-str PRO ['] str= cross CONT ;
+:NONAME ( d1 d2 -- d1 d2 f ) 2OVER 2OVER COMPARE-U 0= ; CONSTANT str=
 
-: commonWord
-seq{ S" kiwi apple lemon orange"
-BL byChar split-patch }seq2 ( list-xt1 )
-seq{ S" peach cherry lemon kiwi feyhoa"
-BL byChar split-patch }seq2 ( list-xt1 list-xt2 )
+: cross-str PRO str= cross CONT ;
+
+: commonWord ( addr1 u1 addr2 u2 -- )
+seq{ BL byChar split-patch }seq2 ( list-xt1 ) -ROT
+seq{ BL byChar split-patch }seq2 ( list-xt1 list-xt2 )
 cross-str 2DUP TYPE SPACE ;
 
-CR $> commonWord
+CR $> S" peach cherry lemon kiwi feyhoa" S" kiwi apple lemon orange" commonWord
 \ должно выйти: kiwi lemon
 : dump-arr arr{ a }arr DUMP ;
 CR $> dump-arr
 
+: uniq  POSTPONE {seq} POSTPONE SWAP POSTPONE not-in ; IMMEDIATE
+
 : uniqueSeq seq{
 BL byChar split-patch \ делим на слова-отрезки
-{seq} ['] str= not-in
+str= uniq
 }seq2 ENTER 2DUP CR TYPE ;
 
-$> S" kiwi apple lemon kiwi apple orange" uniqueSeq
+$> S" kiwi apple lemon apple lemon kiwi orange" uniqueSeq
 \ MemReport
 
 REQUIRE iterateBy ~profit/lib/bac4th-iterators.f
