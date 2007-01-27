@@ -1,4 +1,7 @@
 \ timestamp â äàòó
+\ è íàîáîğîò
+\
+\ NB - Ïîêà ÷òî íåêîğğåêòíî ğàáîòàåò (èç-çà âèñîêîñíûõ ãîäîâ).
 
 REQUIRE d01011970 ~ac/lib/win/date/unixdate.f
 
@@ -12,3 +15,10 @@ REQUIRE d01011970 ~ac/lib/win/date/unixdate.f
    ÌåñÿöÄåíü \ äåíü ìåñÿö
    R> 1970 + \ ãîä
    ;
+
+: Date>Num ( s m h d m1 y -- n )
+  >Äàòà d01011970 - SecsPerDay * SWAP
+  3600 * + SWAP 
+  60 * + + ;
+
+\ 1000000 Num>Date Date>Num .
