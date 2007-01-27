@@ -1,25 +1,14 @@
-( Расширение поиска для INCLUDED
-  Если файл не найден оригинальным FIND-FULLNAME'ом, перебираются слова 
-  из included_path и трактуются как пути для поиска. [относительно ModuleDir или абсолютные]
-
-  Использовать в spf4.ini в виде:
-
-  ~ygrek/spf/included.f
-  MODULE: included_path
-   CREATE my_path/
-   S" My path with spaces/" CREATED
-  ;MODULE
-
-  Слеш в конце обязателен
-
-  28.Jun.2006 )
-
-( aльтернативный способ использования
-
-  with: my_path\
-  S" my path with spaces/" with 
-
-  16.Jul.2006 )
+\ Расширение поиска для INCLUDED
+\ Если файл не найден оригинальным FIND-FULLNAME'ом, перебираются слова 
+\ из included_path и трактуются как пути для поиска. (относительно ModuleDir или абсолютные)
+\
+\ Использовать в spf4.ini в виде:
+\
+\ ~ygrek/spf/included.f
+\ with: my_path\
+\ S" my path with spaces/" with 
+\
+\ Слеш в конце обязателен.
 
 
 REQUIRE [IF] lib/include/tools.f
@@ -28,10 +17,7 @@ C" EXTRA-INCLUDED" FIND NIP [IF] \EOF [THEN] \ Dont include it twice
 
 \ : [WID] ALSO ' EXECUTE CONTEXT @ PREVIOUS POSTPONE LITERAL ; IMMEDIATE
 
-MODULE: included_path
-\ CREATE D:/WORK/FORTH/spf4/devel2/
-\ CREATE devel2/
-;MODULE
+VOCABULARY included_path
 
 MODULE: EXTRA-INCLUDED
 
@@ -120,7 +106,9 @@ CREATE buf buf-size ALLOT
 
 EXPORT
 
-: with ( a u -- ) GET-CURRENT >R _wid SET-CURRENT CREATED R> SET-CURRENT ;
+: with ( a u -- ) 
+   2DUP 1 MAX + 1- C@ is_path_delimiter 0= ABORT" need slash at the end of the path!"
+   GET-CURRENT >R _wid SET-CURRENT CREATED R> SET-CURRENT ;
 : with: ( "dir" -- ) NextWord with ;
 
 ;MODULE
