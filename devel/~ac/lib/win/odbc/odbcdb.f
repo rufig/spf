@@ -1,5 +1,5 @@
 \ Аналог (сырой!) библиотеки ~ac/lib/lin/sql/sql3db.f,
-\ но для ODBC.
+\ но для ODBC. Плюс некоторые доп.расширения - db_exec_voc и db@.
 
 \ REQUIRE EXC-DUMP2 ~pinka/spf/exc-dump.f 
 
@@ -108,6 +108,74 @@ USER SqS
   " </tbody></table>" SqS @ S+
   SqS @ STR@
 ;
+
+
+: db@Does ( a1 -- addr u ) \ 'STR@DOES
+  DOES> @ ?DUP IF STR@ ELSE S" " THEN
+;
+: db@Set ( va vu pa pu -- )
+  2DUP GET-CURRENT SEARCH-WORDLIST
+  IF NIP NIP >BODY S!
+  ELSE
+    2DUP " CREATE {s}" STR@ EVALUATE 0 , db@Does RECURSE
+  THEN
+;
+: db@ { addr u q -- }
+\ выполнить запрос addr u и по первой строке результатов создать
+\ строчные переменные в текущем словаре компиляции.
+
+  q 0= IF 70107 THROW THEN
+  addr u q ExecSQL q SQL_Error
+
+  q
+  q ResultCols 0 ?DO
+     I 1+ OVER ColName " CREATE {s}" STR@
+     EVALUATE 0 , db@Does
+  LOOP DROP
+
+  \ переменные могут остаться и пустыми
+  q NextRow
+  IF
+    q ResultCols 0 ?DO
+      I 1+ q Col I 1+ q ColName db@Set
+    LOOP
+  THEN
+;
+
+: db_FieldDoes ( a -- addr u )
+  DOES> DUP @ SWAP CELL+ @ Col
+  DUP 0 > IF EXIT ELSE 2DROP S" " THEN
+;
+: db_bindvoc { q -- } \ при использовании не забывать про временные словари ;)
+  q
+  q ResultCols 0 ?DO
+     I 1+ OVER ColName " CREATE {s}" STR@ \ 2DUP TYPE CR
+     EVALUATE I 1+ , DUP , db_FieldDoes
+  LOOP DROP \ CR
+;
+: db_exec_voc { addr u par xt q \ i -- }
+\ выполнить SQL-запрос(ы) из addr u,
+\ вызывая для каждого результата функцию xt с параметрами i par ppStmt
+\ в запросах НЕ биндятся макроподстановки :name и $name.
+\ Внутри цикла (слову xt) поля доступны не только по номерам, но и по именам.
+
+  q 0= IF 70108 THROW THEN
+
+  addr u q ExecSQL q SQL_Error
+
+  q db_bindvoc
+
+  TRUE 0 -> i
+  BEGIN
+    IF
+      q NextRow
+    ELSE FALSE THEN
+  WHILE
+    i 1+ -> i
+    i par q xt EXECUTE \ возвращает флаг продолжения
+  REPEAT
+;
+
 
 \EOF
 
