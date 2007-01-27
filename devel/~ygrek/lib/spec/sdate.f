@@ -73,6 +73,7 @@ REQUIRE Date>Num ~ygrek/lib/spec/unixdate.f
    ss mm hh d m y Date>Num ( stamp ) 
    +z 60 * 60 * + \ прибавили смещение (+z в часах)
    Num>Date ;
+   
 
 : parse-date ( a u -- ss mm hh d m y -1 | 0 )
    ['] (parse-date) ['] EVALUATE-WITH CATCH IF DROP 2DROP 0 ELSE TRUE THEN ;
@@ -90,10 +91,10 @@ S" Tue, 19 Dec 2006 19:55:16 +0300" TEST
 S" Tue, 19 Dec 2006 19:55:16 -0800" TEST
 S" Tue, 19 Dec 2006 19:55:16 GMT" TEST
 
-CR CR .( Test jump over New Year - do FAIL for now because of unixdate.f)
+CR CR .( Test jump over New Year)
 S" Tue, 31 Dec 2001 23:55:16 -0200" TEST
-S" Tue, 31 Dec 2002 23:55:16 -0200" TEST
-S" Tue, 31 Dec 2003 23:55:16 -0200" TEST
-S" Tue, 31 Dec 2004 23:55:16 -0200" TEST
-S" Tue, 31 Dec 2005 23:55:16 -0200" TEST
-S" Tue, 31 Dec 2006 23:55:16 -0200" TEST
+S" Wed, 31 Dec 2002 23:55:16 -0200" TEST
+S" Thu, 31 Dec 2003 23:55:16 -0200" TEST
+S" Sat, 31 Dec 2004 23:55:16 -0200" TEST
+S" Sun, 31 Dec 2005 23:55:16 -0200" TEST
+S" Mon, 31 Dec 2006 23:55:16 -0200" TEST
