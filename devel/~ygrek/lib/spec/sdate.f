@@ -28,7 +28,7 @@ REQUIRE Date>Num ~ygrek/lib/spec/unixdate.f
 
 : MUST ( ? n -- ) SWAP IF DROP ELSE 4623000 + THROW THEN ;
 
-: (parse-date) { | d m y hh mm ss +z -- ss mm hh d m y }
+: (parse-unixdate) { | d m y hh mm ss +z -- ss mm hh d m y }
    PARSE-NAME
    DUP 4 = 1 MUST
    3 /GIVE ?DayOfWeek 2 MUST
@@ -70,21 +70,28 @@ REQUIRE Date>Num ~ygrek/lib/spec/unixdate.f
    THEN
 
    \ учтём timezone
-   ss mm hh d m y Date>Num ( stamp ) 
+   ss mm hh d m y DateTime>Num ( stamp ) 
    +z 60 * 60 * + \ прибавили смещение (+z в часах)
-   Num>Date ;
-   
+   ;
 
-: parse-date ( a u -- ss mm hh d m y -1 | 0 )
+: (parse-date)
+   (parse-unixdate) Num>DateTime ;
+
+: parse-unixdate ( a u -- timestamp|0 )
+   ['] (parse-unixdate) ['] EVALUATE-WITH CATCH IF DROP 2DROP 0 THEN ;
+
+: parse-date? ( a u -- ss mm hh d m y -1 | 0 )
    ['] (parse-date) ['] EVALUATE-WITH CATCH IF DROP 2DROP 0 ELSE TRUE THEN ;
+
+: DateTime>PAD <# DateTime#GMT 0 0 #> ;
 
 /TEST
 
 : TEST
   CR
   2DUP CR ."  Original : " TYPE 
-  parse-date 0= ABORT" failed"
-  <# DateTime#GMT 0 0 #> CR ." Converted : " TYPE
+  parse-date? 0= ABORT" failed"
+  DateTime>PAD CR ." Converted : " TYPE
 ;
 
 S" Tue, 19 Dec 2006 19:55:16 +0300" TEST
