@@ -4,23 +4,32 @@
 \ На прямом ходе выводится открывающий тэг, при откате - закрывающий.
 
 REQUIRE PRO ~profit/lib/bac4th.f
-REQUIRE STR@ ~ac/lib/str5.f
+REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE /TEST ~profit/lib/testing.f
 
-0 VALUE counter
 0 VALUE indent#
 
-: line CR indent# SPACES ;
-
-: tag
+\ с отступами
+: tag ( a u -- )
    2DUP
    PRO
-   line " <{s}>" STYPE
+   CR indent# SPACES " <{s}>" STYPE
    indent# 1+ TO indent#
    BACK indent# 1- TO indent# " </{s}>" STYPE TRACKING
-   CONT
-   ;
+   CONT ;
 
-\ Example
+\ plain - no indent
+: ptag
+   2DUP
+   PRO
+   " <{s}>" STYPE
+   BACK " </{s}>" STYPE TRACKING
+   CONT ;
+
+
+/TEST \ Example
+
+0 VALUE counter
 
 : inner=> PRO 
    3 0 DO
@@ -35,6 +44,8 @@ REQUIRE STR@ ~ac/lib/str5.f
    S" start" tag
      sub=> tag inner=> tag " {counter DUP *}" STYPE ;
 
+start
+
 \EOF
 
 Запись S" a" tag S" b" tag S" c" tag сгенерирует вложенные тэги 
@@ -47,6 +58,3 @@ REQUIRE STR@ ~ac/lib/str5.f
  <a><b></b><c></c></a> 
 
 Тэги с атрибутами (пока?) не понятно как красиво реализовать.
-
-
-
