@@ -9,7 +9,7 @@ REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE PRO ~profit/lib/bac4th.f
 REQUIRE tag ~ygrek/prog/web/trac/xml.f
-REQUIRE Num>Date ~ygrek/lib/spec/unixdate.f
+REQUIRE Num>DateTime ~ygrek/lib/spec/unixdate.f
 REQUIRE STR{ ~ygrek/lib/strtype.f
 REQUIRE UTF8>UNICODE ~ac/lib/win/com/com.f
 REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
@@ -77,7 +77,7 @@ reporter
      0 0 2SWAP >NUMBER  
      0= IF DROP D>S ELSE 2DROP DROP ABORT" Not a number" THEN ;
 
-: sdate >R <# 0 0 R> STR@ au->n Num>Date DateTime#GMT #> ;
+: sdate >R <# 0 0 R> STR@ au->n Num>DateTime DateTime#GMT #> ;
 
 : BuildItem
   S" item" tag 
@@ -188,5 +188,3 @@ TRUE VALUE ?first
 : do get-www RSS STR@ S" 1.xml" to-file ." Done" ;
 
 do BYE
-
-
