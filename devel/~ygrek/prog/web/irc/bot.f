@@ -1,15 +1,16 @@
+DIS-OPT
+
 REQUIRE IRC-BASIC ~ygrek/lib/net/irc/basic.f
 REQUIRE quotes ~ygrek/prog/web/irc/quotes.f
+REQUIRE NFA=> ~ygrek/lib/wid.f
+REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 
 ' ACCEPT1 TO ACCEPT \ disables autocompletion if present ;)
 
 ' ANSI>OEM TO ANSI><OEM \ cp1251
 
-\ STARTLOG
-
-DIS-OPT
-
-: kkv-extract [CHAR] $ PARSE -TRAILING HERE >R S", R> COUNT ;
+: kkv-save [CHAR] $ PARSE -TRAILING S", ;
+: kkv-extract HERE >R kkv-save R> COUNT ;
 : $Date: kkv-extract ;
 : $Revision: kkv-extract ;
 
@@ -22,65 +23,58 @@ TRUE TO ?LOGMSG
 
 FALSE VALUE ?check
 
-MODULE: BOT-COMMANDS
+VOCABULARY BOT-COMMANDS
+VOCABULARY BOT-COMMANDS-HELP
+VOCABULARY BOT-COMMANDS-NOTFOUND
 
-: !q
-    SkipDelimiters
-    -1 PARSE DUP 0= IF 
-     2DROP random-quote 
-    ELSE
-     2DUP NUMBER IF >R 2DROP R> quote[] ELSE search-quote THEN
-    THEN
-    STR@ S-REPLY
-    TRUE TO ?check ;
+: HelpWords=> PRO [WID] BOT-COMMANDS NFA=> DUP COUNT CONT ;
+: AllHelpWords ( -- s ) LAMBDA{ HelpWords=> TYPE SPACE } TYPE>STR ;
+
+MODULE: BOT-COMMANDS
 
 : !bar 
    S" Just for testing" determine-sender S-NOTICE-TO
    TRUE TO ?check
 ;
 
-: !aq
-    SkipDelimiters
-    -1 PARSE DUP 0= IF 2DROP S" Try !help !aq" determine-sender S-SAY-TO EXIT THEN
-    2DUP determine-sender " Adding quote from {s}: {s}" DUP STR@ ECHO STRFREE
-    ( a u ) determine-sender register-quote
-    quotes-total 1- determine-sender " {s}: Quote {n} added. Thanks." DUP STR@ S-REPLY STRFREE
-    TRUE TO ?check ;
-
 : !help
     TRUE TO ?check
 
-    PARSE-NAME 
+    -1 PARSE -TRAILING
+    DUP IF
 
-    2DUP S" !q" US= 
-    IF 
-     2DROP
-     S" !q - random quote. !q keyword - quote with keyword. !q number - quote by number." S-REPLY
-     EXIT
-    THEN
+      2>R
 
-    2DUP S" !aq" US= 
-    IF 
-     2DROP
-     S" !aq quote - add quote" S-REPLY
-     EXIT
-    THEN
+      GET-ORDER
+      ONLY BOT-COMMANDS-HELP
+      ALSO BOT-COMMANDS-NOTFOUND
+      2R> ['] EVALUATE CATCH IF 2DROP THEN
+      SET-ORDER
+
+    ELSE
 
     2DROP
 
+    AllHelpWords DUP >R STR@
+    " Available commands : {s} (Use '!help !<command>' for more info)." DUP STR@ S-REPLY STRFREE
+    R> STRFREE
+    THEN ;
+
+: !version
     CVS-DATE
     CVS-REVISION
     " IRC bot in SP-Forth (http://spf.sf.net). Rev. {s} ({s})" DUP STR@ S-REPLY STRFREE
-    S" Available commands - !q, !aq, !help. (Use '!help !<command>' for more info)." S-REPLY
- ;
+     ;
 
-: NOTFOUND 2DROP ; \ -1 THROW
+;MODULE
 
+MODULE: BOT-COMMANDS-NOTFOUND
+ : NOTFOUND -1 THROW ;
 ;MODULE
 
 : CHECK-MSG-ME ( -- ? )
   trailing nickname STR@ SEARCH NIP NIP 0= IF FALSE EXIT THEN
-  S" Hello. I am a bot. Try !help." S-REPLY
+  S" Hello. I am a bot. Try !help. You can chat to me privately." S-REPLY
   TRUE EXIT ;
 
 : CHECK-MSG ( -- ? )
@@ -88,7 +82,9 @@ MODULE: BOT-COMMANDS
 
    GET-ORDER
    ONLY BOT-COMMANDS
-   trailing EVALUATE
+   ALSO BOT-COMMANDS-NOTFOUND
+   \ ORDER
+   trailing ['] EVALUATE CATCH IF 2DROP THEN \ тут отваливание - нормальная ситуация
    SET-ORDER
 
    ?check IF TRUE EXIT THEN
@@ -111,9 +107,6 @@ MODULE: BOT-COMMANDS
    2DROP ;
 
 ' BOT-ON-RECEIVE TO ON-RECEIVE
-
-
-
 
 
 

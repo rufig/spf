@@ -1,0 +1,34 @@
+REQUIRE quotes ~ygrek/prog/web/irc/quotes.f
+
+MODULE: BOT-COMMANDS
+
+: !q
+    SkipDelimiters
+    -1 PARSE DUP 0= IF 
+     2DROP random-quote 
+    ELSE
+     2DUP NUMBER IF >R 2DROP R> quote[] ELSE search-quote THEN
+    THEN
+    STR@ S-REPLY
+    TRUE TO ?check ;
+
+: !aq
+    SkipDelimiters
+    -1 PARSE DUP 0= IF 2DROP S" Try !help !aq" determine-sender S-SAY-TO EXIT THEN
+    2DUP determine-sender " Adding quote from {s}: {s}" DUP STR@ ECHO STRFREE
+    ( a u ) determine-sender register-quote
+    quotes-total 1- determine-sender " {s}: Quote {n} added. Thanks." DUP STR@ S-REPLY STRFREE
+    TRUE TO ?check ;
+
+;MODULE
+
+MODULE: BOT-COMMANDS-HELP
+: !q S" !q - random quote. !q keyword - quote with keyword. !q number - quote by number." S-REPLY ;
+: !aq S" !aq quote - add quote" S-REPLY ;
+;MODULE
+
+..: ON-CONNECT load-quotes ;..
+
+S" -- Quotes plugin loaded." ECHO
+
+\ EOF
