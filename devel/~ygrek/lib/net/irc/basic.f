@@ -8,7 +8,6 @@ REQUIRE /GIVE ~ygrek/lib/parse.f
 \ REQUIRE EVALUATE, ~profit/lib/evaluated.f
 REQUIRE ENUM ~ygrek/lib/enum.f
 REQUIRE split ~profit/lib/bac4th-str.f
-REQUIRE svector ~ygrek/lib/vector.f
 REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
 REQUIRE ConnectHostViaProxy ~ygrek/lib/net/socks/v5.f
 REQUIRE 2VALUE ~ygrek/lib/2value.f
@@ -51,7 +50,6 @@ THREAD-HEAP @ VALUE PROCESS-HEAP \ dont bother with thread memory, use global, i
 
 0 VALUE lsocket \ socket for IRC comms
 0 VALUE hReceiveTask \ хэндл потока приёма
-1 svector VALUE RECEIVE-BUFFER \ resizeable receive buffer
 
 TRUE VALUE ?LOGSEND
 TRUE VALUE ?LOGSAY
@@ -82,9 +80,9 @@ TRUE VALUE ?LOGMSG
 
 : ReceiveData ( -- a u )
     DataPending
-    DUP RECEIVE-BUFFER vresize
-    RECEIVE-BUFFER vptr SWAP lsocket ReadSocket THROW
-    RECEIVE-BUFFER vptr SWAP ;
+    DUP ALLOCATE THROW >R
+    R@ SWAP lsocket ReadSocket THROW
+    R> SWAP ;
 
 VECT ON-RECEIVE ( a u -- )
 ' 2DROP TO ON-RECEIVE
@@ -92,15 +90,14 @@ VECT ON-RECEIVE ( a u -- )
 WINAPI: GetTickCount KERNEL32.DLL
 
 : RECEIVED ( a u -- )
-   START{
     byRows split notEmpty 
     DUP STR@ 
-    ON-RECEIVE
-   }EMERGE ;
+    ON-RECEIVE ;
 
 :NONAME ( x -- )
-  PROCESS-HEAP THREAD-HEAP !
   DROP
+  PROCESS-HEAP THREAD-HEAP !
+
   BEGIN
 
   LAMBDA{
@@ -110,17 +107,30 @@ WINAPI: GetTickCount KERNEL32.DLL
     UNTIL
     ReceiveData } CATCH IF CR CR S" Receive failed!" ECHO TERMINATE EXIT THEN
   
-   \ GetTickCount .
+   (
+   CR
+   GetTickCount .
+   ."  RCV "
+   2DUP SWAP . .
+   CR)
+
    \ 2DUP GetTickCount " {n}.dat" STR@ ATTACH-CATCH DROP LSTRFREE
 
-   ['] RECEIVED CATCH IF 2DROP CR S" Received data processing failed!" ECHO THEN
+   2DUP ['] RECEIVED CATCH IF 2DROP CR S" Received data processing failed!" ECHO THEN
+
+   DROP FREE IF S" FREE Failed" ECHO THEN
 
    AGAIN ; TASK: ReceiveTask
 
 : S-JOIN ( a u -- ) " JOIN {s}" DUP sCMD STRFREE ; 
 : S-QUIT ( a u -- ) " QUIT :{s}" DUP sCMD STRFREE ;
 
+: ON-CONNECT ... ;
+
 : CONNECT
+
+  SocketsStartup THROW
+
   server STR@ port
   proxy STR@ proxy-port
   SOCKS5::ConnectHostViaProxy THROW TO lsocket
@@ -129,7 +139,8 @@ WINAPI: GetTickCount KERNEL32.DLL
 
   password STR@ NIP IF " PASS {password STR@}" DUP sCMD STRFREE THEN
   " NICK {nickname STR@}" DUP sCMD STRFREE
-  " USER {username STR@} 8 * : {realname STR@}" DUP sCMD STRFREE ;
+  " USER {username STR@} 8 * : {realname STR@}" DUP sCMD STRFREE 
+  ON-CONNECT ;
 
 : CLOSE ( -- )
     S" Need hot code reload." S-QUIT
