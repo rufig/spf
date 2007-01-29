@@ -89,6 +89,7 @@ DROP
 
 : SJ@ 1+ DUP C@ C>S + 1+ ;
 
+
 : J_@
         DUP C@ F0 
            AND 70 = IF   SJ@ ELSE
@@ -96,16 +97,19 @@ DROP
         DUP C@ E9 = IF    J@ ELSE
         DUP W@ F0FF
          AND 800F = IF 1+ J@ ELSE
-        HEX U. 1 ." J_@ ERR" ABORT
+        HEX U. 1 ." J_@ ERR" 0 @ ABORT
         THEN  THEN THEN THEN  
 ;
 
 : SetJP ( -- )
- JP0 JpBuffSize + CELL- @  DUP         
- IF J_@
- THEN
+
+ JP0 JpBuffSize + CELL- @  DUP DP @ - NEGATE 0x200 U<
+ IF	DUP DUP
+	IF J_@
+	THEN
 \  DP @ UMIN 
- J-SET UMAX TO J-SET
+	J-SET UMAX TO J-SET
+ THEN DROP
  JP0 JP1 JpBuffSize CELL- CMOVE>
  DP @ JP0 ! ;
 
@@ -2025,7 +2029,7 @@ IF
          THEN      
       OP5 @ J-SET  U< 0= IF   \ GOTO 5SET
       OP5 @ W@ C18B XOR    \ 581B4C 8BC1              MOV     EAX , ECX
-      OP4 @ W@ 840F XOR OR \ 581B4E 0F8400000000      JE      581B54  ( zz+14  )
+      OP4 @ W@ 840F XOR OR \ 581B4E 0F8400000000      JE      581B54  ( zz+14  )
       0= IF  M\ B0 DTST
              OP3 OPexcise
              FALSE M\ B1 DTST
@@ -4868,11 +4872,12 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
 
 : RESOLVE_OPT ( ADR -- )
 
+    OPT?  0= IF DROP EXIT THEN
+  J_OPT?  0= IF DROP EXIT THEN
 
   DUP CELL- JP0 JpBuffSize + CELL- @ U< 
     IF DUP CELL- REL@ CELL+ J-SET UMAX TO J-SET THEN
 
-  J_OPT?  0= IF DROP EXIT THEN
  \ ." J_S"  \ BASE @ HEX  J-SET U. DP @ U. BASE !
   DP @ OVER - 7E >  IF ( ." S" )    DROP EXIT THEN
   DP @ LAST-HERE <> IF ( ." L" ) ?SET DROP EXIT THEN
