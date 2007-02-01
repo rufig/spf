@@ -12,7 +12,6 @@ REQUIRE compiledCode ~profit/lib/bac4th-closures.f
 REQUIRE STR@ ~ac/lib/str4.f
 REQUIRE { ~ac/lib/locals.f
 REQUIRE LOCAL ~profit/lib/static.f
-
 MODULE: bac4th-str
 
 : ?PAIRS <> ABORT" unpaired" ;
@@ -115,7 +114,7 @@ PRO last-patch 2DUP S>STR CONT ;
 : }concat  ?COMP ['] concat-sum ['] concat-suc }agg ; IMMEDIATE
 
 : load-file ( addr u <--> addr1 u1 ) \ загружаем файл
-PRO FILE CONT DROP FREE THROW ;
+PRO FILE CONT IF FREE THROW ELSE DROP THEN ;
 
 : iterateStrings ( addr u <--> s ) PRO \ пускаем цикл по строкам файла
 load-file 2DUP byRows ( функция проверки на перевод строки)
