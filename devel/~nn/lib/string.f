@@ -86,7 +86,7 @@ StringReplace str2 ??
 str2 S" Это строка - не оч. хор. обр. И не только обр." S" не " S" " StringReplace2 TYPE CR
 
 \ StringGetPos pos str1 str2
-: StringGetPos { a1 u1 a2 u2 -- pos}
+: StringGetPos { a1 u1 a2 u2 -- pos }
     a1 u1 a2 u2 SEARCH IF DROP a1 - 1+ ELSE 2DROP 0 THEN ;
 \ позиции начинаются с 1. если подстрока не найдена - 0
 
