@@ -24,15 +24,15 @@
 
 
 \ This code conforms with ANS requiring:
-\     	1. The Floating-Point word set
+\       1. The Floating-Point word set
 \       2. The words umd* umd/mod and d* are implemented
 \          for ThisForth in the file umd.fo
 
 \ This code is released to the public domain Everett Carter July 1994
 
-CR .( FSL-UTIL.F       V1.0          19 October 2002   for SP-Forth4 ) CR
+CR .( FSL-UTIL.F        V1.0           19 October 2002   for SP-Forth4 ) CR
 777 CONSTANT fsl-util
-S" FLOAT-PAD" SFIND 0= [IF] 2DROP lib\include\float2.f [ELSE] DROP [THEN]
+REQUIRE FLOAT-PAD lib/include/float2.f
 : PRINT-WIDTH FFORM ;
 : F> F< 0= ;
 
@@ -51,28 +51,82 @@ FALSE CONSTANT HAS-MEMORY-WORDS?
 
 : S>F    S>D D>F ;
 
-WORDLIST CONSTANT hidden-wordlist
+\ ****************************** 
+\ ~ygrek 2007
+\
+\ All the stupid things with visibility
+\ Previous was just horrible, denying the ability to hide FSL into one vocabulary
+\ The code and description beneath were taken from fsl-util for F-PC
+\ Those guys were more concerned on portability!
 
-: Reset-Search-Order
-	FORTH-WORDLIST 1 SET-ORDER
-	FORTH-WORDLIST SET-CURRENT
+\ Code for hiding words that the user does not need to access
+\ into a hidden wordlist.
+\ Private:
+\          will add HIDDEN to the search order and make HIDDEN
+\          the compilation wordlist.  Words defined after this will
+\          compile into the HIDDEN vocabulary.
+\ Public:
+\          will restore the compilation wordlist to what it was before
+\          HIDDEN got added, it will leave HIDDEN in the search order
+\          if it was already there.   Words defined after this will go
+\          into whatever the original vocabulary was, but HIDDEN words
+\          are accessable for compilation.
+\ Reset_Search_Order
+\          This will restore the compilation wordlist and search order
+\          to what they were before HIDDEN got added.  HIDDEN words will
+\          no longer be visible.
+
+\ These three words can be invoked in any order, multiple times, in a
+\ file, but Reset_Search_Order should finally be called last in order to
+\ restore things back to the way they were before the file got loaded.
+
+\ WARNING: you can probably break this code by setting vocabularies while
+\          Public: or Private: are still active.
+
+VOCABULARY HIDDEN-FSL
+
+VARIABLE HIDDEN_SET        HIDDEN_SET 0!
+VARIABLE Private_Used      Private_Used 0!
+VARIABLE OLD_CURRENT       OLD_CURRENT 0!
+
+: Public: ( -- )
+         HIDDEN_SET @ IF HIDDEN_SET 0!
+                         PREVIOUS
+                         ALSO HIDDEN-FSL
+                         OLD_CURRENT @ IF
+                                         OLD_CURRENT @ SET-CURRENT
+                                       THEN
+                      THEN
 ;
-: Public:
-	FORTH-WORDLIST hidden-wordlist 2 SET-ORDER
-	FORTH-WORDLIST SET-CURRENT
+
+: Private: ( -- )
+         HIDDEN_SET @ 0= IF
+                            TRUE HIDDEN_SET !
+                            GET-CURRENT OLD_CURRENT !
+                            Private_Used @ IF PREVIOUS THEN
+                            ALSO HIDDEN-FSL DEFINITIONS
+                            TRUE Private_Used !
+                         THEN
 ;
-: Private:
-	FORTH-WORDLIST hidden-wordlist 2 SET-ORDER
-	hidden-wordlist SET-CURRENT
+
+: Reset-Search-Order ( -- )         \ invoke when there will be no more
+                                    \ mucking with vocabularies in a file
+         HIDDEN_SET @ IF Public: THEN
+         PREVIOUS
+         Private_Used 0!
+         OLD_CURRENT 0!
 ;
+
 : Reset_Search_Order   Reset-Search-Order ;     \ these are
-: reset-search-order   Reset-Search-Order ;	\ for backward compatibility
+: reset-search-order   Reset-Search-Order ; \ for backward compatibility
 : private:              Private: ;
 : public:               Public:  ;
 
-\	QUESTION: Do you have a PAD for FSL?
+\ ***********************
 
-CREATE fsl-pad	84 CHARS ( or more ) ALLOT
+\   QUESTION: Do you have a PAD for FSL?
+
+CREATE fsl-pad  84 CHARS ( or more ) ALLOT
 
 \ needs
 \ umd/mod     ( uquad uddiv -- udquot udmod ) unsigned quad divided by double
@@ -80,13 +134,13 @@ CREATE fsl-pad	84 CHARS ( or more ) ALLOT
 \ d*          ( d1 d2   -- dprod )            double multiply
 
 : dxor       ( d1 d2 -- d )             \ double xor
-	ROT XOR >R XOR R>
+    ROT XOR >R XOR R>
 ;
 : dor       ( d1 d2 -- d )              \ double or
-	ROT OR >R OR R>
+    ROT OR >R OR R>
 ;
 : dand     ( d1 d2 -- d )               \ double and
-	ROT AND >R AND R>
+    ROT AND >R AND R>
 ;
 : d>
          2SWAP D<
@@ -351,4 +405,3 @@ VARIABLE print-width      6 print-width !
 : h             &h F@ ;
 
 \EOF
-
