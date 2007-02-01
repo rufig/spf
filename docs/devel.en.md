@@ -44,12 +44,19 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 ### \\ Data structures - misc
 * REQUIRE Stack <a href='../devel/~day/joop/lib/stack.f'>~day/joop/lib/stack.f</a> \\ stack
 * REQUIRE New-Queue <a href='../devel/~pinka/lib/queue_pr.f'>~pinka/lib/queue_pr.f</a> \\ priority queue
+* REQUIRE x.mask <a href='../devel/~mlg/SrcLib/bitfield.f'>~mlg/SrcLib/bitfield.f</a> \\ Bit arrays
+* REQUIRE RATIO <a href='../devel/~pinka/lib/BigMath.f'>~pinka/lib/BigMath.f</a> \\ Rational fractions (big numbers)
 
 ### \\ Programming techniques 
 * REQUIRE { <a href='../lib/ext/locals.f'>lib/ext/locals.f</a> \\ Local variables
 * REQUIRE LAMBDA{ <a href='../devel/~pinka/lib/lambda.f'>~pinka/lib/lambda.f</a> \\ :NONAME but in the compilation state
 * REQUIRE (: <a href='../devel/~yz/lib/inline.f'>~yz/lib/inline.f</a> \\ lambda analogue
 * REQUIRE CONT <a href='../devel/~profit/lib/bac4th.f'>~profit/lib/bac4th.f</a> \\ backtracking, see description in <a href='../devel/~mlg/index.html#bacforth'>~mlg/#bacforth</a> 
+
+### \\ Search and sort
+* REQUIRE HeapSort <a href='../devel/~mlg/SrcLib/hsort.f'>~mlg/SrcLib/hsort.f</a>  \\ Heap sort
+* REQUIRE quick_sort <a href='../devel/~pinka/samples/2003/common/qsort.f'>~pinka/samples/2003/common/qsort.f</a> \\ Quick sort
+* REQUIRE binary-search <a href='../devel/~profit/lib/binary-search.f'>~profit/lib/binary-search.f</a> \\ Binary search
 
 ### \\ Debugging facilities
 * REQUIRE HeapEnum <a href='../devel/~ac/lib/memory/heap_enum2.f'>~ac/lib/memory/heap_enum2.f</a> \\ enumerating allocated memory blocks on the heap
@@ -105,6 +112,7 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE DateTime# <a href='../devel/~ac/lib/win/date/date-int.f'>~ac/lib/win/date/date-int.f</a> \\ date/time in different formats
 * REQUIRE UNIXDATE <a href='../devel/~ac/lib/win/date/unixdate.f'>~ac/lib/win/date/unixdate.f</a> \\ Unixdate support
 * REQUIRE FileDateTime# <a href='../devel/~ac/lib/win/file/filetime.f'>~ac/lib/win/file/filetime.f</a> \\ file date/time 
+* REQUIRE parse-date? <a href='../devel/~ygrek/lib/spec/sdate.f'>~ygrek/lib/spec/sdate.f</a> \\ S" Tue, 19 Dec 2006 19:55:16 +0300" dates' parsing
 
 ### \\ Databases
 * REQUIRE StartSQL <a href='../devel/~yz/lib/odbc.f'>~yz/lib/odbc.f</a> \\ ODBC, typed data

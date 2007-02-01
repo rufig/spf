@@ -26,6 +26,10 @@ SP-Forth: Дополнительные библиотеки
 ### \\ Графика 
 * REQUIRE GLWindow <a href='../devel/~ygrek/lib/joopengl/GLWindow.f'>~ygrek/lib/joopengl/GLWindow.f</a> \\ <a href='http://wiki.forth.org.ru/OpenGL'>OpenGL</a> поверх joop 
 
+### \\ Архиваторы
+* REQUIRE gzip_write <a href='../devel/~ac/lib/win/arc/gzip/zlib.f'>~ac/lib/win/arc/gzip/zlib.f</a> \\ упаковка и распаковка GZip-последовательностей
+* REQUIRE zip-pack <a href='../devel/~profit/lib/7zip-dll.f'>~profit/lib/7zip-dll.f</a> \\ упаковка и распаковка в zip/7zip архивы
+
 ### \\ Структуры данных - список 
 * REQUIRE ListNode <a href='../devel/~day/joop/lib/list.f'>~day/joop/lib/list.f</a> \\ двухсвязный список 
 * REQUIRE AddNode <a href='../devel/~ac/lib/list/STR_LIST.f'>~ac/lib/list/STR_LIST.f</a> \\ односвязный список 
@@ -41,6 +45,13 @@ SP-Forth: Дополнительные библиотеки
 ### \\ Структуры данных - другое 
 * REQUIRE Stack <a href='../devel/~day/joop/lib/stack.f'>~day/joop/lib/stack.f</a> \\ стек 
 * REQUIRE New-Queue <a href='../devel/~pinka/lib/queue_pr.f'>~pinka/lib/queue_pr.f</a> \\ очередь с приоритетами 
+* REQUIRE x.mask <a href='../devel/~mlg/SrcLib/bitfield.f'>~mlg/SrcLib/bitfield.f</a> \\ Битовые структуры
+* REQUIRE RATIO <a href='../devel/~pinka/lib/BigMath.f'>~pinka/lib/BigMath.f</a> \\ Рациональные дроби (большие числа)
+
+### \\ Сортировка и поиск
+* REQUIRE HeapSort <a href='../devel/~mlg/SrcLib/hsort.f'>~mlg/SrcLib/hsort.f</a>  \\ Пирамидальная сортировка
+* REQUIRE quick_sort <a href='../devel/~pinka/samples/2003/common/qsort.f'>~pinka/samples/2003/common/qsort.f</a> \\ "Быстрая" сортировка
+* REQUIRE binary-search <a href='../devel/~profit/lib/binary-search.f'>~profit/lib/binary-search.f</a> \\ Двоичный поиск
 
 ### \\ Programming techniques 
 * REQUIRE { <a href='../lib/ext/locals.f'>lib/ext/locals.f</a> \\ Локальные переменные 
@@ -102,6 +113,7 @@ SP-Forth: Дополнительные библиотеки
 * REQUIRE DateTime# <a href='../devel/~ac/lib/win/date/date-int.f'>~ac/lib/win/date/date-int.f</a> \\ дата/время в различных форматах 
 * REQUIRE UNIXDATE <a href='../devel/~ac/lib/win/date/unixdate.f'>~ac/lib/win/date/unixdate.f</a> \\ поддержка Unixdate 
 * REQUIRE FileDateTime# <a href='../devel/~ac/lib/win/file/filetime.f'>~ac/lib/win/file/filetime.f</a> \\ дата/время в файловой системе 
+* REQUIRE parse-date? <a href='../devel/~ygrek/lib/spec/sdate.f'>~ygrek/lib/spec/sdate.f</a> \\ Разбор даты в виде S" Tue, 19 Dec 2006 19:55:16 +0300"
 
 ### \\ Базы данных 
 * REQUIRE StartSQL <a href='../devel/~yz/lib/odbc.f'>~yz/lib/odbc.f</a> \\ работа с типизированными данными 
