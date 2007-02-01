@@ -1,4 +1,3 @@
-REQUIRE SEE lib/ext/disasm.f
 \ Стековый оптимизатор, работающий со стековыми комбинациями, через
 \ приведение стековых комбинаций к подстановкам и их, в свою очередь,
 \ -- к циклам и последовательности DROP'ов.
@@ -87,7 +86,7 @@ REQUIRE SEE lib/ext/disasm.f
 \ лучше делать только после окончании всех композиций, так
 \ композицию комбинаций с S мне формализовывать было лень.
 
-\ TODO: Разобраться, убрать хаки и утечки из программы.
+\ TODO: Убить последний хак с утечкой стека в слове cycles.
 \ TODO: Сделать переход с DROP на NIP.
 \ TODO: Сделать возможность оптимизации циклов и присваиваний
 \ с удаляемыми элементами ( (1'2'3'4'5'6'7)-->(1'7) ).
@@ -103,6 +102,8 @@ REQUIRE __ ~profit/lib/cellfield.f
 REQUIRE iterateBy ~profit/lib/bac4th-iterators.f
 REQUIRE arr{ ~profit/lib/bac4th-sequence.f
 REQUIRE ON lib/ext/onoff.f
+REQUIRE writeCell ~profit/lib/fetchWrite.f
+REQUIRE SEE lib/ext/disasm.f
 
 MODULE: stackOptimizer
 
@@ -112,6 +113,7 @@ MODULE: stackOptimizer
 \ Имя       |Len| Подстановка      |Drops|
 CREATE swap   2 ,   1 , 2 ,          0 ,
 CREATE dup    2 ,   1 , 1 ,          0 ,
+CREATE tuck   3 ,   1 , 2 , 1 ,      0 ,
 CREATE over   3 ,   2 , 1 , 2 ,      0 ,
 CREATE rot    3 ,   2 , 1 , 3 ,      0 ,
 CREATE -rot   3 ,   1 , 3 , 2 ,      0 ,
@@ -122,6 +124,7 @@ CREATE 2swap  4 ,   2 , 1 , 4 , 3 ,  0 ,
 CREATE 6drop  1 ,   7 ,              0 ,
 CREATE nop    0 ,                    0 ,
 CREATE some   2 ,   2 , 4 ,          0 ,
+CREATE 2dup   4 ,   2 , 1 , 2 , 2 ,  0 ,
 
 \ Найти адрес i-го (начиная от единицы) элемента в комбинации addr
 \ Мы же помним, что комбинации нумеруются от конца?
@@ -134,8 +137,11 @@ CREATE some   2 ,   2 , 4 ,          0 ,
 : comb=> ( addr --> n \ <-- ) DUP @ SWAP CELL+ SWAP  RUSH> iterateByCellValues ; \ итератор по комбинациям
 
 \ Преобразование массива чисел в комбинацию (drops приравнивается нулю)
-: arr>comb ( addr1 u --> addr2 \ <-- ) PRO
+: arr>comb ( addr u --> comb \ <-- ) PRO
 arr{ *> CELL / <*> iterateByCellValues <*> 0 DROPB <* }arr DROP CONT ;
+
+: comb>arr ( comb -- addr u ) DUP @ 2 + CELLS ;
+\ Преобразование комбинации к виду addr u (для переноса в разделяемую память)
 
 \ Структура комбинаций определена, при изменении их структуры нужно менять только слова выше.
 
@@ -194,6 +200,11 @@ DUP {#} drops2Add +! \ сколько значений было удалено
 <* }arr arr>comb
 drops2Add @ OVER drops ! CONT ;
 
+\ Создание комбинации из строки addr u
+: str>comb ( addr u -- comb ) PRO
+arr{ iterateByByteValues [CHAR] 1 - 1+ }arr
+arr>comb addDeleted CONT ;
+
 \ Сдвиг всех элементов комбинации addr1 на число shift
 \ Делает успех с адресом выходной комбинации addr2
 : shiftComb ( addr1 shift --- addr2 ) PRO LOCAL shift shift !
@@ -229,7 +240,7 @@ res @ CONT ;
 \ Выявление одного цикла внутри подстановки
 \ comb -- определяет комбинацию
 \ i -- индекс с которого цикл начинается
-\ touched -- адрес массива флажков, дл пометки уже пройденных элементов
+\ touched -- адрес массива флажков, для пометки уже пройденных элементов
 : cycle ( touched comb i --> j \ <-- j ) PRO
 LOCAL comb SWAP comb !
 LOCAL touched SWAP touched !
@@ -280,7 +291,7 @@ CONT ;
 \ a и b -- коды операндов
 \ Если код операнда больше ста, то это временное значение (т. е. регистр)
 \ Если меньше, то это номер элемента на стеке (начиная с вершины в виде единицы)
-\ Обрабатывается только тот случай когда один операнд является временными 
+\ Обрабатывается только тот случай когда один операнд является временными
 \ значением и второй будет стековым элементом.
 : assign ( a b -- )
 DUP 100 < IF \ запись из регистра в стек-й элемент
@@ -346,21 +357,28 @@ DUP switch @
 : compileCycles ( list-xt -- ) cycle>assigns ENTER 2DUP assign ;
 : compileComb ( addr -- ) addDeleted BACK 0 ?DO POSTPONE DROP LOOP TRACKING DUP drops @ BDROP cycles compileCycles ;
 
-VARIABLE curComb \ текущая комбинация
-nop curComb ! \ пустая комбинация
+
+
+VARIABLE curComb \ текущая комбинация, указывает на область памяти-комбинацию
+S" " str>comb comb>arr HEAP-COPY curComb ! \ пустая комбинация
+
+: A! ( adrr arr -- ) DUP  @ FREE THROW  ! ;
+\ пишем в переменную указывающую на массив,
+\ предварительно снимая предыдущий массив там бывший
+
+
 VARIABLE beforeHere
 VARIABLE hereAfter
 hereAfter 0!
 
 VARIABLE lastCombStarts
 
-
 0
-__ oldWord
-__ combOp
+__ oldWord \ xt перекрытого слова
+__ combOp  \ адрес комбинации в памяти
 CONSTANT stackWord
 
-: opt ( stackWord  -- )
+: opt ( stackWord  -- ) \ пробуем соптимизировать
 beforeHere @ hereAfter @ = IF \ если конец кода преды-й операции и 
                               \ начала этой операции -- одинаковы,
                               \ значит это последовательные оп-ции
@@ -369,26 +387,28 @@ curComb @
 \ CR DUP .comb
 SWAP combOp @
 \ DUP .comb
-CUT: compose -CUT \ чтобы "вытянуть" структуру комбинации "наверх" ПОКА делаю отсечение (и получаю утечку памяти)
+START{
+compose comb>arr
+HEAP-COPY }EMERGE \ можно и без START{ .. }EMERGE но лучше с ним, чтобы
+                  \ массивы пром-х вычислений из памяти снялись
 \ DUP .comb
-DUP curComb !
+curComb A!
 lastCombStarts @ DP !
-compileComb
-ELSE combOp @
-curComb !  beforeHere @ lastCombStarts ! THEN ;
-
-: str>comb ( addr1 u1 -- addr2 ) PRO
-arr{ iterateByByteValues [CHAR] 1 - 1+ }arr
-arr>comb addDeleted CONT ;
+curComb @ compileComb
+ELSE combOp @ comb>arr HEAP-COPY
+curComb A!  beforeHere @ lastCombStarts ! THEN ;
 
 : OPTIMIZE
 ' DUP WordByAddr CREATED \ пересоздаём слово
 HERE oldWord !  \ сохраняем xt старого слова
 NextWord ( addr u ) \ комбинация
-CUT: str>comb -CUT \ сохраняем комбинацию в теле слова, одна ячейка (ещё 1 утечка памяти)
-\ DUP .comb
-HERE combOp !
+str>comb comb>arr
+HERE >R
 stackWord ALLOT \ занимаем структуру в словарной статье
+( combA combU  R: struct )
+HERE >R DUP ALLOT
+R@ SWAP MOVE
+R> R> combOp !
 IMMEDIATE
 DOES>
 STATE @ IF \ Компиляция или интерпретация?
@@ -410,9 +430,71 @@ OPTIMIZE DROP 2
 OPTIMIZE ROT 213
 OPTIMIZE -ROT 132
 
+
+\ seq -- массив лог. значений, которые равны TRUE, если соотв-й элемент в comb повторился
+: repeatedElems ( comb -- addr u ) PRO LOCAL touched
+arr{
+DUP depth CELLS DUP BALLOCATE DUP touched !
+SWAP ERASE
+comb=>
+1- CELLS touched @ + DUP @
+SWAP ON
+}arr CONT ;
+
+\ Пока не закончено...
+: removeDuplicates ( comb1 -- comb2 ) PRO LOCAL len LOCAL arr LOCAL runner LOCAL assigns
+START{
+DUP repeatedElems DUP len ! HEAP-COPY arr !
+}EMERGE
+
+
+START{
+arr @ len @
+CELL iterateBy
+DUP @ ONTRUE
+DUP -1000 SWAP !
+
+DUP arr @ TUCK -
+START{ CELL iterateBy DUP 1+! }EMERGE
+DUP CELL+ arr @ len @ + OVER - 0 MAX
+START{ CELL CR iterateBy DUP @ . DUP 1+! }EMERGE
+}EMERGE
+
+seq{ runner 0!
+arr @ len @ CELL / iterateByCellValues
+runner 1+!
+DUP 0 > ONFALSE
+runner @ OVER -1000 - 1+
+2DROPB
+}seq2 assigns !
+
+arr @ runner !
+
+arr{
+comb=>
+runner fetchCell DUP 0 > IF
+OVER +
+ELSE
+-1000 - 1+
+THEN
+DROPB
+}arr DUMP
+
+CR
+assigns @ START{ ENTER 2DUP SWAP . ." ->" . }EMERGE
+
+arr @ FREEB DROP
+CONT ;
+
+
+\ 2dup repeatedElems DUMP
+\ 2dup r
+
 ;MODULE
 
 /TEST
+
+
 ALSO stackOptimizer \ отладка внутренних слов библиотеки
 
 $> :NONAME BACK RET, TRACKING *> 1 <*> 2 <* DROPB *> 100 <*> 101 <* DROPB *> <*> BSWAP <* 2DUP assign ; HERE SWAP EXECUTE REST
@@ -430,9 +512,9 @@ $> 40 30 20 10 swap cycles .cycles
 $> :NONAME 2swap swap compose cycles .cycles ; ENTER .s.
 $> swap cycles cycle>assigns .assigns
 $> swap rot compose nip compose cycles cycle>assigns .assigns
-$> 4 3 2 1 : r  2SWAP SWAP 2SWAP ; r .s. SEE r
+$> 4 3 2 1 :NONAME  2SWAP SWAP 2SWAP ; DUP REST ENTER .s.
 $> 4 3 2 1 2SWAP SWAP 2SWAP .s.
-$> 5 4 3 2 1 :NONAME SWAP ROT NIP ROT DROP ; ENTER .s.
+$> 5 4 3 2 1 :NONAME SWAP ROT NIP ROT DROP ; DUP REST ENTER .s.
 $> 5 4 3 2 1 SWAP ROT NIP ROT DROP .s.
 $> 4 3 2 1 :NONAME 2SWAP SWAP ROT SWAP ; ENTER .s.
 $> 4 3 2 1 2SWAP SWAP ROT SWAP .s.
