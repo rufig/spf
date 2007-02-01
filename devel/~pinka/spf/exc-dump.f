@@ -62,7 +62,7 @@ DEFINITIONS
 : (NEAREST3) ( -- )
   ['] (NEAREST2) ENUM-FORTH-VOCS
 ;
-: (NEAREST4) ( nfa1 addr -- nfa2 addr )
+: (NEAREST4) ( nfa1|0 addr -- nfa2|0 addr )
   ['] (NEAREST3) WITHIN-STORAGES
 ;
 
@@ -71,9 +71,10 @@ EXPORT
 WARNING @  WARNING 0!
 
 : WordByAddr ( addr -- c-addr u )
-  0 SWAP (NEAREST4)
+  0 SWAP (NEAREST4) 
+  OVER 0= IF 2DROP S" <not in the image>" EXIT THEN
   OVER - 4096 U< IF COUNT EXIT THEN
-  DROP S" <not in the image>"
+  DROP S" <not found>"
 ;
 
 : STACK-ADDR. ( addr -- addr )
