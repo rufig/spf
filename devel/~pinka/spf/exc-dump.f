@@ -53,8 +53,12 @@ EXPORT
 
 DEFINITIONS
 
-: (NEAREST1) ( nfa1 addr nfa2 -- nfa1|nfa2 addr )
-  >R 2DUP R@ WITHIN IF NIP R> SWAP EXIT THEN RDROP
+: (NEAREST1) ( 0|nfa1 addr nfa2 -- 0|nfa1|nfa2 addr )
+  DUP 0= IF DROP EXIT THEN
+  \ сравниваем xt (адреса начала кода, cfa @)
+  >R OVER DUP IF NAME> THEN 1- OVER
+  R@ NAME> 1- WITHIN IF NIP R> SWAP EXIT THEN RDROP
+  \ 1- т.к. WITHIN строгое здесь
 ;
 : (NEAREST2) ( wid -- )
   ['] (NEAREST1) FOR-WORDLIST
@@ -70,6 +74,9 @@ EXPORT
 
 WARNING @  WARNING 0!
 
+: NEAR_NFA ( addr -- nfa|0 addr )
+  0 SWAP (NEAREST4)
+;
 : WordByAddr ( addr -- c-addr u )
   0 SWAP (NEAREST4) 
   OVER 0= IF 2DROP S" <not in the image>" EXIT THEN
