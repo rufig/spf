@@ -74,7 +74,7 @@ f @ find ( addr ) \ получаем адреса где искомые символы
 DUP p @ -  p @ SWAP CONT 2DROP \ от предыдущего до текущего найденного символа строку выводим
 DUP 1+ p ! }EMERGE
 
-p @  e @ p @ - CONT 2DROP \ обработаем и последний отрезок, не кончающийся на char
+p @  e @ OVER - ?DUP IF CONT 2DROP ELSE DROP THEN \ обработаем и последний отрезок, не кончающийся на char
 ;
 
 : first-patch ( a u f <--> addr u ) LOCAL f f !
