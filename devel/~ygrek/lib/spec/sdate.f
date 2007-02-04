@@ -11,7 +11,9 @@ REQUIRE { lib/ext/locals.f
 REQUIRE PARSE-NAME lib/include/common.f
 REQUIRE /GIVE ~ygrek/lib/parse.f
 REQUIRE /TEST ~profit/lib/testing.f
-REQUIRE Date>Num ~ygrek/lib/spec/unixdate.f
+REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
+
+MODULE: ~ygrek/lib/spec/sdate.f
 
 : ?IsFoundInCountedStringArray { a u arr total -- n ? }
    arr
@@ -22,9 +24,13 @@ REQUIRE Date>Num ~ygrek/lib/spec/unixdate.f
    DROP
    0 FALSE ;
 
+EXPORT
+
 : ?DayOfWeek ( a u -- ? ) W-DATEA @ 7 ?IsFoundInCountedStringArray NIP ;
 : MonthName ( a u -- n ? ) M-DATEA @ 12 ?IsFoundInCountedStringArray ;
 : ?MonthName ( a u -- ? ) MonthName NIP ;
+
+DEFINITIONS
 
 : MUST ( ? n -- ) SWAP IF DROP ELSE 4623000 + THROW THEN ;
 
@@ -77,6 +83,8 @@ REQUIRE Date>Num ~ygrek/lib/spec/unixdate.f
 : (parse-date)
    (parse-unixdate) Num>DateTime ;
 
+EXPORT
+
 : parse-unixdate ( a u -- timestamp|0 )
    ['] (parse-unixdate) ['] EVALUATE-WITH CATCH IF DROP 2DROP 0 THEN ;
 
@@ -84,6 +92,8 @@ REQUIRE Date>Num ~ygrek/lib/spec/unixdate.f
    ['] (parse-date) ['] EVALUATE-WITH CATCH IF DROP 2DROP 0 ELSE TRUE THEN ;
 
 : DateTime>PAD <# DateTime#GMT 0 0 #> ;
+
+;MODULE
 
 /TEST
 
