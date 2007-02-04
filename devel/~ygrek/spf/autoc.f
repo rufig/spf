@@ -99,7 +99,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    CDR-BY-NAME-START
    NIP NIP ;
 
-: accept-ascii ( c -- ? )
+: accept-ascii ( c -- )
    DUP 9 = \ tab
    IF 
      0 TO in-history
@@ -181,7 +181,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    DUP 83 = IF \ Delete
      0 TO in-history
      _addr _cursor + DUP 1+ SWAP _in _cursor - CMOVE
-     _in 1 MAX 1- TO _in
+     _in 1 MAX 1- _cursor MAX TO _in
      _in TO _last
    THEN
    DROP ;
