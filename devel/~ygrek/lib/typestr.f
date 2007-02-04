@@ -48,7 +48,7 @@ EXPORT
 
 \ Сохранить весь консольный вывод
 \ Игнорировать исключения - лог будет сохранён в строку
-: TYPE>STR TYPE>STR-CATCH DROP ;
+: TYPE>STR ( xt -- str ) TYPE>STR-CATCH DROP ;
 
 ;MODULE
 
