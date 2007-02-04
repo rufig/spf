@@ -71,7 +71,10 @@ REQUIRE FREEB ~profit/lib/bac4th-mem.f
 
 MODULE: bac4th-sequence
 
-: RET,-1ALLOT  0xC3 DP @ C! ; \ установка шлагбаума для кода, чтобы не лез куда не надо
+: RET,-1ALLOT
+DP KEEP
+['] RDROP COMPILE,
+RET, ; \ установка шлагбаума для кода, чтобы не лез куда не надо
 \ шлагбаум "автоматически" сломается при попытке преодолеть его (читай: компиляции)
 
 0
@@ -82,20 +85,19 @@ __ALIGN
 __ counter \ счётчик кол-ва введённых ячеек
 CONSTANT seq-struct \ дополнительная структура
 
-:NONAME
+:NONAME  ( -- seq ) \ процедура инициализации seq{
 seq-struct ALLOCATE THROW >R
 CREATE-VC
 START{ DUP VC- RET,-1ALLOT }EMERGE
 R@ handle ! R@ counter 0!
 0x68 R@ rlit C!  0xC3 R@ ret C!
-R> ; CONSTANT (seq{) \ процедура инициализации seq{
-
+R> ; CONSTANT (seq{)
 
 :NONAME
 PRO LOCAL t @ t !
-['] RDROP
-t @ handle @ VC-COMPILE,
-t @ handle @ VC-RET, \ закрываем итератор
+\ ['] RDROP
+\ t @ handle @ VC-COMPILE,
+\ t @ handle @ VC-RET, \ закрываем итератор
 t @ CONT \ делаем нырок
 t @ handle @ DESTROY-VC
 t @ FREE THROW \ снимаем и дополнительную структуру
@@ -103,16 +105,19 @@ t @ FREE THROW \ снимаем и дополнительную структуру
 
 EXPORT
 
+: +VC ( x seq -- ) VC-
+LIT,
+R@ENTER, POSTPONE DROP
+RET,-1ALLOT ;
+
 \ Общая открывающая скобка для генерации всех видов списков-итераторов
 : seq{ ( -- ) ?COMP (seq{) COMPILE, agg{ ; IMMEDIATE
 
 \ Закрывающая скобка для генерации списков-итераторов одинарных значений
 : }seq ( n -- list-xt ) ?COMP (: @
 DUP counter 1+!
-handle @ VC-
-DUP LIT,
-R@ENTER, POSTPONE DROP
-RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
+OVER SWAP
+handle @ +VC ;) (}seq) }agg ; IMMEDIATE
 
 \ Закрывающая скобка для двойных значений
 : }seq2 ( n -- list-xt ) ?COMP (: @
