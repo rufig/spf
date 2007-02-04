@@ -90,6 +90,8 @@ IF RUSH> iterateBy2 ELSE
 : iterateByWordValues ( addr n <--> word ) PRO 2*    iterateByWords DUP W@ CONT DROP ;
 : iterateByCellValues ( addr n <--> cell )  PRO CELLS iterateByCells DUP @ CONT DROP ;
 
+: times ( n --> \ <-- ) 1 SWAP 1 RUSH> iterateBy ;
+
 /TEST
 : printByOne iterateByByteValues DUP EMIT ." _" ;
 $> S" abc" printByOne  S" ]" TYPE
