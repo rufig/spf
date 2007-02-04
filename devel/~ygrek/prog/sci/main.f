@@ -3,8 +3,8 @@ DIS-OPT
 STARTLOG
 
 MODULE: ASTR
-REQUIRE STR@ ~ac/lib/str5.f
-REQUIRE STR{ ~ygrek/lib/strtype.f
+REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 CREATE a\CR 0x0D C,
 : \CR a\CR 1 ;
@@ -15,7 +15,7 @@ REQUIRE ACCERT( lib/ext/debug/accert.f
 
 REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
 REQUIRE [IF] lib/include/tools.f
-REQUIRE v[] ~ygrek/lib/vector.f
+\ REQUIRE v[] ~ygrek/lib/vector.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE tabcontrol ~ygrek/~yz/lib/wincc.f
 REQUIRE MGETMEM ~yz/lib/gmem.f
@@ -79,7 +79,7 @@ MODULE: style
    PARSE-NAME 
    2DUP CREATED
    [ ALSO ASTR ]
-   " SCI_{s}" STR@ 
+   " SCI_{s}" STR@
    [ PREVIOUS ]
    FIND-CONST , ;
 
@@ -214,7 +214,9 @@ C" SendMessageA" FIND NIP 0= [IF] WINAPI: SendMessageA USER32.DLL [THEN]
 : get-help ( a u -- a2 u2 )
    ACCERT( ." get-help" )
    [ ALSO ASTR ]
-   "" STR{ " HELP {s}" DUP STR@ EVALUATE STRFREE }STR
+   " qwe HELP {s}"
+   LAMBDA{ DUP STR@ EVALUATE STRFREE } 
+   TYPE>STR-CATCH IF ( s ) DROP " no help" THEN
    DUP " {ASTR::\CR}" "" replace-str-
    DUP 
        STR@
@@ -566,5 +568,3 @@ run \EOF
 0 TO SPF-INIT? 
 :NONAME run BYE ; MAINX ! 
 S" sciforthed.exe" ASTR::" {ModuleDirName}src/spf.fres" ASTR::STR@ devel\~af\lib\save.f BYE
-
-
