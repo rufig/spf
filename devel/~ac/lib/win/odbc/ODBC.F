@@ -136,7 +136,12 @@ VECT vSQLDumpError ' SQLDumpError TO vSQLDumpError
   fodbc odbcConn @
   SQLConnect
 ;
+: FreeStmt { fodbc -- }
+  fodbc odbcStat @ ?DUP IF 0 SWAP SQLFreeStmt DROP fodbc odbcStat 0! THEN
+;
+
 : ReconnectSQL { fodbc -- ior }
+  fodbc FreeStmt
   fodbc odbcConn @ SQLDisconnect DROP
 
   fodbc odbcPassw 2@
@@ -270,9 +275,6 @@ CONSTANT /ci
 ;
 VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
 
-: FreeStmt { fodbc -- }
-  fodbc odbcStat @ ?DUP IF 0 SWAP SQLFreeStmt DROP fodbc odbcStat 0! THEN
-;
 : ExecSQL ( S" statement" fodbc -- ior )
   { sta stu fodbc }
   sta stu vSQLLastQuery
