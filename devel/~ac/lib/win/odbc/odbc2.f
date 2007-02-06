@@ -40,7 +40,8 @@ WARNING @ WARNING 0!
 
 : ReconnectSQL { fodbc -- ior }
   fodbc odbcDrv 2@ DUP
-  IF  fodbc odbcConn @ SQLDisconnect DROP
+  IF  fodbc FreeStmt
+      fodbc odbcConn @ SQLDisconnect DROP
       fodbc ConnectFile
   ELSE 2DROP
       fodbc ReconnectSQL
