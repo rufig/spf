@@ -91,7 +91,7 @@ ALSO SO NEW: sqlite3.dll
   2 sqlite3_column_type
 ;
 : sqlite3_prepare1
-  sqlite3_prepare
+  sqlite3_prepare_v2
 ;
 : sqlite3_prepare2
   ['] sqlite3_prepare1 CATCH
