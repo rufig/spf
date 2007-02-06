@@ -56,7 +56,7 @@ STRUCT: TPluginInfo
 REQUIRE ENUM ~ygrek/lib/enum.f
 
 :NONAME 2DUP -- DROP ; ENUM UnionItem
-: Union: ( ofs n -- ofs+n) POSTPONE UnionItem + ;
+: Union: ( ofs n -- ofs+n) UnionItem + ;
 
 STRUCT: TFarDialogItem
   4 -- ItemType
