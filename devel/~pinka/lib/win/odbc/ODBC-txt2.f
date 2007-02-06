@@ -200,7 +200,7 @@ USER-VALUE h-tbl
 
   CloseNewTbl
   \ q ReconnectSQL SqlThrow
-  0 q odbcStat @ SQLFreeStmt DROP
+  q FreeStmt
 
   MakeTbl
 ;
@@ -296,7 +296,8 @@ USER-VALUE h-tbl
 
   CloseNewTbl
   \ qSql ReconnectSQL SqlThrow
-  0 qSql odbcStat @ SQLFreeStmt DROP
+  qSql FreeStmt
+
   MakeTbl
 
   HashT del-hash  0 HashT!
