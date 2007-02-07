@@ -11,9 +11,16 @@
   SET-CURRENT устанавливало текущим и хранилище,
   в котором располагается словарь.
 
+  В дочерних потоках текущее хранилище и текущий словарь не установлены!
+  Перед тем, как что-то откладывать, программа в своем потоке
+  должна установить текущее [то бишь, целевое] хранилище или словарь.
+  Устанавливаемое хранилище должно быть 'свободно' от других потоков,
+  то есть, оно не должно быть текущим в каком-либо другом потоке.
+
   Модуль предоставляет новые варианты слов
   TEMP-WORDLIST - создает временное хранилище и в нем словарь,
   и FREE-WORDLIST - освобождающее хранилище, в котором расположен словарь.
+  ORDER выдает вершину контекста справа!
 
   Модуль определяет слово UNUSED, учитывающее текущее хранилище, поэтому 
   при использовании lib/include/core-ext.f оно должно быть подключено раньше,
@@ -25,7 +32,7 @@
 
 REQUIRE Included ~pinka\lib\ext\requ.f
 REQUIRE REPLACE-WORD lib\ext\patch.f
-
+REQUIRE NDROP    ~pinka\lib\ext\common.f
 
 WARNING @  WARNING 0!
 
@@ -140,9 +147,13 @@ EXPORT
 
 ' SET-CURRENT
 : SET-CURRENT ( wid -- )
-  DUP WL-STORAGE MOUNT  CURRENT !
+  DUP IF DUP WL-STORAGE MOUNT  CURRENT ! EXIT THEN
+  CURRENT ! DISMOUNT DROP
 ;
 ' SET-CURRENT SWAP REPLACE-WORD
+
+..: AT-PROCESS-STARTING CURRENT 0! ;.. 
+\ из дочернего потока нельзя писать в занятое основным потоком базовое хранилище
 
 ' DEFINITIONS
 : DEFINITIONS ( -- ) \ 94 SEARCH
@@ -159,6 +170,12 @@ EXPORT
 ;
 ' MODULE: SWAP REPLACE-WORD
 
+
+: ORDER ( -- ) \ 94 SEARCH EXT
+  GET-ORDER ." Context>: "
+  DUP >R BEGIN DUP WHILE DUP PICK VOC-NAME. SPACE 1- REPEAT DROP R> NDROP CR
+  ." Current: " GET-CURRENT DUP IF VOC-NAME. ELSE DROP ." <not mounted>" THEN CR
+;
 
 \ =====
 \ Временные хранилища и словари
