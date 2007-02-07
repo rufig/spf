@@ -76,6 +76,7 @@ ValidateThreadHeap>
 : STR+ { addr u s -- }
 \ DEBUG @ IF ." STR+:" addr u TYPE CR THEN
   u 0 < IF 0xC000000D THROW THEN
+  u 0= IF EXIT THEN \ оптимизация :)
   s s@ DUP @
   u + 9 + RESIZE THROW DUP DUP s s!
   XCOUNT + addr SWAP u CMOVE
@@ -94,16 +95,22 @@ ValidateThreadHeap>
   S" " sALLOT
 ;
 
-: {eval} ( ... s -- s ) { s \ sp base }
+VECT {NOTFOUND} ' LAST-WORD TO {NOTFOUND}
+
+: {eval} ( ... s -- s ) { s \ sp base state }
   SP@ -> sp
   BASE @ -> base DECIMAL
+  STATE @ -> state STATE 0!
   ['] INTERPRET CATCH
-  ?DUP IF S" (Error: " s STR+
+  ?DUP IF DUP -2003 = IF {NOTFOUND} THEN
+          S" (Error: " s STR+
           ABS 0 <# [CHAR] ) HOLD #S #> s STR+
           base BASE !
+          state STATE !
           s EXIT
        THEN
   base BASE !
+  state STATE !
   sp SP@ - 
   DUP 12 = IF DROP s STR+ s EXIT THEN
   DUP  8 = IF DROP 0 <# #S #> s STR+ s EXIT THEN
