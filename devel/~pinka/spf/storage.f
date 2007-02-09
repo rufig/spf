@@ -152,7 +152,7 @@ EXPORT
 ;
 ' SET-CURRENT SWAP REPLACE-WORD
 
-..: AT-PROCESS-STARTING CURRENT 0! ;.. 
+\ ..: AT-THREAD-STARTING CURRENT 0! ;.. 
 \ из дочернего потока нельзя писать в занятое основным потоком базовое хранилище
 
 ' DEFINITIONS
