@@ -1,25 +1,33 @@
 DIS-OPT
 
 REQUIRE IRC-BASIC ~ygrek/lib/net/irc/basic.f
-REQUIRE quotes ~ygrek/prog/web/irc/quotes.f
 REQUIRE NFA=> ~ygrek/lib/wid.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
+REQUIRE ATTACH ~pinka/samples/2005/lib/append-file.f
+REQUIRE TIME&DATE lib/include/facil.f
+REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 
 ' ACCEPT1 TO ACCEPT \ disables autocompletion if present ;)
 
 ' ANSI>OEM TO ANSI><OEM \ cp1251
 
-: kkv-save [CHAR] $ PARSE -TRAILING S", ;
-: kkv-extract HERE >R kkv-save R> COUNT ;
-: $Date: kkv-extract ;
-: $Revision: kkv-extract ;
-
 $Date$ 2VALUE CVS-DATE
 $Revision$ 2VALUE CVS-REVISION
 
-TRUE TO ?LOGSEND
+FALSE TO ?LOGSEND
 TRUE TO ?LOGSAY
 TRUE TO ?LOGMSG
+
+\ : TALK-LOG-FILE TIME&DATE 2>R NIP NIP NIP 2R> " talk.{n}{n}{n}.log" ;
+\ : STR=> PRO CONT STRFREE ;
+
+: CURRENT-DATE TIME&DATE 2>R NIP NIP NIP 2R> ;
+
+: TALK-LOG-FILE CURRENT-DATE
+    SWAP ROT
+    <# S" .log" HOLDS S>D # # 2DROP S>D # # 2DROP S>D #S 2DROP S" talk." HOLDS 0 0 #> ;
+
+: DO-LOG-TALK TALK-LOG-FILE ATTACH-LINE-CATCH DROP ;
 
 FALSE VALUE ?check
 
@@ -94,10 +102,28 @@ MODULE: BOT-COMMANDS-NOTFOUND
    FALSE
 ;
 
+: LOG-TALK
+   ?PRIVMSG 0= 
+   \ command S" notice"
+   IF EXIT THEN
+   trailing
+   determine-sender 
+   params nickname STR@ US= 
+   IF 
+    " notice {s} : {s}"
+   ELSE
+    " {s} : {s}"
+   THEN
+   DUP
+   STR@ DO-LOG-TALK
+   STRFREE ;
+
+
 : BOT-ON-RECEIVE ( a u -- )
    2DUP 
    PARSE-REPLY
    LAMBDA{
+    LOG-TALK
     ?LOGMSG IF 2DUP ECHO THEN
     ?PING IF PONG EXIT THEN
     ?PRIVMSG IF CHECK-MSG DROP EXIT THEN

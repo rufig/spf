@@ -1,4 +1,5 @@
 REQUIRE quotes ~ygrek/prog/web/irc/quotes.f
+REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 
 MODULE: BOT-COMMANDS
 
@@ -23,12 +24,12 @@ MODULE: BOT-COMMANDS
 ;MODULE
 
 MODULE: BOT-COMMANDS-HELP
-: !q S" !q - random quote. !q keyword - quote with keyword. !q number - quote by number." S-REPLY ;
-: !aq S" !aq quote - add quote" S-REPLY ;
+: !q S" !q - random quote. !q <keyword> - quote with keyword. !q <number> - quote by number." S-REPLY ;
+: !aq S" !aq <quote> - add quote" S-REPLY ;
 ;MODULE
 
 ..: ON-CONNECT load-quotes ;..
 
-S" -- Quotes plugin loaded." ECHO
+$Revision$ " -- Quotes plugin {s} loaded." DUP STR@ ECHO STRFREE
 
 \ EOF
