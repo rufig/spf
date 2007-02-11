@@ -1,9 +1,7 @@
 
-REQUIRE button  ~yz/lib/wincc.f
+REQUIRE button  ~ygrek/~yz/lib/wincc.f
 REQUIRE ENUM  ~ygrek/lib/enum.f
-MODULE: BAC4TH \ START conflict
 REQUIRE PRO ~profit/lib/bac4th.f
-;MODULE
 REQUIRE >ASCIIZ ~ygrek/lib/string.f
 REQUIRE /STRING lib/include/string.f
 REQUIRE winlib-icons ~ygrek/~yz/lib/icons.f
@@ -42,9 +40,7 @@ MODULE: gui
 values  edit-path farmanager scriptmap explorer farmanager-notice ;
 
 100 VALUE anime-step-ms
-ALSO BAC4TH
-: anim-strings PRO "  \\" CONT "  |" CONT "  /" CONT "  -" CONT RDROP ;
-PREVIOUS
+: anim-strings PRO "  \\" CONT "  |" CONT "  /" CONT "  -" CONT ;
 : anime-status-main ( -- ) 
   anim-strings ( a u )
   0 winmain set-status 
@@ -74,6 +70,8 @@ PREVIOUS
 : path@ ( buf -- )
   edit-path -text@ ;
 
+: _quit W: wm_close winmain send DROP ;
+
 : reg-grid ( -- g )
   GRID
     " Path to spf.exe : " label 
@@ -96,13 +94,13 @@ PREVIOUS
          |
     ===
     " FAR Manager" checkbox  this TO farmanager 
-        " Check to associate *.f and *.spf files with SPF in FAR manager" this -tooltip! 
+        " Check to associate *.f and *.spf files with SPF in FAR manager. Cleared box will do nothing." this -tooltip! 
     -xfixed |
     "  " label  this TO farmanager-notice 
     -xspan |
     ===
     " Script Map" checkbox  this TO scriptmap 
-        " Check to add forth files to the W3SVC script map" this -tooltip! |
+        " Check to add forth files to the W3SVC script map. Uncheck to delete." this -tooltip! |
     -bevel
     GRID; -xspan -yfixed |
     ===
@@ -115,14 +113,12 @@ PREVIOUS
 
        " Save .reg file" button
        generate this -command! 
-       " Save the current settings to the .reg file so that you can manually incorporate them in the registry later" 
+       " Save the current settings to the .reg file so that you can manually incorporate them in the registry later." 
        this -tooltip! 
        -xspan |
 
        "    Quit    " button
-       LAMBDA{ 
-         W: wm_close winmain send DROP 
-       } this -command! 
+       ['] _quit this -command! 
        " Quit" this -tooltip!
        -xspan |
 
@@ -141,7 +137,7 @@ PREVIOUS
   75 3000 30 common-tooltip set-tooltip-delay
 
   " Arial Cyr" 10 create-font default-font
-  " SP-Forth registry settings manager" winmain -text!
+  CVS-REVISION A" SP-Forth registry settings (rev. {s})" STR@ DROP winmain -text!
 
   GRID
    reg-grid |

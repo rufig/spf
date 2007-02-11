@@ -1,18 +1,24 @@
+\ $Id$
 \ Инcталлятор для SPF
 \ Прописывает значения в реестре или удаляет их оттуда
-\
-\ ~ygrek
-\ 14.Jan.2006
-\
-\ 20.Aug.2006
-\ + мод
 
 \ DIS-OPT
+\ STARTLOG 
 
 REQUIRE  RG_CreateKey  ~ac/lib/win/registry2.f
-REQUIRE  ENUM  ~ygrek/lib/enum.f
-REQUIRE  >ASCIIZ ~ygrek/lib/string.f
-REQUIRE  tabcontrol ~ygrek/~yz/lib/wincc.f
+REQUIRE ENUM  ~ygrek/lib/enum.f
+REQUIRE >ASCIIZ ~ygrek/lib/string.f
+REQUIRE tabcontrol ~ygrek/~yz/lib/wincc.f
+REQUIRE 2VALUE ~ygrek/lib/2value.f
+
+: kkv-save [CHAR] $ PARSE -TRAILING S", ;
+: kkv-extract HERE >R kkv-save R> COUNT ;
+: $Revision: kkv-extract ;
+
+$Revision$ 2VALUE CVS-REVISION
+
+\ : StrValue 2OVER 2OVER CR ." Read Key :" TYPE CR ." Value: " TYPE StrValue ;
+\ : RG_OpenKey >R 2DUP CR ." Open Key : " TYPE R> RG_OpenKey ;
 
 MODULE: A-STR
  REQUIRE STR@ ~ac/lib/str5.f
@@ -26,8 +32,6 @@ EXPORT
 
 VECT onClick-install
 VECT vect-generate
-
-\ STARTLOG 
 
 : ON-WINDOW-INIT ... ;
 
@@ -44,10 +48,10 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 : CheckSPFType ( addr u -- )
   TypeNstr STRFREE
   2DUP A" {s}" TO TypeNstr \ remember the key
-  \ CR TypeNstr STR@ TYPE
+\  CR TypeNstr STR@ TYPE
   S" Mask" 2SWAP StrValue
-  \ CR ntype . 2DUP TYPE
-  \ 2DUP TYPE CR
+\  CR ntype . 2DUP TYPE
+\  2DUP TYPE CR
   ( a1 u1)
   S" *.spf" SEARCH IF 2DROP -1 TO ntype DROP TRUE EXIT THEN \ DROP TRUE is a hack!!
   2DROP
@@ -56,11 +60,15 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 
 : TypeN TypeNstr STR@ ;
 
-: FindSPFType
-  S" SOFTWARE\Far\Associations" HKEY_CURRENT_USER RG_OpenKey THROW EK !
+: ?FARManagerPresent ( -- ? )
+  S" SOFTWARE\Far\Associations" HKEY_CURRENT_USER RG_OpenKey NIP 0= ;
 
+: FindSPFType
   A"" TO TypeNstr
   0 TO ntype
+
+  S" SOFTWARE\Far\Associations" HKEY_CURRENT_USER RG_OpenKey IF DROP EXIT THEN EK !
+
   ['] CheckSPFType EK @ RG_ForEachKey
   ntype -1 <> IF \ it means there was no key found
     A" Type{ntype}" TO TypeNstr THEN \ else the key name is already set
@@ -104,7 +112,7 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
   
     \ [HKEY_CLASSES_ROOT\spf]
     \ @="Forth File"
-     S" Forth file" S" " S" spf" StrValue!
+     S" SP-Forth file" S" " S" spf" StrValue!
 
     \ [HKEY_CLASSES_ROOT\spf\DefaultIcon]
     \ @="c:\\spf\\spf4.exe,0"
@@ -149,7 +157,7 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
  THEN
 
 
- gui::farmanager -state@ IF
+ gui::farmanager -state@ ?FARManagerPresent AND IF
 
   FindSPFType
 
@@ -185,7 +193,7 @@ HERE
  VALUE @template
  VALUE #template
 
-:NONAME { a u \ h orig -- }
+:NONAME { a u \ h orig err -- }
 
  get-user-path
 
@@ -194,14 +202,18 @@ HERE
 
  spf orig ASCIIZ> DOUBLE-SLASHES
 
+ 0 TO err
+
  FindSPFType
- a u R/W CREATE-FILE THROW TO h
+ a u R/W CREATE-FILE err OR TO err TO h
 
- @template #template A-STR::S@ h WRITE-FILE THROW
+ @template #template A-STR::S@ h WRITE-FILE err OR TO err
 
- h CLOSE-FILE THROW
+ h CLOSE-FILE err OR TO err
 
- a u A" File {s} written successfully" STR@ DROP gui::set-main-status
+ err IF a u A" Error writing file {s}" ELSE a u A" File {s} written successfully" THEN
+ STR@ DROP gui::set-main-status
+
 ; TO vect-generate
 
 PROC: quit
@@ -216,14 +228,23 @@ PROC;
   2DROP
   " No registry values present" 0 winmain set-status
  THEN
- FindSPFType
- ntype -1 = IF
-   \ gui::farmanager windisable
+ ?FARManagerPresent 0= IF
    gui::farmanager-notice >R
-   " (already present)" R@ -text!
-   " FAR manager *.spf association is set in the registry" R@ -tooltip!
-   \ red R@ -color!
+   R@ windisable
+   gui::farmanager windisable
+   " (not installed)" R@ -text!
+   " FAR manager settings were not found in the registry" R@ -tooltip!
    RDROP
+ ELSE   
+   FindSPFType
+   ntype -1 = IF
+     \ gui::farmanager windisable
+     gui::farmanager-notice >R
+     " (already present)" R@ -text!
+     " FAR manager *.spf association is set in the registry" R@ -tooltip!
+     \ red R@ -color!
+     RDROP
+   THEN
  THEN
 ;
 
@@ -236,7 +257,7 @@ PROC;
 
   ModuleName >ASCIIZ gui::edit-path -text!
   TRUE gui::explorer -state!
-  TRUE gui::farmanager -state!
+  FALSE gui::farmanager -state!
   FALSE gui::scriptmap -state!
   initial-check
 
