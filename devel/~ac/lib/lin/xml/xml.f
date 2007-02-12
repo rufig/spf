@@ -99,7 +99,7 @@ VECT vlistNodes
     DUP x.type @ XML_ELEMENT_NODE = IF EXIT THEN
   REPEAT
 ;
-: firstNode
+: 1stNode
   BEGIN
     DUP x.type @ XML_ELEMENT_NODE = IF EXIT THEN
     x.next @ DUP 0=
