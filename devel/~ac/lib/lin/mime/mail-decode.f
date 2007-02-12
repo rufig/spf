@@ -159,7 +159,7 @@ USER uStripCRLFtemp
 \ ================================= /subject decoding ==================
 
 \ ================================= message decoding ================
-: GetFrom { mp -- addr1 u1 addr2 u2 )
+: GetFrom { mp -- addr1 u1 addr2 u2 }
   S" From" mp FindMimeHeader DUP 0=
   IF 2DROP S" Reply-To" mp FindMimeHeader THEN
   mp AddDefEncoding
