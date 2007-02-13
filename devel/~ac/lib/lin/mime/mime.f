@@ -258,8 +258,15 @@ USER uPhParamNum
 ;
 ' ParseMime TO vParseMime
 
-: ParseMessageText { addr u -- mp }
-  addr u
+: ParseMessageText ( addr u -- mp )
+
+  2DUP + 5 - 5 " {CRLF}.{CRLF}" DUP >R STR@ COMPARE 0= R> STRFREE
+  IF 3 - THEN DUP Rfc822MessageSize !
+  ['] ParseMime EVALUATE-WITH
+;
+
+: ParseMessageFile { addr u -- mp }
+  addr u FILE 
 
   2DUP 4096 MIN S" From:" SEARCH NIP NIP 0=
   IF 2DROP LastFileFree \ DROP FREE THROW _LASTFILE 0!
@@ -272,10 +279,5 @@ not a valid message file
 " STR@
   THEN
 
-  2DUP + 5 - 5 " {CRLF}.{CRLF}" DUP >R STR@ COMPARE 0= R> STRFREE
-  IF 3 - THEN DUP Rfc822MessageSize !
-  ['] ParseMime EVALUATE-WITH
-;
-: ParseMessageFile ( addr u -- mp )
-  FILE ParseMessageText
+  ParseMessageText
 ;
