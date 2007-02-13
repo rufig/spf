@@ -6,7 +6,7 @@
 \ NB Keyword substitution is performed only if -kkv is specifed (it is the default for text files)
 
 : kkv-save [CHAR] $ PARSE -TRAILING S", ;
-: kkv-extract HERE >R kkv-save R> COUNT ;
+: kkv-extract HERE kkv-save COUNT ;
 
 : $Date: kkv-extract ;
 : $Revision: kkv-extract ;
