@@ -1,4 +1,11 @@
 REQUIRE { lib/ext/locals.f
+REQUIRE /STRING lib/include/string.f
+
+\ S" path\name" -> S" name"
+: CUT-NAME ( a u -- a2 u2 )
+  2DUP 
+  CUT-PATH NIP
+  /STRING ;
 
 \ S" createdoes>" 6 /GIVE -> S" does>" S" create"
 : /GIVE { a u n -- a+n u-n a n }
