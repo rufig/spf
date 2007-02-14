@@ -59,11 +59,13 @@
 
           <simpara><xsl:text> </xsl:text></simpara>
 
+          <xsl:if test="$xmlhelp.allstack!=0">
           <xsl:call-template name="allstack">
             <xsl:with-param name = "S" >
               <xsl:value-of select="@params" />
             </xsl:with-param>
           </xsl:call-template>
+          </xsl:if>
 
         </xsl:otherwise>
 

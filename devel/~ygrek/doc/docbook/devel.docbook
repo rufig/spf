@@ -7,6 +7,8 @@
   <!ENTITY chap-queue_pr SYSTEM "source/~pinka/lib/queue_pr.docbook"> 
   <!ENTITY chap-sockets SYSTEM "source/~ac/lib/win/winsock/sockets.docbook"> 
   <!ENTITY chap-curl SYSTEM "source/~ac/lib/lin/curl/curl.docbook"> 
+  <!ENTITY chap-bitfield SYSTEM "source/~mlg/SrcLib/bitfield.docbook"> 
+  <!ENTITY chap-memreport SYSTEM "source/~day/lib/memreport.docbook"> 
 ]>
 
 <book>
@@ -35,6 +37,7 @@
   &chap-staticlist;
   &chap-hash-table;
   &chap-queue_pr;
+  &chap-bitfield;
   </chapter>
 
   <chapter id="net">
@@ -47,6 +50,17 @@
   </section>
   &chap-sockets;
   &chap-curl;
+  </chapter>
+
+  <chapter id="debug">
+  <title>Средства отладки</title>
+  <section id="debug-desc">
+   <title>Описание</title>
+   <para>
+     Контроль утечек памяти, дополнительный проверки, трассировка выполнения кода.
+   </para>
+  </section>
+  &chap-memreport;
   </chapter>
 
 
