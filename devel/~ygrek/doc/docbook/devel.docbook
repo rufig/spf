@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-  "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd" 
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" 
   [
-  <!ENTITY chap-staticlist SYSTEM "source/staticlist.docbook">
-  <!ENTITY chap-hash-table SYSTEM "source/hash-table.docbook"> 
-  <!ENTITY chap-queue_pr SYSTEM "source/queue_pr.docbook"> 
-  <!ENTITY chap-sockets SYSTEM "source/sockets.docbook"> 
-  <!ENTITY chap-curl SYSTEM "source/curl.docbook"> 
+  <!ENTITY chap-staticlist SYSTEM "source/~day/lib/staticlist.docbook">
+  <!ENTITY chap-hash-table SYSTEM "source/~pinka/lib/hash-table.docbook"> 
+  <!ENTITY chap-queue_pr SYSTEM "source/~pinka/lib/queue_pr.docbook"> 
+  <!ENTITY chap-sockets SYSTEM "source/~ac/lib/win/winsock/sockets.docbook"> 
+  <!ENTITY chap-curl SYSTEM "source/~ac/lib/lin/curl/curl.docbook"> 
 ]>
 
 <book>
