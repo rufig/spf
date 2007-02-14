@@ -3,7 +3,7 @@
 
   <xsl:include href="devel.basic.xsl"/>
 
-  <xsl:param name="base.dir" select="'chunked\'"></xsl:param>
+  <xsl:param name="base.dir" select="'chunked/'"></xsl:param>
 
   <xsl:param name="root.filename" select="'index'"></xsl:param>
 
