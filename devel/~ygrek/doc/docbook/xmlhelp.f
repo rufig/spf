@@ -8,6 +8,7 @@ MODULE: xmlhelp-generator
 
 REQUIRE [IF] lib/include/tools.f
 REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE LAY-PATH ~pinka/samples/2005/lib/lay-path.f
 
 : PARSE-NAME NextWord ;
 
@@ -339,6 +340,7 @@ XMLHELP-OFF
 ; IMMEDIATE
 
 : START-XMLHELP ( a u -- )
+    FORCE-PATH
     W/O CREATE-FILE THROW
     TO docHandle
     S" ?xml" OPEN-TAG
