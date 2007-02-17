@@ -18,6 +18,7 @@ REQUIRE {             ~ac/lib/locals.f
 REQUIRE "             ~ac/lib/str2.f
 REQUIRE base64        ~ac/lib/string/conv.f
 REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
+REQUIRE SPLIT-        ~pinka/samples/2005/lib/split.f 
 
 VOCABULARY CHARSET-DECODERS 
 GET-CURRENT ALSO CHARSET-DECODERS DEFINITIONS
@@ -81,7 +82,7 @@ VECT vDefaultMimeCharset \ кодировка входящей строки по умолчанию,
      vDefaultMimeCharset CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN
   THEN
 ;
-: StripLwsp1 { \ s }
+: StripLwsp1_old { \ s }
   "" -> s
   BEGIN
     13 PARSE DUP
@@ -91,12 +92,82 @@ VECT vDefaultMimeCharset \ кодировка входящей строки по умолчанию,
   REPEAT 2DROP
   s STR@
 ;
-: StripLwsp ( addr u -- addr2 u2 )
+: StripLwsp_old ( addr u -- addr2 u2 )
 \ убрать из текста заголовка символы CRLFLWSP
 \ т.е. переводы строк с последующими пробельными
 \ символами, означающие перенос длинной строки
-  ['] StripLwsp1 EVALUATE-WITH
+  ['] StripLwsp1_old EVALUATE-WITH
 ;
+
+: -LEADING ( addr u -- addr1 u1 ) \ ~pig
+\ пропускает пробелы и прочие разделители в начале строки
+\
+  BEGIN
+    DUP DUP					\ пока строка не кончилась
+    IF DROP OVER C@ IsDelimiter THEN		\ и пока она начинается с разделителя
+  WHILE
+    SKIP1					\ пропустить его
+  REPEAT
+;
+
+\ ~pig: 15.02.2007
+\ 1. Два варианта переделки слова StripLwsp
+\ - не прерывает разбор по {CRLF}{CRLF}
+\ - из строк продолжения удаляет не один разделитель, а все ведущие, сколько их там есть (некоторые почтовые клиенты, кодируя заголовки, лепят не символ табуляции, а серию пробелов, в результате получается криво)
+\ - разделители строк (если текст в рещультате получается многострочный) тоже {CRLF}, а не одинокие переводы строки (возвраты каретки съедало слово PARSE)
+
+: StripLwsp1 ( "text" -- addr u )
+  "" >R						\ начальная пустышка
+  BEGIN
+    EndOfChunk 0=				\ разбор до конца буфера
+  WHILE
+    13 PARSE					\ выделить до конца строки
+    R@ STR+					\ записать в буфер
+    SOURCE DROP >IN @ + 1- C@ 13 =		\ был ли возврат каретки?
+    IF
+      10 SKIP					\ да - пропустить перевод строки
+      OnDelimiter				\ следующая строка начинается с разделителя?
+      GetChar SWAP 13 <> AND AND		\ но не с возврата каретки (не пустая)
+      IF
+        SkipDelimiters				\ пропустить все ведущие разделители следующей строки
+      ELSE
+        CRLF R@ STR+				\ это началась новая строка - добавить разделитель
+      THEN
+    THEN
+  REPEAT
+  R> STR@					\ собранная строка
+;
+
+
+\ ~pig: 15.02.2007
+\ альтернативный вариант собственно StripLwsp
+\ использует слова SPLIT- и -LEADING
+
+: StripLwsp ( addr u -- addr1 u1 )
+  "" >R						\ начальная пустышка
+  BEGIN
+    DUP						\ в строке что-нибудь есть?
+    IF
+      CRLF SPLIT- -ROT				\ выделить очередную строку
+      R@ STR+					\ записать в буфер
+      IF
+        OVER C@ DUP IsDelimiter SWAP LT @ <> AND OVER 0<> AND	\ следующая строка начинается с разделителя?
+        IF
+          -LEADING				\ да - убрать ведущие разделители
+        ELSE
+          CRLF R@ STR+				\ это началась новая строка - добавить разделитель
+        THEN
+        FALSE					\ пойти на следующий круг
+      ELSE
+        TRUE					\ больше строк нет, завершить
+      THEN
+    ELSE
+      2DROP TRUE				\ с пустой строкой делать нечего
+    THEN
+  UNTIL
+  R> STR@					\ собранная строка
+;
+
 
 (
 " Subject: =?windows-1251?B?UmU6IFtlc2Vydl0gze7i++kg8ffl8iBFLTE5NDEg7vIgMjguMDEuMg==?=
@@ -113,8 +184,9 @@ Subject: =?windows-1251?Q?=EF=EE_=EF=EE=E2=EE=E4=F3_Eserv?=
  =?koi8-r?Q?=E9=E5=2E_=E9=EE=F4=E5=F2=EE=E5=F4_=FA=E1=EB=E1=FA_20638935?=
  =?koi8-r?Q?_=E9=EE=F7=EF=EA=F3_40620100_=E7=EF=F4=EF=F7_=EB_=F7=F9=E4=E1?=
  =?koi8-r?Q?=FE=E5__=C4=C1=D4=C1_=CD=CF=C4=C9=C6=C9=CB=C1=C3=C9=C9=3A_1?=
- =?koi8-r?Q?7=2E12=2E2003_=28=29?=
+     =?koi8-r?Q?7=2E12=2E2003_=28=29?=
 " STR@ StripLwsp MimeValueDecode ANSI>OEM TYPE
 
 CR S" ьФП ФЕНБ Ч ЛПДЙТПЧЛЕ koi8-r ВЕЪ mime-ЛПДЙТПЧБОЙС" MimeValueDecode ANSI>OEM TYPE CR
+
 )
