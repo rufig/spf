@@ -43,7 +43,7 @@ VARIABLE xmlIndent
 0 VALUE generateHelp?
 0 VALUE comment?
 0 VALUE str-of-comments \ номер строки из которой были выдраны коменты в последний раз
-                        \ для того чтобы взять только те комменты которые идут _сразу_ после слова
+                        \ для того чтобы взять только те комменты которые идут до слова
 "" VALUE comments-storage \ хранилище комментариев между словами
 \ 0x1FFFFFFF VALUE TC-IMAGE-BASE
 
@@ -202,6 +202,7 @@ SPECIAL > &gt;
 
 : StartModuleComment
     +indent
+    0 TO str-of-comments
     TRUE TO moduleComment?
 ;
 

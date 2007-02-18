@@ -59,7 +59,12 @@ chm: devel.chm
 html: devel.html
 
 template:
-	spf xmlhelp.f S" $(DOC_PATH)/$(patsubst %.f,%.xml,$(source))" START-XMLHELP S" $(source)" INCLUDED FINISH-XMLHELP BYE
+	echo.> $(tempfile)
+	echo S" xmlhelp.f" INCLUDED >> $(tempfile)
+	echo S" $(DOC_PATH)/$(patsubst %.f,%.xml,$(source))" START-XMLHELP >> $(tempfile)
+	echo S" $(source)" INCLUDED >> $(tempfile)
+	echo FINISH-XMLHELP >> $(tempfile)
+	spf S" $(tempfile)" INCLUDED BYE
 	xsltproc --param xmlhelp.allstack 1 xmlhelp2docbook.xsl $(DOC_PATH)/$(patsubst %.f,%.xml,$(source)) > $(DOC_PATH)/$(patsubst %.f,%.docbook,$(source))
 
 all: $(docs)

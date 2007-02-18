@@ -13,7 +13,6 @@
     </title>
 
     <section id="toc-section">
-      <!--para>{DESCRIPTION}</para-->          <!-- Описание (подставляется снаружи)-->
       <title>
       Описание
       </title>
