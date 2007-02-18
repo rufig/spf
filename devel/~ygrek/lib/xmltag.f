@@ -1,22 +1,23 @@
 \
 \ Вывод XML тегов бэктрекингом
 \
-\ На прямом ходе выводится открывающий тэг, при откате - закрывающий.
+\ На прямом ходу выводится открывающий тэг, при откате - закрывающий.
 
 REQUIRE PRO ~profit/lib/bac4th.f
 REQUIRE STR@ ~ac/lib/str4.f
 REQUIRE /TEST ~profit/lib/testing.f
 
-0 VALUE indent#
+USER-VALUE xmltag.indent#
 
 \ с отступами
-: tag ( a u -- )
-   2DUP
+: tag
    PRO
-   CR indent# SPACES " <{s}>" STYPE
-   indent# 1+ TO indent#
-   BACK indent# 1- TO indent# " </{s}>" STYPE TRACKING
+   BACK xmltag.indent# 1- TO xmltag.indent# " </{s}>" STYPE TRACKING
+   2RESTB
+   CR xmltag.indent# SPACES " <{s}>" STYPE
+   xmltag.indent# 1+ TO xmltag.indent#
    CONT ;
+
 
 \ plain - no indent
 : ptag
@@ -57,4 +58,4 @@ start
 даст
  <a><b></b><c></c></a> 
 
-Тэги с атрибутами (пока?) не понятно как красиво реализовать.
+Тэги с атрибутами не понятно как красиво реализовать.
