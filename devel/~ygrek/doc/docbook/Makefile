@@ -9,12 +9,44 @@ forthcode = ~ac/lib/lin/curl/curl.f \
 						~day/lib/staticlist.f \
 						~pinka/lib/hash-table.f \
 						~mlg/SrcLib/bitfield.f \
-						~day/lib/memreport.f
-
+						~day/lib/memreport.f \
+						~profit/lib/bac4th.f \
+						~ygrek/lib/spec/rss.f \
+						~pinka/lib/like.f \
+						~pinka/samples/2005/lib/append-file.f \
+						~ygrek/lib/wid.f \
+						~ygrek/lib/enum.f \
+						~ygrek/lib/parse.f \
+						~pinka/samples/2005/lib/lay-path.f \
+						~pinka/samples/2005/lib/replace-str.f \
+						~pinka/samples/2005/lib/split.f \
+						~pinka/samples/2005/lib/split-white.f \
+						~pinka/samples/2006/lib/save-bak.f \
+						~pinka/lib/multi/critical.f \
+						~ac/lib/str5.f \
+						~ac/lib/string/compare-u.f \
+						~ac/lib/string/conv.f \
+						~ac/lib/string/uppercase.f \
+						~ac/lib/win/file/findfile.f \
+						~ac/lib/win/file/findfile-r.f \
+						~ac/lib/lin/sql/sqlite3.f \
+						~ac/lib/lin/xml/xml.f \
+						~ac/lib/lin/xml/expat.f \
+						~ac/lib/lin/xml/xslt.f \
+						~ac/lib/win/date/date.f \
+						~ac/lib/win/date/date-int.f \
+						~ac/lib/win/date/timezone.f \
+						~ac/lib/win/date/unixdate.f \
+						~ygrek/lib/spec/sdate.f \
+						~ygrek/lib/spec/sdate2.f \
+						~ygrek/lib/spec/unixdate.f
 
 docbooks = $(foreach forthfile,$(forthcode),$(DOC_PATH)/$(patsubst %.f,%.docbook,$(forthfile)))
-
 xmlhelps = $(foreach docbook,$(docbooks),$(patsubst %.docbook,%.xml,$(docbook)))
+
+# файл для подкюлчения либы и генерации xmlhelp
+# чтобы полностью моделировать реальные условия и исключить финты ушами a la /TEST
+tempfile=.temporary.f
 
 target: all
 
@@ -48,13 +80,19 @@ devel.chm: $(docbooks) devel.docbook devel.chm.xsl devel.basic.xsl
 	xsltproc --param xmlhelp.allstack 0 xmlhelp2docbook.xsl $< > $@
 
 %.xml: $(patsubst $(DOC_PATH)/%.xml,$(DEVEL_PATH)/%.f,$@)
-	spf xmlhelp.f S" $@" START-XMLHELP S" $(patsubst $(DOC_PATH)/%.xml,%.f,$@)" INCLUDED FINISH-XMLHELP BYE
+	echo.> $(tempfile)
+	echo S" xmlhelp.f" INCLUDED >> $(tempfile)
+	echo S" $@" START-XMLHELP >> $(tempfile)
+	echo S" $(patsubst $(DOC_PATH)/%.xml,%.f,$@)" INCLUDED >> $(tempfile)
+	echo FINISH-XMLHELP >> $(tempfile)
+	spf S" $(tempfile)" INCLUDED BYE
 
-# г¤ «Ёвм Їа®¬Ґ¦гв®з­лҐ д ©«л
+# удалить промежуточные файлы
 clean:
 	-rm *.hhp *.hhc *.hhk
 	-rm ch*.html index.html pr??.html
+	-rm $(tempfile)
 
-# г¤ «Ёвм ўбҐ бЈҐ­ҐаЁа®ў ­­лҐ д ©«л
+# удалить все сгенерированные файлы
 cleanall: clean
 	-rm $(docbooks) $(xmlhelps) $(docs) chunked/*.html
