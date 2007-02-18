@@ -8,9 +8,9 @@ REQUIRE ENUM ~ygrek/lib/enum.f
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE PRO ~profit/lib/bac4th.f
-REQUIRE tag ~ygrek/prog/web/trac/xml.f
+REQUIRE tag ~ygrek/lib/xmltag.f
 REQUIRE Num>DateTime ~ygrek/lib/spec/unixdate.f
-REQUIRE STR{ ~ygrek/lib/strtype.f
+REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE UTF8>UNICODE ~ac/lib/win/com/com.f
 REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
 REQUIRE New-Queue ~pinka/lib/queue_pr.f
@@ -77,7 +77,7 @@ reporter
      0 0 2SWAP >NUMBER  
      0= IF DROP D>S ELSE 2DROP DROP ABORT" Not a number" THEN ;
 
-: sdate >R <# 0 0 R> STR@ au->n Num>DateTime DateTime#GMT #> ;
+: sdate STR@ au->n Num>DateTime DateTime>PAD ;
 
 : BuildItem
   S" item" tag 
@@ -167,10 +167,7 @@ TRUE VALUE ?first
 : RSS
    TO u TO a
    Prepare
-   "" STR{ 
-   ['] (RSS) CATCH DROP 
-   }STR 
-   ;
+   ['] (RSS) TYPE>STR ;
 
 : to-file ( a u outfile u2 -- )
    R/W CREATE-FILE THROW >R
