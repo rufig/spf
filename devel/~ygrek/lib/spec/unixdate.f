@@ -15,23 +15,33 @@ MODULE: FSL
  CR
 ;MODULE
 
+REQUIRE DateTime#GMT ~ac/lib/win/date/date-int.f
 REQUIRE /TEST ~profit/lib/testing.f
 
+\ Julian day начала эпохи unix 
 : unix_epoch_j ( -- j_double ) 1 1 1970 FSL::JDAY ;
 
+\ преобразовать timestamp в дату
 : Num>DateTime ( n -- s m h d m1 y )
    60 /MOD \ секунды
    60 /MOD \ минуты
    24 /MOD \ часы
    S>D unix_epoch_j D+ FSL::JDATE ;
 
-: Num>Time 60 /MOD 60 /MOD 24 /MOD DROP ;
-: DateTime>Days FSL::JDAY D>S NIP NIP NIP ;
-
+\ преобразовать дату в timestamp
 : DateTime>Num ( s m h d m1 y -- n )
   FSL::JDAY unix_epoch_j D- D>S 60 60 * 24 * * SWAP
   3600 * + SWAP
   60 * + + ;
+
+\ извлечь только время из timestamp
+: Num>Time ( n -- s m h ) 60 /MOD 60 /MOD 24 /MOD DROP ;
+
+\ дату в число дней
+: DateTime>Days ( s m h d m1 y -- days ) FSL::JDAY D>S NIP NIP NIP ;
+
+\ Представить дату как строку в буфере PAD
+: DateTime>PAD ( s m h d m1 y -- a u ) <# DateTime#GMT 0 0 #> ;
 
 /TEST
 

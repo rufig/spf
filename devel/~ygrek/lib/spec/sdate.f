@@ -91,8 +91,6 @@ EXPORT
 : parse-date? ( a u -- ss mm hh d m y -1 | 0 )
    ['] (parse-date) ['] EVALUATE-WITH CATCH IF DROP 2DROP 0 ELSE TRUE THEN ;
 
-: DateTime>PAD <# DateTime#GMT 0 0 #> ;
-
 ;MODULE
 
 /TEST
