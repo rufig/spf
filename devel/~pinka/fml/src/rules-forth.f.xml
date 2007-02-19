@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Feb.2007 -->
+
+<rule match="choose"    mode="0">       <yield/>        </rule>
+<rule match="otherwise" mode="0">       <yield/>        </rule>
+<rule match="when"      mode="0">   <if><yield/> ParentNode LastChild </if> </rule>
+<rule match="if"        mode="0">   <if><yield/></if>   </rule>
+
+<rule match="repeat"    mode="0">
+  FALSE gtCS
+  <until> <yield/>  CS@ </until>
+  CSDROP
+</rule>
+
+<rule match="while"     mode="0">
+  0= <if> ParentNode LastChild  CSDROP TRUE gtCS</if>
+</rule>
+
+<rule match="until"     mode="0">
+  FALSE gtCS
+  <until> <yield/> CS@ OR </until>
+  CSDROP
+</rule>
+
+<rule match="#comment" /><!-- skip xml-commets -->
+
+<rule match="#text"> <!-- no mode spec -->
+  <exec name="NodeValue" /><exec name="T-TEXT" />
+</rule>
+
+</forth>

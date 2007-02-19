@@ -1,0 +1,236 @@
+CONCEIVE 
+`DUP & EXEC, 
+`0= & EXEC, ZBFW, 
+`DROP & EXEC, EXIT, RFW 
+`DUP & EXEC, 1 LIT, 
+`= & EXEC, ZBFW, 
+`DROP & EXEC, 
+`LIT, & EXEC, EXIT, RFW 
+`DUP & EXEC, 2 LIT, 
+`= & EXEC, ZBFW, 
+`DROP & EXEC, 
+`LIT, & EXEC, `LIT, & LIT, 
+`EXEC, & EXEC, EXIT, RFW 
+`1- & EXEC, 
+`SWAP & EXEC, 
+`LIT, & EXEC, 
+`LIT, & EXEC, GERM LIT, 
+`EXEC, & EXEC, BIRTH `TS-LIT NAMING- CONCEIVE 
+`DUP & EXEC, 
+`0= & EXEC, ZBFW, 
+`DROP & EXEC, 
+`EXECUTE & EXEC, EXIT, RFW 
+`DUP & EXEC, 1 LIT, 
+`= & EXEC, ZBFW, 
+`DROP & EXEC, 
+`EXEC, & EXEC, EXIT, RFW 
+`DUP & EXEC, 2 LIT, 
+`= & EXEC, ZBFW, 
+`DROP & EXEC, 
+`LIT, & EXEC, `EXEC, & LIT, 
+`EXEC, & EXEC, EXIT, RFW 
+`1- & EXEC, 
+`SWAP & EXEC, 
+`LIT, & EXEC, 
+`LIT, & EXEC, GERM LIT, 
+`EXEC, & EXEC, BIRTH `TS-EXEC NAMING- CONCEIVE 
+`DUP & EXEC, 
+`0= & EXEC, ZBFW, 
+`DROP & EXEC, EXIT, RFW 
+`DUP & EXEC, 1 LIT, 
+`= & EXEC, ZBFW, 
+`DROP & EXEC, 
+`SLIT, & EXEC, EXIT, RFW 
+`DUP & EXEC, 2 LIT, 
+`= & EXEC, ZBFW, 
+`DROP & EXEC, 
+`SLIT, & EXEC, `SLIT, & LIT, 
+`EXEC, & EXEC, EXIT, RFW 
+`1- & EXEC, 
+`-ROT & EXEC, 
+`SLIT, & EXEC, 
+`LIT, & EXEC, GERM LIT, 
+`EXEC, & EXEC, BIRTH `TS-SLIT NAMING- CONCEIVE 
+`DUP & EXEC, 
+`0= & EXEC, ZBFW, 
+`DROP & EXEC, EXIT, RFW 
+`DUP & EXEC, 1 LIT, 
+`= & EXEC, ZBFW, 
+`DROP & EXEC, 
+`2LIT, & EXEC, EXIT, RFW 
+`DUP & EXEC, 2 LIT, 
+`= & EXEC, ZBFW, 
+`DROP & EXEC, 
+`2LIT, & EXEC, `2LIT, & LIT, 
+`EXEC, & EXEC, EXIT, RFW 
+`1- & EXEC, 
+`-ROT & EXEC, 
+`2LIT, & EXEC, 
+`LIT, & EXEC, GERM LIT, 
+`EXEC, & EXEC, BIRTH `TS-2LIT NAMING- CONCEIVE 
+`DUP & EXEC, 1 LIT, 
+`Ult & EXEC, ZBFW, 
+`FALSE & EXEC, EXIT, RFW 
+`2DUP & EXEC, 
+`OVER & EXEC, 
+`C@ & EXEC, `- DROP C@ LIT, 
+`= & EXEC, 
+`DUP & EXEC, 
+`>R & EXEC, ZBFW, 
+`1- & EXEC, 
+`SWAP & EXEC, 
+`CHAR+ & EXEC, 
+`SWAP & EXEC, RFW 0 LIT, 0 LIT, 
+`2SWAP & EXEC, 
+`>NUMBER & EXEC, 
+`NIP & EXEC, ZBFW, 
+`RDROP & EXEC, 
+`2DROP & EXEC, 
+`FALSE & EXEC, EXIT, RFW 
+`R> & EXEC, ZBFW, 
+`DNEGATE & EXEC, RFW 
+`2SWAP & EXEC, 
+`2DROP & EXEC, 
+`TRUE & EXEC, BIRTH `I-DLIT NAMING- CONCEIVE 
+`I-DLIT & EXEC, ZBFW, 
+`D>S & EXEC, 
+`TRUE & EXEC, EXIT, RFW 
+`FALSE & EXEC, BIRTH `I-LIT NAMING- CONCEIVE 
+`DUP & EXEC, 2 LIT, 
+`Ult & EXEC, ZBFW, 
+`FALSE & EXEC, EXIT, RFW 
+`2DUP & EXEC, 
+`1- & EXEC, 
+`CHARS & EXEC, 
+`+ & EXEC, 
+`C@ & EXEC, `. DROP C@ LIT, 
+`= & EXEC, ZBFW, 
+`1- & EXEC, 
+`I-DLIT & EXEC, ZBFW, 
+`TRUE & EXEC, EXIT, RFW 
+`1+ & EXEC, RFW 
+`FALSE & EXEC, BIRTH `I-DLIT-FORM NAMING- CONCEIVE 
+`DUP & EXEC, 3 LIT, 
+`Ult & EXEC, ZBFW, 
+`FALSE & EXEC, EXIT, RFW 
+`OVER & EXEC, 2 LIT, `0x SLIT, 
+`CEQUAL & EXEC, 
+`0eq & EXEC, ZBFW, 
+`FALSE & EXEC, EXIT, RFW 
+`OVER & EXEC, 
+`CHAR+ & EXEC, 
+`CHAR+ & EXEC, 
+`OVER & EXEC, 2 LIT, 
+`- & EXEC, 
+`BASE & EXEC, 
+`@ & EXEC, 
+`>R & EXEC, 
+`HEX & EXEC, 
+`I-LIT & EXEC, 
+`R> & EXEC, 
+`BASE & EXEC, 
+`! & EXEC, ZBFW, 
+`NIP & EXEC, 
+`NIP & EXEC, 
+`TRUE & EXEC, EXIT, RFW 
+`2DROP & EXEC, 
+`FALSE & EXEC, BIRTH `I-HLIT-FORM NAMING- CONCEIVE 
+`DUP & EXEC, 2 LIT, 
+`Ult & EXEC, ZBFW, 
+`FALSE & EXEC, EXIT, RFW 
+`OVER & EXEC, 
+`C@ & EXEC, `` DROP C@ LIT, 
+`neq & EXEC, ZBFW, 
+`FALSE & EXEC, EXIT, RFW 
+`1- & EXEC, 
+`SWAP & EXEC, 
+`CHAR+ & EXEC, 
+`SWAP & EXEC, 
+`TRUE & EXEC, BIRTH `I-SLIT-FORM NAMING- CONCEIVE 
+`SFIND & EXEC, 
+`0neq & EXEC, BIRTH `I-NATIVE NAMING- ALIGN HERE 0 , CONCEIVE LIT, BIRTH `STATE NAMING- CONCEIVE 
+`I-SLIT-FORM & EXEC, ZBFW, 
+`STATE & EXEC, 
+`@ & EXEC, 
+`TS-SLIT & EXEC, EXIT, RFW 
+`I-NATIVE & EXEC, ZBFW, 
+`STATE & EXEC, 
+`@ & EXEC, 
+`TS-EXEC & EXEC, EXIT, RFW 
+`I-LIT & EXEC, ZBFW, 
+`STATE & EXEC, 
+`@ & EXEC, 
+`TS-LIT & EXEC, EXIT, RFW 
+`I-DLIT-FORM & EXEC, ZBFW, 
+`STATE & EXEC, 
+`@ & EXEC, 
+`TS-2LIT & EXEC, EXIT, RFW 
+`CR & EXEC, 
+`TYPE & EXEC, 
+`CR & EXEC, -321 LIT, 
+`THROW & EXEC, BIRTH `T-WORD NAMING- CONCEIVE MBW 
+`FINE-HEAD & EXEC, 
+`SPLIT-WHITE-FORCE & EXEC, 
+`2gtR & EXEC, 
+`DUP & EXEC, ZBFW2, 
+`T-WORD & EXEC, 
+`2Rgt & EXEC, BBW, RFW 
+`2DROP & EXEC, 
+`RDROP & EXEC, 
+`RDROP & EXEC, BIRTH `T-TEXT NAMING- ALIGN HERE 0 , CONCEIVE LIT, BIRTH `t-slot NAMING- `FALSE & t-slot ! CONCEIVE 
+`CONCEIVE & EXEC, 
+`t-slot & EXEC, 
+`@ & EXEC, 
+`EXEC, & EXEC, 
+`DUP & LIT, `EXEC, & EXEC, 
+`ZBFW, & EXEC, 
+`EXIT, & EXEC, 
+`RFW & EXEC, 
+`DROP & LIT, `EXEC, & EXEC, 
+`EXEC, & EXEC, 
+`BIRTH & EXEC, 
+`t-slot & EXEC, 
+`! & EXEC, BIRTH `advice-trule-after NAMING- CONCEIVE 
+`CONCEIVE & EXEC, 
+`EXEC, & EXEC, 
+`DUP & LIT, `EXEC, & EXEC, 
+`ZBFW, & EXEC, 
+`EXIT, & EXEC, 
+`RFW & EXEC, 
+`DROP & LIT, `EXEC, & EXEC, 
+`t-slot & EXEC, 
+`@ & EXEC, 
+`EXEC, & EXEC, 
+`BIRTH & EXEC, 
+`t-slot & EXEC, 
+`! & EXEC, BIRTH `advice-trule-before NAMING- CONCEIVE 
+`t-slot & EXEC, 
+`@ & EXEC, 
+`EXECUTE & EXEC, ZBFW, EXIT, RFW -5001 LIT, 
+`THROW & EXEC, BIRTH `trans-node-force NAMING- CONCEIVE 
+`cnode & EXEC, 
+`>R & EXEC, 
+`FirstChild & EXEC, MBW 
+`cnode & EXEC, ZBFW2, 
+`trans-node-force & EXEC, 
+`NextSibling & EXEC, BBW, RFW 
+`R> & EXEC, 
+`cnode! & EXEC, BIRTH `trans-childs NAMING- CONCEIVE 
+`cnode & EXEC, 
+`>R & EXEC, 
+`documentElement & EXEC, 
+`cnode! & EXEC, 
+`trans-childs & EXEC, 
+`R> & EXEC, 
+`cnode! & EXEC, BIRTH `trans-document NAMING- CONCEIVE 
+`DefaultLSParser & EXEC, 
+`parseURI & EXEC, 
+`DUP & EXEC, 
+`0= & EXEC, ZBFW, -5002 LIT, 
+`THROW & EXEC, RFW 
+`DUP & EXEC, 
+`>R & EXEC, 
+`trans-document & EXEC, 
+`R> & EXEC, 
+`DefaultLSParser & EXEC, 
+`freeDoc & EXEC, BIRTH `EMBODY NAMING- 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth
+  xmlns="http://forth.org.ru/ForthML/"
+  xmlns:xi="http://forth.org.ru/2006/XML/Struct"
+>
+
+<xi:model name="rules-common-ext" href="rules-common-ext.f.xml" />
+
+<xi:include href="rules-common.f.xml" unwrap='yes' />
+
+<xi:include href="#rules-common-ext" unwrap='yes' />
+
+</forth>

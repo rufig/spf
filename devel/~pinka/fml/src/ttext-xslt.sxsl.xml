@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<xi:include
+  xmlns:xi="http://forth.org.ru/2006/XML/Struct"
+  xmlns="http://forth.org.ru/2006/SXSL/"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:f="http://forth.org.ru/ForthML/"
+>
+<!-- Dec.2006, Feb.2007 ruvim@forth.org.ru -->
+
+<def match="*">
+  <xsl:message terminate = "yes">
+    <xsl:text>Semantic undefined for: </xsl:text>
+    <xsl:value-of select="name()" />
+    <xsl:text>
+</xsl:text>
+    <xsl:copy-of select="." />
+  </xsl:message>
+</def>
+
+<var name="state" select="0" /><!-- has a dynamic binding -->
+
+<def name="stop-error-nesting">
+  <xsl:message terminate = "yes">
+    <xsl:text>Ambiguous nesting, error in context of: </xsl:text>
+    <xsl:value-of select="name()" />
+    <xsl:text>, $state=</xsl:text><xsl:value-of select="$state" />
+    <xsl:text>
+</xsl:text>
+    <xsl:copy-of select="." />
+  </xsl:message>
+</def>
+
+<def name="assure-state"><!-- or, ensure -->
+  <xsl:if test="$state = 0"><stop-error-nesting/></xsl:if>
+</def>
+<def name="assure-state0">
+  <xsl:if test="not($state = 0)"><stop-error-nesting/></xsl:if>
+</def>
+
+<def name="direct">
+  <assure-state/>
+  <set name="state" select="$state - 1"><yield/></set>
+</def>
+
+<def name="postpone">
+  <set name="state" select="$state + 1"><yield/></set>
+</def>
+
+<def name="T-LIT">
+  <xsl:if test="$state = 1">
+    <xsl:text>LIT, </xsl:text>
+  </xsl:if>
+  <xsl:if test="$state &gt; 1">
+    <direct><T-LIT/><xsl:text>`LIT, &amp; </xsl:text><T-EXEC/></direct>
+  </xsl:if>
+</def>
+
+<def name="T-SLIT">
+  <xsl:if test="$state = 1">
+    <xsl:text>SLIT, </xsl:text>
+  </xsl:if>
+  <xsl:if test="$state &gt; 1">
+    <direct><T-SLIT/><xsl:text>`SLIT, &amp; </xsl:text><T-EXEC/></direct>
+  </xsl:if>
+</def>
+
+<def name="T-EXEC">
+  <xsl:choose><xsl:when test="$state = 0">
+    <xsl:text>EXECUTE </xsl:text>
+  
+  </xsl:when><xsl:when test="$state = 1">
+    <xsl:text>EXEC, </xsl:text>
+  
+  </xsl:when><xsl:otherwise>
+
+    <direct><T-LIT/><xsl:text>`EXEC, &amp; </xsl:text><T-EXEC/></direct>
+  </xsl:otherwise></xsl:choose>
+</def>
+
+<def name="T-WORD">
+  <xsl:param name="word" select="." />
+
+  <xsl:choose xmlns:fn="http://www.w3.org/2005/xpath-functions" fn:used="used">
+  <xsl:when test="fn:matches($word, '^`\S+')">
+    <xsl:value-of select="$word" /><xsl:text> </xsl:text>
+    <T-SLIT/>
+
+  </xsl:when>
+  <xsl:when test="fn:matches($word, '^-?\d+$')">
+    <xsl:value-of select="$word" /><xsl:text> </xsl:text>
+    <T-LIT/>
+
+  </xsl:when>
+  <xsl:when test="fn:matches($word, '^0x\w+$')">
+    <xsl:value-of select="$word" /><xsl:text> </xsl:text>
+    <T-LIT/>
+
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:text>&#xD;&#xA;`</xsl:text><xsl:value-of select="$word" /><xsl:text> &amp; </xsl:text>
+    <T-EXEC/>
+
+  </xsl:otherwise></xsl:choose>
+</def>
+
+<def name="T-TEXT">
+  <xsl:param name="text" select="."/>
+  <xsl:variable name="text2" select="normalize-space($text)" />
+  <xsl:if test="$text2">
+  <xsl:choose><xsl:when test="$state = 0">
+    <xsl:value-of select="$text2" /><xsl:text> </xsl:text>
+  </xsl:when><xsl:otherwise>
+    <xsl:analyze-string select="$text2" regex="\S+"><xsl:matching-substring>
+      <T-WORD/>
+    </xsl:matching-substring></xsl:analyze-string>
+  </xsl:otherwise></xsl:choose>
+  </xsl:if>
+</def>
+
+<def name="T">
+  <call-template name="T-TEXT"><xsl:with-param name="text"><yield/></xsl:with-param></call-template>
+</def>
+
+</xi:include>

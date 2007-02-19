@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Jul.2006, Feb.2007 ruvim@forth.org.ru -->
+
+<var name="STATE" />
+
+<include href="ttext.immutable.f.xml"/>
+
+</forth>

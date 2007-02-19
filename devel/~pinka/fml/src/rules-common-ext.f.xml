@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth xmlns="http://forth.org.ru/ForthML/" >
+<!-- Feb.2007 -->
+
+<rule match="var">
+  ALIGN HERE 0 ,  CONCEIVE LIT, BIRTH
+  <get-attribute name="name" /> NAMING-
+</rule>
+
+</forth>

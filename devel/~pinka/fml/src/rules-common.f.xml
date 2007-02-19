@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth xmlns="http://forth.org.ru/ForthML/" >
+<!-- Feb.2007 ruvim@forth.org.ru -->
+
+<rule match="rem" />
+<rule match="comment" />
+<rule match="g"><yield/></rule><!-- merely group -->
+<rule match="forth"><yield/></rule>
+<!--
+<rule match="model"><yield/></rule>-->
+
+<rule match="p">
+  CONCEIVE <postpone><yield/></postpone> BIRTH
+</rule>
+
+<rule match="def">
+  CONCEIVE <postpone><yield/></postpone> BIRTH <get-attribute name="name" /> NAMING-
+</rule>
+
+<rule match="lit">
+  <direct><yield/>LIT,</direct>
+</rule>
+<rule match="slit">
+  <direct><yield/>SLIT,</direct>
+</rule>
+<rule match="exec">
+  <direct><yield/>EXEC,</direct>
+</rule>
+
+<rule match="exit">
+  <direct>EXIT,</direct>
+</rule>
+<rule match="recurse">
+  <direct>GERM EXEC,</direct>
+</rule>
+<rule match="again">
+  <direct>GERM gtCS BBW,</direct><!-- depend on.. -->
+</rule>
+
+
+<rule match="otherwise">
+  <yield/>
+</rule>
+
+<rule match="when">
+  <direct>ZBFW,</direct>
+  <yield/>
+  <direct>BFW2, RFW</direct>
+</rule>
+
+<rule match="choose">
+  <yield/>
+  <each-node select="when"><direct>RFW</direct></each-node>
+</rule>
+
+<rule match="while">
+  <direct>ZBFW2,</direct>
+</rule>
+
+<rule match="repeat">
+  <direct>MBW</direct>
+  <yield/>
+  <direct>BBW,</direct>
+  <each-node select="while"><direct>RFW</direct></each-node>
+</rule>
+
+<rule match="until">
+  <direct>MBW</direct>
+  <yield/>
+  <direct>ZBBW,</direct>
+  <each-node select="while"><direct>RFW</direct></each-node>
+</rule>
+
+<rule match="if">
+  <direct>ZBFW,</direct>
+  <yield/>
+  <direct>RFW</direct>
+</rule>
+
+</forth>

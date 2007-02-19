@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<?xml-stylesheet type="text/xsl" href="struct.xsl" ?>
+<html xmlns:xi="http://forth.org.ru/2006/XML/Struct">
+<head><style type="text/css"> div { margin: 1em; padding: 0.7em; border: 3px solid red; } .d2 {border-width: 1px; } </style></head>
+<body>
+<div class="d1">
+
+  <xi:model name="B"><p>Here <b>B</b> is nearest by a lexical scope...</p></xi:model>
+
+  <xi:model name="A">
+    <xi:model name="A">(<b>A</b> defined in the .d<b>1</b>)</xi:model>
+    <xi:include href="#A"/><!-- ближайшее 'A' строчкой выше -->
+    <xi:include href="#B"/>
+  </xi:model>
+
+  <xi:include href="#A">
+    <p>Эта строка была бы выведена, если бы не было доступных (внешних!) определений A</p>
+    <xi:model name="A">some beyond text</xi:model>
+    <!-- это внутреннее определение снаружи роли не играет -->
+    <xi:include href="#A"/>
+  </xi:include>
+
+  <div class="d2">
+    <xi:model name="B"><p>But here <b>B</b> is nearest by a dynamic scope!</p></xi:model>
+    <xi:model name="A">(<b>A</b> defined in the .d<b>2</b>)<br /><xi:include href="#A"/></xi:model>
+
+    <xi:include href="#A"/>
+  </div>
+
+</div>
+</body>
+</html>

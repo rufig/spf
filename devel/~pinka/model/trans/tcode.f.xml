@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 2006, Feb.2007 ruvim@forth.org.ru -->
+
+<def name="TS-LIT" ds=" x state -- x | ">
+  DUP 0=  <if>DROP <exit/></if>
+  DUP 1 = <if>DROP LIT, <exit/></if>
+  DUP 2 = <if>DROP LIT, <xt-of select="LIT,"/> EXEC, <exit/></if>
+  1- SWAP LIT, LIT, <lit>GERM</lit> EXEC,
+</def>
+<def name="TS-EXEC" ds=" i*x xt state -- j*x | i*x">
+  DUP 0=  <if>DROP EXECUTE <exit/></if>
+  DUP 1 = <if>DROP EXEC, <exit/></if>
+  DUP 2 = <if>DROP LIT, <xt-of select="EXEC,"/> EXEC, <exit/></if>
+  1- SWAP LIT, LIT, <lit>GERM</lit> EXEC,
+</def>
+<def name="TS-SLIT" ds=" c-addr u state -- c-addr2 u | ">
+  DUP 0=  <if>DROP <exit/></if>
+  DUP 1 = <if>DROP SLIT, <exit/></if>
+  DUP 2 = <if>DROP SLIT, <xt-of select="SLIT,"/> EXEC, <exit/></if>
+  1- -ROT SLIT, LIT, <lit>GERM</lit> EXEC,
+</def>
+<def name="TS-2LIT" ds=" x x state -- x x | ">
+  DUP 0=  <if>DROP <exit/></if>
+  DUP 1 = <if>DROP 2LIT, <exit/></if>
+  DUP 2 = <if>DROP 2LIT, <xt-of select="2LIT,"/> EXEC, <exit/></if>
+  1- -ROT 2LIT, LIT, <lit>GERM</lit> EXEC,
+</def>
+
+</forth>

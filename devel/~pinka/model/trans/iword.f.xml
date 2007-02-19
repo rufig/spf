@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Nov.2006, Jan.2007 ruvim@forth.org.ru -->
+<!-- see also ~pinka/samples/2006/syntax/readmy.txt  -->
+
+<def name="I-DLIT" ds=" a u -- x x true | a u false ">
+  DUP 1 Ult <if> FALSE <exit/></if>
+  2DUP
+  OVER C@ <char>-</char> = DUP >R <if> 1- SWAP CHAR+ SWAP </if>
+  0 0 2SWAP >NUMBER NIP <if> RDROP 2DROP FALSE <exit/></if>
+  R> <if> DNEGATE </if> 2SWAP 2DROP TRUE
+</def>
+
+<def name="I-LIT" ds=" a u -- x true | a u false ">
+  I-DLIT <if> D>S TRUE <exit/></if> FALSE
+</def>
+
+<def name="I-DLIT-FORM" ds=" a u -- x x true | a u false ">
+  DUP 2 Ult <if> FALSE <exit/></if>
+  2DUP 1- CHARS + C@ <char>.</char> =
+  <if> 1- I-DLIT <if> TRUE <exit/></if> 1+ </if> FALSE
+</def>
+
+<def name="I-HLIT-FORM" ds=" a u -- x true | a u false ">
+  DUP 3 Ult               <if> FALSE <exit/></if>
+  OVER 2 `0x CEQUAL 0eq   <if> FALSE <exit/></if>
+  OVER CHAR+ CHAR+ OVER 2 - BASE @ >R HEX I-LIT R> BASE !
+  <if>NIP NIP TRUE <exit/></if> 2DROP FALSE
+</def>
+
+<def name="I-SLIT-FORM" ds=" a u -- a2 u2 true | a u false ">
+  DUP 2 Ult                  <if> FALSE <exit/></if>
+  OVER C@ <char>`</char> neq <if> FALSE <exit/></if>
+  1- SWAP CHAR+ SWAP <!-- CARBON --> TRUE
+</def>
+
+<def name="I-NATIVE" ds=" c-addr u -- xt true | c-addr u false ">
+  SFIND 0neq
+</def>
+
+</forth>
