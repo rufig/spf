@@ -151,7 +151,7 @@ VECT vDefaultMimeCharset \ кодировка входящей строки по умолчанию,
       CRLF SPLIT- -ROT				\ выделить очередную строку
       R@ STR+					\ записать в буфер
       IF
-        OVER C@ DUP IsDelimiter SWAP LT @ <> AND OVER 0<> AND	\ следующая строка начинается с разделителя?
+        OVER C@ DUP IsDelimiter SWAP LT C@ <> AND OVER 0<> AND	\ следующая строка начинается с разделителя?
         IF
           -LEADING				\ да - убрать ведущие разделители
         ELSE
