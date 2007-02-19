@@ -7,16 +7,12 @@
 
 \ REQUIRE MemReport ~day/lib/memreport.f
 REQUIRE 2VARIABLE lib/include/double.f
-REQUIRE FILE ~ac/lib/str4.f
 REQUIRE LOCAL ~profit/lib/static.f
 REQUIRE arr{ ~profit/lib/bac4th-sequence.f
 REQUIRE split-patch ~profit/lib/bac4th-str.f
 REQUIRE iterateBy ~profit/lib/bac4th-iterators.f
 REQUIRE HeapSort ~mlg/SrcLib/hsort.f
 REQUIRE binary-search.f ~profit/lib/binary-search.f
-
-
-: LOAD-FILE ( addr u -- addr u ) PRO FILE OVER FREEB DROP CONT ;
 
 : TAKE-TWO PRO *> <*> BSWAP <* CONT ;
 : TAKE-THREE PRO *> <*> BSWAP <*> ROT BACK -ROT TRACKING <* CONT ;
@@ -27,8 +23,6 @@ BSWAP                               <*>
 ROT BACK -ROT TRACKING              <*>
 2SWAP SWAP BACK SWAP 2SWAP TRACKING <*  CONT ;
 
-: arr-iterator ( addr u -- xt ) PRO S" PRO 2LITERAL CELL iterateBy CONT" compiledCode CONT ;
-
 2VARIABLE tmp
 
 :NONAME
@@ -36,7 +30,7 @@ ROT BACK -ROT TRACKING              <*>
 
 LOCAL arrLen LOCAL arrBeg
 
-S" .\in.txt" LOAD-FILE ( addr u ) \ заметьте: взятие текста файла сделано *снаружи* arr{
+S" in.txt" load-file ( addr u ) 2DUP \ заметьте: взятие текста файла сделано *снаружи* arr{
 \ если бы было сделано внутри, то текст был бы освобождён по выходу из arr{ ... }arr
 \ , что нам не надо, так как у нас в массиве *отрывки* из этого текста
 
@@ -68,14 +62,12 @@ STRcompiledCode TO []exch[]
 HeapSort
 
 0 PyrN 1-
-S" этой"
+S" этой" \ искомое слово
 arrBeg @
-" CELLS 2* LITERAL + 2@
-2LITERAL COMPARE " STRcompiledCode
-binary-search . . 
-KEY DROP
+" CELLS 2* LITERAL + 2@ ( 2DUP CR TYPE )
+2LITERAL COMPARE NEGATE " STRcompiledCode
+binary-search . . KEY DROP
 
 START{ arrBeg @ arrLen @ 2 CELLS iterateBy DUP 2@ CR TYPE }EMERGE
-;
-EXECUTE
+; EXECUTE
 \ MemReport
