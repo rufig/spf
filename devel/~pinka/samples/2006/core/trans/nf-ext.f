@@ -19,4 +19,6 @@
 
 \ example:
 \ ' AsQName enqueueNOTFOUND
-\ where AsQName ( a-text u-text -- a1 u1 true | true | a u false )
+\ where AsQName stack notation
+\   on STATE0 is ( a-text u-text -- a1 u1 true | a u false )
+\   otherwise is ( a-text u-text -- true | a u false )
