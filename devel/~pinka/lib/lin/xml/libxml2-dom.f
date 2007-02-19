@@ -249,13 +249,18 @@ ALSO libxml2.dll \ WARNING @ WARNING OFF
 : FREE-XML ( doc -- )
   1 xmlFreeDoc DROP
 ;
-: parseURI LOAD-XMLDOC ;
+: ParseURI ( uri-a uri-u -- doc|0 ) LOAD-XMLDOC ;
+
+: FreeDoc ( doc -- ) 1 xmlFreeDoc DROP ;
 
 PREVIOUS
 ;MODULE
 
 : parseURI ( uri-a uri-u LSParser -- document|0 )
-  `parseURI OBEY-FORCE-
+  `ParseURI OBEY-FORCE-
+;
+: freeDoc ( doc LSParser -- )
+  `FreeDoc OBEY-FORCE-
 ;
 
 \ `test1.f.xml DefaultLSParser parseURI DUP . VALUE doc
