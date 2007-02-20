@@ -5,6 +5,8 @@
 
   <xsl:param name="base.dir" select="'chunked/'"></xsl:param>
 
+  <xsl:param name="chunk.fast" select="1"></xsl:param>
+
   <xsl:param name="root.filename" select="'index'"></xsl:param>
 
   <xsl:param name="toc.section.depth" select="1"/>

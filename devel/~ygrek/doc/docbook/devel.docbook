@@ -39,6 +39,16 @@
   <!ENTITY chap-parse-date SYSTEM "source/~ygrek/lib/spec/sdate.docbook">
   <!ENTITY chap-parse-date2 SYSTEM "source/~ygrek/lib/spec/sdate2.docbook">
   <!ENTITY chap-ygrek-unixdate SYSTEM "source/~ygrek/lib/spec/unixdate.docbook">
+  <!ENTITY chap-locals SYSTEM "source/lib/ext/locals.docbook">
+  <!ENTITY chap-float SYSTEM "source/lib/include/float2.docbook">
+  <!ENTITY chap-lib-string SYSTEM "source/lib/include/string.docbook">
+  <!ENTITY chap-lib-tools SYSTEM "source/lib/include/tools.docbook">
+  <!ENTITY chap-lib-facil SYSTEM "source/lib/include/facil.docbook">
+  <!ENTITY chap-double SYSTEM "source/lib/include/double.docbook">
+  <!ENTITY chap-core-ext SYSTEM "source/lib/include/core-ext.docbook">
+  <!ENTITY chap-capi2 SYSTEM "source/lib/win/api-call/capi2.docbook">
+  <!ENTITY chap-lib-mutex SYSTEM "source/lib/win/mutex.docbook">
+
 ]>
 
 <book>
@@ -68,7 +78,7 @@
   &chap-hash-table;
   &chap-queue_pr;
   &chap-bitfield;
-  &chap-like;
+  &chap-float;
   </chapter>
 
   <chapter id="formats">
@@ -112,6 +122,7 @@
   &chap-uppercase;
   &chap-compare-u;
   &chap-conv;
+  &chap-like;
   </chapter>
 
   <chapter id="file">
@@ -191,6 +202,17 @@
   &chap-bac4th;
   </chapter>
 
+  <chapter id="system">
+  <title>Системные штучки</title>
+  <section id="system-desc">
+   <title>Описание</title>
+   <para>
+     А как его ещё назвать?
+   </para>
+  </section>
+  &chap-capi2;
+  </chapter>
+
   <chapter id="memory">
   <title>Память</title>
   <section id="memory-desc">
@@ -210,7 +232,25 @@
    </para>
   </section>
   &chap-critical;
+  &chap-lib-mutex;
   </chapter>
+
+  <chapter id="ext">
+  <title>Стандартные расширения</title>
+  <section id="ext-desc">
+   <title>Описание</title>
+   <para>
+      Слова определённые в стандарте и не вощедшие в ядро - доступны в подключаемых библиотеках.
+   </para>
+  </section>
+  &chap-double;
+  &chap-core-ext;
+  &chap-lib-string;
+  &chap-lib-facil;
+  &chap-lib-tools;
+  &chap-locals;
+  </chapter>
+
 
   <chapter id="debug">
   <title>Средства отладки</title>

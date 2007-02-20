@@ -3,12 +3,12 @@
 
   <xsl:include href="devel.basic.xsl"/>
 
-  <xsl:param name="htmlhelp.encoding" select="'windows-1251'"></xsl:param>
-
   <xsl:param name="htmlhelp.chm" select="'devel.chm'"/>
   <xsl:param name="htmlhelp.hhp" select="'devel.hhp'"/>
   <xsl:param name="htmlhelp.hhc" select="'devel.hhc'"/>
   <xsl:param name="htmlhelp.hhk" select="'devel.hhk'"/>
+
+  <xsl:param name="chunk.fast" select="1"></xsl:param>
 
   <xsl:param name="htmlhelp.hhc.binary" select="0"/>
   <xsl:param name="htmlhelp.hhc.folders.instead.books" select="0"/>

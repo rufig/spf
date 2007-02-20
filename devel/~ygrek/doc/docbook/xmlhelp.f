@@ -10,6 +10,9 @@ REQUIRE [IF] lib/include/tools.f
 REQUIRE STR@ ~ac/lib/str4.f
 REQUIRE LAY-PATH ~pinka/samples/2005/lib/lay-path.f
 
+\ REQUIRE >UNICODE ~ac/lib/win/com/com.f
+\ : >UTF8  ( addr u -- addr2 u2 ) >UNICODE OVER >R UNICODE>UTF8 R> FREE THROW ;
+
 : PARSE-NAME NextWord ;
 
 : S, ( addr u -- )
@@ -44,7 +47,8 @@ VARIABLE xmlIndent
 0 VALUE comment?
 0 VALUE str-of-comments \ номер строки из которой были выдраны коменты в последний раз
                         \ дл€ того чтобы вз€ть только те комменты которые идут до слова
-"" VALUE comments-storage \ хранилище комментариев между словами
+"" VALUE comments-storage \ хранилище комментариев
+0 VALUE HERE-AT-MODULE-START
 \ 0x1FFFFFFF VALUE TC-IMAGE-BASE
 
 : XMLHELP-ON
@@ -59,11 +63,14 @@ VARIABLE xmlIndent
 : -indent -1 xmlIndent +! ;
 
 : (HELP-OUT) ( addr u )
+\   >UTF8 2DUP
    docHandle
    IF
      docHandle WRITE-FILE THROW
-   ELSE TYPE
+   ELSE 
+     TYPE
    THEN
+\   DROP FREE THROW
 ;
 
 : HELP-EMIT ( c )
@@ -180,30 +187,65 @@ SPECIAL > &gt;
     TRUE TO comment?
 ;
 
-: \
-   comment? moduleComment? OR
-   IF
+: SAVE-AS-COMMENTS
+        CURSTR @ str-of-comments 1+ ?DO S" <comment></comment>" HELP-OUT crh LOOP
+        S" <comment>" HELP-OUT
+        HandleSpecialChars (HELP-OUT)
+        S" </comment>" HELP-OUT crh
+        CURSTR @ TO str-of-comments ;
+
+: simple-\
      CURSTR @ str-of-comments 1+ = 
      IF 
-        BL SKIP \ BL HELP-EMIT
-        S" <comment>" HELP-OUT
-        0 PARSE HandleSpecialChars (HELP-OUT)
-        S" </comment>" HELP-OUT crh
-        CURSTR @ TO str-of-comments
+        BL SKIP 0 PARSE
+        SAVE-AS-COMMENTS
      ELSE
         POSTPONE \
-     THEN
+     THEN ;
+
+: module-\
+     HERE HERE-AT-MODULE-START = 
+     IF
+        BL SKIP 0 PARSE
+        SAVE-AS-COMMENTS
+     ELSE
+        POSTPONE \
+     THEN ;
+
+
+: CHECK-AS-( ( a u -- )
+   HERE HERE-AT-MODULE-START = 
+   IF
+    SAVE-AS-COMMENTS
    ELSE
-    CURSTR @ str-of-comments 1+ <> IF comments-storage STRFREE "" TO comments-storage THEN
-    CURSTR @ TO str-of-comments
-    0 PARSE HandleSpecialChars " <comment>{s}</comment>" comments-storage S+
-   THEN
+    2DROP
+   THEN ;
+
+: (
+  BEGIN
+    [CHAR] ) >R
+    R@ PARSE 2DUP CHECK-AS-( + C@ R> = 0=
+  WHILE
+    REFILL 0= IF EXIT THEN
+  REPEAT
+; IMMEDIATE
+
+
+: \
+   moduleComment? IF module-\ EXIT THEN
+   comment? IF simple-\ EXIT THEN
+
+   \ ELSE
+   CURSTR @ str-of-comments 1+ <> IF comments-storage STRFREE "" TO comments-storage THEN
+   CURSTR @ TO str-of-comments
+   0 PARSE HandleSpecialChars " <comment>{s}</comment>" comments-storage S+
 ; IMMEDIATE
 
 : StartModuleComment
     +indent
     0 TO str-of-comments
     TRUE TO moduleComment?
+    HERE TO HERE-AT-MODULE-START
 ;
 
 : EndModuleComment

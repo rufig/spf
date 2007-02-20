@@ -39,7 +39,17 @@ forthcode = ~ac/lib/lin/curl/curl.f \
 						~ac/lib/win/date/unixdate.f \
 						~ygrek/lib/spec/sdate.f \
 						~ygrek/lib/spec/sdate2.f \
-						~ygrek/lib/spec/unixdate.f
+						~ygrek/lib/spec/unixdate.f \
+						lib/ext/locals.f \
+						lib/include/float2.f \
+						lib/include/string.f \
+						lib/include/tools.f \
+						lib/include/facil.f \
+						lib/include/double.f \
+						lib/include/core-ext.f \
+						lib/win/api-call/capi2.f \
+						lib/win/mutex.f
+
 
 docbooks = $(foreach forthfile,$(forthcode),$(DOC_PATH)/$(patsubst %.f,%.docbook,$(forthfile)))
 xmlhelps = $(foreach docbook,$(docbooks),$(patsubst %.docbook,%.xml,$(docbook)))
