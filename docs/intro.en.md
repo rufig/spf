@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translated from intro.ru.md rev. 1.8 -->
+<!-- Translated from intro.ru.md rev. 1.9 -->
 
 ----
 
@@ -319,9 +319,9 @@ compiled directly after the symbols of the string (it is not represented in coun
 
 `S"` defines a so called static string, which is located in the buffer, or in the
 code area. If you need dynamic string, the one that uses memory on the heap, 
-use `~ac\lib\str4.f`. Example of usage:
+use `~ac\lib\str5.f`. Example of usage:
 
-	REQUIRE STR@ ~ac/lib/str4.f
+	REQUIRE STR@ ~ac/lib/str5.f
 	"" VALUE r \ create an empty string
 	" SP-Forth " VALUE m
 	" - the best!" VALUE w
