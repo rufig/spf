@@ -17,14 +17,18 @@
   Устанавливаемое хранилище должно быть 'свободно' от других потоков,
   то есть, оно не должно быть текущим в каком-либо другом потоке.
 
-  Модуль предоставляет новые варианты слов
-  TEMP-WORDLIST - создает временное хранилище и в нем словарь,
-  и FREE-WORDLIST - освобождающее хранилище, в котором расположен словарь.
-  ORDER выдает вершину контекста справа!
+  Модуль предоставляет новые варианты слов:
+    TEMP-WORDLIST - создает временное хранилище и в нем словарь,
+    FREE-WORDLIST - освобождающее хранилище, в котором расположен словарь.
+    ORDER выдает вершину контекста справа!
+    SAVE -- вызывает AT-SAVING-BEFORE и AT-SAVING-AFTER
 
   Модуль определяет слово UNUSED, учитывающее текущее хранилище, поэтому 
   при использовании lib/include/core-ext.f оно должно быть подключено раньше,
   т.к. в нем UNUSED тоже определяется.
+
+  Дискуссия:
+    оправдано ли значению CURRENT быть локальным для хранилища, как сейчас.
 
 
   Cовместимо с quick-swl3.f, который следует подгружать после данного модуля.
@@ -35,17 +39,6 @@ REQUIRE REPLACE-WORD lib\ext\patch.f
 REQUIRE NDROP    ~pinka\lib\ext\common.f
 
 WARNING @  WARNING 0!
-
-: AT-SAVING-BEFORE ... ;
-: AT-SAVING-AFTER ... ;
-
-: SAVE ( addr u -- )
-  AT-SAVING-BEFORE
-  SAVE
-  AT-SAVING-AFTER
-;
-\ Т.к. надо сбросить базовое хранилище перед сохранением.
-
 
 ' DP
 USER DP ( -- addr ) \ переменная, содержащая HERE сегмента данных
@@ -62,21 +55,23 @@ S" storage-core.f" Included
 
 ..: AT-FORMATING ( -- )
   ( ALIGN) HERE STORAGE-EXTRA !
-  0 ,       \ 0, current wid
+  HERE 0 ,  \ 0, current wid
   0 ,       \ 1, extra
   HERE 0 ,  \ 2, default wid
   0 ,       \ 3, voc-list
-  WORDLIST
-  DUP STORAGE-EXTRA @ ! \ to current
-  SWAP !                \ to default
+  0 ,       \ 4, isBusy -- for debug
+  WORDLIST DUP ROT ! \ to default
+  SWAP !             \ to current
 ;..
 
 ..: AT-DISMOUNTING ( -- )
-  CURRENT @  STORAGE-EXTRA @  !  CURRENT 0!
+  STORAGE-EXTRA @  CURRENT @ OVER !  4 CELLS + 0!  CURRENT 0!
 ;..
 
 ..: AT-MOUNTING ( -- )
-  STORAGE-EXTRA @  @ CURRENT !
+  STORAGE-EXTRA @  DUP
+  4 CELLS +  DUP  @ IF -2012 THROW THEN -1 SWAP !
+  @ CURRENT !
 ;..
 
 : DEFAULT-WORDLIST ( -- wid )
@@ -109,7 +104,17 @@ CONSTANT FORTH-STORAGE  \ базовое хранилище форт-системы
 
 ..: AT-PROCESS-STARTING  FORTH-STORAGE MOUNT ;..
 
-..: AT-SAVING-BEFORE FLUSH-STORAGE ;..
+: AT-SAVING-BEFORE ... ; 
+: AT-SAVING-AFTER ... ;
+
+: SAVE ( addr u -- )
+  AT-SAVING-BEFORE
+  FLUSH-STORAGE STORAGE-EXTRA 3 CELLS + DUP >R 0! \ сохранить надо с флагом "незанято"
+  SAVE
+  -1 R> !
+  AT-SAVING-AFTER
+;
+\ Т.к. надо сбросить базовое хранилище перед сохранением; оно должно быть текущим.
 
 
 \ ==================================================
@@ -152,7 +157,7 @@ EXPORT
 ;
 ' SET-CURRENT SWAP REPLACE-WORD
 
-\ ..: AT-THREAD-STARTING CURRENT 0! ;.. 
+..: AT-THREAD-STARTING STORAGE-ID 0= IF CURRENT 0! THEN ;..
 \ из дочернего потока нельзя писать в занятое основным потоком базовое хранилище
 
 ' DEFINITIONS
