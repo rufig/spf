@@ -38,20 +38,23 @@ USER STORAGE-LIST \ список хранилищ, созданных потоком
 ..: AT-FORMATING         enroll-this  ;..
 ..: AT-STORAGE-DELETING  excide-this  ;..
 
-: (WITHIN-STORAGE) ( xt h -- xt )
-  OVER DISMOUNT 2>R MOUNT EXECUTE 2R> MOUNT
+: (WITHIN-STORAGE) ( xt h -- xt ) \ for inner purpose only
+  \ OVER DISMOUNT 2>R MOUNT EXECUTE 2R> MOUNT
+  OVER STORAGE @ 2>R STORAGE ! CATCH R> STORAGE ! THROW R>
 ;
-EXPORT 
+
+EXPORT
 
 : ENUM-STORAGES ( xt -- ) \ xt ( h -- )
   >R FORTH-STORAGE R@ EXECUTE
   R> STORAGE-LIST ENUM-VALUES
 ;
-: WITHIN-STORAGES ( xt -- ) \ xt ( -- )
-  ['] (WITHIN-STORAGE) ENUM-STORAGES DROP
-;
 
 DEFINITIONS
+
+: WITHIN-STORAGES ( xt -- ) \ xt ( -- ) \ for inner purpose only
+  ['] (WITHIN-STORAGE) ENUM-STORAGES DROP
+;
 
 : (NEAREST1) ( 0|nfa1 addr nfa2 -- 0|nfa1|nfa2 addr )
   DUP 0= IF DROP EXIT THEN
@@ -77,11 +80,15 @@ WARNING @  WARNING 0!
 : NEAR_NFA ( addr -- nfa|0 addr )
   0 SWAP (NEAREST4)
 ;
-: WordByAddr ( addr -- c-addr u )
-  0 SWAP (NEAREST4) 
-  OVER 0= IF 2DROP S" <not in the image>" EXIT THEN
+: (WordByAddr) ( addr -- c-addr u )
+  0 SWAP (NEAREST4)
+  OVER 0= IF 2DROP S" <?not in the image>" EXIT THEN
   OVER - 4096 U< IF COUNT EXIT THEN
-  DROP S" <not found>"
+  DROP S" <?not found>"
+;
+: WordByAddr ( addr -- c-addr u )
+  ['] (WordByAddr) CATCH  ?DUP IF ."  EXC:" . DROP S" <?nested exception>" EXIT THEN
+  255 UMIN
 ;
 
 : STACK-ADDR. ( addr -- addr )
