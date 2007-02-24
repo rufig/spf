@@ -9,6 +9,7 @@ SP-Forth: Additional libraries
 
 *REQUIRE is a forth word, which loads library; unnecessary text is commented out, so you can use this list as a forth code to include libs :)*
 
+<a id="net"/>
 ### \\ Network
 * REQUIRE CreateSocket <a
 href='../devel/~ac/lib/win/winsock/sockets.f'>~ac/lib/win/winsock/sockets.f</a> \\ basic TCP/IP support
@@ -26,9 +27,11 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE GET-FILE-VIAPROXY <a href='../devel/~ac/lib/lin/curl/curl.f'>~ac/lib/lin/curl/curl.f</a> \\ cURL-wrapper - send/receive files via HTTP/FTP/etc
 * \\ ~nn/lib/net/ \\ HTTP, POP3, FTP, etc 
 
+<a id="graph"/>
 ### \\ Graphics
 * REQUIRE GLWindow <a href='../devel/~ygrek/lib/joopengl/GLWindow.f'>~ygrek/lib/joopengl/GLWindow.f</a> \\ OpenGL with joop 
 
+<a id="list"/>
 ### \\ Data structures - list 
 * REQUIRE ListNode <a href='../devel/~day/joop/lib/list.f'>~day/joop/lib/list.f</a> \\ double-linked list 
 * REQUIRE AddNode <a href='../devel/~ac/lib/list/STR_LIST.f'>~ac/lib/list/STR_LIST.f</a> \\ linked list 
@@ -36,11 +39,13 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE firstNode <a href='../devel/~day/lib/staticlist.f'>~day/lib/staticlist.f</a> \\ double-linked list, pretty much words 
 * REQUIRE list+s <a href='../devel/~pinka/lib/list_ext.f'>~pinka/lib/list_ext.f</a> \\ linked list 
 
+<a id="record"/>
 ### \\ Data structures - record
 * REQUIRE STRUCT: <a href='../lib/ext/struct.f'>lib/ext/struct.f</a> \\ simple records 
 * REQUIRE f: <a href='../devel/~af/lib/struct.f'>~af/lib/struct.f</a> \\ defining records with elements-functions 
 * REQUIRE f: <a href='../devel/~af/lib/struct-t.f'>~af/lib/struct-t.f</a> \\ defining records with elements-functions in the temporary vocabulary
 
+<a id="data"/
 ### \\ Data structures - misc
 * REQUIRE Stack <a href='../devel/~day/joop/lib/stack.f'>~day/joop/lib/stack.f</a> \\ stack
 * REQUIRE New-Queue <a href='../devel/~pinka/lib/queue_pr.f'>~pinka/lib/queue_pr.f</a> \\ priority queue
@@ -53,11 +58,13 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE (: <a href='../devel/~yz/lib/inline.f'>~yz/lib/inline.f</a> \\ lambda analogue
 * REQUIRE CONT <a href='../devel/~profit/lib/bac4th.f'>~profit/lib/bac4th.f</a> \\ backtracking, see description in <a href='../devel/~mlg/index.html#bacforth'>~mlg/#bacforth</a> 
 
+<a id="sort-n-search"/>
 ### \\ Search and sort
 * REQUIRE HeapSort <a href='../devel/~mlg/SrcLib/hsort.f'>~mlg/SrcLib/hsort.f</a>  \\ Heap sort
 * REQUIRE quick_sort <a href='../devel/~pinka/samples/2003/common/qsort.f'>~pinka/samples/2003/common/qsort.f</a> \\ Quick sort
 * REQUIRE binary-search <a href='../devel/~profit/lib/binary-search.f'>~profit/lib/binary-search.f</a> \\ Binary search
 
+<a id="debug"/>
 ### \\ Debugging facilities
 * REQUIRE HeapEnum <a href='../devel/~ac/lib/memory/heap_enum2.f'>~ac/lib/memory/heap_enum2.f</a> \\ enumerating allocated memory blocks on the heap
 * REQUIRE mem_stub <a href='../devel/~day/lib/mem_sanity.f'>~day/lib/mem_sanity.f</a> \\ Verifying FREE (via filling with template) 
@@ -65,6 +72,7 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE ACCERT( <a href='../lib/ext/debug/accert.f'>lib/ext/debug/accert.f</a> \\ Conditional compilation, suitable for debug checks
 * REQUIRE TRACER <a href='../lib/ext/debug/tracer.f'>lib/ext/debug/tracer.f</a> \\ Detailed execution report
 
+<a id="random"/>
 ### \\ Random numbers 
 * REQUIRE RANDOM <a href='../lib/ext/rnd.f'>lib/ext/rnd.f</a> \\ linear congruent generator
 * REQUIRE RANDOM <a href='../devel/~day/common/rnd.f'>~day/common/rnd.f</a> \\ linear congruent generator 
@@ -72,7 +80,8 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE RANDOM <a href='../devel/~nn/lib/ran4.f'>~nn/lib/ran4.f</a> \\ RAN4 
 * REQUIRE GENRAND <a href='../devel/~ygrek/lib/neilbawd/mersenne.f'>~ygrek/lib/neilbawd/mersenne.f</a> \\ Mersenne twister - high-speed and quality RNG
 
-### \\ Hash tables
+<a id="hash"/>
+### \\ Hashes
 * REQUIRE new-hash <a href='../devel/~pinka/lib/hash-table.f'>~pinka/lib/hash-table.f</a> 
 * REQUIRE ListAllocate <a href='../devel/~af/lib/simple_hash.f'>~af/lib/simple_hash.f</a> 
 * REQUIRE HASH-TABLE <a href='../devel/~yz/lib/hash.f'>~yz/lib/hash.f</a> 
@@ -81,12 +90,14 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 
 * REQUIRE HASH <a href='../devel/~day/common/hash.f'>~day/common/hash.f</a> \\ hash counting procedure
 
+<a id="hash-func"/>
 ### \\ Cryptographic hashes
 * REQUIRE MD5 <a href='../devel/~clf/md5.f'>~clf/md5.f</a> 
 * REQUIRE MD5 <a href='../devel/~clf/md5-ts.f'>~clf/md5-ts.f</a> \\ thread safe 
 * REQUIRE SHAbuffer <a href='../devel/~nn/lib/security/SHA256.f'>~nn/lib/security/SHA256.f</a> 
 * REQUIRE MD5 <a href='../lib/alg/md5-jz.f'>lib/alg/md5-jz.f</a> 
 
+<a id="compiletime-const"/>
 ### \\ Compile-time constants
 * REQUIRE LOAD-CONSTANTS <a href='../devel/~yz/lib/const.f'>~yz/lib/const.f</a> \\ including constants - the `W:` word searches the constant
 * REQUIRE ADD-CONST-VOC <a href='../devel/~day/wincons/wc.f'>~day/wincons/wc.f</a> \\ including constants - redefining `NOTFOUND`
@@ -95,25 +106,30 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * \\ <a href='../devel/~yz/cons/'>~yz/cons/</a> \\ precompiled constants for sql, commctrl, windows 
 * \\ <a href='../devel/~ygrek/lib/data/'>~ygrek/lib/data/</a> \\ farplugin, opengl 
 
+<a id="WinGUI"/>
 ### \\ Windows GUI 
 * REQUIRE WINDOWS... <a href='../devel/~yz/lib/winlib.f'>~yz/lib/winlib.f</a> \\ WinLib - Windows GUI interface library. Stretches forms and controls on it. Specifying controls position without coordinates, only position in grid - know-how! Good <a href='http://www.forth.org.ru/~yz/winlib.html'>documentation</a>. 
 * REQUIRE FrameWindow <a href='../devel/~day/joop/win/'>~day/joop/win/framewindow.f</a> \\ windows library with joop 
 * \\ <a href='../devel/~ac/lib/win/window/'>~ac/lib/win/window/</a> \\ simple and small implementation
 
+<a id="WinCOM"/>
 ### \\ Windows COM 
 * REQUIRE ComInit <a href='../devel/~ac/lib/win/com/com.f'>~ac/lib/win/com/com.f</a> \\ basic COM support
 * REQUIRE Extends <a href='../devel/~ac/lib/win/com/com_server.f'>~ac/lib/win/com/com_server.f</a> \\ COM-server 
 
+<a id="services"/>
 ### \\ System services
 * REQUIRE CreateService <a href='../devel/~ac/lib/win/service/service.f'>~ac/lib/win/service/service.f</a> \\ NT services
 * REQUIRE InstallService95 <a href='../devel/~ac/lib/win/service/service95.f'>~ac/lib/win/service/service95.f</a> \\ "services" for Win9x/ME 
 
+<a id="datetime"/>
 ### \\ Date and time
 * REQUIRE DateTime# <a href='../devel/~ac/lib/win/date/date-int.f'>~ac/lib/win/date/date-int.f</a> \\ date/time in different formats
 * REQUIRE UNIXDATE <a href='../devel/~ac/lib/win/date/unixdate.f'>~ac/lib/win/date/unixdate.f</a> \\ Unixdate support
 * REQUIRE FileDateTime# <a href='../devel/~ac/lib/win/file/filetime.f'>~ac/lib/win/file/filetime.f</a> \\ file date/time 
 * REQUIRE parse-date? <a href='../devel/~ygrek/lib/spec/sdate.f'>~ygrek/lib/spec/sdate.f</a> \\ S" Tue, 19 Dec 2006 19:55:16 +0300" dates' parsing
 
+<a id="db"/>
 ### \\ Databases
 * REQUIRE StartSQL <a href='../devel/~yz/lib/odbc.f'>~yz/lib/odbc.f</a> \\ ODBC, typed data
 * REQUIRE StartSQL <a href='../devel/~ac/lib/win/odbc/'>~ac/lib/win/odbc/odbc.f</a> \\ ODBC, all data as strings 
@@ -121,16 +137,19 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE db3_open <a href='../devel/~ac/lib/lin/sql/sqlite3.f'>~ac/lib/lin/sql/sqlite3.f</a> \\ SQLite 
 * REQUIRE MyQuery <a href='../devel/~day/lib/mysql.f'>~day/lib/mysql.f</a> \\ MySQL wrapper 
 
+<a id="threads"/>
 ### \\ Processes, threads and access rights
 * \\ <a href='../devel/~ac/lib/win/process/'>~ac/lib/win/process/</a> 
 * REQUIRE GetProcessACL <a href='../devel/~ac/lib/win/access/nt_access.f'>~ac/lib/win/access/nt_access.f</a> \\ access rights
 * REQUIRE IsapiRunExtension <a href='../devel/~ac/lib/win/isapi/isapi.f'>~ac/lib/win/isapi/isapi.f</a> \\ support ISAPI-compatible extensions
 * REQUIRE CREATE-CP <a href='../devel/~ac/lib/win/thread/pool.f'>~ac/lib/win/thread/pool.f</a> \\ thread-pool in Win200x 
 
-### \\ Windows register and ini-files 
+<a id="ini-registry"/>
+### \\ Windows registry and ini-files 
 * REQUIRE RG_CreateKey <a href='../devel/~ac/lib/win/registry2.f'>~ac/lib/win/registry2.f</a> 
 * REQUIRE IniFile@ <a href='../devel/~ac/lib/win/ini.f'>~ac/lib/win/ini.f</a> 
 
+<a id="str"/>
 ### \\ Strings
 * REQUIRE STR@ <a href='../devel/~ac/lib/str5.f'>~ac/lib/str5.f</a> \\ dynamic strings
 * REQUIRE BNF <a href='../devel/~ac/lib/transl/BNF.f'>~ac/lib/transl/BNF.f</a> \\ basic BNF data types
@@ -146,6 +165,7 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE COMPARE-U <a href='../devel/~ac/lib/string/compare-u.f'>~ac/lib/string/compare-u.f</a> \\ case-ignorant comparison
 * REQUIRE GetParam <a href='../devel/~ac/lib/string/get_params.f'>~ac/lib/string/get_params.f</a> \\ URL-parameters string parser
 
+<a id="files"/>
 ### \\ Files
 * REQUIRE OPEN-FILE-SHARED-DELETE <a href='../devel/~ac/lib/win/file/share-delete.f'>~ac/lib/win/file/share-delete.f</a> \\ opening file with "light" shareable access
 * REQUIRE LAY-PATH <a href='../devel/~pinka/samples/2005/lib/lay-path.f'>~pinka/samples/2005/lib/lay-path.f</a> \\ creation of path directories
@@ -162,20 +182,21 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE XML_READ_DOC <a href='../devel/~ac/lib/lin/xml/xml.f'>~ac/lib/lin/xml/xml.f</a> \\ XML via LibXml2 
 * REQUIRE XSLT <a href='../devel/~ac/lib/lin/xml/xslt.f'>~ac/lib/lin/xml/xslt.f</a> \\ XSLT via LinXslt 
 
+<a id="oop"/>
 ### \\ OOP extensions
 * REQUIRE CLASS: <a href='../devel/~day/joop/oop.f'>~day/joop/oop.f</a> \\ just oop with great pile of examples
 * REQUIRE CLASS: <a href='../devel/~af/mc/microclass.f'>~af/mc/microclass.f</a> \\ microclass 
 * REQUIRE CLASS: <a href='../devel/~day/mc/microclass.f'>~day/mc/microclass.f</a> \\ microclass 
 
+<a id="vocs"/>
 ### \\ Vocabularies
-
 * REQUIRE InVoc{ <a href='../devel/~ac/lib/transl/vocab.f'>~ac/lib/transl/vocab.f</a> \\ shortening vocabulary manipulations (MODULE: analogue) 
 * REQUIRE ForEach <a href='../devel/~ac/lib/ns/iterators.f'>~ac/lib/ns/iterators.f</a> \\ iterators for context vocabularies
 * REQUIRE ForEach-Word <a href='../devel/~pinka/lib/Words.f'>~pinka/lib/Words.f</a> \\ ForEach-Word 
 * REQUIRE QuickSWL-Support <a href='../devel/~pinka/spf/quick-swl2.f'>~pinka/spf/quick-swl2.f</a> \\ Quick Search Wordlist (due to hashing) 
 
+<a id="mem"/>
 ### \\ Memory
-
 * REQUIRE STACK_MEM <a href='../devel/~ac/lib/memory/mem_stack.f'>~ac/lib/memory/mem_stack.f</a> \\ "Stack"-way memory allocation
 * REQUIRE LowMemory? <a href='../devel/~ac/lib/memory/low_memory.f'>~ac/lib/memory/low_memory.f</a> \\ Controlling extra memory consumption
 * REQUIRE PAllocSupport <a href='../devel/~af/lib/pallocate.f'>~af/lib/pallocate.f</a> \\ Allocating memory in the global process space (shareable between threads) 
