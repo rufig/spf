@@ -101,29 +101,25 @@
        исход€ из динамического контекста (т.е., точки подстановки, а не точки определени€).
 
        <div1>
-         <xi:model name="B">it is a lexical scope...</xi:model>
+         <xi:model name="B">(B1)</xi:model>
 
-         <xi:include href="#A">
-           <xi:model name="A">some beyond text</xi:model>
-           <xi:include href="#A"/>
-           <p>тест бы вывелс€, если бы не было доступных снаружи определений A</p>
-         </xi:include>
-         
          <xi:model name="A">
-           <xi:model name="A">(inner div1)</xi:model>
-           <xi:include href="#A"/>
+           <xi:model name="A">(local A)</xi:model>
+           <xi:include href="#A"/><xi:include href="#B"/>
          </xi:model>
 
+         <xi:include href="#A" />
+
          <div2>
-           <xi:model name="B">it is a dynamic scope!</xi:model>
-           <xi:model name="A">(div2)<xi:include href="#A"/></xi:model>
+           <xi:model name="B">(B2)</xi:model>
+           <xi:model name="A">[<xi:include href="#A"/>]</xi:model>
 
            <xi:include href="#A"/>
          </div2>
 
        </div1>
 
-       ƒает: <div1>(inner div1)<div2>(div2)(inner div1)</div2></div1>
+       ƒает: <div1>(local A)(B1)<div2>[(local A)(B2)]</div2></div1>
        —м. также пример struct-test.xml
 
 
@@ -170,7 +166,7 @@
   обрамл€ть в тег xi:fallback, как в XInclude ?
 
   —тоит ли вместо решетки в href (признака локального имени), использовать
-  другой отдельный атрибут дл€ задани€ локального имени?
+  другой, отдельный атрибут дл€ задани€ локального имени?
 
 
 \ $Id$
