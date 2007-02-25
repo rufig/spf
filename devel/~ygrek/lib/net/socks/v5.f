@@ -8,8 +8,14 @@
 REQUIRE ConnectHost ~ac/lib/win/winsock/psocket.f
 REQUIRE { lib/ext/locals.f
 REQUIRE CASE lib/ext/case.f
+REQUIRE /TEST ~profit/lib/testing.f
 
 MODULE: SOCKS5
+
+4624000 VALUE IOR_BASE
+
+\ Выкинуть ior если условие f ложно
+: MUST ( ? ior -- ) SWAP IF DROP ELSE IOR_BASE + THROW THEN ;
 
 \ Пакет для "знакомства" с прокси сервером
 CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
@@ -31,21 +37,14 @@ CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
     R> DP ! \ restore HERE
     ;
 
-\ Выкинуть ior если условие f истинно
-: err ( f ior -- )
-   SWAP IF 
-   THROW ELSE 
-   \ CR ." Passed err " DUP . \ debug
-   DROP THEN ;
-
 : ProxyStep1 ( a u port -- sock )
-   ConnectHost -1 err
+   ConnectHost 0= 1 MUST
    { sock | [ 2 ] reply }
-   step1 COUNT sock WriteSocket -2 err
-   reply 2 sock ReadSocket -3 err
-   2 <> -4 err
-   reply C@ 5 <> -5 err
-   reply 1+ C@ 0 <> -6 err
+   step1 COUNT sock WriteSocket 0= 2 MUST
+   reply 2 sock ReadSocket 0= 3 MUST
+   2 = 4 MUST
+   reply C@ 5 = 5 MUST
+   reply 1+ C@ 0 = 6 MUST
    sock ;
 
 : ProxyStep2 ( a u port sock -- )
@@ -53,20 +52,20 @@ CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
   255 MIN \ prevent buffer overflow
   buf step2 
   buf COUNT \ 2DUP DUMP
-  sock WriteSocket -7 err
-  buf 4 sock ReadSocket THROW 4 <> -4 err
-  buf C@ 5 <> -8 err
-  buf 1 + C@ 0 <> -9 err
+  sock WriteSocket 0= 7 MUST
+  buf 4 sock ReadSocket THROW 4 = 4 MUST
+  buf C@ 5 = 8 MUST
+  buf 1 + C@ 0 = 9 MUST
   buf 2 + C@ 0 <> IF CR ." Warning: rsrv used" THEN
   buf 3 + C@ 3 = IF 
-  buf 1 sock ReadSocket -3 err 1 <> -4 err
-  buf 1+ buf C@ 2+ sock ReadSocket -3 err buf C@ <> -4 err
+  buf 1 sock ReadSocket 0= 3 MUST 1 = 4 MUST
+  buf 1+ buf C@ 2+ sock ReadSocket 0= 3 MUST buf C@ = 4 MUST
   ELSE
-   buf 3 + C@ 1 = IF buf 4 2 + sock ReadSocket -3 err 6 <> -4 err
+   buf 3 + C@ 1 = IF buf 4 2 + sock ReadSocket 0= 3 MUST 6 = 4 MUST
   ELSE 
-   buf 3 + C@ 4 = IF buf 16 2 + sock ReadSocket -3 err 18 <> -4 err
+   buf 3 + C@ 4 = IF buf 16 2 + sock ReadSocket 0= 3 MUST 18 = 4 MUST
   ELSE
-   -10 THROW
+   FALSE 10 MUST
   THEN
   THEN
   THEN
@@ -74,29 +73,30 @@ CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
 
 \ Обьяснить ior возвращаемый этим модулем
 : explain ( ior -- a u )
+   DUP 0= IF 0 EXIT THEN
+   IOR_BASE -
    CASE
-      0 OF 0 0 ENDOF
-     -1 OF S" Connection to proxy server failed." ENDOF
-     -2 OF S" Step1: send hello failed" ENDOF
-     -3 OF S" Didn't get reply" ENDOF
-     -4 OF S" Bad reply (incorrect length)" ENDOF
-     -5 OF S" Step1: bad proto version in reply" ENDOF
-     -6 OF S" Step1: bad auth" ENDOF
-     -7 OF S" Step2: send CONNECT failed" ENDOF
-     -8 OF S" Step2: bad proto version in reply" ENDOF
-     -9 OF S" Step2: CONNECT failed" ENDOF
-    -10 OF S" Step2: Domain format unsupported" ENDOF
+     1 OF S" Connection to proxy server failed." ENDOF
+     2 OF S" Step1: send hello failed" ENDOF
+     3 OF S" Didn't get reply" ENDOF
+     4 OF S" Bad reply (incorrect length)" ENDOF
+     5 OF S" Step1: bad proto version in reply" ENDOF
+     6 OF S" Step1: bad auth" ENDOF
+     7 OF S" Step2: send CONNECT failed" ENDOF
+     8 OF S" Step2: bad proto version in reply" ENDOF
+     9 OF S" Step2: CONNECT failed" ENDOF
+    10 OF S" Step2: Domain format unsupported" ENDOF
    ENDCASE ;
 
-\ EXPORT
-
 : ETHROW DUP IF explain CR TYPE CR -1 THROW ELSE DROP THEN ;
+
+EXPORT
 
 \ Установить TCP соединение с указанным хостом (FQDN, не IP!)
 \ через SOCKS5 прокси "proxy-au:proxy-port"
 \ Если proxy-port = 0, то соединение идёт напрямую, минуя прокси
 \ Если соединение установлено - ior = 0
-: ConnectHostViaProxy ( host-au port proxy-au proxy-port -- sock ior ) 
+: ConnectHostViaSocks5 ( host-a u port proxy-a u proxy-port -- sock ior ) 
    DUP 0= IF DROP 2DROP ConnectHost EXIT THEN
    ['] ProxyStep1 CATCH DUP IF 0 SWAP EXIT ELSE DROP THEN
    >R
@@ -107,12 +107,12 @@ CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
 
 ;MODULE
 
-\EOF
+/TEST
 
 \ Попробуем добыть страничку через Tor
 : test { | s }
   SocketsStartup THROW
-  S" forth.org.ru" 80 S" localhost" 9050 SOCKS5::ConnectHostViaProxy SOCKS5::ETHROW SocketLine TO s
+  S" forth.org.ru" 80 S" localhost" 9050 ConnectHostViaSocks5 SOCKS5::ETHROW SocketLine TO s
 " GET / HTTP/1.0
 Host: www.forth.org.ru
 Connection: close
