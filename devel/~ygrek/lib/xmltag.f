@@ -21,10 +21,10 @@ USER-VALUE xmltag.indent#
 
 \ plain - no indent
 : ptag
-   2DUP
    PRO
-   " <{s}>" STYPE
    BACK " </{s}>" STYPE TRACKING
+   2RESTB
+   " <{s}>" STYPE
    CONT ;
 
 
