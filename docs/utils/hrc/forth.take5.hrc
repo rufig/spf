@@ -399,9 +399,9 @@ With Help of
    <block start="/(\s|^)\m\[\M(\s|$)/" end="/(\s|^)(\]|\;)\M(\s|$)/" scheme="forth" region="Insertion" region00="forResWord" region10="forResWord"/>
 
    <!-- LNM: Local variables -->
-   <regexp match="/(\s|^)(\{)\s+((.*?\s+)*?)((\||\\)\s+((.*?\s+)*?))?((\-\-)\s+(.*?))?(\}\M(\s|$))/"
-           region2="forWord" region6="forWord" region7="forNumb"
-           regiona="forWord" regionb="forComment" regionc="forWord"/>
+   <regexp match="/(\s|^)(\{)\s?=(.*?)(\s(\||\\)\s?=(.*?))?(\s(\-\-)\s?=(.*?))?(\s\}\M(\s|$))/"
+           region2="forWord" region5="forWord" region6="forNumb"
+           region8="forWord" region9="forComment" regiona="forWord"/>
            <!-- region3="forNumb" -->
 
    <!-- general syntax constructs -->
