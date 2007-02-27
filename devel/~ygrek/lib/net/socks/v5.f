@@ -32,8 +32,11 @@ CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
      1 C, \ CONNECT
      0 C, \ reserved
      3 C, \ domain
-     >R S", \ FQDN
-     R> DUP 2nd-byte C, C, \ port (reversed bytes)
+     ( a u port)
+     >R 
+     255 MIN \ prevent buffer overflow
+     S", \ FQDN
+     R> ( port) DUP 2nd-byte C, C, \ port (reversed bytes)
     R> DP ! \ restore HERE
     ;
 
@@ -49,7 +52,6 @@ CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
 
 : ProxyStep2 ( a u port sock -- )
   500 ALLOCATE THROW { sock buf } \ хватит т.к. в пакете меньше 10 ячеек + FQDN который меньше 256
-  255 MIN \ prevent buffer overflow
   buf step2 
   buf COUNT \ 2DUP DUMP
   sock WriteSocket 0= 7 MUST
@@ -98,10 +100,10 @@ EXPORT
 \ Если соединение установлено - ior = 0
 : ConnectHostViaSocks5 ( host-a u port proxy-a u proxy-port -- sock ior ) 
    DUP 0= IF DROP 2DROP ConnectHost EXIT THEN
-   ['] ProxyStep1 CATCH DUP IF 0 SWAP EXIT ELSE DROP THEN
+   ['] ProxyStep1 CATCH DUP IF >R 2DROP 2DROP 2DROP 0 R> EXIT ELSE DROP THEN
    >R
    R@
-   ['] ProxyStep2 CATCH DUP IF R> SWAP EXIT ELSE DROP THEN
+   ['] ProxyStep2 CATCH DUP IF NIP NIP NIP NIP R> FastCloseSocket DROP 0 SWAP EXIT ELSE DROP THEN
    R>
    ( sock) 0 ;
 
