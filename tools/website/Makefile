@@ -1,4 +1,8 @@
 
+# put this command in crontab (login via ssh and crontab -e)
+# 24 * * * * (cd /home/groups/s/sp/spf/spf/tools/website && cvs up -d -P -C && make) &> /dev/null
+# 24 - this is random minute
+
 path=/home/groups/s/sp/spf
 spf=$(path)/spf
 web=$(path)/htdocs
