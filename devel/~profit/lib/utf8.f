@@ -2,6 +2,7 @@
 \ См. http://ru.wikipedia.org/wiki/Unicode
 
 REQUIRE /TEST ~profit/lib/testing.f
+REQUIRE <= ~profit/lib/logic.f
 REQUIRE { lib/ext/locals.f
 REQUIRE fetchByte ~profit/lib/fetchWrite.f
 
@@ -15,7 +16,7 @@ DUP 1111111 < SWAP
 2* byte SWAP ;
 
 \ addr -- адрес переменной-бегунка которая указывает на UTF-8 последовательность,
-\ с каждый запуском значение бегунка сдвигает на нек-ое кол-во байт
+\ с каждый запуском значение бегунка сдвигается на нек-ое кол-во байт
 : utf8Next ( addr -- wchar ) >R
 R@ fetchByte
 cutBit IF ( 0xxxxxxx )
@@ -43,6 +44,8 @@ R@ fetchByte 111111 AND +
        THEN
 RDROP ;
 
+: utf8Move ( addr -- addr wchar ) SP@ utf8Next ;
+
 DECIMAL
 
 \ addr u -- UTF-8 последовательность
@@ -54,7 +57,7 @@ DECIMAL
 B !  OVER A !
 + TO limit
 BEGIN
-A @ limit > 0= WHILE
+A @ limit <= WHILE
 A utf8Next B writeWord
 REPEAT 
 B @ 2 - ; \ end -- адрес введённого последнего символа

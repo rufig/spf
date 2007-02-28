@@ -1,6 +1,7 @@
 \ сравнение и поиск в словар€х обычных и широких строк, с учЄтом регистра и без, в комбинаци€х
 \ примеры внизу
 REQUIRE ON lib/ext/onoff.f
+REQUIRE NOT ~profit/lib/logic.f
 REQUIRE { lib/ext/locals.f
 REQUIRE fetchByte ~profit/lib/fetchWrite.f
 
@@ -68,7 +69,7 @@ generateCode
 wa B !
 wu UNI-STR @ IF 2/ THEN 0 DO
 B B@+ [CHAR] 0 -
-DUP 0 BASE @ WITHIN 0= IF DROP UNLOOP FALSE EXIT THEN
+DUP 0 BASE @ WITHIN NOT IF DROP UNLOOP FALSE EXIT THEN
 res BASE @ * + TO res
 LOOP
 res TRUE ;

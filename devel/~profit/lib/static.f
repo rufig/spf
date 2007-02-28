@@ -8,6 +8,7 @@
 \ ѕри использовании в bac4th-словах, LOCAL надо размещать
 \ *после* PRO
 
+REQUIRE NOT ~profit/lib/logic.f
 REQUIRE /TEST ~profit/lib/testing.f
 
 MODULE: static
@@ -37,10 +38,10 @@ TEMP-WORDLIST ADD-ORDER DEFINITIONS \ —оздаЄм временным словарь, делаем его теку
 S" ;" CREATED IMMEDIATE             \ ¬писываем в словарь слово ; которое будет заканчивать работу лок. переменных
 DOES> DROP (;) ;
 
-: LOCAL-WORDLIST widLocals @ 0= IF     \ ѕереходим во временный словарь лок. переменных.
+: LOCAL-WORDLIST widLocals @ NOT IF     \ ѕереходим во временный словарь лок. переменных.
 CREATE-LOCAL-WORDLIST                  \ ≈сли в первый раз, то он создаЄтс€ и устанавливаетс€ как текущий
-CONTEXT @ widLocals !           ELSE
-widHere @ DP !  DEFINITIONS     THEN ; \ ≈сли словарь уже создан, то возрашаем тамошний HERE и начинаем оп€ть писать в него слова
+CONTEXT @ widLocals !            ELSE
+widHere @ DP !  DEFINITIONS      THEN ; \ ≈сли словарь уже создан, то возрашаем тамошний HERE и начинаем оп€ть писать в него слова
 
 
 : STATIC=>
