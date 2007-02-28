@@ -5,16 +5,17 @@
 
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE >L ~profit/lib/lstack.f
+REQUIRE NOT ~profit/lib/logic.f
 REQUIRE (: ~yz/lib/inline.f
 
 MODULE: bac4th
 
 \ Переопределены стандартные компилирующие слова, так как в SPF они работают "непривычно"
-: ?PAIRS <> ABORT" unpaired" ; \ Проверка на парность структурных операторов
+: ?PAIRS <> IF -2007 THROW THEN ; \ Проверка на парность структурных операторов
 : >RESOLVE2 ( dest -- ) HERE SWAP ! ; \ "Старое" разрешение ссылок вперёд
 
 : CALL, ( ADDR -- ) \ скомпилировать инструкцию ADDR CALL
-  ?SET SetOP SetJP 0xE8 C,
+  ?SET SetOP 0xE8 C,
   DUP IF DP @ CELL+ - THEN ,    DP @ TO LAST-HERE
 ;
 
@@ -29,7 +30,7 @@ MODULE: bac4th
 EXPORT
 
 \ Выполнение вектора исполнения xt (не совсем тоже самое что и EXECUTE)
-: ENTER ( xt -- ) POSTPONE EXECUTE ; IMMEDIATE ( \ это тоже самое, но что быстрее?
+\ : ENTER ( xt -- ) POSTPONE EXECUTE ; IMMEDIATE ( \ это тоже самое, но что быстрее?
 : ENTER           >R ;                           \ )
 
 DEFINITIONS
@@ -42,10 +43,12 @@ DEFINITIONS
 EXPORT
 
 : ONFALSE ( f -- ) IF RDROP THEN ;   \ Откат если f=true, то есть _пропускает_ только f=0
-: ONTRUE ( f -- ) 0= IF RDROP THEN ; \ Откат если f=false
+: ONTRUE ( f -- ) NOT IF RDROP THEN ; \ Откат если f=false
 
-: R@ENTER, 0xFF C, 0x14 C, 0x24 C, ; \ CALL [ESP]
-\ POSTPONE R@ POSTPONE EXECUTE
+: R@ENTER, SetOP 0xFF C, 0x14 C, 0x24 C, SetOP ; (
+: R@ENTER, SetOP ['] R@ COMPILE, ['] ENTER COMPILE, ; \ )
+
+\ 
 
 : PRO R> R> >L ENTER LDROP ;      \ Делает текущий исполняемый код откатным, ставится в начало
 \ : CONT L> >R R@ ENTER R> >L ;
@@ -102,7 +105,7 @@ EXPORT
 \ Откатываемый DROP
 : BDROP  ( n <--> )            R>  SWAP >R  ENTER  R> ;
 
-\ DROP при откате, этим словом можно приводить обычные значения на стеке
+\ DROP при откате, этим словом можно приводить одиночные значения на стеке
 \ к итерируемым значениям, нужных для некоторых агрегаторов (типа seq{ }seq)
 : DROPB  ( n --> n / <-- n )   R>  ENTER DROP ;
 
@@ -119,8 +122,9 @@ EXPORT
 : BC!    ( n addr --> / <-- )  R> OVER DUP C@ 2>R -ROT C!  ENTER 2R> SWAP C! ;
 
 
-\ задать действия при откате ( BACK .. TRACKING ), или, иначе говоря,
-\ положить адрес начала последовательности шитого между словами на стек возвратов
+\ Задать действия при откате ( BACK .. TRACKING ), или, иначе говоря,
+\ положить адрес начала последовательности шитого кода между словами 
+\ BACK ... TRACKING на стек возвратов
 : BACK  ?COMP  0 CALL, >MARK 8ACK ;  IMMEDIATE
 : TRACKING ?COMP  8ACK ?PAIRS  RET, >RESOLVE1 ;  IMMEDIATE
 \ BACK ... TRACKING -- это аналог (: ... ;) >R , и наоборот,
@@ -137,6 +141,7 @@ EXPORT
 : DIVE ?COMP
 DUP $TART = IF OVER COMPILE, THEN
 ; IMMEDIATE
+\ TODO: Включить возможность вкладывания в другие структуры управления
 
 
 \ Закрывающая скобка "суперцикла"
@@ -152,11 +157,11 @@ RET,
 \ опасных процедур как отсечения (NOT: -NOT или CUT: -CUT)
 : S| PRO BACK SP! TRACKING SP@ BDROP CONT ;
 
-\ квантор отрицания
+\ Квантор отрицания
 : NOT:  ?COMP POSTPONE (NOT:) 0 ,  >MARK N0T ; IMMEDIATE
 : -NOT  ?COMP N0T ?PAIRS POSTPONE (-NOT)  >RESOLVE2 ; IMMEDIATE
 
-\ предикат, преобразование успеха/неуспеха в логическое значение
+\ Предикат, преобразование успеха/неуспеха в логическое значение
 : PREDICATE  ?COMP [COMPILE] NOT:  (: FALSE ;) RLIT, ; IMMEDIATE
 : SUCCEEDS   ?COMP TRUE LIT, N0T ?PAIRS POSTPONE (-NOT2) >RESOLVE2 ; IMMEDIATE
 
@@ -186,10 +191,10 @@ RET,
 : <*>  ?COMP  203 ?PAIRS  0 RLIT, >MARK RET,  205 ROT
        >RESOLVE2  0 RLIT,  >MARK 203 ;  IMMEDIATE
 : <*   ?COMP  203 ?PAIRS  0 RLIT, >MARK RET,  205 ROT
-       >RESOLVE2  RET,  BEGIN  DUP 204 = 0= WHILE
+       >RESOLVE2  RET,  BEGIN  DUP 204 <> WHILE
        205 ?PAIRS  >RESOLVE2 REPEAT  DROP ; IMMEDIATE
 
-\ макросы для функций агрегации, три параметра:
+\ Макросы для функций агрегации, три параметра:
 \ Начальное значение результата
 \ Функция аггрегирования (конкатенация, суммирование логические сложение или умножение)
 \ Функция успеха, может включать в себя PRO CONT или R> ENTER
@@ -200,13 +205,16 @@ POSTPONE !
 0 RLIT, >MARK
 a99reg4te ;
 
-: {agg} ( intermed -- ) >R
-DUP a99reg4te ?PAIRS
+\ Выдача промежуточного накапливаемого в данный момент значения агрегатора
+: {agg} ( intermed -- ) >R \ intermed -- адрес действий по извлечению значения
+DUP a99reg4te ?PAIRS       \ из накопителя
 ROT DUP LIT, -ROT
 POSTPONE @
 R> COMPILE, ;
+\ TODO: Включить возможность вкладывания в другие структуры управления
 
-\ во время исполнения на стеке должно лежать значение которое надо при-обработать к начальному (добавить, сконкатенировать, умножить и т.д.)
+\ Во время исполнения на стеке должно лежать значение которое надо 
+\ при-обработать к начальному (добавить, сконкатенировать, умножить и т.д.)
 : }agg ( agg succ -- )
 ?COMP  >R >R
 a99reg4te ?PAIRS
@@ -215,7 +223,7 @@ LIT, R> COMPILE,
 RET, >RESOLVE2
 LIT, R> COMPILE, ;
 
-\ Сумматор итерируемых значений. 
+\ Сумматор итерируемых значений
 : +{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }+ ?COMP ['] +! ['] @ }agg ; IMMEDIATE
 
@@ -223,20 +231,20 @@ LIT, R> COMPILE, ;
 : MAX{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }MAX ?COMP (: DUP @ ROT MAX SWAP !  ;) ['] @ }agg ; IMMEDIATE
 
-\ Произведение итерируемых значений. 
+\ Произведение итерируемых значений
 : *{ ?COMP 1 LIT, agg{ ; IMMEDIATE
 : }* ?COMP (: DUP @ ROT * SWAP !  ;) ['] @ }agg ; IMMEDIATE
 
-\ Лог. произведение итерируемых значений. 
+\ Лог. произведение итерируемых значений
 : &{ ?COMP -1 LIT, agg{ ; IMMEDIATE
 : }& ?COMP (: DUP @ ROT AND SWAP ! ;) ['] @ }agg ; IMMEDIATE
 
-\ Лог. сложение итерируемых значений. 
+\ Лог. сложение итерируемых значений
 : |{ ?COMP 0 LIT, agg{ ; IMMEDIATE
 : }| ?COMP (: DUP @ ROT OR SWAP ! ;) ['] @ }agg ; IMMEDIATE
 
-\ Выдача промежуточных результатов агрегатора
-: {} ?COMP ['] NOOP {agg} ; IMMEDIATE \ промежуточный результат
+\ Выдача промежуточных результатов простых агрегаторов ( +{ ... }+ и прочие)
+: {} ?COMP ['] NOOP {agg} ; IMMEDIATE
 
 \ Блок AMONG  ...  EACH  ...  ITERATE
 \ порождается код:
