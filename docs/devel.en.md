@@ -1,13 +1,23 @@
-SP-Forth: Additional libraries
-==============================
+[SP-Forth](readme.en.html): Additional libraries
+================================================
 
 <title>SP-Forth: additional libraries</title>
 
 <small>$Date$</small>
 
-<!-- Translated from devel.ru.md (rev 1.2) -->
+<!-- Translated from devel.ru.md (rev 1.6) -->
 
 *REQUIRE is a forth word, which loads library; unnecessary text is commented out, so you can use this list as a forth code to include libs :)*
+
+----
+
+[[Russian](devel.ru.html)] [[English](devel.en.html)]
+
+----
+
+[[Network](#net)] [[Graphics](#graph)] [[Archives](#arc)] [[Linked lists](#list)] [[Records](#record)] [[Data structures](#data)] [[Sort and search](#sort-n-search)] [[Techniques](#techniques)] [[Debugging](#debug)] [[Random numbers](#random)] [[Hash tables](#hash)] [[Hash functions](#hash-func)] [[Compiletime constants](#compiletime-const)] [[Windows GUI](#WinGUI)] [[Windows COM](#WinCOM)] [[Windows services](#services)] [[Date and time](#datetime)] [[Databases](#db)] [[Threads](#threads)] [[Windows registry and ini](#ini-registry)] [[Strings](#str)] [[Files](#files)] [[OOP](#oop)] [[Vocabularies](#vocs)] [[Memory](#mem)] 
+
+----
 
 <a id="net"/>
 ### \\ Network
@@ -159,7 +169,6 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE re_start <a href='../devel/~nn/lib/re.f'>~nn/lib/re.f</a> \\ regexps 
 * REQUIRE PcreMatch <a href='../devel/~ac/lib/string/regexp.f'>~ac/lib/string/regexp.f</a> \\ PCRE wrapper 
 * REQUIRE BregexpMatch <a href='../devel/~ac/lib/string/bregexp/bregexp.f'>~ac/lib/string/bregexp/bregexp.f</a> \\ bregexp.dll wrapper 
-* REQUIRE \<<MATCH\>> <a href='../devel/~nn/lib/regexp/fosm1.f'>~nn/lib/regexp/fosm1.f</a> \\ Forth String Matcher 
 * REQUIRE debase64 <a href='../devel/~ac/lib/string/conv.f'>~ac/lib/string/conv.f</a> \\ base64, win-koi, urlencode etc. 
 * REQUIRE UPPERCASE <a href='../devel/~ac/lib/string/uppercase.f'>~ac/lib/string/uppercase.f</a> \\ uppercase conversion
 * REQUIRE COMPARE-U <a href='../devel/~ac/lib/string/compare-u.f'>~ac/lib/string/compare-u.f</a> \\ case-ignorant comparison

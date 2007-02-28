@@ -36,7 +36,8 @@ clean_mark:
 	$(output) $(md_path)html_header_1 > $@
 	$(output) $(css) >> $@
 	$(output) $(md_path)$(html_vect_header) >> $@
-	python $(md_path)markdown-1-5.py $(patsubst %.html,%.md,$@) >> $@
+#	python $(md_path)markdown-1-5.py $(patsubst %.html,%.md,$@) >> $@
+	perl $(md_path)Markdown.pl $(patsubst %.html,%.md,$@) >> $@
 	$(output) $(md_path)html_footer >> $@
 	echo $@ >> mark.new
 

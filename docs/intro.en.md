@@ -1,7 +1,7 @@
 <a id="start"/>
 
-SPF specific
-============
+[SPF](readme.en.html) specific
+==============================
 
 <title>SPF specific</title>
 
@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translated from intro.ru.md rev. 1.9 -->
+<!-- Translated from intro.ru.md rev. 1.10 -->
 
 ----
 
@@ -164,13 +164,6 @@ spf4.ini
 	~ygrek/spf/included.f
 	with: my_path\
 	S" my path with spaces/" with
-
-or
-
-	MODULE: included_path
-	 CREATE my_path/
-	 S" My path with spaces/" CREATED
-	;MODULE
 
 and all the files will be searched in `my_path` in addition to the
 earlier described algorithm (`my_path` can be either absolute or relative
@@ -525,5 +518,4 @@ will print 6, not 5.
 
 [start]: #start
 
-----
 ----

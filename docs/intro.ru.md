@@ -1,7 +1,7 @@
 <a id="start"/>
 
-Особенности SPF
-===============
+Особенности [SPF](readme.ru.html)
+=================================
 
 <title>Особенности SPF</title>
 
@@ -170,13 +170,6 @@ inline-подстановку и peephole-оптимизацию. Подробнее на ForthWiki:
 	~ygrek/spf/included.f
 	with: my_path\
 	S" my path with spaces/" with
-
-или
-
-	MODULE: included_path
-	 CREATE my_path/
-	 S" My path with spaces/" CREATED
-	;MODULE
 
 и все файлы будт искаться в `my_path` в дополнение к описанному выше алгоритму
 (`my_path` может быть как абсолютным так и относительно spf.exe). 
@@ -537,5 +530,4 @@ USER-переменные при старте потока инициализируются нулём.
 
 [start]: #start
 
-----
 ----

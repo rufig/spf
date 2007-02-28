@@ -1,5 +1,5 @@
-SP-Forth: Дополнительные библиотеки
-===================================
+[SP-Forth](readme.ru.html): Дополнительные библиотеки
+=====================================================
 
 <title>SP-Forth: Дополнительные библиотеки</title>
 
@@ -8,6 +8,16 @@ SP-Forth: Дополнительные библиотеки
 <!-- $Revision$ -->
 
 *REQUIRE это слово подключающее либу, всё лишнее закомментировано, так что можно использовать этот список как форт код при поключении либ :)*
+
+----
+
+[[Русский](devel.ru.html)] [[Английский](devel.en.html)]
+
+----
+
+[[Сеть](#net)] [[Графика](#graph)] [[Архиваторы](#arc)] [[Связные списки](#list)] [[Записи](#record)] [[Структуры данных](#data)] [[Сортировка и поиск](#sort-n-search)] [[Techniques](#techniques)] [[Отладка](#debug)] [[Случайные числа](#random)] [[Расстановочные таблицы](#hash)] [[Хэш функции](#hash-func)] [[Константы времени компиляции](#compiletime-const)] [[Windows GUI](#WinGUI)] [[Windows COM](#WinCOM)] [[Службы(сервисы) Windows](#services)] [[Дата и время](#datetime)] [[Базы данных](#db)] [[Потоки](#threads)] [[Реестр и INI Windows](#ini-registry)] [[Строки](#str)] [[Файлы](#files)] [[OOP](#oop)] [[Словари](#vocs)] [[Память](#mem)] 
+
+----
 
 <a id="net"/>
 ### \\ Сеть 
@@ -162,7 +172,6 @@ SP-Forth: Дополнительные библиотеки
 * REQUIRE re_start <a href='../devel/~nn/lib/re.f'>~nn/lib/re.f</a> \\ regexp'ы 
 * REQUIRE PcreMatch <a href='../devel/~ac/lib/string/regexp.f'>~ac/lib/string/regexp.f</a> \\ PCRE wrapper 
 * REQUIRE BregexpMatch <a href='../devel/~ac/lib/string/bregexp/bregexp.f'>~ac/lib/string/bregexp/bregexp.f</a> \\ bregexp.dll wrapper 
-* REQUIRE \<<MATCH\>> <a href='../devel/~nn/lib/regexp/fosm1.f'>~nn/lib/regexp/fosm1.f</a> \\ Forth String Matcher 
 * REQUIRE debase64 <a href='../devel/~ac/lib/string/conv.f'>~ac/lib/string/conv.f</a> \\ base64, win-koi, urlencode и др. 
 * REQUIRE UPPERCASE <a href='../devel/~ac/lib/string/uppercase.f'>~ac/lib/string/uppercase.f</a> \\ перевод в верхний регистр 
 * REQUIRE COMPARE-U <a href='../devel/~ac/lib/string/compare-u.f'>~ac/lib/string/compare-u.f</a> \\ нечувствительное к регистру сравнение 
