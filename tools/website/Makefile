@@ -1,6 +1,13 @@
 
 # put this command in crontab (login via ssh and crontab -e)
-# 24 * * * * (cd /home/groups/s/sp/spf/spf/tools/website && cvs up -d -P -C && make) &> /dev/null
+# Dont forget to remove leading # sign
+# http://sourceforge.net/docs/E07/#cron
+#
+# ----
+# # update web pages from the cvs
+# 24 * * * * cd /home/groups/s/sp/spf/spf/tools/website && cvs up -d -P -C && make
+# ----
+
 # 24 - this is random minute
 
 path=/home/groups/s/sp/spf
