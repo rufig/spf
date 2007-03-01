@@ -15,10 +15,6 @@ REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
 TESTCASES UPPERCASE
  (( S" qwerty" 2DUP UPPERCASE S" QWERTY" COMPARE -> 0 ))
- : test-str S" !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ
-[\]^_`abcdefghijklmnopqrstuvwxyz{|}:+%
-юабцдефгхийклмнопярстужвьызшэщчъЮАБЦДЕФГХИЙКЛМНОПЯРСТУЖВЬЫЗШЭЩЧЪ" ; :
-must-str S" !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]
-^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}:+%
-юабцдефгхийклмнопярстужвьызшэщчъюабцдефгхийклмнопярстужвьызшэщчъ" ;
-(( test-str 2DUP UPPERCASE must-str COMPARE -> 0 )) END-TESTCASES
+ : test-str S" !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}:+%юабцдефгхийклмнопярстужвьызшэщчъЮАБЦДЕФГХИЙКЛМНОПЯРСТУЖВЬЫЗШЭЩЧЪ" ;
+ : must-str S" !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}:+%юабцдефгхийклмнопярстужвьызшэщчъюабцдефгхийклмнопярстужвьызшэщчъ" ;
+ (( test-str 2DUP UPPERCASE must-str COMPARE -> 0 )) END-TESTCASES
