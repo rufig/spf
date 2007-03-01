@@ -1,13 +1,24 @@
-\ тупа€ медленна€ реализаци€
-\ только дл€ английских букв
-\ :)
-\ но быстрее, чем вызов WINAPI
+\ нова€ верси€ сделана ~ygrek
+
+: CHAR-UPPERCASE ( c -- c1 )
+  DUP [CHAR] a [CHAR] z 1+ WITHIN
+  OVER [CHAR] а [CHAR] € 1+ WITHIN OR IF 32 - THEN ;
 
 : UPPERCASE ( addr1 u1 -- )
-  0 ?DO
-     DUP I + C@ DUP 96 >
-     OVER 123 < AND
-     IF 32 - OVER I + C!
-     ELSE DROP THEN
-  LOOP DROP
-;
+  OVER + SWAP ?DO
+    I C@ CHAR-UPPERCASE I C!
+  LOOP ;
+
+\EOF
+
+REQUIRE TESTCASES ~ygrek/lib/testcase.f
+
+TESTCASES UPPERCASE
+ (( S" qwerty" 2DUP UPPERCASE S" QWERTY" COMPARE -> 0 ))
+ : test-str S" !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ
+[\]^_`abcdefghijklmnopqrstuvwxyz{|}:+%
+јЅ¬√ƒ≈∆«»… ЋћЌќѕ–—“”‘’÷„ЎўЏџ№Ёёяабвгдежзийклмнопрстуфхцчшщъыьэю€" ; :
+must-str S" !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]
+^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}:+%
+јЅ¬√ƒ≈∆«»… ЋћЌќѕ–—“”‘’÷„ЎўЏџ№ЁёяјЅ¬√ƒ≈∆«»… ЋћЌќѕ–—“”‘’÷„ЎўЏџ№Ёёя" ;
+(( test-str 2DUP UPPERCASE must-str COMPARE -> 0 )) END-TESTCASES
