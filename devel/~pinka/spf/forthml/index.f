@@ -29,11 +29,17 @@ EXPORT
 
 Require gtNUMBER aliases.f \ набор синонимов
 
+DEFINITIONS
+
 Include ttext-index.auto.f \ в виде простейшего форт-текста
 \ предоставляет T-TEXT -- слово для трансляции текста,
 \ ядро для трансляции xml-дерева и переменную STATE
 
 Include ~pinka/fml/forthml-rules.f \ в виде простейшего форт-текста
 \ набор правил для трансляции ForthML 
+
+EXPORT
+
+`EMBODY `EMBODY aka
 
 ;MODULE
