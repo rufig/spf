@@ -64,10 +64,10 @@ WM_USER 10 +  CONSTANT Icon0#
 \ Window's procedure
 
 : (IconWindowProc) { lparam wparam msg wnd \ pl -- lresult }
-  ." IconWindowProc:  msg= " msg . CR
+  \ ." IconWindowProc:  msg= " msg . CR
   msg FromIcon?     IF
   -> pl
-  ."  - from icon. event= " lparam . CR
+  \ ."  - from icon. event= " lparam . CR
   pl p.xt @  IF
   wnd
   lparam \ event
