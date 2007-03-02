@@ -102,7 +102,11 @@ DEVELOPMENT
 
 *    Related projects (highly recommended) :
 
+     <http://www.eserv.ru>        - HTTP/FTP/SMTP/POP3/IMAP server and proxy for Win32
+
      <http://www.delosoft.com>    - Forth systems for pocket computers
+
+     <http://nncron.ru>           - scriptable unix-like cron scheduler for Windows
 
      <http://forth-script.sf.net> - SP-Forth as CGI
 
@@ -111,8 +115,6 @@ DEVELOPMENT
      <http://acfreeproxy.sf.net>  - http proxy server
 
      <http://acftp.sf.net>        - ftp server
-
-     <http://nncron.ru>           - scriptable unix-like cron scheduler for Windows
 
 *    Russian Forth Interest Group :
 

@@ -118,7 +118,11 @@ SP-Forth для Windows распространяется как RAR архив или как
 
 *   Проекты SPF (рекомендуем) :
 
+    <http://www.eserv.ru>         - HTTP/FTP/SMTP/POP3/IMAP сервер и прокси для Win32
+
     <http://www.delosoft.com>     - Форт системы для карманных компьютеров
+
+    <http://nncron.ru>            - unix-подобный планировщик cron для Windows с поддержкой скриптов
 
     <http://forth-script.sf.net>  - SP-Forth как CGI
 
@@ -127,8 +131,6 @@ SP-Forth для Windows распространяется как RAR архив или как
     <http://acfreeproxy.sf.net>   - http прокси сервер
 
     <http://acftp.sf.net>         - ftp сервер
-
-    <http://nncron.ru>            - unix-подобный планировщик cron для Windows с поддержкой скриптов
 
 *   Русское Форт-сообщество :
 
