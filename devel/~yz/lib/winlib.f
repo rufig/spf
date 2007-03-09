@@ -1197,7 +1197,7 @@ WINAPI: CreateFontA GDI32.DLL
 
 WINAPI: InitCommonControlsEx COMCTL32.DLL
 
-: initcc { what \ [ 2 CELLS ] buf --)
+: initcc { what \ [ 2 CELLS ] buf -- }
   2 CELLS buf !
   what buf CELL+ !
   buf InitCommonControlsEx DROP ;
