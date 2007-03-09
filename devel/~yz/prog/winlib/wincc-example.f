@@ -6,19 +6,6 @@ SET-OPT
 0 VALUE hd
 0 VALUE tv
 0 VALUE lv
-0 VALUE old-grid
-
-CREATE grids 3 CELLS ALLOT
-
-: newtab { tab -- }
-  old-grid ?DUP IF hide-grid THEN
-  grids tab CELLS@ DUP >R TO old-grid
-  10 40 390 360 R@ map-grid
-  R> show-grid ;
-
-PROC: change-tab
-  t -selected@ newtab
-PROC;
 
 WINAPI: ImageList_Create      COMCTL32.DLL
 WINAPI: ImageList_ReplaceIcon COMCTL32.DLL
@@ -48,8 +35,26 @@ WINAPI: FindClose      KERNEL32.DLL
   fdata fh FindNextFileA 0= UNTIL
   fh FindClose DROP ;
 
-: make-grids 
-  
+: fill-header,treeview
+  0 " Имя" none 0 0 hd add-item
+  0 " Фамилия" none 0 1 hd add-item
+  0 " Отчество" none 0 2 hd add-item
+  90 0 hd -iwidth!
+  100 1 hd -iwidth!
+  100 2 hd -iwidth!
+  \ 
+  16 create-il DUP 1 SWAP add-icon 0 tv -imagelist!
+  " yz" 0 0 0 W: tvi_first 0 tv add-item >R
+  " prog" 0 0 0 W: tvi_first R> tv add-item >R
+  " winlib" 0 0 0 W: tvi_first R> tv add-item >R
+  " winlib-example" 0 0 0 W: tvi_last R@ tv add-item DROP
+  " winctl-example" 0 0 0 W: tvi_last R@ tv add-item DROP
+  " wincc-example" 0 0 0 W: tvi_last R> tv add-item DROP
+;
+
+: make-tabs ( -- tab)
+  0 tabcontrol
+  16 create-il DUP 1 SWAP add-icon 0 this -imagelist!
   \ Вкладка 1 ===========================
   GRID
     " Индикатор:" label |
@@ -64,47 +69,24 @@ WINAPI: FindClose      KERNEL32.DLL
     ===
     edit -xspan " 40" this -text! W: uds_setbuddyint this add-updown 
     " А это просто строка" this -tooltip! |
-  GRID; DUP grids ! FALSE SWAP winmain add-grid-to-window
+  GRID; " Первая" 0 0 this add-item
 
   \ Вкладка 2 ==========================
   GRID
     0 header DUP TO hd -xspan -yfixed |
     ===
-    (* tvs_haslines tvs_linesatroot tvs_hasbuttons *) treeview DUP TO tv -xspan -yspan | 
+    (* tvs_haslines tvs_linesatroot tvs_hasbuttons *) treeview DUP TO tv 
+    200 400 this ctlresize | 
     0 calendar -xfixed |
-  GRID; DUP grids 1 CELLS! FALSE SWAP winmain add-grid-to-window
-  \ 
-  0 " Имя" none 0 0 hd add-item
-  0 " Фамилия" none 0 1 hd add-item
-  0 " Отчество" none 0 2 hd add-item
-  90 0 hd -iwidth!
-  100 1 hd -iwidth!
-  100 2 hd -iwidth!
-  \ 
-  16 create-il DUP 1 SWAP add-icon 0 tv -imagelist!
-  " yz" 0 0 0 W: tvi_first 0 tv add-item >R
-  " prog" 0 0 0 W: tvi_first R> tv add-item >R
-  " winlib" 0 0 0 W: tvi_first R> tv add-item >R
-  " winlib-example" 0 0 0 W: tvi_last R@ tv add-item
-  " winctl-example" 0 0 0 W: tvi_last R@ tv add-item
-  " wincc-example" 0 0 0 W: tvi_last R> tv add-item
+    fill-header,treeview
+  GRID; " Вторая" 0 1 this add-item
 
   \ Вкладка 3 ========================
   GRID
-    0 listview DUP TO lv -xspan -yspan |
-  GRID; DUP grids 2 CELLS! FALSE SWAP winmain add-grid-to-window
-  fill-listview ;
-
-: make-tabs
-  0 tabcontrol TO t
-  16 create-il DUP 1 SWAP add-icon 0 t -imagelist!
-  " Первая" 0 0 0 t add-item
-  " Вторая" 0 0 1 t add-item
-  " Третья" 0 0 2 t add-item
-  change-tab t -command!
-  400 400 t ctlresize
-  5 5 t place ;
-
+    0 listview DUP TO lv -xspan -yspan fill-listview |
+  GRID; " Третья" 0 2 this add-item
+;
+  
 PROC: tbutt
   " Кнопка на панели инструментов!" msg
 PROC;
@@ -132,17 +114,12 @@ PROC: mode4  lv report-view     PROC;
   " Общие элементы управления" winmain -text!
   0 create-tooltip
   make-toolbar
-  make-tabs
-  make-grids
-  410 410 winmain winresize
+  GRID
+    make-tabs -xspan -yspan |
+  GRID; winmain -grid!
   winmain wincenter
   winmain winshow
-  0 TO old-grid
-  0 newtab
   ...WINDOWS
-  grids @ del-grid
-  grids 1 CELLS@ del-grid
-  grids 2 CELLS@ del-grid
   BYE
 ;
 
@@ -150,6 +127,6 @@ PROC: mode4  lv report-view     PROC;
 \ ' ANSI>OEM TO ANSI><OEM
 \ TRUE TO ?GUI
 \ ' run MAINX !
-\ S" wincс-example.exe" SAVE  
+\ S" wincc-example.exe" SAVE  
 run
 BYE
