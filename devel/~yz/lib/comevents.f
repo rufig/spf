@@ -45,7 +45,8 @@ WINAPI: CoAddRefServerProcess  OLE32.DLL
 WINAPI: CoReleaseServerProcess OLE32.DLL
 
 : find-dispid ( dispid oconn -- adr/0)
-  DUP :events SWAP :count @ OVER + SWAP
+\ исправлено Ильей Абдрахмовым
+  DUP :events SWAP :count @ 2 CELLS * OVER + SWAP
   ?DO
     I @ OVER = IF DROP I UNLOOP EXIT THEN
   2 CELLS +LOOP DROP 0
