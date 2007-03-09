@@ -9,7 +9,7 @@ SET-OPT
 \ -----------------------------------
 
 PROC: quit
-  W: wm_close winmain send DROP
+  winmain W: wm_close ?send DROP
 PROC;
 
 PROC: hello
