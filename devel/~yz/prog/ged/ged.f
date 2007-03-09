@@ -2,11 +2,11 @@
 \ 20.10.2002
 
 REQUIRE "      ~yz/lib/common.f
-REQUIRE GDI32: ~yz/lib/api.f
 REQUIRE >>     ~yz/lib/data.f
 REQUIRE {      lib/ext/locals.f
 REQUIRE (*     ~yz/lib/wincons.f
-REQUIRE <(     ~yz/lib/format.f   \ )
+REQUIRE <(     ~yz/lib/format.f
+REQUIRE CAPI:  ~af/lib/c/capi.f
 
 " GED 1.00" ASCIIZ program-name
 
@@ -29,7 +29,7 @@ VECT final-exit
 
 : ?error ( ? z --) SWAP IF error ELSE DROP THEN ;
 
-USER32: wvsprintfA
+WINAPI: wvsprintfA USER32.DLL
 
 :NONAME ( arglist fmt module -- )
  .ASCIIZ ." : "
@@ -56,29 +56,30 @@ VARIABLE y-pic
 VARIABLE k-pic
 
 \ Эти сишные функции не чистят за собой стек
-WINAPI: TIFFOpen		libtiff.dll
-WINAPI: TIFFSetErrorHandler	libtiff.dll
-WINAPI: TIFFGetField		libtiff.dll
-WINAPI: TIFFSetField		libtiff.dll
-WINAPI: TIFFClose		libtiff.dll
-WINAPI: TIFFScanlineSize        libtiff.dll
-WINAPI: TIFFWriteScanline       libtiff.dll
-WINAPI: TIFFReadScanline        libtiff.dll
+2 CAPI: TIFFOpen		libtiff.dll
+1 CAPI: TIFFSetErrorHandler	libtiff.dll
+3 CAPI: TIFFGetField 		libtiff.dll
+4 CAPI: TIFFSetField		libtiff.dll
+1 CAPI: TIFFClose		libtiff.dll
+4 CAPI: TIFFWriteScanline       libtiff.dll
+4 CAPI: TIFFReadScanline        libtiff.dll
 
 : tiff@ { tag \ temp -- n }
-  ^ temp tag tiff TIFFGetField 2DROP 2DROP temp ;
-: tiff! ( /n2/ n tag -- )
-  tiff TIFFSetField 2DROP 2DROP ;
+  ^ temp tag tiff TIFFGetField DROP temp ;
+: tiff2! ( n2 n tag -- )
+  tiff TIFFSetField DROP ;
+: tiff! ( n tag -- )
+  0 -ROT tiff2! ;
 
 \ ---------------------------------------------------------------
 
-GDI32: CreateCompatibleDC
-GDI32: DeleteDC
-GDI32: DeleteObject
-GDI32: CreateDIBSection
-GDI32: SelectObject
-GDI32: CreateBitmap
-GDI32: SetBkMode
+WINAPI: CreateCompatibleDC  GDI32.DLL
+WINAPI: DeleteDC	    GDI32.DLL
+WINAPI: DeleteObject        GDI32.DLL
+WINAPI: CreateDIBSection    GDI32.DLL
+WINAPI: SelectObject        GDI32.DLL
+WINAPI: CreateBitmap        GDI32.DLL
+WINAPI: SetBkMode           GDI32.DLL
 
 : new-pic { \ dc bmp pic -- pic bmp dc}
   0 CreateCompatibleDC TO dc
@@ -157,7 +158,7 @@ W: ps_dashdot    linestyle [.-]
 W: ps_dashdotdot linestyle [..-]
 W: ps_dot        linestyle [.]
 
-GDI32: CreatePen
+WINAPI: CreatePen  GDI32.DLL
 
 : newpen ( color dc -- )
   >R >cref 1 pen-style @ CreatePen R> SelectObject DeleteObject DROP ;
@@ -186,8 +187,8 @@ W: hs_vertical     hatchstyle [|]
 W: hs_cross        hatchstyle [+]
 W: hs_diagcross    hatchstyle [X]
 
-GDI32: CreateBrushIndirect
-GDI32: SetTextColor
+WINAPI: CreateBrushIndirect  GDI32.DLL
+WINAPI: SetTextColor         GDI32.DLL
 
 : newbrush { color dc \ [ 3 CELLS ] logbrush -- }
   logbrush init->>
@@ -229,30 +230,30 @@ VARIABLE stroke
   k-dc cdc !  k-fill fill !  k-stroke stroke ! R@ EXECUTE
   RDROP ;
 
-GDI32: SetPixel
+WINAPI: SetPixel GDI32.DLL
 : setpixel fill @ >cref arg1 @ arg2 @ cdc @ SetPixel DROP ;
 : Точка ( x y -- )
   arg2 ! arg1 ! ['] setpixel separate ;
 
-GDI32: MoveToEx
-GDI32: LineTo
+WINAPI: MoveToEx  GDI32.DLL
+WINAPI: LineTo    GDI32.DLL
 : line   0 arg2 @ arg1 @ cdc @ MoveToEx DROP
   arg4 @ arg3 @ cdc @ LineTo DROP ; 
 : Линия ( x1 y1 x2 y2 -- )
   4args ['] line separate ;
 
-GDI32: Rectangle
+WINAPI: Rectangle  GDI32.DLL
 : rectangle  4args@ cdc @ Rectangle DROP ;
 : Прямоугольник ( x1 y1 x2 y2 -- )
   4args ['] rectangle separate ;
 
 \ : Скругленный-прямоугольник ;
 
-GDI32: Ellipse
+WINAPI: Ellipse  GDI32.DLL
 : ellipse  4args@ cdc @ Ellipse DROP ;
 : Эллипс ( x1 y1 x2 y2 -- ) 4args ['] ellipse separate ;
 
-GDI32: PolyBezier
+WINAPI: PolyBezier  GDI32.DLL
 : curve { \ [ 8 CELLS ] pt -- }
   pt init->>
   arg1 @ >> arg2 @ >>
@@ -274,7 +275,7 @@ VARIABLE font-attr   font-attr 0!
 : подчеркнутый  4 font-attr OR! ;
 : перечеркнутый 8 font-attr OR! ;
 
-GDI32: CreateFontA
+WINAPI: CreateFontA  GDI32.DLL
 
 : create-font ( zname size -- font )
   >R (* default_pitch ff_dontcare *) W: default_quality
@@ -292,8 +293,8 @@ GDI32: CreateFontA
 
 : Шрифт ( z size -- ) пт NEGATE create-font new-fonts ;
 
-GDI32: TextOutA
-GDI32: SetTextAlign
+WINAPI: TextOutA  GDI32.DLL
+WINAPI: SetTextAlign  GDI32.DLL
 : text
   arg4 @ W: ta_baseline OR cdc @ SetTextAlign DROP
   arg1 @ ZLEN arg1 @ arg3 @ arg2 @ cdc @ TextOutA DROP ;
@@ -301,7 +302,7 @@ GDI32: SetTextAlign
 : Справа ( z x y -- )    W: ta_right  4args ['] text separate ;
 : По-центру ( z x y -- ) W: ta_center 4args ['] text separate ;
 
-GDI32: GetTextExtentPoint32A
+WINAPI: GetTextExtentPoint32A GDI32.DLL
 : Размер-надписи ( z  -- w h )
   HERE SWAP ASCIIZ> SWAP k-dc GetTextExtentPoint32A
   HERE @ HERE CELL+ @ ;
@@ -325,16 +326,16 @@ GDI32: GetTextExtentPoint32A
   2 296 tiff!             \ resunits: inches
   \  x resolution: поскольку библиотека в этом месте хочет float,
   \ заставить ее работать я не смог. Поэтому
-  0 0 282 tiff! DROP      \ выставляем внутренние флажки, что это значение присутствует
+  0 0 282 tiff2!      \ выставляем внутренние флажки, что это значение присутствует
   0x43960000 tiff 26 CELLS! \ и записываем 300.00 во внутреннюю структуру
   \ Слава открытым исходным текстам!
-  0 0 283 tiff! DROP        \ тот же фокус с yresolution
+  0 0 283 tiff2!        \ тот же фокус с yresolution
   0x43960000 tiff 27 CELLS! ;
 
 : load-err ( z -- ) >R <( R> " Не могу загрузить файл: ~Z" )> error ;
 
 : tifftype ( -- type)
-  258 tiff@ 8 <> IF " биты/канал<>8" load-err FALSE EXIT THEN 
+  258 tiff@ 8 <> IF " биты/канал<>8" load-err FALSE EXIT THEN
   284 tiff@ 1 <> IF " изображение разбито на плоскости" load-err FALSE EXIT THEN
   262 tiff@ ;
 
@@ -370,7 +371,7 @@ VARIABLE extrasamples
   GETMEM DUP TO buf init->>
   extrasamples @ IF ['] alpha ELSE ['] DROP THEN TO proc2
   last-height 0 ?DO
-    0 I HERE tiff TIFFReadScanline 2DROP 2DROP DROP
+    0 I HERE tiff TIFFReadScanline DROP
     last-width 0 ?DO
       I samples @ extrasamples @ + * HERE + DUP proc EXECUTE proc2 EXECUTE
     LOOP
@@ -381,7 +382,7 @@ VARIABLE extrasamples
   last-width last-height ;
 
 : load-tiff ( filename -- buf type alpha width height )
-  " r" SWAP TIFFOpen TO tiff 2DROP
+  " r" SWAP TIFFOpen TO tiff
   tiff 0= IF EXIT THEN
   tifftype ?DUP 0= IF EXIT THEN
   CASE
@@ -391,7 +392,7 @@ VARIABLE extrasamples
     5 OF 4 ['] justcmyk    read-channels ENDOF
   DROP " неизвестный тип изображения" load-err
   ENDCASE
-  tiff TIFFClose 2DROP ;
+  tiff TIFFClose DROP ;
 
 \ ------------------------------------
 
@@ -482,7 +483,7 @@ CELL -- :h
 \ ----------------------------------
 
 : Сохранить { filename \ ptr -- }
-  " w" filename TIFFOpen TO tiff 2DROP
+  " w" filename TIFFOpen TO tiff
   tiff 0= IF EXIT THEN
   set-fields
   4 277 tiff!		  \ samples/pixel
@@ -500,21 +501,21 @@ CELL -- :h
       k-pic @ ptr + C@ C>>
       ^ ptr 1+!
     LOOP
-    0 I buf tiff TIFFWriteScanline 2DROP 2DROP DROP
+    0 I buf tiff TIFFWriteScanline DROP
   LOOP
   buf FREEMEM
-  tiff TIFFClose 2DROP ;
+  tiff TIFFClose DROP ;
 
 : Сохранить-ч/б { filename -- }
-  " w" filename TIFFOpen TO tiff 2DROP
+  " w" filename TIFFOpen TO tiff
   tiff 0= IF EXIT THEN
   set-fields
   1 277 tiff!		  \ samples/pixel
   0 262 tiff!		  \ photometric: min-is-black
   высота 0 ?DO
-    0 I ширина I * k-pic @ + tiff TIFFWriteScanline 2DROP 2DROP DROP
+    0 I ширина I * k-pic @ + tiff TIFFWriteScanline DROP
   LOOP
-  tiff TIFFClose 2DROP ;
+  tiff TIFFClose DROP ;
 
 \ -----------------------------------
 :NONAME ( -- )
@@ -545,7 +546,7 @@ CELL -- :h
    ." Ю. Жиловец, 2002 (http://www.forth.org.ru/~yz)" CR
   BYE
   THEN
-  ['] tifferror TIFFSetErrorHandler 2DROP
+  ['] tifferror TIFFSetErrorHandler DROP
   ( a # ) ['] INCLUDED CATCH
   ?DUP IF
     CASE
