@@ -5,15 +5,12 @@
 \ DIS-OPT
 \ STARTLOG 
 
-REQUIRE  RG_CreateKey  ~ac/lib/win/registry2.f
+REQUIRE RG_CreateKey  ~ac/lib/win/registry2.f
 REQUIRE ENUM  ~ygrek/lib/enum.f
 REQUIRE >ASCIIZ ~ygrek/lib/string.f
 REQUIRE tabcontrol ~ygrek/~yz/lib/wincc.f
 REQUIRE 2VALUE ~ygrek/lib/2value.f
-
-: kkv-save [CHAR] $ PARSE -TRAILING S", ;
-: kkv-extract HERE >R kkv-save R> COUNT ;
-: $Revision: kkv-extract ;
+REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 
 $Revision$ 2VALUE CVS-REVISION
 
@@ -22,12 +19,15 @@ $Revision$ 2VALUE CVS-REVISION
 
 MODULE: A-STR
  REQUIRE STR@ ~ac/lib/str5.f
+ REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 EXPORT
+ : replace-str- replace-str- ;
  : A" POSTPONE " ; IMMEDIATE
  : STR@ STR@ ;
  : '' '' ;
  : A"" POSTPONE "" ; IMMEDIATE
  : STRFREE STRFREE ;
+ : STR! STR! ;
 ;MODULE
 
 VECT onClick-install
@@ -36,16 +36,19 @@ VECT vect-generate
 : ON-WINDOW-INIT ... ;
 
 :NONAME 0 VALUE ; ENUM values
-values  spf ntype TypeNstr ;
+values spf ntype TypeNstr ;
 
 REQUIRE gui ~ygrek/prog/install/gui.f
 
 WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 
-: RG_DeleteKey ( addr u -- ior )
-  >ASCIIZ EK @ RegDeleteKeyA ;
+: RG_DeleteKey ( addr u -- ior ) >ASCIIZ EK @ RegDeleteKeyA ;
 
-: CheckSPFType ( addr u -- )
+: TypeN TypeNstr STR@ ;
+
+: ?FARManagerPresent ( -- ? ) S" SOFTWARE\Far\Associations" HKEY_CURRENT_USER RG_OpenKey NIP 0= ;
+
+: CheckSPFType ( a u -- )
   TypeNstr STRFREE
   2DUP A" {s}" TO TypeNstr \ remember the key
 \  CR TypeNstr STR@ TYPE
@@ -55,15 +58,9 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
   ( a1 u1)
   S" *.spf" SEARCH IF 2DROP -1 TO ntype DROP TRUE EXIT THEN \ DROP TRUE is a hack!!
   2DROP
-  ntype 1+ TO ntype
-;
+  ntype 1+ TO ntype ;
 
-: TypeN TypeNstr STR@ ;
-
-: ?FARManagerPresent ( -- ? )
-  S" SOFTWARE\Far\Associations" HKEY_CURRENT_USER RG_OpenKey NIP 0= ;
-
-: FindSPFType
+: FindSPFType ( -- )
   A"" TO TypeNstr
   0 TO ntype
 
@@ -75,11 +72,17 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
   \ CR ." CHECK IT " TypeN TYPE
 ;
 
-: path spf ASCIIZ> ;
+: path spf STR@ ;
 
-: get-user-path
-   spf 1024 ERASE
-   spf gui::path@ ;
+: edit>s { ctl | mem s -- s }
+   A"" TO s
+   ctl -text# 1+ ALLOCATE THROW TO mem
+   mem ctl -text@ 
+   mem ASCIIZ> s STR! 
+   mem FREE THROW
+   s ;
+
+: get-user-path gui::edit-path edit>s TO spf ;
 
 : install
 
@@ -163,7 +166,7 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 
   S" sp-forth files" S" Description" TypeN StrValue!
   S" " S" Edit" TypeN StrValue!
-  A" {path} !.!" STR@ S" Execute" TypeN StrValue!
+  A" {path} {''}!.!{''}" STR@ S" Execute" TypeN StrValue!
   S" *.f,*.spf" S" Mask" TypeN StrValue!
   S" " S" View" TypeN StrValue!
  THEN
@@ -173,18 +176,6 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 ;
 
 ' install TO onClick-install
-
-\ double the slashes
-: DOUBLE-SLASHES ( buf a u -- )
- BOUNDS DO
-  I C@ [CHAR] \ = IF 
-    [CHAR] \ OVER C! 1+
-    [CHAR] \ OVER C! 1+
-  ELSE
-    I C@ OVER C! 1+ 
-  THEN
- LOOP
- 0 SWAP C! ;
 
 HERE
  ModuleDirName A" {s}devel/~ygrek/prog/install/spf_install.template" STR@ 
@@ -197,10 +188,7 @@ HERE
 
  get-user-path
 
- spf ASCIIZ> + 2+ TO orig
- spf orig orig spf - CMOVE
-
- spf orig ASCIIZ> DOUBLE-SLASHES
+ spf A" \" A" \\" replace-str-
 
  0 TO err
 
@@ -235,7 +223,7 @@ PROC;
    " (not installed)" R@ -text!
    " FAR manager settings were not found in the registry" R@ -tooltip!
    RDROP
- ELSE   
+ ELSE
    FindSPFType
    ntype -1 = IF
      \ gui::farmanager windisable
@@ -249,7 +237,7 @@ PROC;
 ;
 
 : main
-  1024 ALLOCATE THROW TO spf
+  A"" TO spf
 
   WINDOWS...
 
@@ -265,7 +253,7 @@ PROC;
 
   ...WINDOWS
 
-  spf FREE THROW 
+  spf STRFREE
 ;
 
 
@@ -273,4 +261,3 @@ main
 CR .( Clean exit)
 
 BYE
-

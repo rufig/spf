@@ -32,6 +32,6 @@ REGEDIT4
 [HKEY_CURRENT_USER\SOFTWARE\Far\Associations\{TypeN}]
 "Description"="sp-forth files"
 "Edit"=""
-"Execute"="{path} !.!"
+"Execute"="{path} \"!.!\""
 "Mask"="*.f,*.spf"
 "View"=""

@@ -67,8 +67,8 @@ PROC;
 
 PREVIOUS
 
-: path@ ( buf -- )
-  edit-path -text@ ;
+\ : path@ ( buf -- ) edit-path -text@ ;
+\ : path# ( -- n ) edit-path -text# ;
 
 : _quit W: wm_close winmain send DROP ;
 
@@ -78,7 +78,7 @@ PREVIOUS
     -yfixed |
     ===
     edit  200 this limit-edit -xspan  this TO edit-path  
-        " Path to the SPF executable" this -tooltip! 
+        " Path to the SPF executable that executed this script" this -tooltip! 
     -yfixed |
     ===
     GRID
@@ -107,7 +107,7 @@ PREVIOUS
     GRID
        "   Apply  " button
        ['] onClick-install this -command! 
-       " Checked boxes will result in setting the corresponding value in the registry. Cleared boxes will delete the setting from the registry" 
+       " Checked boxes will result in setting the corresponding value in the registry. Cleared boxes will delete the setting from the registry. You must have administrative privilegies."
        this -tooltip! 
         -xspan |
 
