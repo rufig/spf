@@ -277,8 +277,15 @@ CHAR } VALUE [CHAR]}
   REPEAT
   s DUP STRLAST !
 ;
-: (") ( addr u -- s )
-  ['] ((")) EVALUATE-WITH
+: (") ( addr u -- s ) { \ c }
+
+  [CHAR]{ -> c
+  2DUP ^ c 1 SEARCH NIP NIP
+  IF
+    ['] ((")) EVALUATE-WITH
+  ELSE
+    sALLOT DUP STRLAST !
+  THEN
 ;
 
 ( вечная слава Андрею Филаткину: )
@@ -348,7 +355,9 @@ CREATE _S""" CHAR " C,
   _S""" 1
 ;
 
-: PARSE" { \ s -- addr u }
+USER _PARSED"
+
+: PARSE" { \ s c -- addr u }
   "" -> s
   BEGIN
     [CHAR] " PARSE
@@ -360,11 +369,15 @@ CREATE _S""" CHAR " C,
   REPEAT
   s STR+
   s STR@
-  STR@LOCAL
+  s _PARSED" !
+  [CHAR]{ -> c
+  2DUP ^ c 1 SEARCH NIP NIP
+  IF STR@LOCAL THEN
 ;
 
 : " ( "ccc" -- )
   PARSE" POSTPONE STRLITERAL
+  STATE @ IF _PARSED" @ ?DUP IF STRFREE _PARSED" 0! THEN  THEN
 ; IMMEDIATE
 
 USER _LASTFILE 
