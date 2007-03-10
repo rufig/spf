@@ -50,7 +50,17 @@ USER MEM-SPF
 ;
 : MemDump ( entry -- )
   DUP DUP MemDump1 SPACE SPACE  
-  @ @ WordByAddr OVER >R 
+  @ @ WordByAddr 
+
+  2DUP 8 MIN S" MEMSELF_" COMPARE 0=
+  IF 2DUP TYPE SPACE 
+     FORTH-WORDLIST SEARCH-WORDLIST
+     IF TRUE SWAP EXECUTE ELSE ." MEMSELF_ handler not found." . THEN CR
+     EXIT
+  THEN
+
+  OVER >R 
+
 \  2DUP S" STRBUF" COMPARE 0= >R TYPE
   2DUP S" SALLOT" COMPARE 0= >R TYPE
   R> IF SPACE DUP @ 32 + ASCIIZ> TYPE THEN
@@ -69,4 +79,12 @@ USER MEM-SPF
   LOOP DROP
   BASE !
   CR ." Total: " MEM-TOTAL @ U. ."  Forth: " MEM-SPF @ U.
+;
+\EOF
+
+: MEMSELF_TEST ( false  | entry true -- )
+  IF @ CELL+ @ .
+  ELSE
+    0x73737373 1 CELLS ALLOCATE THROW !
+  THEN
 ;
