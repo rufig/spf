@@ -292,7 +292,7 @@ VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
 \  fodbc odbcStat @ SQLCloseCursor DROP
 \  0 ( SQL_COMMIT) fodbc odbcEnv @ 1 ( SQL_HANDLE_ENV) SQLEndTran DROP
   fodbc FreeStmt
-  fodbc odbcConn @ ?DUP IF SQLDisconnect DROP fodbc odbcConn 0! THEN
+  fodbc odbcConn @ ?DUP IF DUP SQLDisconnect DROP SQLFreeConnect DROP fodbc odbcConn 0! THEN
 ( disconnect нужен после каждого UPDATE для некоторых ODBC-драйверов...
   но при нескольких запросах per connect лучше не пользоваться FreeExec )
 ;
