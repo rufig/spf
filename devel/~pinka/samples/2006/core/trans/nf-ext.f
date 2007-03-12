@@ -3,7 +3,7 @@
 : enqueueNOTFOUND ( xt -- )
 \ добавить в конец списка трансляторов
 \ транслятор, заданный xt
-\ xt ( a u -- a u false | i*x true )
+\ xt ( a u -- a u false | n*x true )
 
   S" NOTFOUND" SFIND 0= IF 2DROP ['] NOOP THEN
     WARNING @ >R WARNING 0!
@@ -20,5 +20,5 @@
 \ example:
 \ ' AsQName enqueueNOTFOUND
 \ where AsQName stack notation
-\   on STATE0 is ( a-text u-text -- a1 u1 true | a u false )
+\   on STATE0 is ( i*x  a-text u-text -- j*x  true | i*x  a u false )
 \   otherwise is ( a-text u-text -- true | a u false )
