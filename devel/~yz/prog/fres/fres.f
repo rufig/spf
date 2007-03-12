@@ -1,4 +1,4 @@
-\ FRES 1.01	15.12.2001
+\ FRES 1.02 09.03.2007
 \ преобразует стандартый файл .RES в удобный для загрузки формат,
 \ который представляет собой ничто иное, как соответствующий кусок
 \ сегмента ресурсов: три уровня дерева плюс сами ресурсы.
@@ -11,10 +11,10 @@
 \ Соответственно, имена ресурсов и их типов должны ограничиваться символама ASCII.
 \ ------------------------------------------
 \ Версии
-\ 1.01 Исправлена ошибка: ресурсы с именами компилировались под NT неправильно
+\ 1.01 (15.12.2001) Исправлена ошибка: ресурсы с именами компилировались под NT неправильно
+\ 1.02 (09.03.2007) WINAPI: вместо ~yz/lib/api.f
 \ ------------------------------------------
 REQUIRE "       ~yz/lib/common.f
-REQUIRE USER32: ~yz/lib/api.f
 REQUIRE (|      ~yz/lib/printf.f
 REQUIRE {       lib/ext/locals.f
 \ ------------------------------------------
@@ -37,9 +37,9 @@ CREATE output-file 256 ALLOT
 : setnumflag ( n -- n1) numflag OR ;
 : clnumflag ( n -- n1) numflag INVERT AND ;
 \ ------------------------------------------
-KERNEL32: CreateFileMappingA
-KERNEL32: MapViewOfFile
-KERNEL32: UnmapViewOfFile
+WINAPI: CreateFileMappingA KERNEL32.DLL
+WINAPI: MapViewOfFile KERNEL32.DLL
+WINAPI: UnmapViewOfFile KERNEL32.DLL
 
 0 VALUE fh
 0 VALUE maph
@@ -78,7 +78,7 @@ VARIABLE file-ptr
   file-ptr @ ofile - S>D ofh RESIZE-FILE DROP
   ofh CLOSE-FILE DROP ;
 \ ------------------------------------------
-KERNEL32: GetAtomNameA
+WINAPI: GetAtomNameA KERNEL32.DLL
 
 : >> ( n -- ) file-ptr @ !  CELL file-ptr +! ;
 : W>> ( w -- ) file-ptr @ W! 2 file-ptr +! ;
@@ -122,7 +122,7 @@ CELL -- :size
 : new-node ( -- a) node# new ;
 : new-leaf ( -- a) leaf# new ;
 
-KERNEL32: AddAtomA
+WINAPI: AddAtomA KERNEL32.DLL
 
 : get-son { tree id newproc \ -- son }
   tree :begin @ ?DUP IF
@@ -208,9 +208,9 @@ KERNEL32: AddAtomA
 \ xt ( node -- )
 \ xt1 ( tree -- )
 \ : traverse-tree-and-do-it ( tree xt xt1 --)
-\  >R >R DUP R> traverse-tree R> EXECUTE ;	
+\  >R >R DUP R> traverse-tree R> EXECUTE ;  
 
-KERNEL32: lstrcmp
+WINAPI: lstrcmp KERNEL32.DLL
 
 : atom>str ( atom adr -- )
   SWAP 300 ROT ROT GetAtomNameA DROP ;
