@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translated from intro.ru.md rev. 1.10 -->
+<!-- Translation is in sync with intro.ru.md rev. 1.11 -->
 
 ----
 
@@ -272,7 +272,7 @@ find the word. And the proper way to clear stack is: `S0 @ SP!`
 `STARTLOG` starts the logging of all console output to the `spf.log` file in
 the current directory. `ENDLOG`, respectively, stops such behaviour.
 
-More in [devel](devel.en.html)
+[More in devel](devel.en.html#debug)
 
 
 ----

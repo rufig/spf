@@ -5,7 +5,7 @@
 
 <small>$Date$</small>
 
-<!-- Translated from devel.ru.md (rev 1.6) -->
+<!-- Translation is in sync with devel.ru.md rev. 1.7 -->
 
 *REQUIRE is a forth word, which loads library; unnecessary text is commented out, so you can use this list as a forth code to include libs :)*
 
@@ -77,7 +77,7 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 <a id="debug"/>
 ### \\ Debugging facilities
 * REQUIRE HeapEnum <a href='../devel/~ac/lib/memory/heap_enum2.f'>~ac/lib/memory/heap_enum2.f</a> \\ enumerating allocated memory blocks on the heap
-* REQUIRE mem_stub <a href='../devel/~day/lib/mem_sanity.f'>~day/lib/mem_sanity.f</a> \\ Verifying FREE (via filling with template) 
+* REQUIRE mem\_stub <a href='../devel/~day/lib/mem_sanity.f'>~day/lib/mem_sanity.f</a> \\ Verifying FREE (via filling with template) 
 * REQUIRE MemReport <a href='../devel/~day/lib/memreport.f'>~day/lib/memreport.f</a> \\  Memory leakages checking with stack report (supports multithreading) 
 * REQUIRE ACCERT( <a href='../lib/ext/debug/accert.f'>lib/ext/debug/accert.f</a> \\ Conditional compilation, suitable for debug checks
 * REQUIRE TRACER <a href='../lib/ext/debug/tracer.f'>lib/ext/debug/tracer.f</a> \\ Detailed execution report
@@ -188,7 +188,7 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 ### \\ Big simplifications :) 
 * REQUIRE DLOPEN <a href='../devel/~ac/lib/ns/dlopen.f'>~ac/lib/ns/dlopen.f</a> \\ unix-compatible way of loading WindowsDLL/UnixSO 
 * \\ <a href='../devel/~ac/lib/ns/'>~ac/lib/ns/</a> \\ mapping external tree structures on forth wordlist
-* REQUIRE XML_READ_DOC <a href='../devel/~ac/lib/lin/xml/xml.f'>~ac/lib/lin/xml/xml.f</a> \\ XML via LibXml2 
+* REQUIRE XML\_READ\_DOC <a href='../devel/~ac/lib/lin/xml/xml.f'>~ac/lib/lin/xml/xml.f</a> \\ XML via LibXml2 
 * REQUIRE XSLT <a href='../devel/~ac/lib/lin/xml/xslt.f'>~ac/lib/lin/xml/xslt.f</a> \\ XSLT via LinXslt 
 
 <a id="oop"/>
@@ -206,7 +206,7 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 
 <a id="mem"/>
 ### \\ Memory
-* REQUIRE STACK_MEM <a href='../devel/~ac/lib/memory/mem_stack.f'>~ac/lib/memory/mem_stack.f</a> \\ "Stack"-way memory allocation
+* REQUIRE STACK\_MEM <a href='../devel/~ac/lib/memory/mem_stack.f'>~ac/lib/memory/mem_stack.f</a> \\ "Stack"-way memory allocation
 * REQUIRE LowMemory? <a href='../devel/~ac/lib/memory/low_memory.f'>~ac/lib/memory/low_memory.f</a> \\ Controlling extra memory consumption
 * REQUIRE PAllocSupport <a href='../devel/~af/lib/pallocate.f'>~af/lib/pallocate.f</a> \\ Allocating memory in the global process space (shareable between threads) 
 * REQUIRE LOCALLOC <a href='../devel/~mak/lalloc.f'>~mak/lalloc.f</a> \\ local array allocation (on the return stack) 

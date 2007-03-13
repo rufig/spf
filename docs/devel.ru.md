@@ -80,7 +80,7 @@
 <a id="debug"/>
 ### \\ Средства отладки 
 * REQUIRE HeapEnum <a href='../devel/~ac/lib/memory/heap_enum2.f'>~ac/lib/memory/heap_enum2.f</a> \\ перечисление выделенных кусков памяти на хипе 
-* REQUIRE mem_stub <a href='../devel/~day/lib/mem_sanity.f'>~day/lib/mem_sanity.f</a> \\ Проверка корректности удаления (с помощью заполнения шаблоном) 
+* REQUIRE mem\_stub <a href='../devel/~day/lib/mem_sanity.f'>~day/lib/mem_sanity.f</a> \\ Проверка корректности удаления (с помощью заполнения шаблоном) 
 * REQUIRE MemReport <a href='../devel/~day/lib/memreport.f'>~day/lib/memreport.f</a> \\ Отчёт об утечках с распечаткой стека (поддерживает многопоточность) 
 * REQUIRE ACCERT( <a href='../lib/ext/debug/accert.f'>lib/ext/debug/accert.f</a> \\ Условная компиляция, удобно для проверок 
 * REQUIRE TRACER <a href='../lib/ext/debug/tracer.f'>lib/ext/debug/tracer.f</a> \\ Подробное отслеживание выполнения 
@@ -191,7 +191,7 @@
 ### \\ Большие упрощения :) 
 * REQUIRE DLOPEN <a href='../devel/~ac/lib/ns/dlopen.f'>~ac/lib/ns/dlopen.f</a> \\ совместимый с Unix-версией SPF способ загрузки WindowsDLL/UnixSO 
 * \\ <a href='../devel/~ac/lib/ns/'>~ac/lib/ns/</a> \\ отображение внешних древовидных структур на форт-словарь 
-* REQUIRE XML_READ_DOC <a href='../devel/~ac/lib/lin/xml/xml.f'>~ac/lib/lin/xml/xml.f</a> \\ поддержка XML через LibXml2 
+* REQUIRE XML\_READ\_DOC <a href='../devel/~ac/lib/lin/xml/xml.f'>~ac/lib/lin/xml/xml.f</a> \\ поддержка XML через LibXml2 
 * REQUIRE XSLT <a href='../devel/~ac/lib/lin/xml/xslt.f'>~ac/lib/lin/xml/xslt.f</a> \\ поддержка XSLT через LinXslt 
 
 <a id="oop"/>
@@ -210,7 +210,7 @@
 
 <a id="mem"/>
 ### \\ Память 
-* REQUIRE STACK_MEM <a href='../devel/~ac/lib/memory/mem_stack.f'>~ac/lib/memory/mem_stack.f</a> \\ "Стековое" управление памятью 
+* REQUIRE STACK\_MEM <a href='../devel/~ac/lib/memory/mem_stack.f'>~ac/lib/memory/mem_stack.f</a> \\ "Стековое" управление памятью 
 * REQUIRE LowMemory? <a href='../devel/~ac/lib/memory/low_memory.f'>~ac/lib/memory/low_memory.f</a> \\ Отслеживание чрезмерного потребления памяти 
 * REQUIRE PAllocSupport <a href='../devel/~af/lib/pallocate.f'>~af/lib/pallocate.f</a> \\ Выделение памяти в адресном пространстве процесса (общее для потоков) 
 * REQUIRE LOCALLOC <a href='../devel/~mak/lalloc.f'>~mak/lalloc.f</a> \\ выделение локального массива (на стеке возвратов) 
