@@ -40,7 +40,7 @@ USER IniEnumXt
   IniEnumXt ! 
   ['] (IniEnum) EVALUATE-WITH
 ;
-: IniFileExists ( addr u -- flag )
+: IniFileExists_old ( addr u -- flag )
   R/O OPEN-FILE-SHARED ?DUP
   IF NIP DUP 2 =
         OVER 3 = OR
@@ -49,6 +49,9 @@ USER IniEnumXt
         0=
   ELSE CLOSE-FILE THROW TRUE
   THEN
+;
+: IniFileExists ( addr u -- flag )
+  FILE-EXIST
 ;
 : IniDefault2
   S" ..\Eserv3.orig.ini"
@@ -65,16 +68,24 @@ USER IniEnumXt
 : STRNIL
   DUP 0= IF 2DROP 0 0 THEN
 ;
+USER _fskFILE
+USER _fskSEC
+USER _fskKEY
+: SFS! ( s addr -- )
+  DUP @ ?DUP IF STRFREE THEN
+  !
+;
 : (File.Section[Key]>)
-  { xt \ fa fu }
+  { xt \ fa fu s }
   SOURCE S" ." SEARCH NIP SWAP \ flag a
   SOURCE S" [" SEARCH 2DROP \ a2
   U< AND
-  IF [CHAR] . PARSE [CHAR] . PARSE 2SWAP " {s}.{s}" STR@ STRNIL
+  IF [CHAR] . PARSE [CHAR] . PARSE 2SWAP   \ " {s}.{s}" STR@ STRNIL
+     "" -> s s STR+ S" ." s STR+ s STR+ s STR@ STRNIL s _fskFILE SFS!
   ELSE xt EXECUTE THEN
   -> fu -> fa
-  [CHAR] [ PARSE " {s}" STR@ STRNIL
-  [CHAR] ] PARSE " {s}" STR@ STRNIL 2SWAP fa fu
+  [CHAR] [ PARSE ( " {s}") sALLOT DUP _fskSEC SFS! STR@ STRNIL
+  [CHAR] ] PARSE ( " {s}") sALLOT DUP _fskKEY SFS! STR@ STRNIL 2SWAP fa fu
 ;
 : File.Section[Key]> IniDefault (File.Section[Key]>) ;
 : FileOrig.Section[Key]> IniDefaultOrig (File.Section[Key]>) ;
@@ -82,7 +93,7 @@ USER IniEnumXt
 : (IniS@)
   File.Section[Key]>
   IniFile@ DUP 0=
-  IF 2DROP >IN 0! FileOrig.Section[Key]>
+  IF 2DROP LSTRFREE >IN 0! FileOrig.Section[Key]>
      IniFile@
   THEN
 ;
