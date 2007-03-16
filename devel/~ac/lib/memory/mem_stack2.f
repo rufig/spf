@@ -34,7 +34,7 @@
 \ по умолчанию заполняется адресом тела процедуры, вызвавшей ALLOCATE
 
   CELL+ 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
-  DUP IF 557 OVER ! CELL+ 0 ELSE -300 THEN
+  DUP IF 557 OVER ! CELL+ 0 ELSE -310 THEN
 ;
 
 : FREE ( a-addr -- ior ) \ 94 MEMORY
@@ -66,7 +66,7 @@
   CELL+ SWAP CELL- DUP @ 557 <> IF ." страшный баг" DROP 303 EXIT THEN
   DUP 0!
   8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapReAlloc
-  DUP IF 557 OVER ! CELL+ 0 ELSE -300 THEN
+  DUP IF 557 OVER ! CELL+ 0 ELSE -320 THEN
 ;
 
 USER MEM_STACK_PTR
