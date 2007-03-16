@@ -109,6 +109,36 @@ USER SqS
   SqS @ STR@
 ;
 
+: _>BL ( addr u -- )
+  0 ?DO DUP I + C@ [CHAR] _ = IF BL OVER I + C! THEN LOOP DROP
+;
+
+: (oxqueryn) { i par ppStmt -- flag }
+  i 1 =
+  IF " <thead><tr class='sp_head'><th class='N'>N</th>" SqS @ S+
+    ppStmt db_cols 0 ?DO
+      I ppStmt db_colname 2DUP 2DUP _>BL " <th class='{s}'>{s}</th>" SqS @ S+
+    LOOP " </tr></thead>{CRLF}" SqS @ S+
+  THEN
+  i 1 AND 0= IF S"  even" ELSE S" " THEN
+  i " <tr N='{n}' class='sp_data{s}'>" SqS @ S+
+  i " <td class='numb'>{n}</td>" SqS @ S+
+  ppStmt db_cols 0 ?DO
+    I ppStmt db_col DUP 0= >R 2DUP S" NULL" COMPARE 0= R> OR IF 2DROP S" &nbsp;" THEN
+    I ppStmt db_coltype 12 <> IF S"  numb" ELSE S" " THEN
+    I ppStmt db_colname  " <td class='{s}{s}'>{s}</td>" SqS @ S+
+  LOOP  " </tr>{CRLF}" SqS @ S+
+  TRUE
+;
+: oxqueryn ( addr u -- addr2 u2 )
+  SqlQT @ 0= IF 70107 THROW THEN
+  " <table class='sortable' id='sp_table' cellpadding='0' cellspacing='0'>" SqS !
+  0 ['] (oxqueryn) SqlQT @ db_exec
+\  " </table>" SqS @ S+
+  SqS @ STR@
+;
+
+
 
 : db@Does ( a1 -- addr u ) \ 'STR@DOES
   DOES> @ ?DUP IF STR@ ELSE S" " THEN
