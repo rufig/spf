@@ -182,6 +182,7 @@ USER STRLAST
 \  DEBUG @ IF ." STR@:" 2DUP TYPE ." |" VTH CR THEN
 ;
 : STRFREE ( s -- )
+  DUP STRLAST @ = IF STRLAST 0! THEN
   DUP s@ FREE THROW FREE THROW
 ;
 : STYPE ( s -- )
@@ -212,10 +213,14 @@ USER STRLAST
 
 VECT {NOTFOUND} ' LAST-WORD TO {NOTFOUND}
 
+: LSTRFREE ( -- )
+  STRLAST @ ?DUP IF STRFREE THEN
+;
 : {eval} ( ... s -- s ) { s \ sp base state }
   SP@ -> sp
   BASE @ -> base DECIMAL
   STATE @ -> state STATE 0!
+  STRLAST 0!
   ['] INTERPRET CATCH
   ?DUP IF DUP -2003 = IF {NOTFOUND} THEN
           S" (Error: " s STR+
@@ -227,7 +232,7 @@ VECT {NOTFOUND} ' LAST-WORD TO {NOTFOUND}
   base BASE !
   state STATE !
   sp SP@ - 
-  DUP 12 = IF DROP s STR+ s EXIT THEN
+  DUP 12 = IF DROP s STR+ s DUP STRLAST @ <> IF LSTRFREE THEN EXIT THEN
   DUP  8 = IF DROP 0 <# #S #> s STR+ s EXIT THEN
   DUP  4 = IF DROP s EXIT THEN
   DROP
@@ -406,9 +411,6 @@ USER _LASTFILE
 \ ValidateThreadHeap<
   "" DUP ROT ! STR+
 \ ValidateThreadHeap>
-;
-: LSTRFREE ( -- )
-  STRLAST @ STRFREE
 ;
 
 (
