@@ -28,10 +28,10 @@ USER SQS
 ;
 : (xquery) { i par ppStmt -- flag }
   i 1 =
-  IF " <tr class='sp_head'>" SQS @ S+
+  IF " <thead><tr class='sp_head'>" SQS @ S+
     ppStmt db3_cols 0 ?DO
       I ppStmt db3_colname 2DUP " <th class='{s}'>{s}</th>" SQS @ S+
-    LOOP " </tr>{CRLF}" SQS @ S+
+    LOOP " </tr></thead>{CRLF}<tbody>" SQS @ S+
   THEN
   i 1 AND 0= IF S"  even" ELSE S" " THEN
   i " <tr N='{n}' class='sp_data{s}'>" SQS @ S+
@@ -45,6 +45,6 @@ USER SQS
 : xquery ( addr u -- addr2 u2 )
   " <table class='sortable' id='sp_table' cellpadding='0' cellspacing='0'>" SQS !
   0 ['] (xquery) SQH @ db3_exec
-  " </table>" SQS @ S+
+  " </tbody></table>" SQS @ S+
   SQS @ STR@
 ;
