@@ -147,7 +147,7 @@ USER SqS
   2DUP GET-CURRENT SEARCH-WORDLIST
   IF NIP NIP >BODY S!
   ELSE
-    2DUP " CREATE {s}" STR@ EVALUATE 0 , db@Does RECURSE
+    2DUP CREATED 0 , db@Does RECURSE
   THEN
 ;
 : db@ { addr u q -- }
