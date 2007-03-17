@@ -21,13 +21,12 @@
 
     <xsl:for-each select="colon">         <!-- Для каждого определения через двоеточие-->
     <xsl:if test="@vocabulary='FORTH'">   <!-- Только те что экспортируются в общий словарь-->
+
     <section>
       <xsl:attribute name="id">
         <xsl:value-of select="generate-id()"/>
       </xsl:attribute>
-      <title>
-        <xsl:value-of select="@name"/>    <!-- Имя слова-->
-      </title>
+
       <indexterm type="word">
         <primary>
           <xsl:value-of select="@name"/>  <!-- Индекс по имени слова-->
@@ -36,6 +35,11 @@
           <xsl:value-of select="parent::module/@name"/>
         </primaryie-->
       </indexterm>
+
+      <title>
+        <xsl:value-of select="@name"/>    <!-- Имя слова-->
+      </title>
+
       <para>
         <emphasis>
         <xsl:value-of select="@params"/>  <!-- Стековая нотация-->
