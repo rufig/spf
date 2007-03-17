@@ -11,21 +11,18 @@
         spf4.exe ' NOOP MAINX ! S" spf4_notitle.exe" SAVE BYE
 * NSIS <http://nsis.sourceforge.net>
 * upx (не обязательно) <http://upx.sourceforge.net>
-* python <http://www.python.org>
 * GNU make <http://mingw.org/download.shtml> <http://www.gnu.org/software/make/>
 * WinRAR <http://www.rarlabs.com>
+* perl
 
-## Для чего нужен python?
+## Для чего нужен perl?
 
 Для того чтобы конвертнуть доку из markdown в html.
 Markdown это простая разметка(подобно Wiki) текстовых файлов.
 Этот файл в частности набран с разметкой markdown. Для конвертации
-используются специальные скрипты - оригинальный написан на Перле, есть также
-реализации на Python, Lua, PHP etc. В Makefile используется python'ий скрипт.
-Так уж исторически сложилось.
+используется perl-скрипт.
 
 Официальный сайт markdown - <http://daringfireball.net/projects/markdown>
-Ссылки на альтернативные реализации - <http://en.wikipedia.org/wiki/Markdown>
 
 ## Что делать:
 

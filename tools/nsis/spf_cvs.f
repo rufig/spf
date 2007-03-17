@@ -6,20 +6,17 @@ REQUIRE ONFALSE ~profit/lib/bac4th.f
 REQUIRE LIKE ~pinka/lib/like.f
 REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 REQUIRE /STRING lib/include/string.f
-
-\ : SPF-PATH S" spf" ;
-: SPF-PATH-LEN SPF-PATH NIP ;
-
-: double-slashed  ( a u -- s )  " {s}" DUP " \" " \\" replace-str- ;
-
-SPF-PATH double-slashed VALUE path\\
-
-: SPF-PATH-\\ path\\ STR@ ;
-
 REQUIRE DateM>S ~ac/lib/win/date/date-int.f
 
-: MyDate# { d m y } y #N [CHAR] . HOLD m DateM>S HOLDS [CHAR] . HOLD d #N## ;
-: MY_DATE 0 0 <# TIME&DATE MyDate# DROP DROP DROP #> ;
+\ Путь к каталогу рабочей копии
+\ Определяется снаружи
+\ : SPF-PATH ( -- a u ) S" spf" ;
+: double-slashed  ( a u -- s )  " {s}" DUP " \" " \\" replace-str- ;
+SPF-PATH double-slashed VALUE path\\
+: SPF-PATH-\\ path\\ STR@ ;
+
+: MyDate# { d m y -- } y #N DROP [CHAR] . HOLD m DateM>S HOLDS DROP [CHAR] . HOLD d #N## DROP ;
+: MY_DATE ( -- a u ) <# TIME&DATE MyDate# 0 0 #> ;
 
 : PROD_NAME    S" {PROD_NAME}" ;
 : PROD_FILE    S" {PROD_FILE}" ;
@@ -27,6 +24,8 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
 : PROD_ICON    S" {PROD_ICON}" ;
 : VER_MAJOR    S" {VER_MAJOR}" ;
 : VER_MINOR    S" {VER_MINOR}" ;
+
+: INI S" {INI}" ;
 
 : VER_DATE     S" {VER_DATE}" ;
 : MUI_ICON     S" {MUI_ICON}" ;
@@ -48,10 +47,9 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
 : SecAssociate S" {SecAssociate}" ;
 : SecShortcuts S" {SecShortcuts}" ;
 
-\ подготовить данные для NSIS
+\ прямые слеши в обратные
 : />\ ( addr u -- )
-  0 ?DO DUP I + C@ [CHAR] / = IF [CHAR] \ OVER I + C! THEN LOOP DROP
-;
+  0 ?DO DUP I + C@ [CHAR] / = IF [CHAR] \ OVER I + C! THEN LOOP DROP ;
 
 \ эти файлы из корня без дальнейших проверок пропускаем в список
 : root-files=>
@@ -88,7 +86,8 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
   S" *-setup.exe" CONT
   S" *.md" CONT
   S" *.md.css" CONT
-  S" *Makefile" CONT ;
+  S" *\\docs\\mark.new" CONT
+  S" *\\docs\\Makefile" CONT ;
 
 
 : FILTER ( a u -- a u ? )
@@ -135,8 +134,6 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
   0= IF 2DROP EXIT THEN
 
   CR TYPE ;
-
-: INI S" {INI}" ;
 
 : NSI-LIST SPF-PATH ['] NSI-FILTER FIND-FILES-R ;
 : RAR-LIST SPF-PATH ['] RAR-FILTER FIND-FILES-R ;

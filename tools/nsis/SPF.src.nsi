@@ -127,9 +127,6 @@ LangString LLinkLicense ${LANG_RUSSIAN} "Лицензия"
 LangString LDocsAll ${LANG_ENGLISH} "Documentation"
 LangString LDocsAll ${LANG_RUSSIAN} "Documentation"
 
-;LangString LRunManagerText ${LANG_ENGLISH} "Run registry settings manager"
-;LangString LRunManagerText ${LANG_RUSSIAN} "Запустить настройку реестра" 
-
 LangString LViewReadmeText ${LANG_ENGLISH} "View README"
 LangString LViewReadmeText ${LANG_RUSSIAN} "Посмотреть README" 
 
@@ -177,17 +174,14 @@ LangString LSecSPFDesc ${LANG_RUSSIAN} "${PROD_NAME}, библиотеки, документация, 
 LangString LAlreadyInstalledText ${LANG_ENGLISH} "It looks like ${PROD_NAME} is already present in '$INSTDIR'.$\r$\nOverwrite?$\r$\n(If you answer YES all the files will be overwritten.)"
 LangString LAlreadyInstalledText ${LANG_RUSSIAN} "Похоже, что ${PROD_NAME} уже установлен в '$INSTDIR'.$\r$\nПерезаписать поверх?$\r$\n(Если вы ответите ДА, все файлы будут перезаписаны.)"
 
-LangString LInitWarning ${LANG_ENGLISH}  "This version of SPF features some changes in the directory tree structure. So we recommend to install it in the fresh folder. Sorry for the inconvinience."
-LangString LInitWarning ${LANG_RUSSIAN}  "В этой версии SPF были внесены небольшие изменения в структуру каталогов, поэтому рекомендуется устанавливать в чистую папку. Извините за неудобства."
-
 LangString LUninstall ${LANG_ENGLISH} "To uninstall ${PROD_NAME}, stop its services and click 'Remove' button."
 LangString LUninstall ${LANG_RUSSIAN} "Если вы решили удалить ${PROD_NAME}, остановите его сервисы и нажмите 'Удалить' для продолжения."
 
 LangString LWelcomeHeaderText ${LANG_ENGLISH} "Welcome to the ${PROD_NAME} Setup Wizard"
 LangString LWelcomeHeaderText ${LANG_RUSSIAN} "Вас приветствует мастер установки ${PROD_NAME}"
 
-LangString LWelcomeMainText ${LANG_ENGLISH} "This wizard will install ${PROD_NAME} ${VER_MAJOR}.${VER_MINOR}.\r\n\r\nIf you have previously installed ${PROD_NAME} and it is currently running, please exit ${PROD_NAME} first before continuing this installation.\r\n\r\n$(LInitWarning)\r\n\r\n$_CLICK"
-LangString LWelcomeMainText ${LANG_RUSSIAN} "Эта программа установит ${PROD_NAME} ${VER_MAJOR}.${VER_MINOR} на Ваш компьютер.\r\n\r\nЕсли вы ранее устанавливали ${PROD_NAME} и он сейчас запущен, пожалуйста завершите ${PROD_NAME} до начала установки.\r\n\r\n$(LInitWarning)\r\n\r\n$_CLICK"
+LangString LWelcomeMainText ${LANG_ENGLISH} "This wizard will install ${PROD_NAME} ${VER_MAJOR}.${VER_MINOR}.\r\n\r\nIf you have previously installed ${PROD_NAME} and it is currently running, please exit ${PROD_NAME} first before continuing this installation.\r\n\r\n$_CLICK"
+LangString LWelcomeMainText ${LANG_RUSSIAN} "Эта программа установит ${PROD_NAME} ${VER_MAJOR}.${VER_MINOR} на Ваш компьютер.\r\n\r\nЕсли вы ранее устанавливали ${PROD_NAME} и он сейчас запущен, пожалуйста завершите ${PROD_NAME} до начала установки.\r\n\r\n$_CLICK"
 
 LangString LAssocPresentWarn ${LANG_ENGLISH} "Extension '$R0' is already associated as '$R1'.$\r$\nDo you want to overwrite this association?"
 LangString LAssocPresentWarn ${LANG_RUSSIAN} "Расширение '$R0' уже зарегистрировано, как '$R1'.$\r$\nВы уверены что хотите перезаписать?"
@@ -243,7 +237,7 @@ Section "$(LSecSPFText)" SecSPF
   SectionIn RO ; obligatory
 
   IfFileExists $INSTDIR\spf4.exe 0 spf_clean_install
-    MessageBox MB_YESNO "$(LInitWarning)$\r$\n$(LAlreadyInstalledText)" IDYES spf_clean_install
+    MessageBox MB_YESNO "$(LAlreadyInstalledText)" IDYES spf_clean_install
     Abort
 
   spf_clean_install:
