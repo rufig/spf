@@ -40,8 +40,6 @@ spf.nsi: spf.src.nsi spf_cvs.nsi spf_cvs.f
 spf.lst: spf_cvs.f
 	$(spf_script) RAR-LIST > $@ BYE
 
-# т.к. docs это абстрактная цель, то дистр будет пересобираться каждый раз при запуске make
-# чтобы этого избежать, уберите docs из пререквизитов целей $(exe) и $(rar)
 docs:
 	$(MAKE) -C $(spf_path)/docs
 
