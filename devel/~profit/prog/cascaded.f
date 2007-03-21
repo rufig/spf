@@ -19,7 +19,8 @@
 
 \ Также не работает проход по словам (а нужно оно?), это prevWord lastWord ?VOC CAR CDR
 
-REQUIRE SEE lib/ext/disasm.f
+\ REQUIRE SEE lib/ext/disasm.f
+REQUIRE STR@ ~ac/lib/str4.f
 REQUIRE HASH@ ~pinka/lib/hash-table.f
 REQUIRE INVOKE ~ac/lib/ns/ns.f
 REQUIRE __ ~profit/lib/cellfield.f
@@ -37,8 +38,6 @@ __ imm
 __ voc
 __ xt
 CONSTANT wordSize
-
-: : : ; IMMEDIATE \ Делаем : словом непосредственного исполнения (оно таковым не является)
 
 <<: FORTH cascaded
 
@@ -58,18 +57,34 @@ DROP ;
 : SEARCH-WORDLIST ( c-addr u oid -- 0 | xt 1 | xt -1 )
 \ >R 2DUP CR TYPE R>
 OBJ-DATA@ DUP IF HASH@R DUP IF DUP imm @ IF 1 ELSE -1 THEN SWAP xt @ SWAP THEN ELSE NIP NIP THEN ;
+
 >> CONSTANT cascaded-wl
 
+MODULE: dontHide \ определяем словарь в котором изменены действия : и ;
+
+:NONAME HEADER ] ;
+
+:NONAME ( -- )
+  RET, [COMPILE] [
+  ClearJpBuff
+  0 TO LAST-NON
+;
+
+->VECT ; IMMEDIATE \ определить эти слова через векторы проще всего
+->VECT : IMMEDIATE \ чтобы не прибегать к ним самим
+
+;MODULE
+
+ALSO dontHide
 ALSO cascaded NEW: casc DEFINITIONS
 
-: hack \ пока не понял почему первый заголовок из группы портится..
 : 2*2. 2
 : 2*. 2 *
 : dot . ;
 
-SEE 2*2.
+\ lib/ext/disasm.f SEE 2*2.
 2*2.
 12 dot
 
 10 CONSTANT ten
-ten
+ten .
