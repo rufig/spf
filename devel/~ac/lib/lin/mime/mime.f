@@ -268,7 +268,7 @@ USER uPhParamNum
 : ParseMessageFile { addr u -- mp }
   addr u FILE 
 
-  2DUP 4096 MIN S" From:" SEARCH NIP NIP 0=
+  2DUP 4096 MIN S" rom:" SEARCH NIP NIP 0=
   IF 2DROP LastFileFree \ DROP FREE THROW _LASTFILE 0!
     addr u
   " From: message_parser
