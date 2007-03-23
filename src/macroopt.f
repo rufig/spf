@@ -1587,7 +1587,7 @@ OP1 @ W@  1089 XOR OR \	MOV     [EAX] , EDX
        OP2 @ W@ 558B XOR OR \ 567F5F 8B55F8		MOV     EDX , F8 [EBP]
        OP1 @ W@ 5089 XOR OR \ 567F62 895004		MOV     4 [EAX] , EDX
 \      OP0 @ W@ 458B XOR OR \ 567F65 8B45FC		MOV     EAX , FC [EBP]
-       OP4 @ 2+ C@ OP2 @ 2+ C@ XOR OR  \  X0=X2  \ +¶L++
+       OP4 @ 2+ C@ OP2 @ 2+ C@ XOR OR  \  X0=X2  \ √–”¡Œ
        0= IF  M\ 232 DTST
              OP2 OPexcise
              4889 OP1 @ W!  \ MOV     [EAX+4] , ECX
@@ -2074,7 +2074,7 @@ IF
          THEN
       OP5 @ J-SET  U< 0= IF   \ GOTO 5SET
       OP5 @ W@ C18B XOR    \ 581B4C 8BC1              MOV     EAX , ECX
-      OP4 @ W@ 840F XOR OR \ 581B4E 0F8400000000      JE      581B54  ( zz+14  )
+      OP4 @ W@ 840F XOR OR \ 581B4E 0F8400000000      JE      581B54  ( zz+14  )
       0= IF  M\ B0 DTST
              OP3 OPexcise
              FALSE M\ B1 DTST
@@ -2257,8 +2257,8 @@ OP1 @ W@ D02B XOR OR \ 5969A4 2BD0              SUB     EDX , EAX
 \ TRUE VALUE ?C-JMP
  FALSE VALUE ?C-JMP
 
-\ $ - ∫˙˜vÚı™ ˝ Ø®Û¸ı˝™ ¯∏ø˛Ù˝˛Û˛ ™ı˙∏™, ˛ˇ™¯¸¯˜¯®∫ı¸v˘
-\ Ù˝˝v¸ ¸ı™˛Ù˛¸
+\ $ - ÛÍ‡Á˚‚‡ÂÚ Ì‡ Ù‡„ÏÂÌÚ ËÒıÓ‰ÌÓ„Ó ÚÂÍÒÚ‡, ÓÔÚËÏËÁËÛÂÏ˚È
+\ ‰‡ÌÌ˚Ï ÏÂÚÓ‰ÓÏ
 
 : OPT-RULES  ( ADDR  -- ADDR' FLAG )
 
@@ -4143,7 +4143,7 @@ OS\ AND EC    = M_WL DROP 1+  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
 
 : MACRO? INLINE? ;
 
-\  ¶L¶¶+¶+-TTL=+T-L¶
+\  Ã¿ –ŒœŒƒ—“¿ÕŒ¬Ÿ» 
 
 : +EBP DUP C@ C>S OFF-EBP + C,    1+ ;
 
@@ -4797,7 +4797,7 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
 
 (  ['] DROP
   0xC00B W,    \ OR EAX, EAX
-  OPT?  IF -2 ALLOT   \ v∞∑™∞Ø®·∞‡ OR EAX, EAX
+  OPT?  IF -2 ALLOT   \ ÎËÍ‚Ë‰‡ˆËˇ OR EAX, EAX
            OPT_INIT DP @ TO LAST-HERE
            ?BR-OPT
            DP @ TO LAST-HERE
