@@ -1,9 +1,8 @@
 
-REQUIRE { lib/ext/locals.f
-REQUIRE [IF] lib/include/tools.f
+REQUIRE [IF] ~mak/CompIF.f
+REQUIRE [IFNDEF] ~nn\lib\ifdef.f
 
-C" SCAN" FIND NIP 0=
-[IF]
+[IFNDEF]   SCAN
 : SCAN ( adr len char -- adr' len' )
 \ Scan for char through addr for len, returning addr' and len' of char.
         >R 2DUP R> -ROT
@@ -16,27 +15,26 @@ C" SCAN" FIND NIP 0=
 [THEN]
 
 : PASS\N
-  BEGIN  SkipDelimiters  EndOfChunk 
+  BEGIN  SkipDelimiters  EndOfChunk
   WHILE REFILL 0= IF TRUE  EXIT THEN
-  REPEAT      FALSE
-;
+  REPEAT      FALSE ;
 
-: MTOKEN { TABL -- ADDR N }
+: MTOKEN ( TABL -- ADDR N )
   PASS\N
-  IF CharAddr  0  EXIT THEN
-  TABL COUNT PeekChar SCAN NIP 
-  IF CharAddr 1 DUP >IN +! EXIT THEN
+  IF DROP CharAddr  0  EXIT THEN
+  DUP >R COUNT PeekChar SCAN NIP
+  IF RDROP CharAddr 1 DUP >IN +! EXIT THEN
   CharAddr
   BEGIN 1 >IN +!
-     EndOfChunk 
+     EndOfChunk
      IF  TRUE
-     ELSE   TABL COUNT PeekChar SCAN NIP 
+     ELSE   R@ COUNT PeekChar SCAN NIP
      THEN
   UNTIL   CharAddr OVER -
+  RDROP
 ;
 
 MODULE: _INF_MOD
-
 
  CREATE OP HERE 0x20 CELLS ALLOT  HERE SWAP !  \ STACK OF OPERATIONS
 
@@ -50,7 +48,7 @@ MODULE: _INF_MOD
 : >OP> ( N -- )   \ N IS PRIORITY
         DUP >R
         BEGIN OP@ > 0=
-        WHILE OP> DROP 
+        WHILE OP> DROP
               OP>  STATE @ IF COMPILE, ELSE EXECUTE THEN
                R@
         REPEAT RDROP ;
@@ -83,18 +81,22 @@ TRUE WARNING !
 
 ;MODULE
 
-: _INF_ 
-  C"  }"  MTOKEN DROP C@ [CHAR] { <> ABORT" ожидается {"
+
+: _INF_
+  C"  }"  MTOKEN DROP C@ [CHAR] { <> ABORT" юцшфрхЄё  {"
   [ ALSO _INF_MOD ] POSTPONE ( [ PREVIOUS ]
-  BEGIN   C"  ~!@#$%^&*()+|{}:<>?`-=\[];',./" \ символы разделители
-          MTOKEN DUP  
+  BEGIN   C"  ~!@#$%^&*()+|{}:<>?`-=\[];',./" \ ёшьтюы√ ЁрчфхышЄхыш
+          MTOKEN DUP 
           IF  OVER  C@  [CHAR] }  = IF DROP 0 THEN
-          THEN  DUP 
+          THEN  DUP
   WHILE
-     2DUP ['] _INF_MOD >BODY @ SEARCH-WORDLIST
-    IF   NIP NIP EXECUTE
+   ALSO _INF_MOD    SFIND ?DUP
+   PREVIOUS
+    IF
+         STATE @ =
+         IF COMPILE, ELSE EXECUTE THEN
     ELSE
-         S" NOTFOUND" SFIND 
+         S" NOTFOUND" SFIND
          IF EXECUTE
          ELSE 2DROP ?SLITERAL THEN
     THEN
@@ -104,7 +106,8 @@ TRUE WARNING !
 ; IMMEDIATE
 
 
-REQUIRE $! ~mak\place.f 
+
+REQUIRE $! ~mak\place.f
 
 CREATE _INF_BUFF 100 ALLOT
 FALSE  VALUE  _INF_FLAG
@@ -123,18 +126,32 @@ FALSE  VALUE  _INF_FLAG
   THEN
 ;
 
-\ пример
- _INF_  { 1+2*(1+4) } .
+\ TEST
 
-4+7 .
+5 CONSTANT FIVE
+7 VALUE    TTT
+
+ _INF_  { 1+2*(1+TTT) } .
+
+4+FIVE*TTT .
 
 : %  MOD  ;
-    
-MODULE: _INF_MOD 
+   
+MODULE: _INF_MOD
 
-8 2-OP %  \ 
+8 2-OP %  \
 
 ;MODULE
 
- (2+3)%2+6/2  . 
- 6-3-1 .
+ (2+3)%2+6/2 TO TTT
+ TTT-3-1 .
+
+REQUIRE { ~MAK\locals4.f
+
+: ZZZ { aa bb -- }
+
+  (6*FIVE)/aa-3+bb DUP . TO bb
+   aa+bb . ;
+
+3 4 ZZZ
+
