@@ -2,6 +2,8 @@
 
 ( testcase.f day )
 
+MODULE: testcase
+
 : TO-CONTEXT ( wl -- )
     >R
     GET-ORDER 1+
@@ -9,13 +11,20 @@
     SET-ORDER
 ;
 
+EXPORT
+
 \ From original well-known tester.f
 
-WARNING 0! 
 VARIABLE VERBOSE
    TRUE VERBOSE !
 VARIABLE USE-TESTS
    TRUE USE-TESTS !   
+
+DEFINITIONS
+
+VARIABLE PREVIOUS-CURRENT
+
+VARIABLE TESTING-DEPTH
 
 : EMPTY-STACK   \ ( ... -- ) EMPTY STACK.
    DEPTH ?DUP IF 0 DO DROP LOOP THEN ;
@@ -39,6 +48,8 @@ CREATE ACTUAL-RESULTS 20 CELLS ALLOT
    EMPTY-STACK                          \ THROW AWAY EVERY THING ELSE
    -1 ABORT" test failed"
 ;
+
+EXPORT
 
 : ((             \ ( -- )
    DEPTH PRE-DEPTH !
@@ -83,10 +94,6 @@ CREATE ACTUAL-RESULTS 20 CELLS ALLOT
    THEN
 ;
 
-VARIABLE PREVIOUS-CURRENT
-
-VARIABLE TESTING-DEPTH
-
 : TESTCASES
     DEPTH TESTING-DEPTH !
 
@@ -108,6 +115,8 @@ VARIABLE TESTING-DEPTH
     DEPTH TESTING-DEPTH @ = 0= ABORT" wrong depth after tests"
     CR ." TEST PASSED"
 ;
+
+;MODULE 
 
 TESTCASES testcase.f
 
