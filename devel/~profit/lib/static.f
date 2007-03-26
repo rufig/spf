@@ -8,14 +8,13 @@
 \ ѕри использовании в bac4th-словах, LOCAL надо размещать
 \ *после* PRO
 
+\ STATIC и LOCAL выставл€ют переменные в ноль
+
+REQUIRE KEEP ~profit/lib/bac4th.f
 REQUIRE NOT ~profit/lib/logic.f
 REQUIRE /TEST ~profit/lib/testing.f
 
 MODULE: static
-\ также определено в ~profit/lib/bac4th.f
-\ см. ~mlg/BacFORTH-88/BF-Diplom.html и/или
-\ http://fforum.winglion.ru/viewtopic.php?p=2151#2151
-: KEEP ( addr --> / <-- ) R> SWAP DUP @  2>R EXECUTE 2R> SWAP ! ;
 
 USER widLocals
 widLocals 0!
@@ -45,8 +44,8 @@ widHere @ DP !  DEFINITIONS      THEN ; \ ≈сли словарь уже создан, то возрашаем 
 
 
 : STATIC=>
-HERE LAST @ NAME> =                \ еще ничего не компилировалось 
-IF R> EXECUTE HERE LAST @ NAME>C ! \ пишем €чейку, сдвигаем поле кода
+HERE LATEST NAME> =                \ мы находимс€ в слове, в котором ещЄ ничего не компилировалось 
+IF R> EXECUTE HERE LATEST NAME>C ! \ пишем €чейку, сдвигаем поле кода
 ELSE                               \ шитый код уже есть, тогда €чейку внедр€ем
 0 BRANCH, >MARK                    \ jmp HERE+€чейка , перескакиваем €чейку 
 R> EXECUTE                         \ здесь делаем компил€цию переменной (-ых)
@@ -83,6 +82,10 @@ STATIC=> staticLen @ 0 DO 0 , LOOP \ записываем €чейки
 widLocals @ @ NAME> EXECUTE
 POSTPONE KEEP ; IMMEDIATE
 
+: LPARAMETER ( "name -- ) [COMPILE] STATIC
+widLocals @ @ NAME> EXECUTE
+POSTPONE B! ; IMMEDIATE
+
 ;MODULE
 
 /TEST
@@ -117,6 +120,16 @@ n @ *       THEN ;
 
 $> 10 fact .
 
+\ ”прощЄнное создание локальных аргументов,
+\ "ќбЄртка" дл€ LOCAL par par !
+\  ак и LOCAL -- обЄртка дл€ STATIC# 1 par par KEEP
+: localsTest ( a b -- sum )
+LPARAMETER b  LPARAMETER a \ в противоположном к стековой нотации пор€дке
+\ то есть согласно расположению на стеке
+a @ 0= IF 0 EXIT THEN
+a @ b @ 0 0 RECURSE + + . ;
+$> 3 4 localsTest
+SEE localsTest
 
 0
 CELL -- a
@@ -125,7 +138,9 @@ CELL -- c
 DROP
 
 : sum ( a b -- )
-STATIC# 3 s
+STATIC# 3 s \ занимаем в шитом коде пространство в 3 €чейки и 
+\ даЄм ей им€ s
+
 s a ! s b !
 
 s a @
