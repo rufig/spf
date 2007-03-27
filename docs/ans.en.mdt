@@ -67,8 +67,8 @@ helpful for using non-SPF libraries.
 
 * conditions under which control characters match a space delimiter ({std 3.4.1.1} Delimiters); 
 
-  Parser treats all characters with the ascii code less than 32 (`BL`) as
-  delimiters. This doesn't depend on the input source.
+  Parser treats all characters with ascii code less or equal to 32 (`BL`) as
+  delimiters. This behaviour doesn't depend on the input source.
 
 * format of the control-flow stack ({std 3.2.3.2} Control-flow stack); 
 
@@ -78,7 +78,7 @@ helpful for using non-SPF libraries.
 
 * conversion of digits larger than thirty-five ({std 3.2.1.2} Digit conversion); 
 
-  SPF converts digits according to the character table, so `50 BASE ! a 0[ DECIMAL . .` 
+  SPF converts digits according to the ASCII character table, so `50 BASE ! a 0[ DECIMAL . .` 
   will produce `36 42`.
 
 * display after input terminates in {std 6.1.0695} ACCEPT and {std 6.2.1390} EXPECT; 
@@ -155,9 +155,71 @@ helpful for using non-SPF libraries.
 
   ?
 
+
+
+
 * values returned after arithmetic overflow ({std 3.2.2.2} Other integer operations); 
 
 * whether the current definition can be found after {std 6.1.1250} DOES> ({std 6.1.0450} :). 
+
+* Values used in the system by {std 9.6.1.0875} CATCH and {std 9.6.1.2275} THROW ({std 9.3.1} THROW values, {std 9.3.5} Possible actions on an ambiguous condition).
+
+* encoding of keyboard events ({std 10.6.2.1305} EKEY);
+
+* duration of a system clock tick;
+
+* repeatability to be expected from execution of {std 10.6.2.1905} MS.
+
+* file access methods used by {std 11.6.1.0765} BIN, {std 11.6.1.1010} CREATE-FILE, {std 11.6.1.1970} OPEN-FILE, {std 11.6.1.2054} R/O, {std 11.6.1.2056} R/W, and {std 11.6.1.2425} W/O;
+
+* file exceptions;
+
+* file line terminator ({std 11.6.1.2090} READ-LINE);
+
+* file name format ({std 11.3.1.4} File names);
+
+* information returned by {std 11.6.2.1524} FILE-STATUS;
+
+* input file state after an exception ({std 11.6.1.1717} INCLUDE-FILE, 11.6.1.1718 INCLUDED);
+
+* ior values and meaning ({std 11.3.1.2} I/O results);
+
+* maximum depth of file input nesting ({std 11.3.4} Input source);
+
+* maximum size of input line ({std 11.3.6} Parsing);
+
+* methods for mapping block ranges to files ({std 11.3.2} Blocks in files);
+
+* number of string buffers provided ({std 11.6.1.2165} S");
+
+* size of string buffer used by {std 11.6.1.2165} S".
+
+* format and range of floating-point numbers ({std 12.3.1} Data types, {std 12.6.1.2143} REPRESENT);
+
+* results of {std 12.6.1.2143} REPRESENT when float is out of range;
+
+* rounding or truncation of floating-point numbers ({std 12.3.1.2} Floating-point numbers);
+
+* size of floating-point stack ({std 12.3.3} Floating-point stack);
+
+* width of floating-point stack ({std 12.3.3} Floating-point stack).
+
+* maximum number of locals in a definition ({std 13.3.3} Processing locals, {std 13.6.2.1795} LOCALS|).
+
+* values and meaning of ior ({std 14.3.1} I/O Results data type, {std 14.6.1.0707} ALLOCATE, {std 14.6.1.1605} FREE, {std 14.6.1.2145} RESIZE).
+
+* ending sequence for input following {std 15.6.2.0470} ;CODE and {std 15.6.2.0930} CODE;
+
+* manner of processing input following {std 15.6.2.0470} ;CODE and {std 15.6.2.0930} CODE;
+
+* search-order capability for {std 15.6.2.1300} EDITOR and {std 15.6.2.0740} ASSEMBLER ({std 15.3.3} The Forth dictionary);
+
+* source and format of display by {std 15.6.1.2194} SEE.
+
+* maximum number of word lists in the search order ({std 16.3.3} Finding definition names, {std 16.6.1.2197} SET-ORDER);
+
+* minimum search order ({std 16.6.1.2197} SET-ORDER, {std 16.6.2.1965} ONLY).
+
 
 ----
 <a id="amb"/>
@@ -230,6 +292,85 @@ helpful for using non-SPF libraries.
 * word not defined via {std 6.1.1000} CREATE ({std 6.1.0550} >BODY, {std 6.1.1250} DOES>); 
 
 * words improperly used outside {std 6.1.0490} <# and {std 6.1.0040} #> ({std 6.1.0030} #, {std 6.1.0050} #S, {std 6.1.1670} HOLD, {std 6.1.2210} SIGN). 
+
+
+
+
+* {std 10.6.1.0742} AT-XY operation can't be performed on user output device.
+
+* attempting to position a file outside its boundaries ({std 11.6.1.2142} REPOSITION-FILE);
+
+* attempting to read from file positions not yet written ({std 11.6.1.2080} READ-FILE, {std 11.6.1.2090} READ-LINE);
+
+* fileid is invalid ({std 11.6.1.1717} INCLUDE-FILE);
+
+* I/O exception reading or closing fileid ({std 11.6.1.1717} INCLUDE-FILE, {std 11.6.1.1718} INCLUDED);
+
+* named file cannot be opened ({std 11.6.1.1718} INCLUDED);
+
+* requesting an unmapped block number ({std 11.3.2} Blocks in files);
+
+* using {std 11.6.1.2218} SOURCE-ID when {std 7.6.1.0790} BLK is not zero.
+
+
+
+* DF@ or DF! is used with an address that is not double-float aligned;
+
+* F@ or F! is used with an address that is not float aligned;
+
+* floating point result out of range (e.g., in {std 12.6.1.1430} F/);
+
+* SF@ or SF! is used with an address that is not single-float aligned;
+
+* BASE is not decimal ({std 12.6.1.2143} REPRESENT, {std 12.6.2.1427} F., {std 12.6.2.1513} FE., {std 12.6.2.1613} FS.);
+
+* both arguments equal zero ({std 12.6.2.1489} FATAN2);
+
+* cosine of argument is zero for {std 12.6.2.1625} FTAN;
+
+* d can't be precisely represented as float in {std 12.6.1.1130} D>F;
+
+* dividing by zero ({std 12.6.1.1430} F/);
+
+* exponent too big for conversion ({std 12.6.2.1203} DF!, {std 12.6.2.1204} DF@, {std 12.6.2.2202} SF!, {std 12.6.2.2203} SF@);
+
+* float less than one ({std 12.6.2.1477} FACOSH);
+
+* float less than or equal to minus-one ({std 12.6.2.1554} FLNP1);
+
+* float less than or equal to zero ({std 12.6.2.1553} FLN, {std 12.6.2.1557} FLOG);
+
+* float less than zero ({std 12.6.2.1487} FASINH, {std 12.6.2.1618} FSQRT);
+
+* float magnitude greater than one ({std 12.6.2.1476} FACOS, {std 12.6.2.1486} FASIN, {std 12.6.2.1491} FATANH);
+
+* integer part of float can't be represented by d in {std 12.6.1.1470} F>D;
+
+* string larger than pictured-numeric output area ({std 12.6.2.1427} F., {std 12.6.2.1513} FE., {std 12.6.2.1613} FS.).
+
+* executing a named local while in interpretation state ({std 13.6.1.0086} (LOCAL));
+
+* name not defined by VALUE or LOCAL ({std 13.6.1.2295} TO).
+
+* deleting the compilation word-list ({std 15.6.2.1580} FORGET);
+
+* fewer than u+1 items on control-flow stack ({std 15.6.2.1015} CSPICK, {std 15.6.2.1020} CSROLL);
+
+* name can't be found ({std 15.6.2.1580} FORGET);
+
+* name not defined via {std 6.1.1000} CREATE ({std 15.6.2.0470} ;CODE);
+
+* {std 6.1.2033} POSTPONE applied to {std 15.6.2.2532} [IF];
+
+* reaching the end of the input source before matching {std 15.6.2.2531} [ELSE] or {std 15.6.2.2533} [THEN] ({std 15.6.2.2532} [IF]);
+
+* removing a needed definition ({std 15.6.2.1580} FORGET).
+
+* changing the compilation word list ({std 16.3.3} Finding definition names);
+
+* search order empty ({std 16.6.2.2037} PREVIOUS);
+
+* too many word lists in search order ({std 16.6.2.0715} ALSO).
 
 
 ----
