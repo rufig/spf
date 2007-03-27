@@ -22,7 +22,7 @@ else
 html_vect_header=html_header_3
 endif
 
-docs = intro.ru.html intro.en.html readme.ru.html readme.en.html devel.ru.html devel.en.html
+docs = ans.en.html intro.ru.html intro.en.html readme.ru.html readme.en.html devel.ru.html devel.en.html
 
 target: clean_mark $(docs)
 
@@ -31,6 +31,9 @@ clean_mark:
 
 #devel.ru.html: css = devel.md.css
 %.html: css = intro.md.css
+
+%.md: %.mdt
+	spf ../tools/markdown/std.f S" $<" REPLACE S" $@" OCCUPY BYE
 
 %.html: %.md
 	$(output) $(md_path)html_header_1 > $@
