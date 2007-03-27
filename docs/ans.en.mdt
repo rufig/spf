@@ -124,12 +124,12 @@ helpful for using non-SPF libraries.
 
 * ranges for n, +n, u, d, +d, and ud (3.1.3 Single-cell types, 3.1.4 Cell-pair types); 
 
-  -2147483648 <= n <= 2147483647
-  0 <= +n <= 2147483647
-  0 <= u <= 4294967295
-  -2**63 <= d <= 2**63 - 1
-  0 <= +d <= 2**63 - 1
-  0 <= ud <= 2**64
+  -2147483648 <= n <= 2147483647  
+  0 <= +n <= 2147483647  
+  0 <= u <= 4294967295  
+  -2^63 <= d <= 2^63 - 1  
+  0 <= +d <= 2^63 - 1  
+  0 <= ud <= 2^64
 
 * read-only data-space regions (3.3.3 Data space); 
 
@@ -284,7 +284,9 @@ helpful for using non-SPF libraries.
 
 * attempting to obtain the execution token, (e.g., with {std 6.1.0070} ', {std 6.1.1550} FIND, etc.) of a definition with undefined interpretation semantics; 
 
-* dividing by zero ({std 6.1.0100} */, {std 6.1.0110} */MOD, {std 6.1.0230} /, {std 6.1.0240} /MOD, {std 6.1.1561} FM/MOD, {std 6.1.1890} MOD, {std 6.1.2214} SM/REM, {std 6.1.2370} UM/MOD, {std 8.6.1.1820} M*/); 
+* dividing by zero ({std 6.1.0100} \*/, {std 6.1.0110} \*/MOD, {std 6.1.0230} /, {std 6.1.0240} /MOD, {std 6.1.1561} FM/MOD, {std 6.1.1890} MOD, {std 6.1.2214} SM/REM, {std 6.1.2370} UM/MOD, {std 8.6.1.1820} M*/); 
+
+  Exception 0xC0000094
 
 * insufficient data-stack space or return-stack space (stack overflow); 
 
