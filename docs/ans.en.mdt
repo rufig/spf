@@ -51,21 +51,39 @@ helpful for using non-SPF libraries.
   on Windows this results in performing special assigned actions such as Line
   Feed, Carriage Return, Beep etc
 
-character editing of {std 6.1.0695} ACCEPT and {std 6.2.1390} EXPECT; 
+* character editing of {std 6.1.0695} ACCEPT and {std 6.2.1390} EXPECT;
 
-character set (3.1.2 Character types, 6.1.1320 EMIT, 6.1.1750 KEY); 
+  `EXPECT` is not available (obsolete). `ACCEPT` fully depends on the
+  capabilities of the shell. On Windows by default it provides command history
+  and convenient one line editing with arrows, Ins, Del, Bksp etc
 
-character-aligned address requirements (3.1.3.3 Addresses); 
+* character set ({std 3.1.2} Character types, {std 6.1.1320} EMIT, {std 6.1.1750} KEY); 
 
-character-set-extensions matching characteristics (3.4.2 Finding definition names); 
+* character-aligned address requirements ({std 3.1.3.3} Addresses); 
 
-conditions under which control characters match a space delimiter (3.4.1.1 Delimiters); 
+  No requirements are imposed. Character aligned data can start at any address.
 
-format of the control-flow stack (3.2.3.2 Control-flow stack); 
+* character-set-extensions matching characteristics ({std 3.4.2} Finding definition names); 
 
-conversion of digits larger than thirty-five (3.2.1.2 Digit conversion); 
+* conditions under which control characters match a space delimiter ({std 3.4.1.1} Delimiters); 
 
-display after input terminates in 6.1.0695 ACCEPT and 6.2.1390 EXPECT; 
+  Parser treats all characters with the ascii code less than 32 (`BL`) as
+  delimiters. This doesn't depend on the input source.
+
+* format of the control-flow stack ({std 3.2.3.2} Control-flow stack); 
+
+  Control flow stack is available and implemented using the data stack.
+  Separate control flow stack implementation is available as an extension
+  `~mak/lib/a_if.f`.
+
+* conversion of digits larger than thirty-five ({std 3.2.1.2} Digit conversion); 
+
+  SPF converts digits according to the character table, so `50 BASE ! a 0[ DECIMAL . .` 
+  will produce `36 42`.
+
+* display after input terminates in {std 6.1.0695} ACCEPT and {std 6.2.1390} EXPECT; 
+
+
 
 exception abort sequence (as in 6.1.0680 ABORT"); 
 
