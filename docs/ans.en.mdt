@@ -122,7 +122,7 @@ helpful for using non-SPF libraries.
 
 * number representation and arithmetic ({std 3.2.1.1} Internal number representation); 
 
-* ranges for n, +n, u, d, +d, and ud (3.1.3 Single-cell types, 3.1.4 Cell-pair types); 
+* ranges for n, +n, u, d, +d, and ud ({std 3.1.3} Single-cell types, {std 3.1.4} Cell-pair types); 
 
   -2147483648 <= n <= 2147483647  
   0 <= +n <= 2147483647  
@@ -131,33 +131,33 @@ helpful for using non-SPF libraries.
   0 <= +d <= 2^63 - 1  
   0 <= ud <= 2^64
 
-* read-only data-space regions (3.3.3 Data space); 
+* read-only data-space regions ({std 3.3.3} Data space); 
 
-* size of buffer at 6.1.2450 WORD (3.3.3.6 Other transient regions); 
+* size of buffer at {std 6.1.2450} WORD ({std 3.3.3.6} Other transient regions); 
 
   255 bytes.
 
-* size of one cell in address units (3.1.3 Single-cell types); 
+* size of one cell in address units ({std 3.1.3} Single-cell types); 
 
   4 address units
 
-* size of one character in address units (3.1.2 Character types); 
+* size of one character in address units ({std 3.1.2} Character types); 
 
   1 address unit
 
-* size of the keyboard terminal input buffer (3.3.3.5 Input buffers); 
+* size of the keyboard terminal input buffer ({std 3.3.3.5} Input buffers); 
 
   1024 bytes
 
-* size of the pictured numeric output string buffer (3.3.3.6 Other transient regions); 
+* size of the pictured numeric output string buffer ({std 3.3.3.6} Other transient regions); 
 
   4096 bytes
 
-* size of the scratch area whose address is returned by 6.2.2000 PAD (3.3.3.6 Other transient regions); 
+* size of the scratch area whose address is returned by {std 6.2.2000} PAD ({std 3.3.3.6} Other transient regions); 
 
   1024 bytes
 
-* system case-sensitivity characteristics (3.4.2 Finding definition names); 
+* system case-sensitivity characteristics ({std 3.4.2} Finding definition names); 
 
   SPF kernel is case sensitive. Extension `lib/ext/caseins.f` replaces
   `SEARCH-WORDLIST` to perform case-insensitive search.
@@ -205,7 +205,7 @@ helpful for using non-SPF libraries.
 
   Not implemented.
 
-* input file state after an exception ({std 11.6.1.1717} INCLUDE-FILE, 11.6.1.1718 INCLUDED);
+* input file state after an exception ({std 11.6.1.1717} INCLUDE-FILE, {std 11.6.1.1718} INCLUDED);
 
 * ior values and meaning ({std 11.3.1.2} I/O results);
 
