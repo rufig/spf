@@ -5,8 +5,8 @@
 
 <title>SPF ANS support</title>
 
-<i>Documentation for implementetion-specific issues of the ANS standard as required
-by {std 4.}</i>
+<i>Documentation for implementation-specific issues of the ANS standard as required
+by section {std 4.}</i>
 
 <small>Last update: $Date$</small>
 
@@ -83,143 +83,167 @@ helpful for using non-SPF libraries.
 
 * display after input terminates in {std 6.1.0695} ACCEPT and {std 6.2.1390} EXPECT; 
 
+  Depends on the shell, by default the input is echoed while typing and
+  remains on the screen at the same position when input is finished, with
+  additional carriage return.
 
+* exception abort sequence (as in {std 6.1.0680} ABORT");
 
-exception abort sequence (as in 6.1.0680 ABORT"); 
+* input line terminator ({std 3.2.4.1} User input device); 
 
-input line terminator (3.2.4.1 User input device); 
+  Input line is terminated with the sequence of two characters CRLF (ASCII codes
+  hex 0D 0A). `UNIX-LINES` switches to LF (ASCII hex 0x0A), `DOS-LINES` restores
+  default behavior. Internal variable that holds the terminator sequence is
+  LT and the length of the sequence is stored in LTL, thus `LT LTL @ ( a u )`.
 
-maximum size of a counted string, in characters (3.1.3.4 Counted strings, 6.1.2450 WORD); 
+* maximum size of a counted string, in characters ({std 3.1.3.4} Counted strings, {std 6.1.2450} WORD); 
 
-maximum size of a parsed string (3.4.1 Parsing); 
+  255 characters
 
-maximum size of a definition name, in characters (3.3.1.2 Definition names); 
+* maximum size of a parsed string ({std 3.4.1} Parsing); 
 
-maximum string length for 6.1.1345 ENVIRONMENT?, in characters; 
+  255 characters ?
 
-method of selecting 3.2.4.1 User input device; 
+* maximum size of a definition name, in characters ({std 3.3.1.2} Definition names); 
 
-method of selecting 3.2.4.2 User output device; 
+  255 characters ?
 
-methods of dictionary compilation (3.3 The Forth dictionary); 
+* maximum string length for {std 6.1.1345} ENVIRONMENT?, in characters; 
 
-number of bits in one address unit (3.1.3.3 Addresses); 
+  MAX-INT
 
-number representation and arithmetic (3.2.1.1 Internal number representation); 
+* method of selecting {std 3.2.4.1} User input device; 
 
-ranges for n, +n, u, d, +d, and ud (3.1.3 Single-cell types, 3.1.4 Cell-pair types); 
+* method of selecting {std 3.2.4.2} User output device; 
 
-read-only data-space regions (3.3.3 Data space); 
+* methods of dictionary compilation ({std 3.3} The Forth dictionary); 
 
-size of buffer at 6.1.2450 WORD (3.3.3.6 Other transient regions); 
+* number of bits in one address unit ({std 3.1.3.3} Addresses); 
 
-size of one cell in address units (3.1.3 Single-cell types); 
+* number representation and arithmetic ({std 3.2.1.1} Internal number representation); 
 
-size of one character in address units (3.1.2 Character types); 
+* ranges for n, +n, u, d, +d, and ud (3.1.3 Single-cell types, 3.1.4 Cell-pair types); 
 
-size of the keyboard terminal input buffer (3.3.3.5 Input buffers); 
+* read-only data-space regions (3.3.3 Data space); 
 
-size of the pictured numeric output string buffer (3.3.3.6 Other transient regions); 
+* size of buffer at 6.1.2450 WORD (3.3.3.6 Other transient regions); 
 
-size of the scratch area whose address is returned by 6.2.2000 PAD (3.3.3.6 Other transient regions); 
+* size of one cell in address units (3.1.3 Single-cell types); 
 
-system case-sensitivity characteristics (3.4.2 Finding definition names); 
+* size of one character in address units (3.1.2 Character types); 
 
-system prompt (3.4 The Forth text interpreter, 6.1.2050 QUIT); 
+* size of the keyboard terminal input buffer (3.3.3.5 Input buffers); 
 
-type of division rounding (3.2.2.1 Integer division, 6.1.0100 */, 6.1.0110 */MOD, 6.1.0230 /, 6.1.0240 /MOD, 6.1.1890 MOD); 
+* size of the pictured numeric output string buffer (3.3.3.6 Other transient regions); 
 
-values of 6.1.2250 STATE when true; 
+* size of the scratch area whose address is returned by 6.2.2000 PAD (3.3.3.6 Other transient regions); 
 
-values returned after arithmetic overflow (3.2.2.2 Other integer operations); 
+* system case-sensitivity characteristics (3.4.2 Finding definition names); 
 
-whether the current definition can be found after 6.1.1250 DOES> (6.1.0450 :). 
+  SPF kernel is case sensitive. Extension `lib/ext/caseins.f` replaces
+  `SEARCH-WORDLIST` to perform  case-insensitive search.
+
+* system prompt ({std 3.4} The Forth text interpreter, {std 6.1.2050} QUIT); 
+
+  None ?
+
+* type of division rounding ({std 3.2.2.1} Integer division, {std 6.1.0100} */, {std 6.1.0110} */MOD, {std 6.1.0230} /, {std 6.1.0240} /MOD, {std 6.1.1890} MOD); 
+
+  ?
+
+* values of {std 6.1.2250} STATE when true; 
+
+  ?
+
+* values returned after arithmetic overflow ({std 3.2.2.2} Other integer operations); 
+
+* whether the current definition can be found after {std 6.1.1250} DOES> ({std 6.1.0450} :). 
 
 ----
 <a id="amb"/>
 ###[Ambiguous conditions](#amb)
 
-a name is neither a valid definition name nor a valid number during text interpretation (3.4 The Forth text interpreter); 
+* a name is neither a valid definition name nor a valid number during text interpretation ({std 3.4} The Forth text interpreter); 
 
-a definition name exceeded the maximum length allowed (3.3.1.2 Definition names); 
+* a definition name exceeded the maximum length allowed ({std 3.3.1.2} Definition names); 
 
-addressing a region not listed in 3.3.3 Data Space; 
+* addressing a region not listed in {std 3.3.3} Data Space; 
 
-argument type incompatible with specified input parameter, e.g., passing a flag to a word expecting an n (3.1 Data types); 
+* argument type incompatible with specified input parameter, e.g., passing a flag to a word expecting an n ({std 3.1} Data types); 
 
-attempting to obtain the execution token, (e.g., with 6.1.0070 ', 6.1.1550 FIND, etc.) of a definition with undefined interpretation semantics; 
+* attempting to obtain the execution token, (e.g., with {std 6.1.0070} ', {std 6.1.1550} FIND, etc.) of a definition with undefined interpretation semantics; 
 
-dividing by zero (6.1.0100 */, 6.1.0110 */MOD, 6.1.0230 /, 6.1.0240 /MOD, 6.1.1561 FM/MOD, 6.1.1890 MOD, 6.1.2214 SM/REM, 6.1.2370 UM/MOD, 8.6.1.1820 M*/); 
+* dividing by zero ({std 6.1.0100} */, {std 6.1.0110} */MOD, {std 6.1.0230} /, {std 6.1.0240} /MOD, {std 6.1.1561} FM/MOD, {std 6.1.1890} MOD, {std 6.1.2214} SM/REM, {std 6.1.2370} UM/MOD, {std 8.6.1.1820} M*/); 
 
-insufficient data-stack space or return-stack space (stack overflow); 
+* insufficient data-stack space or return-stack space (stack overflow); 
 
-insufficient space for loop-control parameters; 
+* insufficient space for loop-control parameters; 
 
-insufficient space in the dictionary; 
+* insufficient space in the dictionary; 
 
-interpretating a word with undefined interpretation semantics; 
+* interpretating a word with undefined interpretation semantics; 
 
-modifying the contents of the input buffer or a string literal (3.3.3.4 Text-literal regions, 3.3.3.5 Input buffers); 
+* modifying the contents of the input buffer or a string literal ({std 3.3.3.4} Text-literal regions, {std 3.3.3.5} Input buffers); 
 
-overflow of a pictured numeric output string; 
+* overflow of a pictured numeric output string; 
 
-parsed string overflow; 
+* parsed string overflow; 
 
-producing a result out of range, e.g., multiplication (using *) results in a value too big to be represented by a single-cell integer (6.1.0090 *, 6.1.0100 */, 6.1.0110 */MOD, 6.1.0570 >NUMBER, 6.1.1561 FM/MOD, 6.1.2214 SM/REM, 6.1.2370 UM/MOD, 6.2.0970 CONVERT, 8.6.1.1820 M*/); 
+* producing a result out of range, e.g., multiplication (using \*) results in a value too big to be represented by a single-cell integer ({std 6.1.0090} \*, {std 6.1.0100} \*/, {std 6.1.0110} \*/MOD, {std 6.1.0570} >NUMBER, {std 6.1.1561} FM/MOD, {std 6.1.2214} SM/REM, {std 6.1.2370} UM/MOD, {std 6.2.0970} CONVERT, {std 8.6.1.1820} M*/); 
 
-reading from an empty data stack or return stack (stack underflow); 
+* reading from an empty data stack or return stack (stack underflow); 
 
-unexpected end of input buffer, resulting in an attempt to use a zero-length string as a name; 
+* unexpected end of input buffer, resulting in an attempt to use a zero-length string as a name; 
 
 
 
->IN greater than size of input buffer (3.4.1 Parsing); 
+* \>IN greater than size of input buffer ({std 3.4.1} Parsing); 
 
-6.1.2120 RECURSE appears after 6.1.1250 DOES>; 
+* {std 6.1.2120} RECURSE appears after {std 6.1.1250} DOES>; 
 
-argument input source different than current input source for 6.2.2148 RESTORE-INPUT; 
+* argument input source different than current input source for {std 6.2.2148} RESTORE-INPUT; 
 
-data space containing definitions is de-allocated (3.3.3.2 Contiguous regions); 
+* data space containing definitions is de-allocated ({std 3.3.3.2} Contiguous regions); 
 
-data space read/write with incorrect alignment (3.3.3.1 Address alignment); 
+* data space read/write with incorrect alignment ({std 3.3.3.1} Address alignment); 
 
-data-space pointer not properly aligned (6.1.0150 ,, 6.1.0860 C,); 
+* data-space pointer not properly aligned ({std 6.1.0150} ,, {std 6.1.0860} C,); 
 
-less than u+2 stack items (6.2.2030 PICK, 6.2.2150 ROLL); 
+* less than u+2 stack items ({std 6.2.2030} PICK, {std 6.2.2150} ROLL); 
 
-loop-control parameters not available ( 6.1.0140 +LOOP, 6.1.1680 I, 6.1.1730 J, 6.1.1760 LEAVE, 6.1.1800 LOOP, 6.1.2380 UNLOOP); 
+* loop-control parameters not available ( {std 6.1.0140} +LOOP, {std 6.1.1680} I, {std 6.1.1730} J, {std 6.1.1760} LEAVE, {std 6.1.1800} LOOP, {std 6.1.2380} UNLOOP); 
 
-most recent definition does not have a name (6.1.1710 IMMEDIATE); 
+* most recent definition does not have a name ({std 6.1.1710} IMMEDIATE); 
 
-name not defined by 6.2.2405 VALUE used by 6.2.2295 TO; 
+* name not defined by {std 6.2.2405} VALUE used by {std 6.2.2295} TO; 
 
-name not found (6.1.0070 ', 6.1.2033 POSTPONE, 6.1.2510 ['], 6.2.2530 [COMPILE]); 
+* name not found ({std 6.1.0070} ', {std 6.1.2033} POSTPONE, {std 6.1.2510} ['], {std 6.2.2530} [COMPILE]); 
 
-parameters are not of the same type (6.1.1240 DO, 6.2.0620 ?DO, 6.2.2440 WITHIN); 
+* parameters are not of the same type ({std 6.1.1240} DO, {std 6.2.0620} ?DO, {std 6.2.2440} WITHIN); 
 
-6.1.2033 POSTPONE or 6.2.2530 [COMPILE] applied to 6.2.2295 TO; 
+* {std 6.1.2033} POSTPONE or {std 6.2.2530} [COMPILE] applied to {std 6.2.2295} TO; 
 
-string longer than a counted string returned by 6.1.2450 WORD; 
+* string longer than a counted string returned by {std 6.1.2450} WORD; 
 
-u greater than or equal to the number of bits in a cell (6.1.1805 LSHIFT, 6.1.2162 RSHIFT); 
+* u greater than or equal to the number of bits in a cell ({std 6.1.1805} LSHIFT, {std 6.1.2162} RSHIFT); 
 
-word not defined via 6.1.1000 CREATE (6.1.0550 >BODY, 6.1.1250 DOES>); 
+* word not defined via {std 6.1.1000} CREATE ({std 6.1.0550} >BODY, {std 6.1.1250} DOES>); 
 
-words improperly used outside 6.1.0490 <# and 6.1.0040 #> (6.1.0030 #, 6.1.0050 #S, 6.1.1670 HOLD, 6.1.2210 SIGN). 
+* words improperly used outside {std 6.1.0490} <# and {std 6.1.0040} #> ({std 6.1.0030} #, {std 6.1.0050} #S, {std 6.1.1670} HOLD, {std 6.1.2210} SIGN). 
 
 
 ----
 <a id="other"/>
 ###[Other system documentation](#other)
 
-list of non-standard words using 6.2.2000 PAD (3.3.3.6 Other transient regions); 
+* list of non-standard words using {std 6.2.2000} PAD ({std 3.3.3.6} Other transient regions); 
 
-operator's terminal facilities available; 
+* operator's terminal facilities available; 
 
-program data space available, in address units; 
+* program data space available, in address units; 
 
-return stack space available, in cells; 
+* return stack space available, in cells; 
 
-stack space available, in cells; 
+* stack space available, in cells; 
 
-system dictionary space required, in address units. 
+* system dictionary space required, in address units. 
