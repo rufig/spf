@@ -151,7 +151,8 @@ USER uStripCRLFtemp
   uStripCRLFtemp @ STR@
 ;
 : AddDefEncoding ( addr u ) { mp -- addr u }
-  StripCRLF
+\  StripCRLF
+  StripLwsp
   2DUP Is8Bit 0= IF EXIT THEN
   S" Content-Type" mp FindMimeHeader
   S" indows-1251" SEARCH NIP NIP
