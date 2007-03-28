@@ -3,16 +3,12 @@
 
 REQUIRE /TEST ~profit/lib/testing.f
 
-: FOR POSTPONE >R <MARK ;  IMMEDIATE
+: FOR POSTPONE >R HERE ;  IMMEDIATE
 
-: NEXT  ?COMP  0x24 0x0CFF W, C, 
-  HERE 2+ - DUP SHORT?   SetOP SetJP
-  IF
-    0x75 C, C, \ jnz short 
-  ELSE
-    4 - 0xF85 W, , \ jnz near
-  THEN    SetOP
-  0x0424648D , \ lea esp, 04 [esp]
+: NEXT  ?COMP
+POSTPONE R> POSTPONE 1- POSTPONE >R
+POSTPONE R@ POSTPONE 0= ?BRANCH,
+POSTPONE RDROP
 ;  IMMEDIATE
 DECIMAL
 
