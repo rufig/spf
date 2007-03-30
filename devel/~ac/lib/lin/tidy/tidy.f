@@ -7,7 +7,7 @@
 )  
   
 WARNING @ WARNING 0!
-REQUIRE DL            ~ac/lib/ns/dll-xt.f
+REQUIRE DLL           ~ac/lib/ns/dll-xt.f
 REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
 REQUIRE DelXmlDecl    ~ac/lib/lin/tidy/delxmldecl.f
