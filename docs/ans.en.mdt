@@ -45,6 +45,9 @@ helpful for using non-SPF libraries.
 
 * aligned address requirements ({std 3.1.3.3} Addresses); 
 
+  No requirements. You can access data at any address. Though `CREATE` aligns
+  code to even adresses for more speed.
+
 * behavior of {std 6.1.1320} EMIT for non-graphic characters;
   
   `TYPE` and `EMIT` fully depend on the OS API for handling special chracters,
@@ -59,11 +62,17 @@ helpful for using non-SPF libraries.
 
 * character set ({std 3.1.2} Character types, {std 6.1.1320} EMIT, {std 6.1.1750} KEY); 
 
+  ?
+
 * character-aligned address requirements ({std 3.1.3.3} Addresses); 
 
   No requirements are imposed. Character aligned data can start at any address.
 
 * character-set-extensions matching characteristics ({std 3.4.2} Finding definition names); 
+
+  The definition name matches the search string when and only when the
+  corresponding characters in both strings are equal. As a consequence, SPF is
+  case-sensitive.
 
 * conditions under which control characters match a space delimiter ({std 3.4.1.1} Delimiters); 
 
@@ -89,6 +98,8 @@ helpful for using non-SPF libraries.
 
 * exception abort sequence (as in {std 6.1.0680} ABORT");
 
+  ?
+
 * input line terminator ({std 3.2.4.1} User input device); 
 
   Input line is terminated with the sequence of two characters CRLF (ASCII codes
@@ -110,17 +121,27 @@ helpful for using non-SPF libraries.
 
 * maximum string length for {std 6.1.1345} ENVIRONMENT?, in characters; 
 
-  not limited
+  not limited by implementation of `ENVIRONMENT?`
 
 * method of selecting {std 3.2.4.1} User input device; 
 
+  User input is a file with handle `H-STDIN`. By default it is a standard
+  input stream, i.e. console.
+
 * method of selecting {std 3.2.4.2} User output device; 
+
+  TYPE outputs to the file which handle is `H-STDOUT`. By default it goes to
+  standard output i.e. console window.
 
 * methods of dictionary compilation ({std 3.3} The Forth dictionary); 
 
 * number of bits in one address unit ({std 3.1.3.3} Addresses); 
 
+  8 bits in one address unit.
+
 * number representation and arithmetic ({std 3.2.1.1} Internal number representation); 
+
+  ?
 
 * ranges for n, +n, u, d, +d, and ud ({std 3.1.3} Single-cell types, {std 3.1.4} Cell-pair types); 
 
@@ -178,6 +199,8 @@ helpful for using non-SPF libraries.
 
 
 * values returned after arithmetic overflow ({std 3.2.2.2} Other integer operations); 
+
+  
 
 * whether the current definition can be found after {std 6.1.1250} DOES> ({std 6.1.0450} :).
 
@@ -290,7 +313,15 @@ helpful for using non-SPF libraries.
 
 * insufficient data-stack space or return-stack space (stack overflow); 
 
+  Data stack and return stack share the same space (data stack grows up from
+  the start, return stack grows down from the end), so stack overflow results
+  in overwriting another stack, leading to strange behavior or system
+  exception. Extension `~ss/ext/stack-guard.f` tries to detect stack overflow
+  and throw the appropriate exception.
+
 * insufficient space for loop-control parameters; 
+
+  ?
 
 * insufficient space in the dictionary; 
 
@@ -402,6 +433,10 @@ helpful for using non-SPF libraries.
 * executing a named local while in interpretation state ({std 13.6.1.0086} (LOCAL));
 
 * name not defined by VALUE or LOCAL ({std 13.6.1.2295} TO).
+
+  Mainly this will result in run-time error. `TO` executes the xt from the
+  defined offset in the body of the word, if this code is invalid (which is
+  the case, when the word was created not as `VALUE`) Access Violation occurs.
 
 * deleting the compilation word-list ({std 15.6.2.1580} FORGET);
 
