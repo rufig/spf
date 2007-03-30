@@ -11,11 +11,15 @@
 \ 4. Собственно, каскадные определения как побочный эффект (пример см. внизу). На самом
 \ деле, это не так уж и полезно, но сам принцип возврата идентификаторам (словами)
 \ старого значения меток -- очень интересно.
+\ 5. Возможность индивидуальной и полной зачистки словаря (см. слова FORGET-ALL и 
+\ FORGET). При этом "забываются" только имена, HERE и вообще скомпилированное в 
+\ кодофайле не трогается.
 
 \ Проблемы (TODO):
-\ Поля словарности (voc) и немедленности (imm) нарисованы пока что только для красоты.
-\ Так как IMMEDIATE и VOCABULARY живут, не зная об существовании ~ac\lib\ns\ns.f
-\ По той же самое причине DOES> даёт глюки.
+\ Несовместимость с IMMEDIATE и VOC решена хаком, см. последнюю строчку SHEADER
+\ Может, надо совместить поля в хэше со словарной статьёй SPF чтобы снять все
+\ вопросы несовместимости?
+\ CREATE ... DOES> не работает.
 
 \ Также не работает проход по словам (а нужно оно?), это prevWord lastWord ?VOC CAR CDR
 
@@ -35,10 +39,9 @@ CONSTANT vocSize
 
 \ Словарная статья
 0
-__ prevWord
-__ imm
-__ voc
-__ xt
+__ prevWord ( word-id -- LFA )
+__ flag     ( word-id -- FFA )
+__ xt       ( word-id -- CFA )
 CONSTANT wordSize
 
 EXPORT
@@ -53,16 +56,33 @@ GET-CURRENT OBJ-DATA@
 ( addr u h ) ROT wordSize SWAP 2SWAP ( wordSize addr u h )
 HASH!R
 DUP prevWord 0!
-DUP imm 0!
-DUP voc 0!
+DUP flag 0!
 HERE OVER xt !
-DROP ;
+flag 0 NAME>F - LAST ! \ подстраиваемся под словарную структуру SPF
+\ чтобы IMMEDIATE и VOC делали то что надо
+\ при этом в переменной LAST оказывается что угодно только не NFA
+;
 
 : SEARCH-WORDLIST ( c-addr u oid -- 0 | xt 1 | xt -1 )
 \ >R 2DUP CR TYPE R>
-OBJ-DATA@ DUP IF HASH@R DUP IF DUP imm @ IF 1 ELSE -1 THEN SWAP xt @ SWAP THEN ELSE NIP NIP THEN ;
+OBJ-DATA@ DUP IF HASH@R DUP IF DUP xt @ SWAP flag @ &IMMEDIATE AND IF 1 ELSE -1 THEN THEN ELSE NIP NIP THEN ;
 
 >> CONSTANT cascaded-wl
+
+: NO-WORDS ( wid -- f ) OBJ-DATA@ 0= ;
+
+: FORGET-ALL ( wid -- )
+\ "забыть" все слова в словаре wid
+\ Проверки на то что словарь каскадный не делается
+DUP NO-WORDS IF DROP EXIT THEN
+  DUP  OBJ-DATA@ del-hash
+0 SWAP OBJ-DATA! ;
+
+: FORGET ( "word" -- ) NextWord
+GET-CURRENT NO-WORDS IF 2DROP EXIT THEN
+GET-CURRENT OBJ-DATA@ -HASH ;
+\ взять из входного потока слово, "забыть" его (и только его)
+\ в текущем каскадном словаре (опять же, без проверки)
 
 ;MODULE
 
@@ -88,10 +108,21 @@ ALSO cascaded NEW: casc DEFINITIONS
 
 : 2*2. 2
 : 2*. 2 *
-: dot . ;
+: dot . ; IMMEDIATE
 
-\ lib/ext/disasm.f SEE 2*2.
+\ SEE 2*2.
 $> 2*2.
 $> 5 2*.
 $> 12 dot
+$> 12345 : r dot ;
+
 $> 10 CONSTANT ten ten .
+
+\ $> : var CREATE DOES> DROP ." bum" ; var b b
+
+\ если FORGET работает правильно тут будет глюк
+\                   v-------------|
+$> FORGET dot  2*2. ' dot
+
+\ убрать вообще все слова из словаря:
+$> ' casc >BODY @ FORGET-ALL ' ten
