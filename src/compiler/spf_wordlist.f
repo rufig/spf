@@ -48,8 +48,9 @@ WORDLIST VALUE FORTH-WORDLIST  ( -- wid ) \ 94 SEARCH
 
 100000 VALUE WL_SIZE  \ размер памяти, выделяемой для временного словаря
 
-LOAD-VERSION 1+ DUP VALUE VERSION  \ Версия (номер билда, точнее) SPF
-SAVE-VERSION
+LOAD-BUILD-NUMBER 1+ 
+DUP SPF-KERNEL-VERSION 1000 * + VALUE VERSION  \ Версия и номер билда SPF в виде 4XXYYY
+    SAVE-BUILD-NUMBER
 
 CREATE BUILD-DATE
 NOWADAYS ,"

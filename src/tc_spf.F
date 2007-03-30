@@ -6,17 +6,16 @@ HEX IMAGE-BASE 1034 + CONSTANT AddrOfLoadLibrary      \ адреса процедур в spf-st
     IMAGE-BASE 1038 + CONSTANT AddrOfGetProcAddress
 DECIMAL
 
+: LOAD-BUILD-NUMBER ( -- n )
+  S" src\version.spf" ['] INCLUDED CATCH IF 2DROP 0 THEN ;
 
-: LOAD-VERSION ( -- n )
-  S" src\version.spf" ['] INCLUDED CATCH IF 2DROP 400000 THEN
-;
-: SAVE-VERSION ( n -- )
+: SAVE-BUILD-NUMBER ( n -- )
   H-STDOUT >R
   S" src\version.spf" R/W CREATE-FILE THROW TO H-STDOUT
   . CR
   H-STDOUT CLOSE-FILE THROW
-  R> TO H-STDOUT
-;
+  R> TO H-STDOUT ;
+
 : HASH  ( c-addr u wid --  c-addr u HASHwid ) \ 94 SEARCH
    @  OVER DUP 1 U> IF XOR 2 PICK C@ XOR 2 PICK 1+ XOR THEN +   ;
 
@@ -690,5 +689,5 @@ ONLY FORTH DEFINITIONS ALSO TC
 0xE9 ' COMPILE, C!
 ' MCOMPILE,  ' COMPILE, 1+ CELL+ - ' COMPILE, 1+ !
 
-\ Avoid words of targec compiler in spf xml help
+\ Avoid words of target compiler in spf xml help
 HERE TO TC-IMAGE-BASE
