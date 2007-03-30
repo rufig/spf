@@ -3,6 +3,7 @@ REQUIRE FIND-FILES-R ~ac/lib/win/file/findfile-r.f
 REQUIRE B! ~profit/lib/bac4th.f
 
 \ Итератор по файлам в папке указанной addr u , максимальная глубина -- depth
+: ITERATE-FILES ( addr u depth --> addr1 u1 data flag \ <-- ) R> SWAP FIND-FILES-DEPTH B!  FIND-FILES-R ;
 \ При каждой итерации выдаёт:
 \ addr u - путь и имя файла или каталога (готово для open-file, etc)
 \ flag=true, если каталог, false если файл
@@ -25,7 +26,8 @@ REQUIRE B! ~profit/lib/bac4th.f
 \ поэтому, если эти данные нужно сохранять, их надо копировать.
 \ Обратите также внимание на стек: четыре значения от итератора нужно
 \ поглотить самому
-: ITERATE-FILES ( addr u depth --> addr1 u1 data flag \ <-- ) R> SWAP FIND-FILES-DEPTH B!  FIND-FILES-R ;
+
+
 
 \ Аналогичное ITERATE-FILES слово, но оно выдаёт только папки 
 \ в addr u с заданной глубиной depth. В отличии от ITERATE-FILES 
