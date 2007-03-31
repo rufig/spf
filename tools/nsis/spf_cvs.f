@@ -11,12 +11,15 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
 \ Путь к каталогу рабочей копии
 \ Определяется снаружи
 \ : SPF-PATH ( -- a u ) S" spf" ;
+: SPF-PATH-LEN ( -- u ) SPF-PATH NIP ;
 : double-slashed  ( a u -- s )  " {s}" DUP " \" " \\" replace-str- ;
 SPF-PATH double-slashed VALUE path\\
 : SPF-PATH-\\ path\\ STR@ ;
 
 : MyDate# { d m y -- } y #N DROP [CHAR] . HOLD m DateM>S HOLDS DROP [CHAR] . HOLD d #N## DROP ;
+: DateRaw# { d m y -- } d #N## DROP m #N## DROP y #N DROP ;
 : MY_DATE ( -- a u ) <# TIME&DATE MyDate# 0 0 #> ;
+: DATE_RAW ( -- a u ) <# TIME&DATE DateRaw# 0 0 #> ;
 
 : PROD_NAME    S" {PROD_NAME}" ;
 : PROD_FILE    S" {PROD_FILE}" ;
