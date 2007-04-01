@@ -14,6 +14,8 @@
   ƒл€ прозрачного чтени€ бинарных данных из входного потока 
   здесь определено слово READOUT-SOURCE [ addr u1 -- addr u2 ]
 
+  ѕоддерживает 0A в качестве разделител€ строки, когда 0D0A не найден.
+
   ƒанна€ реализаци€ несовместима с редко используемым механизмом SAVE-INPUT [который в core-ext.f]
 
   ≈сть маленькое отличие в поведении ACCEPT - оно затирает PARSE-AREA когда SOURCE-ID нулевой.
@@ -26,7 +28,8 @@ REQUIRE UNBROKEN ~pinka\samples\2005\lib\split-white.f
 REQUIRE Included ~pinka\lib\ext\requ.f
 
 : SPLIT-LINE ( a u -- a1 u1 a2 u2 true | a u false )
-  LT LTL @ SPLIT
+  LT LTL @ SPLIT DUP IF EXIT THEN DROP
+  LT CHAR+ 1 SPLIT  \ support of 0x0A as line terminator
 ;
 
 : READOUT-FILE ( a u1 h -- a u2 ior )
