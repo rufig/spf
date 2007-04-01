@@ -1,3 +1,6 @@
+\ База данных слов из devel со стековыми нотациями
+\ для быстрого автоматического поиска (в частности плагин к IRC-боту)
+
 REQUIRE xml.children=> ~ygrek/lib/spec/rss.f
 REQUIRE PRO ~profit/lib/bac4th.f
 REQUIRE ITERATE-FILES ~profit/lib/iterate-files.f

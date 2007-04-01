@@ -6,6 +6,7 @@ REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE ATTACH ~pinka/samples/2005/lib/append-file.f
 REQUIRE TIME&DATE lib/include/facil.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
+REQUIRE ltcreate ~ygrek/lib/multi/msg.f
 
 ' ACCEPT1 TO ACCEPT \ disables autocompletion if present ;)
 
@@ -28,6 +29,17 @@ TRUE TO ?LOGMSG
     <# S" .log" HOLDS S>D # # 2DROP S>D # # 2DROP S>D #S 2DROP S" talk." HOLDS 0 0 #> ;
 
 : DO-LOG-TALK TALK-LOG-FILE ATTACH-LINE-CATCH DROP ;
+
+:NONAME { | last -- }
+  DROP
+  BEGIN
+   1000 PAUSE
+   ltreceive >R
+    \ TIME&DATE DateTime>Num TO last
+    R@ msg.data SIMPLE-DO-CMD
+   R> FREE-MSG
+  AGAIN
+; VALUE <irc-bot-sender>
 
 FALSE VALUE ?check
 
@@ -64,9 +76,11 @@ MODULE: BOT-COMMANDS
     2DROP
 
     AllHelpWords DUP >R STR@
-    " Available commands : {s} (Use '!help !<command>' for more info)." DUP STR@ S-REPLY STRFREE
+    " Available commands : {s} (Use '!info !<command>' for more info)." DUP STR@ S-REPLY STRFREE
     R> STRFREE
     THEN ;
+
+: !info !help ;
 
 : !version
     CVS-DATE
@@ -82,8 +96,17 @@ MODULE: BOT-COMMANDS-NOTFOUND
 
 : CHECK-MSG-ME ( -- ? )
   trailing nickname STR@ SEARCH NIP NIP 0= IF FALSE EXIT THEN
-  S" Hello. I am a bot. Try !help. You can chat to me privately." S-REPLY
+  S" Hello. I am a bot. Try !info. You can chat to me privately." S-REPLY
   TRUE EXIT ;
+
+0 [IF]
+: CHECK-MSG-SPECIAL
+   trailing S" .." COMPARE 0= IF 
+      determine-sender " {s}, dont be so boring! Lets talk." DUP STR@ S-REPLY STRFREE
+      TRUE EXIT 
+   THEN
+   FALSE ;
+[THEN]
 
 : CHECK-MSG ( -- ? )
    FALSE TO ?check
@@ -98,6 +121,8 @@ MODULE: BOT-COMMANDS-NOTFOUND
    ?check IF TRUE EXIT THEN
 
    CHECK-MSG-ME IF TRUE EXIT THEN
+
+   \ CHECK-MSG-SPECIAL IF TRUE EXIT THEN
 
    FALSE
 ;
@@ -120,6 +145,7 @@ MODULE: BOT-COMMANDS-NOTFOUND
 
 
 : BOT-ON-RECEIVE ( a u -- )
+   \ S" HERE : " TYPE HERE . CR
    2DUP 
    PARSE-REPLY
    LAMBDA{
@@ -134,8 +160,24 @@ MODULE: BOT-COMMANDS-NOTFOUND
 
 ' BOT-ON-RECEIVE TO ON-RECEIVE
 
+\ ------------------------------------------------------
 
+0 VALUE bot-watcher
 
+:NONAME ( x -- )
+  DROP
+  BEGIN 
+   ['] (RECEIVE) CATCH IF BYE THEN 
+  AGAIN 
+  ; TASK: BotReceiveTask
 
+: CONNECT CONNECT 0 BotReceiveTask START DROP LOGIN ;
+
+SocketsStartup THROW
+\ 0 <irc-bot-sender> ltcreate VALUE irc-bot-sender
+\ : IRC-BOT-DO-CMD ( a u -- ) 0 irc-bot-sender ltsend ;
+\ ' IRC-BOT-DO-CMD TO DO-CMD
+
+\ 0 <bot-watcher> ltcreate TO bot-watcher
 
 \ EOF

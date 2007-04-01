@@ -5,25 +5,22 @@ REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE /STRING lib/include/string.f
 REQUIRE /GIVE ~ygrek/lib/parse.f
-\ REQUIRE EVALUATE, ~profit/lib/evaluated.f
 REQUIRE ENUM ~ygrek/lib/enum.f
 REQUIRE split ~profit/lib/bac4th-str.f
 REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
-REQUIRE ConnectHostViaProxy ~ygrek/lib/net/socks/v5.f
+REQUIRE ConnectHostViaSocks5 ~ygrek/lib/net/socks/v5.f
 REQUIRE 2VALUE ~ygrek/lib/2value.f
 REQUIRE domain:port ~ygrek/lib/net/domain.f
+REQUIRE /TEST ~profit/lib/testing.f
+REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 
 ' ACCEPT1 TO ACCEPT \ disable autocompletion - hacky
 
 ' ANSI>OEM TO ANSI><OEM \ cp1251
 
-\ STARTLOG
-
 CREATE IRC-BASIC
 
 \ MODULE: IRC
-
-THREAD-HEAP @ VALUE PROCESS-HEAP \ dont bother with thread memory, use global, i.e. this heap
 
 \ default values for user tweakable parameters
 " irc.run.net" VALUE server
@@ -36,20 +33,19 @@ THREAD-HEAP @ VALUE PROCESS-HEAP \ dont bother with thread memory, use global, i
 "" VALUE proxy \ SOCKS5 proxy " domain:port"
 0 VALUE proxy-port
 
-: server! 
+: server! ( a u -- )
   server STRFREE
   domain:port TO port
   " {s}" TO server ;
 
-: proxy!
+: proxy! ( a u -- )
   proxy STRFREE
   domain:port TO proxy-port
   " {s}" TO proxy ;
 
 \ --------------------------------------------------------
 
-0 VALUE lsocket \ socket for IRC comms
-0 VALUE hReceiveTask \ хэндл потока приёма
+0 VALUE lsocket \ соединение с IRC сервером
 
 TRUE VALUE ?LOGSEND
 TRUE VALUE ?LOGSAY
@@ -64,9 +60,15 @@ TRUE VALUE ?LOGMSG
 : US= COMPARE-U 0= ;
 : US<> COMPARE-U ;
 
+VECT DO-CMD
+
+: SIMPLE-DO-CMD lsocket WriteSocketLine IF S" WriteSocket failed" ECHO -1 THROW THEN ;
+
+' SIMPLE-DO-CMD TO DO-CMD
+
 : CMD ( a u -- )
   ?LOGSEND IF 2DUP ." > " ECHO THEN
-  lsocket WriteSocketLine IF S" WriteSocket failed" ECHO ABORT THEN ;
+  DO-CMD ;
 
 : sCMD ( s -- ) STR@ CMD ;
 
@@ -74,7 +76,7 @@ TRUE VALUE ?LOGMSG
     ToRead IF DROP S" Error." EXIT THEN
     " Ready. {n} bytes" STR@ ;
 
-: DataPending ( -- u ) lsocket ToRead IF S" ToRead failed!" ECHO ABORT THEN ;
+: DataPending ( -- u ) lsocket ToRead IF S" ToRead failed!" ECHO -1 THROW THEN ;
 
 : .S ." DEPTH = " DEPTH . DEPTH 100 > IF EXIT THEN .S ;
 
@@ -94,53 +96,46 @@ WINAPI: GetTickCount KERNEL32.DLL
     DUP STR@ 
     ON-RECEIVE ;
 
-:NONAME ( x -- )
-  DROP
-  PROCESS-HEAP THREAD-HEAP !
-
-  BEGIN
-
-  LAMBDA{
+: (RECEIVE) ( -- )
     BEGIN 
      10 PAUSE
      DataPending
     UNTIL
-    ReceiveData } CATCH IF CR CR S" Receive failed!" ECHO TERMINATE EXIT THEN
+    ReceiveData
   
-   (
-   CR
-   GetTickCount .
-   ."  RCV "
-   2DUP SWAP . .
-   CR)
+    \ 2DUP GetTickCount " {n}.dat" STR@ OCCUPY LSTRFREE
 
-   \ 2DUP GetTickCount " {n}.dat" STR@ ATTACH-CATCH DROP LSTRFREE
+    2DUP ['] RECEIVED CATCH IF 2DROP CR S" Received data processing failed!" ECHO THEN
 
-   2DUP ['] RECEIVED CATCH IF 2DROP CR S" Received data processing failed!" ECHO THEN
-
-   DROP FREE IF S" FREE Failed" ECHO THEN
-
-   AGAIN ; TASK: ReceiveTask
+    DROP FREE IF S" FREE Failed" ECHO THEN
+   ;
 
 : S-JOIN ( a u -- ) " JOIN {s}" DUP sCMD STRFREE ; 
 : S-QUIT ( a u -- ) " QUIT :{s}" DUP sCMD STRFREE ;
 
-: ON-CONNECT ... ;
+:NONAME ( x -- )
+  DROP
+  BEGIN 
+   ['] (RECEIVE) IF EXIT THEN 
+  AGAIN 
+  ; TASK: SimpleReceiveTask
 
-: CONNECT
+: AT-LOGIN ... ;
 
-  SocketsStartup THROW
-
-  server STR@ port
-  proxy STR@ proxy-port
-  SOCKS5::ConnectHostViaProxy THROW TO lsocket
-
-  0 ReceiveTask START TO hReceiveTask
-
+: LOGIN
   password STR@ NIP IF " PASS {password STR@}" DUP sCMD STRFREE THEN
   " NICK {nickname STR@}" DUP sCMD STRFREE
   " USER {username STR@} 8 * : {realname STR@}" DUP sCMD STRFREE 
-  ON-CONNECT ;
+  AT-LOGIN ;
+
+: AT-CONNECT ... ;
+
+: CONNECT
+  server STR@ port
+  proxy STR@ proxy-port
+  ConnectHostViaSocks5 THROW TO lsocket
+
+  AT-CONNECT ;
 
 : CLOSE ( -- )
     S" Need hot code reload." S-QUIT
@@ -176,8 +171,7 @@ WINAPI: GetTickCount KERNEL32.DLL
      PARSE-NAME NIP 0=
     UNTIL
     SOURCE 0 0
-   } EVALUATE-WITH
-;
+   } EVALUATE-WITH ;
 
 : (PARSE-REPLY) ( -- prefix-au command-au #command params-au trailing-au )
    PeekChar [CHAR] : = IF PARSE-NAME 1 /STRING ELSE 0 0 THEN
@@ -190,7 +184,7 @@ WINAPI: GetTickCount KERNEL32.DLL
    params-trailing ;
 
 : PARSE-REPLY ( a u -- )
-   ['] (PARSE-REPLY) EVALUATE-WITH 
+   ['] (PARSE-REPLY) EVALUATE-WITH
    2TO trailing
    2TO params
    TO #command
@@ -204,9 +198,15 @@ WINAPI: GetTickCount KERNEL32.DLL
    ." params - " params ECHO
    ." trailing - " trailing ECHO ;
 
+\ выделить ник из IRC контакта
 : ClientName>Nick ( a u -- a1 u1 ) LAMBDA{ [CHAR] ! PARSE } EVALUATE-WITH ;
-: determine-sender prefix ClientName>Nick ;
 
+\ определить отправителя сообщения
+: determine-sender ( -- a u ) prefix ClientName>Nick ;
+
+\ определить контекст общения 
+\ если сообщение было направлено в канал - вернуть имя канала
+\ если же соощение было направлено лично нам - вернуть имя отправителя
 : determine-target ( -- a u )
    params nickname STR@ US= IF \ private message
      determine-sender
@@ -214,7 +214,11 @@ WINAPI: GetTickCount KERNEL32.DLL
      params
    THEN ;
 
+\ ответить в контекст общения
 : S-REPLY ( a u -- ) determine-target S-SAY-TO ;
+
+\ ответить в контекст общения нотисом
+: S-NOTICE-REPLY ( a u -- ) determine-target S-NOTICE-TO ;
 
 : ?PING command S" PING" US= ;
 : ?PRIVMSG command S" PRIVMSG" US= ;
@@ -237,9 +241,8 @@ WINAPI: GetTickCount KERNEL32.DLL
 
 ' DEFAULT-ON-RECEIVE TO ON-RECEIVE
 
-: COMMAND: 
-   NextWord 
-   2DUP " : /{s} -1 PARSE S-{s} ;" STR@ EVALUATE LSTRFREE ;
+: COMMAND: ( "name" -- )
+   PARSE-NAME 2DUP " : /{s} -1 PARSE S-{s} ;" STR@ EVALUATE LSTRFREE ;
 
 ' COMMAND: ENUM COMMANDS:
 
@@ -247,4 +250,16 @@ COMMANDS: JOIN SAY QUIT ;
 
 \ ;MODULE
 
-\ SocketsStartup THROW
+/TEST
+
+SocketsStartup THROW
+
+: test
+  " test" TO nickname
+  S" irc.freenode.net:6667" server!
+  CONNECT
+  0 SimpleReceiveTask START DROP
+  LOGIN
+  
+  S" #spf" S-JOIN
+  " #spf" current! ;

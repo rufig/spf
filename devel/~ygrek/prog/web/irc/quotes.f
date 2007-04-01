@@ -4,6 +4,7 @@ REQUIRE STR@ ~ac/lib/str4.f
 REQUIRE FileLines=> ~ygrek/lib/filelines.f
 REQUIRE InsertNodeEnd ~day/lib/staticlist.f
 REQUIRE GENRAND ~ygrek/lib/neilbawd/mersenne.f
+REQUIRE UPPERCASE ~ac/lib/string/uppercase.f
 REQUIRE ULIKE ~pinka/lib/like.f
 REQUIRE 2VALUE ~ygrek/lib/2value.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
@@ -58,7 +59,10 @@ EXPORT
      quotes listSize ;
 
 : load-quotes
-  quotes 0= IF /quote CreateList TO quotes ELSE quotes FreeList THEN
+  \ S" loading quotes" ECHO
+  \ quotes 0= IF S" Creating new list" ECHO /quote CreateList TO quotes ELSE S" Freeing" ECHO quotes FreeList THEN
+  S" REMINDER! BUG - MEMORY LEAK!" ECHO
+  /quote CreateList TO quotes
   START{
    quotes-file FileLines=>
    DUP
@@ -103,8 +107,7 @@ EXPORT
 
 : register-quote ( quote-au author-au -- )
    " {s} {s}" DUP STR@ quotes-file ATTACH-LINE-CATCH DROP STRFREE 
-   load-quotes
-   ;
+   load-quotes ;
 
 ;MODULE
 

@@ -15,7 +15,7 @@ MODULE: BOT-COMMANDS
 
 : !aq
     SkipDelimiters
-    -1 PARSE DUP 0= IF 2DROP S" Try !help !aq" determine-sender S-SAY-TO EXIT THEN
+    -1 PARSE DUP 0= IF 2DROP S" Try !info !aq" S-REPLY EXIT THEN
     2DUP determine-sender " Adding quote from {s}: {s}" DUP STR@ ECHO STRFREE
     ( a u ) determine-sender register-quote
     quotes-total 1- determine-sender " {s}: Quote {n} added. Thanks." DUP STR@ S-REPLY STRFREE
@@ -24,11 +24,11 @@ MODULE: BOT-COMMANDS
 ;MODULE
 
 MODULE: BOT-COMMANDS-HELP
-: !q S" !q - random quote. !q <keyword> - quote with keyword. !q <number> - quote by number." S-REPLY ;
-: !aq S" !aq <quote> - add quote" S-REPLY ;
+: !q S" usage: !q - random quote. !q <keyword> - quote with keyword. !q <number> - quote by number." S-REPLY ;
+: !aq S" usage: !aq <quote> - add quote to the database" S-REPLY ;
 ;MODULE
 
-..: ON-CONNECT load-quotes ;..
+..: AT-CONNECT load-quotes ;..
 
 $Revision$ " -- Quotes plugin {s} loaded." DUP STR@ ECHO STRFREE
 

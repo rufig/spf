@@ -62,7 +62,7 @@ GET-TIME-ZONE
     THEN ;
 
 \ lame :)
-: hide-email DUP " @" " ." replace-str- ;
+: hide-email DUP " @" "  at " replace-str- ;
 
 : reply-rss { node | str1 -- }
    node rss.item.title
@@ -74,7 +74,7 @@ GET-TIME-ZONE
    S" link" node nodeText " {s}" DUP STR@ S-SAY STRFREE ;
 
 : process-and-stamp-rss=> ( stamp-a stamp-u data-a data-u -- node )
-    S" Checking forum..." ECHO
+    \ S" Checking forum..." ECHO
     2SWAP 2DUP read-number >R
     2OVER rss.items-newest DUP IF -ROT write-number ELSE DROP 2DROP THEN
     R>
@@ -83,7 +83,8 @@ GET-TIME-ZONE
       rss.items-new=> DUP rss.item.timestamp ONTRUE \ не обяз. т.к. если stamp=0 то new не пропустит!
        CONT
      }EMERGE
-    S" Forum checked" ECHO ;
+    \ S" Forum checked" ECHO 
+    ;
 
 : process-rss-forum
    process-and-stamp-rss=> DUP reply-rss ;
@@ -126,7 +127,7 @@ GET-TIME-ZONE
     DUP " &" " _" replace-str- ;
 
 : rss-getter-get { msg | pack typ filename }
-     S" rss get" ECHO
+     \ S" rss get" ECHO
      msg msg.data DROP TO pack
      pack 
      unpack-au 2DUP ECHO 2DUP " {s}" url-to-filename TO filename
@@ -135,7 +136,8 @@ GET-TIME-ZONE
      \ 2DROP S" 3.xml" FILE " {s}"
      DUP STR@ filename STR@ >msg-lt-rss STR@ typ rss-checker-lt ltsend
          STRFREE
-     S" rss-getter done" ECHO ;
+     \ S" rss-getter done" ECHO 
+     ;
  
 :NONAME
  DROP
@@ -169,7 +171,7 @@ GET-TIME-ZONE
   DROP
   BEGIN
    LAMBDA{
-     my-msgbox-size CR ." My msgbox size : " .
+     \ my-msgbox-size CR ." My msgbox size : " .
      ltreceive 
      >R
        \ R@ msg.type 1 = IF 
@@ -179,20 +181,25 @@ GET-TIME-ZONE
      R>
      FREE-MSG
    } 
-   CATCH ?DUP IF . S" rss-checker failed !" ECHO THEN
+   CATCH ?DUP IF . S" rss-checker failed !" ECHO BYE THEN
   AGAIN
 ; VALUE rss-checker
 
 0 VALUE lt
 0 VALUE pack
 
-..: ON-CONNECT 
+: fforum-url S" http://fforum.winglion.ru/rss.php?c=10" ;
+
+..: AT-CONNECT 
   0 rss-checker ltcreate TO rss-checker-lt
   0 rss-getter ltcreate TO rss-getter-lt 
 
+\ ограничим сообщения с форума только на время онлайна бота
+TIME&DATE DateTime>Num fforum-url " {s}" url-to-filename STR@ write-number
+
 0 submitter ltcreate TO lt
 new-pack TO pack 
-S" http://fforum.winglion.ru/rss.php?c=10" pack pack-au
+fforum-url pack pack-au
 1 pack pack-n
 5 minutes pack pack-n
 pack STR@ 0 lt ltsend
