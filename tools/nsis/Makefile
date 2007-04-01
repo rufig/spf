@@ -1,3 +1,14 @@
+# $Id$
+#
+# Makefile для сборки дистрибутивов spf
+# см. readme.txt
+#
+# make - собрать дистр
+# make devel-snap - собрать снапшот devel
+# make clean - удалить промежуточные файлы
+
+#########################################
+
 #
 # Эти переменные отредактируйте по своим настройкам!
 #
@@ -32,7 +43,7 @@ spf_script=$(spf4_notitle) : SPF-VER-MAJOR S" $(spf_ver_major)" ; : SPF-VER-MINO
 all: dist-exe dist-arch
 
 dist-exe: $(exe)
-devel-snap: $(devel-snapshot)
+devel-snap: $(devel-snapshot).rar
 dist-arch: $(arch)
 
 .PHONY: all docs clean cleanall
@@ -65,8 +76,11 @@ $(exe): docs $(spf_path)\spf4.exe spf.nsi
 $(arch): docs $(spf_path)\spf4.exe spf.lst
 	$(winrar) a -m5 -s $(arch) @spf.lst
 
-$(snapshot):
-	$(winrar) a -ep1 -x*\CVS -x*\CVS\* -m5 -s $(snapshot) ..\..\devel
+$(devel-snapshot).rar:
+	$(winrar) a -x*\CVS -x*\CVS\* -m5 -s $@ ..\..\devel
+
+$(devel-snapshot).7z:
+	7z a -x!*\CVS -x!*\CVS\* $@ ..\..\devel
 
 clean:
 	$(MAKE) -C $(spf_path)/docs clean
