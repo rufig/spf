@@ -2,22 +2,26 @@
   Copyright [C] 1992-2000 A.Cherezov ac@forth.org
 )
 
-HEX IMAGE-BASE 1034 + CONSTANT AddrOfLoadLibrary      \ адреса процедур в spf-stub.exe
-    IMAGE-BASE 1038 + CONSTANT AddrOfGetProcAddress
+HEX 
+IMAGE-BASE 1034 + CONSTANT AddrOfLoadLibrary      \ адреса процедур в spf-stub.exe
+IMAGE-BASE 1038 + CONSTANT AddrOfGetProcAddress
 DECIMAL
 
 : LOAD-BUILD-NUMBER ( -- n )
-  S" src\version.spf" ['] INCLUDED CATCH IF 2DROP 0 THEN ;
+  S" src\version.spf" ['] INCLUDED CATCH IF 2DROP 0 THEN 
+;
 
 : SAVE-BUILD-NUMBER ( n -- )
   H-STDOUT >R
   S" src\version.spf" R/W CREATE-FILE THROW TO H-STDOUT
   . CR
   H-STDOUT CLOSE-FILE THROW
-  R> TO H-STDOUT ;
+  R> TO H-STDOUT 
+;
 
 : HASH  ( c-addr u wid --  c-addr u HASHwid ) \ 94 SEARCH
-   @  OVER DUP 1 U> IF XOR 2 PICK C@ XOR 2 PICK 1+ XOR THEN +   ;
+   @  OVER DUP 1 U> IF XOR 2 PICK C@ XOR 2 PICK 1+ XOR THEN +   
+;
 
 VOCABULARY TC-WL
 VARIABLE SAVED-CURRENT
