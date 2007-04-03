@@ -94,7 +94,7 @@ USER SqS
   i 1 AND 0= IF S"  even" ELSE S" " THEN
   i " <tr N='{n}' class='sp_data{s}'>" SqS @ S+
   ppStmt db_cols 0 ?DO
-    I ppStmt db_col DUP 1 < >R 2DUP S" NULL" COMPARE 0= R> OR IF 2DROP S" &nbsp;" THEN
+    I ppStmt db_colu DUP 1 < ( >R 2DUP S" NULL" COMPARE 0= R> OR) IF 2DROP S" &nbsp;" THEN
     I ppStmt db_coltype 12 <> IF S"  numb" ELSE S" " THEN
     I ppStmt db_colname  " <td class='{s}{s}'>{s}</td>" SqS @ S+
   LOOP  " </tr>{CRLF}" SqS @ S+
@@ -124,7 +124,7 @@ USER SqS
   i " <tr N='{n}' class='sp_data{s}'>" SqS @ S+
   i " <td class='numb'>{n}</td>" SqS @ S+
   ppStmt db_cols 0 ?DO
-    I ppStmt db_col DUP 0= >R 2DUP S" NULL" COMPARE 0= R> OR IF 2DROP S" &nbsp;" THEN
+    I ppStmt db_colu DUP 0= ( >R 2DUP S" NULL" COMPARE 0= R> OR) IF 2DROP S" &nbsp;" THEN
     I ppStmt db_coltype 12 <> IF S"  numb" ELSE S" " THEN
     I ppStmt db_colname  " <td class='{s}{s}'>{s}</td>" SqS @ S+
   LOOP  " </tr>{CRLF}" SqS @ S+
