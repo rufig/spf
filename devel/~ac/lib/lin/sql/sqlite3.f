@@ -75,8 +75,16 @@ ALSO SO NEW: sqlite3.dll
 : db3_colname ( n ppStmt -- addr u )
   2 sqlite3_column_name ?DUP IF ASCIIZ> ELSE S" (UNKNOWN)" THEN
 ;
+: db3_colsize ( n ppStmt -- u )
+  2 sqlite3_column_bytes
+;
 : db3_col ( n ppStmt -- addr u )
   2 sqlite3_column_text ?DUP IF ASCIIZ> ELSE S" NULL" THEN
+;
+: db3_colu ( n ppStmt -- addr u )
+  2DUP 2>R
+  2 sqlite3_column_text 
+  2R> db3_colsize
 ;
 : db3_coli ( n ppStmt -- int )
   2 sqlite3_column_int

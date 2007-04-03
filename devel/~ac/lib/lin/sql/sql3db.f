@@ -36,7 +36,7 @@ USER SQS
   i 1 AND 0= IF S"  even" ELSE S" " THEN
   i " <tr N='{n}' class='sp_data{s}'>" SQS @ S+
   ppStmt db3_cols 0 ?DO
-    I ppStmt db3_col DUP 0= >R 2DUP S" NULL" COMPARE 0= R> OR IF 2DROP S" &nbsp;" THEN
+    I ppStmt db3_colu DUP 0= ( >R 2DUP S" NULL" COMPARE 0= R> OR) IF 2DROP S" &nbsp;" THEN
     I ppStmt db3_coltype 3 < IF S"  numb" ELSE S" " THEN
     I ppStmt db3_colname  " <td class='{s}{s}'>{s}</td>" SQS @ S+
   LOOP  " </tr>{CRLF}" SQS @ S+
