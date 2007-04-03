@@ -1,26 +1,28 @@
-\ 21-02-2007  ª®­áâàãªæ¨¨, ª®â®àëå ­¥ å¢ â ¥â ¢ ‘”
+\ 21-02-2007  êîíñòðóêöèè, êîòîðûõ íå õâàòàåò â ÑÏÔ
 
-\ ¢ë¤ ¥â á¬¥é¥­¨¥ ®â â¥ªãé¥£®  ¤à¥á  ¤® ãª § ­­®£®. 
-: atod ( addr --> disp )  HERE CELL+ - ;
+REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
 
-\ ¢¥â¢«¥­¨¥ ¯® ­ã«î
+\ âûäàåò ñìåùåíèå îò òåêóùåãî àäðåñà äî óêàçàííîãî.
+?: atod ( addr --> disp )  HERE CELL+ - ;
+
+\ âåòâëåíèå ïî íóëþ
 : N?BRANCH, ( ? )
             ?SET
             0x85 TO J_COD
             ???BR-OPT
             SetJP  SetOP
-            J_COD    \  JX ¡¥§ 0x0F
-            0x0F     \  ªãá®ª ®â JX
+            J_COD    \  JX áåç 0x0F
+            0x0F     \  êóñîê îò JX
             C, C,
             DUP IF atod THEN , DP @ TO LAST-HERE ;
 
-\ ¯à®¯ãáâ¨âì, ¥á«¨ 0 ¨­ ç¥ ¯¥à¥å®¤ §  ELSE
+\ ïðîïóñòèòü, åñëè 0 èíà÷å ïåðåõîä çà ELSE
 : IFNOT ( flag --> ) ?COMP 0 N?BRANCH, >MARK 1 ; IMMEDIATE
 
-\ ¯à®¤®«¦ âì æ¨ª«, ¥á«¨ 0
+\ ïðîäîëæàòü öèêë, åñëè 0
 : WHILENOT ( flag --> ) ?COMP 0 N?BRANCH, >MARK 1 2SWAP ; IMMEDIATE
 
-\EOF 
+\EOF
 
 : sample ( flag --> ) IFNOT ." zero flag" ELSE ." non zero flag" THEN ;
 FALSE DUP . sample CR
@@ -29,6 +31,6 @@ TRUE DUP . sample CR
 : proba ( flag --> ) BEGIN DUP . DUP WHILENOT 1 - REPEAT . ;
 0 proba CR
 10 proba CR
-		
-                    
+
+
 
