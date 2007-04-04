@@ -656,8 +656,17 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   R> CLOSE-FILE THROW
 ;
 
-: GetMXs ( domaina domainu -- n )
+: GetMXs_old ( domaina domainu -- n )
   TYPE-MX GetRRs
+;
+: GetMXs ( domaina domainu -- n )
+  5 0 DO
+    2DUP TYPE-MX GetRRs DUP 0<
+    IF DnsDebug @ IF ." GetRRs error=" . CR ELSE DROP THEN
+       NextDNS DROP 
+    ELSE NIP NIP UNLOOP EXIT THEN
+  LOOP
+  2DROP -6
 ;
 : NextMX ( -- servera serveru true | false )
   { \ pref mx }
