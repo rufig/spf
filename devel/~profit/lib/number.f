@@ -7,5 +7,5 @@ FALSE ;
 
 : number ( addr len --> 0 | n -1 ) sign >R
 0 0 2SWAP >NUMBER 
-NIP IF RDROP TYPE ABORT"  что за число?" EXIT THEN 
+NIP IF RDROP 2DROP -309 THROW THEN 
 D>S R> IF NEGATE THEN ;
