@@ -20,9 +20,14 @@
 <xsl:namespace-alias stylesheet-prefix="x"  result-prefix="xsl" />
 
 <xsl:template name="stop-error" >
+  <xsl:param name="yield-nodes" select="/.." />
+  <xsl:param name="message">SXSL, Semantic undefined</xsl:param>
   <xsl:message terminate = "yes">
-    <xsl:text>SXSL, Semantic undefined for: </xsl:text>
-    <xsl:value-of select="name()" />
+    <xsl:value-of select="$message"/><xsl:text>, context: </xsl:text>
+    <xsl:value-of select="name()" /><xsl:text> | </xsl:text>
+    <xsl:for-each select="$yield-nodes | .. ">
+      <xsl:value-of select="name()" /><xsl:text> | </xsl:text>
+    </xsl:for-each>
     <xsl:text>
 </xsl:text>
     <xsl:copy-of select="." />
@@ -33,7 +38,7 @@
   <xsl:param name="yield" select="/.." />
   <xsl:param name="yield-nodes" select="/.." />
 
-  <xsl:element name="{name()}"> <!-- xmlns is not copy (!!!) -->
+  <xsl:copy>
   <xsl:copy-of select="@*" />
   <xsl:choose><xsl:when test="*">
       <xsl:apply-templates>
@@ -43,10 +48,10 @@
   </xsl:when><xsl:when test="node()">
       <xsl:copy-of select="node()" />
   </xsl:when></xsl:choose>
-  </xsl:element>
+  </xsl:copy>
 </xsl:template>
 
-<xsl:template match="/*/text()" />
+<xsl:template match="/*/text()" mode="off" />
 
 <xsl:template match="/*/m:var" >
   <x:variable name="{@name}" select="{@select}" />
@@ -63,9 +68,13 @@
   
   <xsl:variable name="sets" select="ancestor::m:set | $yield-nodes/ancestor::m:set " />
 
+  <xsl:variable name="explisits" select="xsl:with-param" />
+
   <xsl:for-each select="/*/m:var[@name]">
     <xsl:choose><xsl:when test="$sets[@name = current()/@name]">
       <x:with-param name="{@name}" select="${@name}_" />
+    </xsl:when><xsl:when test="$explisits[@name = current()/@name]">
+      <!-- nothing -->
     </xsl:when><xsl:otherwise>
       <x:with-param name="{@name}" select="${@name}" />
     </xsl:otherwise></xsl:choose>
@@ -84,20 +93,19 @@
       <xsl:with-param name="yield" select="$yield" />
       <xsl:with-param name="yield-nodes" select="$yield-nodes" />
     </xsl:apply-templates>
-  </x:variable>
-  <x:value-of select="$set_{@name}_{$id}" />
+  </x:variable><x:copy-of select="$set_{@name}_{$id}" />
 </xsl:template>
 
 <xsl:template name="mcall" >
   <xsl:param name="yield-nodes" select="/.." />
 
   <xsl:variable name="id" select="generate-id(.)" />
-  <x:variable name="_{local-name()}_{$id}">
+    <x:variable name="_{local-name()}_{$id}">
 
-    <xsl:for-each select="/*/m:var[@name = $yield-nodes/ancestor::m:set/@name ]">
-      <x:variable name="{@name}" select="${@name}_" />
-    </xsl:for-each>
-    <!-- ^ only for XSLT 2.0 processors, one's of XSLT 1.0 are not allowing name dups here -->
+      <xsl:for-each select="/*/m:var[@name = $yield-nodes/ancestor::m:set/@name ]">
+        <x:variable name="{@name}" select="${@name}_" />
+      </xsl:for-each>
+      <!-- ^ only for XSLT 2.0 processors, one's of XSLT 1.0 are not allowing name dups here -->
 
     <xsl:variable name="sub" select="/*/m:def[@name = local-name( current() ) ][last()]" />
     <xsl:if test="not($sub)"><xsl:call-template name="stop-error"/></xsl:if>
@@ -106,15 +114,16 @@
       <xsl:with-param name="yield-nodes" select="$yield-nodes" />
     </xsl:apply-templates>
 
-  </x:variable>
-  <x:value-of select="$_{local-name()}_{$id}" />
+  </x:variable><x:copy-of select="$_{local-name()}_{$id}" />
 
 </xsl:template>
 
 <xsl:template match="m:*" name="m.any">
+  <xsl:param name="yield" select="/.." />
   <xsl:param name="yield-nodes" select="/.." />
 
   <xsl:choose><xsl:when test="node()">
+    <xsl:if test="$yield"><xsl:call-template name="stop-error"><xsl:with-param name="message">SXSL, nesting substitute is not supported</xsl:with-param><xsl:with-param name="yield-nodes" select="$yield-nodes | $yield" /></xsl:call-template></xsl:if>
     <xsl:call-template name="mcall">
       <xsl:with-param name="yield-nodes" select="$yield-nodes " />
     </xsl:call-template>
@@ -154,7 +163,7 @@
 <xsl:template match="m:apply-templates | m:call-template">
   <xsl:param name="yield" select="/.." />
   <xsl:param name="yield-nodes" select="/.." />
-  <xsl:element name="xsl:{local-name()}"><xsl:copy-of select="@name | @select" />
+  <xsl:element name="xsl:{local-name()}"><xsl:copy-of select="@name | @select | @mode" />
     <xsl:call-template name="with-params">
       <xsl:with-param name="yield-nodes" select="$yield-nodes" />
     </xsl:call-template>
