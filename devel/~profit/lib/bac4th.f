@@ -1,6 +1,6 @@
 \ Ѕэкфорт, порт на SPF
 \ см. http://forth.org.ru/~mlg/index.html#bacforth
-\  опи€ есть в дистрибутиве: папка SPF/devel/~mlg/index.html#bacforth
+\  опи€ есть в дистрибутиве: <папка SPF>/devel/~mlg/index.html#bacforth
 
 
 REQUIRE /TEST ~profit/lib/testing.f
@@ -30,7 +30,7 @@ MODULE: bac4th
 EXPORT
 
 \ ¬ыполнение вектора исполнени€ xt (не совсем тоже самое что и EXECUTE)
-\ : ENTER ( xt -- ) POSTPONE EXECUTE ; IMMEDIATE ( \ это тоже самое, но что быстрее?
+: ENTER ( xt -- ) POSTPONE EXECUTE ; IMMEDIATE ( \ это тоже самое, но что быстрее?
 : ENTER           >R ;                           \ )
 
 DEFINITIONS
@@ -45,16 +45,30 @@ EXPORT
 : ONFALSE ( f -- ) IF RDROP THEN ;   \ ќткат если f=true, то есть _пропускает_ только f=0
 : ONTRUE ( f -- ) NOT IF RDROP THEN ; \ ќткат если f=false
 
-: R@ENTER, SetOP 0xFF C, 0x14 C, 0x24 C, SetOP ; (
-: R@ENTER, SetOP ['] R@ COMPILE, ['] ENTER COMPILE, ; \ )
+: R@ENTER, SetOP 0xFF C, 0x14 C, 0x24 C, ; ( \ CALL [ESP]
+: R@ENTER, ['] R@ COMPILE, ['] ENTER COMPILE, ; \ )
 
-\ 
+: R>ENTER, SetOP 0x5B C, SetOP 0xFF C, 0xD3 C, ; ( \ POP EBX    CALL EBX
+: R>ENTER, ['] R> COMPILE, ['] ENTER COMPILE, ;  \ )
 
-: PRO R> R> >L ENTER LDROP ;      \ ƒелает текущий исполн€емый код откатным, ставитс€ в начало
-\ : CONT L> >R R@ ENTER R> >L ;
+\ VARIABLE PRO1
+: PRO R> R> >L ['] LDROP >R >R ;      \ ƒелает текущий исполн€емый код откатным, ставитс€ в начало
+\ : PRO R> R> >L ENTER [ HERE PRO1 ! ] LDROP ;
+
+\ : CONT L> >R R@ ENTER R> >L ; (
 : CONT L> >R [ R@ENTER, ] R> >L ; \ ¬ыполн€ет успех в таком коде (в слове где в начале есть PRO )
-\ : CONT (: L> >R ;) INLINE, R@ENTER, (: R> >L ;) INLINE, ; IMMEDIATE
-\ ќтключение оптимизатора ломает INLINE,
+
+DEFINITIONS
+
+\ ’аковый CONT !
+\ : REL! ( ADDR' ADDR  --  ) TUCK - CELL- SWAP ! ;
+\ : CONT
+\ L@ R@ CELL- REL!
+\ R0 @ RP@ DO I @ PRO1 @ = IF ['] NOOP I ! LEAVE THEN CELL +LOOP
+\ L@ >R ;
+
+EXPORT
+
 
 : RUSH ( xt -- )        \ Ѕезусловный переход по адресу на стеке
 0x8B C, 0xD8 C,         \ MOV EBX, EAX
@@ -94,12 +108,12 @@ EXPORT
 
 \ ќткатываемый SWAP, т.е. выполн€ет SWAP и на пр€мом и на обратном ходу,
 \ откатыва€ стек к начальному положению
-: BSWAP  ( a b <--> b a )      SWAP R> ENTER  SWAP ;
+: BSWAP  ( a b <--> b a )      SWAP [ R>ENTER, ]  SWAP ;
 \ Ётимологи€: B-SWAP -- это Bactrackable SWAP , то есть: "откатный SWAP"
 
 \ SWAP при откате, т.е. на пр€мом ходу ничего не делает, на обратном ходу
 \ -- выполн€ет SWAP.
-: SWAPB  ( a b --> a b \  b a <-- a b )      R> ENTER  SWAP ;
+: SWAPB  ( a b --> a b \  b a <-- a b )      [ R>ENTER, ]  SWAP ;
 \ Ётимологи€: SWAP-B -- это SWAP when Backtracking, то есть: "SWAP при откате"
 
 \ ќткатываемый DROP
@@ -107,20 +121,34 @@ EXPORT
 
 \ DROP при откате, этим словом можно приводить одиночные значени€ на стеке
 \ к итерируемым значени€м, нужных дл€ некоторых агрегаторов (типа seq{ }seq)
-: DROPB  ( n --> n / <-- n )   R>  ENTER DROP ;
+: DROPB  ( n --> n / <-- n )   [ R>ENTER, ] DROP ;
 
 \ ƒвойной DROP при откате
-: 2DROPB ( n --> n / <-- n )   R>  ENTER 2DROP ;
+: 2DROPB ( n --> n / <-- n )   [ R>ENTER, ] 2DROP ;
 
 \ ¬осстановление значени€ переменной addr при откате
-: KEEP   ( addr --> / <-- )    R> SWAP DUP @  2>R ENTER 2R> SWAP ! ;
+\ : KEEP   ( addr --> / <-- )    R> SWAP DUP @  2>R ENTER 2R> SWAP ! ; (
+: KEEP [
+0x5B   C,          \ POP     EBX
+0x50   C,          \ PUSH    EAX
+0x008B W,          \ MOV     EAX , [EAX]
+0x50   C,          \ PUSH    EAX
+0x458B W, 0x00 C,  \ MOV     EAX , 0 [EBP]
+0x6D8D W, 0x04 C,  \ LEA     EBP , 4 [EBP]
+0xD3FF W,          \ CALL    EBX
+0x5B   C,          \ POP     EBX
+0x5A   C,          \ POP     EDX
+0x1A89 W,          \ MOV     [EDX] , EBX
+] ; \ )
 
 \ «апись значени€ в переменную addr с восстановлением при откате
-: B!     ( n addr --> / <-- )  R> OVER DUP @  2>R -ROT !  ENTER 2R> SWAP ! ;
+\ : B!     ( n addr --> / <-- )  R> OVER DUP @  2>R -ROT !  ENTER 2R> SWAP ! ; (
+: B!     ( n addr --> / <-- )  PRO DUP KEEP ! CONT ; \ )
+
 
 \ «апись байта в переменную addr с восстановлением при откате
-: BC!    ( n addr --> / <-- )  R> OVER DUP C@ 2>R -ROT C!  ENTER 2R> SWAP C! ;
-
+\ : BC!    ( n addr --> / <-- )  R> OVER DUP C@ 2>R -ROT C!  ENTER 2R> SWAP C! ; (
+: BC!    ( n addr --> / <-- )  PRO DUP KEEP C! CONT ; \ )
 
 \ «адать действи€ при откате ( BACK .. TRACKING ), или, иначе говор€,
 \ положить адрес начала последовательности шитого кода между словами 

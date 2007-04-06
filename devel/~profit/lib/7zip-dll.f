@@ -30,7 +30,7 @@ EXPORT
 \ Выполнить команду указанную в input, о результатах доложить в output
 \ Команды при этом такие же как и при вызове 7z.exe с комадной строки,
 \ то есть x a e и прочие (см. справку по 7-zip)
-: 7zcommand maxOutputLen output input 0 SevenZip  input ASCIIZ> CR TYPE 
+: 7zcommand maxOutputLen output input 0 SevenZip \ input ASCIIZ> CR TYPE 
 ;
 
 \ Что (what) за архив распаковать куда (where), в какую папку

@@ -1,16 +1,19 @@
-\ последовательное чтение и запись в пам€ть с бегунком, хран€щим адрес текущей €чейки
+REQUIRE /TEST ~profit/lib/testing.f
 
-: fetchByte ( addr -- b ) DUP @ C@ SWAP  1+! ;
+\ последовательное чтение и запись в пам€ть с бегунком, хран€щим адрес текущей €чейки
+\ ѕеременные-бегунки -- хороша€ замена дл€ регистра-аккумул€тора с функци€ми @+ !+
+
+: fetchByte ( addr -- b ) DUP 1+!  @ 1- C@ ;
 : writeByte ( n addr -- ) TUCK @ C!  1+! ;
 
-: fetchWord ( addr -- b ) DUP @ W@ SWAP  2 SWAP +! ;
+: fetchWord ( addr -- b ) 2 OVER +!  @ 2 - W@ ;
 : writeWord ( n addr -- ) TUCK @ W!  2 SWAP +! ;
 
-: fetchCell ( addr -- b ) DUP @ @ SWAP CELL SWAP +! ;
+: fetchCell ( addr -- b ) CELL OVER +!  @ CELL- @ ;
 : writeCell ( n addr -- ) TUCK @ !  CELL SWAP +! ;
 
 
-\EOF
+/TEST
 
 CREATE m 10 ALLOT
 
@@ -28,8 +31,7 @@ a fetchByte .
 a fetchByte .
 a fetchByte .
 
-\EOF
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 REQUIRE FOR ~profit/lib/for-next.f
 
 : move ( src len dest -- ) { \ [ CELL ] A [ CELL ] B -- }

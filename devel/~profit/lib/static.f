@@ -10,6 +10,8 @@
 
 \ STATIC и LOCAL выставл€ют переменные в ноль
 
+\ TODO: —делать запись значений переменных группами а не по одному
+
 REQUIRE KEEP ~profit/lib/bac4th.f
 REQUIRE NOT ~profit/lib/logic.f
 REQUIRE /TEST ~profit/lib/testing.f
@@ -65,6 +67,8 @@ VARIABLE staticLen
 
 : >numb 0. 2SWAP >NUMBER 2DROP D>S ;
 
+: lastLocal  ( -- xt ) widLocals @ @ NAME>  ;
+
 EXPORT
 : STATIC ( "name -- ) ?COMP 
 STATIC=>
@@ -79,12 +83,14 @@ STATIC=> staticLen @ 0 DO 0 , LOOP \ записываем €чейки
 
 
 : LOCAL ( "name -- ) [COMPILE] STATIC
-widLocals @ @ NAME> EXECUTE
+lastLocal EXECUTE
 POSTPONE KEEP ; IMMEDIATE
 
 : LPARAMETER ( "name -- ) [COMPILE] STATIC
-widLocals @ @ NAME> EXECUTE
-POSTPONE B! ; IMMEDIATE
+lastLocal EXECUTE
+POSTPONE KEEP
+lastLocal EXECUTE
+POSTPONE ! ; IMMEDIATE
 
 ;MODULE
 
