@@ -2,7 +2,8 @@
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xi="http://forth.org.ru/2006/XML/Struct"
-  exclude-result-prefixes="xi"
+  xmlns:xa="http://forth.org.ru/2006/XML/StructAlias"
+  exclude-result-prefixes="xi xa"
 >
 <!--
   \ Apr.2006
@@ -189,6 +190,19 @@
     <xsl:with-param name="links" select="$links"/>
     <xsl:with-param name="href"  select="@href"/>
   </xsl:call-template>
+</xsl:template>
+
+<xsl:template match="xa:*" >
+  <xsl:param name="links" />
+  <xsl:choose><xsl:when test="*">
+
+    <xsl:element name="xi:{local-name()}"><xsl:copy-of select="@*"/>
+      <xsl:apply-templates><xsl:with-param name="links" select="$links | xi:model"/></xsl:apply-templates>
+    </xsl:element>
+  </xsl:when><xsl:otherwise>
+
+    <xsl:copy-of select="."/>
+  </xsl:otherwise></xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>
