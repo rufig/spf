@@ -48,7 +48,7 @@ With Help of
    <!-- decimal -->
    <regexp match="/(\s|^)\m-?\d+\M(\s|$)/" region="forNumb"/>
    <!-- float -->
-   <regexp match="/(\s|^)\m-?\d?\.?\d+[eE]((-\d)?\d*)?\M(\s|$)/" region="forNumb"/>
+   <regexp match="/(\s|^)\m-?\d*\.?\d*[eE](-?\d+)?\M(\s|$)/" region="forNumb"/>
 
    <keywords ignorecase="yes" worddiv="[\s]" region="forWord">
      <word name="CLOSE-FILE"/>
@@ -287,7 +287,6 @@ With Help of
       <word name="U>"/>
       <word name="UM*"/>
       <word name="UMOD"/>
-      <word name="UNLOOP"/>
       <word name="W!"/>
       <word name="W,"/>
       <word name="W@"/>
