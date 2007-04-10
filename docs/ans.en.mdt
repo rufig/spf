@@ -398,21 +398,36 @@ helpful for using non-SPF libraries.
 
 * DF@ or DF! is used with an address that is not double-float aligned;
 
+  Ok
+
 * F@ or F! is used with an address that is not float aligned;
+
+  Ok
+
+* SF@ or SF! is used with an address that is not single-float aligned;
+
+  Ok
 
 * floating point result out of range (e.g., in {std 12.6.1.1430} F/);
 
-* SF@ or SF! is used with an address that is not single-float aligned;
+
 
 * BASE is not decimal ({std 12.6.1.2143} REPRESENT, {std 12.6.2.1427} F., {std 12.6.2.1513} FE., {std 12.6.2.1613} FS.);
 
 * both arguments equal zero ({std 12.6.2.1489} FATAN2);
+
+  result is zero
 
 * cosine of argument is zero for {std 12.6.2.1625} FTAN;
 
 * d can't be precisely represented as float in {std 12.6.1.1130} D>F;
 
 * dividing by zero ({std 12.6.1.1430} F/);
+
+  `lib/include/float2.f` has two modes of operation - `SILENT-MODE` and
+  `ERROR-MODE`. In the first case - the result of dividing by zero is
+  infinity, in latter case - subsequent floating operation will raise an
+  exception.
 
 * exponent too big for conversion ({std 12.6.2.1203} DF!, {std 12.6.2.1204} DF@, {std 12.6.2.2202} SF!, {std 12.6.2.2203} SF@);
 
