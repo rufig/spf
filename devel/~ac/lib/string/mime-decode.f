@@ -19,6 +19,7 @@ REQUIRE "             ~ac/lib/str2.f
 REQUIRE base64        ~ac/lib/string/conv.f
 REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
 REQUIRE SPLIT-        ~pinka/samples/2005/lib/split.f 
+REQUIRE UPPERCASE     ~ac/lib/string/uppercase.f 
 
 VOCABULARY CHARSET-DECODERS 
 GET-CURRENT ALSO CHARSET-DECODERS DEFINITIONS
@@ -37,7 +38,7 @@ PREVIOUS SWAP SET-CURRENT CONSTANT CHARSET-DECODERS-WL
     DUP R@ <
   WHILE
     DUP C@ DUP [CHAR] = = 
-        IF DROP 1+ DUP 2+ SWAP 2 0 0 2SWAP >NUMBER 2DROP D>S
+        IF DROP 1+ DUP 2+ SWAP 2 0 0 2SWAP 2DUP UPPERCASE >NUMBER 2DROP D>S
            ?DUP IF -> c ^ c 1 s STR+ THEN
         ELSE -> c 
              c [CHAR] _ = IF BL -> c THEN
@@ -192,5 +193,8 @@ Subject: =?windows-1251?Q?=EF=EE_=EF=EE=E2=EE=E4=F3_Eserv?=
 " STR@ StripLwsp MimeValueDecode ANSI>OEM TYPE
 
 CR S" Это тема в кодировке koi8-r без mime-кодирования" MimeValueDecode ANSI>OEM TYPE CR
+
+" Subject: =?windows-1251?Q?=ce=ef=f0=e5=e4=e5=eb=e5=ed=e8=e5 =ea=f0=e8=f2=e5=f0=e8=e5=e2 =f3=f1=ef=e5=f8=ed=ee=f1=f2=e8  =e2=ed=f3=f2=f0=e5=ed=ed?=
+	=?windows-1251?Q?=e5=e3=ee =e8 =e2=ed=e5=f8=ed=e5=e3=ee =ee=e1=f3=f7=e5=ed=e8=ff =ef=e5=f0=f1=ee=ed=e0=eb=e0?=" STR@ StripLwsp MimeValueDecode ANSI>OEM TYPE CR
 
 )
