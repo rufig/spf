@@ -1,32 +1,47 @@
 <?xml version="1.0" encoding="ASCII" ?>
-<forth xmlns="http://forth.org.ru/ForthML/">
+<f:forth
+  xmlns:f="http://forth.org.ru/ForthML/"
+  xmlns="http://forth.org.ru/ForthML/Rules/"
+>
 <!-- Feb.2007 -->
 
-<rule match="choose"    mode="0">       <yield/>        </rule>
-<rule match="otherwise" mode="0">       <yield/>        </rule>
-<rule match="when"      mode="0">   <if><yield/> ParentNode LastChild </if> </rule>
-<rule match="if"        mode="0">   <if><yield/></if>   </rule>
+<rule match="f:choose">    STATE? <f:if><next-match/></f:if>         <yield/>          </rule>
+<rule match="f:otherwise"> STATE? <f:if><next-match/></f:if>         <yield/>          </rule>
+<rule match="f:when">      STATE? <f:if><next-match/></f:if>   <f:if><yield/> ParentNode LastChild </f:if> </rule>
+<rule match="f:if">        STATE? <f:if><next-match/></f:if>   <f:if><yield/></f:if>   </rule>
 
-<rule match="repeat"    mode="0">
+<rule match="f:repeat">    STATE? <f:if><next-match/></f:if>
   FALSE gtCS
-  <until> <yield/>  CS@ </until>
+  <f:until> <yield/>  CS@ </f:until>
   CSDROP
 </rule>
 
-<rule match="while"     mode="0">
-  0= <if> ParentNode LastChild  CSDROP TRUE gtCS</if>
+<rule match="f:while">     STATE? <f:if><next-match/></f:if>
+  0= <f:if> ParentNode LastChild  CSDROP TRUE gtCS</f:if>
 </rule>
 
-<rule match="until"     mode="0">
+<rule match="f:until">     STATE? <f:if><next-match/></f:if>
   FALSE gtCS
-  <until> <yield/> CS@ OR </until>
+  <f:until> <yield/> CS@ OR </f:until>
   CSDROP
 </rule>
 
-<rule match="#comment" /><!-- skip xml-commets -->
+<!-- = = = = = -->
 
-<rule match="#text"> <!-- no mode spec -->
-  <exec name="NodeValue" /><exec name="T-TEXT" />
+<rule match="f:include">
+  `href GetAttribute EMBODY
 </rule>
 
-</forth>
+<rule match="f:xt-of">
+  `name GetAttribute &amp; T-LIT
+</rule>
+
+<rule match="f:char">
+  cnode firstChild DUP <f:if> nodeValue DUP <f:if> SWAP C@ </f:if> NIP </f:if> T-LIT
+</rule>
+
+<rule match="f:text">
+  cnode firstChild DUP <f:if> nodeValue T-SLIT <f:exit/></f:if> 0 T-2LIT
+</rule>
+
+</f:forth>

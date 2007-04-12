@@ -1,80 +1,100 @@
 <?xml version="1.0" encoding="ASCII" ?>
-<forth xmlns="http://forth.org.ru/ForthML/" >
-<!-- Feb.2007 ruvim@forth.org.ru -->
+<transform
+  xmlns="http://forth.org.ru/ForthML/Rules/"
+  xmlns:f="http://forth.org.ru/ForthML/"
+  f:nskeep="yes"
+>
+<!-- Feb.2007 ruvim@forth.org.ru 
+$Id$
+-->
 
-<rule match="rem" />
-<rule match="comment" />
-<rule match="g"><yield/></rule><!-- merely group -->
-<rule match="forth"><yield/></rule>
+<rule match="f:rem" />
+<rule match="f:comment" />
+<rule match="f:g"><yield/></rule><!-- merely group -->
+<rule match="f:forth"><yield/></rule>
 <!--
-<rule match="model"><yield/></rule>-->
+<rule match="f:model"><yield/></rule>-->
 
-<rule match="p">
-  CONCEIVE <postpone><yield/></postpone> BIRTH
-</rule>
-
-<rule match="def">
-  CONCEIVE <postpone><yield/></postpone> BIRTH <get-attribute name="name" /> NAMING-
+<rule match="f:p">
+  <m>CONCEIVE <postpone><yield/></postpone> BIRTH</m>
 </rule>
 
-<rule match="lit">
-  <direct><yield/>LIT,</direct>
-</rule>
-<rule match="slit">
-  <direct><yield/>SLIT,</direct>
-</rule>
-<rule match="exec">
-  <direct><yield/>EXEC,</direct>
+<rule match="f:def">
+  <m>CONCEIVE <postpone><yield/></postpone> BIRTH <get-attribute name="name" /> NAMING-</m>
 </rule>
 
-<rule match="exit">
-  <direct>EXIT,</direct>
+<rule match="f:lit">
+  <m><direct><yield/>LIT,</direct></m>
 </rule>
-<rule match="recurse">
-  <direct>GERM EXEC,</direct>
+<rule match="f:lit2">
+  <m><direct><yield/>2LIT,</direct></m>
 </rule>
-<rule match="again">
-  <direct>GERM gtCS BBW,</direct><!-- depend on.. -->
+<rule match="f:slit">
+  <m><direct><yield/>SLIT,</direct></m>
+</rule>
+<rule match="f:exec">
+  <m><direct><yield/>EXEC,</direct></m>
+</rule>
+
+<rule match="f:exit">
+  <m><direct>EXIT,</direct></m>
+</rule>
+<rule match="f:recurse">
+  <m><direct>GERM EXEC,</direct></m>
+</rule>
+<rule match="f:again">
+  <m><direct>GERM gtCS BBW,</direct></m><!-- depend on.. -->
 </rule>
 
 
-<rule match="otherwise">
+<rule match="f:otherwise">
   <yield/>
 </rule>
 
-<rule match="when">
+<rule match="f:when"><m>
   <direct>ZBFW,</direct>
   <yield/>
   <direct>BFW2, RFW</direct>
+  </m>
 </rule>
 
-<rule match="choose">
-  <yield/>
-  <each-node select="when"><direct>RFW</direct></each-node>
+<rule match="f:choose"><m>
+  <yield/><for-each select="f:when"><direct>RFW</direct></for-each>
+  </m>
 </rule>
 
-<rule match="while">
-  <direct>ZBFW2,</direct>
+<rule match="f:while">
+  <m><direct>ZBFW2,</direct></m>
 </rule>
 
-<rule match="repeat">
+<rule match="f:repeat"><m>
   <direct>MBW</direct>
   <yield/>
   <direct>BBW,</direct>
-  <each-node select="while"><direct>RFW</direct></each-node>
+  <for-each select="f:while"><direct>RFW</direct></for-each>
+  </m>
 </rule>
 
-<rule match="until">
+<rule match="f:until"><m>
   <direct>MBW</direct>
   <yield/>
   <direct>ZBBW,</direct>
-  <each-node select="while"><direct>RFW</direct></each-node>
+  <for-each select="f:while"><direct>RFW</direct></for-each>
+  </m>
 </rule>
 
-<rule match="if">
+<rule match="f:if"><m>
   <direct>ZBFW,</direct>
   <yield/>
   <direct>RFW</direct>
+  </m>
 </rule>
 
-</forth>
+
+<rule match="f:var"><m>
+  ALIGN HERE 0 ,  CONCEIVE LIT, BIRTH
+  <get-attribute name="name" /> NAMING-
+  </m>
+</rule>
+
+</transform>
