@@ -8,6 +8,11 @@
 
 TEMP-WORDLIST GET-CURRENT   OVER ALSO CONTEXT ! DEFINITIONS
 
+\ Слова wrap и wrap2 служат для создания оберток
+\ к словам,  имеющим соответственно 
+\ сигнатуру ( i*x node -- j*x ) и ( i*x node -- j*x node|0 ).
+\ Входная строка-имя используется в режиме R/W.
+
 : wrap ( a u -- )
   CONCEIVE
     `cnode-a & EXEC,
@@ -46,16 +51,23 @@ SET-CURRENT
 `firstChildByTagNameNS  wrap2
 `nextSiblingByTagName   wrap2
 `nextSiblingByTagNameNS wrap2
+`nextSiblingEqualNS     wrap2
 
 `getAttribute   wrap
 `getAttributeNS wrap
 `hasAttribute   wrap
 `hasAttributeNS wrap
 
+`namespace-uri-for-prefix wrap
+
 \ : mount ( node -- ) cnode-a ! ;
 \ : dismount ( -- node ) cnode-a @ cnode-a 0! ;
 
 : cnode  ( -- node ) cnode-a @ ;
 : cnode! ( node -- ) cnode-a ! ;
+
+: FirstChildValue ( -- c-addr u )
+  cnode firstChild DUP IF nodeValue EXIT THEN 0
+;
 
 PREVIOUS FREE-WORDLIST
