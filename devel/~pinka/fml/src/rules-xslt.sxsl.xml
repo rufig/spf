@@ -19,8 +19,8 @@
   <apply-templates select="document(@href)/*"/>
 </def>
 
-<def match="f:xt-of[@select]">
-  <xsl:text>`</xsl:text><xsl:value-of select="@select"/><xsl:text> &amp; </xsl:text><T-LIT/>
+<def match="f:xt-of[@name]">
+  <xsl:text>`</xsl:text><xsl:value-of select="@name"/><xsl:text> &amp; </xsl:text><T-LIT/>
 </def>
 
 <def match="f:char">
