@@ -7,25 +7,25 @@
 <def name="T-LIT" ds=" x -- x | ">
   STATE @ 0= <if><exit/></if>
   STATE 1-!
-    <recurse/> <xt-of select="LIT,"/> T-EXEC
+    <recurse/> <xt-of name="LIT,"/> T-EXEC
   STATE 1+!
 </def>
 <def name="T-EXEC" ds=" i*x xt -- j*x | i*x">
   STATE @ 0= <if> EXECUTE <exit/> </if>
   STATE 1-!
-    T-LIT <xt-of select="EXEC,"/> <recurse/>
+    T-LIT <xt-of name="EXEC,"/> <recurse/>
   STATE 1+!
 </def>
 <def name="T-SLIT" ds=" c-addr u -- c-addr2 u | ">
   STATE @ 0= <if><exit/></if>
   STATE 1-!
-    <recurse/> <xt-of select="SLIT,"/> T-EXEC
+    <recurse/> <xt-of name="SLIT,"/> T-EXEC
   STATE 1+!
 </def>
 <def name="T-2LIT" ds=" x x -- x x | ">
   STATE @ 0= <if><exit/></if>
   STATE 1-!
-    <recurse/> <xt-of select="2LIT,"/> T-EXEC
+    <recurse/> <xt-of name="2LIT,"/> T-EXEC
   STATE 1+!
 </def>
 
