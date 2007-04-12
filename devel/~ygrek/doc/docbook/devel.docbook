@@ -48,6 +48,7 @@
   <!ENTITY chap-core-ext SYSTEM "source/lib/include/core-ext.docbook">
   <!ENTITY chap-capi2 SYSTEM "source/lib/win/api-call/capi2.docbook">
   <!ENTITY chap-lib-mutex SYSTEM "source/lib/win/mutex.docbook">
+  <!ENTITY chap-mersenne SYSTEM "source/~ygrek/lib/neilbawd/mersenne.docbook">
 
 ]>
 
@@ -79,6 +80,7 @@
   &chap-queue_pr;
   &chap-bitfield;
   &chap-float;
+  &chap-mersenne;
   </chapter>
 
   <chapter id="formats">
@@ -240,7 +242,7 @@
   <section id="ext-desc">
    <title>Описание</title>
    <para>
-      Слова определённые в стандарте и не вощедшие в ядро - доступны в подключаемых библиотеках.
+      Слова определённые в стандарте и не вошедшие в ядро - доступны в подключаемых библиотеках.
    </para>
   </section>
   &chap-double;

@@ -48,7 +48,8 @@ forthcode = ~ac/lib/lin/curl/curl.f \
 						lib/include/double.f \
 						lib/include/core-ext.f \
 						lib/win/api-call/capi2.f \
-						lib/win/mutex.f
+						lib/win/mutex.f \
+						~ygrek/lib/neilbawd/mersenne.f
 
 
 docbooks = $(foreach forthfile,$(forthcode),$(DOC_PATH)/$(patsubst %.f,%.docbook,$(forthfile)))
