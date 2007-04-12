@@ -1,5 +1,16 @@
 @if not exist tmp mkdir tmp
-call saxonB8 -novw src/index-common-rules.struct.f.xml  ../engine-xml/struct.xsl        >tmp/index-common-rules.f.xml
-call saxonB8 -novw tmp/index-common-rules.f.xml         meta/rules2sxsl.xsl             >tmp/index-common-rules.sxsl.xml
-call saxonB8 -novw src/index-xslt.struct.sxsl.xml       ../engine-xml/struct-pre.xsl    >tmp/forthml.sxsl.xml
-call saxonB8 -novw tmp/forthml.sxsl.xml                 ../engine-xml/sxsl.xsl          >forthml.xsl
+
+@set throw=@IF ERRORLEVEL 1 EXIT /B %%ERRORLEVEL%%
+@set stct=../engine-xml/struct.xsl
+@set sxsl=../engine-xml/sxsl.xsl
+@set xtrans=call saxonB8 -novw
+@set xtrans2=call saxonB8 
+
+    %xtrans%  src/rules-common.f.xml     meta/rules2sxsl.xsl     >tmp/rules-common.sxsl.xml
+    %throw%
+    @rem           index-xslt.struct.sxsl.xml refer to tmp/index-common-rules.sxsl.xml
+    %xtrans%  meta/index-xslt.sxsl.xml   %stct%                  >tmp/forthml.sxsl.xml
+    %throw%
+    %xtrans%  tmp/forthml.sxsl.xml       %sxsl%                  >forthml.xsl
+
+@exit /B
