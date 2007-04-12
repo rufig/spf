@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<xi:include xmlns:xi="http://forth.org.ru/2006/XML/Struct"
+    xmlns="http://forth.org.ru/ForthML/Rules/"
+  xmlns:r="http://forth.org.ru/ForthML/Rules/"
+  xmlns:f="http://forth.org.ru/ForthML/"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+>
+<!-- Feb-Apr.2007 ruvim@forth.org.ru -->
+
+<xi:model name="native" advice="after">
+
+<rule match="#comment" /><!-- skip xml-commets -->
+
+<rule match="#text"> NodeValue T-PLAIN </rule>
+
+<rule match="r:m">         INC-M       <yield/> DEC-M </rule>
+<rule match="r:direct">    M-DEC-STATE <yield/> M-INC-STATE </rule>
+<rule match="r:postpone">  M-INC-STATE <yield/> M-DEC-STATE </rule>
+
+</xi:model><xi:model name="transform" advice="after">
+<!-- no need, since direct|postpone don't used here directly, 
+and r:m is allowable.
+-->
+</xi:model><xi:model name="native" advice="after">
+
+<rule match="r:yield"><!-- not obey to 'm' effect -->
+  <f:xt-of name="trans-childs"/> STATE @ TS-EXEC
+</rule>
+
+</xi:model><xi:model name="transform" advice="after">
+
+<xsl:template match="r:yield">
+  <xsl:text>trans-childs </xsl:text>
+</xsl:template>
+
+</xi:model><xi:model name="native" advice="after">
+
+<rule match="r:get-attribute"><!-- not obey to 'm' effect -->
+  `name GetAttribute              STATE @ TS-SLIT
+  <f:xt-of name="GetAttribute"/>  STATE @ TS-EXEC
+  <f:xt-of name="T-SLIT"/>        STATE @ TS-EXEC <!-- so not useable outside of <m>... -->
+</rule>
+
+</xi:model><xi:model name="transform" advice="after">
+
+<xsl:template match="r:get-attribute">
+  <xsl:text>`</xsl:text><xsl:value-of select="@name"/><xsl:text> GetAttribute T-SLIT</xsl:text>
+</xsl:template>
+
+</xi:model><!-- /\ = = = = =  \/ -->
+<xi:model name="native" advice="after">
+
+<!-- 
+<rule match="r:for-each">
+  `select GetAttribute name-n-uri 2>R T-SLIT 2R> T-SLIT
+  <m>
+  cnode gtR  FirstChildByTagNameNS
+  <f:repeat> cnode <f:while/> <yield/> NextSiblingEqualNS </f:repeat>
+  Rgt cnode!
+  </m>
+</rule>
+-->
+<rule match="r:for-each"><!-- not obey to 'm' effect -->
+  `select GetAttribute name-n-uri 2>R STATE @ TS-SLIT 2R> STATE @ TS-SLIT
+  <!-- at target runtime: ( name-a name-u uri-a uri-u ) -->
+  <f:xt-of name="cnode"/> STATE @ TS-EXEC
+  <f:xt-of name="gtR"/> STATE @ TS-EXEC
+  <f:xt-of name="FirstChildByTagNameNS"/> STATE @ TS-EXEC
+  DEC-S
+  <f:xt-of name="MBW"/> STATE @ TS-EXEC
+  INC-S
+  <f:xt-of name="cnode"/> STATE @ TS-EXEC
+  DEC-S
+  <f:xt-of name="ZBFW2,"/> STATE @ TS-EXEC
+  INC-S
+  <yield/>
+  <f:xt-of name="NextSiblingEqualNS"/> STATE @ TS-EXEC
+  DEC-S
+  <f:xt-of name="BBW,"/> STATE @ TS-EXEC
+  <f:xt-of name="RFW"/> STATE @ TS-EXEC
+  INC-S
+  <f:xt-of name="Rgt"/> STATE @ TS-EXEC
+  <f:xt-of name="cnode!"/> STATE @ TS-EXEC
+</rule>
+
+</xi:model><xi:model name="transform" advice="after">
+
+<!-- no need, since we don't use 'for-each'-markup here 
+     See also ../meta/trules-step2.sxsl.xml  <s:def match="r:for-each"
+-->
+
+</xi:model><xi:model name="native" advice="after">
+
+<rule match="r:next-match"><m>FALSE<f:exit/></m></rule>
+
+<rule match="r:rule">
+  `match GetAttribute name-n-uri  2>R T-SLIT 2R> T-SLIT
+  <m><!-- ( name-a name-u uri-a uri-u ) --> 2SWAP
+  <f:p>
+    NodeName <f:slit/> CEQUAL 0= <f:if> FALSE <f:exit/></f:if>
+    NamespaceURI <f:slit/> CEQUAL 0= <f:if> FALSE <f:exit/></f:if>
+    <yield/> TRUE
+  </f:p> DUP `match GetAttribute NAMING- advice-rule-before
+  </m>
+</rule>
+
+</xi:model><xi:model name="transform" advice="after">
+
+<xsl:template match="r:rule" xmlns:fn="http://www.w3.org/2005/xpath-functions" >
+  <xsl:variable name="qname" select="@match"/>
+  
+  <f:p>
+    <xsl:choose><xsl:when test="starts-with($qname, '#')">
+      NodeName `<xsl:value-of select="$qname"/> CEQUAL 0= <f:if> FALSE <f:exit/></f:if>
+
+    </xsl:when><xsl:otherwise>
+      <xsl:variable name="local-name" select="fn:local-name-from-QName    ( fn:resolve-QName($qname, .) )"/>
+      <xsl:variable name="uri"        select="fn:namespace-uri-from-QName ( fn:resolve-QName($qname, .) )"/>
+
+      NodeName `<xsl:value-of select="$local-name"/> CEQUAL 0= <f:if> FALSE <f:exit/></f:if>
+      NamespaceURI `<xsl:value-of select="$uri"/> CEQUAL 0= <f:if> FALSE <f:exit/></f:if>
+
+    </xsl:otherwise></xsl:choose>
+
+    <xsl:apply-templates />  TRUE
+  </f:p> DUP `<xsl:value-of select="$qname"/> NAMING- advice-rule-before
+  
+</xsl:template>
+
+</xi:model><xi:model name="native" advice="after">
+
+<rule match="r:transform"><yield/></rule><!-- to do: explicate  r:transform -->
+
+</xi:model><xi:model name="transform" advice="after">
+
+<xsl:template match="r:transform">
+  <f:forth>
+    <xsl:apply-templates />
+  </f:forth>
+</xsl:template>
+
+</xi:model>
+
+<xi:include href="#request-core-model" ><_stop>#request-core-model is undefined</_stop></xi:include>
+
+</xi:include>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<xi:include xmlns:xi="http://forth.org.ru/2006/XML/Struct"
+  xmlns="http://forth.org.ru/2006/SXSL/"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+>
+<!-- Dec.2006, Apr.2007 ruvim@forth.org.ru -->
+
+<xi:model name="foreign" advice="after">
+
+<def name="s0">
+  <xsl:if test="$state = 0"><yield/> </xsl:if>
+</def>
+<def name="s1">
+  <xsl:if test="$state = 1"><yield/> </xsl:if>
+</def>
+<def name="s1gt">
+  <xsl:if test="$state &gt; 1"><yield/> </xsl:if>
+</def>
+
+<def name="T-LIT"><!-- 
+  <s0/> - nothing -->
+  <s1>LIT,</s1>
+  <s1gt><direct><T-LIT/> `LIT, &amp; <T-EXEC/></direct></s1gt>
+</def>
+<def name="T-SLIT">
+  <s1>SLIT,</s1>
+  <s1gt><direct><T-SLIT/>`SLIT, &amp; <T-EXEC/></direct></s1gt>
+</def>
+<def name="T-EXEC">
+  <s0>EXECUTE</s0>
+  <s1>EXEC,</s1>
+  <s1gt><direct><T-LIT/><xsl:text>`EXEC, &amp; </xsl:text><T-EXEC/></direct></s1gt>
+</def>
+
+</xi:model><xi:model name="transform" advice="after">
+
+<def name="m0">
+  <xsl:if test="$state != 1 or $m &gt; 1"><stop-error-nesting/></xsl:if>
+  <xsl:if test="$m = 0"><yield/> </xsl:if>
+</def>
+<def name="m1">
+  <xsl:if test="$m = 1"><yield/> </xsl:if>
+</def>
+
+<def name="T-LIT"><!-- only within state is 1 -->
+  <m0>LIT,</m0>
+  <m1>LIT,  `T-LIT  &amp; EXEC,</m1>
+</def>
+<def name="T-SLIT">
+  <m0>SLIT,</m0>
+  <m1>SLIT, `T-SLIT &amp; EXEC,</m1>
+</def>
+<def name="T-EXEC">
+  <m0>EXEC,</m0>
+  <m1>LIT,  `T-EXEC &amp; EXEC,</m1>
+</def>
+
+</xi:model>
+
+<xi:include href="#request-ttoken-model" ><_stop>#request-ttoken-model is undefined</_stop></xi:include>
+
+</xi:include>
