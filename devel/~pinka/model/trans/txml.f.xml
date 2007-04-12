@@ -2,7 +2,7 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- Feb.2007 ruvim@forth.org.ru -->
 
-<var name="t-slot" /> <xt-of select="FALSE"/> t-slot !
+<var name="a-trans"/> <xt-of name="FALSE"/> a-trans !
 
 <include href="txml.immutable.f.xml"/>
 

@@ -2,17 +2,19 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- Jul.2006, Feb.2007 ruvim@forth.org.ru -->
 
-<def name="T-WORD" ds=" i*x c-addr u -- j*x | i*x">
-  I-SLIT-FORM <if> STATE @  TS-SLIT <exit/></if>
-  I-NATIVE    <if> STATE @  TS-EXEC <exit/></if>
-  I-LIT       <if> STATE @  TS-LIT  <exit/></if>
-  I-DLIT-FORM <if> STATE @  TS-2LIT <exit/></if>
+<def name="STATE?" ds=" -- u"> STATE @ </def>
+
+<def name="T-NAME" ds=" i*x c-addr u -- j*x | i*x">
+  I-SLIT-FORM <if> T-SLIT <exit/></if>
+  I-NATIVE    <if> T-EXEC <exit/></if>
+  I-LIT       <if> T-LIT  <exit/></if>
+  I-DLIT-FORM <if> T-2LIT <exit/></if>
   CR TYPE CR -321 THROW
 </def>
 
-<def name="T-TEXT" ds=" i*x c-addr u -- j*x | i*x">
+<def name="T-PLAIN" ds=" i*x c-addr u -- j*x | i*x">
   <repeat>   FINE-HEAD SPLIT-WHITE-FORCE 2gtR DUP
-  <while />  T-WORD  2Rgt
+  <while />  T-NAME  2Rgt
   </repeat>  2DROP RDROP RDROP
 </def>
 
