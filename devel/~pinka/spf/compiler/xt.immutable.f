@@ -32,3 +32,25 @@ WARNING !                   [THEN]
 
 \ : DEFER-NAMING ( c-addr u -- entry ) 0 , 0 C, HERE -ROT S", 0 , ;
 \ ~ BIND-NAME ( xt entry -- ) TUCK 5 - ! .....  ;
+
+
+\EOF
+\ дополнительные (в процессе поиска формы), пока не используются:
+
+: MAKE-LIT ( x -- xt ) \ xt ( -- x )
+  CONCEIVE LIT, BIRTH
+;
+: MAKE-SLIT ( c-addr u -- xt ) \ xt ( -- c-addr2 u )
+  CONCEIVE SLIT, BIRTH
+;
+: MAKE-SLOT ( -- xt )  \ xt ( -- addr )
+  ALIGN HERE 0 , MAKE-LIT
+;
+
+: DEVELOP ( wid -- ) ( CS: -- wid-prev )
+  GET-CURRENT >CS
+  ALSO CONTEXT ! DEFINITIONS
+;
+: FURL ( -- ) ( CS: wid-prev -- )
+  PREVIOUS CS> SET-CURRENT
+;
