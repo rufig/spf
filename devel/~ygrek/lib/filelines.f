@@ -1,7 +1,7 @@
 \ Построчное чтение файла
 \ READ-LINE модифицирован чтобы возвращать флаг
 
-REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE PRO ~profit/lib/bac4th.f
 REQUIRE { lib/ext/locals.f
 
@@ -40,7 +40,7 @@ CREATE buf 1026 ALLOT
    AGAIN
 ;
 
-: FileLines=> ( a u -- )
+: FileLines=> ( a u --> s \ s <-- )
   PRO
   R/O OPEN-FILE-SHARED IF DROP EXIT THEN
 \  START{
