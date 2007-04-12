@@ -1,5 +1,3 @@
-DIS-OPT
-
 REQUIRE IRC-BASIC ~ygrek/lib/net/irc/basic.f
 REQUIRE NFA=> ~ygrek/lib/wid.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
@@ -91,13 +89,17 @@ MODULE: BOT-COMMANDS
 ;MODULE
 
 MODULE: BOT-COMMANDS-NOTFOUND
- : NOTFOUND -1 THROW ;
+ : NOTFOUND 
+    nickname STR@ COMPARE-U 0= IF EXIT THEN \ игнорируем упоминания нащего никнейма
+    -1 THROW ; \ иначе завершаем разбор строки
 ;MODULE
 
 : CHECK-MSG-ME ( -- ? )
   trailing nickname STR@ SEARCH NIP NIP 0= IF FALSE EXIT THEN
   S" Hello. I am a bot. Try !info. You can chat to me privately." S-REPLY
   TRUE EXIT ;
+
+: CHECK-MSG-IGNORE ( -- ? ) determine-sender S" TiReX" COMPARE-U 0= ;
 
 0 [IF]
 : CHECK-MSG-SPECIAL
@@ -111,11 +113,13 @@ MODULE: BOT-COMMANDS-NOTFOUND
 : CHECK-MSG ( -- ? )
    FALSE TO ?check
 
+   CHECK-MSG-IGNORE IF TRUE EXIT THEN
+
    GET-ORDER
    ONLY BOT-COMMANDS
    ALSO BOT-COMMANDS-NOTFOUND
    \ ORDER
-   trailing ['] EVALUATE CATCH IF 2DROP THEN \ вгв ®вў «Ёў ­ЁҐ - ­®а¬ «м­ п бЁвг жЁп
+   trailing ['] EVALUATE CATCH IF 2DROP THEN \ тут отваливание - нормальная ситуация
    SET-ORDER
 
    ?check IF TRUE EXIT THEN
