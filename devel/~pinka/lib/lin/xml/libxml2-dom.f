@@ -1,5 +1,5 @@
-\ 29.Jan.2007 Mon 20:18
-
+\ 29.Jan.2007 Mon 20:18 ruv
+\ $Id$
 ( Обертка поверх libxml2, предоставляет подмножество функций DOM,
   пока все они относятся к типу R/O.
 
@@ -78,7 +78,7 @@ CONSTANT /xmlNs
 
 : nodeNameOrig ( node -- c-addr u | 0 0 ) x.name @ ?ASCIIZ> ;
 
-: typeName ( type -- c-addr u )
+: name-by-typecode ( type -- c-addr u )
   DUP TEXT_NODE              = IF DROP `#text               EXIT THEN
   DUP COMMENT_NODE           = IF DROP `#comment            EXIT THEN
   DUP DOCUMENT_NODE          = IF DROP `#document           EXIT THEN
@@ -97,9 +97,9 @@ CONSTANT /xmlNs
 
 : nodeType ( node -- type ) x.type @ ;
 
-: nodeName ( node -- c-addr u | 0 0 )
+: nodeName ( node -- c-addr u | 0 0 ) \ libxml2: name without prefix (!)
   DUP nodeType 3 U< IF nodeNameOrig EXIT THEN
-  DUP >R nodeType typeName DUP IF RDROP EXIT THEN 2DROP
+  DUP >R nodeType name-by-typecode DUP IF RDROP EXIT THEN 2DROP
   R> nodeNameOrig
 ;
 : nodeValue  ( node -- c-addr u | 0 0 ) x.content @ ?ASCIIZ> ;
@@ -121,7 +121,7 @@ CONSTANT /xmlNs
 : hasChildNodes ( node -- flag ) firstChild 0<> ;
 
 \ =====
-\ interface of Element
+\ interface of Element ( not any node !!! )
 
 \ to support:
 : cdr-libxml2-name ( a u node1|0 -- a u node2|0 )
@@ -187,6 +187,12 @@ CONSTANT /xmlNs
 : nextSiblingByTagNameNS ( localname-a localname-u uri-a uri-u node -- node2|0 )
   nextSibling -cdr-libxml2-nameNS NIP NIP NIP NIP
 ;
+: nextSiblingEqual ( node1 -- node2|0 )
+  DUP >R nodeName R> nextSiblingByTagName
+;
+: nextSiblingEqualNS ( node1 -- node2|0 )
+  DUP >R localName R@ namespaceURI R> nextSiblingByTagNameNS
+;
 
 : lastChildByTagName ( name-a name-u node1 -- node2|0 )
   lastChild cdr-libxml2-name NIP NIP
@@ -215,6 +221,32 @@ CONSTANT /xmlNs
   firstChild BEGIN DUP WHILE R@ OVER >R EXECUTE R> nextSibling REPEAT DROP RDROP
 ;
 
+: searchNamespaceLocal ( prefix-a prefix-u node -- ns-a ns-u TRUE | prefix-a prefix-u FALSE )
+  x.ns @
+  BEGIN DUP WHILE >R
+    2DUP R@ xns.prefix @ ?ASCIIZ> CEQUAL IF 2DROP R> xns.href @ ?ASCIIZ> TRUE EXIT THEN
+    R> xns.next @
+  REPEAT ( a u 0 )
+;
+\ namespaceByPrefix | searchNamespaceURI | searchPrefixURI 
+: searchNamespace ( prefix-a prefix-u node -- ns-a ns-u TRUE | prefix-a prefix-u FALSE )
+\ libxml2: список xmlns есть только у корневого элемента,
+\ определенные локально пространства имен таким путем недоступны (кроме xmlns самого узла)
+  DUP >R searchNamespaceLocal IF RDROP TRUE EXIT THEN
+  R> ownerDocument documentElement searchNamespaceLocal
+;
+: enumNamespaces ( xt node -- ) \ xt ( uri-a uri-u prefix-a prefix-u -- )
+  SWAP >R
+  ownerDocument documentElement
+  x.ns @ BEGIN DUP WHILE
+    DUP xns.href   @ ?ASCIIZ>  ROT
+    DUP xns.prefix @ ?ASCIIZ>  ROT
+    R@ SWAP >R EXECUTE R> xns.next @
+  REPEAT DROP RDROP
+;
+: namespace-uri-for-prefix ( prefix-a prefix-u node -- uri-a uri-u | 0 0 )
+  searchNamespace IF EXIT THEN 2DROP 0.
+;
 \ =====
 \ DOM3 LS (Load and Save)
 \ interface LSParser
