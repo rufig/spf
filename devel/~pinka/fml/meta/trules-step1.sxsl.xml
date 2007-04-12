@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<xsl:stylesheet version="2.0"
+  xmlns:xi="http://forth.org.ru/2006/XML/Struct"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:f="http://forth.org.ru/ForthML/"
+  xmlns:r="http://forth.org.ru/ForthML/Rules/"
+    xmlns="http://forth.org.ru/ForthML/Rules/"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+
+  xmlns:x="http://www.w3.org/1999/XSL/TransformAlias"
+  exclude-result-prefixes="fn"
+>
+<!-- Apr.2007 ruvim@forth.org.ru -->
+
+<xsl:namespace-alias stylesheet-prefix="x"  result-prefix="xsl" />
+
+<xsl:output
+  encoding="UTF-8"
+/>
+
+<!--  r:*  ->  f:* r:m0 r:m  -->
+
+<xi:include href="stop-error.sxsl.xml" />
+
+<xsl:template match="*">
+  <xsl:call-template name="stop-error"/>
+</xsl:template>
+
+<xsl:template match="r:m | f:*">
+  <xsl:copy><xsl:copy-of select="@*"/><xsl:apply-templates/></xsl:copy>
+</xsl:template>
+
+<xi:model name="request-core-model" href="#transform" />
+<xi:include href="../src/core.union.xml"/>
+
+<xsl:template match="r:*[ ancestor::r:m ]" ><!-- r:m//r:* -->
+  <m0>
+    <xsl:next-match />
+  </m0>
+</xsl:template>
+
+</xsl:stylesheet>

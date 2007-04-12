@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<xsl:stylesheet version="2.0"
+  xmlns="http://forth.org.ru/2006/SXSL/"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xi="http://forth.org.ru/2006/XML/Struct"
+  xmlns:f="http://forth.org.ru/ForthML/"
+  xmlns:r="http://forth.org.ru/ForthML/Rules/"
+  f:used="used"
+>
+
+<!-- Apr.2007 ruvim@forth.org.ru -->
+
+<xi:include href="stop-error.sxsl.xml"/>
+
+<def match="*">
+  <xsl:call-template name="stop-error"/>
+</def>
+
+<xi:model name="ttoken">
+  <xi:model name="request-ttoken-model" href="#foreign" />
+  <xi:include href="../src/ttoken-xslt.sxsl.union.xml"/>
+</xi:model>
+<xi:include href="../src/ttext-xslt.sxsl.xml"/>
+
+<def name="T">
+  <call-template name="T-TEXT"><xsl:with-param name="text"><yield/></xsl:with-param></call-template>
+</def>
+
+<xi:include href="../tmp/rules-common.sxsl.xml" /><!-- (!!!)  so this file location in meta/ -->
+
+<xi:include href="../src/rules-xslt.sxsl.xml" />
+
+<xsl:output
+  encoding="UTF-8"
+  method="text"
+  omit-xml-declaration="yes"
+/>
+
+</xsl:stylesheet>

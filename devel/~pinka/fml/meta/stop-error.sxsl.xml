@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<xi:include xmlns:xi="http://forth.org.ru/2006/XML/Struct"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns="http://forth.org.ru/2006/SXSL/"
+>
+<def name="stop-error" >
+  <xsl:message terminate = "yes">
+    <xsl:text>Semantic undefined for:</xsl:text>
+    <xsl:for-each select="ancestor-or-self::*">
+      <xsl:text> | </xsl:text><xsl:value-of select="name()" />
+    </xsl:for-each><xsl:text>
+</xsl:text>
+    <xsl:choose><xsl:when test="node()">
+      <xsl:copy-of select="." />
+    </xsl:when><xsl:otherwise>
+      <xsl:copy-of select=".." />
+    </xsl:otherwise></xsl:choose>
+  </xsl:message>
+</def>
+</xi:include>

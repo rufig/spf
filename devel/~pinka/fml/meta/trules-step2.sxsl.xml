@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<xsl:stylesheet version="2.0"
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:f="http://forth.org.ru/ForthML/"
+  xmlns:r="http://forth.org.ru/ForthML/Rules/"
+    xmlns="http://forth.org.ru/ForthML/Rules/"
+ xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:s="http://forth.org.ru/2006/SXSL/"
+
+  exclude-result-prefixes="f fn s"
+>
+<!-- Apr.2007 ruvim@forth.org.ru -->
+
+<xsl:output
+  encoding="UTF-8"
+/>
+
+<!--  f:* -> r:*  -->
+
+<xsl:param name="rules-common">../src/rules-common.f.xml</xsl:param>
+<xsl:param name="rules-rules">../src/core.union.xml</xsl:param>
+<xsl:param name="char.quote-name">`</xsl:param>
+<xsl:param name="code.xt-of.s1"> &amp; LIT, </xsl:param><!--
+               form: `some-name & LIT, ( on STATE is 1) -->
+
+
+<xsl:template name="stop-error" >
+  <xsl:message terminate = "yes">
+    <xsl:text>Semantic undefined for: </xsl:text><xsl:value-of select="name()" /><xsl:text>
+</xsl:text>
+    <xsl:copy-of select="." />
+  </xsl:message>
+</xsl:template>
+
+<s:var name="yield"   select="/.." />
+<s:var name="yield-m" select="/.." />
+<s:var name="m" select=" 0 " />
+
+<xsl:template match="*">
+  <xsl:call-template name="stop-error" />
+</xsl:template>
+
+<s:def match="r:m" >
+  <xsl:if test="$m &gt; 0"><xsl:call-template name="stop-error" /></xsl:if>
+  <xsl:copy>
+    <s:set name="m" select="$m + 1" ><s:yield/></s:set>
+  </xsl:copy>
+</s:def>
+
+<s:def match="r:m0" >
+  <xsl:copy>
+    <s:set name="m" select=" 0 " ><s:yield/></s:set>
+  </xsl:copy>
+</s:def>
+
+<s:def match="f:*">
+  <xsl:variable name="rule" select="document($rules-common)//r:rule[ @match = current()/name() ]"/>
+  <xsl:if test="count($rule/r:m) != 1"><xsl:call-template name="stop-error" /></xsl:if>
+  <xsl:choose><xsl:when test="$rule">
+    <s:apply-templates select="$rule/r:m/node()" ><!-- all effective code must be in the <m></m> (!) -->
+      <xsl:with-param name="yield" select="( . , $yield )" />
+      <xsl:with-param name="yield-m" select="( $m , $yield-m )" />
+    </s:apply-templates>
+
+  </xsl:when><xsl:otherwise>
+    <xsl:call-template name="stop-error" />
+
+  </xsl:otherwise></xsl:choose>
+</s:def>
+
+<xsl:template match="r:transform | f:forth">
+  <xsl:copy><xsl:copy-of select="@*"/><s:apply-templates/></xsl:copy>
+</xsl:template>
+
+<xsl:template match="f:xt-of"> <!-- imply STATE is 1 -->
+  <xsl:choose><xsl:when test="$m">
+    <xsl:call-template name="stop-error" />
+
+  </xsl:when><xsl:otherwise>
+    <s0><xsl:value-of select="$char.quote-name"/><xsl:value-of select="@name"/><xsl:value-of select="$code.xt-of.s1"/></s0>
+
+  </xsl:otherwise></xsl:choose>
+</xsl:template>
+
+<s:def match="r:yield">
+  <xsl:choose><xsl:when test="$yield">
+
+  <xsl:element name="{ ('m0', 'm1')[ $yield-m[1] +1 ] }">
+    <s:apply-templates select="$yield[1]/node()">
+      <xsl:with-param name="yield" select="fn:subsequence($yield, 2)" /><!-- 1 (2 3 4 ...) -->
+      <xsl:with-param name="yield-m" select="fn:subsequence($yield-m, 2)" />
+    </s:apply-templates>
+  </xsl:element>
+
+  </xsl:when><xsl:otherwise>
+    <xsl:call-template name="stop-error" />
+
+  </xsl:otherwise></xsl:choose>
+</s:def>
+
+<s:def match="r:direct | r:postpone" >
+  <xsl:variable name="tag" select=" concat('r:', local-name(.) )" />
+  <xsl:choose><xsl:when test="$m = 0">
+
+    <xsl:copy><s:apply-templates/></xsl:copy>
+
+  </xsl:when><xsl:otherwise>
+    <m0>
+    <s:apply-templates select="document($rules-rules)//r:rule[ @match = $tag ]/node()" >
+      <xsl:with-param name="yield" select="( . , $yield )" /> <!-- top (1 2 3 ...) -->
+      <xsl:with-param name="yield-m" select="( $m , $yield-m )" />
+    </s:apply-templates>
+    </m0>
+  </xsl:otherwise></xsl:choose>
+</s:def>
+
+<s:def match="r:for-each">
+
+  <xsl:variable name="node-self" select="." />
+  <xsl:variable name="tos" select="fn:subsequence($yield, 1, 1)" />
+  <!-- (!!!) the prefix must be same: -->
+  <xsl:for-each select="$tos/*[ name() = $node-self/@select ]">
+    <s:apply-templates select="$node-self/node()" />
+  </xsl:for-each>
+
+</s:def>
+
+<xsl:template match="text()[not( normalize-space(.) )]" >
+  <xsl:text>&#xD;&#xA;</xsl:text>
+</xsl:template>
+
+</xsl:stylesheet>
