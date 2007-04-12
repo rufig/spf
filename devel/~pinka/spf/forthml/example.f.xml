@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+10 <repeat> DUP <while/> DUP . 1- </repeat> DROP CR
+
+<def name="qqq">
+  10 <repeat> DUP <while/> DUP . 1- </repeat> DROP
+</def>
+
+<def name="ttt">
+  10 <until> DUP . 1- DUP 0= </until> DROP
+</def>
+
+<def name="steps" ds=" n -- ">
+  DUP 0= <if>DROP <exit/></if> DUP . 1- <again/>
+</def>
+
+5 steps CR
+
+<def name="make-zzz">
+  <def name="zzz">
+    `test TYPE SPACE `passed TYPE CR
+  </def>
+</def>
+
+ALSO forthml-support
+
+<r:rule match="A" xmlns:r="http://forth.org.ru/ForthML/Rules/">
+  `A_ TYPE SPACE
+  <r:for-each select="B">
+    `B_ TYPE SPACE
+       FirstChildValue TYPE SPACE
+    `_B TYPE SPACE
+  </r:for-each>
+  `_A TYPE SPACE
+</r:rule>
+
+PREVIOUS
+
+<A> <B>111</B> <any> <other/> </any> <B>222</B> <elements/> </A>
+
+<!-- output:
+A_ B_ 111 _B B_ 222 _B _A
+-->
+
+</forth>
