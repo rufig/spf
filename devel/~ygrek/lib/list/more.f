@@ -14,7 +14,7 @@ REQUIRE /TEST ~profit/lib/testing.f
   ( xt: node-car -- ? ) \ TRUE - remain, FALSE - free node
    lst(
     BEGIN
-     DUP ?empty 0= 
+     DUP empty? 0= 
     WHILE
      2>R
      2R@ car SWAP EXECUTE IF R> DUP cdr >R add-node 2R> ELSE R> DUP cdr >R FREE-NODE 2R> THEN
@@ -51,7 +51,7 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
 \ удалить из списка lst все значения-дубликаты
 : list-remove-dublicates ( lst -- )
    BEGIN
-    DUP ?empty 0= 
+    DUP empty? 0= 
    WHILE
     DUP car OVER cdr list-remove-all cons
     cdr
@@ -66,14 +66,14 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
    R> SWAP cons DROP ;
 
 \ Проверка на равенство по значению
-: ?equal ( node1 node2 -- ? )
+: equal? ( node1 node2 -- ? )
    BEGIN
-    DUP ?empty IF DROP ?empty EXIT THEN
-    OVER ?empty IF 2DROP FALSE EXIT THEN
+    DUP empty? IF DROP empty? EXIT THEN
+    OVER empty? IF 2DROP FALSE EXIT THEN
     OVER list-what OVER list-what <> IF 2DROP FALSE EXIT THEN
-    DUP ?value IF 2DUP car SWAP car <> IF 2DROP FALSE EXIT THEN THEN
-    DUP ?str IF 2DUP car STR@ ROT car STR@ COMPARE IF 2DROP FALSE EXIT THEN THEN
-    DUP ?list IF 2DUP car SWAP car RECURSE 0= IF 2DROP FALSE EXIT THEN THEN 
+    DUP value? IF 2DUP car SWAP car <> IF 2DROP FALSE EXIT THEN THEN
+    DUP str? IF 2DUP car STR@ ROT car STR@ COMPARE IF 2DROP FALSE EXIT THEN THEN
+    DUP list? IF 2DUP car SWAP car RECURSE 0= IF 2DROP FALSE EXIT THEN THEN 
     cdr SWAP cdr
    AGAIN TRUE ;
 
@@ -99,12 +99,12 @@ CR write-list
 
 END-TESTCASES
 
-TESTCASES list ?equal
+TESTCASES list equal?
 
  lst( 1 % 2 % " coo zoo " %s lst( " so so" %s 200 % )lst %l 2000 % )lst VALUE l1
  lst( 1 % 2 % " coo zoo " %s lst( " so so" %s 200 % )lst %l 2000 % )lst VALUE l2
 
- (( l1 l2 ?equal -> TRUE ))
+ (( l1 l2 equal? -> TRUE ))
 
 END-TESTCASES
 

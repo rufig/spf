@@ -9,9 +9,9 @@ REQUIRE /TEST ~profit/lib/testing.f
 : as-list _extra-list OVER list.x2 ! ;
 : as-str _extra-str OVER list.x2 ! ;
 
-: ?value ( node -- ? ) list.x2 @ _extra-value = ;
-: ?str ( node -- ? ) list.x2 @ _extra-str = ;
-: ?list ( node -- ? ) list.x2 @ _extra-list = ;
+: value? ( node -- ? ) list.x2 @ _extra-value = ;
+: str? ( node -- ? ) list.x2 @ _extra-str = ;
+: list? ( node -- ? ) list.x2 @ _extra-list = ;
 
 : list-what ( node -- n ) list.x2 @ ;
 
@@ -53,7 +53,7 @@ TESTCASES list
 
  (( 0 :NONAME car + ; list map -> 15 ))
  (( list length -> 3 ))
- (( 3 list nth ?empty -> TRUE ))
+ (( 3 list nth empty? -> TRUE ))
  (( 3 list nth -> () ))
  (( 2 list nth car -> 6 ))
  (( 1 list nth car -> 5 ))

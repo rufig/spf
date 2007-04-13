@@ -72,7 +72,7 @@ WINAPI: GetTickCount KERNEL32.DLL
 : check { | u -- ? }
    -1 TO u
    BEGIN
-    DUP ?empty 0= 
+    DUP empty? 0= 
    WHILE
     DUP car DUP u < IF 2DROP FALSE EXIT THEN
                 TO u

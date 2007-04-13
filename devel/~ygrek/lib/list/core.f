@@ -29,7 +29,7 @@ NEW-NODE VALUE ()
 
 \ TRUE - элемент пуст, нет перехода
 \ FALSE - иначе
-: ?empty ( node -- ? ) () = ;
+: empty? ( node -- ? ) () = ;
 
 \ перейти к следующему элементу в списке после элемента node1
 : cdr ( node1 -- node2 ) list.cdr @ ;
@@ -38,7 +38,7 @@ NEW-NODE VALUE ()
 : car ( node -- val ) list.car @ ;
 
 \ установить данные ячейки
-: setcar ( val node -- ) DUP ?empty IF 2DROP EXIT THEN list.car ! ;
+: setcar ( val node -- ) DUP empty? IF 2DROP EXIT THEN list.car ! ;
 
 \ сокращения :)
 : cddr cdr cdr ;
@@ -48,7 +48,7 @@ NEW-NODE VALUE ()
 
 \ пройти по цепочке элементов до последнего - указывающего на ()
 : end ( node -- node2 )
-   DUP cdr ?empty IF EXIT THEN
+   DUP cdr empty? IF EXIT THEN
    cdr RECURSE ;
 
 \ Добавить элемент в начало списка и вернуть получившийся список 
@@ -58,14 +58,14 @@ NEW-NODE VALUE ()
 \ Применить xt ко всем элементам списка node1
 \ xt: ( node -- ) \ xt получает параметром каждый элемент на нетронутом стеке
 : map ( xt node1 -- )
-   DUP ?empty IF 2DROP EXIT THEN
+   DUP empty? IF 2DROP EXIT THEN
    2DUP 2>R SWAP EXECUTE 
    2R> cdr RECURSE ;
 
 \ Применить xt к данным всех элементов списка node1
 \ xt: ( node.car -- ) \ xt получает параметром car ячейку каждого элемента на нетронутом стеке
 : mapcar ( xt node -- )
-   DUP ?empty IF 2DROP EXIT THEN
+   DUP empty? IF 2DROP EXIT THEN
    2DUP 2>R car SWAP EXECUTE 
    2R> cdr RECURSE ;
 
@@ -77,12 +77,12 @@ NEW-NODE VALUE ()
 
 \ получить длину списка - прямым проходом до конца списка
 : length ( node -- n )
-   DUP ?empty IF DROP 0 EXIT THEN
+   DUP empty? IF DROP 0 EXIT THEN
    cdr RECURSE 1+ ;
 
 \ освободить память занятую списком
 : FREE-LIST ( node -- ) 
-   DUP ?empty IF DROP EXIT THEN
+   DUP empty? IF DROP EXIT THEN
    DUP cdr 
    SWAP FREE-NODE 
    RECURSE ;
@@ -94,13 +94,13 @@ NEW-NODE VALUE ()
 
 \ добавить элемент node1 в конец списка node2 (перед пустым элементом)
 \ node2->...->node1->nil
-: append ( node1 node2 -- node ) DUP ?empty IF DROP DUP () LINK-NODE ELSE TUCK (append) THEN ;
+: append ( node1 node2 -- node ) DUP empty? IF DROP DUP () LINK-NODE ELSE TUCK (append) THEN ;
 
 \ развернуть список в обратную сторону
 : reverse ( node -- node1 )
    () >R
    BEGIN
-    DUP ?empty 0=
+    DUP empty? 0=
    WHILE
     DUP cdr
     SWAP
@@ -111,7 +111,7 @@ NEW-NODE VALUE ()
 \ Проверка на принадлежность
 : member? ( n node -- ? ) 
    BEGIN
-    DUP ?empty 0=
+    DUP empty? 0=
    WHILE
     2DUP car = IF 2DROP TRUE EXIT THEN
     cdr

@@ -1,7 +1,7 @@
 \ $Id$
 \ Распечатка списка
 
-REQUIRE ?value ~ygrek/lib/list/ext.f
+REQUIRE value? ~ygrek/lib/list/ext.f
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE /TEST ~profit/lib/testing.f
 
@@ -14,16 +14,16 @@ REQUIRE /TEST ~profit/lib/testing.f
 VECT (write-list)
 
 : write-node ( node -- )
-   DUP ?list IF car (write-list) EXIT THEN
-   DUP ?str IF car print-quoted-str-cut SPACE EXIT THEN
-   DUP ?value IF car . EXIT THEN
+   DUP list? IF car (write-list) EXIT THEN
+   DUP str? IF car print-quoted-str-cut SPACE EXIT THEN
+   DUP value? IF car . EXIT THEN
    ." ?" car . ;
 
 \ Распечатать список, удобный для интерактива вариант, длинные сроки затроеточиваются
 : write-list ( node -- )
    ." ( "
    BEGIN
-    DUP ?empty 0=
+    DUP empty? 0=
    WHILE
     DUP write-node
     cdr
@@ -37,9 +37,9 @@ VECT (write-list)
 VECT (print-list)
 
 : print-node ( node -- )
-   DUP ?list IF car (print-list) ." %l " EXIT THEN
-   DUP ?str IF car print-quoted-str ." %s " EXIT THEN
-   DUP ?value IF car . ." % " EXIT THEN
+   DUP list? IF car (print-list) ." %l " EXIT THEN
+   DUP str? IF car print-quoted-str ." %s " EXIT THEN
+   DUP value? IF car . ." % " EXIT THEN
    ABORT" ??? Bad list" ;
 
 \ Распечатать список, строковое представление пригодное для EVALUATE
@@ -47,7 +47,7 @@ VECT (print-list)
 : print-list ( node -- )
    ." lst( "
    BEGIN
-    DUP ?empty 0=
+    DUP empty? 0=
    WHILE
     DUP print-node
     cdr
@@ -59,17 +59,17 @@ VECT (print-list)
 \ -----------------------------------------------------------------------
 
 : dump-node ( node -- )
-   DUP ?empty IF DROP ." ()" EXIT THEN
-   DUP ?list IF ." (l " THEN
-   DUP ?str IF ." (s " THEN
-   DUP ?value IF ." (v " THEN
+   DUP empty? IF DROP ." ()" EXIT THEN
+   DUP list? IF ." (l " THEN
+   DUP str? IF ." (s " THEN
+   DUP value? IF ." (v " THEN
    DUP car . ." . "
        cdr (.) ." )" ;
 
 \ Распечатать список, без лишней обработки - просто адреса
 : dump-list ( node -- )
    DUP dump-node 
-   DUP ?empty IF DROP EXIT THEN 
+   DUP empty? IF DROP EXIT THEN 
    ."  -> "
    cdr RECURSE ;
 
