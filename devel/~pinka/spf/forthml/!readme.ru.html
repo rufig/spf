@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>ForthML / Limitations in the implementation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251" />
+<style type="text/css">
+body { font-size: 110%; max-width: 33em; padding-left: 1em;}
+li { margin: 1em;}
+h2 { margin-top: 2em; }
+
+ol { counter-reset: item; }
+li { display: block; }
+li:before { content: counter(item) ") "; counter-increment: item; }
+</style>
+</head>
+<body>
+
+<div><h2>Особенности и ограничения</h2>
+<p>Некоторые ограничения принципиальны, 
+большинство же характерны лишь для текущей реализации или текущей версии.</p>
+<ol><li>
+Транслятор ForthML не различает признак немедленности слов (<small>IMMEDIATE</small>),
+не дает контекста для заглядывания вперед и доступа к входному потоку 
+(таким словам как <code>PARSE-NAME SOURCE REFILL</code> и т.п.).
+Тем не менее, фрагменты входного потока полностью доступны в контексте обработчиков элементов.
+</li><li>
+Нет валидации (что для форта характерно). 
+Так, например, элемент <code>while</code> должен иметь родителем
+лишь <code>repeat</code> или <code>until</code> — это нигде не проверяется.
+</li><li>
+Значением атрибутов <code>match</code> и <code>select</code>
+элементов <code>rule</code> и <code>for-each</code> является только 
+<a href="http://www.w3.org/TR/REC-xml-names/#ns-qualnames">QName</a>.
+</li><li>
+Нет элемента <code>else</code> — пользуйте <code>choose</code> (как в XSL :).
+</li><li>
+Множество других, здесь не упомянутых.
+</li></ol>
+
+</div>
+
+<br />
+<hr />
+<code> $Id$ </code>
+</body>
+</html>
