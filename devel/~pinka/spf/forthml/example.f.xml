@@ -15,7 +15,7 @@ qqq
 
 <def name="even?">
   DUP . `is TYPE SPACE
-  <choose> 2 MOD <when> `even </when> `odd </choose> TYPE CR
+  <choose> 2 MOD 0= <when> `even </when> `odd </choose> TYPE CR
 </def>
 
 20 even?
