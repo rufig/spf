@@ -1,18 +1,27 @@
 <?xml version="1.0" ?>
 <forth xmlns="http://forth.org.ru/ForthML/">
+<!-- run with:
+REQUIRE EMBODY ~pinka/spf/forthml/index.f
+`example.f.xml EMBODY 
+-->
 
 10 <repeat> DUP <while/> DUP . 1- </repeat> DROP CR
 
 <def name="qqq">
-  10 <repeat> DUP <while/> DUP . 1- </repeat> DROP
+  10 <until> DUP . 1-  DUP 0lt </until> DROP CR
 </def>
 
-<def name="ttt">
-  10 <until> DUP . 1- DUP 0= </until> DROP
+qqq
+
+<def name="even?">
+  DUP . `is TYPE SPACE
+  <choose> 2 MOD <when> `even </when> `odd </choose> TYPE CR
 </def>
+
+20 even?
 
 <def name="steps" ds=" n -- ">
-  DUP 0= <if>DROP <exit/></if> DUP . 1- <again/>
+  DUP 0= <if> DROP <exit/></if> DUP . 1- <again/>
 </def>
 
 5 steps CR

@@ -10,6 +10,7 @@ REQUIRE & ~pinka/spf/compiler/index.f
 
 `<>  `neq   aka
 `=   `eq    aka
+`0<  `0lt   aka
 `0<> `0neq  aka
 `0=  `0eq   aka
 `U<  `Ult   aka
