@@ -91,7 +91,7 @@ and r:m is allowable.
 
 </xi:model><xi:model name="native" advice="after">
 
-<rule match="r:next-match"><m>FALSE<f:exit/></m></rule>
+<rule match="r:exit-fail"><m>FALSE<f:exit/></m></rule>
 
 <rule match="r:rule">
   `match GetAttribute name-n-uri  2>R T-SLIT 2R> T-SLIT

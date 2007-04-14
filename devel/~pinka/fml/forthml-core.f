@@ -206,7 +206,7 @@ RFW `select SLIT,
 
 
 CONCEIVE  
-`NodeName & EXEC, `next-match SLIT, 
+`NodeName & EXEC, `exit-fail SLIT, 
 `CEQUAL & EXEC, 
 `0= & EXEC, ZBFW, 
 
@@ -223,7 +223,7 @@ RFW
 `M-DEC-STATE & EXEC, 
 `EXIT, & LIT,  `T-EXEC & EXEC, 
 `M-INC-STATE & EXEC, 
-`TRUE & EXEC,  BIRTH DUP `r:next-match NAMING- advice-rule-before
+`TRUE & EXEC,  BIRTH DUP `r:exit-fail NAMING- advice-rule-before
   
 
 
