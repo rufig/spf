@@ -1,15 +1,15 @@
 \ $Id$
-\ Больше операций со списками
+\ ┴юы№°х юяхЁрЎшщ ёю ёяшёърьш
 
 REQUIRE lst( ~ygrek/lib/list/ext.f
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE /TEST ~profit/lib/testing.f
 
-\ Вызвать xt для каждого элемента списка ( параметр - car ячейка)
-\ Если xt возвращает 0 - элемент удаляется из списка (память занимаемая самой ячейкой освобождается)
-\ Иначе остаётся
-\ Возвращается результирующий список
+\ ┬√чтрЄ№ xt фы  ърцфюую ¤ыхьхэЄр ёяшёър ( ярЁрьхЄЁ - car  ўхщър)
+\ ┼ёыш xt тючтЁр∙рхЄ 0 - ¤ыхьхэЄ єфры хЄё  шч ёяшёър (ярь Є№ чрэшьрхьр  ёрьющ  ўхщъющ юётюсюцфрхЄё )
+\ ╚эрўх юёЄр╕Єё 
+\ ┬ючтЁр∙рхЄё  Ёхчєы№ЄшЁє■∙шщ ёяшёюъ
 : reduce-this ( xt node1 -- node2 )
   ( xt: node-car -- ? ) \ TRUE - remain, FALSE - free node
    lst(
@@ -42,13 +42,13 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
 
 0 VALUE _list-remove-all-val
 
-\ Удалить из списка lst все элементы со значением val
+\ ╙фрышЄ№ шч ёяшёър lst тёх ¤ыхьхэЄ√ ёю чэрўхэшхь val
 : list-remove-all ( val lst -- lst1 )
    SWAP TO _list-remove-all-val
    LAMBDA{ _list-remove-all-val <> } SWAP 
    reduce-this ;
 
-\ удалить из списка lst все значения-дубликаты
+\ єфрышЄ№ шч ёяшёър lst тёх чэрўхэш -фєсышърЄ√
 : list-remove-dublicates ( lst -- )
    BEGIN
     DUP empty? 0= 
@@ -57,7 +57,7 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
     cdr
    REPEAT DROP ;
 
-\ Вставить элемент node1 в список list после первого элемента
+\ ┬ёЄртшЄ№ ¤ыхьхэЄ node1 т ёяшёюъ list яюёых яхЁтюую ¤ыхьхэЄр
 \ list->...->nil
 \ list->node1->...->nil
 : insert ( node1 list -- )
@@ -65,7 +65,7 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
    R@ cdr cons
    R> SWAP cons DROP ;
 
-\ Проверка на равенство по значению
+\ ╧ЁютхЁър эр ЁртхэёЄтю яю чэрўхэш■
 : equal? ( node1 node2 -- ? )
    BEGIN
     DUP empty? IF DROP empty? EXIT THEN
