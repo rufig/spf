@@ -3,54 +3,58 @@ docs = devel.html chunked/index.html devel.chm
 
 DOC_PATH=source
 
-forthcode = ~ac/lib/lin/curl/curl.f \
-						~ac/lib/win/winsock/sockets.f \
-						~pinka/lib/queue_pr.f \
-						~day/lib/staticlist.f \
-						~pinka/lib/hash-table.f \
-						~mlg/SrcLib/bitfield.f \
-						~day/lib/memreport.f \
-						~profit/lib/bac4th.f \
-						~ygrek/lib/spec/rss.f \
-						~pinka/lib/like.f \
-						~pinka/samples/2005/lib/append-file.f \
-						~ygrek/lib/wid.f \
-						~ygrek/lib/enum.f \
-						~ygrek/lib/parse.f \
-						~pinka/samples/2005/lib/lay-path.f \
-						~pinka/samples/2005/lib/replace-str.f \
-						~pinka/samples/2005/lib/split.f \
-						~pinka/samples/2005/lib/split-white.f \
-						~pinka/samples/2006/lib/save-bak.f \
-						~pinka/lib/multi/critical.f \
-						~ac/lib/str5.f \
-						~ac/lib/string/compare-u.f \
-						~ac/lib/string/conv.f \
-						~ac/lib/string/uppercase.f \
-						~ac/lib/win/file/findfile.f \
-						~ac/lib/win/file/findfile-r.f \
-						~ac/lib/lin/sql/sqlite3.f \
-						~ac/lib/lin/xml/xml.f \
-						~ac/lib/lin/xml/expat.f \
-						~ac/lib/lin/xml/xslt.f \
-						~ac/lib/win/date/date.f \
-						~ac/lib/win/date/date-int.f \
-						~ac/lib/win/date/timezone.f \
-						~ac/lib/win/date/unixdate.f \
-						~ygrek/lib/spec/sdate.f \
-						~ygrek/lib/spec/sdate2.f \
-						~ygrek/lib/spec/unixdate.f \
-						lib/ext/locals.f \
-						lib/include/float2.f \
-						lib/include/string.f \
-						lib/include/tools.f \
-						lib/include/facil.f \
-						lib/include/double.f \
-						lib/include/core-ext.f \
-						lib/win/api-call/capi2.f \
-						lib/win/mutex.f \
-						~ygrek/lib/neilbawd/mersenne.f
-
+forthcode = \
+~ac/lib/lin/curl/curl.f \
+~ac/lib/win/winsock/sockets.f \
+~pinka/lib/queue_pr.f \
+~day/lib/staticlist.f \
+~pinka/lib/hash-table.f \
+~mlg/SrcLib/bitfield.f \
+~day/lib/memreport.f \
+~profit/lib/bac4th.f \
+~ygrek/lib/spec/rss.f \
+~pinka/lib/like.f \
+~pinka/samples/2005/lib/append-file.f \
+~ygrek/lib/wid.f \
+~ygrek/lib/enum.f \
+~ygrek/lib/parse.f \
+~pinka/samples/2005/lib/lay-path.f \
+~pinka/samples/2005/lib/replace-str.f \
+~pinka/samples/2005/lib/split.f \
+~pinka/samples/2005/lib/split-white.f \
+~pinka/samples/2006/lib/save-bak.f \
+~pinka/lib/multi/critical.f \
+~ac/lib/str5.f \
+~ac/lib/string/compare-u.f \
+~ac/lib/string/conv.f \
+~ac/lib/string/uppercase.f \
+~ac/lib/win/file/findfile.f \
+~ac/lib/win/file/findfile-r.f \
+~ac/lib/lin/sql/sqlite3.f \
+~ac/lib/lin/xml/xml.f \
+~ac/lib/lin/xml/expat.f \
+~ac/lib/lin/xml/xslt.f \
+~ac/lib/win/date/date.f \
+~ac/lib/win/date/date-int.f \
+~ac/lib/win/date/timezone.f \
+~ac/lib/win/date/unixdate.f \
+~ygrek/lib/spec/sdate.f \
+~ygrek/lib/spec/sdate2.f \
+~ygrek/lib/spec/unixdate.f \
+lib/ext/locals.f \
+lib/include/float2.f \
+lib/include/string.f \
+lib/include/tools.f \
+lib/include/facil.f \
+lib/include/double.f \
+lib/include/core-ext.f \
+lib/win/api-call/capi2.f \
+lib/win/mutex.f \
+~ygrek/lib/neilbawd/mersenne.f \
+~ygrek/lib/list/core.f \
+~ygrek/lib/list/ext.f \
+~ygrek/lib/list/write.f \
+~ygrek/lib/list/qsort.f
 
 docbooks = $(foreach forthfile,$(forthcode),$(DOC_PATH)/$(patsubst %.f,%.docbook,$(forthfile)))
 xmlhelps = $(foreach docbook,$(docbooks),$(patsubst %.docbook,%.xml,$(docbook)))

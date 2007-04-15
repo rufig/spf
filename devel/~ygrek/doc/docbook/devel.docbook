@@ -49,7 +49,10 @@
   <!ENTITY chap-capi2 SYSTEM "source/lib/win/api-call/capi2.docbook">
   <!ENTITY chap-lib-mutex SYSTEM "source/lib/win/mutex.docbook">
   <!ENTITY chap-mersenne SYSTEM "source/~ygrek/lib/neilbawd/mersenne.docbook">
-
+  <!ENTITY chap-list-core SYSTEM "source/~ygrek/lib/list/core.docbook">
+  <!ENTITY chap-list-ext SYSTEM "source/~ygrek/lib/list/ext.docbook">
+  <!ENTITY chap-list-write SYSTEM "source/~ygrek/lib/list/write.docbook">
+  <!ENTITY chap-list-qsort SYSTEM "source/~ygrek/lib/list/qsort.docbook">
 ]>
 
 <book>
@@ -81,6 +84,10 @@
   &chap-bitfield;
   &chap-float;
   &chap-mersenne;
+  &chap-list-core;
+  &chap-list-ext;
+  &chap-list-write;
+  &chap-list-qsort;
   </chapter>
 
   <chapter id="formats">
