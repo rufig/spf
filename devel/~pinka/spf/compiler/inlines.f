@@ -1,5 +1,6 @@
 \ 18.Feb.2007 Sun 18:31
 \ see also src\compiler\spf_inline.f
+\ NON-OPT-WL contains five words: EXECUTE  ?DUP  R>  >R  RDROP
 
 REQUIRE BIND-NODE ~pinka/samples/2006/lib/plain-list.f 
 REQUIRE AsQName   ~pinka/samples/2006/syntax/qname.f \ понятие однословных строк в виде `abc
@@ -29,3 +30,14 @@ VARIABLE h-compilers
 `>R      SFIND 0= THROW ' >R      ADVICE-COMPILER
 
 \ hint: ' (тик) ищет c NON-OPT-WL на вершине
+
+\ I-NATIVE не ищет в NON-OPT-WL, с учетом этого
+\ пропишем компиляторы для эти слов из словаря FORTH:
+
+' COMPILE(?DUP)         `?DUP    SFIND 0= THROW ADVICE-COMPILER
+' COMPILE(EXECUTE)      `EXECUTE SFIND 0= THROW ADVICE-COMPILER
+
+\ "сами себе" компиляторы:
+`RDROP   SFIND 0= THROW  DUP  ADVICE-COMPILER
+`R>      SFIND 0= THROW  DUP  ADVICE-COMPILER
+`>R      SFIND 0= THROW  DUP  ADVICE-COMPILER
