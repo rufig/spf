@@ -41,7 +41,7 @@
 </rule>
 
 <rule match="f:text">
-  cnode firstChild DUP <f:if> nodeValue T-SLIT <f:exit/></f:if> 0 T-2LIT
+  cnode firstChild <f:choose> DUP <f:when> nodeValue T-SLIT </f:when> 0 T-2LIT </f:choose>
 </rule>
 
 </f:forth>
