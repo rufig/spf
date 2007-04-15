@@ -406,7 +406,91 @@ CONCEIVE
 `R> & EXEC, 
 `cnode! & EXEC, 
 BIRTH `trans-document NAMING- 
+
+
+
+ALIGN HERE 0 , CONCEIVE LIT, BIRTH `_document-storage NAMING- 
+ALIGN HERE 0 , CONCEIVE LIT, BIRTH `_document-top NAMING- 
 CONCEIVE 
+`_document-storage & EXEC, 
+`@ & EXEC, 
+`DUP & EXEC, ZBFW, EXIT, RFW 
+`DROP & EXEC, 256000 LIT, 
+`NEW-STORAGE & EXEC, 
+`DUP & EXEC, 
+`_document-storage & EXEC, 
+`! & EXEC, 
+BIRTH `document-storage NAMING- 
+CONCEIVE 
+`DISMOUNT & EXEC, 
+`>R & EXEC, 
+`document-storage & EXEC, 
+`MOUNT & EXEC, 0 LIT, 
+`, & EXEC, 
+`HERE & EXEC, 
+`_document-top & EXEC, 
+`BIND-NODE & EXEC, 
+`, & EXEC, 
+`S", & EXEC, 
+`DISMOUNT & EXEC, 
+`DROP & EXEC, 
+`R> & EXEC, 
+`MOUNT & EXEC, 
+BIRTH `push-document NAMING- 
+CONCEIVE 
+`DISMOUNT & EXEC, 
+`>R & EXEC, 
+`document-storage & EXEC, 
+`MOUNT & EXEC, 
+`_document-top & EXEC, 
+`UNBIND-NODE & EXEC, 
+`CELL- & EXEC, 
+`HERE & EXEC, 
+`- & EXEC, 
+`ALLOT & EXEC, 
+`DISMOUNT & EXEC, 
+`DROP & EXEC, 
+`R> & EXEC, 
+`MOUNT & EXEC, 
+BIRTH `drop-document NAMING- 
+CONCEIVE 
+`_document-top & EXEC, 
+`@ & EXEC, 
+`CELL+ & EXEC, 
+`COUNT & EXEC, 
+BIRTH `document-url NAMING- 
+CONCEIVE 
+`document-url & EXEC, 
+`CUT-PATH & EXEC, 
+BIRTH `document-base NAMING- 
+CONCEIVE 
+`_document-top & EXEC, 
+`@ & EXEC, 
+`0= & EXEC, ZBFW, EXIT, RFW 
+`DISMOUNT & EXEC, 
+`>R & EXEC, 
+`document-storage & EXEC, 
+`MOUNT & EXEC, 
+`HERE & EXEC, 
+`>R & EXEC, 
+`document-base & EXEC, 
+`S, & EXEC, 
+`S, & EXEC, 
+`R> & EXEC, 
+`HERE & EXEC, 
+`OVER & EXEC, 
+`- & EXEC, 0 LIT, 
+`, & EXEC, 
+`DISMOUNT & EXEC, 
+`DROP & EXEC, 
+`R> & EXEC, 
+`MOUNT & EXEC, 
+BIRTH `document-based-url NAMING- 
+
+
+CONCEIVE 
+`document-based-url & EXEC, 
+`2DUP & EXEC, 
 `DefaultLSParser & EXEC, 
 `parseURI & EXEC, 
 `DUP & EXEC, 
@@ -414,10 +498,13 @@ CONCEIVE
 `THROW & EXEC, RFW 
 `DUP & EXEC, 
 `>R & EXEC, 
+`push-document & EXEC, 
+`R@ & EXEC, 
 `trans-document & EXEC, 
 `R> & EXEC, 
 `DefaultLSParser & EXEC, 
 `freeDoc & EXEC, 
+`drop-document & EXEC, 
 BIRTH `EMBODY NAMING- 
 
 

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Apr.2007 ruvim@forth.org.ru -->
+
+<!-- ALSO forthml-support -->
+
+<var name="_document-storage" />
+<var name="_document-top" />
+
+<def name="document-storage" ds=" -- storage ">
+  _document-storage @ DUP <if><exit/></if> DROP
+  256000 NEW-STORAGE DUP _document-storage !
+</def>
+
+<def name="push-document" ds=" url-a url-u doc -- ">
+  DISMOUNT >R document-storage MOUNT
+  0 , HERE _document-top BIND-NODE , S",
+  DISMOUNT DROP R> MOUNT
+</def>
+
+<def name="drop-document" ds=" -- ">
+  DISMOUNT >R document-storage MOUNT
+  _document-top UNBIND-NODE CELL- HERE - ALLOT
+  DISMOUNT DROP R> MOUNT
+</def>
+
+<def name="document-url" ds=" -- url-a url-u ">
+  _document-top @ CELL+ COUNT
+</def>
+
+<def name="document-base" ds=" -- url-a url-u ">
+  document-url CUT-PATH
+</def>
+
+<def name="document-based-url" ds=" rel-a rel-u -- full-a full-u ">
+  _document-top @ 0= <if><exit/></if>
+  DISMOUNT >R document-storage MOUNT
+    HERE >R 
+    document-base S, S, 
+    R> HERE OVER -  0 ,
+  DISMOUNT DROP R> MOUNT
+</def>
+
+<!-- PREVIOUS -->
+
+</forth>

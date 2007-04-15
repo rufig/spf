@@ -27,9 +27,15 @@
   cnode >R documentElement cnode! trans-childs R> cnode!
 </def>
 
+<include href="document-context.f.xml"/>
+
 <def name="EMBODY" ds=" i*x url-a url-u -- j*x ">
+  document-based-url 2DUP
   DefaultLSParser parseURI DUP 0= <if> 5003 THROW </if>
-  DUP >R trans-document R> DefaultLSParser freeDoc
+  DUP >R <!-- ( a u doc ) -->
+  push-document
+  R@ trans-document R> DefaultLSParser freeDoc
+  drop-document
 </def>
 
 </forth>
