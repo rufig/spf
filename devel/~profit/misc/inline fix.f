@@ -1,0 +1,128 @@
+REQUIRE REPLACE-WORD lib/ext/patch.f
+REQUIRE DBG{ ~profit/lib/debug.f
+
+BASE @ HEX
+
+' DROP CONSTANT 'DROP
+STARTLOG
+: CS-DUP 2DUP ;
+: M_WL POSTPONE DUP [CHAR] ! LIT, POSTPONE EMIT POSTPONE . CS-DUP POSTPONE WHILE ; IMMEDIATE
+
+: M\  POSTPONE \ ; IMMEDIATE
+: OS\ POSTPONE \ ; IMMEDIATE
+
+
+DBG{
+:NONAME  (  CFA  --  )
+\  ." ^" DUP H.
+              BEGIN
+  DO_OPT
+
+   DUP @      \  CFA  N'
+  DUP 8BE08B5B = DUP
+  IF DROP OVER 3 + 2@ E3FF046D 8D00458B  D=  \ RP!  
+  THEN          M_WL DROP   SetOP
+                    8B C, E0 C,          \  MOV  ESP,    EAX
+                    DROP 'DROP
+                 REPEAT
+  FF AND      \  CFA  N'
+  DUP   0C3 = IF 2DROP     EXIT THEN  \ RET
+
+  DUP5B?      M_WL  5_,_STEP  REPEAT \ ADD EAX, # X
+
+\ 010X.XXXX
+  DUP E0 AND 40 = M_WL 1_,_STEP REPEAT  \ INC|DEC|PUSH|POP  E_X
+
+\ FS: GS: D16: A16: INSB INSD OUTSB OUTSD
+\ 0110.X1XX
+  DUP   F4 AND 64 = M_WL  1_,_STEP      REPEAT
+
+  DUP   099 = M_WL  1_,_STEP      REPEAT  \ CDQ
+
+OS\ DUP FC
+OS\ AND EC = M_WL   1_,_STEP  REPEAT  \ IN|OUT  EAX AL, DX | DX, EAX EL
+
+\  DUP   0BB = M_WL  5_,_STEP     REPEAT  \ MOV EBX, # X
+\  JO JNO JB JAE JE JNE JBE JA JS JNS JP JNP JL JGE JLE JG
+\ 0111.XXXX
+  DUP  F0 AND 70 = M_WL  2_,_STEP     REPEAT
+
+  DUP   0E8 = M_WL 1A_,_STEP      REPEAT  \  CALL
+  DUP   0E9 = M_WL 1A_,_STEP      REPEAT  \  JMP
+  DROP
+  DUP W@
+  DUP3B?[EBP]  M_WL  2_,_STEP +EBP REPEAT
+  DUP3B?       M_WL  3_,_STEP      REPEAT
+  DUP2B?       M_WL  2_,_STEP      REPEAT
+  DUP 0C48B =  M_WL  2_,_STEP   REPEAT  \ MOV EAX , ESP
+  DUP  C58B =  M_WL EVEN-EBP 2_,_STEP   REPEAT \ MOV EAX,  EBP
+  DUP 0EC87 =  M_WL EVEN-EBP 2_,_STEP   REPEAT \ XCHG    EBP , ESP 
+
+  DUP 06D8D = M_WL DROP DUP 2 + C@ +>OFF-EBP
+                     3 + REPEAT  \ LEA  EBP, OFF-EBP [EBP]
+
+  DUP 0C583 = M_WL DROP DUP 2 + C@ +>OFF-EBP
+                     3 + REPEAT  \ ADD  EBP, # OFF-EBP
+
+  DUP 0ED83 = M_WL DROP DUP 2 + C@ C>S NEGATE +>OFF-EBP
+                     3 + REPEAT  \ SUB  EBP, # OFF-EBP
+
+  DUP 0C483 = M_WL  3_,_STEP     REPEAT  \ ADD  ESP, # X
+  DUP6B?      M_WL  6_,_STEP      REPEAT  \ MOV  EAX,  # X
+  DUP 0E3FF = M_WL EVEN-EBP 2_,_STEP REPEAT  \ JMP  EBX
+\  DUP 0D3FF = M_WL EVEN-EBP 2_,_STEP REPEAT  \ CALL EBX
+
+\ DUP 0E2FF = M_WL EVEN-EBP 2_,_STEP REPEAT  \ JMP  EDX
+  DUP 0D2FF = M_WL EVEN-EBP 2_,_STEP REPEAT  \ CALL EDX
+  DUP 810F  = M_WL 2A_,_STEP      REPEAT  \ JO [ESP]
+  DUP 45C7  = M_WL 2_,_STEP +EBP 4_,_STEP_  REPEAT  \ MOV     X [EBP] , # X
+  DUP 05C7  = M_WL A_,_STEP  REPEAT  \ MOV     X  , # Y
+  DUP 0581  = M_WL A_,_STEP  REPEAT  \ ADD     X  , # Y
+
+  DROP
+  DUP @
+  DUP 0424448B = M_WL DROP   SetOP       \  MOV  EAX, 4 [ESP]
+                    8B C, 04 C, 24 C,    \  MOV  EAX,   [ESP]
+                    4 +
+                 REPEAT
+
+  DUP 0424448D = M_WL DROP   SetOP       \  LEA  EAX, 4 [ESP]
+                    8B C, C4 C,          \  MOV  EAX,    ESP
+                    4 +
+                 REPEAT
+
+  FFFFFF AND
+  DUP 240401 = M_WL 3_,_STEP      REPEAT \ ADD [ESP] , EAX
+  DUP C09D0F = M_WL 3_,_STEP      REPEAT \ SETGE  AL
+  DUP C09E0F = M_WL 3_,_STEP      REPEAT \ SETLE  AL
+
+\ CMPXCHG [EAX] , AL| EAX
+\ LSS     EAX , [EAX]
+\ BTR     [EAX] , EAX
+\ LFS     EAX , [EAX]
+\ LGS     EAX , [EAX]
+\ MOVZX   EAX , BYTE|WORD  PTR [EAX]
+\ 0000.0000 1011.1XXX 0000.1111
+  DUP FFF8FF
+  AND 00B00F = M_WL 3_,_STEP      REPEAT
+  DUP 244403 = M_WL 4_,_STEP      REPEAT \ ADD  EAX, X [ESP]
+  DUP 24442B = M_WL 4_,_STEP      REPEAT \ SUB  EAX, X [ESP]
+  DUP 85448B = M_WL 3_,_STEP +EBP REPEAT \ MOV  EAX, X [EBP] [EAX*4]
+  DUP 24048B = M_WL 3_,_STEP      REPEAT \ MOV  EAX, 0 [ESP]
+  DUP 20488B = M_WL 3_,_STEP      REPEAT \ MOV  ECX , [EAX+20H]
+  DUP 20488D = M_WL 3_,_STEP      REPEAT \ LEA  ECX , [EAX+20H]
+  DUP 021C8D = M_WL 3_,_STEP      REPEAT \ LEA  EBX, [EDX] [EAX]
+  DUP 02048D = M_WL 3_,_STEP      REPEAT \ LEA  EAX, [EDX] [EAX] 
+  DUP 85048D = M_WL 7_,_STEP      REPEAT \ LEA  EAX, X [EAX*4]
+  DUP 45048D = M_WL 7_,_STEP      REPEAT \ LEA  EAX, X [EAX*2]
+  DUP 90048D = M_WL 3_,_STEP      REPEAT \ LEA  EAX , [EAX] [EDX*4] 
+  DUP 2404FF = M_WL 3_,_STEP      REPEAT \ INC [ESP]
+  DUP 18B60F = M_WL 3_,_STEP      REPEAT \ MOVZX EBX, BYTE PTR [EAX]
+  DUP7B?      WHILE 7_,_STEP      REPEAT
+  HEX U. ." @COD, ERROR" ABORT
+; ' _INLINE, REPLACE-WORD
+
+}DBG
+BASE !
+
+: r 1 ;
