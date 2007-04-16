@@ -18,14 +18,19 @@ WINAPI: DeleteCriticalSection      KERNEL32.DLL
 
 CREATE CS-LIST 0 ,
 
-: CREATE-CS ( "name" -- )  \  name ( -- cs )
-\ Создать критическую секцию с именем name
-  CREATE 
+: MAKE-CS, ( -- )  \  make on HERE
   HERE
   6 CELLS ALLOT
   DUP  InitializeCriticalSection DROP
   CS-LIST @ ,
   CS-LIST !
+;
+: CREATED-CS ( name-a name-u -- )  \  name ( -- cs )
+  CREATED MAKE-CS,
+;
+: CREATE-CS ( "name" -- )  \  name ( -- cs )
+\ Создать критическую секцию с именем name
+  CREATE MAKE-CS,
 ;
 
 : ActivateCSs ( -- )
