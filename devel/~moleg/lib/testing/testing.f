@@ -64,7 +64,7 @@ VOCABULARY tests
 
 \ ищем слово идентифицируемое строкой в контексте
 \ кстати, может в специальном словаре искать: каком-нибудь settings ?
-: ?keyword ( asc " --> flag )
+: ?keyword ( asc # --> flag )
            SFIND
            IF DROP TRUE
             ELSE 2DROP FALSE

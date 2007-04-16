@@ -1,8 +1,18 @@
 \ 22-02-2007 ~mOleg
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
-\ циклы DO LOOP для СПФ
+\ циклы DO LOOP для СПФ - портабельный вариант.
+
+\ ВНИМАНИЕ для совместимости с библиотекой lib\ext\locals.f
+\ необходимо подправить locals в следующим образом:
+\ : DO    POSTPONE DO     [  4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+\ : ?DO   POSTPONE ?DO    [  4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+\ : LOOP  POSTPONE LOOP   [ -4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+\ : +LOOP POSTPONE +LOOP  [ -4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+\ то есть указать, что на стеке возвратов оказывается не три, как обычно,
+\ а четыре параметра.
 
 \ lib\ext\disasm.f
+\ для подключения лишь уникальных слов:
 REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
 
 \ делает то же, что и ['] name COMPILE,
@@ -12,6 +22,12 @@ REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
           ; IMMEDIATE
 
 \ ---------------------------------------------------------------------------
+
+\ на стеке возвратов лежит 4-ре параметра.
+\ адрес выхода из слова
+\ верхний предел счета
+\ счетчик цикла
+\ адрес выхода за LOOP метку
 
 \ вернули счетчик текущего цикла
 : I ( --> index )

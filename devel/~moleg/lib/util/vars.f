@@ -1,6 +1,7 @@
-\ 31-03-2007 ~mOleg
+\ 31-03-2007 ~mOleg v1.1
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ константы, vect и value переменные, работа с ними.
+
 
 REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
 
@@ -14,14 +15,11 @@ REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
   \ адреса до указанного. Стоит вынести в отдельное слово.                 \
     ?: atod ( addr --> disp ) HERE ADDR + - ;                              \
   \                                                                        \
-  \ совместимость с базовым вариантом СПФ4                                 \
-  \ компилировать ассемблерную команду CALL на addr                        \
-    ?: CALL, ( addr --> ) 0xE8 C, atod A, ;                                \
-  \                                                                        \
   \ делает то же, что и ['] name COMPILE,                                  \
   \ все-таки более однозначное слово, чем POSTPONE                         \
     ?: COMPILE ( --> ) ?COMP ' LIT, ['] COMPILE, COMPILE, ; IMMEDIATE      \
 
+\ ----------------------------------------------------------------------------
 
 \ создать константу »
 \ отличие от СПФ-варианта в том, что значение константы компилируется
@@ -38,7 +36,7 @@ REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
 
 \ создать вектор-переменную »
 \ если переменная не инициализирована - выполнить NOOP
-: vect ( / name --> ) HEADER ['] NOOP CALL, RET, ;
+: vect ( / name --> ) HEADER ['] NOOP BRANCH, ;
 
 \ установить новое значение vect переменной »
 : (is) ( addr 'vect --> ) TUCK ADDR + - SWAP A! ;
@@ -51,14 +49,15 @@ REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
                THEN ; IMMEDIATE
 
 \ получить содержимое vect переменной - то есть узнать на кого она указывает»
-: (evoke) ( addr --> addr ) 1 + DUP A@ + ADDR + ;
+: (from) ( addr --> addr ) 1 + DUP A@ + ADDR + ;
+
 
 \ извлечь содержимое vect переменной »
-: evoke ( / name --> addr )
-        '
-        STATE @ IF LIT, COMPILE (evoke)
-                 ELSE (evoke)
-                THEN ; IMMEDIATE
+: from ( / name --> addr )
+       '
+       STATE @ IF LIT, COMPILE (from)
+                ELSE (from)
+               THEN ; IMMEDIATE
 
 \ создать value переменную »
 : value ( n / name --> )
@@ -83,10 +82,10 @@ REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
                ELSE +!
               THEN ; IMMEDIATE
 
-\ заменить значение переменной на новое - старое вернуть.
+\ заменить значение переменной на новое - старое вернуть. »
 : change ( a addr --> b ) DUP @ -ROT ! ;
 
-\ заменить значение value переменной на новое, старое вернуть.
+\ заменить значение value переменной на новое, старое вернуть. »
 : exch ( a / name --> b )
        ' 8 +
        STATE @ IF LIT, COMPILE change
@@ -104,17 +103,22 @@ REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
 \ не стоит использовать.
 
 \EOF -- тестовая секция -----------------------------------------------------
+
                                    DECIMAL
 
   123 value proba S" должно быть 123 = " TYPE proba . CR
   200 to proba S" должно быть 200 = " TYPE proba . CR
   : testa 300 to proba ; testa S" должно быть 300 = " TYPE proba . CR
-  vect sample S" должно быть " TYPE ' NOOP . S" = " TYPE evoke sample . CR
+  vect sample sample S" должно быть " TYPE ' NOOP . S" = " TYPE from sample . CR
   : testb ." vect sample passed. " ; ' testb is sample   sample CR
-  : testc evoke sample . ;
+  : testc from sample . ;
   S" должно быть " TYPE ' testb . S" = " TYPE testc CR
   20 +to proba S" должно быть 320 = " TYPE proba . CR
   : testd 30 +to proba ; S" должно быть 350 = " TYPE testd proba . CR
   234 exch proba S" должно быть 350 = " TYPE . CR
   S" должно быть 234 = " TYPE proba . CR
 
+\  7-04-2007  теперь vect содержит JMP а не CALL на указанное слово
+\             в связи с чем добавлено слово JMP,
+\           спасибо ~mak 8) за подсказку.
+\  10-04-2007 убрал слово JMP, - заменил на стандартное BRANCH,
