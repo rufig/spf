@@ -1,4 +1,5 @@
-\ 03.Feb.2007
+\ 03.Feb.2007 ruv
+\ $Id$
 ( Лексикон:
     HERE ALLOT , C, S,
     EXEC, LIT, 2LIT, SLIT,
@@ -25,6 +26,9 @@
 REQUIRE Require   ~pinka/lib/ext/requ.f
 
 Require CS@     control-stack.f
+
+..: AT-THREAD-STARTING ?CSP ;..
+?CSP \ также, инициирует, если еще не распределен (CS локален для потока)
 
 Include inlines.f
 
