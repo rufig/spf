@@ -1,5 +1,5 @@
-\ 20.Jan.2007 Sat 14:13
-
+\ 20.Jan.2007 Sat 14:13 ruv
+\ $Id$
 ( Улучшенный дамп отчета аппаратных исключений:
   - сочетается с наличем множества хранилищ,
   - подправлена эвристика вычисления значения ESP на момент исключения,
@@ -83,7 +83,7 @@ WARNING @  WARNING 0!
 : (WordByAddr) ( addr -- c-addr u )
   0 SWAP (NEAREST4)
   OVER 0= IF 2DROP S" <?not in the image>" EXIT THEN
-  OVER - 4096 U< IF COUNT EXIT THEN
+  OVER - ABS 4096 U< IF COUNT EXIT THEN
   DROP S" <?not found>"
 ;
 : WordByAddr ( addr -- c-addr u )
