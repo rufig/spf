@@ -5,7 +5,7 @@
 
 <small>$Date$</small>
 
-<!-- Translation is in sync with devel.ru.md rev. 1.7 -->
+<!-- Translation is in sync with devel.ru.md rev. 1.8 -->
 
 *REQUIRE is a forth word, which loads library; unnecessary text is commented out, so you can use this list as a forth code to include libs :)*
 
@@ -21,25 +21,27 @@
 
 <a id="net"/>
 ### \\ Network
-* REQUIRE CreateSocket <a
-href='../devel/~ac/lib/win/winsock/sockets.f'>~ac/lib/win/winsock/sockets.f</a> \\ basic TCP/IP support
+* REQUIRE CreateSocket <a href='../devel/~ac/lib/win/winsock/sockets.f'>~ac/lib/win/winsock/sockets.f</a> \\ basic TCP/IP support
 * REQUIRE SslInit <a href='../devel/~ac/lib/win/winsock/ssl.f'>~ac/lib/win/winsock/ssl.f</a> \\ basic SSL/TLS support
 * REQUIRE SslClientSocket <a href='../devel/~ac/lib/win/winsock/sockets_ssl.f'>~ac/lib/win/winsock/sockets_ssl.f</a> \\ SSL/TLS-server 
 * REQUIRE SocketLine <a href='../devel/~ac/lib/win/winsock/socketline2.f'>~ac/lib/win/winsock/socketline2.f</a> \\ line-by-line buffered socket reading
 * REQUIRE ReadFrom <a href='../devel/~ac/lib/win/winsock/sockname.f'>~ac/lib/win/winsock/sockname.f</a> \\ UDP support
 * REQUIRE fsockopen <a href='../devel/~ac/lib/win/winsock/psocket.f'>~ac/lib/win/winsock/psocket.f</a> \\ simplified interface to sockets
 * REQUIRE ForEachIP <a href='../devel/~ac/lib/win/winsock/foreach_ip.f'>~ac/lib/win/winsock/foreach_ip.f</a> \\ performing given tasks for each IP host
-* REQUIRE SendDnsQuery <a
-href='../devel/~ac/lib/win/winsock/dns_q.f'>~ac/lib/win/winsock/dns_q.f</a> \\ querying DNS-servers 
+* REQUIRE SendDnsQuery <a href='../devel/~ac/lib/win/winsock/dns_q.f'>~ac/lib/win/winsock/dns_q.f</a> \\ querying DNS-servers 
 * REQUIRE PutFileTr <a href='../devel/~ac/lib/win/winsock/transmit.f'>~ac/lib/win/winsock/transmit.f</a> \\ high-speed file transmition in Windows 
-* REQUIRE SnmpInit <a
-href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP support
+* REQUIRE SnmpInit <a href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP support
 * REQUIRE GET-FILE-VIAPROXY <a href='../devel/~ac/lib/lin/curl/curl.f'>~ac/lib/lin/curl/curl.f</a> \\ cURL-wrapper - send/receive files via HTTP/FTP/etc
 * \\ ~nn/lib/net/ \\ HTTP, POP3, FTP, etc 
 
 <a id="graph"/>
 ### \\ Graphics
 * REQUIRE GLWindow <a href='../devel/~ygrek/lib/joopengl/GLWindow.f'>~ygrek/lib/joopengl/GLWindow.f</a> \\ OpenGL with joop 
+
+<a id="arc"/>
+### \\ Archives
+* REQUIRE gzip_write <a href='../devel/~ac/lib/win/arc/gzip/zlib.f'>~ac/lib/win/arc/gzip/zlib.f</a> \\ packing and unpacking GZip-streams
+* REQUIRE zip-pack <a href='../devel/~profit/lib/7zip-dll.f'>~profit/lib/7zip-dll.f</a> \\ packing and unpacking zip/7zip archives
 
 <a id="list"/>
 ### \\ Data structures - list 
@@ -48,6 +50,11 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE LINK, <a href='../devel/~day/common/link.f'>~day/common/link.f</a> \\ static list (compiles in code area) 
 * REQUIRE firstNode <a href='../devel/~day/lib/staticlist.f'>~day/lib/staticlist.f</a> \\ double-linked list, pretty much words 
 * REQUIRE list+s <a href='../devel/~pinka/lib/list_ext.f'>~pinka/lib/list_ext.f</a> \\ linked list 
+* REQUIRE cons <a href='../devel/~ygrek/lib/list/core.f'>~ygrek/lib/list/core.f</a> \\ list of cons pairs, core words
+* REQUIRE lst( <a href='../devel/~ygrek/lib/list/ext.f'>~ygrek/lib/list/ext.f</a> \\ constructing list with lst( 1 % 2 % 3 % )lst
+* REQUIRE reduce-this <a href='../devel/~ygrek/lib/list/more.f'>~ygrek/lib/list/more.f</a> \\ additional list operations - reduce, equal?, list-remove-dublicates
+* REQUIRE write-list <a href='../devel/~ygrek/lib/list/write.f'>~ygrek/lib/list/write.f</a> \\ print list, also serialization suitable for EVALUATE
+* REQUIRE write-list <a href='../devel/~ygrek/lib/list/all.f'>~ygrek/lib/list/all.f</a> \\ all words for cons pair lists
 
 <a id="record"/>
 ### \\ Data structures - record
@@ -62,17 +69,18 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE x.mask <a href='../devel/~mlg/SrcLib/bitfield.f'>~mlg/SrcLib/bitfield.f</a> \\ Bit arrays
 * REQUIRE RATIO <a href='../devel/~pinka/lib/BigMath.f'>~pinka/lib/BigMath.f</a> \\ Rational fractions (big numbers)
 
+<a id="sort-n-search"/>
+### \\ Sorting and search
+* REQUIRE HeapSort <a href='../devel/~mlg/SrcLib/hsort.f'>~mlg/SrcLib/hsort.f</a>  \\ heap sort
+* REQUIRE quick_sort <a href='../devel/~pinka/samples/2003/common/qsort.f'>~pinka/samples/2003/common/qsort.f</a> \\ "Quick" sort
+* REQUIRE binary-search <a href='../devel/~profit/lib/binary-search.f'>~profit/lib/binary-search.f</a> \\ Binary search
+
+<a id="techniques"/>
 ### \\ Programming techniques 
 * REQUIRE { <a href='../lib/ext/locals.f'>lib/ext/locals.f</a> \\ Local variables
 * REQUIRE LAMBDA{ <a href='../devel/~pinka/lib/lambda.f'>~pinka/lib/lambda.f</a> \\ :NONAME but in the compilation state
 * REQUIRE (: <a href='../devel/~yz/lib/inline.f'>~yz/lib/inline.f</a> \\ lambda analogue
 * REQUIRE CONT <a href='../devel/~profit/lib/bac4th.f'>~profit/lib/bac4th.f</a> \\ backtracking, see description in <a href='../devel/~mlg/index.html#bacforth'>~mlg/#bacforth</a> 
-
-<a id="sort-n-search"/>
-### \\ Search and sort
-* REQUIRE HeapSort <a href='../devel/~mlg/SrcLib/hsort.f'>~mlg/SrcLib/hsort.f</a>  \\ Heap sort
-* REQUIRE quick_sort <a href='../devel/~pinka/samples/2003/common/qsort.f'>~pinka/samples/2003/common/qsort.f</a> \\ Quick sort
-* REQUIRE binary-search <a href='../devel/~profit/lib/binary-search.f'>~profit/lib/binary-search.f</a> \\ Binary search
 
 <a id="debug"/>
 ### \\ Debugging facilities
@@ -81,6 +89,9 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE MemReport <a href='../devel/~day/lib/memreport.f'>~day/lib/memreport.f</a> \\  Memory leakages checking with stack report (supports multithreading) 
 * REQUIRE ACCERT( <a href='../lib/ext/debug/accert.f'>lib/ext/debug/accert.f</a> \\ Conditional compilation, suitable for debug checks
 * REQUIRE TRACER <a href='../lib/ext/debug/tracer.f'>lib/ext/debug/tracer.f</a> \\ Detailed execution report
+* REQUIRE EXC-DUMP2 <a href='../devel/~pinka/spf/exc-dump.f'>~pinka/spf/exc-dump.f</a> \\ enhanced exception reporting
+* REQUIRE TESTCASE <a href='../devel/~ygrek/lib/testcases.f'>~ygrek/lib/testcases.f</a> \\ TESTCASE by ~day
+* REQUIRE /TEST <a href='../devel/~profit/lib/testing.f'>~profit/lib/testing.f</a> \\ marking tests in code based on INCLUDED-DEPTH (depth of source inclusion)
 
 <a id="random"/>
 ### \\ Random numbers 
@@ -138,6 +149,8 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE UNIXDATE <a href='../devel/~ac/lib/win/date/unixdate.f'>~ac/lib/win/date/unixdate.f</a> \\ Unixdate support
 * REQUIRE FileDateTime# <a href='../devel/~ac/lib/win/file/filetime.f'>~ac/lib/win/file/filetime.f</a> \\ file date/time 
 * REQUIRE parse-date? <a href='../devel/~ygrek/lib/spec/sdate.f'>~ygrek/lib/spec/sdate.f</a> \\ S" Tue, 19 Dec 2006 19:55:16 +0300" dates' parsing
+* REQUIRE parse-num-unixdate <a href='../devel/~ygrek/lib/spec/sdate2.f'>~ygrek/lib/spec/sdate2.f</a> \\ S" 2007-01-27T17:40:36+03:00" dates' parsing
+* REQUIRE DateTime>Num <a href='../devel/~ygrek/lib/spec/unixdate.f'>~ygrek/lib/spec/unixdate.f</a> \\ convert unix timestamp into date and back
 
 <a id="db"/>
 ### \\ Databases
@@ -173,12 +186,16 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE UPPERCASE <a href='../devel/~ac/lib/string/uppercase.f'>~ac/lib/string/uppercase.f</a> \\ uppercase conversion
 * REQUIRE COMPARE-U <a href='../devel/~ac/lib/string/compare-u.f'>~ac/lib/string/compare-u.f</a> \\ case-ignorant comparison
 * REQUIRE GetParam <a href='../devel/~ac/lib/string/get_params.f'>~ac/lib/string/get_params.f</a> \\ URL-parameters string parser
+* REQUIRE SPLIT- <a href='../devel/~pinka/samples/2005/lib/split.f'>~pinka/samples/2005/lib/split.f</a> \\ dividing string on substring, "inplace" replacing
+* REQUIRE replace-str- <a href='../devel/~pinka/samples/2005/lib/replace-str.f'>~pinka/samples/2005/lib/replace-str.f</a> \\ replacing in strings
+* REQUIRE FINE-HEAD <a href='../devel/~pinka/samples/2005/lib/split-white.f'>~pinka/samples/2005/lib/split-white.f</a> \\ removing spaces at string bounds
+* REQUIRE TYPE>STR <a href='../devel/~ygrek/lib/typestr.f'>~ygrek/lib/typestr.f</a> \\ redirecting whole TYPE output to string
 
 <a id="files"/>
 ### \\ Files
 * REQUIRE OPEN-FILE-SHARED-DELETE <a href='../devel/~ac/lib/win/file/share-delete.f'>~ac/lib/win/file/share-delete.f</a> \\ opening file with "light" shareable access
 * REQUIRE LAY-PATH <a href='../devel/~pinka/samples/2005/lib/lay-path.f'>~pinka/samples/2005/lib/lay-path.f</a> \\ creation of path directories
-* REQUIRE ATTACH <a href='../devel/~pinka/samples/2005/lib/append-file.f'>~pinka/samples/2005/lib/append-file.f</a> \\ appending string to file
+* REQUIRE ATTACH <a href='../devel/~pinka/samples/2005/lib/append-file.f'>~pinka/samples/2005/lib/append-file.f</a> \\ safe writing to file
 * REQUIRE SPEAK-WITH <a href='../devel/~pinka/samples/2005/ext/tank.f'>~pinka/samples/2005/ext/tank.f</a> \\ controlling output stream, executing xt with output to file redirection 
 
 ### \\ Small simplifications
@@ -196,6 +213,7 @@ href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP supp
 * REQUIRE CLASS: <a href='../devel/~day/joop/oop.f'>~day/joop/oop.f</a> \\ just oop with great pile of examples
 * REQUIRE CLASS: <a href='../devel/~af/mc/microclass.f'>~af/mc/microclass.f</a> \\ microclass 
 * REQUIRE CLASS: <a href='../devel/~day/mc/microclass.f'>~day/mc/microclass.f</a> \\ microclass 
+* REQUIRE CLASS <a href='../devel/~day/hype3/hype3.f'>~day/hype3/hype3.f</a> \\ Hype 3, including <a href='../devel/~day/hype3/reference.pdf'>reference/a>
 
 <a id="vocs"/>
 ### \\ Vocabularies

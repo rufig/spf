@@ -50,6 +50,11 @@
 * REQUIRE LINK, <a href='../devel/~day/common/link.f'>~day/common/link.f</a> \\ статический список (компилится в кодофайл) 
 * REQUIRE firstNode <a href='../devel/~day/lib/staticlist.f'>~day/lib/staticlist.f</a> \\ двухсвязный список, много слов 
 * REQUIRE list+s <a href='../devel/~pinka/lib/list_ext.f'>~pinka/lib/list_ext.f</a> \\ односвязный список 
+* REQUIRE cons <a href='../devel/~ygrek/lib/list/core.f'>~ygrek/lib/list/core.f</a> \\ список cons pair, базовые слова
+* REQUIRE lst( <a href='../devel/~ygrek/lib/list/ext.f'>~ygrek/lib/list/ext.f</a> \\ задание списка в виде lst( 1 % 2 % 3 % )lst
+* REQUIRE reduce-this <a href='../devel/~ygrek/lib/list/more.f'>~ygrek/lib/list/more.f</a> \\ дополнительные операции над списком - reduce, equal?, list-remove-dublicates
+* REQUIRE write-list <a href='../devel/~ygrek/lib/list/write.f'>~ygrek/lib/list/write.f</a> \\ распечатка списка, включая сериализацию пригодную для последующего EVALUATE
+* REQUIRE write-list <a href='../devel/~ygrek/lib/list/all.f'>~ygrek/lib/list/all.f</a> \\ вся либа для cons pair списков
 
 <a id="record"/>
 ### \\ Структуры данных - запись 
@@ -84,6 +89,9 @@
 * REQUIRE MemReport <a href='../devel/~day/lib/memreport.f'>~day/lib/memreport.f</a> \\ Отчёт об утечках с распечаткой стека (поддерживает многопоточность) 
 * REQUIRE ACCERT( <a href='../lib/ext/debug/accert.f'>lib/ext/debug/accert.f</a> \\ Условная компиляция, удобно для проверок 
 * REQUIRE TRACER <a href='../lib/ext/debug/tracer.f'>lib/ext/debug/tracer.f</a> \\ Подробное отслеживание выполнения 
+* REQUIRE EXC-DUMP2 <a href='../devel/~pinka/spf/exc-dump.f'>~pinka/spf/exc-dump.f</a> \\ улучшенный дамп отчёта исключений
+* REQUIRE TESTCASE <a href='../devel/~ygrek/lib/testcases.f'>~ygrek/lib/testcases.f</a> \\ TESTCASE by ~day
+* REQUIRE /TEST <a href='../devel/~profit/lib/testing.f'>~profit/lib/testing.f</a> \\ маркировка тестов в коде основанная на INCLUDED-DEPTH (глубине включения)
 
 <a id="random"/>
 ### \\ Случайные числа 
@@ -141,6 +149,8 @@
 * REQUIRE UNIXDATE <a href='../devel/~ac/lib/win/date/unixdate.f'>~ac/lib/win/date/unixdate.f</a> \\ поддержка Unixdate 
 * REQUIRE FileDateTime# <a href='../devel/~ac/lib/win/file/filetime.f'>~ac/lib/win/file/filetime.f</a> \\ дата/время в файловой системе 
 * REQUIRE parse-date? <a href='../devel/~ygrek/lib/spec/sdate.f'>~ygrek/lib/spec/sdate.f</a> \\ Разбор даты в виде S" Tue, 19 Dec 2006 19:55:16 +0300"
+* REQUIRE parse-num-unixdate <a href='../devel/~ygrek/lib/spec/sdate2.f'>~ygrek/lib/spec/sdate2.f</a> \\ Разбор даты в виде S" 2007-01-27T17:40:36+03:00"
+* REQUIRE DateTime>Num <a href='../devel/~ygrek/lib/spec/unixdate.f'>~ygrek/lib/spec/unixdate.f</a> \\ unix timestamp в дату и наоборот
 
 <a id="db"/>
 ### \\ Базы данных 
@@ -176,12 +186,16 @@
 * REQUIRE UPPERCASE <a href='../devel/~ac/lib/string/uppercase.f'>~ac/lib/string/uppercase.f</a> \\ перевод в верхний регистр 
 * REQUIRE COMPARE-U <a href='../devel/~ac/lib/string/compare-u.f'>~ac/lib/string/compare-u.f</a> \\ нечувствительное к регистру сравнение 
 * REQUIRE GetParam <a href='../devel/~ac/lib/string/get_params.f'>~ac/lib/string/get_params.f</a> \\ разбор строки URL-параметров 
+* REQUIRE SPLIT- <a href='../devel/~pinka/samples/2005/lib/split.f'>~pinka/samples/2005/lib/split.f</a> \\ разбиение строки по ключу, замена "на месте"
+* REQUIRE replace-str- <a href='../devel/~pinka/samples/2005/lib/replace-str.f'>~pinka/samples/2005/lib/replace-str.f</a> \\ замена в строке
+* REQUIRE FINE-HEAD <a href='../devel/~pinka/samples/2005/lib/split-white.f'>~pinka/samples/2005/lib/split-white.f</a> \\ удаление пробелов с краю строки
+* REQUIRE TYPE>STR <a href='../devel/~ygrek/lib/typestr.f'>~ygrek/lib/typestr.f</a> \\ перенаправление всего TYPE вывода в строку
 
 <a id="files"/>
 ### \\ Файлы 
 * REQUIRE OPEN-FILE-SHARED-DELETE <a href='../devel/~ac/lib/win/file/share-delete.f'>~ac/lib/win/file/share-delete.f</a> \\ открытие файла с "мягким" совместным доступом 
 * REQUIRE LAY-PATH <a href='../devel/~pinka/samples/2005/lib/lay-path.f'>~pinka/samples/2005/lib/lay-path.f</a> \\ создание каталогов пути 
-* REQUIRE ATTACH <a href='../devel/~pinka/samples/2005/lib/append-file.f'>~pinka/samples/2005/lib/append-file.f</a> \\ добавление строки в конец файла 
+* REQUIRE ATTACH <a href='../devel/~pinka/samples/2005/lib/append-file.f'>~pinka/samples/2005/lib/append-file.f</a> \\ безопасная запись в файл
 * REQUIRE SPEAK-WITH <a href='../devel/~pinka/samples/2005/ext/tank.f'>~pinka/samples/2005/ext/tank.f</a> \\ управление выходным потокм, выполнение xt с перенаправлением вывода в файл 
 
 ### \\ Маленькие упрощения 
@@ -196,10 +210,10 @@
 
 <a id="oop"/>
 ### \\ ООП расширения 
-* \\ <a href='http://www.activekitten.com/pbc_download/forthgui.zip'>http://www.activekitten.com/pbc_download/forthgui.zip</a> - последняя разработка ~day 
 * REQUIRE CLASS: <a href='../devel/~day/joop/oop.f'>~day/joop/oop.f</a> \\ just oop с кучей примеров 
 * REQUIRE CLASS: <a href='../devel/~af/mc/microclass.f'>~af/mc/microclass.f</a> \\ microclass 
 * REQUIRE CLASS: <a href='../devel/~day/mc/microclass.f'>~day/mc/microclass.f</a> \\ microclass 
+* REQUIRE CLASS <a href='../devel/~day/hype3/hype3.f'>~day/hype3/hype3.f</a> \\ Hype 3, включая <a href='../devel/~day/hype3/reference.pdf'>документацию</a>
 
 <a id="vocs"/>
 ### \\ Словари
