@@ -1,4 +1,6 @@
-\ 30-11-2000 Programmable interval counter.
+\ 30-11-2000 ~mOleg
+\ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
+\ Programmable interval counter.
 
 Unit: 82C54
       \ смещение регистров относительно базового адреса.

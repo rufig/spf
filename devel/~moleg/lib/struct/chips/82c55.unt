@@ -1,5 +1,6 @@
-\ 29-11-2000 Buffer port chip. See 82c55.pdf in \DOCS catalogue.
-\ 22-11-2001 модифицированодля использования с units-n.ftl
+\ 29-11-2000 ~mOleg
+\ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
+\ Buffer port chip. 
 
 Unit: 82C55 \ в 82С255 находится два одинаковых 82С55 порта
 
