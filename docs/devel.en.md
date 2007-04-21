@@ -90,7 +90,7 @@
 * REQUIRE ACCERT( <a href='../lib/ext/debug/accert.f'>lib/ext/debug/accert.f</a> \\ Conditional compilation, suitable for debug checks
 * REQUIRE TRACER <a href='../lib/ext/debug/tracer.f'>lib/ext/debug/tracer.f</a> \\ Detailed execution report
 * REQUIRE EXC-DUMP2 <a href='../devel/~pinka/spf/exc-dump.f'>~pinka/spf/exc-dump.f</a> \\ enhanced exception reporting
-* REQUIRE TESTCASE <a href='../devel/~ygrek/lib/testcases.f'>~ygrek/lib/testcases.f</a> \\ TESTCASE by ~day
+* REQUIRE TESTCASES <a href='../devel/~ygrek/lib/testcase.f'>~ygrek/lib/testcase.f</a> \\ TESTCASES by ~day
 * REQUIRE /TEST <a href='../devel/~profit/lib/testing.f'>~profit/lib/testing.f</a> \\ marking tests in code based on INCLUDED-DEPTH (depth of source inclusion)
 
 <a id="random"/>
