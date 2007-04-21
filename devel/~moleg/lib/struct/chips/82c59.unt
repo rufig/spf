@@ -1,4 +1,7 @@
-\ 29-11-2000 Interrupt controller. See 82c59a.pdf in \DOCS catalogue.
+\ 29-11-2000 ~mOleg
+\ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com 
+\ Interrupt controller. 
+
 Unit: 82C59
 
     16 Funct: ICW1{

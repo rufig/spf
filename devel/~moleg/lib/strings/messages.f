@@ -1,4 +1,6 @@
-\ 25-08-2006 сообщения (см описание в конце) --------------------------------
+\ 25-08-2006 ~mOleg
+\ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
+\ сообщения (см описание в .\description)
 
         VOCABULARY msg
                         ALSO msg DEFINITIONS

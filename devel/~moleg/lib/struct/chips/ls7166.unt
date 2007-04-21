@@ -1,4 +1,6 @@
-\ 10-12-2000  24-bit multimode counter. See ls7166.pdf in \DOCS catalogue.
+\ 10-12-2000 ~mOleg 
+\ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
+\ 24-bit multimode counter. 
 
 Unit: LS7166
    00 Funct: MCR{ \ Master control register
