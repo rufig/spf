@@ -1,4 +1,6 @@
-\ 21-02-2007  конструкции, которых не хватает в СПФ
+\ 21-02-2007 ~mOleg 
+\ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
+\ конструкции, которых не хватает в СПФ
 
 REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
 
