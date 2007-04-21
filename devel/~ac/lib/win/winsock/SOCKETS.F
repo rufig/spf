@@ -50,8 +50,10 @@ SO_LINGER INVERT CONSTANT SO_DONTLINGER
 8 -- sin_zero
 CONSTANT /sockaddr_in
 
-CREATE sock_addr HERE /sockaddr_in DUP ALLOT ERASE
-AF_INET sock_addr sin_family W!
+\ CREATE sock_addr HERE /sockaddr_in DUP ALLOT ERASE
+\ AF_INET sock_addr sin_family W!
+
+USER-CREATE sock_addr /sockaddr_in USER-ALLOT
 
 CREATE LINGER 1 W, 3 W,
 \ 6000 W, слишком много, это в секундах, заменил на 30 - 26.06.2001 ~ac
@@ -136,6 +138,7 @@ USER CONNECT-INTERFACE
   256 /MOD SWAP 256 * +
   sock_addr sin_port W!
   sock_addr sin_addr !
+  AF_INET sock_addr sin_family W!
   /sockaddr_in sock_addr R> connect SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
 ;
@@ -193,8 +196,10 @@ USER CONNECT-INTERFACE
   DROP gethostbyname DUP IF 3 CELLS + @ @ @ 0
                          ELSE WSAGetLastError THEN
 ;
-CREATE sock_addr2 HERE /sockaddr_in DUP ALLOT ERASE
-AF_INET sock_addr2 sin_family W!
+\ CREATE sock_addr2 HERE /sockaddr_in DUP ALLOT ERASE
+\ AF_INET sock_addr2 sin_family W!
+
+USER-CREATE sock_addr2 /sockaddr_in USER-ALLOT
 
 : GetPeerName ( s -- addr u ior )
   /sockaddr_in HERE !
