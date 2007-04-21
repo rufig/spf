@@ -1,4 +1,6 @@
-\ 25-06-2005    работа с консолью через ANSY терминал
+\ 25-06-2005 ~mOleg   
+\ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
+\ работа с консолью через ANSY терминал
 
  \ так выглядит ANSI ESCAPE последовательность
  CREATE esc 2 C, 0x1B C, CHAR [ C,
