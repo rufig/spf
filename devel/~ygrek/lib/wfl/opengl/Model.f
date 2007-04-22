@@ -165,6 +165,8 @@ init:
    t :: CTri.v3@ SUPER :vnth
    t :: CTri.v1@ SUPER :vnth
    (tri-norm) :add-norm
+   \ norm :last :: CGLPoint.:get :add-norm
+   \ norm :last :: CGLPoint.:get :add-norm
 
    t :: CTri.v3@ SUPER :vnth
    t :: CTri.v1@ SUPER :vnth
@@ -194,6 +196,7 @@ dispose: ;
 
 : :load ( a u model -- ) 
     _model !
+    2DUP CR ." Loading model : " TYPE
     SELF => :load-file
 ;
 

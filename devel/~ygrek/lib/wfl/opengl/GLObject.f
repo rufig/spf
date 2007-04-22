@@ -2,9 +2,19 @@ REQUIRE WL-MODULES ~day/lib/includemodule.f
 
 : REQUIRE NEEDED ;
 
+NEEDS ~ygrek/lib/data/opengl.f
+
+: status 
+  CR 
+  ." f=" FDEPTH . 
+  ." d=" DEPTH  . 
+  DEPTH 10 MIN .SN
+  GetLastError ?DUP IF CR ." Error " . THEN
+  glGetError ?DUP IF CR ." GL error " . THEN 
+;
+
 NEEDS ~day/hype3/locals.f
-REQUIRE glVertex3f ~ygrek/lib/data/opengl.f
-REQUIRE lst( ~ygrek/lib/list/ext.f
+NEEDS ~ygrek/lib/list/write.f
 NEEDS ~pinka/lib/lambda.f
 NEEDS ~ygrek/lib/hype/timer.f
 NEEDS ~ygrek/lib/hype/point.f
@@ -17,7 +27,7 @@ NEEDS ~ygrek/lib/hype/point.f
 
 : double ( F: f -- D: f1 f2 ) FLOAT>DATA SWAP ;
 
-REQUIRE ADD-CONST-VOC  ~day/wincons/wc.f
+NEEDS  ~day/wincons/wc.f
 S" ~ygrek/lib/data/opengl.const" ADD-CONST-VOC
 
 \ -----------------------------------------------------------------------
@@ -31,7 +41,7 @@ CPoint SUBCLASS CGLPoint
 
 ;CLASS
 
-NEEDS Model.f
+NEEDS ~ygrek/lib/wfl/opengl/Model.f
 
 \ -----------------------------------------------------------------------
 
@@ -42,8 +52,19 @@ CLASS CGLObject
      CGLPoint OBJ angle.speed
      CGLPoint OBJ shift
      CGLPoint OBJ scale
+     CELL PROPERTY <visible
+
+: :print
+  CR ." CGLObject :print"
+  CR ." angle : " angle :print
+  CR ." angle.speed : " angle.speed :print
+  CR ." shift : " shift :print
+  CR ." scale : " scale :print
+  CR ." <visible : " <visible @ .
+;
 
 : :draw
+   <visible@ 0= IF 0e float 0e float 0e float glScalef DROP EXIT THEN
 
    shift :getf glTranslatef DROP \ Сдвиг
    scale :getf glScalef DROP \ сжатие-растяжение
@@ -60,13 +81,17 @@ CLASS CGLObject
 
 : :prepare ;
 
-init: 1e 1e 1e scale :set ;
+init: 1e 1e 1e scale :set TRUE <visible! ;
 dispose: ;
 
 : :setAngle ( F: x y z -- ) angle :set ;
+: :getAngle ( -- F: x y z ) angle :get ;
 : :setAngleSpeed ( F: x y z -- ) angle.speed :set ;
+: :getAngleSpeed ( -- F: x y z ) angle.speed :get ;
 : :setShift ( F: x y z -- ) shift :set ;
+: :getShift ( -- F: x y z ) shift :get ;
 : :setScale ( F: x y z -- ) scale :set ;
+: :getScale ( -- F: x y z ) scale :get ;
 : :resize ( F: f -- ) FDUP FDUP :setScale ;
 
 : :rotate
@@ -239,6 +264,7 @@ dispose: timer :ms@ CR ." Time in " SUPER name TYPE ."  = " . ;
 
 : :prepare 
    1 glGenLists _list !
+   status
    GL_COMPILE _list @ glNewList DROP
     :draw-model
    glEndList DROP ;
@@ -246,9 +272,7 @@ dispose: timer :ms@ CR ." Time in " SUPER name TYPE ."  = " . ;
 ;CLASS
 
 \ -----------------------------------------------------------------------
-
 \EOF
-
 : (x,y) ( addr -- addr+16   F: x y )
   DUP DF@ 8 + DUP DF@ 8 +
 ;
@@ -258,8 +282,7 @@ dispose: timer :ms@ CR ." Time in " SUPER name TYPE ."  = " . ;
 
 : Vertex3f ( F: x y z -- ) float float float glVertex3f DROP ;
 
-pvar: <color
-CLASS: Graph2D <SUPER Object
+CLASS CPlot2D
   CELL VAR data  \ адрес памяти с парами точек x,y
   CELL VAR ndata \ кол-во точек
   CELL VAR cur   \ текущий адрес в таблице точек
