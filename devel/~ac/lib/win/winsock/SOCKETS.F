@@ -165,7 +165,7 @@ USER CONNECT-INTERFACE
   LT LTL @ R> WriteSocket
 ;
 : WriteSocketCRLF ( s -- ior )
-  HERE 0 ROT WriteSocketLine
+  PAD 0 ROT WriteSocketLine
 ;
 : ReadSocket ( addr u s -- rlen ior )
   >R SWAP 2>R 0 2R> R> recv DUP SOCKET_ERROR =
@@ -184,7 +184,7 @@ USER CONNECT-INTERFACE
 : GetHostName ( IP -- addr u ior )
   PAD ! PF_INET 4 PAD gethostbyaddr
   ?DUP IF @ ?DUP IF ASCIIZ> 0 ELSE S" ?" 11004 THEN
-       ELSE HERE 0 WSAGetLastError THEN
+       ELSE PAD 0 WSAGetLastError THEN
 ;
 
 : Get.Host.Name ( addr u -- addr u ior )
@@ -202,9 +202,9 @@ USER CONNECT-INTERFACE
 USER-CREATE sock_addr2 /sockaddr_in USER-ALLOT
 
 : GetPeerName ( s -- addr u ior )
-  /sockaddr_in HERE !
-  HERE sock_addr2 ROT getpeername SOCKET_ERROR =
-  IF HERE 0 WSAGetLastError
+  /sockaddr_in PAD !
+  PAD sock_addr2 ROT getpeername SOCKET_ERROR =
+  IF PAD 0 WSAGetLastError
   ELSE sock_addr2 sin_addr @ GetHostName THEN
 ;
 : GetPeerIP ( s -- IP ior )
@@ -224,7 +224,7 @@ USER-CREATE sock_addr2 /sockaddr_in USER-ALLOT
   R> FREE THROW
 ;
 : SocketsStartup ( -- ior )
-  HERE 257 WSAStartup
+  PAD 257 WSAStartup
 ;
 : SocketsCleanup ( -- ior )
   WSACleanup
