@@ -4620,6 +4620,15 @@ OP1 @ @ C90BCA8B XOR	\  8BCA           MOV     ECX , EDX
             EXIT
     THEN
 
+OP1 @ @  3DFF408D XOR
+OP0 @ 1+ @ OR	\ 	LEA     EAX , FF [EAX] 	CMP     EAX , # 0 
+0= IF   M\ 1BA DTST
+         48 OP1 @ C!	\	DEC     EAX
+         OP1 ToOP0 -7 ALLOT
+         FALSE M\ 1BB DTST
+            EXIT
+    THEN
+
    OP2 @ :-SET U< IF TRUE EXIT THEN
 
 OP2 @ W@  4589 XOR         \  MOV     F8 [EBP] , EAX
@@ -4794,16 +4803,6 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
       OPT_CLOSE
   THEN
 ;
-
-(  ['] DROP
-  0xC00B W,    \ OR EAX, EAX
-  OPT?  IF -2 ALLOT   \ ликвидация OR EAX, EAX
-           OPT_INIT DP @ TO LAST-HERE
-           ?BR-OPT
-           DP @ TO LAST-HERE
-       THEN
-  INLINE,
- )
 
 : OPT   ( -- )  ['] NOOP DO_OPT DROP  ;
 
