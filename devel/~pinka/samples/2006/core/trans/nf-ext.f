@@ -11,7 +11,8 @@
     R> WARNING !
   DOES> ( a u  a1 )
     DUP 2OVER 2>R >R
-    @ CATCH 0= IF RDROP RDROP RDROP EXIT THEN
+    @ CATCH DUP 0= IF DROP RDROP RDROP RDROP EXIT THEN
+    DUP -2003 <> OVER -321 <> AND IF THROW THEN DROP
     ( x x ) 2DROP
     R> 2R> ROT CELL+ @ EXECUTE IF EXIT THEN
     -2003 THROW
@@ -20,5 +21,5 @@
 \ example:
 \ ' AsQName enqueueNOTFOUND
 \ where AsQName stack notation
-\   on STATE0 is ( i*x  a-text u-text -- j*x  true | i*x  a u false )
-\   otherwise is ( a-text u-text -- true | a u false )
+\   on STATE0 is ( i*x  a-text u-text -- j*x  true | i*x  a-text u-text false )
+\   otherwise is ( a-text u-text -- true | a-text u-text false )
