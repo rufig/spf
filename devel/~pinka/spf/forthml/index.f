@@ -1,5 +1,6 @@
 \ 18.Feb.2007
-( “рансл€тор ForthML
+\ $Id$
+( “рансл€тор ForthML [как расширение к SPF4]
 
 »спользование
   S" url-of.f.xml" EMBODY [ i*x c-addrz u -- j*x ]
@@ -48,14 +49,16 @@ Include ttext-index.auto.f \ в виде простейшего форт-текста
 \ предоставл€ет T-PLAIN -- слово дл€ трансл€ции текста,
 \ €дро дл€ трансл€ции xml-дерева, переменные состо€ни€ M и STATE
 
+..: AT-PROCESS-STARTING _document-storage 0! ;.. \ дл€  model/trans/document-context.f.xml
+
 UNIX-LINES
-Include ~pinka/fml/forthml-core.f \ базоый набор слов (правил) ForthML
+Include ~pinka/fml/forthml-core.f \ базовый набор слов (правил) ForthML
 DOS-LINES
 
 `~pinka/fml/src/rules-common.f.xml FIND-FULLNAME EMBODY
 `~pinka/fml/src/rules-forth.f.xml  FIND-FULLNAME EMBODY
 
-TO ?C-JMP
+TO ?C-JMP  \ оставл€ть включенным нельз€, т.к. дает глюки местами
 
 EXPORT
 
