@@ -5,7 +5,7 @@
 
 <small>$Date$</small>
 
-<!-- Translation is in sync with devel.ru.md rev. 1.8 -->
+<!-- Translation is in sync with devel.ru.md rev. 1.10 -->
 
 *REQUIRE is a forth word, which loads library; unnecessary text is commented out, so you can use this list as a forth code to include libs :)*
 
@@ -15,7 +15,7 @@
 
 ----
 
-[[Network](#net)] [[Graphics](#graph)] [[Archives](#arc)] [[Linked lists](#list)] [[Records](#record)] [[Data structures](#data)] [[Sort and search](#sort-n-search)] [[Techniques](#techniques)] [[Debugging](#debug)] [[Random numbers](#random)] [[Hash tables](#hash)] [[Hash functions](#hash-func)] [[Compiletime constants](#compiletime-const)] [[Windows GUI](#WinGUI)] [[Windows COM](#WinCOM)] [[Windows services](#services)] [[Date and time](#datetime)] [[Databases](#db)] [[Threads](#threads)] [[Windows registry and ini](#ini-registry)] [[Strings](#str)] [[Files](#files)] [[OOP](#oop)] [[Vocabularies](#vocs)] [[Memory](#mem)] 
+[[Network](#net)] [[Graphics](#graph)] [[Archives](#arc)] [[Linked lists](#list)] [[Records](#record)] [[Data structures](#data)] [[Sort and search](#sort-n-search)] [[Techniques](#techniques)] [[Debugging](#debug)] [[Random numbers](#random)] [[Hash tables](#hash)] [[Hash functions](#hash-func)] [[Compiletime constants](#compiletime-const)] [[Windows GUI](#WinGUI)] [[Windows COM](#WinCOM)] [[Windows services](#services)] [[Date and time](#datetime)] [[Databases](#db)] [[Threads](#threads)] [[Windows registry and ini](#ini-registry)] [[Strings](#str)] [[Files](#files)] [[XML](#xml)] [[OOP](#oop)] [[Vocabularies](#vocs)] [[Memory](#mem)] [[Miscellaneous](#misc)]
 
 ----
 
@@ -62,7 +62,7 @@
 * REQUIRE f: <a href='../devel/~af/lib/struct.f'>~af/lib/struct.f</a> \\ defining records with elements-functions 
 * REQUIRE f: <a href='../devel/~af/lib/struct-t.f'>~af/lib/struct-t.f</a> \\ defining records with elements-functions in the temporary vocabulary
 
-<a id="data"/
+<a id="data"/>
 ### \\ Data structures - misc
 * REQUIRE Stack <a href='../devel/~day/joop/lib/stack.f'>~day/joop/lib/stack.f</a> \\ stack
 * REQUIRE New-Queue <a href='../devel/~pinka/lib/queue_pr.f'>~pinka/lib/queue_pr.f</a> \\ priority queue
@@ -198,15 +198,11 @@
 * REQUIRE ATTACH <a href='../devel/~pinka/samples/2005/lib/append-file.f'>~pinka/samples/2005/lib/append-file.f</a> \\ safe writing to file
 * REQUIRE SPEAK-WITH <a href='../devel/~pinka/samples/2005/ext/tank.f'>~pinka/samples/2005/ext/tank.f</a> \\ controlling output stream, executing xt with output to file redirection 
 
-### \\ Small simplifications
-* REQUIRE CONST <a href='../devel/~micro/lib/const/const.f'>~micro/lib/const/const.f</a> \\ constants enumeration
-* REQUIRE ENUM <a href='../devel/~ygrek/lib/enum.f'>~ygrek/lib/enum.f</a> \\ enumerating similar words
-
-### \\ Big simplifications :) 
-* REQUIRE DLOPEN <a href='../devel/~ac/lib/ns/dlopen.f'>~ac/lib/ns/dlopen.f</a> \\ unix-compatible way of loading WindowsDLL/UnixSO 
-* \\ <a href='../devel/~ac/lib/ns/'>~ac/lib/ns/</a> \\ mapping external tree structures on forth wordlist
+<a id="xml"/>
+### \\ XML
+* REQUIRE XML\_Evaluate <a href='../devel/~ac/lib/lin/xml/expat.f'>~ac/lib/lin/xml/expat.f</a> \\ XML via libexpat
 * REQUIRE XML\_READ\_DOC <a href='../devel/~ac/lib/lin/xml/xml.f'>~ac/lib/lin/xml/xml.f</a> \\ XML via LibXml2 
-* REQUIRE XSLT <a href='../devel/~ac/lib/lin/xml/xslt.f'>~ac/lib/lin/xml/xslt.f</a> \\ XSLT via LinXslt 
+* REQUIRE XSLT <a href='../devel/~ac/lib/lin/xml/xslt.f'>~ac/lib/lin/xml/xslt.f</a> \\ XSLT via LibXslt 
 
 <a id="oop"/>
 ### \\ OOP extensions
@@ -221,6 +217,8 @@
 * REQUIRE ForEach <a href='../devel/~ac/lib/ns/iterators.f'>~ac/lib/ns/iterators.f</a> \\ iterators for context vocabularies
 * REQUIRE ForEach-Word <a href='../devel/~pinka/lib/Words.f'>~pinka/lib/Words.f</a> \\ ForEach-Word 
 * REQUIRE QuickSWL-Support <a href='../devel/~pinka/spf/quick-swl2.f'>~pinka/spf/quick-swl2.f</a> \\ Quick Search Wordlist (due to hashing) 
+* REQUIRE DLOPEN <a href='../devel/~ac/lib/ns/dlopen.f'>~ac/lib/ns/dlopen.f</a> \\ unix-compatible way of loading WindowsDLL/UnixSO 
+* \\ <a href='../devel/~ac/lib/ns/'>~ac/lib/ns/</a> \\ mapping external tree structures on forth wordlist
 
 <a id="mem"/>
 ### \\ Memory
@@ -233,3 +231,9 @@
 * REQUIRE INIT-TASK-VALUES <a href='../devel/~ss/lib/task-values.f'>~ss/lib/task-values.f</a> \\ global thread variables 
 * REQUIRE PROTECT-RETURN-STACK <a href='../devel/~ss/ext/stack-quard.f'>~ss/ext/stack-quard.f</a> \\ Protecting return stack from erasing with data stack
 * REQUIRE GMEM <a href='../devel/~yz/lib/gmem.f'>~yz/lib/gmem.f</a> \\ Global memory shareable between threads
+
+<a id="misc"/>
+### \\ Miscellaneous
+* REQUIRE CONST <a href='../devel/~micro/lib/const/const.f'>~micro/lib/const/const.f</a> \\ constants enumeration
+* REQUIRE ENUM <a href='../devel/~ygrek/lib/enum.f'>~ygrek/lib/enum.f</a> \\ enumerating similar words
+* REQUIRE enqueueNOTFOUND <a href='../devel/~pinka/samples/2006/core/trans/nf-ext.f'>~pinka/samples/2006/core/trans/nf-ext.f</a> \\ extending translators (NOTFOUND)

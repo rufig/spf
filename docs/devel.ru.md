@@ -15,7 +15,7 @@
 
 ----
 
-[[Сеть](#net)] [[Графика](#graph)] [[Архиваторы](#arc)] [[Связные списки](#list)] [[Записи](#record)] [[Структуры данных](#data)] [[Сортировка и поиск](#sort-n-search)] [[Techniques](#techniques)] [[Отладка](#debug)] [[Случайные числа](#random)] [[Расстановочные таблицы](#hash)] [[Хэш функции](#hash-func)] [[Константы времени компиляции](#compiletime-const)] [[Windows GUI](#WinGUI)] [[Windows COM](#WinCOM)] [[Службы(сервисы) Windows](#services)] [[Дата и время](#datetime)] [[Базы данных](#db)] [[Потоки](#threads)] [[Реестр и INI Windows](#ini-registry)] [[Строки](#str)] [[Файлы](#files)] [[OOP](#oop)] [[Словари](#vocs)] [[Память](#mem)] 
+[[Сеть](#net)] [[Графика](#graph)] [[Архиваторы](#arc)] [[Связные списки](#list)] [[Записи](#record)] [[Структуры данных](#data)] [[Сортировка и поиск](#sort-n-search)] [[Techniques](#techniques)] [[Отладка](#debug)] [[Случайные числа](#random)] [[Расстановочные таблицы](#hash)] [[Хэш функции](#hash-func)] [[Константы времени компиляции](#compiletime-const)] [[Windows GUI](#WinGUI)] [[Windows COM](#WinCOM)] [[Службы(сервисы) Windows](#services)] [[Дата и время](#datetime)] [[Базы данных](#db)] [[Потоки](#threads)] [[Реестр и INI Windows](#ini-registry)] [[Строки](#str)] [[Файлы](#files)] [[XML](#xml)] [[OOP](#oop)] [[Словари](#vocs)] [[Память](#mem)] [[Разное](#misc)] 
 
 ----
 
@@ -198,15 +198,11 @@
 * REQUIRE ATTACH <a href='../devel/~pinka/samples/2005/lib/append-file.f'>~pinka/samples/2005/lib/append-file.f</a> \\ безопасная запись в файл
 * REQUIRE SPEAK-WITH <a href='../devel/~pinka/samples/2005/ext/tank.f'>~pinka/samples/2005/ext/tank.f</a> \\ управление выходным потокм, выполнение xt с перенаправлением вывода в файл 
 
-### \\ Маленькие упрощения 
-* REQUIRE CONST <a href='../devel/~micro/lib/const/const.f'>~micro/lib/const/const.f</a> \\ перечисление констант 
-* REQUIRE ENUM <a href='../devel/~ygrek/lib/enum.f'>~ygrek/lib/enum.f</a> \\ перечисление подобных слов 
-
-### \\ Большие упрощения :) 
-* REQUIRE DLOPEN <a href='../devel/~ac/lib/ns/dlopen.f'>~ac/lib/ns/dlopen.f</a> \\ совместимый с Unix-версией SPF способ загрузки WindowsDLL/UnixSO 
-* \\ <a href='../devel/~ac/lib/ns/'>~ac/lib/ns/</a> \\ отображение внешних древовидных структур на форт-словарь 
+<a id="xml"/>
+### \\ XML
+* REQUIRE XML\_Evaluate <a href='../devel/~ac/lib/lin/xml/expat.f'>~ac/lib/lin/xml/expat.f</a> \\ поддержка XML через libexpat
 * REQUIRE XML\_READ\_DOC <a href='../devel/~ac/lib/lin/xml/xml.f'>~ac/lib/lin/xml/xml.f</a> \\ поддержка XML через LibXml2 
-* REQUIRE XSLT <a href='../devel/~ac/lib/lin/xml/xslt.f'>~ac/lib/lin/xml/xslt.f</a> \\ поддержка XSLT через LinXslt 
+* REQUIRE XSLT <a href='../devel/~ac/lib/lin/xml/xslt.f'>~ac/lib/lin/xml/xslt.f</a> \\ поддержка XSLT через LibXslt 
 
 <a id="oop"/>
 ### \\ ООП расширения 
@@ -221,6 +217,8 @@
 * REQUIRE ForEach <a href='../devel/~ac/lib/ns/iterators.f'>~ac/lib/ns/iterators.f</a> \\ итераторы в контекстных словарях 
 * REQUIRE ForEach-Word <a href='../devel/~pinka/lib/Words.f'>~pinka/lib/Words.f</a> \\ ForEach-Word 
 * REQUIRE QuickSWL-Support <a href='../devel/~pinka/spf/quick-swl2.f'>~pinka/spf/quick-swl2.f</a> \\ Быстрый поиск по словарю (за счёт хэширования) 
+* REQUIRE DLOPEN <a href='../devel/~ac/lib/ns/dlopen.f'>~ac/lib/ns/dlopen.f</a> \\ совместимый с Unix-версией SPF способ загрузки WindowsDLL/UnixSO 
+* \\ <a href='../devel/~ac/lib/ns/'>~ac/lib/ns/</a> \\ отображение внешних древовидных структур на форт-словарь 
 
 <a id="mem"/>
 ### \\ Память 
@@ -233,3 +231,9 @@
 * REQUIRE INIT-TASK-VALUES <a href='../devel/~ss/lib/task-values.f'>~ss/lib/task-values.f</a> \\ Глобальные переменные потока 
 * REQUIRE PROTECT-RETURN-STACK <a href='../devel/~ss/ext/stack-quard.f'>~ss/ext/stack-quard.f</a> \\ Защита стека возвратов от затирания стеком данных 
 * REQUIRE GMEM <a href='../devel/~yz/lib/gmem.f'>~yz/lib/gmem.f</a> \\ Глобальная память разделяемая между потоками
+
+<a id="misc"/>
+### \\ Разное
+* REQUIRE CONST <a href='../devel/~micro/lib/const/const.f'>~micro/lib/const/const.f</a> \\ перечисление констант 
+* REQUIRE ENUM <a href='../devel/~ygrek/lib/enum.f'>~ygrek/lib/enum.f</a> \\ перечисление подобных слов 
+* REQUIRE enqueueNOTFOUND <a href='../devel/~pinka/samples/2006/core/trans/nf-ext.f'>~pinka/samples/2006/core/trans/nf-ext.f</a> \\ добавление в список трансляторов (NOTFOUND)
