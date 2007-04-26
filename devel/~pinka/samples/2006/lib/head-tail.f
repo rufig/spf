@@ -5,9 +5,13 @@ REQUIRE [UNDEFINED] lib\include\tools.f
 : CHAR- /CHAR - ;
 [THEN]
 
+\ —трока как список, состо€щий из первого элемента и остальных (хвоста).
+\ HEAD -- голова, подстрока, состо€ща€ из одного первого символа;
+\ TAIL -- хвост, подстрока, состо€ща€ из всех остальных символов, кроме первого.
+
 : TAIL ( a u -- a1 u1 )
   DUP IF SWAP CHAR+ SWAP CHAR- EXIT THEN
-  DROP 0
+  ( a 0 ) \ DROP 0
 ;
 : HEAD ( a u -- a u1 )
   IF /CHAR EXIT THEN 0
