@@ -24,6 +24,16 @@ NEEDS ~ygrek/lib/neilbawd/mersenne.f
 : MC, ( addr c -- addr+4 )  OVER C! 1+ ; 
 : MW, ( addr c -- addr+4 )  OVER W! 2+ ;
 
+CDC SUBCLASS CDC
+: :releaseDC ( -- )
+  SUPER handle @ 0= 0= SUPER ?own @ AND
+  IF
+    SUPER checkDC SUPER hWnd @ ReleaseDC DROP
+    0 SUPER handle ! 
+  THEN ;
+;CLASS
+
+
 \ -----------------------------------------------------------------------
 
 \ Контекст рисовния OpenGL
