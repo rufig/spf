@@ -1,0 +1,145 @@
+  
+                 A rationale for ARRAYs in the
+                       Forth Scientific Library
+
+
+
+The Forth Scientific Library has chosen to implement array syntax as in Noble (1992).
+There are two types of array words, statically and dynamically allocated arrays.
+Statically allocated arrays are declared as follows, 
+
+#elements element_size ARRAY name{} 
+
+The element_size is the number of cells occupied by the data type, at the present time
+the following types are defined (others can be easily added), 
+
+        INTEGER       -- for regular integer arrays
+        DOUBLE        -- for double integer arrays
+        REAL*4        -- single precision floating point arrays
+
+This information is internally stored in the array data structure so that the word } can
+properly dereference the array no matter what type of element is stored in the array. 
+
+As a matter of convention, array names end with { characters, one for each dimension.
+
+In an application notation looks like, 
+
+name{ element# } 
+
+to get the address of (0 based) element# of array name{. The implementors of the
+Forth Scientific Library have left the implementation details of the array word 
+ARRAY and the element resolution operator } open -- there are several ways of
+implementing this structure. But the execution of name{ has to leave an address or
+exection token that can later be acted upon by } in order to get the address of the
+required element. 
+
+Another common approach and why we decided to not use it
+
+There is no standard way of creating and using arrays in Forth, but the idiom that is
+probably the most common alternative to the above looks like, 
+
+element# {}name 
+
+to do the same thing. At first glance it appears that this syntax is trivially different
+from the first -- when implementing the second form the most obvious thing to do is
+to put the code in the FSL version of } into the DOES> portion of name{ in order to
+obtain {}name. 
+
+This would be true if the only operations to be done upon arrays is to obtain the
+address of its elements. But many applications can be written in a more
+object-oriented style of coding that consists of the names of objects to be operated
+upon, followed by the operator. Consider, for example, the operation of printing out
+all the elements of an array. The first syntax would look like, 
+
+number# name{ }fprint 
+
+whereas the second syntax would require something like, 
+
+number# ' {}name fprint 
+
+The second syntax requires frequent use of tick-like words to get to the header of the
+arrays. This has several disadvantages to it: 
+
+       1 -- it makes for less readable code to have many such
+            "noise" words in it.
+
+       2 -- it is more error prone to code, it is easy to forget
+            such words.
+
+       3 -- it is more likely that the operators will have to be
+            written with knowledge of the internal implementation
+            details of ARRAYs.
+
+Tick-like words are not completely avoided by the first syntax, but their necessity is
+considerably reduced. 
+
+From the perspective of the first syntax, the word } is just another operator to apply to
+an array object -- namely the one that extracts the address of a specified element. 
+
+Dynamically allocated arrays
+
+For dynamically allocated arrays, the delcaration looks like, 
+
+element_size DARRAY name{ 
+
+where element_size is the number of cells that the data type occupies just as for static
+arrays. This declaration merely defines the existance of the array, it does not set aside
+any space for the data. 
+
+To allocate space for a dynamic array (this can be done at runtime), 
+
+& name{ #elements }malloc 
+
+is used. 
+
+If it succeeds then there will have been contiguous space allocated for the required
+number of elements. 
+
+To release the space (this can also be done at runtime) the application uses, 
+
+& name{ }free 
+
+The words }malloc and }free will typically use the ANS words ALLOCATE and 
+FREE, but the also contain code that depends upon how DARRAY is implemented. 
+
+A dynamic array name can be re-used by calling }free to release the old space and
+then calling }malloc again to reallocate it. 
+
+Dynamic arrays can also be used as pointers into pre-exisiting arrays (either static or
+dynamic). This can be accomplished by the sequence: 
+
+a{ & b{ &! 
+
+This makes the DARRAY b{ an alias for the ARRAY (or DARRAY) a{ (i.e. both
+names refer to the same memory addresses). If DARRAYs are used in this fashion,
+only to point to arrays, then there is no need to create or initialize any dynamic
+memory pool (if such a thing is necessary for using dynamic memory). 
+
+References
+
+American National Standards Institute, Inc., 1993; draft proposed American National
+Standard for Information Systems, Programming Languages, Forth, X3J14, dpANS-6.
+214 pages 
+
+Barnhart, J., 1984; Forth and the Fast Fourier Transform, Dr. Dobbs Journal,
+September, p. 34 
+
+Noble, J.V., 1992; Scientific Forth, a modern language for scientific computing,
+Mechum Banks Publishing, Charlottesville VA, 311 pages, ISBN 0-9632775-0-2 
+
+
+ FSL auxiliary code (implements arrays) 
+   for F-PC, ThisForth or PFE 
+ dynamic memory package. 
+
+  Back to Forth Scientific Library page. 
+
+
+
+ Everett (Skip) Carter        Phone:  831-656-3318 FAX: 831-656-2712
+ Naval Postgraduate School    INTERNET: skip@taygeta.oc.nps.navy.mil
+ Dept. of Oceanography, Code OC/CR  UUCP:     ...!uunet!taygeta!skip
+ Monterey, CA. 93943
+
+
+         Skips Home Page 
