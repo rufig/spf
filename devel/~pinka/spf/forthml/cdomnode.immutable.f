@@ -1,4 +1,5 @@
-\ Feb.2007
+\ Feb.2007 ruv
+\ $Id$
 
 \ Дает набор слов доступа к текущему xml-узлу (cnode);
 \ имена слов, работающих с текущим узлом, имеют первую букву заглавной,
@@ -57,6 +58,7 @@ SET-CURRENT
 `getAttributeNS wrap
 `hasAttribute   wrap
 `hasAttributeNS wrap
+`firstChildValue wrap
 
 `namespace-uri-for-prefix wrap
 
@@ -65,9 +67,5 @@ SET-CURRENT
 
 : cnode  ( -- node ) cnode-a @ ;
 : cnode! ( node -- ) cnode-a ! ;
-
-: FirstChildValue ( -- c-addr u )
-  cnode firstChild DUP IF nodeValue EXIT THEN 0
-;
 
 PREVIOUS FREE-WORDLIST
