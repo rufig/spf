@@ -247,6 +247,12 @@ CONSTANT /xmlNs
 : namespace-uri-for-prefix ( prefix-a prefix-u node -- uri-a uri-u | 0 0 )
   searchNamespace IF EXIT THEN 2DROP 0.
 ;
+
+: firstChildValue ( element -- c-addr u )
+  firstChild DUP IF nodeValue EXIT THEN 0
+;
+
+
 \ =====
 \ DOM3 LS (Load and Save)
 \ interface LSParser
