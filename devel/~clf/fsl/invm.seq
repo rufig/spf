@@ -1,0 +1,143 @@
+\ invm      Inverts a matrix in LU form
+\
+\ Forth Scientific Library Algorithm #36
+
+\ invm ( 'dlu 'a{{ -- )
+\         Inverts the LU matrix at 'dlu and returns the inverse in the
+\         matrix a{{
+
+\ Presumes that the matrix has been converted in LU form (using LUFACT)
+\ before being called.
+
+\ This code is ANS Forth program requiring:
+\      1. The Floating-Point word set
+\      2. Uses words 'Private:', 'Public:' and 'Reset_Search_Order'
+\         to control the visibility of internal code.
+\      3. Uses the words 'FLOAT' and 'DARRAY' to create floating point arrays
+\         plus 'INTEGER' to create integer arrays.
+\      4. The word '}' to dereference a one-dimensional array, and '}}' to
+\         dereference two dimensional arrays.
+\      5. Uses the words 'DARRAY' and '&!' to set array pointers.
+\      6. Uses the FSL word BACKSUB to perform back substituion on the
+\         internally formed subproblems.
+\      7. The compilation of the test code is controlled by the VALUE TEST-CODE?
+\         and the conditional compilation words in the Programming-Tools wordset
+\      8. The test code uses 'HILBERT' and 'HILBERT-DET' for generating the test
+
+
+\ see,
+\ Baker, L., 1989; C Tools for Scientists and Engineers,
+\ McGraw-Hill, New York, 324 pages,   ISBN 0-07-003355-2
+
+
+\  (c) Copyright 1994 Everett F. Carter.  Permission is granted by the
+\  author to use this software for any application provided this
+\  copyright notice is preserved.
+
+
+CR .( INVM              V1.2           18 April 1995   EFC )
+
+
+Private:
+
+
+FLOAT DARRAY b{     \ scratch space
+
+STRUCT-HANDLE LU    \ pointer to users LU data structure
+
+
+: invm-init ( 'dlu 'a{{ -- n )
+
+    & a{{ &!
+
+    LU h!
+
+    LU h@ ->N @
+
+    & b{ OVER }malloc
+    malloc-fail? ABORT" INVM-INIT malloc failure "
+
+;
+
+Public:
+
+
+: invm ( 'dlu 'a{{ -- )
+
+    invm-init
+
+    DUP 0 DO
+               DUP 0 DO 0.0E0 b{ I } F! LOOP
+               1.0E0 b{ I } F!
+
+               LU h@ b{ backsub
+
+               DUP 0 DO b{ I } F@ a{{ J I }} F! LOOP
+           LOOP
+
+    DROP
+
+     & b{ }free
+
+;
+
+Reset_Search_Order
+
+TEST-CODE? [IF]   \ test code =============================================
+
+\ test code, creates a finite segment of a Hilbert matrix of the specified
+\ size and inverts it.  Uses the known form for the inverse of these
+\ matrices to calculate the comparison value.
+
+\ Dynamically allocated array space
+FLOAT DMATRIX mat{{
+FLOAT DMATRIX lmat{{
+INTEGER DARRAY piv{
+
+LUMATRIX lui
+
+: invm-test ( n -- )
+
+         & mat{{ OVER DUP }}malloc
+         malloc-fail? ABORT" malloc failure (1) "
+
+        mat{{ OVER HILBERT
+
+        CR ." A: " CR
+        DUP DUP mat{{ }}fprint
+
+         & lmat{{ OVER DUP }}malloc
+         malloc-fail? ABORT" malloc failure (2) "
+
+         & piv{ OVER }malloc
+         malloc-fail? ABORT" malloc failure (3) "
+
+        lui lmat{{ piv{ 4 PICK LUMATRIX-INIT
+
+        mat{{ lui lufact
+
+        lui mat{{ invm
+
+        CR ." INVM(A): " CR
+        DUP DUP mat{{ }}fprint
+
+
+       \ now calculate the inverse directly, since it is a Hilbert matrix
+        mat{{ OVER hilbert-inv
+
+         CR ." INV-Hilbert: " CR
+         DUP mat{{ }}fprint
+
+         & mat{{ }}free
+         & lmat{{ }}free
+         & piv{ }free
+         
+;
+
+[THEN]
+
+
+
+
+
+

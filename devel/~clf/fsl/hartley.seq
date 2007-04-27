@@ -1,0 +1,252 @@
+\ FHartley                   Fast Hartley Transform
+\ Perform the Hartley/Bracewell Transform on an array
+\ whose length is a power of two.
+\
+\ Forth Scientific Library Algorithm #8
+
+\ This is an ANS Forth program requiring:
+\      1. The Floating-Point word set
+\      2. Uses words 'Private:', 'Public:' and 'Reset_Search_Order'
+\         to control the visibility of internal code.
+\      3. The words '>=' , greater than or equal to
+\         : >=     < 0= ;
+\         and '<=' , less than or equal to
+\         : <=     > 0= ;
+\      4. The compilation of the test code is controlled by the VALUE TEST-CODE?
+\         and the conditional compilation words in the Programming-Tools wordset
+
+\ Environmental Dependency:
+\      Depending upon the size of the array to be transformed, this code
+\      MAY require a relatively large floating point stack or it will fail.
+
+
+\ see:
+\ Bracewell, R.N., 1986; The Fourier Transform and Its Applications,
+\ 2nd ed., McGraw-Hill, New York, 474 pages,  ISBN 0-07-007015-6
+
+\  (c) Copyright 1994 Everett F. Carter.  Permission is granted by the
+\  author to use this software for any application provided this
+\  copyright notice is preserved.
+ 
+
+CR .( FHARTLEY          V1.3           10 October 1994   EFC )
+
+Private:
+
+FLOAT DARRAY fx{
+
+\ temporaries to point to array indicies
+0 VALUE pba
+0 VALUE pbb
+0 VALUE pbc
+0 VALUE pbd
+
+FVARIABLE tmp-cos
+FVARIABLE tmp-sin
+FVARIABLE cos
+FVARIABLE sin
+
+
+: fht-reindex ( n jj kk -- n jj kk )
+
+        NIP OVER 2/
+        BEGIN
+          2DUP >=
+          OVER 0> AND
+        WHILE
+          TUCK -
+          SWAP 2/
+        REPEAT
+
+        SWAP
+
+;
+
+: fht-scale ( n -- n )               \ scale and reorder the data
+
+    1.0E0 DUP S>F F/   FSQRT
+
+    DUP
+    0 0 ROT 0 DO
+                  I OVER > 0= IF
+                                 fx{ OVER } F@ FOVER F*          
+                                 FOVER                           
+                                 fx{ I } F@ F*   fx{ OVER } F!   
+                                 fx{ I } F!                      
+                               THEN
+
+                   fht-reindex
+
+                   OVER +
+
+              LOOP
+              
+     FDROP 2DROP
+;
+
+: pb_swap ( n jj istep istart -- n jj istep )
+
+        3 PICK SWAP DO
+                      I TO pba    OVER I + TO pbc
+
+                      fx{ pbc } F@                             
+                      fx{ pba } F@ FOVER F-   fx{ pbc } F!   
+                      fx{ pba } F@ F+         fx{ pba } F!   
+        DUP +LOOP
+
+
+;
+
+: fht_inner_bfly  ( n jj istep kk istart -- n jj istep kk )
+        4 PICK SWAP
+        DO
+		\ set address pointers
+            I TO pba                DUP I + TO pbb
+            2 PICK I +  DUP TO pbc   OVER + TO pbd
+
+            \ now do the calculation
+            fx{ pbc } F@ cos F@ F*  fx{ pbd } F@ sin F@ F* F+   
+            fx{ pbc } F@ sin F@ F*  fx{ pbd } F@ cos F@ F* F-   
+
+            FOVER fx{ pba } F@ FSWAP F-  fx{ pbc } F!         
+            fx{ pbb } F@ FOVER F-        fx{ pbd } F!         
+
+            fx{ pbb } F@ F+  fx{ pbb } F!                     
+            fx{ pba } F@ F+  fx{ pba } F!                     
+
+        OVER +LOOP
+
+;
+
+
+: fht_bfly ( n jj istep -- n jj istep ) ( f: dcos dsin  -- )
+
+      OVER DUP 2 - SWAP
+      2/
+      DUP 1 > IF
+                   FDUP tmp-sin F!    sin F!
+                   FDUP tmp-cos F!    cos F!
+                   
+                   1 DO
+                      I fht_inner_bfly
+
+                      \ recalculate the angles
+                      cos F@ tmp-cos F@ F* sin F@ tmp-sin F@ F* F-    
+                      sin F@ tmp-cos F@ F* cos F@ tmp-sin F@ F* F+
+                      sin F! cos F!
+                       2 -
+                    LOOP
+                    DROP
+      ELSE
+           2DROP FDROP FDROP
+      THEN
+
+
+;
+
+Public:
+
+
+: }fht-normalize ( &x n -- )
+        SWAP & fx{ &!
+
+        1.0E0 DUP S>F F/ FSQRT
+
+        0 DO fx{ I } F@ FOVER F* fx{ I } F! LOOP
+        FDROP
+;
+
+: }fht ( &x n -- )
+     SWAP
+     & fx{ &!
+
+     fht-scale
+
+     PI
+
+     1
+
+     BEGIN
+
+       FDUP 2.0E0 F/ FSWAP FSINCOS FSWAP
+       
+       DUP 2* 0 pb_swap                   
+
+       \ now the main butterfly
+       fht_bfly                           
+
+       OVER 1 > IF OVER 2/ pb_swap THEN
+
+       NIP 2DUP > 0=
+     UNTIL
+
+     FDROP 2DROP
+
+
+;
+
+\ Use this to test if the basic assumptions are valid!
+
+: power-2? ( n -- t/f )            \ is N a power of 2 ?
+	DUP 0= IF EXIT THEN
+
+        BEGIN
+          DUP
+          1 AND 0=
+        WHILE
+          2/
+        REPEAT
+
+        1 =
+;
+
+Reset_Search_Order
+
+
+
+TEST-CODE? [IF]   \ test code ==============================================
+
+32 FLOAT ARRAY xx{
+
+: htest-init ( n -- )
+       DUP 0 DO
+             I 1+ 2* S>F DUP S>F F/ PI F* FSIN
+             1.0E3 F*
+             xx{ I } F!           
+       LOOP
+       DROP
+;
+
+: hartley-test1 ( -- )
+
+    CR
+    32 htest-init
+    ." Initial array: " CR 32 xx{ }fprint CR
+
+    xx{ 32 }fht
+
+    ." Transformed array (0 3325.878 0 .... 0 -2222.281): " CR 32 xx{ }fprint CR
+
+    xx{ 32 }fht
+
+    ." Inverse transformed array (should be initial array): " CR
+    32 xx{ }fprint CR
+
+;
+
+: hartley-test2 ( -- )
+
+        8 0 DO I 1+ S>F xx{ I } F! LOOP
+        ." Initial array: " 8 xx{ }fprint CR
+
+        xx{ 8 }fht     xx{ 8 }fht-normalize
+
+        ." Transformed and Normalized array: " 8 xx{ }fprint CR
+
+        ." The above SHOULD be: " CR
+        ."  4.5 -1.707 -1.0 -0.707 -0.5 -0.3 0.0 0.707 " CR
+
+;
+
+
+[THEN]

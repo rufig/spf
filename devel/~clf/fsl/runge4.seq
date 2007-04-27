@@ -1,0 +1,622 @@
+\ runge4.seq    Runge-Kutta ODE Solver for systems of ODEs
+\
+\ Forth Scientific Library Algorithm #29
+
+\ )runge_kutta4_init ( 'dsdt n -- )
+\               Initialize to use function dsdt() for n equations,
+\               its stack diagram is:
+\                      dsdt() ( 'u 'dudt -- ) ( F: t -- )
+\               (the values in the array dudt get changed)
+\
+\ runge_kutta4_integrate() ( 'u steps -- ) ( F: t dt -- t' )
+\               Integrate the equations STEPS time steps of size DT,
+\               starting at time T and ending at time T'.  U is the
+\               initial condition on input and the new state of the 
+\               system on output.
+
+\ runge_kutta4_done  ( -- )
+\               Release previously allocated space.
+
+\ )rk4qc_init ( 'dsdt n 's -- ) ( F: maxstep eps -- )
+\               Initialize to use function dsdt() for n equations.
+\               The initial function values are in s{. The output is also
+\  in s{. The result is computed with a 5th-order Runge-Kutta
+\   routine with adaptive step size control. The step size 
+\  controller tries to keep the fractional error of any s{ 
+\  component below eps. The maximum step size is limited to 
+\  maxstep .
+\
+\ rk4qc_done  ( -- )
+\               Release previously allocated space.
+\
+\ rk4qc_step ( -- flag ) ( F: step t -- step' t' )
+\  Do one Runge-Kutta step, using adaptive step size control.
+\  The flag is FALSE if the routine succeeds, else the step size
+\  has become too small. The current step size and time are one 
+\  the fp stack and will be updated by the routine.
+
+\ This is an ANS Forth program requiring:
+\      1. The Floating-Point word set
+\      2. Uses words 'Private:', 'Public:' and 'Reset_Search_Order'
+\         to control visibility of internal code
+\      3. The word 'v:' to define function vectors and the
+\         immediate 'defines' to set them.
+\      4. The immediate words 'use(' and '&' to get function addresses
+\      5. The words 'DARRAY' and '&!' to alias arrays.
+\      6. Uses '}malloc' and '}free' to allocate and release memory
+\         for dynamic arrays ( 'DARRAY' ).
+\      7. The compilation of the test code is controlled by the VALUE
+\         TEST-CODE? and the conditional compilation words in the
+\          Programming-Tools wordset.
+\      8. To run the code the fp stack needs to be at least 5 deep.
+\   To run all examples you need 7 positions on the fp stack.
+\
+\     (c) Copyright 1994  Everett F. Carter.     Permission is granted
+\     by the author to use this software for any application provided
+\     this copyright notice is preserved.
+
+\ (The adaptive code was contributed by Marcel Hendrix)
+
+0 [IF] Additional documentation 
+
+(see Chapter 15. 'Integration of Ordinary Differential Equations', in
+ 'Numerical Recipes in Pascal, The Art of Scientific Computing', 
+ by William H. Press, Brian P. Flannery, Saul A. Teukolsky and William 
+ T. Vetterling)
+
+Problems involving ordinary differential equations (ODEs) can always be
+reduced to the study of sets of first order differential equations. This is
+done by introducing new variables that are usually derivatives of each other
+and of the original variable. Example:
+
+      2
+    dy         dy              
+    --- + q(x) -- = r(x)  can be rewritten to
+      2        dx 
+    dx
+
+    dy/dx = z(x);  dz/dx = r(x) - q(x) z(x).
+
+The formula for traditional Euler integration is:
+
+    y[n+1] = y[n] + h*f'(x[n], y[n])
+
+This advances a solution from x[n] to x[n+1] = x[n] + h. It only uses
+information (the derivatives f') from the start of the interval. 
+
+When a trial step to the midpoint of the interval is done we can do better:
+
+    k1 = h*f'(x[n], y[n])
+    k2 = h*f'(x[n]+h/2, y[n]+k1/2)
+    y[n+1] = y[n] + k2 + O(h^3)
+
+This is called the second-order Runge-Kutta or midpoint method (a method
+is called of order n when its error term is of order O(h^n+1)).
+
+By taking this idea a few steps further along we arrive at the fourth-order 
+Runge-Kutta method:
+
+    k1 = h*f'(x[n], y[n])
+    k2 = h*f'(x[n]+h/2, y[n]+k1/2)
+    k3 = h*f'(x[n]+h/2, y[n]+k2/2)
+    k4 = h*f'(x[n]+h/2, y[n]+k3)
+    y[n+1] = y[n] + k1/6 + k2/3 + k3/3 + k4/6 + O(h^5)
+
+You'll find that the following Forth code is an exact implementation of these
+5 formulas.
+
+When is Runge-Kutta(4) useful? Of course only when the increased number
+of function evaluations (f') is compensated for by the fact that larger
+steps can be taken than for Euler or Runge-Kutta(2) integration. Usually
+this is the case. 
+
+In general, higher-order RK methods are not interesting because the number 
+of evaluations increases faster than the gain produced by the larger 
+stepsize they allow.
+
+Press et al highly recommend RK(4) in combination with an adaptive stepsize
+algorithm ("Runge-Kutta is for ploughing the fields"). For smooth functions 
+they recommend the Bulirsch-Stoer method ("high-strung racehorse").
+
+You should be aware of the fact that a RK(4) routine _without_ adaptive
+stepsize control can be a waste of computer time. This is how you'd use it:
+ 1. integrate the ODEs between point x1 and x2 with stepsize h.
+ 2. integrate the ODEs between point x1 and x2 with stepsize h/2.
+ 3. compare the results. If they're "sufficiently" equal, you're done,
+    else goto 2.
+ 
+This approach is useful when you just want a low resolution function sketch.
+(most people would even leave out steps 2 and 3).
+The fixed grid is exactly what is needed for plotting, an adaptive stepsize
+would require the use of an interpolation algorithm after RK(4) finishes!
+
+[THEN]
+
+\ CR .( RUNGE4.SEQ        V1.2          15 November 1994   EFC )
+\  V1.3  corrected FRAME| to LOCALS| in test code   Jan 2005  cgm
+CR .( RUNGE4.SEQ        V1.3            EFC )
+
+
+Private:
+
+v: dsdt()                     \ pointer to user function t, u, dudt
+
+FLOAT DARRAY dum{             \ scratch space
+FLOAT DARRAY dut{
+FLOAT DARRAY ut{
+FLOAT DARRAY dudt{
+
+FVARIABLE h
+
+FLOAT DARRAY u{               \ pointer to user array
+
+0 VALUE dim
+
+: F2/    0.5E0 F* ;
+: F2*    2.0E0 F* ;
+
+
+Public:
+
+
+: )runge_kutta4_init ( &dsdt n -- )
+     TO dim
+     defines dsdt()
+
+
+     & dum{ dim }malloc
+     malloc-fail? ABORT" runge_init failure (1) "
+
+     & dut{ dim }malloc
+     malloc-fail? ABORT" runge_init failure (2) "
+
+     & ut{ dim }malloc
+     malloc-fail? ABORT" runge_init failure (3) "
+
+     & dudt{ dim }malloc
+     malloc-fail? ABORT" runge_init failure (4) "
+
+;
+
+: runge_kutta4_done ( -- )
+
+     & dum{ }free
+     & dut{ }free
+     & ut{ }free
+     & dudt{ }free
+;
+
+Private:
+
+
+: runge4_step ( -- ) ( F: t -- t' )
+
+     FDUP u{ dudt{ dsdt()
+
+     h F@ F2/
+     dim 0 DO
+             dudt{ I } F@ FOVER F* u{ I } F@ F+
+             ut{ I } F!
+            LOOP
+
+     FOVER F+ ut{ dut{ dsdt()
+
+     h F@ F2/
+     dim 0 DO
+             dut{ I } F@ FOVER F* u{ I } F@ F+
+             ut{ I } F!
+            LOOP
+
+     FOVER F+ ut{ dum{ dsdt()
+
+     h F@
+     dim 0 DO
+             dum{ I } F@ FOVER F* u{ I } F@ F+
+             ut{ I } F!
+
+             dum{ I } DUP F@ dut{ I } F@ F+ F!             
+
+           LOOP
+
+     F+           \ tos is now t+dt
+
+     FDUP ut{ dut{ dsdt()
+
+     h F@ 6.0E0 F/
+     dim 0 DO
+              dudt{ I } F@ dut{ I } F@ F+
+              dum{ I } F@ F2* F+
+              FOVER F*
+              u{ I } DUP F@ F+ F!
+           LOOP
+
+     FDROP
+          
+;
+
+Public:
+
+: runge_kutta4_integrate() ( &u steps -- ) ( F: t dt -- t' )
+
+     SWAP & u{ &!
+     h F!
+
+     0 DO runge4_step LOOP
+
+;
+
+
+0 [IF]  Adaptive Step Size Control For Runge-Kutta
+
+The technique we'll be using is step doubling. We take each step twice,
+once as a full step, then, independently, as two half steps. This creates
+only about 38% of overhead because we'll get the accuracy of the half step.
+A nice trick described by Press et al is that the results of the 3 operations
+can be combined in a way that gives us a truncation error of order 6, not 5
+as for the standard Runge-Kutta(4) (This is where the fcor factor is needed
+for).
+
+Given the results of Ringe-Kutta with the half and the full steps a new step 
+size is chosen:
+
+   h0 = h1 * |wanted_accuracy / delta1|^0.2
+
+Here h stands for step size and delta1 is the maximum error of any component
+of the output vector y, for the present step. If the step failed we know how
+to choose the new step size h0, if the step was ok, we use h0 as the initial
+step size for the next integration phase.
+
+It is difficult to interpret "wanted_accuracy" correctly. When the dependent
+variables differ enormously in amplitude you'd want to use fractional errors.
+With oscillatory functions passing through zero it would be better to set
+the wanted_accuracy to some part of the amplitude of these functions. Press 
+et al recommend an additional array uscal{ to do all this. One of the 
+arguments of the routine will be the vector of dependent variables at the 
+beginning of the proposed step. Call that u{ 1..n }. Let us require the user 
+to specify for each step another, corresponding, vector argument 
+uscal{ 1..n }, and also an overall tolerance level eps. Then the desired 
+accuracy for the ith equation will be
+
+  wanted_accuracy = eps * uscal{ i }
+
+When constant fractional errors are desired you should plug y into the uscal{
+calling slot. When constant absolute errors relative to some maximum values 
+are needed you set uscal{ i } equal to those values. A useful trick for getting
+constant fractional errors except very near zero crossings is to set uscal{ i }
+equal to |u{ i }| + |h * dsdt{ i }| . We'll use that in the code below.
+
+Further refinements of the step size controller result in exponents being 0.2
+or 0.25 and the use of a safety factor S of 0.9:
+   h0 = Sh1 * |wanted_accuracy / delta1|^0.2    wanted_accuracy >= delta1
+      = Sh1 * |wanted_accuracy / delta1|^0.25   wanted_accuracy < delta1
+
+[THEN]
+
+Private:
+  1E-30     FCONSTANT tiny
+ -0.20E0    FCONSTANT pgrow
+ -0.25E0    FCONSTANT pshrink
+ 1e 15E0 F/ FCONSTANT fcor
+   0.9E0    FCONSTANT safety
+
+4E0 safety F/  
+1E0 pgrow  F/ F**  FCONSTANT errcon
+
+FVARIABLE eps
+FVARIABLE step
+FVARIABLE tstart
+FVARIABLE maxstep
+
+FLOAT DARRAY uorig{
+FLOAT DARRAY u1{
+FLOAT DARRAY u2{
+FLOAT DARRAY uscal{
+
+
+\ Find reasonable scaling values to decide when to shrink step size.
+: scale'm ( -- )
+ tstart F@ uorig{ uscal{ dsdt() 
+ dim 0 DO uscal{ I } DUP F@ step F@ F* FABS
+   uorig{ I }     F@ FABS F+ tiny F+
+   F!   
+     LOOP ;
+
+\ With a trick the result of a step can be made accurate to 5th order.
+: 4th->5th ( -- )
+ dim 0 DO   \ get 5th order truncation error
+   uorig{ I } DUP F@  
+   FDUP  u1{ I } F@ F-  fcor F* 
+   F+  F! 
+     LOOP ;
+
+\ Test if the step size needs shrinking
+: shrink? ( -- bool ) ( F: -- diff )
+  0.0E0 ( errmax )
+  dim 0 DO  
+   uorig{ I } F@  u1{ I } F@  F-  
+   uscal{ I } F@  F/  FABS FMAX  
+      LOOP  
+  eps F@ F/  FDUP 1e F> ;
+
+Public:
+
+\ Initialize to use function dsdt() for n equations. The initial function 
+\ values are in s{. The output is also in s{. The result is computed with a 
+\ 5th-order Runge-Kutta routine with adaptive step size control. The step size 
+\ controller tries to keep the fractional error of any s{ component below eps.
+\ The maximum step size is limited to maxstep .
+: )rk4qc_init ( 'dsdt n 'u -- ) ( F: maxstep eps -- )
+   eps F! maxstep F!
+   & uorig{ &! 
+   )runge_kutta4_init
+   & u1{    dim }malloc malloc-fail? ABORT" )rk4qc_init :: malloc (1)" 
+   & u2{    dim }malloc malloc-fail? ABORT" )rk4qc_init :: malloc (2)" 
+   & uscal{ dim }malloc malloc-fail? ABORT" )rk4qc_init :: malloc (3)" ;
+
+\ Release previously allocated space.
+: rk4qc_done  ( -- )
+  runge_kutta4_done
+  & u1{    }free 
+  & u2{    }free 
+  & uscal{ }free ;
+\ Do one Runge-Kutta step, using adaptive step size control. The flag is 
+\ FALSE if the routine succeeds, else the step size has become too small. 
+\ The current step size and time are one the fp stack and will be updated 
+\ by the routine.
+
+: rk4qc_step ( -- flag ) ( F: step t -- step' t' )
+  tstart F!  step F!  scale'm
+  uorig{ u1{ dim }fcopy \ we need a fresh start after a shrink
+  uorig{ u2{ dim }fcopy
+    BEGIN 
+  uorig{ 2 tstart F@ step F@ F2/ runge_kutta4_integrate() FDROP
+  u1{    1 tstart F@ step F@     runge_kutta4_integrate() ( F: -- t' )
+  FDUP tstart F@ 0.0E0 F~ IF 0.0E0 FSWAP FALSE EXIT THEN
+  shrink?   \ maximum difference between these two tries
+    WHILE   \ too large, shrink step size
+  FLN pshrink F* FEXP step F@ F* safety F* step F!  FDROP
+  u2{ uorig{ dim }fcopy \ a fresh start after a shrink...
+  u2{ u1{    dim }fcopy
+
+   REPEAT   \ ok, grow step size for next time
+  FDUP errcon F< IF  FDROP step F@ 4e F* 
+         ELSE  FLN pgrow F* FEXP step F@ F* safety F*
+         THEN 
+  maxstep F@ FMIN  \ but don't grow excessively!
+  FSWAP TRUE 4th->5th ;
+
+
+
+Reset_Search_Order
+
+TEST-CODE? [IF]     \ test code ==========================================
+
+3 FLOAT ARRAY x{
+
+: do_output ( n 'x -- ) ( F: t --  )
+
+       CR
+       F.
+
+       }fprint
+
+       
+;
+
+
+FVARIABLE  _dt      \ With this time increment the dampled vibration test
+1.0E-2 _dt F!       \ will be in error in the 4th decimal place.  Smaller
+                    \ values will give more accurate results.
+
+
+: dt   _dt F@ ;
+: dt!  _dt F! ;
+
+1.0E0 FATAN 8.0E0 F* FCONSTANT PI*2
+
+1.92E0  FCONSTANT cm
+960.0E0 FCONSTANT km
+
+
+
+
+\ A damped vibration test case:
+\              u'' + cm u' + km u = 0
+\  or,
+\              u' = v
+\              v' = - cm v - km u
+
+: dvderivs() ( 'u 'dudt -- ) ( F: t -- )
+
+       FDROP     \ does not use t
+
+       OVER 1 } F@ DUP 0 } F!
+
+       OVER 1 } F@ cm  F*
+       SWAP 0 } F@ km  F* F+ FNEGATE
+            1 } F!
+
+            
+;
+
+: actual ( -- ) ( F: t -- a )             \ just the U value not V for damped vib.
+       cm FOVER F* F2/ FNEGATE FEXP
+       FSWAP
+       cm cm F* 4.0E0 F/ FNEGATE km F+ FSQRT
+       F* FCOS
+       F* PI*2 F/
+;
+
+
+1 VALUE /steps                         \ Number of integration steps
+                                       \ done for a single output value
+
+\ One would expect to get better results for high values of /steps, and
+\ that is indeed the case. 
+
+: dvib_test_twice ( n -- )  \ n is the number of time steps to run
+     LOCALS| a | 
+     use( dvderivs() 2 )runge_kutta4_init
+     2 0 DO
+      1E PI*2 F/ x{ 0 } F!   
+      cm FNEGATE F2/ PI*2 F/  x{ 1 } F!
+      CR 0.0E0  \ initial time
+      2 x{ FDUP do_output ."    : " FDUP actual F.
+      a 0 DO
+             x{ /steps dt /steps S>F F/ runge_kutta4_integrate()
+      2 x{ FDUP do_output ."    : " FDUP actual F.
+        LOOP FDROP  
+      I 0= IF CR ." With twice as many steps now ..." THEN
+      /steps 2* TO /steps
+ LOOP 
+ runge_kutta4_done
+ 1 TO /steps
+ ;
+
+
+: dvib_test ( n -- )               \ n is the number of time steps to run
+
+     1.0E PI*2 F/ x{ 0 } F!
+     cm FNEGATE F2/ PI*2 F/    x{ 1 } F!
+
+     use( dvderivs() 2 )runge_kutta4_init
+     CR     0.0E0                 \ initial time
+     2 x{ FDUP do_output  FDUP actual F.
+     0 DO
+        x{ 1 dt runge_kutta4_integrate()
+        2 x{ FDUP do_output  FDUP actual F.
+       LOOP
+     FDROP  CR
+     runge_kutta4_done
+;
+
+
+
+16.0E0  FCONSTANT sig
+45.92E0 FCONSTANT r
+4.0E0   FCONSTANT bp
+
+
+\ the Lorenz equations for chaos:
+\ dx/dt = sig * (y - x)
+\ dy/dt = r * x - y - x * z
+\ dz/dt = -bp * z + x * y
+
+: derivs() ( 'u 'dudt -- ) ( F: t -- )
+
+       FDROP     \ does not use t
+
+       OVER DUP 1 } F@ 0 } F@ F- sig F*
+       DUP 0 } F!
+
+       OVER DUP DUP 2 } F@ FNEGATE r F+
+                    0 } F@ F*
+                    1 } F@ F-
+       DUP 1 } F!
+
+       SWAP DUP DUP 0 } F@ 1 } F@ F* 2 } F@ bp F* F-
+       2 } F!
+            
+;
+
+ 
+
+: lorenz_test ( n -- )               \ n is the number of time steps to run
+
+     0.0E0 x{ 0 } F!   1.0E0 x{ 1 } F!   0.0E0 x{ 2 } F!     
+
+     use( derivs() 3 )runge_kutta4_init
+     
+     CR
+
+     0.0E0       \ initial time
+
+     3 x{ FDUP do_output
+          
+     0 DO
+
+        x{ 1 dt runge_kutta4_integrate()
+ 
+        3 x{ FDUP do_output
+               
+       LOOP
+
+     FDROP  CR
+
+     runge_kutta4_done
+       
+;
+
+
+
+\ The RC discharge equation: dVc/dt = 1/RC (Vin-Vc)
+
+100E-3  FCONSTANT tau ( R, C product is 100 ms)
+10E     FCONSTANT Vin ( charging voltage source is 10 Volts) 
+
+: Cderiv() ( &u &dudt -- ) ( F: t -- )
+       FDROP
+       Vin  SWAP 0 } F@ F-   tau F/   0 } F! ;
+
+: Vc ( F: t -- v )
+ 1e  FSWAP FNEGATE tau F/ FEXP  F-  Vin F* ; 
+
+\ Example: 10 cap_test
+: cap_test ( n -- )             \ n is the number of time steps to run
+ 0E x{ 0 } F!  
+ use( Cderiv() 1 )runge_kutta4_init
+ CR
+ 0.0E0         \ initial time
+ 1 x{ FDUP do_output ."   " FDUP Vc F.
+ 0 DO
+     x{ /steps dt /steps S>F F/ runge_kutta4_integrate()
+     1 x{ FDUP do_output  ."   " FDUP Vc F.
+ LOOP
+ FDROP CR  runge_kutta4_done 
+ 1 TO /steps ;
+
+
+
+
+: .output1 ( F: time -- )
+ CR FDUP F. 1 x{ }fprint ."  | "  Vc F. ;
+
+\ The charging capacitor problem revisited.
+\ Example: 200e-3 50e-3 1e-3 cap_test2
+
+: cap_test2 ( F: tend maxstep eps -- ) \ tend is the time to stop
+ FROT FRAME| a |   \ maxstep is time between outputs
+ 0e x{ 0 } F!
+ use( Cderiv() 1  x{  FOVER FSWAP )rk4qc_init
+ 0e    \ initial step and begin
+ BEGIN
+   FDUP .output1
+          rk4qc_step 0=
+   FDUP a F>  OR 
+ UNTIL 
+ .output1 FDROP  rk4qc_done |FRAME ;
+
+
+
+: .output2 ( F: time -- )
+ CR FDUP F. 2 x{ }fprint ."  | " actual F. ;
+
+\ The vibration problem again.
+\ Example: 800e-3 50e-3 1e-3 dvib_test2
+
+: dvib_test2 ( F: tend maxstep eps -- ) \ n is the number of time steps to run
+ FROT FRAME| a |   \ maxstep is time between outputs
+ 1E PI*2 F/ x{ 0 } F!   
+ cm FNEGATE F2/ PI*2 F/  x{ 1 } F!
+ use( dvderivs() 2 x{  FOVER FSWAP )rk4qc_init
+ 0e    \ initial step and start time
+ BEGIN
+   FDUP .output2
+          rk4qc_step 0=
+   FDUP a F>  OR
+ UNTIL
+ .output2 FDROP rk4qc_done |FRAME ;
+
+[THEN]
+
+

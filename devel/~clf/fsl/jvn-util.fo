@@ -1,0 +1,59 @@
+\ jvn-util.fo      An auxiliary file for the Forth Scientific Library
+\                  (ThisForth version)
+\                  contains commonly needed definitions.
+\                  For the FSL contributions of Julian Noble
+\   10 October 1994
+
+\ ANS words that are missing in ThisForth
+: SF@   F@ ;
+: SF!   F! ;
+
+: D>F                           \ double to float, quick and dirty HACK
+        D>S  S>F
+;
+
+: FE.   F.  ;
+
+
+
+\ Non ANS words that are needed in the code
+
+
+
+: NOOP ;
+
+: F2/  2.0E0 F/ ;
+
+: F2*  2.0E0 F* ;
+
+: FINIT ;
+
+: FTUCK ( -- f, x y -- y x y )
+         FSWAP FOVER
+;
+
+         
+: F**2  FDUP F* ;
+
+: ZDUP  FOVER FOVER ;
+
+
+\ pushes following value to the float stack
+: %   BL WORD  COUNT  >FLOAT  0= ABORT" Not a fp#"
+	STATE @  IF POSTPONE FLITERAL  THEN  ; IMMEDIATE 
+
+
+: E.   FE. ;
+
+% 3.1415926536 FCONSTANT F=PI
+
+: F0>  % 0.0 FSWAP F< ;
+
+: V: CREATE ['] NOOP , DOES> @ EXECUTE ;
+
+: DEFINES   ' >BODY STATE @ IF POSTPONE LITERAL POSTPONE !
+                            ELSE ! THEN ;   IMMEDIATE
+
+: USE(  STATE @ IF POSTPONE ['] ELSE ' THEN ;  IMMEDIATE
+
+

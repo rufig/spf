@@ -1,0 +1,97 @@
+
+
+   Status of the Forth Scientific Library Project   19 April 2005
+
+
+
+
+   Code contributions:
+
+
+   Reviewed and accepted:
+   (reviewed code is available via WWW at
+    http://www.taygeta.com/fsl/scilib.html)
+
+
+   1. Real Exponential Integral (ACM #20)                       Skip Carter
+   2. Complete Elliptic Integral (ACM #149)                     Skip Carter
+   3. Polynomial evaluation by the Horner method                Skip Carter
+   4. Logistic function and its first derivative                Skip Carter
+   5. Cube root of real number by Newton's method               Julian Noble
+   6. Solution of cubic equations with real coefficients        Julian Noble
+   7. Regula Falsi root finder                                  Julian Noble
+   8. Fast Hartley (Bracewell) Transform                        Skip Carter
+      (with supplemental utilities and tests by Marcel Hendrix)
+   9. Aitken Interpolation (ACM #70)                            Skip Carter
+  10. Hermite Interpolation (ACM #211)                          Skip Carter
+  11. Lagrange Interpolation (ACM #210)                         Skip Carter
+  12. Forward and Backward divided differences                  Skip Carter
+  13. Newton Interpolation with Divided differences (ACM 168 & 169) Skip Carter
+  14. Factorial                                                 Skip Carter
+  15. Shell sort for floating point arrays                      Charles Montgomery
+  16. Exponentiation of a series  (ACM # 158)                   Skip Carter
+  17. Polynomial and Rational function interpolation and extrapolation
+                                                                Marcel Hendrix
+  18. The Gamma, LogGamma and reciprocal Gamma functions        Skip Carter
+  19. Adaptive Integration using Trapezoid rule                 Julian Noble
+  20. Parabolic Cylinder functions and related Confluent Hypergeometric functions
+                                                                Skip Carter
+  21. Special Polynomial (Chebyshev, Hermite, Laguerre, Generalized Laguerre,
+                       Legendre and Bessel) Evaluation          Skip Carter
+  22. Conversion between calendar date and Julian day (ACM 199) Skip Carter
+  23. R250  (also minimal standard) Pseudo-random number generator    Skip Carter
+  24. RAN4 Pseudo-random number generator                       Gordon Charlton
+  25. Finite segment of Hilbert Matrices, their inverses and determinants
+                                                                Skip Carter
+  26. FIND nth element of an unsorted array (ACM #65)           Skip Carter
+  27. Gauss-Legendre Integration                                Skip Carter
+  28. Complete Elliptic Integral of the first kind
+      and second kind (ACM #55 and #56)                         Skip Carter
+  29. 4th order and adaptive Runge-Kutta solvers for systems of ODEs
+                                                                Skip Carter
+  30. Complete Elliptic Integrals of 1st and 2nd kinds (ACM #165)  Skip Carter
+  31. Telescope 1 (ACM 37) (reduction of degree of polynomial
+                                          approximations)       Skip Carter
+  32. Telescope 2 (ACM 38)                                      Skip Carter
+  33. LUFACT, LU Factorization of square matrices               Skip Carter
+  34. Determinant of an LU factored matrix                      Skip Carter
+  35. Back-substitution solution for LU factored linear systems Skip Carter
+  36. Inverse of an LU factored matrix                          Skip Carter
+  37. Four methods for Direct Fourier Transforms                Skip Carter
+  38. Radix-2 Fast Fourier Transform routines                   Skip Carter
+      (5 versions one, two, and three butterflies, tabular, non-tabular)
+  39. Singular Value Decomposition                              Marcel Hendrix
+  40. Amoeba -- Multidimensional Simplex minimization
+                                              of a function     Marcel Hendrix
+  41. Sunday Quicksearch                                        Leonard Morgenstern
+  42. Gauss probability function  (ACM #209)                    Skip Carter
+  43. Regular spherical Bessel functions jn(x), n=0-9           Julian Noble
+  44. 16-bit Cyclic Redundancy Checksums                        Gordon Charlton
+  45. Simpsons rule and Romberg algorithm Quadrature routines   Marcel Hendrix
+  46. Basic arithmetic and conversions for rational numbers     Gordon Charlton
+  47. BIG -- Arithmetic on big signed magnitude numbers         Len Zettel
+  48. Gauss-Jordan Elimination                                  Marcel Hendrix
+  49. Levenberg-Marquardt nonlinear fit                         Marcel Hendrix
+  50. Fast Walsh Transform                                      Skip Carter
+  51. Generation of Random number distributions                 Pierre Abbat
+  52. ISAAC Random number generator                             Pierre Abbat
+  53. Adaptive Integration using trapezoidal rule with          Julian Noble
+             Richardson extrapolation
+  54. Adaptive integration using 3 point Gauss-Legendre         Julian Noble
+           with Richardson extrapolation
+  55. Nonlinear transformation of series (SHANKS) (ACM #215)    Skip Carter
+  56. Quarternions and matrices of rotation                     Pierre Abbat
+  57. GGUBS floating point random number generator              Julian Noble
+  58. One-dimensional Monte-Carlo integration                   Julian Noble
+  59. Permutations and combinations                             Gordon Charlton
+   
+
+
+   Contributed but not yet reviewed:
+
+      Laguerre algorithm for polynomial roots             Julian Noble
+      System floating point parameters                    David N. Williams
+
+   
+   New code contributions and offers to help with reviewing would be welcomed.
+        mailto:  Charles Montgomery <cgm@physics.utoledo.edu>

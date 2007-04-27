@@ -1,0 +1,979 @@
+\ structs.fth          An implementation of simple data structures
+\                      and unions
+
+\ This is an ANS Forth program requiring:
+\      1. The words 'Private:', 'Public:' and 'Reset_Search_Order'
+\         to control the visibility of internal code.
+\      2. The Floating-Point word set
+\      3. The compilation of the test code is controlled by
+\         the VALUE TEST-CODE? and the conditional compilation words
+\         in the Programming-Tools wordset
+\
+\ Note that there are two versions of ]] defined, one for ANS the
+\    other for F-PC V3.6
+ 
+
+\ based heavily upon part of the code described in:
+\ Hayes, J.R., 1992; Objects for Small Systems, Embedded Systems Programming,
+\ V. 5, No. 3(March) pp. 32 - 45
+\
+\ also upon the ideas in:
+\ Pountain, D., 1987; Object-Oriented Forth, Implementation of Data
+\ Structures, Academic Press, New York, 119 pages,  ISBN 0-12-563570-2
+
+\ and communications with Marcel Hendrix
+
+\ $Author$
+\ $Workfile:   structs.fth  $
+\ $Revision$
+\ $Date$
+
+\  .( STRUCTS.FTH   $Revision$Date:$  EFC )
+
+\ ====================================================================
+
+\ The following constant determines which form to generate
+\  TRUE  -- generate version with name-collision avoidance (slower
+\            runtime but allows two different structures to use the
+\            same attribute names)
+\  FALSE -- generate version with potential name collision (requires
+\           coding to avoid name collision in structure attributes)
+
+Private:
+
+
+FALSE CONSTANT NO_STRUCT_COLLIDE
+
+
+\ ====================================================================
+
+Public:
+
+NO_STRUCT_COLLIDE [IF]
+\ create a new dictionary entry based upon passed string (instead
+\ of input stream).
+\ (this version uses PAD)
+: $create ( c-addr -- 0 )
+          S" CREATE "  PAD     SWAP CMOVE
+          COUNT DUP >R PAD 7 + SWAP CMOVE
+          PAD R> 7 +
+          EVALUATE 0
+;
+
+[THEN]
+
+Private:
+
+\ ============= controlling values ==================================
+
+NO_STRUCT_COLLIDE [IF]
+
+1 CONSTANT scalar_flag
+2 CONSTANT array_flag
+4 CONSTANT struct_flag
+
+[THEN]
+
+0 VALUE fetch-em          \ execution token of a 'struct-@' (temporary)
+
+V: store-em               \ a vector to a ',' type word
+
+FALSE VALUE is-const      \ identifies constant or variable type struct
+
+FALSE VALUE GO-EARLY      \ TRUE when doing early binding
+
+TRUE  VALUE building-struct   \ TRUE for structs, FALSE for unions
+
+\ ===================================================================
+
+
+: makevar                 \  allocate memory for a struct of given size
+   CREATE ,           ( size id -- )
+   is-static? IF HERE CELL+ , ALLOT ELSE DROP 0 , THEN
+   TRUE TO is-static?
+   DOES>
+        DUP @ SWAP CELL+ @       ( -- id addr )
+;
+
+: makeconst    \ allocate memory for a constant-type struct of given size
+                  \ | id | @ | data... |
+   CREATE ,       ( size id -- )
+   DROP           \ don't need the size since fetch-em knows it
+   fetch-em ,
+   store-em       \ lay down the constant structure data
+   FALSE TO is-const
+   DOES>          ( -- value )
+        DUP @ SWAP
+        CELL+ DUP CELL+ SWAP @ EXECUTE      \ executes fetch-em
+;
+
+: makeinstance ( size --- )           \ create a struct of given size
+   ALIGN
+   is-const IF makeconst
+            ELSE makevar
+            THEN
+;
+
+NO_STRUCT_COLLIDE [IF]
+
+: ?member-error ( s-id m-base -- s-id m-base )  \ raise an error if at
+                                                \ end of member list
+         DUP
+
+         0= IF   DROP   ." Wrong member of structure, STRUCT = " U. CR
+                 ABORT
+            THEN
+;
+
+: match-member ( s-id m-base -- offset m-base )
+      BEGIN
+        DUP [ 2 CELLS ] LITERAL + 2@
+        SWAP 3 PICK
+      <> WHILE
+        DROP @
+        ?member-error
+      REPEAT
+
+      SWAP ROT DROP
+;
+
+\ calculate address of member base for simple scalar data types
+
+: resolve-structure-member ( s-addr offset m-base -- m-id m-addr )
+         [ 4 CELLS ] LITERAL + @
+         ROT ROT +
+;
+
+: resolve-array-member ( s-addr offset m-base -- m-base m-addr )
+           >R + R> SWAP
+;
+
+: pointer-resolve ( s-id s-addr m-base  -- m-addr )
+    ROT SWAP
+    match-member
+    DROP +
+;
+
+: resolve-member ( s-id s-addr m-base -- m-addr/m-base m-addr/m-id m-addr )
+          ROT SWAP
+          match-member
+          DUP CELL+ @
+                    DUP scalar_flag = IF 2DROP +
+                                      ELSE DUP array_flag =
+                                           IF DROP resolve-array-member
+                                           ELSE DUP
+                                           struct_flag = IF DROP
+                                                          resolve-structure-member
+                                                         ELSE
+                                            ." bad structure type " U. CR
+                                            ABORT
+                                            THEN THEN THEN
+                                                      
+;
+
+: store-link ( link -- )
+
+      DUP IF >BODY
+             BEGIN
+               DUP @
+             WHILE
+              @
+            REPEAT
+
+            HERE SWAP !
+          ELSE
+            DROP
+	THEN
+
+;
+
+: manage-space ( id offset size type link -- id offset' )
+      store-link  0 , ,
+      building-struct IF OVER , +  ELSE 0 , MAX THEN
+	  OVER ,
+;
+
+
+: build-it
+   $CREATE     ( id offset size -- id offset' )
+          manage-space
+   DOES>               \ ( s-id s-addr m-base -- m-addr ) 
+         resolve-member
+;
+
+: build-struct
+   $CREATE     ( id offset size -- id offset' )
+          manage-space
+          TYPE-ID ,
+   DOES>               ( s-id s-addr m-base -- m-id m-addr )
+        resolve-member
+;
+
+: aus:       \ Structure member compiler.   | link | type | offset | id |
+   scalar_flag
+   BL WORD FIND IF manage-space ELSE build-it THEN
+;
+
+: smc: \ Structure member compiler. |link|type| offset | id | struct-id |
+   struct_flag
+   BL WORD FIND IF manage-space TYPE-ID ,
+                ELSE build-struct 
+                THEN
+;
+
+[ELSE]
+
+: ?member-error ( m-id s-id -- )  \ raise an error if s-id and m-id
+                                  \ do not match
+         OVER OVER
+
+         <> IF  SWAP  ." Wrong member of structure, STRUCT = " U. CR
+                      ." , Member = " U. CR
+		  ABORT
+            THEN
+	    
+	2DROP
+;
+
+\ calculate address of member base for simple scalar data types
+
+: resolve-structure-member ( s-id s-addr m-base -- m-id m-addr )
+         ROT >R
+	 DUP 2@ SWAP R>
+	 ?member-error
+         SWAP [ 2 CELLS ] LITERAL + @
+         ROT ROT +
+;
+
+: resolve-array-member ( s-id s-addr m-base -- m-base m-addr )
+          ROT >R
+	  DUP 2@ SWAP R>
+	  ?member-error
+	  ROT +
+;
+
+: resolve-scalar-member ( s-id s-addr m-base -- m-addr )
+          ROT >R
+	  2@ SWAP R>
+	  ?member-error
+	  +
+;
+
+: manage-space ( id offset size  -- id offset' )
+      building-struct IF OVER , +  ELSE 0 , MAX THEN
+      OVER ,
+;
+
+: aus:      \ Structure member compiler.   | link | type | offset | id |
+   CREATE     ( id offset size -- id offset' )
+          manage-space
+   DOES>               \ ( s-id s-addr m-base -- m-addr ) 
+         resolve-scalar-member
+;
+
+: smc: \ Structure member compiler. |link|type| offset | id | struct-id |
+   CREATE     ( id offset size -- id offset' )
+          manage-space
+          TYPE-ID ,
+   DOES>               ( s-id s-addr m-base -- m-id m-addr )
+        resolve-structure-member
+;
+
+[THEN]
+
+\ ===================================================================
+
+Public:
+
+: constant-structure ( '@ ', --  )
+           DEFINES store-em
+           TO fetch-em
+      TRUE TO is-const
+;
+
+
+: attribute   ( offset size -- offset' )           \ same as struct:
+       \ >R ALIGNED R>
+       STRUCT-ARRAY? IF   smc: FALSE TO STRUCT-ARRAY?
+                     ELSE aus: THEN
+;
+
+: chars:  ( offset n --- offset' )  \ Create n char member.
+   CHARS aus: ;
+
+: char:  ( offset --- offset' )  \ Create 1 char member.
+   1 chars: ;
+
+: cells:   ( offset n --- offset' )  \ Create n cell member.
+   CELLS  attribute ;
+
+: cell:   ( offset --- offset' )  \ Create 1 cell member.
+   1 cells: ;
+
+: struct:  ( offset size --- offset' )  \ Create member of given size.
+    attribute ;
+
+
+: integer: ( offset -- offset' )
+     1 cells: ;
+     
+: double:  ( offset -- offset' )
+     2 cells: ;
+          
+: float:           ( offset -- offset' )
+     FALIGNED 1 FLOATS aus:
+;
+
+\ ====================================================================
+\ Words for creating STATICALLY declared arrays WITHIN a structure
+
+Private:
+
+NO_STRUCT_COLLIDE [IF]
+
+: manage-marray   ( id offset n size type link -- id offset' )
+           store-link 0 ,  ,
+           2 PICK ,  3 PICK ,
+           DUP ,
+           *
+           +
+	   \ reserve additional space for cell size info
+	   1 CELLS +
+;
+
+: manage-sarray  ( id offset n size type link -- id offset' )
+           store-link 0 ,  ,
+           2 PICK ,   3 PICK ,
+           TYPE-ID ,
+           DUP ,
+           *
+           +
+	   \ reserve additional space for structure tag info
+	   2 CELLS +
+;
+
+\ For arrays of SCALAR types
+: MARRAY:              \    | offset | id | cell_size |
+        $CREATE              ( id offset n cell_size -- id offset' )
+        manage-marray
+        DOES>               ( s-id s-addr m-base -- m-addr )
+           resolve-member
+
+           \ get cell size and store it in the instance
+           SWAP [ 2 CELLS ] LITERAL + @ OVER !
+           CELL+
+;
+
+\ For arrays of structure types
+: SARRAY:              \    | offset | id | t-id | cell_size |
+        $CREATE              ( id offset n cell_size -- id offset' )
+          manage-sarray
+        DOES>               ( s-id s-addr m-base -- m-id m-addr )
+           resolve-member
+
+           \ get cell size and type store them in the instance
+           OVER OVER !
+           OVER @ OVER CELL+ !
+
+           2 CELLS +
+;
+
+Public:
+
+: ARRAY:    ( id offset n -- id offset'  id offset n size -- id offset' )
+       \ >R ALIGNED R>
+       STRUCT-ARRAY? IF struct_flag
+                        BL WORD FIND IF manage-sarray ELSE SARRAY: THEN
+                        FALSE TO STRUCT-ARRAY?
+                     ELSE array_flag
+                        BL WORD FIND IF manage-marray ELSE MARRAY: THEN
+                     THEN
+;
+
+[ELSE]
+
+
+: manage-marray
+           2 PICK ,  3 PICK ,
+           DUP ,
+           *
+           +
+	   \ reserve additional space for cell size info
+	   1 CELLS +
+;
+
+: manage-sarray
+           2 PICK , 3 PICK ,
+           TYPE-ID ,
+           DUP ,
+           *
+           +
+	   \ reserve additional space for structure tag info
+	   2 CELLS +
+;
+
+\ For arrays of SCALAR types
+: MARRAY:              \    | offset | id | cell_size |
+        CREATE              ( id offset n cell_size -- id offset' )
+        manage-marray
+        DOES>               ( s-id s-addr m-base -- m-addr )
+           resolve-array-member
+
+           \ get cell size and store it in the instance
+           SWAP [ 2 CELLS ] LITERAL + @ OVER !
+           CELL+
+;
+
+\ For arrays of structure types
+: SARRAY:              \    | offset | id | t-id | cell_size |
+        CREATE              ( id offset n cell_size -- id offset' )
+        manage-sarray
+        DOES>               ( s-id s-addr m-base -- m-id m-addr )
+           resolve-array-member
+
+           \ get cell size and type store them in the instance
+           SWAP [ 2 CELLS ] LITERAL + 2@ >R OVER !
+           CELL+
+           R> SWAP
+;
+
+Public:
+
+: ARRAY:    ( id offset n -- id offset'  id offset n size -- id offset' )
+       \ >R ALIGNED R>
+       STRUCT-ARRAY? IF SARRAY:
+                        FALSE TO STRUCT-ARRAY?
+                     ELSE 
+                        MARRAY:
+                     THEN
+;
+
+[THEN]
+
+
+\ ====================================================================
+\ Words for creating array pointers WITHIN a structure
+\ These ARE NOT dynamic arrays but are general purpose pointers
+\ ( does cell_size need to be stored ? )
+
+Private:
+
+: manage-dmpointer          ( id offset csize -- id offset' )
+          manage-space
+;
+
+: manage-dspointer       ( id offset csize -- id offset' )
+          manage-space
+          TYPE-ID ,
+;
+
+NO_STRUCT_COLLIDE [IF]
+
+: dmpointer:   \ pointer member compiler.     | offset | id | cellsize |
+   $CREATE
+     manage-dmpointer
+   DOES>               \ ( s-id s-addr m-base -- m-addr )
+         resolve-member
+         @
+;
+
+
+: dspointer:  \ pointer member compiler. | offset | id | struct-id | cs |
+   $CREATE
+     manage-dspointer
+   DOES>               ( s-id s-addr m-base -- m-id m-addr )
+       resolve-member
+       @
+;
+
+Public:
+
+: POINTER: ( id offset cell_size -- id offset' )
+    \ >R ALIGNED R>
+    STRUCT-ARRAY? IF struct_flag
+                    BL WORD FIND IF manage-dspointer ELSE DSPOINTER: THEN
+                    FALSE TO STRUCT-ARRAY?
+                  ELSE scalar_flag
+                    BL WORD FIND IF manage-dmpointer ELSE DMPOINTER: THEN
+                  THEN
+;
+
+[ELSE]
+
+
+: dmpointer:       \ pointer member compiler.  | offset | id | cellsize |
+   CREATE
+     manage-dmpointer
+   DOES>               \ ( s-id s-addr m-base -- m-addr )
+         resolve-scalar-member
+         @
+;
+
+
+: dspointer:  \ pointer member compiler. | offset | id | struct-id | cs |
+   CREATE
+     manage-dspointer
+   DOES>               ( s-id s-addr m-base -- m-id m-addr )
+         resolve-structure-member
+         @
+;
+
+Public:
+
+: POINTER: ( id offset cell_size -- id offset' )
+       \ >R ALIGNED R>
+       STRUCT-ARRAY? IF DSPOINTER:
+                        FALSE TO STRUCT-ARRAY?
+                     ELSE 
+                        DMPOINTER:
+                     THEN
+;
+
+[THEN]
+
+
+\ ====================================================================
+
+: structure:                           \ Start structure declaration.
+   CREATE HERE 0 , 0                   \ ( -- id offset )
+   FALSE TO STRUCT-ARRAY?
+   TRUE TO building-struct
+   DOES>
+       DUP @ SWAP makeinstance ;     \ ( -- pfa template )
+
+: union:                               \ Start union declaration.
+   CREATE HERE 0 , 0                   \ ( -- id offset )
+   FALSE TO STRUCT-ARRAY?
+   FALSE TO building-struct
+   DOES>
+       DUP @ SWAP makeinstance ;     \ ( -- pfa template )
+
+
+: ;structure     ( id offset --- )
+   SWAP ! TRUE TO is-static?  FALSE TO STRUCT-ARRAY? ;
+
+: ;union   ;structure ;
+
+
+\ deprecated aliases
+\ : structure   structure:    ;
+\ : union       union:        ;
+
+\ : endstructure   ;structure ;
+\ : endunion       ;structure ;
+
+\ ====================================================================
+
+
+\ for building arrays of structures and nested structures
+: sizeof ( -- n )        \ returns size of a structure, APPLY TO TYPES!!!
+    ' >BODY DUP TO TYPE-ID @
+    STATE @ IF POSTPONE LITERAL THEN
+    TRUE TO STRUCT-ARRAY?
+; IMMEDIATE
+
+\ for declaring structure pointers
+: structure ( -- n )      \ returns size of a structure pointer
+    ' >BODY TO TYPE-ID
+    2 CELLS
+    STATE @ IF POSTPONE LITERAL THEN
+    TRUE TO STRUCT-ARRAY?
+; IMMEDIATE
+
+\ for declaring union pointers
+: union ( -- n )
+    POSTPONE structure
+; IMMEDIATE
+
+
+\ coersion words,    usage:   (struct  struct_type *) address
+\                             (caddr_t) struct_instance
+
+: (struct ( -- id )           \ returns the type id, APPLY TO TYPES!!!
+    ' >BODY
+    STATE @ IF POSTPONE LITERAL THEN
+; IMMEDIATE
+
+: (union ( -- id )
+    POSTPONE (struct
+; IMMEDIATE
+
+: *)      ( -- )                      ; IMMEDIATE
+
+: (caddr_t) ( -- addr )      \ return base address, APPLY TO INSTANCES!!!
+    ' >BODY CELL+
+    STATE @ IF POSTPONE LITERAL POSTPONE @ ELSE @ THEN
+; IMMEDIATE
+
+
+
+: typeof ( -- id )   POSTPONE (struct ; IMMEDIATE
+
+: addrof ( -- addr )   POSTPONE (caddr_t) ; IMMEDIATE
+
+
+\ Word to get base address of pointer instance
+\ example usage:      pix -> .x{
+
+NO_STRUCT_COLLIDE [IF]
+
+
+: ->  ( s-id s-addr -- addr )
+    ' >BODY STATE @ IF POSTPONE LITERAL POSTPONE pointer-resolve
+    ELSE pointer-resolve THEN ; IMMEDIATE
+
+[ELSE]
+
+: ->  ( s-id s-addr -- addr )
+      ' >BODY STATE @ IF POSTPONE LITERAL POSTPONE resolve-scalar-member
+                      ELSE resolve-scalar-member THEN ; IMMEDIATE
+
+[THEN]
+
+\  usage:   a{ pix -> .x{ ->!
+: ->!     ( ar-base addr -- )   ! ;
+
+
+: struct!  ( hdl 'struct -- )  \ assign a struct to an dynamic pointer
+           >BODY CELL+ ! DROP
+;
+
+\ For forcing early binding.
+\ These words are written so that they are harmless to invoke at runtime
+: [[    STATE @ IF TRUE TO GO-EARLY POSTPONE [
+                ELSE FALSE TO GO-EARLY THEN ; IMMEDIATE
+
+\ F-PC V3.6 version
+\ : ]]    GO-EARLY IF POSTPONE ] POSTPONE LITERAL FALSE TO GO-EARLY THEN
+\ ; IMMEDIATE
+
+\ ANS version
+: ]]    GO-EARLY IF ] POSTPONE LITERAL FALSE TO GO-EARLY THEN ; IMMEDIATE
+
+
+
+structure: STRUCT-HANDLE          \ useful for saving structure instances
+        1 CELLS attribute .type
+        1 CELLS attribute .addr
+;structure
+
+: h@   ( hdl1 -- hdl2 )  2DUP .type @ ROT ROT .addr @ ;
+: h!   ( hdl1 hdl2 -- )  2OVER 2OVER .addr ! DROP ROT DROP .type ! ;
+
+
+\ ===================================================================
+
+\ for dynamically allocating a structure
+
+ : new ( xt size -- hdl )
+
+      ALIGN
+      
+      OVER
+      >BODY CELL+
+      SWAP DUP >R
+      ALLOCATE ABORT" unable to allocate structure space"
+      DUP R> 0 FILL    \ zero fill the space
+      SWAP !
+      EXECUTE
+ ;
+
+\ releasing dynamically allocated space
+
+: delete-struct ( xt -- )
+    >BODY CELL+
+    DUP @ FREE  ABORT" problem releasing structure space"
+    0 SWAP !
+;
+
+Reset_Search_Order
+
+\ ====================================================================
+
+TEST-CODE? [IF]
+
+\ shows the header data for an attribute
+: show-head
+       ' >BODY
+       BEGIN
+         DUP
+         DUP 2@ . . 2 CELLS + 2@ . . CR
+         @ DUP 0=
+       UNTIL
+       DROP         
+;
+
+structure: complex                 \ a "typedef"
+   float: .re
+   float: .im
+;structure
+
+
+complex x
+complex y
+
+4 sizeof complex  ARRAY z{
+
+: }cprint ( n daddr -- )
+    ROT 0 DO
+               2DUP I } 2DUP .re F@ F.  ." , "
+                             .im F@ F.
+               CR
+           LOOP
+
+    2DROP
+;
+      
+: test
+    4 0 DO
+          I S>D D>F     z{ I } .re F!
+          I 1+  S>D D>F z{ I } .im F!
+        LOOP
+
+    CR 4 z{ }cprint
+
+;
+
+: Z.   FSWAP ." ( " F. F. ." ) " ;
+
+: Z!  ( daddr -- ) ( f: re im -- )    2DUP .im F! .re F! ;
+
+: Z@  ( daddr -- ) ( f: -- re im )    2DUP .re F@ .im F@ ;
+
+: Z,  ( -- ) ( F: re im -- )         FSWAP F, F, ;
+
+: zvariable               \ how to define a structure VARIABLE
+      complex
+;
+
+: zconstant                \ how to define a CONSTANT structure
+      ['] Z@
+      ['] Z,
+      FALIGN
+      constant-structure complex
+;
+
+
+\ a constant complex structure
+1.0e0 0.0e0 zconstant 1+0i
+
+
+structure: pixel
+     integer: ->id
+     float:   ->mean
+     integer: ->red
+     integer: ->green
+     integer: ->blue
+;structure
+
+: SET-MEAN ( daddr -- )
+
+   2DUP ->red @ S>D D>F
+   2DUP ->green @ S>D D>F F+
+   2DUP ->blue @ S>D D>F F+
+   3.0e0 F/
+
+   ->mean F!
+;
+
+pixel pix1
+pixel pix2
+
+1 pix1 ->id !
+2 pix2 ->id !
+
+10 pix1 ->red !
+20 pix1 ->blue !
+30 pix1 ->green !
+
+200 pix2 ->red !
+150 pix2 ->blue !
+100 pix2 ->green !
+
+pix1 SET-MEAN
+pix2 SET-MEAN
+
+: show-colors ( obj -- )
+   CR
+   ."  ID = "    2DUP ->id @ .
+   ."  Red = "   2DUP ->red @ .
+   ."  Green = " 2DUP ->green @ .
+   ."  Blue = "  2DUP ->blue @ .
+
+   ." Mean = "  ->mean F@ F.
+
+   CR
+
+
+;
+
+\ an array test
+
+5 sizeof pixel ARRAY p{                 \ static array example
+\ sizeof pixel DARRAY p{                \ dynamic array example
+
+
+: init-ary ( -- )
+
+       10
+       
+       5 0 DO   I p{ I } ->id !
+              DUP p{ I } ->red !
+              10 +
+              DUP p{ I } ->green !
+              10 +
+              DUP p{ I } ->blue !
+
+      p{ I } SET-MEAN
+              
+           LOOP
+
+      DROP
+;
+
+: print-ary
+      \ now print the loop, just to be interesting do it backwards
+      0 4 DO
+              p{ I } show-colors
+         -1 +LOOP
+     
+;
+
+
+\ an example showing how to point to a dynamically allocated array
+structure: databuffer
+	integer: .bufsize
+        integer pointer: .data{
+;structure
+
+integer darray itmp{
+STRUCT-HANDLE thandle           \ scratch handle
+
+\ the buffer to create
+databuffer xbuf
+
+: init-buffer ( n hdl -- )
+
+	thandle h!
+        & itmp{ OVER }malloc
+        itmp{ thandle h@ -> .data{ ->!
+
+	thandle h@ .bufsize !
+
+;
+
+: fill-buffer ( hdl -- )
+
+	thandle h!
+
+        thandle h@ .bufsize @
+	0 DO
+                I 1+
+		thandle h@ .data{ I } !
+          LOOP
+;
+
+: show-buffer ( hdl -- )
+	2DUP .bufsize @ 0 DO
+                            2DUP .data{ I } @ . LOOP
+        2DROP CR
+;
+
+\ 8 xbuf init-buffer
+\   xbuf fill-buffer
+\   xbuf show-buffer
+
+\ ============== Pointer and Union tests ==========================================
+
+\ for tests of a structure containing a pointer to a scalar
+.( structure: dakine ) CR
+structure: dakine
+    integer: .one
+    integer pointer: .three
+    integer: .two
+;structure
+
+
+.( union: alias ) CR
+union: alias
+    integer: .address
+    integer pointer: .number
+;union
+
+dakine first
+dakine second
+
+variable foo
+variable bar
+
+alias smith
+
+\ for tests of a structure containing a pointer to a structure
+.( structure skittles ) CR
+structure: skittles
+    integer: .black
+    structure dakine pointer: .and
+    integer: .tan
+;structure
+
+skittles beer
+
+    
+: test0 ( -- )
+
+    sizeof dakine ." sizeof dakine: " . CR
+    sizeof skittles ." sizeof skittles: " . CR
+    sizeof alias ." sizeof alias: " . CR
+;
+
+
+: test1 ( -- )
+    1 first .one !
+    2 first .two !
+    foo first -> .three ->!
+    99 foo !
+
+    21 second .one !
+    22 second .two !
+    bar second -> .three ->!
+    33 bar !
+
+     CR
+    ." first .one = (1) " first .one ? CR
+    ." first .two = (2) " first .two ? CR
+    ." first .three = (99) " first .three ? CR
+
+    ." second .one = (21) " second .one ? CR
+    ." second .two = (22) " second .two ? CR
+    ." second .three = (33) " second .three ? CR
+
+;
+
+: test2 ( -- )               \ run AFTER test1 or .three will fail
+    -1 beer .black !
+    -2 beer .tan !
+    first beer -> .and ->! DROP
+
+    CR
+    ." beer .black = (-1) " beer .black ? CR
+    ." beer .tan = (-2) " beer .tan ? CR
+    ." beer .and .one = (1) " beer .and .one ? CR
+    ." beer .and .two = (2) " beer .and .two ? CR
+    ." beer .and .three = (99) " beer .and .three ? CR
+
+;
+
+: test3 ( -- )
+    foo smith -> .number ->!
+
+    CR
+    ." smith .address = " smith .address ?
+    ."  (address of foo " foo . ." ) " CR
+
+    ." smith .number = " smith .number ?
+    ."  (value at foo " foo ? ." ) " CR
+
+;
+
+
+[THEN]

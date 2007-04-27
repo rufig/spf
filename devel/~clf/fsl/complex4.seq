@@ -1,0 +1,458 @@
+\ COMPLEX4  An alternative (demonstration) definition of a complex number type
+\           and associated operations on it.  This version uses a seperate
+\           complex number stack.
+
+\ This form uses STRUCTURES (V1.5)
+
+\           These are the words that might care about the implementation details
+\           of the Complex type.  This file specifies the SYNTAX of operations
+\           on the complex data type.  The internals of the implementation here
+\           are typical but should not be assumed by other programs as they
+\           very likely could be rewritten for efficiency on specific platforms
+\           or compilers.
+
+\ For the sake of possible optimizations, the following words are also
+\ defined here
+\ in spite of the fact that they can be defined without knowledge of the
+\ details of implementation:
+\ Z+      sum of two complex numbers
+\ Z-      difference of two complex numbers
+\ Z*      product of two complex numbers
+\ Z/      complex division
+\ ZABS    complex magnitude
+
+\ The Z/ routine does the complex division (x1,y1)/(x2,y2)
+\ The ZABS routine finds Magnitude of the pair(x,y)
+
+\ If the CONSTANT PLAUGER-CODE? is defined to be TRUE then,
+\     the routines ZABS and Z/ are designed to preserve as much precision
+\     as possible. They are based upon the algorithms described in:
+\        Plauger, P.J., 1994; Complex Made Simple, Embedded Systems Programming,
+\        July, pp. 85-88
+\ otherwise the obvious straightforward algorithm is used.
+
+\ This is an ANS Forth program requiring:
+\      1. The Floating-Point word set
+\      2. The word 'F,' to store an floating point number at (FALIGNED) HERE
+\         : F,  ( f: x -- )        HERE 1 FLOATS ALLOT F! ;
+
+\      3. Uses words 'Private:', 'Public:' and 'Reset_Search_Order'
+\         to control the visibility of internal code.
+
+\  (c) Copyright 1994 Everett F. Carter.  Permission is granted by the
+\  author to use this software for any application provided this
+\  copyright notice is preserved.
+
+CR .( COMPLEX4          V1.1            3 January 1995   EFC )
+
+FALSE CONSTANT PLAUGER-CODE?             \ set to TRUE or FALSE as desired
+                                         \ before compiling
+
+structure complex-type
+        float: .re
+        float: .im
+endstructure
+
+: COMPLEX  ( -- size )              \ the size of the type
+     sizeof complex-type 
+     typeof complex-type TO TYPE-ID
+     TRUE TO STRUCT-ARRAY?
+;
+
+Private:
+
+
+\ a COMPLEX STACK where the numbers are stored
+
+16 CONSTANT ZSTACK-SIZE
+
+-1 VALUE Z-PTR
+ZSTACK-SIZE 1+ COMPLEX ARRAY zs{
+
+
+: Z-INC ( -- ptr )
+
+             Z-PTR 1+
+             DUP ZSTACK-SIZE > ABORT" Complex stack error, too deep "
+
+             DUP TO Z-PTR
+
+;
+
+: Z-DEC ( -- ptr )
+
+             Z-PTR
+             DUP 0< ABORT" Complex stack error, empty "
+
+             DUP 1- TO Z-PTR
+;
+
+: ZPUSH ( -- ) ( F: re im -- )
+
+             zs{ Z-INC } 
+             2DUP .im F!
+                  .re F!
+ 
+;
+
+: ZPOP ( -- ) ( f: -- re im )
+
+             zs{ Z-DEC }
+             2DUP .re F@
+                  .im F@
+;
+
+
+: ZRPUSH ( -- ) ( f: im re -- )
+
+             zs{ Z-INC } 
+             2DUP .re F!
+                  .im F!
+
+;
+
+
+: ZRPOP ( -- ) ( f: -- im re )
+
+             zs{ Z-DEC }
+
+             2DUP .im F@
+                  .re F@
+
+;
+
+: (zre-stack)        zs{ Z-INC } .re F! ;
+
+: (zim-stack)        zs{ Z-PTR } .im F! ;
+
+\ pushes following value to the complex stack as the real part
+: (zre%)   BL WORD  COUNT  >FLOAT  0= ABORT" NAN"
+           STATE @  IF POSTPONE FLITERAL POSTPONE (zre-stack)
+                    ELSE (zre-stack)
+                    THEN 
+           ; IMMEDIATE
+
+\ pushes following value to the complex stack as the imaginary part
+: (zim%)   BL WORD  COUNT  >FLOAT  0= ABORT" NAN"
+           STATE @  IF POSTPONE FLITERAL POSTPONE (zim-stack)
+                    ELSE (zim-stack)
+                    THEN
+           ; IMMEDIATE
+
+
+FVARIABLE scale-factor
+FVARIABLE t-real
+FVARIABLE t-imag
+
+PLAUGER-CODE? [IF]
+
+% 2.0 FSQRT         FCONSTANT sqrt2.0
+sqrt2.0 % 1.4142 F- FCONSTANT little-bits
+
+: zabs-xy ( -- , f: x y -- x y )
+
+        FABS FSWAP FABS        \ first set absolute values ( x y -- y x )
+
+        \ now put smallest on top of the stack
+        F2DUP F< IF FSWAP THEN
+        
+        
+;
+
+: set-scale-factor ( -- , f: x y -- x y )
+
+           FOVER % 1.0 F> IF
+                            % 4.0 F* FSWAP
+                            % 4.0 F* FSWAP
+                            % 0.25 scale-factor F!
+                          ELSE
+                            % 0.25 F* FSWAP
+                            % 0.25 F* FSWAP
+                            % 4.0 scale-factor F!
+                          THEN
+;
+
+: zabs-for-small-y ( -- , f: x y -- z )
+                 F2DUP F/
+                 FDUP FDUP F*
+                 % 1.0 F+ FSQRT
+                 F+ F/ F+
+;
+
+: zabs-for-mid-xy ( -- , f: x y -- z )
+                F2DUP F- FOVER F/
+                FDUP FDUP % 2.0 F+ F*
+                FDUP % 2.0 F+ FSQRT
+
+                sqrt2.0 F+
+                F/
+                little-bits F+
+                F+
+                % 2.4142 F+
+                F/ F+
+;
+
+: normalize ( -- , f: z -- z )
+       scale-factor F@ F*        
+;
+
+: zero-divide-error   FDROP FDROP FDROP FDROP ." zero divide error" ABORT ;
+
+: smaller-real-div ( -- , f: x1 y1 x2 y2 -- x3 y3 )
+       F2DUP F/
+       FROT FOVER F* FROT F+
+
+       FDUP F0= IF zero-divide-error
+                ELSE
+                   scale-factor F!
+                   FROT F2DUP F* t-real F!
+                   FROT FDUP t-real F@ F+ scale-factor F@ F/ t-real F!
+                   FROT F* FSWAP F- scale-factor F@ F/
+                   t-real F@ FSWAP
+                THEN
+;
+
+: smaller-imag-div ( -- , f: x1 y1 x2 y2 -- x3 y3 )
+       FSWAP F2DUP F/
+       FROT FOVER F* FROT F+
+
+       FDUP F0= IF zero-divide-error
+                ELSE
+                   scale-factor F!
+                   FROT F2DUP F* t-imag F!
+                   FROT FDUP t-imag F@ F- scale-factor F@ F/ t-imag F!
+                   FROT F* F+ scale-factor F@ F/
+                   t-imag F@
+                THEN
+
+;
+
+: ZABS-SCALED ( -- , f: x y -- z )
+
+         % 0.0 scale-factor F!
+         zabs-xy
+
+         FOVER F0= IF FDROP
+                   ELSE
+                        set-scale-factor
+                        F2DUP FOVER FSWAP F-
+                        F= IF FDROP
+                           ELSE
+                               F2DUP F-
+                               FOVER
+                               F< IF
+                                      zabs-for-small-y
+                                   ELSE
+                                      zabs-for-mid-xy
+                                   THEN
+                           THEN
+                   THEN    
+
+;
+
+[THEN]
+
+Public:
+
+: REAL>Z  ( -- ) ( f: x -- z )  % 0.0 ZPUSH  ;        \ convert float to complex
+
+\ convert float to pure imaginary complex value
+: IMAG>Z ( -- ) ( F: r -- z )         % 0.0 ZRPUSH ;
+
+: Z->R,I ( -- ) ( F: -- re im ) ( Z: z -- )  ZPOP   ;
+: Z->I,R ( -- ) ( F: -- im re ) ( Z: z -- )  ZRPOP  ;
+: R,I->Z ( -- ) ( F: re im -- ) ( Z: -- z )  ZPUSH  ;
+: I,R->Z ( -- ) ( F: im re -- ) ( Z: -- z )  ZRPUSH ;
+
+: REAL ( -- ) ( F: -- re ) ( Z: z -- )     ZPOP FDROP ;
+
+: IMAG ( -- ) ( F: -- im ) ( Z: z -- )     ZRPOP FDROP ;
+
+
+
+: Z@  ( addr -- ) ( z: -- z )    FALIGNED DUP F@ FLOAT+ F@ ZPUSH DROP ;
+
+: Z!  ( addr -- ) ( z: z -- )    FALIGNED DUP FLOAT+ ZPOP F! F! DROP ;
+
+: Z, ( -- ) ( Z: z -- )          FALIGN ZRPOP  F, F, ;
+
+
+: ZDEPTH   Z-PTR 1+ ;
+
+: ZDUP ( -- ) ( z: z -- z1 z2 )
+
+             zs{ Z-PTR }
+             2DUP .re F@
+                  .im F@
+
+             ZPUSH
+;
+
+
+: ZDROP ( -- ) ( z: z -- )
+             Z-DEC
+             DROP
+;
+
+: ZSWAP ( -- ) ( z: z1 z2 -- z2 z1 )
+             Z-PTR
+             DUP 1 < ABORT" Complex stack error, need at least two numbers "
+
+             zs{ 2 PICK }    .re F@
+             zs{ 2 PICK 1- } .re F@ zs{ 2 PICK } .re F!
+             zs{ 2 PICK 1- } .re F!
+
+             zs{ 2 PICK }    .im F@
+             zs{ 2 PICK 1- } .im F@ zs{ 2 PICK } .im F!
+             zs{ ROT 1- } .im F!
+
+;
+
+: ZOVER  ( -- ) ( Z: z1 z2 -- z1 z2 z1 )
+
+             Z-PTR
+             DUP 1 < ABORT" Complex stack error, need at least two numbers "
+
+             zs{ ROT 1- }
+             2DUP    .re F@
+                     .im F@
+
+	     ZPUSH
+
+;
+
+: ZVARIABLE ( "name" -- )
+      complex-type
+;
+
+
+: ZCONSTANT ( "name" -- )
+      ['] Z@ ['] Z,
+      constant-structure complex-type
+;
+
+
+: Z.   ( Z: z -- ) ZRPOP ." ( " F. F. ." ) " ;
+
+
+: }ZPRINT  ( n daddr -- )              \ for printing complex arrays
+         ROT 0 DO I print-width @ MOD 0= I AND IF CR THEN
+                   2DUP I } Z@ Z. LOOP
+         2DROP
+;
+
+
+\ get the next two real numbers as a complex number
+: Z%      POSTPONE (zre%)   POSTPONE (zim%)  ; IMMEDIATE
+
+
+
+\ useful complex constants
+
+Z% 1.0 0.0 ZCONSTANT 1+0i
+Z% 0.0 0.0 ZCONSTANT 0+0i
+Z% 0.0 1.0 ZCONSTANT 0+1i
+
+
+: ZCONJUGATE ( -- ) ( Z: z -- z* )
+              zs{ Z-PTR } .im DUP F@ FNEGATE F!
+;
+
+
+: Z+ ( -- , Z: z1 z2 -- z3 )
+            Z->R,I
+
+            zs{ Z-PTR } 2DUP .im DUP F@ F+ F!
+
+            .re DUP F@ F+ F!
+
+;
+
+: Z- ( -- , f: z1 z2 -- z3 )
+            Z->R,I
+
+            zs{ Z-PTR } 2DUP .im DUP F@ FSWAP F- F!
+
+            .re DUP F@ FSWAP F- F!
+
+;
+
+
+: Z* ( --, f: z1 z2 -- z3 )
+
+             Z-PTR
+             DUP 1 < ABORT" Complex stack error, need at least two numbers "
+
+             zs{ 2 PICK } .re F@  zs{ 2 PICK 1- } .re F@ F*
+             zs{ 2 PICK } .im F@  zs{ 2 PICK 1- } .im F@ F* F-
+                          
+             zs{ 2 PICK } .im F@  zs{ 2 PICK 1- } .re F@ F*
+             zs{ 2 PICK } .re F@  zs{ ROT 1- } .im F@ F* F+
+
+             Z-DEC Z-DEC 2DROP
+             R,I->Z             
+;
+
+PLAUGER-CODE? [IF]
+
+: ZABS ( -- ) ( f: -- r ) ( Z: z -- )
+
+            Z->R,I
+
+            ZABS-SCALED
+            normalize
+;
+
+: Z/ ( -- , Z: z1 z2 -- z3 )
+         ZSWAP Z->R,I Z->R,I
+
+         FOVER FABS FOVER FABS
+         F< IF   smaller-real-div
+            ELSE smaller-imag-div
+            THEN
+
+         R,I->Z
+;
+
+
+[ELSE]
+
+: ZABS ( -- , f: z1 -- r )
+            Z->R,I
+            FDUP F* FSWAP FDUP F* F+ FSQRT
+
+;
+
+
+: Z/ ( -- ) ( Z: z1 z2 -- z3 )
+
+	ZDUP
+        Z->R,I
+        FDUP F* FSWAP FDUP F* F+ scale-factor F!
+
+	Z->R,I
+        t-imag F!  t-real F!
+        
+        Z->R,I
+        FOVER t-real F@ F*
+        FOVER t-imag F@ F* F+ scale-factor F@ F/
+
+        FROT t-imag F@ F* FNEGATE
+        FROT t-real F@ F* F+  scale-factor F@ F/
+        
+
+         R,I->Z
+;
+
+
+[THEN]
+
+Reset_Search_Order
+
+
+
+
+
+
+
+

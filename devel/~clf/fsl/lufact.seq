@@ -1,0 +1,436 @@
+\ lufact      Does a LU factorization of a matrix
+
+\ Forth Scientific Library Algorithm #33
+
+\ lufact ( 'a{{ 'dlu -- )
+\     Factors matrix a{{ into the LUMATRIX stucture lu such that
+\     a{{ = P L U   (P is a permutation matrix implied by the pivots)
+
+\     The LUMATRIX data structure is initialized in one of two ways:
+\        * Using lumatrix-init ( 'dlu 'mat{{ 'piv{ n -- )
+\          to build the LUMATRIX data structure in dlu from existing
+\          matrix mat{{ and integer array piv{ using size n.
+\        * Using lu-malloc ( 'dlu n -- )
+\          to dynamically allocate the LUMATRIX data structure internals
+\          for the structure 'dlu.  (In this case the space should
+\          eventually be released with a call to lu-free ( 'dlu -- ) ).
+
+\     The routines, 'lu->l', 'lu->u' and 'lu->p' are provided to unpack the
+\     appropriate component of the LU structure:
+\ lu->l ( 'dlu 'l{{ -- )
+\     Fills the matrix l{{ with the L part of the LU structure.
+\ lu->u ( 'dlu 'u{{ -- )
+\     Fills the matrix u{{ with the U part of the LU structure.
+\ lu->p ( 'dlu 'p{{ -- )
+\     Fills the matrix p{{ with the P part of the LU structure.
+
+
+\ This is an ANS Forth program requiring:
+\      1. The Floating-Point word set
+\      2. Uses words 'Private:', 'Public:' and 'Reset_Search_Order'
+\         to control the visibility of internal code.
+\      3. Uses the words 'FLOAT' and ARRAY to create floating point arrays.
+\      4. The word '}' to dereference a one-dimensional array.
+\      5. Uses the words 'DARRAY' and '&!' to set array pointers.
+\      6. Uses the FSL utility word '}}fcopy' to copy one (float) array to another
+\      7. FSL data structures as given in structs.fth
+\      8. The FSL dynamic allocation words '}malloc' and '}free' are needed if
+\         the data structures are dynamically allocated with 'lu-malloc'
+\      9. The compilation of the test code is controlled by VALUE TEST-CODE?
+\         and the conditional compilation words in the Programming-Tools
+\         wordset
+\     10. The test code uses the FSL routine HILBERT to generate test matrices.
+
+
+\  (c) Copyright 1994 Everett F. Carter.  Permission is granted by the
+\  author to use this software for any application provided this
+\  copyright notice is preserved.
+
+\   ( replaced obsolescent words      22 Jan 2005   cgm )
+
+CR .( LUFACT            V1.6           4 May 1995   EFC )
+
+\ a data structure for LU factored matrices
+structure: LUMATRIX
+           FLOAT  POINTER: ->MATRIX{{
+           INTEGER POINTER: ->PIVOT{
+           INTEGER attribute ->N                  \ the size of the matrix
+           INTEGER attribute ->STATUS             \ = 0 if Ok
+;structure
+
+Private:
+
+\ pointer to users LU data structure
+STRUCT-HANDLE LU
+
+: LU@    LU h@ ;
+
+
+INTEGER DARRAY  t-piv       \ temporaries used for the dynamic allocation
+FLOAT  DMATRIX  t-mat       \ of the LU data structure
+
+FLOAT  DMATRIX a{{          \ pointer to matrix to factor
+
+FLOAT  DMATRIX matrix{{     \ pointer to LU ->MATRIX{{  for faster dereferencing
+INTEGER DARRAY pivot{       \ pointer to LU ->PIVOT{
+
+Public:
+
+
+\ For aliasing the internal structures to pre-exisiting arrays
+: LUMATRIX-INIT ( 'dlu 'mat 'piv n -- )    
+
+        4 PICK 4 PICK ->N !                  \ store N
+        3 PICK 3 PICK -> ->PIVOT{ ->!        \ store pointer to pivot array
+        ROT ROT  ->     ->MATRIX{{  ->!      \ store pointer to matrix
+
+
+;
+
+\ For dynamically allocating the whole structure
+: LU-MALLOC ( 'dlu n -- )
+
+     & t-piv OVER }malloc
+     malloc-fail? ABORT" LU-MALLOC failure (1) "
+
+     & t-mat OVER DUP }}malloc
+     malloc-fail? ABORT" LU-MALLOC failure (2) "
+
+     t-mat t-piv ROT LUMATRIX-INIT
+          
+;
+
+\ for freeing a dynamically allocated structure
+: LU-FREE ( 'dlu -- )
+     2DUP ->MATRIX{{       & t-mat &!  & t-mat }}free
+     2DUP ->PIVOT{         & t-piv &!  & t-piv }free
+     0 ROT ROT    ->N !
+;
+
+Private:
+
+
+: lufact-init ( 'a 'dlu -- n )
+
+    LU h!
+    & a{{ &!
+
+    LU@  ->N @
+
+    0 LU@  ->STATUS !
+
+    LU@ ->PIVOT{   & pivot{  &!
+    LU@ ->MATRIX{{ & matrix{{     &!
+
+    DUP
+    
+    a{{ matrix{{ ROT DUP }}fcopy
+
+;
+
+: lufact-finish ( n -- flag )
+
+     1- DUP
+     pivot{ OVER } !
+
+     matrix{{ OVER DUP }} F@ F0= IF LU@ ->STATUS !
+                                 ELSE
+                                    DROP
+                                 THEN
+
+
+    LU@ ->STATUS @
+
+;
+
+: partial-pivot ( n k  -- n l )
+
+        \ ." partial pivot k = " DUP . CR
+        \ over DUP matrix{{ }}fprint
+
+        0.0E0
+        DUP DUP
+        3 PICK SWAP  DO
+                       matrix{{ I 3 PICK  }} F@ FABS
+                       FOVER FOVER F< IF
+                                         \ ." pivoting on " FOVER F. FDUP F. CR
+                                         FSWAP
+                                         DROP I
+                                       THEN
+                       FDROP
+
+                    LOOP
+
+            DUP ROT pivot{ SWAP } !
+            FDROP
+
+ \ ." l = " DUP . CR
+
+;
+
+: singular-pivot ( k -- )
+     LU@ ->STATUS !
+;
+
+: interchange ( n l k -- n )
+
+        \ OVER OVER ." interchanging k = " . ." l = " . CR
+
+        2 PICK 0 DO
+                        matrix{{ 2 PICK I }} DUP F@
+                        matrix{{ 2 PICK I }} DUP F@
+                        SWAP F!  F!
+                    LOOP
+
+        2DROP
+;
+
+: scale-row ( n k -- n )
+
+       \ ." scale-row, k = " DUP . CR
+
+       1.0E0   matrix{{ OVER DUP }} F@ F/
+       
+       2DUP 1+ DO
+                        matrix{{ I 2 PICK }} DUP F@ FOVER F*
+                        FDUP  F!
+
+                        OVER OVER 1+ DO
+                                         matrix{{ OVER I }} F@ FOVER F* FNEGATE
+                                         matrix{{ J I }} DUP F@ F+
+                                         F!
+                                     LOOP
+                         FDROP
+                    LOOP
+
+     DROP  FDROP
+     
+;
+
+
+: build-identity ( 'p n -- 'p )         \ make an NxN identity matrix
+             0 DO
+                  I 1+ 0 DO
+                            I J = IF   1.0E0 DUP I J }} F!
+                                  ELSE
+                                       0.0E0 DUP J I }} F!
+                                       0.0E0 DUP I J }} F!
+                                  THEN
+                         LOOP
+                 LOOP
+;
+
+: column_swap ( 'p n k1 k2 -- 'p n )
+
+           2 PICK 0 DO
+                        3 PICK I 3 PICK }} DUP F@
+                        4 PICK I 3 PICK }} DUP F@
+                        SWAP F! F!
+                    LOOP
+           2DROP
+;
+
+Public:
+
+
+: lufact ( 'a 'dlu --  )
+
+     lufact-init
+
+     DUP 2 < IF
+               lufact-finish
+               ABORT" lufact failed! (1) "
+             THEN
+
+
+     DUP 1- 0 DO
+                  I partial-pivot
+
+                  matrix{{ OVER I }} F@ F0= IF
+                                           DROP I singular-pivot
+                                        ELSE
+                                           I OVER = IF
+                                                       DROP
+                                                     ELSE
+                                                       I interchange
+                                                     THEN
+
+                                           I scale-row
+                                            
+                                        THEN
+
+
+              LOOP
+
+              
+     lufact-finish
+
+     ABORT" lufact failed! (2) "
+     
+;
+
+: LU->L  ( 'dlu 'l{{ -- )         \ unpack L matrix from LU struture
+
+         >R
+         2DUP  ->MATRIX{{    \ get base address of matrix
+         >R
+               ->N @         \ get N
+         R> R>
+
+         ROT 0 DO
+                  I 1+ 0 DO
+                            I J = IF
+                                    1.0E0 DUP I J }} F!
+                                  ELSE
+                                    0.0E0 DUP I J }} F!
+                                    OVER  J I }} F@  DUP J I }} F!
+                                  THEN
+                         LOOP
+                 LOOP
+
+         2DROP
+;
+
+: LU->U  ( 'dlu 'u{{ -- )         \ unpack U matrix from LU struture
+
+         >R
+         2DUP  ->MATRIX{{    \ get base address of matrix
+         >R
+               ->N @         \ get N
+         R> R>
+
+         ROT 0 DO
+                  I 1+ 0 DO
+                            0.0E0 DUP J I }} F!
+                            OVER  I J }} F@  DUP I J }} F!
+                         LOOP
+                 LOOP
+
+         2DROP
+;
+
+: LU->P  ( 'dlu 'p{{ -- )         \ extract P matrix from LU struture
+
+         >R
+         2DUP  ->PIVOT{    \ get base address of pivot
+         >R
+               ->N @         \ get N
+         R> R>
+
+         ROT DUP >R          ( 'pivot 'p n )
+         build-identity     \ build identity matrix first
+        
+         R>
+
+         \ now swap the appropriate columns
+         DUP 0 DO
+                  2 PICK I } @ I OVER OVER =
+                  IF  2DROP   ELSE  column_swap   THEN
+               LOOP
+
+         DROP 2DROP
+;
+
+
+Reset_Search_Order
+
+
+TEST-CODE? [IF]   \ test code ==============================================
+
+4 4 FLOAT matrix mat{{
+4 4 FLOAT matrix lmat{{
+4 INTEGER array piv{
+
+LUMATRIX lu4
+
+: actual-4 ( -- )
+
+    CR ." actual LUFACTORED 4x4 matrix: " CR
+       ."  1.0       0.5         0.3333      0.25 " CR 
+       ."  0.3333  0.083333      0.088889    0.0833333 " CR 
+       ."  0.5       1.0        -0.005556   -0.008333" CR 
+       ."  0.25      0.90       -0.6         0.00357" CR
+        
+
+;
+
+: actual-3 ( -- )
+
+    CR ." actual LUFACTORED 3x3 matrix: " CR
+
+       ."  4.0      4.0      -3.0 " CR
+       ." -0.5      5.0      -2.5 " CR
+       ."  0.5      0.2       1.0 " CR 
+
+;
+
+
+: matrix-3 ( -- )
+
+	2.0e0 mat{{ 0 0 }} F!   3.0e0 mat{{ 0 1 }} F!   -1.0e0 mat{{ 0 2 }} F!
+        4.0e0 mat{{ 1 0 }} F!   4.0e0 mat{{ 1 1 }} F!   -3.0e0 mat{{ 1 2 }} F!
+       -2.0e0 mat{{ 2 0 }} F!   3.0e0 mat{{ 2 1 }} F!   -1.0e0 mat{{ 2 2 }} F!
+;
+
+
+: lufact-test  ( -- )           \ uses aliased arrays
+
+        lu4 lmat{{ piv{ 4 LUMATRIX-INIT    \ aliasing lu to pre-existing arrays
+
+        mat{{ 4 hilbert
+
+        CR ." Original matrix:" CR
+
+        4 4 mat{{ }}fprint
+
+        mat{{ lu4 lufact
+
+        CR ." Factored matrix:" CR
+        4 4 lu4 ->MATRIX{{ }}fprint      \ 4 4 lmat{{ }}fprint   will also work
+	CR ." PIVOTS: " 4 piv{ }iprint CR
+
+        actual-4
+;
+
+: lufact-test2    ( -- )              \ uses dynamically allocated space
+
+        lu4 4 LU-MALLOC
+
+        mat{{ 4 hilbert
+
+        CR ." Original matrix:" CR
+        4 4 mat{{ }}fprint
+
+        mat{{ lu4 lufact
+
+        CR ." Factored matrix:" CR
+        4 4 lu4 ->MATRIX{{ }}fprint   \ must use ->MATRIX{{ to get to the matrix
+	CR ." PIVOTS: " 4 piv{ }iprint CR
+
+        actual-4
+
+        lu4 LU-FREE        
+;
+
+: lufact-test3  ( -- )           \ uses aliased arrays
+
+        lu4 lmat{{ piv{ 3 LUMATRIX-INIT    \ aliasing lu to pre-existing arrays
+
+        matrix-3
+
+        CR ." Original matrix:" CR
+
+        3 3 mat{{ }}fprint
+
+        mat{{ lu4 lufact
+
+        CR ." Factored matrix:" CR
+        3 3 lu4 ->MATRIX{{ }}fprint
+ CR ." PIVOTS: " 3 piv{ }iprint CR
+
+ actual-3
+
+;
+
+[THEN]
+

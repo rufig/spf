@@ -1,0 +1,231 @@
+0 [IF]
+
+SUNDAY QUICKSEARCH ALGORITHM
+By Leonard Morgenstern	nleonard@aol.com
+
+ Forth Scientific Library Algorithm #41
+
+Adapted from Daniel Sunday. Communications of the ACM 33:132 1990.
+
+QUICKSEARCH ( c-addrp up c-addrt  ut -- c-addr)
+Locate the first instance of a search-pattern with coordinates c-addrp up within a
+text-string c-addrt ut. Return the address of the first match in the text if found,
+or NIL if not, where NIL is a user-defined impossible address. An ambiguous
+ condition exists if the search-pattern (up) is longer than the text-string (ut). 
+
+The search algorithm
+
+Before beginning the search, the algorithm constructs an array called a
+ shift-table, having the same number of cells as the number of possible characters,
+ normally 256. The contained quantity is up +1 (where up is the length of the
+ search-pattern) for characters not present in the search-pattern, and the number
+ of characters from the end of the string for characters that are present, the
+ final character in the string being counted as 1. If duplicates are present, the
+ lowest number is used. For example, if the pattern string is "THAT", then T=1,
+ A=2, H=3, and all others are 5. If two characters are equivalent, they are
+ assigned the same shift-values; in the example, T and t would both have the value
+ 1 if case is to be ignored. The shift-table is the only data structure needed by
+ the algorithm, except, of course, the text and pattern strings themselves.
+
+ At the start, the first character of the pattern is positioned on the first
+ character of the text and up characters are compared. (The choice of a comparison
+ algorithm will be discussed below.) If there is a mismatch, the text character
+ just beyond the pattern is examined, and the corresponding shift obtained from the
+ shift-table. The pattern is then advanced that number of characters. The process
+ is repeated until the pattern is matched or the text-string is exhausted.
+
+An important characteristic of Sunday's algorithm is that the distance advanced
+ depends only on the text character just beyond the search-pattern; it does not
+ depend on the character that failed to match, its position, or the order in which
+ the pattern and text are compared. The algorithm may search front-to-back,
+ back-to-front, or a scrambled order based on letter-frequencies. Naturally, the
+ choice affects performance, as will be discussed in the next section.
+
+The comparison algorithm
+
+The algorIthm for comparing the search-pattern and text (the "comparator") is a
+ deferred word with the stack diagram:
+
+COMPARATOR ( c-addrp up c-addrt ut -- n)
+where n=0 for a match and non-zero for a mismatch. The stack diagram is the same
+ as that of the word COMPARE in the ANSI Standard String Word Set.
+
+COMPARATOR should be carefully selected to optimize performance. The standard word
+ COMPARE is a good choice in most cases. Situations where another comparator should
+ be used include: 1) when certain sets of characters are regarded as equivalent,
+ for example, when case is to be ignored; 2) where wild-cards are allowed; and 3)
+ where character frequencies dictate a more efficient search order. In general, the
+ search is fastest when rare characters are matched first.
+
+Efficiency
+
+The efficiency of the search can be measured by the number of comparisons. The most
+ favorable case is seen when the first character in the pattern is never present in
+ the text and the text character just beyond the pattern never happens to be
+ present in the pattern; the number of comparisons is then ut/(up+1). At the other
+ extreme, there are degenerate cases in which the number of comparisons approaches
+ ut*up. This would occur when using a front-to-back comparator if the text and
+ search patterns contain long runs of the final character in the search pattern,
+ for example, searching for AAAABA in AAA...AAAAABA. This is not merely a
+ theoretical problem, as it might occur in searching for a string embedded in
+ spaces, or in searching graphics files. In the example, performance would be
+ improved by matching the odd character first, but the number of comparisons could
+ not be reduced much below nt. If there is a significant chance that patterns like
+ these might occur, Sunday's algorithm probably should not be used.
+
+Requirements
+	This is an ANS Forth program requiring:
+		1. A standard system with Core and Core extension sets.
+		2. String extension set if COMPARE is used to compare strings.
+                3. Uses the words V: and DEFINES from the FSL utilities to
+		     manage vectored words
+                4. The compilation of the test code is controlled by the
+                     VALUE TEST-CODE? and the conditional compilation words in
+                     the Programming-Tools wordset
+                5. The test code uses the String wordset word /STRING
+                6. The test code uses the (non ANS) words:
+                        TAB to emit a tab character and,
+                        DUP>R which is equivalent to:
+                        : DUP>R   DUP >R ;
+                        
+		     
+  This code is released to the public domain. Leonard Morgenstern, March 1995
+
+[THEN]
+
+\ F-PC IMPLEMENTATION OF SUNDAY QUICKSEARCH
+
+0 [IF]
+
+\ PRELUDE to convert F-PC to ANSI
+: CELLS 2* ;
+: CELL+ 2+ ;
+: VALUE 0 VALUE ;
+' =: ALIAS TO           IMMEDIATE
+' ASCII ALIAS [CHAR]    IMMEDIATE
+' " ALIAS S"            IMMEDIATE
+: COMPARE ( c-addr1 u1 c-addr2 u2 -- n)
+        rot min COMP ;
+\ END OF PRELUDE
+
+INCLUDE QUIKSRCH
+
+[THEN]
+
+1 CELLS CONSTANT CELL
+
+\ SUNDAY QUICKSEARCH ALGORITHM
+\ ANSI STANDARD
+\ REQUIRES CORE, CORE EXTENSION, AND STRING EXTENSION
+
+\
+\ SETTING PARAMETERS
+\
+
+-1 CONSTANT NIL
+	\ Impossible address; returned if no match found
+
+256 CONSTANT #SYMBOLS
+	\ Number of possible symbols
+
+CREATE SHIFT-TABLE #SYMBOLS CELLS ALLOT \ Make shift-table
+V: COMPARATOR
+' COMPARE DEFINES COMPARATOR   \ Default COMPARATOR.
+
+\
+\	Initializing the shift table.
+\
+: INIT-SHIFT-TABLE ( c-addr1 u -- )
+    
+   DUP 1+
+       SHIFT-TABLE #SYMBOLS CELLS OVER + SWAP
+       DO      DUP I ! CELL +LOOP
+       DROP
+       DUP 0 2SWAP OVER + SWAP
+       DO
+               I C@ CELLS SHIFT-TABLE +
+               >R 2DUP - R> !
+               1+
+       LOOP
+       2DROP
+;
+\
+\	QUICKSEARCH
+\
+
+\ In this version, certain quantities are stored in VALUEs
+\ For many applications, local variables would be better
+0 VALUE QS-TA     0 VALUE QS-TL
+0 VALUE QS-PA     0 VALUE QS-PL
+
+: QUICKSEARCH ( c-addr[p] u[p] c-addr[t] u[t] -- c-addr[m])
+\ Enter with addr & len of pattern & text
+\ Return address of match or NIL
+       TO QS-TL TO QS-TA		\ Store text coordinates
+       2DUP INIT-SHIFT-TABLE	\ Initialize shift-table
+       TO QS-PL TO QS-PA       \ Store pattern coordinates
+       NIL					\ NIL on stack
+       QS-TA QS-TL QS-PL - 1+  \ Maximum number of comparisons
+       OVER + SWAP			\ Substitute BOUNDS if defined
+       DO
+               I QS-PL QS-PA QS-PL
+               COMPARATOR 0=	\ Make a comparison
+               IF
+                       DROP I LEAVE
+						\ Leave if found
+               THEN
+               I QS-PL + C@	\ Extract char just past pattern
+               CELLS SHIFT-TABLE + @
+						\ Extract shift
+       +LOOP
+;
+
+\ END OF ALGORITHM
+
+
+
+\ BELOW HERE ARE SEVERAL TEST UTILITIES, ETC.
+\ =======================================================================
+
+TEST-CODE? [IF]     \ test code =============================================
+
+: DUMP-ST ( DUMP SHIFT TABLE)
+       #SYMBOLS 0
+       DO
+          I 16 MOD 0= IF CR  I EMIT SPACE THEN
+          I CELLS SHIFT-TABLE + @ . SPACE
+          I 128 MOD 0= IF KEY DROP THEN
+       LOOP
+;
+
+CREATE pattern$ 40 CHARS ALLOT
+CREATE text$ 40 CHARS ALLOT
+
+: Show-result ( a -- ) \ After performing search show result
+    CR 1 tab
+    DUP nil =
+    IF
+        DROP ." NO MATCH!"
+    ELSE
+        >R              \           \ stash match addr on r.s.
+        QS-TA QS-TL     \ ta tl     \ get coordinates of text
+        OVER R> OVER -  \ ta tl ta len1   \ get coordx of 1st part
+        dup>r
+        TYPE [CHAR] ^ EMIT \ ta tl
+        R> /STRING      \ a' l'     \ index to match
+        OVER QS-PL
+        TYPE [CHAR] ^ EMIT \ a' l'  \ type matching part
+        QS-PL /STRING TYPE  \       \ type tail
+    THEN
+    CR
+;
+: QTEST ( -- a )  \ Ask for strings, compare, & return result
+    CR ." Look for: "
+    pattern$ 40 EXPECT pattern$ SPAN @
+    CR ."       in: "
+    text$    40 EXPECT text$ SPAN @
+    QUICKSEARCH
+    Show-result
+;
+
+[THEN]

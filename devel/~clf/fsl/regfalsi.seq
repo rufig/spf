@@ -1,0 +1,88 @@
+\ Regula Falsi -- ANS compatible version V1.0  10/6/1994
+\ Finds roots of real transcendental functions by hybrid
+\       secant/binary search method
+
+\ Forth Scientific Library Algorithm #7
+
+\ Usage example:
+\       : F1    ( F: x -- [x-e**-x])   FDUP  FNEGATE  FEXP  F-  ;
+\       USE( F1  % 0 % 1 % 1.E-5 )FALSI  5.671432E-1  ok
+
+\ Environmental dependencies:
+\       Separate floating point stack
+\       ANS FLOAT and FLOAT EXT wordsets
+\ Non STANDARD words
+\     %  converts following text to fp literal
+
+\     (c) Copyright 1994  Julian V. Noble.  Permission is granted
+\     by the author to use this software for any application provided
+\     the copyright notice is preserved.
+
+
+\ Conditional compilation wordset is
+\       : DEFINED   BL WORD  FIND   ;
+\       : )   ;
+\       : ?(   NOT   IF  [COMPILE]  (  THEN   DROP  ;
+
+\ DEFINED % 0=                    \ Define % if not there
+\ ?( : %   BL WORD  COUNT  >FLOAT  NOT ABORT" Not a fp#" STATE @
+\           IF POSTPONE FLITERAL  THEN  ; IMMEDIATE )
+
+\ additional Non STANDARD words
+\   : NOOP ;
+\   : F0>  % 0.0 FSWAP F< ;
+\   : F2/  2.0E0 F/ ;
+\ Vectoring wordset (add if not present)
+\   : USE(    '   ;
+\   : V:   CREATE   [']  NOOP  ,  DOES>  @  EXECUTE  ;
+\   : DEFINES     ( xt --)   ' ( name )  >BODY
+\         STATE @  IF   [COMPILE]  LITERAL  POSTPONE !
+\                  ELSE  !  THEN  ; IMMEDIATE
+
+\ tested in F-PC  10/6/1994
+
+\ Data structures
+
+FVARIABLE A                       \ f(xa)
+FVARIABLE B                       \ f(xb)
+FVARIABLE XA                      \ lower end of interval
+FVARIABLE XB                      \ upper end of interval
+FVARIABLE EPSILON                 \ precision
+
+V: DUMMY                          \ vectored function name
+
+\ End data structures
+
+: X'    ( F: -- x')               \ secant extrapolation
+\         F" XA + (XA - XB) * A / (B - A) "    ;
+          XA SF@  FDUP   XB SF@  F-       ( F: xa xa-xb )
+          A  SF@   B SF@   FOVER  F-  F/  F*  F+   ;
+
+: <X'>  ( F: -- <x'>)             \ binary search extrapolation
+\         F" (XA + XB) / 2 "  ;
+          XA SF@  XB SF@  F+  F2/  ;
+
+: SAME-SIGN?   ( F: x y --)  ( -- f)    F*   F0>  ;
+
+: !END    ( F: x --)    FDUP  DUMMY   FDUP  ( F: -- x f[x] f[x] )
+          A SF@  SAME-SIGN?
+          IF   A SF!  XA SF!   ELSE   B SF!  XB SF!   THEN   ;
+
+: SHRINK   X'  !END   <X'>  !END  ;     \ combine extrapolations
+
+: INITIALIZE    ( xt --) ( F: lower upper precision --)
+        EPSILON SF!    XB SF!    XA SF!    \ store parameters
+        DEFINES DUMMY                      \ xt -> DUMMY
+        XA SF@  DUMMY  A SF!               \ compute fn at endpts
+        XB SF@  DUMMY  B SF!
+        A SF@  B SF@
+        SAME-SIGN?  ABORT" EVEN # OF ROOTS IN INTERVAL!"  ;
+
+: CONVERGED?    ( -- f)
+\       F" ABS( XA - XB ) < EPSILON "   ;
+        XA SF@   XB SF@  F-  FABS   EPSILON SF@  F<   ;
+
+: )FALSI        ( xt --) ( F: upper lower precision --)
+        INITIALIZE
+        BEGIN    SHRINK  CONVERGED?    UNTIL
+        <X'>  FE.  ;

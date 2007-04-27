@@ -1,0 +1,109 @@
+( `Fast' Quadruple Precision Arithmetic -- Standard Forth with NOT )
+( These are based on Knuth, _Seminumerical Algorithms_.)
+( With 16-bit cell-size these give you 64-bit arithmetic. )
+( With 32-bit cell-size these give you 128-bit arithmetic. )
+
+( With 32-bit cell-size consider faking it.
+( : umd* D* 0 0 ;
+( : umd/mod DROP NIP NIP UM/MOD 0 TUCK ; )
+
+\	Note: I can't believe you really need 128-bit arithmetic.
+\	Especially with only 64-bit floating point.
+
+: d* 		( multiplicand . multiplier . -- product . )
+	3 PICK * >R  TUCK * >R  UM*  R> +  R> +
+;
+
+: umd* 		( multiplicand . multiplier . -- product . . . )
+				( ul uh vl vh)
+	2 PICK OVER UM* 2>R ( ul uh vl vh R: x3 .)
+	3 PICK UM* 2>R 	( ul uh vl R: x3 . x2 .)
+	TUCK UM* 2>R 	( ul vl R: x3 . x2 . x1)
+	UM* 		( x0 . R: x3 . x2 . x1)
+	0 2R> D+ 	( x0 x1 . R: x3 . x2 .)
+	2R@ D+
+	2DUP 2R> DU< IF 	( x0 x1 . R: x3 .)
+		R> 1+ >R
+	THEN
+	0 2R> D+ 	( x0 x1 x3 .)
+;
+
+: du2/ ( n . n -- n . )
+          >R
+                    1 RSHIFT
+                    R@ 1 AND IF
+                              [ TRUE 1 RSHIFT INVERT ] LITERAL OR
+                    THEN
+          R> 1 RSHIFT
+;
+
+private:
+
+: count-and-shift 	( n . -- n' . count )
+	0 0 DO
+		DUP 0< IF I LEAVE THEN
+		D2*
+	LOOP
+;
+
+HERE fsl-pad OVER - ALLOT
+	2VARIABLE high-dividend
+	2VARIABLE low-dividend
+	2VARIABLE divisor
+
+	2VARIABLE q1
+	2VARIABLE q0
+	2VARIABLE r1
+	2VARIABLE r0
+	2VARIABLE m
+	VARIABLE s
+HERE - ALLOT
+
+MARKER cell-size
+: nonce TRUE 0 0 ?DO  ?DUP 0= IF I LEAVE THEN  1 RSHIFT  LOOP ; nonce
+cell-size CONSTANT cell-size
+
+public:
+
+: umd/mod ( low-dividend . high-dividend . divisor . -- remainder . quotient . )
+	4dup DU< not ABORT" Divide Overflow. "
+	count-and-shift s ! divisor 2! 	( low-dividend . high-dividend .)
+	s @ IF
+		s @ 0 DO    D2*   LOOP
+		2OVER cell-size 2* s @ DO du2/ LOOP D+
+	THEN
+	high-dividend 2! 			( low-dividend .)
+	s @ 0 ?DO    D2*    LOOP    low-dividend 2! ( )
+	high-dividend 2@ 0 divisor @ UM/MOD q1 ! ( residue .)
+	divisor @ UM/MOD q1 CELL+ ! r1 ! 	( )
+	q1 CELL+ @ divisor CELL+ @ UM* q1 @ divisor CELL+ @ * + m 2!
+	low-dividend @ r1 CELL+ !
+	r1 2@ m 2@ DU< IF
+		q1 2@ -1 M+ q1 2!
+		r1 2@ divisor 2@ D+ r1 2!
+		r1 2@ divisor 2@ DU< not IF
+			r1 2@ m 2@ DU< IF
+				q1 2@ -1 M+ q1 2!
+				r1 2@ divisor 2@ D+ r1 2!
+		THEN THEN
+	THEN
+	r1 2@ m 2@ D- r1 2!
+	r1 2@ 0 divisor @ UM/MOD q0 ! 		( residue .)
+	divisor @ UM/MOD q0 CELL+ ! r0 ! 	( )
+	q0 CELL+ @ divisor CELL+ @ UM* q0 @ divisor CELL+ @ * + m 2!
+	low-dividend CELL+ @ r0 CELL+ !
+	r0 2@ m 2@ DU< IF
+		q0 2@ -1 M+ q0 2!
+		r0 2@ divisor 2@ D+ r0 2!
+		r0 2@ divisor 2@ DU< not IF
+			r0 2@ m 2@ DU< IF
+				q0 2@ -1 M+ q0 2!
+				r0 2@ divisor 2@ D+ r0 2!
+		THEN THEN
+	THEN
+	r0 2@ m 2@ D- r0 2!
+	r0 2@ s @ 0 ?DO du2/ LOOP
+	q0 CELL+ @ q1 CELL+ @
+;
+
+reset-search-order
