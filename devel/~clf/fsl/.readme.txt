@@ -1,0 +1,17 @@
+Forth Scientific Library
+http://www.taygeta.com/fsl/sciforth.html
+
+Подключение к SPF
+
+Требуется слой совместимости ~diver/fsl-util.f
+Файлы FSL имеют Unix-овые концы строк.
+Есть несколько конфликтов имён поэтому лучше загружать в отдельный словарь.
+
+Код для подключения может выглядеть как-то так
+
+MODULE: FSL
+ REQUIRE fsl-util ~diver/fsl-util.f
+ UNIX-LINES
+  REQUIRE JDAY ~clf/fsl/dates.seq
+ DOS-LINES
+;MODULE
