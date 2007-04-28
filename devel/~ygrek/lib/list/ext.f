@@ -46,7 +46,7 @@ REQUIRE /TEST ~profit/lib/testing.f
 
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
-TESTCASES list
+TESTCASES list-core
 
  6 vnode () cons 5 vnode SWAP cons 4 vnode SWAP cons VALUE list
  lst( 4 % 5 % 6 % )lst VALUE list2
