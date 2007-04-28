@@ -22,31 +22,47 @@ REQUIRE /TEST ~profit/lib/testing.f
     2DROP
    )lst ;
 
-(
+0 VALUE _list-map-xt
 
-REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
+\ Модифицировать каждый элемент списка с помощью xt
+\ xt: ( node-car -- val ) \ val будет записано в текущий обрабатываемый элемент списка
+: mapcar! ( xt node -- )
+   SWAP TO _list-map-xt
+   LAMBDA{ >R R@ car _list-map-xt EXECUTE R> setcar } SWAP map ;
 
-: S>VC { a u | t -- vc }
-   CREATE-VC -> t
-   ALSO bac4th-closures 
-   a u t VC-COMPILED 
-   PREVIOUS 
-   t VC-RET, 
-   t ;
-
-: list-remove-all { val lst | vc -- lst }
-   val S" LITERAL <>" S>VC TO vc
-   vc XT-VC lst reduce-this 
-   vc DESTROY-VC ;
-)
+: mapcar 
+   SWAP TO _list-map-xt
+   LAMBDA{ car _list-map-xt EXECUTE } SWAP map ;
 
 0 VALUE _list-remove-all-val
 
-\ Удалить из списка lst все элементы со значением val
-: list-remove-all ( val lst -- lst1 )
+\ Удалить из списка node все элементы со значением val
+\ node1 - результирующий список
+: list-remove-all ( val node -- node1 )
    SWAP TO _list-remove-all-val
    LAMBDA{ _list-remove-all-val <> } SWAP 
    reduce-this ;
+
+\ Вариация mapcar
+: mapcar 
+   SWAP TO _list-map-xt
+   LAMBDA{ car _list-map-xt EXECUTE } SWAP map ;
+
+REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
+
+\ Вариация с использованием closure
+\ тут используем тот факт что axt=> работает на чистом стеке то есть можно 
+\ передавать параметр node в bac4th-вызов и возвращать результат из вызова напрямую на стеке
+: list-remove-all ( val node -- node1 )
+   SWAP S" LITERAL <>" axt=> SWAP reduce-this ;
+
+\ Вариация с использованием closure
+: mapcar! ( xt node -- )
+   SWAP S" >R R@ car [ COMPILE, ] R> setcar" axt=> SWAP map ;
+
+\ Вариация с использованием closure
+: mapcar ( xt node -- )
+   SWAP S" car [ COMPILE, ]" axt=> SWAP map ;
 
 \ удалить из списка lst все значения-дубликаты
 : list-remove-dublicates ( lst -- )
@@ -84,30 +100,45 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
 REQUIRE write-list ~ygrek/lib/list/write.f
 
-TESTCASES list-remove-all
+TESTCASES list-more
 
-lst( 1 % 2 % 4 % 2 % 3 % 4 % 6 % 6 % 2 % )lst VALUE l
-CR l write-list
+\
+\ equal?
+
+lst( 1 % 2 % " coo zoo " %s lst( " so so" %s 200 % )lst %l 2000 % )lst VALUE l1
+lst( 1 % 2 % " coo zoo " %s lst( " so so" %s 200 % )lst %l 2000 % )lst VALUE l2
+
+(( l1 l2 equal? -> TRUE ))
+
+0 VALUE l
+
+\
+\ list-remove-all
+
+lst( 1 % 2 % 4 % 2 % 3 % 4 % 6 % 6 % 2 % )lst TO l
+\ CR l write-list
 2 l list-remove-all TO l 
-CR l write-list
+(( l lst( 1 % 4 % 3 % 4 % 6 % 6 % )lst equal? -> TRUE ))
+\ CR l write-list
 l list-remove-dublicates 
-CR l write-list
+(( l lst( 1 % 4 % 3 % 6 % )lst equal? -> TRUE ))
+\ CR l write-list
+l FREE-LIST
 
-lst( :NONAME 10 0 DO 2 % LOOP ; EXECUTE )lst DUP CR write-list
-DUP list-remove-dublicates
-CR write-list
+lst( :NONAME 10 0 DO 2 % LOOP ; EXECUTE )lst TO l
+\ CR l write-list
+l list-remove-dublicates
+\ CR l write-list
+(( l lst( 2 % )lst equal? -> TRUE ))
+l FREE-LIST
+
+
+\
+\ mapcar!
+
+
+lst( 1 % 2 % 3 % )lst TO l
+:NONAME 2 + ; l mapcar!
+(( l lst( 3 % 4 % 5 % )lst equal? -> TRUE ))
 
 END-TESTCASES
-
-TESTCASES list equal?
-
- lst( 1 % 2 % " coo zoo " %s lst( " so so" %s 200 % )lst %l 2000 % )lst VALUE l1
- lst( 1 % 2 % " coo zoo " %s lst( " so so" %s 200 % )lst %l 2000 % )lst VALUE l2
-
- (( l1 l2 equal? -> TRUE ))
-
-END-TESTCASES
-
-\ :NONAME car 3 MOD 0= ; l0 filter CR show-list
-
-\ l1 DUP car . cdr DUP car . cdr DUP car . cdr DUP car . DUP cdr car . DROP
