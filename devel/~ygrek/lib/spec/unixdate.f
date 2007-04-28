@@ -1,16 +1,13 @@
+\ $Id$
 \ unix timestamp в дату
 \ и наоборот
 \
-\ требуется FSL (ибо нефиг плодить дубликаты - реализовано корректно в FSL - вот и отлично)
-\ используйте ~ygrek/spf/included.f чтобы подключить FSL через spf4.ini
-\ http://www.taygeta.com/fsl/sciforth.html
-
 \ URL в тему - http://vsg.cape.com/~pbaum/date/date0.htm
 
 MODULE: FSL
  REQUIRE fsl-util ~diver/fsl-util.f
  UNIX-LINES
-  REQUIRE JDAY dates.seq
+  REQUIRE JDAY ~clf/fsl/dates.seq
  DOS-LINES
  CR
 ;MODULE
