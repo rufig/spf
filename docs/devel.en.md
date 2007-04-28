@@ -5,7 +5,7 @@
 
 <small>$Date$</small>
 
-<!-- Translation is in sync with devel.ru.md rev. 1.10 -->
+<!-- Translation is in sync with devel.ru.md rev. 1.11 -->
 
 *REQUIRE is a forth word, which loads library; unnecessary text is commented out, so you can use this list as a forth code to include libs :)*
 
@@ -161,11 +161,13 @@
 * REQUIRE MyQuery <a href='../devel/~day/lib/mysql.f'>~day/lib/mysql.f</a> \\ MySQL wrapper 
 
 <a id="threads"/>
-### \\ Processes, threads and access rights
+### \\ Processes, threads, access rights etc
 * \\ <a href='../devel/~ac/lib/win/process/'>~ac/lib/win/process/</a> 
 * REQUIRE GetProcessACL <a href='../devel/~ac/lib/win/access/nt_access.f'>~ac/lib/win/access/nt_access.f</a> \\ access rights
 * REQUIRE IsapiRunExtension <a href='../devel/~ac/lib/win/isapi/isapi.f'>~ac/lib/win/isapi/isapi.f</a> \\ support ISAPI-compatible extensions
 * REQUIRE CREATE-CP <a href='../devel/~ac/lib/win/thread/pool.f'>~ac/lib/win/thread/pool.f</a> \\ thread-pool in Win200x 
+* REQUIRE CREATE-MUTEX <a href='../lib/win/mutex.f'>lib/win/mutex.f</a> \ Mutexes
+* REQUIRE ENTER-CS <a href='../devel/~pinka/lib/multi/critical.f'>~pinka/lib/multi/critical.f</a> \ Critical sections
 
 <a id="ini-registry"/>
 ### \\ Windows registry and ini-files 
@@ -209,7 +211,7 @@
 * REQUIRE CLASS: <a href='../devel/~day/joop/oop.f'>~day/joop/oop.f</a> \\ just oop with great pile of examples
 * REQUIRE CLASS: <a href='../devel/~af/mc/microclass.f'>~af/mc/microclass.f</a> \\ microclass 
 * REQUIRE CLASS: <a href='../devel/~day/mc/microclass.f'>~day/mc/microclass.f</a> \\ microclass 
-* REQUIRE CLASS <a href='../devel/~day/hype3/hype3.f'>~day/hype3/hype3.f</a> \\ Hype 3, including <a href='../devel/~day/hype3/reference.pdf'>reference/a>
+* REQUIRE CLASS <a href='../devel/~day/hype3/hype3.f'>~day/hype3/hype3.f</a> \\ Hype 3, including <a href='../devel/~day/hype3/reference.pdf'>reference</a>
 
 <a id="vocs"/>
 ### \\ Vocabularies

@@ -161,11 +161,13 @@
 * REQUIRE MyQuery <a href='../devel/~day/lib/mysql.f'>~day/lib/mysql.f</a> \\ MySQL wrapper 
 
 <a id="threads"/>
-### \\ Запуск процессов, потоков и права доступа 
+### \\ Процессы, потоки, права доступа etc
 * \\ <a href='../devel/~ac/lib/win/process/'>~ac/lib/win/process/</a> 
 * REQUIRE GetProcessACL <a href='../devel/~ac/lib/win/access/nt_access.f'>~ac/lib/win/access/nt_access.f</a> \\ права доступа 
 * REQUIRE IsapiRunExtension <a href='../devel/~ac/lib/win/isapi/isapi.f'>~ac/lib/win/isapi/isapi.f</a> \\ поддержка ISAPI-совместимых расширений 
 * REQUIRE CREATE-CP <a href='../devel/~ac/lib/win/thread/pool.f'>~ac/lib/win/thread/pool.f</a> \\ поддержка пула потоков в Win200x 
+* REQUIRE CREATE-MUTEX <a href='../lib/win/mutex.f'>lib/win/mutex.f</a> \ Мутексы
+* REQUIRE ENTER-CS <a href='../devel/~pinka/lib/multi/critical.f'>~pinka/lib/multi/critical.f</a> \ Critical sections
 
 <a id="ini-registry"/>
 ### \\ Реестр и ini Windows 
