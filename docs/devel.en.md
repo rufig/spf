@@ -5,7 +5,7 @@
 
 <small>$Date$</small>
 
-<!-- Translation is in sync with devel.ru.md rev. 1.11 -->
+<!-- Translation is in sync with devel.ru.md rev. 1.12 -->
 
 *REQUIRE is a forth word, which loads library; unnecessary text is commented out, so you can use this list as a forth code to include libs :)*
 
@@ -168,6 +168,7 @@
 * REQUIRE CREATE-CP <a href='../devel/~ac/lib/win/thread/pool.f'>~ac/lib/win/thread/pool.f</a> \\ thread-pool in Win200x 
 * REQUIRE CREATE-MUTEX <a href='../lib/win/mutex.f'>lib/win/mutex.f</a> \ Mutexes
 * REQUIRE ENTER-CS <a href='../devel/~pinka/lib/multi/critical.f'>~pinka/lib/multi/critical.f</a> \ Critical sections
+* REQUIRE WaitAll <a href='../devel/~pinka/lib/multi/synchr.f'>~pinka/lib/multi/synchr.f</a> \ Threads synchronization - "wait for single", "wait for all"
 
 <a id="ini-registry"/>
 ### \\ Windows registry and ini-files 
