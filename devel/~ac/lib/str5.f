@@ -390,7 +390,7 @@ USER _LASTFILE
 
 : FILE ( addr u -- addr1 u1 )
   { \ f mem }
-  R/O OPEN-FILE-SHARED IF DROP S" " EXIT THEN
+  R/O OPEN-FILE-SHARED IF DROP 0 ALLOCATE THROW DUP _LASTFILE ! 0 EXIT THEN
    -> f
   f FILE-SIZE THROW D>S DUP CELL+ ALLOCATE THROW -> mem
   mem SWAP f READ-FILE THROW
@@ -398,7 +398,7 @@ USER _LASTFILE
   mem SWAP
   DUP IF OVER _LASTFILE ! THEN
 ;
-: FILEFREE ( a u -- ) IF FREE THROW THEN ;
+: FILEFREE ( a -- ) FREE THROW ;
 
 : S@ ( addr u -- addr2 u2 )
 \ вычислить {} в строке
