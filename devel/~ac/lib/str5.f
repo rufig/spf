@@ -398,6 +398,8 @@ USER _LASTFILE
   mem SWAP
   DUP IF OVER _LASTFILE ! THEN
 ;
+: FILEFREE ( a u -- ) IF FREE THROW THEN ;
+
 : S@ ( addr u -- addr2 u2 )
 \ вычислить {} в строке
 \ ValidateThreadHeap<
