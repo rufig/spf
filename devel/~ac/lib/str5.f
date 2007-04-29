@@ -338,9 +338,9 @@ STRFREE
   R> XCOUNT 2DUP + CHAR+ >R
   (")
 ;
-: S, ( addr u -- )
-  HERE SWAP DUP ALLOT CMOVE
-;
+\ : S, ( addr u -- )
+\   HERE SWAP DUP ALLOT CMOVE
+\ ;
 : STRLITERAL ( addr u -- )
   \ похоже на SLITERAL, но длина строки не ограничена 255
   \ и компилируемая строка при выполнении "разворачивается" по (")
