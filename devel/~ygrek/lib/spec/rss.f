@@ -19,7 +19,7 @@ REQUIRE STATIC ~profit/lib/static.f
 : xml.text ( node -- a u ) DUP IF text@ ELSE DROP S" " THEN ;
 
 \ Генерируются вызовы для каждого потомка элемента node
-: xml.children=> ( node --> node2 )
+: xml.children=> ( node --> node2 \ node2 <-- )
    DUP 0= IF DROP EXIT THEN
    PRO
     x.children @
@@ -48,10 +48,13 @@ REQUIRE STATIC ~profit/lib/static.f
    2DROP
    0 ;
 
+\ Заголовок rss-записи
 : rss.item.title ( node -- a u ) S" title" ROT node@ xml.text ;
+\ Ссылка rss-записи
 : rss.item.link  ( node -- a u ) S" link"  ROT node@ xml.text ;
 
-: rss.item.author
+\ Автор rss-записи
+: rss.item.author ( node -- a u )
    >R
    S" creator" R@ nodeText DUP IF RDROP EXIT THEN
    2DROP
@@ -152,4 +155,3 @@ REQUIRE load-file ~profit/lib/bac4th-str.f
 S" rss.xml" test2
 S" rss.xml" newest
 \ S" rss.xml" test1
-
