@@ -14,7 +14,7 @@ REQUIRE quick_sort ~pinka/samples/2003/common/qsort.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE /TEST ~profit/lib/testing.f
 
-REQUIRE write-list ~ygrek/lib/list/write.f
+REQUIRE setcar ~ygrek/lib/list/core.f
 
 \ nth used! Dumb list iteration. 
 \ Thus sorting long lists (more than 1000 elements) is really SLOW 
@@ -37,11 +37,11 @@ MODULE: list-quick-sort
 
 EXPORT
 
-: qsort-list ( node func -- )
-\ func ( node[i] node[j] -- ? ) ? = -1 if node[i] < node[j]
-   OVER length 0= ABORT" list empty!"
-   TO list_compare_xt
+: list-qsort ( xt node -- )
+\ xt: ( node[i]-car node[j]-car -- ? ) ? = -1 if node[i] < node[j]
+   DUP length 0= ABORT" list empty!"
    TO list_
+   TO list_compare_xt
    LAMBDA{ 2nodes-from-sort-list car SWAP car SWAP list_compare_xt EXECUTE } TO []<[] 
    LAMBDA{ 2nodes-from-sort-list car SWAP car SWAP list_compare_xt EXECUTE 0= } TO []>[]
    ['] list_exchange TO []exch[] 
@@ -49,11 +49,13 @@ EXPORT
 
 ;MODULE
 
+\ -----------------------------------------------------------------------
+
 /TEST
 
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
 REQUIRE GENRANDMAX  ~ygrek/lib/neilbawd/mersenne.f
-REQUIRE lst( ~ygrek/lib/list/list.f
+REQUIRE write-list ~ygrek/lib/list/write.f
 
 TESTCASES list_sort
 
@@ -67,7 +69,7 @@ WINAPI: GetTickCount KERNEL32.DLL
     LOOP
    )lst ;
 
-: sort ['] < qsort-list ;
+: sort ['] < SWAP list-qsort ;
 
 : check { | u -- ? }
    -1 TO u

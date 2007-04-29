@@ -78,8 +78,10 @@ VECT (print-list)
 /TEST
 
 lst( 1 %n " qu qu" %s 2 %n " long string for demonstration" %s 
-     3 %n lst( -1 %n -2 %n -3 %n )lst %l 5 %n )lst VALUE l1
+     3 %n lst( -1 %n -2 %n -3 %n )lst %l 5 %n )lst ( l )
 
-CR l1 write-list
-CR l1 print-list
-CR l1 dump-list
+DUP CR write-list
+DUP CR print-list
+DUP CR dump-list
+
+( l ) FREE-LIST

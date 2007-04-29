@@ -22,6 +22,16 @@ REQUIRE /TEST ~profit/lib/testing.f
     2DROP
    )lst ;
 
+: list-scan ( xt node -- node -1 | 0 )
+   BEGIN
+    DUP empty? 0=
+   WHILE
+    2>R
+    2R@ car SWAP EXECUTE IF R> RDROP TRUE EXIT THEN 
+    2R> cdr
+   REPEAT
+   2DROP FALSE ;
+
 0 VALUE _list-map-xt
 
 \ Модифицировать каждый элемент списка с помощью xt
@@ -73,10 +83,25 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
     cdr
    REPEAT DROP ;
 
+: (list) { addr } addr @ DUP cdr addr ! ;
+: list-iterator ( list -- xt ) S" A_AHEAD [ HERE SWAP , ] A_THEN LITERAL (list)" axt ;
+
+: list=> ( node --> node1 \ <-- ) \ clean-stack
+   PRO
+   BEGIN
+    DUP empty? 0=
+   WHILE
+    DUP >R
+    CONT
+    R> cdr 
+   REPEAT DROP ;
+
 \ Вставить элемент node1 в список list после первого элемента
+\ если list пуст - ничего не делать
 \ list->...->nil
 \ list->node1->...->nil
 : insert ( node1 list -- )
+   DUP empty? IF 2DROP EXIT THEN
    >R
    R@ cdr cons
    R> SWAP cons DROP ;
@@ -132,13 +157,27 @@ l list-remove-dublicates
 (( l lst( 2 % )lst equal? -> TRUE ))
 l FREE-LIST
 
-
 \
 \ mapcar!
-
 
 lst( 1 % 2 % 3 % )lst TO l
 :NONAME 2 + ; l mapcar!
 (( l lst( 3 % 4 % 5 % )lst equal? -> TRUE ))
+l FREE-LIST
+
+\
+\ list-iter
+
+lst( 1 % 2 % 3 % )lst TO l
+VECT z
+l list-iterator TO z
+
+(( z l equal? -> TRUE ))
+(( z l cdr equal? -> TRUE ))
+(( z length -> 1 ))
+(( z empty? -> TRUE ))
+
+(( 0 :NONAME l list=> car + ; EXECUTE -> 6 ))
+l FREE-LIST
 
 END-TESTCASES
