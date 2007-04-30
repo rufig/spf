@@ -40,6 +40,10 @@ REQUIRE /TEST ~profit/lib/testing.f
 \ завершить создание списка
 : )lst ( -- list ) cur-list list-of-cur-lists cdr TO list-of-cur-lists reverse ;
 
+: %( lst( ; 
+: )% )lst ;
+: )%l )% %l ;
+
 \ -----------------------------------------------------------------------
 
 /TEST
