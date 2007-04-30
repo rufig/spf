@@ -13,7 +13,7 @@ MODULE: BOT-COMMANDS
 ;MODULE
 
 MODULE: BOT-COMMANDS-HELP
-: !spf S" usage: !spf <word> - find the word definition in SPF source" S-REPLY ;
+: !spf S" usage: !spf <word> - find the word definition in SPF source, lib or devel" S-REPLY ;
 ;MODULE
 
 $Revision$ " -- SPF help plugin {s} loaded." DUP STR@ ECHO STRFREE

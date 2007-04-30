@@ -16,9 +16,9 @@ MODULE: BOT-COMMANDS
 : !aq
     SkipDelimiters
     -1 PARSE DUP 0= IF 2DROP S" Try !info !aq" S-REPLY EXIT THEN
-    2DUP determine-sender " Adding quote from {s}: {s}" DUP STR@ ECHO STRFREE
-    ( a u ) determine-sender register-quote
-    quotes-total 1- determine-sender " {s}: Quote {n} added. Thanks." DUP STR@ S-REPLY STRFREE
+    2DUP message-sender " Adding quote from {s}: {s}" DUP STR@ ECHO STRFREE
+    ( a u ) message-sender register-quote
+    quotes-total 1- message-sender " {s}: Quote {n} added. Thanks." DUP STR@ S-REPLY STRFREE
     TRUE TO ?check ;
 
 ;MODULE
