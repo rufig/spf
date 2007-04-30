@@ -14,10 +14,6 @@ REQUIRE domain:port ~ygrek/lib/net/domain.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 
-' ACCEPT1 TO ACCEPT \ disable autocompletion - hacky
-
-' ANSI>OEM TO ANSI><OEM \ cp1251
-
 CREATE IRC-BASIC
 
 \ MODULE: IRC
@@ -173,7 +169,7 @@ WINAPI: GetTickCount KERNEL32.DLL
     SOURCE 0 0
    } EVALUATE-WITH ;
 
-: (PARSE-REPLY) ( -- prefix-au command-au #command params-au trailing-au )
+: (PARSE-IRC-LINE) ( -- prefix-au command-au #command params-au trailing-au )
    PeekChar [CHAR] : = IF PARSE-NAME 1 /STRING ELSE 0 0 THEN
 
    PARSE-NAME
@@ -183,8 +179,8 @@ WINAPI: GetTickCount KERNEL32.DLL
    -1 PARSE 
    params-trailing ;
 
-: PARSE-REPLY ( a u -- )
-   ['] (PARSE-REPLY) EVALUATE-WITH
+: PARSE-IRC-LINE ( a u -- )
+   ['] (PARSE-IRC-LINE) EVALUATE-WITH
    2TO trailing
    2TO params
    TO #command
@@ -202,26 +198,30 @@ WINAPI: GetTickCount KERNEL32.DLL
 : ClientName>Nick ( a u -- a1 u1 ) LAMBDA{ [CHAR] ! PARSE } EVALUATE-WITH ;
 
 \ определить отправителя сообщения
-: determine-sender ( -- a u ) prefix ClientName>Nick ;
+: message-sender ( -- a u ) prefix ClientName>Nick ;
 
-\ определить контекст общения 
+: message-text ( -- a u ) trailing ;
+
+\ получить контекст общения 
 \ если сообщение было направлено в канал - вернуть имя канала
 \ если же соощение было направлено лично нам - вернуть имя отправителя
-: determine-target ( -- a u )
+: message-target ( -- a u )
    params nickname STR@ US= IF \ private message
-     determine-sender
+     message-sender
    ELSE
      params
    THEN ;
 
 \ ответить в контекст общения
-: S-REPLY ( a u -- ) determine-target S-SAY-TO ;
+: S-REPLY ( a u -- ) message-target S-SAY-TO ;
 
 \ ответить в контекст общения нотисом
-: S-NOTICE-REPLY ( a u -- ) determine-target S-NOTICE-TO ;
+: S-NOTICE-REPLY ( a u -- ) message-target S-NOTICE-TO ;
 
-: ?PING command S" PING" US= ;
-: ?PRIVMSG command S" PRIVMSG" US= ;
+: COMMAND? ( a u -- ? ) command US= ;
+
+: PING-COMMAND? ( -- ? ) S" PING" COMMAND? ;
+: PRIVMSG-COMMAND? ( -- ? ) S" PRIVMSG" COMMAND? ;
 
 : PONG trailing " PONG {s}" sCMD ;
 
@@ -229,11 +229,11 @@ WINAPI: GetTickCount KERNEL32.DLL
 
 : DEFAULT-ON-RECEIVE ( a u -- )
    2DUP 
-   PARSE-REPLY
+   PARSE-IRC-LINE
    LAMBDA{
     ?LOGMSG IF 2DUP ECHO THEN
-    ?PING IF PONG EXIT THEN
-    ?PRIVMSG IF SHOW-MSG EXIT THEN
+    PING-COMMAND? IF PONG EXIT THEN
+    PRIVMSG-COMMAND? IF SHOW-MSG EXIT THEN
     ?LOGMSG 0= IF 2DUP ECHO THEN
    }
    EXECUTE

@@ -5,6 +5,7 @@ REQUIRE ATTACH ~pinka/samples/2005/lib/append-file.f
 REQUIRE TIME&DATE lib/include/facil.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 REQUIRE ltcreate ~ygrek/lib/multi/msg.f
+REQUIRE #N## ~ac/lib/win/date/date-int.f
 
 ' ACCEPT1 TO ACCEPT \ disables autocompletion if present ;)
 
@@ -20,13 +21,21 @@ TRUE TO ?LOGMSG
 \ : TALK-LOG-FILE TIME&DATE 2>R NIP NIP NIP 2R> " talk.{n}{n}{n}.log" ;
 \ : STR=> PRO CONT STRFREE ;
 
-: CURRENT-DATE TIME&DATE 2>R NIP NIP NIP 2R> ;
+: CURRENT-DATE ( -- d m y ) TIME&DATE 2>R NIP NIP NIP 2R> ;
+: CURRENT-TIME ( -- m h ) TIME&DATE DROP DROP DROP ROT DROP ;
 
-: TALK-LOG-FILE CURRENT-DATE
-    SWAP ROT
-    <# S" .log" HOLDS S>D # # 2DROP S>D # # 2DROP S>D #S 2DROP S" talk." HOLDS 0 0 #> ;
+: CURRENT-LOG-FILE 
+    CURRENT-DATE { d m y }
+    <# S" .log" HOLDS d #N## m #N## y #N [CHAR] . HOLD current-channel HOLDS 0 0 #> ;
 
-: DO-LOG-TALK TALK-LOG-FILE ATTACH-LINE-CATCH DROP ;
+: (DO-LOG-TO-FILE) ( a u -- ) CURRENT-LOG-FILE ATTACH-LINE-CATCH DROP ;
+
+: RAW-LOG ( a u -- )
+   CURRENT-TIME { m h }
+   <# m #N## [CHAR] : HOLD h #N## 0 0 #>
+   " {s}|{s}" DUP STR@ (DO-LOG-TO-FILE) STRFREE ;
+
+: S-LOG ( s -- ) DUP STR@ RAW-LOG STRFREE ;
 
 :NONAME { | last -- }
   DROP
@@ -45,15 +54,23 @@ VOCABULARY BOT-COMMANDS
 VOCABULARY BOT-COMMANDS-HELP
 VOCABULARY BOT-COMMANDS-NOTFOUND
 
-: HelpWords=> PRO [WID] BOT-COMMANDS NFA=> DUP COUNT CONT ;
+: HelpWords=> PRO [WID] BOT-COMMANDS-HELP NFA=> DUP COUNT CONT ;
 : AllHelpWords ( -- s ) LAMBDA{ HelpWords=> TYPE SPACE } TYPE>STR ;
 
-MODULE: BOT-COMMANDS
+0 [IF]
+() VALUE all-info-commands
+: add-info-command vnode as-str all-commands cons TO all-commands ;
 
-: !bar 
-   S" Just for testing" determine-sender S-NOTICE-TO
-   TRUE TO ?check
-;
+\ добавить s1 в конец строки s НЕ удаляя s1
+: +S ( s1 s -- ) SWAP STR@ ROT STR+ ;
+
+: collect-all-info-commands ( -- s )
+   "" LAMBDA{ OVER +S } all-info-commands mapcar ;
+" !version" add-info-command
+" !info" add-info-command
+[THEN]
+
+MODULE: BOT-COMMANDS
 
 : !help
     TRUE TO ?check
@@ -66,15 +83,15 @@ MODULE: BOT-COMMANDS
       GET-ORDER
       ONLY BOT-COMMANDS-HELP
       ALSO BOT-COMMANDS-NOTFOUND
-      2R> ['] EVALUATE CATCH IF 2DROP THEN
+      2R> ['] EVALUATE CATCH IF 2DROP S" Sorry, no info." S-REPLY THEN
       SET-ORDER
 
     ELSE
 
     2DROP
 
-    AllHelpWords DUP >R STR@
-    " Available commands : {s} (Use '!info !<command>' for more info)." DUP STR@ S-REPLY STRFREE
+    AllHelpWords >R
+    R@ STR@ " Available commands : {s} (Use '!info !<command>' for more info)." DUP STR@ S-REPLY STRFREE
     R> STRFREE
     THEN ;
 
@@ -88,9 +105,16 @@ MODULE: BOT-COMMANDS
 
 ;MODULE
 
+MODULE: BOT-COMMANDS-HELP
+
+: !info S" If you want to understand recusion you should understand recursion first!" S-REPLY ;
+: !version S" It is self-descriptive, man!" S-REPLY ;
+
+;MODULE
+
 MODULE: BOT-COMMANDS-NOTFOUND
  : NOTFOUND 
-    nickname STR@ COMPARE-U 0= IF EXIT THEN \ игнорируем упоминания нащего никнейма
+    nickname STR@ COMPARE-U 0= IF EXIT THEN \ игнорируем упоминания нашего никнейма
     -1 THROW ; \ иначе завершаем разбор строки
 ;MODULE
 
@@ -99,12 +123,12 @@ MODULE: BOT-COMMANDS-NOTFOUND
   S" Hello. I am a bot. Try !info. You can chat to me privately." S-REPLY
   TRUE EXIT ;
 
-: CHECK-MSG-IGNORE ( -- ? ) determine-sender S" TiReX" COMPARE-U 0= ;
+: CHECK-MSG-IGNORE ( -- ? ) message-sender S" TiReX" US= ;
 
 0 [IF]
 : CHECK-MSG-SPECIAL
    trailing S" .." COMPARE 0= IF 
-      determine-sender " {s}, dont be so boring! Lets talk." DUP STR@ S-REPLY STRFREE
+      message-sender " {s}, dont be so boring! Lets talk." DUP STR@ S-REPLY STRFREE
       TRUE EXIT 
    THEN
    FALSE ;
@@ -131,32 +155,14 @@ MODULE: BOT-COMMANDS-NOTFOUND
    FALSE
 ;
 
-: LOG-TALK
-   ?PRIVMSG 0= 
-   \ command S" notice"
-   IF EXIT THEN
-   trailing
-   determine-sender 
-   params nickname STR@ US= 
-   IF 
-    " notice {s} : {s}"
-   ELSE
-    " {s} : {s}"
-   THEN
-   DUP
-   STR@ DO-LOG-TALK
-   STRFREE ;
-
-
 : BOT-ON-RECEIVE ( a u -- )
    \ S" HERE : " TYPE HERE . CR
-   2DUP 
-   PARSE-REPLY
+   2DUP PARSE-IRC-LINE
+   2DUP RAW-LOG
    LAMBDA{
-    LOG-TALK
     ?LOGMSG IF 2DUP ECHO THEN
-    ?PING IF PONG EXIT THEN
-    ?PRIVMSG IF CHECK-MSG DROP EXIT THEN
+    PING-COMMAND? IF PONG EXIT THEN
+    PRIVMSG-COMMAND? IF CHECK-MSG DROP EXIT THEN
     ?LOGMSG 0= IF 2DUP ECHO THEN
    }
    EXECUTE
