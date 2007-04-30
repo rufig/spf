@@ -5,11 +5,12 @@
 \ After each CVS commit revision will be automatically increased by CVS itself 
 \ NB Keyword substitution is performed only if -kkv is specifed (it is the default for text files)
 
-: kkv-save [CHAR] $ PARSE -TRAILING S", ;
-: kkv-extract HERE kkv-save COUNT ;
+: kkv-extract [CHAR] $ PARSE -TRAILING ;
+\ : COMPILE-STRING ( a u -- ) HERE -ROT S", COUNT ;
 
 : $Date: kkv-extract ;
 : $Revision: kkv-extract ;
+: $Id: kkv-extract ;
 
 \EOF
 
