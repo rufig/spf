@@ -68,7 +68,7 @@ MODULE: BOT-COMMANDS-HELP
 MODULE: BOT-COMMANDS
 
 : !weather 
-    PARSE-NAME short-city
+    -1 PARSE FINE-HEAD FINE-TAIL short-city
     2DUP find-city-code 
     DUP 0= IF 2DROP 2DROP message-sender " {s}: Нет такого города!" DUP STR@ S-REPLY STRFREE EXIT THEN
     " http://informer.gismeteo.ru/xml/{s}_1.xml" >R 
@@ -78,6 +78,7 @@ MODULE: BOT-COMMANDS
     2SWAP
     message-sender " {s}: погода в городе {s} {s}" DUP STR@ S-REPLY STRFREE
     S" BUG: MEMORY LEAK - NEED XSLT FREE" ECHO
+    TRUE TO ?check
 ;
 : !п !weather ;
 : !w !weather ;

@@ -268,7 +268,7 @@ CREATE (ACTION) 1 C, S" ACTION" S,
     ACTION
     " {s} {s} {s} {s} {s}{s}" STR@ S-REPLY ;
 
-: bar: ( n "name" ) CREATE , DOES> @ give-a-drink ;
+: bar: ( n "name" ) CREATE , DOES> @ give-a-drink TRUE TO ?check ;
 
 MODULE: BOT-COMMANDS
 
