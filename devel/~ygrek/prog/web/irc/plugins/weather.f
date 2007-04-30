@@ -68,7 +68,9 @@ MODULE: BOT-COMMANDS-HELP
 MODULE: BOT-COMMANDS
 
 : !weather 
-    -1 PARSE FINE-HEAD FINE-TAIL short-city
+    -1 PARSE FINE-HEAD FINE-TAIL 
+    DUP 0= IF 2DROP BOT-COMMANDS-HELP::!weather EXIT THEN
+    short-city
     2DUP find-city-code 
     DUP 0= IF 2DROP 2DROP message-sender " {s}: Нет такого города!" DUP STR@ S-REPLY STRFREE EXIT THEN
     " http://informer.gismeteo.ru/xml/{s}_1.xml" >R 

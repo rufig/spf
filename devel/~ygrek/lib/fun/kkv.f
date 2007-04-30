@@ -6,13 +6,15 @@
 \ NB Keyword substitution is performed only if -kkv is specifed (it is the default for text files)
 
 : kkv-extract [CHAR] $ PARSE -TRAILING ;
-\ : COMPILE-STRING ( a u -- ) HERE -ROT S", COUNT ;
 
-: $Date: kkv-extract ;
-: $Revision: kkv-extract ;
-: $Id: kkv-extract ;
+\ вкомпильнуть строку a u в кодофайл и вернуть адрес и длину вкомпилированного образа
+: -STRING- ( a u -- a1 u ) HERE -ROT S", COUNT ;
+
+: $Date: kkv-extract ; IMMEDIATE
+: $Revision: kkv-extract ; IMMEDIATE
+: $Id: kkv-extract ; IMMEDIATE
 
 \EOF
 
-
 $Revision$ TYPE
+: a $Date$ SLITERAL TYPE ;

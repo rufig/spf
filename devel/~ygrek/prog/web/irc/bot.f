@@ -11,8 +11,8 @@ REQUIRE #N## ~ac/lib/win/date/date-int.f
 
 ' ANSI>OEM TO ANSI><OEM \ cp1251
 
-$Date$ 2VALUE CVS-DATE
-$Revision$ 2VALUE CVS-REVISION
+: CVS-DATE $Date$ SLITERAL ;
+: CVS-REVISION $Revision$ SLITERAL ;
 
 FALSE TO ?LOGSEND
 TRUE TO ?LOGSAY
