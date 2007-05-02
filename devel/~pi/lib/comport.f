@@ -155,14 +155,14 @@ EXPORT
 	COM1
 	IF
 	 BEGIN
-	  \ com1 COMWait 1 .
 	  com1 COMRead .COM
-	  \ com1 COMIn .
+	  \  com1 COMIn .
 	 AGAIN
 	THEN
 ;
 
 \EOF
+
 
 По умолчанию com порты имеют настройки:
  - скорость: 9600
