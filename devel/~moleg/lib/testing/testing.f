@@ -2,6 +2,10 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ Автоматическое тестирование библиотек, кода.
 
+\ поддержка IFNOT WHILENOT
+REQUIRE IFNOT devel\~moleg\lib\util\ifnot.f
+REQUIRE ?:    devel\~moleg\lib\util\ifcolon.f
+              ?: A! ! ; ?: A@ @ ;
 
 \ 10-11-2006 решение проблемы необработки литералов стандартным EVAL-WORD
 : eval-word
@@ -31,17 +35,14 @@ CREATE russian   \ сообщения на русском языке
 \ со счетчиком:   S" name" S: код слова ;
 : S: ( asc # --> ) SHEADER ] HIDE ;
 
-\ берем очередную лексему до тех пор, пока не конец потока
-\ в случае окончания потока возвращаем 0 0 вместо строки и ее длинны
-\ полезная идея взята из СМАЛ32.
-: iNextWord ( --> asc # )
-            NextWord
-
-            DUP IF EXIT ELSE 2DROP THEN
-
-            REFILL IF RECURSE   \ здесь можно было бы просто NextWord
-                    ELSE 0 0
-                   THEN ;
+\ слово берет очередную лексему из входного потока до тех пор, пока он »
+\ не исчерпается.
+: NEXT-WORD ( --> asc #|0 )
+            BEGIN NextWord DUP WHILENOT
+                  DROP REFILL DUP WHILE
+                  2DROP
+               REPEAT
+            THEN ;
 
 \ зря этого слова нет в СПФ
 : IS POSTPONE TO ; IMMEDIATE
@@ -58,11 +59,12 @@ VOCABULARY tests
 
 \ основной цикл
 : process ( --> )
-          BEGIN iNextWord DUP WHILE
+          BEGIN NEXT-WORD DUP WHILE
                 2DUP is-delimiter WHILE
                action
            REPEAT 2DROP EXIT
-          THEN CR ." test section not finished" CR ABORT ;
+          THEN
+          S" test section not finished" ER-U ! ER-A A! -2 THROW ;
 
 \ ищем слово идентифицируемое строкой в контексте
 \ кстати, может в специальном словаре искать: каком-нибудь settings ?
