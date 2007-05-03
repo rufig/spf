@@ -10,10 +10,11 @@ REQUIRE HASH! ~pinka/lib/hash-table.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE FINE-HEAD ~pinka/samples/2005/lib/split-white.f
 REQUIRE UPPERCASE ~ac/lib/string/uppercase.f
-REQUIRE %( ~ygrek/lib/list/all.f
+REQUIRE %[ ~ygrek/lib/list/all.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 
 ( testing
+0 VALUE ?check
 : S-REPLY DUMP ;
 : message-sender S" dsds" ;
 : ECHO CR TYPE ;
@@ -55,11 +56,11 @@ MODULE: BOT-COMMANDS-HELP
 
 : find-city-code ( a u -- a u ) " {s}" DUP STR@ UPPERCASE DUP STR@ h HASH@ ROT STRFREE ;
 
-%( 
-  %( " мск" %s " Москва" %s )% %l 
-  %( " спб" %s " Санкт-Петербург" %s )% %l 
-  %( " нск" %s " Новосибирск" %s )% %l 
-)% VALUE short-cities
+%[ 
+  %[ " мск" %s " Москва" %s ]%l 
+  %[ " спб" %s " Санкт-Петербург" %s ]%l 
+  %[ " нск" %s " Новосибирск" %s ]%l 
+]% VALUE short-cities
 
 : short-city ( a u -- a1 u1 )
    LAMBDA{ car STR@ 2OVER COMPARE 0= } short-cities list-scan

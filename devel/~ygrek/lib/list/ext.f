@@ -1,13 +1,19 @@
+\ $Id$
+\ Типы данных в списке (строка, список, число) и упрощённое задание списка в виде 
+\ %[ 1 % " hello" %s %[ 3 % 4 % ]% %l 5 % ]% 
+\ %[ 10 0 DO I % LOOP ]%
+
+REQUIRE STRFREE ~ac/lib/str4.f
 REQUIRE cons ~ygrek/lib/list/core.f
 REQUIRE /TEST ~profit/lib/testing.f
 
-0 CONSTANT _extra-value
-1 CONSTANT _extra-list
-2 CONSTANT _extra-str
+0 CONSTANT _extra-value \ число
+1 CONSTANT _extra-list  \ список
+2 CONSTANT _extra-str   \ строка
 
-: as-value _extra-value OVER list.x2 ! ;
-: as-list _extra-list OVER list.x2 ! ;
-: as-str _extra-str OVER list.x2 ! ;
+: as-value ( node -- node ) _extra-value OVER list.x2 ! ;
+: as-list ( node -- node ) _extra-list OVER list.x2 ! ;
+: as-str ( node -- ) _extra-str OVER list.x2 ! ;
 
 : value? ( node -- ? ) list.x2 @ _extra-value = ;
 : str? ( node -- ? ) list.x2 @ _extra-str = ;
@@ -38,11 +44,33 @@ REQUIRE /TEST ~profit/lib/testing.f
 : lst( ( -- ) list-of-cur-lists () vnode SWAP cons TO list-of-cur-lists ;
 
 \ завершить создание списка
-: )lst ( -- list ) cur-list list-of-cur-lists cdr TO list-of-cur-lists reverse ;
+: )lst ( -- list ) list-of-cur-lists DUP cdr TO list-of-cur-lists DUP car SWAP FREE-NODE reverse ;
 
-: %( lst( ; 
-: )% )lst ;
-: )%l )% %l ;
+: %[ lst( ; 
+: ]% )lst ;
+: ]%l ]% %l ;
+
+\ -----------------------------------------------------------------------
+
+WARNING @
+WARNING 0!
+
+\ освободить память занимаемую самим списком, а также данными каждого элемента
+\ используется информация о типах
+\ для строк - STRFREE
+\ для списков - рекурсивно FREE-LIST
+\ для value - ничего
+: FREE-LIST ( node -- ) 
+   BEGIN
+   DUP empty? IF DROP EXIT THEN
+   DUP cdr 
+   SWAP 
+   DUP list? IF DUP car RECURSE THEN
+   DUP str? IF DUP car STRFREE THEN
+   FREE-NODE 
+   AGAIN ;
+
+WARNING !
 
 \ -----------------------------------------------------------------------
 

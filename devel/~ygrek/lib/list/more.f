@@ -2,7 +2,7 @@
 \ Больше операций со списками
 
 REQUIRE lst( ~ygrek/lib/list/ext.f
-REQUIRE STR@ ~ac/lib/str5.f
+REQUIRE STR@ ~ac/lib/str4.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE /TEST ~profit/lib/testing.f
 
@@ -134,6 +134,8 @@ lst( 1 % 2 % " coo zoo " %s lst( " so so" %s 200 % )lst %l 2000 % )lst VALUE l1
 lst( 1 % 2 % " coo zoo " %s lst( " so so" %s 200 % )lst %l 2000 % )lst VALUE l2
 
 (( l1 l2 equal? -> TRUE ))
+l1 FREE-LIST
+l2 FREE-LIST
 
 0 VALUE l
 
@@ -150,17 +152,16 @@ l list-remove-dublicates
 \ CR l write-list
 l FREE-LIST
 
-lst( :NONAME 10 0 DO 2 % LOOP ; EXECUTE )lst TO l
+%[ :NONAME 10 0 DO 2 % LOOP ; EXECUTE ]% TO l
 \ CR l write-list
 l list-remove-dublicates
 \ CR l write-list
-(( l lst( 2 % )lst equal? -> TRUE ))
+(( l %[ 2 % ]% equal? -> TRUE ))
 l FREE-LIST
-
 \
 \ mapcar!
 
-lst( 1 % 2 % 3 % )lst TO l
+%[ 1 % 2 % 3 % ]% TO l
 :NONAME 2 + ; l mapcar!
 (( l lst( 3 % 4 % 5 % )lst equal? -> TRUE ))
 l FREE-LIST
@@ -168,7 +169,7 @@ l FREE-LIST
 \
 \ list-iter
 
-lst( 1 % 2 % 3 % )lst TO l
+%[ 1 % 2 % 3 % ]% TO l
 VECT z
 l list-iterator TO z
 

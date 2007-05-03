@@ -23,7 +23,7 @@ CONSTANT /NODE
 : vnode ( val -- node ) NEW-NODE TUCK list.car ! ;
 
 \ () - пустой элемент - указывает сам на себя - конец списка
-NEW-NODE VALUE ()
+HERE /NODE ALLOT VALUE ()
 \ C" <NULL>" () !
 () () LINK-NODE
 
