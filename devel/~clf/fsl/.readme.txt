@@ -15,3 +15,6 @@ MODULE: FSL
   REQUIRE JDAY ~clf/fsl/dates.seq
  DOS-LINES
 ;MODULE
+
+Оставлены только файлы которые которые используются другими либами в devel.
+Вся библиотека - http://www.taygeta.com/fsl/library/Library.tgz
