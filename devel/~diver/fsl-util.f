@@ -30,9 +30,10 @@
 
 \ This code is released to the public domain Everett Carter July 1994
 
-CR .( FSL-UTIL.F        V1.0           19 October 2002   for SP-Forth4 ) CR
+CR .( FSL-UTIL.F    $Revision$  $Date$   for SP-Forth4 ) CR
 777 CONSTANT fsl-util
 REQUIRE FLOAT-PAD lib/include/float2.f
+REQUIRE [IF] lib/include/tools.f  \ FSL expects [IF] to be available
 : PRINT-WIDTH FFORM ;
 : F> F< 0= ;
 
