@@ -25,3 +25,6 @@ winctl.f
 winlib.f
 [*] REQUIRE LOAD-CONSTANTS ~yz/lib/wincons.f - W: конфликтует часто, результат - либа не грузится
 [*] выделил win-независимую часть в wincore.f
+
+wingrid.f
+[*] слово row-pass1 - Добавлено обнуление пары полей таблиц сеток (in4)

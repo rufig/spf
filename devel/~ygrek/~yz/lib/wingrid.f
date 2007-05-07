@@ -44,12 +44,12 @@ cur-height bfield -height
 : -yfixed  fixed -height ;
 
 0
-CELL -- :gsign 	 \ подпись "GRID"
+CELL -- :gsign   \ подпись "GRID"
 CELL -- :glink   \ указатель на первый ряд
 CELL -- :gwidth  \ ширина сетки: должна быть 3-ей (wm_getminmaxinfo)
 CELL -- :gheight \ высота сетки: должна быть 4-ей (wm_getminmaxinfo)
 CELL -- :gfixheight \ сумма фиксированных по высоте клеток
-CELL -- :gbox	 \ рамка вокруг сетки
+CELL -- :gbox    \ рамка вокруг сетки
 == #grid
 
 0 
@@ -273,6 +273,8 @@ VARIABLE temp2
 \ проходим по всем клеткам, считаем максимальную высоту и общую ширину
 PROC: row-pass1
   cur-bind @ >R
+  0  R@ :brelw !
+  0  R@ :brelh !
   R@ :bdweller @ dweller-size DUP R@ :bdwellerh ! OVER R@ :bdwellerw !
   R@ :bymargin @ 2* +
   SWAP R@ :bxmargin @ 2* + 2DUP ( y x ) R@ :bwidth ! R> :bheight !
