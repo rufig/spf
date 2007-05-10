@@ -2,7 +2,7 @@
 \ Ѕольше операций со списками
 
 REQUIRE lst( ~ygrek/lib/list/ext.f
-REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE /TEST ~profit/lib/testing.f
 
@@ -22,7 +22,10 @@ REQUIRE /TEST ~profit/lib/testing.f
     2DROP
    )lst ;
 
-: list-scan ( xt node -- node -1 | 0 )
+\ ѕоиск по списку
+\ ¬ случае успеха (xt вернул -1) возвращаетс€ node1 на которой поиск был остановлен
+\ xt: ( node-car -- ? ) \ TRUE - stop scan, FALSE - continue
+: list-scan ( xt node -- node1 -1 | 0 )
    BEGIN
     DUP empty? 0=
    WHILE
@@ -86,7 +89,11 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
 : (list) { addr } addr @ DUP cdr addr ! ;
 : list-iterator ( list -- xt ) S" A_AHEAD [ HERE SWAP , ] A_THEN LITERAL (list)" axt ;
 
-: list=> ( node --> node1 \ <-- ) \ clean-stack
+\ создать список as-value длиной n из элементов на стеке v1...vn
+: nlist ( v1 ... vn n -- l ) () { l } 0 ?DO vnode l cons -> l LOOP l ;
+
+\ bac4th-итератор по списку
+: list-> ( node --> node1 \ <-- ) \ clean-stack
    PRO
    BEGIN
     DUP empty? 0=
@@ -96,15 +103,52 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
     R> cdr 
    REPEAT DROP ;
 
+\ bac4th-итератор по списку
+: list=> ( node <--> node1 )
+   PRO
+   BEGIN
+    DUP empty? 0=
+   WHILE
+    DUP CONT cdr
+   REPEAT DROP ;
+
 \ ¬ставить элемент node1 в список list после первого элемента
 \ если list пуст - ничего не делать
 \ list->...->nil
 \ list->node1->...->nil
-: insert ( node1 list -- )
+: insert-after ( node1 list -- )
    DUP empty? IF 2DROP EXIT THEN
    >R
    R@ cdr cons
    R> SWAP cons DROP ;
+
+\ применить xt последовательно к парам соседних элементов 
+\ и сохранить результат в элемент списка
+\ ѕри этом весь список укорачиваетс€ на один элемент
+\ xt: ( node1-car node2-car )
+: zipcar! ( xt node1 -- )
+   { xt l }
+   l length 1 = IF EXIT THEN
+   BEGIN
+    l car l cdar xt EXECUTE l setcar
+    l cddr empty? IF l cdr FREE-NODE l () LINK-NODE EXIT THEN
+    l cdr -> l
+   AGAIN ;
+
+\ применить xt к "соответствующим" парам элементов списков node1 node2
+\ xt: ( node1i node2i -- )
+: map2 ( xt node1 node2 -- ) \ no clean stack
+   ROT >R
+   BEGIN
+    DUP empty? 0= 
+   WHILE
+    OVER empty? 0= 
+   WHILE
+    2DUP R@ EXECUTE
+    cdr >R cdr R>
+   REPEAT
+   THEN
+   2DROP RDROP ;
 
 \ ѕроверка на равенство по значению
 : equal? ( node1 node2 -- ? )
@@ -158,6 +202,7 @@ l list-remove-dublicates
 \ CR l write-list
 (( l %[ 2 % ]% equal? -> TRUE ))
 l FREE-LIST
+
 \
 \ mapcar!
 
@@ -178,7 +223,26 @@ l list-iterator TO z
 (( z length -> 1 ))
 (( z empty? -> TRUE ))
 
-(( 0 :NONAME l list=> car + ; EXECUTE -> 6 ))
+(( 0 :NONAME l list-> car + ; EXECUTE -> 6 ))
 l FREE-LIST
+
+\
+\ zipcar!
+
+%[ 1 % 2 % 3 % 4 % 5 % ]% TO l
+' + l zipcar! 
+(( l %[ 3 % 5 % 7 % 9 % ]% equal? -> TRUE ))
+l FREE-LIST
+
+\
+\ map2
+
+1 1 1 1 1 1 DEPTH nlist TO l1
+2 3 0 -2 3 4 DEPTH nlist TO l2
+%[ :NONAME car SWAP car + % ; l1 l2 map2 ]% TO l
+(( l %[ 3 % 4 % 1 % -1 % 4 % 5 % ]% equal? -> TRUE ))
+l FREE-LIST
+l1 FREE-LIST
+l2 FREE-LIST
 
 END-TESTCASES

@@ -3,7 +3,7 @@
 \ %[ 1 % " hello" %s %[ 3 % 4 % ]% %l 5 % ]% 
 \ %[ 10 0 DO I % LOOP ]%
 
-REQUIRE STRFREE ~ac/lib/str4.f
+REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE cons ~ygrek/lib/list/core.f
 REQUIRE /TEST ~profit/lib/testing.f
 
