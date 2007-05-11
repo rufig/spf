@@ -43,7 +43,9 @@ VARIABLE ChainOfConst
   0
 ;
 
-FALSE WARNING !
+SET-CURRENT
+
+WARNING @ FALSE WARNING !
 : NOTFOUND ( addr u -- )
   2DUP 2>R ['] NOTFOUND CATCH ?DUP
   IF                    
@@ -55,7 +57,8 @@ FALSE WARNING !
   ELSE RDROP RDROP
   THEN
 ;
-TRUE WARNING !
+WARNING !
+
 
 : ADD-CONST-VOC ( addr u -- )
   R/O TryOpenFile 0= IF >R
@@ -79,6 +82,6 @@ TRUE WARNING !
   ChainOfConst 0!
 ;
 
-SET-CURRENT
+PREVIOUS
 
 S" lib\win\winconst\windows.const" ADD-CONST-VOC
