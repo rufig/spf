@@ -1,9 +1,6 @@
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
-: REQUIRE NEEDED ;
-
-REQUIRE F. lib/include/float2.f
-
+NEEDS lib/include/float2.f
 NEEDS ~day/hype3/hype3.f
 
 \ --------------------------
@@ -11,7 +8,7 @@ NEEDS ~day/hype3/hype3.f
 \ класс "точка" 4D = x y z w
 \ координаты вещественные 4 байт
 
-CLASS CPoint
+CLASS CPoint4f
 
     4 DEFS x
     4 DEFS y 
@@ -37,19 +34,19 @@ CLASS CPoint
   :x@ F+ :x!
 ;
 
-\ : :pdec ( p -- ) :: CPoint.:get :dec3 ;
+\ : :pdec ( p -- ) :: CPoint4f.:get :dec3 ;
    
 \ этот обьект скопировать из обьекта-точки на стеке
-: :pset ( p -- ) :: CPoint.:get :set ;
+: :pset ( p -- ) :: CPoint4f.:get :set ;
 
 : :cross3 ( F: x y z -- F: f ) :z@ F* FSWAP :y@ F* F+ FSWAP :x@ F* F+ ;
-: :pcross ( p -- F: f ) :: CPoint.:get :cross3 ;
+: :pcross ( p -- F: f ) :: CPoint4f.:get :cross3 ;
 
 : :pvect ( p -- F: x y z )
    >R
-   :y@ R@ :: CPoint.:z@ F* :z@ R@ :: CPoint.:y@ F* F-
-   :z@ R@ :: CPoint.:x@ F* :x@ R@ :: CPoint.:z@ F* F-
-   :x@ R@ :: CPoint.:y@ F* :y@ R@ :: CPoint.:x@ F* F- 
+   :y@ R@ :: CPoint4f.:z@ F* :z@ R@ :: CPoint4f.:y@ F* F-
+   :z@ R@ :: CPoint4f.:x@ F* :x@ R@ :: CPoint4f.:z@ F* F-
+   :x@ R@ :: CPoint4f.:y@ F* :y@ R@ :: CPoint4f.:x@ F* F- 
    RDROP
 ;
 
