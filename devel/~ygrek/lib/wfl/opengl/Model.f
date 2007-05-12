@@ -1,14 +1,10 @@
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
-: REQUIRE NEEDED ;
-
 NEEDS ~ygrek/lib/filelines.f
 NEEDS lib/include/float2.f
 NEEDS ~ygrek/lib/hype/array.f
 NEEDS ~ygrek/lib/parse.f
 NEEDS ~ygrek/lib/debug/ensure.f
-
-REQUIRE ?FLOAT lib/include/float2.f
 
 : ?FLOAT-EXT ( addr u -- bool )
     DUP 2 < IF 2DROP 0 EXIT THEN

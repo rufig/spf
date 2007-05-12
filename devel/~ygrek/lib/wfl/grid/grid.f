@@ -1,12 +1,9 @@
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
-: REQUIRE NEEDED ;
-
 NEEDS ~ygrek/lib/wfl/opengl/GLControl.f
 NEEDS ~day\wfl\wfl.f
-\ NEEDS lib/include/float2.f
-REQUIRE cons ~ygrek/lib/list/all.f
-REQUIRE .R lib/include/core-ext.f
+NEEDS ~ygrek/lib/list/all.f
+NEEDS lib/include/core-ext.f
 
 \ --------------------------
 

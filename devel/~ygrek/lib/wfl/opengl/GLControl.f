@@ -1,7 +1,5 @@
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
-: REQUIRE NEEDED ;
-
 NEEDS ~ygrek/lib/wfl/opengl/GLCanvas.f
 
 \ -----------------------------------------------------------------------

@@ -1,8 +1,6 @@
 
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
-: REQUIRE NEEDED ;
-
 NEEDS ~day/hype3/hype3.f
 NEEDS ~profit/lib/testing.f
 

@@ -1,19 +1,7 @@
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
-: REQUIRE NEEDED ;
-
-NEEDS ~ygrek/lib/data/opengl.f
-
-: status 
-  CR 
-  ." f=" FDEPTH . 
-  ." d=" DEPTH  . 
-  DEPTH 10 MIN .SN
-  GetLastError ?DUP IF CR ." Error " . THEN
-  glGetError ?DUP IF CR ." GL error " . THEN 
-;
-
 NEEDS lib/include/float2.f
+NEEDS ~ygrek/lib/data/opengl.f
 NEEDS ~day/hype3/hype3.f
 NEEDS ~day/wfl/wfl.f
 NEEDS ~ygrek/lib/wfl/opengl/GLObject.f
@@ -23,16 +11,6 @@ NEEDS ~ygrek/lib/neilbawd/mersenne.f
 : M, ( addr u -- addr+4 )   OVER  ! CELL+ ;
 : MC, ( addr c -- addr+4 )  OVER C! 1+ ; 
 : MW, ( addr c -- addr+4 )  OVER W! 2+ ;
-
-CDC SUBCLASS CDC
-: :releaseDC ( -- )
-  SUPER handle @ 0= 0= SUPER ?own @ AND
-  IF
-    SUPER checkDC SUPER hWnd @ ReleaseDC DROP
-    0 SUPER handle ! 
-  THEN ;
-;CLASS
-
 
 \ -----------------------------------------------------------------------
 
@@ -65,7 +43,7 @@ init: NULL _hRC ! ;
 ;
 
 : :disable ( -- )
-   SUPER :releaseDC
+   SUPER release
    :releaseRC
 ;
 
@@ -79,7 +57,7 @@ init: NULL _hRC ! ;
   THEN
 ;
 
-dispose: :deleteRC SUPER :releaseDC ;
+dispose: :deleteRC SUPER release ;
 
 ;CLASS
 
@@ -220,7 +198,7 @@ dispose:          \ Properly Kill The Window
    :initGL
 
    _context :releaseRC
-   _context :releaseDC
+   _context release
 
    :resize
 

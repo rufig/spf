@@ -5,18 +5,12 @@
 
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
-: REQUIRE NEEDED ;
-
-REQUIRE FLOAT lib/include/float2.f
-
 NEEDS ~day/hype3/hype3.f
 NEEDS ~day/wfl/wfl.f
 NEEDS ~ygrek/lib/wfl/opengl/GLObject.f
 NEEDS ~ygrek/lib/joopengl/extra.f 
 NEEDS ~ygrek/lib/data/opengl.f
 NEEDS ~day/common/clparam.f
-
-\ NEEDS ~ac/lib/str5.f
 
 : PrepareLight
 
@@ -37,18 +31,7 @@ NEEDS ~day/common/clparam.f
    GL_LIGHTING glEnable DROP \ Enable lighting in general
 ;
 
-: status 
-  CR 
-  ." f=" FDEPTH . 
-  ." d=" DEPTH  . 
-  DEPTH 10 MIN .SN
-  GetLastError ?DUP IF CR ." Error " . THEN
-  glGetError ?DUP IF CR ." GL error " . THEN 
-;
-
-
-REQUIRE CGLPoint GLObject.f
-REQUIRE FGENRAND ~ygrek/lib/neilbawd/mersenne.f
+NEEDS ~ygrek/lib/neilbawd/mersenne.f
 
 101 CONSTANT ID_ABOUT
 102 CONSTANT ID_CLOSE

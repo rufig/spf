@@ -1,7 +1,5 @@
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
-: REQUIRE NEEDED ;
-
 NEEDS ~ygrek/lib/data/opengl.f
 
 : status 
@@ -32,7 +30,7 @@ S" ~ygrek/lib/data/opengl.const" ADD-CONST-VOC
 
 \ -----------------------------------------------------------------------
 
-CPoint SUBCLASS CGLPoint 
+CPoint4f SUBCLASS CGLPoint 
 
 : :getf ( -- D: z y x ) SUPER :z@ float  SUPER :y@ float  SUPER :x@ float ;
 
