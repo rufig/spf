@@ -1,22 +1,51 @@
-\ Оформить в пример. В CWindow достаточно перегрузить createMenu
+( The very simple example )
 
-M: 101 ( -- )
+REQUIRE WL-MODULES ~day\lib\includemodule.f
+NEEDS ~day\wfl\wfl.f
+
+101 CONSTANT HOORAY_ID
+102 CONSTANT BEEP_ID
+
+WINAPI: MessageBeep USER32.DLL
+
+CFrameWindow SUBCLASS CVerySimpleWindow
+
+W: WM_DESTROY ( lpar wpar msg hwnd -- n )
+   2DROP 2DROP 0
+   0 PostQuitMessage DROP
+;
+
+M: HOORAY_ID ( -- )
    S" ура!" SUPER showMessage
 ;
 
-C: 123456 ( code -- )
-   BN_CLICKED =
-   IF
-     S" трям!" SUPER showMessage
-   THEN
+M: BEEP_ID ( -- )
+   MB_OK MessageBeep DROP
 ;
+
 : createMenu \ -- h
     MENU
-       S" test" 101 MF_GRAYED MENUITEM
-       S" test2" 101 0 MENUITEM
+       S" Ура"  HOORAY_ID MF_GRAYED MENUITEM
        POPUP
-          S" test" 101 0 MENUITEM
-          S" test2" 101 0 MENUITEM
-       S" open" END-POPUP    
+          S" Ура2" HOORAY_ID 0 MENUITEM
+       S" Ура" END-POPUP
+
+       POPUP
+          S" Beep" BEEP_ID 0 MENUITEM
+          S" Beep2" BEEP_ID 0 MENUITEM
+       S" Бимкнуть" END-POPUP    
     END-MENU
 ;    
+
+;CLASS
+
+: winTest ( -- n )
+  || CVerySimpleWindow wnd CMessageLoop loop ||
+
+  0 wnd create DROP
+  SW_SHOW wnd showWindow
+
+  loop run
+;
+
+winTest
