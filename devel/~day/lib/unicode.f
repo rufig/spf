@@ -1,5 +1,5 @@
 REQUIRE WL-MODULES ~day\lib\includemodule.f
-NEEDED  {  lib\ext\locals.f
+NEEDED:  {  lib\ext\locals.f
 
 WINAPI: MultiByteToWideChar   KERNEL32.DLL
 WINAPI: WideCharToMultiByte   KERNEL32.DLL

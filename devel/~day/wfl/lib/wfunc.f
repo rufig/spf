@@ -2,7 +2,7 @@ REQUIRE WL-MODULES ~day\lib\includemodule.f
 
 NEEDS  ~day\hype3\hype3.f
 NEEDS  ~day\wincons\wc.f
-NEEDED {   lib\ext\locals.f
+NEEDED: {   lib\ext\locals.f
 
 \ DAY FEB-2000
 

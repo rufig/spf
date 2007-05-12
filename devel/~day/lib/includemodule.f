@@ -47,7 +47,7 @@ WORDLIST CONSTANT WL-MODULES
     THEN
 ;
 
-: NEEDED ( "word" "module" -- )
+: NEEDED: ( "word" "module" -- )
     PARSE-NAME SFIND
     IF
        DROP PARSE-NAME 
@@ -57,6 +57,6 @@ WORDLIST CONSTANT WL-MODULES
     THEN
 ;
 
-: REQUIRE NEEDED ;
+: REQUIRE NEEDED: ;
     
 S" ~day\lib\includemodule.f" ADD-MODULE

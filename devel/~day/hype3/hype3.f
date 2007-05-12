@@ -4,7 +4,7 @@
 
 REQUIRE WL-MODULES ~day\lib\includemodule.f
 
-NEEDED [IF]  lib\include\tools.f
+NEEDED: [IF]  lib\include\tools.f
 NEEDS        lib\ext\vocs.f
 
 MODULE: HYPE
@@ -267,11 +267,15 @@ CREATE FIRST-OBJCHAIN
    REPEAT DROP
 ;
 
+: OBJ@ ( obj-data -- obj )
+   2 CELLS + @ SELF+ @
+;
+
 : DISPOSE-OBJ-CHAIN ( a-chain )
    BEGIN
      @ DUP @
    WHILE
-     DUP CELL+ CELL+ @ SELF+ @ ^ dispose
+     DUP OBJ@ ^ dispose
    REPEAT DROP
 ;
 
