@@ -1,10 +1,24 @@
 
 ( syntax: NEEDS ~day\lib\clipboard.f )
 
+REQUIRE CHAR-UPPERCASE ~ac\lib\string\uppercase.f
+
 WORDLIST CONSTANT WL-MODULES
 
+: UNIFY-SLASH ( c -- c1 )
+   DUP [CHAR] / = IF DROP [CHAR] \ THEN
+;
+
+: C-HASH ( addr u -- u2 )
+   2166136261 ROT ROT
+   OVER + SWAP 
+   ?DO
+      16777619 * I C@ CHAR-UPPERCASE UNIFY-SLASH XOR
+   LOOP
+;
+
 : MODULEHASH ( addr u -- addr1 u1 )
-    0 HASH GET-CURRENT
+    C-HASH GET-CURRENT
     BASE @ >R HEX
     <# #S #>
     R> BASE !
@@ -42,3 +56,7 @@ WORDLIST CONSTANT WL-MODULES
     ELSE 2DROP NEEDS
     THEN
 ;
+
+: REQUIRE NEEDED ;
+    
+S" ~day\lib\includemodule.f" ADD-MODULE
