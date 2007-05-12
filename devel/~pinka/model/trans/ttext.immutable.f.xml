@@ -8,6 +8,7 @@
   I-SLIT-FORM <if> T-SLIT <exit/></if>
   I-NATIVE    <if> T-EXEC <exit/></if>
   I-LIT       <if> T-LIT  <exit/></if>
+  I-HLIT-FORM <if> T-LIT  <exit/></if>
   I-DLIT-FORM <if> T-2LIT <exit/></if>
   CR TYPE CR -321 THROW
 </def>
