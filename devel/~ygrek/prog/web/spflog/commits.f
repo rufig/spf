@@ -39,7 +39,7 @@ REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 : add-author { a u list -- }
    a u list find-author 
    IF car inc-author
-   ELSE lst( a u " {s}" %s 1 % )lst vnode as-list list insert
+   ELSE lst( a u " {s}" %s 1 % )lst vnode as-list list insert-after
    THEN ;
 
 : author-sum ( node -- n ) >R 0 LAMBDA{ cdar + } R> mapcar ;
