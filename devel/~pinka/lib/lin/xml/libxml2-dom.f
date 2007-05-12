@@ -254,6 +254,36 @@ CONSTANT /xmlNs
 
 
 \ =====
+\ DOM3
+
+ALSO libxml2.dll
+
+: baseURI ( node -- a u )
+  DUP ownerDocument  ( node doc )
+  2 xmlNodeGetBase ?ASCIIZ>
+;
+: baseURI! ( addrz u node -- )
+  NIP
+  2 xmlNodeSetBase DROP
+;
+\ для слов, устанавливающих значения атрибутов, будем давать в имя суфикс '!'
+
+: documentURI ( doc -- a u )
+  baseURI  \ there no "xmlDocumentGetBase" exact
+;
+: documentURI! ( addrz u doc -- )
+  baseURI!
+  \ [setting the doc URL]
+  \ it's better to call xmlNodeSetBase()
+  \ which will make sure it does a copy of the string to avoid memory crash
+  \ when freeing the document ! 
+  \ -- http://mail.gnome.org/archives/xml/2003-September/msg00112.html
+;
+
+PREVIOUS
+
+
+\ =====
 \ DOM3 LS (Load and Save)
 \ interface LSParser
 
@@ -281,23 +311,27 @@ ALSO libxml2.dll \ WARNING @ WARNING OFF
   2>R DROP xmlParserOption SWAP 0 R> R>
   5 xmlReadMemory
 ;
-: LOAD-XMLDOC ( addr u -- doc|0 )
+: LOAD-XMLDOC ( addrz u -- doc|0 )
+  2DUP
   GET-FILE DUP >R STR@ LOAD-XMLMEM R> STRFREE
+  ( a u doc|0 )
+  DUP IF DUP >R documentURI! R> EXIT THEN
+  NIP NIP
 ;
 : FREE-XML ( doc -- )
   1 xmlFreeDoc DROP
 ;
 : ParseURI ( uri-a uri-u -- doc|0 ) LOAD-XMLDOC ;
 
-: FreeDoc ( doc -- ) 1 xmlFreeDoc DROP ;
+: FreeDoc ( doc -- ) DUP IF 1 xmlFreeDoc THEN DROP ;
 
-PREVIOUS
+PREVIOUS \ libxml2.dll
 ;MODULE
 
 : parseURI ( uri-a uri-u LSParser -- document|0 )
   `ParseURI OBEY-FORCE-
 ;
-: freeDoc ( doc LSParser -- )
+: freeDoc ( doc LSParser -- ) \ not standard. Proposal.
   `FreeDoc OBEY-FORCE-
 ;
 
