@@ -51,12 +51,15 @@ init:
     DUP SUPER handle !
 ;
 
-dispose:
+: release ( -- )
   SUPER handle @ 0= 0= ?own @ AND
   IF
-    SUPER handle @ SUPER hWnd @ ReleaseDC DROP
-  THEN
-;
+    SUPER checkDC SUPER hWnd @ ReleaseDC DROP
+    0 SUPER handle !
+  THEN ;
+
+dispose: release ;
+
 
 ;CLASS
 
