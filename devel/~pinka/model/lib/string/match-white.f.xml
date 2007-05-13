@@ -1,0 +1,41 @@
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- ported from ~pinka/samples/2005/lib/split-white.f -->
+
+<!-- Functions Based on Substring White-Matching -->
+
+<def name="IS-WHITE" ds=" c -- flag ">
+  0x21 Ult
+</def>
+
+<def name="FINE-HEAD" ds=" c-addr u -- c-addr1 u1 ">
+  <comment>Returns the substring with whitespace normalized by stripping leading whitespace</comment>
+  <repeat> DUP <while/> OVER C@ IS-WHITE <while/> SWAP CHAR+ SWAP CHAR- </repeat>
+</def>
+<def name="FINE-TAIL" ds=" c-addr u -- c-addr u2 ">
+  <comment>Returns the substring with whitespace normalized by stripping trailing whitespace</comment>
+  OVER + <until> 2DUP eq <if> DROP 0 <exit/></if> CHAR- DUP C@ IS-WHITE 0eq </until> CHAR+ OVER -
+</def>
+
+<def name="SPLIT-WHITE-FORCE" ds=" c-addr u -- c-addr-left u-left  c-addr-right u-right ">
+  2DUP OVER + SWAP
+  <until> 2DUP eq <if> DROP NIP 0 SWAP 0 <exit/></if> DUP CHAR+ SWAP C@ IS-WHITE </until> CHAR-
+  <!-- ( c-addr u  a2 a1 ) -->
+  DUP >R -  DUP >R -  2R>
+</def>
+<def name="-SPLIT-WHITE-FORCE" ds=" c-addr u -- c-addr-left u-left  c-addr-right u-right ">
+  2DUP CHARS OVER +
+  <until> 2DUP eq <if> DROP NIP 0 SWAP 0 <exit/></if> CHAR- DUP SWAP C@ IS-WHITE </until> CHAR+
+  <!-- ( c-addr u  c-addr c-addr1 ) -->
+  TUCK >R - TUCK - R> SWAP
+</def>
+
+<def name="UNBROKEN" ds=" c-addr u -- c-addr u2 ">
+  -SPLIT-WHITE-FORCE 2 PICK <if> 2DROP <exit/></if> 2SWAP 2DROP
+</def>
+
+
+<def name="WORD|TAIL" ds=" a u -- a u1 a-rest u-rest ">
+  FINE-HEAD SPLIT-WHITE-FORCE
+</def>
+
+</forth>

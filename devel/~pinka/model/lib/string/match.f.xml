@@ -1,0 +1,61 @@
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- some ported from ~pinka/samples/2005/lib/split.f -->
+
+<!-- Functions Based on Substring Matching -->
+
+
+<def name="CONTAINS" ds=" a u a-key u-key -- flag ">
+  SEARCH NIP NIP
+</def>
+<def name="STARTS-WITH" ds=" a u a-key u-key -- flag ">
+  ROT OVER Ult <if> 2DROP DROP FALSE <exit/></if>
+  TUCK EQUAL
+</def>
+<def name="ENDS-WITH" ds=" a u a-key u-key -- flag ">
+  DUP >R 2SWAP DUP R@ Ult <if> 2DROP 2DROP RDROP FALSE <exit/></if>
+  R@ - + R> EQUAL
+</def>
+<def name="SUBSTRING-AFTER" ds=" a u a-key u-key -- a2 u2 ">
+  DUP >R SEARCH <if> SWAP R@ + SWAP R> - <exit/></if> RDROP DROP 0
+</def>
+<def name="SUBSTRING-BEFORE" ds=" a u a-key u-key -- a2 u2 ">
+  3 PICK >R  SEARCH  <if> DROP R> TUCK - <exit/></if>  RDROP DROP 0
+</def>
+
+<def name="SPLIT-" ds=" a u a-key u-key -- a-right u-right  a-left u-left  true  |  a u false ">
+  2OVER DROP >R DUP >R <!-- ( R: a u1 ) -->
+  SEARCH   <if><!-- ( aa uu ) -->
+  OVER R@ + SWAP R> - <!-- aa+u1 uu-u1  - right part  -->
+  ROT R@ - R> SWAP    <!-- a aa-a       - left part   -->
+  TRUE <exit/></if>
+
+  2R> 2DROP FALSE
+</def>
+
+<def name="SPLIT" ds=" a u a-key u-key -- a-left u-left  a-right u-right  true  |  a u false ">
+  DUP >R 2OVER DROP >R <!-- ( R: u1 a ) -->
+  SEARCH   <if><!-- ( aa uu ) -->
+  SWAP R@ OVER R> -     <!-- a aa-a       - left part  -->
+  2SWAP R@ + SWAP R> -  <!-- aa+u1 uu-u1  - right part -->
+  TRUE <exit/></if>
+
+  2R> 2DROP FALSE
+</def>
+
+
+<!-- some other -->
+
+<def name="TAIL" ds=" a u -- a1 u1 ">
+  DUP <if> SWAP CHAR+ SWAP CHAR- <exit/></if><!-- ( a 0 ) -->
+</def>
+<def name="HEAD" ds=" a u -- a u1 ">
+  DUP <if> DROP /CHAR <exit/></if>
+</def>
+<def name="HEAD|TAIL" ds=" a u -- a /char a2 u2 ">
+  2DUP HEAD 2SWAP TAIL
+</def>
+<def name="TAIL|HEAD" ds=" a u -- a2 u2 a /char ">
+  2DUP TAIL 2SWAP HEAD
+</def>
+
+</forth>
