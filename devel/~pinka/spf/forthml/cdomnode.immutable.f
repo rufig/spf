@@ -59,6 +59,7 @@ SET-CURRENT
 `hasAttribute   wrap
 `hasAttributeNS wrap
 `firstChildValue wrap
+`baseURI        wrap
 
 `namespace-uri-for-prefix wrap
 
