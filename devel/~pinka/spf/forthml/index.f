@@ -14,12 +14,12 @@
 REQUIRE EXC-DUMP2   ~pinka/spf/exc-dump.f
 
 REQUIRE [UNDEFINED]     lib/include/tools.f
+REQUIRE EQUAL           ~pinka/spf/string-equal.f
 REQUIRE AsQName         ~pinka/samples/2006/syntax/qname.f \ понятие однословных строк в виде `abc
 REQUIRE getAttributeNS  ~pinka/lib/lin/xml/libxml2-dom.f
 REQUIRE SPLIT-          ~pinka/samples/2005/lib/split.f
 REQUIRE FINE-HEAD       ~pinka/samples/2005/lib/split-white.f
 REQUIRE Require         ~pinka/lib/ext/requ.f
-
 
 MODULE: forthml-support
 
