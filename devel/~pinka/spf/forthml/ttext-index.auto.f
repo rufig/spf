@@ -3,6 +3,138 @@
 
 
 
+
+CONCEIVE 
+`SEARCH & EXEC, 
+`NIP & EXEC, 
+`NIP & EXEC, 
+BIRTH `CONTAINS NAMING- 
+CONCEIVE 
+`ROT & EXEC, 
+`OVER & EXEC, 
+`Ult & EXEC, ZBFW, 
+`2DROP & EXEC, 
+`DROP & EXEC, 
+`FALSE & EXEC, EXIT, RFW 
+`TUCK & EXEC, 
+`EQUAL & EXEC, 
+BIRTH `STARTS-WITH NAMING- 
+CONCEIVE 
+`DUP & EXEC, 
+`>R & EXEC, 
+`2SWAP & EXEC, 
+`DUP & EXEC, 
+`R@ & EXEC, 
+`Ult & EXEC, ZBFW, 
+`2DROP & EXEC, 
+`2DROP & EXEC, 
+`RDROP & EXEC, 
+`FALSE & EXEC, EXIT, RFW 
+`R@ & EXEC, 
+`- & EXEC, 
+`+ & EXEC, 
+`R> & EXEC, 
+`EQUAL & EXEC, 
+BIRTH `ENDS-WITH NAMING- 
+CONCEIVE 
+`DUP & EXEC, 
+`>R & EXEC, 
+`SEARCH & EXEC, ZBFW, 
+`SWAP & EXEC, 
+`R@ & EXEC, 
+`+ & EXEC, 
+`SWAP & EXEC, 
+`R> & EXEC, 
+`- & EXEC, EXIT, RFW 
+`RDROP & EXEC, 
+`DROP & EXEC, 0 LIT, 
+BIRTH `SUBSTRING-AFTER NAMING- 
+CONCEIVE 3 LIT, 
+`PICK & EXEC, 
+`>R & EXEC, 
+`SEARCH & EXEC, ZBFW, 
+`DROP & EXEC, 
+`R> & EXEC, 
+`TUCK & EXEC, 
+`- & EXEC, EXIT, RFW 
+`RDROP & EXEC, 
+`DROP & EXEC, 0 LIT, 
+BIRTH `SUBSTRING-BEFORE NAMING- 
+CONCEIVE 
+`2OVER & EXEC, 
+`DROP & EXEC, 
+`>R & EXEC, 
+`DUP & EXEC, 
+`>R & EXEC, 
+`SEARCH & EXEC, ZBFW, 
+`OVER & EXEC, 
+`R@ & EXEC, 
+`+ & EXEC, 
+`SWAP & EXEC, 
+`R> & EXEC, 
+`- & EXEC, 
+`ROT & EXEC, 
+`R@ & EXEC, 
+`- & EXEC, 
+`R> & EXEC, 
+`SWAP & EXEC, 
+`TRUE & EXEC, EXIT, RFW 
+`2R> & EXEC, 
+`2DROP & EXEC, 
+`FALSE & EXEC, 
+BIRTH `SPLIT- NAMING- 
+CONCEIVE 
+`DUP & EXEC, 
+`>R & EXEC, 
+`2OVER & EXEC, 
+`DROP & EXEC, 
+`>R & EXEC, 
+`SEARCH & EXEC, ZBFW, 
+`SWAP & EXEC, 
+`R@ & EXEC, 
+`OVER & EXEC, 
+`R> & EXEC, 
+`- & EXEC, 
+`2SWAP & EXEC, 
+`R@ & EXEC, 
+`+ & EXEC, 
+`SWAP & EXEC, 
+`R> & EXEC, 
+`- & EXEC, 
+`TRUE & EXEC, EXIT, RFW 
+`2R> & EXEC, 
+`2DROP & EXEC, 
+`FALSE & EXEC, 
+BIRTH `SPLIT NAMING- 
+CONCEIVE 
+`DUP & EXEC, ZBFW, 
+`SWAP & EXEC, 
+`CHAR+ & EXEC, 
+`SWAP & EXEC, 
+`CHAR- & EXEC, EXIT, RFW 
+
+BIRTH `TAIL NAMING- 
+CONCEIVE 
+`DUP & EXEC, ZBFW, 
+`DROP & EXEC, 
+`/CHAR & EXEC, EXIT, RFW 
+
+BIRTH `HEAD NAMING- 
+CONCEIVE 
+`2DUP & EXEC, 
+`HEAD & EXEC, 
+`2SWAP & EXEC, 
+`TAIL & EXEC, 
+BIRTH `HEAD|TAIL NAMING- 
+CONCEIVE 
+`2DUP & EXEC, 
+`TAIL & EXEC, 
+`2SWAP & EXEC, 
+`HEAD & EXEC, 
+BIRTH `TAIL|HEAD NAMING- 
+
+
+
 CONCEIVE 
 `DUP & EXEC, 
 `0= & EXEC, ZBFW, 
@@ -488,10 +620,32 @@ CONCEIVE
 `R> & EXEC, 
 `MOUNT & EXEC, 
 BIRTH `document-based-url NAMING- 
+CONCEIVE 
+`_document-top & EXEC, 
+`@ & EXEC, 
+`0= & EXEC, ZBFW, EXIT, RFW 
+`DISMOUNT & EXEC, 
+`>R & EXEC, 
+`document-storage & EXEC, 
+`MOUNT & EXEC, 
+`HERE & EXEC, 
+`>R & EXEC, 
+`BaseURI & EXEC, 
+`S, & EXEC, 
+`S, & EXEC, 
+`R> & EXEC, 
+`HERE & EXEC, 
+`OVER & EXEC, 
+`- & EXEC, 0 LIT, 
+`, & EXEC, 
+`DISMOUNT & EXEC, 
+`DROP & EXEC, 
+`R> & EXEC, 
+`MOUNT & EXEC, 
+BIRTH `cnode-based-url NAMING- 
 
 
 CONCEIVE 
-`document-based-url & EXEC, 
 `2DUP & EXEC, 
 `DefaultLSParser & EXEC, 
 `parseURI & EXEC, 
@@ -508,6 +662,19 @@ CONCEIVE
 `freeDoc & EXEC, 
 `drop-document & EXEC, 
 BIRTH `EMBODY NAMING- 
+CONCEIVE 
+`2DUP & EXEC, `/ SLIT, 
+`SPLIT- & EXEC, ZBFW, `: SLIT, 
+`SUBSTRING-BEFORE & EXEC, 
+`NIP & EXEC, ZBFW, 
+`2DROP & EXEC, 
+`EMBODY & EXEC, 
+EXIT, 
+RFW RFW 
+`2DROP & EXEC, 
+`cnode-based-url & EXEC, 
+`EMBODY & EXEC, 
+BIRTH `Embody NAMING- 
 
 
 
