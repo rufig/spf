@@ -41,6 +41,16 @@
   DISMOUNT DROP R> MOUNT
 </def>
 
+<def name="cnode-based-url" ds=" rel-a rel-u -- full-a full-u ">
+  _document-top @ 0= <if><exit/></if>
+  DISMOUNT >R document-storage MOUNT
+    HERE >R 
+    BaseURI S, S,
+    R> HERE OVER -  0 ,
+  DISMOUNT DROP R> MOUNT
+</def><!-- not so good -->
+
+
 <!-- PREVIOUS -->
 
 </forth>
