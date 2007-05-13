@@ -7,10 +7,10 @@ USER CURFILE
 ;
 
 : CUT-PATH ( a u -- a u1 )
-\ из строки "path\name" выделить строку "path\"
+\ »з строки "path\name" выделить строку "path\".
+\ »сходна€ строка остаетс€ неизменной (r/o).
   CHARS OVER +
-  BEGIN 2DUP <> WHILE DUP C@ is_path_delimiter 0= WHILE CHAR- REPEAT CHAR+ THEN
-  \ DUP 0!  \ ~ruv (to anfilat): не дќлжно тут затирать поданный буфер!
+  BEGIN 2DUP <> WHILE CHAR- DUP C@ is_path_delimiter UNTIL CHAR+ THEN
   OVER - >CHARS
 ;
 
