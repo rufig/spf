@@ -2,7 +2,9 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- Feb.2007 ruvim@forth.org.ru -->
 
-<g xml:base="../../model/trans/"><!-- txml.f.xml такой поддержки xml:base еще не дает -->
+<g xml:base="../../model/trans/">
+
+<include href="../lib/string/match.f.xml" />
 
 <include href="tcode.f.xml"  />
 <var name="STATE" />
