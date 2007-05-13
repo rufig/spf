@@ -90,7 +90,7 @@ CONSTANT /xmlNs
 \ =====
 \ interface of Document
 
-: documentElement ( document -- root_element_node ) XML_DOC_ROOT ;
+: documentElement ( document -- root_element_node ) x.children @ ;
 
 \ =====
 \ interface of Node
@@ -261,6 +261,7 @@ ALSO libxml2.dll
 : baseURI ( node -- a u )
   DUP ownerDocument  ( node doc )
   2 xmlNodeGetBase ?ASCIIZ>
+  CUT-PATH \ workaround
 ;
 : baseURI! ( addrz u node -- )
   NIP
@@ -269,7 +270,8 @@ ALSO libxml2.dll
 \ для слов, устанавливающих значения атрибутов, будем давать в имя суфикс '!'
 
 : documentURI ( doc -- a u )
-  baseURI  \ there no "xmlDocumentGetBase" exact
+  DUP ownerDocument  ( node doc )
+  2 xmlNodeGetBase ?ASCIIZ> \ there no "xmlDocumentGetBase" exactly
 ;
 : documentURI! ( addrz u doc -- )
   baseURI!
