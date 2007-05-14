@@ -2,13 +2,16 @@
 \ Код под SPF
 \ идея:  SU.FORTH, от Piter Sovietov
 \ Ruvim,  06.01.2000
+\ 14.May.2007 добавлена установка LAST-NON для RECURSE (true-grue, ygrek)
 
 REQUIRE AHEAD lib\include\tools.f 
 
 : LAMBDA{  ( -- )
 \ время компиляции  ( -- orig1 xt )
+   LAST-NON
    POSTPONE  AHEAD
-   HERE
+   HERE 
+   DUP TO LAST-NON
 ; IMMEDIATE
 
 : }        ( -- xt )
@@ -18,6 +21,7 @@ REQUIRE AHEAD lib\include\tools.f
    POSTPONE EXIT
    POSTPONE THEN
    R> POSTPONE LITERAL
+   TO LAST-NON
 ; IMMEDIATE
 
 
