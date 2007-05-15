@@ -113,9 +113,14 @@ WARNING !
   DUP 4 CELLS + @ CELLS + \ может быть указано смещение структуры (обычно, на две €чейки вперед)
   176 + DUP 12 CELLS DUMP CR
   ." USER DATA: " TlsIndex@ U. ." THREAD ID: " 36 FS@ U.
-  ." HANDLER: " HANDLER @ U.
-  ." RETURN STACK:" CR
+  ." HANDLER: " HANDLER @ U. CR
+  ." STACK: "
+  DUP 6 CELLS + @ ( ebp )
+  DUP 5 CELLS + BEGIN DUP @ 8 .0 SPACE CELL- 2DUP U> UNTIL 2DROP
+  ." ["
+  DUP 5 CELLS + @ ( eax ) 8 .0 ." ]" CR
 
+  ." RETURN STACK:" CR
   HANDLER @ DUP 0= IF DROP R0 @ THEN ( up-border ) >R
   6 CELLS + DUP @  SWAP  4 CELLS + @ ( a1 a2 )
   \ берем ближайший снизу к up-border:
