@@ -14,7 +14,7 @@ REQUIRE /TEST ~profit/lib/testing.f
   ( xt: node-car -- ? ) \ TRUE - remain, FALSE - free node
    lst(
     BEGIN
-     DUP empty? 0= 
+     DUP empty? 0=
     WHILE
      2>R
      2R@ car SWAP EXECUTE IF R> DUP cdr >R add-node 2R> ELSE R> DUP cdr >R FREE-NODE 2R> THEN
@@ -25,15 +25,15 @@ REQUIRE /TEST ~profit/lib/testing.f
 \ ѕоиск по списку
 \ ¬ случае успеха (xt вернул -1) возвращаетс€ node1 на которой поиск был остановлен
 \ xt: ( node-car -- ? ) \ TRUE - stop scan, FALSE - continue
-: list-scan ( xt node -- node1 -1 | 0 )
+: list-find ( xt node -- node1 -1 | 0 0 )
    BEGIN
     DUP empty? 0=
    WHILE
     2>R
-    2R@ car SWAP EXECUTE IF R> RDROP TRUE EXIT THEN 
+    2R@ car SWAP EXECUTE IF R> RDROP TRUE EXIT THEN
     2R> cdr
    REPEAT
-   2DROP FALSE ;
+   2DROP FALSE FALSE ;
 
 0 VALUE _list-map-xt
 
@@ -43,7 +43,7 @@ REQUIRE /TEST ~profit/lib/testing.f
    SWAP TO _list-map-xt
    LAMBDA{ >R R@ car _list-map-xt EXECUTE R> setcar } SWAP map ;
 
-: mapcar 
+: mapcar
    SWAP TO _list-map-xt
    LAMBDA{ car _list-map-xt EXECUTE } SWAP map ;
 
@@ -53,18 +53,18 @@ REQUIRE /TEST ~profit/lib/testing.f
 \ node1 - результирующий список
 : list-remove-all ( val node -- node1 )
    SWAP TO _list-remove-all-val
-   LAMBDA{ _list-remove-all-val <> } SWAP 
+   LAMBDA{ _list-remove-all-val <> } SWAP
    reduce-this ;
 
 \ ¬ариаци€ mapcar
-: mapcar 
+: mapcar
    SWAP TO _list-map-xt
    LAMBDA{ car _list-map-xt EXECUTE } SWAP map ;
 
 REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
 
 \ ¬ариаци€ с использованием closure
-\ тут используем тот факт что axt=> работает на чистом стеке то есть можно 
+\ тут используем тот факт что axt=> работает на чистом стеке то есть можно
 \ передавать параметр node в bac4th-вызов и возвращать результат из вызова напр€мую на стеке
 : list-remove-all ( val node -- node1 )
    SWAP S" LITERAL <>" axt=> SWAP reduce-this ;
@@ -80,7 +80,7 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
 \ удалить из списка lst все значени€-дубликаты
 : list-remove-dublicates ( lst -- )
    BEGIN
-    DUP empty? 0= 
+    DUP empty? 0=
    WHILE
     DUP car OVER cdr list-remove-all cons
     cdr
@@ -100,7 +100,7 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
    WHILE
     DUP >R
     CONT
-    R> cdr 
+    R> cdr
    REPEAT DROP ;
 
 \ bac4th-итератор по списку
@@ -122,7 +122,7 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
    R@ cdr cons
    R> SWAP cons DROP ;
 
-\ применить xt последовательно к парам соседних элементов 
+\ применить xt последовательно к парам соседних элементов
 \ и сохранить результат в элемент списка
 \ ѕри этом весь список укорачиваетс€ на один элемент
 \ xt: ( node1-car node2-car )
@@ -137,18 +137,17 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
 
 \ применить xt к "соответствующим" парам элементов списков node1 node2
 \ xt: ( node1i node2i -- )
-: map2 ( xt node1 node2 -- ) \ no clean stack
-   ROT >R
+: map2 { xt node1 node2 -- }
    BEGIN
-    DUP empty? 0= 
+    node1 empty? 0=
    WHILE
-    OVER empty? 0= 
+    node2 empty? 0=
    WHILE
-    2DUP R@ EXECUTE
-    cdr >R cdr R>
+    node1 node2 xt EXECUTE
+    node1 cdr -> node1
+    node2 cdr -> node2
    REPEAT
-   THEN
-   2DROP RDROP ;
+   THEN ;
 
 \ ѕроверка на равенство по значению
 : equal? ( node1 node2 -- ? )
@@ -158,7 +157,7 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
     OVER list-what OVER list-what <> IF 2DROP FALSE EXIT THEN
     DUP value? IF 2DUP car SWAP car <> IF 2DROP FALSE EXIT THEN THEN
     DUP str? IF 2DUP car STR@ ROT car STR@ COMPARE IF 2DROP FALSE EXIT THEN THEN
-    DUP list? IF 2DUP car SWAP car RECURSE 0= IF 2DROP FALSE EXIT THEN THEN 
+    DUP list? IF 2DUP car SWAP car RECURSE 0= IF 2DROP FALSE EXIT THEN THEN
     cdr SWAP cdr
    AGAIN TRUE ;
 
@@ -188,10 +187,10 @@ l2 FREE-LIST
 
 lst( 1 % 2 % 4 % 2 % 3 % 4 % 6 % 6 % 2 % )lst TO l
 \ CR l write-list
-2 l list-remove-all TO l 
+2 l list-remove-all TO l
 (( l lst( 1 % 4 % 3 % 4 % 6 % 6 % )lst equal? -> TRUE ))
 \ CR l write-list
-l list-remove-dublicates 
+l list-remove-dublicates
 (( l lst( 1 % 4 % 3 % 6 % )lst equal? -> TRUE ))
 \ CR l write-list
 l FREE-LIST
@@ -230,7 +229,7 @@ l FREE-LIST
 \ zipcar!
 
 %[ 1 % 2 % 3 % 4 % 5 % ]% TO l
-' + l zipcar! 
+' + l zipcar!
 (( l %[ 3 % 5 % 7 % 9 % ]% equal? -> TRUE ))
 l FREE-LIST
 

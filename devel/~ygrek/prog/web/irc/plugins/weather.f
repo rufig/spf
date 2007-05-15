@@ -2,7 +2,7 @@
 \ погода от http://www.gismeteo.ru
 
 REQUIRE XSLT ~ac/lib/lin/xml/xslt.f
-REQUIRE $Revision: ~ygrek/lib/fun/kkv.f 
+REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 REQUIRE /STRING lib/include/string.f
 REQUIRE FileLines=> ~ygrek/lib/filelines.f
@@ -38,8 +38,8 @@ MODULE: BOT-COMMANDS-HELP
    -1 PARSE 2DROP ;
 
 : load-city-codes ( a u -- )
-   FileLines=> DUP STR@ 
-    LAMBDA{ 
+   FileLines=> DUP STR@
+    LAMBDA{
      parse-city-code-name ( a u a u a u )
      2DUP UPPERCASE
      2>R 2OVER 2R> h HASH!
@@ -47,34 +47,34 @@ MODULE: BOT-COMMANDS-HELP
     } EVALUATE-WITH ;
 
 : load-gismeteo-city-codes
-   S" plugins/gismeteo.txt" 
-   2DUP FILE-EXIST 0= IF 
+   S" plugins/gismeteo.txt"
+   2DUP FILE-EXIST 0= IF
     S" http://bar.gismeteo.ru/gmbartlistfull.txt"
-    GET-FILE DUP STR@ S" plugins/gismeteo.txt" OCCUPY STRFREE 
+    GET-FILE DUP STR@ S" plugins/gismeteo.txt" OCCUPY STRFREE
    THEN
    load-city-codes ;
 
 : find-city-code ( a u -- a u ) " {s}" DUP STR@ UPPERCASE DUP STR@ h HASH@ ROT STRFREE ;
 
-%[ 
-  %[ " мск" %s " Москва" %s ]%l 
-  %[ " спб" %s " Санкт-Петербург" %s ]%l 
-  %[ " нск" %s " Новосибирск" %s ]%l 
+%[
+  %[ " мск" %s " Москва" %s ]%l
+  %[ " спб" %s " Санкт-Петербург" %s ]%l
+  %[ " нск" %s " Новосибирск" %s ]%l
 ]% VALUE short-cities
 
 : short-city ( a u -- a1 u1 )
-   LAMBDA{ car STR@ 2OVER COMPARE 0= } short-cities list-scan
-   IF car cdar STR@ 2SWAP 2DROP THEN ;
+   LAMBDA{ car STR@ 2OVER COMPARE 0= } short-cities list-find
+   IF car cdar STR@ 2SWAP 2DROP ELSE DROP THEN ;
 
 MODULE: BOT-COMMANDS
 
-: !weather 
-    -1 PARSE FINE-HEAD FINE-TAIL 
+: !weather
+    -1 PARSE FINE-HEAD FINE-TAIL
     DUP 0= IF 2DROP BOT-COMMANDS-HELP::!weather EXIT THEN
     short-city
-    2DUP find-city-code 
+    2DUP find-city-code
     DUP 0= IF 2DROP 2DROP message-sender " {s}: Нет такого города!" DUP STR@ S-REPLY STRFREE EXIT THEN
-    " http://informer.gismeteo.ru/xml/{s}_1.xml" >R 
+    " http://informer.gismeteo.ru/xml/{s}_1.xml" >R
     R@ STR@ S" plugins/frc3.xsl" XSLT ( a u )
     R> STRFREE
     FINE-HEAD
