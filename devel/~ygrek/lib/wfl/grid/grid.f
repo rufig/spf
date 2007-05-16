@@ -1,7 +1,10 @@
-REQUIRE WL-MODULES ~day/lib/includemodule.f
+\ $Id$
 
-NEEDS ~ygrek/lib/wfl/opengl/GLControl.f
-NEEDS ~day\wfl\wfl.f
+\ »де€ ~yz
+\  онтролы размещаютс€ в сетках, которые можно раст€гивать
+\ pre alpha
+
+REQUIRE WFL ~day/wfl/wfl.f
 NEEDS ~ygrek/lib/list/all.f
 NEEDS lib/include/core-ext.f
 
@@ -14,18 +17,16 @@ NEEDS lib/include/core-ext.f
 
 : (DO-PRINT-VARIABLE) ( a u addr -- ) -ROT TYPE ."  = " @ . ;
 
-: PRINT: ( "name" -- ) 
+: PRINT: ( "name" -- )
    PARSE-NAME
    2DUP
    POSTPONE SLITERAL
    EVALUATE
    POSTPONE (DO-PRINT-VARIABLE) ; IMMEDIATE
 
-REQUIRE ENUM: ~ygrek/lib/enum.f
-
 \ --------------------------
 
-CLASS CGridCell
+CLASS CGridBox
 
  VAR _h
  VAR _w
@@ -67,14 +68,14 @@ init:
 \ --------------------------
 
 \ р€д €чеек это тоже одна €чейка
-CGridCell SUBCLASS CGridRow
+CGridBox SUBCLASS CGridRow
 
  VAR _cells
 
 init:
   () _cells !
 ;
-                
+
 : :add ( cell -- ) vnode _cells @ cons _cells ! ;
 
 : traverse-row ( xt -- ) _cells @ mapcar ;
@@ -95,14 +96,14 @@ init:
 
    \ раздадим xspan-extra каждой клетке
    \ те у которых xspan включен займут его
-   _cells @ 
+   _cells @
    BEGIN
     DUP empty? 0=
    WHILE
-    DUP car xspan-extra SWAP :: CGridCell.:perform-xspan
+    DUP car xspan-extra SWAP :: CGridBox.:perform-xspan
     cdr
    REPEAT
-   DROP 
+   DROP
 
    \ сколько осталось после раздачи
    \ если например :xspan-count был 0 то всЄ лишнее место ещЄ не распределно
@@ -118,9 +119,9 @@ init:
    \ дать каждой €чейке раст€нутьс€ не более чем на given
    _cells @
    BEGIN
-    DUP empty? 0= 
+    DUP empty? 0=
    WHILE
-    DUP car given SWAP :: CGridCell.:perform-yspan-upto
+    DUP car given SWAP :: CGridBox.:perform-yspan-upto
     cdr
    REPEAT
    DROP
@@ -154,7 +155,7 @@ init:
 \   SUPER _w @ 3 .R SPACE
 ;
 
-: :finalize { y | x -- } 
+: :finalize { y | x -- }
    0 -> x
    _cells @
    BEGIN
@@ -169,9 +170,9 @@ init:
 
 ;CLASS
 
-\ -------------------------- 
+\ --------------------------
 
-CGridCell SUBCLASS CGrid
+CGridBox SUBCLASS CGrid
 
  VAR _rows
 
@@ -189,20 +190,20 @@ init:
 : :yspan-count ( -- n ) 0 LAMBDA{ => :yspan? 1 AND + } traverse-grid ;
 
 : :format { x y | extra yspan-extra -- }
-   
+
    y :ymin - 0 MAX -> extra
    :yspan-count DUP 0= IF DROP 0 TO yspan-extra ELSE extra SWAP / TO yspan-extra THEN
 
    \ раздадим yspan-extra каждому р€ду
    \ те у которых yspan включен займут его
-   _rows @ 
+   _rows @
    BEGIN
     DUP empty? 0=
    WHILE
     DUP car DUP :: CGridRow.:ymin yspan-extra + SWAP :: CGridRow.:yformat
     cdr
    REPEAT
-   DROP 
+   DROP
 
    _rows @
    BEGIN
@@ -214,7 +215,7 @@ init:
    DROP
 
    0 LAMBDA{ => _w @ MAX } traverse-grid SUPER _w !
-   0 LAMBDA{ => _h @ + } traverse-grid SUPER _h ! 
+   0 LAMBDA{ => _h @ + } traverse-grid SUPER _h !
 ;
 
 : :add ( row -- ) 0 OVER => :xformat 0 OVER => :yformat vnode _rows @ cons _rows ! ;
@@ -257,207 +258,63 @@ init:
 
 \ -----------------------------------------------------------------------
 
-: FGENRANDMAX ( F: max -- f ) FGENRAND F* ;
-: FGENRANDABS ( F: abs -- f ) 2e F* FGENRAND 0.5e F- F* ;
-: toggle! ( addr -- ) DUP @ 0= SWAP ! ;
-
-\ -----------------------------------------------------------------------
-
-CGLControl SUBCLASS CGLControlTest
-
- VAR cube
- VAR pyr
-
-init: ;
-dispose: ;
-
-: populate
-     CGLCube NewObj cube !
-     0.75e cube @ :: CGLCube.:resize
-     0e 0e -10e cube @ :: CGLObject.:setShift
-     5e FGENRANDABS 5e FGENRANDABS 5e FGENRANDABS cube @ :: CGLObject.:setAngleSpeed
-     cube @ SUPER canvas :add
-
-     CGLPyramid NewObj pyr !
-     cube @ => :getScale pyr @ => :setScale
-     cube @ => :getShift pyr @ => :setShift
-     cube @ :: CGLObject.:getAngleSpeed pyr @ :: CGLObject.:setAngleSpeed
-     pyr @ SUPER canvas :add
-
-     TRUE cube @ :: CGLObject.<visible!
-     FALSE pyr @ :: CGLObject.<visible!
-;
-
-: :switch 
-    pyr @ => <visible toggle! 
-    cube @ => <visible toggle! 
-;
-
-: create ( id parent -- hwnd )
-    SUPER create
-    SUPER checkWindow SUPER attach
-    populate
-;
-
-: createSimple ( height width top left xt parent -- )
-    0 SWAP create DROP
-    DROP \ :)
-    2>R 0 ROT ROT 2R> SUPER moveWindow
-;
-
-;CLASS
-
-\ -----------------------------------------------------------------------
-
 \ макросы
 
 \ пам€ть, ресурсы - всЄ течет
 
-0 VALUE this_cell
-0 VALUE this_ctl
-0 VALUE this_row
-0 VALUE this_grid
+\ MODULE: WFL
 
+0 VALUE box \ текуща€ €чейке
+0 VALUE ctl  \ контрол в текущей €чейке
+0 VALUE row  \ текущий р€д
+0 VALUE grid \ текуща€ сетка
+
+\ создать новую клетку в текущем р€ду и поместить в неЄ контрол класса class
 : put ( class -- )
-   NewObj TO this_ctl
-   CGridCell NewObj TO this_cell
-   0 SELF this_ctl => create DROP
-   this_ctl this_cell => :control! 
-   this_cell this_row => :add
+   NewObj TO ctl
+   CGridBox NewObj TO box
+   0 SELF ctl => create DROP
+   ctl box => :control!
+   box row => :add
 ;
 
-: ROW
-  CGridRow NewObj TO this_row
-  this_row this_grid => :add
+\ : put- ( class -- obj ) put ctl ;
+
+\ начать новый р€д клеток
+: ROW ( -- )
+  CGridRow NewObj TO row
+  row grid => :add
 ;
 
+\ начать новую таблицу
 : GRID
-   CGrid NewObj TO this_grid
+   CGrid NewObj TO grid
    ROW ;
 
-: ;GRID this_grid ;
+\ закончить таблицу
+: ;GRID grid ;
 
-: this_xspan! this_cell :: CGridCell._xspan ! ;
+: xspan! box :: CGridBox._xspan ! ;
 
-: +xspan TRUE this_xspan! ;
-: -xspan FALSE this_xspan! ;
+\ включить раст€жение клетки по ширине
+: +xspan ( -- ) TRUE xspan! ;
+\ выключить раст€жение клетки по ширине
+: -xspan ( -- ) FALSE xspan! ;
 
-: this_yspan! this_cell :: CGridCell._yspan ! ;
+: yspan! box :: CGridBox._yspan ! ;
 
-: +yspan TRUE this_yspan! ;
-: -yspan FALSE this_yspan! ;
+\ выключить раст€жение клетки по высоте
+: +yspan ( -- ) TRUE yspan! ;
+\ выключить раст€жение клетки по высоте
+: -yspan ( -- ) FALSE yspan! ;
 
-: -xmin! ( u -- ) this_cell :: CGridCell._wmin ! ;
-: -ymin! ( u -- ) this_cell :: CGridCell._hmin ! ;
+\ установить обработчик событи€
+\ xt: ( obj -- )
+: -command! ( xt -- ) ctl => setHandler ;
 
-\ -----------------------------------------------------------------------
+: -xmin! ( u -- ) box :: CGridBox._wmin ! ;
+: -ymin! ( u -- ) box :: CGridBox._hmin ! ;
 
-CDialog SUBCLASS CGridDialog
-
- VAR _g
-
-W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
-   2DROP 2DROP
-
-   GRID
-    CButton put
-    CButton put -xspan 100 -xmin!
-    ROW
-    CButton put -yspan 100 -ymin!
-    CGLControlTest put
-    CButton put
-   ;GRID _g !
-
-   SUPER getClientRect DROP DROP SWAP _g @ => :format
-   _g @ => :finalize
-
-   TRUE
-;
-
-W: WM_SIZE { lpar wpar msg hwnd }
-   lpar LOWORD 
-   lpar HIWORD
-   ( w h ) _g @ => :format 
-   _g @ => :finalize
-   FALSE
-;
-
-;CLASS
+\ ;MODULE
 
 \ -----------------------------------------------------------------------
-
-0 0 200 150
-WS_POPUP WS_SYSMENU OR WS_CAPTION OR DS_MODALFRAME OR WS_SIZEBOX OR
-DS_CENTER OR
-
-DIALOG: GridDialog1 Grid test
-DIALOG;
-
-: winTest ( -- n )
-  || CGridDialog dlg ||
-
-  GridDialog1 0 dlg showModal DROP
-;
-
-winTest
-
-\EOF
-
-: winTest winTest BYE ;
-
-TRUE  TO ?GUI
-FALSE TO ?CONSOLE
-FALSE TO TRACE-WINMESSAGES
-
-' winTest MAINX !
-   S" test.exe" SAVE BYE
-
-\EOF
-
-\ --------------------------
-
-CGrid NEW grid
-
- CGridRow NEW row1
-
-  CGridCell NEW z1
-  10 z1 _wmin !
-  20 z1 _hmin !
-
- z1 this row1 :add
-
-  CGridCell NEW z2
-  40 z2 _wmin !
-  20 z2 _hmin !
-  TRUE z2 _xspan !
-
- z2 this row1 :add
-
-row1 this grid :add
-
- CGridRow NEW row2
-
-  CGridCell NEW p1
-  30 p1 _wmin !
-  30 p1 _hmin !
-  TRUE p1 _yspan !
-
- p1 this row2 :add
-
-  CGridCell NEW p2
-  50 p2 _wmin !
-  10 p2 _hmin !
-  TRUE p2 _yspan !
-  TRUE p2 _xspan !
-
- p2 this row2 :add
-
-row2 this grid :add
-
-
-grid :print
-grid :draw
-200 100 grid :format
-CR CR
-grid :print
-grid :draw
