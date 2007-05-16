@@ -15,7 +15,7 @@
 
 ----
 
-[[Сеть](#net)] [[Графика](#graph)] [[Архиваторы](#arc)] [[Связные списки](#list)] [[Записи](#record)] [[Структуры данных](#data)] [[Сортировка и поиск](#sort-n-search)] [[Techniques](#techniques)] [[Отладка](#debug)] [[Случайные числа](#random)] [[Расстановочные таблицы](#hash)] [[Хэш функции](#hash-func)] [[Константы времени компиляции](#compiletime-const)] [[Windows GUI](#WinGUI)] [[Windows COM](#WinCOM)] [[Службы(сервисы) Windows](#services)] [[Дата и время](#datetime)] [[Базы данных](#db)] [[Потоки](#threads)] [[Реестр и INI Windows](#ini-registry)] [[Строки](#str)] [[Файлы](#files)] [[XML](#xml)] [[OOP](#oop)] [[Словари](#vocs)] [[Память](#mem)] [[Разное](#misc)] 
+[[Сеть](#net)] [[Графика](#graph)] [[Архиваторы](#arc)] [[Связные списки](#list)] [[Записи](#record)] [[Структуры данных](#data)] [[Сортировка и поиск](#sort-n-search)] [[Techniques](#techniques)] [[Отладка](#debug)] [[Случайные числа](#random)] [[Расстановочные таблицы](#hash)] [[Хэш функции](#hash-func)] [[Константы времени компиляции](#compiletime-const)] [[User interface](#ui)] [[Windows COM](#WinCOM)] [[Службы(сервисы) Windows](#services)] [[Дата и время](#datetime)] [[Базы данных](#db)] [[Потоки](#threads)] [[Реестр и INI Windows](#ini-registry)] [[Строки](#str)] [[Файлы](#files)] [[XML](#xml)] [[OOP](#oop)] [[Словари](#vocs)] [[Память](#mem)] [[Разное](#misc)] 
 
 ----
 
@@ -127,11 +127,14 @@
 * \\ <a href='../devel/~yz/cons/'>~yz/cons/</a> \\ скомпилированные константы sql, commctrl, windows 
 * \\ <a href='../devel/~ygrek/lib/data/'>~ygrek/lib/data/</a> \\ farplugin, opengl 
 
-<a id="WinGUI"/>
-### \\ Windows GUI 
+<a id="ui"/>
+### \\ User interface
 * REQUIRE WINDOWS... <a href='../devel/~yz/lib/winlib.f'>~yz/lib/winlib.f</a> \\ WinLib - библиотека интерфейса Windows. Умеет растягивать формы и контролы в ней. Задание вида окна без указания точных координат, с помощью размещения в сетке - ноу-хау! Хорошая <a href='http://www.forth.org.ru/~yz/winlib.html'>документация</a>. 
 * REQUIRE FrameWindow <a href='../devel/~day/joop/win/'>~day/joop/win/framewindow.f</a> \\ оконная библиотека поверх joop 
 * \\ <a href='../devel/~ac/lib/win/window/'>~ac/lib/win/window/</a> \\ простая и небольшая реализация 
+* REQUIRE WFL <a href='../devel/~day/wfl/wfl.f'>~day/wfl/wfl.f</a> \\ оконная библиотека поверх hype3, с <a href='../devel/~day/wfl/examples'>примерами</a>.
+* REQUIRE AT-XY <a href='../devel/~day/common/console.f'>~day/common/console.f</a> \\ Минимум функций для управления консолью
+* REQUIRE SetLocate <a href='../devel/~pi/lib/console.f'>~pi/lib/console.f</a> \\ Работа с консолью
 
 <a id="WinCOM"/>
 ### \\ Windows COM 

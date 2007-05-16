@@ -5,7 +5,7 @@
 
 <small>$Date$</small>
 
-<!-- Translation is in sync with devel.ru.md rev. 1.12 -->
+<!-- Translation is in sync with devel.ru.md rev. 1.13 -->
 
 *REQUIRE is a forth word, which loads library; unnecessary text is commented out, so you can use this list as a forth code to include libs :)*
 
@@ -15,7 +15,7 @@
 
 ----
 
-[[Network](#net)] [[Graphics](#graph)] [[Archives](#arc)] [[Linked lists](#list)] [[Records](#record)] [[Data structures](#data)] [[Sort and search](#sort-n-search)] [[Techniques](#techniques)] [[Debugging](#debug)] [[Random numbers](#random)] [[Hash tables](#hash)] [[Hash functions](#hash-func)] [[Compiletime constants](#compiletime-const)] [[Windows GUI](#WinGUI)] [[Windows COM](#WinCOM)] [[Windows services](#services)] [[Date and time](#datetime)] [[Databases](#db)] [[Threads](#threads)] [[Windows registry and ini](#ini-registry)] [[Strings](#str)] [[Files](#files)] [[XML](#xml)] [[OOP](#oop)] [[Vocabularies](#vocs)] [[Memory](#mem)] [[Miscellaneous](#misc)]
+[[Network](#net)] [[Graphics](#graph)] [[Archives](#arc)] [[Linked lists](#list)] [[Records](#record)] [[Data structures](#data)] [[Sort and search](#sort-n-search)] [[Techniques](#techniques)] [[Debugging](#debug)] [[Random numbers](#random)] [[Hash tables](#hash)] [[Hash functions](#hash-func)] [[Compiletime constants](#compiletime-const)] [[User Interface](#ui)] [[Windows COM](#WinCOM)] [[Windows services](#services)] [[Date and time](#datetime)] [[Databases](#db)] [[Threads](#threads)] [[Windows registry and ini](#ini-registry)] [[Strings](#str)] [[Files](#files)] [[XML](#xml)] [[OOP](#oop)] [[Vocabularies](#vocs)] [[Memory](#mem)] [[Miscellaneous](#misc)]
 
 ----
 
@@ -127,11 +127,14 @@
 * \\ <a href='../devel/~yz/cons/'>~yz/cons/</a> \\ precompiled constants for sql, commctrl, windows 
 * \\ <a href='../devel/~ygrek/lib/data/'>~ygrek/lib/data/</a> \\ farplugin, opengl 
 
-<a id="WinGUI"/>
-### \\ Windows GUI 
+<a id="ui"/>
+### \\ user interface
 * REQUIRE WINDOWS... <a href='../devel/~yz/lib/winlib.f'>~yz/lib/winlib.f</a> \\ WinLib - Windows GUI interface library. Stretches forms and controls on it. Specifying controls position without coordinates, only position in grid - know-how! Good <a href='http://www.forth.org.ru/~yz/winlib.html'>documentation</a>. 
-* REQUIRE FrameWindow <a href='../devel/~day/joop/win/'>~day/joop/win/framewindow.f</a> \\ windows library with joop 
+* REQUIRE FrameWindow <a href='../devel/~day/joop/win/'>~day/joop/win/framewindow.f</a> \\ windows library based on joop 
 * \\ <a href='../devel/~ac/lib/win/window/'>~ac/lib/win/window/</a> \\ simple and small implementation
+* REQUIRE WFL <a href='../devel/~day/wfl/wfl.f'>~day/wfl/wfl.f</a> \\ windows library based on hype3, with <a href='../devel/~day/wfl/examples'>examples</a>
+* REQUIRE AT-XY <a href='../devel/~day/common/console.f'>~day/common/console.f</a> \\ Minimum words for console
+* REQUIRE SetLocate <a href='../devel/~pi/lib/console.f'>~pi/lib/console.f</a> \\ Console support
 
 <a id="WinCOM"/>
 ### \\ Windows COM 
