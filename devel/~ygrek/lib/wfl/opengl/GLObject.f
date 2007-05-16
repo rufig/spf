@@ -2,13 +2,13 @@ REQUIRE WL-MODULES ~day/lib/includemodule.f
 
 NEEDS ~ygrek/lib/data/opengl.f
 
-: status 
-  CR 
-  ." f=" FDEPTH . 
-  ." d=" DEPTH  . 
+: status
+  CR
+  ." f=" FDEPTH .
+  ." d=" DEPTH  .
   DEPTH 10 MIN .SN
   GetLastError ?DUP IF CR ." Error " . THEN
-  glGetError ?DUP IF CR ." GL error " . THEN 
+  glGetError ?DUP IF CR ." GL error " . THEN
 ;
 
 NEEDS ~day/hype3/locals.f
@@ -16,8 +16,10 @@ NEEDS ~ygrek/lib/list/write.f
 NEEDS ~pinka/lib/lambda.f
 NEEDS ~ygrek/lib/hype/timer.f
 NEEDS ~ygrek/lib/hype/point.f
+NEEDS  ~day/wincons/wc.f
+S" ~ygrek/lib/data/opengl.const" ADD-CONST-VOC
 
-: float ( F: f -- D: f ) 
+: float ( F: f -- D: f )
 [ 0x8D C, 0x6D C, 0xFC C,
   0xD9 C, 0x5D C, 0x00 C,
   0x87 C, 0x45 C, 0x00 C,
@@ -25,16 +27,13 @@ NEEDS ~ygrek/lib/hype/point.f
 
 : double ( F: f -- D: f1 f2 ) FLOAT>DATA SWAP ;
 
-NEEDS  ~day/wincons/wc.f
-S" ~ygrek/lib/data/opengl.const" ADD-CONST-VOC
-
 \ -----------------------------------------------------------------------
 
-CPoint4f SUBCLASS CGLPoint 
+CPoint4f SUBCLASS CGLPoint
 
 : :getf ( -- D: z y x ) SUPER :z@ float  SUPER :y@ float  SUPER :x@ float ;
 
-: :vertex SUPER :getv glVertex3fv DROP ; 
+: :vertex SUPER :getv glVertex3fv DROP ;
 : :normal SUPER :getv glNormal3fv DROP ;
 
 ;CLASS
@@ -70,11 +69,11 @@ CLASS CGLObject
    1e float 0e float 0e float  \ вектор-ось вращения
    angle :x@ float glRotatef DROP  \ Поворот
 
-   0e float 1e float 0e float  
-   angle :y@ float glRotatef DROP 
+   0e float 1e float 0e float
+   angle :y@ float glRotatef DROP
 
-   0e float 0e float 1e float 
-   angle :z@ float glRotatef DROP 
+   0e float 0e float 1e float
+   angle :z@ float glRotatef DROP
 ;
 
 : :prepare ;
@@ -112,17 +111,17 @@ init: () _list ! ;
 dispose:
     LAMBDA{ => dispose } _list @ mapcar \ удалим все обьекты в списке
     _list @ FREE-LIST \ удалим сам список
-; 
+;
 
 : :add ( obj -- ) vnode _list @ cons _list ! ;
 
-: :draw ( -- ) 
-   SUPER :draw 
-   LAMBDA{ 
-     glPushMatrix DROP 
-       => :draw 
-     glPopMatrix DROP 
-   } 
+: :draw ( -- )
+   SUPER :draw
+   LAMBDA{
+     glPushMatrix DROP
+       => :draw
+     glPopMatrix DROP
+   }
    _list @ mapcar ;
 
 : :rotate ( -- ) SUPER :rotate LAMBDA{ => :rotate } _list @ mapcar ;
@@ -151,7 +150,7 @@ CGLObject SUBCLASS CGLPyramid
    CGLPoint OBJ top
    CGLPoint OBJ a1
    CGLPoint OBJ a2
-   CGLPoint OBJ a3 
+   CGLPoint OBJ a3
    CGLPoint OBJ a4
 
 : :draw
@@ -167,7 +166,7 @@ CGLObject SUBCLASS CGLPyramid
            top :vertex   a3 :vertex   a4 :vertex
          Green SetColor
            top :vertex   a4 :vertex   a1 :vertex
-   glEnd  DROP   \ Finished Drawing 
+   glEnd  DROP   \ Finished Drawing
 ;
 
 init:
@@ -190,7 +189,7 @@ CGLObject SUBCLASS CGLCube
    CGLPoint OBJ a2  CGLPoint OBJ b2
    CGLPoint OBJ a3  CGLPoint OBJ b3
    CGLPoint OBJ a4  CGLPoint OBJ b4
-  
+
 : :draw
   SUPER :draw
   GL_QUADS glBegin DROP \ Drawing Using Squares
@@ -200,7 +199,7 @@ CGLObject SUBCLASS CGLCube
    Green SetColor   a3 :vertex   a4 :vertex   b4 :vertex   b3 :vertex
   Orange SetColor   a4 :vertex   a1 :vertex   b1 :vertex   b4 :vertex
   Magenta SetColor   b1 :vertex   b2 :vertex   b3 :vertex   b4 :vertex
-   glEnd  DROP   \ Finished Drawing 
+   glEnd  DROP   \ Finished Drawing
 ;
 
 
@@ -233,7 +232,7 @@ dispose: timer :ms@ CR ." Time in " SUPER name TYPE ."  = " . ;
    GL_TRIANGLES glBegin DROP
 
    model :faces 0 ?DO
-    
+
     I model :tnth TO t
     t :: CTri.n1@ model :nnth :: CGLPoint.:normal
     t :: CTri.v1@ model :vnth :: CGLPoint.:vertex
@@ -260,7 +259,7 @@ dispose: timer :ms@ CR ." Time in " SUPER name TYPE ."  = " . ;
 : :ymax model :ymax ;
 : :zmax model :zmax ;
 
-: :prepare 
+: :prepare
    1 glGenLists _list !
    status
    GL_COMPILE _list @ glNewList DROP
@@ -290,14 +289,14 @@ CLASS CPlot2D
 
 : :data! DUP cur ! data ! ndata ! ;
 : :points! DUP 2 * 8 * ALLOCATE THROW own :data! ;
-: :point! 
-     FSWAP cur @ DF!  cur @ 8 + cur ! 
-           cur @ DF!  cur @ 8 + cur ! 
+: :point!
+     FSWAP cur @ DF!  cur @ 8 + cur !
+           cur @ DF!  cur @ 8 + cur !
 ;
 
 : :init
   White color :set
-  0 0 own :data! 
+  0 0 own :data!
 ;
 
 : :free
@@ -316,7 +315,7 @@ CLASS CPlot2D
    (x,y) FDUP
      max :y FSWAP F< IF FDUP max :y! THEN
      FDUP min :y F< IF min :y! ELSE FDROP THEN
-    FDUP 
+    FDUP
      max :x FSWAP F< IF FDUP max :x! THEN
      FDUP min :x F< IF min :x! ELSE FDROP THEN
   LOOP
@@ -325,12 +324,12 @@ CLASS CPlot2D
 ;
 
 : :makeScale
-  min :x max :x F- FABS 1e-5 F< 
+  min :x max :x F- FABS 1e-5 F<
    IF min :x 1e-5 F+ max :x!   min :x 1e-5 F- max :x!  THEN
-  min :y max :y F- FABS 1e-5 F< 
+  min :y max :y F- FABS 1e-5 F<
    IF min :y 1e-5 F+ max :y!   min :y 1e-5 F- max :y!  THEN
 
- data @ 
+ data @
   ndata @ 0 DO   \ масштабируем
    DUP (x,y) DROP
    min :y F-
@@ -358,7 +357,7 @@ CLASS CPlot2D
 
   GL_LINE_STRIP glBegin DROP
    color :get SetColor
-   data @ 
+   data @
     ndata @ 0 DO (x,y) 0e Vertex3f LOOP
    DROP
   glEnd DROP
@@ -373,7 +372,7 @@ CLASS CPlot2D
 pvar: <min
 pvar: <max
 CLASS: GLPlot2D <SUPER GLObject
-     Point OBJ max 
+     Point OBJ max
      Point OBJ min    \ размеры окна
       List OBJ graphs \ графики
   Iterator OBJ iter
@@ -388,7 +387,7 @@ CLASS: GLPlot2D <SUPER GLObject
   ( ." GLPlot init. ")
 ;
 
-: :draw 
+: :draw
   own :draw
 
   \ Координатные орты
@@ -423,17 +422,17 @@ CLASS: GLPlot2D <SUPER GLObject
 : :autoScale
   iter :first
   BEGIN
-    iter :next IF <data @ DUP :findScale :getScale own :maxScale 0 
+    iter :next IF <data @ DUP :findScale :getScale own :maxScale 0
              ELSE -1 THEN
   UNTIL
   iter :first
   BEGIN
-    iter :next IF own :getScale <data @ DUP :setScale :makeScale 0 
+    iter :next IF own :getScale <data @ DUP :setScale :makeScale 0
              ELSE -1 THEN
   UNTIL
 ;
 
-( : :free 
+( : :free
   \ iter :free
   \ graphs :free
   own :free

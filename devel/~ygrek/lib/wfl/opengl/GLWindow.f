@@ -8,9 +8,10 @@ REQUIRE WL-MODULES ~day/lib/includemodule.f
 NEEDS ~day/hype3/hype3.f
 NEEDS ~day/wfl/wfl.f
 NEEDS ~ygrek/lib/wfl/opengl/GLObject.f
-NEEDS ~ygrek/lib/joopengl/extra.f 
+NEEDS ~ygrek/lib/joopengl/extra.f
 NEEDS ~ygrek/lib/data/opengl.f
 NEEDS ~day/common/clparam.f
+NEEDS ~ygrek/lib/neilbawd/mersenne.f
 
 : PrepareLight
 
@@ -22,7 +23,7 @@ NEEDS ~day/common/clparam.f
 
    0.2e 0.2e 0.2e 0.5e p :set4
    p :getv GL_AMBIENT GL_LIGHT1 glLightfv DROP
-   0.6e 0.6e 0.6e 1.0e p :set4 
+   0.6e 0.6e 0.6e 1.0e p :set4
    p :getv GL_DIFFUSE GL_LIGHT1 glLightfv DROP
    0.0e -10.e 0.0e 0.0e p :set4
    p :getv GL_POSITION GL_LIGHT1 glLightfv DROP
@@ -31,25 +32,11 @@ NEEDS ~day/common/clparam.f
    GL_LIGHTING glEnable DROP \ Enable lighting in general
 ;
 
-NEEDS ~ygrek/lib/neilbawd/mersenne.f
-
-101 CONSTANT ID_ABOUT
-102 CONSTANT ID_CLOSE
-
 : M, ( addr u -- addr+4 )   OVER  ! CELL+ ;
 : MC, ( addr c -- addr+4 )  OVER C! 1+ ;
 : MW, ( addr c -- addr+4 )  OVER W! 2+ ;
 
-
-0 [IF]
-CFrameWindow SUBCLASS CGLFrameWindow
-
-init:
-     CS_OWNDC SUPER exStyle OR! \ это похоже не критично   
-;
-    
-;CLASS
-[THEN]
+\ -----------------------------------------------------------------------
 
 CFrameWindow SUBCLASS CGLWindow
 
@@ -58,8 +45,6 @@ CFrameWindow SUBCLASS CGLWindow
   VAR _width    \
   VAR _height   \ размеры GL окна
   CGLObjectList OBJ _scene      \ все обьекты для отрисовки
-
-\ : createClass S" WFL CGLFrameWindow" DROP ;
 
 init:
    600 _width ! 400 _height ! NULL _hDC ! NULL _hRC !
@@ -85,7 +70,7 @@ init:
 
    GL_LEQUAL glDepthFunc  DROP      \ The Type Of Depth Testing To Do
 
-   GL_NICEST GL_PERSPECTIVE_CORRECTION_HINT glHint DROP     
+   GL_NICEST GL_PERSPECTIVE_CORRECTION_HINT glHint DROP
                    \ Really Nice Perspective Calculations
 
    GL_FRONT_AND_BACK GL_SHININESS 100e float glMaterialf DROP
@@ -109,16 +94,16 @@ init:
 : :resize { | WindowRect -- } \ Resize And Initialize The GL Window
 \ Подогнать запрашиваемые размеры к возможным GLевским
       CR ." Request dimensions : " _width @ . _height @ .
-       RECT::/SIZE ALLOCATE THROW TO WindowRect                                 
-                 0 WindowRect RECT::left ! \ Set Left Value To 0                 
-          _width @ WindowRect RECT::right ! \ Set Right Value To Requested Width  
-                  0 WindowRect RECT::top ! \ Set Top Value To 0                  
+       RECT::/SIZE ALLOCATE THROW TO WindowRect
+                 0 WindowRect RECT::left ! \ Set Left Value To 0
+          _width @ WindowRect RECT::right ! \ Set Right Value To Requested Width
+                  0 WindowRect RECT::top ! \ Set Top Value To 0
         _height @ WindowRect RECT::bottom ! \ Set Bottom Value To Requested Height
-                                                                                 
-       SUPER exStyle @ FALSE SUPER style @ WindowRect AdjustWindowRectEx DROP              
-                                                                                 
-       WindowRect RECT::bottom @ WindowRect RECT::top @ - _height !               
-       WindowRect RECT::right @ WindowRect RECT::left @ - _width !                
+
+       SUPER exStyle @ FALSE SUPER style @ WindowRect AdjustWindowRectEx DROP
+
+       WindowRect RECT::bottom @ WindowRect RECT::top @ - _height !
+       WindowRect RECT::right @ WindowRect RECT::left @ - _width !
        WindowRect FREE THROW
        CR ." Changed dimensions to : " _width @ . _height @ .
 
@@ -133,7 +118,7 @@ init:
         0.1e double \ near clipping plane
         _width @ DS>F _height @ DS>F F/ double \ aspect ratio
         45e double  \ Field of View Y-coordinate
-        gluPerspective DROP 
+        gluPerspective DROP
 
         GL_MODELVIEW glMatrixMode DROP  \ Select The Modelview Matrix
         glLoadIdentity  DROP            \ Reset The Modelview Matrix
@@ -142,7 +127,7 @@ init:
 : :setupTimer
     0 20 1 SUPER hWnd @ SetTimer DROP ;
 
-W: WM_CREATE { lpar wpar msg hwnd | pfd PixelFormat WindowRect h -- n } 
+W: WM_CREATE { lpar wpar msg hwnd | pfd PixelFormat WindowRect h -- n }
    status
    PIXELFORMATDESCRIPTOR::/SIZE ALLOCATE THROW TO pfd
            \ pfd Tells Windows How We Want Things To Be
@@ -159,7 +144,7 @@ W: WM_CREATE { lpar wpar msg hwnd | pfd PixelFormat WindowRect h -- n }
    0 MC,                            \ Shift Bit Ignored
    0 MC,                            \ No Accumulation Buffer
    0 MC, 0 MC, 0 MC, 0 MC,          \ Accumulation Bits Ignored
-   16 MC,                           \ 16Bit Z-Buffer (Depth Buffer)  
+   16 MC,                           \ 16Bit Z-Buffer (Depth Buffer)
    0 MC,                            \ No Stencil Buffer
    0 MC,                            \ No Auxiliary Buffer
    PFD_MAIN_PLANE MC,               \ Main Drawing Layer
@@ -168,7 +153,7 @@ W: WM_CREATE { lpar wpar msg hwnd | pfd PixelFormat WindowRect h -- n }
    DROP
 
 \   status
-\   pfd PIXELFORMATDESCRIPTOR::/SIZE DUMP 
+\   pfd PIXELFORMATDESCRIPTOR::/SIZE DUMP
    ." PFD created"
    status
 
@@ -180,13 +165,13 @@ W: WM_CREATE { lpar wpar msg hwnd | pfd PixelFormat WindowRect h -- n }
 
    pfd _hDC @ ChoosePixelFormat TO PixelFormat
    PixelFormat 0= IF
-    S" Can't Find A Suitable PixelFormat." SUPER showMessage 
+    S" Can't Find A Suitable PixelFormat." SUPER showMessage
     status
     ( own :free ) BYE
    THEN
 
    pfd PixelFormat _hDC @ SetPixelFormat 0= IF
-    S" Can't set this pixel format." SUPER showMessage 
+    S" Can't set this pixel format." SUPER showMessage
     ( own :free ) BYE
    THEN
 
@@ -200,7 +185,7 @@ W: WM_CREATE { lpar wpar msg hwnd | pfd PixelFormat WindowRect h -- n }
 
    _hRC @ _hDC @ wglMakeCurrent  \ Try To Activate The Rendering Context
    0= IF
-    S" Can't Activate The GL Rendering Context." SUPER showMessage 
+    S" Can't Activate The GL Rendering Context." SUPER showMessage
     ( own :free ) BYE
    THEN
 
@@ -215,13 +200,13 @@ W: WM_CREATE { lpar wpar msg hwnd | pfd PixelFormat WindowRect h -- n }
 : :maximize SW_MAXIMIZE SUPER hWnd @ ShowWindow DROP ;
 
 : :onPaint
-      GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT OR glClear DROP  
+      GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT OR glClear DROP
                                    \ Clear Screen And Depth Buffer
 
       GL_MODELVIEW glMatrixMode DROP  \ Select The Modelview Matrix
       glLoadIdentity  DROP            \ Reset The Modelview Matrix
- 
-      _scene :draw 
+
+      _scene :draw
       _scene :rotate
 
       _hDC @ wglSwapBuffers DROP \ Doublebuffering :)
@@ -234,19 +219,19 @@ W: WM_CREATE { lpar wpar msg hwnd | pfd PixelFormat WindowRect h -- n }
 (
 W: WM_PAINT
    2DROP 2DROP
-   :onPaint 
+   :onPaint
    0 ;)
 
 W: WM_TIMER
    2DROP 2DROP
-   :onPaint 
+   :onPaint
    0 ;
 
 dispose:          \ Properly Kill The Window
   CR ." Kill "
   1 SUPER hWnd @ KillTimer DROP
 
-  _hRC @ IF                                                                                  
+  _hRC @ IF
    NULL NULL wglMakeCurrent 0= IF \ Are We Able To Release The DC And RC Contexts?
    CR ." Release Of DC And RC Failed." THEN
    _hRC @ wglDeleteContext 0= IF     \ Are We Able To Delete The RC?
@@ -272,7 +257,7 @@ W: WM_SIZE ( lpar wpar msg hwnd )
    3 PICK LOWORD _width !
    3 PICK HIWORD _height !
    2DROP 2DROP
-   SELF :resize 
+   SELF :resize
 ;
 
 : :setShift _scene :setShift ;
@@ -293,9 +278,9 @@ W: WM_SIZE ( lpar wpar msg hwnd )
   S" bun_zipper_res2.ply2" " {s}" filename !
 
   NEXT-PARAM CUT-FILENAME S" spf4.exe" COMPARE
-  IF 
+  IF
    NEXT-PARAM DUP 0=
-   IF 
+   IF
     2DROP
     ELSE
     filename @ STRFREE
@@ -311,12 +296,12 @@ W: WM_SIZE ( lpar wpar msg hwnd )
   0 TO K
   BEGIN
 
-  K 1 < 
+  K 1 <
   WHILE
     10 0 DO
       10 0 DO
        \ CR I . J . K .
-       CGLCube NewObj 
+       CGLCube NewObj
        DUP 0.75e :: CGLCube.:resize
        DUP 0e I DS>F 3e F* F+ 0e J DS>F 3e F* F+ 0e K DS>F 3e F* F- :: CGLObject.:setShift
        DUP 5e FGENRANDABS 5e FGENRANDABS 5e FGENRANDABS :: CGLObject.:setAngleSpeed
@@ -327,8 +312,8 @@ W: WM_SIZE ( lpar wpar msg hwnd )
   REPEAT
 
   CGLSimpleModel NewObj m !
-  
-  filename @ STR@ m @ => :model ml1 :load 
+
+  filename @ STR@ m @ => :model ml1 :load
   10e 2e 10e m @ => :setShift
   0e 1e 0e m @ => :setAngleSpeed
   \ 0e 90e 0e m @ => :setAngle

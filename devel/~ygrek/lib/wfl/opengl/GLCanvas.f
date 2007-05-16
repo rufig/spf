@@ -5,11 +5,11 @@ NEEDS ~ygrek/lib/data/opengl.f
 NEEDS ~day/hype3/hype3.f
 NEEDS ~day/wfl/wfl.f
 NEEDS ~ygrek/lib/wfl/opengl/GLObject.f
-NEEDS ~ygrek/lib/joopengl/extra.f 
+NEEDS ~ygrek/lib/joopengl/extra.f
 NEEDS ~ygrek/lib/neilbawd/mersenne.f
 
 : M, ( addr u -- addr+4 )   OVER  ! CELL+ ;
-: MC, ( addr c -- addr+4 )  OVER C! 1+ ; 
+: MC, ( addr c -- addr+4 )  OVER C! 1+ ;
 : MW, ( addr c -- addr+4 )  OVER W! 2+ ;
 
 \ -----------------------------------------------------------------------
@@ -34,12 +34,12 @@ init: NULL _hRC ! ;
    0= S" Failed to activate Rendering Context" SUPER abort
 ;
 
-: :releaseRC ( -- ) 
+: :releaseRC ( -- )
     NULL NULL wglMakeCurrent 0= S" Failed to release Rendering Context" SUPER abort ;
 
-: :enable ( hwnd -- ) 
+: :enable ( hwnd -- )
    SUPER create DROP
-   :takeRC 
+   :takeRC
 ;
 
 : :disable ( -- )
@@ -50,7 +50,7 @@ init: NULL _hRC ! ;
 : :rc@ _hRC @ ;
 
 : :deleteRC
-  _hRC @ 
+  _hRC @
   IF
    _hRC @ wglDeleteContext 0= IF CR ." Failed to delete Rendering Context" THEN
    NULL _hRC !
@@ -70,7 +70,7 @@ CLASS CGLCanvas
 
   VAR _hwnd
   CGLContext OBJ _context
-  VAR _width    \ ширина 
+  VAR _width    \ ширина
   VAR _height   \ высота полотна для рисования
   CGLObjectList OBJ _scene   \ список обьектов для отрисовки
 
@@ -109,7 +109,7 @@ dispose:          \ Properly Kill The Window
 
    GL_LEQUAL glDepthFunc  DROP      \ The Type Of Depth Testing To Do
 
-   GL_NICEST GL_PERSPECTIVE_CORRECTION_HINT glHint DROP     
+   GL_NICEST GL_PERSPECTIVE_CORRECTION_HINT glHint DROP
                    \ Really Nice Perspective Calculations
 
    GL_FRONT_AND_BACK GL_SHININESS 100e float glMaterialf DROP
@@ -143,7 +143,7 @@ dispose:          \ Properly Kill The Window
        0.1e double \ near clipping plane
        _width @ DS>F _height @ DS>F F/ double \ aspect ratio
        45e double  \ Field of View Y-coordinate
-       gluPerspective DROP 
+       gluPerspective DROP
 
        GL_MODELVIEW glMatrixMode DROP  \ Select The Modelview Matrix
        glLoadIdentity  DROP            \ Reset The Modelview Matrix
@@ -153,7 +153,7 @@ dispose:          \ Properly Kill The Window
 
 : :initialize ( hwnd -- )
    _hwnd !
-   { | pfd PixelFormat WindowRect h } 
+   { | pfd PixelFormat WindowRect h }
    status
    PIXELFORMATDESCRIPTOR::/SIZE ALLOCATE THROW TO pfd
            \ pfd Tells Windows How We Want Things To Be
@@ -170,7 +170,7 @@ dispose:          \ Properly Kill The Window
    0 MC,                            \ Shift Bit Ignored
    0 MC,                            \ No Accumulation Buffer
    0 MC, 0 MC, 0 MC, 0 MC,          \ Accumulation Bits Ignored
-   16 MC,                           \ 16Bit Z-Buffer (Depth Buffer)  
+   16 MC,                           \ 16Bit Z-Buffer (Depth Buffer)
    0 MC,                            \ No Stencil Buffer
    0 MC,                            \ No Auxiliary Buffer
    PFD_MAIN_PLANE MC,               \ Main Drawing Layer
@@ -179,7 +179,7 @@ dispose:          \ Properly Kill The Window
    DROP
 
 \   status
-\   pfd PIXELFORMATDESCRIPTOR::/SIZE DUMP 
+\   pfd PIXELFORMATDESCRIPTOR::/SIZE DUMP
    ." PFD created"
    status
 
@@ -194,7 +194,7 @@ dispose:          \ Properly Kill The Window
 
    _context :createRC
    _context :takeRC
-   
+
    :initGL
 
    _context :releaseRC
@@ -208,13 +208,13 @@ dispose:          \ Properly Kill The Window
 : :doPaint ( -- )
    _hwnd @ _context :enable
 
-   GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT OR glClear DROP  
+   GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT OR glClear DROP
                                 \ Clear Screen And Depth Buffer
 
    GL_MODELVIEW glMatrixMode DROP  \ Select The Modelview Matrix
    glLoadIdentity  DROP            \ Reset The Modelview Matrix
- 
-   _scene :draw 
+
+   _scene :draw
    _scene :rotate
 
    _context checkDC wglSwapBuffers DROP \ Doublebuffering :)
