@@ -26,7 +26,10 @@ docs:
 $(web)/index.html: index.html
 	cp index.html $(web)
 
-www: update docs web_docs $(web)/index.html
+$(web)/favicon.ico: favicon.ico
+	cp favicon.ico $(web)
+
+www: update docs web_docs $(web)/index.html $(web)/favicon.ico
 
 # copy to the web space only newly generated files
 web_docs:
