@@ -2,24 +2,27 @@
 \ Ещё одна либа для списков
 \ Основной элемент - cons pair, то бишь пара CELL'ов : car с данными и cdr со связью
 
+\ элемент списка
 0
-CELL -- list.car
-CELL -- list.cdr
-CELL -- list.x1
-CELL -- list.x2
+CELL -- list.car \ ячейка-данные
+CELL -- list.cdr \ связь
+CELL -- list.x1  \ reserved
+CELL -- list.x2  \ reserved
 CONSTANT /NODE
 
+\ создать новый элемент
 : NEW-NODE ( -- node )
-    /NODE ALLOCATE THROW 
-    DUP /NODE ERASE 
-; 
+    /NODE ALLOCATE THROW
+    DUP /NODE ERASE
+;
 
+\ освободить память занимаемую элементом списка
 : FREE-NODE ( node -- ) FREE THROW ;
 
-\ Установить связь node1->node2
+\ установить связь node1->node2
 : LINK-NODE ( node1 node2 -- ) SWAP list.cdr ! ;
 
-\ создать cons pair с данными
+\ создать новый элемент списка с данными val
 : vnode ( val -- node ) NEW-NODE TUCK list.car ! ;
 
 \ () - пустой элемент - указывает сам на себя - конец списка
@@ -48,44 +51,54 @@ HERE /NODE ALLOT VALUE ()
 
 \ пройти по цепочке элементов до последнего - указывающего на ()
 : end ( node -- node2 )
+   BEGIN
    DUP cdr empty? IF EXIT THEN
-   cdr RECURSE ;
+   cdr
+   AGAIN ;
 
-\ Добавить элемент в начало списка и вернуть получившийся список 
+\ Добавить элемент в начало списка и вернуть получившийся список
 \ node1->node2
 : cons ( node1 node2 -- node1 ) OVER SWAP LINK-NODE ;
 
 \ Применить xt ко всем элементам списка node1
 \ xt: ( node -- ) \ xt получает параметром каждый элемент на нетронутом стеке
 : map ( xt node1 -- )
-   DUP empty? IF 2DROP EXIT THEN
-   2DUP 2>R SWAP EXECUTE 
-   2R> cdr RECURSE ;
+   2>R
+   BEGIN
+    R@ empty? IF RDROP RDROP EXIT THEN
+    2R@ SWAP EXECUTE
+    R> cdr >R
+   AGAIN ;
 
 \ Применить xt к данным всех элементов списка node1
 \ xt: ( node.car -- ) \ xt получает параметром car ячейку каждого элемента на нетронутом стеке
 : mapcar ( xt node -- )
-   DUP empty? IF 2DROP EXIT THEN
-   2DUP 2>R car SWAP EXECUTE 
-   2R> cdr RECURSE ;
+   2>R
+   BEGIN
+    R@ empty? IF RDROP RDROP EXIT THEN
+    2R@ car SWAP EXECUTE
+    R> cdr >R
+   AGAIN ;
 
 \ Получить n-ый элемент списка, прямым проходом
-: nth ( n node -- node )
-   OVER 0= IF NIP EXIT THEN
-   cdr SWAP 1- SWAP
-   RECURSE ;
+: nth ( n node -- node ) SWAP 0 ?DO cdr LOOP ;
 
 \ получить длину списка - прямым проходом до конца списка
 : length ( node -- n )
-   DUP empty? IF DROP 0 EXIT THEN
-   cdr RECURSE 1+ ;
+   0 >R
+   BEGIN
+    DUP empty? IF DROP R> EXIT THEN
+    cdr
+    RP@ 1+!
+   AGAIN ;
 
 \ освободить память занятую списком
-: FREE-LIST ( node -- ) 
-   DUP empty? IF DROP EXIT THEN
-   DUP cdr 
-   SWAP FREE-NODE 
-   RECURSE ;
+: FREE-LIST ( node -- )
+   BEGIN
+    DUP empty? IF DROP EXIT THEN
+    DUP cdr
+    SWAP FREE-NODE
+   AGAIN ;
 
 \ node2->...->node1->nil
 : (append) ( node1 node2 -- )
@@ -105,15 +118,15 @@ HERE /NODE ALLOT VALUE ()
     DUP cdr
     SWAP
     R> cons >R
-   REPEAT 
+   REPEAT
    DROP R> ;
 
 \ Проверка на принадлежность
-: member? ( n node -- ? ) 
+: member? ( n node -- ? )
    BEGIN
     DUP empty? 0=
    WHILE
     2DUP car = IF 2DROP TRUE EXIT THEN
     cdr
-   REPEAT 
+   REPEAT
    2DROP FALSE ;

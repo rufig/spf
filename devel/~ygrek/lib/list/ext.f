@@ -1,6 +1,6 @@
 \ $Id$
-\ Типы данных в списке (строка, список, число) и упрощённое задание списка в виде 
-\ %[ 1 % " hello" %s %[ 3 % 4 % ]% %l 5 % ]% 
+\ Типы данных в списке (строка, список, число) и упрощённое задание списка в виде
+\ %[ 1 % " hello" %s %[ 3 % 4 % ]% %l 5 % ]%
 \ %[ 10 0 DO I % LOOP ]%
 
 REQUIRE STR@ ~ac/lib/str5.f
@@ -29,7 +29,7 @@ REQUIRE /TEST ~profit/lib/testing.f
 : cur-list! ( list -- ) list-of-cur-lists setcar ;
 : add-node ( node -- ) cur-list cons cur-list! ;
 
-: %n ( u -- ) vnode as-value add-node ; 
+: %n ( u -- ) vnode as-value add-node ;
 
 \ Добавить u как значение в текущий список
 : % ( u -- ) %n ;
@@ -46,7 +46,7 @@ REQUIRE /TEST ~profit/lib/testing.f
 \ завершить создание списка
 : )lst ( -- list ) list-of-cur-lists DUP cdr TO list-of-cur-lists DUP car SWAP FREE-NODE reverse ;
 
-: %[ lst( ; 
+: %[ lst( ;
 : ]% )lst ;
 : ]%l ]% %l ;
 
@@ -60,14 +60,14 @@ WARNING 0!
 \ для строк - STRFREE
 \ для списков - рекурсивно FREE-LIST
 \ для value - ничего
-: FREE-LIST ( node -- ) 
+: FREE-LIST ( node -- )
    BEGIN
    DUP empty? IF DROP EXIT THEN
-   DUP cdr 
-   SWAP 
+   DUP cdr
+   SWAP
    DUP list? IF DUP car RECURSE THEN
    DUP str? IF DUP car STRFREE THEN
-   FREE-NODE 
+   FREE-NODE
    AGAIN ;
 
 WARNING !
@@ -98,7 +98,7 @@ TESTCASES list-core
 
  (( 1 list nth car -> 5 ))
  (( 2 list nth car -> 6 ))
- 1 list nth car 2 list nth car 
+ 1 list nth car 2 list nth car
  1 list nth setcar 2 list nth setcar
  (( 1 list nth car -> 6 ))
  (( 2 list nth car -> 5 ))
