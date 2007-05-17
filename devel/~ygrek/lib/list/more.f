@@ -5,6 +5,7 @@ REQUIRE lst( ~ygrek/lib/list/ext.f
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE /TEST ~profit/lib/testing.f
+REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
 
 \ Вызвать xt для каждого элемента списка ( параметр - car ячейка)
 \ Если xt возвращает 0 - элемент удаляется из списка (память занимаемая самой ячейкой освобождается)
@@ -35,33 +36,25 @@ REQUIRE /TEST ~profit/lib/testing.f
    REPEAT
    2DROP FALSE FALSE ;
 
-0 VALUE _list-map-xt
+\ Более быстрые версии map и mapcar
+WARNING @
+WARNING 0!
 
-\ Модифицировать каждый элемент списка с помощью xt
-\ xt: ( node-car -- val ) \ val будет записано в текущий обрабатываемый элемент списка
-: mapcar! ( xt node -- )
-   SWAP TO _list-map-xt
-   LAMBDA{ >R R@ car _list-map-xt EXECUTE R> setcar } SWAP map ;
+: mapcar { xt node -- }
+   BEGIN
+    node empty? IF EXIT THEN
+    node car xt EXECUTE
+    node cdr -> node
+   AGAIN ;
 
-: mapcar
-   SWAP TO _list-map-xt
-   LAMBDA{ car _list-map-xt EXECUTE } SWAP map ;
+: map { xt node1 -- }
+   BEGIN
+    node1 empty? IF EXIT THEN
+    node1 xt EXECUTE
+    node1 cdr -> node1
+   AGAIN ;
 
-0 VALUE _list-remove-all-val
-
-\ Удалить из списка node все элементы со значением val
-\ node1 - результирующий список
-: list-remove-all ( val node -- node1 )
-   SWAP TO _list-remove-all-val
-   LAMBDA{ _list-remove-all-val <> } SWAP
-   reduce-this ;
-
-\ Вариация mapcar
-: mapcar
-   SWAP TO _list-map-xt
-   LAMBDA{ car _list-map-xt EXECUTE } SWAP map ;
-
-REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
+WARNING !
 
 \ Вариация с использованием closure
 \ тут используем тот факт что axt=> работает на чистом стеке то есть можно
@@ -69,13 +62,17 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
 : list-remove-all ( val node -- node1 )
    SWAP S" LITERAL <>" axt=> SWAP reduce-this ;
 
-\ Вариация с использованием closure
+\ Модифицировать каждый элемент списка с помощью xt
+\ xt: ( node-car -- val ) \ val будет записано в текущий обрабатываемый элемент списка
 : mapcar! ( xt node -- )
    SWAP S" >R R@ car [ COMPILE, ] R> setcar" axt=> SWAP map ;
 
-\ Вариация с использованием closure
-: mapcar ( xt node -- )
-   SWAP S" car [ COMPILE, ]" axt=> SWAP map ;
+(
+0 VALUE _list-map-xt
+: mapcar!
+   SWAP TO _list-map-xt
+   LAMBDA{ >R R@ car _list-map-xt EXECUTE R> setcar } SWAP map ;
+)
 
 \ удалить из списка lst все значения-дубликаты
 : list-remove-dublicates ( lst -- )
@@ -86,8 +83,10 @@ REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
     cdr
    REPEAT DROP ;
 
-: (list) { addr } addr @ DUP cdr addr ! ;
-: list-iterator ( list -- xt ) S" A_AHEAD [ HERE SWAP , ] A_THEN LITERAL (list)" axt ;
+: (list-iterate) { addr } addr @ DUP cdr addr ! ;
+\ создать xt который при каждом вызове будет оставлять на стеке очередной элемент списка
+\ xt: ( -- node1 )
+: list-iterator ( list -- xt ) S" A_AHEAD [ HERE SWAP , ] A_THEN LITERAL (list-iterate)" axt ;
 
 \ создать список as-value длиной n из элементов на стеке v1...vn
 : nlist ( v1 ... vn n -- l ) () { l } 0 ?DO vnode l cons -> l LOOP l ;
