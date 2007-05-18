@@ -94,19 +94,19 @@ DUP -1 = IF DROP 0 THEN ;
 
 EXPORT
 \ Открывает порт com1
-: COM1 ( -> handle )
+: COM1 ( -> flag )
 	S" COM1" ComOpen DUP TO com1 0<> 
 	IF com1 DUP ComInit DROP 1000 Timeouts DROP -1 ELSE 0 THEN ;
 \ Открывает порт com2
-: COM2 ( -> handle )
+: COM2 ( -> flag )
 	S" COM2" ComOpen DUP TO com2 0<> 
 	IF com2 DUP ComInit DROP 1000 Timeouts DROP -1 ELSE 0 THEN ;
 \ Открывает порт com3
-: COM3 ( -> handle )
+: COM3 ( -> flag )
 	S" COM3" ComOpen DUP TO com3 0<> 
 	IF com3 DUP ComInit DROP 1000 Timeouts DROP -1 ELSE 0 THEN ;
 \ Открывает порт com4
-: COM4 ( -> handle )
+: COM4 ( -> flag )
 	S" COM4" ComOpen DUP TO com4 0<> 
 	IF com4 DUP ComInit DROP 1000 Timeouts DROP -1 ELSE 0 THEN ;
 
@@ -154,15 +154,16 @@ EXPORT
 : main
 	COM1
 	IF
+	COMClear
 	 BEGIN
+	  \ com1 COMWait 1 .
 	  com1 COMRead .COM
-	  \  com1 COMIn .
+	  \ com1 COMIn .
 	 AGAIN
 	THEN
 ;
 
 \EOF
-
 
 По умолчанию com порты имеют настройки:
  - скорость: 9600
@@ -175,10 +176,10 @@ com2		( -> handle ) - хендл com2 после инициализации
 com3		( -> handle ) - хендл com3 после инициализации
 com4		( -> handle ) - хендл com4 после инициализации
 
-COM1		( -> handle ) - открывает порт com1
-COM2		( -> handle ) - открывает порт com2
-COM3		( -> handle ) - открывает порт com3
-COM4		( -> handle ) - открывает порт com4
+COM1		( -> flag ) - открывает порт com1
+COM2		( -> flag ) - открывает порт com2
+COM3		( -> flag ) - открывает порт com3
+COM4		( -> flag ) - открывает порт com4
 COMClose 	( handle -> ior ) - закрыть com порт
 COMRead		( addr u handle -> c-addr u ) - читать строку из com в буфер
 COMWrite	( c-addr u handle -> ) - записать строку в com порт
