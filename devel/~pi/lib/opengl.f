@@ -77,8 +77,16 @@ pfd FREE THROW
 0 VALUE glhandle	\ хендл окна
 0 VALUE glhdc		\ хендл контекста
 
-
 EXPORT
+
+0.0E FVALUE X		\ координата x
+0.0E FVALUE Y		\ координата y
+0.0E FVALUE X1		\ координата x1
+0.0E FVALUE Y1		\ координата y1
+0.0E FVALUE X2		\ координата x2
+0.0E FVALUE Y2		\ координата y2
+0.0E FVALUE X3		\ координата x3
+0.0E FVALUE Y3		\ координата y3
 
 \ Высота изображения экрана в пикселях
 : VScreen ( -> n )
@@ -111,6 +119,15 @@ EXPORT
 \ Аспект соотношения ширины и высоты
 : AScreen ( -> d )
 	HScreen DS>F VScreen S>D D>F F/ F>DL ;
+
+\ Вывод указанное число линий на экран (от точки до 4)
+: LineLoop ( n -> )
+	DUP 0 > IF Y F>DL X F>DL glVertex2d DROP THEN
+	DUP 1 > IF Y1 F>DL X2 F>DL glVertex2d DROP THEN
+	DUP 2 > IF Y2 F>DL X2 F>DL glVertex2d DROP THEN
+	DUP 3 > IF Y3 F>DL X3 F>DL glVertex2d DROP THEN
+	DROP ;
+
 
 \ Показать курсор на экране
 : ShowCursore ( -> )
@@ -159,9 +176,9 @@ EXPORT
 : PointSize ( n -> )
 	S>FL glPointSize DROP ;
 
-\ Вывести 2D точку на экран (x,y)
-: Point ( F: f f -> )
-	0 glBegin DROP F>DL F>DL glVertex2d DROP glEnd DROP ;
+\ Вывести 2D точку на экран (X,Y)
+: Point ( -> )
+	0 glBegin DROP 1 LineLoop glEnd DROP ;
 
 \ Установить цвет (B G R)
 : Color ( n n n -> )
@@ -172,23 +189,23 @@ EXPORT
 : RotatedMatrix ( F: f f f f -> )
 	F>DL F>DL F>DL F>DL glRotated DROP ;
 
-\ Вывести 2D линию (X Y L H)
-: Line ( F: f f f f -> )
+\ Вывести 2D линию (X,Y,X1,Y1)
+: Line ( -> )
 	1 glBegin DROP
-	F>DL F>DL glVertex2d DROP
-	F>DL F>DL glVertex2d DROP
+	Y F>DL X F>DL glVertex2d DROP
+	Y1 F>DL X1 F>DL glVertex2d DROP
 	glEnd DROP ;
 
-\ Ширина линии
+\ Ширина рисуемых линии
 : LineSize ( n -> )
 	S>FL glLineWidth DROP ;
 
-\ Вывести 2D треугольник (X Y X1 Y1 X2 Y2)
-: Triangle ( F: f f f f f f -> )
+\ Вывести 2D треугольник (X,Y,X1,Y1,X2,Y2)
+: Triangle ( -> )
 	4 glBegin DROP
-	F>DL F>DL glVertex2d DROP
-	F>DL F>DL glVertex2d DROP
-	F>DL F>DL glVertex2d DROP
+	Y F>DL X F>DL glVertex2d DROP
+	Y1 F>DL X1 F>DL glVertex2d DROP
+	Y2 F>DL X2 F>DL glVertex2d DROP
 	glEnd DROP ;
 
 \ Рисование фигур проволочным стилем
@@ -199,13 +216,13 @@ EXPORT
 : GlFill ( -> )
 	0x1B02 0x408 glPolygonMode DROP ;
 
-\ 2D прямоугольник (X Y L H)
-: Rectangle ( F: f f f f -> )
+\ 2D прямоугольник (X,Y,X1,Y1)
+: Rectangle ( -> )
 	7 glBegin DROP
-	F>DL 2DUP F>DL 2DUP 2>R glVertex2d DROP
-	F>DL 2DUP 2R> glVertex2d DROP
-	F>DL 2DUP 2>R glVertex2d DROP
-	2R> glVertex2d DROP
+	Y F>DL X F>DL glVertex2d DROP
+	Y F>DL X1 F>DL glVertex2d DROP
+	Y1 F>DL X1 F>DL glVertex2d DROP
+	Y1 F>DL X F>DL glVertex2d DROP
 	glEnd DROP ;
 
 \ Сглаживание
@@ -216,6 +233,22 @@ EXPORT
 : NoSmoothing ( -> )
 	0xB10 glDisable DROP ;
 
+\ 2D четырехугольник (X,Y,X1,Y1,X2,Y2,X3,Y3)
+: Tetragon ( -> ) 
+	7 glBegin DROP
+	Y F>DL X F>DL glVertex2d DROP
+	Y1 F>DL X1 F>DL glVertex2d DROP
+	Y2 F>DL X2 F>DL glVertex2d DROP
+	Y3 F>DL X3 F>DL glVertex2d DROP
+	glEnd DROP ;
+
+\ 2D угол (X,Y,X1,Y1,X2,Y2)
+: Corner ( -> )
+	3 glBegin DROP
+	Y F>DL X F>DL glVertex2d DROP
+	Y1 F>DL X1 F>DL glVertex2d DROP
+	Y2 F>DL X2 F>DL glVertex2d DROP
+	glEnd DROP ;
 
 STARTLOG
 
@@ -237,20 +270,43 @@ STARTLOG
    Cls						\ очистка экрана
    SingleMatrix					\ установим еденичную матрицу
    0.0E 0.0E -5.0E ShiftMatrix			\ отодвигаем матрицу
-   10 PointSize					\ размер точки
    theta 0.0E 0.0E 1.0E RotatedMatrix           \ крутим матрицу вокруг осей
+
    0 0 100 Color				\ установим красный цвет
-   0.0E 0.0E Point				\ нарисуем точки
-   0.0E 1.0E Point
-   0.0E 2.0E Point
-   0.0E 3.0E Point
-   0.0E 4.0E Point
+   10 PointSize					\ размер точки
+   0.0E FTO X 0.0E FTO Y Point				\ нарисуем точки
+   1.0E FTO Y Point
+   2.0E FTO Y Point
+   3.0E FTO Y Point
+   4.0E FTO Y Point
+
    0 100 0 Color				\ установим зеленый цвет
    3 LineSize                                   \ ширина линии
-   0.0E 0.0E 4.0E 0.0E Line                     \ нарисуем линию
+   0.0E FTO Y 4.0E FTO X1 Line                  \ нарисуем линию
+
+   1 LineSize                                   \ ширина линии
    100 0 0 Color				\ установим синий цвет
-   0.0E 0.0E 0.5E 2.0E 2.0E 1.5E Triangle
-   -4.0E 4.0E -1.0E -2.0E Rectangle
+   0.5E FTO Y1 2.0E FTO X1
+   2.0E FTO Y2 1.5E FTO X2
+   Triangle
+
+   -4.0E FTO X 4.0E FTO Y
+   -1.0E FTO X1 -2.0E FTO Y1
+   Rectangle
+
+   100 100 0 Color
+   -3.5E FTO X 3.7E FTO Y
+   1.5E FTO X1 2.0E FTO Y1
+   3.4E FTO X2 -3.3E FTO Y2
+   -1.0E FTO X3 -2.5E FTO Y3
+   Tetragon
+
+   100 100 100 Color
+   -4.5E FTO X 3.2E FTO Y
+   1.9E FTO X1 2.5E FTO Y1
+   -3.4E FTO X2 -3.3E FTO Y2
+   Corner
+
    View						\ покажем что нарисовали
    theta 0.5E F+ FTO theta
   THEN
@@ -289,14 +345,16 @@ S>DL		( n -> d ) - переконвертировать число на стеке в double
 
 --- Элементы ---
 
-Point		( F: f f -> ) - 2D точка на экран (x,y)
-Line		( F: f f f f -> ) - 2D линия (x,y,l,h)
-Triangle	( F: f f f f f f -> ) - 2D треугольник (X Y X1 Y1 X2 Y2)
-Rectangle	( F: f f f f -> ) - 2D прямоугольник (X Y L H)
+Point		( -> ) - 2D точка на экран (X,Y)
+Line		( -> ) - 2D линия (X,Y,X1,Y1)
+Triangle	( -> ) - 2D треугольник (X,Y,X1,Y1,X2,Y2)
+Rectangle	( -> ) - 2D прямоугольник (X,Y,X1,Y1)
+Corner		( -> ) - 2D угол (X,Y,X1,Y1,X2,Y2)
 
 --- Свойства элементов ---
 Color		( n n n -> ) - установить цвет (B G R)
 PointSize	( n -> ) - размер точки
+LineSize	( n -> ) - ширина рисуемых линии
 GlLine		( -> ) - рисование фигур проволочным стилем
 GlFill		( -> ) - рисование фигур закрашенным стилем
 Smoothing	( -> ) - сглаживание
