@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translation is in sync with intro.ru.md rev. 1.11 -->
+<!-- Translation is in sync with intro.ru.md rev. 1.12 -->
 
 ----
 
@@ -58,6 +58,10 @@ The `devel` directory contains the contributed code of other SP-Forth'ers, the
 short (very short) list with descriptions is available: 
 [SPF_DEVEL](devel.en.html), or you can scan the directory yourself.
 
+There is also a fancy GUI frontend for SPF. It is located in
+`samples/win/spfwc`. Just run the compile.bat script and copy the resulting
+binary `spf4wc.exe` to the root installation folder (near to `spf4.exe`).
+
 
 ----
 <a id="opt"/>
@@ -69,10 +73,19 @@ default it is processed with the optimizer to gain a speedup at runtime. It
 performs inlining and peephole-optimization. More on ForthWiki (in russian):
 "[Optimizing compiler](http://wiki.forth.org.ru/optimizer)".
 
+**Tuning optimizer** *(default values are ok in the vast majority of cases, most
+probably you dont need these options!)*
+
+* `DIS-OPT` disables macrooptimization
+* `SET-OPT` enables macrooptimization (it is on by default)
+* `0 TO MM_SIZE` disables inlining (remember that inlining of `DO` `LOOP` and
+  some other words is performed by the spf kernel itself and thus is not affected with this option)  
+* `TRUE TO ?C-JMP` enables recursion tail-call optimization (disabled by default, may not work in some cases)
+
 **NB**: If your program starts behaving in a strange way, try to
-temporarily turn off the optimizer using `DIS-OPT` (turn on with `SET-OPT`),
-probably (unlikely!) you have encountered a bug in optimizer. If so - cut the
-piece of code where the bug occurs and send it to the author.
+temporarily turn off the optimizer using `DIS-OPT`, probably (very unlikely!) you
+have encountered a bug in optimizer. If so - locate the piece of code where the
+bug occurs and file a bugreport please.
 
 You can examine results of the word compilation as a native code with 
 disassembler:
@@ -80,7 +93,7 @@ disassembler:
 	REQUIRE SEE lib/ext/disasm.f
 	SEE word-in-interest
 
-or get the line-by-line listing
+or get the line-by-line listing (forth code with the corresponding asm code)
 
 	REQUIRE INCLUDED_L ~mak/listing2.f
 	S" file, with the code in interest"  INCLUDED_L
