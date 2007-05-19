@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translation is in sync with intro.ru.md rev. 1.12 -->
+<!-- Translation is in sync with intro.ru.md rev. 1.13 -->
 
 ----
 
@@ -80,7 +80,8 @@ probably you dont need these options!)*
 * `SET-OPT` enables macrooptimization (it is on by default)
 * `0 TO MM_SIZE` disables inlining (remember that inlining of `DO` `LOOP` and
   some other words is performed by the spf kernel itself and thus is not affected with this option)  
-* `TRUE TO ?C-JMP` enables recursion tail-call optimization (disabled by default, may not work in some cases)
+* `TRUE TO ?C-JMP` enables recursion tail-call optimization (experimental,
+  disabled by default, may not work in some cases)
 
 **NB**: If your program starts behaving in a strange way, try to
 temporarily turn off the optimizer using `DIS-OPT`, probably (very unlikely!) you
