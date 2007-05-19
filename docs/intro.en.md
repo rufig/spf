@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translation is in sync with intro.ru.md rev. 1.13 -->
+<!-- Translation is in sync with intro.ru.md rev. 1.14 -->
 
 ----
 
