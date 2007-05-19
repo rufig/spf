@@ -1,4 +1,5 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
+<!-- $Id$ -->
 <!-- ported from ~pinka/samples/2005/lib/split-white.f -->
 
 <!-- Functions Based on Substring White-Matching -->
@@ -18,13 +19,13 @@
 
 <def name="SPLIT-WHITE-FORCE" ds=" c-addr u -- c-addr-left u-left  c-addr-right u-right ">
   2DUP OVER + SWAP
-  <until> 2DUP eq <if> DROP NIP 0 SWAP 0 <exit/></if> DUP CHAR+ SWAP C@ IS-WHITE </until> CHAR-
+  <until> 2DUP eq <if> DROP 0 <exit/></if> DUP CHAR+ SWAP C@ IS-WHITE </until> CHAR-
   <!-- ( c-addr u  a2 a1 ) -->
   DUP >R -  DUP >R -  2R>
 </def>
 <def name="-SPLIT-WHITE-FORCE" ds=" c-addr u -- c-addr-left u-left  c-addr-right u-right ">
   2DUP CHARS OVER +
-  <until> 2DUP eq <if> DROP NIP 0 SWAP 0 <exit/></if> CHAR- DUP SWAP C@ IS-WHITE </until> CHAR+
+  <until> 2DUP eq <if> NIP 0 2SWAP <exit/></if> CHAR- DUP SWAP C@ IS-WHITE </until> CHAR+
   <!-- ( c-addr u  c-addr c-addr1 ) -->
   TUCK >R - TUCK - R> SWAP
 </def>
