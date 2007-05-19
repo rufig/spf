@@ -1,4 +1,4 @@
-\ Mersenne Twister 
+\ Mersenne Twister
 ( <!--BASE HREF="http://home.earthlink.net/~neilbawd/mersenne.html"--> )
 
 MODULE: MERSENNE_TWISTER
@@ -67,7 +67,7 @@ REFERENCE
         Needed from Tool Belt
 
 NEEDS
-           'th   
+           'th
 /NEEDS
 
 ------------------------------------------------------- [THEN]
@@ -329,17 +329,19 @@ matrix.
 ;MODULE
 
 \EOF
-  
+
 : RUN  1000 0 DO  I 5 MOD 0= IF CR THEN  GENRAND U. CR  LOOP ;
 
 WINAPI: GetTickCount KERNEL32.DLL
 
-\ 14 000 000 простых чисел в секунду на Celeron 1GHz
+10000000 VALUE #N
+
 : TEST
   GetTickCount DUP SGENRAND
-  10000000 DUP 0 DO
-   GENRAND DROP 
+  #N DUP 0 DO
+   GENRAND DROP
   LOOP
-  SWAP GetTickCount - ABS / .
+  SWAP GetTickCount - ABS / . ." pseudorandom numbers in 1 ms"
 ;
 
+\ На Celeron 3.2 GHz - 5 000 000 псевдослучайных чисел в секунду
