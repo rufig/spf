@@ -1,6 +1,8 @@
 \ 18.Feb.2007 Sun 18:31
+\ $Id$
 \ see also src\compiler\spf_inline.f
 \ NON-OPT-WL contains five words: EXECUTE  ?DUP  R>  >R  RDROP
+
 
 REQUIRE BIND-NODE ~pinka/samples/2006/lib/plain-list.f 
 REQUIRE AsQName   ~pinka/samples/2006/syntax/qname.f \ пон€тие однословных строк в виде `abc
@@ -41,3 +43,19 @@ VARIABLE h-compilers
 `RDROP   SFIND 0= THROW  DUP  ADVICE-COMPILER
 `R>      SFIND 0= THROW  DUP  ADVICE-COMPILER
 `>R      SFIND 0= THROW  DUP  ADVICE-COMPILER
+
+
+
+
+\ ƒл€ слов, чувствительных к уровню стека возвратов, нельз€ делать хвостовую оптимизацию.
+\ ѕрописываю собственный компил€тор дл€ слова "2R>", чтобы генерить верный код
+\ дл€ него даже при включенной хвостовой оптимизации.
+
+: COMPILE(2R>)
+  ?C-JMP >R FALSE TO ?C-JMP
+  ['] 2R> COMPILE,
+  HERE TO :-SET
+  R> TO ?C-JMP
+;
+
+' COMPILE(2R>) ' 2R> ADVICE-COMPILER
