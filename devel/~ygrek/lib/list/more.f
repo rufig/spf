@@ -5,7 +5,7 @@ REQUIRE lst( ~ygrek/lib/list/ext.f
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE /TEST ~profit/lib/testing.f
-REQUIRE CREATE-VC ~profit/lib/bac4th-closures.f
+REQUIRE axt=> ~profit/lib/bac4th-closures.f
 
 \ Вызвать xt для каждого элемента списка ( параметр - car ячейка)
 \ Если xt возвращает 0 - элемент удаляется из списка (память занимаемая самой ячейкой освобождается)

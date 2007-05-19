@@ -4,9 +4,17 @@
 REQUIRE value? ~ygrek/lib/list/ext.f
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE /TEST ~profit/lib/testing.f
+REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
+REQUIRE /STRING lib/include/string.f
+
+\ выбрать n символов из входного потока
+: PARSE-DATA { n -- a u }
+   SOURCE >IN @ /STRING n MIN
+   >IN @ OVER + >IN ! ;
 
 : (.) ( n -- ) S>D (D.) TYPE ;
-: print-quoted-str [CHAR] " EMIT SPACE STR@ TYPE [CHAR] " EMIT SPACE ;
+: >STR "" >R R@ STR+ R> ;
+: print-str-for-eval ( s -- ) STR@ DUP "  {n} PARSE-DATA {s} >STR " STYPE ;
 : print-quoted-str-cut ( s -- ) [CHAR] " EMIT STR@ DUP 20 > IF DROP 17 TYPE ." ..." ELSE TYPE THEN [CHAR] " EMIT ;
 
 \ -----------------------------------------------------------------------
@@ -27,7 +35,7 @@ VECT (write-list)
    WHILE
     DUP write-node
     cdr
-   REPEAT 
+   REPEAT
    DROP ." ) " ;
 
 ' write-list TO (write-list)
@@ -38,12 +46,15 @@ VECT (print-list)
 
 : print-node ( node -- )
    DUP list? IF car (print-list) ." %l " EXIT THEN
-   DUP str? IF car print-quoted-str ." %s " EXIT THEN
+   DUP str? IF car print-str-for-eval ." %s " EXIT THEN
    DUP value? IF car . ." % " EXIT THEN
    ABORT" ??? Bad list" ;
 
-\ Распечатать список, строковое представление пригодное для EVALUATE
-\ BUG: строки содержащие кавычку не квотятся!
+\ Распечатать список, строковое представление пригодное для восстановление EVALUATE'ом
+\ В момент выполнения EVALUATE потребуются слова
+\ " из ~ac/lib/str5.f
+\ lst( и компания из ~ygrek/lib/list/ext.f
+\ PARSE-DATA и >STR из этой либы
 : print-list ( node -- )
    ." lst( "
    BEGIN
@@ -51,7 +62,7 @@ VECT (print-list)
    WHILE
     DUP print-node
     cdr
-   REPEAT 
+   REPEAT
    DROP ." )lst " ;
 
 ' print-list TO (print-list)
@@ -68,8 +79,8 @@ VECT (print-list)
 
 \ Распечатать список, без лишней обработки - просто адреса
 : dump-list ( node -- )
-   DUP dump-node 
-   DUP empty? IF DROP EXIT THEN 
+   DUP dump-node
+   DUP empty? IF DROP EXIT THEN
    ."  -> "
    cdr RECURSE ;
 
@@ -77,11 +88,26 @@ VECT (print-list)
 
 /TEST
 
-lst( 1 %n " qu qu" %s 2 %n " long string for demonstration" %s 
-     3 %n lst( -1 %n -2 %n -3 %n )lst %l 5 %n )lst ( l )
+REQUIRE TYPE>STR ~ygrek/lib/typestr.f
+REQUIRE equal? ~ygrek/lib/list/more.f
+REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
-DUP CR write-list
-DUP CR print-list
-DUP CR dump-list
+TESTCASES list print and read
 
-( l ) FREE-LIST
+lst( 1 %n " qu qu" %s 2 %n " long {''}string{''}for dem{CRLF}onstration" %s
+     3 %n lst( -1 %n -2 %n -3 %n )lst %l 5 %n )lst ( l ) VALUE l
+
+l CR write-list
+l CR print-list
+l CR dump-list
+
+l ' print-list TYPE>STR \ сериализуем список в строку
+STR@ EVALUATE VALUE l2 \ и восстановим обратно EVALUATE'ом
+
+\ списки должны быть равны!
+(( l l2 equal? -> TRUE ))
+
+l FREE-LIST
+l2 FREE-LIST
+
+END-TESTCASES
