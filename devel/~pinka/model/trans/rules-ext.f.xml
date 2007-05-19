@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<f:forth xmlns:f="http://forth.org.ru/ForthML/"
+  xmlns="http://forth.org.ru/ForthML/Rules/"
+>
+<!-- Apr.2007 -->
+
+<rule match="f:each-textline" ds="c-addr u -- "><m>
+  <!-- applys to nonempty lines only -->
+  <f:repeat>
+    SPLIT-LINE
+  <f:while/>
+    2>R <f:choose> DUP <f:when> <yield/> </f:when> 2DROP </f:choose> 2R>
+  </f:repeat> 2DROP
+  </m>
+</rule>
+
+<rule match="f:each-word" ds="c-addr u -- "><m>
+  <f:repeat>
+    WORD|TAIL 2>R  DUP <f:while/> <yield/> 2R>
+  </f:repeat> 2DROP RDROP RDROP
+  </m>
+</rule>
+
+</f:forth>

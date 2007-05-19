@@ -1,0 +1,89 @@
+<?xml version="1.0" ?>
+<f:forth xmlns:f="http://forth.org.ru/ForthML/"
+  xmlns="http://forth.org.ru/ForthML/Rules/"
+>
+<!-- Apr.2007 -->
+
+<rule match="m0">
+  M @ >R  M 0!  <yield/>  R> M !
+</rule>
+
+<rule match="m"><!-- redefinition of 'r:m' -->
+  <m>
+  <f:choose> STATE? <f:when>
+    <m0> INC-M <yield/> DEC-M </m0>
+  </f:when><f:otherwise>
+    <yield/>
+  </f:otherwise></f:choose>
+  </m>
+</rule>
+
+<rule match="f:times"><m>
+  <f:repeat> DUP <f:while/> >R <yield/> R> 1- </f:repeat> DROP
+  </m>
+</rule>
+
+<rule match="f:d"><!-- dynamic binding (for native words only) -->
+  FirstChildValue
+  <f:repeat> WORD|TAIL 2>R DUP <f:while />
+    T-SLIT <m> &amp; EXECUTE </m>
+  2R>
+  </f:repeat>
+  2DROP RDROP RDROP
+</rule>
+
+<f:def name="t-child-slit">
+  cnode firstChild <f:choose> DUP <f:when> nodeValue T-SLIT </f:when> 0 T-2LIT </f:choose>
+</f:def>
+
+<rule match="f:emit">
+  t-child-slit <m>TYPE</m>
+</rule>
+
+<rule match="f:emit-line">
+  t-child-slit <m>TYPE CR</m>
+</rule>
+
+<rule match="f:wordlist"><m>
+  WORDLIST GET-CURRENT >CS
+  DUP SET-CURRENT ALSO CONTEXT !
+  <yield/>
+  CONTEXT @ <!-- wid -->
+  CS> SET-CURRENT PREVIOUS
+  <get-attribute name="name"/> 
+  <f:choose> DUP <f:when> ROT <f:p><f:lit/></f:p> NAMING </f:when> 2DROP </f:choose>
+  </m>
+</rule>
+
+<rule match="f:export"><!-- child of f:wordlist only -->
+  <m>
+  CS@ GET-CURRENT >CS  SET-CURRENT
+  <yield/>
+  CS> SET-CURRENT
+  </m>
+</rule>
+
+<rule match="f:also"><!-- immediately effect! -->
+  `apply GetAttribute &amp; EXECUTE ALSO CONTEXT !
+  <yield/>
+  PREVIOUS
+</rule>
+
+<rule match="f:const"><m>
+  <yield/>
+  <f:p><f:lit/></f:p><get-attribute name="name"/> NAMING-
+  </m>
+</rule>
+
+<rule match="f:cell">
+  <f:choose> cnode firstChild <f:when><yield/></f:when><m>0</m></f:choose>
+  <m> HERE SWAP , <f:p><f:lit/></f:p> <get-attribute name="name"/> NAMING- </m>
+</rule>
+
+<rule match="f:xt"><!-- only within f:def or f:p -->
+  <m>
+  <f:lit> BFW, <f:p><yield/></f:p> RFW </f:lit>
+  </m>
+</rule>
+
+</f:forth>

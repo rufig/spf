@@ -1,0 +1,10 @@
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<cell name="LT"/> 0xA LT C!
+<cell name="LTL"> 1 CHARS </cell>
+
+<def name="SPLIT-LINE" ds=" a u -- a1 u1 a2 u2 true | a u false ">
+  LT LTL @ SPLIT
+</def>
+
+</forth>

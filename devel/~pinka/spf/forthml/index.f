@@ -55,14 +55,41 @@ UNIX-LINES
 Include ~pinka/fml/forthml-core.f \ базовый набор слов (правил) ForthML
 DOS-LINES
 
+\ лексикон ForthML первого уровня:
 `~pinka/fml/src/rules-common.f.xml FIND-FULLNAME EMBODY
 `~pinka/fml/src/rules-forth.f.xml  FIND-FULLNAME EMBODY
 
-TO ?C-JMP  \ оставлять включенным нельзя, т.к. дает глюки местами
+\ расширение лексикона ForthML до второго уровня:
+`~pinka/model/lib/string/match-white.f.xml  FIND-FULLNAME EMBODY
+`~pinka/model/trans/rules-std.f.xml         FIND-FULLNAME EMBODY
+`~pinka/model/trans/split-line.f.xml        FIND-FULLNAME EMBODY
+`~pinka/model/trans/rules-ext.f.xml         FIND-FULLNAME EMBODY
+
+TO ?C-JMP  \ оставлять включенным нельзя, т.к. дает глюки для r-чувствительных слов.
+
 
 EXPORT
 
-`EMBODY `EMBODY aka
+`EMBODY             2DUP aka
+
+`CONTAINS           2DUP aka
+`STARTS-WITH        2DUP aka
+`ENDS-WITH          2DUP aka
+`SUBSTRING-AFTER    2DUP aka
+`SUBSTRING-BEFORE   2DUP aka
+`SPLIT-             2DUP aka
+`SPLIT              2DUP aka
+
+
+`IS-WHITE           2DUP aka
+`FINE-HEAD          2DUP aka
+`FINE-TAIL          2DUP aka
+`SPLIT-WHITE-FORCE  2DUP aka
+`-SPLIT-WHITE-FORCE 2DUP aka
+`UNBROKEN           2DUP aka
+`WORD|TAIL          2DUP aka
+
+`T-PLAIN            2DUP aka
 
 ;MODULE 
 \ ALSO forthml-support
