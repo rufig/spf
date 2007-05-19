@@ -1,4 +1,5 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
+<!-- $Id$ -->
 <!-- some ported from ~pinka/samples/2005/lib/split.f -->
 
 <!-- Functions Based on Substring Matching -->
@@ -23,7 +24,7 @@
 </def>
 
 <def name="SPLIT-" ds=" a u a-key u-key -- a-right u-right  a-left u-left  true  |  a u false ">
-  2OVER DROP >R DUP >R <!-- ( R: a u1 ) -->
+  3 PICK >R DUP >R <!-- ( R: a u1 ) -->
   SEARCH   <if><!-- ( aa uu ) -->
   OVER R@ + SWAP R> - <!-- aa+u1 uu-u1  - right part  -->
   ROT R@ - R> SWAP    <!-- a aa-a       - left part   -->
@@ -33,7 +34,7 @@
 </def>
 
 <def name="SPLIT" ds=" a u a-key u-key -- a-left u-left  a-right u-right  true  |  a u false ">
-  DUP >R 2OVER DROP >R <!-- ( R: u1 a ) -->
+  DUP >R 3 PICK >R <!-- ( R: u1 a ) -->
   SEARCH   <if><!-- ( aa uu ) -->
   SWAP R@ OVER R> -     <!-- a aa-a       - left part  -->
   2SWAP R@ + SWAP R> -  <!-- aa+u1 uu-u1  - right part -->
