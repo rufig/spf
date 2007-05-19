@@ -20,7 +20,7 @@ REQUIRE LAMBDA{ ~pinka/lib/lambda.f
    XML_READ_DOC_ROOT ?DUP ONTRUE \ root
    ( node )
    START{
-     xml.children=> 
+     xml.children=>
      S" entry" //name=
      DUP rss.item.timestamp stamp > ONTRUE
      CONT
@@ -31,14 +31,14 @@ REQUIRE LAMBDA{ ~pinka/lib/lambda.f
    a u " {CRLF}Downloading {s} ..." STYPE
    a u " {cl-path}{s}" STR@ GET-FILE STR@ a u OCCUPY ;
 
-: find-author ( a u list -- node -1 | 0 )
-  LAMBDA{ >R 2DUP R> car STR@ COMPARE 0= } SWAP list-scan 2SWAP 2DROP ;
+: find-author ( a u list -- node | 0 )
+  LAMBDA{ >R 2DUP R> car STR@ COMPARE 0= } SWAP list-find DROP NIP NIP ;
 
 : inc-author ( node -- ) cdr DUP car 1+ SWAP setcar ;
 
 : add-author { a u list -- }
-   a u list find-author 
-   IF car inc-author
+   a u list find-author
+   ?DUP IF car inc-author
    ELSE lst( a u " {s}" %s 1 % )lst vnode as-list list insert-after
    THEN ;
 
@@ -57,7 +57,7 @@ REQUIRE LAMBDA{ ~pinka/lib/lambda.f
   rl @
 ;
 
-lst( 
+lst(
  lst( " SpfDevChangeLog.xml" % " devel" % )lst %l
  lst( " SpfLibChangeLog.xml" % " lib" % )lst %l
  lst( " SpfSrcChangeLog.xml" % " src" % )lst %l
@@ -69,8 +69,8 @@ lst(
    LAMBDA{
     DUP cdar STR@ CR CR ." ::: New commits in " TYPE
         car STR@ go cdr \ забываем "пустое" значение
-          DUP author-sum ."  = " . 
-          DUP sort-by-num 
+          DUP author-sum ."  = " .
+          DUP sort-by-num
           print-authors
    } l mapcar ;
 
