@@ -8,12 +8,7 @@ REQUIRE WFL ~day/wfl/wfl.f
 NEEDS ~ygrek/lib/list/all.f
 NEEDS lib/include/core-ext.f
 
-\ --------------------------
-
-400 CONSTANT GRID_DEFAULT_WIDTH
-300 CONSTANT GRID_DEFAULT_HEIGHT
-
-\ --------------------------
+\ -----------------------------------------------------------------------
 
 : (DO-PRINT-VARIABLE) ( a u addr -- ) -ROT TYPE ."  = " @ . ;
 
@@ -24,30 +19,51 @@ NEEDS lib/include/core-ext.f
    EVALUATE
    POSTPONE (DO-PRINT-VARIABLE) ; IMMEDIATE
 
-\ --------------------------
+\ -----------------------------------------------------------------------
 
+\ 20 VALUE def-h
+\ 20 VALUE def-w
+30 VALUE def-hmin
+50 VALUE def-wmin
+TRUE VALUE def-xspan
+TRUE VALUE def-yspan
+
+\ -----------------------------------------------------------------------
+
+\ Базовый элемент сетки - ячейка
 CLASS CGridBox
 
- VAR _h
- VAR _w
- VAR _xspan
- VAR _yspan
- VAR _wmin
- VAR _hmin
- VAR _obj
+ VAR _h     \ актуальная высота
+ VAR _w     \ актуальная ширина
+ VAR _yspan \ флаг - расятжение по высоте
+ VAR _xspan \ флаг - растяжение по ширине
+ VAR _hmin  \ минимальная высота
+ VAR _wmin  \ минимальная ширина
+ VAR _obj   \ обьект-контрол
 
 init:
-  20 _h ! 20 _w !
-  20 _wmin ! 20 _hmin !
-  -1 _xspan ! -1 _yspan !
+  0 _h !
+  0 _w !
+  0 _obj !
+  def-wmin _wmin !
+  def-hmin _hmin !
+  def-xspan _xspan !
+  def-yspan _yspan !
 ;
 
 \ выполнить растяжку по x если ячейка растягиваема
-: :perform-xspan ( extra -- ) _xspan @ 0= IF DROP 0 THEN _wmin @ + _w ! ;
+: :xformat ( given -- ) _xspan @ 0= IF DROP 0 THEN _wmin @ MAX _w ! ;
 \ выполнить растяжку по y если ячейка растягиваема
-: :perform-yspan ( extra -- ) _yspan @ 0= IF DROP 0 THEN _hmin @ + _h ! ;
+: :yformat ( given -- ) _yspan @ 0= IF DROP 0 THEN _hmin @ MAX _h ! ;
 
-: :perform-yspan-upto ( ymax -- ) _hmin @ - 0 MAX :perform-yspan ;
+: :xmin _wmin @ ;
+: :ymin _hmin @ ;
+
+\ : :yformat ( u -- ) SELF => :ymin - 0 MAX SELF => :yformat-extra ;
+\ : :xformat ( u -- ) SELF => :xmin - 0 MAX SELF => :xformat-extra ;
+
+: :yspan? _yspan @ ;
+: :xspan? _xspan @ ;
 
 : :print
    PRINT: _wmin
@@ -61,16 +77,17 @@ init:
 
 : :control! ( ctl-obj -- ) _obj ! ;
 
-: :finalize { x y -- } TRUE _h @ _w @ y x _obj @ => moveWindow ;
+\ передать информацию о расположении и размере ячейки контролу с тем чтобы он себя отрисовал
+: :finalize { x y -- } _obj @ 0= IF EXIT THEN TRUE _h @ _w @ y x _obj @ => moveWindow ;
 
 ;CLASS
 
 \ --------------------------
 
-\ ряд ячеек это тоже одна ячейка
+\ ряд ячеек как одна ячейка
 CGridBox SUBCLASS CGridRow
 
- VAR _cells
+ VAR _cells \ список ячеек этого ряда
 
 init:
   () _cells !
@@ -80,57 +97,56 @@ init:
 
 : traverse-row ( xt -- ) _cells @ mapcar ;
 
-: :xmin ( -- n ) 0 LAMBDA{ => _wmin @ + } traverse-row ;
-: :ymin ( -- n ) 0 LAMBDA{ => _hmin @ MAX } traverse-row ;
+\ минимальная ширина ряда как сумма минимальной ширины каждой ячейки
+: :xmin ( -- n ) 0 LAMBDA{ => :xmin + } traverse-row ;
+\ минимальная высота ряда как сумма минимальной высоты каждой ячейки
+: :ymin ( -- n ) 0 LAMBDA{ => :ymin MAX } traverse-row ;
 
 \ будет ли этот ряд растягиваться
-: :yspan? ( -- ? ) FALSE LAMBDA{ => _yspan @ OR } traverse-row SUPER _yspan @ OR ;
+: :yspan? ( -- ? ) FALSE LAMBDA{ => :yspan? OR } traverse-row SUPER :yspan? OR ;
 
 \ число ячеек которые можно растянуть по горизонтали
-: :xspan-count ( -- n ) 0 LAMBDA{ => _xspan @ 1 AND + } traverse-row ;
+: :xspan-count ( -- n ) 0 LAMBDA{ => :xspan? IF 1 + THEN } traverse-row ;
 
-: :xformat { given | extra cell xspan-extra -- }
-   \ сколько нам дали места минус то сколько нам надо
-   given :xmin - 0 MAX -> extra
-   :xspan-count DUP 0= IF DROP 0 TO xspan-extra ELSE extra SWAP / TO xspan-extra THEN
+: :xformat { given | extra -- }
+   :xspan-count \ если у нас есть внутри потребители - отдаём всё им
+   DUP
+   IF
+    given :xmin - 0 MAX SWAP / -> extra
 
-   \ раздадим xspan-extra каждой клетке
-   \ те у которых xspan включен займут его
-   _cells @
-   BEGIN
-    DUP empty? 0=
-   WHILE
-    DUP car xspan-extra SWAP :: CGridBox.:perform-xspan
-    cdr
-   REPEAT
-   DROP
+    \ раздадим xspan-extra каждой клетке
+    \ те у которых xspan включен займут его
+    _cells @
+    BEGIN
+     DUP empty? 0=
+    WHILE
+     DUP car DUP => :xmin extra + SWAP => :xformat
+     cdr
+    REPEAT
+    DROP
+   ELSE \ иначе забираем всё себе
+    DROP
+    given SUPER :xformat
+   THEN
 
-   \ сколько осталось после раздачи
-   \ если например :xspan-count был 0 то всё лишнее место ещё не распределно
-   0 LAMBDA{ => _w @ + } traverse-row DUP SUPER _wmin ! given - 0 MAX TO extra
-
-   \ всё нераспределённое место отдаем в xspan этого ряда как одной клетки
-   extra SUPER :perform-xspan
-
-   \ вполне возможно что xspan выключен и тогда место просто лишнее - resize-ить нельзя
+   0 LAMBDA{ => _w @ + } traverse-row
+   \ SUPER _wmin !
+   given MAX SUPER :xformat
 ;
 
-: :yformat { given | extra -- }
+: :yformat { given -- }
    \ дать каждой ячейке растянуться не более чем на given
    _cells @
    BEGIN
     DUP empty? 0=
    WHILE
-    DUP car given SWAP :: CGridBox.:perform-yspan-upto
+    DUP car given SWAP => :yformat
     cdr
    REPEAT
    DROP
 
    \ сколько места осталось нераспределённым?
-   0 LAMBDA{ => _h @ MAX } traverse-row DUP SUPER _hmin ! given - 0 MAX TO extra
-
-   \ выдать в ряд-клетку
-   extra SUPER :perform-yspan
+   0 LAMBDA{ => _h @ MAX } traverse-row given MAX SUPER :yformat
 ;
 
 : :print ( -- )
@@ -155,8 +171,7 @@ init:
 \   SUPER _w @ 3 .R SPACE
 ;
 
-: :finalize { y | x -- }
-   0 -> x
+: :finalize { x y -- }
    _cells @
    BEGIN
     DUP empty? 0=
@@ -172,16 +187,16 @@ init:
 
 \ --------------------------
 
+\ Сетка - это список рядов
+\ и одновременно также одна ячейка
 CGridBox SUBCLASS CGrid
 
  VAR _rows
 
 init:
-  GRID_DEFAULT_WIDTH SUPER _w !
-  GRID_DEFAULT_HEIGHT SUPER _h !
   () _rows ! ;
 
-: traverse-grid _rows @ mapcar ;
+: traverse-grid ( xt -- ) _rows @ mapcar ;
 
 : :xmin ( -- n ) 0 LAMBDA{ => :xmin MAX } traverse-grid ;
 : :ymin ( -- n ) 0 LAMBDA{ => :ymin + } traverse-grid ;
@@ -189,32 +204,45 @@ init:
 \ число рядов которые можно растянуть по вертикали
 : :yspan-count ( -- n ) 0 LAMBDA{ => :yspan? 1 AND + } traverse-grid ;
 
-: :format { x y | extra yspan-extra -- }
-
-   y :ymin - 0 MAX -> extra
-   :yspan-count DUP 0= IF DROP 0 TO yspan-extra ELSE extra SWAP / TO yspan-extra THEN
-
-   \ раздадим yspan-extra каждому ряду
-   \ те у которых yspan включен займут его
-   _rows @
-   BEGIN
-    DUP empty? 0=
-   WHILE
-    DUP car DUP :: CGridRow.:ymin yspan-extra + SWAP :: CGridRow.:yformat
-    cdr
-   REPEAT
-   DROP
+: :xformat { given -- }
 
    _rows @
    BEGIN
     DUP empty? 0=
    WHILE
-    DUP car x SWAP :: CGridRow.:xformat
+    DUP car given SWAP => :xformat
     cdr
    REPEAT
    DROP
 
+   \ считаем ширину как максимум из ширины каждого ряда
    0 LAMBDA{ => _w @ MAX } traverse-grid SUPER _w !
+;
+
+: :yformat { given | extra -- }
+
+   \ будем раздавать каждому +yspan ряду поровну
+   :yspan-count
+   DUP
+   IF
+    given :ymin - 0 MAX SWAP / -> extra
+
+    \ раздадим extra каждому ряду
+    \ те у которых yspan включен займут его
+    _rows @
+    BEGIN
+     DUP empty? 0=
+    WHILE
+     DUP car DUP => :ymin extra + SWAP => :yformat
+     cdr
+    REPEAT
+    DROP
+   ELSE
+    DROP
+    given SUPER :yformat
+   THEN
+
+   \ считаем высоту как сумму высоты каждой ячейки
    0 LAMBDA{ => _h @ + } traverse-grid SUPER _h !
 ;
 
@@ -223,8 +251,9 @@ init:
 : :print ( -- )
    CR ." CGrid :print"
    CR ." Grid: " SUPER :print
-   CR ." Rows : "
+   CR ." Rows----- "
    LAMBDA{ CR => :print } traverse-grid
+   CR ." ------End"
 ;
 
 : :draw { | y }
@@ -241,13 +270,12 @@ init:
    DROP
 ;
 
-: :finalize { | y }
-   0 -> y
+: :finalize { x y -- }
    _rows @
    BEGIN
     DUP empty? 0=
    WHILE
-    DUP car y SWAP => :finalize
+    DUP car x y ROT => :finalize
     DUP car => _h @ y + -> y
     cdr
    REPEAT
@@ -262,7 +290,7 @@ init:
 
 \ память, ресурсы - всё течет
 
-\ MODULE: WFL
+\ MODULE: WG
 
 0 VALUE box \ текущая ячейке
 0 VALUE ctl  \ контрол в текущей ячейке
@@ -270,15 +298,15 @@ init:
 0 VALUE grid \ текущая сетка
 
 \ создать новую клетку в текущем ряду и поместить в неё контрол класса class
+: put-box ( box -- )
+   TO box
+   box row => :add ;
+
 : put ( class -- )
    NewObj TO ctl
-   CGridBox NewObj TO box
+   CGridBox NewObj put-box
    0 SELF ctl => create DROP
-   ctl box => :control!
-   box row => :add
-;
-
-\ : put- ( class -- obj ) put ctl ;
+   ctl box => :control! ;
 
 \ начать новый ряд клеток
 : ROW ( -- )
@@ -286,22 +314,38 @@ init:
   row grid => :add
 ;
 
+: save-vars ( -- l )  %[ grid % row % box % def-hmin % def-wmin % def-xspan % def-yspan % ]% ;
+
+: restore-vars { l -- }
+   ['] NOOP l mapcar ( ... )
+   TO def-yspan
+   TO def-xspan
+   TO def-wmin
+   TO def-hmin
+   TO box
+   TO row
+   TO grid
+   l FREE-LIST ;
+
 \ начать новую таблицу
-: GRID
+\ сохранить значения параметров сетки по-умолчания
+: GRID ( -- i*x )
+   save-vars
    CGrid NewObj TO grid
    ROW ;
 
 \ закончить таблицу
-: ;GRID grid ;
+\ восстановить сохранённые значения параметров сетки по-умолчанию
+: ;GRID ( i*x -- grid ) grid >R restore-vars R> ;
 
-: xspan! box :: CGridBox._xspan ! ;
+: xspan! ( ? -- ) box :: CGridBox._xspan ! ;
 
 \ включить растяжение клетки по ширине
 : +xspan ( -- ) TRUE xspan! ;
 \ выключить растяжение клетки по ширине
 : -xspan ( -- ) FALSE xspan! ;
 
-: yspan! box :: CGridBox._yspan ! ;
+: yspan! ( ? -- ) box :: CGridBox._yspan ! ;
 
 \ выключить растяжение клетки по высоте
 : +yspan ( -- ) TRUE yspan! ;
@@ -311,6 +355,7 @@ init:
 \ установить обработчик события
 \ xt: ( obj -- )
 : -command! ( xt -- ) ctl => setHandler ;
+: -text! ( a u -- ) ctl => setText ;
 
 : -xmin! ( u -- ) box :: CGridBox._wmin ! ;
 : -ymin! ( u -- ) box :: CGridBox._hmin ! ;
