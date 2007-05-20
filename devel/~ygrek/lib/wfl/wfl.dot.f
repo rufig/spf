@@ -15,11 +15,10 @@ NEEDS ~day/hype3/hype3.f
 
    SUBCLASS ;
 
-S" wfl.dot" dot{ 
+S" wfl.dot" dot{
 
  DOT-CR S" node [style=filled,color=black];" DOT-TYPE
- 
- NEEDS lib/include/float2.f
+
  S" green" DOT-FILLCOLOR
  NEEDS ~day/wfl/wfl.f
  S" yellow" DOT-FILLCOLOR
