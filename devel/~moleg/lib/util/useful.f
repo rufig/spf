@@ -118,4 +118,8 @@ REQUIRE WHILENOT devel\~moleg\lib\util\ifnot.f
 \ резервировать на HERE n байт памяти, заполнить их нулями
 : AllotErase ( n --> ) 0 AllotFill ;
 
+\ выравнять число base на указанное значение n »
+\ граница выравнивания произвольная.
+\ выравнивание производится в большую сторону
+: ROUND ( n base --> n ) TUCK 1 - + OVER / * ;
 
