@@ -1,6 +1,5 @@
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
-\ NEEDS ~pinka/spf/exc-dump.f
 NEEDS ~ygrek/lib/wfl/opengl/GLControl.f
 NEEDS ~ygrek/lib/wfl/grid/grid.f
 NEEDS ~profit/lib/bac4th-closures.f
@@ -65,12 +64,11 @@ CRect SUBCLASS CRect
 : rawCopyTo ( ^RECT -- ) SUPER addr SWAP 4 CELLS CMOVE ;
 
 : height! ( u -- ) SUPER top @ + SUPER bottom ! ;
+: width! ( u -- ) SUPER left @ + SUPER right ! ;
 
 ;CLASS
 
 \ -----------------------------------------------------------------------
-
-: -text! ctl => setText ;
 
 CDialog SUBCLASS CGridDialog
 
@@ -78,8 +76,23 @@ CDialog SUBCLASS CGridDialog
 
 : :grid! ( grid-obj -- ) _g ! ;
 
+: :resize ( w h -- )
+   _g @ => :yformat
+   _g @ => :xformat
+   0 0 _g @ => :finalize ;
+
+: :minsize ( w h -- w1 h1 )
+   _g @ => :ymin 30 + \ BUG: высота заголовка
+   2DUP > IF DROP ELSE NIP THEN
+   SWAP
+   _g @ => :xmin 8 + \ BUG: ширина рамки
+   2DUP > IF DROP ELSE NIP THEN
+   \ 2DUP CR ." MIN : w = " . ." h = " .
+   SWAP ;
+
 W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
    2DROP 2DROP
+   { | b v }
 
   GRID
     CButton put
@@ -89,35 +102,50 @@ W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
      LAMBDA{ S" button pressed!" ROT => showMessage } -command!
     CGLControlTest put
     ctl S" DROP LITERAL => :switch" axt ( xt )
-    CEventButton put ( xt ) -command!
-    S" CLICK!" -text!
+    CEventButton put ( xt ) -command!  S" CLICK!" -text!
     ROW
-    CButton put
+    GRID
+     CButton put
+     ROW
+     CButton put
+     ROW
+     CButton put
+    ;GRID put-box
+    S" MediaPlayer.MediaPlayer.1" CAxControl put
+    \ CListView put -xspan 120 -xmin!
+    \ ctl -> v
+    ROW
+    CEventButton put S" debug" -text! ctl -> b
   ;GRID :grid!
+
+  \ 0 120 S" column1" v => insertColumn
+   \ 1 60 S" column2" v => insertColumn
+
+   \ 0 S" Test string1" v => insertString
+   \ 0 S" Test string2" v => insertString
 
    _g @ 0= S" Initialize dialog grid before creating a dialog" SUPER abort
 
-   SUPER getClientRect DROP DROP SWAP _g @ => :format
-   _g @ => :finalize
+   _g @ S" DROP LITERAL => :print" axt b => setHandler
+
+   SUPER getClientRect DROP DROP SWAP :minsize :resize
+
+   FALSE _g @ => _h @ _g @ => _w @ SUPER getClientRect 2SWAP 2DROP SWAP SUPER clientToScreen SWAP SUPER moveWindow
 
    TRUE
 ;
 
 W: WM_SIZE { lpar wpar msg hwnd }
-   lpar LOWORD
-   lpar HIWORD
-   ( w h ) _g @ => :format
-   _g @ => :finalize
+   lpar LOWORD lpar HIWORD :resize
    FALSE
 ;
-
 
 W: WM_SIZING ( lpar wpar msg hwnd -- )
    2DROP DROP
    || R: lpar CRect r ||
    lpar @ r rawCopyFrom
-   _g @ => :ymin 30 + \ BUG: высота заголовка
-   DUP r height > IF r height! lpar @ r rawCopyTo ELSE DROP THEN
+   r width r height :minsize r height! r width!
+   lpar @ r rawCopyTo
    TRUE
 ;
 
@@ -125,7 +153,7 @@ W: WM_SIZING ( lpar wpar msg hwnd -- )
 
 \ -----------------------------------------------------------------------
 
-0 0 200 150
+0 0 200 250
 WS_POPUP WS_SYSMENU OR WS_CAPTION OR DS_MODALFRAME OR WS_SIZEBOX OR
 DS_CENTER OR
 
@@ -135,6 +163,7 @@ DIALOG;
 : winTest ( -- n )
   || CGridDialog dlg ||
 
+  StartCOM
   GridDialog1 0 dlg showModal DROP
 ;
 
