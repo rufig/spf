@@ -1,11 +1,11 @@
 \ 10-04-2007 ~mOleg
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
-\ пример очень простой обработки файла.
+\ яЁшьхЁ юўхэ№ яЁюёЄющ юсЁрсюЄъш Їрщыр.
 
 VOCABULARY process
            ALSO process DEFINITIONS
 
-      \ я не люблю NOTFOUND, но в данном примере он кстати.
+      \   эх ы■сы■ NOTFOUND, эю т фрээюь яЁшьхЁх юэ ъёЄрЄш.
       : NOTFOUND ( asc # --> ) 2DROP
                  0 >IN !
                  0x0D PARSE
@@ -13,7 +13,7 @@ VOCABULARY process
 
 PREVIOUS DEFINITIONS
 
-\ по-умолчанию сохраняем в STDLOG
+\ яю-єьюыўрэш■ ёюїЁрэ хь т STDLOG
 : sample ( srcZ # --> )
          ONLY process
          GetCommandLineA ASCIIZ> SOURCE! NextWord 2DROP
@@ -24,9 +24,9 @@ PREVIOUS DEFINITIONS
 
 S" sample.exe" SAVE CR S" passed " CR BYE
 
-\ пример использования:
+\ яЁшьхЁ шёяюы№чютрэш :
 \ sample file.name >result.file
 
-\ заменяем завершающую последовательность строки 0x0D 0x0D 0x0A
-\ на принятую в данной ОС ( для win платформы 0x0D 0x0A для linux - 0x0A )
-\ пустые строки удаляются.
+\ чрьхэ хь чртхЁ°р■∙є■ яюёыхфютрЄхы№эюёЄ№ ёЄЁюъш 0x0D 0x0D 0x0A
+\ эр яЁшэ Єє■ т фрээющ ╬╤ ( фы  win яырЄЇюЁь√ 0x0D 0x0A фы  linux - 0x0A )
+\ яєёЄ√х ёЄЁюъш єфры ■Єё .
