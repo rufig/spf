@@ -26,8 +26,9 @@
   <!-- only within non-nested r:rule -->
   STATE @ 0 eq <f:if> 5006 THROW </f:if>
   <f:choose>
-  STATE @ 1 eq <f:when> <f:xt-of name="trans-childs"/> EXEC, </f:when>
-  STATE @ 1- LIT, <f:xt-of name="(yield2)"/> EXEC,
+  STATE @ 1 eq
+  <f:when> <f:xt-of name="trans-childs"/> EXEC, </f:when>
+  <f:otherwise> STATE @ 1- LIT, <f:xt-of name="(yield2)"/> EXEC, </f:otherwise>
   </f:choose>
 </rule>
 
