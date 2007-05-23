@@ -2,7 +2,12 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ набор часто используемых слов.
 
-REQUIRE WHILENOT devel\~moleg\lib\util\ifnot.f
+REQUIRE WHILENOT devel\~mOleg\lib\util\ifnot.f
+REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
+
+\ -- константы ----------------------------------------------------------------
+
+        1 CHARS CONSTANT char
 
 \ -- коментарии ---------------------------------------------------------------
 
@@ -65,6 +70,15 @@ REQUIRE WHILENOT devel\~moleg\lib\util\ifnot.f
 \ добавить число к находящемуся на стеке возвратов
 : R+ ( r: a d: b --> r: a+b ) 2R> -ROT + >R >R ;
 
+\ упорядочить значения по возрастанию
+: RANKING ( a b --> a b ) 2DUP MIN -ROT MAX ;
+
+\ выравнять число base на указанное значение n »
+\ граница выравнивания произвольная.
+\ выравнивание производится в большую сторону
+: ROUND ( n base --> n ) TUCK 1 - + OVER / * ;
+
+
 \ -- логические операции ------------------------------------------------------
 
 \ Получить по номеру бита его маску
@@ -99,6 +113,19 @@ REQUIRE WHILENOT devel\~moleg\lib\util\ifnot.f
 \ вернуть строку нулевой длинны
 : EMPTY" ( --> asc # ) S" " ;
 
+\ заглянуть вперед во входном потоке
+: SeeForw ( --> asc # ) >IN @ NextWord ROT >IN ! ;
+
+\ преобразовать символ в строку, содержащую один символ
+: Char>Asc ( char --> asc # ) SYSTEM-PAD TUCK C! 0 OVER char + C! char ;
+
+\ вернуть TRUE если следующее слово найдено в контексте
+: ?WORD ( / token --> flag )
+        SP@ >R  NextWord SFIND
+        IF R> SP! TRUE
+         ELSE R> SP! FALSE
+        THEN ;
+
 \ -- вывод --------------------------------------------------------------------
 
 \ преобразовать число в символ
@@ -118,8 +145,37 @@ REQUIRE WHILENOT devel\~moleg\lib\util\ifnot.f
 \ резервировать на HERE n байт памяти, заполнить их нулями
 : AllotErase ( n --> ) 0 AllotFill ;
 
-\ выравнять число base на указанное значение n »
-\ граница выравнивания произвольная.
-\ выравнивание производится в большую сторону
-: ROUND ( n base --> n ) TUCK 1 - + OVER / * ;
+\ -----------------------------------------------------------------------------
 
+\ применить действие funct к каждому из значений namea .. namen,
+\ перечисленных до конца строки, например: ToAll VARIABLE aaa bbb ccc
+: ToAll ( / funct namea ... namen --> )
+        ' >R BEGIN SeeForw WHILE DROP
+                   R@ EXECUTE
+             REPEAT DROP RDROP ;
+
+\ вернуть флаг TRUE , если выбрана клавиша ESC
+\ при нажатии любой другой клавиши начать ожидание нажатия следующей
+\ если нажата отличная от ESC клавиша - вернуть FALSE инача TRUE
+: ?PAUSE ( --> flag )
+         KEY? IF KEY 0x1B =
+                 IF TRUE EXIT
+                  ELSE KEY 0x1B =
+                    IF TRUE EXIT THEN
+                 THEN
+              THEN FALSE ;
+
+\ выполнять слово до тех пор, пока не будет нажата любая клавиша
+\ пример использования: : test ." ." ; PROCESS test
+: PROCESS ( / name --> )
+          ' >R BEGIN ?PAUSE WHILENOT
+                     R@ EXECUTE
+               REPEAT
+            RDROP ;
+
+\ выполнить следующее слово при выходе из определения
+: GoAfter ( --> ) ' [COMPILE] LITERAL COMPILE >R ; IMMEDIATE
+
+\ то же что и : только имя приходит на вершине стека данных
+\ в виде строки со счетчиком. Пример:  S" name" S: код слова ;
+: S: ( asc # --> ) SHEADER ] HIDE ;
