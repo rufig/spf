@@ -110,8 +110,15 @@ WARNING !
   DUP 3 CELLS + @ ."  ADDRESS:" DUP U.  ."  WORD:" WordByAddr TYPE SPACE
 
   ."  REGISTERS:"
-  DUP 4 CELLS + @ CELLS + \ может быть указано смещение структуры (обычно, на две ячейки вперед)
-  176 + DUP 12 CELLS DUMP CR
+
+  ( DispatcherContext ContextRecord EstablisherFrame ExceptionRecord  ExceptionRecord )
+  DROP 2 PICK
+  [ 8 CELLS 80 + \ FLOATING_SAVE_AREA
+    11 CELLS +   \ сдвиг оносительно контекст к регистрам, начиная с edi
+  ] LITERAL + \ вычисление базового адреса образа регистров (~ygrek)
+
+  DUP 12 CELLS DUMP CR
+
   ." USER DATA: " TlsIndex@ U. ." THREAD ID: " 36 FS@ U.
   ." HANDLER: " HANDLER @ U. CR
   ." STACK: "
