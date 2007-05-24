@@ -1,9 +1,8 @@
 \ $Id$
-\ Š®¬¬¨âë ¢ SPF CVS ¯®  ¢â®à ¬
-\ ” ©«ë Spf*ChangeLog.xml âï­ãâáï ¨§ á¥â¨ ¨ ªíè¨àãîâáï ­  ¤¨áª, çâ®¡ë ®¡­®¢¨âì à¥§ã«ìâ âë - ã¤ «¨â¥ ¨å
+\ Êîììèòû â SPF CVS ïî àâòîðàì
+\ Ôàéëû Spf*ChangeLog.xml òÿíóòñÿ èç ñåòè è êýøèðóþòñÿ íà äèñê, ÷òîáû îáíîâèòü ðåçóëüòàòû - óäàëèòå èõ
 
-\ ~ygrek/lib/script.f
-REQUIRE EXC-DUMP2 ~pinka/spf/exc-dump.f
+\ REQUIRE EXC-DUMP2 ~pinka/spf/exc-dump.f
 REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
 REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
 REQUIRE xml.children=> ~ygrek/lib/spec/rss.f
@@ -51,7 +50,7 @@ REQUIRE LAMBDA{ ~pinka/lib/lambda.f
    LAMBDA{ cdar SWAP cdar U< } SWAP list-qsort ;
 
 : go STATIC rl
-  lst( lst( "" %s 0 % )lst %l )lst rl ! \ "¯ãáâ®¥" §­ ç¥­¨¥ çâ®¡ë ¬®¦­® ¡ë«® ¤¥« âì insert
+  lst( lst( "" %s 0 % )lst %l )lst rl ! \ "ïóñòîå" çíà÷åíèå ÷òîáû ìîæíî áûëî äåëàòü insert
   2DUP maybe-load
   START{ cl-items=> DUP rss.item.author 2DUP rl @ add-author 2DROP }EMERGE
   rl @
@@ -67,9 +66,9 @@ lst(
    TO stamp
    stamp Num>DateTime DateTime>PAD CR CR ." --------- Data since " TYPE
    LAMBDA{
-    DUP cdar STR@ CR CR ." ::: New commits in " TYPE
-        car STR@ go cdr \ § ¡ë¢ ¥¬ "¯ãáâ®¥" §­ ç¥­¨¥
-          DUP author-sum ."  = " .
+    DUP cdar STR@ " {CRLF}{CRLF}::: New commits in {s}" >R
+        car STR@ go cdr \ çàáûâàåì "ïóñòîå" çíà÷åíèå
+          DUP author-sum "  = {n}" R@ S+ R> STYPE
           DUP sort-by-num
           print-authors
    } l mapcar ;
