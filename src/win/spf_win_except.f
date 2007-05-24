@@ -13,7 +13,10 @@
 
 
 USER EXC-HANDLER  \ аппаратные исключения (преобразуемые в программные)
-VECT <EXC-DUMP>
+
+( DispatcherContext ContextRecord EstablisherFrame ExceptionRecord ExceptionRecord --
+  DispatcherContext ContextRecord EstablisherFrame ExceptionRecord )
+VECT <EXC-DUMP> \ действия по обработке исключения
 
 : (EXC) ( DispatcherContext ContextRecord EstablisherFrame ExceptionRecord -- flag )
   (ENTER) \ фрейм для стека данных
