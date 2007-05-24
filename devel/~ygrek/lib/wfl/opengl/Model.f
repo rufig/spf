@@ -40,8 +40,8 @@ NEEDS ~ygrek/lib/debug/ensure.f
 
 CLASS CTriBase
 
- CELL PROPERTY v1 
- CELL PROPERTY v2 
+ CELL PROPERTY v1
+ CELL PROPERTY v2
  CELL PROPERTY v3
 
  : :print ." Tri (" v1@ . v2@ . v3@ . ." )" ;
@@ -54,8 +54,8 @@ CLASS CTriBase
 
 CTriBase SUBCLASS CTri
 
- CELL PROPERTY n1 
- CELL PROPERTY n2 
+ CELL PROPERTY n1
+ CELL PROPERTY n2
  CELL PROPERTY n3
 
  : :setn n3! n2! n1! ;
@@ -72,18 +72,18 @@ CLASS CSimpleModelBase
 
 init: CGLPoint ^ size ver :setup ;
 
-: :xmax ( -- F: f ) { | a } 
-   ver :start -> a 
+: :xmax ( -- F: f ) { | a }
+   ver :start -> a
    0e
    ver :size 0 ?DO a :: CGLPoint.:x@ FABS FMAX a ver :iterate -> a LOOP ;
 
-: :ymax ( -- F: f ) { | a } 
-   ver :start -> a 
+: :ymax ( -- F: f ) { | a }
+   ver :start -> a
    0e
    ver :size 0 ?DO a :: CGLPoint.:y@ FABS FMAX a ver :iterate -> a LOOP ;
 
-: :zmax ( -- F: f ) { | a } 
-   ver :start -> a 
+: :zmax ( -- F: f ) { | a }
+   ver :start -> a
    0e
    ver :size 0 ?DO a :: CGLPoint.:z@ FABS FMAX a ver :iterate -> a LOOP ;
 
@@ -118,7 +118,7 @@ init:
 : :tnth ( n -- a ) tri :nth ;
 : :nnth ( n -- a ) norm :nth ;
 
-: :print 
+: :print
    SUPER :print
    ." Total faces = " :faces . ;
 
@@ -129,6 +129,8 @@ init:
 : :add-tri-with-norm ( v1 n1 v2 n2 v3 n3 -- )
    tri :resize1
    tri :last :: CTri.:set1 ;
+
+: :norm-inc ( F: x y z D: n -- ) :nnth :: CGLPoint.:inc ;
 
 : :add-norm ( F: x y z -- )
    norm :resize1
@@ -149,31 +151,44 @@ init:
 
    pa this pb :pvect ;
 
-: :set-tri-normales { t }
-   norm :size DUP 1+ DUP 1+ t :: CTri.:setn
+: :calc-tri-normales { t }
+   t :: CTri.v1@
+   t :: CTri.v2@
+   t :: CTri.v3@ t :: CTri.:setn
 
    t :: CTri.v1@ SUPER :vnth
    t :: CTri.v2@ SUPER :vnth
    t :: CTri.v3@ SUPER :vnth
-   (tri-norm) :add-norm
+   (tri-norm) t :: CTri.v1@ :norm-inc
 
    t :: CTri.v2@ SUPER :vnth
    t :: CTri.v3@ SUPER :vnth
    t :: CTri.v1@ SUPER :vnth
-   (tri-norm) :add-norm
+   (tri-norm) t :: CTri.v2@ :norm-inc
    \ norm :last :: CGLPoint.:get :add-norm
    \ norm :last :: CGLPoint.:get :add-norm
 
    t :: CTri.v3@ SUPER :vnth
    t :: CTri.v1@ SUPER :vnth
    t :: CTri.v2@ SUPER :vnth
-   (tri-norm) :add-norm
+   (tri-norm) t :: CTri.v3@ :norm-inc
 ;
 
 : :calculate-normales { | a }
+   tri :size norm :resize
+
+   norm :start -> a
+   norm :size 0 ?DO
+     0e 0e 0e a :: CGLPoint.:set
+     a norm :iterate -> a
+   LOOP
+
    tri :start -> a
    :faces 0 ?DO
-    a :set-tri-normales a tri :iterate -> a
+     a :calc-tri-normales
+     a tri :iterate -> a
+   LOOP
+
    LOOP
 ;
 
@@ -190,7 +205,7 @@ dispose: ;
 
 : :model _model @ ;
 
-: :load ( a u model -- ) 
+: :load ( a u model -- )
     _model !
     2DUP CR ." Loading model : " TYPE
     SELF => :load-file
@@ -213,7 +228,7 @@ MODULE: obj-import
 
 : v ( "f f f" -- ) PARSE-FLOAT PARSE-FLOAT PARSE-FLOAT SUPER :model :: CSimpleModel.:add-vertex ;
 
-: f 
+: f
   (parse-tri-vertex-and-normal)
   (parse-tri-vertex-and-normal)
   (parse-tri-vertex-and-normal)
@@ -223,7 +238,7 @@ MODULE: obj-import
 
 ;MODULE
 
-: (parse-line) 
+: (parse-line)
    PeekChar [CHAR] # = IF EXIT THEN \ comments
    GET-ORDER
    ONLY obj-import
@@ -259,13 +274,13 @@ dispose: ;
   PARSE-FLOAT PARSE-FLOAT PARSE-FLOAT SUPER :model :: CSimpleModel.:add-vertex ;
 
 : get-face-count
-  -1 PARSE NUMBER 0= S" Expected number of faces at second line" SUPER abort 
+  -1 PARSE NUMBER 0= S" Expected number of faces at second line" SUPER abort
   _face !
   0 _n !
   ['] get-vertex TO parse-line ;
 
-: get-vertex-count 
-  -1 PARSE NUMBER 0= S" Expected number of vertices at first line" SUPER abort 
+: get-vertex-count
+  -1 PARSE NUMBER 0= S" Expected number of vertices at first line" SUPER abort
    _vertex !
   ['] get-face-count TO parse-line
 ;
