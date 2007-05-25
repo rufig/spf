@@ -4,8 +4,8 @@
 
 <!-- ALSO forthml-support -->
 
-<var name="_document-storage" />
-<var name="_document-top" />
+<cell name="_document-storage" />
+<cell name="_document-top" />
 
 <def name="document-storage" ds=" -- storage ">
   _document-storage @ DUP <if><exit/></if> DROP

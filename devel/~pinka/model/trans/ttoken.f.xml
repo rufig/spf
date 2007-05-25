@@ -2,7 +2,7 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- 2006, Feb.2007 ruvim@forth.org.ru -->
 
-<var name="M" />
+<cell name="M" />
 
 <def name="INC-M" ds=" -- "> M @    <if>  5005 THROW </if> M 1+!</def>
 <def name="DEC-M" ds=" -- "> M @ 0= <if>  5004 THROW </if> M 1-!</def>
