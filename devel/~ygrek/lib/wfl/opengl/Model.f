@@ -188,8 +188,6 @@ init:
      a :calc-tri-normales
      a tri :iterate -> a
    LOOP
-
-   LOOP
 ;
 
 ;CLASS
