@@ -7,7 +7,7 @@
 <include href="../lib/string/match.f.xml" />
 
 <include href="tcode.f.xml"  />
-<var name="STATE" />
+<cell name="STATE" />
 <include href="ttoken.f.xml" />
 <include href="iword.f.xml" />
 <include href="ttext.immutable.f.xml" />
