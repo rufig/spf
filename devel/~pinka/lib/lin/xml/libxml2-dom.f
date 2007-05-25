@@ -90,7 +90,10 @@ CONSTANT /xmlNs
 \ =====
 \ interface of Document
 
-: documentElement ( document -- root_element_node ) x.children @ ;
+: documentElement ( document -- root_element_node )
+  \ x.children @
+  XML_DOC_ROOT \ it is xmlDocGetRootElement(1-1)
+;
 
 \ =====
 \ interface of Node
