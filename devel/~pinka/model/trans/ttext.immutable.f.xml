@@ -14,8 +14,8 @@
 </def>
 
 <def name="T-PLAIN" ds=" i*x c-addr u -- j*x | i*x">
-  <repeat>   FINE-HEAD SPLIT-WHITE-FORCE 2gtR DUP
-  <while />  T-NAME  2Rgt
+  <repeat>   FINE-HEAD SPLIT-WHITE-FORCE 2>R DUP
+  <while />  T-NAME  2R>
   </repeat>  2DROP RDROP RDROP
 </def>
 

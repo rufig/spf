@@ -54,9 +54,9 @@ and r:m is allowable.
 <rule match="r:for-each">
   `select GetAttribute name-n-uri 2>R T-SLIT 2R> T-SLIT
   <m>
-  cnode gtR  FirstChildByTagNameNS
+  cnode >R  FirstChildByTagNameNS
   <f:repeat> cnode <f:while/> <yield/> NextSiblingEqualNS </f:repeat>
-  Rgt cnode!
+  R> cnode!
   </m>
 </rule>
 -->
@@ -64,7 +64,7 @@ and r:m is allowable.
   `select GetAttribute name-n-uri 2>R STATE @ TS-SLIT 2R> STATE @ TS-SLIT
   <!-- at target runtime: ( name-a name-u uri-a uri-u ) -->
   <f:xt-of name="cnode"/> STATE @ TS-EXEC
-  <f:xt-of name="gtR"/> STATE @ TS-EXEC
+  <f:xt-of name=">R"/> STATE @ TS-EXEC
   <f:xt-of name="FirstChildByTagNameNS"/> STATE @ TS-EXEC
   DEC-S
   <f:xt-of name="MBW"/> STATE @ TS-EXEC
@@ -79,7 +79,7 @@ and r:m is allowable.
   <f:xt-of name="BBW,"/> STATE @ TS-EXEC
   <f:xt-of name="RFW"/> STATE @ TS-EXEC
   INC-S
-  <f:xt-of name="Rgt"/> STATE @ TS-EXEC
+  <f:xt-of name="R>"/> STATE @ TS-EXEC
   <f:xt-of name="cnode!"/> STATE @ TS-EXEC
 </rule>
 

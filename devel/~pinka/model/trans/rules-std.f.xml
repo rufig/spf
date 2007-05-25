@@ -37,9 +37,9 @@
 
 <rule match="yield"><!-- redefinition because of new r:m -->
   <!-- only within non-nested r:rule -->
-  STATE @ 0 eq <f:if> 5006 THROW </f:if>
+  STATE @ 0 EQ <f:if> 5006 THROW </f:if>
   <f:choose>
-  STATE @ 1 eq
+  STATE @ 1 EQ
   <f:when> <f:xt-of name="trans-childs"/> EXEC, </f:when>
   <f:otherwise> STATE @ 1- LIT, <f:xt-of name="(yield2)"/> EXEC, </f:otherwise>
   </f:choose>
