@@ -43,13 +43,13 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 <s:def match="r:m" >
   <xsl:if test="$m &gt; 0"><xsl:call-template name="stop-error" /></xsl:if>
   <xsl:copy>
-    <s:set name="m" select="$m + 1" ><s:yield/></s:set>
+    <s:let name="m" select="$m + 1" ><s:yield/></s:let>
   </xsl:copy>
 </s:def>
 
 <s:def match="r:m0" >
   <xsl:copy>
-    <s:set name="m" select=" 0 " ><s:yield/></s:set>
+    <s:let name="m" select=" 0 " ><s:yield/></s:let>
   </xsl:copy>
 </s:def>
 

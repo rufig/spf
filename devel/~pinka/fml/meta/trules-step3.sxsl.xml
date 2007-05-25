@@ -24,13 +24,13 @@
 <var name="m" select=" 0 "/>
 
 <def match="r:m" >
-  <set name="m" select="$m + 1" ><yield/></set>
+  <let name="m" select="$m + 1" ><yield/></let>
 </def>
 <def match="r:m0" >
-  <set name="m" select=" 0 " ><yield/></set>
+  <let name="m" select=" 0 " ><yield/></let>
 </def>
 <def match="r:m1" >
-  <set name="m" select=" 1 " ><yield/></set>
+  <let name="m" select=" 1 " ><yield/></let>
 </def>
 
 <xi:model name="ttoken">
@@ -40,13 +40,13 @@
 <xi:include href="../src/ttext-xslt.sxsl.xml"/>
 
 <def match="r:s0" >
-  <set name="state" select=" 0 " ><yield/></set>
+  <let name="state" select=" 0 " ><yield/></let>
 </def>
 <def match="r:postpone" >
-  <set name="state" select="$state + 1" ><yield/></set>
+  <let name="state" select="$state + 1" ><yield/></let>
 </def>
 <def match="r:direct" >
-  <set name="state" select="$state - 1" ><yield/></set>
+  <let name="state" select="$state - 1" ><yield/></let>
 </def>
 
 <def match="f:forth">

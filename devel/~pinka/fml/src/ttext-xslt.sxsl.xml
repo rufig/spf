@@ -28,10 +28,10 @@
 
 <def name="direct">
   <assure-state/>
-  <set name="state" select="$state - 1"><yield/></set>
+  <let name="state" select="$state - 1"><yield/></let>
 </def>
 <def name="postpone">
-  <set name="state" select="$state + 1"><yield/></set>
+  <let name="state" select="$state + 1"><yield/></let>
 </def>
 
 <xi:include href="#ttoken"><_stop>#ttoken is not found!</_stop></xi:include><!-- !!! -->
