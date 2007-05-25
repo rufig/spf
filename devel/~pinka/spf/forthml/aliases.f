@@ -8,17 +8,20 @@ REQUIRE & ~pinka/spf/compiler/index.f
 
 : aka ( olda oldu newa newu -- ) 2>R & 2R> ALIAS ;
 
-`<>  `neq   aka
-`=   `eq    aka
-`0<  `0lt   aka
-`0<> `0neq  aka
-`0=  `0eq   aka
+`<>  `NEQ   aka
+`=   `EQ    aka
+`0<  `0LT   aka
+`0<> `0NEQ  aka
+`0=  `0EQ   aka
+`U<  `ULT   aka
+`U>  `UGT   aka
+
+\EOF
+
 `U<  `Ult   aka
 `U>  `Ugt   aka
+
 `>R  `gtR   aka
 `R>  `Rgt   aka
 `2>R `2gtR  aka
 `2R> `2Rgt  aka
-
-`D>S     `DgtS      aka
-`>NUMBER `gtNUMBER  aka
