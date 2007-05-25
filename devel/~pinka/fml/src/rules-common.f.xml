@@ -91,7 +91,7 @@ $Id$
 </rule>
 
 
-<rule match="f:var"><m>
+<rule match="f:cell"><m><!-- this version is not consider content of element (!!!) -->
   ALIGN HERE 0 ,  CONCEIVE LIT, BIRTH
   <get-attribute name="name" /> NAMING-
   </m>
