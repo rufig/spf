@@ -66,12 +66,12 @@
 <xsl:template name="with-params" >
   <xsl:param name="yield-nodes" select="/.." />
   
-  <xsl:variable name="sets" select="ancestor::m:set | $yield-nodes/ancestor::m:set " />
+  <xsl:variable name="lets" select="ancestor::m:let | $yield-nodes/ancestor::m:let " />
 
   <xsl:variable name="explisits" select="xsl:with-param" />
 
   <xsl:for-each select="/*/m:var[@name]">
-    <xsl:choose><xsl:when test="$sets[@name = current()/@name]">
+    <xsl:choose><xsl:when test="$lets[@name = current()/@name]">
       <x:with-param name="{@name}" select="${@name}_" />
     </xsl:when><xsl:when test="$explisits[@name = current()/@name]">
       <!-- nothing -->
@@ -81,7 +81,7 @@
   </xsl:for-each>
 </xsl:template>
 
-<xsl:template match="m:set" >
+<xsl:template match="m:let" >
   <xsl:param name="yield" select="/.." />
   <xsl:param name="yield-nodes" select="/.." />
 
@@ -102,7 +102,7 @@
   <xsl:variable name="id" select="generate-id(.)" />
     <x:variable name="_{local-name()}_{$id}">
 
-      <xsl:for-each select="/*/m:var[@name = $yield-nodes/ancestor::m:set/@name ]">
+      <xsl:for-each select="/*/m:var[@name = $yield-nodes/ancestor::m:let/@name ]">
         <x:variable name="{@name}" select="${@name}_" />
       </xsl:for-each>
       <!-- ^ only for XSLT 2.0 processors, one's of XSLT 1.0 are not allowing name dups here -->
