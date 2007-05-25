@@ -9,11 +9,11 @@
   SEARCH NIP NIP
 </def>
 <def name="STARTS-WITH" ds=" a u a-key u-key -- flag ">
-  ROT OVER Ult <if> 2DROP DROP FALSE <exit/></if>
+  ROT OVER ULT <if> 2DROP DROP FALSE <exit/></if>
   TUCK EQUAL
 </def>
 <def name="ENDS-WITH" ds=" a u a-key u-key -- flag ">
-  DUP >R 2SWAP DUP R@ Ult <if> 2DROP 2DROP RDROP FALSE <exit/></if>
+  DUP >R 2SWAP DUP R@ ULT <if> 2DROP 2DROP RDROP FALSE <exit/></if>
   R@ - + R> EQUAL
 </def>
 <def name="SUBSTRING-AFTER" ds=" a u a-key u-key -- a2 u2 ">

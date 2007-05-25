@@ -4,8 +4,10 @@
 
 <!-- Functions Based on Substring White-Matching -->
 
+<!-- sting counts in address unit (!) -->
+
 <def name="IS-WHITE" ds=" c -- flag ">
-  0x21 Ult
+  0x21 ULT
 </def>
 
 <def name="FINE-HEAD" ds=" c-addr u -- c-addr1 u1 ">
@@ -14,18 +16,18 @@
 </def>
 <def name="FINE-TAIL" ds=" c-addr u -- c-addr u2 ">
   <comment>Returns the substring with whitespace normalized by stripping trailing whitespace</comment>
-  OVER + <until> 2DUP eq <if> DROP 0 <exit/></if> CHAR- DUP C@ IS-WHITE 0eq </until> CHAR+ OVER -
+  OVER + <until> 2DUP EQ <if> DROP 0 <exit/></if> CHAR- DUP C@ IS-WHITE 0EQ </until> CHAR+ OVER -
 </def>
 
 <def name="SPLIT-WHITE-FORCE" ds=" c-addr u -- c-addr-left u-left  c-addr-right u-right ">
   2DUP OVER + SWAP
-  <until> 2DUP eq <if> DROP 0 <exit/></if> DUP CHAR+ SWAP C@ IS-WHITE </until> CHAR-
+  <until> 2DUP EQ <if> DROP 0 <exit/></if> DUP CHAR+ SWAP C@ IS-WHITE </until> CHAR-
   <!-- ( c-addr u  a2 a1 ) -->
   DUP >R -  DUP >R -  2R>
 </def>
 <def name="-SPLIT-WHITE-FORCE" ds=" c-addr u -- c-addr-left u-left  c-addr-right u-right ">
-  2DUP CHARS OVER +
-  <until> 2DUP eq <if> NIP 0 2SWAP <exit/></if> CHAR- DUP SWAP C@ IS-WHITE </until> CHAR+
+  2DUP OVER +
+  <until> 2DUP EQ <if> NIP 0 2SWAP <exit/></if> CHAR- DUP SWAP C@ IS-WHITE </until> CHAR+
   <!-- ( c-addr u  c-addr c-addr1 ) -->
   TUCK >R - TUCK - R> SWAP
 </def>
