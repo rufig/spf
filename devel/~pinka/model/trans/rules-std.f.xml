@@ -16,12 +16,11 @@
   </m>
 </rule>
 
-
 <rule match="m0">
   M @ >R  M 0!  <yield/>  R> M !
 </rule>
 
-<rule match="m"><!-- redefinition of 'r:m' -->
+<rule match="mm"><!-- in addition to 'r:m' -->
   <m>
   <f:choose> STATE? <f:when>
     <m0> INC-M <yield/> DEC-M </m0>
@@ -35,7 +34,7 @@
   STATE @ >R STATE ! trans-childs R> STATE !
 </f:def>
 
-<rule match="yield"><!-- redefinition because of new r:m -->
+<rule match="yield"><!-- because of r:mm -->
   <!-- only within non-nested r:rule -->
   STATE @ 0 EQ <f:if> 5006 THROW </f:if>
   <f:choose>
@@ -45,9 +44,9 @@
   </f:choose>
 </rule>
 
-<rule match="f:times"><m>
+<rule match="f:times"><mm>
   <f:repeat> DUP <f:while/> >R <yield/> R> 1- </f:repeat> DROP
-  </m>
+  </mm>
 </rule>
 
 <rule match="f:d"><!-- dynamic binding (for native words only) -->
@@ -71,7 +70,7 @@
   t-child-slit <m>TYPE CR</m>
 </rule>
 
-<rule match="f:wordlist"><m>
+<rule match="f:wordlist"><mm>
   WORDLIST GET-CURRENT >CS
   DUP SET-CURRENT ALSO CONTEXT !
   <yield/>
@@ -79,15 +78,15 @@
   CS> SET-CURRENT PREVIOUS
   <get-attribute name="name"/> 
   <f:choose> DUP <f:when> ROT <f:p><f:lit/></f:p> NAMING </f:when> 2DROP </f:choose>
-  </m>
+  </mm>
 </rule>
 
 <rule match="f:export"><!-- child of f:wordlist only -->
-  <m>
+  <mm>
   CS@ GET-CURRENT >CS  SET-CURRENT
   <yield/>
   CS> SET-CURRENT
-  </m>
+  </mm>
 </rule>
 
 <rule match="f:also"><!-- immediately effect! -->
@@ -96,25 +95,25 @@
   PREVIOUS
 </rule>
 
-<rule match="f:const"><m>
+<rule match="f:const"><mm>
   <yield/>
   <f:p><f:lit/></f:p><get-attribute name="name"/> NAMING-
-  </m>
+  </mm>
 </rule>
 
 <rule match="f:cell">
   <f:choose> cnode firstChild <f:when><yield/></f:when><m>0</m></f:choose>
-  <m> HERE SWAP , <f:p><f:lit/></f:p> <get-attribute name="name"/> NAMING- </m>
+  <mm> HERE SWAP , <f:p><f:lit/></f:p> <get-attribute name="name"/> NAMING- </mm>
 </rule>
 
 <rule match="f:cell2">
   <f:choose> cnode firstChild <f:when><yield/></f:when><m>0 0</m></f:choose>
-  <m> ALIGN HERE 2 CELLS ALLOT DUP >CS 2! CS> <f:p><f:lit/></f:p> <get-attribute name="name"/> NAMING- </m>
+  <mm> ALIGN HERE 2 CELLS ALLOT DUP >CS 2! CS> <f:p><f:lit/></f:p> <get-attribute name="name"/> NAMING- </mm>
 </rule>
 
-<rule match="f:let"><m><!-- ( x addr - ) -->
+<rule match="f:let"><mm><!-- ( x addr - ) -->
   DUP DUP @ 2>R !  <yield/>  R> R> !
-  </m>
+  </mm>
 </rule>
 
 </f:forth>
