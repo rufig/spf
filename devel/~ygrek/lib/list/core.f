@@ -60,6 +60,9 @@ HERE /NODE ALLOT VALUE ()
 \ node1->node2
 : cons ( node1 node2 -- node1 ) OVER SWAP LINK-NODE ;
 
+\ node1(value)->node
+: vcons ( value node -- node1 ) SWAP vnode SWAP cons ;
+
 \ Применить xt ко всем элементам списка node1
 \ xt: ( node -- ) \ xt получает параметром каждый элемент на нетронутом стеке
 : map ( xt node1 -- )
