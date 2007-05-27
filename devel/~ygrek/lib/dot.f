@@ -7,7 +7,9 @@
 
 MODULE: DOT-MODULE
 
-0 VALUE H-DOTOUT
+0 VALUE H
+
+: H-DOTOUT H DUP 0= ABORT" DOT- words can be used only inside dot{ }dot" ;
 
 EXPORT
 
@@ -17,19 +19,24 @@ EXPORT
 
 \ квотирование
 : SAFE-DOT-TYPE ( a u -- )
-   2DUP S" :" SEARCH NIP NIP 
-   IF 
-     [CHAR] " DOT-EMIT 
-     DOT-TYPE 
-     [CHAR] " DOT-EMIT 
-   ELSE 
-     DOT-TYPE 
-   THEN ;
+   [CHAR] " DOT-EMIT
+   DOT-TYPE
+   [CHAR] " DOT-EMIT ;
 
-: DOT-FILLCOLOR ( color u -- )
+\ a u - цвет заливки всех последующих вершин
+: DOT-FILLCOLOR ( a u -- )
    DOT-CR S" node [fillcolor=" DOT-TYPE DOT-TYPE S" ];" DOT-TYPE ;
-    
-\ связь от обьекта с именем a u к обьекту с именем a2 u2
+
+\ вершина a u будет иметь надпись a2 u2
+: DOT-LABEL ( a u a2 u2 -- )
+   DOT-CR
+   2SWAP
+   SAFE-DOT-TYPE
+   S" [label=" DOT-TYPE
+   SAFE-DOT-TYPE
+   S" ];" DOT-TYPE ;
+
+\ связь от обьекта a u к обьекту a2 u2
 : DOT-LINK ( a u a2 u2 -- )
    DOT-CR
    2SWAP
@@ -40,13 +47,14 @@ EXPORT
 
 \ Начать dot диаграмму. Сохранить в файл a u
 : dot{ ( a u -- )
-   R/W CREATE-FILE THROW TO H-DOTOUT
+   R/W CREATE-FILE THROW TO H
    S" digraph {" DOT-TYPE ;
 
 \ Закончить dot диаграмму
-: }dot 
+: }dot
     DOT-CR
-    S" }" DOT-TYPE 
-    H-DOTOUT CLOSE-FILE THROW ;
+    S" }" DOT-TYPE
+    H-DOTOUT CLOSE-FILE THROW
+    0 TO H ;
 
 ;MODULE
