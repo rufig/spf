@@ -4,7 +4,8 @@
 
 
 REQUIRE /TEST ~profit/lib/testing.f
-REQUIRE >L ~profit/lib/lstack.f
+\ REQUIRE >L ~profit/lib/lstack.f
+REQUIRE >L ~profit/lib/~af/locstack.f
 REQUIRE NOT ~profit/lib/logic.f
 REQUIRE (: ~yz/lib/inline.f
 
