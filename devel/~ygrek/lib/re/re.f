@@ -7,10 +7,13 @@
 \ 1 - не нужна dll :)
 \ 2 - можно сделать именованные карманы
 \ 3 - самое главное - явно заданные RE можно парсить на этапе компиляции и сохранять в
-\     кодофайл структуру дерева состояний экономя на этом в рантайме!
+\     кодофайл структуру дерева состояний экономя на этом в рантайме! (сделано)
 
-\ TODO: пункт 3
+\ TODO: Исправить приоритеты операций! Сейчас как минимум alternation работает неправильно!
+\ TODO: нумерованные карманы-подвыражения
 \ TODO: пункт 2
+
+\ see also - POSIX standard - http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html
 
 \ Сделано :
 \ () выделение подвыражения
@@ -24,6 +27,15 @@
 \ Применить регулярное выражение r-a r-u к строке a u, вернуть TRUE в случае успеха
 \ re_match? ( a u re-a re-u -- ? )
 
+\ Скомпилировать явно заданный регэксп
+\ RE" ( -- re )
+
+\ Сопоставить скомпилированный регэксп и строку
+\ regex_match? ( a u re -- ? )
+
+DIS-OPT
+0 TO MM_SIZE
+
 REQUIRE ANSI-FILE lib/include/ansi-file.f
 REQUIRE состояние ~profit/lib/chartable.f
 REQUIRE { lib/ext/locals.f
@@ -35,6 +47,7 @@ REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE ENUM: ~ygrek/lib/enum.f
+REQUIRE A_BEGIN ~mak/lib/a_if.f
 
 \ не люблю переключаться рус-англ
 : state состояние ;
@@ -92,6 +105,11 @@ CONSTANT /FRAG
 : FREE-FRAG ( frag -- ) DUP .o @ FREE-LIST FREE THROW ;
 : FREE-NFA ( nfa -- ) FREE THROW ;
 
+VECT NEW-NFA
+
+: NEW-NFA-DYN /NFA ALLOCATE THROW ;
+: NEW-NFA-STATIC HERE /NFA ALLOT ;
+
 : frag ( nfa out-list -- frag )
    /FRAG ALLOCATE THROW >R
    R@ .o !
@@ -99,7 +117,7 @@ CONSTANT /FRAG
    R> ;
 
 : nfa { c link1 link2 | nfa -- nfa }
-   /NFA ALLOCATE THROW -> nfa
+   NEW-NFA -> nfa
    c nfa .c !
    link1 nfa .out1 !
    link2 nfa .out2 !
@@ -259,7 +277,10 @@ all: CR ." ALREADY IN FINAL STATE!" ;
 \ Ошибка
 fragment-error
 
-on-enter: " {CRLF}REGEXP SYNTAX ERROR : pos {отсюда re_start -} in {re_start отсюда RANGE>S}<!>{отсюда re_limit RANGE>S}" STYPE ABORT ;
+on-enter:
+ " REGEX SYNTAX ERROR : pos {отсюда re_start -} in {re_start отсюда RANGE>S}<!>{отсюда re_limit RANGE>S}"
+ CR STYPE CR
+ ABORT ;
 all: CR ." ALREADY IN ERROR STATE!" ;
 
 \ -----------------------------------------------------------------------
@@ -270,7 +291,7 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 : clean-visited ( -- ) visited FREE-LIST () TO visited ;
 
 \ рекурсивное освобождение NFA
-: (FREE-RE) ( nfa -- )
+: (FREE-NFA-TREE) ( nfa -- )
    DUP visited member? IF DROP EXIT THEN
    DUP visited vcons TO visited
    DUP .out1 @ ?DUP IF RECURSE THEN
@@ -278,11 +299,11 @@ all: CR ." ALREADY IN ERROR STATE!" ;
    FREE-NFA ;
 
 \ освободить всю структуру данных представляющую регулярное выражение
-: FREE-RE ( frag -- ) DUP .i @ (FREE-RE) FREE-FRAG clean-visited ;
+: FREE-NFA-TREE ( nfa -- ) (FREE-NFA-TREE) clean-visited ;
 
 : check-re-limits отсюда re_limit > IF продолжать-обработку OFF THEN ;
 
-: (parse-full)
+: ((parse-full))
     current-state >R
     start-fragment re_start run-parser
     BEGIN
@@ -292,16 +313,24 @@ all: CR ." ALREADY IN ERROR STATE!" ;
      concat
     REPEAT
     finalize
+    DUP .i @
+    SWAP FREE-FRAG
     R> current-state! ;
 
 \ разобрать RE заданное строкой a u
 \ в случае ошибки синтаксиса - выкидывается исключение
-: parse-full ( a u -- frag )
+: (parse-full) ( a u -- nfa )
     ['] обработчик-каждого-символа BEHAVIOR >R
     ['] check-re-limits TO обработчик-каждого-символа
     OVER TO re_start + TO re_limit
-    (parse-full)
+    ((parse-full))
     R> TO обработчик-каждого-символа ;
+
+: parse-full-static
+   ['] NEW-NFA-STATIC TO NEW-NFA (parse-full) ;
+
+: parse-full
+   ['] NEW-NFA-DYN TO NEW-NFA (parse-full) ;
 
 \ -----------------------------------------------------------------------
 
@@ -326,7 +355,7 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 : dot-draw ( nfa -- ) 0 SWAP (dot-draw) clean-visited ;
 
 \ представить RE в виде dot-диаграммы в файле a u
-: dottify ( frag a u -- ) dot{ .i @ dot-draw }dot ;
+: dottify ( nfa a u -- ) dot{ dot-draw }dot ;
 : dotto: ( "name" -- ? )
    ['] parse-full CATCH IF 2DROP PARSE-NAME 2DROP FALSE ELSE PARSE-NAME dottify TRUE THEN ;
 
@@ -366,8 +395,8 @@ all: CR ." ALREADY IN ERROR STATE!" ;
    l2 ;
 
 \ сопоставление RE фрагмента и строки
-: frag_match? { frag a u | l1 l2 -- ? }
-   %[ frag .i @ % ]% TO l1
+: regex_match? { a u re | l1 -- ? }
+   %[ re % ]% TO l1
    a u BOUNDS ?DO
     I C@ l1 step ( l ) l1 FREE-LIST ( l ) -> l1
     \ CR l1 write-list
@@ -378,8 +407,40 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 \ Применить регулярное выражение r-a r-u к строке a u, вернуть TRUE в случае успеха
 : re_match? ( a u re-a re-u -- ? )
    parse-full >R
-   R@ -ROT frag_match?
-   R> FREE-RE ;
+   R@ regex_match?
+   R> FREE-NFA-TREE ;
+
+: BUILD-REGEX-HERE
+   POSTPONE A_AHEAD
+   parse-full-static
+   POSTPONE A_THEN
+   POSTPONE LITERAL ; IMMEDIATE
+
+\ выделить строку ограниченную кавычкой
+\ кавычки внутри строки квотятся бэкслешем \" - будут заменены во время компиляции на одну кавычку
+\ эту строку скомпилировать в регексп
+\ во время исполнения положить скомпилированный регексп на стек
+\
+\ corner case - если нужен обратный слеш в конце строки, то окружите всё выражение скобками
+\ RE" (my_\"regex\"_here\\)" отметьте двойной слеш, т.к. надо квотить (уже на уровне синтаксиса регекспов!)
+\
+: RE" \ Compile-time: ( "regex" -- )
+\ runtime: ( -- re )
+   "" >R
+   BEGIN
+    [CHAR] " PARSE
+    2DUP + 1- C@ [CHAR] \ =
+   WHILE
+    1- R@ STR+
+    " {''}" R@ S+
+   REPEAT
+   R@ STR+
+   R@ STR@ POSTPONE BUILD-REGEX-HERE
+   R> STRFREE ; IMMEDIATE
+
+\ Выделить строку до символа конца строки, скомпилировать в RE
+\ Во время исполнения положит RE на стек
+: RE: ( -- re ) -1 PARSE POSTPONE BUILD-REGEX-HERE ; IMMEDIATE
 
 /TEST
 
@@ -401,7 +462,7 @@ TESTCASES regex parsing
 (( S" .*abc.*"          dotto: 10.dot -> TRUE ))
 (( S" \.\*ab\\c\.\*"    dotto: 11.dot -> TRUE ))
 
-CR .( NB: 'regexp syntax error' warnings are ok in this test!)
+CR .( NB: 'regex syntax error' warnings are ok in this test!)
 
 (( S" (1++)"  dotto: error.dot -> FALSE ))
 (( S" ()"     dotto: error.dot -> FALSE ))
@@ -459,3 +520,21 @@ TESTCASES regex matching
 (( S" a(1|2|3)b(1|2|3)c" S" a2b3" 2SWAP re_match? -> FALSE ))
 
 END-TESTCASES
+
+
+: qqq RE" 123\"dsdsds" regex_match? ;
+: email? RE" .+@.+\..+" regex_match? ;
+
+TESTCASES RE"
+
+(( S" hello@example.com" email? -> TRUE ))
+(( S" a@a.com" email? -> TRUE ))
+(( S" a@a.b.com" email? -> TRUE ))
+
+(( S" a[at]a.com" email? -> FALSE ))
+(( S" a@acom" email? -> FALSE ))
+
+END-TESTCASES
+
+
+\EOF
