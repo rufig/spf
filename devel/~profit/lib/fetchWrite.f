@@ -1,16 +1,22 @@
 REQUIRE /TEST ~profit/lib/testing.f
 
-\ последовательное чтение и запись в память с бегунком, хранящим адрес текущей ячейки
+\ TODO: Почему на таких простых словах стопарится оптимизатор?..
+
+\ Последовательное чтение и запись в память с бегунком, хранящим адрес текущей ячейки
 \ Переменные-бегунки -- хорошая замена для регистра-аккумулятора с функциями @+ !+
 
-: fetchByte ( addr -- b ) DUP 1+!  @ 1- C@ ;
-: writeByte ( n addr -- ) TUCK @ C!  1+! ;
+\ Бегунками можно (даже нужно) делать локальные переменные, только тогда нужно
+\ использовать их слегка не так как обычно (см. пример move), чтобы локальлыне 
+\ переменные были обычными, а не VALUE-переменными.
 
-: fetchWord ( addr -- b ) 2 OVER +!  @ 2 - W@ ;
-: writeWord ( n addr -- ) TUCK @ W!  2 SWAP +! ;
+: fetchByte ( addr -- b ) DUP  @ C@ SWAP 1+! ;
+: writeByte ( n addr -- ) TUCK @ C!      1+! ;
 
-: fetchCell ( addr -- b ) CELL OVER +!  @ CELL- @ ;
-: writeCell ( n addr -- ) TUCK @ !  CELL SWAP +! ;
+: fetchWord ( addr -- b ) DUP  @ W@ SWAP 2 SWAP +! ;
+: writeWord ( n addr -- ) TUCK @ W!      2 SWAP +! ;
+
+: fetchCell ( addr -- b ) DUP  @ W@ SWAP CELL SWAP +! ;
+: writeCell ( n addr -- ) TUCK @ !       CELL SWAP +! ;
 
 
 /TEST
@@ -43,3 +49,10 @@ CREATE tmp 1000 ALLOT ALIGN
 : r S" check00" tmp move ;
 r
 tmp 20 DUMP
+
+lib\ext\disasm.f
+SEE writeByte
+SEE writeWord
+VARIABLE s
+:NONAME s writeByte ; REST
+:NONAME s writeWord ; REST

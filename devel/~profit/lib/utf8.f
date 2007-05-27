@@ -6,7 +6,7 @@ REQUIRE <= ~profit/lib/logic.f
 REQUIRE { lib/ext/locals.f
 REQUIRE fetchByte ~profit/lib/fetchWrite.f
 
-2 BASE !
+BASE @  2 BASE !
 
 : byte ( n -- n1 ) 11111111 AND ;
 
@@ -46,14 +46,14 @@ RDROP ;
 
 : utf8Move ( addr -- addr wchar ) SP@ utf8Next ;
 
-DECIMAL
+BASE !
 
 \ addr u -- UTF-8 последовательность
 \ buf -- буфер, в который складываютс€ символы в виде двубайтого Unicode
 \ “ак как мы не знаем до декодировани€ кол-ва символов в UTF-8 последовательности,
 \ то дл€ buf следует занимать u*2 байтов. ѕосле вычислени€, получив end, буфер
 \ можно сократить
-: utf8Decode ( addr u buf -- ) { \ limit [ CELL ] A [ CELL ] B -- end }
+: utf8Decode ( addr u buf -- end ) { \ limit [ CELL ] A [ CELL ] B -- }
 B !  OVER A !
 + TO limit
 BEGIN
@@ -76,3 +76,7 @@ CREATE b 3 2* ALLOT
 
 a 3 b utf8Decode DROP
 b 20 DUMP
+
+lib\ext\disasm.f 
+SEE utf8Decode
+SEE utf8Next
