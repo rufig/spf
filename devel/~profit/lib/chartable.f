@@ -58,7 +58,9 @@ EXPORT
 : латинские-буквы: ( -- ) [CHAR] a [CHAR] z диапазон:
 последняя-реакция [CHAR] A [CHAR] Z установить-диапазон ;
 
-: символы: ( "name" "ABCZ" -- ) :n ParseWord OVER + SWAP DO DUP I C@ -й-символ LOOP DROP ;
+: all-asc: ( addr u -- ) :n -ROT OVER + SWAP DO DUP I C@ -й-символ LOOP DROP ;
+
+: символы: ( "ABCZ" -- ) :n ParseWord all-asc: ;
 
 : тоже-самое ( -- ) предпоследняя-реакция COMPILE, ; IMMEDIATE
 : меня ( -- ) LATEST COUNT SLIT, ; IMMEDIATE
