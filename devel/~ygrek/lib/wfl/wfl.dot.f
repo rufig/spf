@@ -3,11 +3,10 @@
 \ "C:\Program Files\ATT\Graphviz\bin\dot.exe" -Tpng wfl.dot -owfl.dot.png
 \ Соответствующую картинка - http://forth.org.ru/~ygrek/files/wfl.png
 
-REQUIRE dot{ ~ygrek/lib/dot.f
-REQUIRE PEEK-NAME ~ygrek/lib/parse.f
-
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 NEEDS ~day/hype3/hype3.f
+NEEDS ~ygrek/lib/dot.f
+NEEDS ~ygrek/lib/parse.f
 
 \ собирает инфу о связях между классами
 : SUBCLASS
