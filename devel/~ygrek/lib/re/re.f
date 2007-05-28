@@ -1,19 +1,21 @@
 \ $Id$
-\ Регулярные выражения
+\ Регулярные выражения - regular expression, regex, regexp, RE
 \ Однобайтовые символы (unicode to do)
 \ Прямая реализация NFA алгоритма из http://swtch.com/~rsc/regexp/regexp1.html
 
 \ Преимущества реализации на форте по-сравнению с внешними dll
 \ 1 - не нужна dll :)
 \ 2 - можно сделать именованные карманы
-\ 3 - самое главное - явно заданные RE можно парсить на этапе компиляции и сохранять в
-\     кодофайл структуру дерева состояний экономя на этом в рантайме! (сделано)
+\ 3 - выражения явно заданные словом RE" парсятся на этапе компиляции и сохраняют в
+\     кодофайл готовую структуру дерева состояний экономя на этом в рантайме!
 
-\ TODO: Исправить приоритеты операций! Сейчас как минимум alternation работает неправильно!
+\ TODO: ускорить matching
+\ TODO: квадратные скобки
 \ TODO: нумерованные карманы-подвыражения
 \ TODO: пункт 2
 
-\ see also - POSIX standard - http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html
+\ POSIX standard - http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html
+\ Perl RE doc - http://perldoc.perl.org/perlre.html
 
 \ Сделано :
 \ () выделение подвыражения
@@ -24,7 +26,9 @@
 \ . любой символ
 \ \ квотирование специальных (этих) символов
 
-\ Применить регулярное выражение r-a r-u к строке a u, вернуть TRUE в случае успеха
+\ -----------------------------------------------------------------------
+
+\ Применить регулярное выражение re-a re-u к строке a u, вернуть TRUE в случае успеха
 \ re_match? ( a u re-a re-u -- ? )
 
 \ Скомпилировать явно заданный регэксп
@@ -33,8 +37,7 @@
 \ Сопоставить скомпилированный регэксп и строку
 \ regex_match? ( a u re -- ? )
 
-DIS-OPT
-0 TO MM_SIZE
+\ -----------------------------------------------------------------------
 
 REQUIRE ANSI-FILE lib/include/ansi-file.f
 REQUIRE состояние ~profit/lib/chartable.f
@@ -49,7 +52,9 @@ REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE ENUM: ~ygrek/lib/enum.f
 REQUIRE A_BEGIN ~mak/lib/a_if.f
 
-\ не люблю переключаться рус-англ
+MODULE: regexp
+
+\ перевод chartable.f
 : state состояние ;
 : symbol: символ: ;
 : all: все: ;
@@ -60,30 +65,57 @@ REQUIRE A_BEGIN ~mak/lib/a_if.f
 : current-state! chartable::TO текущее-состояние ;
 : execute-one выполнить-один-раз ;
 : state-table таблица ;
+: eol: строка-кончилась: ;
+
+state in-branch-0
+state in-branch-1
+state in-branch-2
+state in-branch-3
 
 state start-fragment
 state no-brackets-fragment
-state start-brackets-fragment
-state brackets-1
-state brackets-2
-state brackets-1op
-state fragment-final
+state brackets-fin
+state fragment-final current-state VALUE 'fragment-final
 state fragment-error
 
 state quoted-symbol
 
+0 VALUE re_limit \ конечный адрес обработки
+0 VALUE re_start \ начальный адрес обработки
+
+VARIABLE process-continue
+
 : run-parser ( a - )
    1 TO размер-символа
    поставить-курсор
-   обрабатывать-до-сигнала ;
+   process-continue ON
+   BEGIN
+    process-continue @
+   WHILE
+    отсюда re_limit >= IF закончить-обработку EXIT THEN
+    дать-букву выполнить-один-раз
+   REPEAT ;
+
+\ VARIABLE indent
+
+\ : doi CR indent @ SPACES  ;
 
 : get-fragment ( -- frag )
+   \ doi ." get-fragment " DEPTH .
+   \ indent 1+!
    current-state >R
    start-fragment
-   отсюда ['] run-parser CATCH
+   отсюда run-parser
+   current-state 'fragment-final <>
    R> current-state!
-   продолжать-обработку ON
-   IF DROP ABORT THEN ;
+   process-continue ON
+   IF ABORT THEN
+   \ indent @ 1- indent !
+   \ IF doi ." get-fragment fail" ABORT THEN
+   \ doi ." get-fragment done"
+;
+
+\ включить-отладку-автомата
 
 \ -----------------------------------------------------------------------
 
@@ -136,8 +168,11 @@ VECT NEW-NFA
 \ присоединить все выходы фрагмента frag в текущий список
 : outs% ( frag -- ) .o @ ['] % SWAP mapcar ;
 
-\ конечно состояние
+\ конечное состояние
 : finalstate ( -- nfa ) STATE_FINAL 0 0 nfa ;
+
+\ пустоЙ фрагмент
+: emptyfragment ( -- nfa ) STATE_SPLIT liter ;
 
 \ добавить конечное состояние
 : finalize ( frag -- frag ) DUP finalstate link ;
@@ -172,8 +207,7 @@ VECT NEW-NFA
   e1 FREE-FRAG ;
 
 \ alternation
-: op-| { e1 | e2 }
-  get-fragment -> e2
+: op-| { e1 e2 }
   STATE_SPLIT e1 .i @ e2 .i @ nfa
   %[ e1 outs% e2 outs% ]% frag
   e1 FREE-FRAG
@@ -183,10 +217,8 @@ VECT NEW-NFA
 
 : RANGE>S ( addr1 addr2 -- addr1 u ) OVER - 0 MAX ;
 
-0 VALUE re_limit \ конечный адрес обработки
-0 VALUE re_start \ начальный адрес обработки
-
-: op: S" +?|*" all-asc: ;
+: op: S" +?*" all-asc: ;
+: |: [CHAR] | asc: ;
 : left: [CHAR] ( asc: ;
 : right: [CHAR] ) asc: ;
 : backslash: [CHAR] \ asc: ;
@@ -200,7 +232,6 @@ all: CR ." Bad operation!" ABORT ;
 symbol: * op-* ;
 symbol: ? op-? ;
 symbol: + op-+ ;
-symbol: | op-| ;
 
 
 \ Квотирование
@@ -210,67 +241,90 @@ all: CR ." ERROR: Quoting \" symbol EMIT ."  not allowed!" fragment-error ;
 S" .\()*|+?{" all-asc: symbol ;
 
 
+: get-branch ( -- frag )
+    \ doi ." get-branch " DEPTH .
+    \ indent 1+!
+    current-state >R
+    in-branch-0
+    отсюда run-parser
+    current-state 'fragment-final <>
+    R> current-state!
+    process-continue ON
+    IF ABORT THEN
+    \ indent @ 1- indent !
+    \ IF doi ." get-branch fail" ABORT THEN
+    \ doi ." get-branch done"
+;
+
+
+\ на стеке пусто
+in-branch-0
+
+all: rollback1 get-fragment in-branch-1 ;
+|: emptyfragment in-branch-2 ;
+right: fragment-error ;
+eol: fragment-error ;
+
+
+\ на стеке один фрагмент
+in-branch-1
+
+all: rollback1 get-fragment concat ;
+|: in-branch-2 ;
+right: rollback1 fragment-final ;
+eol: fragment-final ;
+
+
+\ на стеке одна ветка
+in-branch-2
+
+all: rollback1 get-fragment in-branch-3 ;
+|: emptyfragment op-| ;
+right: emptyfragment op-| rollback1 fragment-final ;
+eol: emptyfragment op-| fragment-final ;
+
+
+\ на стеке одна ветка и один фрагмент
+in-branch-3
+
+all: rollback1 get-fragment concat ;
+|: op-| in-branch-2 ;
+right: op-| rollback1 fragment-final ;
+eol: op-| fragment-final ;
+
+
 \ Начало RE выражения
 start-fragment
 
 all: symbol liter1 no-brackets-fragment ;
 op: fragment-error ;
-left: start-brackets-fragment ;
+left: get-branch brackets-fin ;
 right: fragment-error ;
 backslash: unquote-next liter no-brackets-fragment ;
+eol: fragment-final ;
+|: fragment-error ;
 
 
-\ Выражение не скобочное, т.е. один символ возможно с оператором
+\ Выражение не скобочное, т.е. один символ уже есть (и возможно сейчас будет оператор)
 no-brackets-fragment
 
 all: rollback1 fragment-final ;
 op: symbol perform-operation fragment-final ;
+eol: fragment-final ;
 
 
-\ Начало RE выражения со скобками вокруг
-start-brackets-fragment
+\ конец скобочного выражения - должна быть закрывающая скобка
+brackets-fin
 
-all: symbol liter1 brackets-1 ;
-op: fragment-error ;
-left: rollback1 get-fragment brackets-1 ;
-right: fragment-error ;
-backslash: unquote-next liter brackets-1 ;
-
-
-\ Один свободный фрагмент на стеке
-brackets-1
-
-all: symbol liter1 brackets-2 ;
-op: symbol perform-operation brackets-1op ;
-left: rollback1 get-fragment brackets-2 ;
+all: fragment-error ;
 right: no-brackets-fragment ;
-backslash: unquote-next liter brackets-2 ;
-
-
-\ Два свободных фрагмента на стеке
-brackets-2
-
-all: concat symbol liter1 brackets-2 ;
-op: symbol perform-operation concat brackets-1op ;
-left: concat rollback1 get-fragment brackets-2 ;
-right: concat no-brackets-fragment ;
-backslash: unquote-next liter brackets-2 ;
-
-
-\ На стеке один фрагмент с оператором (это значит что больше операторов нельзя)
-brackets-1op
-
-all: symbol liter1 brackets-2 ;
-op: fragment-error ;
-left: rollback1 get-fragment brackets-2 ;
-right: no-brackets-fragment ;
-backslash: unquote-next liter brackets-2 ;
+eol: fragment-error ;
 
 
 \ Фрагмент выделен
 fragment-final
 
-on-enter: продолжать-обработку OFF ;
+on-enter: process-continue OFF ;
 all: CR ." ALREADY IN FINAL STATE!" ;
 
 
@@ -278,9 +332,11 @@ all: CR ." ALREADY IN FINAL STATE!" ;
 fragment-error
 
 on-enter:
- " REGEX SYNTAX ERROR : pos {отсюда re_start -} in {re_start отсюда RANGE>S}<!>{отсюда re_limit RANGE>S}"
+ ALSO regexp
+ " REGEX SYNTAX ERROR : position {отсюда re_start -} in {re_start отсюда RANGE>S}<!>{отсюда re_limit RANGE>S}"
+ PREVIOUS
  CR STYPE CR
- ABORT ;
+ process-continue OFF ;
 all: CR ." ALREADY IN ERROR STATE!" ;
 
 \ -----------------------------------------------------------------------
@@ -301,36 +357,32 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 \ освободить всю структуру данных представляющую регулярное выражение
 : FREE-NFA-TREE ( nfa -- ) (FREE-NFA-TREE) clean-visited ;
 
-: check-re-limits отсюда re_limit > IF продолжать-обработку OFF THEN ;
-
-: ((parse-full))
-    current-state >R
-    start-fragment re_start run-parser
-    BEGIN
-     отсюда re_limit <
-    WHILE
-     start-fragment отсюда run-parser
-     concat
-    REPEAT
-    finalize
-    DUP .i @
-    SWAP FREE-FRAG
-    R> current-state! ;
-
 \ разобрать RE заданное строкой a u
 \ в случае ошибки синтаксиса - выкидывается исключение
 : (parse-full) ( a u -- nfa )
-    ['] обработчик-каждого-символа BEHAVIOR >R
-    ['] check-re-limits TO обработчик-каждого-символа
     OVER TO re_start + TO re_limit
-    ((parse-full))
-    R> TO обработчик-каждого-символа ;
+    re_start поставить-курсор
+    get-branch
+    finalize
+    DUP .i @
+    SWAP FREE-FRAG ;
 
-: parse-full-static
+EXPORT
+
+: build-regex-static
    ['] NEW-NFA-STATIC TO NEW-NFA (parse-full) ;
 
-: parse-full
+: build-regex
+   \ 0 indent !
    ['] NEW-NFA-DYN TO NEW-NFA (parse-full) ;
+
+DEFINITIONS
+
+: BUILD-REGEX-HERE
+   POSTPONE A_AHEAD
+   build-regex-static
+   POSTPONE A_THEN
+   POSTPONE LITERAL ; IMMEDIATE
 
 \ -----------------------------------------------------------------------
 
@@ -354,10 +406,14 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 
 : dot-draw ( nfa -- ) 0 SWAP (dot-draw) clean-visited ;
 
+EXPORT
+
 \ представить RE в виде dot-диаграммы в файле a u
 : dottify ( nfa a u -- ) dot{ dot-draw }dot ;
 : dotto: ( "name" -- ? )
-   ['] parse-full CATCH IF 2DROP PARSE-NAME 2DROP FALSE ELSE PARSE-NAME dottify TRUE THEN ;
+   ['] build-regex CATCH IF 2DROP PARSE-NAME 2DROP FALSE ELSE PARSE-NAME dottify TRUE THEN ;
+
+DEFINITIONS
 
 \ -----------------------------------------------------------------------
 
@@ -394,33 +450,33 @@ all: CR ." ALREADY IN ERROR STATE!" ;
    DROP
    l2 ;
 
+\ REQUIRE write-list ~ygrek/lib/list/write.f
+
+EXPORT
+
 \ сопоставление RE фрагмента и строки
 : regex_match? { a u re | l1 -- ? }
-   %[ re % ]% TO l1
+   () -> l1
+   re l1 addstate -> l1
    a u BOUNDS ?DO
     I C@ l1 step ( l ) l1 FREE-LIST ( l ) -> l1
-    \ CR l1 write-list
+    \ CR I a - . l1 write-list
    LOOP
    LAMBDA{ .c @ STATE_FINAL = } l1 list-find NIP
    l1 FREE-LIST ;
 
 \ Применить регулярное выражение r-a r-u к строке a u, вернуть TRUE в случае успеха
 : re_match? ( a u re-a re-u -- ? )
-   parse-full >R
+   build-regex >R
    R@ regex_match?
    R> FREE-NFA-TREE ;
-
-: BUILD-REGEX-HERE
-   POSTPONE A_AHEAD
-   parse-full-static
-   POSTPONE A_THEN
-   POSTPONE LITERAL ; IMMEDIATE
 
 \ выделить строку ограниченную кавычкой
 \ кавычки внутри строки квотятся бэкслешем \" - будут заменены во время компиляции на одну кавычку
 \ эту строку скомпилировать в регексп
 \ во время исполнения положить скомпилированный регексп на стек
 \
+\ update: is is illegal RE!
 \ corner case - если нужен обратный слеш в конце строки, то окружите всё выражение скобками
 \ RE" (my_\"regex\"_here\\)" отметьте двойной слеш, т.к. надо квотить (уже на уровне синтаксиса регекспов!)
 \
@@ -440,11 +496,13 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 
 \ Выделить строку до символа конца строки, скомпилировать в RE
 \ Во время исполнения положит RE на стек
-: RE: ( -- re ) -1 PARSE POSTPONE BUILD-REGEX-HERE ; IMMEDIATE
+: EOLRE: ( -- re ) -1 PARSE POSTPONE BUILD-REGEX-HERE ; IMMEDIATE
 
-/TEST
+;MODULE
 
 \ -----------------------------------------------------------------------
+
+/TEST
 
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
@@ -461,9 +519,11 @@ TESTCASES regex parsing
 (( S" (1|2|3)+"         dotto: 09.dot -> TRUE ))
 (( S" .*abc.*"          dotto: 10.dot -> TRUE ))
 (( S" \.\*ab\\c\.\*"    dotto: 11.dot -> TRUE ))
+(( S" for(th(er)?|um|)" dotto: 12.dot -> TRUE ))
 
-CR .( NB: 'regex syntax error' warnings are ok in this test!)
+CR .( NB: 'REGEX SYNTAX ERROR' messages are expected in this test!)
 
+(( S" (1"     dotto: error.dot -> FALSE ))
 (( S" (1++)"  dotto: error.dot -> FALSE ))
 (( S" ()"     dotto: error.dot -> FALSE ))
 (( S" +"      dotto: error.dot -> FALSE ))
@@ -496,14 +556,20 @@ TESTCASES regex matching
 (( S" 1((ab)|(cd))+" S" 1" 2SWAP re_match? -> FALSE ))
 (( S" 1((ab)|(cd))+" S" 1abc" 2SWAP re_match? -> FALSE ))
 
-(( S" (ab|cd)+" S" abdacd" 2SWAP re_match? -> TRUE ))
-(( S" (ab|cd)+" S" abdabdacdabd" 2SWAP re_match? -> TRUE ))
-(( S" (ab|cd)+" S" acd" 2SWAP re_match? -> TRUE ))
-(( S" (ab|cd)+" S" abd" 2SWAP re_match? -> TRUE ))
-(( S" (ab|cd)+" S" acdacd" 2SWAP re_match? -> TRUE ))
-
+(( S" (ab|cd)+" S" abdacd" 2SWAP re_match? -> FALSE ))
+(( S" (ab|cd)+" S" abdabdacdabd" 2SWAP re_match? -> FALSE ))
+(( S" (ab|cd)+" S" acd" 2SWAP re_match? -> FALSE ))
+(( S" (ab|cd)+" S" abd" 2SWAP re_match? -> FALSE ))
+(( S" (ab|cd)+" S" acdacd" 2SWAP re_match? -> FALSE ))
 (( S" (ab|cd)+" S" " 2SWAP re_match? -> FALSE ))
-(( S" (ab|cd)+" S" abcd" 2SWAP re_match? -> FALSE ))
+
+(( S" (ab|cd)+" S" abcd" 2SWAP re_match? -> TRUE ))
+(( S" (ab|cd)+" S" abab" 2SWAP re_match? -> TRUE ))
+(( S" (ab|cd)+" S" ababcd" 2SWAP re_match? -> TRUE ))
+(( S" (ab|cd)+" S" abcdab" 2SWAP re_match? -> TRUE ))
+(( S" (ab|cd)+" S" cdcdab" 2SWAP re_match? -> TRUE ))
+(( S" (ab|cd)+" S" cd" 2SWAP re_match? -> TRUE ))
+(( S" (ab|cd)+" S" ab" 2SWAP re_match? -> TRUE ))
 
 (( S" a(1|2|3)b(1|2|3)c" S" a1b1c" 2SWAP re_match? -> TRUE ))
 (( S" a(1|2|3)b(1|2|3)c" S" a1b2c" 2SWAP re_match? -> TRUE ))
@@ -519,15 +585,27 @@ TESTCASES regex matching
 (( S" a(1|2|3)b(1|2|3)c" S" a22c" 2SWAP re_match? -> FALSE ))
 (( S" a(1|2|3)b(1|2|3)c" S" a2b3" 2SWAP re_match? -> FALSE ))
 
+(( S" forther" S" for(th(er)?|um|)" re_match? -> TRUE ))
+(( S" forth"   S" for(th(er)?|um|)" re_match? -> TRUE ))
+(( S" forum"   S" for(th(er)?|um|)" re_match? -> TRUE ))
+(( S" for"     S" for(th(er)?|um|)" re_match? -> TRUE ))
+
+(( S" fort"     S" for(th(er)?|um|)" re_match? -> FALSE ))
+(( S" forther1" S" for(th(er)?|um|)" re_match? -> FALSE ))
+(( S" forthum"  S" for(th(er)?|um|)" re_match? -> FALSE ))
+
 END-TESTCASES
 
 
-: qqq RE" 123\"dsdsds" regex_match? ;
+: qqq RE" 123\"qwerty\"" regex_match? ;
 : email? RE" .+@.+\..+" regex_match? ;
 
 TESTCASES RE"
 
-(( S" hello@example.com" email? -> TRUE ))
+(( " 123{''}qwerty{''}" STR@ qqq -> TRUE ))
+(( " 123{''}qwerty"     STR@ qqq -> FALSE ))
+
+(( S" he!!o@example.com" email? -> TRUE ))
 (( S" a@a.com" email? -> TRUE ))
 (( S" a@a.b.com" email? -> TRUE ))
 
