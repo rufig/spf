@@ -92,8 +92,8 @@ REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
 
 \ -- парсер -------------------------------------------------------------------
 
-\ слово откатывает >IN назад, на начало непонятого слова
-: <back ( ASC # --> ) DROP TIB - >IN ! ;
+\ слово откатывает >IN назад, на начало непонятого слова asc #
+: <back ( asc # --> ) DROP TIB - >IN ! ;
 
 \ пропустить один символ во входном потоке
 : SkipChar ( --> )  >IN @ 1 CHARS + >IN ! ;
@@ -119,12 +119,8 @@ REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
 \ преобразовать символ в строку, содержащую один символ
 : Char>Asc ( char --> asc # ) SYSTEM-PAD TUCK C! 0 OVER char + C! char ;
 
-\ вернуть TRUE если следующее слово найдено в контексте
-: ?WORD ( / token --> flag )
-        SP@ >R  NextWord SFIND
-        IF R> SP! TRUE
-         ELSE R> SP! FALSE
-        THEN ;
+\ укоротить строку asc # на u символов от начала
+: SKIPn ( asc # u --> asc+u #-u ) OVER MIN TUCK - >R + R> ;
 
 \ -- вывод --------------------------------------------------------------------
 
