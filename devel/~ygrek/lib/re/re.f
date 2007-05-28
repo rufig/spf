@@ -1,6 +1,6 @@
 \ $Id$
 \ Регулярные выражения - regular expression, regex, regexp, RE
-\ Однобайтовые символы (unicode to do)
+\ Однобайтовые символы (unicode to do), классы символов - только для латинских
 \ Прямая реализация NFA алгоритма из http://swtch.com/~rsc/regexp/regexp1.html
 
 \ Преимущества реализации на форте по-сравнению с внешними dll
@@ -51,10 +51,12 @@ REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE ENUM: ~ygrek/lib/enum.f
 REQUIRE A_BEGIN ~mak/lib/a_if.f
+REQUIRE NUMBER ~ygrek/lib/parse.f
+
+\ -----------------------------------------------------------------------
 
 MODULE: regexp
 
-\ перевод chartable.f
 : state состояние ;
 : symbol: символ: ;
 : all: все: ;
@@ -66,6 +68,7 @@ MODULE: regexp
 : execute-one выполнить-один-раз ;
 : state-table таблица ;
 : eol: строка-кончилась: ;
+: range: диапазон: ;
 
 state in-branch-0
 state in-branch-1
@@ -96,35 +99,22 @@ VARIABLE process-continue
     дать-букву выполнить-один-раз
    REPEAT ;
 
-\ VARIABLE indent
-
-\ : doi CR indent @ SPACES  ;
-
-: get-fragment ( -- frag )
-   \ doi ." get-fragment " DEPTH .
-   \ indent 1+!
-   current-state >R
-   start-fragment
-   отсюда run-parser
-   current-state 'fragment-final <>
-   R> current-state!
-   process-continue ON
-   IF ABORT THEN
-   \ indent @ 1- indent !
-   \ IF doi ." get-fragment fail" ABORT THEN
-   \ doi ." get-fragment done"
-;
-
 \ включить-отладку-автомата
 
 \ -----------------------------------------------------------------------
 
 :NONAME DUP CONSTANT 1+ ; ENUM 1+const:
 
-256 1+const: STATE_SPLIT STATE_FINAL STATE_MATCH_ANY ; DROP
+256 1+const:
+ STATE_SPLIT STATE_FINAL
+ STATE_MATCH_ANY
+ STATE_WORD_CHAR STATE_WORD_CHAR_NOT
+ STATE_SPACE_CHAR STATE_SPACE_CHAR_NOT
+ STATE_DIGIT_CHAR STATE_DIGIT_CHAR_NOT
+; VALUE N_STATE
 
 0
-CELL -- .c    \ состояние
+CELL -- .c    \ тип состояния
 CELL -- .out1 \ первый выход
 CELL -- .out2 \ второй
 CONSTANT /NFA
@@ -157,9 +147,6 @@ VECT NEW-NFA
 
 \ создать фрагмент с состоянием входа c
 : liter ( c -- frag ) 0 0 nfa %[ DUP .out1 % ]% frag ;
-
-\ обработать . как спец символ
-: liter1 ( c -- frag ) DUP [CHAR] . = IF DROP STATE_MATCH_ANY THEN liter ;
 
 \ привязать все выходы фрагмента frag1 к состоянию nfa
 : link { frag1 nfa -- }
@@ -223,7 +210,7 @@ VECT NEW-NFA
 : right: [CHAR] ) asc: ;
 : backslash: [CHAR] \ asc: ;
 
-: unquote-next ( -- c ) current-state >R quoted-symbol дать-букву execute-one R> current-state! ;
+: unquote-next-liter ( -- nfa ) current-state >R quoted-symbol дать-букву execute-one R> current-state! ;
 
 
 256 state-table perform-operation
@@ -234,14 +221,34 @@ symbol: ? op-? ;
 symbol: + op-+ ;
 
 
+: HEXNUMBER ( a u -- n ) BASE @ >R HEX NUMBER 0= THROW R> BASE ! ;
+
 \ Квотирование
 quoted-symbol
 
 all: CR ." ERROR: Quoting \" symbol EMIT ."  not allowed!" fragment-error ;
-S" .\()*|+?{" all-asc: symbol ;
+S" .\()*|+?{" all-asc: symbol liter ;
+symbol: t 0x09 liter ; \ Tab
+symbol: n 0x0A liter ; \ LF
+symbol: r 0x0D liter ; \ CR
+symbol: x \ \x1B - символ с кодом 0x1B
+   отсюда 2 + re_limit > IF ABORT THEN
+   отсюда 2 HEXNUMBER liter
+   отсюда 2 + поставить-курсор ;
+symbol: w STATE_WORD_CHAR liter ;
+symbol: W STATE_WORD_CHAR_NOT liter ;
+symbol: s STATE_SPACE_CHAR liter ;
+symbol: S STATE_SPACE_CHAR_NOT liter ;
+symbol: d STATE_DIGIT_CHAR liter ;
+symbol: D STATE_DIGIT_CHAR_NOT liter ;
 
 
-: get-branch ( -- frag )
+\ VARIABLE indent
+\ : doi CR indent @ SPACES  ;
+
+\ ветка - одна из альтернатив |
+\ Парсит кусок RE который представляет собой одну или более веток одного уровня
+: get-branches ( -- frag )
     \ doi ." get-branch " DEPTH .
     \ indent 1+!
     current-state >R
@@ -256,8 +263,29 @@ S" .\()*|+?{" all-asc: symbol ;
     \ doi ." get-branch done"
 ;
 
+\ Фрагмент - совпадающий символ или символ с оператором
+\ Выбрать один фрагмент. Ветка тоже фрагмент
+: get-fragment ( -- frag )
+   \ doi ." get-fragment " DEPTH .
+   \ indent 1+!
+   current-state >R
+   start-fragment
+   отсюда run-parser
+   current-state 'fragment-final <>
+   R> current-state!
+   process-continue ON
+   IF ABORT THEN
+   \ indent @ 1- indent !
+   \ IF doi ." get-fragment fail" ABORT THEN
+   \ doi ." get-fragment done"
+;
 
-\ на стеке пусто
+\ get-fragment и get-branches рекурсивно вызывают друг-друга
+\ Первый отвечает за простые фрагменты - второй за скобочные
+
+\ Содержимое скобок - это ветка (возможно единственная) - последовательность фрагментов
+
+\ На стеке фрагментов пусто
 in-branch-0
 
 all: rollback1 get-fragment in-branch-1 ;
@@ -293,14 +321,15 @@ right: op-| rollback1 fragment-final ;
 eol: op-| fragment-final ;
 
 
-\ Начало RE выражения
+\ Начало RE определяющего один символ
 start-fragment
 
-all: symbol liter1 no-brackets-fragment ;
+all: symbol liter no-brackets-fragment ;
+symbol: . STATE_MATCH_ANY liter no-brackets-fragment ;
 op: fragment-error ;
-left: get-branch brackets-fin ;
+left: get-branches brackets-fin ;
 right: fragment-error ;
-backslash: unquote-next liter no-brackets-fragment ;
+backslash: unquote-next-liter no-brackets-fragment ;
 eol: fragment-final ;
 |: fragment-error ;
 
@@ -362,16 +391,18 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 : (parse-full) ( a u -- nfa )
     OVER TO re_start + TO re_limit
     re_start поставить-курсор
-    get-branch
-    finalize
+    get-branches
+    finalize ( frag )
     DUP .i @
     SWAP FREE-FRAG ;
 
-EXPORT
-
-: build-regex-static
+\ построить regex в кодофайле
+: build-regex-static ( a u -- )
    ['] NEW-NFA-STATIC TO NEW-NFA (parse-full) ;
 
+EXPORT
+
+\ построить регексп в динамической памяти
 : build-regex
    \ 0 indent !
    ['] NEW-NFA-DYN TO NEW-NFA (parse-full) ;
@@ -410,10 +441,42 @@ EXPORT
 
 \ представить RE в виде dot-диаграммы в файле a u
 : dottify ( nfa a u -- ) dot{ dot-draw }dot ;
-: dotto: ( "name" -- ? )
+
+\ ? - флаг успеха
+: dotto: ( nfa "name" -- ? )
    ['] build-regex CATCH IF 2DROP PARSE-NAME 2DROP FALSE ELSE PARSE-NAME dottify TRUE THEN ;
 
 DEFINITIONS
+
+\ -----------------------------------------------------------------------
+
+256 state-table is_alpha_char
+
+all: FALSE ;
+CHAR a CHAR z range: TRUE ;
+CHAR A CHAR Z range: TRUE ;
+
+256 state-table is_digit_char
+
+all: FALSE ;
+CHAR 0 CHAR 9 range: TRUE ;
+
+: is_alphanum_char ( c -- ? ) DUP is_alpha_char SWAP is_digit_char OR ;
+: is_word_char ( c -- ? ) DUP is_alphanum_char SWAP [CHAR] _ = OR ;
+: is_space_char ( c -- ? ) BL < ;
+
+N_STATE state-table char-state-match ( c -- ? )
+
+all: CR ." Attempt to match inappropriate state. Fatal error." ABORT ;
+\ 0 255 range: i = ;
+:NONAME 256 0 DO I I " {n} asc: {n} = ;" DUP STR@ EVALUATE STRFREE LOOP ; EXECUTE
+STATE_MATCH_ANY      asc: DROP TRUE ;
+STATE_WORD_CHAR      asc: is_word_char ;
+STATE_WORD_CHAR_NOT  asc: is_word_char NOT ;
+STATE_SPACE_CHAR     asc: is_space_char ;
+STATE_SPACE_CHAR_NOT asc: is_space_char NOT ;
+STATE_DIGIT_CHAR     asc: is_digit_char ;
+STATE_DIGIT_CHAR_NOT asc: is_digit_char NOT ;
 
 \ -----------------------------------------------------------------------
 
@@ -429,12 +492,6 @@ DEFINITIONS
    THEN
    nfa l vcons ;
 
-\ символ c соответствует состоянию r
-: char-match? { r c -- ? }
-   r 256 < IF r c = EXIT THEN
-   r STATE_MATCH_ANY = IF TRUE EXIT THEN
-   FALSE ;
-
 \ l1 - список состояний предыдущего шага
 \ c - обрабатываемый символ из строки
 \ вернуть список состояний
@@ -444,17 +501,17 @@ DEFINITIONS
    BEGIN
     DUP empty? 0=
    WHILE
-    DUP car DUP .c @ c char-match? IF .out1 @ l2 addstate -> l2 ELSE DROP THEN
+    DUP car c OVER .c @ char-state-match IF .out1 @ l2 addstate -> l2 ELSE DROP THEN
     cdr
    REPEAT
    DROP
    l2 ;
 
-\ REQUIRE write-list ~ygrek/lib/list/write.f
-
 EXPORT
 
-\ сопоставление RE фрагмента и строки
+\ REQUIRE write-list ~ygrek/lib/list/write.f
+
+\ сопоставление RE и строки
 : regex_match? { a u re | l1 -- ? }
    () -> l1
    re l1 addstate -> l1
@@ -465,20 +522,20 @@ EXPORT
    LAMBDA{ .c @ STATE_FINAL = } l1 list-find NIP
    l1 FREE-LIST ;
 
-\ Применить регулярное выражение r-a r-u к строке a u, вернуть TRUE в случае успеха
+\ Применить регулярное выражение re-a re-u к строке a u, вернуть TRUE в случае успеха
 : re_match? ( a u re-a re-u -- ? )
    build-regex >R
    R@ regex_match?
    R> FREE-NFA-TREE ;
 
 \ выделить строку ограниченную кавычкой
-\ кавычки внутри строки квотятся бэкслешем \" - будут заменены во время компиляции на одну кавычку
-\ эту строку скомпилировать в регексп
+\ кавычки внутри строки квотятся бэкслешем \" - будут заменены во время _компиляции_ на одну кавычку
+\ полученную строку скомпилировать в регексп
 \ во время исполнения положить скомпилированный регексп на стек
 \
-\ update: is is illegal RE!
 \ corner case - если нужен обратный слеш в конце строки, то окружите всё выражение скобками
 \ RE" (my_\"regex\"_here\\)" отметьте двойной слеш, т.к. надо квотить (уже на уровне синтаксиса регекспов!)
+\ update: где-то читал что слеш в конце регекспа запрещён, поэтому никаких гарантий
 \
 : RE" \ Compile-time: ( "regex" -- )
 \ runtime: ( -- re )
@@ -597,22 +654,62 @@ TESTCASES regex matching
 END-TESTCASES
 
 
+TESTCASES regex matching character classes
+
+\ (( S" " ))
+
+END-TESTCASES
+
+
 : qqq RE" 123\"qwerty\"" regex_match? ;
-: email? RE" .+@.+\..+" regex_match? ;
+: email? RE" \w+@\w+(\.\w+)+" regex_match? ;
 
 TESTCASES RE"
 
 (( " 123{''}qwerty{''}" STR@ qqq -> TRUE ))
 (( " 123{''}qwerty"     STR@ qqq -> FALSE ))
 
-(( S" he!!o@example.com" email? -> TRUE ))
+(( S" hello1@example.com" email? -> TRUE ))
+(( S" hello_world@example.com" email? -> TRUE ))
 (( S" a@a.com" email? -> TRUE ))
 (( S" a@a.b.com" email? -> TRUE ))
 
+(( S" he!!o@example.com" email? -> FALSE ))
 (( S" a[at]a.com" email? -> FALSE ))
 (( S" a@acom" email? -> FALSE ))
 
 END-TESTCASES
 
+
+\ Пример убивающий backtracking реализации регулярных выражений
+\ сопоставление строки aa..(N раз)..a
+\ и регекспа a?a?..(N раз)..a?aa..(N раз)..a
+
+: s^n { n s -- ss..(N раз)..s } "" n 0 DO DUP s STR@ ROT STR+ LOOP ;
+
+: r1 { n s | -- s }
+   n s s^n
+   n " {$s}?" s^n TUCK S+ ;
+
+: test { n | s r -- ? }
+   n " a" s^n -> s
+   n " a" r1 -> r
+   CR
+   CR
+   s STR@ r STR@ re_match? IF ." It matches" ELSE ." Failed" THEN
+   CR
+   CR
+   " Equivalent perl code (try it!): {CRLF}print {''}It matches\n{''} if {''}{$s}{''} =~ /{$r}/;" STYPE
+   CR
+( "
+string :
+{$s}
+regex :
+{$g}" STYPE)
+
+   s STRFREE
+   r STRFREE ;
+
+40 test
 
 \EOF
