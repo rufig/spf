@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<?xml-stylesheet type="text/xsl" href="default.xsl"?>
+<forth xmlns="http://forth.org.ru/ForthML/" 
+  xmlns:r="http://forth.org.ru/ForthML/Rules/"
+  xmlns:h="http://www.w3.org/1999/xhtml"
+>
+
+<include href="rules-ext.f.xml"/>
+<include href="numbers.f.xml"/>
+
+<comment>
+Задача: поменять местами белых и черных коней по шахматным правилам
+на доске 3x4 (см. <h:a href="http://fforum.winglion.ru/viewtopic.php?t=740">fforum</h:a>).
+Найти все решения с учетом верхних ограничений 
+на число ходов и количество найденных вариантов.
+
+Введем следующую адресацию полей (клеток), начиная с 0 по 11:
+<h:pre>
+   012    bbb
+   345    ...
+   678    ...
+   901    www (начальная позиция).
+</h:pre>
+Строки доски сложим в одну: |012345678901|
+Для каждого поля найдем число, биты которого будут установлены
+в позициях, которые бьет конь, находящейся на данном поле.
+
+Если логически соединить строку в кольцо, то не трудно заметить, 
+что конь бьет поля, отстоящие от него на 5 единиц в принятой адресации, 
+но есть и исключения; как их коротко формализовать -- пока непонятно, поэтому
+зададим эти отношения прямым текстом в виде матрицы.
+</comment>
+
+<const name="matrix-beaten"> ALIGN HERE
+<rem> Получается такая вот, диагонально-симметричная картинка </rem><!--
+  012345678901 -->
+<text>
+  *****X*X****
+  ******X*X***
+  ***X***X****
+  **X*****X*X*
+  *********X*X
+  X*****X***X*
+  *X***X*****X
+  X*X*********
+  *X*X*****X**
+  ****X***X***
+  ***X*X******
+  ****X*X*****
+
+</text><each-textline>
+  WORD|TAIL 2DROP bit-mask , <!-- запись в виде числа в пространство данных -->
+</each-textline>
+
+</const><rem> matrix-beaten дает матрицу пробиваемых полей </rem>
+
+<def name="beaten[]" ds=" i -- board "><rem>
+  Возвращает битовый образ доски с отметками полей, пробиваемых из поля i
+</rem>
+  CELLS matrix-beaten + @ 
+</def>
+
+<const name="BASE-BIT"><rem> базовый "адрес" </rem> 1  12 1-  LSHIFT </const>
+
+<cell name="_i" />
+
+<r:rule match="for-fields" ds=" mask -- "><rem>
+  Генератор индексов полей, установленных в mask
+</rem><r:mm>
+  0 _i <let> >R BASE-BIT
+  <repeat ds=" submask1 -- submask2 ">
+    DUP <while/> DUP R@ AND <if> >R _i @ <r:yield/> R> </if> 1 RSHIFT _i 1+!
+  </repeat>
+  DROP RDROP
+  </let>
+  </r:mm>
+</r:rule>
+
+<def name="beaten" ds=" position -- beaten"><rem>
+  Поля, которые пробиваются заданной позицией фигур,
+  находятся простым побитовым ИЛИ.
+</rem>
+  0 SWAP <for-fields><g ds=" beaten1 i -- beaten2"> beaten[] OR </g></for-fields>
+</def>
+
+<def name="obtainable" ds=" enemy-position position -- obtainable"><rem>
+  Доступные для хода поля вычисляются через побитовый AND 
+  со свободными от боя противника и свободными от своих фигур.
+</rem>
+  DUP INVERT -ROT
+  beaten SWAP beaten INVERT AND AND
+</def>
+
+<def name="up" ds=" i position1 --> position2 " ><rem>
+  Поднять фигуру с поля i
+</rem>
+  BASE-BIT ROT RSHIFT INVERT AND
+</def>
+<def name="down" ds=" i position1 --> position2 " ><rem>
+  Опустить фигуру на i-ое поле
+</rem>
+  BASE-BIT ROT RSHIFT OR
+</def>
+
+<model name="one-side"><rem> Модель одной стороны. Воплощается для каждой из сторон. </rem>
+
+<include href="data/zstack.f.xml" xml:base="../../../../model/" />
+
+<def name="new-position?" ds=" position -- position true | false " zs=" i*p --> i*p " ><rem>
+  Является ли позиция новой (уникальной среди всех в Z-стеке)
+</rem>
+  DUP ZP@ ZDEPTH CELLS FIND-CELL <if> 2DROP FALSE <exit/></if> TRUE
+</def>
+
+<cell name="_half" />
+<cell name="_ob" />
+
+<def name="each-answer=>" ds=" enemy-position --> "><rem>
+  генератор доступных позиций на расстоянии одного хода (дает позиции на Z-стеке)
+  ( Z:  i*position position-new -- i*position position-new )
+</rem>
+  PRO
+  Z@ obtainable _ob <let>
+  Z@ <for-fields> DUP Z@ up _half <let><g ds=" i -- ">  
+    beaten[] _ob @ AND
+    <for-fields><g ds=" j --">
+      _half @ down new-position?
+      <if> >Z CONT ZDROP </if>
+    </g></for-fields>
+    </g></let>
+  </for-fields>
+  </let>
+</def>
+
+</model>
+
+
+<def name="(.bw-field)" ds=" ab aw i -- ab aw i "><rem> Вывод поля i из заданной композиции </rem>
+  DUP >R BASE-BIT SWAP RSHIFT >R
+  <choose>
+    DUP  @ R@ AND <when> `w </when>
+    OVER @ R@ AND <when> `b </when>
+    <otherwise> `. </otherwise>
+  </choose> TYPE SPACE
+  RDROP R>
+</def>
+
+<def name=".play" ds=" a1 a2 n -- "><rem>
+  Вывод партии широкой строкой.
+  a1 и a2 - донья стеков, n - число позиций (одинаково на каждом).
+</rem>
+  0
+  4 <times><g ds=" a1 a2 n field -- a1 a2 n field+3 ">
+    2OVER 2OVER SWAP
+    <times>
+      DUP >R
+      3 <times><g ds=" a1 a2 i -- a1 a2 i+1 "> (.bw-field) 1+ </g></times> SPACE SPACE
+      DROP
+      SWAP CELL- SWAP CELL- <!-- next-position -->
+      R>
+    </times> CR
+    DROP 2DROP
+    3 +
+  </g></times>
+  2DROP 2DROP
+</def>
+
+<wordlist name="white"><include href="#one-side"/></wordlist>
+<wordlist name="black"><include href="#one-side"/></wordlist>
+
+<const name="A">  `*********XXX bit-mask </const>
+<const name="B">  `XXX********* bit-mask </const>
+
+<cell name="_cnt"/>
+<cell name="_maxcnt"/>
+<cell name="_maxdeep"/>
+
+<def name="print-steps" ds=" -- "><rem> Вывод партии до текущей позици </rem>
+  <emit>Achieved </emit> _cnt @ . <emit> - deep is </emit> white::ZDEPTH . CR
+  black::Z0 @ CELL- white::Z0 @  CELL- white::ZDEPTH .play  CR
+</def>
+
+
+<def name="(find)" ds=" -- "><rem>Обычный перебор методом ветвей и границ</rem>
+
+  black::Z@ white::each-answer=>
+  white::Z@ black::each-answer=>
+
+  <choose>
+    _cnt @ _maxcnt @ EQ <when><exit/></when>
+    white::ZDEPTH _maxdeep @ UGT <when><exit/></when>
+    white::Z@ B NEQ <when/>
+    black::Z@ A NEQ <when/>
+    _cnt 1+!
+    print-steps
+    <exit/>
+  </choose>
+
+  <again/><!-- tail recursion -->
+</def>
+
+<def name="find" ds=" max-count max-deep -- "><rem>
+  Поиск и вывод всех решений с учетом заданных ограничений
+</rem>
+  _maxdeep <let>
+  _maxcnt  <let>
+  0  _cnt  <let>
+
+  <emit>Max deep is </emit> _maxdeep @ . CR
+  <emit>Max count is </emit> _maxcnt @ . CR
+  CR
+
+  A white::>Z
+  B black::>Z
+  (find)
+  black::ZDROP
+  white::ZDROP
+
+  <emit-line>End</emit-line>
+
+  </let></let></let>
+</def>
+
+<comment>
+  При больших размерностях та же техника доступна на матрицах, вместо двоичных разрядов (битов).
+</comment>
+<rem> Более 30% этого исходника -- комментарии :) </rem>
+
+</forth>

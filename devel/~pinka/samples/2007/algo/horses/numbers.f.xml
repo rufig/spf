@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="CONVERT-BASED" ds=" a u base -- x ">
+  BASE @ >R  BASE ! 
+    0. 2SWAP >NUMBER 2DROP D>S
+  R> BASE !
+</def>
+
+<def name="BINARY" ds=" -- ">
+  2 BASE !
+</def>
+
+<def name="bit-mask" ds=" a u -- x">
+<!-- `***XX* bit-mask ( 6 ) -->
+  `* `0 REPLACE-
+  `X `1 REPLACE-
+   2 CONVERT-BASED
+<!-- но лучше модификации делать в отедльном буфере (который, например, брать на R-стеке),
+  а входную строку не трогать.
+-->
+</def>
+
+<def name=".0BIN" ds=" x u -- ">
+  BASE @ >R BINARY .0 R> BASE !
+</def>  
+
+<def name=".mask" ds=" x -- "><rem>
+  Вывод наших масок длиной 12 (для отладки).
+</rem>
+  12 .0BIN 
+</def>
+
+<def name="FIND-CELL" ds=" x addr u -- addr2 true | false ">
+  ROT >R  OVER + SWAP
+  <repeat> 2DUP UGT <while/> DUP @ R@ EQ <if> RDROP NIP TRUE <exit/></if> CELL+ </repeat>
+  RDROP 2DROP FALSE
+</def>
+
+</forth>
