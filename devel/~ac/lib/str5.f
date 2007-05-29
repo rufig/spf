@@ -330,9 +330,10 @@ STRFREE
   REPEAT
   s
 ;
-: STR@LOCAL ( addr u -- addr u )
-  ['] (STR@LOCAL) EVALUATE-WITH STR@
-;
+
+: STR@LOCALs ( addr u -- s )
+  ['] (STR@LOCAL) EVALUATE-WITH
+;                                  
 
 : _STRLITERAL ( -- s )
   R> XCOUNT 2DUP + CHAR+ >R
@@ -361,6 +362,7 @@ CREATE _S""" CHAR " C,
 ;
 
 USER _PARSED"
+USER _STR_LOCAL
 
 : PARSE" { \ s c -- addr u }
   "" -> s
@@ -377,12 +379,14 @@ USER _PARSED"
   s _PARSED" !
   [CHAR]{ -> c
   2DUP ^ c 1 SEARCH NIP NIP
-  IF STR@LOCAL THEN
+  IF STR@LOCALs DUP _STR_LOCAL ! STR@ THEN
 ;
 
 : " ( "ccc" -- )
   PARSE" POSTPONE STRLITERAL
-  STATE @ IF _PARSED" @ ?DUP IF STRFREE _PARSED" 0! THEN  THEN
+  \ STATE @ IF _PARSED" @ ?DUP IF STRFREE _PARSED" 0! THEN  THEN
+  _PARSED" @ ?DUP IF STRFREE _PARSED" 0! THEN
+  _STR_LOCAL @ ?DUP IF STRFREE _STR_LOCAL 0! THEN
 ; IMMEDIATE
 
 USER _LASTFILE 
