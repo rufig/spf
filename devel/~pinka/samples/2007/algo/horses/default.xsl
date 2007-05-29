@@ -138,7 +138,7 @@
     .elem:active , .elem:active + .a { background-color: yellow; }
     </style>
   </head><body>
-    <div style="color: gray; float: right; width: 15em; text-align: right;"><p>Best viewed with CSS2 compatibility browsers :)</p></div>
+    <div style="color: gray; float: right; width: 15em; text-align: right;"><p>Best viewed with CSS2 compatible browsers :)</p></div>
     <div id="src"><xsl:apply-templates mode="render" /></div>
   </body></html>
 </xsl:template>
