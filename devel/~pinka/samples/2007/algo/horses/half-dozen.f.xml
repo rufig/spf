@@ -3,6 +3,7 @@
 <forth xmlns="http://forth.org.ru/ForthML/" 
   xmlns:r="http://forth.org.ru/ForthML/Rules/"
   xmlns:h="http://www.w3.org/1999/xhtml"
+  xmlns:l="urn:local:pinka/algo/horses/half-dozen/"
 >
 
 <include href="rules-ext.f.xml"/>
@@ -64,7 +65,7 @@
 
 <cell name="_i" />
 
-<r:rule match="for-fields" ds=" mask -- "><rem>
+<r:rule match="l:for-fields" ds=" mask -- "><rem>
   √енератор индексов полей, установленных в mask
 </rem><r:mm>
   0 _i <let> >R BASE-BIT
@@ -80,7 +81,7 @@
   ѕол€, которые пробиваютс€ заданной позицией фигур,
   наход€тс€ простым побитовым »Ћ».
 </rem>
-  0 SWAP <for-fields><g ds=" beaten1 i -- beaten2"> beaten[] OR </g></for-fields>
+  0 SWAP <l:for-fields><g ds=" beaten1 i -- beaten2"> beaten[] OR </g></l:for-fields>
 </def>
 
 <def name="obtainable" ds=" enemy-position position -- obtainable"><rem>
@@ -91,12 +92,12 @@
   beaten SWAP beaten INVERT AND AND
 </def>
 
-<def name="up" ds=" i position1 --> position2 " ><rem>
+<def name="up" ds=" i position1 -- position2 " ><rem>
   ѕодн€ть фигуру с пол€ i
 </rem>
   BASE-BIT ROT RSHIFT INVERT AND
 </def>
-<def name="down" ds=" i position1 --> position2 " ><rem>
+<def name="down" ds=" i position1 -- position2 " ><rem>
   ќпустить фигуру на i-ое поле
 </rem>
   BASE-BIT ROT RSHIFT OR
@@ -106,7 +107,7 @@
 
 <include href="data/zstack.f.xml" xml:base="../../../../model/" />
 
-<def name="new-position?" ds=" position -- position true | false " zs=" i*p --> i*p " ><rem>
+<def name="new-position?" ds=" position -- position true | false " zs=" i*p -- i*p " ><rem>
   явл€етс€ ли позици€ новой (уникальной среди всех в Z-стеке)
 </rem>
   DUP ZP@ ZDEPTH CELLS FIND-CELL <if> 2DROP FALSE <exit/></if> TRUE
@@ -115,20 +116,20 @@
 <cell name="_half" />
 <cell name="_ob" />
 
-<def name="each-answer=>" ds=" enemy-position --> "><rem>
+<def name="each-answer=>" ds=" enemy-position -- "><rem>
   генератор доступных позиций на рассто€нии одного хода (дает позиции на Z-стеке)
   ( Z:  i*position position-new -- i*position position-new )
 </rem>
   PRO
   Z@ obtainable _ob <let>
-  Z@ <for-fields> DUP Z@ up _half <let><g ds=" i -- ">  
+  Z@ <l:for-fields> DUP Z@ up _half <let><g ds=" i -- ">  
     beaten[] _ob @ AND
-    <for-fields><g ds=" j --">
+    <l:for-fields><g ds=" j --">
       _half @ down new-position?
       <if> >Z CONT ZDROP </if>
-    </g></for-fields>
+    </g></l:for-fields>
     </g></let>
-  </for-fields>
+  </l:for-fields>
   </let>
 </def>
 
