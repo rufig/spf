@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Feb.2007 ruvim@forth.org.ru
+ Need to bind: ZP Z0
+-->
+
+<def name="ZP@" ds=" — a ">
+  ZP @
+</def>
+<def name="ZP!" ds=" a — ">
+  ZP !
+</def>
+
+<def name="Z@" ds=" — x ">
+  ZP @ @
+</def>
+
+<def name="2Z@" ds=" — x x ">
+  ZP @ CELL+ @
+  ZP @ @
+</def>
+
+<def name=">Z" ds=" x — ">
+  ZP CELL-!  ZP@ !
+</def>
+
+<def name="Z>" ds=" — x ">
+  ZP@ @   ZP CELL+!
+</def>
+
+<def name="2>Z" ds=" x x — ">
+  -2 CELLS ZP +!  ZP@ 2!
+</def>
+<def name="2Z>" ds=" — x x ">
+  ZP@ 2@   2 CELLS ZP +!
+</def>
+
+<def name="ZDROP" ds=" — ">
+  CELL ZP +!
+</def>
+
+<def name="NZDROP" ds=" n — ">
+  CELLS ZP +!
+</def>
+<def name="D>Z" ds=" i*x i — " os=" — i*x" >
+  >R
+  SP@    R@ CELLS   DUP NEGATE ZP +!  ZP@  SWAP   MOVE
+  R> NDROP
+</def>
+<def name="N>Z" ds=" i*x i — " os=" — i*x i">
+  SP@    OVER 1+ CELLS   DUP NEGATE ZP +!  ZP@  SWAP   MOVE
+  NDROP
+</def>
+<def name="DZ>" ds=" i — i*x " os="i*x — ">
+  CELLS >R
+  SP@ R@ NEGATE + SP!
+  SP@ ZP@ SWAP R@ MOVE
+  R> ZP +!
+</def>
+<def name="NZ>" ds=" — i*x i" os="i*x i — ">
+  ZP@ @ 1+ CELLS >R
+  SP@ R@ NEGATE + SP!
+  SP@ ZP@ SWAP R@ MOVE
+  R> ZP +!
+</def>
+
+<def name="ZDEPTH" ds=" — u ">
+  Z0 @ ZP@ - >CELLS
+</def>
+<def name="ZPICK" ds=" i — x ">
+  CELLS ZP@ + @
+</def>
+<def name="ZCLEAR" ds=" — ">
+  Z0 @ ZP!
+</def>
+
+</forth>
