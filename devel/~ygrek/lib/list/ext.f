@@ -80,7 +80,7 @@ REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
 TESTCASES list-core
 
- 6 vnode () cons 5 vnode SWAP cons 4 vnode SWAP cons VALUE list
+ 6 () vcons 5 SWAP vcons 4 SWAP vcons VALUE list
  lst( 4 % 5 % 6 % )lst VALUE list2
 
  (( 0 :NONAME car + ; list map -> 15 ))
@@ -96,8 +96,11 @@ TESTCASES list-core
  (( 6 list member? -> TRUE ))
  (( 7 list member? -> FALSE ))
 
- (( 1 list nth car -> 5 ))
- (( 2 list nth car -> 6 ))
+ (( 0 list2 nth car -> 4 ))
+ (( 1 list2 nth car -> 5 ))
+ (( 2 list2 nth car -> 6 ))
+ (( list2 length -> 3 ))
+
  1 list nth car 2 list nth car
  1 list nth setcar 2 list nth setcar
  (( 1 list nth car -> 6 ))
@@ -106,5 +109,6 @@ TESTCASES list-core
  (( list car -> 4 ))
 
  list FREE-LIST
+ list2 FREE-LIST
 
 END-TESTCASES

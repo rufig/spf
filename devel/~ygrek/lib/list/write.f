@@ -102,7 +102,8 @@ l CR print-list
 l CR dump-list
 
 l ' print-list TYPE>STR \ сериализуем список в строку
-STR@ EVALUATE VALUE l2 \ и восстановим обратно EVALUATE'ом
+DUP STR@ EVALUATE VALUE l2 \ и восстановим обратно EVALUATE'ом
+    STRFREE
 
 \ списки должны быть равны!
 (( l l2 equal? -> TRUE ))

@@ -165,81 +165,96 @@ WARNING !
 /TEST
 
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
-REQUIRE write-list ~ygrek/lib/list/write.f
+\ REQUIRE write-list ~ygrek/lib/list/write.f
 
 TESTCASES list-more
 
 \
 \ equal?
 
-lst( 1 % 2 % " coo zoo " %s lst( " so so" %s 200 % )lst %l 2000 % )lst VALUE l1
-lst( 1 % 2 % " coo zoo " %s lst( " so so" %s 200 % )lst %l 2000 % )lst VALUE l2
+0 VALUE l1
+0 VALUE l2
+
+lst( 1 % 2 % " coo coo" %s lst( " so so" %s 200 % )lst %l 2000 % )lst TO l1
+lst( 1 % 2 % " coo coo" %s lst( " so so" %s 200 % )lst %l 2000 % )lst TO l2
 
 (( l1 l2 equal? -> TRUE ))
 l1 FREE-LIST
 l2 FREE-LIST
 
-0 VALUE l
-
 \
 \ list-remove-all
 
-lst( 1 % 2 % 4 % 2 % 3 % 4 % 6 % 6 % 2 % )lst TO l
+lst( 1 % 2 % 4 % 2 % 3 % 4 % 6 % 6 % 2 % )lst TO l1
 \ CR l write-list
-2 l list-remove-all TO l
-(( l lst( 1 % 4 % 3 % 4 % 6 % 6 % )lst equal? -> TRUE ))
+2 l1 list-remove-all TO l1
+lst( 1 % 4 % 3 % 4 % 6 % 6 % )lst TO l2
+(( l1 l2 equal? -> TRUE ))
+l2 FREE-LIST
 \ CR l write-list
-l list-remove-dublicates
-(( l lst( 1 % 4 % 3 % 6 % )lst equal? -> TRUE ))
+l1 list-remove-dublicates
+lst( 1 % 4 % 3 % 6 % )lst TO l2
+(( l1 l2 equal? -> TRUE ))
 \ CR l write-list
-l FREE-LIST
+l1 FREE-LIST
+l2 FREE-LIST
 
-%[ :NONAME 10 0 DO 2 % LOOP ; EXECUTE ]% TO l
+%[ :NONAME 10 0 DO 2 % LOOP ; EXECUTE ]% TO l1
 \ CR l write-list
-l list-remove-dublicates
+l1 list-remove-dublicates
+%[ 2 % ]% TO l2
 \ CR l write-list
-(( l %[ 2 % ]% equal? -> TRUE ))
-l FREE-LIST
+(( l1 l2 equal? -> TRUE ))
+l1 FREE-LIST
+l2 FREE-LIST
 
 \
 \ mapcar!
 
-%[ 1 % 2 % 3 % ]% TO l
-:NONAME 2 + ; l mapcar!
-(( l lst( 3 % 4 % 5 % )lst equal? -> TRUE ))
-l FREE-LIST
+%[ 1 % 2 % 3 % ]% TO l1
+:NONAME 2 + ; l1 mapcar!
+%[ 3 % 4 % 5 % ]% TO l2
+(( l1 l2 equal? -> TRUE ))
+l1 FREE-LIST
+l2 FREE-LIST
 
 \
 \ list-iter
 
-%[ 1 % 2 % 3 % ]% TO l
+%[ 1 % 2 % 3 % ]% TO l1
 VECT z
-l list-iterator TO z
+l1 list-iterator TO z
 
-(( z l equal? -> TRUE ))
-(( z l cdr equal? -> TRUE ))
+(( z l1 equal? -> TRUE ))
+(( z l1 cdr equal? -> TRUE ))
 (( z length -> 1 ))
 (( z empty? -> TRUE ))
 
-(( 0 :NONAME l list-> car + ; EXECUTE -> 6 ))
-l FREE-LIST
+(( 0 :NONAME l1 list-> car + ; EXECUTE -> 6 ))
+l1 FREE-LIST
+' z BEHAVIOR DESTROY-VC
 
 \
 \ zipcar!
 
-%[ 1 % 2 % 3 % 4 % 5 % ]% TO l
-' + l zipcar!
-(( l %[ 3 % 5 % 7 % 9 % ]% equal? -> TRUE ))
-l FREE-LIST
+%[ 1 % 2 % 3 % 4 % 5 % ]% TO l1
+' + l1 zipcar!
+%[ 3 % 5 % 7 % 9 % ]% TO l2
+(( l1 l2 equal? -> TRUE ))
+l1 FREE-LIST
+l2 FREE-LIST
 
 \
 \ map2
 
 1 1 1 1 1 1 DEPTH nlist TO l1
 2 3 0 -2 3 4 DEPTH nlist TO l2
-%[ :NONAME car SWAP car + % ; l1 l2 map2 ]% TO l
-(( l %[ 3 % 4 % 1 % -1 % 4 % 5 % ]% equal? -> TRUE ))
-l FREE-LIST
+%[ :NONAME car SWAP car + % ; l1 l2 map2 ]% ( list )
+l1 FREE-LIST
+l2 FREE-LIST
+( list ) TO l1
+%[ 3 % 4 % 1 % -1 % 4 % 5 % ]% TO l2
+(( l1 l2 equal? -> TRUE ))
 l1 FREE-LIST
 l2 FREE-LIST
 
