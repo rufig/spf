@@ -19,12 +19,13 @@
 
 \ —делано :
 \ () выделение подвыражени€
-\ + оператор "1 или больше"
 \ ? оператор "0 или 1"
-\ * оператор "1 или больше"
+\ * оператор "0 или больше"
+\ + оператор "1 или больше"
 \ | оператор "или"
 \ . любой символ
 \ \ квотирование специальных (этих) символов
+\ \w \s \d \W \S \D \t \n \r \x3F
 
 \ -----------------------------------------------------------------------
 
@@ -39,13 +40,14 @@
 
 \ -----------------------------------------------------------------------
 
+REQUIRE STR@ ~ac/lib/str5.f
+REQUIRE >= ~profit/lib/logic.f
 REQUIRE ANSI-FILE lib/include/ansi-file.f
 REQUIRE состо€ние ~profit/lib/chartable.f
 REQUIRE { lib/ext/locals.f
 REQUIRE list-find ~ygrek/lib/list/more.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE DOT-LINK ~ygrek/lib/dot.f
-REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE BOUNDS ~ygrek/lib/string.f
@@ -231,7 +233,7 @@ S" .\()*|+?{" all-asc: symbol liter ;
 symbol: t 0x09 liter ; \ Tab
 symbol: n 0x0A liter ; \ LF
 symbol: r 0x0D liter ; \ CR
-symbol: x \ \x1B - символ с кодом 0x1B
+symbol: x \ \x3F - символ с кодом 0x3F
    отсюда 2 + re_limit > IF ABORT THEN
    отсюда 2 HEXNUMBER liter
    отсюда 2 + поставить-курсор ;
@@ -383,9 +385,6 @@ all: CR ." ALREADY IN ERROR STATE!" ;
    DUP .out2 @ ?DUP IF RECURSE THEN
    FREE-NFA ;
 
-\ освободить всю структуру данных представл€ющую регул€рное выражение
-: FREE-NFA-TREE ( nfa -- ) (FREE-NFA-TREE) clean-visited ;
-
 \ разобрать RE заданное строкой a u
 \ в случае ошибки синтаксиса - выкидываетс€ исключение
 : (parse-full) ( a u -- nfa )
@@ -402,8 +401,11 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 
 EXPORT
 
+\ освободить всю структуру данных представл€ющую регул€рное выражение
+: free-regex ( re -- ) (FREE-NFA-TREE) clean-visited ;
+
 \ построить регексп в динамической пам€ти
-: build-regex
+: build-regex ( a u -- re )
    \ 0 indent !
    ['] NEW-NFA-DYN TO NEW-NFA (parse-full) ;
 
@@ -444,7 +446,7 @@ EXPORT
 
 \ ? - флаг успеха
 : dotto: ( nfa "name" -- ? )
-   ['] build-regex CATCH IF 2DROP PARSE-NAME 2DROP FALSE ELSE PARSE-NAME dottify TRUE THEN ;
+   ['] build-regex CATCH IF 2DROP PARSE-NAME 2DROP FALSE ELSE >R R@ PARSE-NAME dottify R> free-regex TRUE THEN ;
 
 DEFINITIONS
 
@@ -526,7 +528,7 @@ EXPORT
 : re_match? ( a u re-a re-u -- ? )
    build-regex >R
    R@ regex_match?
-   R> FREE-NFA-TREE ;
+   R> free-regex ;
 
 \ выделить строку ограниченную кавычкой
 \ кавычки внутри строки квот€тс€ бэкслешем \" - будут заменены во врем€ _компил€ции_ на одну кавычку
@@ -545,7 +547,7 @@ EXPORT
     2DUP + 1- C@ [CHAR] \ =
    WHILE
     1- R@ STR+
-    " {''}" R@ S+
+    '' R@ STR+
    REPEAT
    R@ STR+
    R@ STR@ POSTPONE BUILD-REGEX-HERE
@@ -666,8 +668,8 @@ END-TESTCASES
 
 TESTCASES RE"
 
-(( " 123{''}qwerty{''}" STR@ qqq -> TRUE ))
-(( " 123{''}qwerty"     STR@ qqq -> FALSE ))
+(( " 123{''}qwerty{''}" DUP STR@ qqq SWAP STRFREE -> TRUE ))
+(( " 123{''}qwerty"     DUP STR@ qqq SWAP STRFREE -> FALSE ))
 
 (( S" hello1@example.com" email? -> TRUE ))
 (( S" hello_world@example.com" email? -> TRUE ))
@@ -680,20 +682,23 @@ TESTCASES RE"
 
 END-TESTCASES
 
-
 \ ѕример убивающий backtracking реализации регул€рных выражений
 \ сопоставление строки aa..(N раз)..a
 \ и регекспа a?a?..(N раз)..a?aa..(N раз)..a
 
 : s^n { n s -- ss..(N раз)..s } "" n 0 DO DUP s STR@ ROT STR+ LOOP ;
 
-: r1 { n s | -- s }
+: r1 { n s | q -- s }
    n s s^n
-   n " {$s}?" s^n TUCK S+ ;
+   " {$s}?" -> q
+   n q s^n TUCK S+
+   q STRFREE ;
 
-: test { n | s r -- ? }
-   n " a" s^n -> s
-   n " a" r1 -> r
+: test { n | q s r -- ? }
+   " a" -> q
+   n q s^n -> s
+   n q r1 -> r
+   q STRFREE
    CR
    CR
    s STR@ r STR@ re_match? IF ." It matches" ELSE ." Failed" THEN
