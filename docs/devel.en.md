@@ -15,7 +15,8 @@
 
 ----
 
-[[Network](#net)] [[Graphics](#graph)] [[Archives](#arc)] [[Linked lists](#list)] [[Records](#record)] [[Data structures](#data)] [[Sort and search](#sort-n-search)] [[Techniques](#techniques)] [[Debugging](#debug)] [[Random numbers](#random)] [[Hash tables](#hash)] [[Hash functions](#hash-func)] [[Compiletime constants](#compiletime-const)] [[User Interface](#ui)] [[Windows COM](#WinCOM)] [[Windows services](#services)] [[Date and time](#datetime)] [[Databases](#db)] [[Threads](#threads)] [[Windows registry and ini](#ini-registry)] [[Strings](#str)] [[Files](#files)] [[XML](#xml)] [[OOP](#oop)] [[Vocabularies](#vocs)] [[Memory](#mem)] [[Miscellaneous](#misc)]
+<<<<<<< devel.en.md
+[[Network](#net)] [[Graphics](#graph)] [[Archives](#arc)] [[Linked lists](#list)] [[Records](#record)] [[Data structures](#data)] [[Sort and search](#sort-n-search)] [[Techniques](#techniques)] [[Debugging](#debug)] [[Random numbers](#random)] [[Hash tables](#hash)] [[Hash functions](#hash-func)] [[Compiletime constants](#compiletime-const)] [[User Interface](#ui)] [[Windows COM](#WinCOM)] [[Windows services](#services)] [[Date and time](#datetime)] [[Databases](#db)] [[Threads](#threads)] [[Windows registry and ini](#ini-registry)] [[Strings](#str)] [[Files](#files)] [[XML](#xml)] [[OOP](#oop)] [[Vocabularies](#vocs)] [[Memory](#mem)] [[Miscellaneous](#misc)]  [[Encodings](#encoding)]
 
 ----
 
@@ -32,6 +33,7 @@
 * REQUIRE PutFileTr <a href='../devel/~ac/lib/win/winsock/transmit.f'>~ac/lib/win/winsock/transmit.f</a> \\ high-speed file transmition in Windows 
 * REQUIRE SnmpInit <a href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ SNMP support
 * REQUIRE GET-FILE-VIAPROXY <a href='../devel/~ac/lib/lin/curl/curl.f'>~ac/lib/lin/curl/curl.f</a> \\ cURL-wrapper - send/receive files via HTTP/FTP/etc
+* REQUIRE WEB-SERVER <a href='../devel/~nn/lib/web/server.f'>~nn/lib/web/server.f</a> \\ simple HTTP-server
 * \\ ~nn/lib/net/ \\ HTTP, POP3, FTP, etc 
 
 <a id="graph"/>
@@ -115,7 +117,6 @@
 ### \\ Cryptographic hashes
 * REQUIRE MD5 <a href='../devel/~clf/md5.f'>~clf/md5.f</a> 
 * REQUIRE MD5 <a href='../devel/~clf/md5-ts.f'>~clf/md5-ts.f</a> \\ thread safe 
-* REQUIRE SHAbuffer <a href='../devel/~nn/lib/security/SHA256.f'>~nn/lib/security/SHA256.f</a> 
 * REQUIRE MD5 <a href='../lib/alg/md5-jz.f'>lib/alg/md5-jz.f</a> 
 
 <a id="compiletime-const"/>
@@ -243,3 +244,11 @@
 * REQUIRE CONST <a href='../devel/~micro/lib/const/const.f'>~micro/lib/const/const.f</a> \\ constants enumeration
 * REQUIRE ENUM <a href='../devel/~ygrek/lib/enum.f'>~ygrek/lib/enum.f</a> \\ enumerating similar words
 * REQUIRE enqueueNOTFOUND <a href='../devel/~pinka/samples/2006/core/trans/nf-ext.f'>~pinka/samples/2006/core/trans/nf-ext.f</a> \\ extending translators (NOTFOUND)
+
+
+<a id="encoding"/>
+### \\ Encodings
+* REQUIRE UNICODE\>UTF8  <a href='../devel/~ac/lib/win/com/com.f'>~ac/lib/win/com/com.f</a> \\ Convertation from Unicode (UTF-16) to UTF-8 and reverse
+* REQUIRE unicode\> <a href='../devel/~day/lib/unicode.f'>~day/lib/unicode.f</a> \\ Convertation from Unicode to ANSI and reverse
+* REQUIRE utf8Decode <a href='../devel/~profit/lib/utf8.f'>~profit/lib/utf8.f</a> \\ Covertation from UTF-8 to Unicode (UTF-16). Doesn't use WINAPI\'s functions
+* REQUIRE debase64 <a href='../devel/~ac/lib/string/conv.f'>~ac/lib/string/conv.f</a> \\ base64, win-koi, urlencode etc. 

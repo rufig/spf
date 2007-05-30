@@ -1,4 +1,4 @@
-[SP-Forth](readme.ru.html): Дополнительные библиотеки
+co[SP-Forth](readme.ru.html): Дополнительные библиотеки
 =====================================================
 
 <title>SP-Forth: Дополнительные библиотеки</title>
@@ -15,7 +15,8 @@
 
 ----
 
-[[Сеть](#net)] [[Графика](#graph)] [[Архиваторы](#arc)] [[Связные списки](#list)] [[Записи](#record)] [[Структуры данных](#data)] [[Сортировка и поиск](#sort-n-search)] [[Techniques](#techniques)] [[Отладка](#debug)] [[Случайные числа](#random)] [[Расстановочные таблицы](#hash)] [[Хэш функции](#hash-func)] [[Константы времени компиляции](#compiletime-const)] [[User interface](#ui)] [[Windows COM](#WinCOM)] [[Службы(сервисы) Windows](#services)] [[Дата и время](#datetime)] [[Базы данных](#db)] [[Потоки](#threads)] [[Реестр и INI Windows](#ini-registry)] [[Строки](#str)] [[Файлы](#files)] [[XML](#xml)] [[OOP](#oop)] [[Словари](#vocs)] [[Память](#mem)] [[Разное](#misc)] 
+<<<<<<< devel.ru.md
+[[Сеть](#net)] [[Графика](#graph)] [[Архиваторы](#arc)] [[Связные списки](#list)] [[Записи](#record)] [[Структуры данных](#data)] [[Сортировка и поиск](#sort-n-search)] [[Techniques](#techniques)] [[Отладка](#debug)] [[Случайные числа](#random)] [[Расстановочные таблицы](#hash)] [[Хэш функции](#hash-func)] [[Константы времени компиляции](#compiletime-const)] [[User interface](#ui)] [[Windows COM](#WinCOM)] [[Службы(сервисы) Windows](#services)] [[Дата и время](#datetime)] [[Базы данных](#db)] [[Потоки](#threads)] [[Реестр и INI Windows](#ini-registry)] [[Строки](#str)] [[Файлы](#files)] [[XML](#xml)] [[OOP](#oop)] [[Словари](#vocs)] [[Память](#mem)] [[Разное](#misc)] [[Кодировки](#encoding)]
 
 ----
 
@@ -32,6 +33,7 @@
 * REQUIRE PutFileTr <a href='../devel/~ac/lib/win/winsock/transmit.f'>~ac/lib/win/winsock/transmit.f</a> \\ поддержка высокопроизводительной передачи файлов в Windows 
 * REQUIRE SnmpInit <a href='../devel/~ac/lib/win/snmp/snmp.f'>~ac/lib/win/snmp/snmp.f</a> \\ поддержка SNMP 
 * REQUIRE GET-FILE-VIAPROXY <a href='../devel/~ac/lib/lin/curl/curl.f'>~ac/lib/lin/curl/curl.f</a> \\ cURL-wrapper - поддержка приема/передачи по HTTP/FTP/etc) 
+* REQUIRE WEB-SERVER <a href='../devel/~nn/lib/web/server.f'>~nn/lib/web/server.f</a> \\ простой HTTP-сервер
 * \\ ~nn/lib/net/ \\ HTTP, POP3, FTP, etc 
 
 <a id="graph"/>
@@ -115,7 +117,6 @@
 ### \\ Хэш-функции (криптографические) 
 * REQUIRE MD5 <a href='../devel/~clf/md5.f'>~clf/md5.f</a> 
 * REQUIRE MD5 <a href='../devel/~clf/md5-ts.f'>~clf/md5-ts.f</a> \\ thread safe 
-* REQUIRE SHAbuffer <a href='../devel/~nn/lib/security/SHA256.f'>~nn/lib/security/SHA256.f</a> 
 * REQUIRE MD5 <a href='../lib/alg/md5-jz.f'>lib/alg/md5-jz.f</a> 
 
 <a id="compiletime-const"/>
@@ -241,5 +242,12 @@
 <a id="misc"/>
 ### \\ Разное
 * REQUIRE CONST <a href='../devel/~micro/lib/const/const.f'>~micro/lib/const/const.f</a> \\ перечисление констант 
-* REQUIRE ENUM <a href='../devel/~ygrek/lib/enum.f'>~ygrek/lib/enum.f</a> \\ перечисление подобных слов 
+* REQUIRE ENUM <a href='../devel/~ygrek/lib/enum.f'>~ygrek/lib/enum.f</a> \\ перечисление подобных слов
 * REQUIRE enqueueNOTFOUND <a href='../devel/~pinka/samples/2006/core/trans/nf-ext.f'>~pinka/samples/2006/core/trans/nf-ext.f</a> \\ добавление в список трансляторов (NOTFOUND)
+
+<a id="encoding"/>
+### \\ Кодировки
+* REQUIRE UNICODE\>UTF8  <a href='../devel/~ac/lib/win/com/com.f'>~ac/lib/win/com/com.f</a> \\ Преобразование в Unicode (UTF-16) в UTF-8 и обратно
+* REQUIRE unicode\> <a href='../devel/~day/lib/unicode.f'>~day/lib/unicode.f</a> \\ Преобразование Unicode в однобайтовую кодировку (ANSI) и наоборот
+* REQUIRE debase64 <a href='../devel/~ac/lib/string/conv.f'>~ac/lib/string/conv.f</a> \\ base64, win-koi, urlencode и др. 
+* REQUIRE utf8Decode <a href='../devel/~profit/lib/utf8.f'>~profit/lib/utf8.f</a> \\ Преобразование UTF-8 в Unicode (UTF-16). Без использования функций WINAPI
