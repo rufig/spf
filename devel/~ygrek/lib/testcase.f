@@ -1,3 +1,4 @@
+\ $Id$
 \ 30.Dec.2006 taken from forthgui by ~day
 
 ( testcase.f day )
@@ -18,7 +19,7 @@ EXPORT
 VARIABLE VERBOSE
    TRUE VERBOSE !
 VARIABLE USE-TESTS
-   TRUE USE-TESTS !   
+   TRUE USE-TESTS !
 
 DEFINITIONS
 
@@ -79,15 +80,15 @@ EXPORT
    IF DUP >R TYPE CR R> >IN !
    ELSE >IN ! DROP
    THEN ;
-   
+
 \ comparing arrays
 : TEST-ARRAY ( addr u addr1 u1 )
    >R OVER R@ = R> SWAP
    INVERT
-   IF 
+   IF
       S" DIFFERENT LENGTH: " ERROR
    ELSE
-     COMPARE 
+     COMPARE
      IF
         S" ARRAYS DIFFERS BY CONTENT: " ERROR
      THEN
@@ -116,7 +117,9 @@ EXPORT
     CR ." TEST PASSED"
 ;
 
-;MODULE 
+;MODULE
+
+\EOF \ Пример использования
 
 TESTCASES testcase.f
 
@@ -126,7 +129,7 @@ TESTCASES testcase.f
 : stest S" abc" ;
 
 (( test -> 1 1 )) \ good
-\ { test -> 1 0 } \ wrong
+\ (( test -> 1 0 )) \ wrong
 
 stest S" abc" TEST-ARRAY \ good
 \ stest S" abd" TEST-ARRAY \ wrong
