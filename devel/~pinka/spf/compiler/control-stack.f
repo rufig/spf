@@ -30,7 +30,7 @@ USER Z9
   /Z + DUP Z0 ! ZP !
 ;
 
-S" ~pinka/samples/2006/model/zstack.immutable.f" INCLUDED
+S" ~pinka/samples/2004/test/zstack/zstack.immutable.f" INCLUDED
 
 EXPORT
 
