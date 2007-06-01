@@ -1,0 +1,51 @@
+Скопировано файлов:         1.
+
+D:\cvsSPF\src>cd .. 
+Wait a bit while compiling...
+Base address of the image 0x552000 
+=============================================================
+Done. Saving the system.
+=============================================================
+SP-FORTH - ANS FORTH 94 for Win95/98/ME/NT/2000/XP
+Open source project at http://spf.sf.net
+Russian FIG at http://www.forth.org.ru ; Started by A.Cherezov
+Version 4.18 Build 065 at 01.Jun.2007
+
+
+DONE The system has been saved
+D:\cvsSPF>set spf=.\spf4.exe 
+SP-FORTH - ANS FORTH 94 for Win95/98/ME/NT/2000/XP
+Open source project at http://spf.sf.net
+Russian FIG at http://www.forth.org.ru ; Started by A.Cherezov
+Version 4.18 Build 065 at 01.Jun.2007
+
+testing: devel\~moleg\lib\util\ifdef.f                                 passed
+testing: devel\~moleg\lib\util\addr.f                                  passed
+testing: devel\~moleg\lib\util\compile.f                               passed
+testing: devel\~moleg\lib\util\ifnot.f                                 passed
+testing: devel\~moleg\lib\util\doloop.f                                passed
+testing: devel\~moleg\lib\util\double.f                                passed
+testing: devel\~moleg\lib\util\iw.f                                    passed
+testing: devel\~moleg\lib\util\shades.f                                passed
+testing: devel\~moleg\lib\util\ansi-esc.f                              passed
+testing: devel\~moleg\lib\util\useful.f                                passed
+testing: devel\~moleg\lib\util\on-error.f                              passed
+testing: devel\~moleg\lib\util\control.f                               passed
+testing: devel\~moleg\lib\util\ifcolon.f                               passed
+testing: devel\~moleg\lib\arrays\arrays.f                              passed
+testing: devel\~moleg\lib\arrays\buff.f                                passed
+testing: devel\~moleg\lib\parsing\number.f                             passed
+testing: devel\~moleg\lib\parsing\xWord.f                              passed
+testing: devel\~moleg\lib\postscript\dsadd.f                           passed
+testing: devel\~moleg\lib\postscript\ps{}.f                            passed
+testing: devel\~moleg\lib\strings\messages.f                           passed
+testing: devel\~moleg\lib\strings\sconst.f                             passed
+testing: devel\~moleg\lib\strings\string.f                             passed
+testing: devel\~moleg\lib\strings\subst.f                              passed
+testing: devel\~moleg\lib\struct\struct.f                              passed
+testing: devel\~moleg\lib\drafts\vars.f                                passed
+testing: devel\~moleg\lib\newfind\clear.f                              passed
+testing: devel\~moleg\lib\newfind\new_find.f                           passed
+testing: devel\~moleg\lib\newfind\spf_find.f                           passed
+testing: devel\~moleg\lib\testing\testing.f                            passed
+testing: devel\~moleg\lib\testing\say.f                                passed
