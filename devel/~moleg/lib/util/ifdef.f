@@ -1,19 +1,23 @@
 \ 25-05-2007 ~mOleg
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
-\ ¢ë¯®«­¨âì ¤¥©áâ¢¨¥, ¥á«¨ á«®¢® ­¥ ­ ©¤¥­®
+\ âûïîëíèòü äåéñòâèå, åñëè ñëîâî íå íàéäåíî
 
-\ ¢¥à­ãâì TRUE ¥á«¨ á«¥¤ãîé¥¥ á«®¢® ­ ©¤¥­® ¢ ª®­â¥ªáâ¥
+\ âåðíóòü TRUE åñëè ñëåäóþùåå ñëîâî íàéäåíî â êîíòåêñòå
 : ?WORD ( / token --> flag )
         SP@ >R  NextWord SFIND
         IF R> SP! TRUE
          ELSE R> SP! FALSE
         THEN ;
 
-\ ¢ë¯®«­¨âì á«¥¤ãîé¨© §  token ª®¤, ¥á«¨ token ­¥ ­ ©¤¥­ ¢ ª®­â¥ªáâ¥
+\ âûïîëíèòü ñëåäóþùèé çà token êîä, åñëè token íå íàéäåí â êîíòåêñòå
 : ?DEFINED ( / token --> ) ?WORD IF [COMPILE] \ THEN ; IMMEDIATE
 
-\ ¢ë¯®«­¨âì á«¥¤ãîé¨© §  token ª®¤, ¥á«¨ token ­ ©¤¥­ ¢ ª®­â¥ªáâ¥
+\ âûïîëíèòü ñëåäóþùèé çà token êîä, åñëè token íàéäåí â êîíòåêñòå
 : N?DEFINED ( / token --> ) ?WORD IF ELSE [COMPILE] \ THEN ; IMMEDIATE
+
+?DEFINED test{ \EOF
+
+test{  S" passed" TYPE }test
 
 \EOF -- sample --------------------------------------------------------------
 

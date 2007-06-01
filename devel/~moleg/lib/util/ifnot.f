@@ -1,11 +1,11 @@
-\ 21-02-2007 ~mOleg 
+\ 21-02-2007 ~mOleg
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ конструкции, которых не хватает в СПФ
 
-REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
 \ выдает смещение от текущего адреса до указанного.
-?: atod ( addr --> disp )  HERE CELL+ - ;
+?DEFINED atod : atod ( addr --> disp )  HERE CELL+ - ;
 
 \ ветвление по нулю
 : N?BRANCH, ( ? )
@@ -24,15 +24,24 @@ REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
 \ продолжать цикл, если 0
 : WHILENOT ( flag --> ) ?COMP 0 N?BRANCH, >MARK 1 2SWAP ; IMMEDIATE
 
-\EOF
+?DEFINED test{ \EOF \ -- тестовая секция -------------------------------------
 
-: sample ( flag --> ) IFNOT ." zero flag" ELSE ." non zero flag" THEN ;
-FALSE DUP . sample CR
-TRUE DUP . sample CR
+test{
+      12345 CONSTANT zzzz
+      09845 CONSTANT xxxx
 
-: proba ( flag --> ) BEGIN DUP . DUP WHILENOT 1 - REPEAT . ;
-0 proba CR
-10 proba CR
+      : sample ( flag --> n ) IFNOT zzzz ELSE xxxx THEN ;
+      TRUE sample xxxx <> THROW
+      FALSE sample zzzz <> THROW
+
+      : simple ( flag --> )
+               zzzz BEGIN SWAP WHILENOT DROP TRUE xxxx REPEAT ;
+
+      FALSE simple xxxx <> THROW
+      TRUE simple zzzz <> THROW
+
+      S" passed" TYPE
+}test
 
 
 
