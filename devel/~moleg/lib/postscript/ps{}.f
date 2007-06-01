@@ -2,11 +2,16 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ реализация исполнимых массивов для постскрипта
 
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+REQUIRE Unit:    devel\~moleg\lib\struct\struct.f
+
+: 1-! ( addr --> ) DUP @ 1 - SWAP ! ;
+
 Unit: eArray
 
-\ ”””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””
+\ ----------------------------------------------------------------------------
 
-\      5 CONSTANT nesting
+      5 CONSTANT nesting
 
 CREATE nStack 0 , nesting CELLS ALLOT
 
@@ -27,9 +32,9 @@ CREATE nStack 0 , nesting CELLS ALLOT
 : n>  ( --> ) na @ DP !  n-- ;
 : >n  ( --> ) n++ HERE na ! ;
 
-\ ”””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””
+\ ----------------------------------------------------------------------------
 
-\    1000 CONSTANT def#
+    1000 CONSTANT def#
 
 F: :def ( --> addr )
        def# ALLOCATE THROW
@@ -41,6 +46,12 @@ F: ;def ( addr --> addr )
        n> nd IF ] THEN
        ;F
 EndUnit
+
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ \ пока просто тест на подключаемость.
+  S" passed" TYPE
+}test
 
 \EOF
 

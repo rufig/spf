@@ -5,12 +5,11 @@
 \    Иногда необходимо выполнять определенные действия транзактивно,
 \ то есть в случае ошибки обработки нужно восстановить, например,
 \ измененные переменные, контекст, текущий словарь, закрыть открытый
-\ файл и тому подобные вещи. Для этого предназначена эта либа.
+\ файл и тому подобные вещи и при этом нет никакой возможности
+\ воспользоваться CATCH THROW механизмом...
 
-\ для подключения лишь уникальных слов:
-REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
-
- ?: ADDR 4 ;  ?: A@ @ ; ?: A! ! ; ?: IS [COMPILE] TO ; IMMEDIATE
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+REQUIRE ADDR     devel\~moleg\lib\util\addr.f
 
 \ ---------------------------------------------------------------------------
 
@@ -50,7 +49,19 @@ REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
 
 \ настройка обработчика - должна выполняться один раз на поток:
         ' ERROR2 err-handler !
-        ' IS-ERROR IS ERROR
+        ' IS-ERROR TO ERROR
+
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ : sample DROP BYE ;
+      : simple S" passed" TYPE CR ;
+      : error CR S" can't perform EXIT-ERROR" TYPE ;
+      ' sample ON-ERROR
+      ' simple ON-ERROR
+      ' error ON-ERROR
+      EXIT-ERROR
+      alskjfl   \ это ошибка
+}test
 
 \EOF -- тестовая секция -----------------------------------------------------
 
@@ -64,8 +75,6 @@ REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
 
  adfasdf  \ это ошибка 8)
 \ после отработки ошибок в стеке обработчиков остается лишь один системный
-
-
 
 
 

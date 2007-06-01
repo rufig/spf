@@ -2,6 +2,8 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ сообщения (см описание в .\description)
 
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+
         VOCABULARY msg
                         ALSO msg DEFINITIONS
 
@@ -104,7 +106,11 @@ ALSO msg
 
 PREVIOUS
 
-\ ---------------------------------------------------------------------------
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ \ пока просто тест на подключаемость.
+  S" passed" TYPE
+}test
 
 \EOF тестовая секция --------------------------------------------------------
 

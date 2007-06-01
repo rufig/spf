@@ -2,13 +2,18 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ заменяем неудобный SFIND на более логичный
 
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+
 \ порядок следования параметров теперь будет следующим:
 \ ( asc # --> asc # false | wid imm true )
 \ то есть всегда возвращаем три числа!
 \ либо возвращаем начальную строку с признаком false
 \ либо - адрес флаг_immediate true
 
-S" tools.f" INCLUDED  \ можно убрать, но тогда нужно убирать и все [IF]-ы и т.п.
+S" lib\include\tools.f" INCLUDED
+\ можно убрать, но тогда нужно убирать и все [IF]-ы и т.п.
+
+FALSE WARNING !
 
 \ в СПФ4 - это слово работает не очень верно - переопределил
 : ?IMMEDIATE ( NFA -> F ) NAME>F C@ &IMMEDIATE AND 0<> ;
@@ -170,6 +175,14 @@ TRUE [IF] \ это вариант аналогичный стандартному
 
 \ просто мне кажется, что так назвать логичнее
 : EVAL-WORD ( asc # --> ) eval-name ;
+
+TRUE WARNING !
+
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ \ просто проверяем собирабельность кода
+  S" passed" TYPE
+}test
 
 \EOF тестовая секция
 

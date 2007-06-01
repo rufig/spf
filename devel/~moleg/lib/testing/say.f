@@ -2,6 +2,10 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ отладка кода с помощью анализа отчетов.
 
+  REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
+
+FALSE WARNING !
+
 \ ѕример очень простой реализации.
 
         0 VALUE standoff \ кол-во отступов от начала экрана
@@ -45,6 +49,16 @@
 
 \ дополн€ем стандартное ':'
 : : ( --> ) : say ;
+
+TRUE WARNING !
+
+\ дл€ выполнени€ тестов в конце файла следует закоментировать следующие
+\ отсюда до STARTLOG строки
+?DEFINED test{ \EOF
+
+test{ \ пока просто тест на подключаемость.
+  S" passed" TYPE
+}test \EOF
 
 \ дальше все происход€щее сохран€ем в spf.log
 STARTLOG
