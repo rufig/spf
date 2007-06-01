@@ -1,6 +1,8 @@
-\ 25-06-2005 ~mOleg   
+\ 25-06-2005 ~mOleg
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ работа с консолью через ANSY терминал
+
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
  \ так выглядит ANSI ESCAPE последовательность
  CREATE esc 2 C, 0x1B C, CHAR [ C,
@@ -100,7 +102,8 @@ esc-0 xy? 6n
 : ?esc[ ( addr --> flag ) W@ esc 1+ W@ = ;
 
 \ проверить наличие сервиса ANSY
-: check-ANSI xy? REFILL
+: check-ANSI ( --> )
+             xy? REFILL
              IF CharAddr ?esc[ #TIB >IN !
               ELSE FALSE
              THEN ;
@@ -113,6 +116,10 @@ esc-0 xy? 6n
 \ получить размеры области отображения
 : [XY] !csr 99 cuf 99 cud XY@ @csr ;
 
-\ ---------------------------------------------------------------------------
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ \ тут просто проверка на собираемость.
+    S" passed" TYPE
+}test
 
 

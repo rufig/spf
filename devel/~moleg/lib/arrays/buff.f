@@ -2,6 +2,9 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ неименованые накопительные буфера
 
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+REQUIRE ROUND    devel\~moleg\lib\util\useful.f
+
   \ структура буфера
   0 CELL -- off-place     \ позиция первого свободного символа в буфере
     CELL -- off-limit     \ предельный размер буфера
@@ -18,9 +21,9 @@
 
 \ добавить содержимое строки asc # в буфер
 : >Buffer ( asc # buf --> flag )
-          2DUP off-place @ +            \ asc # buf #+#
-          OVER off-limit @ OVER >       \ asc # buf #+# flag
-          IF OVER off-place ACHANGE     \ asc # buf disp
+          2DUP off-place @ +
+          OVER off-limit @ OVER >
+          IF OVER off-place change
              + off-space SWAP CMOVE
              TRUE
            ELSE 2DROP 2DROP
@@ -31,8 +34,15 @@
 : Clean ( buf --> ) 0 SWAP off-place ! ;
 
 \ освободить память занимаемую буфером
-: retire ( buf --> ) FREE THROW ;
+: Retire ( buf --> ) FREE THROW ;
 
+
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ \ пока просто проверка собираемости
+
+  S" passed" TYPE
+}test
 \EOF -- тестовая секция -----------------------------------------------------
 
 1 Buffer VALUE zzzz

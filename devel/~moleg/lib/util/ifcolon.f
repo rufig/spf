@@ -7,6 +7,8 @@
 \ !!! использовать с ядром версии не ниже 4.18 !!!
 \ ver 1.2 - добавлена реакция на системную переменную WARNING.
 
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+
 VOCABULARY recoil \ все промежуточные слова сохраняем с собственный словарь
            ALSO recoil DEFINITIONS
 
@@ -41,7 +43,7 @@ ALSO FORTH DEFINITIONS \ отсюда слова идут в базовый словарь SPF
 
 \ то же что и : только имя приходит на вершине стека данных
 \ в виде строки со счетчиком. Пример:  S" name" S: код слова ;
-: S: ( asc # --> ) SHEADER ] HIDE ;
+?DEFINED S: : S: ( asc # --> ) SHEADER ] HIDE ;
 
 \ добавить слово в текущий словарь, только если в контексте нет слова
 \ с таким же именем.
@@ -52,6 +54,15 @@ ALSO FORTH DEFINITIONS \ отсюда слова идут в базовый словарь SPF
  ' (sHeader) TO SHEADER  \ теперь обрабатываем откаты
 
 PREVIOUS PREVIOUS
+
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{  ?: simple 871654 ; 871654 simple <> THROW
+       ?: simple 672098 ; 871654 simple <> THROW
+     FALSE WARNING !
+       ?: simple 672098 ; 672098 simple <> THROW
+  S" passed" TYPE
+}test
 
 \EOF -- тестовая секция -----------------------------------------------------
 

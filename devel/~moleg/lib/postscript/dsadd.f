@@ -2,31 +2,38 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ постскрипт-подобная работа со стеком для СПФ
 
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+REQUIRE Unit:    devel\~moleg\lib\struct\struct.f
+
 Unit: psLikeMarkers
 
-	20 CONSTANT #markers
-	   USER     M0	  \ дно стека
-	   USER     MP	  \ указатель
+: CELL+! ( addr --> ) DUP @ CELL + SWAP ! ;
+: CELL-! ( addr --> ) DUP @ CELL - SWAP ! ;
+
+        20 CONSTANT #markers
+           USER     M0    \ дно стека
+           USER     MP    \ указатель
 
 \ инициализируем стек маркеров
-F: init  [ #markers CELLS ] LITERAL DUP
-	ALLOCATE THROW DUP M0 ! + MP ! ;F
+F: init ( --> )
+        [ #markers CELLS ] LITERAL DUP
+        ALLOCATE THROW DUP M0 ! + MP ! ;F
 
 \ определяет сколько всего маркеров на стеке маркеров хранится
 : Marks   ( --> n ) M0 @ MP @ - CELL / #markers + ;
 
 \ прочитать значение последнего маркера
-: m-@	  ( --> n ) Marks IF MP @ @ ELSE -1 THROW THEN ;
+: m-@     ( --> n ) Marks IF MP @ @ ELSE -1 THROW THEN ;
 
 \ извлечь последний маркер со стека маркеров на стек данных
-: m-pop   ( --> n ) Marks IF m-@ MP cell+! ELSE -1 THROW THEN ;
+: m-pop   ( --> n ) Marks IF m-@ MP CELL+! ELSE -1 THROW THEN ;
 
 \ сохранить значение со стека данных на стек маркеров
 : m-push  ( n --> )
-	  Marks #markers -
-	  IF MP DUP cell-! @ !
-	    ELSE -1 THROW
-	  THEN ;
+          Marks #markers -
+          IF MP DUP CELL-! @ !
+            ELSE -1 THROW
+          THEN ;
 EndUnit
 
 psLikeMarkers
@@ -39,6 +46,12 @@ psLikeMarkers
 
 init
 
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ \ пока просто тест на подключаемость.
+  S" passed" TYPE
+}test
+
 \EOF
      иногда хочется использовать стек данных, как массив. Слова для
 произвольного доступа к стеку данных имеются(ROLL, PICK), а вот для
@@ -47,9 +60,9 @@ init
   AddMark     - фиксирует глубину стека данных на данный момент времени
   DropMark    - удаляет последний маркер
   ClearToMark - удаляет верхние элементы со стека данных до значения
-		сохраненного по AddMark
+                сохраненного по AddMark
   CountToMark - определяет глубину стека данных от последнего сохраненного
-		маркера.
+                маркера.
   ClearMarks  - очистить стек маркеров.
 
 В постскрипте маркеры хранятся на общем стеке данных. Возможно это

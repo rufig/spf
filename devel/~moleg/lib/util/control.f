@@ -2,8 +2,11 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ структуры управления: ветвления и циклы
 
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 REQUIRE IFNOT    devel\~moleg\lib\util\ifnot.f
 REQUIRE ON-ERROR devel\~moleg\lib\util\on-error.f
+
+FALSE WARNING !
 
         \ переменная для контроля парности открывающих и закрывающих слов
         USER controls ( --> addr )
@@ -109,14 +112,32 @@ REQUIRE ON-ERROR devel\~moleg\lib\util\on-error.f
 \ Начало ветвления. Код за словом IFNOT выполняется в случае, если flag = 0
 : IFNOT ifnot ; IMMEDIATE
 
-\EOF -- тестовая секция -----------------------------------------------------
+TRUE WARNING !
+
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ 123 456 FALSE IF DROP ELSE NIP THEN 456 <> THROW
+      123 456 TRUE IF DROP ELSE NIP THEN 123 <> THROW
+   S" passed" TYPE
+}test
+
+\EOF -- примеры использования ------------------------------------------------
 
 S" должно быть true = " TYPE  1 IF ." true " ELSE ." false " THEN CR
 S" должно быть false = " TYPE 0 IF ." true " ELSE ." false " THEN CR
 : testa IF ." true " ELSE ." false " THEN CR ;
+
 S" должно быть true = " TYPE  1 testa
 S" должно быть false = " TYPE 0 testa
-S" убывающий ряд от 10 до 0 = " TYPE 10 BEGIN DUP . DUP WHILE 1 - REPEAT DROP CR
-S" убывающий ряд от 10 до 1 = " TYPE 10 BEGIN DUP . 1 - DUP 0= UNTIL DROP CR
-S" убывающий ряд от 9 до 6 = "  TYPE 10 BEGIN 1 - DUP WHILE DUP 5 <> WHILE DUP . REPEAT THEN DROP CR
-S" убывающий ряд от 10 до 6 = " TYPE 10 BEGIN DUP . 1 - DUP WHILE DUP 5 = UNTIL ELSE THEN DROP CR
+
+S" убывающий ряд от 10 до 0 = " TYPE 10
+BEGIN DUP . DUP WHILE 1 - REPEAT DROP CR
+
+S" убывающий ряд от 10 до 1 = " TYPE 10
+BEGIN DUP . 1 - DUP 0= UNTIL DROP CR
+
+S" убывающий ряд от 9 до 6 = "  TYPE 10
+BEGIN 1 - DUP WHILE DUP 5 <> WHILE DUP . REPEAT THEN DROP CR
+
+S" убывающий ряд от 10 до 6 = " TYPE 10
+BEGIN DUP . 1 - DUP WHILE DUP 5 = UNTIL ELSE THEN DROP CR

@@ -11,15 +11,10 @@
 \ то есть указать, что на стеке возвратов оказывается не три, как обычно,
 \ а четыре параметра.
 
-\ для подключения лишь уникальных слов:
-REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
+REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
+REQUIRE COMPILE   devel\~moleg\lib\util\compile.f
 
-\ делает то же, что и ['] name COMPILE,
-?: COMPILE ( --> )
-           ?COMP
-           ' LIT, ['] COMPILE, COMPILE,
-          ; IMMEDIATE
-
+FALSE WARNING !
 \ ---------------------------------------------------------------------------
 
 \ на стеке возвратов лежит 4-ре параметра.
@@ -91,17 +86,14 @@ REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
 \ уровня вложения циклов перед выходом из определения по EXIT.
 : UNLOOP ( --> ) R> RDROP RDROP RDROP RDROP >R ;
 
-\EOF -- тестовая секция -----------------------------------------------------
+TRUE WARNING !
 
-DECIMAL CR
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
-: test  CR 10 0 ." a " ?DO I . LOOP ." c " ;         test
-: testa CR 0 0  ." a " ?DO I . LOOP ." c " ;         testa
-: testb CR 10 0 ." a " ?DO I . EXIT LOOP ." c " ;    testb
-: testc CR 10 0 ." a " ?DO I . LEAVE LOOP ." c " ;   testc
-
-: testd CR 10 0 DO 10 0 DO J . I . SPACE LOOP CR LOOP ; testd
-: teste CR 10 0 DO 10 0 DO J . I . SPACE LEAVE LOOP CR LOOP ; teste
-
-: testf CR ." a " 10 0 DO ." b " I . I 5 = IF UNLOOP EXIT THEN LOOP ." c " ;
-testf
+test{ : simple 10 DUP DUP 0 DO DROP I LOOP 1 + <> THROW ; simple
+      : test?do DEPTH >R 0 0 ?DO I LOOP DEPTH R> <> THROW ; test?do
+      : testlv 3 DO I LEAVE LOOP ;
+      : testleave 10 testlv 3 <> THROW ; testleave
+      : testij 10 3 DO 10 3 DO I J UNLOOP LEAVE LOOP LOOP <> THROW ; testij
+  S" passed" TYPE
+}test

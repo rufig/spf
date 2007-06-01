@@ -2,6 +2,8 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ работа с небольшими массивами в стеке данных.
 
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+
         USER-VALUE marker
 
 \ запомнить текущий указатель стека
@@ -65,6 +67,13 @@
 \ индексы начинаются с 0
 : [i]! ( [array] # n i --> [array] # ) 1 + CELLS 2>R SP@ R> + R> SWAP ! ;
 
+
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ \ пока только проверка подключения
+
+  S" passed" TYPE
+}test
 \EOF -- тестовая секция -----------------------------------------------------
 
 1 CHARS CONSTANT char
