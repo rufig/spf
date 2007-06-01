@@ -1,13 +1,20 @@
 \ 2006-12-09 ~mOleg
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
-\ набор часто используемых слов.
+\ набор часто используемых и просто удобных слов
 
-REQUIRE WHILENOT devel\~mOleg\lib\util\ifnot.f
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+REQUIRE ADDR     devel\~moleg\lib\util\addr.f
 REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
+REQUIRE WHILENOT devel\~mOleg\lib\util\ifnot.f
+
+FALSE WARNING !
 
 \ -- константы ----------------------------------------------------------------
 
         1 CHARS CONSTANT char
+        0x0D    CONSTANT cr_
+        0x0A    CONSTANT lf_
+        0x09    CONSTANT tab_
 
 \ -- коментарии ---------------------------------------------------------------
 
@@ -46,6 +53,9 @@ REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
 
 \ перенести vid словаря с вершины контекста в CURRENT
 : THIS ( --> ) CONTEXT @ SET-CURRENT PREVIOUS ;
+
+\ поменять местами два словаря на вершине контекста
+: UNDER ( --> ) GET-ORDER DUP 1 - IF >R SWAP R> THEN SET-ORDER ;
 
 \ -- стековые манипуляции -----------------------------------------------------
 
@@ -96,7 +106,10 @@ REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
 : <back ( asc # --> ) DROP TIB - >IN ! ;
 
 \ пропустить один символ во входном потоке
-: SkipChar ( --> )  >IN @ 1 CHARS + >IN ! ;
+: SkipChar ( --> )  >IN @ char + >IN ! ;
+
+\ взять очередной символ из входного потока
+: NextChar ( --> char flag ) EndOfChunk PeekChar SWAP SkipChar ;
 
 \ вернуть адрес и длинну еще не проинтерпретированной части входного буфера.
 : REST ( --> asc # ) SOURCE >IN @ DUP NEGATE D+ 0 MAX ;
@@ -122,7 +135,21 @@ REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
 \ укоротить строку asc # на u символов от начала
 : SKIPn ( asc # u --> asc+u #-u ) OVER MIN TUCK - >R + R> ;
 
-\ -- вывод --------------------------------------------------------------------
+\ из входного потока выкусить имя файла
+: ParseFileName ( --> asc # )
+                PeekChar [CHAR] " =
+                IF [CHAR] " SkipChar
+                 ELSE BL
+                THEN PARSE
+                2DUP + 0 SWAP C! ;
+
+\ установить SOURCE на строку параметров »
+: cmdline> ( --> )
+           -1 TO SOURCE-ID
+           GetCommandLineA ASCIIZ> SOURCE!
+           ParseFileName 2DROP ;
+
+\ -- работа с буфером pad -----------------------------------------------------
 
 \ преобразовать число в символ
 : >DIGIT ( N --> Char ) DUP 0x0A > IF 0x07 + THEN 0x30 + ;
@@ -132,6 +159,22 @@ REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
 
 \ добавить указанное кол-во пробелов в PAD
 : BLANKS ( n --> ) 0 MAX BEGIN DUP WHILE BLANK 1 - REPEAT DROP ;
+
+\ инициализация буфера прямого преобразования »
+: <| ( --> ) SYSTEM-PAD HLD A! ;
+
+\ добавить символ в буфер PAD »
+\ отличие от HOLD в том, что символ добавляется в конец формируемой строки
+\ а не в ее начало.
+: KEEP ( char --> ) HLD A@ C! char HLD +! ;
+
+\ вернуть сформированную строку »
+: |> ( --> asc # ) 0 KEEP SYSTEM-PAD HLD A@ OVER - char - ;
+
+\ добавить строку в буфер PAD »
+\ действие аналогично HOLDS за исключением того, что строка добавляется
+\ в конец формируемой строки, а не в ее начало.
+: KEEPS ( asc # --> ) HLD A@ OVER HLD +! SWAP CMOVE ;
 
 \ -- распределение пространства форт системы ----------------------------------
 
@@ -174,4 +217,12 @@ REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
 
 \ то же что и : только имя приходит на вершине стека данных
 \ в виде строки со счетчиком. Пример:  S" name" S: код слова ;
-: S: ( asc # --> ) SHEADER ] HIDE ;
+?DEFINED S: : S: ( asc # --> ) SHEADER ] HIDE ;
+
+TRUE WARNING !
+
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ \ тут просто проверка на собираемость.
+  S" passed" TYPE
+}test

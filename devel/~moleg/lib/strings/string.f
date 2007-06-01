@@ -2,37 +2,10 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ строковые литералы с поддержкой символов подстановки \n \r \t \\ \" \123
 
-\ для подключения лишь уникальных слов:
-REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+REQUIRE KEEP     devel\~moleg\lib\util\useful.f
 
-?: A! ! ; ?: A@ @ ; ?: char 1 CHARS ;
-
-\ пропустить один символ во входном потоке »
-?: SkipChar ( --> ) char >IN +! ;
-
-\ взять очередной символ из входного потока
-\ flag = TRUE если входной поток исчерпан
-?: NextChar ( --> char flag ) EndOfChunk PeekChar SWAP SkipChar ;
-
-\ ---------------------------------------------------------------------------
-
-\ инициализация буфера
-: <| ( --> ) SYSTEM-PAD HLD A! ;
-
-\ добавить символ во буфер PAD
-\ отличие от HOLD в том, что символ добавляется в конец формируемой строки
-\ а не в ее начало.
-: KEEP ( char --> ) HLD A@ C! char HLD +! ;
-
-\ вернуть сформированную строку
-: |> ( --> asc # ) 0 KEEP SYSTEM-PAD HLD A@ OVER - ;
-
-\ добавить строку в буфер PAD
-\ действие аналогично HOLDS за исключением того, что строка добавляется
-\ в конец формируемой строки, а не в ее начало.
-: KEEPS ( asc # --> ) HLD A@ OVER HLD +! SWAP CMOVE ;
-
-\ ---------------------------------------------------------------------------
+FALSE WARNING !
 
 \ преобразовать запись \123 в код символа
 : CharCode ( asc # --> char )
@@ -62,11 +35,23 @@ REQUIRE ?: devel\~moleg\lib\util\ifcolon.f
               THEN -1 THROW ;
 
 \ добавить литеральную строку в определение (либо просто вернуть строку)
-: S" ( / name" --> ) [CHAR] " CookLine [COMPILE] SLITERAL ; IMMEDIATE
+: s" ( / name" --> ) [CHAR] " CookLine [COMPILE] SLITERAL ; IMMEDIATE
+
+\ выделить строку, ограниченную символом " из входного потока,
+\ компилировать в текущее слово код, выводящий строку на экран терминала
+: ." ( --> ) ?COMP [COMPILE] s" COMPILE TYPE ; IMMEDIATE
+
+TRUE WARNING !
+
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ \ пока просто тест на подключаемость.
+  S" passed" TYPE
+}test
 
 \EOF -- тестовая секция ----------------------------------------------------
 
-: test S" \tSimple\nsample\n\"text\" \nwith\123codes\125" TYPE ;
+: test s" \tSimple\nsample\n\"text\" \nwith\123codes\125" TYPE ;
 test
 
 

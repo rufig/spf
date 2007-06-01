@@ -3,6 +3,8 @@
 \ разбор строк с различного вида разделителями
 \ в том числе, когда разделители должны исполняться
 
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+
 \ взять из строки число в шестнадцатиричном виде
 : HCHAR ( addr # -> CHAR ) 0 0 2SWAP >NUMBER IF THROW THEN 2DROP ;
 
@@ -16,9 +18,7 @@
                REPEAT 2DROP
               THEN
               RDROP
-              R> BASE !
-              ;
-
+              R> BASE ! ;
 
 \ создать список разделителей
 \ разделители пишутся в 16 виде, могут находиться только на одной строке
@@ -27,7 +27,6 @@
              ( --> addr )
              DOES> ;
 
-
 : xWord ( delim --> ASC # )
         CharAddr >R
         BEGIN GetChar WHILE
@@ -35,8 +34,13 @@
               >IN 1+!
           REPEAT DUP
         THEN 2DROP
-        R> CharAddr OVER -
-        ;
+        R> CharAddr OVER - ;
+
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ \ пока просто тест на подключаемость.
+  S" passed" TYPE
+}test
 
 \EOF
 

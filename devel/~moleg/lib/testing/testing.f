@@ -3,9 +3,11 @@
 \ Автоматическое тестирование библиотек, кода.
 
 \ поддержка IFNOT WHILENOT
-REQUIRE IFNOT devel\~moleg\lib\util\ifnot.f
-REQUIRE ?:    devel\~moleg\lib\util\ifcolon.f
-              ?: A! ! ; ?: A@ @ ;
+REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
+REQUIRE ADDR      devel\~moleg\lib\util\addr.f
+REQUIRE IFNOT     devel\~moleg\lib\util\ifnot.f
+
+FALSE WARNING !
 
 \ 10-11-2006 решение проблемы необработки литералов стандартным EVAL-WORD
 : eval-word
@@ -33,7 +35,7 @@ CREATE russian   \ сообщения на русском языке
 
 \ то же что и : только имя приходит на вершине стека данных в виде строки
 \ со счетчиком:   S" name" S: код слова ;
-: S: ( asc # --> ) SHEADER ] HIDE ;
+?DEFINED S: : S: ( asc # --> ) SHEADER ] HIDE ;
 
 \ слово берет очередную лексему из входного потока до тех пор, пока он »
 \ не исчерпается.
@@ -238,6 +240,14 @@ eng-delimiter S: CR ." eng section start is missed!" ABORT ; IMMEDIATE
          ?DO DUP DUP @ SWAP CELL+ @ OVER ! SWAP 2 CELLS - LOOP
          DROP R> SET-ORDER
          DP ! ;
+
+TRUE WARNING !
+
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ \ пока просто тест на подключаемость.
+  S" passed" TYPE
+}test
 
 \ ---------------------------------------------------------------------------
 
