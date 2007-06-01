@@ -1,6 +1,10 @@
 \ 11-11-2006 ~mOleg
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
-\ мое предложение дл€ замены стандартного —ѕ‘овского sfind 
+\ мое предложение дл€ замены стандартного —ѕ‘овского sfind
+
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+
+FALSE WARNING !
 
 \ на во-первых, написанный на форте, а во вторых
 \            немного иначе разбитый Sfind. оригинальный текст вз€т
@@ -78,3 +82,11 @@ DECIMAL
 : FIND1 ( c-addr -- c-addr 0 | xt 1 | xt -1 ) \ 94 SEARCH
         DUP >R COUNT SFIND
         DUP 0= IF NIP NIP R> SWAP ELSE RDROP THEN ;
+
+TRUE WARNING !
+
+?DEFINED test{ \EOF -- тестова€ секци€ ---------------------------------------
+
+test{ \ просто провер€ем собирабельность кода
+  S" passed" TYPE
+}test

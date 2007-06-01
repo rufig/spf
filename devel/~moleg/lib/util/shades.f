@@ -2,6 +2,8 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ работа с теневыми регистрами
 
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+
  0 CELL -- off_action
    CELL -- off_value
    CELL -- off_base
@@ -39,7 +41,20 @@
 : RES   ( mask addr --> ) TUCK ResH  Update ;
 : FLIP  ( mask addr --> ) TUCK FlipH Update ;
 
-\EOF - тестировани и описание -------------------------------------------------
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{ 1 DEPTH NIP
+      : simple ( --> n addr ) ;
+      ' simple 0xFFFF 0x345678 Shadow sample
+      sample Update 0x345678 <> THROW 0xFFFF <> THROW
+      0xFF0000 sample SET 0x345678 <> THROW 0xFFFFFF <> THROW
+      0x00AA00 sample RES 0x345678 <> THROW 0xFF55FF <> THROW
+      0xFEDCBA sample FLIP 0x345678 <> THROW 0x18945 <> THROW
+      DEPTH <> THROW
+  S" passed" TYPE
+}test
+
+\EOF - описание и пример использования ---------------------------------------
 
 \ При работе с реальным железом иногда возникает ситуация, что есть регистр,
 \ доступный только на запись, но его содержимое необходимо, причем достаточно
