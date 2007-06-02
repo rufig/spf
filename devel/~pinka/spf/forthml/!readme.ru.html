@@ -32,6 +32,12 @@ li:before { content: counter(item) ") "; counter-increment: item; }
 реализуется через обычные форт-слова.
 
 </li><li>
+Для работы необходимы библиотеки libxml2, iconv, zlib1, libcurl
+(см. <a href="../../../~ac/lib/lin/xml/xml.f">~ac/lib/lin/xml/xml.f</a>).
+Вообще же, базой выступает DOM-интрерфейс (см. <a href="../../lib/lin/xml/libxml2-dom.f">libxml2-dom.f</a>), 
+поэтому будет легко перейти и на нативную реализацию XML-парсера.
+
+</li><li>
 Нет валидации (что для форта характерно). 
 Так, например, элемент <code>while</code> должен иметь родителем
 лишь <code>repeat</code> или <code>until</code> — это нигде не проверяется.
@@ -46,6 +52,11 @@ li:before { content: counter(item) ") "; counter-increment: item; }
 
 </li><li>
 Нет элемента <code>else</code> — пользуйте <code>choose</code> (как в XSL :).
+
+</li><li>
+Пока что элемент <code>exit</code> допустим не во всяком контексте. 
+Например, он недопустим внутри <code>times</code>. 
+Поддержка реализуема аналогично <code>uAddDepth</code> в <a href="../../../../lib/ext/locals.f">locals.f</a>.
 
 </li><li>
 Множество других, здесь не упомянутых.
