@@ -18,6 +18,7 @@
 
 @st.exe .S" devel\~moleg\lib\util\ifdef.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\addr.f"               TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\bytes.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\compile.f"            TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\ifnot.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\doloop.f"             TESTED CR BYE
@@ -49,6 +50,7 @@
 @st.exe .S" devel\~moleg\lib\struct\struct.f"           TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\drafts\vars.f"             TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\drafts\mem.f"              TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\newfind\clear.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\newfind\new_find.f"        TESTED CR BYE
