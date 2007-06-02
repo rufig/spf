@@ -27,8 +27,10 @@
 @st.exe .S" devel\~moleg\lib\util\ansi-esc.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\useful.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\on-error.f"           TESTED CR BYE
-@st.exe .S" devel\~moleg\lib\util\control.f"            TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\ifcolon.f"            TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\run.f"                TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\control.f"            TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\for-next.f"           TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\arrays\arrays.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\arrays\buff.f"             TESTED CR BYE
