@@ -1,0 +1,30 @@
+\ 31-05-2007 ~mOleg
+\ Copyright [C] 2007 mOleg mininoleg@yahoo.com
+\ работа с байтами
+\ С@ С! C, - остается за символами, разрядность которых может быть 16 бит
+
+REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+
+N?DEFINED B! \EOF если уже есть поддержка
+
+-1 SP@ C@ 256 > NIP \ если символы двойной длины
+ ADMIT CR S" Please redefine B@ B! B, becouse Chars are wide" TYPE -1 THROW
+
+
+\ извлечь адрес, хранимый по указанному адресу
+: B@ ( addr --> addr ) C@ ;
+
+\ сохранить адресную ссылку по указанному адресу
+: B! ( addr addr --> ) C! ;
+
+\ компилировать адресную ссылку на вершину кодофайла.
+: B, ( addr --> ) C, ;
+
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{
+  CREATE aaa HERE B,
+  aaa B@ aaa 0xFF AND <> THROW
+  123456 DUP aaa B! aaa B@ SWAP 0xFF AND <> THROW
+S" passed" TYPE
+}test
