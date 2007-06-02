@@ -8,7 +8,7 @@ REQUIRE EMBODY ~pinka/spf/forthml/index.f
 10 <repeat> DUP <while/> DUP . 1- </repeat> DROP CR
 
 <def name="qqq">
-  10 <until> DUP . 1-  DUP 0lt </until> DROP CR
+  10 <until> DUP . 1-  DUP 0LT </until> DROP CR
 </def>
 
 qqq
