@@ -9,15 +9,19 @@
          ELSE R> SP! FALSE
         THEN ;
 
+\ если флаг равен нулю пропустить текст до конца строки
+: ADMIT ( flag --> ) IF ELSE [COMPILE] \ THEN ; IMMEDIATE
+
 \ выполнить следующий за token код, если token не найден в контексте
-: ?DEFINED ( / token --> ) ?WORD IF [COMPILE] \ THEN ; IMMEDIATE
+: ?DEFINED ( / token --> ) ?WORD 0= [COMPILE] ADMIT ; IMMEDIATE
 
 \ выполнить следующий за token код, если token найден в контексте
-: N?DEFINED ( / token --> ) ?WORD IF ELSE [COMPILE] \ THEN ; IMMEDIATE
+: N?DEFINED ( / token --> ) ?WORD [COMPILE] ADMIT ; IMMEDIATE
 
 ?DEFINED test{ \EOF
 
-test{  S" passed" TYPE }test
+test{  FALSE ADMIT -1 THROW
+       S" passed" TYPE }test
 
 \EOF -- sample --------------------------------------------------------------
 
