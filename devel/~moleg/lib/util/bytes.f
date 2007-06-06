@@ -3,7 +3,7 @@
 \ работа с байтами
 \ С@ С! C, - остается за символами, разрядность которых может быть 16 бит
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
 N?DEFINED B! \EOF если уже есть поддержка
 

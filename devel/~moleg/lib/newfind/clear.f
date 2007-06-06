@@ -2,7 +2,7 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ оставить по одному экземпляру id словарей на стеке
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
         0 VALUE acc
 

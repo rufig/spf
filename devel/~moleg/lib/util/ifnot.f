@@ -2,7 +2,7 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ конструкции, которых не хватает в СПФ
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
 \ выдает смещение от текущего адреса до указанного.
 ?DEFINED atod : atod ( addr --> disp )  HERE CELL+ - ;

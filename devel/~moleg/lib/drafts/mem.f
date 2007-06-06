@@ -5,11 +5,12 @@
 \ все слова набраны на нижнем регистре, чтобы не путать их с системными
 \ следующий код интересен с точки зрения переносимости, а не скорости!!!
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
-REQUIRE TILL     devel\~moleg\lib\util\for-next.f
+ REQUIRE ?DEFINED devel\~mOleg\lib\util\ifdef.f
+ REQUIRE B@       devel\~mOleg\lib\util\bytes.f
+ REQUIRE TILL     devel\~mOleg\lib\util\for-next.f
 
 \ переместить байт из памяти по адресу from в память по адресу to
-: (move) ( from to --> from to ) OVER C@ OVER C! ;
+: (move) ( from to --> from to ) OVER B@ OVER B! ;
 
 \ переместить указанное количество байт # из памяти с начальным
 \ адресом from в память с начальным адресом to начиная с младших адресов
@@ -19,13 +20,13 @@ REQUIRE TILL     devel\~moleg\lib\util\for-next.f
 : cmove> ( from to # --> ) 1 - DUP DUP FOR D+ (move) -1 -1 NEXT 2DROP 2DROP ;
 
 \ заполнить область памяти начиная с адреса from байтом b # байт памяти
-: fill ( b from # --> ) FOR 2DUP C! 1 + TILL 2DROP ;
+: fill ( b from # --> ) FOR 2DUP B! 1 + TILL 2DROP ;
 
 \ очистить указанное кол-во байт начиная с адреса from в нуль
 : erase ( from # --> ) 0 -ROT fill ;
 
 \ сравнить два байта из память
-: (comp) ( which with --> which with flag ) OVER C@ OVER C@ = ;
+: (comp) ( which with --> which with flag ) OVER B@ OVER B@ = ;
 
 \ сравнение двух строк одинаковой длины на идентичность.
 : same ( which with # --> flag )
@@ -44,7 +45,7 @@ REQUIRE TILL     devel\~moleg\lib\util\for-next.f
 
 \ сравнить две asciiz строки на равенство
 : equal ( asc1Z asc2Z --> flag )
-        BEGIN DUP C@ WHILE
+        BEGIN DUP B@ WHILE
               (comp) WHILE
               1 1 D+
            REPEAT 2DROP FALSE EXIT

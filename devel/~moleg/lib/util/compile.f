@@ -2,7 +2,7 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ слово, которого мне не хватает в —ѕ‘е
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
 \ делает то же, что и ['] name COMPILE,
 \ но гораздо более однозначное, чем POSTPONE

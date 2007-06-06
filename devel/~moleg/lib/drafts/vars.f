@@ -2,9 +2,9 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ константы, vect и value переменные, работа с ними.
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
-REQUIRE ADDR     devel\~moleg\lib\util\addr.f
-REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE ADDR     devel\~moleg\lib\util\addr.f
+ REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
 
   \ !!! часто используется и по сути выдает смещение от текущего           \
   \ адреса до указанного. Стоит вынести в отдельное слово.                 \

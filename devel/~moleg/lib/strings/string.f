@@ -2,8 +2,10 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ строковые литералы с поддержкой символов подстановки \n \r \t \\ \" \123
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
-REQUIRE KEEP     devel\~moleg\lib\util\useful.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE KEEP     devel\~moleg\lib\spf_print\pad.f
+ REQUIRE SkipChar devel\~mOleg\lib\util\parser.f
+ REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
 
 FALSE WARNING !
 
@@ -14,11 +16,14 @@ FALSE WARNING !
            R> BASE ! ;
 
 \ преобразовать символьную последовательность \? в символ
+\ если не встречена известная последовательность - сохраняется код
+\ оригинального символа.
 : expose ( --> char )
          PeekChar SkipChar
           [CHAR] t OVER = IF DROP 0x09 EXIT THEN  \ tab
           [CHAR] n OVER = IF DROP 0x0A EXIT THEN  \ cr
           [CHAR] r OVER = IF DROP 0x0D EXIT THEN  \ lf
+       \ аналогичным образом сюда можно добавлять другие необходимые варианты
           DUP 0x0A DIGIT                          \ \XXX
           IF 2DROP CharAddr char - 3 CHARS CharCode 2 CHARS >IN +! EXIT THEN
          ;

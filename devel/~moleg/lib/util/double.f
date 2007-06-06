@@ -2,10 +2,9 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ работа с числами двойной длинны
 
-\ для подключения лишь уникальных слов:
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
-REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
-REQUIRE ADDR     devel\~moleg\lib\util\addr.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
+ REQUIRE ADDR     devel\~moleg\lib\util\addr.f
 
 \ -- стековые манипуляции ----------------------------------------------------
 

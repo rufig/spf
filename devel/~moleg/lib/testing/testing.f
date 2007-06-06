@@ -2,10 +2,9 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ Автоматическое тестирование библиотек, кода.
 
-\ поддержка IFNOT WHILENOT
-REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
-REQUIRE ADDR      devel\~moleg\lib\util\addr.f
-REQUIRE IFNOT     devel\~moleg\lib\util\ifnot.f
+ REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
+ REQUIRE ADDR      devel\~moleg\lib\util\addr.f
+ REQUIRE IFNOT     devel\~moleg\lib\util\ifnot.f
 
 FALSE WARNING !
 

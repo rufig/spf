@@ -7,6 +7,7 @@
   REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
   REQUIRE s"       devel\~moleg\lib\strings\string.f
   REQUIRE onward   devel\~moleg\lib\strings\subst.f
+  REQUIRE RECENT   devel\~moleg\lib\util\useful.f
 
 \ установить SOURCE на строку параметров »
 : cmdline> ( --> )
@@ -133,7 +134,7 @@ VOCABULARY COMMANDS
        ParseFileName SaveString TO SourceFile ;
 
   \ опция для отключения сохранения имен в начале каждой части
-  : -p ( --> ) 0 TO part-name-add ;
+  : -p ( --> ) FALSE TO part-name-add ;
 
 RECENT
 
@@ -221,7 +222,7 @@ RECENT
 \ сохранить блок, ограниченный сверху символом перевода строки.
 : save-block ( file-id --> )
              >R ^start DUP ResultFile# @ part# - + char -
-             2DUP ScanBack IF NIP THEN TO ^start
+            2DUP ScanBack IF NIP THEN TO ^start
              ^start OVER - R> WRITE-FILE THROW ;
 
 \ сохранить данные в файл

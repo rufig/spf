@@ -2,7 +2,7 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ работа с теневыми регистрами
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
  0 CELL -- off_action
    CELL -- off_value

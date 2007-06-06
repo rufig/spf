@@ -2,8 +2,8 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ постскрипт-подобная работа со стеком для СПФ
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
-REQUIRE Unit:    devel\~moleg\lib\struct\struct.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE Unit:    devel\~moleg\lib\struct\struct.f
 
 Unit: psLikeMarkers
 
@@ -41,14 +41,16 @@ psLikeMarkers
 : ClearToMark ( --> ) m-pop SP! ;
 : DropMark    ( --> ) m-pop DROP ;
 : AddMark     ( --> ) SP@ m-push ;
-: CountToMark ( --> n ) m-@ SP@ - CELL / ;
+: CountToMark ( --> n ) SP@ m-@ SWAP - CELL / ;
 : ClearMarks  ( --> ) M0 @ #markers CELLS + MP ! ;
 
 init
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
-test{ \ пока просто тест на подключаемость.
+test{ AddMark 1 2 AddMark 3 4 5 CountToMark 3 <> THROW
+      ClearToMark CountToMark 2 <> THROW
+      2 <> THROW 1 <> THROW
   S" passed" TYPE
 }test
 

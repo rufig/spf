@@ -2,7 +2,7 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ работа с консолью через ANSY терминал
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
  \ так выглядит ANSI ESCAPE последовательность
  CREATE esc 2 C, 0x1B C, CHAR [ C,

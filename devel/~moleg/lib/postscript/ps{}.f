@@ -2,8 +2,8 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ реализация исполнимых массивов для постскрипта
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
-REQUIRE Unit:    devel\~moleg\lib\struct\struct.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE Unit:    devel\~moleg\lib\struct\struct.f
 
 : 1-! ( addr --> ) DUP @ 1 - SWAP ! ;
 

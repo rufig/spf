@@ -7,7 +7,7 @@
 \ !!! использовать с ядром версии не ниже 4.18 !!!
 \ ver 1.2 - добавлена реакция на системную переменную WARNING.
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
 VOCABULARY recoil \ все промежуточные слова сохраняем с собственный словарь
            ALSO recoil DEFINITIONS

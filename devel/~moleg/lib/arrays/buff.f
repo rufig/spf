@@ -1,9 +1,9 @@
 \ 19-05-2007 ~mOleg
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
-\ неименованые накопительные буфера
+\ неименованные накопительные буфера
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
-REQUIRE ROUND    devel\~moleg\lib\util\useful.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE R+       devel\~moleg\lib\util\stackadd.f
 
   \ структура буфера
   0 CELL -- off-place     \ позиция первого свободного символа в буфере

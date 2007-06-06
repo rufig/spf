@@ -2,9 +2,9 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ структуры управления: ветвления и циклы
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
-REQUIRE IFNOT    devel\~moleg\lib\util\ifnot.f
-REQUIRE ;stop    devel\~moleg\lib\util\run.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE IFNOT    devel\~moleg\lib\util\ifnot.f
+ REQUIRE ;stop    devel\~moleg\lib\util\run.f
 
 FALSE WARNING !
 

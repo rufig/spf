@@ -2,24 +2,11 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ работа с небольшими массивами в стеке данных.
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
-
-        USER-VALUE marker
-
-\ запомнить текущий указатель стека
-: mark ( # --> ) SP@ TO marker ;
-
-\ посчитать кол-во элементов на стеке данных, оставленных с момента
-\ упоминания слова mark
-: countto ( [array] --> [array] # )
-          SP@ marker SWAP - CELL /
-          mark ;
-
-\ очистить стек вплодь до ранее сохраненной метки
-: clearto ( --> ) marker DUP IF SP! ELSE DROP -1 THROW THEN ;
+ REQUIRE ?DEFINED   devel\~moleg\lib\util\ifdef.f
+ REQUIRE FRAME      devel\~moleg\lib\util\stackadd.f
 
 \ выделить на стеке место под массив без инициализации
-: array ( # --> [array] # ) >R SP@ R@ CELLS - SP! R> ;
+: array ( # --> [array] # ) FRAME ;
 
 \ получить адрес начала массива и его длинну
 : get-array ( [array] # --> [array] # addr #bytes )
@@ -74,7 +61,7 @@ test{ \ пока только проверка подключения
 
   S" passed" TYPE
 }test
-\EOF -- тестовая секция -----------------------------------------------------
+\EOF -- тестовая секция ------------------------------------------------------
 
 1 CHARS CONSTANT char
 

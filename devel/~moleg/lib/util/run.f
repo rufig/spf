@@ -2,10 +2,10 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ поддержка временного буфера дл€ создани€ безым€нных временных слов
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
-REQUIRE ADDR     devel\~moleg\lib\util\addr.f
-REQUIRE ON-ERROR devel\~moleg\lib\util\on-error.f
-REQUIRE IFNOT    devel\~moleg\lib\util\ifnot.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE ADDR     devel\~moleg\lib\util\addr.f
+ REQUIRE ON-ERROR devel\~moleg\lib\util\on-error.f
+ REQUIRE IFNOT    devel\~moleg\lib\util\ifnot.f
 
         \ переменна€ дл€ контрол€ парности открывающих и закрывающих слов
         USER controls ( --> addr )

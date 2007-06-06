@@ -2,7 +2,7 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ заменяем неудобный SFIND на более логичный
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
 \ порядок следования параметров теперь будет следующим:
 \ ( asc # --> asc # false | wid imm true )

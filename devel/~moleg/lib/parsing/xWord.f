@@ -3,7 +3,7 @@
 \ разбор строк с различного вида разделителями
 \ в том числе, когда разделители должны исполняться
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
 \ взять из строки число в шестнадцатиричном виде
 : HCHAR ( addr # -> CHAR ) 0 0 2SWAP >NUMBER IF THROW THEN 2DROP ;

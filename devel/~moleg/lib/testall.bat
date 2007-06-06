@@ -1,19 +1,19 @@
 @rem 31-05-2007 ~mOleg
 @rem Copyright [C] 2007 mOleg mininoleg@yahoo.com
-@rem тестирование библиотек
+@rem ЄхёЄшЁютрэшх сшсышюЄхъ
 
-@rem логика тестирования находится в самой тестируемой библиотеке
-@rem как минимум проверяется собираемость библиотеки под текущей
-@rem сборкой СПФ.
+@rem ыюушър ЄхёЄшЁютрэш  эрїюфшЄё  т ёрьющ ЄхёЄшЁєхьющ сшсышюЄхъх
+@rem ъръ ьшэшьєь яЁютхЁ хЄё  ёюсшЁрхьюёЄ№ сшсышюЄхъш яюф Єхъє∙хщ
+@rem ёсюЁъющ ╤╧╘.
 
-@rem собираем текущую версию СПФ, если еще не собрана
+@rem ёюсшЁрхь Єхъє∙є■ тхЁёш■ ╤╧╘, хёыш х∙х эх ёюсЁрэр
 @IF NOT EXIST ..\..\..\spf4.exe @CALL makespf.bat
 @IF EXIST ..\..\..\spf4.exe CD ..\..\..\
 
-@rem запуск текущего варианта СПФ
-@FOR %%f IN ( .\spf4*.exe ) DO set spf=%%f
+@rem чряєёъ Єхъє∙хую трЁшрэЄр ╤╧╘
+@FOR %%f IN ( .\spf*.exe ) DO set spf=%%f
 
-@rem тестируем с помощью следующей библиотечки:
+@rem ЄхёЄшЁєхь ё яюью∙№■ ёыхфє■∙хщ сшсышюЄхўъш:
 @%spf% devel\~moleg\lib\testing\smal-test.f
 
 @st.exe .S" devel\~moleg\lib\util\ifdef.f"              TESTED CR BYE
@@ -26,12 +26,16 @@
 @st.exe .S" devel\~moleg\lib\util\iw.f"                 TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\shades.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\ansi-esc.f"           TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\stackadd.f"           TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\parser.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\useful.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\on-error.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\ifcolon.f"            TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\run.f"                TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\control.f"            TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\for-next.f"           TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\stack.f"              TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\marks.f"              TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\arrays\arrays.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\arrays\buff.f"             TESTED CR BYE
@@ -42,6 +46,7 @@
 @st.exe .S" devel\~moleg\lib\postscript\dsadd.f"        TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\postscript\ps{}.f"         TESTED CR BYE
 
+@st.exe .S" devel\~moleg\lib\strings\stradd.f"          TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\strings\messages.f"        TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\strings\sconst.f"          TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\strings\string.f"          TESTED CR BYE
@@ -59,11 +64,9 @@
 @st.exe .S" devel\~moleg\lib\testing\testing.f"         TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\testing\say.f"             TESTED CR BYE
 
-@rem @st.exe .S" devel\~moleg\lib\\" TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\spf_print\pad.f"           TESTED CR BYE
 
-
-
-
+@rem єфры хь ЄхёЄшЁє■∙є■ тхЁёш■ ╤╧╘р
 @del st.exe
 
 

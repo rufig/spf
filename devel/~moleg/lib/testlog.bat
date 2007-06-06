@@ -1,6 +1,6 @@
 @rem 01-06-2007 ~mOleg
 @rem Copyright [C] 2007 mOleg mininoleg@yahoo.com
-@rem â¥áâ¨à®¢ ­¨¥ ¡¨¡«¨®â¥ª à¥§ã«ìâ â ¢ «®£
+@rem òåñòèðîâàíèå áèáëèîòåê ðåçóëüòàò â ëîã
 
 @IF EXIST test.log del test.log
 @CALL testall.bat >test.log

@@ -2,7 +2,7 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ работа с адресами
 
-REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
         \ сколько минимально адресуемых единиц занимает адресная ссылка
         CELL CONSTANT ADDR
