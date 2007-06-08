@@ -21,11 +21,17 @@
 \ * . " straxt=> ( xt )
 
 \ При этом в генерируемый отрезок кода кода можно скомпилировывать
-\ свои куски, задавая их на стеке и выполняя компилирующией действия
-\ IMMEDIATE-словами подобными LITERAL , оно нужно для передачи числа
-\ на стеке в компилируемую функцию.
-\ Или же можно входить напрямую в режим интерпретации словами [ и ] 
-\ (см. примеры внизу)
+\ свои куски, задавая их на стеке или выполняя компилирующие действия
+\ IMMEDIATE-словами подобными LITERAL , его можно использовать для
+\ передачи числа на стеке в компилируемую функцию:
+\ 4 2 1 S" LITERAL LITERAL + LITERAL * ." axt EXECUTE
+\ Сформирует код "1 2 + 4 *" и выполнив его, напечатает: "12"
+
+\ Или же можно входить напрямую в режим интерпретации словами [ и ] :
+\ ' . S" 3 0 DO I [ COMPILE, ] LOOP " axt EXECUTE
+\ выведет 0 1 2
+\ Действие для обработки чисел мы задали снаружи замыкания ( ' . )
+\ [ COMPILE, ] вкомпилировал xt внутрь генерируемой функции
 
 \ Такая передача значений, внутрь "замыкания", противоречит
 \ следующему абзацу пункта 3.2.3.2 ANS-94:
@@ -45,10 +51,12 @@
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE CONT ~profit/lib/bac4th.f
 REQUIRE FREEB ~profit/lib/bac4th-mem.f
+REQUIRE LOCAL ~profit/lib/static.f
 \ REQUIRE EVALUATED-HEAP ~profit/lib/evaluated.f
 REQUIRE VC-COMPILED ~profit/lib/compile2Heap.f
-REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE A_BEGIN ~mak/lib/a_if.f
+REQUIRE no-inline ~profit/lib/no-inline.f
 
 MODULE: bac4th-closures
 
@@ -62,6 +70,17 @@ MODULE: bac4th-closures
 : AGAIN	[COMPILE] A_AGAIN ; IMMEDIATE
 : REPEAT [COMPILE] A_REPEAT ; IMMEDIATE
 : UNTIL [COMPILE] A_UNTIL ; IMMEDIATE
+
+WARNING @ WARNING 0!
+{{ no-inline DEFINITIONS
+\ "Патчим" определения в словаре no-inline
+\ чтобы они тоже использовали отдельные control-flow stack
+: DO    CS-SP>< POSTPONE DO    CS-SP>< ; IMMEDIATE
+: ?DO   CS-SP>< POSTPONE ?DO   CS-SP>< ; IMMEDIATE
+: LOOP  CS-SP>< POSTPONE LOOP  CS-SP>< ; IMMEDIATE
+: +LOOP CS-SP>< POSTPONE +LOOP CS-SP>< ; IMMEDIATE
+}} DEFINITIONS
+WARNING !
 
 EXPORT
 
@@ -95,8 +114,19 @@ RUSH> axt=> ;
 /TEST
 REQUIRE SEE lib/ext/disasm.f
 
-: showMeTheCode ( addr u -- ) compiledCode XT-VC DUP REST EXECUTE CR CR ;
+0 VALUE t 
 
+: showMeTheCode ( addr u -- ) compiledCode XT-VC DUP TO t DUP REST EXECUTE CR CR ;
+
+\ Переносим данные со стека внутрь генерируемого кода
 $> 4 2 1 S" LITERAL LITERAL + LITERAL * ." showMeTheCode
 
-$> 100 S" 0 BEGIN DUP 10 < WHILE LITERAL . 1+ REPEAT DROP " showMeTheCode
+
+\ Переносим данные со стека внутрь цикла генерируемого кода
+$> 23 100 5 S" 0 BEGIN DUP LITERAL < WHILE LITERAL LITERAL + . 1+ REPEAT DROP " showMeTheCode
+
+\ Переносим данные со стека внутрь цикла генерируемого кода
+$> 11 S" 3 0 DO LITERAL . LOOP " showMeTheCode
+
+\ Вписываем код снаружи "внутрь" замыкания
+$> ' . S" 3 0 DO I [ COMPILE, ] LOOP " showMeTheCode

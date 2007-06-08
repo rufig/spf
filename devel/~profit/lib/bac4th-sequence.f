@@ -10,6 +10,9 @@
 
 \ {seq} {#} будет выдавать текущий номер итерации, считая от нуля.
 
+\ Полученный от {seq} промежуточный список можно выполнять (EXECUTE) сразу,
+\ только нужно его "закрыть" в цикле START{ }EMERGE
+
 \ seq{ ... }seq оставляет на стеке xt -- адрес участка кода, который генерирует
 \ те же значения что и итераторы между скобками seq{ ... }seq
 \ То есть, результат вычисления итератора как бы копируется, "затвердевает"
@@ -68,36 +71,32 @@ REQUIRE CONT ~profit/lib/bac4th.f
 REQUIRE LOCAL ~profit/lib/static.f
 REQUIRE CREATE-VC ~profit/lib/compile2Heap.f
 REQUIRE FREEB ~profit/lib/bac4th-mem.f
+REQUIRE DIS-DP-HOOK ~profit/lib/dp-hook.f
 
 MODULE: bac4th-sequence
 
-: RET,-1ALLOT
-DP KEEP
-['] RDROP COMPILE,
-RET, ; \ установка шлагбаума для кода, чтобы не лез куда не надо
-\ шлагбаум "автоматически" сломается при попытке преодолеть его (читай: компиляции)
+PageSize CELL - CONSTANT MEM-PAGE
 
 0
-1 -- rlit
-__ handle  \ поле виртуального кодофайла (он одновременно представляет собой и исполняемый адрес)
-1 -- ret
-__ALIGN
+1 -- rlit  \ маш. команда PUSH
+__ handle  \ поле виртуального кодофайла (оно одновременно представляет собой и исполняемый адрес)
+1 -- ret   \ маш. команда RET
+__ALIGN    \ пустые байты для выравнивания
 __ counter \ счётчик кол-ва введённых ячеек
-CONSTANT seq-struct \ дополнительная структура
+CONSTANT seq-struct \ дополнительная структура для циклов seq{ ...  }seq
+
 
 :NONAME  ( -- seq ) \ процедура инициализации seq{
-seq-struct ALLOCATE THROW >R
-CREATE-VC
-START{ DUP VC- RET,-1ALLOT }EMERGE
-R@ handle ! R@ counter 0!
-0x68 R@ rlit C!  0xC3 R@ ret C!
+seq-struct ALLOCATE THROW >R \ заводим структуру цикла
+(: RDROP ;) MEM-PAGE _CREATE-VC \ создаём виртуальный кодофайл с обработкой выхода из него
+R@ handle ! R@ counter 0! \ устанавливаем поле виртуального кодофайле в структуре
+ \ счётчик обнуляем
+0x68 R@ rlit C!  0xC3 R@ ret C! \ ставим коды в нужные пазы, чтобы получилась корректная маш. команда вначале структуры
 R> ; CONSTANT (seq{)
 
-:NONAME
-PRO LOCAL t @ t !
-\ ['] RDROP
-\ t @ handle @ VC-COMPILE,
-\ t @ handle @ VC-RET, \ закрываем итератор
+:NONAME ( addr -- ) PRO \ addr -- адрес ячейки в шитом коде где хранится указатель на структуру цикла
+LOCAL t
+@ t !
 t @ CONT \ делаем нырок
 t @ handle @ DESTROY-VC
 t @ FREE THROW \ снимаем и дополнительную структуру
@@ -107,8 +106,7 @@ EXPORT
 
 : +VC ( x seq -- ) VC-
 LIT,
-R@ENTER, POSTPONE DROP
-RET,-1ALLOT ;
+R@ENTER, POSTPONE DROP ;
 
 \ Общая открывающая скобка для генерации всех видов списков-итераторов
 : seq{ ( -- ) ?COMP (seq{) COMPILE, agg{ ; IMMEDIATE
@@ -124,24 +122,21 @@ handle @ +VC ;) (}seq) }agg ; IMMEDIATE
 DUP counter 1+!
 handle @ VC-
 2DUP DLIT,
-R@ENTER, POSTPONE 2DROP
-RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
+R@ENTER, POSTPONE 2DROP ;) (}seq) }agg ; IMMEDIATE
 
 \ Закрывающая скобка для тройных значений
 : }seq3 ( n -- list-xt ) ?COMP (: @
 DUP counter 1+!
 handle @ VC-
 ROT DUP LIT, -ROT 2DUP DLIT,
-R@ENTER, POSTPONE 2DROP POSTPONE DROP
-RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
+R@ENTER, POSTPONE 2DROP POSTPONE DROP ;) (}seq) }agg ; IMMEDIATE
 
 \ Закрывающая скобка для квартетов значений
 : }seq4 ( n -- list-xt ) ?COMP (: @
 DUP counter 1+!
 handle @ VC-
 2OVER DLIT, 2DUP DLIT,
-R@ENTER, POSTPONE 2DROP POSTPONE 2DROP
-RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
+R@ENTER, POSTPONE 2DROP POSTPONE 2DROP ;) (}seq) }agg ; IMMEDIATE
 
 : {seq} ( -- list-xt ) ?COMP (: ;) {agg} ; IMMEDIATE
 
@@ -149,7 +144,7 @@ RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
 
 \ Перенос значений списка-итератора в последовательный массив в памяти
 : seq>arr ( list-xt -- addr u ) LOCAL arr LOCAL runner
-DUP {#} CELLS ALLOCATE THROW DUP arr ! runner !
+DUP {#} 1 MAX CELLS ALLOCATE THROW DUP arr ! runner !
 START{ ( list-xt ) ENTER
 DUP runner writeCell }EMERGE
 arr @ runner @ OVER - ;
@@ -173,7 +168,6 @@ agg{
 : INTSFROMTO PRO SWAP 1+ SWAP DO I CONT DROP LOOP ;
 
 : list. ( list-xt -- ) ENTER DUP . ;
-
 : list-xt-generated seq{ 5 INTSTO }seq ( list-xt ) DUP {#} ." length: " . CR ." execute:" list. ;
 $> list-xt-generated
 
@@ -228,7 +222,7 @@ ENTER b @ f @ not-in CONT ;
 
 : head ( a -- ... ) CUT: ENTER -CUT ;
 : tail ( a -- ... a' ) CUT: ENTER R@ -CUT ;
-
+lib/ext/disasm.f
 : seq4ops LOCAL 0..4 LOCAL 2..5
 
 seq{ 4 INTSTO }seq 0..4 ! \ от 0 до 4-х
@@ -238,7 +232,7 @@ CR ." [0..4]=" 0..4 @ list.
 CR ." [2..5]=" 2..5 @ list.
 
 CR ." head[0..4]=" 0..4 @ head . \ выводим только одно, первое значение
-CR ." tail[0..4]=" 0..4 @ tail list.
+CR ." tail[0..4]=" 0..4 @ tail list. 
 
 START{
 seq{ 0..4 @  2..5 @ union }seq
@@ -298,6 +292,8 @@ TAKE-TWO          \ "удвоение" успехов, то есть: посылаем }arr оба числа на стек
 }arr
 ( addr u )   \ теперь у нас массив двойных значений
 2 CELLS iterateBy \ делаем по нему проход, прыгая по две ячейки зараз
-DUP 2@ CR TYPE ;
+DUP 2@ CR DUP . TYPE ;
 
 CR $> S" ac day mlg pinka profit" arr-test
+
+CR $> :NONAME seq{ 10000 INTSTO }seq EXECUTE DUP . ; EXECUTE
