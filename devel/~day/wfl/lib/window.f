@@ -215,7 +215,7 @@ CWinMessageReceiver SUBCLASS CWindow
    SendMessageA
 ;
 
-: postMessage ( lpar wpar msg -- res )
+: postMessage ( lpar wpar msg -- )
    SUPER checkWindow
    PostMessageA SUPER -wthrow
 ;
@@ -240,10 +240,11 @@ CWinMessageReceiver SUBCLASS CWindow
     || D: str ||
     "" str !
 
-    getTextLength DUP 1+ ALLOCATE THROW SWAP ( addr u )
+    getTextLength DUP 1+ ALLOCATE THROW DUP >R SWAP ( addr u )
     2DUP 1+ getText DROP
     str @ STR!
     str @
+    R> FREE THROW
 ;
 
 : showWindow ( flag -- )

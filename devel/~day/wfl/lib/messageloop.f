@@ -7,6 +7,8 @@ NEEDS ~day\hype3\locals.f
 NEEDS ~day\wfl\lib\wfunc.f
 NEEDS ~day\lib\macros.f
 
+NEEDS ~profit\lib\logic.f
+
 0 VALUE TRACE-WINMESSAGES
 
 CLASS CMessageIdleLoop
@@ -64,9 +66,6 @@ CONSTANT /MSG
 
 0x100 CONSTANT  WM_KEYFIRST
 0x108 CONSTANT  WM_KEYLAST
-
-: >= < 0= ;
-: <= > 0= ;
 
 WM_USER 117 + CONSTANT PSM_ISDIALOGMESSAGE
 

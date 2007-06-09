@@ -638,6 +638,10 @@ init: addr VariantInit ;
     IF @ THEN
 ;
 
+: get ( addr-to -- )
+    addr SWAP VariantCopy COM-THROW
+;
+
 dispose: addr VariantClear COM-THROW ;
 
 ;CLASS
@@ -670,6 +674,16 @@ USER VarType
 ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
 
      CStack OBJ strStack \ stack of strings to delete automagically
+     ProtoObj OBJ objEtalon
+
+: IsHypeObjectVar ( xt -- f )
+     DUP C@ 0xE8 =
+     IF
+        DUP 1+ @ +
+        ['] objEtalon DUP 1+ @ + =
+     ELSE DROP 0
+     THEN 
+;
 
 \ We do not provide type information yet
  \ To do it we need either to create type lib or to describe type info
@@ -771,6 +785,23 @@ ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
 ;
 
 : Invoke  { puArgErr pExcepInfo pVarResult pDispParams wFlags lcid riid dispIdMember \ spInvoke -- hresult }
+
+     \ Special case for hype3 object vars
+     dispIdMember IsHypeObjectVar
+     IF
+        wFlags DISPATCH_METHOD AND bool
+        wFlags DISPATCH_PROPERTYGET AND bool OR
+        IF \ get variant
+           pVarResult
+           dispIdMember >BODY OBJ@ ( object )
+           => get
+        ELSE
+           \ put first object in params@
+           pDispParams @ dispIdMember >BODY OBJ@ => set
+        THEN
+        S_OK EXIT
+     THEN
+
      0 VarType !
      SP@ DUP -> spInvoke  S0 !
 
@@ -862,16 +893,26 @@ IClassFactory NEW AppClassFactory
 \EOF
 
 
+lib\ext\disasm.f
+
 CLASS Test 
 
   VAR prop
+  CStack OBJ obj
+  CStack OBJ objEtalon
+
 
 : method WORDS ;
 
 : testProp ['] prop IsHypeProperty . ;
 : testMethod ['] method IsHypeProperty . ;
 
+: testObj ['] obj IsHypeObjectVar .
+     ['] objEtalon REST
+;
+
 ;CLASS
 
-Test ^ testProp
-Test ^ testMethod
+\ Test ^ testProp
+\ Test ^ testMethod
+Test ^ testObj

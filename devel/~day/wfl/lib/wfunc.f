@@ -288,9 +288,9 @@ CREATE   CC_INITS 8 , BASE @ HEX 3FFF , BASE !
 ;  
 
 : W>S ( w -- s )
-\ а биЁаЁвм §­ Є 16 -> 32
+\ расширить знак 16 -> 32
    DUP 0x8000 AND
-   IF \ ®ваЁж вҐ«м­®Ґ зЁб«®
+   IF \ отрицательное число
       0xFFFF0000 OR
    THEN
 ;

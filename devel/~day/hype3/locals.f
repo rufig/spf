@@ -96,8 +96,26 @@ USER uAddDepth
 : @Local ( addr -- ta shift )
     DUP @ SWAP CELL+ @ uCurrShift @ SWAP -
     2 +                   \ Skip (LocalsExit)
-
 ;
+
+\ Proxy class
+
+CLASS Ptr
+
+: dispose ( -- obj )
+   \ return copy of the object in the heap
+   SELF @ NewObj >R
+   SELF R@ SUPER size MOVE
+   R>
+;
+
+: freenested ;
+
+;CLASS
+
+\ || Ptr CMyClass obj ||
+\ Надо чтобы был создан 
+: ptr ;
 
 \ Simple local variables
 

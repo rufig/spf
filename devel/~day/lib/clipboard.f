@@ -24,7 +24,7 @@ WINAPI: GlobalUnlock    KERNEL32.DLL
 
 \ Перед использованием этой памяти используйте GlobalLock
 \ После - GlobalUnlock
-: GLOBAL-COPY { addr u \ h p -- h}
+: GLOBAL-COPY { addr u \ h p -- h }
      u 1+ GLOBAL-ALLOC THROW -> h
      h GlobalLock -> p
      addr p u CMOVE
