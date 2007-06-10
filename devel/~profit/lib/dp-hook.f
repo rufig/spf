@@ -7,6 +7,10 @@
 \ DP -- не переменная, а "умное" определение, которое
 \ ещё можно подменить "на лету".
 
+\ Из-за конфликта ~ac/lib/ns/so-xt.f c NEAR_NFA:
+\ http://sourceforge.net/tracker/index.php?func=detail&aid=1734449&group_id=17919&atid=117919
+\ реализация DUPLICATE выглядит несколько более грязной чем могла бы быть.
+
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE R@ENTER, ~profit/lib/bac4th.f
 REQUIRE REPLACE-WORD lib/ext/patch.f
@@ -31,7 +35,8 @@ MODULE: dp-hook
     REPEAT ;
 
 
-: DUPLICATE HEADER ' DUP FIND-REST-END OVER - HERE SWAP DUP ALLOT RET, CMOVE ;
+\ : DUPLICATE HEADER ' DUP FIND-REST-END OVER - HERE SWAP DUP ALLOT RET, CMOVE ;
+: DUPLICATE HEADER ' 10000 HERE SWAP DUP ALLOT RET, CMOVE ;
 \ Берёт из потока два имени. С первым создаёт новое
 \ определение. У второго имени находит содержимое
 \ его кода и _копирует_ его в новое слово.
