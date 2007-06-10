@@ -3,7 +3,7 @@
 # Makefile для сборки дистрибутивов spf
 # см. readme.txt
 #
-# make - собрать дистр
+# make - собрать полный дистр
 # make devel-snap - собрать снапшот devel
 # make clean - удалить промежуточные файлы
 
