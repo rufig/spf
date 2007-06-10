@@ -1,13 +1,13 @@
 \ Упрощение работы с xpath-функциями, выдающими float-результаты.
-\ Библиотека подключает sprintf из C runtime windows-зависимым способом.
-\ 'Легчепортабельной' альтернативой является обертка возвращаемого числового 
-\ значения xpath-функцией string(), если результат не nodeset.
 
 REQUIRE XML_XPATH      ~ac/lib/lin/xml/xml.f
 
-WINAPI: sprintf MSVCRT.DLL 
+\ WINAPI: sprintf MSVCRT.DLL 
+\ : P.0> S" %.0f" DROP PAD sprintf DUP 0 < THROW NIP NIP  NIP NIP PAD SWAP ;
 
-: P.0> S" %.0f" DROP PAD sprintf DUP 0 < THROW NIP NIP  NIP NIP PAD SWAP ;
+ALSO libcurl.dll
+  : P.0> S" %.0f" DROP PAD 4 curl_msprintf DUP 0 < THROW PAD SWAP ;
+PREVIOUS
 
 :NONAME xpo.floatval ( 12 DUMP) CELL+ 2@ P.0> TYPE ; xpathTypes 2 CELLS + !
 :NONAME xpo.floatval CELL+ 2@ P.0> ;                xpathTypes@ 2 CELLS + !
