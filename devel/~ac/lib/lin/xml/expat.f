@@ -29,17 +29,23 @@ ALSO SO NEW: libexpat.dll
 
 \ ===== Обработчики тэгов, генерирующие шаблон будущего "исполнителя" XML ====
 
+USER XML_Nest
+
 : XML_DumpAttrs ( addr -- )
   BEGIN
     DUP @
   WHILE
-    DUP @ ASCIIZ> ." : " TYPE ."  S" [CHAR] " EMIT SPACE CELL+
-    DUP @ ASCIIZ> TYPE [CHAR] " EMIT ."  ;" CR CELL+
+\    DUP @ ASCIIZ> ." : " TYPE ."  S" [CHAR] " EMIT SPACE CELL+
+\    DUP @ ASCIIZ> TYPE [CHAR] " EMIT ."  ;" CR CELL+
+    DUP @ ASCIIZ> ."  : " TYPE ."  ( S" [CHAR] " EMIT SPACE CELL+
+    DUP @ ASCIIZ> TYPE [CHAR] " EMIT ." ) TYPE CR ; " CELL+
   REPEAT DROP
 ;
 :NONAME ( **attrs *name *userData -- )
   TlsIndex@ >R DUP TlsIndex!
-  ." VOCABULARY " OVER ASCIIZ> 2DUP TYPE ."  ALSO " TYPE ."  DEFINITIONS" CR
+\  ." VOCABULARY " OVER ASCIIZ> 2DUP TYPE ."  ALSO " TYPE ."  DEFINITIONS" CR
+  XML_Nest @ 4 * SPACES ." X{ " OVER ASCIIZ> TYPE \ CR
+  XML_Nest 1+!
   2 PICK XML_DumpAttrs
   0 CR
   R> TlsIndex!
@@ -47,15 +53,21 @@ ALSO SO NEW: libexpat.dll
 
 :NONAME ( *name *userData -- )
   TlsIndex@ >R DUP TlsIndex!
-  ." PREVIOUS DEFINITIONS ( " OVER ASCIIZ> TYPE ."  )"
+\  ." PREVIOUS DEFINITIONS ( " OVER ASCIIZ> TYPE ."  )"
+  XML_Nest @ 1- XML_Nest !
+  XML_Nest @ 4 * SPACES ." }X " OVER ASCIIZ> TYPE
   0 CR
   R> TlsIndex!
 ; 2 CELLS CALLBACK: XML_EndElementHandler_Gen
 
 :NONAME ( len *s *userData -- )
   TlsIndex@ >R DUP TlsIndex!
-  ." :NONAME S" [CHAR] " EMIT SPACE OVER 3 PICK TYPE [CHAR] " EMIT ."  ;"
-  0 CR
+\  ." :NONAME S" [CHAR] " EMIT SPACE OVER 3 PICK TYPE [CHAR] " EMIT ."  ;"
+  OVER 3 PICK -TRAILING NIP 0 >
+  IF
+    XML_Nest @ 4 * SPACES  ." : .CDATA ( S" [CHAR] " EMIT SPACE OVER 3 PICK TYPE [CHAR] " EMIT ." ) TYPE CR ;" CR
+  THEN
+  0
   R> TlsIndex!
 ; 3 CELLS CALLBACK: XML_CharacterDataHandler_Gen
 
