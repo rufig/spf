@@ -154,9 +154,13 @@ USER uStripCRLFtemp
 \  StripCRLF
   StripLwsp
   2DUP Is8Bit 0= IF EXIT THEN
-  S" Content-Type" mp FindMimeHeader
+  S" Content-Type" mp FindMimeHeader 2DUP
   S" indows-1251" SEARCH NIP NIP
-  IF base64 OVER >R " =?windows-1251?B?{s}?=" STR@ R> FREE DROP THEN
+  IF 2DROP base64 OVER >R " =?windows-1251?B?{s}?=" STR@ R> FREE DROP
+  ELSE
+     S" -8" SEARCH NIP NIP
+     IF base64 OVER >R " =?UTF-8?B?{s}?=" STR@ R> FREE DROP THEN
+  THEN
 ;
 : GetSubject { mp -- addr u }
   S" Subject" mp FindMimeHeader mp AddDefEncoding
