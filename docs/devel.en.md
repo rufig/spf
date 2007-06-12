@@ -5,7 +5,7 @@
 
 <small>$Date$</small>
 
-<!-- Translation is in sync with devel.ru.md rev. 1.13 -->
+<!-- Translation is in sync with devel.ru.md rev. 1.15 -->
 
 *REQUIRE is a forth word, which loads library; unnecessary text is commented out, so you can use this list as a forth code to include libs :)*
 
@@ -15,7 +15,6 @@
 
 ----
 
-<<<<<<< devel.en.md
 [[Network](#net)] [[Graphics](#graph)] [[Archives](#arc)] [[Linked lists](#list)] [[Records](#record)] [[Data structures](#data)] [[Sort and search](#sort-n-search)] [[Techniques](#techniques)] [[Debugging](#debug)] [[Random numbers](#random)] [[Hash tables](#hash)] [[Hash functions](#hash-func)] [[Compiletime constants](#compiletime-const)] [[User Interface](#ui)] [[Windows COM](#WinCOM)] [[Windows services](#services)] [[Date and time](#datetime)] [[Databases](#db)] [[Threads](#threads)] [[Windows registry and ini](#ini-registry)] [[Strings](#str)] [[Files](#files)] [[XML](#xml)] [[OOP](#oop)] [[Vocabularies](#vocs)] [[Memory](#mem)] [[Miscellaneous](#misc)]  [[Encodings](#encoding)]
 
 ----
@@ -166,13 +165,14 @@
 
 <a id="threads"/>
 ### \\ Processes, threads, access rights etc
-* \\ <a href='../devel/~ac/lib/win/process/'>~ac/lib/win/process/</a> 
+* REQUIRE StartApp <a href='../devel/~ac/lib/win/process/process.f'>~ac/lib/win/process/process.f</a> \\ start applications from command line (StartApp, StartAppWait)
 * REQUIRE GetProcessACL <a href='../devel/~ac/lib/win/access/nt_access.f'>~ac/lib/win/access/nt_access.f</a> \\ access rights
 * REQUIRE IsapiRunExtension <a href='../devel/~ac/lib/win/isapi/isapi.f'>~ac/lib/win/isapi/isapi.f</a> \\ support ISAPI-compatible extensions
 * REQUIRE CREATE-CP <a href='../devel/~ac/lib/win/thread/pool.f'>~ac/lib/win/thread/pool.f</a> \\ thread-pool in Win200x 
 * REQUIRE CREATE-MUTEX <a href='../lib/win/mutex.f'>lib/win/mutex.f</a> \ Mutexes
 * REQUIRE ENTER-CS <a href='../devel/~pinka/lib/multi/critical.f'>~pinka/lib/multi/critical.f</a> \ Critical sections
 * REQUIRE WaitAll <a href='../devel/~pinka/lib/multi/synchr.f'>~pinka/lib/multi/synchr.f</a> \ Threads synchronization - "wait for single", "wait for all"
+
 
 <a id="ini-registry"/>
 ### \\ Windows registry and ini-files 

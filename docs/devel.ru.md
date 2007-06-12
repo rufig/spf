@@ -1,4 +1,4 @@
-co[SP-Forth](readme.ru.html): Дополнительные библиотеки
+[SP-Forth](readme.ru.html): Дополнительные библиотеки
 =====================================================
 
 <title>SP-Forth: Дополнительные библиотеки</title>
@@ -15,7 +15,6 @@ co[SP-Forth](readme.ru.html): Дополнительные библиотеки
 
 ----
 
-<<<<<<< devel.ru.md
 [[Сеть](#net)] [[Графика](#graph)] [[Архиваторы](#arc)] [[Связные списки](#list)] [[Записи](#record)] [[Структуры данных](#data)] [[Сортировка и поиск](#sort-n-search)] [[Techniques](#techniques)] [[Отладка](#debug)] [[Случайные числа](#random)] [[Расстановочные таблицы](#hash)] [[Хэш функции](#hash-func)] [[Константы времени компиляции](#compiletime-const)] [[User interface](#ui)] [[Windows COM](#WinCOM)] [[Службы(сервисы) Windows](#services)] [[Дата и время](#datetime)] [[Базы данных](#db)] [[Потоки](#threads)] [[Реестр и INI Windows](#ini-registry)] [[Строки](#str)] [[Файлы](#files)] [[XML](#xml)] [[OOP](#oop)] [[Словари](#vocs)] [[Память](#mem)] [[Разное](#misc)] [[Кодировки](#encoding)]
 
 ----
@@ -166,7 +165,7 @@ co[SP-Forth](readme.ru.html): Дополнительные библиотеки
 
 <a id="threads"/>
 ### \\ Процессы, потоки, права доступа etc
-* \\ <a href='../devel/~ac/lib/win/process/'>~ac/lib/win/process/</a> 
+* REQUIRE StartApp <a href='../devel/~ac/lib/win/process/process.f'>~ac/lib/win/process/process.f</a> \\ запуск приложений из командной строки (StartApp, StartAppWait)
 * REQUIRE GetProcessACL <a href='../devel/~ac/lib/win/access/nt_access.f'>~ac/lib/win/access/nt_access.f</a> \\ права доступа 
 * REQUIRE IsapiRunExtension <a href='../devel/~ac/lib/win/isapi/isapi.f'>~ac/lib/win/isapi/isapi.f</a> \\ поддержка ISAPI-совместимых расширений 
 * REQUIRE CREATE-CP <a href='../devel/~ac/lib/win/thread/pool.f'>~ac/lib/win/thread/pool.f</a> \\ поддержка пула потоков в Win200x 
