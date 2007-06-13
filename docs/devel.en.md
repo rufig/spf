@@ -169,9 +169,9 @@
 * REQUIRE GetProcessACL <a href='../devel/~ac/lib/win/access/nt_access.f'>~ac/lib/win/access/nt_access.f</a> \\ access rights
 * REQUIRE IsapiRunExtension <a href='../devel/~ac/lib/win/isapi/isapi.f'>~ac/lib/win/isapi/isapi.f</a> \\ support ISAPI-compatible extensions
 * REQUIRE CREATE-CP <a href='../devel/~ac/lib/win/thread/pool.f'>~ac/lib/win/thread/pool.f</a> \\ thread-pool in Win200x 
-* REQUIRE CREATE-MUTEX <a href='../lib/win/mutex.f'>lib/win/mutex.f</a> \ Mutexes
-* REQUIRE ENTER-CS <a href='../devel/~pinka/lib/multi/critical.f'>~pinka/lib/multi/critical.f</a> \ Critical sections
-* REQUIRE WaitAll <a href='../devel/~pinka/lib/multi/synchr.f'>~pinka/lib/multi/synchr.f</a> \ Threads synchronization - "wait for single", "wait for all"
+* REQUIRE CREATE-MUTEX <a href='../lib/win/mutex.f'>lib/win/mutex.f</a> \\ Mutexes
+* REQUIRE ENTER-CS <a href='../devel/~pinka/lib/multi/critical.f'>~pinka/lib/multi/critical.f</a> \\ Critical sections
+* REQUIRE WaitAll <a href='../devel/~pinka/lib/multi/synchr.f'>~pinka/lib/multi/synchr.f</a> \\ Threads synchronization - "wait for single", "wait for all"
 
 
 <a id="ini-registry"/>
