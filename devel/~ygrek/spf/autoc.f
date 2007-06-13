@@ -7,6 +7,7 @@
 \ Очистить текущий ввод - Esc
 \ Навигация - Home, End, стрелки влево/вправо
 \ Удаление - Bksp, Del
+\ Вставка из буфера обмена - Ctrl-V, Shift-Ins
 \
 \ Просто подключите эту либу и всё.
 
@@ -25,6 +26,7 @@ REQUIRE InsertNodeEnd ~day/lib/staticlist.f
 REQUIRE FileLines=> ~ygrek/lib/filelines.f
 REQUIRE ATTACH-LINE-CATCH ~pinka/samples/2005/lib/append-file.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
+REQUIRE CBString ~day/lib/clipboard.f
 
 WINAPI: GetConsoleScreenBufferInfo KERNEL32.DLL
 
@@ -40,7 +42,7 @@ WINAPI: GetConsoleScreenBufferInfo KERNEL32.DLL
 
 : history-file S" spf.history" +ModuleDirName ;
 
-/node 
+/node
 CELL -- .val
 CONSTANT /history
 
@@ -68,7 +70,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
 
 : SUBSTART ( a u a1 u1 -- 0 | -1 )
 \ подстрока с начала строки
-   2>R OVER 2R> ROT >R  
+   2>R OVER 2R> ROT >R
    ( a u a1 u1 ) ( R: a ) \ %)
    SEARCH NIP IF R> <> ELSE DROP RDROP -1 THEN ;
 
@@ -80,13 +82,13 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    >R 2DUP R@ COUNT 2SWAP SUBSTART R> SWAP
  WHILE
    CDR  ( a u NFA2 )
- REPEAT THEN 
+ REPEAT THEN
 ;
 
 : put ( a u -- in )
 \ поместить строку начиная от _last
    _last OVER + _n1 > IF 2DROP _in EXIT THEN
-   >R _addr _last scanback DROP R> 2DUP + >R CMOVE 
+   >R _addr _last scanback DROP R> 2DUP + >R CMOVE
    R> _addr - ;
 
 : nfa-of-input ( -- nfa -1 | 0 )
@@ -99,11 +101,18 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    CDR-BY-NAME-START
    NIP NIP ;
 
+: insert-string { a u -- }
+    _addr _cursor + DUP u + _in _cursor - MOVE
+    a _addr _cursor + u MOVE
+    a FREE THROW
+    u _cursor + TO _cursor
+    u _in + TO _in ;
+
 : accept-ascii ( c -- )
    DUP 9 = \ tab
-   IF 
+   IF
      0 TO in-history
-     nfa-of-input 0= IF CONTEXT @ @ ELSE CDR THEN 
+     nfa-of-input 0= IF CONTEXT @ @ ELSE CDR THEN
      completion DUP IF COUNT put TO _in ELSE DROP _last TO _in THEN
      _in TO _cursor
    THEN
@@ -121,7 +130,12 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    DUP 13 = IF
      0 TO in-history
    THEN
-        
+
+   DUP 22 = IF \ Ctrl-V
+     CBString insert-string
+     _in TO _last
+   THEN
+
    DUP 27 = IF \ Esc - очистить ввод
      0 TO in-history
      0 TO _cursor
@@ -137,10 +151,10 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    _addr _cursor + C!
    _in 1+ TO _in
    _cursor 1+ TO _cursor
-   _in TO _last 
+   _in TO _last
 
    EXIT \ эксперименатльная фича %)
-   
+
    \ ?AUTOCOMPLETION 0= IF EXIT THEN
    \ если на вводе готовое слово - ничего не делаем
    nfa-of-input IF DROP EXIT THEN
@@ -148,7 +162,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    CONTEXT @ @ completion DUP 0= IF DROP EXIT THEN \ если их нет - выходим
    DUP CDR completion IF DROP EXIT THEN \ если их больше одного - тоже выходим
    \ иначе подставляем сразу!
-   COUNT put TO _in 
+   COUNT put TO _in
    _in TO _cursor ;
 
 : accept-scan ( c -- )
@@ -178,6 +192,10 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    DUP 79 = IF \ End
      _in TO _cursor
    THEN
+   DUP 82 = IF \ Shift-Ins
+     CBString insert-string
+     _in TO _last
+   THEN
    DUP 83 = IF \ Delete
      0 TO in-history
      _addr _cursor + DUP 1+ SWAP _in _cursor - CMOVE
@@ -203,7 +221,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    _addr _in TYPE
    R> TO H-STDLOG
    _cursor _x + _y AT-XY
-\   _addr _in DUP MAX-X > IF MAX-X \STRING THEN TYPE 
+\   _addr _in DUP MAX-X > IF MAX-X \STRING THEN TYPE
 ;
 
 : skey ( -- c -1|0 )
@@ -223,7 +241,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
 : add-history ( s -- ) history AllocateNodeEnd .val ! ;
 : dump-history ( -- ) \ всю историю в файл заново
    \ очистить файл
-   history-file R/W CREATE-FILE THROW CLOSE-FILE THROW 
+   history-file R/W CREATE-FILE THROW CLOSE-FILE THROW
    \ записать весь список
    LAMBDA{ .val @ STR@ history-file ATTACH-LINE-CATCH DROP } history ForEach ;
 
@@ -233,7 +251,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    history-file FileLines=>
    DUP
    STR@ >STR add-history
-  }EMERGE 
+  }EMERGE
   history listSize 0= IF
    "" add-history \ всегда есть один элемент в списке!
   THEN ;
@@ -255,7 +273,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    AT-XY? TO _y TO _x
   BEGIN
    _in 1+ _n1 > IF _in EXIT THEN
-   skey accept-one 
+   skey accept-one
   WHILE
    FALSE display
   REPEAT
@@ -265,9 +283,9 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
   LAMBDA{
    DUP .val @ STR@ _addr _in SAFE-COMPARE 0= IF .val @ add-history FALSE ELSE DROP TRUE THEN
   } history ?ForEach
-  DUP 
+  DUP
   IF
-    FreeNode 
+    FreeNode
     dump-history
   ELSE
    DROP
