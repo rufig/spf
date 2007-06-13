@@ -11,13 +11,13 @@
 \ 15-11-2000 Fixed MV2 (Yakimov)
 \ 25-12-2000 Added float literals recognition (Yakimov)
 \ 26-07-2001 Fixed MVX (Maksimov)
-\ 11-05-2004 Fixed FDA and CMV (Serguei Jidkov) 
+\ 11-05-2004 Fixed FDA and CMV (Serguei Jidkov)
 
 CR .( Loading Intel Pentium MMX disassembler...)
 
 WARNING @
 BASE @
-GET-CURRENT 
+GET-CURRENT
 ( warn base wid )
 
 WARNING 0!
@@ -169,9 +169,9 @@ C" NEAR_NFA" FIND NIP 0=
 : ?.NAME>S      ( CFA -- )
 \ ELIMINATE " 0X"
                 DUP   1 H.R>S SSPACE
-                NEAR_NFA 
+                NEAR_NFA
                 >R DUP
-                IF .S"  ( " DUP COUNT >S 
+                IF .S"  ( " DUP COUNT >S
                      NAME> R> - DUP
                      IF   DUP .S" +" NEGATE H.>S
                      THEN DROP        .S"  ) "
@@ -684,9 +684,9 @@ INH UD1 UD1
         REG32 ;
 
 : MV1   ( ADDR OP -- ADDR' )
-        .S" MOV     " 1 AND 
-        IF      16-BIT-DATA 
-                IF      .S" AX , " 
+        .S" MOV     " 1 AND
+        IF      16-BIT-DATA
+                IF      .S" AX , "
                 ELSE    .S" EAX , "
                 THEN
         ELSE    .S" AL , "
@@ -778,7 +778,8 @@ INH UD1 UD1
         THEN ;
 
 : ENT  ( ADDR OP -- ADDR' )
-        .S" ENTER   " W@+ . ., COUNT H.>S ;
+       DROP
+        .S" ENTER   " W@+ H.>S ., COUNT H.>S ;
 
 : CIS   ( ADDR OP -- ADDR' )
         0x9A =
@@ -1410,7 +1411,7 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
         + 2+
 \       ."  C, " 1+ OVER + SWAP
 \       DO I C@ 2 H.R  ."  C, " LOOP
-\       COUNT  + 1+ 
+\       COUNT  + 1+
 ;
 
 [DEFINED] G. [IF]
@@ -1428,14 +1429,14 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
 [ELSE]
 
 : FLIT8.
-       CR DUP  BASE-ADDR - 6 H.R SPACE   
+       CR DUP  BASE-ADDR - 6 H.R SPACE
        ."  A; " DUP 8 OVER + SWAP
        DO I C@ 3 H.R ."  C," LOOP
        8 +
 ;
 
 : FLIT10. ( ADDR -- ADDR' )
-       CR DUP  BASE-ADDR - 6 H.R SPACE   
+       CR DUP  BASE-ADDR - 6 H.R SPACE
        ."  A; "  DUP 10 OVER + SWAP
        DO I C@ 3 H.R ."  C," LOOP
        10 +
@@ -1444,18 +1445,18 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
 [THEN]
 
 : VECT. ( ADDR -- ADDR' )
-       CR DUP  BASE-ADDR - 6 H.R SPACE   
+       CR DUP  BASE-ADDR - 6 H.R SPACE
        ."  A; " DUP @ 8 H.R DUP CELL+ SWAP @ ."  ,  \ " WordByAddr TYPE
 ;
 
 : CONS. ( ADDR -- )
-       CR DUP BASE-ADDR - 6 H.R SPACE   
+       CR DUP BASE-ADDR - 6 H.R SPACE
        ."  A; " @ 8 H.R ."  ,"
 ;
 
 : USER. ( ADDR -- )
        CR DUP  BASE-ADDR - 6 H.R SPACE
-       ."  A; " @ 8 H.R ."  , \ Relative in heap [hex]" \ CELL+ 
+       ."  A; " @ 8 H.R ."  , \ Relative in heap [hex]" \ CELL+
 ;
 
 : UVAL. ( ADDR -- ADDR' )
@@ -1463,9 +1464,9 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
        ."  A; " DUP @ 8 H.R ."  , \ Relative in heap [hex]" CELL+
 ;
 
-: CODE. ( ADDR -- )  
+: CODE. ( ADDR -- )
         DUP NextNFA
-        ?DUP 
+        ?DUP
         IF OVER - 5 -
         ELSE
            DUP DP @ SWAP - ABS DUP 512 > IF DROP 40 THEN \ no applicable end found
@@ -1479,11 +1480,11 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
         COLS 0x29 <
         IF      DIS-OP
                 S-BUF COUNT TYPE
-        ELSE    DUP DIS-OP                                  
+        ELSE    DUP DIS-OP
                 OVER BASE-ADDR - 6  H.R SPACE
-                DUP ROT 
+                DUP ROT
                 2DUP - DUP>R 0x10 U> ABORT" DECOMPILER ERROR"
-                DO I C@ 2 H.N LOOP                           
+                DO I C@ 2 H.N LOOP
                 R> 5 < IF 9 EMIT THEN
                 9 EMIT S-BUF COUNT TYPE
         THEN    NEXT-INST C@ 0xE8 =
@@ -1509,7 +1510,7 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
 
 : FIND-REST-END ( xt -- addr | 0)
     DUP NextNFA DUP
-    IF 
+    IF
       NIP
       NAME>C 1- \ Skip CFA field
     ELSE
@@ -1519,7 +1520,7 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
     THEN
 
     BEGIN \ Skip alignment
-      DUP C@ 0= WHILE 1- 
+      DUP C@ 0= WHILE 1-
     REPEAT ;
 
 ( wid ) SET-CURRENT
@@ -1557,7 +1558,7 @@ VARIABLE  COUNT-LINE
                         \ We do not look for JMP's because there may be
                          \ a jump in a forth word
                         CR
-                        OVER 0= IF  NEXT-INST C@ 0xC3 <> 
+                        OVER 0= IF  NEXT-INST C@ 0xC3 <>
                                 ELSE 2DUP < INVERT
                                 THEN
                 WHILE   INST
