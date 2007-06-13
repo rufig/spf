@@ -3854,7 +3854,7 @@ OP0 @ W@ 6DF7 XOR OR \ 571EF2 F76DFC            IMUL    FC [EBP]
        EXIT
    THEN
 
-
+( !!!!!!!!!!
 DUP C@ C3 XOR
 OP1 @ @ EAF7C28B XOR OR	\  8BC2       MOV     EAX , EDX
 			 \ F7EA       IMUL    EDX
@@ -3864,7 +3864,7 @@ OP1 @ @ EAF7C28B XOR OR	\  8BC2       MOV     EAX , EDX
        FALSE 1 ALLOT  M\ 185 DTST
        EXIT
    THEN
-
+)
 
 
 OP3 @ :-SET U< IF TRUE EXIT THEN
@@ -4113,6 +4113,30 @@ OP2 @ W@ 4D8B XOR OR \  8B4D00            MOV     ECX , 0 [EBP]
         FALSE M\ C9 DTST
         EXIT
     THEN
+
+DUP C@ C3 XOR
+OP3 @ 2+ C@
+OP0 @ 2+ C@  XOR OR
+OP3 @ W@ 4589 XOR OR \ 571FEA 894500            MOV     0 [EBP] , EAX
+OP2 @ W@ C28B XOR OR \ 571FED 8BC2              MOV     EAX , EDX
+OP1 @ W@ EAF7 XOR OR \ 571FEF F7EA              IMUL    EDX
+OP0 @ W@ 4503 XOR OR \ 571FF1 034500            ADD     EAX , 0 [EBP]
+0=  IF M\ 1C8 DTST
+
+       OP2 OPexcise
+       OP1 OPexcise
+
+       OP0 3 OPinsert
+	AF0F OP1 @ W! 
+       D2    OP1 @ 2+ C!  \     IMUL    EDX , EDX
+
+       C203  OP0 @ W! \  ADD    EAX , EDX 
+        FALSE
+ -1 ALLOT
+  M\ 1C9 DTST
+        EXIT
+    THEN
+
 
 OP5 @ :-SET U< IF TRUE EXIT THEN
 
