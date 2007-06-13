@@ -3,7 +3,7 @@ D:\cvsSPF>set spf=.\spf4.exe
 SP-FORTH - ANS FORTH 94 for Win95/98/ME/NT/2000/XP
 Open source project at http://spf.sf.net
 Russian FIG at http://www.forth.org.ru ; Started by A.Cherezov
-Version 4.18 Build 001 at 04.Jun.2007
+Version 4.18 Build 001 at 13.Jun.2007
 
 testing: devel\~moleg\lib\util\ifdef.f                                 passed
 testing: devel\~moleg\lib\util\addr.f                                  passed
@@ -31,6 +31,7 @@ testing: devel\~moleg\lib\parsing\number.f                             passed
 testing: devel\~moleg\lib\parsing\xWord.f                              passed
 testing: devel\~moleg\lib\postscript\dsadd.f                           passed
 testing: devel\~moleg\lib\postscript\ps{}.f                            passed
+testing: devel\~moleg\lib\strings\stradd.f                             passed
 testing: devel\~moleg\lib\strings\messages.f                           passed
 testing: devel\~moleg\lib\strings\sconst.f                             passed
 testing: devel\~moleg\lib\strings\string.f                             passed
@@ -43,4 +44,7 @@ testing: devel\~moleg\lib\newfind\new_find.f                           passed
 testing: devel\~moleg\lib\newfind\spf_find.f                           passed
 testing: devel\~moleg\lib\testing\testing.f                            passed
 testing: devel\~moleg\lib\testing\say.f                                passed
+testing: devel\~moleg\lib\testing\tested.f                             passed
 testing: devel\~moleg\lib\spf_print\pad.f                              passed
+testing: devel\~moleg\lib\math\math.f                                  passed
+testing: devel\~moleg\lib\math\fixed.f                                 passed

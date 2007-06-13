@@ -39,25 +39,6 @@
 \ в конец формируемой строки, а не в ее начало.
 : KEEPS ( asc # --> ) HLD A@ OVER HLD +! SWAP CMOVE ;
 
-       8 VALUE places   \ количество отображаемых символов после запятой
-
-\ получить очередную цифру
-: $ ( n --> n*base ) BASE @ UM* >DIGIT KEEP ;
-
-\ преобразовать число
-: $S ( n --> )
-     places HLD @ OVER CHARS - HLD !
-     HLD @ >R
-      >R BEGIN R@ WHILE $ -1 R+ REPEAT RDROP DROP
-     R> HLD ! ;
-
-\ преобразовать число с фиксированной точкой.
-: (N.P) ( p n --> asc # )
-        DUP >R DABS SWAP 1 + <# $S comma HOLD 0 #S R> SIGN #> ;
-
-\ распечатать число с фиксированной точкой
-: N.P ( n p --> ) (N.P) TYPE SPACE ;
-
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
 test{ \ пока просто проверка компилируемости.
