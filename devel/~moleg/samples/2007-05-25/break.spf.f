@@ -88,7 +88,6 @@ VOCABULARY expand
            SeeForw NIP IF ." \n\rInvalid option: " TYPE BYE THEN
            SourceFile IF ." \n\rSuperfluous parameter: " TYPE BYE THEN
            SaveString TO SourceFile ;
-
 RECENT
 
 VOCABULARY COMMANDS
@@ -134,7 +133,7 @@ VOCABULARY COMMANDS
        ParseFileName SaveString TO SourceFile ;
 
   \ опция для отключения сохранения имен в начале каждой части
-  : -p ( --> ) FALSE TO part-name-add ;
+  : -p ( --> ) 0 TO part-name-add ;
 
 RECENT
 
@@ -222,7 +221,7 @@ RECENT
 \ сохранить блок, ограниченный сверху символом перевода строки.
 : save-block ( file-id --> )
              >R ^start DUP ResultFile# @ part# - + char -
-            2DUP ScanBack IF NIP THEN TO ^start
+             2DUP ScanBack IF NIP THEN TO ^start
              ^start OVER - R> WRITE-FILE THROW ;
 
 \ сохранить данные в файл
