@@ -53,6 +53,7 @@
   <!ENTITY chap-list-ext SYSTEM "source/~ygrek/lib/list/ext.docbook">
   <!ENTITY chap-list-write SYSTEM "source/~ygrek/lib/list/write.docbook">
   <!ENTITY chap-list-qsort SYSTEM "source/~ygrek/lib/list/qsort.docbook">
+  <!ENTITY chap-list-more SYSTEM "source/~ygrek/lib/list/more.docbook">
 ]>
 
 <book>
@@ -88,6 +89,7 @@
   &chap-list-ext;
   &chap-list-write;
   &chap-list-qsort;
+  &chap-list-more;
   </chapter>
 
   <chapter id="formats">

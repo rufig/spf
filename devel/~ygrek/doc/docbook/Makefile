@@ -54,7 +54,8 @@ lib/win/mutex.f \
 ~ygrek/lib/list/core.f \
 ~ygrek/lib/list/ext.f \
 ~ygrek/lib/list/write.f \
-~ygrek/lib/list/qsort.f
+~ygrek/lib/list/qsort.f \
+~ygrek/lib/list/more.f
 
 docbooks = $(foreach forthfile,$(forthcode),$(DOC_PATH)/$(patsubst %.f,%.docbook,$(forthfile)))
 xmlhelps = $(foreach docbook,$(docbooks),$(patsubst %.docbook,%.xml,$(docbook)))
@@ -109,10 +110,10 @@ devel.chm: $(docbooks) devel.docbook devel.chm.xsl devel.basic.xsl
 
 # удалить промежуточные файлы
 clean:
-	-rm *.hhp *.hhc *.hhk
-	-rm ch*.html index.html pr??.html
-	-rm $(tempfile)
+	-del *.hhp *.hhc *.hhk
+	-del ch*.html index.html pr??.html
+	-del $(tempfile)
 
 # удалить все сгенерированные файлы
 cleanall: clean
-	-rm $(docbooks) $(xmlhelps) $(docs) chunked/*.html
+	-del $(docbooks) $(xmlhelps) $(docs) chunked/*.html
