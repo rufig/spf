@@ -50,11 +50,11 @@
 
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE CONT ~profit/lib/bac4th.f
+REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE FREEB ~profit/lib/bac4th-mem.f
 REQUIRE LOCAL ~profit/lib/static.f
 \ REQUIRE EVALUATED-HEAP ~profit/lib/evaluated.f
 REQUIRE VC-COMPILED ~profit/lib/compile2Heap.f
-REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE A_BEGIN ~mak/lib/a_if.f
 REQUIRE no-inline ~profit/lib/no-inline.f
 
@@ -70,6 +70,9 @@ MODULE: bac4th-closures
 : AGAIN	[COMPILE] A_AGAIN ; IMMEDIATE
 : REPEAT [COMPILE] A_REPEAT ; IMMEDIATE
 : UNTIL [COMPILE] A_UNTIL ; IMMEDIATE
+
+
+
 
 WARNING @ WARNING 0!
 {{ no-inline DEFINITIONS

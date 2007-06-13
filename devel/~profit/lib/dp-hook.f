@@ -7,43 +7,27 @@
 \ DP -- не переменная, а "умное" определение, которое
 \ ещё можно подменить "на лету".
 
-\ Из-за конфликта ~ac/lib/ns/so-xt.f c NEAR_NFA:
-\ http://sourceforge.net/tracker/index.php?func=detail&aid=1734449&group_id=17919&atid=117919
-\ реализация DUPLICATE выглядит несколько более грязной чем могла бы быть.
-
 REQUIRE /TEST ~profit/lib/testing.f
+REQUIRE NEW-STORAGE ~pinka/spf/storage.f
+ \ работает и без storage.f, но если он будет включён _позже_ -- будут проблемы
 REQUIRE R@ENTER, ~profit/lib/bac4th.f
 REQUIRE REPLACE-WORD lib/ext/patch.f
-REQUIRE NextNFA lib\ext\vocs.f
 
 MODULE: dp-hook
 
-\ Выдрано из lib/ext/disasm.f
-: FIND-REST-END ( xt -- addr | 0)
-    DUP NextNFA DUP
-    IF 
-      NIP
-      NAME>C 1- \ Skip CFA field
-    ELSE
-      DROP
-      DP @ - ABS 100 > IF 0 EXIT THEN \ no applicable end found
-      DP @ 1-
-    THEN
-
-    BEGIN \ Skip alignment
-      DUP C@ 0= WHILE 1- 
-    REPEAT ;
-
-
-\ : DUPLICATE HEADER ' DUP FIND-REST-END OVER - HERE SWAP DUP ALLOT RET, CMOVE ;
-: DUPLICATE HEADER ' 10000 HERE SWAP DUP ALLOT RET, CMOVE ;
 \ Берёт из потока два имени. С первым создаёт новое
 \ определение. У второго имени находит содержимое
 \ его кода и _копирует_ его в новое слово.
-\ Относительные переходы в командах jmp и call ломаются
+\ Относительные переходы в командах jmp и call (если есть)
+\ ломаются, кроме самого первого CALL который исправляется вручную
+: DUPLICATE
+HEADER '
+\ хак номер 1: наглое копирование килобайта участка кода
+DUP HERE 2DUP >R >R 1000 DUP ALLOT CMOVE
+\ хак номер 2: если первая команда CALL, то исправляем адрес (для "совместимости" с ~pinka\spf\storage.f)
+R> DUP C@ 0xE8 = IF 1+ DUP @ + R@ 1+ TUCK - SWAP ! ELSE DROP THEN RDROP DROP ;
 
 DUPLICATE DP1 DP \ копируем содержимое DP в DP1 , так как DP мы сейчас сломаем
-\ SEE DP1 \ удостоверяемся что DP1 идентичен DP
 
 EXPORT
 

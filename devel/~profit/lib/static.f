@@ -1,8 +1,6 @@
-\ —татические переменные, хран€щиес€ непосредственно в шитом
-\ коде определени€.
-\ ¬ комбинации с словом B! или KEEP (слово LOCAL, см. пример
-\ внизу) можно использовать как полностью bac4th-совместимые
-\ локальные переменные.
+\ —татические переменные, хран€щиес€ непосредственно в шитом коде определени€.
+\ ¬ комбинации с словом B! или KEEP (слово LOCAL, см. пример внизу) можно 
+\ использовать как полностью bac4th-совместимые локальные переменные.
 \ ќписание и обсуждение: http://fforum.winglion.ru/viewtopic.php?t=409
 
 \ ѕри использовании в bac4th-словах, LOCAL надо размещать
@@ -12,9 +10,11 @@
 
 \ TODO: —делать запись значений переменных группами а не по одному
 
-REQUIRE KEEP ~profit/lib/bac4th.f
-REQUIRE NOT ~profit/lib/logic.f
 REQUIRE /TEST ~profit/lib/testing.f
+REQUIRE KEEP ~profit/lib/bac4th.f
+REQUIRE NEW-STORAGE ~pinka/spf/storage.f
+\ работает и без storage.f, но если он будет включЄн _позже_ -- будут проблемы
+REQUIRE NOT ~profit/lib/logic.f
 
 MODULE: static
 
@@ -26,7 +26,7 @@ USER widCurrent
 
 : ADD-ORDER ( wid -- ) ALSO CONTEXT ! ;
 
-: END-STATIC widLocals @  IF \ ѕроверка на наличие локального словар€ сделана на вс€кий пожарный (мало ли?)
+: END-STATIC widLocals @  IF           \ ѕроверка на наличие локального словар€ сделана на вс€кий пожарный (мало ли?)
 HERE PREVIOUS widCurrent @ SET-CURRENT \ ¬осстанавливаем стек словарей и CURRENT
 widLocals @ FREE-WORDLIST
 DP ! widLocals 0!         THEN ;
@@ -40,7 +40,7 @@ S" ;" CREATED IMMEDIATE             \ ¬писываем в словарь слово ; которое будет 
 DOES> DROP (;) ;
 
 : LOCAL-WORDLIST widLocals @ NOT IF     \ ѕереходим во временный словарь лок. переменных.
-CREATE-LOCAL-WORDLIST                  \ ≈сли в первый раз, то он создаЄтс€ и устанавливаетс€ как текущий
+CREATE-LOCAL-WORDLIST                   \ ≈сли в первый раз, то он создаЄтс€ и устанавливаетс€ как текущий
 CONTEXT @ widLocals !            ELSE
 widHere @ DP !  DEFINITIONS      THEN ; \ ≈сли словарь уже создан, то возрашаем тамошний HERE и начинаем оп€ть писать в него слова
 
@@ -116,6 +116,7 @@ $> 2 previousValue .
 $> 3 previousValue .
 $> 10 previousValue .
 
+
 : fact ( n -- n! ) \ Ќе самый удачный пример, согласен.
 DUP 0=      IF     \ Ќо тем не менее показывает как сохран€ютс€ локальные
 DROP 1      ELSE   \ значени€ в статических переменных
@@ -155,3 +156,8 @@ s c !
 s c @ ;
 
 $> 1 3 sum .
+
+: rr LOCAL s 
+10 s ! 
+s @ . ;
+CR CR rr

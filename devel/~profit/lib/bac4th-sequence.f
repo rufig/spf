@@ -62,7 +62,7 @@
 \ только непосредственно внутри скобок arr/seq, пока не допуская
 \ вкладывания его в другие структуры.
 
-\ REQUIRE MemReport ~day/lib/memreport.f
+
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE __ ~profit/lib/cellfield.f
 REQUIRE writeCell ~profit/lib/fetchWrite.f
@@ -72,6 +72,8 @@ REQUIRE LOCAL ~profit/lib/static.f
 REQUIRE CREATE-VC ~profit/lib/compile2Heap.f
 REQUIRE FREEB ~profit/lib/bac4th-mem.f
 REQUIRE DIS-DP-HOOK ~profit/lib/dp-hook.f
+REQUIRE PageSize ~profit/lib/get-system-info.f
+\ REQUIRE MemReport ~day/lib/memreport.f
 
 MODULE: bac4th-sequence
 
