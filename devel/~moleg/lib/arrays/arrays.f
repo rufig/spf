@@ -54,6 +54,10 @@
 \ индексы начинаются с 0
 : [i]! ( [array] # n i --> [array] # ) 1 + CELLS 2>R SP@ R> + R> SWAP ! ;
 
+\ вернуть FALSE если содержимое массивов или длина не равны
+: cmparr ( [a1] # [a2] # --> flag )
+         SP@ OVER 1 + CELLS 2DUP 2>R +
+         2R> TUCK COMPARE 0= ;
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 

@@ -63,6 +63,7 @@
 
 @st.exe .S" devel\~moleg\lib\testing\testing.f"         TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\testing\say.f"             TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\testing\tested.f"          TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\spf_print\pad.f"           TESTED CR BYE
 
