@@ -3,7 +3,8 @@
 \ макросы для поддержания псевдоассемблера
 
  REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
- REQUIRE dpop devel\~mOleg\lib\asm\registers.f
+ REQUIRE ASSEMBLER lib\ext\spf-asm.f
+ REQUIRE dpop      devel\~mOleg\lib\asm\registers.f
 
 : -CELL CELL NEGATE ;
 : param  NextWord EVALUATE ;
@@ -29,3 +30,9 @@ MACRO: rpop   POP  ENDM
 \ запомнить содержимое указанного регистра на вершине стека возвратов
 MACRO: rpush  PUSH ENDM
 
+?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+
+test{
+
+  S" passed" TYPE
+}test
