@@ -60,7 +60,7 @@ EXPORT
 
 : all-asc: ( addr u -- ) :n -ROT OVER + SWAP DO DUP I C@ -й-символ LOOP DROP ;
 
-: символы: ( "ABCZ" -- ) :n ParseWord all-asc: ;
+: символы: ( "ABCZ" -- ) ParseWord all-asc: ;
 
 : тоже-самое ( -- ) предпоследняя-реакция COMPILE, ; IMMEDIATE
 : меня ( -- ) LATEST COUNT SLIT, ; IMMEDIATE
