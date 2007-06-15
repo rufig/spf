@@ -7,8 +7,6 @@
  REQUIRE SkipChar devel\~mOleg\lib\util\parser.f
  REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
 
-FALSE WARNING !
-
 \ преобразовать запись \123 в код символа
 : CharCode ( asc # --> char )
            BASE @ >R DECIMAL
@@ -41,6 +39,8 @@ FALSE WARNING !
 
 \ добавить литеральную строку в определение (либо просто вернуть строку)
 : s" ( / name" --> ) [CHAR] " CookLine [COMPILE] SLITERAL ; IMMEDIATE
+
+FALSE WARNING !
 
 \ выделить строку, ограниченную символом " из входного потока,
 \ компилировать в текущее слово код, выводящий строку на экран терминала

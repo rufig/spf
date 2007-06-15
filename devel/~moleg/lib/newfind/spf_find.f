@@ -35,8 +35,6 @@ FALSE WARNING !
          EXIT                                    \ хотя можно этот код перенести
         THEN NIP NIP ;                           \ в ?IMMEDIATE
 
-DECIMAL
-
 \ 2006-12-09
 ' SEARCH-WORDLIST1 TO SEARCH-WORDLIST
 

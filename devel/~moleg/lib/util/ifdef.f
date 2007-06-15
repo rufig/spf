@@ -2,8 +2,6 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ выполнить действие, если слово не найдено
 
-FALSE WARNING !
-
 \ вернуть TRUE если следующее слово найдено в контексте
 : ?WORD ( / token --> flag )
         SP@ >R  NextWord SFIND
@@ -19,8 +17,6 @@ FALSE WARNING !
 
 \ выполнить следующий за token код, если token найден в контексте
 : N?DEFINED ( / token --> ) ?WORD [COMPILE] ADMIT ; IMMEDIATE
-
-TRUE WARNING !
 
 ?DEFINED test{ \EOF
 

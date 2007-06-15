@@ -5,8 +5,6 @@
  REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE WHILENOT devel\~mOleg\lib\util\ifnot.f
 
-FALSE WARNING !
-
 ?DEFINED char  1 CHARS CONSTANT char
 
 \ слово откатывает >IN назад, на начало непонятого слова asc #
@@ -37,6 +35,8 @@ FALSE WARNING !
            -1 TO SOURCE-ID
            GetCommandLineA ASCIIZ> SOURCE!
            ParseFileName 2DROP ;
+
+FALSE WARNING !
 
 \ слово берет очередную лексему из входного потока до тех пор, пока он
 \ не исчерпается.

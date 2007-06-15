@@ -6,11 +6,9 @@
  REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
  REQUIRE SeeForw  devel\~mOleg\lib\util\parser.f
 
-FALSE WARNING !
-
 \ -- константы ----------------------------------------------------------------
 
-        1 CHARS CONSTANT char
+?DEFINED char  1 CHARS CONSTANT char
 
 \ -- коментарии ---------------------------------------------------------------
 
@@ -21,6 +19,8 @@ FALSE WARNING !
 \ коментарий до конца строки (для временного коментирования кусков кода)
 : \? ( --> ) [COMPILE] \ ; IMMEDIATE
 
+FALSE WARNING !
+
 \ Заканчивает трансляцию текущего потока »
 \ в отличие от родного слова СПФ упоминание в консоли приводит к
 \ окончанию текущего потока, а упоминание в подключаемом файле
@@ -30,6 +30,8 @@ FALSE WARNING !
         SOURCE-ID DUP IF ELSE TERMINATE THEN
         >R 2 SP@ -2 CELLS + 0 R> SetFilePointer DROP
         [COMPILE] \ ;
+
+TRUE WARNING !
 
 \  -- словари ------------------------------------------------------------------
 
@@ -99,8 +101,6 @@ FALSE WARNING !
 
 \ вызвать ошибку вместе со следующим сообщением
 ?DEFINED SERROR : SERROR ( asc # --> ) ER-U ! ER-A ! -2 THROW ;
-
-TRUE WARNING !
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 

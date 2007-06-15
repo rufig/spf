@@ -16,7 +16,6 @@
 @rem тестируем с помощью следующей библиотечки:
 @%spf% devel\~moleg\lib\testing\smal-test.f
 
-@st.exe .S" devel\~moleg\lib\util\ifdef.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\addr.f"               TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\bytes.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\compile.f"            TESTED CR BYE

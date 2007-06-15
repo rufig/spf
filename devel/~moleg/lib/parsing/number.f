@@ -4,8 +4,6 @@
 
  REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
-FALSE WARNING !
-
 \ умножение числа двойной длинны на одинарное
 : DU* ( d u --> d ) TUCK * >R UM* R> + ;
 
@@ -16,14 +14,16 @@ FALSE WARNING !
           DUP [CHAR] a [CHAR] { WITHIN IF 87 - EXIT THEN
           DROP -1 ;
 
+\ добавить цифру x к числу d*base »
+: CIPHER ( d x --> d ) U>D 2SWAP BASE @ DU* D+ ;
+
+FALSE WARNING !
+
 \ попытаться преобразовать символ char в цифру,
 \ в системе исчисления, определяемой base »
 : DIGIT ( char base --> u TRUE | FALSE )
         SWAP >CIPHER TUCK U>
         IF TRUE ELSE DROP FALSE THEN ;
-
-\ добавить цифру x к числу d*base »
-: CIPHER ( d x --> d ) U>D 2SWAP BASE @ DU* D+ ;
 
 \ перевести символьное представление числа во внутреннее ( двоичное ) »
 \ преобразование ведется до конца строки или до первого непреобразуемого
