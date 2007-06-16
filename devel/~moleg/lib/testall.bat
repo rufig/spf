@@ -35,6 +35,9 @@
 @st.exe .S" devel\~moleg\lib\util\for-next.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\stack.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\marks.f"              TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\does.f"               TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\words.f"              TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\spells.f"             TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\arrays\arrays.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\arrays\buff.f"             TESTED CR BYE

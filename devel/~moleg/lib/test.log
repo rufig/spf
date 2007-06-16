@@ -15,10 +15,8 @@ testing: devel\~moleg\lib\util\iw.f                                    passed
 testing: devel\~moleg\lib\util\shades.f                                passed
 testing: devel\~moleg\lib\util\ansi-esc.f                              passed
 testing: devel\~moleg\lib\util\stackadd.f                              passed
-testing: devel\~moleg\lib\util\parser.f                                NEXT-WORD isn't unique
-passed
-testing: devel\~moleg\lib\util\useful.f                                NEXT-WORD isn't unique
-passed
+testing: devel\~moleg\lib\util\parser.f                                passed
+testing: devel\~moleg\lib\util\useful.f                                passed
 testing: devel\~moleg\lib\util\on-error.f                              passed
 testing: devel\~moleg\lib\util\ifcolon.f                               passed
 testing: devel\~moleg\lib\util\run.f                                   passed
@@ -26,6 +24,9 @@ testing: devel\~moleg\lib\util\control.f                               passed
 testing: devel\~moleg\lib\util\for-next.f                              passed
 testing: devel\~moleg\lib\util\stack.f                                 passed
 testing: devel\~moleg\lib\util\marks.f                                 passed
+testing: devel\~moleg\lib\util\does.f                                  passed
+testing: devel\~moleg\lib\util\words.f                                 passed
+testing: devel\~moleg\lib\util\spells.f                                passed
 testing: devel\~moleg\lib\arrays\arrays.f                              passed
 testing: devel\~moleg\lib\arrays\buff.f                                passed
 testing: devel\~moleg\lib\parsing\number.f                             passed
@@ -35,8 +36,7 @@ testing: devel\~moleg\lib\postscript\ps{}.f                            passed
 testing: devel\~moleg\lib\strings\stradd.f                             passed
 testing: devel\~moleg\lib\strings\messages.f                           passed
 testing: devel\~moleg\lib\strings\sconst.f                             passed
-testing: devel\~moleg\lib\strings\string.f                             NEXT-WORD isn't unique
-passed
+testing: devel\~moleg\lib\strings\string.f                             passed
 testing: devel\~moleg\lib\strings\subst.f                              passed
 testing: devel\~moleg\lib\struct\struct.f                              passed
 testing: devel\~moleg\lib\drafts\vars.f                                passed
