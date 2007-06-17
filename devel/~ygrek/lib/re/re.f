@@ -1,5 +1,5 @@
 \ $Id$
-\ Регулярные выражения - regular expression, regex, regexp, RE
+\ Регулярные выражения - regular expressions
 \ Однобайтовые символы (unicode to do), классы символов - только для латинских
 \ Прямая реализация NFA алгоритма из http://swtch.com/~rsc/regexp/regexp1.html
 
@@ -24,7 +24,7 @@
 \ + оператор "1 или больше"
 \ | оператор "или"
 \ . любой символ
-\ \ квотирование специальных (этих) символов
+\ \ квотирование специальных символов
 \ \w \s \d \W \S \D \t \n \r \x3F
 
 \ -----------------------------------------------------------------------
@@ -52,25 +52,12 @@ REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE ENUM: ~ygrek/lib/enum.f
-REQUIRE A_BEGIN ~mak/lib/a_if.f
+REQUIRE A_AHEAD ~mak/lib/a_if.f
 REQUIRE NUMBER ~ygrek/lib/parse.f
 
 \ -----------------------------------------------------------------------
 
 MODULE: regexp
-
-: state состояние ;
-: symbol: символ: ;
-: all: все: ;
-: symbol символ ;
-: rollback1 вернуть-букву ;
-: on-enter: на-входе: ;
-: current-state chartable::текущее-состояние ;
-: current-state! chartable::TO текущее-состояние ;
-: execute-one выполнить-один-раз ;
-: state-table таблица ;
-: eol: строка-кончилась: ;
-: range: диапазон: ;
 
 state in-branch-0
 state in-branch-1
@@ -293,7 +280,7 @@ in-branch-0
 all: rollback1 get-fragment in-branch-1 ;
 |: emptyfragment in-branch-2 ;
 right: fragment-error ;
-eol: fragment-error ;
+end-input: fragment-error ;
 
 
 \ на стеке один фрагмент
@@ -302,7 +289,7 @@ in-branch-1
 all: rollback1 get-fragment concat ;
 |: in-branch-2 ;
 right: rollback1 fragment-final ;
-eol: fragment-final ;
+end-input: fragment-final ;
 
 
 \ на стеке одна ветка
@@ -311,7 +298,7 @@ in-branch-2
 all: rollback1 get-fragment in-branch-3 ;
 |: emptyfragment op-| ;
 right: emptyfragment op-| rollback1 fragment-final ;
-eol: emptyfragment op-| fragment-final ;
+end-input: emptyfragment op-| fragment-final ;
 
 
 \ на стеке одна ветка и один фрагмент
@@ -320,8 +307,7 @@ in-branch-3
 all: rollback1 get-fragment concat ;
 |: op-| in-branch-2 ;
 right: op-| rollback1 fragment-final ;
-eol: op-| fragment-final ;
-
+end-input: op-| fragment-final ;
 
 \ Начало RE определяющего один символ
 start-fragment
@@ -332,7 +318,7 @@ op: fragment-error ;
 left: get-branches brackets-fin ;
 right: fragment-error ;
 backslash: unquote-next-liter no-brackets-fragment ;
-eol: fragment-final ;
+end-input: fragment-final ;
 |: fragment-error ;
 
 
@@ -341,7 +327,7 @@ no-brackets-fragment
 
 all: rollback1 fragment-final ;
 op: symbol perform-operation fragment-final ;
-eol: fragment-final ;
+end-input: fragment-final ;
 
 
 \ конец скобочного выражения - должна быть закрывающая скобка
@@ -349,7 +335,7 @@ brackets-fin
 
 all: fragment-error ;
 right: no-brackets-fragment ;
-eol: fragment-error ;
+end-input: fragment-error ;
 
 
 \ Фрагмент выделен
@@ -396,7 +382,7 @@ all: CR ." ALREADY IN ERROR STATE!" ;
     SWAP FREE-FRAG ;
 
 \ построить regex в кодофайле
-: build-regex-static ( a u -- )
+: build-regex-static ( a u -- nfa )
    ['] NEW-NFA-STATIC TO NEW-NFA (parse-full) ;
 
 EXPORT
