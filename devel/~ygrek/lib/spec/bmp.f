@@ -1,29 +1,30 @@
 \ $Id$
-\ Љ« бб г¬ҐойЁ© § Јаг¦ вм Ё§ д ©«  Ё зЁв вм Ё§®Ўа ¦Ґ­Ёп ў д®а¬ вҐ BMP б 24-ЎЁв­л¬ жўҐв®¬ 
+\ Hype3 класс умеющий загружать из файла и читать изображения в формате BMP с 24-битным цветом
 
 REQUIRE CLASS ~day/hype3/hype3.f
 REQUIRE BMPINFO ~ygrek/lib/data/bmp.f
 
-\ ўлЎа вм ¬Ё­Ё¬ «м­®Ґ n2 > n1 в Є®Ґ зв® n2 mod x = 0
-: align ( n1 x -- n2 ) 
+\ выбрать минимальное n2 > n1 такое что n2 mod x = 0
+: align ( n1 x -- n2 )
    2DUP MOD DUP 0= IF DROP DROP EXIT THEN
    - + ;
 
 \ -----------------------------------------------------------------------
 
+\ NB: каждая строка изображения начинается с адреса выровненного на 4
 CLASS CBMP24
 
- VAR sizeX \ а §¬Ґа X ў ЇЁЄбҐ« е
- VAR sizeY \ а §¬Ґа Y ў ЇЁЄбҐ« е
- VAR data  \ ¤ ­­лҐ Ё§®Ўа ¦Ґ­Ёп
+ VAR sizeX \ размер X в пикселах
+ VAR sizeY \ размер Y в пикселах
+ VAR data  \ данные изображения
 
 init: 0 sizeX ! 0 sizeY ! 0 data ! ;
 dispose: data @ IF data @ FREE THROW THEN ;
 
-\ —Ёб«® Ў ©в § ­Ё¬ Ґ¬ле ®¤­®© бва®Є®© Ё§®Ўа ¦Ґ­Ёп
+\ Число байт занимаемых одной строкой изображения
 : :getLineSize ( -- n ) sizeX @ 3 * 4 align ;
 
-\ Ќ ©вЁ Ў ©вл б®®вўҐвбвўгойЁҐ Є®®а¤Ё­ в ¬ x y
+\ Найти байты соответствующие координатам x y
 : pixel-address ( x y -- addr ) :getLineSize * SWAP 3 * + data @ + ;
 
 : _rgb ( addr - r g b )
@@ -32,14 +33,14 @@ dispose: data @ IF data @ FREE THROW THEN ;
   R@ 1 + C@
   R> 2 + C@ ;
 
-\ а §¬Ґа Ё§®Ўа ¦Ґ­Ёп
+\ размер изображения
 : :size ( -- x y ) sizeX @ sizeY @ ;
 
-\ ‚л¤Ґ«Ёвм Є®¬Ї®­Ґ­вл жўҐв  ЇЁЄбҐ«п б Є®®а¤Ё­ в ¬Ё x y
+\ Выделить компоненты цвета пикселя с координатами x y
 : :rgb ( x y -- r g b ) pixel-address _rgb ;
 
-\ § Јаг§Ёвм Ё§®Ўа ¦Ґ­ЁҐ Ё§ д ©«  a u
-\ ў б«гз Ґ ®иЁЎЄЁ - ўлЄЁ¤лў Ґвбп ЁбЄ«озҐ­ЁҐ
+\ загрузить изображение из файла a u
+\ в случае ошибки - выкидывается исключение
 : :load-file ( a u -- )
    2DUP FILE-EXIST 0= S" file not found" SUPER abort
 
@@ -53,7 +54,7 @@ dispose: data @ IF data @ FREE THROW THEN ;
    info BMPINFO::bBitCount W@ 24 <> S" Not a 24bpp image" SUPER abort
 \   inf BMPINFO::fOffset @ f REPOSITION-FILE THROW
 
-   info BMPINFO::fSize @ info BMPINFO::fOffset @ - 
+   info BMPINFO::fSize @ info BMPINFO::fOffset @ -
    DUP DUP ALLOCATE THROW data !
    data @ SWAP f READ-FILE THROW <> S" Read failed" SUPER abort
    f CLOSE-FILE THROW
