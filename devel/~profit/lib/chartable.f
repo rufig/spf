@@ -58,12 +58,14 @@ EXPORT
 : латинские-буквы: ( -- ) [CHAR] a [CHAR] z диапазон:
 последн€€-реакци€ [CHAR] A [CHAR] Z установить-диапазон ;
 
-: all-asc: ( addr u -- ) :n -ROT OVER + SWAP DO DUP I C@ -й-символ LOOP DROP ;
+: all-asc: ( addr u -- ) :n -ROT OVER + SWAP DO DUP I C@ -й-символ LOOP DROP 	;
 
 : символы: ( "ABCZ" -- ) ParseWord all-asc: ;
 
 : тоже-самое ( -- ) предпоследн€€-реакци€ COMPILE, ; IMMEDIATE
 : мен€ ( -- ) LATEST COUNT SLIT, ; IMMEDIATE
+
+VARIABLE сигнал
 
 : таблица ( число-случаев "им€" -- )
 CREATE
@@ -71,7 +73,7 @@ DUP 1+ , \ кол-во случаев плюс один
 HERE TO текущее-состо€ние
 0 DO отдыхают , LOOP
 отдыхают , \ действие по-умолчанию, дл€ случаев номера которых превышают кол-во состо€ний
-DOES> DUP @ ROT MIN 1+ CELLS + @ EXECUTE ;
+DOES> DUP сигнал ! DUP @ ROT MIN 1+ CELLS + @ EXECUTE ;
 
 : состо€ние ( -- )
 CREATE
@@ -132,6 +134,22 @@ TO граница-обработки          BEGIN
 
 : -символов-обработать ( n -- ) ?DUP IF отсюда + запустить THEN ;
 \ сколько нужно символов обработать начина€ от текущего 
+
+\ синонимы на латинице
+: state состо€ние ;
+: symbol: символ: ;
+: all: все: ;
+: symbol символ ;
+: rollback1 вернуть-букву ;
+: on-enter: на-входе: ;
+: current-state chartable::текущее-состо€ние ;
+: current-state! chartable::TO текущее-состо€ние ;
+: execute-one выполнить-один-раз ;
+: state-table таблица ;
+: range: диапазон: ;
+: end-input: строка-кончилась: ;
+: input-position отсюда ;
+: signal сигнал ;
 
 ;MODULE
 
