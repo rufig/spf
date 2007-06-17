@@ -43,6 +43,7 @@ WINAPI: glNewList         OpenGL32.DLL
 WINAPI: glDisable         OpenGL32.DLL
 WINAPI: glColorMaterial   OpenGL32.DLL
 WINAPI: glMaterialf       OpenGL32.DLL
+WINAPI: glDrawPixels      OpenGL32.DLL
 
-WINAPI: gluPerspective    Glu32.DLL 
-WINAPI: gluOrtho2D        Glu32.DLL 
+WINAPI: gluPerspective    Glu32.DLL
+WINAPI: gluOrtho2D        Glu32.DLL
