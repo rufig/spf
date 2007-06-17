@@ -65,7 +65,7 @@ EXPORT
 : тоже-самое ( -- ) предпоследн€€-реакци€ COMPILE, ; IMMEDIATE
 : мен€ ( -- ) LATEST COUNT SLIT, ; IMMEDIATE
 
-VARIABLE сигнал
+0 VALUE сигнал
 
 : таблица ( число-случаев "им€" -- )
 CREATE
@@ -73,7 +73,7 @@ DUP 1+ , \ кол-во случаев плюс один
 HERE TO текущее-состо€ние
 0 DO отдыхают , LOOP
 отдыхают , \ действие по-умолчанию, дл€ случаев номера которых превышают кол-во состо€ний
-DOES> DUP сигнал ! DUP @ ROT MIN 1+ CELLS + @ EXECUTE ;
+DOES> DUP @ ROT MIN DUP TO сигнал 1+ CELLS + @ EXECUTE ;
 
 : состо€ние ( -- )
 CREATE
