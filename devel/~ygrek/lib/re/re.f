@@ -162,24 +162,24 @@ VECT NEW-NFA
 
 \ 0 or 1
 : op-? { e1 -- e }
-  STATE_SPLIT e1 .i @ 0 nfa
-  %[ DUP .out2 % e1 outs% ]% frag
+  STATE_SPLIT 0 e1 .i @ nfa
+  %[ DUP .out1 % e1 outs% ]% frag
   e1 FREE-FRAG ;
 
 \ 0 or more
 : op-* { e1 -- e }
-  STATE_SPLIT e1 .i @ 0 nfa
+  STATE_SPLIT 0 e1 .i @ nfa
   e1 OVER link
   ( nfa )
-  %[ DUP .out2 % ]% frag
+  %[ DUP .out1 % ]% frag
   e1 FREE-FRAG ;
 
 \ 1 or more
 : op-+ { e1 -- e }
-  STATE_SPLIT e1 .i @ 0 nfa
+  STATE_SPLIT 0 e1 .i @ nfa
   e1 OVER link
   ( nfa )
-  e1 .i @ %[ SWAP .out2 % ]% frag
+  e1 .i @ %[ SWAP .out1 % ]% frag
   e1 FREE-FRAG ;
 
 \ alternation
@@ -406,7 +406,7 @@ DEFINITIONS
 \ -----------------------------------------------------------------------
 
 : STATE>S { nfa -- a u }
-   nfa .c @ STATE_SPLIT = IF S" " EXIT THEN
+   nfa .c @ STATE_SPLIT = IF S"  " EXIT THEN
    nfa .c @ STATE_FINAL = IF S" final" EXIT THEN
    nfa .c @ STATE_MATCH_ANY = IF S" any" EXIT THEN
    nfa .c @ [CHAR] \ = IF S" \\" EXIT THEN
@@ -425,14 +425,47 @@ DEFINITIONS
 
 : dot-draw ( nfa -- ) 0 SWAP (dot-draw) clean-visited ;
 
+: find-finalstate ( nfa -- nfa2 )
+   BEGIN
+    DUP .out1 @
+   WHILE
+    .out1 @
+   REPEAT ;
+
 EXPORT
 
-\ представить RE в виде dot-диаграммы в файле a u
-: dottify ( nfa a u -- ) dot{ dot-draw }dot ;
+\ представить RE заданный nfa в виде dot-диаграммы в файле a u
+\ a1 u1 - символьное представление регэкспа (для надписи)
+: dottify ( a1 u1 nfa a u -- )
+   dot{
+    DOT-CR S" rankdir=LR;" DOT-TYPE
+    DUP find-finalstate { last }
+    ( nfa ) dot-draw
+
+    \ 0 - стартовая вершина
+    S" 0" S" box" DOT-SHAPE
+    S" 0" 2SWAP DOT-LABEL
+
+    \ last - финальная вершина
+    " {#last}"
+    DUP STR@ S" box" DOT-SHAPE
+        STRFREE
+
+   }dot ;
 
 \ ? - флаг успеха
-: dotto: ( nfa "name" -- ? )
-   ['] build-regex CATCH IF 2DROP PARSE-NAME 2DROP FALSE ELSE >R R@ PARSE-NAME dottify R> free-regex TRUE THEN ;
+: dotto: ( a u "name" -- ? )
+   2DUP
+   ['] build-regex CATCH
+   IF
+    2DROP
+    2DROP
+    PARSE-NAME 2DROP
+    FALSE
+   ELSE
+    >R R@ PARSE-NAME dottify R> free-regex
+    TRUE
+   THEN ;
 
 DEFINITIONS
 
@@ -456,8 +489,7 @@ CHAR 0 CHAR 9 range: TRUE ;
 N_STATE state-table char-state-match ( c -- ? )
 
 all: CR ." Attempt to match inappropriate state. Fatal error." ABORT ;
-\ 0 255 range: i = ;
-:NONAME 256 0 DO I I " {n} asc: {n} = ;" DUP STR@ EVALUATE STRFREE LOOP ; EXECUTE
+0 256 range: signal = ;
 STATE_MATCH_ANY      asc: DROP TRUE ;
 STATE_WORD_CHAR      asc: is_word_char ;
 STATE_WORD_CHAR_NOT  asc: is_word_char NOT ;
