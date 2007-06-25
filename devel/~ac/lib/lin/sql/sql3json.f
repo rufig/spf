@@ -5,8 +5,12 @@ REQUIRE replace-str ~pinka/samples/2005/lib/replace-str.f
 
 : ">\" ( addr u -- addr2 u2 )
   2DUP S' "' SEARCH NIP NIP 0= IF EXIT THEN
-  " {s}" DUP " \" " \\" replace-str-
-  DUP " {''}" " \{''}" replace-str- STR@
+  " {s}" 
+  DUP " \"    " \\"    replace-str-
+  DUP " {''}" " \{''}" replace-str-
+  DUP " {CRLF DROP 1+ 1}" " \n" replace-str-
+  DUP " {CRLF DROP 1}" "" replace-str-
+  STR@
 ;
 
 : (jquery) { i par ppStmt -- flag }
