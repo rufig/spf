@@ -13,7 +13,10 @@ FALSE WARNING !
 : (DOES1) ( r: addr --> ) LATEST NAME> R> OVER - CFL - SWAP 1 + A! ;
 
 \ эта часть выполн€етс€ во врем€ вызова кода за DOES> ї
-: (DOES2) ( --> addr ) 2R> EXECUTE ;
+: (DOES2) ( --> addr )
+          2R> EXECUTE \ более быстрый вариант
+          \ 2R> >R    \ более портабельный вариант
+          ;
 
 \ во врем€ компил€ции св€зывает текст за DOES> с текущим определением   ї
 \ используетс€ в паре с CREATE : name CREATE data, DOES> ( --> 'data ) ;

@@ -4,7 +4,6 @@
 
  REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE ADDR     devel\~moleg\lib\util\addr.f
- REQUIRE R+       devel\~moleg\lib\util\stackadd.f
 
 ?DEFINED char  1 CHARS CONSTANT char
 

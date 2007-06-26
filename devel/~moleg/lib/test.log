@@ -25,10 +25,14 @@ testing: devel\~moleg\lib\util\for-next.f                              passed
 testing: devel\~moleg\lib\util\stack.f                                 passed
 testing: devel\~moleg\lib\util\marks.f                                 passed
 testing: devel\~moleg\lib\util\does.f                                  passed
+testing: devel\~moleg\lib\util\rstack.f                                passed
 testing: devel\~moleg\lib\util\words.f                                 passed
 testing: devel\~moleg\lib\util\spells.f                                passed
+testing: devel\~moleg\lib\util\queue.f                                 passed
+testing: devel\~moleg\lib\mtask\mutex.f                                passed
 testing: devel\~moleg\lib\arrays\arrays.f                              passed
 testing: devel\~moleg\lib\arrays\buff.f                                passed
+testing: devel\~moleg\lib\arrays\barray.f                              passed
 testing: devel\~moleg\lib\parsing\number.f                             passed
 testing: devel\~moleg\lib\parsing\xWord.f                              passed
 testing: devel\~moleg\lib\postscript\dsadd.f                           passed
@@ -48,6 +52,6 @@ testing: devel\~moleg\lib\testing\testing.f                            passed
 testing: devel\~moleg\lib\testing\say.f                                passed
 testing: devel\~moleg\lib\testing\tested.f                             passed
 testing: devel\~moleg\lib\spf_print\pad.f                              passed
+testing: devel\~moleg\lib\asm\psevdoasm.f                              passed
 testing: devel\~moleg\lib\math\math.f                                  passed
 testing: devel\~moleg\lib\math\fixed.f                                 passed
-testing: devel\~moleg\lib\asm\psevdoasm.f                              passed

@@ -3,7 +3,7 @@
 \ неименованные накопительные буфера
 
  REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
- REQUIRE R+       devel\~moleg\lib\util\stackadd.f
+ REQUIRE ROUND    devel\~moleg\lib\util\stackadd.f
 
   \ структура буфера
   0 CELL -- off-place     \ позиция первого свободного символа в буфере
