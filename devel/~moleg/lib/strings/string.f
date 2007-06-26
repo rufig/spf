@@ -48,13 +48,13 @@ FALSE WARNING !
 
 TRUE WARNING !
 
-?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+?DEFINED test{ \EOF -- тестовая секция --------------------------------------
 
 test{ \ пока просто тест на подключаемость.
   S" passed" TYPE
 }test
 
-\EOF -- тестовая секция ----------------------------------------------------
+\EOF
 
 : test s" \tSimple\nsample\n\"text\" \nwith\123codes\125" TYPE ;
 test
