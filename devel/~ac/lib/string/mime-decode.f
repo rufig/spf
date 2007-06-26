@@ -71,9 +71,14 @@ VECT vDefaultMimeCharset \ кодировка входящей строки по умолчанию,
     -> tu ta 2+ SWAP DUP -> ta OVER - \ encoding
     tu 5 < IF 2DROP ta tu s STR+ s STR@ EXIT THEN                \ ошибка encoder'а
     ta 3 S" ?B?" COMPARE-U 0= -> b
-    ta 3 + tu 3 - S" ?=" SEARCH 0= IF s STR+ 2DROP s STR@ EXIT THEN
-    2- -> u DUP 2+ -> addr
-    ta 3 + SWAP OVER - \ text
+    ta 3 + tu 3 - S" ?=" SEARCH 0=
+    IF \ s STR+ 2DROP s STR@ EXIT THEN
+       \ кодированная строка не завершается "?=", спамерская ошибка
+       2DUP + -> addr 0 -> u
+    ELSE
+      2- -> u DUP 2+ -> addr
+      ta 3 + SWAP OVER - \ text
+    THEN
     b MimeValueDecode1 s STR+
     BEGIN addr C@ IsDelimiter u 0 > AND    \ пропускаем lwsp после '?=', по последней моде...
     WHILE addr 1+ -> addr u 1- -> u
@@ -95,7 +100,7 @@ VECT vDefaultMimeCharset \ кодировка входящей строки по умолчанию,
 \    PeekChar IsDelimiter IF 2 >IN +! THEN
     PeekChar 10 = IF >IN 1+! THEN
     CharAddr DUP C@ 9 = IF BL SWAP C! ELSE DROP THEN
-    s STR@ + 1- C@ [CHAR] = = IF >IN 1+! THEN
+    s STR@ + 1- C@ [CHAR] = =  PeekChar IsDelimiter AND IF >IN 1+! THEN
   REPEAT 2DROP
   s STR@
 ;
@@ -196,5 +201,8 @@ CR S" ьФП ФЕНБ Ч ЛПДЙТПЧЛЕ koi8-r ВЕЪ mime-ЛПДЙТПЧБОЙС" MimeValueDecode ANSI>OEM
 
 " Subject: =?windows-1251?Q?=ce=ef=f0=e5=e4=e5=eb=e5=ed=e8=e5 =ea=f0=e8=f2=e5=f0=e8=e5=e2 =f3=f1=ef=e5=f8=ed=ee=f1=f2=e8  =e2=ed=f3=f2=f0=e5=ed=ed?=
 	=?windows-1251?Q?=e5=e3=ee =e8 =e2=ed=e5=f8=ed=e5=e3=ee =ee=e1=f3=f7=e5=ed=e8=ff =ef=e5=f0=f1=ee=ed=e0=eb=e0?=" STR@ StripLwsp MimeValueDecode ANSI>OEM TYPE CR
+
+\ пример ошибочной кодировки заголовка в спам-сообщении, раскодируем и его:
+S" Subject: =?windows-1251?b?zvLr6Pft++kg7+7k4PDu6iDh8/Xj4Ovy5fDzLCDv8OXk7/Do7ejs4PLl6/4sIODz5Ojy7vDzLgA=" StripLwsp MimeValueDecode ANSI>OEM TYPE CR
 
 )
