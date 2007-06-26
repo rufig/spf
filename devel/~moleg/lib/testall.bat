@@ -36,11 +36,17 @@
 @st.exe .S" devel\~moleg\lib\util\stack.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\marks.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\does.f"               TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\rstack.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\words.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\spells.f"             TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\queue.f"              TESTED CR BYE
+
+@st.exe .S" devel\~moleg\lib\mtask\mutex.f"             TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\arrays\arrays.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\arrays\buff.f"             TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\arrays\barray.f"           TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\arrays\stream.f"           TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\parsing\number.f"          TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\parsing\xWord.f"           TESTED CR BYE
@@ -69,10 +75,10 @@
 
 @st.exe .S" devel\~moleg\lib\spf_print\pad.f"           TESTED CR BYE
 
+@st.exe .S" devel\~moleg\lib\asm\psevdoasm.f"           TESTED CR BYE
+
 @st.exe .S" devel\~moleg\lib\math\math.f"               TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\math\fixed.f"              TESTED CR BYE
-
-@st.exe .S" devel\~moleg\lib\asm\psevdoasm.f"           TESTED CR BYE
 
 @rem удаляем тестирующую версию СПФа
 @del st.exe
