@@ -4,6 +4,7 @@
 
  REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
  REQUIRE >DIGIT    devel\~moleg\lib\spf_print\pad.f
+ REQUIRE R+        devel\~moleg\lib\util\rstack.f
  REQUIRE UD/       devel\~moleg\lib\math\math.f
 
        8 VALUE places   \ количество отображаемых символов после запятой
@@ -45,6 +46,27 @@
               THEN
           2DROP 2DROP FALSE ;
 
+\ умножить два положительных числа двойной длины друг на друга
+: UD* ( uda udb --> udab )
+      ROT >R OVER >R >R OVER >R UM* 2R> * 2R> * + + ;
+
+\ два двойных числа сделать положительными, знак их произведения вернуть
+: 2dsign ( da da --> uda uda signab )
+         DUP >R DABS 2SWAP DUP >R DABS 2SWAP 2R> XOR ;
+
+\ умножить два числа двойной длины друг на друга
+: D* ( da db --> dab ) 2dsign >R UD* R> 0 < IF DNEGATE THEN ;
+
+\ умножить два беззнаковых числа с фиксированной точкой
+\ контроль переполнения отсутствует
+: UP* ( upa upb --> upab )
+      DUP >R ROT DUP >R >R OVER >R >R SWAP DUP >R
+      UM* NIP S>D 2R> UM* D+  2R> UM* D+ 2R> * + ;
+
+\ умножить два знаковых числа с фиксированной точкой
+: P* ( p1 p2 --> p ) 2dsign >R UP* R> 0 < IF DNEGATE THEN ;
+
+
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
 test{ S" 12,345" pNUMBER 0= THROW
@@ -60,3 +82,4 @@ test{ S" 12,345" pNUMBER 0= THROW
 places определяет сколько чисел после запятой будет отбражаться.
 Библиотечка корректно работает и с 10 и с 16 числами.
 
+\ 23-06-2007  добавил умножение чисел с фиксированной точкой

@@ -21,7 +21,7 @@
 
 \ восстановить системные переменные
 : rest ( --> )
-       save-dp A@ DP !
+       save-dp A@ DP A!
        0 controls !
        [COMPILE] [ ;
 

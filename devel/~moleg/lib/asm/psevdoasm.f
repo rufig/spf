@@ -2,9 +2,11 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ макросы для поддержания псевдоассемблера
 
- REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
- REQUIRE ASSEMBLER lib\ext\spf-asm.f
- REQUIRE dpop      devel\~mOleg\lib\asm\registers.f
+ REQUIRE ?DEFINED   devel\~moleg\lib\util\ifdef.f
+ REQUIRE ASSEMBLER  lib\ext\spf-asm.f
+ REQUIRE psevdoregs devel\~mOleg\lib\asm\registers.f
+
+CREATE psevdoasm
 
 : -CELL CELL NEGATE ;
 : param  NextWord EVALUATE ;

@@ -4,6 +4,7 @@
 
  REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
  REQUIRE ROUND     devel\~moleg\lib\util\stackadd.f
+ REQUIRE R+        devel\~moleg\lib\util\rstack.f
  REQUIRE BLANKS    devel\~moleg\lib\spf_print\pad.f
 
         \ кол-во отображенных в строке символов »

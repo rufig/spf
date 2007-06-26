@@ -3,8 +3,7 @@
 \ различные математические операции, отсутсвующие в СПФ
 
  REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
- REQUIRE CODE  lib\ext\spf-asm.f
- REQUIRE dpush devel\~mOleg\lib\asm\psevdoasm.f
+ REQUIRE dpush     devel\~mOleg\lib\asm\psevdoasm.f
 
 \ разделить двойное положительное число на одинарное с получением двойного »
 \ результата.
