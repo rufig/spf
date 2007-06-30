@@ -33,6 +33,7 @@ testing: devel\~moleg\lib\mtask\mutex.f                                passed
 testing: devel\~moleg\lib\arrays\arrays.f                              passed
 testing: devel\~moleg\lib\arrays\buff.f                                passed
 testing: devel\~moleg\lib\arrays\barray.f                              passed
+testing: devel\~moleg\lib\arrays\stream.f                              passed
 testing: devel\~moleg\lib\parsing\number.f                             passed
 testing: devel\~moleg\lib\parsing\xWord.f                              passed
 testing: devel\~moleg\lib\postscript\dsadd.f                           passed

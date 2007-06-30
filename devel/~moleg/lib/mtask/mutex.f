@@ -32,7 +32,10 @@
 : MUTEX: ( / name --> )
          CREATE 0 ,
          ( 'cfa --> )
-         DOES> DUP >R WaitUnlock EXECUTE R> UnlockMutex ;
+         DOES> DUP >R WaitUnlock
+               ['] EXECUTE CATCH   \ для того, чтобы unlock был выполнен
+                   R> UnlockMutex
+               THROW ;
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
