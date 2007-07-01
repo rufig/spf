@@ -8,7 +8,8 @@ NEEDS ~day/hype3/hype3.f
 NEEDS ~ygrek/lib/dot.f
 NEEDS ~ygrek/lib/parse.f
 
-\ собирает инфу о связях между классами
+\ переопределяем наследование для Hype3
+\ собираем инфу о связях между классами
 : SUBCLASS
    DUP HYPE::.nfa @ COUNT PEEK-NAME DOT-LINK
 
@@ -16,12 +17,15 @@ NEEDS ~ygrek/lib/parse.f
 
 S" wfl.dot" dot{
 
- DOT-CR S" node [style=filled,color=black];" DOT-TYPE
+ S" node" S" filled" S" style" DOT-ATTRIBUTE
+ S" node" S" black" S" color" DOT-ATTRIBUTE
 
  S" green" DOT-FILLCOLOR
  NEEDS ~day/wfl/wfl.f
  S" yellow" DOT-FILLCOLOR
  NEEDS ~ygrek/lib/wfl/opengl/GLWindow.f
+ NEEDS ~ygrek/lib/wfl/opengl/GLControl.f
+ NEEDS ~profit/lib/wfl/openGL/CGLImage.f
  S" grey" DOT-FILLCOLOR
  NEEDS ~day/wfl/controls/urllabel.f
  S" grey" DOT-FILLCOLOR
@@ -31,3 +35,4 @@ S" wfl.dot" dot{
 }dot
 
 CR .( DONE)
+BYE
