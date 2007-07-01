@@ -63,6 +63,11 @@ HERE /NODE ALLOT VALUE ()
 \ node1(value)->node
 : vcons ( value node -- node1 ) SWAP vnode SWAP cons ;
 
+\ Присоединить весь список node1 в начало списка node2
+: concat-list ( node1 node2 -- node )
+   OVER empty? IF NIP EXIT THEN
+   OVER end SWAP LINK-NODE ;
+
 \ Применить xt ко всем элементам списка node1
 \ xt: ( node -- ) \ xt получает параметром каждый элемент на нетронутом стеке
 : map ( xt node1 -- )

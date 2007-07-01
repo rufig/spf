@@ -258,4 +258,25 @@ l2 FREE-LIST
 l1 FREE-LIST
 l2 FREE-LIST
 
+\
+\ concat-list
+
+%[ 1 % 2 % 3 % 4 % ]%  %[ 5 % 6 % 7 % ]%  concat-list TO l1
+%[ 1 % 2 % 3 % 4 % 5 % 6 % 7 % ]% TO l2
+(( l1 l2 equal? -> TRUE ))
+l1 FREE-LIST
+l2 FREE-LIST
+
+%[ 1 % 2 % 3 % 4 % ]% () concat-list TO l1
+%[ 1 % 2 % 3 % 4 % ]% TO l2
+(( l1 l2 equal? -> TRUE ))
+l1 FREE-LIST
+l2 FREE-LIST
+
+() %[ 1 % 2 % 3 % 4 % ]% concat-list TO l1
+%[ 1 % 2 % 3 % 4 % ]% TO l2
+(( l1 l2 equal? -> TRUE ))
+l1 FREE-LIST
+l2 FREE-LIST
+
 END-TESTCASES
