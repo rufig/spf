@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translation is in sync with intro.ru.md rev. 1.14 -->
+<!-- Translation is in sync with intro.ru.md rev. 1.15 -->
 
 ----
 
@@ -400,19 +400,33 @@ Full description and more examples available in the library itself.
 <a id="dll"/>
 ###[Using external DLLs][start]
 
-Example:
+Import functions with stdcall calling convention (e.g. Win32 API) as follows :
 
 	WINAPI: SevenZip 7-zip32.dll
-If you need to automatically use all dll exported functions as forth words,
-use either:
+Functions with cdecl calling convention (e.g. from msvcrt.dll) or with
+variable number of arguments :
+
+	REQUIRE CAPI: ~af/lib/c/capi.f
+    2 CAPI: strstr msvcrt.dll
+
+If you want to import automatically all DLL functions as forth words,
+use (for stdcall) : 
 
 	REQUIRE UseDLL ~nn/lib/usedll.f
 	UseDLL "DLL name"
-
 or:
 
 	REQUIRE DLL ~ac/lib/ns/dll-xt.f
 	DLL NEW: "DLL name" 
+For cdecl :
+
+	REQUIRE USES_C ~af/lib/c/capi-func.f
+	USES_C "DLL name"
+or:
+
+	REQUIRE SO ~ac/lib/ns/so-xt.f
+	SO NEW: "DLL name"
+
 
 ----
 <a id="notfound"/>
@@ -455,14 +469,15 @@ Or:
 
 Read the full description of this technique: "[Scattering a Colon
 Definition][scatter]" in English. Briefly: new actions can be added to the
-word after its compilation.
+word after its compilation. The word `...` prepares space for the future
+extending, `..:` and `;..` link the code as an extension.
 
-	: INIT ... do1 ; 
-	\ INIT called here will execute do1
-	..: INIT do2 ;.. 
-	\ here - do2 and do1 will be executed sequentially
-	..: INIT do3 ;.. 
-	\ equal to : INIT do2 do3 do1 ;
+	: INIT ... orig ; 
+	\ INIT called here will execute orig
+	..: INIT extend1 ;.. 
+	\ here - extend1 and orig will be executed sequentially
+	..: INIT extend2 ;.. 
+	\ equal to : INIT extend1 extend2 orig ;
 	\ and so forth
 
 You can achieve the same effect with vectors, but this way looks better.
