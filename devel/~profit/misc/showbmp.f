@@ -1,12 +1,13 @@
 REQUIRE WFL ~day/wfl/wfl.f
 REQUIRE CGLWindow ~ygrek/lib/wfl/opengl/GLWindow.f
 REQUIRE CBMP24 ~ygrek/lib/spec/bmp.f
-REQUIRE CGLImage ~profit/lib/wfl/openGL/CGLImage.f
+REQUIRE CGLImage ~profit/lib/wfl/openGL/GLImage.f
+REQUIRE " ~ac/lib/str5.f
 
 \ укажите путь до показываемой картинки
 \ путь либо относительный от запускаемого SPF
 \ либо абсолютный
-: picture S" r.bmp" ;
+: picture S" ALLUSERSPROFILE" ENVIRONMENT? IF " {s}\Application Data\Microsoft\User Account Pictures\Default Pictures\frog.bmp" STR@ ELSE ABORT" can't fetch picture" THEN ;
 \ Картинка должна быть в формате BMP 24bit
 
 : PrepareLight
@@ -35,9 +36,10 @@ CGLObjectList NewObj TO list1
 CGLImage NewObj TO bmp
 picture bmp :: CGLImage.:load-image
 
-200 0 0 bmp :: CGLImage.:set-color
+0 0 200 bmp :: CGLImage.:set-color
 50 0 DO
-100 0 DO I J bmp => :pixel LOOP LOOP
+10 0 DO I J bmp => :pixel LOOP LOOP
+
 
 bmp list1 :: CGLObjectList.:add
  
