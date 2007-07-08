@@ -7,7 +7,7 @@ REQUIRE " ~ac/lib/str5.f
 \ укажите путь до показываемой картинки
 \ путь либо относительный от запускаемого SPF
 \ либо абсолютный
-: picture S" ALLUSERSPROFILE" ENVIRONMENT? IF " {s}\Application Data\Microsoft\User Account Pictures\Default Pictures\frog.bmp" STR@ ELSE ABORT" can't fetch picture" THEN ;
+: picture S" ALLUSERSPROFILE" ENVIRONMENT? IF " {s}\Application Data\Microsoft\User Account Pictures\Default Pictures\frog.bmp" STR@ ELSE 2 THROW THEN ;
 \ Картинка должна быть в формате BMP 24bit
 
 : PrepareLight
@@ -37,7 +37,7 @@ CGLImage NewObj TO bmp
 picture bmp :: CGLImage.:load-image
 
 0 0 200 bmp :: CGLImage.:set-color
-50 0 DO
+20 0 DO
 10 0 DO I J bmp => :pixel LOOP LOOP
 
 
