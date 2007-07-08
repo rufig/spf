@@ -269,7 +269,7 @@ WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" "
 WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" "Path" '$INSTDIR'
 
 WriteRegStr HKCR "spf" "" "SP-Forth file"
-WriteRegStr HKCR "spf\Shell\open\command" "" '"$INSTDIR\spf4.exe" "%1"'
+WriteRegStr HKCR "spf\Shell\open\command" "" '"$INSTDIR\spf4.exe" S" %1" INCLUDED'
 WriteRegStr HKCR "spf\DefaultIcon" "" '"$INSTDIR\spf4.exe",0'
 
 push $R0
