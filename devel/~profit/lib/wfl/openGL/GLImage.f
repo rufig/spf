@@ -1,3 +1,4 @@
+REQUIRE >= ~profit/lib/logic.f
 REQUIRE CGLObject ~ygrek/lib/wfl/opengl/GLObject.f
 REQUIRE CBMP24 ~ygrek/lib/spec/bmp.f
 
@@ -49,6 +50,8 @@ LOOP LOOP ;
 : :cls 0 0 :set-size ;
 
 : :pixel ( x y -- )
+DUP height @ >= IF 2DROP EXIT THEN
+OVER width @ >= IF 2DROP EXIT THEN
 width @ * + /rgb * addr @ +
 red @ OVER r !
 green @ OVER g !
