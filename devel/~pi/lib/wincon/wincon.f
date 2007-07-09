@@ -2,7 +2,7 @@
 \ __          ___       ____ ___
 \ \ \        / (_)     |___ \__ \   wincon for Windows
 \  \ \  /\  / / _ _ __   __) | ) |  pi@alarmomsk.ru
-\   \ \/  \/ / | | '_ \ |__ < / /   Áèáëèîòåêà ãðàôè÷åñêîé êîíñîëè
+\   \ \/  \/ / | | '_ \ |__ < / /   ¨¡«¨®â¥ª  £à ä¨ç¥áª®© ª®­á®«¨
 \    \  /\  /  | | | | |___) / /_   Pretorian 2007
 \     \/  \/   |_|_| |_|____/____|  v 1.2
 \ -----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ WINAPI: Rectangle		GDI32.DLL
 
 
 
-\ Ñòðóêòóðà êëàññà îêíà
+\ ‘âàãªâãà  ª« áá  ®ª­ 
 STRUCT: WNDCLASSEX
  CELL -- cbSize
  CELL -- style
@@ -55,7 +55,7 @@ STRUCT: WNDCLASSEX
  CELL -- hIconSm
 ;STRUCT
 
-\ Ñòðóêòóðà ñîîáùåíèé îêíà
+\ ‘âàãªâãà  á®®¡é¥­¨© ®ª­ 
 STRUCT: MSG
  CELL -- hwnd
  CELL -- message
@@ -65,7 +65,7 @@ STRUCT: MSG
  CELL 4 * -- pt
 ;STRUCT
 
-\ Ñòðóêòóðà ðèñîâàíèÿ
+\ ‘âàãªâãà  à¨á®¢ ­¨ï
 STRUCT: PAINTSTRUCT
  CELL -- hdc
  CELL -- fErase
@@ -78,42 +78,42 @@ STRUCT: PAINTSTRUCT
 2 CONSTANT WM_DESTROY
 0xF CONSTANT WM_PAINT
 
-\ Âûäåëåíèå ïàìÿòè ïîä ñòðóêòóðó êëàññà îêíà
+\ ‚ë¤¥«¥­¨¥ ¯ ¬ïâ¨ ¯®¤ áâàãªâãàã ª« áá  ®ª­ 
 CREATE classwin WNDCLASSEX::/SIZE ALLOT
 CREATE msgwin MSG::/SIZE ALLOT
 CREATE paint PAINTSTRUCT::/SIZE ALLOT
 
-\ hendle êîíñîëè
+\ hendle ª®­á®«¨
 0 VALUE hwdwin
-\ hendle ïîòîêà êîíñîëè
+\ hendle ¯®â®ª  ª®­á®«¨
 0 VALUE hwdwinp
-\ Äëèííà êîíñîëè â ïèêñåëÿõ
+\ „«¨­­  ª®­á®«¨ ¢ ¯¨ªá¥«ïå
 0 VALUE length 
-\ Âûñîòà êîíñîëè â ïèêñåëàõ
+\ ‚ëá®â  ª®­á®«¨ ¢ ¯¨ªá¥« å
 0 VALUE height
-\ Ðàñïîëîæåíèå êîíñîëè îòíîñèòåëüíî ýêðàíà ïî âåðõó
+\  á¯®«®¦¥­¨¥ ª®­á®«¨ ®â­®á¨â¥«ì­® íªà ­  ¯® ¢¥àåã
 0 VALUE top
-\ Ðàñïîëîæåíèå êîíñîëè îòíîñèòåëüíî ýêðàíà ñëåâà
+\  á¯®«®¦¥­¨¥ ª®­á®«¨ ®â­®á¨â¥«ì­® íªà ­  á«¥¢ 
 0 VALUE left
-\ hdc êîíñîëè
+\ hdc ª®­á®«¨
 0 VALUE hdc
-\ hdc êîíñîëè â ïàìÿòè
+\ hdc ª®­á®«¨ ¢ ¯ ¬ïâ¨
 0 VALUE phdc
-\ hendel bitmap-à êîíñîëè (áóôåð èçîáðàæåíèÿ
+\ hendel bitmap-  ª®­á®«¨ (¡ãä¥à ¨§®¡à ¦¥­¨ï
 0 VALUE bufh
-\ ïåðî
+\ ¯¥à®
 0 VALUE penh
-\ Öâåò
+\ –¢¥â
 0 VALUE color
-\ Òîëùèíà
+\ ’®«é¨­ 
 0 VALUE psize
-\ êèñòü
+\ ª¨áâì
 0 VALUE brush
-\ Ôîí
+\ ”®­
 0 VALUE background
 
 
-\ Âûõîä ïðè îøèáêå API ôóíêöèé
+\ ‚ëå®¤ ¯à¨ ®è¨¡ª¥ API äã­ªæ¨©
 : ERRORAPI ( -> )
 	DUP 0=
 	IF
@@ -121,7 +121,7 @@ CREATE paint PAINTSTRUCT::/SIZE ALLOT
 		phdc DeleteDC DROP BYE
 	THEN ;
 
-\ Âûõîä èç ïðîãðàììû
+\ ‚ëå®¤ ¨§ ¯à®£à ¬¬ë
 : BYE ( -> )
 	hwdwinp STOP
 	penh DeleteObject DROP
@@ -147,7 +147,7 @@ CREATE paint PAINTSTRUCT::/SIZE ALLOT
 
 WNDPROC: MyWndProc
 
-\ Ñîçäàíèå êëàññà äëÿ îêíà
+\ ‘®§¤ ­¨¥ ª« áá  ¤«ï ®ª­ 
 : INITWIN ( -> )
 	48 classwin WNDCLASSEX::cbSize !
 	0x23 classwin WNDCLASSEX::style !
@@ -174,24 +174,24 @@ WNDPROC: MyWndProc
 
 \ -+=================================================================+-
 
-\ Ïåðåâîä öâåòîâîé ãàììû â öâåò
+\ ¥à¥¢®¤ æ¢¥â®¢®© £ ¬¬ë ¢ æ¢¥â
 : RGB ( R G B -> RGB )
 	255 AND ROT 255 AND 16 LSHIFT ROT 255 AND 8 LSHIFT OR OR ;
 
-\ Óñòàíîâèòü öâåò ðèñîâàíèÿ
+\ “áâ ­®¢¨âì æ¢¥â à¨á®¢ ­¨ï
 : Color ( RGB -> )
 	penh DeleteObject DROP DUP TO color
 	1 0 CreatePen DUP TO penh
 	phdc SelectObject DROP ;
 
-\ Óñòàíîâèòü ôîí ðèñîâàíèÿ
+\ “áâ ­®¢¨âì ä®­ à¨á®¢ ­¨ï
 : Background ( RGB -> )
 	DUP TO background
 	brush DeleteObject DROP DUP TO brush
 	CreateSolidBrush TO brush
 	brush phdc SelectObject DROP ;
 
-\ Ñîçäàòü êîíñîëü
+\ ‘®§¤ âì ª®­á®«ì
 : ConCreate ( -> )
 	200 TO length 100 TO height
 	hwdwin 0= IF 0 LoopWin START TO hwdwinp THEN
@@ -204,24 +204,24 @@ WNDPROC: MyWndProc
 	phdc SelectObject ERRORAPI DROP
 	0x00FFFFFF Color ;
 
-\ Óäàëèòü êîíñîëü
+\ “¤ «¨âì ª®­á®«ì
 : ConDestroy ( -> )
 	hwdwinp STOP 0 TO hwdwin 0 TO length 0 TO height ;
 
-\ Ñïðÿòàòü êîíñîëü
+\ ‘¯àïâ âì ª®­á®«ì
 : ConHide ( -> )
 	0 hwdwin ShowWindow DROP ;
 
-\ Ïîêàçàòü êîíñîëü
+\ ®ª § âì ª®­á®«ì
 : ConShow ( -> )
 	5 hwdwin ShowWindow DROP ;
 
-\ Èçìåíèòü êîîðäèíàòû êîíñîëè íà ýêðàíå
+\ ˆ§¬¥­¨âì ª®®à¤¨­ âë ª®­á®«¨ ­  íªà ­¥
 : ConMove ( x y -> )
 	TO top TO left
 	1 height length top left hwdwin MoveWindow DROP ; 
 
-\ Èçìåíèòü äëèííó è âûñîòó êîíñîëè è î÷èñòèòü åå
+\ ˆ§¬¥­¨âì ¤«¨­­ã ¨ ¢ëá®âã ª®­á®«¨ ¨ ®ç¨áâ¨âì ¥¥
 : ConSize ( length height -> )
 	TO height TO length
 	1 height length top left hwdwin MoveWindow DROP
@@ -229,7 +229,7 @@ WNDPROC: MyWndProc
 	height length hdc CreateCompatibleBitmap ERRORAPI TO bufh
 	bufh phdc SelectObject ERRORAPI DROP ;
 
-\ Î÷èñòèòü êîíñîëü
+\ Žç¨áâ¨âì ª®­á®«ì
 : Cls ( -> )
 	length height ConSize
 	color background Color
@@ -240,27 +240,27 @@ ConCreate
 
 \EOF
 
--+- Äëÿ ñîçäàíèÿ íîâûõ âîçìîæíîñòåé -+-
-phdc		( -> n ) - êîíòåêñò êîíñîëè â êîòîðûé îñóùåñòâëÿåòñÿ ãðàô. âûâîä
-hwdwin		( -> n ) - õåíäåë îêíà êîíñîëè
+-+- „«ï á®§¤ ­¨ï ­®¢ëå ¢®§¬®¦­®áâ¥© -+-
+phdc		( -> n ) - ª®­â¥ªáâ ª®­á®«¨ ¢ ª®â®àë© ®áãé¥áâ¢«ï¥âáï £à ä. ¢ë¢®¤
+hwdwin		( -> n ) - å¥­¤¥« ®ª­  ª®­á®«¨
 
--+- Âîçìîæíîñòè ãðàôè÷åñêîé êîíñîëè -+-
-top		( -> n ) - ðàñïîëîæåíèå êîíñîëè îòíîñèòåëüíî ýêðàíà ñ âåðõó
-left		( -> n ) - ðàñïîëîæåíèå êîíñîëè îòíîñèòåëüíî ýêðàíà ñëåâà
-length		( -> n ) - äëèíà êîíñîëè â ïèêñåëàõ
-height		( -> n ) - âûñîòà êîíñîëè â ïèêñåëàõ
-color		( -> RGB ) - òåêóùèé öâåò
-background	( -> RGB ) - òåêóùèé ôîí
+-+- ‚®§¬®¦­®áâ¨ £à ä¨ç¥áª®© ª®­á®«¨ -+-
+top		( -> n ) - à á¯®«®¦¥­¨¥ ª®­á®«¨ ®â­®á¨â¥«ì­® íªà ­  á ¢¥àåã
+left		( -> n ) - à á¯®«®¦¥­¨¥ ª®­á®«¨ ®â­®á¨â¥«ì­® íªà ­  á«¥¢ 
+length		( -> n ) - ¤«¨­  ª®­á®«¨ ¢ ¯¨ªá¥« å
+height		( -> n ) - ¢ëá®â  ª®­á®«¨ ¢ ¯¨ªá¥« å
+color		( -> RGB ) - â¥ªãé¨© æ¢¥â
+background	( -> RGB ) - â¥ªãé¨© ä®­
 
-ConCreate	( -> ) - âêëþ÷èòü êîíñîëü
-ConDestroy	( -> ) - óäàëèòü êîíñîëü
-ConHide		( -> ) - ñïðÿòàòü êîíñîëü
-ConShow		( -> ) - ïîêàçàòü êîíñîëü
-ConMove		( x y -> ) - èçìåíèòü êîîðäèíàòû êîíñîëè íà ýêðàíå
-ConSize		( length height -> ) - èçìåíèòü äëèííó è âûñîòó êîíñîëè è î÷èñòèòü åå
-Color		( RGB -> ) - óñòàíîâèòü öâåò ðèñîâàíèÿ
-Background	( RGB -> ) - óñòàíîâèòü ôîí ðèñîâàíèÿ
-Cls		( -> ) - î÷èñòèòü îêíî
+ConCreate	( -> ) - ¢ª«îç¨âì ª®­á®«ì
+ConDestroy	( -> ) - ã¤ «¨âì ª®­á®«ì
+ConHide		( -> ) - á¯àïâ âì ª®­á®«ì
+ConShow		( -> ) - ¯®ª § âì ª®­á®«ì
+ConMove		( x y -> ) - ¨§¬¥­¨âì ª®®à¤¨­ âë ª®­á®«¨ ­  íªà ­¥
+ConSize		( length height -> ) - ¨§¬¥­¨âì ¤«¨­­ã ¨ ¢ëá®âã ª®­á®«¨ ¨ ®ç¨áâ¨âì ¥¥
+Color		( RGB -> ) - ãáâ ­®¢¨âì æ¢¥â à¨á®¢ ­¨ï
+Background	( RGB -> ) - ãáâ ­®¢¨âì ä®­ à¨á®¢ ­¨ï
+Cls		( -> ) - ®ç¨áâ¨âì ®ª­®
 
--+- Ïðåîáðàçîâàíèÿ -+-
-RGB		( R G B -> RGB ) - ïåðåâîä öâåòîâîé ãàììû â öâåò
+-+- à¥®¡à §®¢ ­¨ï -+-
+RGB		( R G B -> RGB ) - ¯¥à¥¢®¤ æ¢¥â®¢®© £ ¬¬ë ¢ æ¢¥â
