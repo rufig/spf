@@ -1,6 +1,5 @@
 \ $Id$
-\ Регулярные выражения - regular expressions
-\ Однобайтовые символы (unicode to do), классы символов - только для латинских
+\ Регулярные выражения (regular expressions)
 \ Прямая реализация NFA алгоритма из http://swtch.com/~rsc/regexp/regexp1.html
 
 \ Преимущества реализации на форте по сравнению с внешними dll
@@ -9,13 +8,8 @@
 \ 3 - выражения явно заданные словом RE" парсятся на этапе компиляции и сохраняют в
 \     кодофайл готовую структуру дерева состояний экономя на этом в рантайме!
 
-\ TODO: ускорить matching \ отметка о принадлежности списку в nfa
-\ TODO: ускорить capturing
-\ TODO: квадратные скобки
 \ TODO: пункт 2
-
-\ POSIX standard - http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html
-\ Perl RE doc - http://perldoc.perl.org/perlre.html
+\ TODO: ускорить capturing
 
 \ Сделано :
 \ () выделение подвыражения
@@ -24,8 +18,21 @@
 \ + оператор "1 или больше"
 \ | оператор "или"
 \ . любой символ
-\ \ квотирование специальных символов
+\ квотирование специальных символов, а именно . \ ( ) * | + ? { [
 \ \w \s \d \W \S \D \t \n \r \x3F
+\ [ перечисление множества символов внутри квадратных скобок, отрицание и диапазон
+
+\ Цель: POSIX - http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html
+\ Отличия:
+\ - закрывающая круглая скобка всегда special
+\   должно быть "... special when matched with a preceding left-parenthesis, ..."
+\ - нет backreferences - \1 \2 итд
+\ - однобайтовые символы (unicode to do?), классы символов - только для латинских
+\ - . (точка) ловит любой символ, с кодом 0 тоже
+
+\ NB Есть ещё Perl'овские регулярные выражения - http://perldoc.perl.org/perlre.html
+\    но они заточены под бэктрекинговую реализацию, как следствие слишком сложны и запутанны,
+\    поэтому с ними совместимости не будет и не планируется
 
 \ -----------------------------------------------------------------------
 
@@ -54,6 +61,12 @@
 
 \ В случае некорректного регекспа выкидывается исключение и течёт память
 
+\ Примерная оценка скорости (10000 вызовов), ms
+\ stre_match - 6891
+\ re_match - 2938
+\ stre_fast_match - 4328
+\ re_fast_match - 672
+
 \ -----------------------------------------------------------------------
 
 REQUIRE STR@ ~ac/lib/str5.f
@@ -63,13 +76,13 @@ REQUIRE состояние ~profit/lib/chartable.f
 REQUIRE { lib/ext/locals.f
 REQUIRE list-find ~ygrek/lib/list/more.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
-REQUIRE DOT-LINK ~ygrek/lib/dot.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE ENUM: ~ygrek/lib/enum.f
 REQUIRE A_AHEAD ~mak/lib/a_if.f
 REQUIRE NUMBER ~ygrek/lib/parse.f
+REQUIRE new-set ~pinka/lib/charset.f
 
 REQUIRE write-list ~ygrek/lib/list/write.f
 REQUIRE U.R lib/include/core-ext.f
@@ -88,6 +101,9 @@ state no-brackets-fragment
 state brackets-fin
 state fragment-final current-state VALUE 'fragment-final
 state fragment-error
+state fragment-charset-1
+state fragment-charset-2
+state fragment-charset-all
 
 state quoted-symbol
 
@@ -100,37 +116,106 @@ RESERVE-DYNAMIC
 
 0 VALUE re_limit \ конечный адрес обработки
 0 VALUE re_start \ начальный адрес обработки
-
 0 VALUE re_def_groups \ подвыражения в результате последнего сопоставления
-
 () VALUE re_brackets \ список пар nfa соответствующих парам скобок во время построения дерева
+0 VALUE re_nfa_count \ подсчёт числа nfa в текущем RE (во время построения дерева)
+0 VALUE re_gen  \ номер поколения (при сопоставлении), идёт в отметку .gen в nfa
+0 VALUE re_str_pos \ позиция в строке (при сопоставлении), для учёта положения скобок
+
+\ -----------------------------------------------------------------------
+
+:NONAME DUP CONSTANT 1+ ; ENUM 1+const:
+:NONAME DUP CONSTANT 2* DUP 0= ABORT" Overflow!" ; ENUM flags:
+
+256 1+const:
+ STATE_SPLIT STATE_FINAL
+ STATE_MATCH_ANY
+ STATE_WORD_CHAR STATE_WORD_CHAR_NOT
+ STATE_SPACE_CHAR STATE_SPACE_CHAR_NOT
+ STATE_DIGIT_CHAR STATE_DIGIT_CHAR_NOT
+ STATE_MATCH_SET STATE_MATCH_SET_NOT
+; VALUE N_STATE
+
+\ Состояние
+0
+CELL -- .c    \ тип состояния
+CELL -- .out1 \ первый выход
+CELL -- .out2 \ второй
+CELL -- .flags
+CELL -- .gen  \ номер поколения (во время матчинга, отслеживание текущих состояний)
+CELL -- .set  \ для .c=STATE_MATCH_SET здесь указатель на set
+CONSTANT /NFA
+
+1 flags: NFA_GROUP_START NFA_GROUP_END ; DROP
+
+\ Фрагмент (используется только на этапе построения дерева)
+0
+CELL -- .i  \ начальное состояние этого фрагмента (адрес nfa)
+CELL -- .o  \ список выходов этого фрагмента (элементы - адреса ячеек куда записывается адрес след. nfa)
+CELL -- .b  \ учёт скобок - список указателей на brackets-pair
+CONSTANT /FRAG
+
+\ Регулярное выражение
+0
+CELL -- .nfa \ дерево состояний
+CELL -- .sub \ подвыражения
+CELL -- .nfa-n \ общее кол-во различных состояний в этом RE
+CONSTANT /RE
 
 \ -----------------------------------------------------------------------
 
 : !>> ( addr u -- addr+CELL ) OVER ! CELL + ;
 
-: make-subs { n | bytes -- } n 2 * CELLS CELL + -> bytes bytes RESERVE DUP bytes ERASE n OVER ! ;
-: copy-subs ( subs -- subs' ) DUP @ 2 * CELLS CELL+ DUP ALLOCATE THROW >R R@ SWAP MOVE R> ;
+0
+CELL -- .a.size
+CELL -- .a.n
+0 -- .a.data
+CONSTANT /arr
+
+: reserve-array { n | bytes -- arr }
+    n CELLS /arr + -> bytes bytes RESERVE >R R@ bytes ERASE n R@ .a.n ! bytes R@ .a.size ! R> ;
+
+: a:create { n | bytes -- arr }
+    n CELLS /arr + -> bytes bytes ALLOCATE THROW >R R@ bytes ERASE 0 R@ .a.n ! bytes R@ .a.size ! R> ;
+: a:full ( arr -- a u ) DUP .a.size @ ;
+: a:copy ( arr -- arr' ) a:full DUP ALLOCATE THROW >R R@ SWAP MOVE R> ;
+
+: a:free FREE THROW ;
+
+: a:n .a.n @ ;
+
+: a:elem ( n arr -- ) .a.data SWAP CELLS + ;
+: a:append ( val arr -- )
+   { arr }
+   arr a:n arr a:elem !
+   arr .a.n 1+! ;
+
+: a:iter-> ( arr --> elem \ <-- )
+   PRO
+   DUP .a.data { z }
+   .a.n @ 0 ?DO
+    z CONT
+    z CELL+ -> z
+   LOOP ;
+
+: a:scan-> ( arr --> elem@ \ elem|0 <-- TRUE|FALSE )
+   PRO
+   DUP .a.data { z }
+   .a.n @ 0 ?DO
+    z @ CONT IF z UNLOOP EXIT THEN
+    z CELL+ -> z
+   LOOP 0 ;
 
 : save-subs ( -- subs )
-   re_brackets length make-subs DUP
-   CELL+
+   re_brackets length 2 * reserve-array DUP
+   .a.data
    LAMBDA{ >R R@ car !>> R> cdar !>> } re_brackets mapcar
-   DROP ;
-
-0 [IF]
-: sub ( n subs -- addr ) CELL+ SWAP 2 CELLS * + ;
-
-: set-sub-start ( u n subs -- ) sub 0 CELLS + ! ;
-: set-sub-end ( u n subs -- ) sub 1 CELLS + ! ;
-
-: get-sub-start ( n subs -- ) sub 0 CELLS + @ ;
-: get-sub-end ( n subs -- ) sub 1 CELLS + @ ;
-[THEN]
+   DROP
+   re_brackets length 2 * OVER .a.n ! ;
 
 : adjust-sub-state { val nfa subs -- }
-   subs CELL+
-   subs @ 2 * 0 ?DO
+   subs .a.data
+   subs .a.n @ 0 ?DO
     DUP @ nfa = IF val OVER ! THEN
     CELL+
    LOOP
@@ -138,25 +223,30 @@ RESERVE-DYNAMIC
 
 : new-brackets-pair ( -- pair ) %[ 0 % 0 % ]% vnode as-list DUP re_brackets cons TO re_brackets ;
 
-: set-brackets-start ( start-nfa brackets-pair -- ) car setcar ;
-: set-brackets-end ( end-nfa brackets-pair -- ) car cdr setcar ;
+: set-brackets-start ( start-nfa brackets-pair -- ) OVER .flags NFA_GROUP_START SWAP ! car setcar ;
+: set-brackets-end ( end-nfa brackets-pair -- ) OVER .flags NFA_GROUP_END SWAP ! car cdr setcar ;
 
-: print-sub { sub }
-  CR sub @ . ." ) "
-  sub CELL + sub @ 0 ?DO DUP @ 10 U.R CELL+ DUP @ 10 U.R CELL+ LOOP DROP ;
+: print-array { arr }
+  CR arr .a.n @ " [{n}] : " STYPE
+  arr a:iter-> @ . ;
 
 : normalize-subs { a u subs | z -- }
-   subs CELL+ -> z
+   0 subs a:elem -> z
    a u z 2!
    z 2 CELLS + -> z
-   subs @ 1 - 0 ?DO
+   subs a:n 2/ 1 ?DO
     z @ u < z CELL+ @ u 1 + < AND IF z @ a + z CELL+ @ z @ - z 2! ELSE 0 0 z 2! THEN
     z 2 CELLS + -> z
    LOOP ;
 
 : get-sub { n subs -- a u }
-   n subs @ < NOT ABORT" Man, you've crossed the bounds!"
-   n 2 CELLS * subs CELL+ + 2@ ;
+   n 2 * subs .a.n @ < NOT ABORT" Man, you've crossed the bounds!"
+   n 2 * subs a:elem 2@ ;
+
+\ -----------------------------------------------------------------------
+
+: new-chclass
+  256 ;
 
 \ -----------------------------------------------------------------------
 
@@ -177,42 +267,14 @@ VARIABLE process-continue
 
 \ -----------------------------------------------------------------------
 
-:NONAME DUP CONSTANT 1+ ; ENUM 1+const:
-
-256 1+const:
- STATE_SPLIT STATE_FINAL
- STATE_MATCH_ANY
- STATE_WORD_CHAR STATE_WORD_CHAR_NOT
- STATE_SPACE_CHAR STATE_SPACE_CHAR_NOT
- STATE_DIGIT_CHAR STATE_DIGIT_CHAR_NOT
-; VALUE N_STATE
-
-\ Состояние
-0
-CELL -- .c    \ тип состояния
-CELL -- .out1 \ первый выход
-CELL -- .out2 \ второй
-CONSTANT /NFA
-
-\ Фрагмент
-0
-CELL -- .i  \ начальное состояние этого фрагмента (адрес nfa)
-CELL -- .o  \ список выходов этого фрагмента (элементы - адреса ячеек куда записывается адрес след. nfa)
-CELL -- .b  \ учёт скобок - список указателей на brackets-pair
-CONSTANT /FRAG
-
-\ Регулярное выражение
-0
-CELL -- .nfa \ дерево состояний
-CELL -- .sub \ подвыражения
-CONSTANT /RE
-
 : FREE-FRAG ( frag -- )
    DUP .b @ empty? NOT IF CR ." Fragment's bracket list not empty!" ABORT THEN
    DUP .o @ FREE-LIST
    FREE THROW ;
 
-: FREE-NFA ( nfa -- ) FREE THROW ;
+: FREE-NFA ( nfa -- )
+   DUP .set @ ?DUP IF FREE THROW THEN
+   FREE THROW ;
 
 : frag ( nfa out-list -- frag )
    /FRAG ALLOCATE THROW >R
@@ -221,17 +283,21 @@ CONSTANT /RE
    () R@ .b !
    R> ;
 
-: NEW-NFA /NFA RESERVE ;
-
 : nfa { c link1 link2 | nfa -- nfa }
-   NEW-NFA -> nfa
+   /NFA RESERVE -> nfa
    c nfa .c !
    link1 nfa .out1 !
    link2 nfa .out2 !
+   0 nfa .flags !
+   0 nfa .gen !
+   0 nfa .set !
+   re_nfa_count 1+ TO re_nfa_count
    nfa ;
 
 \ создать фрагмент с состоянием входа c
 : liter ( c -- frag ) 0 0 nfa %[ DUP .out1 % ]% frag ;
+
+: set-liter ( set c -- frag ) liter TUCK .i @ .set ! ;
 
 \ привязать все выходы фрагмента frag1 к состоянию nfa
 : link { frag1 nfa -- }
@@ -306,6 +372,8 @@ CONSTANT /RE
 : left: [CHAR] ( asc: ;
 : right: [CHAR] ) asc: ;
 : backslash: [CHAR] \ asc: ;
+: [: [CHAR] [ asc: ;
+: ]: [CHAR] ] asc: ;
 
 : unquote-next-liter ( -- nfa ) current-state >R quoted-symbol дать-букву execute-one R> current-state! ;
 
@@ -324,7 +392,7 @@ symbol: + op-+ ;
 quoted-symbol
 
 all: CR ." ERROR: Quoting \" symbol EMIT ."  not allowed!" fragment-error ;
-S" .\()*|+?{" all-asc: symbol liter ;
+S" .\()*|+?{[" all-asc: symbol liter ;
 symbol: t 0x09 liter ; \ Tab
 symbol: n 0x0A liter ; \ LF
 symbol: r 0x0D liter ; \ CR
@@ -435,6 +503,48 @@ right: fragment-error ;
 backslash: unquote-next-liter no-brackets-fragment ;
 end-input: fragment-final ;
 |: fragment-error ;
+[: fragment-charset-1 ;
+]: fragment-error ;
+
+
+create-set cur-set
+0 VALUE cur-set-state
+
+: erase-set ( set -- ) /set ERASE ;
+: copy-set ( src dst -- ) /set MOVE ;
+
+: update-set
+   symbol cur-set set+
+   отсюда 2 + re_limit >= IF EXIT THEN
+   отсюда C@ [CHAR] - <> IF EXIT THEN
+   отсюда 1 + C@ DUP cur-set set+
+   ( c1 ) symbol ( c1 c2 )
+   2DUP < IF CR ." Bad order" fragment-error THEN
+   2DUP EMIT EMIT
+   ?DO I cur-set set+ LOOP
+   отсюда 2 + поставить-курсор ;
+
+\ внутри квадратных скобок, возможно первый символ отрицание
+fragment-charset-1
+
+on-enter: cur-set erase-set STATE_MATCH_SET TO cur-set-state ;
+all: update-set fragment-charset-all ; \ ] обрабатывается как и все
+CHAR ^ asc: STATE_MATCH_SET_NOT TO cur-set-state fragment-charset-2 ;
+end-input: fragment-error ;
+
+\ внутри квадратных скобок, возможно первый символ закрывающая квадратная скобка представляющая сама себя
+fragment-charset-2
+
+all: update-set fragment-charset-all ; \ ] обрабатывается как и все
+end-input: fragment-error ;
+
+
+\ внутри квадратных скобок
+fragment-charset-all
+
+all: update-set ;
+]: /set RESERVE cur-set OVER copy-set cur-set-state set-liter no-brackets-fragment ;
+end-input: fragment-error ;
 
 
 \ Выражение не скобочное, т.е. один символ уже есть (и возможно сейчас будет оператор)
@@ -499,6 +609,7 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 
    () TO re_brackets
    new-brackets-pair -> pair \ whole string
+   0 TO re_nfa_count
 
    get-branches
    finalize ( frag )
@@ -512,6 +623,7 @@ all: CR ." ALREADY IN ERROR STATE!" ;
    () TO re_brackets
 
    ( frag ) DUP .i @ re .nfa !
+   re_nfa_count re .nfa-n !
    FREE-FRAG
    re ;
 
@@ -521,7 +633,7 @@ EXPORT
 \ только для re созданных по RESERVE-DYNAMIC
 : FREE-REGEX ( re -- )
    DUP .nfa @ FREE-NFA-TREE
-   DUP .sub @ FREE THROW
+   DUP .sub @ a:free
    FREE THROW ;
 
 : BUILD-REGEX ( a u -- re ) RESERVE-DYNAMIC (parse-full) ;
@@ -529,74 +641,14 @@ EXPORT
 DEFINITIONS
 
 : BUILD-REGEX-HERE
-   POSTPONE A_AHEAD
-   RESERVE-STATIC (parse-full)
-   POSTPONE A_THEN
-   POSTPONE LITERAL ; IMMEDIATE
-
-\ -----------------------------------------------------------------------
-
-: STATE>S { nfa -- a u }
-   nfa .c @ STATE_SPLIT = IF S"  " EXIT THEN
-   nfa .c @ STATE_FINAL = IF S" final" EXIT THEN
-   nfa .c @ STATE_MATCH_ANY = IF S" any" EXIT THEN
-   nfa .c @ STATE_SPACE_CHAR = IF S" space" EXIT THEN
-   nfa .c @ [CHAR] \ = IF S" \\" EXIT THEN
-   nfa .c @ BL 1+ < IF nfa .c @ <# [CHAR] ) HOLD S>D #S S" ascii(" HOLDS #> EXIT THEN
-   nfa .c 1 ;
-
-: (dot-draw) { from nfa | s1 s2 -- }
-   nfa " {n}" DUP STR@ nfa STATE>S DOT-LABEL STRFREE
-   from " {n}" -> s1  nfa " {n}" -> s2
-   s1 STR@ s2 STR@ DOT-LINK
-   s1 STRFREE s2 STRFREE
-   nfa visited member? IF EXIT THEN
-   nfa visited vcons TO visited
-   nfa .out1 @ ?DUP IF nfa SWAP RECURSE THEN
-   nfa .out2 @ ?DUP IF nfa SWAP RECURSE THEN ;
-
-: dot-draw ( nfa -- ) clean-visited 0 SWAP (dot-draw) clean-visited ;
-
-: find-finalstate ( nfa -- nfa2 ) BEGIN DUP .out1 @ WHILE .out1 @ REPEAT ;
-
-EXPORT
-
-\ представить RE в виде dot-диаграммы в файле a u
-\ a1 u1 - символьное представление регэкспа (для надписи)
-: dottify ( a1 u1 re a u -- )
-   dot{
-    DOT-CR S" rankdir=LR;" DOT-TYPE
-    .nfa @
-    DUP find-finalstate { last }
-    ( nfa ) dot-draw
-
-    \ 0 - стартовая вершина
-    S" 0" S" box" DOT-SHAPE
-    S" 0" 2SWAP DOT-LABEL
-
-    \ last - финальная вершина
-    " {#last}"
-    DUP STR@ S" box" DOT-SHAPE
-        STRFREE
-
-   }dot ;
-
-\ ? - флаг успеха
-: dotto: ( a u "name" -- ? )
-   2DUP
-   RESERVE-DYNAMIC
-   ['] (parse-full) CATCH
-   IF
-    2DROP
-    2DROP
-    PARSE-NAME 2DROP
-    FALSE
+   STATE @ IF
+    POSTPONE A_AHEAD
+    RESERVE-STATIC (parse-full)
+    POSTPONE A_THEN
+    POSTPONE LITERAL
    ELSE
-    >R R@ PARSE-NAME dottify R> FREE-REGEX
-    TRUE
-   THEN ;
-
-DEFINITIONS
+    RESERVE-STATIC (parse-full)
+   THEN ; IMMEDIATE
 
 \ -----------------------------------------------------------------------
 
@@ -615,94 +667,99 @@ CHAR 0 CHAR 9 range: TRUE ;
 : is_word_char ( c -- ? ) DUP is_alphanum_char SWAP [CHAR] _ = OR ;
 : is_space_char ( c -- ? ) BL 1+ < ;
 
-N_STATE state-table char-state-match ( c -- ? )
+N_STATE state-table char-nfa-match ( c nfa -- ? )
 
-all: CR ." Attempt to match inappropriate state. Fatal error." ABORT ;
-0 256 range: signal = ;
-STATE_MATCH_ANY      asc: DROP TRUE ;
-STATE_WORD_CHAR      asc: is_word_char ;
-STATE_WORD_CHAR_NOT  asc: is_word_char NOT ;
-STATE_SPACE_CHAR     asc: is_space_char ;
-STATE_SPACE_CHAR_NOT asc: is_space_char NOT ;
-STATE_DIGIT_CHAR     asc: is_digit_char ;
-STATE_DIGIT_CHAR_NOT asc: is_digit_char NOT ;
+0 N_STATE 1+ range: CR ." Attempt to match inappropriate state. Fatal error." ABORT ;
+0 256 range: DROP signal = ;
+STATE_FINAL          asc: 2DROP FALSE ;
+STATE_MATCH_ANY      asc: 2DROP TRUE ;
+STATE_WORD_CHAR      asc: DROP is_word_char ;
+STATE_WORD_CHAR_NOT  asc: DROP is_word_char NOT ;
+STATE_SPACE_CHAR     asc: DROP is_space_char ;
+STATE_SPACE_CHAR_NOT asc: DROP is_space_char NOT ;
+STATE_DIGIT_CHAR     asc: DROP is_digit_char ;
+STATE_DIGIT_CHAR_NOT asc: DROP is_digit_char NOT ;
+STATE_MATCH_SET      asc: .set @ belong ;
+STATE_MATCH_SET_NOT  asc: .set @ belong NOT ;
 
 \ -----------------------------------------------------------------------
 
 \ добавить состояние в список текущих
 \ nondeterm стрелки учесть тоже
-: addstate { nfa l -- l2 }
-   nfa 0 = IF l EXIT THEN
-   nfa l member? IF l EXIT THEN
+: addstate { nfa s -- }
+   nfa 0 = IF EXIT THEN
+   nfa .gen @ ( DUP .) re_gen = IF EXIT THEN
+   re_gen nfa .gen !
    nfa .c @ STATE_SPLIT = IF
-    nfa .out1 @ l RECURSE -> l
-    nfa .out2 @ l RECURSE
+    nfa .out1 @ s RECURSE
+    nfa .out2 @ s RECURSE
     EXIT
    THEN
-   nfa l vcons ;
+   nfa s a:append ;
 
 \ l1 - список состояний предыдущего шага
 \ c - обрабатываемый символ из строки
 \ вернуть список состояний
-: step { c l1 | l2 -- l }
-   () TO l2
-   l1
-   BEGIN
-    DUP empty? 0=
-   WHILE
-    DUP car c OVER .c @ char-state-match IF .out1 @ l2 addstate -> l2 ELSE DROP THEN
-    cdr
-   REPEAT
-   DROP
-   l2 ;
-
-0 VALUE cur-char
+: step { c s1 s2 | a -- }
+   0 s2 .a.n !
+   re_gen 1+ TO re_gen
+   \ CR ." STEP " re_gen .
+   0 s1 a:elem -> a
+   s1 .a.n @ 0 ?DO
+    c a @ DUP .c @ char-nfa-match IF a @ .out1 @ s2 addstate THEN
+    a CELL+ -> a
+   LOOP ;
 
 \ добавить состояние в список текущих
 \ nondeterm стрелки учесть тоже
 \ z - список подвыражений
 \ subs - состояние подвыражений для nfa
-: subs_addstate { nfa l z subs -- l2 z2 }
-   nfa 0 = IF l z EXIT THEN
-   nfa l member? IF l z EXIT THEN
-   subs copy-subs TO subs
-   \ subs print-sub
-   cur-char nfa subs adjust-sub-state \ ?DUP IF CR ." SUB " nfa . cur-char subs print-sub SWAP ! subs print-sub THEN
-   \ subs print-sub
+: subs_addstate { nfa s z subs -- }
+   nfa 0 = IF EXIT THEN
+   nfa .gen @ re_gen = IF EXIT THEN
+   re_gen nfa .gen !
+
+   subs a:copy TO subs
+
+   nfa .flags @ [ NFA_GROUP_START NFA_GROUP_END OR ] LITERAL AND IF
+    re_str_pos nfa subs adjust-sub-state \ ?DUP IF CR ." SUB " nfa . re_str_pos subs print-sub SWAP ! subs print-sub THEN
+   THEN
+
    nfa .c @ STATE_SPLIT = IF
     \ CR ." SPLIT"
-    nfa .out1 @ l z subs RECURSE -> z -> l
+    nfa .out1 @ s z subs RECURSE
     \ CR ." CONTINUE"
-    nfa .out2 @ l z subs RECURSE
-    subs FREE THROW
+    nfa .out2 @ s z subs RECURSE
+    subs a:free
     \ CR ." <---"
     EXIT
    THEN
-   \ l dump-list
-   \ z dump-list
-   nfa l vcons
-   subs z vcons ;
+
+   nfa s a:append
+   subs z a:append ;
 
 \ l1 - список состояний предыдущего шага
 \ z1 - список совпадений подвыражений для каждого состояния предыдущего шага
 \ c - обрабатываемый символ из строки
 \ вернуть новый список состояний и подвыражений
-: subs_step { c l1 z1 | z2 l2 -- l z }
-   () TO l2
-   () TO z2
-   l1
-   BEGIN
-    DUP empty? 0=
-   WHILE
-    DUP car c OVER .c @ char-state-match IF .out1 @ l2 z2 z1 car subs_addstate -> z2 -> l2 ELSE DROP THEN
-    cdr
-    z1 cdr TO z1
-   REPEAT
-   DROP
-   l2 z2 ;
+: subs_step { c s1 s2 z1 z2 | s z -- }
+
+   z2 START{ a:iter-> @ a:free }EMERGE
+
+   0 s2 .a.n !
+   0 z2 .a.n !
+   re_gen 1+ TO re_gen
+
+   0 s1 a:elem -> s
+   0 z1 a:elem -> z
+   s1 .a.n @ 0 ?DO
+    c s @ DUP .c @ char-nfa-match IF s @ .out1 @ s2 z2 z @ subs_addstate THEN
+    s CELL + -> s
+    z CELL + -> z
+   LOOP ;
 
 : set-default-groups
-   re_def_groups ?DUP IF FREE THROW THEN
+   re_def_groups ?DUP IF a:free THEN
    TO re_def_groups ;
 
 EXPORT
@@ -712,69 +769,102 @@ EXPORT
    re_def_groups get-sub ;
 
 \ сопоставление RE и строки, без отслеживания подвыражений
-: re_fast_match? { a u re | l1 -- ? }
-   () -> l1
-   re .nfa @ l1 addstate -> l1
+: re_fast_match? { a u re | s1 s2 -- ? }
+   re .nfa @ .gen @ 1+ TO re_gen
+
+   re .nfa-n @ a:create -> s1
+   re .nfa-n @ a:create -> s2
+
+   re .nfa @ s1 addstate
    a u BOUNDS ?DO
-    I C@ l1 step ( l ) l1 FREE-LIST ( l ) -> l1
-    \ CR I a - . l1 write-list
+    I C@ s1 s2 step
+    s1 s2 -> s1 -> s2
    LOOP
-   LAMBDA{ .c @ STATE_FINAL = } l1 list-find NIP
-   l1 FREE-LIST ;
+   \ LAMBDA{ .c @ STATE_FINAL = } l1 list-find NIP
+   \ l1 FREE-LIST
+   s1 START{ a:scan-> .c @ STATE_FINAL = }EMERGE 0 <>
+   re_gen re .nfa @ .gen ! \ для последующих сопоставлений
+   s1 a:free
+   s2 a:free
+   ;
+
+\ Совпадает ли re с подстрокой (от начала) строки a u
+\ Если есть такая подстрока - вернуть её длину
+\ Иначе 0
+: re_sub { a u re | s1 s2 -- u1 }
+   re .nfa @ .gen @ 1+ TO re_gen
+
+   re .nfa-n @ a:create -> s1
+   re .nfa-n @ a:create -> s2
+
+   re .nfa @ s1 addstate
+   0
+   a u BOUNDS ?DO
+    I C@ s1 s2 step
+    s1 s2 -> s1 -> s2
+    s1 START{ a:scan-> .c @ STATE_FINAL = }EMERGE IF ( 0 ) DROP I a - 1+ LEAVE THEN
+   LOOP
+   re_gen re .nfa @ .gen ! \ для последующих сопоставлений
+   s1 a:free
+   s2 a:free
+   ( u ) ;
 
 \ сопоставление RE и строки
-: re_match? { a u re | l1 z1 subs1 ? -- ? }
+: re_match?
+   { a u re | s1 z1 s2 z2 subs1 ? -- ? }
    \ StartTrace
-   0 TO cur-char
-   () -> l1
-   () -> z1
-   re .nfa @ l1 z1 re .sub @ subs_addstate -> z1 -> l1
+   0 TO re_str_pos
+   re .nfa-n @ a:create -> s1
+   re .nfa-n @ a:create -> s2
+   re .nfa-n @ a:create -> z1
+   re .nfa-n @ a:create -> z2
+
+   re .nfa @ .gen @ 1+ TO re_gen
+   re .nfa @ s1 z1 re .sub @ subs_addstate
+
    a u BOUNDS ?DO
-    I a - 1 + TO cur-char
-    \ CR cur-char . I C@ EMIT
-    I C@ l1 z1 subs_step ( l z )
-    LAMBDA{ FREE THROW } z1 mapcar z1 FREE-LIST l1 FREE-LIST
-    ( l z ) -> z1 -> l1
+    I a - 1 + TO re_str_pos
+    \ CR re_str_pos . I C@ EMIT
+    I C@ s1 s2 z1 z2 subs_step
+    s1 s2 -> s1 -> s2
+    z1 z2 -> z1 -> z2
     \ CR I a - . l1 write-list
    LOOP
-   0
-   LAMBDA{ SWAP 1+ SWAP .c @ STATE_FINAL = } l1 list-find NIP -> ?
-   ? IF
-    ( n ) 1- z1 nth car copy-subs -> subs1
-    a u subs1 normalize-subs
+   s1 START{ a:scan-> .c @ STATE_FINAL = }EMERGE
+   DUP 0<> -> ?
+   ?DUP IF
+    s1 .a.data - ( offset ) z1 .a.data + @
    ELSE
-    DROP
-    0 -> subs1
+    re .sub @
    THEN
-   \ z1 write-list
-   LAMBDA{ FREE THROW } z1 mapcar
-   l1 FREE-LIST
-   z1 FREE-LIST
+   a:copy -> subs1
+   a u subs1 normalize-subs
+   s1 a:free
+   s2 a:free
+   z1 START{ a:iter-> @ a:free }EMERGE
+   z2 START{ a:iter-> @ a:free }EMERGE
+   z1 a:free
+   z2 a:free
    subs1 set-default-groups
+   re_gen re .nfa @ .gen ! \ для последующих сопоставлений
    ? ;
 
+\ : WITH-REGEX ( re-a re-u xt -- )
+\   BUILD-REGEX
+
+: STREGEX=> ( re-a re-u --> re \ <-- ) PRO BUILD-REGEX { re } re CONT re FREE-REGEX ;
+
 \ Применить регулярное выражение re-a re-u к строке a u, без отслеживания подвыражений
-: stre_fast_match? ( a u re-a re-u -- ? )
-   BUILD-REGEX { re }
-   re re_fast_match?
-   re FREE-REGEX ;
+: stre_fast_match? ( a u re-a re-u -- ? ) STREGEX=> re_fast_match? ;
 
 \ Применить регулярное выражение re-a re-u к строке a u
-: stre_match? ( a u re-a re-u -- ? )
-   BUILD-REGEX { re }
-   re re_match?
-   re FREE-REGEX ;
+: stre_match? ( a u re-a re-u -- ? ) STREGEX=> re_match? ;
 
-\ выделить строку ограниченную кавычкой
-\ кавычки внутри строки квотятся бэкслешем \" - будут заменены во время _компиляции_ на одну кавычку
-\ полученную строку скомпилировать в регексп
-\ во время исполнения положить скомпилированный регексп на стек
-\
-\ corner case - если нужен обратный слеш в конце строки, то окружите всё выражение скобками
-\ RE" (my_\"regex\"_here\\)" отметьте двойной слеш, т.к. надо квотить (уже на уровне синтаксиса регекспов!)
-\ update: где-то читал что слеш в конце регекспа запрещён, поэтому никаких гарантий
-\
-: RE" \ Compile-time: ( "regex" -- )
+\ выделить строку ограниченную кавычкой.
+\ кавычки внутри строки квотятся бэкслешем \" - будут заменены во время _компиляции_ на одну кавычку.
+\ полученную строку скомпилировать в регексп.
+\ во время исполнения положить скомпилированный регексп на стек.
+: RE" \ Compile-time: ( regex" -- )
 \ runtime: ( -- re )
    "" >R
    BEGIN

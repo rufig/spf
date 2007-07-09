@@ -5,8 +5,11 @@
 \ ~day/lib/memreport.f
 \ ~ygrek/work/memreport/memreport1.f
 
-REQUIRE RE" ~ygrek/lib/re/re.f
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
+
+REQUIRE RE" ~ygrek/lib/re/re.f
+REQUIRE dottify ~ygrek/lib/re/dot.f
+REQUIRE re_search ~ygrek/lib/re/ext.f
 
 \ -----------------------------------------------------------------------
 
@@ -31,11 +34,11 @@ CR .( NB: 'REGEX SYNTAX ERROR' messages are expected in this test!)
 (( S" (1++)"  dotto: error.dot -> FALSE ))
 (( S" ()"     dotto: error.dot -> FALSE ))
 (( S" +"      dotto: error.dot -> FALSE ))
-\ (( S" (3))"   dotto: error.dot -> FALSE )) \ нв® Ї®Є  ­Ґ «®ўЁвбп...
+\ (( S" (3))"   dotto: error.dot -> FALSE )) \ это пока не ловится...
 (( S" 123(*)" dotto: error.dot -> FALSE ))
 (( S" a\bc"   dotto: error.dot -> FALSE ))
 
-ClearMemInfo
+ClearMemInfo \ тут утечки памяти за счёт некорректных регекспов - игнорируем
 
 END-TESTCASES
 
@@ -156,12 +159,11 @@ TESTCASES re_match?
 (( 5 get-group -> 0 0 ))
 (( 6 get-group S" world" TEST-ARRAY -> ))
 (( 7 get-group -> str DROP 17 + 0 ))
-(( 8 ' get-group CATCH NIP 0 <> -> TRUE )) \ «®ўЁ¬ ®¦Ё¤ Ґ¬®Ґ ЁбЄ«озҐ­ЁҐ
+(( 8 ' get-group CATCH NIP 0 <> -> TRUE )) \ ловим ожидаемое исключение
 
-\ вҐЇҐам в® ¦Ґ б ¬®Ґ ¤«п бв вЁзҐбЄЁе аҐЈҐЄбЇ®ў
+\ теперь то же самое для статических регекспов
 
-: re RE" (((h(e|a)llo|farewell)\s)+)(cruel\s)?(world|planet)(!?)..." ;
-
+(( str RE" (((h(e|a)llo|farewell)\s)+)(cruel\s)?(world|planet)(!?)..." re_match? -> TRUE ))
 (( 0 get-group -> str ))
 (( 1 get-group S" hello hallo " TEST-ARRAY -> ))
 (( 2 get-group S" hello " TEST-ARRAY -> ))
@@ -170,13 +172,86 @@ TESTCASES re_match?
 (( 5 get-group -> 0 0 ))
 (( 6 get-group S" world" TEST-ARRAY -> ))
 (( 7 get-group -> str DROP 17 + 0 ))
-(( 8 ' get-group CATCH NIP 0 <> -> TRUE )) \ «®ўЁ¬ ®¦Ё¤ Ґ¬®Ґ ЁбЄ«озҐ­ЁҐ
+(( 8 ' get-group CATCH NIP 0 <> -> TRUE )) \ ловим ожидаемое исключение
 
-0 regexp::set-default-groups \ зв®Ўл гвЁе®¬ЁаЁвм MemReport, г¤ «пҐ¬ аҐ§г«мв вл Ї®б«Ґ¤­ҐЈ® б®Ї®бв ў«Ґ­Ёп
+\ regexp::re_def_groups regexp::print-array
 
 END-TESTCASES
 
 \ -----------------------------------------------------------------------
+
+TESTCASES re_sub
+
+: re1 RE" foo(bar)?(s|p)uper" ;
+(( S" foosuperpuperquaqua" re1 re_sub -> 8 ))
+(( S" foosuper" re1 re_sub -> 8 ))
+(( S" foobarpupermatch" re1 re_sub -> 11 ))
+
+: re2 RE" (c\+\+|forth|php|ocaml)\srule" ;
+(( S" ocaml rulez :-)" re1 re_sub -> 0 ))
+(( S" forth rulez :-)" re2 re_sub -> 10 ))
+(( S" php rulez (just kidding)" re2 re_sub -> 8 ))
+(( S" c++ rules me crazy!" re2 re_sub -> 8 ))
+
+END-TESTCASES
+
+\ -----------------------------------------------------------------------
+
+TESTCASES re_search
+
+: str S" some absolutely raaaandom text for testing bu bu bu la la la" ;
+
+(( str S" utely\sra+nd?" stre_search -> str DROP 10 + 12 ))
+(( str S" (bu\s)+" stre_search S" bu " TEST-ARRAY -> ))
+(( str S" la\sla\sla\s?" stre_search S" la la la" TEST-ARRAY -> ))
+(( str S" l.*l" stre_search S" lutel" TEST-ARRAY -> ))
+(( str S" m.*t.*l" stre_search S" me absolutel" TEST-ARRAY -> ))
+(( str S" m.*t.*" stre_search S" me absolut" TEST-ARRAY -> ))
+(( str S" m.*t" stre_search S" me absolut" TEST-ARRAY -> ))
+(( str S" m.*" stre_search S" m" TEST-ARRAY -> ))
+(( str S" (z?)" stre_search S" " TEST-ARRAY -> ))
+
+END-TESTCASES
+
+\ -----------------------------------------------------------------------
+
+TESTCASES extra
+
+: str S" ab" ;
+: >pos str { a u a1 u1 } a a1 - DUP u + ;
+: np get-group >pos ;
+
+(( str S" ((a?)((ab)?))(b?)" stre_match? -> TRUE ))
+(( 0 np -> 0 2 ))
+(( 1 np -> 0 2 ))
+(( 2 np -> 0 0 ))
+(( 3 np -> 0 2 ))
+(( 4 np -> 0 2 ))
+(( 5 get-group -> 0 0 ))
+
+END-TESTCASES
+
+\ -----------------------------------------------------------------------
+
+TESTCASES matching brackets
+
+(( S" abracadabra" S" [abcdr]+" stre_match? -> TRUE ))
+(( S" abracadabra" S" [ra-d]+" stre_match? -> TRUE ))
+(( S" d--d-" S" [-d]+" stre_match? -> TRUE ))
+(( S" d--d-" S" [a-d]+" stre_match? -> FALSE ))
+(( S" abrakadabra" S" [a-dr]+" stre_match? -> FALSE ))
+(( S" abracadabra" S" abr([^r]+)ra" stre_match? -> TRUE 1 get-group S" acadab" TEST-ARRAY ))
+(( S" []][" RE" [][]+" re_match? -> TRUE ))
+(( S" []][" RE" [^][]+" re_match? -> FALSE ))
+(( S" []][" RE" [^]]+" re_match? -> FALSE ))
+(( S" []][" RE" [^[]+" re_match? -> FALSE ))
+(( S" []][" RE" [^afhow*ru.+weo2423\ds]+" re_match? -> TRUE ))
+
+END-TESTCASES
+
+\ -----------------------------------------------------------------------
+
+0 regexp::set-default-groups \ чтобы утихомирить MemReport, удаляем результаты последнего сопоставления
 
 MemReport
 \ countMem NIP 1 = [IF] CR .( NB: It is not a leak but a dynamic buffer for ANSI-FILE) [THEN]
