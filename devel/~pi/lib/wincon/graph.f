@@ -2,7 +2,7 @@
 \ __          ___       ____ ___
 \ \ \        / (_)     |___ \__ \   graph for Windows
 \  \ \  /\  / / _ _ __   __) | ) |  pi@alarmomsk.ru
-\   \ \/  \/ / | | '_ \ |__ < / /   Библиотека вывода графики на граф. консоль
+\   \ \/  \/ / | | '_ \ |__ < / /   ┴шсышюЄхър т√тюфр уЁрЇшъш эр уЁрЇ. ъюэёюы№
 \    \  /\  /  | | | | |___) / /_   Pretorian 2007
 \     \/  \/   |_|_| |_|____/____|  v 1.2
 \ -----------------------------------------------------------------------------
@@ -14,56 +14,56 @@ WINAPI: LineTo			GDI32.DLL
 WINAPI: Ellipse			GDI32.DLL
 WINAPI: RoundRect		GDI32.DLL
 
-\ Перемещает точку начала рисования для Draw
+\ ╧хЁхьх∙рхЄ Єюўъє эрўрыр Ёшёютрэш  фы  Draw
 : MoveTo ( x y -> )
 	0 -ROT SWAP phdc MoveToEx DROP ;
 
-\ Рисует линию от текуще точки рисования
+\ ╨шёєхЄ ышэш■ юЄ Єхъє∙х Єюўъш Ёшёютрэш 
 : Draw ( x y -> )
 	SWAP phdc LineTo DROP ;
 
-\ Нарисовать точку
+\ ═рЁшёютрЄ№ Єюўъє
 : Point ( x y -> )
 	SWAP color -ROT phdc SetPixel DROP ;
 
-\ Нарисовать линию
+\ ═рЁшёютрЄ№ ышэш■
 : Line ( x y x1 y1 -> )
 	2SWAP MoveTo Draw ;
 
-\ Нарисовать круг
+\ ═рЁшёютрЄ№ ъЁєу
 : Circle ( x y d -> )
 	>R SWAP 2DUP R@ + SWAP R> + SWAP 2SWAP phdc Ellipse DROP ;
 
-\ Нарисовать элипс
+\ ═рЁшёютрЄ№ ¤ышяё
 : Ellips ( x y x1 y1 -> )
 	SWAP 2SWAP SWAP phdc Ellipse DROP ;
 
-\ Нарисовать квадрат
+\ ═рЁшёютрЄ№ ътрфЁрЄ
 : Square ( x y l -> )
 	>R SWAP 2DUP R@ + SWAP R> + SWAP 2SWAP phdc Rectangle DROP ;
 
-\ Нарисовать прямоугольник
+\ ═рЁшёютрЄ№ яЁ ьюєуюы№эшъ
 : Rect ( x y x1 y1 -> )
          SWAP 2SWAP SWAP phdc Rectangle DROP ;
 
-\ Нарисовать прямоугольник c кругленными концами
+\ ═рЁшёютрЄ№ яЁ ьюєуюы№эшъ c ъЁєуыхээ√ьш ъюэЎрьш
 : RRect ( x y x1 y1 ll lh -> )
          SWAP 2SWAP SWAP 2>R 2SWAP SWAP 2R> 2SWAP phdc RoundRect DROP ;
 
-\ Нарисовать квадрат  c кругленными концами
+\ ═рЁшёютрЄ№ ътрфЁрЄ  c ъЁєуыхээ√ьш ъюэЎрьш
 : RSquare ( x y l ll lh-> )
 	SWAP 2SWAP >R -ROT 2SWAP SWAP 2DUP R@ + SWAP R> + SWAP 2SWAP phdc RoundRect DROP ;
 
 
 \EOF
 
-Point		( x y -> ) - нарисовать точку
-MoveTo		( x y -> ) - перемещает точку начала рисования для Draw
-Draw		( x y -> ) - рисует линию от текуще точки рисования
-Line		( x y x1 y1 -> ) - нарисовать линию
-Square		( x y l -> ) - нарисовать квадрат
-Rect 		( x y x1 y1 -> ) - нарисовать прямоугольник
-Ellips		( x y x1 y1 -> ) - нарисовать элипс
-Circle		( x y d -> ) - нарисовать круг
-RRect		( x y x1 y1 h l -> ) - нарисовать прямоугольник c кругленными концами
-RSquare		( x y l ll lh-> ) - нарисовать квадрат  c кругленными концами
+Point		( x y -> ) - эрЁшёютрЄ№ Єюўъє
+MoveTo		( x y -> ) - яхЁхьх∙рхЄ Єюўъє эрўрыр Ёшёютрэш  фы  Draw
+Draw		( x y -> ) - ЁшёєхЄ ышэш■ юЄ Єхъє∙х Єюўъш Ёшёютрэш 
+Line		( x y x1 y1 -> ) - эрЁшёютрЄ№ ышэш■
+Square		( x y l -> ) - эрЁшёютрЄ№ ътрфЁрЄ
+Rect 		( x y x1 y1 -> ) - эрЁшёютрЄ№ яЁ ьюєуюы№эшъ
+Ellips		( x y x1 y1 -> ) - эрЁшёютрЄ№ ¤ышяё
+Circle		( x y d -> ) - эрЁшёютрЄ№ ъЁєу
+RRect		( x y x1 y1 h l -> ) - эрЁшёютрЄ№ яЁ ьюєуюы№эшъ c ъЁєуыхээ√ьш ъюэЎрьш
+RSquare		( x y l ll lh-> ) - эрЁшёютрЄ№ ътрфЁрЄ  c ъЁєуыхээ√ьш ъюэЎрьш
