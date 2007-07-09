@@ -7,7 +7,7 @@
 \     \/  \/   |_|_| |_|____/____|  v 1.2
 \ -----------------------------------------------------------------------------
 REQUIRE STRUCT:	lib\ext\struct.f
-REQUIRE pen	~pi/lib/win/pen.f
+REQUIRE { lib\ext\locals.f
 
 WINAPI: GetModuleHandleA	KERNEL32.DLL
 
