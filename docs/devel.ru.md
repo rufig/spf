@@ -69,6 +69,7 @@
 * REQUIRE New-Queue <a href='../devel/~pinka/lib/queue_pr.f'>~pinka/lib/queue_pr.f</a> \\ очередь с приоритетами 
 * REQUIRE x.mask <a href='../devel/~mlg/SrcLib/bitfield.f'>~mlg/SrcLib/bitfield.f</a> \\ Битовые структуры
 * REQUIRE RATIO <a href='../devel/~pinka/lib/BigMath.f'>~pinka/lib/BigMath.f</a> \\ Рациональные дроби (большие числа)
+* REQUIRE new-set <a href='../devel/~pinka/lib/charset.f'>~pinka/lib/charset.f</a> \\ Множество символов ASCII (как массив 256 бит)
 
 <a id="sort-n-search"/>
 ### \\ Сортировка и поиск

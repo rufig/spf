@@ -5,7 +5,7 @@
 
 <small>$Date$</small>
 
-<!-- Translation is in sync with devel.ru.md rev. 1.15 -->
+<!-- Translation is in sync with devel.ru.md rev. 1.17 -->
 
 *REQUIRE is a forth word, which loads library; unnecessary text is commented out, so you can use this list as a forth code to include libs :)*
 
@@ -69,6 +69,7 @@
 * REQUIRE New-Queue <a href='../devel/~pinka/lib/queue_pr.f'>~pinka/lib/queue_pr.f</a> \\ priority queue
 * REQUIRE x.mask <a href='../devel/~mlg/SrcLib/bitfield.f'>~mlg/SrcLib/bitfield.f</a> \\ Bit arrays
 * REQUIRE RATIO <a href='../devel/~pinka/lib/BigMath.f'>~pinka/lib/BigMath.f</a> \\ Rational fractions (big numbers)
+* REQUIRE new-set <a href='../devel/~pinka/lib/charset.f'>~pinka/lib/charset.f</a> \\ ASCII characters set (as 256 bit array)
 
 <a id="sort-n-search"/>
 ### \\ Sorting and search
