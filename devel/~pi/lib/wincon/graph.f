@@ -4,7 +4,7 @@
 \  \ \  /\  / / _ _ __   __) | ) |  pi@alarmomsk.ru
 \   \ \/  \/ / | | '_ \ |__ < / /   Библиотека вывода графики на граф. консоль
 \    \  /\  /  | | | | |___) / /_   Pretorian 2007
-\     \/  \/   |_|_| |_|____/____|
+\     \/  \/   |_|_| |_|____/____|  v 1.2
 \ -----------------------------------------------------------------------------
 REQUIRE wincon	~pi/lib/wincon/wincon.f
 
@@ -14,13 +14,21 @@ WINAPI: LineTo			GDI32.DLL
 WINAPI: Ellipse			GDI32.DLL
 WINAPI: RoundRect		GDI32.DLL
 
+\ Перемещает точку начала рисования для Draw
+: MoveTo ( x y -> )
+	0 -ROT SWAP phdc MoveToEx DROP ;
+
+\ Рисует линию от текуще точки рисования
+: Draw ( x y -> )
+	SWAP phdc LineTo DROP ;
+
 \ Нарисовать точку
 : Point ( x y -> )
 	SWAP color -ROT phdc SetPixel DROP ;
 
 \ Нарисовать линию
 : Line ( x y x1 y1 -> )
-	SWAP 2SWAP SWAP 0 -ROT phdc MoveToEx DROP phdc LineTo DROP ;
+	2SWAP MoveTo Draw ;
 
 \ Нарисовать круг
 : Circle ( x y d -> )
@@ -50,6 +58,8 @@ WINAPI: RoundRect		GDI32.DLL
 \EOF
 
 Point		( x y -> ) - нарисовать точку
+MoveTo		( x y -> ) - перемещает точку начала рисования для Draw
+Draw		( x y -> ) - рисует линию от текуще точки рисования
 Line		( x y x1 y1 -> ) - нарисовать линию
 Square		( x y l -> ) - нарисовать квадрат
 Rect 		( x y x1 y1 -> ) - нарисовать прямоугольник
