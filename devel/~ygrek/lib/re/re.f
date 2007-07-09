@@ -520,7 +520,6 @@ create-set cur-set
    отсюда 1 + C@ DUP cur-set set+
    ( c1 ) symbol ( c1 c2 )
    2DUP < IF CR ." Bad order" fragment-error THEN
-   2DUP EMIT EMIT
    ?DO I cur-set set+ LOOP
    отсюда 2 + поставить-курсор ;
 
