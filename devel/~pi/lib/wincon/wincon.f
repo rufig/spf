@@ -2,7 +2,7 @@
 \ __          ___       ____ ___
 \ \ \        / (_)     |___ \__ \   wincon for Windows
 \  \ \  /\  / / _ _ __   __) | ) |  pi@alarmomsk.ru
-\   \ \/  \/ / | | '_ \ |__ < / /   Библиотека графической консоли
+\   \ \/  \/ / | | '_ \ |__ < / /   ┴шсышюЄхър уЁрЇшўхёъющ ъюэёюыш
 \    \  /\  /  | | | | |___) / /_   Pretorian 2007
 \     \/  \/   |_|_| |_|____/____|  v 1.2
 \ -----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ WINAPI: Rectangle		GDI32.DLL
 
 
 
-\ Структура класса окна
+\ ╤ЄЁєъЄєЁр ъырёёр юъэр
 STRUCT: WNDCLASSEX
  CELL -- cbSize
  CELL -- style
@@ -55,7 +55,7 @@ STRUCT: WNDCLASSEX
  CELL -- hIconSm
 ;STRUCT
 
-\ Структура сообщений окна
+\ ╤ЄЁєъЄєЁр ёююс∙хэшщ юъэр
 STRUCT: MSG
  CELL -- hwnd
  CELL -- message
@@ -65,7 +65,7 @@ STRUCT: MSG
  CELL 4 * -- pt
 ;STRUCT
 
-\ Структура рисования
+\ ╤ЄЁєъЄєЁр Ёшёютрэш 
 STRUCT: PAINTSTRUCT
  CELL -- hdc
  CELL -- fErase
@@ -78,42 +78,42 @@ STRUCT: PAINTSTRUCT
 2 CONSTANT WM_DESTROY
 0xF CONSTANT WM_PAINT
 
-\ Выделение памяти под структуру класса окна
+\ ┬√фхыхэшх ярь Єш яюф ёЄЁєъЄєЁє ъырёёр юъэр
 CREATE classwin WNDCLASSEX::/SIZE ALLOT
 CREATE msgwin MSG::/SIZE ALLOT
 CREATE paint PAINTSTRUCT::/SIZE ALLOT
 
-\ hendle консоли
+\ hendle ъюэёюыш
 0 VALUE hwdwin
-\ hendle потока консоли
+\ hendle яюЄюър ъюэёюыш
 0 VALUE hwdwinp
-\ Длинна консоли в пикселях
+\ ─ышээр ъюэёюыш т яшъёхы ї
 0 VALUE length 
-\ Высота консоли в пикселах
+\ ┬√ёюЄр ъюэёюыш т яшъёхырї
 0 VALUE height
-\ Расположение консоли относительно экрана по верху
+\ ╨рёяюыюцхэшх ъюэёюыш юЄэюёшЄхы№эю ¤ъЁрэр яю тхЁїє
 0 VALUE top
-\ Расположение консоли относительно экрана слева
+\ ╨рёяюыюцхэшх ъюэёюыш юЄэюёшЄхы№эю ¤ъЁрэр ёыхтр
 0 VALUE left
-\ hdc консоли
+\ hdc ъюэёюыш
 0 VALUE hdc
-\ hdc консоли в памяти
+\ hdc ъюэёюыш т ярь Єш
 0 VALUE phdc
-\ hendel bitmap-а консоли (буфер изображения
+\ hendel bitmap-р ъюэёюыш (сєЇхЁ шчюсЁрцхэш 
 0 VALUE bufh
-\ перо
+\ яхЁю
 0 VALUE penh
-\ Цвет
+\ ╓тхЄ
 0 VALUE color
-\ Толщина
+\ ╥юы∙шэр
 0 VALUE psize
-\ кисть
+\ ъшёЄ№
 0 VALUE brush
-\ Фон
+\ ╘юэ
 0 VALUE background
 
 
-\ Выход при ошибке API функций
+\ ┬√їюф яЁш ю°шсъх API ЇєэъЎшщ
 : ERRORAPI ( -> )
 	DUP 0=
 	IF
@@ -121,7 +121,7 @@ CREATE paint PAINTSTRUCT::/SIZE ALLOT
 		phdc DeleteDC DROP BYE
 	THEN ;
 
-\ Выход из программы
+\ ┬√їюф шч яЁюуЁрьь√
 : BYE ( -> )
 	hwdwinp STOP
 	penh DeleteObject DROP
@@ -147,7 +147,7 @@ CREATE paint PAINTSTRUCT::/SIZE ALLOT
 
 WNDPROC: MyWndProc
 
-\ Создание класса для окна
+\ ╤ючфрэшх ъырёёр фы  юъэр
 : INITWIN ( -> )
 	48 classwin WNDCLASSEX::cbSize !
 	0x23 classwin WNDCLASSEX::style !
@@ -174,24 +174,24 @@ WNDPROC: MyWndProc
 
 \ -+=================================================================+-
 
-\ Перевод цветовой гаммы в цвет
+\ ╧хЁхтюф ЎтхЄютющ урьь√ т ЎтхЄ
 : RGB ( R G B -> RGB )
 	255 AND ROT 255 AND 16 LSHIFT ROT 255 AND 8 LSHIFT OR OR ;
 
-\ Установить цвет рисования
+\ ╙ёЄрэютшЄ№ ЎтхЄ Ёшёютрэш 
 : Color ( RGB -> )
 	penh DeleteObject DROP DUP TO color
 	1 0 CreatePen DUP TO penh
 	phdc SelectObject DROP ;
 
-\ Установить фон рисования
+\ ╙ёЄрэютшЄ№ Їюэ Ёшёютрэш 
 : Background ( RGB -> )
 	DUP TO background
 	brush DeleteObject DROP DUP TO brush
 	CreateSolidBrush TO brush
 	brush phdc SelectObject DROP ;
 
-\ Создать консоль
+\ ╤ючфрЄ№ ъюэёюы№
 : ConCreate ( -> )
 	200 TO length 100 TO height
 	hwdwin 0= IF 0 LoopWin START TO hwdwinp THEN
@@ -204,24 +204,24 @@ WNDPROC: MyWndProc
 	phdc SelectObject ERRORAPI DROP
 	0x00FFFFFF Color ;
 
-\ Удалить консоль
+\ ╙фрышЄ№ ъюэёюы№
 : ConDestroy ( -> )
 	hwdwinp STOP 0 TO hwdwin 0 TO length 0 TO height ;
 
-\ Спрятать консоль
+\ ╤яЁ ЄрЄ№ ъюэёюы№
 : ConHide ( -> )
 	0 hwdwin ShowWindow DROP ;
 
-\ Показать консоль
+\ ╧юърчрЄ№ ъюэёюы№
 : ConShow ( -> )
 	5 hwdwin ShowWindow DROP ;
 
-\ Изменить координаты консоли на экране
+\ ╚чьхэшЄ№ ъююЁфшэрЄ√ ъюэёюыш эр ¤ъЁрэх
 : ConMove ( x y -> )
 	TO top TO left
 	1 height length top left hwdwin MoveWindow DROP ; 
 
-\ Изменить длинну и высоту консоли и очистить ее
+\ ╚чьхэшЄ№ фышээє ш т√ёюЄє ъюэёюыш ш юўшёЄшЄ№ хх
 : ConSize ( length height -> )
 	TO height TO length
 	1 height length top left hwdwin MoveWindow DROP
@@ -229,7 +229,7 @@ WNDPROC: MyWndProc
 	height length hdc CreateCompatibleBitmap ERRORAPI TO bufh
 	bufh phdc SelectObject ERRORAPI DROP ;
 
-\ Очистить консоль
+\ ╬ўшёЄшЄ№ ъюэёюы№
 : Cls ( -> )
 	length height ConSize
 	color background Color
@@ -240,27 +240,27 @@ ConCreate
 
 \EOF
 
--+- Для создания новых возможностей -+-
-phdc		( -> n ) - контекст консоли в который осуществляется граф. вывод
-hwdwin		( -> n ) - хендел окна консоли
+-+- ─ы  ёючфрэш  эют√ї тючьюцэюёЄхщ -+-
+phdc		( -> n ) - ъюэЄхъёЄ ъюэёюыш т ъюЄюЁ√щ юёє∙хёЄты хЄё  уЁрЇ. т√тюф
+hwdwin		( -> n ) - їхэфхы юъэр ъюэёюыш
 
--+- Возможности графической консоли -+-
-top		( -> n ) - расположение консоли относительно экрана с верху
-left		( -> n ) - расположение консоли относительно экрана слева
-length		( -> n ) - длина консоли в пикселах
-height		( -> n ) - высота консоли в пикселах
-color		( -> RGB ) - текущий цвет
-background	( -> RGB ) - текущий фон
+-+- ┬ючьюцэюёЄш уЁрЇшўхёъющ ъюэёюыш -+-
+top		( -> n ) - Ёрёяюыюцхэшх ъюэёюыш юЄэюёшЄхы№эю ¤ъЁрэр ё тхЁїє
+left		( -> n ) - Ёрёяюыюцхэшх ъюэёюыш юЄэюёшЄхы№эю ¤ъЁрэр ёыхтр
+length		( -> n ) - фышэр ъюэёюыш т яшъёхырї
+height		( -> n ) - т√ёюЄр ъюэёюыш т яшъёхырї
+color		( -> RGB ) - Єхъє∙шщ ЎтхЄ
+background	( -> RGB ) - Єхъє∙шщ Їюэ
 
-ConCreate	( -> ) - включить консоль
-ConDestroy	( -> ) - удалить консоль
-ConHide		( -> ) - спрятать консоль
-ConShow		( -> ) - показать консоль
-ConMove		( x y -> ) - изменить координаты консоли на экране
-ConSize		( length height -> ) - изменить длинну и высоту консоли и очистить ее
-Color		( RGB -> ) - установить цвет рисования
-Background	( RGB -> ) - установить фон рисования
-Cls		( -> ) - очистить окно
+ConCreate	( -> ) - тъы■ўшЄ№ ъюэёюы№
+ConDestroy	( -> ) - єфрышЄ№ ъюэёюы№
+ConHide		( -> ) - ёяЁ ЄрЄ№ ъюэёюы№
+ConShow		( -> ) - яюърчрЄ№ ъюэёюы№
+ConMove		( x y -> ) - шчьхэшЄ№ ъююЁфшэрЄ√ ъюэёюыш эр ¤ъЁрэх
+ConSize		( length height -> ) - шчьхэшЄ№ фышээє ш т√ёюЄє ъюэёюыш ш юўшёЄшЄ№ хх
+Color		( RGB -> ) - єёЄрэютшЄ№ ЎтхЄ Ёшёютрэш 
+Background	( RGB -> ) - єёЄрэютшЄ№ Їюэ Ёшёютрэш 
+Cls		( -> ) - юўшёЄшЄ№ юъэю
 
--+- Преобразования -+-
-RGB		( R G B -> RGB ) - перевод цветовой гаммы в цвет
+-+- ╧ЁхюсЁрчютрэш  -+-
+RGB		( R G B -> RGB ) - яхЁхтюф ЎтхЄютющ урьь√ т ЎтхЄ
