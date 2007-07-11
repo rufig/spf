@@ -138,3 +138,6 @@ S" it.next().toString()" JE
 S" function range(beg, end){ for(let i = beg; i < end; ++i) {yield i}}" JE
 S" [i * i for (i in range(0, 10))].toString()" JE
 S" let today = Date.parse('2006-10-25T')" JE
+
+REQUIRE STR@          ~ac/lib/str5.f
+S" test.js" FILE " var a={s}" STR@ JE
