@@ -22,6 +22,10 @@
   -3 - указанный домен "не существует в природе"
   -5 - DNS-сервер не хочет выполнять ваши запросы [чужой сервер, наверное]
 
+  Добавление 04.04.2007:
+  -6 - ошибки на всех DNS-серверах списка [только GetMXs]
+  -7 - ошибка DNS-сервера [обычно NS-сервера запрашиваемого домена]
+
   GetRRn отличается от GetRRs тем, что не разбирает список
   полученных записей, а только выясняет их число, т.е. экономит
   время и память, если не нужен собственно список записей. 
@@ -555,6 +559,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
       DNSREPLY @ HeaderBits W@ >B< 15 AND
       DUP ( RCODE) 3 = IF DROP -3 EXIT THEN \ domain not exist (authoritative!)
       DUP ( RCODE) 5 = IF DROP -5 EXIT THEN \ refused operation
+      DUP ( RCODE) 2 = IF DROP -7 EXIT THEN \ name server failure
       0=
       DNSREPLY @ HeaderID W@ >B< QID W@ = AND
       IF
@@ -596,6 +601,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
       DNSREPLY @ HeaderBits W@ >B< 15 AND
       DUP ( RCODE) 3 = IF DROP -3 EXIT THEN \ domain not exist (authoritative!)
       DUP ( RCODE) 5 = IF DROP -5 EXIT THEN \ refused operation
+      DUP ( RCODE) 2 = IF DROP -7 EXIT THEN \ name server failure
       0=
       DNSREPLY @ HeaderID W@ >B< QID W@ = AND
       IF
