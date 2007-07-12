@@ -37,7 +37,6 @@ DEFINITIONS
 
  \ n -- номер символа, addr -- соотв. ему ячейка в состоянии
 : адрес-символа ( n -- addr ) CELLS текущее-состояние + ;
-\ : адрес-символа ( n -- addr ) кол-во-случаев MIN (адрес-символа) ;
 
 : -й-символ ( xt c -- ) адрес-символа ! ;
 : установить-диапазон ( xt start end  -- ) 1+ SWAP DO DUP I -й-символ LOOP DROP ;
@@ -111,7 +110,7 @@ VECT обработчик-каждого-символа
 
 : взять-из-таблицы ( "tbl -- )
 очистить-все-символы
-' >BODY DUP @ кол-во-случаев MIN CELLS
+' >BODY DUP @ кол-во-случаев MIN 1+ CELLS
 SWAP CELL+ SWAP текущее-состояние SWAP MOVE ;
 \ Копирует реакции таблицы tbl в текущую
 \ ВНИМАНИЕ: реакции "на-входе" и "окончание-входного-потока" не копируются!
@@ -313,14 +312,22 @@ state template2copy
 on-enter: enter ;
 end-input: end ;
 10 asc: 10 ;
+255 asc: lastVal ;
+256 asc: lastVal ;
 
 состояние new-state взять-из-таблицы template2copy
 
 TESTCASES fsa state copying
 (( template2copy -> enter ))
+(( 1 execute-one -> )) 
+(( 10 execute-one -> 10 )) 
+(( 255 execute-one -> lastVal ))
+(( 256 execute-one -> lastVal ))
 (( закончить-обработку -> end ))
 (( new-state -> )) \ взять-из-таблицы не должен копировать реакции на-входе
 (( 1 execute-one -> )) 
 (( 10 execute-one -> 10 )) \ а обычные реакции -- должен
+(( 255 execute-one -> lastVal ))
+(( 256 execute-one -> lastVal ))
 (( закончить-обработку -> )) \ реакции по окончанию потока копировать тоже нельзя
 END-TESTCASES
