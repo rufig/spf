@@ -25,7 +25,7 @@ SUPER :draw
 1 GL_UNPACK_ALIGNMENT glPixelStorei DROP
 addr @ GL_UNSIGNED_BYTE GL_RGB height @ width @ glDrawPixels DROP ;
 
-: :set-size ( w h -- ) OVER height ! DUP width !
+: :set-size ( w h -- ) OVER width ! DUP height !
 addr @ ?DUP IF FREE THROW THEN
 * /rgb * ALLOCATE THROW addr ! ;
 
