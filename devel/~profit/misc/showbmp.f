@@ -9,28 +9,13 @@ REQUIRE " ~ac/lib/str5.f
 \ либо абсолютный
 : picture S" ALLUSERSPROFILE" ENVIRONMENT? IF " {s}\Application Data\Microsoft\User Account Pictures\Default Pictures\frog.bmp" STR@ ELSE 2 THROW THEN ;
 \  артинка должна быть в формате BMP 24bit
-
-: PrepareLight
-   GL_NORMALIZE glEnable DROP       \ Enable normalization of normales
-   GL_COLOR_MATERIAL glEnable DROP  \ The color is treated as the material color
-   || CGLPoint p ||
-   0.2e 0.2e 0.2e 0.5e p :set4
-    p :getv GL_AMBIENT GL_LIGHT1 glLightfv DROP
-   GL_LIGHT1 glEnable DROP \ Enable our light source
-   GL_LIGHTING glEnable DROP \ Enable lighting in general
-;
- 
-CGLWindow SUBCLASS CMyGLWindow
-
-: :prepare SUPER :prepare PrepareLight ;
-;CLASS
  
 0 VALUE list1
  
 0 VALUE bmp
 
 : test ( -- n )
-|| CMyGLWindow aa CMessageLoop loop ||
+|| CGLWindow aa CMessageLoop loop ||
 
 CGLObjectList NewObj TO list1
 CGLImage NewObj TO bmp
