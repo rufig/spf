@@ -10,11 +10,13 @@ REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 
 GET-TIME-ZONE
 
+MODULE: bot_plugin_rss
+
 : read-number ( a u -- stamp )
    R/O OPEN-FILE IF DROP 0 EXIT THEN
    >R
    PAD 100 R@ READ-FILE DROP
-   PAD SWAP NUMBER 0= IF 0 THEN 
+   PAD SWAP NUMBER 0= IF 0 THEN
    R> CLOSE-FILE DROP ;
 
 : timestamp>pad Num>DateTime DateTime>PAD ;
@@ -36,25 +38,25 @@ GET-TIME-ZONE
 
 \ sorry fr ugly code
 : my-date ( stamp -- a u )
-    DUP TIME&DATE DateTime>Num +TZ - ABS 6 60 * < 
-    IF 
+    DUP TIME&DATE DateTime>Num +TZ - ABS 6 60 * <
+    IF
      DROP
      S" Только что"
-     EXIT 
+     EXIT
     THEN
 
     DUP Num>DateTime DateTime>Days TIME&DATE DateTime>Days -
-    DUP 
-    0 = 
-    IF 
+    DUP
+    0 =
+    IF
      DROP
      Num>Time ROT DROP SWAP ( hh mm)
      <# S"  GMT" HOLDS S>D # # 2DROP [CHAR] : HOLD S>D # # 2DROP S" Сегодня " HOLDS 0 0 #>
      EXIT
     THEN
 
-    -1 = 
-    IF 
+    -1 =
+    IF
     Num>Time ROT DROP SWAP ( hh mm)
      <# S"  GMT" HOLDS S>D # # 2DROP [CHAR] : HOLD S>D # # 2DROP S" Вчера " HOLDS 0 0 #>
     ELSE
@@ -78,23 +80,24 @@ GET-TIME-ZONE
     2SWAP 2DUP read-number >R
     2OVER rss.items-newest DUP IF -ROT write-number ELSE DROP 2DROP THEN
     R>
+    \ CR ." Newest : "
+    \ 2DUP rss.items-newest Num>DateTime DateTime>PAD TYPE
+    \ 2SWAP read-number
+    \ CR ." Stamp : "
+    \ DUP Num>DateTime DateTime>PAD TYPE
     PRO
      START{
       rss.items-new=> DUP rss.item.timestamp ONTRUE \ не обяз. т.к. если stamp=0 то new не пропустит!
        CONT
      }EMERGE
-    \ S" Forum checked" ECHO 
+    \ S" Forum checked" ECHO
     ;
 
 : process-rss-forum
    process-and-stamp-rss=> DUP reply-rss ;
 
-: process-rss-general ( a u a1 u1 -- ) 2DROP 2DROP CR ." !WEDSRESD" ;
-
 : seconds 1000 * ;
 : minutes 60 * seconds ;
-
-: FREE-FILE IF FREE THROW ELSE DROP THEN ;
 
 0 VALUE rss-checker-lt
 0 VALUE rss-getter-lt
@@ -129,20 +132,20 @@ GET-TIME-ZONE
 : rss-getter-get { msg | pack typ filename }
      \ S" rss get" ECHO
      msg msg.data DROP TO pack
-     pack 
+     pack
      unpack-au 2DUP ECHO 2DUP " {s}" url-to-filename TO filename
      ROT unpack-n NIP TO typ
      ( a u ) " {s}" >R R@ STR@ GET-FILE R> STRFREE \ DUP STR@ S" qua" TO-FILE
      \ 2DROP S" 3.xml" FILE " {s}"
      DUP STR@ filename STR@ >msg-lt-rss STR@ typ rss-checker-lt ltsend
          STRFREE
-     \ S" rss-getter done" ECHO 
+     \ S" rss-getter done" ECHO
      ;
- 
+
 :NONAME
  DROP
  BEGIN
-   ltreceive 
+   ltreceive
    DUP ['] rss-getter-get CATCH ?DUP IF . S" rss-getter failed !" ECHO DROP THEN
    FREE-MSG
  AGAIN
@@ -151,8 +154,8 @@ GET-TIME-ZONE
 :NONAME { | url typ pause pack }
   DROP
   1 minutes PAUSE
-  ltreceive 
-  msg.data DROP 
+  ltreceive
+  msg.data DROP
   unpack-au " {s}" TO url
   unpack-n TO typ
   unpack-n TO pause
@@ -164,7 +167,7 @@ GET-TIME-ZONE
    pack STR@ 0 rss-getter-lt ltsend
    pack STRFREE
    pause PAUSE
-  AGAIN 
+  AGAIN
   ; VALUE submitter
 
 :NONAME
@@ -172,15 +175,15 @@ GET-TIME-ZONE
   BEGIN
    LAMBDA{
      \ my-msgbox-size CR ." My msgbox size : " .
-     ltreceive 
+     ltreceive
      >R
-       \ R@ msg.type 1 = IF 
-       R@ msg.data msg-lt-rss> process-rss-forum 
+       \ R@ msg.type 1 = IF
+       R@ msg.data msg-lt-rss> process-rss-forum
        \ THEN
        \ R@ msg.type 0 = IF R@ msg.data msg-lt-rss> process-rss-general THEN
      R>
      FREE-MSG
-   } 
+   }
    CATCH ?DUP IF . S" rss-checker failed !" ECHO BYE THEN
   AGAIN
 ; VALUE rss-checker
@@ -190,43 +193,51 @@ GET-TIME-ZONE
 
 : fforum-url S" http://fforum.winglion.ru/rss.php?c=10" ;
 
-..: AT-CONNECT 
+EXPORT
+
+\ -----------------------------------------------------------------------
+
+..: AT-CONNECT
   0 rss-checker ltcreate TO rss-checker-lt
-  0 rss-getter ltcreate TO rss-getter-lt 
+  0 rss-getter ltcreate TO rss-getter-lt
 
 \ ограничим сообщения с форума только на время онлайна бота
 TIME&DATE DateTime>Num fforum-url " {s}" url-to-filename STR@ write-number
 
 0 submitter ltcreate TO lt
-new-pack TO pack 
+new-pack TO pack
 fforum-url pack pack-au
 1 pack pack-n
 5 minutes pack pack-n
 pack STR@ 0 lt ltsend
 
 0 submitter ltcreate TO lt
-new-pack TO pack 
+new-pack TO pack
 S" http://sourceforge.net/export/rss2_projnews.php?group_id=17919" pack pack-au
 1 pack pack-n
 6 60 * minutes pack pack-n
 pack STR@ 0 lt ltsend
 
 0 submitter ltcreate TO lt
-new-pack TO pack 
+new-pack TO pack
 S" http://wiki.forth.org.ru/RecentChanges?format=rss" pack pack-au
 1 pack pack-n
 45 minutes pack pack-n
 pack STR@ 0 lt ltsend
 
 0 submitter ltcreate TO lt
-new-pack TO pack 
+new-pack TO pack
 S" http://my.opera.com/forth/xml/rss/blog" pack pack-au
 1 pack pack-n
 30 minutes pack pack-n
 pack STR@ 0 lt ltsend
   ;..
 
+;MODULE
+
 $Revision$ " -- RSS plugin {s} loaded." DUP STR@ ECHO STRFREE
+
+\ -----------------------------------------------------------------------
 
 \EOF
 

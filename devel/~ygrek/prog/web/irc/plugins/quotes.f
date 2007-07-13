@@ -5,8 +5,8 @@ MODULE: BOT-COMMANDS
 
 : !q
     SkipDelimiters
-    -1 PARSE DUP 0= IF 
-     2DROP random-quote 
+    -1 PARSE DUP 0= IF
+     2DROP random-quote
     ELSE
      2DUP NUMBER IF >R 2DROP R> quote[] ELSE search-quote THEN
     THEN
@@ -30,6 +30,8 @@ MODULE: BOT-COMMANDS-HELP
 
 ..: AT-CONNECT load-quotes ;..
 
-$Revision$ " -- Quotes plugin {s} loaded." DUP STR@ ECHO STRFREE
+$Revision$ " -- Quotes plugin {s} loaded." STYPE CR
 
-\ EOF
+\ -----------------------------------------------------------------------
+
+\EOF

@@ -21,13 +21,9 @@ REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 : AT-CONNECT ... ;
 \ )
 
+MODULE: bot_plugin_gismeteo
+
 0 VALUE h
-
-MODULE: BOT-COMMANDS-HELP
-
-: !weather S" Usage: !weather <город> - погода от http://www.gismeteo.ru/" S-REPLY ;
-
-;MODULE
 
 : SKIP-NAME PARSE-NAME 2DROP ;
 
@@ -66,6 +62,14 @@ MODULE: BOT-COMMANDS-HELP
    LAMBDA{ car STR@ 2OVER COMPARE 0= } short-cities list-find
    IF car cdar STR@ 2SWAP 2DROP ELSE DROP THEN ;
 
+EXPORT
+
+\ -----------------------------------------------------------------------
+
+MODULE: BOT-COMMANDS-HELP
+: !weather S" Usage: !weather <город> - погода от http://www.gismeteo.ru/" S-REPLY ;
+;MODULE
+
 MODULE: BOT-COMMANDS
 
 : !weather
@@ -91,7 +95,11 @@ MODULE: BOT-COMMANDS
 
 ..: AT-CONNECT large-hash TO h load-gismeteo-city-codes ;..
 
+;MODULE
+
 $Revision$ " -- gismeteo weather plugin {s} loaded." DUP STR@ ECHO STRFREE
+
+\ -----------------------------------------------------------------------
 
 \EOF \ testing
 

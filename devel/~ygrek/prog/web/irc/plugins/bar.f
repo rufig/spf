@@ -6,11 +6,7 @@ REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 REQUIRE lst( ~ygrek/lib/list/all.f
 REQUIRE GENRANDMAX ~ygrek/lib/neilbawd/mersenne.f
 
-MODULE: BOT-COMMANDS-HELP
-
-: !bar S" Try these commands : !pivo !vodka !voda !kokteil !vino !kofe !sok !koniak !shampanskoe !tea" S-REPLY ;
-
-;MODULE
+MODULE: bot_plugin_bar
 
 \ откуда вытаскивать
 lst(
@@ -52,7 +48,7 @@ lst(
  " Я польщен, но я все же сам" %s
  " да мне и самому не трудно" %s
  " я еще в состоянии последить за собой" %s
- " ненадо мне делать одолжений" %s 
+ " ненадо мне делать одолжений" %s
  " мне хватит!" %s
  " слушай чувак. ты никогда не забывай... вот кто-то не знает кто-то не врубается кому-то пофиг... вот тока не надо грозить южному централу попивая сок у себя в квартале." %s
 )lst VALUE bar.notceruser
@@ -261,7 +257,7 @@ CREATE (ACTION) 1 C, S" ACTION" S,
 
 : give-a-drink { drink-list -- }
     END_ACTION
-    message-sender 
+    message-sender
     bar.put list-get-random-string
     drink-list list-get-random-string
     bar.find list-get-random-string
@@ -269,6 +265,14 @@ CREATE (ACTION) 1 C, S" ACTION" S,
     " {s} {s} {s} {s} {s}{s}" STR@ S-REPLY ;
 
 : bar: ( n "name" ) CREATE , DOES> @ give-a-drink TRUE TO ?check ;
+
+EXPORT
+
+\ -----------------------------------------------------------------------
+
+MODULE: BOT-COMMANDS-HELP
+: !bar S" Try these commands : !pivo !vodka !voda !kokteil !vino !kofe !sok !koniak !shampanskoe !tea" S-REPLY ;
+;MODULE
 
 MODULE: BOT-COMMANDS
 
@@ -337,8 +341,12 @@ bar.drink.tea     bar: !tea
 : !чаек !barnone ;
 : !бухло !barnone ;
 
-;MODULE
+;MODULE \ BOT-COMMANDS
 
-$Revision$ " -- Bar plugin {s} loaded." DUP STR@ ECHO STRFREE
+;MODULE \ bot_plugin_bar
+
+$Revision$ " -- Bar plugin {s} loaded." STYPE CR
+
+\ -----------------------------------------------------------------------
 
 \ EOF
