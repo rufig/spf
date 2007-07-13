@@ -22,8 +22,8 @@ MODULE: regexp
    from " {n}" -> s1  nfa " {n}" -> s2
    s1 STR@ s2 STR@ DOT-LINK
    s1 STRFREE s2 STRFREE
-   nfa visited member? IF EXIT THEN
-   nfa visited vcons TO visited
+   nfa re_visited member? IF EXIT THEN
+   nfa re_visited vcons TO re_visited
    nfa .out1 @ ?DUP IF nfa SWAP RECURSE THEN
    nfa .out2 @ ?DUP IF nfa SWAP RECURSE THEN ;
 

@@ -218,16 +218,22 @@ END-TESTCASES
 TESTCASES extra
 
 : str S" ab" ;
-: >pos str { a u a1 u1 } a a1 - DUP u + ;
-: np get-group >pos ;
-
+: >pos { a u a1 u1 } a a1 - DUP u + ;
+: np ROT get-group 2SWAP >pos ;
+0 [IF] \ не проходится! FIX!!
 (( str S" ((a?)((ab)?))(b?)" stre_match? -> TRUE ))
-(( 0 np -> 0 2 ))
-(( 1 np -> 0 2 ))
-(( 2 np -> 0 0 ))
-(( 3 np -> 0 2 ))
-(( 4 np -> 0 2 ))
+(( 0 str np -> 0 2 ))
+(( 1 str np -> 0 2 ))
+(( 2 str np -> 0 0 ))
+(( 3 str np -> 0 2 ))
+(( 4 str np -> 0 2 ))
 (( 5 get-group -> 0 0 ))
+[THEN]
+: str2 S" aaaa" ;
+(( str2 RE" (a*)(a*)" re_match? -> TRUE ))
+(( 0 str2 np -> 0 4 ))
+(( 1 str2 np -> 0 4 ))
+(( 2 get-group -> 0 0 ))
 
 END-TESTCASES
 

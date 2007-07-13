@@ -29,6 +29,7 @@
 \ - нет backreferences - \1 \2 итд
 \ - однобайтовые символы (unicode to do?), классы символов - только для латинских
 \ - . (точка) ловит любой символ, с кодом 0 тоже
+\ - capturing не соответствует POSIX (TODO!!!), нарушается leftmost longest в некоторых случаях
 
 \ NB Есть ещё Perl'овские регулярные выражения - http://perldoc.perl.org/perlre.html
 \    но они заточены под бэктрекинговую реализацию, как следствие слишком сложны и запутанны,
@@ -107,20 +108,36 @@ state fragment-charset-all
 
 state quoted-symbol
 
-VECT RESERVE
+USER-VECT RESERVE
 
 : RESERVE-DYNAMIC LAMBDA{ ALLOCATE THROW } TO RESERVE ;
 : RESERVE-STATIC LAMBDA{ HERE SWAP ALLOT } TO RESERVE ;
 
-RESERVE-DYNAMIC
+USER-VALUE re_limit \ конечный адрес обработки
+USER-VALUE re_start \ начальный адрес обработки
+USER-VALUE re_def_groups \ подвыражения в результате последнего сопоставления
+USER-VALUE re_brackets \ список пар nfa соответствующих парам скобок во время построения дерева
+USER-VALUE re_nfa_count \ подсчёт числа nfa в текущем RE (во время построения дерева)
+USER-VALUE re_gen  \ номер поколения (при сопоставлении), идёт в отметку .gen в nfa
+USER-VALUE re_str_pos \ позиция в строке (при сопоставлении), для учёта положения скобок
+USER-VALUE re_cur_set
+USER-VALUE re_cur_set_state
+USER-VALUE re_visited \ посещённые во время обхода узлы (dottify, FREE-NFA-TREE)
 
-0 VALUE re_limit \ конечный адрес обработки
-0 VALUE re_start \ начальный адрес обработки
-0 VALUE re_def_groups \ подвыражения в результате последнего сопоставления
-() VALUE re_brackets \ список пар nfa соответствующих парам скобок во время построения дерева
-0 VALUE re_nfa_count \ подсчёт числа nfa в текущем RE (во время построения дерева)
-0 VALUE re_gen  \ номер поколения (при сопоставлении), идёт в отметку .gen в nfa
-0 VALUE re_str_pos \ позиция в строке (при сопоставлении), для учёта положения скобок
+: RE_INIT
+  () TO re_brackets
+  () TO re_visited
+  new-set TO re_cur_set
+  RESERVE-DYNAMIC ;
+
+RE_INIT
+..: AT-THREAD-STARTING RE_INIT ;..
+
+..: AT-THREAD-FINISHING \ не обязательно
+  re_cur_set FREE THROW
+  re_brackets FREE-LIST
+  re_visited FREE-LIST
+;..
 
 \ -----------------------------------------------------------------------
 
@@ -134,7 +151,7 @@ RESERVE-DYNAMIC
  STATE_SPACE_CHAR STATE_SPACE_CHAR_NOT
  STATE_DIGIT_CHAR STATE_DIGIT_CHAR_NOT
  STATE_MATCH_SET STATE_MATCH_SET_NOT
-; VALUE N_STATE
+; CONSTANT N_STATE
 
 \ Состояние
 0
@@ -205,6 +222,16 @@ CONSTANT /arr
     z @ CONT IF z UNLOOP EXIT THEN
     z CELL+ -> z
    LOOP 0 ;
+
+0 [IF]
+: a:scanback-> ( arr --> elem@ \ elem|0 <-- TRUE|FALSE )
+   PRO { arr | z }
+   arr a:n 1- arr a:elem -> z
+   arr a:n 0 ?DO
+    z @ CONT IF z UNLOOP EXIT THEN
+    z CELL- -> z
+   LOOP 0 ;
+[THEN]
 
 : save-subs ( -- subs )
    re_brackets length 2 * reserve-array DUP
@@ -506,29 +533,25 @@ end-input: fragment-final ;
 [: fragment-charset-1 ;
 ]: fragment-error ;
 
-
-create-set cur-set
-0 VALUE cur-set-state
-
 : erase-set ( set -- ) /set ERASE ;
 : copy-set ( src dst -- ) /set MOVE ;
 
 : update-set
-   symbol cur-set set+
+   symbol re_cur_set set+
    отсюда 2 + re_limit >= IF EXIT THEN
    отсюда C@ [CHAR] - <> IF EXIT THEN
-   отсюда 1 + C@ DUP cur-set set+
+   отсюда 1 + C@ DUP re_cur_set set+
    ( c1 ) symbol ( c1 c2 )
    2DUP < IF CR ." Bad order" fragment-error THEN
-   ?DO I cur-set set+ LOOP
+   ?DO I re_cur_set set+ LOOP
    отсюда 2 + поставить-курсор ;
 
 \ внутри квадратных скобок, возможно первый символ отрицание
 fragment-charset-1
 
-on-enter: cur-set erase-set STATE_MATCH_SET TO cur-set-state ;
+on-enter: re_cur_set erase-set STATE_MATCH_SET TO re_cur_set_state ;
 all: update-set fragment-charset-all ; \ ] обрабатывается как и все
-CHAR ^ asc: STATE_MATCH_SET_NOT TO cur-set-state fragment-charset-2 ;
+CHAR ^ asc: STATE_MATCH_SET_NOT TO re_cur_set_state fragment-charset-2 ;
 end-input: fragment-error ;
 
 \ внутри квадратных скобок, возможно первый символ закрывающая квадратная скобка представляющая сама себя
@@ -542,7 +565,7 @@ end-input: fragment-error ;
 fragment-charset-all
 
 all: update-set ;
-]: /set RESERVE cur-set OVER copy-set cur-set-state set-liter no-brackets-fragment ;
+]: /set RESERVE re_cur_set OVER copy-set re_cur_set_state set-liter no-brackets-fragment ;
 end-input: fragment-error ;
 
 
@@ -582,15 +605,12 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 
 \ -----------------------------------------------------------------------
 
-\ все посещённые во время обхода узлы
-() VALUE visited
-
-: clean-visited ( -- ) visited FREE-LIST () TO visited ;
+: clean-visited ( -- ) re_visited FREE-LIST () TO re_visited ;
 
 \ рекурсивное освобождение NFA
 : (FREE-NFA-TREE) ( nfa -- )
-   DUP visited member? IF DROP EXIT THEN
-   DUP visited vcons TO visited
+   DUP re_visited member? IF DROP EXIT THEN
+   DUP re_visited vcons TO re_visited
    DUP .out1 @ ?DUP IF RECURSE THEN
    DUP .out2 @ ?DUP IF RECURSE THEN
    FREE-NFA ;
@@ -615,7 +635,7 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 
    /RE RESERVE -> re
 
-   re_brackets reverse TO re_brackets
+   re_brackets reverse-list TO re_brackets
    save-subs re .sub !
    \ re_brackets write-list
    re_brackets FREE-LIST
@@ -668,7 +688,7 @@ CHAR 0 CHAR 9 range: TRUE ;
 
 N_STATE state-table char-nfa-match ( c nfa -- ? )
 
-0 N_STATE 1+ range: CR ." Attempt to match inappropriate state. Fatal error." ABORT ;
+all: CR signal " Attempt to match inappropriate state {n}. Fatal error." STYPE ABORT ;
 0 256 range: DROP signal = ;
 STATE_FINAL          asc: 2DROP FALSE ;
 STATE_MATCH_ANY      asc: 2DROP TRUE ;
@@ -726,9 +746,9 @@ STATE_MATCH_SET_NOT  asc: .set @ belong NOT ;
 
    nfa .c @ STATE_SPLIT = IF
     \ CR ." SPLIT"
-    nfa .out1 @ s z subs RECURSE
-    \ CR ." CONTINUE"
     nfa .out2 @ s z subs RECURSE
+    \ CR ." CONTINUE"
+    nfa .out1 @ s z subs RECURSE
     subs a:free
     \ CR ." <---"
     EXIT
@@ -829,6 +849,8 @@ EXPORT
     z1 z2 -> z1 -> z2
     \ CR I a - . l1 write-list
    LOOP
+   \ CR s1 START{ a:iter-> @ .c @ . }EMERGE
+   \ CR z1 START{ a:iter-> @ print-array }EMERGE
    s1 START{ a:scan-> .c @ STATE_FINAL = }EMERGE
    DUP 0<> -> ?
    ?DUP IF
