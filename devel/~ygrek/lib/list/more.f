@@ -127,12 +127,25 @@ WARNING !
 \ xt: ( node1-car node2-car )
 : zipcar! ( xt node1 -- )
    { xt l }
-   l length 1 = IF EXIT THEN
+   l cdr empty? IF EXIT THEN
    BEGIN
     l car l cdar xt EXECUTE l setcar
     l cddr empty? IF l cdr FREE-NODE l () LINK-NODE EXIT THEN
     l cdr -> l
    AGAIN ;
+
+\ применить xt последовательно к каждым двум соседним элементам
+\ xt: ( node1-car node2-car )
+: zipcar ( xt node1 -- )
+   { xt l | lcdr }
+   BEGIN
+    l cdr -> lcdr
+    l car lcdr DUP empty? NOT
+   WHILE
+    car
+    xt EXECUTE
+    lcdr -> l
+   REPEAT 2DROP ;
 
 \ применить xt к "соответствующим" парам элементов списков node1 node2
 \ xt: ( node1i node2i -- )
@@ -275,6 +288,16 @@ l2 FREE-LIST
 
 () %[ 1 % 2 % 3 % 4 % ]% concat-list TO l1
 %[ 1 % 2 % 3 % 4 % ]% TO l2
+(( l1 l2 equal? -> TRUE ))
+l1 FREE-LIST
+l2 FREE-LIST
+
+\
+\ foldl
+%[ 1 % 2 % 3 % 3 % 4 % 5 % ]% TO l1
+%[ :NONAME + % ; l1 zipcar ]% TO l2
+l1 FREE-LIST
+%[ 3 % 5 % 6 % 7 % 9 % ]% TO l1
 (( l1 l2 equal? -> TRUE ))
 l1 FREE-LIST
 l2 FREE-LIST
