@@ -91,6 +91,7 @@ devel.html: $(docbooks) devel.docbook devel.html.single.xsl devel.basic.xsl
 	xsltproc --nonet devel.html.single.xsl devel.docbook > devel.html
 
 chunked/index.html: $(docbooks) devel.docbook devel.html.chunked.xsl devel.basic.xsl
+	-mkdir chunked
 	xsltproc --nonet devel.html.chunked.xsl devel.docbook
 
 devel.chm: $(docbooks) devel.docbook devel.chm.xsl devel.basic.xsl
