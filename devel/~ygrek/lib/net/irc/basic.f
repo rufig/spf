@@ -30,7 +30,7 @@ MODULE: IRC
 EXPORT
 
 : PARSE-IRC-MSG ( a u -- ? )
-   RE" (:(\S+)\x20+)?(\S+)((\x20+[^: ][^ ]*)+)(\x20+:(.*))?" re_match?
+   RE" (:(\S+)\x20+)?(\S+)((\x20+[^: ][^ ]*)*)(\x20+:(.*))?" re_match?
    2 get-group 2TO prefix
    3 get-group 2TO command
    5 get-group FINE-HEAD 2TO params
