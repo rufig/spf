@@ -44,7 +44,7 @@ REQUIRE /TEST ~profit/lib/testing.f
 : lst( ( -- ) list-of-cur-lists () vnode SWAP cons TO list-of-cur-lists ;
 
 \ завершить создание списка
-: )lst ( -- list ) list-of-cur-lists DUP cdr TO list-of-cur-lists DUP car SWAP FREE-NODE reverse ;
+: )lst ( -- list ) list-of-cur-lists DUP cdr TO list-of-cur-lists DUP car SWAP FREE-NODE reverse-list ;
 
 : %[ lst( ;
 : ]% )lst ;

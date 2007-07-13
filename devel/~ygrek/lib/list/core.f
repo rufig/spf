@@ -118,7 +118,7 @@ HERE /NODE ALLOT VALUE ()
 : append ( node1 node2 -- node ) DUP empty? IF DROP DUP () LINK-NODE ELSE TUCK (append) THEN ;
 
 \ развернуть список в обратную сторону
-: reverse ( node -- node1 )
+: reverse-list ( node -- node1 )
    () >R
    BEGIN
     DUP empty? 0=
