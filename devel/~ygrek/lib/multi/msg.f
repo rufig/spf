@@ -1,13 +1,17 @@
 REQUIRE [IF] lib/include/tools.f
 REQUIRE STR@ ~ac/lib/str4.f
-REQUIRE CreateList ~day/lib/staticlist.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE #define ~af/lib/c/define.f
 REQUIRE NEW-CS ~pinka/lib/multi/critical.f
 REQUIRE HEAP-ID! ~pinka/spf/mem.f
-
 \ REQUIRE EVALUATED-HEAP ~profit/lib/evaluated.f
 REQUIRE compiledCode ~profit/lib/bac4th-closures.f
+
+MODULE: multi
+
+REQUIRE CreateList ~day/lib/staticlist.f
+
+EXPORT
 
 0
 CELL -- .ti
@@ -47,7 +51,7 @@ HEAP-ID VALUE process-heap
 
 : CREATE-THREAD ( x task -- th ti )
   0 >R RP@
-  4 \ CREATE_SUSPENDED 
+  4 \ CREATE_SUSPENDED
   2SWAP 0 0 CreateThread
   R> ;
 
@@ -82,22 +86,22 @@ WINAPI: OpenThread KERNEL32.DLL
 : current-lt GetCurrentThreadId search-lt-by-ti ;
 
 : register ( lt -- ) list-of-lt AllocateNodeEnd .lt ! ;
-: unregister ( lt -- ) 
+: unregister ( lt -- )
     S" LITERAL OVER .lt @ = IF FreeNode FALSE ELSE DROP TRUE THEN" compiledCode
     list-of-lt ?ForEach DROP ;
 
 : lt. ( lt -- )
-  CR 
-  ." lt = " DUP . 
-  ." ti = " DUP .ti @ . 
+  CR
+  ." lt = " DUP .
+  ." ti = " DUP .ti @ .
   ." cs = " DUP .cs @ .
-  ." list = " DUP .msgs @ . 
+  ." list = " DUP .msgs @ .
   DROP ;
 
 \ ugly solution to conflict with ~ac/lib/lin/xml/xml.f
 : listFirstNode .listFirstNode @ ;
 
-: ltreceive ( -- msg ) 
+: ltreceive ( -- msg )
   LAMBDA{
   current-lt
   >R
@@ -122,14 +126,14 @@ WINAPI: OpenThread KERNEL32.DLL
         FREE THROW
   } WITH-GLOBAL-HEAP ;
 
-: ltsend ( a u n lt -- ) 
+: ltsend ( a u n lt -- )
 \  DUP ?lt 0= IF DROP DROP 2DROP EXIT THEN
   DUP 0= IF 2DROP 2DROP EXIT THEN
   LAMBDA{
   >R
     R@ .cs @ ENTER-CS
     R@ .msgs @ AllocateNodeEnd >R
-    /msg ALLOCATE THROW 
+    /msg ALLOCATE THROW
     DUP R> .msgptr !
     ( a u n msg )
     >R
@@ -141,10 +145,10 @@ WINAPI: OpenThread KERNEL32.DLL
   .cs @ LEAVE-CS
   } WITH-GLOBAL-HEAP ;
 
-: STRltsend ( s n lt -- ) 
+: STRltsend ( s n lt -- )
    2>R DUP STR@ 2R> ltsend STRFREE ;
 
-: ltcreate ( param xt -- lt ) 
+: ltcreate ( param xt -- lt )
     LAMBDA{ TASK CREATE-THREAD LTASK DUP >R register RESUME R> } WITH-GLOBAL-HEAP ;
 
 \ doesnt work!
@@ -155,3 +159,7 @@ WINAPI: OpenThread KERNEL32.DLL
 : size-list-of-lt ( -- n ) list-of-lt listSize ;
 : msgbox-size ( lt -- n ) .msgs @ ?DUP IF listSize ELSE 0 THEN ;
 : my-msgbox-size ( -- n ) current-lt msgbox-size ;
+
+;MODULE
+
+\EOF
