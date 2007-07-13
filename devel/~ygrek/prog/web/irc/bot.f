@@ -1,4 +1,4 @@
-REQUIRE IRC-BASIC ~ygrek/lib/net/irc/basic.f
+REQUIRE VOC-IRC-COMMAND ~ygrek/lib/net/irc/conn.f
 REQUIRE NFA=> ~ygrek/lib/wid.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE ATTACH ~pinka/samples/2005/lib/append-file.f
@@ -6,25 +6,21 @@ REQUIRE TIME&DATE lib/include/facil.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 REQUIRE ltcreate ~ygrek/lib/multi/msg.f
 REQUIRE #N## ~ac/lib/win/date/date-int.f
+REQUIRE lst( ~ygrek/lib/list/all.f
+REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
+REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
 
 ' ACCEPT1 TO ACCEPT \ disables autocompletion if present ;)
 
-' ANSI>OEM TO ANSI><OEM \ cp1251
+' ANSI>OEM TO ANSI><OEM \ cp1251 in console
 
 : CVS-DATE $Date$ SLITERAL ;
 : CVS-REVISION $Revision$ SLITERAL ;
 
-FALSE TO ?LOGSEND
-TRUE TO ?LOGSAY
-TRUE TO ?LOGMSG
-
-\ : TALK-LOG-FILE TIME&DATE 2>R NIP NIP NIP 2R> " talk.{n}{n}{n}.log" ;
-\ : STR=> PRO CONT STRFREE ;
-
 : CURRENT-DATE ( -- d m y ) TIME&DATE 2>R NIP NIP NIP 2R> ;
 : CURRENT-TIME ( -- m h ) TIME&DATE DROP DROP DROP ROT DROP ;
 
-: CURRENT-LOG-FILE 
+: CURRENT-LOG-FILE
     CURRENT-DATE { d m y }
     <# S" .log" HOLDS d #N## m #N## y #N [CHAR] . HOLD current-channel HOLDS 0 0 #> ;
 
@@ -33,20 +29,7 @@ TRUE TO ?LOGMSG
 : RAW-LOG ( a u -- )
    CURRENT-TIME { m h }
    <# m #N## [CHAR] : HOLD h #N## 0 0 #>
-   " {s}|{s}" DUP STR@ (DO-LOG-TO-FILE) STRFREE ;
-
-: S-LOG ( s -- ) DUP STR@ RAW-LOG STRFREE ;
-
-:NONAME { | last -- }
-  DROP
-  BEGIN
-   1000 PAUSE
-   ltreceive >R
-    \ TIME&DATE DateTime>Num TO last
-    R@ msg.data SIMPLE-DO-CMD
-   R> FREE-MSG
-  AGAIN
-; VALUE <irc-bot-sender>
+   " {s}|{s}" DUP STR@ 2DUP ECHO (DO-LOG-TO-FILE) STRFREE ;
 
 FALSE VALUE ?check
 
@@ -56,19 +39,6 @@ VOCABULARY BOT-COMMANDS-NOTFOUND
 
 : HelpWords=> PRO [WID] BOT-COMMANDS-HELP NFA=> DUP COUNT CONT ;
 : AllHelpWords ( -- s ) LAMBDA{ HelpWords=> TYPE SPACE } TYPE>STR ;
-
-0 [IF]
-() VALUE all-info-commands
-: add-info-command vnode as-str all-commands cons TO all-commands ;
-
-\ добавить s1 в конец строки s НЕ удаляя s1
-: +S ( s1 s -- ) SWAP STR@ ROT STR+ ;
-
-: collect-all-info-commands ( -- s )
-   "" LAMBDA{ OVER +S } all-info-commands mapcar ;
-" !version" add-info-command
-" !info" add-info-command
-[THEN]
 
 MODULE: BOT-COMMANDS
 
@@ -113,81 +83,72 @@ MODULE: BOT-COMMANDS-HELP
 ;MODULE
 
 MODULE: BOT-COMMANDS-NOTFOUND
- : NOTFOUND 
+ : NOTFOUND
     nickname STR@ COMPARE-U 0= IF EXIT THEN \ игнорируем упоминания нашего никнейма
     -1 THROW ; \ иначе завершаем разбор строки
 ;MODULE
 
 : CHECK-MSG-ME ( -- ? )
-  trailing nickname STR@ SEARCH NIP NIP 0= IF FALSE EXIT THEN
+  message-text nickname STR@ SEARCH NIP NIP 0= IF FALSE EXIT THEN
   S" Hello. I am a bot. Try !info. You can chat to me privately." S-REPLY
   TRUE EXIT ;
 
-: CHECK-MSG-IGNORE ( -- ? ) message-sender S" TiReX" US= ;
+: CHECK-MSG-IGNORE ( -- ? ) message-sender S" TiReX" COMPARE-U 0= ;
 
-0 [IF]
 : CHECK-MSG-SPECIAL
-   trailing S" .." COMPARE 0= IF 
+   message-text S" .." COMPARE 0= IF
       message-sender " {s}, dont be so boring! Lets talk." DUP STR@ S-REPLY STRFREE
-      TRUE EXIT 
+      TRUE EXIT
    THEN
    FALSE ;
-[THEN]
+
+\ : cons: PARSE-NAME 2DUP " {s} cons TO {s}" DUP STR@ EVALUATE STRFREE ; IMMEDIATE
+\ : vcons: POSTPONE vnode POSTPONE cons: ; IMMEDIATE
 
 : CHECK-MSG ( -- ? )
    FALSE TO ?check
-
-   CHECK-MSG-IGNORE IF TRUE EXIT THEN
 
    GET-ORDER
    ONLY BOT-COMMANDS
    ALSO BOT-COMMANDS-NOTFOUND
    \ ORDER
-   trailing ['] EVALUATE CATCH IF 2DROP THEN \ тут отваливание - нормальная ситуация
+   message-text ['] EVALUATE CATCH IF 2DROP THEN \ тут отваливание - нормальная ситуация
    SET-ORDER
 
-   ?check IF TRUE EXIT THEN
+   ?check ;
 
-   CHECK-MSG-ME IF TRUE EXIT THEN
+() VALUE xt-on-privmsg
+\ xt: ( -- ? )
+\ ? - xt обработал сообщение, остановить обработку
 
-   \ CHECK-MSG-SPECIAL IF TRUE EXIT THEN
+%[
+' CHECK-MSG-IGNORE %
+' CHECK-MSG %
+\ ' CHECK-MSG-SPECIAL %
+' CHECK-MSG-ME %
+]% TO xt-on-privmsg
 
-   FALSE
-;
+: seconds 1000 * ;
+: minutes 60 * seconds ;
 
-: BOT-ON-RECEIVE ( a u -- )
-   \ S" HERE : " TYPE HERE . CR
-   2DUP PARSE-IRC-LINE
-   2DUP RAW-LOG
-   LAMBDA{
-    ?LOGMSG IF 2DUP ECHO THEN
-    PING-COMMAND? IF PONG EXIT THEN
-    PRIVMSG-COMMAND? IF CHECK-MSG DROP EXIT THEN
-    ?LOGMSG 0= IF 2DUP ECHO THEN
-   }
-   EXECUTE
-   2DROP ;
+\ -----------------------------------------------------------------------
 
-' BOT-ON-RECEIVE TO ON-RECEIVE
+MODULE: VOC-IRC-COMMAND
 
-\ ------------------------------------------------------
+: PRIVMSG ['] EXECUTE xt-on-privmsg list-find 2DROP ;
 
-0 VALUE bot-watcher
+: 433 BYE ; \ nickname already in use
+: ERROR BYE ; \
 
-:NONAME ( x -- )
-  DROP
-  BEGIN 
-   ['] (RECEIVE) CATCH IF BYE THEN 
-  AGAIN 
-  ; TASK: BotReceiveTask
+;MODULE
 
-: CONNECT CONNECT 0 BotReceiveTask START DROP LOGIN ;
+\ -----------------------------------------------------------------------
+
+..: AT-RECEIVE ( a u -- a u ) 2DUP RAW-LOG ;..
+..: AT-CONNECT 0 SimpleReceiveTask START DROP LOGIN ;..
+
+\ -----------------------------------------------------------------------
 
 SocketsStartup THROW
-\ 0 <irc-bot-sender> ltcreate VALUE irc-bot-sender
-\ : IRC-BOT-DO-CMD ( a u -- ) 0 irc-bot-sender ltsend ;
-\ ' IRC-BOT-DO-CMD TO DO-CMD
 
-\ 0 <bot-watcher> ltcreate TO bot-watcher
-
-\ EOF
+\EOF

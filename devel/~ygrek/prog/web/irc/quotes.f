@@ -1,10 +1,11 @@
 \ цитатник для бота
 
-REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE FileLines=> ~ygrek/lib/filelines.f
-REQUIRE InsertNodeEnd ~day/lib/staticlist.f
+REQUIRE lst( ~ygrek/lib/list/all.f
 REQUIRE GENRAND ~ygrek/lib/neilbawd/mersenne.f
 REQUIRE UPPERCASE ~ac/lib/string/uppercase.f
+REQUIRE RE" ~ygrek/lib/re/re.f
 REQUIRE ULIKE ~pinka/lib/like.f
 REQUIRE 2VALUE ~ygrek/lib/2value.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
@@ -14,102 +15,77 @@ REQUIRE ATTACH ~pinka/samples/2005/lib/append-file.f
 
 MODULE: quotes
 
+[UNDEFINED] GetTickCount [IF]
 WINAPI: GetTickCount KERNEL32.DLL
+[THEN]
 
 GetTickCount SGENRAND
 
-0 VALUE quotes
-
-/node 
-CELL -- .val
-CONSTANT /quote
-
-EXPORT
-
-0 0 2VALUE quotes-file 
-
-DEFINITIONS
-
-\ HERE S" quotes.txt" S", COUNT 2TO quotes-file
-: aaa S" quotes.txt" ; aaa 2TO quotes-file
-
-: List=> ( list -- ) R> SWAP ForEach ;
-: >STR ( a u -- s ) "" >R R@ STR+ R> ;
-: add-quote ( s -- ) quotes AllocateNodeEnd .val ! ;
-: dump-quotes ( -- )
-   \ очистить файл
-   quotes-file R/W CREATE-FILE THROW CLOSE-FILE THROW 
-   \ записать весь список
-   LAMBDA{ .val @ STR@ quotes-file ATTACH-LINE-CATCH DROP } quotes ForEach ;
-
-0 0 2VALUE author
-0 0 2VALUE text
-
-: (parse)
-   PARSE-NAME 2TO author
-   SkipDelimiters
-   -1 PARSE 2TO text ;
+() VALUE quotes
 
 0 VALUE search_list
 0 0 2VALUE searched
-  
+
+" quotes.txt" VALUE s-quotes-file
+
+: quotes-file s-quotes-file STR@ ;
+
+: dump-quotes ( -- )
+   \ очистить файл
+   quotes-file EMPTY
+   \ записать весь список
+   LAMBDA{ STR@ quotes-file ATTACH-LINE-CATCH DROP } quotes mapcar ;
+
 EXPORT
 
-: quotes-total quotes 0= IF 0 EXIT THEN
-     quotes listSize ;
+: quotes-file! s-quotes-file STR! ;
+: quotes-total quotes length ;
 
 : load-quotes
-  \ S" loading quotes" ECHO
-  \ quotes 0= IF S" Creating new list" ECHO /quote CreateList TO quotes ELSE S" Freeing" ECHO quotes FreeList THEN
-  S" REMINDER! BUG - MEMORY LEAK!" ECHO
-  /quote CreateList TO quotes
+  quotes FREE-LIST
+  %[
   START{
    quotes-file FileLines=>
-   DUP
-   STR@
+   DUP STR@
    \ 2DUP TYPE CR
-   ['] (parse) EVALUATE-WITH
-   author text " {s} [{s}]" add-quote
-  }EMERGE 
-  quotes listSize 0= IF
-   " no quotes at all." add-quote \ всегда есть один элемент в списке!
-  THEN 
-  quotes listSize quotes-file " Quotes reloaded from '{s}'. Total {n}" DUP STR@ TYPE CR STRFREE ;
+   RE" (\S+)\s+(\S.*)" re_match?
+   IF
+    2 get-group DROP C@ 0x20 = IF ." !" THEN
+    1 get-group 2 get-group " {s} [{s}]" %s
+   THEN
+  }EMERGE
+  ]%
+  TO quotes
+  quotes-total quotes-file " Quotes reloaded from '{s}'. Total {n}" CR STYPE ;
 
-: type-quotes 
-    quotes 0= IF EXIT THEN
-    quotes List=> .val @ STR@ CR TYPE ;
+: type-quotes ( -- ) quotes list-> car STR@ CR TYPE ;
 
-: list-random-quote ( list -- node )
-    DUP listSize 
-    GENRANDMAX
-    SWAP list[] ;
+DEFINITIONS
 
-: random-quote ( -- s )
-    quotes 0= IF " quotes not loaded." EXIT THEN
-    quotes list-random-quote
-    ?DUP 0= IF " cant find quote" ELSE .val @ THEN ;
+: list-random-quote ( list -- node ) DUP length GENRANDMAX SWAP nth ;
+: node>s DUP empty? IF DROP " no quotes" ELSE car THEN ;
 
-: quote[] ( n -- s ) quotes 0= IF DROP " quotes not loaded." EXIT THEN
-   quotes list[] 
-   ?DUP 0= IF " cannot find quote" ELSE .val @ THEN ;
+0 VALUE re
+
+EXPORT
+
+: random-quote ( -- s ) quotes list-random-quote node>s ;
+: quote[] ( n -- s ) quotes nth node>s ;
 
 : search-quote ( a u -- s )
-   2TO searched
-   quotes 0= IF " no quotes loaded." EXIT THEN
-   search_list 0= IF /quote CreateList TO search_list ELSE search_list FreeList THEN
-   LAMBDA{ 
-     .val @ DUP STR@ 
-     searched " *{s}*" STR@
-     ULIKE IF search_list AllocateNodeEnd .val ! ELSE DROP THEN 
-   }  quotes ForEach
-   search_list list-random-quote ?DUP 0= IF " cannot find quote" ELSE .val @ THEN ;
+   \ " .*{s}.*" DUP STR@ BUILD-REGEX TO re STRFREE
+   " *{s}*" TO re
+   %[ LAMBDA{ DUP STR@ re STR@ ULIKE IF % ELSE DROP THEN } quotes mapcar ]%
+   DUP list-random-quote node>s SWAP FREE-LIST
+   re STRFREE ;
 
 : register-quote ( quote-au author-au -- )
-   " {s} {s}" DUP STR@ quotes-file ATTACH-LINE-CATCH DROP STRFREE 
+   " {s} {s}" DUP STR@ quotes-file ATTACH-LINE-CATCH DROP STRFREE
    load-quotes ;
 
 ;MODULE
 
-\ load-quotes
-\ S" форт" search-quote STR@ TYPE
+/TEST
+
+load-quotes
+CR S" форт" search-quote STR@ TYPE
