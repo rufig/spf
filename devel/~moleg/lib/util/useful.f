@@ -59,10 +59,10 @@ TRUE WARNING !
 \ -- распределение пространства форт системы ----------------------------------
 
 \ резервировать на HERE n байт памяти, заполнить их байтом char
-: AllotFill  ( n char --> ) HERE OVER ALLOT -ROT FILL ;
+: AllotFill  ( char n --> ) HERE OVER ALLOT -ROT FILL ;
 
 \ резервировать на HERE n байт памяти, заполнить их нулями
-: AllotErase ( n --> ) 0 AllotFill ;
+: AllotErase ( n --> ) 0 SWAP AllotFill ;
 
 \ -----------------------------------------------------------------------------
 
