@@ -73,16 +73,20 @@ VECT ON-RECEIVE ( a u -- )
 ' 2DROP TO ON-RECEIVE
 
 : (RECEIVE) ( -- )
+   BEGIN
+    lsock DataPending
+    10 PAUSE
+   UNTIL
    socketline fgets { s }
-   \ CR s STR@ TYPE
-   s STR@ ['] ON-RECEIVE CATCH IF 2DROP " Received data processing failed!" ECHO THEN
+   \ CR ." RECEIVED : " s STR@ TYPE
+   s STR@ ['] ON-RECEIVE CATCH IF 2DROP " Received data processing failed!" ECHO ABORT THEN
    s STRFREE ;
 
 
 :NONAME ( x -- )
   DROP
   BEGIN
-   ['] (RECEIVE) CATCH IF CR ." ERROR IN RECEIVE. EXITING..." QUIT THEN
+   ['] (RECEIVE) CATCH IF CR ." ERROR IN RECEIVE. EXITING..." BYE THEN
   AGAIN
   ; TASK: SimpleReceiveTask
 
