@@ -288,6 +288,13 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
   \ buf xb.content @  buf xb.use @
   buf 1 xmlBufferContent SWAP
 ;
+: XML_SERIALIZE_NODE_ENC ( encz-a encz-u node -- addr2 u2 ) \ ~ruv
+  0 xmlBufferCreate  >R
+  NIP 0 ROT R@ 3 xmlSaveToBuffer DUP 0= IF ABORT THEN ( options encoding-z buff -- ctxt )
+  DUP >R 2 xmlSaveTree -1 = IF ABORT THEN ( node ctxt -- )
+  R> 1 xmlSaveClose DUP -1 = IF ABORT THEN ( len )
+  R> 1 xmlBufferContent SWAP
+;
 \ see also: 
 \   xmlBufferFree ( xmlBufferPtr -- void )
 \   xmlSaveTree ( xmlNodePtr xmlSaveCtxtPtr -- long )
