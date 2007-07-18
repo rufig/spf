@@ -47,7 +47,11 @@ USER uMapiDir
 : MapiLogon { profile-a profile-u pass-a pass-u \ madll -- ior }
   MapiSaveDir
   0 ( см. не 0 для многопоточного ) MAPIInitialize MapiRestDir ?DUP IF EXIT THEN
-  uMapiSession 0x2033 pass-a profile-a 0 MAPILogonEx MapiRestDir ?DUP IF EXIT THEN
+  uMapiSession
+  \ 0x2033 
+  MAPI_EXTENDED MAPI_NEW_SESSION OR 
+  profile-a IF MAPI_EXPLICIT_PROFILE ELSE MAPI_USE_DEFAULT THEN OR
+  pass-a profile-a 0 MAPILogonEx MapiRestDir ?DUP IF EXIT THEN
   S" MAPI32.DLL" DLOPEN -> madll
   S" MAPIAllocateBuffer" madll DLSYM TO aMAPIAllocateBuffer
   S" MAPIFreeBuffer" madll DLSYM TO aMAPIFreeBuffer

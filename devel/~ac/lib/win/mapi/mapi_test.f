@@ -3,7 +3,9 @@ REQUIRE MapiListMessage  ~ac/lib/win/mapi/list.f
 
 HEX
 \ S" MGW" S" password" MapiLogon THROW  MapiGetStores
-S" Outlook" S" password" MapiLogon THROW  MapiGetStores
+\ S" Outlook" S" password" MapiLogon THROW  MapiGetStores
+\ профиль по умолчанию:
+0 0 0 0 MapiLogon THROW  MapiGetStores
 
 \ CR MapiStoresRS DumpRowSet
 \ CR MapiStoresRS PR_PROVIDER_DISPLAY S" MAPILab Group Folders" MapiRow@ 

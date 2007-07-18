@@ -1,6 +1,7 @@
 0x00000002 CONSTANT MAPI_NEW_SESSION          \ Don't use shared session     */
 0x00000010 CONSTANT MAPI_EXPLICIT_PROFILE     \ Don't use default profile		*/
 0x00000020 CONSTANT MAPI_EXTENDED             \ Extended MAPI Logon				*/
+0x00000040 CONSTANT MAPI_USE_DEFAULT          \ Use default profile in logon */
 0x00001000 CONSTANT MAPI_FORCE_DOWNLOAD       \ Get new mail before return		*/
 0x00002000 CONSTANT MAPI_SERVICE_UI_ALWAYS    \ Do logon UI in all providers		*/
 
