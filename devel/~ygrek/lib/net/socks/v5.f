@@ -55,7 +55,7 @@ CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
   buf step2 
   buf COUNT \ 2DUP DUMP
   sock WriteSocket 0= 7 MUST
-  buf 4 sock ReadSocket THROW 4 = 4 MUST
+  buf 4 sock ReadSocket 0= 11 MUST 4 = 4 MUST
   buf C@ 5 = 8 MUST
   buf 1 + C@ 0 = 9 MUST
   buf 2 + C@ 0 <> IF CR ." Warning: rsrv used" THEN
@@ -88,6 +88,7 @@ CREATE step1 3 C, ( count) 5 C, ( version) 1 C, ( methods) 0 C, ( noauth)
      8 OF S" Step2: bad proto version in reply" ENDOF
      9 OF S" Step2: CONNECT failed" ENDOF
     10 OF S" Step2: Domain format unsupported" ENDOF
+    11 OF S" Step2: No response" ENDOF
    ENDCASE ;
 
 : ETHROW DUP IF explain CR TYPE CR -1 THROW ELSE DROP THEN ;
