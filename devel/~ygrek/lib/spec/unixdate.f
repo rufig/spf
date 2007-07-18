@@ -6,9 +6,10 @@
 
 MODULE: FSL
  REQUIRE fsl-util ~diver/fsl-util.f
+ LT @ LTL @
  UNIX-LINES
   REQUIRE JDAY ~clf/fsl/dates.seq
- DOS-LINES
+ LTL ! LT ! 
  CR
 ;MODULE
 
