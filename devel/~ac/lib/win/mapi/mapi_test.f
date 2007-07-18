@@ -20,7 +20,10 @@ MapiGetRootFolderId MapiOpenFolder DROP
 DUP ( folder ) PR_DISPLAY_NAME  MapiProp@ ANSI>OEM TYPE CR \ дает "Корень личных папок"
     ( folder ) ' MapiListFolder MapiEnumSubfolders
 
-MapiOpenInbox DUP uMapiFolder ! ' MapiListMessage MapiEnumContent
+\ MapiOpenInbox DUP uMapiFolder ! ' MapiListMessage MapiEnumContent
+
+S" Inbox/me/Averin" MapiOpenFolderPath DUP uMapiFolder ! ' MapiListMessage MapiEnumContent
+S" Tasks/old (безнадежные :)" MapiOpenFolderPath DUP uMapiFolder ! ' MapiListMessage MapiEnumContent
 
 \ S" IPF.Task" MapiGetIPF MapiOpenFolder DROP
 \ DUP ( folder ) PR_DISPLAY_NAME  MapiProp@ ANSI>OEM TYPE CR \ дает "Корень личных папок"

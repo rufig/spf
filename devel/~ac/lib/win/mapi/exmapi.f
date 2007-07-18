@@ -99,6 +99,26 @@ USER uMapiDir
   0 ida idu MapiStore ::OpenEntry2 THROW
   folder ftype
 ;
+: MapiGetSubfolders { folder \ table rs -- rs }
+  ^ table 0 folder ::GetHierarchyTable THROW
+  ^ rs 0 0 0 0 table HrQueryAllRows@24 THROW
+  rs
+;
+: MapiGetSubfolderIdByName ( addr u folder -- ida idu )
+  MapiGetSubfolders PR_DISPLAY_NAME 2SWAP MapiRow@ DUP 0= IF 70003 THROW THEN
+  ( row ) PR_ENTRYID MapiRowProp@ 0= IF 70005 THROW THEN
+;
+: (MapiOpenFolderPath) ( -- folder )
+  MapiGetRootFolderId MapiOpenFolder DROP ( folder1 ) >R
+  BEGIN
+    [CHAR] / PARSE DUP
+  WHILE
+    R> MapiGetSubfolderIdByName MapiOpenFolder DROP >R
+  REPEAT 2DROP R>
+;
+: MapiOpenFolderPath ( addr u -- folder )
+  ['] (MapiOpenFolderPath) EVALUATE-WITH
+;
 : MapiGetIPF { class-a class-u \ root table rs -- ida idu } \ напр. IPF.Appointment, IPF.Task
   MapiGetRootFolderId MapiOpenFolder DROP -> root
   ^ table 0 root ::GetHierarchyTable THROW
