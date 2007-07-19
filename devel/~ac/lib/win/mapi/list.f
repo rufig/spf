@@ -20,7 +20,7 @@ REQUIRE MapiLogon ~ac/lib/win/mapi/exmapi.f
 ;
 
 : MapiListMessage { row \ msg -- }
-CR CR ." ==========================" CR
+CR CR ." ==========================" row PR_MESSAGE_CLASS MapiRowStr@ IF TYPE THEN CR
   row ( PR_SUBJECT) PR_NORMALIZED_SUBJECT MapiRowStr@ IF ANSI>OEM TYPE CR THEN
   row PR_BODY MapiRowStr@ IF ." ((" ANSI>OEM TYPE ." ))" CR THEN
   row PR_ENTRYID MapiRowProp@ 

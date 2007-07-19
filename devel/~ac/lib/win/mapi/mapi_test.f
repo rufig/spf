@@ -11,9 +11,10 @@ HEX
 \ CR MapiStoresRS PR_PROVIDER_DISPLAY S" MAPILab Group Folders" MapiRow@ 
 \ PR_DISPLAY_NAME MapiRowProp@ 2DROP ASCIIZ> ANSI>OEM TYPE CR
 
+MapiOpenDefaultStore
 \ S" MAPILab Group Folders" MapiOpenProvStore
 \ S" RAINBOW:Личные папки" MapiOpenStore
-S" Personal Folders" MapiOpenStore
+\ S" Personal Folders" MapiOpenStore
 \ S" Личные папки" MapiOpenStore
 
 MapiGetRootFolderId MapiOpenFolder DROP
@@ -22,8 +23,7 @@ DUP ( folder ) PR_DISPLAY_NAME  MapiProp@ ANSI>OEM TYPE CR \ дает "Корень личных
 
 \ MapiOpenInbox DUP uMapiFolder ! ' MapiListMessage MapiEnumContent
 
-S" Inbox/me/Averin" MapiOpenFolderPath DUP uMapiFolder ! ' MapiListMessage MapiEnumContent
-S" Tasks/old (безнадежные :)" MapiOpenFolderPath DUP uMapiFolder ! ' MapiListMessage MapiEnumContent
+S" Входящие/test" MapiOpenFolderPath DUP uMapiFolder ! ' MapiListMessage MapiEnumContent
 
 \ S" IPF.Task" MapiGetIPF MapiOpenFolder DROP
 \ DUP ( folder ) PR_DISPLAY_NAME  MapiProp@ ANSI>OEM TYPE CR \ дает "Корень личных папок"

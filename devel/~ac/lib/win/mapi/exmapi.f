@@ -71,6 +71,10 @@ USER uMapiDir
   MapiStoresRS PR_PROVIDER_DISPLAY 2SWAP MapiRow@ DUP 0= IF 70003 THROW THEN
   ( row ) PR_ENTRYID MapiRowProp@ 0= IF 70005 THROW THEN
 ;
+: MapiGetDefaultStoreId ( -- ida idu )
+  MapiStoresRS PR_DEFAULT_STORE 0 0x80040001 ( true) MapiRow@ DUP 0= IF 70006 THROW THEN
+  ( row ) PR_ENTRYID MapiRowProp@ 0= IF 70005 THROW THEN
+;
 : MapiOpenStore ( addr u -- )
   2>R
   uMapiStore MDB_WRITE 0
@@ -82,6 +86,12 @@ USER uMapiDir
   2>R
   uMapiStore MDB_WRITE 0
   2R> MapiGetStoreIdByProv
+  0 MapiSession ::OpenMsgStore THROW
+  MapiRestDir
+;
+: MapiOpenDefaultStore ( -- )
+  uMapiStore MDB_WRITE 0
+  MapiGetDefaultStoreId
   0 MapiSession ::OpenMsgStore THROW
   MapiRestDir
 ;
@@ -163,6 +173,7 @@ USER uMapiDir
 : MapiNewMessage { class-a class-u \ msg -- }
 \ IPM.Activity - Дневник, IPM.Task - Задачи, IPM.Note - Сообщение (Входящие)
 \ IPM.StickyNote - Заметка, IPM.Appointment - Событие (Календарь), IPM.Contact
+\ IPM.Post.Rss - пост в папке "RSS-каналы"
   ^ msg 0 0 MapiFolder ::CreateMessage THROW
   class-a class-u msg PR_MESSAGE_CLASS MapiProp!
           msg PR_CREATION_TIME MapiProp@ ( x1 x2 )
