@@ -7,8 +7,12 @@ REQUIRE ltcreate ~ygrek/lib/multi/msg.f
 REQUIRE GET-TIME-ZONE ~ac/lib/win/date/timezone.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
+REQUIRE UTF8>CP1251 ~ygrek/lib/iconv.f
 
 GET-TIME-ZONE
+ALSO libxml2.dll
+: nodeText-s node@ ?DUP IF 1 xmlNodeGetContent ASCIIZ> UTF8>CP1251 ELSE "" THEN ;
+PREVIOUS
 
 MODULE: bot_plugin_rss
 
@@ -66,14 +70,14 @@ MODULE: bot_plugin_rss
 \ lame :)
 : hide-email DUP " @" "  at " replace-str- ;
 
-: reply-rss { node | str1 -- }
-   node rss.item.title
-   node rss.item.author " {s}" TO str1
-   str1 hide-email STR@
+: reply-rss { node | title author -- }
+   S" title" node nodeText-s -> title
+   S" creator" node nodeText-s hide-email -> author
    node rss.item.timestamp my-date
-   " [{s}] {s} -- {s}" DUP STR@ S-SAY STRFREE
-   str1 STRFREE
-   S" link" node nodeText " {s}" DUP STR@ S-SAY STRFREE ;
+   " [{s}] {$author} -- {$title}" DUP STR@ S-SAY STRFREE
+   author STRFREE
+   title STRFREE
+   S" link" node nodeText-s DUP STR@ S-SAY STRFREE ;
 
 : process-and-stamp-rss=> ( stamp-a stamp-u data-a data-u -- node )
     \ S" Checking forum..." ECHO
@@ -92,6 +96,19 @@ MODULE: bot_plugin_rss
      }EMERGE
     \ S" Forum checked" ECHO
     ;
+
+: print-rss { node -- }
+   CR ." title=" node rss.item.title TYPE
+   CR ." author=" node rss.item.author TYPE
+   CR ." date=" node rss.item.timestamp my-date TYPE
+   CR ." link=" S" link" node nodeText-s STYPE 
+   CR ." description=" S" description" node nodeText-s STYPE 
+   ;
+
+EXPORT
+: debug-rss ( a u -- ) 
+   rss.items=> DUP print-rss ;
+DEFINITIONS   
 
 : process-rss-forum
    process-and-stamp-rss=> DUP reply-rss ;
