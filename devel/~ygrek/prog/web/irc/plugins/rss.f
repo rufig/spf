@@ -7,11 +7,11 @@ REQUIRE ltcreate ~ygrek/lib/multi/msg.f
 REQUIRE GET-TIME-ZONE ~ac/lib/win/date/timezone.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
-REQUIRE UTF8>CP1251 ~ygrek/lib/iconv.f
+REQUIRE UTF>WIN ~ygrek/lib/iconv.f
 
 GET-TIME-ZONE
 ALSO libxml2.dll
-: nodeText-s node@ ?DUP IF 1 xmlNodeGetContent ASCIIZ> UTF8>CP1251 ELSE "" THEN ;
+: nodeText-s node@ ?DUP IF 1 xmlNodeGetContent ASCIIZ> UTF>WIN ELSE "" THEN ;
 PREVIOUS
 
 MODULE: bot_plugin_rss
