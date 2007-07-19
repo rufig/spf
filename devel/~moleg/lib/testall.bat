@@ -42,6 +42,7 @@
 @st.exe .S" devel\~moleg\lib\util\queue.f"              TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\mtask\mutex.f"             TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\mtask\pmutex.f"            TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\arrays\arrays.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\arrays\buff.f"             TESTED CR BYE
