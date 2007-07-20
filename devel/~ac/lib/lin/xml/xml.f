@@ -293,11 +293,15 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
   NIP 0 ROT R@ 3 xmlSaveToBuffer DUP 0= IF ABORT THEN ( options encoding-z buff -- ctxt )
   DUP >R 2 xmlSaveTree -1 = IF ABORT THEN ( node ctxt -- )
   R> 1 xmlSaveClose DUP -1 = IF ABORT THEN ( len )
-  R> 1 xmlBufferContent SWAP
+  DROP \ т.к. врет иногда.
+  \ R@ 1 xmlBufferContent
+  R@ xb.content @ R> xb.use @
 ;
-\ see also: 
+\ see also:
 \   xmlBufferFree ( xmlBufferPtr -- void )
-\   xmlSaveTree ( xmlNodePtr xmlSaveCtxtPtr -- long )
+\   xmlNodeDumpOutput ( encoding format level node doc xmlOutputBufferPtr -- void )
+\   xmlOutputBufferCreateBuffer ( xmlCharEncodingHandlerPtr|0 xmlBufferPtr -- xmlOutputBufferPtr )
+\   xmlOutputBufferClose ( xmlOutputBufferPtr -- int )
 
 : XML_LIST_NODES { addr u \ doc -- }
   addr u XML_READ_DOC -> doc
