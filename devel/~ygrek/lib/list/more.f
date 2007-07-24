@@ -103,7 +103,7 @@ WARNING !
    REPEAT DROP ;
 
 \ bac4th-итератор по списку
-: list=> ( node <--> node1 )
+: list=> ( node --> node1 \ <-- )
    PRO
    BEGIN
     DUP empty? 0=
