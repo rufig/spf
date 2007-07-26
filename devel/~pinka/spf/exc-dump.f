@@ -12,8 +12,10 @@
 )
 
 REQUIRE NEW-STORAGE  ~pinka/spf/storage.f
-
 REQUIRE [UNDEFINED] lib/include/tools.f
+
+[DEFINED] AT-EXC-DUMP [IF] \EOF [THEN]
+
 
 [UNDEFINED] FOR-WORDLIST [IF]
 : FOR-WORDLIST  ( wid xt -- ) \ xt ( nfa -- )
