@@ -17,6 +17,9 @@
 
 REQUIRE [UNDEFINED] lib\include\tools.f
 REQUIRE Included ~pinka\lib\ext\requ.f
+
+[DEFINED] WID-EXTRA [IF] Include wid-extra2.f \EOF [THEN]
+
 REQUIRE REPLACE-WORD lib\ext\patch.f
 
 WARNING @  WARNING 0!
