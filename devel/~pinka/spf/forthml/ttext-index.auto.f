@@ -480,7 +480,9 @@ ALIGN HERE 0 , CONCEIVE LIT, BIRTH `a-trans NAMING-
 
 CONCEIVE `: SLIT, 
 `SPLIT- & EXEC, 
-`0= & EXEC, ZBFW, 0 LIT, 0 LIT, RFW 
+`0= & EXEC, ZBFW, 
+`2DUP & EXEC, `# SLIT, 
+`STARTS-WITH & EXEC, ZBFW, 0 LIT, 0 LIT, EXIT, RFW 0 LIT, 0 LIT, RFW 
 `Namespace-uri-for-prefix & EXEC, 
 BIRTH `name-n-uri NAMING- 
 CONCEIVE 

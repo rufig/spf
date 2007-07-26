@@ -3,7 +3,7 @@
 <!-- Feb.2007 ruvim@forth.org.ru -->
 
 <def name="name-n-uri" ds=" qname-a qname-u -- name-a name-u uri-a uri-u ">
-  `: SPLIT- 0= <if> 0 0 </if>  Namespace-uri-for-prefix
+  `: SPLIT- 0= <if> 2DUP `# STARTS-WITH <if> 0 0 <exit/></if> 0 0 </if>  Namespace-uri-for-prefix
 </def>
 
 <def name="advice-rule-after" ds=" xt -- ">
