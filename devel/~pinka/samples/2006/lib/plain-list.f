@@ -18,10 +18,10 @@
   SWAP >R DUP @  BEGIN DUP WHILE ( list node )
   DUP @ R@ = IF DROP RDROP TRUE EXIT THEN NIP CELL- DUP @ REPEAT RDROP NIP ( false )
 ;
-: ENUM-NODES ( xt list -- )  \ xt ( node -- )
+: FOREACH-LIST-NODE ( xt list -- )  \ xt ( node -- )
   @ BEGIN DUP WHILE 2DUP 2>R SWAP EXECUTE 2R> CELL- @ REPEAT 2DROP
 ;
-: ENUM-VALUES ( xt list -- )  \ xt ( node -- )
+: FOREACH-LIST-VALUE ( xt list -- )  \ xt ( node -- )
   @ BEGIN DUP WHILE 2DUP 2>R @ SWAP EXECUTE 2R> CELL- @ REPEAT 2DROP
 ;
 
