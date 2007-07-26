@@ -185,7 +185,7 @@ EXPORT
 
 [DEFINED] AT-STORAGE-DELETING [IF]
 
-..: AT-STORAGE-DELETING ['] DEL-WLHASH ENUM-FORTH-VOCS ;..
+..: AT-STORAGE-DELETING ['] DEL-WLHASH ENUM-VOCS-FORTH ;..
 
 [ELSE]
 
@@ -210,12 +210,12 @@ DEFINITIONS
 \ хэш-таблицы динамические, живут только в ОП,
 \ поэтому после запуска процесса ссылки на exth в заголовках словарей
 \ будут не действительны. Их надо обнулить. 
-  ['] WID-CACHEA0! ENUM-FORTH-VOCS
+  ['] WID-CACHEA0! ENUM-VOCS-FORTH
 ;
 
 : update-hashes ( -- )
 \ инициирует хэш-таблицы для всех словарей (по списку VOC-LIST)
-  ['] update-wlhash ENUM-FORTH-VOCS
+  ['] update-wlhash ENUM-VOCS-FORTH
 ;
 ( заполнение хэш-таблицы по первому поиску в словаре
   требует синхронизации для реентерабельности к многопоточности,
