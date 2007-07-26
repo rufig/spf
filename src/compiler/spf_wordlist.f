@@ -7,7 +7,18 @@
   Ревизия - сентябрь 1999, март 2000
 )
 
-USER LAST     \ указывает на поле имени последней 
+_VOC-LIST @
+
+VARIABLE _VOC-LIST \ список словарей
+
+' _VOC-LIST EXECUTE ! \ запись уже созданной цепочки
+' _VOC-LIST TO VOC-LIST  \ исправление в tc
+
+VECT VOC-LIST \ точка для модификаций
+' _VOC-LIST (TO) VOC-LIST \ начальное значение
+
+
+USER LAST     \ указывает на поле имени последней
               \ скомпилированной словарной статьи
               \ в отличие от LATEST, которое дает
               \ адрес последнего слова в CURRENT
@@ -55,6 +66,8 @@ DUP SPF-KERNEL-VERSION 1000 * + VALUE VERSION  \ Версия и номер билда SPF в виде
 CREATE BUILD-DATE
 NOWADAYS ,"
 
+: AT-WORDLIST-CREATING ( wid -- wid ) ... ;
+
 : WORDLIST ( -- wid ) \ 94 SEARCH
 \ Создает новый пустой список слов, возвращая его идентификатор wid.
 \ Новый список слов может быть возвращен из предварительно распределенных 
@@ -67,20 +80,24 @@ NOWADAYS ,"
        0 , \ здесь будет указатель на имя списка для именованых
        0 , \ wid словаря-предка
        0 , \ класс словаря = wid словаря, определяющего свойства данного
+       0 , \ reserved, для расширений
+
+  AT-WORDLIST-CREATING ( wid -- wid )
 ;
 \ для временных словарей дополнительные переменные:
 \       0 , \ адрес загрузки временного словаря (адрес привязки)
 \       0 , \ версия ядра, которой скомпилирован временный словарь
 \       0 , \ DP временного словаря (текущий размер)
 
+
 : TEMP-WORDLIST ( -- wid )
 \ создаст временный словарь (в виртуальной памяти)
 
   WL_SIZE ALLOCATE THROW DUP >R WL_SIZE ERASE
   -1      R@ ! \ не присоединяем к VOC-LIST, заодно признак временности словаря
-  R@      R@ 5 CELLS + !
-  VERSION R@ 6 CELLS + !
-  R@ 8 CELLS + DUP CELL- !
+  R@      R@ 6 CELLS + !
+  VERSION R@ 7 CELLS + !
+  R@ 9 CELLS + DUP CELL- !
   R> CELL+
 ;
 : FREE-WORDLIST ( wid -- )
@@ -91,6 +108,9 @@ NOWADAYS ,"
 : CLASS@ ( wid -- cls ) CELL+ CELL+ CELL+ @ ;
 : PAR!   ( Pwid wid -- ) CELL+ CELL+ ! ;
 : PAR@   ( wid -- Pwid ) CELL+ CELL+ @ ;
+: WID-EXTRA ( wid -- addr )  4 CELLS + ; \ свободная для расширений ячейка 
+\ Каждое расширение переопределяет это слово, чтобы даваемая ячейка была свободна.
+
 
 \ -5 -- cfa
 \ -1 -- flags
@@ -132,13 +152,17 @@ END-CODE
   COUNT TYPE
 ;
 
-: ?IMMEDIATE ( NFA -> F )
+: IS-IMMEDIATE ( NFA -> F )
   NAME>F C@ &IMMEDIATE AND
 ;
-
-: ?VOC ( NFA -> F )
+: IS-VOC ( NFA -> F )
   NAME>F C@ &VOC AND
 ;
+
+\ для обратной совместимости:
+: ?IMMEDIATE ( NFA -> F ) IS-IMMEDIATE ;
+: ?VOC ( NFA -> F ) IS-VOC ;
+
 
 : IMMEDIATE ( -- ) \ 94
 \ Сделать последнее определение словом немедленного исполнения.
@@ -153,26 +177,63 @@ END-CODE
 ;
 
 \ ==============================================
+\ рефлексивность - перебор словарей и слов
+
+: IS-CLASS-FORTH ( wid -- flag )
+  CLASS@ DUP 0= SWAP FORTH-WORDLIST = OR
+;
+: ENUM-VOCS ( xt -- )
+\ xt ( wid -- )
+  >R VOC-LIST @ BEGIN DUP WHILE
+    DUP CELL+ ( a wid ) R@ ROT >R
+    EXECUTE R> @
+  REPEAT DROP RDROP
+;
+: (ENUM-VOCS-FORTH) ( xt wid -- xt )
+  DUP IS-CLASS-FORTH IF SWAP DUP >R EXECUTE R> EXIT THEN DROP
+;
+: ENUM-VOCS-FORTH ( xt -- )
+\ перебор только обычных форт-словарей (у которых CLASS равен 0 или FORTH-WORDLIST )
+\ xt ( wid -- )
+  ['] (ENUM-VOCS-FORTH) ENUM-VOCS  DROP
+;
+: FOR-WORDLIST  ( wid xt -- ) \ xt ( nfa -- )
+  SWAP @ BEGIN  DUP WHILE ( xt NFA ) 2DUP 2>R SWAP EXECUTE 2R> CDR REPEAT  2DROP
+;
+
+\ ==============================================
 \ отладка - поиск слова по адресу в его теле
 
-: WL_NEAR_NFA ( addr wid - addr nfa | addr 0 )
-   CELL+ @
-   BEGIN 2DUP U<
-   WHILE CDR
-   REPEAT
+: (NEAREST1) ( addr 0|nfa1 nfa2 -- addr 0|nfa1|nfa2 )
+  DUP 0= IF DROP EXIT THEN >R
+  \ сравниваем xt (адреса начала кода, cfa @)
+  2DUP  DUP IF  NAME> THEN 1-
+  SWAP  R@ NAME> 1- ( a1 addr a2 ) WITHIN IF DROP R> EXIT THEN RDROP
+  \ 1- т.к. WITHIN строгое здесь
+;
+: (NEAREST2) ( addr nfa1 wid -- addr nfa2 )
+  ['] (NEAREST1) FOR-WORDLIST
+;
+: (NEAREST3) ( addr nfa1 -- addr nfa2 )
+  ['] (NEAREST2) ENUM-VOCS-FORTH
 ;
 
-: NEAR_NFA ( addr - nfa addr | 0 addr )
-   0 SWAP 
-   VOC-LIST
-   BEGIN  @ DUP
-   WHILE  DUP >R  WL_NEAR_NFA SWAP >R UMAX R>  R>
-   REPEAT DROP
+VECT (NEAREST-NFA) ( addr nfa1 -- addr nfa2 )
+
+' (NEAREST3) (TO) (NEAREST-NFA)
+
+: (WordByAddr) ( addr -- c-addr u )
+  0 (NEAREST-NFA)
+  DUP 0= IF 2DROP S" <?not in the image>" EXIT THEN
+  TUCK - 4096 U< IF COUNT EXIT THEN
+  DROP S" <?not found>"
+;
+: WordByAddr ( addr -- c-addr u )
+  ['] (WordByAddr) CATCH  ?DUP IF ."  EXC:" . DROP S" <?WordByAddr exception>" EXIT THEN
+  255 UMIN
 ;
 
-: WordByAddr  ( addr -- c-addr u )
-\ найти слово, телу которого принадлежит данный адрес
-   DUP         (DP) @ U> IF DROP S" <not in the image>" EXIT THEN
-   NEAR_NFA DROP  DUP 0= IF DROP S" <not found>"        EXIT THEN
-   COUNT
+\ для обратной совместимости:
+: NEAR_NFA ( addr -- nfa|0 addr )
+  0 (NEAREST3) SWAP
 ;
