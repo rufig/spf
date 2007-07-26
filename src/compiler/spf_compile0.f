@@ -29,7 +29,7 @@
 ;
 : DP ( -- addr ) \ переменная, содержащая HERE сегмента данных
   IS-TEMP-WL
-  IF GET-CURRENT 6 CELLS + ELSE (DP) THEN
+  IF GET-CURRENT 7 CELLS + ELSE (DP) THEN
 ;
 
 : ALLOT ( n -- ) \ 94
