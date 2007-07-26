@@ -228,7 +228,8 @@ DECIMAL
   THEN
 ;
 
-: VOC-LIST S" ' VOC-LIST EXECUTE" EVALUATE ;
+VECT VOC-LIST
+VARIABLE _VOC-LIST ' _VOC-LIST TO VOC-LIST
 
 : -ROT ( x1 x2 x3 -- x3 x1 x2 ) \ 94
     SWAP ROT SWAP
@@ -352,6 +353,7 @@ ALSO TC DEFINITIONS PREVIOUS
        0 , \ здесь будет указатель на имя списка для именованых
        0 , \ wid словаря-предка
        0 , \ класс словаря = wid словаря, определяющего свойства данного
+       0 , \ reserved, для расширений
 ;
 
 : --
