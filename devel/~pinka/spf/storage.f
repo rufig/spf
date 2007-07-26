@@ -78,16 +78,16 @@ S" storage-core.f" Included
   STORAGE-EXTRA @  CELL+ CELL+ @
 ;
 
-VOC-LIST @ ' VOC-LIST 
-( old-voc-list@  'voc-list )
+VOC-LIST @
+( old-voc-list@ )
 
-CREATE _VOC-LIST-EMPTY 0 , 
+CREATE _VOC-LIST-EMPTY 0 ,
 \ если кто-то захочет перебирать словари без подключения хранилища.
 
-: VOC-LIST ( -- addr )
+: VOC-LIST2 ( -- addr )
   STORAGE-ID IF STORAGE-EXTRA @ 3 CELLS + EXIT THEN _VOC-LIST-EMPTY
 ;
-' VOC-LIST SWAP REPLACE-WORD
+' VOC-LIST2 TO VOC-LIST
 
 : STORAGE-EXTRA ( -- a ) \ свободная ячейка
   STORAGE-EXTRA @ CELL+
@@ -118,24 +118,17 @@ CONSTANT FORTH-STORAGE  \ базовое хранилище форт-системы
 
 
 \ ==================================================
-
-Include enum-vocs.f  \ чтобы использовали новый VOC-LIST
-
-\ ========
 \ Чтобы при SET-CURRENT текущим становилось и хранилище, в котором расположен словарь,
 \ необходимо чтобы словарь знал свое хранилище.
 
-Require WidExtraSupport  wid-extra.f
-\ там определяется и WORDLIST с учетом нового VOC-LIST
-\ и ячейка WID-STORAGEA
+Require WidExtraSupport  wid-extra.f  \ ячейка WID-STORAGEA
 
 MODULE: WidExtraSupport
 
-: MAKE-EXTR ( wid -- )
+: MAKE-EXTR-STORAGE ( wid -- )
   STORAGE-ID SWAP WID-STORAGEA !
 ;
-
-..: AT-WORDLIST-CREATING DUP MAKE-EXTR ;..
+..: AT-WORDLIST-CREATING  DUP MAKE-EXTR-STORAGE ;..
 
 EXPORT
 
@@ -143,9 +136,10 @@ EXPORT
   WID-STORAGEA @
 ;
 
-' MAKE-EXTR ENUM-VOCS  \ прописываю STORAGE-ID для существующих словарей
+' MAKE-EXTR-STORAGE ENUM-VOCS-FORTH  \ прописываю STORAGE-ID для существующих словарей
 
 ;MODULE
+
 
 \ переопределяем все слова, завязанные на SET-CURRENT
 \ (т.к. оптимизатор делал подстановку, и перехвата только причинного слова недостаточно)
@@ -206,3 +200,5 @@ EXPORT
 ;
 
 WARNING !
+
+Include storage-enum.f
