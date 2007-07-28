@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 2007 -->
+<comment>
+Специальный вариант цепочечного кода.
+  Цепочка должна вырабатывать успех, пэтому
+  каждый следующий элемент исполняется только если
+  данный элемент вернул FALSE.
+</comment>
+
+<cell name="handle"> <xt-of name="FALSE"/> </cell>
+
+<rem>  signature of xt ( i*x -- j*x flag )
+       or more exact   ( i*x -- j*x true | i*x false )
+</rem>
+
+<def name="advice-after" ds=" xt -- ">
+  <p><exec> handle @ </exec> DUP <if><exit/></if> DROP <exec/></p> handle !
+</def>
+<def name="advice-before" ds=" xt -- ">
+  <p><exec/> DUP <if><exit/></if> DROP <exec> handle @ </exec></p> handle !
+</def>
+
+<def name="perform-chain" ds="i*x -- j*x flag">
+  handle @ EXECUTE
+</def>
+
+<def name="perform-chain-sure" ds="i*x -- j*x">
+  handle @ EXECUTE <if><exit/></if> ABORT
+</def>
+
+</forth>
