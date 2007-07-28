@@ -43,6 +43,12 @@
   2R> 2DROP FALSE
 </def>
 
+<def name="MATCH-STARTS" ds=" a u a-key u-key -- a-right u-right true | a u false">
+  2 PICK OVER ULT <if> 2DROP FALSE <exit/></if>
+  DUP >R
+  3 PICK R@ EQUAL 0EQ <if> RDROP FALSE <exit/></if>
+  SWAP R@ + SWAP R> - TRUE
+</def>
 
 <!-- some other -->
 
