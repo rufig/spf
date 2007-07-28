@@ -3506,17 +3506,17 @@ OP0 @ 2+ C@   XOR
 OP2 @ W@ 5589 XOR OR     \ 8955F8            MOV     F8 [EBP] , EDX
 
 OP1 @ W@ D8F7 XOR        \ F7D8              NEG     EAX
-OP1 @ W@ D0F7 XOR AND    \ F7D0              NOT     EAX
-OP1 @ C@ 58   XOR AND    \  58          POP     EAX
-OP1 @ W@ C123 XOR AND OR \  23C1           AND     EAX , ECX
+OP1 @ W@ D0F7 <> AND    \ F7D0              NOT     EAX
+OP1 @ C@ 58   <> AND    \  58          POP     EAX
+OP1 @ W@ C123 <> AND OR \  23C1           AND     EAX , ECX
 
 OP0 @ W@ ADD|XOR|OR|AND= 0=
-OP0 @ W@ 458B  XOR AND OR
+OP0 @ W@ 458B  <> AND OR
 \ OP0 @ W@ 4503 XOR OR \ 0345F8            ADD     EAX , F8 [EBP]
-0=  IF  M\ B6 DTST
+0=  IF  M\ 1B6 DTST
        C2 OP0 @ 1+ C!  \  ADD     EAX , EDX
        -1 ALLOT
-       FALSE  M\ B7 DTST
+       FALSE  M\ 1B7 DTST
        EXIT
    THEN
 
@@ -4538,7 +4538,7 @@ PREVIOUS PREVIOUS SET-CURRENT
 \        OP1 @  W@ 053B <> AND
 \        OP1 @  W@ D03B <> AND       \ CMP     EDX , EAX
         OP1 @   @ FFFD AND
-                  4539 XOR  AND      \ CMP    X [EBP] , EAX
+                  4539 <> AND      \ CMP    X [EBP] , EAX
         OP0 @ W@  C01B XOR OR OR 0=   \ SBB    EAX , EAX
         IF  M\ 3A DTST
             OP1 ToOP0
