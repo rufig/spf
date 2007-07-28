@@ -23,6 +23,8 @@ REQUIRE Require         ~pinka/lib/ext/requ.f
 
 MODULE: forthml-support
 
+EXPORT  CONTEXT @  CONSTANT forthml-hidden  DEFINITIONS
+
 [UNDEFINED] &
 
 REQUIRE GERM-A  ~pinka/spf/compiler/index.f
@@ -65,6 +67,10 @@ DOS-LINES
 `~pinka/model/trans/split-line.f.xml        FIND-FULLNAME EMBODY
 `~pinka/model/trans/rules-ext.f.xml         FIND-FULLNAME EMBODY
 
+\ отображение URI-баз (например, http://forth.org.ru/ на каталог локальной файловой системы)
+`~pinka/model/trans/xml-uri-map.f.xml       FIND-FULLNAME EMBODY
+
+
 TO ?C-JMP  \ оставлять включенным нельзя, т.к. дает глюки для r-чувствительных слов.
 
 
@@ -79,6 +85,7 @@ EXPORT
 `SUBSTRING-BEFORE   2DUP aka
 `SPLIT-             2DUP aka
 `SPLIT              2DUP aka
+`MATCH-STARTS       2DUP aka
 
 
 `IS-WHITE           2DUP aka
