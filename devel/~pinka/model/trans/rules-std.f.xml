@@ -90,9 +90,16 @@
 </rule>
 
 <rule match="f:also"><!-- immediately effect! -->
-  `apply GetAttribute &amp; EXECUTE ALSO CONTEXT !
+  `wordlist GetAttribute &amp; EXECUTE ALSO CONTEXT !
   <yield/>
   PREVIOUS
+</rule>
+
+<rule match="f:definitions"><mm>
+  GET-CURRENT >CS  CONTEXT @ SET-CURRENT
+  <yield/>
+  CS> SET-CURRENT
+  </mm>
 </rule>
 
 <rule match="f:const"><mm>
