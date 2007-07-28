@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+  xmlns:r="http://forth.org.ru/ForthML/Rules/"
+>
+<!-- Jul.2007 -->
+
+<also wordlist="forthml-hidden">
+
+<r:rule match="within-document-storage"><r:mm>
+  DISMOUNT >R document-storage MOUNT
+  <r:yield/>
+  DISMOUNT DROP R> MOUNT
+</r:mm>
+</r:rule>
+
+</also>
+
+<wordlist name="urimap-hidden">
+
+<def name="compose-uri" ds=" a-rest u-rest  a-base u-base -- a-uri u-uri ">
+  <within-document-storage>
+    HERE >R S, S, R> HERE 0 C, OVER -
+  </within-document-storage>
+</def>
+
+<include href="../data/code-list.f.xml"/>
+
+
+<def name="default-map" ds=" a u -- a1 u1 flag ">
+  `http://forth.org.ru/~ MATCH-STARTS <if> `devel/~ compose-uri FIND-FULLNAME TRUE <exit/></if>
+  FALSE
+</def>
+
+<export>
+
+<def name="add-uri-map" ds="a-src u-src a-trg u-trg -- ">
+  2SWAP
+  <p> <slit/> MATCH-STARTS <if> <slit/> compose-uri TRUE <exit/></if> FALSE </p>
+  advice-before
+</def>
+
+<def name="resolve-uri-map" ds=" a u -- a1 u1 ">
+  perform-chain DROP
+</def>
+
+<def name="reset-uri-map" ds=" -- ">
+  <xt-of name="default-map"/> handle !
+</def>
+
+  reset-uri-map <!-- (!!!) -->
+
+<r:rule match="uri-map"><r:mm>
+  <r:get-attribute name="base"/>
+  <r:get-attribute name="target"/>
+  add-uri-map
+</r:mm>
+</r:rule>
+
+<!-- example:
+  <uri-map base="local://my1/" target="c:/work/2007/my1/" />
+-->
+
+<also wordlist="DefaultLSParser"><definitions>
+
+<def name="ParseURI" ds=" a u -- doc ">
+  resolve-uri-map ParseURI
+</def>
+
+</definitions>
+</also>
+
+</export></wordlist>
+
+</forth>
