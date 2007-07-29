@@ -1,11 +1,14 @@
+\ $Id$
+\ Очереди сообщений и обмен данными между потоками
+\ сырое
+
 REQUIRE [IF] lib/include/tools.f
 REQUIRE STR@ ~ac/lib/str4.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE #define ~af/lib/c/define.f
 REQUIRE NEW-CS ~pinka/lib/multi/critical.f
 REQUIRE HEAP-ID! ~pinka/spf/mem.f
-\ REQUIRE EVALUATED-HEAP ~profit/lib/evaluated.f
-REQUIRE compiledCode ~profit/lib/bac4th-closures.f
+\ REQUIRE compiledCode ~profit/lib/bac4th-closures.f
 
 MODULE: multi
 
@@ -47,7 +50,6 @@ HEAP-ID VALUE process-heap
 
 : >STR ( a u -- s ) "" >R R@ STR+ R> ;
 : STRCOPY ( s -- s' ) STR@ >STR ;
-\ : compiledCode ( a u -- ) HERE >R EVALUATE, R> ;
 
 : CREATE-THREAD ( x task -- th ti )
   0 >R RP@
@@ -75,19 +77,30 @@ WINAPI: OpenThread KERNEL32.DLL
 
 : OPEN-THREAD ( ti -- th ior ) FALSE THREAD_ALL_ACCESS OpenThread ERR ;
 
+USER-VALUE _ti1
+
 : search-lt-by-ti ( ti -- lt|0 )
-  S" LITERAL SWAP .lt @ .ti @ <>" compiledCode
+  TO _ti1
+\  S" LITERAL SWAP .lt @ .ti @ <>" compiledCode
+  LAMBDA{ _ti1 SWAP .lt @ .ti @ <> } 
   list-of-lt ?ForEach
   DUP IF .lt @ THEN ;
 
+USER-VALUE _lt1
+
 : ?lt ( lt -- ? )
-  S" LITERAL SWAP .lt @ <> " compiledCode list-of-lt ?ForEach IF -1 ELSE 0 THEN ;
+  TO _lt1
+  \ S" LITERAL SWAP .lt @ <> " compiledCode
+  LAMBDA{ _lt1 SWAP .lt @ <> }
+  list-of-lt ?ForEach IF -1 ELSE 0 THEN ;
 
 : current-lt GetCurrentThreadId search-lt-by-ti ;
 
 : register ( lt -- ) list-of-lt AllocateNodeEnd .lt ! ;
 : unregister ( lt -- )
-    S" LITERAL OVER .lt @ = IF FreeNode FALSE ELSE DROP TRUE THEN" compiledCode
+    TO _lt1
+    \ S" LITERAL OVER .lt @ = IF FreeNode FALSE ELSE DROP TRUE THEN" compiledCode
+    LAMBDA{ _lt1 OVER .lt @ = IF FreeNode FALSE ELSE DROP TRUE THEN }
     list-of-lt ?ForEach DROP ;
 
 : lt. ( lt -- )
