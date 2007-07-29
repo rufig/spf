@@ -1,19 +1,34 @@
 \ $Id$
 
-: MemReport ;
-: ClearMemInfo ;
-\ ~day/lib/memreport.f
-\ ~ygrek/work/memreport/memreport1.f
+S" ~ygrek/~day/lib/memreport.f" INCLUDED
 
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
-REQUIRE RE" ~ygrek/lib/re/re.f
+REQUIRE re_match? ~ygrek/lib/re/re.f
 REQUIRE dottify ~ygrek/lib/re/dot.f
 REQUIRE re_search ~ygrek/lib/re/ext.f
 
 \ -----------------------------------------------------------------------
 
-TESTCASES regex parsing
+TESTCASES parsing (bad)
+
+CR .( NB: 'REGEX SYNTAX ERROR' messages are expected in this test!)
+
+(( S" (1"     dotto: error.dot -> FALSE ))
+(( S" (1++)"  dotto: error.dot -> FALSE ))
+(( S" ()"     dotto: error.dot -> FALSE ))
+(( S" +"      dotto: error.dot -> FALSE ))
+\ (( S" (3))"   dotto: error.dot -> FALSE )) \ это пока не ловится...
+(( S" 123(*)" dotto: error.dot -> FALSE ))
+(( S" a\bc"   dotto: error.dot -> FALSE ))
+
+ClearMemInfo \ тут утечки памяти за счёт некорректных регекспов - игнорируем
+
+END-TESTCASES
+
+\ -----------------------------------------------------------------------
+
+TESTCASES parsing
 
 (( S" 1+"               dotto: 01.dot -> TRUE ))
 (( S" (1+234*5?)"       dotto: 02.dot -> TRUE ))
@@ -27,18 +42,6 @@ TESTCASES regex parsing
 (( S" .*abc.*"          dotto: 10.dot -> TRUE ))
 (( S" \.\*ab\\c\.\*"    dotto: 11.dot -> TRUE ))
 (( S" for(th(er)?|um|)" dotto: 12.dot -> TRUE ))
-
-CR .( NB: 'REGEX SYNTAX ERROR' messages are expected in this test!)
-
-(( S" (1"     dotto: error.dot -> FALSE ))
-(( S" (1++)"  dotto: error.dot -> FALSE ))
-(( S" ()"     dotto: error.dot -> FALSE ))
-(( S" +"      dotto: error.dot -> FALSE ))
-\ (( S" (3))"   dotto: error.dot -> FALSE )) \ это пока не ловится...
-(( S" 123(*)" dotto: error.dot -> FALSE ))
-(( S" a\bc"   dotto: error.dot -> FALSE ))
-
-ClearMemInfo \ тут утечки памяти за счёт некорректных регекспов - игнорируем
 
 END-TESTCASES
 
@@ -117,7 +120,7 @@ TESTCASES regex matching character classes
 (( S" abc def" S" \w\w\w\W\w\w\w" stre_match? -> TRUE ))
 (( S" abc def" S" \S\S\S\s\S\S\S" stre_match? -> TRUE ))
 (( S" abc def" S" \S\S\S\W\S\S\S" stre_match? -> TRUE ))
-" {0x11 PAD C! PAD 1}abc{9 PAD C! PAD 1}def{CRLF}xyz" VALUE s
+" {0x11 PAD C! PAD 1}abc{9 PAD C! PAD 1}def{0x0D PAD C! 0x0A PAD 1+ C! PAD 2}xyz" VALUE s
 (( s STR@ S" \x11abc\tdef\r\nxyz" stre_match? -> TRUE ))
 s STRFREE
 
@@ -187,7 +190,7 @@ TESTCASES re_sub
 (( S" foosuper" re1 re_sub -> 8 ))
 (( S" foobarpupermatch" re1 re_sub -> 11 ))
 
-: re2 RE" (c\+\+|forth|php|ocaml)\srule" ;
+: re2 RE" (c\+\+|forth|php|ocaml) rule" ;
 (( S" ocaml rulez :-)" re1 re_sub -> 0 ))
 (( S" forth rulez :-)" re2 re_sub -> 10 ))
 (( S" php rulez (just kidding)" re2 re_sub -> 8 ))
@@ -260,6 +263,6 @@ END-TESTCASES
 0 regexp::set-default-groups \ чтобы утихомирить MemReport, удаляем результаты последнего сопоставления
 
 MemReport
-\ countMem NIP 1 = [IF] CR .( NB: It is not a leak but a dynamic buffer for ANSI-FILE) [THEN]
+countMem NIP 1 = [IF] CR .( NB: It is not a leak but a dynamic buffer for ANSI-FILE) [THEN]
 
 \EOF

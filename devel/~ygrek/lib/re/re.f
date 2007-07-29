@@ -540,9 +540,10 @@ end-input: fragment-final ;
    symbol re_cur_set set+
    отсюда 2 + re_limit >= IF EXIT THEN
    отсюда C@ [CHAR] - <> IF EXIT THEN
+   отсюда 1 + C@ [CHAR] ] = IF отсюда 1+ поставить-курсор EXIT THEN
    отсюда 1 + C@ DUP re_cur_set set+
    ( c1 ) symbol ( c1 c2 )
-   2DUP < IF CR ." Bad order" fragment-error THEN
+   2DUP < IF CR ." Bad order" fragment-error EXIT THEN
    ?DO I re_cur_set set+ LOOP
    отсюда 2 + поставить-курсор ;
 
@@ -777,15 +778,27 @@ STATE_MATCH_SET_NOT  asc: .set @ belong NOT ;
     z CELL + -> z
    LOOP ;
 
+
+EXPORT
+
 : set-default-groups
    re_def_groups ?DUP IF a:free THEN
    TO re_def_groups ;
 
-EXPORT
+: take-default-groups re_def_groups 0 TO re_def_groups ;
 
 : get-group ( n -- a u )
    re_def_groups 0= THROW
    re_def_groups get-sub ;
+
+: get-group-norm ( n -- u1 u2 )
+   0 get-group DROP SWAP get-group { a1 a u }
+   u 0= IF 0 0 EXIT THEN
+   a a1 - DUP u + ;
+
+: groups-total ( -- n )
+   re_def_groups 0= IF 0 EXIT THEN
+   re_def_groups a:n 2 / ;
 
 \ сопоставление RE и строки, без отслеживания подвыражений
 : re_fast_match? { a u re | s1 s2 -- ? }
