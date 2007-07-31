@@ -1,3 +1,12 @@
+\ Хаковатый подход: изменяем на время переноса 
+\ кода с одного адреса на другой таблицу переходов
+\ дизассемблера.
+\ (Да-да!.. А вы разве не знали что 
+\ lib/ext/disasm.f -- это автомат с двумя состояниями?..)
+
+\ При этом используется векторизируемость вывода/ввода
+\ и подавляется активность дизассемблера в этом аспекте
+
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE PRO ~profit/lib/bac4th.f
 REQUIRE LOCAL ~profit/lib/static.f
@@ -29,26 +38,35 @@ DROP \ SHOW-NAME \ смысл лишний раз копаться в словаре если всё равно не нужно п
 EXPORT
 
 \ итератор ссылок
-: references=> ( xt --> jump place / <-- jump place ) PRO
+: references=> ( xt end --> jump place / <-- jump place ) PRO
+
+\ Временное переключение реакций на маш. команды начинающиеся
+\ с 0xE8 и 0xE9 на "наши" слова
 ['] JSR OP-TABLE 0xE8 CELLS + B!
 ['] JMP OP-TABLE 0xE9 CELLS + B!
+
+\ Временное подавление вывода/ввода дизассемблера
 ['] 2DROP ['] TYPE CFL + B!
 ['] BL ['] KEY CFL + B!
-REST ;
+REST-AREA ;
 
 \ исправление всех ссылок
-: correct-jumps ( xt start -- ) LOCAL delta
-OVER - delta !
+: correct-jumps ( xt end start -- ) LOCAL delta
+SWAP >R OVER - delta ! R>
 references=> OVER delta @ + delta @ NEGATE SWAP +! ;
 
-: COPY-CODE ( xt -- ) \ копирование в кодофайл кода начиная с xt до конца слова (TODO: решить неявное указание конца)
-HERE SWAP DUP DUP FIND-REST-END OVER - HERE SWAP DUP ALLOT CMOVE
-SWAP correct-jumps ;
+: COPY-CODE-END ( xt end -- ) \ копирование в кодофайл кода начиная с xt до конца слова
+OVER 2DUP - ( xt end xt len ) HERE DUP >R SWAP DUP ALLOT CMOVE
+( xt end ) R> correct-jumps ;
+
+: COPY-CODE ( xt -- )
+DUP FIND-REST-END COPY-CODE-END ;
+
+: DUPLICATE ' NextWord SHEADER COPY-CODE RET, ;
 
 ;MODULE
 
 }}
-
 
 /TEST
 
@@ -58,19 +76,25 @@ HERE
 10 0 DO I LOOP
 S" str" OVER + SWAP DO I C@ LOOP ;
 
-
 : destination [ ' source COPY-CODE ] ;
+
+DUPLICATE DP DP1
+
+\ SEE DP1
 
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
 TESTCASES code copying
 (( source       -> 10 DUP * HERE 0 1 2 3 4 5 6 7 8 9 CHAR s CHAR t CHAR r ))
 (( destination  -> 10 DUP * HERE 0 1 2 3 4 5 6 7 8 9 CHAR s CHAR t CHAR r ))
+(( DP1 -> DP ))
 END-TESTCASES
 
 \ SEE source  SEE destination
 
 \EOF
+
+
 
 
 \ Неиспользованные (неиспользуемые?) инструкции из lib/ext/disasm.f :
