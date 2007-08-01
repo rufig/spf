@@ -41,7 +41,7 @@ REQUIRE FileExists        ~ac/lib/win/file/file-exists.f
 ;
 : CAR { oid \ data id item s pa -- item }
   TEMP-WORDLIST -> item
-  HERE /WIN32_FIND_DATA item OBJ-NAME! \ внимание, "имя" бинарное!
+  ( HERE) PAD /WIN32_FIND_DATA item OBJ-NAME! \ внимание, "имя" бинарное!
   [ GET-CURRENT ] LITERAL item CLASS!
   oid item PAR!
   item OBJ-NAME@ DROP -> data
