@@ -12,13 +12,6 @@ S" LIB\EXT\CASE.F" INCLUDED
 : COMPILE ' POSTPONE LITERAL POSTPONE COMPILE, ; IMMEDIATE
 : (;CODE) R> LATEST 5 - ! ;
 : -IF POSTPONE DUP POSTPONE IF ; IMMEDIATE
-[IFNDEF] ALIAS
-: ALIAS         ( xt -<name>- )            \ W32F
-\ *G Creates an alias of a word that is non-imediate (unless IMMEDIATE is used).
-\ *P NOTE View of either name can go to the synonym instead (it depends which name
-\ ** is found first in a full dictionary search).
-                HEADER LAST-CFA ! ;
-[THEN] 
 
 VECT EXIT-ASSEMBLER
 
@@ -27,10 +20,11 @@ VOCABULARY ASSEMBLER
 [IFNDEF] ((
 : ((  ( -- )
   BEGIN
-    PARSE-WORD DUP 0=
+    PARSE-NAME DUP 0=
     IF  NIP  REFILL   0= IF DROP TRUE THEN
     ELSE  S" ))" COMPARE 0=  THEN
   UNTIL
 ; IMMEDIATE
 
 [THEN]
+
