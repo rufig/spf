@@ -34,7 +34,7 @@ REQUIRE ForEachDirWRstr   ~ac/lib/ns/iter.f
 
 : CAR { node -- node }
   node OBJ-DATA@ DUP
-  IF firstNode
+  IF 1stNode
      DUP node OBJ-DATA! 0= IF 0 ELSE node THEN
   THEN
 ;
