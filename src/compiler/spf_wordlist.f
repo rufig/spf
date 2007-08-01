@@ -235,5 +235,5 @@ VECT (NEAREST-NFA) ( addr nfa1 -- addr nfa2 )
 
 \ для обратной совместимости:
 : NEAR_NFA ( addr -- nfa|0 addr )
-  0 (NEAREST3) SWAP
+  0 (NEAREST-NFA) SWAP
 ;
