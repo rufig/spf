@@ -7,9 +7,12 @@ S" ~ygrek/prog/web/irc/plugins/spf.f" INCLUDED
 S" ~ygrek/prog/web/irc/plugins/bar.f" INCLUDED
 S" ~ygrek/prog/web/irc/plugins/weather.f" INCLUDED
 S" ~ygrek/prog/web/irc/plugins/httpreport.f" INCLUDED
+S" ~ygrek/prog/web/irc/plugins/history.f" INCLUDED
+S" ~ygrek/prog/web/irc/plugins/title.f" INCLUDED
 
 " exsample" TO nickname
 S" irc.run.net:6669" server!
-S" localhost:9050" proxy!
+\ S" localhost:9050" proxy!
+S" " proxy!
 CONNECT
 /JOIN #forth

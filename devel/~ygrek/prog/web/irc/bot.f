@@ -1,3 +1,6 @@
+REQUIRE ACCERT( lib/ext/debug/accert.f
+0 ACCERT-LEVEL ! \ не компилировать ACCERT'ы
+
 REQUIRE VOC-IRC-COMMAND ~ygrek/lib/net/irc/conn.f
 REQUIRE NFA=> ~ygrek/lib/wid.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
@@ -6,7 +9,7 @@ REQUIRE TIME&DATE lib/include/facil.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 REQUIRE ltcreate ~ygrek/lib/multi/msg.f
 REQUIRE #N## ~ac/lib/win/date/date-int.f
-REQUIRE lst( ~ygrek/lib/list/all.f
+REQUIRE %[ ~ygrek/lib/list/all.f
 REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
 REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
 
@@ -26,10 +29,12 @@ REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
 
 : (DO-LOG-TO-FILE) ( a u -- ) CURRENT-LOG-FILE ATTACH-LINE-CATCH DROP ;
 
-: RAW-LOG ( a u -- )
+: AS-LOG-STR ( a u -- s )
    CURRENT-TIME { m h }
    <# m #N## [CHAR] : HOLD h #N## 0 0 #>
-   " {s}|{s}" DUP STR@ 2DUP ECHO (DO-LOG-TO-FILE) STRFREE ;
+   " {s}|{s}" ;
+   
+: RAW-LOG AS-LOG-STR { s } s STR@ ECHO s STR@ (DO-LOG-TO-FILE) s STRFREE ;
 
 FALSE VALUE ?check
 
@@ -108,6 +113,8 @@ MODULE: BOT-COMMANDS-NOTFOUND
 : CHECK-MSG ( -- ? )
    FALSE TO ?check
 
+   ACCERT( ." CHECK-MSG" CR )
+
    GET-ORDER
    ONLY BOT-COMMANDS
    ALSO BOT-COMMANDS-NOTFOUND
@@ -135,7 +142,11 @@ MODULE: BOT-COMMANDS-NOTFOUND
 
 MODULE: VOC-IRC-COMMAND
 
-: PRIVMSG ['] EXECUTE xt-on-privmsg list-find 2DROP ;
+: PRIVMSG 
+   ACCERT( ." PRIVMSG of bot" CR )
+   ['] EXECUTE xt-on-privmsg list-find 
+   ACCERT( ." PRIVMSG of bot almost done" CR )
+   2DROP ;
 
 : 433 BYE ; \ nickname already in use
 : ERROR BYE ; \

@@ -41,8 +41,12 @@ EXPORT
 : quotes-file! s-quotes-file STR! ;
 : quotes-total quotes length ;
 
+\ ~ygrek/lib/debug/inter.f
+
 : load-quotes
-  quotes FREE-LIST
+  \ quotes FREE-LIST
+  CR ." REMINDER: BUG! MEMORY LEAK. Cant do FREE-LIST cause it is in another thread. Fix it (easy)"
+  () TO quotes
   %[
   START{
    quotes-file FileLines=>
@@ -80,7 +84,7 @@ EXPORT
    re STRFREE ;
 
 : register-quote ( quote-au author-au -- )
-   " {s} {s}" DUP STR@ quotes-file ATTACH-LINE-CATCH DROP STRFREE
+   " {s} {s}" DUP STR@ quotes-file ATTACH-LINE-CATCH DROP STRFREE 
    load-quotes ;
 
 ;MODULE

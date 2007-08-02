@@ -73,5 +73,6 @@ lst(
           print-authors
    } l mapcar ;
 
+0 0 0 1 6 2007 DateTime>Num commits. \ Since spf-devel-20070601 snapshot
 0 0 0 1 4 2007 DateTime>Num commits. \ Since spf-devel-20070401 snapshot
 0 0 0 1 12 2006 DateTime>Num commits. \ Since SPF 4.18
