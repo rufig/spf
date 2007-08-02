@@ -81,10 +81,13 @@ USER <escape_tmp
 VARIABLE DeBlobDebug
 
 : DeBlob { addr u -- a2 u2 }
-  DeBlobDebug @ IF CR ." DeBlob: " 2DUP . . 2DUP DUMP CR CR THEN
+  DeBlobDebug @ IF ." DeBlob: " addr u . . addr u DUMP CR CR THEN
+  u 2 < IF addr u EXIT THEN
   u 0 ?DO
     addr I + C@ 16 DIGIT DROP 4 LSHIFT
-    addr I + 1+ C@ 16 DIGIT DROP OR
+    addr I + 1+ C@ 16 DIGIT 
+                      0= IF addr u UNLOOP EXIT THEN \ mysql обманул, это не blob, а например кириллица...
+                      OR
     addr I 2/ + C!
   2 +LOOP addr u 2/
   2DUP S" " 1+ \ ищем нулевые байты
@@ -111,8 +114,10 @@ VARIABLE DeBlobDebug
       OVER C@ 0= IF 2DROP S" " THEN
       DUP 1 < 
       IF 2DROP S" 0" 
-      ELSE &escape <escape THEN 
-I 1+ SqlQ @ ColType SqlIsBinary IF DeBlob THEN
+      ELSE
+        I 1+ SqlQ @ ColType SqlIsBinary IF DeBlob THEN
+        &escape <escape 
+      THEN 
       2OVER
       " <{s}>{s}</{s}>" s S+
     LOOP DROP
