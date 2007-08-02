@@ -11,9 +11,12 @@ WARNING 0! \ чтобы не было сообщений isn't unique
 
 WARNING 0! 
 
-S" lib\ext\spf-asm.f"            INCLUDED
-S" lib\include\tools.f"          INCLUDED
-S" src\spf_compileoptions.f"     INCLUDED
+: PARSE-NAME NextWord ;
+: UMIN 2DUP U< IF DROP EXIT THEN NIP ;
+
+S" ~mak\LIB\ext\spf-asm.f"    INCLUDED
+S" lib\include\tools.f"       INCLUDED
+S" src\spf_compileoptions.f"  INCLUDED
 
 ALSO ASSEMBLER DEFINITIONS
 PREVIOUS DEFINITIONS
@@ -23,8 +26,6 @@ PREVIOUS DEFINITIONS
 C" M_WL" FIND NIP 0=
 [IF] : M_WL  CS-DUP POSTPONE WHILE ; IMMEDIATE
 [THEN]
-
-: PARSE-NAME NextWord ;
 
 : CASE 
   CSP @ SP@ CSP ! ; IMMEDIATE
