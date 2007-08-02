@@ -81,18 +81,21 @@ USER <escape_tmp
 VARIABLE DeBlobDebug
 
 : DeBlob { addr u -- a2 u2 }
-  DeBlobDebug @ IF ." DeBlob: " addr u . . addr u DUMP CR CR THEN
+  DeBlobDebug @ IF ." DeBlob: " addr u . . addr u DUMP CR THEN
   u 2 < IF addr u EXIT THEN
   u 0 ?DO
-    addr I + C@ 16 DIGIT DROP 4 LSHIFT
+    addr I +    C@ 16 DIGIT
+                      0= IF addr u UNLOOP DeBlobDebug @ IF ." DeBlobResult: " 2DUP TYPE CR CR THEN EXIT THEN \ mysql обманул, это не blob, а например кириллица...
+                      4 LSHIFT
     addr I + 1+ C@ 16 DIGIT 
-                      0= IF addr u UNLOOP EXIT THEN \ mysql обманул, это не blob, а например кириллица...
+                      0= IF DROP addr u UNLOOP DeBlobDebug @ IF ." DeBlobResult: " 2DUP TYPE CR CR THEN EXIT THEN
                       OR
     addr I 2/ + C!
   2 +LOOP addr u 2/
   2DUP S" " 1+ \ ищем нулевые байты
   SEARCH NIP NIP
   IF " <![CDATA[{s}]]>" STR@ THEN
+  DeBlobDebug @ IF ." DeBlobResult: " 2DUP TYPE CR CR THEN
 ;
 : SqlIsBinary ( type -- flag )
   DeBlobDebug @ IF ." Type: " DUP . THEN
