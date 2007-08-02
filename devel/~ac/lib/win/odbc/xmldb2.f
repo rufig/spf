@@ -79,8 +79,13 @@ USER <escape_tmp
   <escape_tmp @ STR@
 ;
 VARIABLE DeBlobDebug
+USER uDisableDeblob
+: disable-deblob
+  TRUE uDisableDeblob !
+;
 
 : DeBlob { addr u -- a2 u2 }
+  uDisableDeblob @ IF addr u EXIT THEN
   DeBlobDebug @ IF ." DeBlob: " addr u . . addr u DUMP CR THEN
   u 2 < IF addr u EXIT THEN
   u 0 ?DO
