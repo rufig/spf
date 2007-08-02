@@ -5,9 +5,10 @@
 )
 
 ( Реализация для подпрограммного шитого кода.
-  ESP - указатель стека возвратов
-  EBP - указатель стека данных
-  EDI - сохраняемый регистр [указатель данных потока в SPF]
+  EAX       Top of Stack
+  EBP       Data Stack
+ [EBP]      Second item on Stack
+  ESP       Return Stack
 )
 
 HEX
@@ -43,30 +44,34 @@ END-CODE
 
 CODE MAX ( n1 n2 -- n3 ) \ 94
 \ n3 - большее из n1 и n2.
-     CMP EAX, [EBP]
-     JL  # ' DROP
+     MOV     EDX, [EBP]
+     CMP     EDX, EAX
+     CMOVG   EAX, EDX
      LEA EBP, 4 [EBP]
      RET
 END-CODE
 
 CODE MIN ( n1 n2 -- n3 ) \ 94
  \ n3 - меньшее из n1 и n2.
-     CMP EAX, [EBP]
-     JG  # ' DROP
+     MOV     EDX, [EBP]
+     CMP     EDX, EAX
+     CMOVL   EAX, EDX
      LEA EBP, 4 [EBP]
      RET
 END-CODE
 
 CODE UMAX ( n1 n2 -- n3 ) \ 94
-     CMP EAX, [EBP]
-     JB  # ' DROP
+     MOV     ECX, [EBP]
+     CMP     ECX, EAX
+     CMOVA   EAX, ECX
      LEA EBP, 4 [EBP]
      RET
 END-CODE
 
 CODE UMIN ( n1 n2 -- n3 ) \ 94
-     CMP EAX, [EBP]
-     JA  # ' DROP
+     MOV     ECX, [EBP]
+     CMP     ECX, EAX
+     CMOVB   EAX, ECX
      LEA EBP, 4 [EBP]
      RET
 END-CODE
@@ -90,12 +95,12 @@ END-CODE
 CODE 2SWAP ( x1 x2 x3 x4 -- x3 x4 x1 x2 ) \ 94
 \ Поменять местами две верхние пары ячеек.
      MOV ECX, [EBP]
-     MOV EBX, 4 [EBP]
-     MOV EDX, 8 [EBP]
+     MOV EDX, 4 [EBP]
+     MOV EBX, 8 [EBP]
      MOV 8 [EBP], ECX
      MOV 4 [EBP], EAX
-     MOV [EBP], EDX
-     MOV EAX, EBX
+     MOV [EBP], EBX
+     MOV EAX, EDX
      RET
 END-CODE
 
@@ -145,7 +150,7 @@ CODE PICK ( xu ... x1 x0 u -- xu ... x1 x0 xu ) \ 94 CORE EXT
 \ Убрать u. Копировать xu на вершину стека. Неопределенная ситуация
 \ возникает, если перед выполнением PICK на стеке меньше,
 \ чем u+2 элементов.
-     A; 8B C, 44 C, 85 C, 00 C,  \    MOV    EAX, [EBP + EAX*4 ]
+        MOV     EAX, [EBP] [EAX*4]
      RET
 END-CODE
 
@@ -160,9 +165,9 @@ CODE ROLL ( xu xu-1 ... x0 u -- xu-1 ... x0 xu ) \ 94 CORE EXT
      MOV EDX, EBP
      ADD EDX, EAX
      MOV EBX, [EDX]
-@@2: LEA EDX, -4 [EDX]
-     MOV EAX, [EDX]
-     MOV 4 [EDX], EAX
+@@2: LEA EDX, -4 [EDX]    \  DEC ECX
+     MOV EAX, [EDX]       \  MOV EAX, [EDX+ECX*4]
+     MOV 4 [EDX], EAX     \  MOV [EDX+ECX*4+4], EAX
      DEC ECX
      JNZ SHORT @@2
      MOV EAX, EBX
@@ -446,26 +451,26 @@ CODE INVERT ( x1 -- x2 ) \ 94
      RET
 END-CODE
 
-CODE NEGATE ( n1 -- n2 ) \ 94 
+CODE NEGATE ( n1 -- n2 ) \ 94
 \ n2 - арифметическая инверсия n1.
        NEG EAX
        RET
 END-CODE
 
-CODE DNEGATE ( d1 -- d2 ) \ 94 DOUBLE
-\ d2 результат вычитания d1 из нуля.
-       MOV EDX, [EBP]
-       NEG EAX
-       NEG EDX
-       SBB EAX, # 0
-       MOV [EBP], EDX
-       RET
-END-CODE
-
 CODE ABS ( n -- u ) \ 94
 \ u - абсолютная величина n.
-       OR EAX, EAX
-       JS # ' NEGATE
+    MOV     ECX, EAX
+    SAR     ECX, 1F
+    XOR     EAX, ECX
+    SUB     EAX, ECX
+    RET
+END-CODE
+
+CODE DNEGATE ( d1 -- d2 ) \ 94 DOUBLE
+\ d2 результат вычитания d1 из нуля.
+       NEG     EAX
+       NEG     DWORD [EBP]
+       SBB     EAX, # 0
        RET
 END-CODE
 
@@ -475,9 +480,10 @@ END-CODE
 
 CODE S>D ( n -- d ) \ 94
 \ Преобразовать число n в двойное число d с тем же числовым значением.
+     CDQ
      LEA EBP, -4 [EBP]
      MOV [EBP], EAX
-     SAR EAX, # 1F \ 31
+     MOV EAX, EDX
      RET
 END-CODE
 
@@ -513,7 +519,7 @@ END-CODE
 CODE / ( n1 n2 -- n3 ) \ 94
 \ Делить n1 на n2, получить частное n3.
 \ Исключительная ситуация возникает, если n2 равен нулю.
-\ Если n1 и n2 различаются по знаку - возвращаемый результат зависит от 
+\ Если n1 и n2 различаются по знаку - возвращаемый результат зависит от
 \ реализации.
        MOV ECX, EAX
        MOV EAX, [EBP]
@@ -526,8 +532,8 @@ END-CODE
 CODE U/ ( W1, W2 -> W3 ) \ беззнаковое деление W1 на W2
        MOV ECX, EAX
        MOV EAX, [EBP]
-       LEA EBP, 4 [EBP]
        XOR EDX, EDX
+       LEA EBP, 4 [EBP]
        DIV ECX
        RET
 END-CODE
@@ -544,7 +550,7 @@ END-CODE
 CODE MOD ( n1 n2 -- n3 ) \ 94
 \ Делить n1 на n2, получить остаток n3.
 \ Исключительная ситуация возникает, если n2 равен нулю.
-\ Если n1 и n2 различаются по знаку - возвращаемый результат зависит от 
+\ Если n1 и n2 различаются по знаку - возвращаемый результат зависит от
 \ реализации.
        MOV ECX, EAX
        MOV EAX, [EBP]
@@ -599,12 +605,11 @@ END-CODE
 CODE */MOD ( n1 n2 n3 -- n4 n5 ) \ 94
 \ Умножить n1 на n2, получить промежуточный двойной результат d.
 \ Разделить d на n3, получить остаток n4 и частное n5.
-       MOV     EBX, EAX
-       MOV     EAX, [EBP]
-       MOV     ECX, 4 [EBP]
-       IMUL    ECX
-       IDIV    EBX
-       MOV     4 [EBP], EDX
+       MOV     ECX, EAX
+       MOV     EAX, [EBP]      \ n2
+       IMUL    DWORD 4 [EBP]   \ n1*n2
+       IDIV    ECX             \ n1*n2/n3
+       MOV     4 [EBP], EDX    \ rem
        LEA EBP, 4 [EBP]
        RET
 END-CODE
@@ -662,7 +667,6 @@ CODE FM/MOD ( d1 n1 -- n2 n3 ) \ 94
 \ Входные и выходные аргументы знаковые.
 \ Неоднозначная ситуация возникает, если n1 ноль, или частное вне
 \ диапазона одинарных знаковых чисел.
-
         MOV ECX, EAX
         MOV EDX, 0 [EBP]
         MOV EBX, EDX
@@ -678,6 +682,7 @@ CODE FM/MOD ( d1 n1 -- n2 n3 ) \ 94
         MOV 0 [EBP], EDX
         RET
 END-CODE
+
 
 CODE DIGIT \ [ C, N1 -> N2, TF / FF ] \ N2 - значение литеры C как
            \ цифры в системе счисления по основанию N1
