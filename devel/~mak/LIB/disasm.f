@@ -11,15 +11,34 @@
 \ 15-11-2000 Fixed MV2 (Yakimov)
 \ 25-12-2000 Added float literals recognition (Yakimov)
 \ 26-07-2001 Fixed MVX (Maksimov)
+\ 11-05-2004 Fixed FDA and CMV (Serguei Jidkov)
 
 CR .( Loading Intel Pentium MMX disassembler...)
 
+WARNING @
+BASE @
+GET-CURRENT
+( warn base wid )
+
 WARNING 0!
 
-REQUIRE [IF] ~mak\CompIF.f
+DECIMAL
+
+REQUIRE [DEFINED] lib/include/tools.f
+\ REQUIRE [IF] ~mak\CompIF.f
+
 REQUIRE CASE lib\ext\case.f
-REQUIRE WITHIN lib\include\core-ext.f
+\ REQUIRE WITHIN lib\include\core-ext.f
+C" NEAR_NFA" FIND NIP 0=
+[IF] : NEAR_NFA ( addr -- NFA addr | 0 addr ) DUP  WordByAddr DROP 1- SWAP
+        2DUP 1000 - U< IF NIP 0 SWAP THEN ;
+[THEN]
+
+REQUIRE NextNFA lib\ext\vocs.f
+
 : DEFER VECT ;
+
+: DUP>R R> OVER >R >R ;
 
 : UMAX ( D1 D2  -- FLAG )
    2DUP U< IF NIP ELSE DROP THEN ;
@@ -89,8 +108,6 @@ C" UPC" FIND NIP 0=
                 0 <# R> 0 ?DO # LOOP #> TYPE
                 R> BASE ! ;
 
-ONLY FORTH ALSO DEFINITIONS
-
 0 VALUE DEFAULT-16BIT?
 
 : DEFAULT-16BIT ( -- )
@@ -104,9 +121,7 @@ ONLY FORTH ALSO DEFINITIONS
 0 VALUE BASE-ADDR
 
 VOCABULARY DISASSEMBLER
-DISASSEMBLER ALSO DEFINITIONS
-
-DECIMAL
+ALSO DISASSEMBLER DEFINITIONS
 
 CREATE S-BUF MAXSTRING ALLOT
 
@@ -154,10 +169,6 @@ CREATE S-BUF MAXSTRING ALLOT
                 0 <# #S #> R> OVER -   SSPACES >S
                 R> BASE ! ;
 
-C" NEAR_NFA" FIND NIP 0=
-[IF] : NEAR_NFA ( addr -- NFA addr | 0 addr ) DUP  WordByAddr DROP 1- SWAP
-        2DUP 1000 - U< IF NIP 0 SWAP THEN ;
-[THEN]
 
 : ?.NAME>S      ( CFA -- )
 \ ELIMINATE " 0X"
@@ -323,7 +334,7 @@ C" NEAR_NFA" FIND NIP 0=
         COUNT DUP 3 RSHIFT REG .,  MOD-R/M ;
 
 : R/M,R  ( ADR -- ADR' )
-        COUNT DUP >R MOD-R/M ., R> 3 RSHIFT REG ;
+        COUNT DUP>R MOD-R/M ., R> 3 RSHIFT REG ;
 
 : R/M  ( ADR OP -- ADR' )
         2 AND
@@ -771,7 +782,8 @@ INH UD1 UD1
         THEN ;
 
 : ENT  ( ADDR OP -- ADDR' )
-        .S" ENTER   " W@+ . ., COUNT H.>S ;
+       DROP
+        .S" ENTER   " W@+ H.>S ., COUNT H.>S ;
 
 : CIS   ( ADDR OP -- ADDR' )
         0x9A =
@@ -988,7 +1000,7 @@ STR SCS SCAS
 : FDA   ( ADDR OP -- )
         DROP COUNT DUP 0xC0 <
         IF      DUP FALU3 .S" DWORD " MOD-R/M
-        ELSE    0xE9 =
+        ELSE    DUP 0xE9 =
                 IF      .S" FUCOMPP" DROP
                 ELSE    DUP FCMOVA STI.
                 THEN
@@ -1170,7 +1182,7 @@ STR SCS SCAS
 : F6.  ( ADDR OP -- ADDR' )
 \ ??
         >R COUNT
-        DUP 3 RSHIFT 7 AND DUP >R S" TESTXXXXNOT NEG MUL IMULDIV IDIV" 4 SS. 3 SSPACES
+        DUP 3 RSHIFT 7 AND DUP>R S" TESTXXXXNOT NEG MUL IMULDIV IDIV" 4 SS. 3 SSPACES
         MOD-R/M
         R> 0= IF
                 R@ 1 AND IF IMM16/32
@@ -1213,7 +1225,7 @@ STR SCS SCAS
 : CMV   ( ADR OP -- )
         .S" CMOV"
         TTTN 1 SSPACES
-        COUNT R,R/M ;
+        R,R/M ;
 
 \ --------------------- MMX OPERATIONS -----------------
 
@@ -1382,7 +1394,6 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
 : DIS-OP  ( ADR -- ADR' )
         0>S
         FALSE TO PREFIX-OP           \ SMUB
-\ [ DIS-OPT ]
         COUNT
         DUP 1 AND TO SIZE
         DUP CELLS OP-TABLE + @ EXECUTE
@@ -1407,35 +1418,53 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
 \       COUNT  + 1+ 
 ;
 
-: FLIT10. ( ADDR -- ADDR' )
-       CR DUP  BASE-ADDR - 6 H.R SPACE   
-       ."  A; "  DUP 10 OVER + SWAP
-       DO I C@ 3 H.R ."  C," LOOP
-       10 +
-;
+[DEFINED] G. [IF]
+
 : FLIT8.  ( ADDR -- ADDR' )
-       CR DUP  BASE-ADDR - 6 H.R SPACE   
+       ." FLITERAL: "
+       DUP DF@ G.  8 +
+;
+
+: FLIT10.  ( ADDR -- ADDR' )
+       ." FLITERAL: "
+       DUP F@ G.  10 +
+;
+
+[ELSE]
+
+: FLIT8.
+       CR DUP  BASE-ADDR - 6 H.R SPACE
        ."  A; " DUP 8 OVER + SWAP
        DO I C@ 3 H.R ."  C," LOOP
        8 +
 ;
 
+: FLIT10. ( ADDR -- ADDR' )
+       CR DUP  BASE-ADDR - 6 H.R SPACE
+       ."  A; "  DUP 10 OVER + SWAP
+       DO I C@ 3 H.R ."  C," LOOP
+       10 +
+;
+
+[THEN]
+
+
 : VECT. ( ADDR -- ADDR' )
        CR DUP  BASE-ADDR - 6 H.R SPACE   
        ."  A; " DUP @ 8 H.R DUP CELL+ SWAP @ ."  ,  \ " WordByAddr TYPE
-\       2R> 2DROP
 ;
 
-: CONS. ( ADDR -- ADDR' )
-       CR DUP BASE-ADDR - 6 H.R SPACE   
+: CONS. ( ADDR -- )
+
+       CR DUP BASE-ADDR - 6 H.R SPACE
        ."  A; " @ 8 H.R ."  ,"
-       2R> 2DROP
 ;
 
-: USER. ( ADDR -- ADDR' )
+: USER. ( ADDR -- )
        CR DUP  BASE-ADDR - 6 H.R SPACE
-       ."  A; " @ 8 H.R ."  , \ Relative in heap [hex]" CELL+
-       2R> 2DROP
+       ."  A; " @ 8 H.R ."  , \ Relative in heap [hex]" \ CELL+
+
+
 ;
 
 : UVAL. ( ADDR -- ADDR' )
@@ -1443,8 +1472,15 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
        ."  A; " DUP @ 8 H.R ."  , \ Relative in heap [hex]" CELL+
 ;
 
-: CODE. ( ADDR -- ADDR' )
-       40 DUMP 2R> 2DROP
+: CODE. ( ADDR -- )
+        DUP NextNFA
+        ?DUP
+        IF OVER - 5 -
+        ELSE
+           DUP DP @ SWAP - ABS DUP 512 > IF DROP 40 THEN \ no applicable end found
+        THEN
+        ." Size of data: ~" DUP .
+        DUMP
 ;
 
 : INST  ( ADR -- ADR' )
@@ -1455,7 +1491,7 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
         ELSE    DUP DIS-OP                                  
                 OVER BASE-ADDR - 6  H.R SPACE  
                 DUP ROT 
-                2DUP - DUP >R 0x10 U> ABORT" DECOMPILER ERROR"
+                2DUP - DUP>R 0x10 U> ABORT" DECOMPILER ERROR"
                 DO I C@ 2 H.N LOOP                           
                 R> 5 < IF 9 EMIT THEN
                 9 EMIT S-BUF COUNT TYPE
@@ -1464,10 +1500,10 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
                     CASE
                    ['] _CLITERAL-CODE OF  X".   ENDOF
                    ['] _SLITERAL-CODE OF  X".   ENDOF
-                   ['] _VECT-CODE     OF  VECT. ENDOF
-                   ['] _CONSTANT-CODE OF  CONS. ENDOF
-                   ['] _USER-CODE     OF  USER. ENDOF
-                   ['] _CREATE-CODE   OF  CODE. ENDOF
+                   ['] _VECT-CODE     OF  VECT. 2DROP RDROP ENDOF
+                   ['] _CONSTANT-CODE OF  CONS. DROP RDROP ENDOF
+                   ['] _USER-CODE     OF  USER. DROP RDROP ENDOF
+                   ['] _CREATE-CODE   OF  CODE. DROP RDROP ENDOF
                    ['] _USER-VALUE-CODE OF UVAL. ENDOF
                    ['] _FLIT-CODE10   OF  FLIT10. ENDOF
                    ['] _FLIT-CODE8    OF  FLIT8. ENDOF
@@ -1481,7 +1517,7 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
 : DIS-DD   CR .S" DD " @+ H.>S ;
 : DIS-DS   CR .S" STRING " 0x22 EMIT>S COUNT 2DUP >S + 0x22 EMIT>S ;
 
-FORTH DEFINITIONS
+( wid ) SET-CURRENT
 
 : DIS  ( ADR -- )
         BEGIN
@@ -1534,7 +1570,8 @@ VARIABLE  COUNT-LINE
 : SEE       ( -- )
             ' REST ;
 
-ONLY FORTH DEFINITIONS
+PREVIOUS
 
-.(  Ok) CR
-TRUE WARNING !
+( warn base )
+BASE !
+WARNING !
