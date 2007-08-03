@@ -1,6 +1,7 @@
 \ 19-04-2007 ~mOleg
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ структуры управления: ветвления и циклы
+\ можно использовать даже во время исполнения.
 
  REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE IFNOT    devel\~moleg\lib\util\ifnot.f

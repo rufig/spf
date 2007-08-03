@@ -1,7 +1,7 @@
 \ 24-06-2007 ~mOleg
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ манипуляции данными на стеке возвратов
-\ в трех вариантах исполнения
+\ в трех вариантах исполнения (два закомментированы)
 
  REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
  REQUIRE STREAM[   devel\~mOleg\lib\arrays\stream.f
@@ -17,7 +17,8 @@
 \        JMP addr
 \     END-CODE
 \ : R><D ( r: a d: b --> r: b d: a )
-\       [ 0x5B B, 0x87 B, 0x04 B, 0x24 B, 0xFF B, 0xE3 B, ] ;
+\        [ 0x5B B, 0x87 B, 0x04 B, 0x24 B, 0xFF B, 0xE3 B, ] ;
+
 : R><D ( r: a d: b --> r: b d: a ) STREAM[ x5B870424FFE3 ] ;
 
 \ поменять местами два числа на стеке возвратов
@@ -30,7 +31,7 @@
 \          JMP addr
 \       END-CODE
 \ : RSWAP ( r: a b --> r: b a )
-\        [ 0x5B B, 0x5A B, 0x59 B, 0x52 B, 0x51 B, 0xFF B, 0xE3 B, ] ;
+\         [ 0x5B B, 0x5A B, 0x59 B, 0x52 B, 0x51 B, 0xFF B, 0xE3 B, ] ;
 
 : RSWAP ( r: a b --> r: b a ) STREAM[ x5B5A595251FFE3 ] ;
 
@@ -43,7 +44,8 @@
 \        JMP addr
 \     END-CODE
 \ : RNIP ( r: a b --> r: b )
-\       [ 0x5B B, 0x5A B, 0x59 B, 0x52 B, 0xFF B, 0xE3 B, ] ;
+\        [ 0x5B B, 0x5A B, 0x59 B, 0x52 B, 0xFF B, 0xE3 B, ] ;
+
 : RNIP ( r: a b --> r: b ) STREAM[ x5B5A5952FFE3 ] ;
 
 \ копировать верхний элемент на вершине стека возвратов
@@ -54,7 +56,8 @@
 \        JMP addr
 \     END-CODE
 \ : RDUP ( r: a --> r: a a )
-\       [ 0x5B B, 0x8B B, 0x14 B, 0x24 B, 0x52 B, 0xFF B, 0xE3 B, ] ;
+\        [ 0x5B B, 0x8B B, 0x14 B, 0x24 B, 0x52 B, 0xFF B, 0xE3 B, ] ;
+
 : RDUP ( r: a --> r: a a ) STREAM[ x5B8B142452FFE3 ] ;
 
 \ положить поверх верхнего элемента копию нижнего на стеке возвратов
@@ -65,7 +68,8 @@
 \         JMP addr
 \      END-CODE
 \ : ROVER ( r: a b --> r: a b a )
-\        [ 0x5B B, 0x8B B, 0x54 B, 0x24 B, 0x04 B, 0x52 B, 0xFF B, 0xE3 B, ] ;
+\         [ 0x5B B, 0x8B B, 0x54 B, 0x24 B, 0x04 B, 0x52 B, 0xFF B, 0xE3 B, ] ;
+
 : ROVER ( r: a b --> r: a b a ) STREAM[ x5B8B54240452FFE3 ] ;
 
 \ подложить копию верхнего элемента, находящегося на вершине стека
@@ -80,7 +84,8 @@
 \         JMP addr
 \      END-CODE
 \ : RTUCK ( r: a b --> r: b a b )
-\        [ 0x5B B, 0x5A B, 0x59 B, 0x52 B, 0x51 B, 0x52 B, 0xFF B, 0xE3 B, ] ;
+\         [ 0x5B B, 0x5A B, 0x59 B, 0x52 B, 0x51 B, 0x52 B, 0xFF B, 0xE3 B, ] ;
+
 : RTUCK ( r: a b --> r: b a b ) STREAM[ x5B5A59525152FFE3 ] ;
 
 \ провернуть три верхних элемента на вершине стека возвратов влево
@@ -95,8 +100,9 @@
 \        JMP addr
 \     END-CODE
 \ : RROT ( r: a b c --> r: b c a )
-\       [ 0x5B B, 0x5A B, 0x59 B, 0x5E B, 0x51 B, 0x52 B, 0x56 B,
-\         0xFF B, 0xE3 B, ] ;
+\        [ 0x5B B, 0x5A B, 0x59 B, 0x5E B, 0x51 B, 0x52 B, 0x56 B,
+\          0xFF B, 0xE3 B, ] ;
+
 : RROT ( r: a b c --> r: b c a ) STREAM[ x5B5A595E515256FFE3 ] ;
 
 \ добавить число к находящемуся на стеке возвратов
@@ -108,8 +114,9 @@
 \      JMP addr
 \   END-CODE
 \ : R+ ( r: a d: b --> r: a+b )
-\     [ 0x5B B, 0x01 B, 0x04 B, 0x24 B, 0x8B B, 0x45 B, 0x00 B,
-\       0x8D B, 0x6D B, 0x04 B, 0xFF B, 0xE3 B, ] ;
+\      [ 0x5B B, 0x01 B, 0x04 B, 0x24 B, 0x8B B, 0x45 B, 0x00 B,
+\        0x8D B, 0x6D B, 0x04 B, 0xFF B, 0xE3 B, ] ;
+
 : R+ ( r: a d: b --> r: a+b ) STREAM[ x5B0104248B45008D6D04FFE3 ] ;
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------

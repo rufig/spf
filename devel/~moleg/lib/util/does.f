@@ -1,7 +1,7 @@
 \ 14-01-2007 ~mOleg
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ DOES> механизм для СПФ
-\ высокоуровневый вариант не требует переменной DOES>A
+\ высокоуровневый вариант не требует переменной DOES>A и более портабельный.
 
  REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE COMPILE  devel\~moleg\lib\util\compile.f

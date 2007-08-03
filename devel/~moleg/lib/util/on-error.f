@@ -67,7 +67,7 @@ test{ : sample DROP BYE ;
 
 : 3st-err ." first error handler: " ." error number - " DUP . CR ;
 : 2st-err ." second error handler " CR ;
-: 1st-err DROP FORTH_ERROR ;
+: 1st-err DROP FORTH_ERROR ; \ это, чтобы система не ругалась на ошибку.
 
 ' 1st-err ON-ERROR
 ' 2st-err ON-ERROR

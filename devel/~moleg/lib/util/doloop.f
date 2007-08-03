@@ -34,8 +34,11 @@ FALSE WARNING !
 \ экстренный выход из цикла
 : LEAVE ( --> ) RDROP RDROP RDROP RDROP ;
 
+\ выход из цикла по EXIT
+: exitdo ( --> ) RDROP RDROP RDROP ;
+
 \ установили параметры цикла - выполняется один раз на входе
-: (DO) ( up low --> ) R> -ROT 2>R ['] LEAVE >R >R ;
+: (DO) ( up low --> ) R> -ROT 2>R ['] exitdo >R >R ;
 
 \ приращение счетчика цикла, проверка условия выхода из цикла. »
 : (+LOOP) ( n --> flag )
@@ -95,5 +98,7 @@ test{ : simple 10 DUP DUP 0 DO DROP I LOOP 1 + <> THROW ; simple
       : testlv 3 DO I LEAVE LOOP ;
       : testleave 10 testlv 3 <> THROW ; testleave
       : testij 10 3 DO 10 3 DO I J UNLOOP LEAVE LOOP LOOP <> THROW ; testij
+      : testexit 10 1 DO 20 9 DO EXIT LOOP LOOP -1 THROW ; testexit
+
   S" passed" TYPE
 }test
