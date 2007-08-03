@@ -506,8 +506,8 @@ IDP POP POP
 : MOV   ( ADDR OP -- ADDR' ) .SOP-MOV R/M ;
 : MRI   ( ADDR OP -- ADDR' )
         .SOP-MOV DUP BIT3
-        IF      .REG16/32 .IMM16/32
-        ELSE    .REG8 .IMM8
+        IF      .REG16/32 ., .IMM16/32
+        ELSE    .REG8 ., .IMM8
         THEN ;
 
 : MVI  ( ADR OP -- ADR' )   ( MOV MEM, IMM )
@@ -953,11 +953,11 @@ SHFD SRD SHRD
 \ --------------------- CONDITIONAL MOVE ---------------
 
 : SET   ( ADR OP -- )
-        OPER-COL ." SET" .COND OPND-COL  COUNT R/M8 ;
+        OPER-COL ." SET" .COND OPND-COL TAB  COUNT R/M8 ;
        
 
 : CMV   ( ADR OP -- )
-        OPER-COL ." CMOV" .COND OPND-COL R,R/M ;
+        OPER-COL ." CMOV" .COND OPND-COL TAB R,R/M ;
 
 
 \ --------------------- MMX OPERATIONS -----------------
