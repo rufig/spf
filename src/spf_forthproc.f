@@ -731,22 +731,22 @@ END-CODE
 
 CODE < ( n1 n2 -- flag ) \ 94
 \ flag "истина" тогда и только тогда, когда n1 меньше n2.
-       CMP  EAX, [EBP]
-       SETLE AL
-       AND  EAX, # 1
-       DEC  EAX
-       LEA  EBP, 4 [EBP]
-       RET
+    XOR     EDX, EDX
+    CMP     [EBP], EAX
+    LEA     EAX, -1 [EDX]
+    CMOVGE  EAX, EDX
+    LEA  EBP, 4 [EBP]
+    RET
 END-CODE
 
 CODE > ( n1 n2 -- flag ) \ 94
 \ flag "истина" тогда и только тогда, когда n1 больше n2.
-       CMP  EAX, [EBP]
-       SETGE AL
-       AND  EAX,  # 1
-       DEC  EAX
-       LEA  EBP, 4 [EBP]
-       RET
+    XOR     EDX, EDX
+    CMP     [EBP], EAX
+    MOV     EAX, # -1
+    CMOVLE  EAX, EDX
+    LEA  EBP, 4 [EBP]
+    RET
 END-CODE
 
 CODE WITHIN     ( n1 low high -- f1 ) \ f1=true if ((n1 >= low) & (n1 < high))
