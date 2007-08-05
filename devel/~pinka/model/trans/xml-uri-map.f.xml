@@ -49,7 +49,7 @@
 
   reset-uri-map <!-- (!!!) -->
 
-<r:rule match="uri-map"><r:mm>
+<r:rule match="system-uri-map"><r:mm>
   <r:get-attribute name="base"/>
   <r:get-attribute name="target"/>
   add-uri-map
@@ -57,7 +57,7 @@
 </r:rule>
 
 <!-- example:
-  <uri-map base="local://my1/" target="c:/work/2007/my1/" />
+  <system-uri-map base="local://my1/" target="c:/work/2007/my1/" />
 -->
 
 <also wordlist="DefaultLSParser"><definitions>
