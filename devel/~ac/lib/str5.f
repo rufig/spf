@@ -353,8 +353,10 @@ STRFREE
           THEN
 ; IMMEDIATE
 
+CREATE strCRLF 13 C, 10 C,
+
 : CRLF
-  LT 2
+  strCRLF 2
 ;
 CREATE _S""" CHAR " C,
 : ''
