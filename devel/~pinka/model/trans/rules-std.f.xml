@@ -77,7 +77,12 @@
   CONTEXT @ <!-- wid -->
   CS> SET-CURRENT PREVIOUS
   <get-attribute name="name"/> 
-  <f:choose> DUP <f:when> ROT <f:p><f:lit/></f:p> NAMING </f:when> 2DROP </f:choose>
+  <f:choose> DUP <f:when>
+    ROT DUP >R <f:p><f:lit/></f:p> NAMING
+    LATEST R> CELL+ ! <!-- spf4; ref to wordlist's name -->
+  </f:when>
+    2DROP 
+  </f:choose>
   </mm>
 </rule>
 
