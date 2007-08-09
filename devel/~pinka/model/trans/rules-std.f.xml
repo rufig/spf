@@ -44,6 +44,10 @@
   </f:choose>
 </rule>
 
+<rule match="f:unless">
+  <mm> 0EQ <f:if><yield/></f:if></mm>
+</rule>
+
 <rule match="f:times"><mm>
   <f:repeat> DUP <f:while/> >R <yield/> R> 1- </f:repeat> DROP
   </mm>
