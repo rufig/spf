@@ -9,7 +9,6 @@
 
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE PRO ~profit/lib/bac4th.f
-REQUIRE LOCAL ~profit/lib/static.f
 REQUIRE DISASSEMBLER lib/ext/disasm.f
 
 {{ DISASSEMBLER
@@ -50,17 +49,21 @@ EXPORT
 ['] BL ['] KEY CFL + B!
 REST-AREA ;
 
+USER delta
+
 \ исправление всех ссылок
-: correct-jumps ( xt end start -- ) LOCAL delta
+: correct-jumps ( xt end start -- ) delta KEEP
 SWAP >R OVER - delta ! R>
 references=> OVER delta @ + delta @ NEGATE SWAP +! ;
 
-: COPY-CODE-END ( xt end -- ) \ копирование в кодофайл кода начиная с xt до конца слова
+: COPY-CODE-END ( xt end -- ) \ копирование в кодофайл кода начиная с xt до адреса end
 OVER 2DUP - ( xt end xt len ) HERE DUP >R SWAP DUP ALLOT CMOVE
 ( xt end ) R> correct-jumps ;
 
 : COPY-CODE ( xt -- )
-DUP FIND-REST-END COPY-CODE-END ;
+DUP FIND-REST-END
+3 + ( it's a kind of magic... )
+COPY-CODE-END ;
 
 : DUPLICATE ' NextWord SHEADER COPY-CODE RET, ;
 
@@ -79,8 +82,6 @@ S" str" OVER + SWAP DO I C@ LOOP ;
 : destination [ ' source COPY-CODE ] ;
 
 DUPLICATE DP DP1
-
-\ SEE DP1
 
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
