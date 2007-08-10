@@ -16,6 +16,8 @@ ALSO SO NEW: sqlite3.dll
   5 CONSTANT SQLITE_BUSY
 100 CONSTANT SQLITE_ROW
     VARIABLE DB3_DEBUG
+    USER     DB3_CONN_CNT
+    USER     DB3_STMT_CNT
 
 (
 #define SQLITE_OK           0   /* Successful result */
@@ -58,16 +60,19 @@ ALSO SO NEW: sqlite3.dll
 : db3_error? { ior addr u sqh -- }
   ior IF DB3_DEBUG @ IF CR addr u TYPE ."  failed: " ior . THEN
          sqh 1 sqlite3_errmsg ASCIIZ> DB3_DEBUG @ IF 2DUP TYPE CR THEN
-         ER-U ! ER-A !
-         sqh 1 sqlite3_errcode DUP 1 = IF DROP -2 ELSE 30000 + THEN THROW
+         " {s}" STR@ ER-U ! ER-A !
+         sqh 1 sqlite3_errcode DUP 1 = IF DROP -2 ELSE 30000 + THEN ( ior )
+         THROW
       THEN
 \  ior THROW ( ior почти всегда 1 в случае ошибки)
 ;
 : db3_open { addr u \ sqh -- sqh }
   ^ sqh addr 2 sqlite3_open S" DB3_OPEN" sqh db3_error? sqh
+  DB3_CONN_CNT 1+!
 ;
 : db3_close { sqh -- }
   sqh 1 sqlite3_close S" DB3_CLOSE" sqh db3_error?
+  DB3_CONN_CNT @ 1- DB3_CONN_CNT !
 ;
 : db3_cols ( ppStmt -- n )
   1 sqlite3_column_count
@@ -106,16 +111,19 @@ ALSO SO NEW: sqlite3.dll
   ?DUP IF NIP NIP NIP NIP NIP NIP THEN \ добавим аппаратные exceptions в коды возврата
 ;
 : db3_prepare { addr u sqh \ pzTail ppStmt -- pzTail ppStmt }
-  DB3_DEBUG @ IF CR ." ====================" CR addr u TYPE CR THEN
+  DB3_DEBUG @ IF CR ." DB3_PREP====================" sqh . CR addr u TYPE CR THEN
 
   BEGIN \ ждем освобождения доступа к БД
     ^ pzTail ^ ppStmt u addr sqh 5 sqlite3_prepare2 DUP SQLITE_BUSY =
   WHILE
+    DB3_DEBUG @ IF ." DB3_PREP_WAIT" ppStmt . THEN
     DROP 1000 PAUSE
   REPEAT
 
   S" DB3_PREPARE" sqh db3_error?
   pzTail ppStmt
+  DB3_DEBUG @ IF CR ." DB3_PREP_OK====================" sqh . CR THEN
+  DB3_STMT_CNT 1+!
 ;
 : db3_bind { ppStmt -- }
   ppStmt 1 sqlite3_bind_parameter_count 0 ?DO
@@ -132,7 +140,9 @@ ALSO SO NEW: sqlite3.dll
 ;
 : db3_fin ( ppStmt -- )
   DUP 1 sqlite3_reset THROW
+  DUP 1 sqlite3_clear_bindings THROW
       1 sqlite3_finalize THROW
+  DB3_STMT_CNT @ 1- DB3_STMT_CNT !
 ;
 : db3_exec { addr u par xt sqh \ pzTail ppStmt i -- }
 \ выполнить SQL-запрос(ы) из addr u,
@@ -149,11 +159,15 @@ ALSO SO NEW: sqlite3.dll
         BEGIN \ ждем освобождения доступа к БД
           ppStmt 1 sqlite3_step DUP SQLITE_BUSY =
         WHILE
+          DB3_DEBUG @ IF CR ." DB3_STEP_WAIT(" sqh . ppStmt . addr u TYPE ." )" CR THEN
           DROP 1000 PAUSE
         REPEAT
 
         DUP 1 SQLITE_ROW WITHIN 
-        IF ppStmt ['] db3_fin CATCH ?DUP IF NIP NIP THEN S" DB3_STEP" sqh db3_error? THEN
+        IF ppStmt ['] db3_fin CATCH ?DUP IF NIP NIP DB3_DEBUG @ IF ." DB3_FIN_failed" DUP . THEN THEN 
+           DUP DB3_DEBUG @ AND IF ." DB3_STEP_failed (" addr u TYPE ." )" THEN
+           S" DB3_STEP" sqh db3_error?
+        THEN
 
         SQLITE_ROW =
       ELSE FALSE THEN
@@ -181,6 +195,7 @@ ALSO SO NEW: sqlite3.dll
   BEGIN \ ждем освобождения доступа к БД
     ppStmt 1 sqlite3_step DUP SQLITE_BUSY =
   WHILE
+    DB3_DEBUG @ IF ." DB3_CDR_WAIT" ppStmt . THEN
     DROP 1000 PAUSE
   REPEAT
 
@@ -250,6 +265,10 @@ USER _db3_gets
   _db3_gets 0!
   >R 0 ['] db3_gets_ R> db3_exec
   _db3_gets @ ?DUP IF STR@ ELSE S" " THEN
+;
+: db3_thread_cleanup ( -- )
+\  1 1 sqlite3_soft_heap_limit DROP \ недоступно
+  0 sqlite3_thread_cleanup DROP     \ ничего не делает...
 ;
 PREVIOUS
 
