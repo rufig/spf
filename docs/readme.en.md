@@ -4,20 +4,20 @@ SP-Forth for Windows
 
 <title>SP-Forth for Windows</title>
 
-<!-- Translated from readme.ru.md (rev. 1.3) -->
+<!-- Translated from readme.ru.md (rev. 1.5) -->
 
 ABOUT
 -----
 
-SP-FORTH is a reliable and comfortable forth system producing optimized native
-code for the Intel x86 processors. SP-Forth runs on MS Windows 9x, NT
+SP-Forth is a reliable and comfortable forth system producing optimized native
+code for the Intel x86 processors. It runs on MS Windows 9x, NT
 (Linux and Kolibri OS ports exist).
 
 SP-Forth is free software, you can redistribute and/or modify it under the
 terms of the GNU General Public License. See
 [docs/license/gpl.en.txt](license/gpl.en.txt) for details.
 
-SP-Forth is distributed in the hope that it will be useful, but WITHOUT ANY
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.
 
@@ -25,8 +25,11 @@ PARTICULAR PURPOSE.
 INSTALLATION
 ------------
 
-SP-Forth (SPF) for Windows is distributed as the RAR archive or the self-installing
+SP-Forth (SPF) for Windows is distributed as an archive or the self-installing
 executable.
+
+If you have an executable package - just run it. The wizard will guide you
+through the setup process.
 
 If you've got an archive - unpack it to the desired folder. It is ready to
 use now. If you want to associate `*.f` and `*.spf` files with `spf4.exe` - run
@@ -36,16 +39,13 @@ manually (specify the correct path to your spf4.exe) and run it. Now you can
 write your code, save it as the *.f file and execute it by simply
 doubleclicking the source file.
 
-If you have an executable package - just run it. The wizard will guide you
-through the setup process.
-
 See the [docs/whatsnew.en.txt](whatsnew.en.txt) file for the short overview of recent changes.
 
 Directories:
 
 * `/devel`   - additional contributed libraries and examples
 * `/docs`    - documentation
-* `/lib`     - standard libraries, common ANS and non-ANS extensions like `float.f`, `locals.f` ...
+* `/lib`     - standard libraries, ANS and non-ANS extensions like `float.f`, `locals.f` ...
 * `/samples` - debugged GUI and console mode samples.
 * `/src`     - full sources with comments and compile.bat file.
 
@@ -80,41 +80,45 @@ If you have more questions - ask them at spf-dev mailing list.
 DEVELOPMENT
 -----------
 
-*    The latest version can be downloaded from SF.net :
+*   The latest version can be downloaded from SF.net :
 
-     <http://spf.sourceforge.net>
+    <http://spf.sourceforge.net>
 
-     You can obtain the latest sources from CVS. The repository for the anonymous
-     read-only access is
-     `:pserver:anonymous@spf.cvs.sourceforge.net:/cvsroot/spf`
+    You can obtain the latest sources from CVS. The repository for the anonymous
+    read-only access is
+    `:pserver:anonymous@spf.cvs.sourceforge.net:/cvsroot/spf`
 
-*    The first place to contact the developers is the spf-dev mailing list :
+*   The first place to contact the developers is the spf-dev mailing list :
 
-     <http://lists.sourceforge.net/lists/listinfo/spf-dev>
+    <http://lists.sourceforge.net/lists/listinfo/spf-dev>
 
-*    A bugtracker is maintained at
+*   Bugtracker (feature requests and bugreports welcome)
 
-     <http://activekitten.com/trac/spf/>
+    <http://sourceforge.net/tracker/?group_id=17919>
 
-     You can report found bugs there. Please provide a comprehensive description
-     of the bug behaviour and ways to reproduce. Any errors or omissions in the
-     documentation can also be reported to the same address.
+    Please provide a comprehensive description of the bug behaviour and ways 
+    to reproduce. Dont hesitate to report errors or omissions in the 
+    documentation too. 
 
-*    Related projects (highly recommended) :
+    Notifications on bugtracker activity go to spf-tickets mailing list
 
-     <http://www.eserv.ru>        - HTTP/FTP/SMTP/POP3/IMAP server and proxy for Win32
+    <http://lists.sourceforge.net/lists/listinfo/spf-tickets>
 
-     <http://www.delosoft.com>    - Forth systems for pocket computers
+*   Related projects (highly recommended) :
 
-     <http://nncron.ru>           - scriptable unix-like cron scheduler for Windows
+    <http://www.eserv.ru>        - HTTP/FTP/SMTP/POP3/IMAP server and proxy for Win32
 
-     <http://forth-script.sf.net> - SP-Forth as CGI
+    <http://www.delosoft.com>    - Forth systems for pocket computers
 
-     <http://acweb.sf.net>        - web server for Win32
+    <http://nncron.ru>           - scriptable unix-like cron scheduler for Windows
 
-     <http://acfreeproxy.sf.net>  - http proxy server
+    <http://forth-script.sf.net> - SP-Forth as CGI
 
-     <http://acftp.sf.net>        - ftp server
+    <http://acweb.sf.net>        - web server for Win32
+
+    <http://acfreeproxy.sf.net>  - http proxy server
+
+    <http://acftp.sf.net>        - ftp server
 
 *    Russian Forth Interest Group :
 
