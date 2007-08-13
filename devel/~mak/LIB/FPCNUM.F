@@ -17,6 +17,8 @@ REQUIRE [IFNDEF] ~nn\lib\ifdef.f
    THEN   ;
 [THEN]
 
+[IFNDEF] H. : H.  BASE @ HEX SWAP U. BASE !  ; [THEN]
+
 0 VALUE DOUBLE?
 
 -1 VALUE DP-LOCATION
@@ -151,3 +153,23 @@ REQUIRE [IFNDEF] ~nn\lib\ifdef.f
 ;
 
  ' ?SLITERAL2_H TO ?SLITERAL
+
+\EOF
+
+'H' EMIT 'I' EMIT
+85 DUP U. H.
+1010101B DUP U. H.
+55H H.
+$55 H.
+$-55 NEGATE H.
+0x55 H.
+
+: HI55
+'H' EMIT 'I' EMIT
+1010101B H.
+55H H.
+$55 H.
+0x55 H. ;
+
+HI55
+
