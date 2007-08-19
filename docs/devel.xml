@@ -7,7 +7,7 @@
 </meta>
 
 <section id="net">
-<name><en>Network</en><ru></ru></name>
+<name><en>Network</en><ru>Сеть</ru></name>
 <lib><word>CreateSocket</word><path>~ac/lib/win/winsock/sockets.f</path><comment><en>basic TCP/IP support</en><ru>Базовая поддержка TCP/IP</ru></comment></lib>
 <lib><word>SslInit</word><path>~ac/lib/win/winsock/ssl.f</path><comment><en>basic SSL/TLS support</en><ru>Базовая поддержка SSL/TLS</ru></comment></lib>
 <lib><word>SslClientSocket</word><path>~ac/lib/win/winsock/sockets_ssl.f</path><comment><en>SSL/TLS-server</en><ru>SSL/TLS сервер</ru></comment></lib>
@@ -36,7 +36,7 @@
 </section>
 
 <section id="list">
-<name><en>Data structures - list</en><ru>Структуры данных - список</ru></name>
+<name><en>Data structures - list</en><ru>Связные списки</ru></name>
 <lib><word>ListNode</word><path>~day/joop/lib/list.f</path><comment><en>double-linked list </en></comment></lib>
 <lib><word>AddNode</word><path>~ac/lib/list/STR_LIST.f</path><comment><en>linked list </en></comment></lib>
 <lib><word>LINK,</word><path>~day/common/link.f</path><comment><en>static list (compiles in code area) </en></comment></lib>
@@ -50,14 +50,14 @@
 </section>
 
 <section id="record">
-<name><en>Data structures - record</en></name>
+<name><en>Data structures - record</en><ru>Структуры</ru></name>
 <lib><word>STRUCT:</word><path>lib/ext/struct.f</path><comment><en>simple records </en></comment></lib>
 <lib><word>f:</word><path>~af/lib/struct.f</path><comment><en>defining records with elements-functions </en></comment></lib>
 <lib><word>f:</word><path>~af/lib/struct-t.f</path><comment><en>defining records with elements-functions in the temporary vocabulary</en></comment></lib>
 </section>
 
 <section id="data">
-<name><en>Data structures - misc</en></name>
+<name><en>Data structures - misc</en><ru></ru></name>
 <lib><word>Stack</word><path>~day/joop/lib/stack.f</path><comment><en>stack</en></comment></lib>
 <lib><word>New-Queue</word><path>~pinka/lib/queue_pr.f</path><comment><en>priority queue</en></comment></lib>
 <lib><word>x.mask</word><path>~mlg/SrcLib/bitfield.f</path><comment><en>Bit arrays</en></comment></lib>
@@ -66,14 +66,14 @@
 </section>
 
 <section id="sort-n-search">
-<name><en>Sorting and search</en></name>
+<name><en>Sorting and search</en><ru>Сортировка и поиск</ru></name>
 <lib><word>HeapSort</word><path>~mlg/SrcLib/hsort.f</path><comment><en>heap sort</en></comment></lib>
 <lib><word>quick_sort</word><path>~pinka/samples/2003/common/qsort.f</path><comment><en>"Quick" sort</en></comment></lib>
 <lib><word>binary-search</word><path>~profit/lib/binary-search.f</path><comment><en>Binary search</en></comment></lib>
 </section>
 
 <section id="techniques">
-<name><en>Programming techniques</en></name>
+<name><en>Programming techniques</en><ru>Programming techniques</ru></name>
 <lib><word>{</word><path>lib/ext/locals.f</path><comment><en>Local variables</en></comment></lib>
 <lib><word>LAMBDA{</word><path>~pinka/lib/lambda.f</path><comment><en>:NONAME but in the compilation state</en></comment></lib>
 <lib><word>(:</word><path>~yz/lib/inline.f</path><comment><en>lambda analogue</en></comment></lib>
@@ -81,7 +81,7 @@
 </section>
 
 <section id="debug">
-<name><en>Debugging facilities</en></name> 
+<name><en>Debugging facilities</en><ru>Отладка</ru></name> 
 <lib><word>HeapEnum</word><path>~ac/lib/memory/heap_enum2.f</path><comment><en>enumerating allocated memory blocks on the heap</en></comment></lib>
 <lib><word>mem_stub</word><path>~day/lib/mem_sanity.f</path><comment><en>Verifying FREE (via filling with template) </en></comment></lib>
 <lib><word>MemReport</word><path>~day/lib/memreport.f</path><comment><en>Memory leakages checking with stack report (supports multithreading) </en></comment></lib>
@@ -93,7 +93,7 @@
 </section>
 
 <section id="random">
-<name><en>Random numbers</en></name>
+<name><en>Random numbers</en><ru>Случайные числа</ru></name>
 <lib><word>RANDOM</word><path>lib/ext/rnd.f</path><comment><en>linear congruent generator</en></comment></lib>
 <lib><word>RANDOM</word><path>~day/common/rnd.f</path><comment><en>linear congruent generator </en></comment></lib>
 <lib><word>RANDOM</word><path>~af/lib/random.f</path><comment><en>linear congruent generator</en></comment></lib>
@@ -102,7 +102,7 @@
 </section>
 
 <section id="hash">
-<name><en>Hashes</en></name>
+<name><en>Hashes</en><ru>Хэш-таблицы</ru></name>
 <lib><word>new-hash</word><path>~pinka/lib/hash-table.f</path></lib>
 <lib><word>ListAllocate</word><path>~af/lib/simple_hash.f</path></lib>
 <lib><word>HASH-TABLE</word><path>~yz/lib/hash.f</path></lib>
@@ -111,14 +111,14 @@
 </section>
 
 <section id="hash-func">
-<name><en>Cryptographic hashes</en></name>
+<name><en>Cryptographic hashes</en><ru>Хэши</ru></name>
 <lib><word>MD5</word><path>~clf/md5.f</path></lib>
 <lib><word>MD5</word><path>~clf/md5-ts.f</path><comment><en>thread safe </en></comment></lib>
 <lib><word>MD5</word><path>lib/alg/md5-jz.f</path></lib>
 </section>
 
 <section id="compiletime-const">
-<name><en>Compile-time constants</en></name>
+<name><en>Compile-time constants</en><ru>Константы времени компиляции</ru></name>
 <lib><word>LOAD-CONSTANTS</word><path>~yz/lib/const.f</path><comment><en>including constants - the `W:` word searches the constant</en></comment></lib>
 <lib><word>ADD-CONST-VOC</word><path>~day/wincons/wc.f</path><comment><en>including constants - redefining `NOTFOUND`</en></comment></lib>
 <lib><word>BEGIN-CONST</word><path>~day/wincons/compile.f</path><comment><en>*.const files compiler</en></comment></lib>
@@ -128,7 +128,7 @@
 </section>
 
 <section id="ui">
-<name><en>User interface</en></name>
+<name><en>User interface</en><ru>Интерфейс пользователя</ru></name>
 <lib><word>WINDOWS...</word><path>~yz/lib/winlib.f</path><comment><en>WinLib - Windows GUI interface library. Stretches forms and controls on it. Specifying controls position without coordinates, only position in grid - know-how! Good documentation : <path>~yz/winlib.html</path></en></comment></lib>
 <lib><word>FrameWindow</word><path>~day/joop/win/framewindow.f</path><comment><en>windows library based on joop </en></comment></lib>
 <other><path>~ac/lib/win/window</path><comment><en>simple and small implementation</en></comment></other>
@@ -144,13 +144,13 @@
 </section>
 
 <section id="services">
-<name><en>System services</en></name>
+<name><en>System services</en><ru>Системные сервисы</ru></name>
 <lib><word>CreateService</word><path>~ac/lib/win/service/service.f</path><comment><en>NT services</en></comment></lib>
 <lib><word>InstallService95</word><path>~ac/lib/win/service/service95.f</path><comment><en>"services" for Win9x/ME </en></comment></lib>
 </section>
 
 <section id="datetime">
-<name><en>Date and time</en></name>
+<name><en>Date and time</en><ru>Дата и время</ru></name>
 <lib><word>DateTime#</word><path>~ac/lib/win/date/date-int.f</path><comment><en>date/time in different formats</en></comment></lib>
 <lib><word>UNIXDATE</word><path>~ac/lib/win/date/unixdate.f</path><comment><en>Unixdate support</en></comment></lib>
 <lib><word>FileDateTime#</word><path>~ac/lib/win/file/filetime.f</path><comment><en>file date/time </en></comment></lib>
@@ -160,7 +160,7 @@
 </section>
 
 <section id="db">
-<name><en>Databases</en></name>
+<name><en>Databases</en><ru>Базы данных</ru></name>
 <lib><word>StartSQL</word><path>~yz/lib/odbc.f</path><comment><en>ODBC, typed data</en></comment></lib>
 <lib><word>StartSQL</word><path>~ac/lib/win/odbc/odbc.f</path><comment><en>ODBC, all data as strings </en></comment></lib>
 <lib><word>ExecSQLTxt</word><path>~pinka/lib/win/odbc/odbc-txt.f</path><comment><en>DELETE and UPDATE support for Text File Driver </en></comment></lib>
@@ -169,7 +169,7 @@
 </section>
 
 <section id="threads">
-<name><en>Processes, threads, access rights etc</en></name>
+<name><en>Processes, threads, etc</en><ru>Процессы, потоки, итп</ru></name>
 <lib><word>StartApp</word><path>~ac/lib/win/process/process.f</path><comment><en>start applications from command line (StartApp, StartAppWait)</en></comment></lib>
 <lib><word>GetProcessACL</word><path>~ac/lib/win/access/nt_access.f</path><comment><en>access rights</en></comment></lib>
 <lib><word>IsapiRunExtension</word><path>~ac/lib/win/isapi/isapi.f</path><comment><en>support ISAPI-compatible extensions</en></comment></lib>
@@ -181,13 +181,13 @@
 
 
 <section id="ini-registry">
-<name><en>Windows registry and ini-files</en></name>
+<name><en>Windows registry and ini-files</en><ru>Реестр Windows</ru></name>
 <lib><word>RG_CreateKey</word><path>~ac/lib/win/registry2.f</path></lib> 
 <lib><word>IniFile@</word><path>~ac/lib/win/ini.f</path></lib>
 </section>
 
 <section id="str">
-<name><en>Strings</en></name>
+<name><en>Strings</en><ru>Строки</ru></name>
 <lib><word>STR@</word><path>~ac/lib/str5.f</path><comment><en>dynamic strings</en></comment></lib>
 <lib><word>BNF</word><path>~ac/lib/transl/BNF.f</path><comment><en>basic BNF data types</en></comment></lib>
 <lib><word>CHECK-SET</word><path>~day/common/sbnf.f</path><comment><en>simple BNF parser</en></comment></lib>
@@ -207,7 +207,7 @@
 </section>
 
 <section id="files">
-<name><en>Files</en></name>
+<name><en>Files</en><ru>Файлы</ru></name>
 <lib><word>OPEN-FILE-SHARED-DELETE</word><path>~ac/lib/win/file/share-delete.f</path><comment><en>opening file with "light" shareable access</en></comment></lib>
 <lib><word>LAY-PATH</word><path>~pinka/samples/2005/lib/lay-path.f</path><comment><en>creation of path directories</en></comment></lib>
 <lib><word>ATTACH</word><path>~pinka/samples/2005/lib/append-file.f</path><comment><en>safe writing to file</en></comment></lib>
@@ -222,7 +222,7 @@
 </section>
 
 <section id="oop">
-<name><en>OOP extensions</en></name>
+<name><en>OOP extensions</en><ru>ООП расширения</ru></name>
 <lib><word>CLASS:</word><path>~day/joop/oop.f</path><comment><en>just oop with great pile of examples</en></comment></lib>
 <lib><word>CLASS:</word><path>~af/mc/microclass.f</path><comment><en>microclass </en></comment></lib>
 <lib><word>CLASS:</word><path>~day/mc/microclass.f</path><comment><en>microclass </en></comment></lib>
@@ -230,7 +230,7 @@
 </section>
 
 <section id="vocs">
-<name><en>Vocabularies</en></name>
+<name><en>Vocabularies</en><ru>Словари</ru></name>
 <lib><word>InVoc{</word><path>~ac/lib/transl/vocab.f</path><comment><en>shortening vocabulary manipulations (MODULE: analogue) </en></comment></lib>
 <lib><word>ForEach</word><path>~ac/lib/ns/iterators.f</path><comment><en>iterators for context vocabularies</en></comment></lib>
 <lib><word>ForEach-Word</word><path>~pinka/lib/Words.f</path><comment><en>ForEach-Word </en></comment></lib>
@@ -240,7 +240,7 @@
 </section>
 
 <section id="mem">
-<name><en>Memory</en></name>
+<name><en>Memory</en><ru>Память</ru></name>
 <lib><word>STACK_MEM</word><path>~ac/lib/memory/mem_stack.f</path><comment><en>"Stack"-way memory allocation</en></comment></lib>
 <lib><word>LowMemory?</word><path>~ac/lib/memory/low_memory.f</path><comment><en>Controlling extra memory consumption</en></comment></lib>
 <lib><word>PAllocSupport</word><path>~af/lib/pallocate.f</path><comment><en>Allocating memory in the global process space (shareable between threads) </en></comment></lib>
@@ -253,7 +253,7 @@
 </section>
 
 <section id="misc">
-<name><en>Miscellaneous</en></name>
+<name><en>Miscellaneous</en><ru>Разное</ru></name>
 <lib><word>CONST</word><path>~micro/lib/const/const.f</path><comment><en>constants enumeration</en></comment></lib>
 <lib><word>ENUM</word><path>~ygrek/lib/enum.f</path><comment><en>enumerating similar words</en></comment></lib>
 <lib><word>enqueueNOTFOUND</word><path>~pinka/samples/2006/core/trans/nf-ext.f</path><comment><en>extending translators (NOTFOUND)</en></comment></lib>
@@ -261,7 +261,7 @@
 
 
 <section id="encoding">
-<name><en>Encodings</en></name>
+<name><en>Encodings</en><ru>Кодировки</ru></name>
 <lib><word>UNICODE>UTF8</word><path>~ac/lib/win/com/com.f</path><comment><en>Convertation from Unicode (UTF-16) to UTF-8 and reverse</en></comment></lib>
 <lib><word>unicode></word><path>~day/lib/unicode.f</path><comment><en>Convertation from Unicode to ANSI and reverse</en></comment></lib>
 <lib><word>utf8Decode</word><path>~profit/lib/utf8.f</path><comment><en>Covertation from UTF-8 to Unicode (UTF-16). Doesn't use WINAPI\'s functions</en></comment></lib>

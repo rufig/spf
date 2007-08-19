@@ -1,3 +1,5 @@
+# $Id$
+# Makefile for documentation
 
 # build system - Windows or linux (SF server)
 host=win
@@ -8,10 +10,12 @@ ifeq ($(host),win)
 output=type
 delete=del
 md_path="..\\tools\\markdown\\"
+xsl_path="..\\tools\\xsl\\"
 else
 output=cat
 delete=rm -f
 md_path=../tools/markdown/
+xsl_path=../tools/xsl/
 endif
 
 ifeq ($(usage),local)
@@ -29,17 +33,23 @@ target: clean_mark $(docs)
 clean_mark:
 	$(delete) mark.new
 
-#devel.ru.html: css = devel.md.css
 %.html: css = intro.md.css
 
 %.md: %.mdt
 	spf ../tools/markdown/std.f S" $<" REPLACE S" $@" OCCUPY BYE
 
+devel.en.html: $(xsl_path)devel.xsl devel.xml
+	xsltproc --stringparam lang en --stringparam usage $(usage) $^ > $@
+	echo $@ >> mark.new
+
+devel.ru.html: $(xsl_path)devel.xsl devel.xml
+	xsltproc --stringparam lang ru --stringparam usage $(usage) $^ > $@
+	echo $@ >> mark.new
+
 %.html: %.md
 	$(output) $(md_path)html_header_1 > $@
 	$(output) $(css) >> $@
 	$(output) $(md_path)$(html_vect_header) >> $@
-#	python $(md_path)markdown-1-5.py $(patsubst %.html,%.md,$@) >> $@
 	perl $(md_path)Markdown.pl $(patsubst %.html,%.md,$@) >> $@
 	$(output) $(md_path)html_footer >> $@
 	echo $@ >> mark.new
