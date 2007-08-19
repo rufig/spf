@@ -33,7 +33,7 @@ pre, code { background : #EEEEF4}</xsl:text>
     <body>
     
     <!-- SF logo -->
-    <xsl:if test="$usage='sf'">
+    <xsl:if test="$usage='web'">
         <a href="http://sourceforge.net">
         <img src="http://sourceforge.net/sflogo.php?group_id=17919" border="0" alt="SourceForge Logo"/>
         </a>
