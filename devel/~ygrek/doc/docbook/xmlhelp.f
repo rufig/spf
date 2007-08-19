@@ -384,7 +384,7 @@ XMLHELP-OFF
 
 : START-XMLHELP ( a u -- )
     FORCE-PATH
-    W/O CREATE-FILE THROW
+    W/O CREATE-FILE-SHARED THROW
     TO docHandle
     S" ?xml" OPEN-TAG
     S" 1.0" S" version" ATTRIBUTE-OUT
