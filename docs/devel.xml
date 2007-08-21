@@ -270,7 +270,7 @@
 <lib><word>unicode></word><path>~day/lib/unicode.f</path><comment><en>convertation from Unicode to ANSI and reverse</en><ru>преобразование из Unicode в ANSI и обратно</ru></comment></lib>
 <lib><word>utf8Decode</word><path>~profit/lib/utf8.f</path><comment><en>covertation from UTF-8 to Unicode (2 byte). Doesn't use WINAPI's functions</en><ru>преобразование из UTF-8 в Unicode (2 байта), без использования WINAPI функций</ru></comment></lib>
 <lib><word>debase64</word><path>~ac/lib/string/conv.f</path><comment><en>base64, win-koi, urlencode etc.</en><ru>base64, win-koi, urlencode, etc</ru></comment></lib>
-<lib><word>iconv:</word><path>~ygrek/lib/iconv.f></path><comment><en>libiconv wrapper</en><ru>libiconv обёртка</ru></comment></lib>
+<lib><word>iconv:</word><path>~ygrek/lib/iconv.f</path><comment><en>libiconv wrapper</en><ru>libiconv обёртка</ru></comment></lib>
 </section>
 
 </spf_devel>
