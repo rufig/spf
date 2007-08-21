@@ -1,9 +1,13 @@
 # $Id$
 # Makefile for documentation
 
-# build system - Windows or linux (SF server)
+# build system
+# win - windows
+# lin - linux (SF server)
 host=win
-# whether to generate local documentation or web documents
+# what kind of doc to generate
+# local - local documentation
+# web - online help
 usage=local
 
 ifeq ($(host),win)
