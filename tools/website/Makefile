@@ -17,8 +17,8 @@ web=$(path)/htdocs
 target: www
 
 update:
-	cd $(spf)/docs && cvs up
-	cd $(spf)/tools && cvs up
+	cd $(spf)/docs && cvs up -d -P
+	cd $(spf)/tools && cvs up -d -P
 
 docs:
 	$(MAKE) -C $(spf)/docs host=linux usage=web
