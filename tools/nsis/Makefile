@@ -62,7 +62,6 @@ docs:
 
 $(spf_path)\spf4.exe: $(spf_path)\jpf375c.exe $(spf_path)\src\VERSION.SPF
 	copy $(spf_path)\spf4root\* $(spf_path)
-	echo $(spf_ver_major)$(spf_ver_minor)000 > $(spf_path)\src\VERSION.SPF
 	cd $(spf_path) && $(spf_tc) src\spf.f
 #	echo $(spf_ver_major)$(spf_ver_minor)000 > $(spf_path)\src\VERSION.SPF
 
