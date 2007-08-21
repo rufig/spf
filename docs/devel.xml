@@ -8,18 +8,18 @@
 
 <section id="net">
 <name><en>Network</en><ru>Сеть</ru></name>
-<lib><word>CreateSocket</word><path>~ac/lib/win/winsock/sockets.f</path><comment><en>basic TCP/IP support</en><ru>Базовая поддержка TCP/IP</ru></comment></lib>
-<lib><word>SslInit</word><path>~ac/lib/win/winsock/ssl.f</path><comment><en>basic SSL/TLS support</en><ru>Базовая поддержка SSL/TLS</ru></comment></lib>
+<lib><word>CreateSocket</word><path>~ac/lib/win/winsock/sockets.f</path><comment><en>basic TCP/IP support</en><ru>базовая поддержка TCP/IP</ru></comment></lib>
+<lib><word>SslInit</word><path>~ac/lib/win/winsock/ssl.f</path><comment><en>basic SSL/TLS support</en><ru>базовая поддержка SSL/TLS</ru></comment></lib>
 <lib><word>SslClientSocket</word><path>~ac/lib/win/winsock/sockets_ssl.f</path><comment><en>SSL/TLS-server</en><ru>SSL/TLS сервер</ru></comment></lib>
-<lib><word>SocketLine</word><path>~ac/lib/win/winsock/socketline2.f</path><comment><en>line-by-line buffered socket reading</en><ru>Построчное буферизированное чтение из сокета</ru></comment></lib>
-<lib><word>ReadFrom</word><path>~ac/lib/win/winsock/sockname.f</path><comment><en>UDP support</en><ru>Поддержка UDP</ru></comment></lib>
-<lib><word>fsockopen</word><path>~ac/lib/win/winsock/psocket.f</path><comment><en>simplified interface to sockets</en><ru>Упрощённый интерфейс к сокетам</ru></comment></lib>
-<lib><word>ForEachIP</word><path>~ac/lib/win/winsock/foreach_ip.f</path><comment><en>performing given tasks for each IP host</en><ru>Выполнение заданных действия для каждого IP хоста</ru></comment></lib>
+<lib><word>SocketLine</word><path>~ac/lib/win/winsock/socketline2.f</path><comment><en>line-by-line buffered socket reading</en><ru>построчное буферизированное чтение из сокета</ru></comment></lib>
+<lib><word>ReadFrom</word><path>~ac/lib/win/winsock/sockname.f</path><comment><en>UDP support</en><ru>поддержка UDP</ru></comment></lib>
+<lib><word>fsockopen</word><path>~ac/lib/win/winsock/psocket.f</path><comment><en>simplified interface to sockets</en><ru>упрощённый интерфейс к сокетам</ru></comment></lib>
+<lib><word>ForEachIP</word><path>~ac/lib/win/winsock/foreach_ip.f</path><comment><en>performing given tasks for each IP host</en><ru>выполнение заданных действия для каждого IP хоста</ru></comment></lib>
 <lib><word>SendDnsQuery</word><path>~ac/lib/win/winsock/dns_q.f</path><comment><en>querying DNS-servers</en><ru>DNS запросы</ru></comment></lib>
-<lib><word>PutFileTr</word><path>~ac/lib/win/winsock/transmit.f</path><comment><en>high-speed file transmition in Windows</en><ru>Высокоскоростная передача файлов в Windows</ru></comment></lib>
-<lib><word>SnmpInit</word><path>~ac/lib/win/snmp/snmp.f</path><comment><en>SNMP support</en><ru>Поддержка SNMP</ru></comment></lib>
+<lib><word>PutFileTr</word><path>~ac/lib/win/winsock/transmit.f</path><comment><en>high-speed file transmition in Windows</en><ru>высокоскоростная передача файлов в Windows</ru></comment></lib>
+<lib><word>SnmpInit</word><path>~ac/lib/win/snmp/snmp.f</path><comment><en>SNMP support</en><ru>поддержка SNMP</ru></comment></lib>
 <lib><word>GET-FILE-VIAPROXY</word><path>~ac/lib/lin/curl/curl.f</path><comment><en>cURL-wrapper - send/receive files via HTTP/FTP/etc</en><ru>cURL обёртка - получение/передача файлов по HTTP/FTP/etc</ru></comment></lib>
-<lib><word>WEB-SERVER</word><path>~nn/lib/web/server.f</path><comment><en>simple HTTP-server</en><ru>Простой сервер HTTP</ru></comment></lib>
+<lib><word>WEB-SERVER</word><path>~nn/lib/web/server.f</path><comment><en>simple HTTP-server</en><ru>простой сервер HTTP</ru></comment></lib>
 <other><path>~nn/lib/net</path><comment><en>HTTP, POP3, FTP, etc</en><ru>HTTP, POP3, FTP, etc</ru></comment></other>
 </section>
 
@@ -31,242 +31,246 @@
 
 <section id="arc">
 <name><en>Archives</en><ru>Архивы</ru></name>
-<lib><word>gzip_write</word><path>~ac/lib/win/arc/gzip/zlib.f</path><comment><en>packing and unpacking GZip-streams</en><ru>Упаковка и распаковка gzip-потоков</ru></comment></lib>
-<lib><word>zip-pack</word><path>~profit/lib/7zip-dll.f</path><comment><en>packing and unpacking zip/7zip archives</en><ru>сжатие и распаковка архивов zip/7zip</ru></comment></lib>
+<lib><word>gzip_write</word><path>~ac/lib/win/arc/gzip/zlib.f</path><comment><en>packing and unpacking GZip-streams</en><ru>упаковка и распаковка gzip-потоков</ru></comment></lib>
+<lib><word>zip-pack</word><path>~profit/lib/7zip-dll.f</path><comment><en>packing and unpacking zip/7zip archives</en><ru>упаковка и распаковка архивов zip/7zip</ru></comment></lib>
 </section>
 
 <section id="list">
-<name><en>Data structures - list</en><ru>Связные списки</ru></name>
-<lib><word>ListNode</word><path>~day/joop/lib/list.f</path><comment><en>double-linked list </en></comment></lib>
-<lib><word>AddNode</word><path>~ac/lib/list/STR_LIST.f</path><comment><en>linked list </en></comment></lib>
-<lib><word>LINK,</word><path>~day/common/link.f</path><comment><en>static list (compiles in code area) </en></comment></lib>
-<lib><word>firstNode</word><path>~day/lib/staticlist.f</path><comment><en>double-linked list, pretty much words </en></comment></lib>
-<lib><word>list+s</word><path>~pinka/lib/list_ext.f</path><comment><en>linked list </en></comment></lib>
-<lib><word>cons</word><path>~ygrek/lib/list/core.f</path><comment><en>list of cons pairs, core words</en></comment></lib>
-<lib><word>lst(</word><path>~ygrek/lib/list/ext.f</path><comment><en>constructing list with lst( 1 % 2 % 3 % )lst</en></comment></lib>
-<lib><word>reduce-this</word><path>~ygrek/lib/list/more.f</path><comment><en>additional list operations - reduce, equal?, list-remove-dublicates</en></comment></lib>
-<lib><word>write-list</word><path>~ygrek/lib/list/write.f</path><comment><en>print list, also serialization suitable for EVALUATE</en></comment></lib>
-<lib><word>write-list</word><path>~ygrek/lib/list/all.f</path><comment><en>all words for cons pair lists</en></comment></lib>
+<name><en>Linked lists</en><ru>Связные списки</ru></name>
+<lib><word>ListNode</word><path>~day/joop/lib/list.f</path><comment><en>double-linked list</en><ru>двухсвязный список</ru></comment></lib>
+<lib><word>AddNode</word><path>~ac/lib/list/STR_LIST.f</path><comment><en>linked list</en><ru>односвязный список</ru></comment></lib>
+<lib><word>LINK,</word><path>~day/common/link.f</path><comment><en>static list (compiles in code area)</en><ru>статический список (компилируется в кодофай)</ru></comment></lib>
+<lib><word>firstNode</word><path>~day/lib/staticlist.f</path><comment><en>double-linked list, pretty much words</en><ru>двухсвязный список, много слов</ru></comment></lib>
+<lib><word>list+s</word><path>~pinka/lib/list_ext.f</path><comment><en>linked list </en><ru>односвязный список</ru></comment></lib>
+<lib><word>cons</word><path>~ygrek/lib/list/core.f</path><comment><en>list of cons pairs, core words</en><ru>cons список, базовые слова</ru></comment></lib>
+<lib><word>lst(</word><path>~ygrek/lib/list/ext.f</path><comment><en>constructing list with %[ 1 % 2 % 3 % ]%</en><ru>создание списков в виде %[ 1 % 2 % 3 % ]%</ru></comment></lib>
+<lib><word>reduce-this</word><path>~ygrek/lib/list/more.f</path><comment><en>additional list operations</en><ru>дополнительный операции над списком</ru></comment></lib>
+<lib><word>write-list</word><path>~ygrek/lib/list/write.f</path><comment><en>print list, also serialization suitable for EVALUATE</en><ru>распечатка, сериализация пригодная для EVALUATE</ru></comment></lib>
+<lib><word>write-list</word><path>~ygrek/lib/list/all.f</path><comment><en>all words for cons pair lists</en><ru>все слова для cons списков</ru></comment></lib>
 </section>
 
 <section id="record">
-<name><en>Data structures - record</en><ru>Структуры</ru></name>
-<lib><word>STRUCT:</word><path>lib/ext/struct.f</path><comment><en>simple records </en></comment></lib>
-<lib><word>f:</word><path>~af/lib/struct.f</path><comment><en>defining records with elements-functions </en></comment></lib>
-<lib><word>f:</word><path>~af/lib/struct-t.f</path><comment><en>defining records with elements-functions in the temporary vocabulary</en></comment></lib>
+<name><en>Records</en><ru>Структуры</ru></name>
+<lib><word>STRUCT:</word><path>lib/ext/struct.f</path><comment><en>simple records</en><ru>простые структуры</ru></comment></lib>
+<lib><word>f:</word><path>~af/lib/struct.f</path><comment><en>defining records with elements-functions </en><ru>структуры с элементами-функцями</ru></comment></lib>
+<lib><word>f:</word><path>~af/lib/struct-t.f</path><comment><en>defining records with elements-functions in the temporary vocabulary</en><ru>структуры с элементами функциями во временном словаре</ru></comment></lib>
 </section>
 
 <section id="data">
-<name><en>Data structures - misc</en><ru></ru></name>
-<lib><word>Stack</word><path>~day/joop/lib/stack.f</path><comment><en>stack</en></comment></lib>
-<lib><word>New-Queue</word><path>~pinka/lib/queue_pr.f</path><comment><en>priority queue</en></comment></lib>
-<lib><word>x.mask</word><path>~mlg/SrcLib/bitfield.f</path><comment><en>Bit arrays</en></comment></lib>
-<lib><word>RATIO</word><path>~pinka/lib/BigMath.f</path><comment><en>Rational fractions (big numbers)</en></comment></lib>
-<lib><word>new-set</word><path>~pinka/lib/charset.f</path><comment><en>ASCII characters set (as 256 bit array)</en></comment></lib>
+<name><en>Data structures</en><ru>Структуры данных</ru></name>
+<lib><word>Stack</word><path>~day/joop/lib/stack.f</path><comment><en>stack</en><ru>стек</ru></comment></lib>
+<lib><word>New-Queue</word><path>~pinka/lib/queue_pr.f</path><comment><en>priority queue</en><ru>очередь с приоритетом</ru></comment></lib>
+<lib><word>x.mask</word><path>~mlg/SrcLib/bitfield.f</path><comment><en>bit array</en><ru>битовый массив</ru></comment></lib>
+<lib><word>RATIO</word><path>~pinka/lib/BigMath.f</path><comment><en>rational fractions</en><ru>рациональные дроби</ru></comment></lib>
+<lib><word>new-set</word><path>~pinka/lib/charset.f</path><comment><en>ASCII characters set (as 256 bit array)</en><ru>множество ASCII (как 256-битный массив)</ru></comment></lib>
 </section>
 
 <section id="sort-n-search">
 <name><en>Sorting and search</en><ru>Сортировка и поиск</ru></name>
-<lib><word>HeapSort</word><path>~mlg/SrcLib/hsort.f</path><comment><en>heap sort</en></comment></lib>
-<lib><word>quick_sort</word><path>~pinka/samples/2003/common/qsort.f</path><comment><en>"Quick" sort</en></comment></lib>
-<lib><word>binary-search</word><path>~profit/lib/binary-search.f</path><comment><en>Binary search</en></comment></lib>
+<lib><word>HeapSort</word><path>~mlg/SrcLib/hsort.f</path><comment><en>heap sort</en><ru>пирамидальная сортировка</ru></comment></lib>
+<lib><word>quick_sort</word><path>~pinka/samples/2003/common/qsort.f</path><comment><en>"quick" sort</en><ru>"быстрая" сортировка</ru></comment></lib>
+<lib><word>binary-search</word><path>~profit/lib/binary-search.f</path><comment><en>binary search</en><ru>двоичный поиск</ru></comment></lib>
 </section>
 
 <section id="techniques">
 <name><en>Programming techniques</en><ru>Programming techniques</ru></name>
-<lib><word>{</word><path>lib/ext/locals.f</path><comment><en>Local variables</en></comment></lib>
-<lib><word>LAMBDA{</word><path>~pinka/lib/lambda.f</path><comment><en>:NONAME but in the compilation state</en></comment></lib>
-<lib><word>(:</word><path>~yz/lib/inline.f</path><comment><en>lambda analogue</en></comment></lib>
-<lib><word>CONT</word><path>~profit/lib/bac4th.f</path><comment><en>backtracking, see description in <path>~mlg/index.html#bacforth</path></en></comment></lib>
+<lib><word>{</word><path>lib/ext/locals.f</path><comment><en>local variables</en><ru>локальные переменные</ru></comment></lib>
+<lib><word>LAMBDA{</word><path>~pinka/lib/lambda.f</path><comment><en>:NONAME but in the compilation state</en><ru>:NONAME в режиме компиляции</ru></comment></lib>
+<lib><word>(:</word><path>~yz/lib/inline.f</path><comment><en>lambda analogue</en><ru>аналог лямбда-конструкции</ru></comment></lib>
+<lib><word>CONT</word><path>~profit/lib/bac4th.f</path><comment><en>backtracking, see description in <path>~mlg/index.html#bacforth</path></en><ru>перебор с возвратами, см. описание в <path>~mlg/index.html#bacforth</path></ru></comment></lib>
 </section>
 
 <section id="debug">
 <name><en>Debugging facilities</en><ru>Отладка</ru></name> 
-<lib><word>HeapEnum</word><path>~ac/lib/memory/heap_enum2.f</path><comment><en>enumerating allocated memory blocks on the heap</en></comment></lib>
-<lib><word>mem_stub</word><path>~day/lib/mem_sanity.f</path><comment><en>Verifying FREE (via filling with template) </en></comment></lib>
-<lib><word>MemReport</word><path>~day/lib/memreport.f</path><comment><en>Memory leakages checking with stack report (supports multithreading) </en></comment></lib>
-<lib><word>ACCERT(</word><path>lib/ext/debug/accert.f</path><comment><en>Conditional compilation, suitable for debug checks</en></comment></lib>
-<lib><word>TRACER</word><path>lib/ext/debug/tracer.f</path><comment><en>Detailed execution report</en></comment></lib>
-<lib><word>EXC-DUMP2</word><path>~pinka/spf/exc-dump.f</path><comment><en>enhanced exception reporting</en></comment></lib>
+<lib><word>HeapEnum</word><path>~ac/lib/memory/heap_enum2.f</path><comment><en>enumerating allocated memory blocks on the heap</en><ru>перечисление блоков памяти выделенных на хипе</ru></comment></lib>
+<lib><word>mem_stub</word><path>~day/lib/mem_sanity.f</path><comment><en>verifying FREE (via filling with template)</en><ru>проверка корректности удаления (с помощью заполнения шаблоном)</ru></comment></lib>
+<lib><word>MemReport</word><path>~day/lib/memreport.f</path><comment><en>memory leakages checking with stack report (supports multithreading)<ru>отчёт об утечках памяти (поддерживает многопоточность)</ru></en></comment></lib>
+<lib><word>ACCERT(</word><path>lib/ext/debug/accert.f</path><comment><en>conditional compilation</en><ru>условная компиляция</ru></comment></lib>
+<lib><word>TRACER</word><path>lib/ext/debug/tracer.f</path><comment><en>detailed execution report</en><ru>подробный отчёт о выполнении</ru></comment></lib>
 <lib><word>TESTCASES</word><path>~ygrek/lib/testcase.f</path><comment><en>TESTCASES by ~day</en></comment></lib>
-<lib><word>/TEST</word><path>~profit/lib/testing.f</path><comment><en>marking tests in code based on INCLUDED-DEPTH (depth of source inclusion)</en></comment></lib>
+<lib><word>/TEST</word><path>~profit/lib/testing.f</path><comment><en>marking tests in code</en><ru>отметка тестов в коде</ru></comment></lib>
 </section>
 
 <section id="random">
 <name><en>Random numbers</en><ru>Случайные числа</ru></name>
-<lib><word>RANDOM</word><path>lib/ext/rnd.f</path><comment><en>linear congruent generator</en></comment></lib>
-<lib><word>RANDOM</word><path>~day/common/rnd.f</path><comment><en>linear congruent generator </en></comment></lib>
-<lib><word>RANDOM</word><path>~af/lib/random.f</path><comment><en>linear congruent generator</en></comment></lib>
-<lib><word>RANDOM</word><path>~nn/lib/ran4.f</path><comment><en>RAN4 </en></comment></lib>
-<lib><word>GENRAND</word><path>~ygrek/lib/neilbawd/mersenne.f</path><comment><en>Mersenne twister - high-speed and quality RNG</en></comment></lib>
+<lib><word>RANDOM</word><path>lib/ext/rnd.f</path><comment><en>linear congruent generator</en><ru>линейно конгруэнтный генератор</ru></comment></lib>
+<lib><word>RANDOM</word><path>~day/common/rnd.f</path><comment><en>linear congruent generator </en><ru>линейно конгруэнтный генератор</ru></comment></lib>
+<lib><word>RANDOM</word><path>~af/lib/random.f</path><comment><en>linear congruent generator</en><ru>линейно конгруэнтный генератор</ru></comment></lib>
+<lib><word>RANDOM</word><path>~nn/lib/ran4.f</path><comment><en>RAN4</en></comment></lib>
+<lib><word>GENRAND</word><path>~ygrek/lib/neilbawd/mersenne.f</path><comment><en>Mersenne twister - high-speed and quality RNG</en><ru>Mersenne twister - быстрый и качественный генератор</ru></comment></lib>
 </section>
 
 <section id="hash">
 <name><en>Hashes</en><ru>Хэш-таблицы</ru></name>
-<lib><word>new-hash</word><path>~pinka/lib/hash-table.f</path></lib>
-<lib><word>ListAllocate</word><path>~af/lib/simple_hash.f</path></lib>
-<lib><word>HASH-TABLE</word><path>~yz/lib/hash.f</path></lib>
-<other><path>~pinka/samples/2003/test-hash/</path><comment><en>Speed comparison of hash implementations</en></comment></other>
-<lib><word>HASH</word><path>~day/common/hash.f</path><comment><en>hash counting procedure</en></comment></lib>
+<lib><word>new-hash</word><path>~pinka/lib/hash-table.f</path><comment><en>hash table</en><ru>хэш таблица</ru></comment></lib>
+<lib><word>ListAllocate</word><path>~af/lib/simple_hash.f</path><comment><en>hashed string array</en><ru>хэшированный массив строк</ru></comment></lib>
+<lib><word>HASH-TABLE</word><path>~yz/lib/hash.f</path><comment><en>hash table</en><ru>хэш таблица</ru></comment></lib>
+<other><path>~pinka/samples/2003/test-hash/</path><comment><en>speed comparison of hash implementations</en><ru>сравнение скорости реализаций хэш таблиц</ru></comment></other>
+<lib><word>HASH</word><path>~day/common/hash.f</path><comment><en>hash counting procedure</en><ru>процедура подсчёта хэш-значения</ru></comment></lib>
 </section>
 
 <section id="hash-func">
 <name><en>Cryptographic hashes</en><ru>Хэши</ru></name>
-<lib><word>MD5</word><path>~clf/md5.f</path></lib>
-<lib><word>MD5</word><path>~clf/md5-ts.f</path><comment><en>thread safe </en></comment></lib>
-<lib><word>MD5</word><path>lib/alg/md5-jz.f</path></lib>
+<lib><word>MD5</word><path>~clf/md5.f</path><comment><en>MD5</en></comment></lib>
+<lib><word>MD5</word><path>~clf/md5-ts.f</path><comment><en>thread safe MD5</en></comment></lib>
+<lib><word>MD5</word><path>lib/alg/md5-jz.f</path><comment><en>MD5</en></comment></lib>
 </section>
 
 <section id="compiletime-const">
 <name><en>Compile-time constants</en><ru>Константы времени компиляции</ru></name>
-<lib><word>LOAD-CONSTANTS</word><path>~yz/lib/const.f</path><comment><en>including constants - the `W:` word searches the constant</en></comment></lib>
-<lib><word>ADD-CONST-VOC</word><path>~day/wincons/wc.f</path><comment><en>including constants - redefining `NOTFOUND`</en></comment></lib>
-<lib><word>BEGIN-CONST</word><path>~day/wincons/compile.f</path><comment><en>*.const files compiler</en></comment></lib>
-<other><path>~day/wincons/h2f.f</path><comment><en>extracting Forth constants from C language header files</en></comment></other>
-<other><path>~yz/cons/</path><comment><en>precompiled constants for sql, commctrl, windows</en></comment></other>
-<other><path>~ygrek/lib/data/</path><comment><en>farplugin, opengl</en></comment></other>
+<lib><word>LOAD-CONSTANTS</word><path>~yz/lib/const.f</path><comment><en>including constants - search via W: word prefix</en><ru>подключение констант - поиск через префиксное слово W:</ru></comment></lib>
+<lib><word>ADD-CONST-VOC</word><path>~day/wincons/wc.f</path><comment><en>including constants - search via NOTFOUND</en><ru>подключение констант - поиск по NOTFOUND</ru></comment></lib>
+<lib><word>BEGIN-CONST</word><path>~day/wincons/compile.f</path><comment><en>*.const files compiler</en><ru>компилятор *.const файлов</ru></comment></lib>
+<other><path>~day/wincons/h2f.f</path><comment><en>extracting constants from C language header files</en><ru>выдирание констант из сишных заголовочных файлов</ru></comment></other>
+<other><path>~yz/cons/</path><comment><en>precompiled constants for sql, commctrl, windows</en><ru>файлы констант для sql, commctrl, windows</ru></comment></other>
+<other><path>~ygrek/lib/data/</path><comment><en>precompiled constants for libcurl, opengl, farplugin</en><ru>файлы констант для libcurl, opengl, farplugin</ru></comment></other>
 </section>
 
 <section id="ui">
 <name><en>User interface</en><ru>Интерфейс пользователя</ru></name>
-<lib><word>WINDOWS...</word><path>~yz/lib/winlib.f</path><comment><en>WinLib - Windows GUI interface library. Stretches forms and controls on it. Specifying controls position without coordinates, only position in grid - know-how! Good documentation : <path>~yz/winlib.html</path></en></comment></lib>
-<lib><word>FrameWindow</word><path>~day/joop/win/framewindow.f</path><comment><en>windows library based on joop </en></comment></lib>
-<other><path>~ac/lib/win/window</path><comment><en>simple and small implementation</en></comment></other>
-<lib><word>WFL</word><path>~day/wfl/wfl.f</path><comment><en>windows library based on hype3, with examples (<path>~day/wfl/examples</path>)</en></comment></lib>
-<lib><word>AT-XY</word><path>~day/common/console.f</path><comment><en>Minimum words for console</en></comment></lib>
-<lib><word>SetLocate</word><path>~pi/lib/console.f</path><comment><en>Console support</en></comment></lib>
+<lib>
+  <word>WINDOWS...</word><path>~yz/lib/winlib.f</path>
+  <comment>
+    <en>WinLib - Windows GUI interface library. Stretches forms and controls on it. Specifying controls position without coordinates, only position in grid - know-how! Good documentation : <path>~yz/winlib.html</path></en>
+    <ru>WinLib - библиотека интерфейса Windows. Умеет растягивать формы и контролы в ней. Задание вида окна без указания точных координат, с помощью размещения в сетке - ноу-хау! Хорошая документация : <path>~yz/winlib.html</path></ru>
+  </comment>
+</lib>
+<lib><word>FrameWindow</word><path>~day/joop/win/framewindow.f</path><comment><en>windows library based on joop</en><ru>библиотка интерфейса поверх joop</ru></comment></lib>
+<other><path>~ac/lib/win/window</path><comment><en>simple and small implementation</en><ru>маленькая и простая реализация</ru></comment></other>
+<lib><word>WFL</word><path>~day/wfl/wfl.f</path><comment><en>windows library based on hype3, with examples (<path>~day/wfl/examples</path>)</en><ru>библиотека интерфейса поверх hype3, с примерами (<path>~day/wfl/examples</path>)</ru></comment></lib>
+<lib><word>AT-XY</word><path>~day/common/console.f</path><comment><en>minimum words for console</en><ru>минимальный набор слов для консоли</ru></comment></lib>
+<lib><word>SetLocate</word><path>~pi/lib/console.f</path><comment><en>console support</en><ru>поддержка консоли</ru></comment></lib>
 </section>
 
 <section id="WinCOM">
 <name><en>Windows COM</en></name> 
-<lib><word>ComInit</word><path>~ac/lib/win/com/com.f</path><comment><en>basic COM support</en></comment></lib>
-<lib><word>Extends</word><path>~ac/lib/win/com/com_server.f</path><comment><en>COM-server </en></comment></lib>
+<lib><word>ComInit</word><path>~ac/lib/win/com/com.f</path><comment><en>basic COM support</en><ru>базовая поддержка COM</ru></comment></lib>
+<lib><word>Extends</word><path>~ac/lib/win/com/com_server.f</path><comment><en>COM-server</en><ru>COM сервер</ru></comment></lib>
 </section>
 
 <section id="services">
 <name><en>System services</en><ru>Системные сервисы</ru></name>
-<lib><word>CreateService</word><path>~ac/lib/win/service/service.f</path><comment><en>NT services</en></comment></lib>
-<lib><word>InstallService95</word><path>~ac/lib/win/service/service95.f</path><comment><en>"services" for Win9x/ME </en></comment></lib>
+<lib><word>CreateService</word><path>~ac/lib/win/service/service.f</path><comment><en>NT services</en><ru>сервисы NT</ru></comment></lib>
+<lib><word>InstallService95</word><path>~ac/lib/win/service/service95.f</path><comment><en>"services" for Win9x/ME</en><ru>"сервисы" для Win9x/ME</ru></comment></lib>
 </section>
 
 <section id="datetime">
 <name><en>Date and time</en><ru>Дата и время</ru></name>
-<lib><word>DateTime#</word><path>~ac/lib/win/date/date-int.f</path><comment><en>date/time in different formats</en></comment></lib>
-<lib><word>UNIXDATE</word><path>~ac/lib/win/date/unixdate.f</path><comment><en>Unixdate support</en></comment></lib>
-<lib><word>FileDateTime#</word><path>~ac/lib/win/file/filetime.f</path><comment><en>file date/time </en></comment></lib>
-<lib><word>parse-date?</word><path>~ygrek/lib/spec/sdate.f</path><comment><en>S" Tue, 19 Dec 2006 19:55:16 +0300" dates' parsing</en></comment></lib>
-<lib><word>parse-num-unixdate</word><path>~ygrek/lib/spec/sdate2.f</path><comment><en>S" 2007-01-27T17:40:36+03:00" dates' parsing</en></comment></lib>
-<lib><word>DateTime>Num</word><path>~ygrek/lib/spec/unixdate.f</path><comment><en>convert unix timestamp into date and back</en></comment></lib>
+<lib><word>DateTime#</word><path>~ac/lib/win/date/date-int.f</path><comment><en>date/time in different formats</en><ru>дата/время в разных форматах</ru></comment></lib>
+<lib><word>UNIXDATE</word><path>~ac/lib/win/date/unixdate.f</path><comment><en>unixdate support</en><ru>поддержка unixdate</ru></comment></lib>
+<lib><word>FileDateTime#</word><path>~ac/lib/win/file/filetime.f</path><comment><en>file date/time</en><ru>дата/время файловой системы</ru></comment></lib>
+<lib><word>parse-date?</word><path>~ygrek/lib/spec/sdate.f</path><comment><en>S" Tue, 19 Dec 2006 19:55:16 +0300" dates' parsing</en><ru>разбор даты в виде S" Tue, 19 Dec 2006 19:55:16 +0300"</ru></comment></lib>
+<lib><word>parse-num-unixdate</word><path>~ygrek/lib/spec/sdate2.f</path><comment><en>S" 2007-01-27T17:40:36+03:00" dates' parsing</en><ru>разбор даты в виде S" 2007-01-27T17:40:36+03:00"</ru></comment></lib>
+<lib><word>DateTime>Num</word><path>~ygrek/lib/spec/unixdate.f</path><comment><en>convert unix timestamp into date and back</en><ru>преобразование unix timestamp в дату и обратно</ru></comment></lib>
 </section>
 
 <section id="db">
 <name><en>Databases</en><ru>Базы данных</ru></name>
-<lib><word>StartSQL</word><path>~yz/lib/odbc.f</path><comment><en>ODBC, typed data</en></comment></lib>
-<lib><word>StartSQL</word><path>~ac/lib/win/odbc/odbc.f</path><comment><en>ODBC, all data as strings </en></comment></lib>
-<lib><word>ExecSQLTxt</word><path>~pinka/lib/win/odbc/odbc-txt.f</path><comment><en>DELETE and UPDATE support for Text File Driver </en></comment></lib>
-<lib><word>db3_open</word><path>~ac/lib/lin/sql/sqlite3.f</path><comment><en>SQLite </en></comment></lib>
-<lib><word>MyQuery</word><path>~day/lib/mysql.f</path><comment><en>MySQL wrapper </en></comment></lib>
+<lib><word>StartSQL</word><path>~yz/lib/odbc.f</path><comment><en>ODBC, typed data</en><ru>ODBC, типизированные данные</ru></comment></lib>
+<lib><word>StartSQL</word><path>~ac/lib/win/odbc/odbc.f</path><comment><en>ODBC, all data as strings</en><ru>ODBC, все данные как строки</ru></comment></lib>
+<lib><word>ExecSQLTxt</word><path>~pinka/lib/win/odbc/odbc-txt.f</path><comment><en>DELETE and UPDATE support for Text File Driver</en><ru>поддержка DELETE и UPDATE для Text File Driver</ru></comment></lib>
+<lib><word>db3_open</word><path>~ac/lib/lin/sql/sqlite3.f</path><comment><en>SQLite</en><ru>SQLite</ru></comment></lib>
+<lib><word>MyQuery</word><path>~day/lib/mysql.f</path><comment><en>MySQL wrapper</en><ru>MySQL обёртка</ru></comment></lib>
 </section>
 
 <section id="threads">
 <name><en>Processes, threads, etc</en><ru>Процессы, потоки, итп</ru></name>
-<lib><word>StartApp</word><path>~ac/lib/win/process/process.f</path><comment><en>start applications from command line (StartApp, StartAppWait)</en></comment></lib>
-<lib><word>GetProcessACL</word><path>~ac/lib/win/access/nt_access.f</path><comment><en>access rights</en></comment></lib>
-<lib><word>IsapiRunExtension</word><path>~ac/lib/win/isapi/isapi.f</path><comment><en>support ISAPI-compatible extensions</en></comment></lib>
-<lib><word>CREATE-CP</word><path>~ac/lib/win/thread/pool.f</path><comment><en>thread-pool in Win200x </en></comment></lib>
-<lib><word>CREATE-MUTEX</word><path>lib/win/mutex.f</path><comment><en>Mutexes</en></comment></lib>
-<lib><word>ENTER-CS</word><path>~pinka/lib/multi/critical.f</path><comment><en>Critical sections</en></comment></lib>
-<lib><word>WaitAll</word><path>~pinka/lib/multi/synchr.f</path><comment><en>Threads synchronization - "wait for single", "wait for all"</en></comment></lib>
+<lib><word>StartApp</word><path>~ac/lib/win/process/process.f</path><comment><en>start applications from command line</en><ru>запуск приложений из командной строки</ru></comment></lib>
+<lib><word>GetProcessACL</word><path>~ac/lib/win/access/nt_access.f</path><comment><en>access rights</en><ru>права доступа</ru></comment></lib>
+<lib><word>IsapiRunExtension</word><path>~ac/lib/win/isapi/isapi.f</path><comment><en>support ISAPI-compatible extensions</en><ru>поддержка ISAPI-совместимых расширений</ru></comment></lib>
+<lib><word>CREATE-CP</word><path>~ac/lib/win/thread/pool.f</path><comment><en>thread-pool in Win200x</en><ru>пул потоков в Win200x</ru></comment></lib>
+<lib><word>CREATE-MUTEX</word><path>lib/win/mutex.f</path><comment><en>mutexes</en><ru>мутексы</ru></comment></lib>
+<lib><word>ENTER-CS</word><path>~pinka/lib/multi/critical.f</path><comment><en>critical sections</en><ru>критические секции</ru></comment></lib>
+<lib><word>WaitAll</word><path>~pinka/lib/multi/synchr.f</path><comment><en>threads synchronization - "wait for single", "wait for all"</en><ru>синхронизация потоков - "wait for single", "wait for all"</ru></comment></lib>
 </section>
 
 
 <section id="ini-registry">
 <name><en>Windows registry and ini-files</en><ru>Реестр Windows</ru></name>
-<lib><word>RG_CreateKey</word><path>~ac/lib/win/registry2.f</path></lib> 
-<lib><word>IniFile@</word><path>~ac/lib/win/ini.f</path></lib>
+<lib><word>RG_CreateKey</word><path>~ac/lib/win/registry2.f</path><comment><en>Windows registry</en><ru>реестр Windows</ru></comment></lib> 
+<lib><word>IniFile@</word><path>~ac/lib/win/ini.f</path><comment><en>ini-files</en><ru>ini-файлы</ru></comment></lib>
 </section>
 
 <section id="str">
 <name><en>Strings</en><ru>Строки</ru></name>
-<lib><word>STR@</word><path>~ac/lib/str5.f</path><comment><en>dynamic strings</en></comment></lib>
-<lib><word>BNF</word><path>~ac/lib/transl/BNF.f</path><comment><en>basic BNF data types</en></comment></lib>
-<lib><word>CHECK-SET</word><path>~day/common/sbnf.f</path><comment><en>simple BNF parser</en></comment></lib>
-<lib><word>WildCMP-U</word><path>~pinka/lib/mask.f</path><comment><en>comparing string and wildcard mask</en></comment></lib>
-<lib><word>ULIKE</word><path>~pinka/lib/like.f</path><comment><en>comparing string and wildcard mask</en></comment></lib>
-<lib><word>re_start</word><path>~nn/lib/re.f</path><comment><en>regexps </en></comment></lib>
-<lib><word>PcreMatch</word><path>~ac/lib/string/regexp.f</path><comment><en>PCRE wrapper </en></comment></lib>
-<lib><word>BregexpMatch</word><path>~ac/lib/string/bregexp/bregexp.f</path><comment><en>bregexp.dll wrapper </en></comment></lib>
-<lib><word>debase64</word><path>~ac/lib/string/conv.f</path><comment><en>base64, win-koi, urlencode etc. </en></comment></lib>
-<lib><word>UPPERCASE</word><path>~ac/lib/string/uppercase.f</path><comment><en>uppercase conversion</en></comment></lib>
-<lib><word>COMPARE-U</word><path>~ac/lib/string/compare-u.f</path><comment><en>case-ignorant comparison</en></comment></lib>
-<lib><word>GetParam</word><path>~ac/lib/string/get_params.f</path><comment><en>URL-parameters string parser</en></comment></lib>
-<lib><word>SPLIT-</word><path>~pinka/samples/2005/lib/split.f</path><comment><en>dividing string on substring, "inplace" replacing</en></comment></lib>
-<lib><word>replace-str-</word><path>~pinka/samples/2005/lib/replace-str.f</path><comment><en>replacing in strings</en></comment></lib>
-<lib><word>FINE-HEAD</word><path>~pinka/samples/2005/lib/split-white.f</path><comment><en>removing spaces at string bounds</en></comment></lib>
-<lib><word>TYPE>STR</word><path>~ygrek/lib/typestr.f</path><comment><en>redirecting whole TYPE output to string</en></comment></lib>
+<lib><word>STR@</word><path>~ac/lib/str5.f</path><comment><en>dynamic strings</en><ru>динамические строки</ru></comment></lib>
+<lib><word>BNF</word><path>~ac/lib/transl/BNF.f</path><comment><en>basic BNF data types</en><ru>основные типы данных BNF</ru></comment></lib>
+<lib><word>CHECK-SET</word><path>~day/common/sbnf.f</path><comment><en>simple BNF parser</en><ru>простой BNF парсер</ru></comment></lib>
+<lib><word>WildCMP-U</word><path>~pinka/lib/mask.f</path><comment><en>comparing string and wildcard mask</en><ru>сравнение строки с маской</ru></comment></lib>
+<lib><word>ULIKE</word><path>~pinka/lib/like.f</path><comment><en>comparing string and wildcard mask</en><ru>сравнение строки и маски</ru></comment></lib>
+<lib><word>re_start</word><path>~nn/lib/re.f</path><comment><en>regexps via regexp.dll</en><ru>регулярные выражения с помощью regexp.dll</ru></comment></lib>
+<lib><word>PcreMatch</word><path>~ac/lib/string/regexp.f</path><comment><en>PCRE wrapper</en><ru>PCRE обёртка</ru></comment></lib>
+<lib><word>BregexpMatch</word><path>~ac/lib/string/bregexp/bregexp.f</path><comment><en>bregexp.dll wrapper</en><ru>bregexp.dll обёртка</ru></comment></lib>
+<lib><word>UPPERCASE</word><path>~ac/lib/string/uppercase.f</path><comment><en>uppercase conversion</en><ru>перевод в верхний регистр</ru></comment></lib>
+<lib><word>COMPARE-U</word><path>~ac/lib/string/compare-u.f</path><comment><en>case-ignorant comparison</en><ru>сравнение без учёта регистра</ru></comment></lib>
+<lib><word>GetParam</word><path>~ac/lib/string/get_params.f</path><comment><en>URL-parameters string parser</en><ru>рахбор строки URL-параметров</ru></comment></lib>
+<lib><word>SPLIT-</word><path>~pinka/samples/2005/lib/split.f</path><comment><en>dividing string on substring, "inplace" replacing</en><ru>разбиение строки по подстроке, замена "на месте"</ru></comment></lib>
+<lib><word>replace-str-</word><path>~pinka/samples/2005/lib/replace-str.f</path><comment><en>replacing in strings</en><ru>замена в строках</ru></comment></lib>
+<lib><word>FINE-HEAD</word><path>~pinka/samples/2005/lib/split-white.f</path><comment><en>removing spaces at string bounds</en><ru>удаление пробелов по краям строк</ru></comment></lib>
+<lib><word>TYPE>STR</word><path>~ygrek/lib/typestr.f</path><comment><en>redirecting whole TYPE output to string</en><ru>перенаправление всего TYPE вывода в строку</ru></comment></lib>
 </section>
 
 <section id="files">
 <name><en>Files</en><ru>Файлы</ru></name>
-<lib><word>OPEN-FILE-SHARED-DELETE</word><path>~ac/lib/win/file/share-delete.f</path><comment><en>opening file with "light" shareable access</en></comment></lib>
-<lib><word>LAY-PATH</word><path>~pinka/samples/2005/lib/lay-path.f</path><comment><en>creation of path directories</en></comment></lib>
-<lib><word>ATTACH</word><path>~pinka/samples/2005/lib/append-file.f</path><comment><en>safe writing to file</en></comment></lib>
-<lib><word>SPEAK-WITH</word><path>~pinka/samples/2005/ext/tank.f</path><comment><en>controlling output stream, executing xt with output to file redirection </en></comment></lib>
+<lib><word>OPEN-FILE-SHARED-DELETE</word><path>~ac/lib/win/file/share-delete.f</path><comment><en>opening file with "light" shareable access</en><ru>открытие файла с "мягким" совместным доступом</ru></comment></lib>
+<lib><word>LAY-PATH</word><path>~pinka/samples/2005/lib/lay-path.f</path><comment><en>creation of path directories</en><ru>создание пути каталогов</ru></comment></lib>
+<lib><word>ATTACH</word><path>~pinka/samples/2005/lib/append-file.f</path><comment><en>safe writing to file</en><ru>безопасная запись в файл</ru></comment></lib>
+<lib><word>SPEAK-WITH</word><path>~pinka/samples/2005/ext/tank.f</path><comment><en>controlling output stream, executing xt with output to file redirection</en><ru>контроль потока вывода, выполнение xt с перенаправлением вывода в файл</ru></comment></lib>
 </section>
 
 <section id="xml">
 <name><en>XML</en></name>
 <lib><word>XML_Evaluate</word><path>~ac/lib/lin/xml/expat.f</path><comment><en>XML via libexpat</en></comment></lib>
-<lib><word>XML_READ_DOC</word><path>~ac/lib/lin/xml/xml.f</path><comment><en>XML via LibXml2 </en></comment></lib>
-<lib><word>XSLT</word><path>~ac/lib/lin/xml/xslt.f</path><comment><en>XSLT via LibXslt </en></comment></lib>
+<lib><word>XML_READ_DOC</word><path>~ac/lib/lin/xml/xml.f</path><comment><en>XML via libxml2 </en></comment></lib>
+<lib><word>XSLT</word><path>~ac/lib/lin/xml/xslt.f</path><comment><en>XSLT via libxslt </en></comment></lib>
 </section>
 
 <section id="oop">
 <name><en>OOP extensions</en><ru>ООП расширения</ru></name>
-<lib><word>CLASS:</word><path>~day/joop/oop.f</path><comment><en>just oop with great pile of examples</en></comment></lib>
-<lib><word>CLASS:</word><path>~af/mc/microclass.f</path><comment><en>microclass </en></comment></lib>
-<lib><word>CLASS:</word><path>~day/mc/microclass.f</path><comment><en>microclass </en></comment></lib>
-<lib><word>CLASS</word><path>~day/hype3/hype3.f</path><comment><en>Hype 3, including reference (<path>~day/hype3/reference.pdf</path>)</en></comment></lib>
+<lib><word>CLASS:</word><path>~day/joop/oop.f</path><comment><en>just oop with great pile of examples</en><ru>just oop с кучей примеров</ru></comment></lib>
+<lib><word>CLASS:</word><path>~af/mc/microclass.f</path><comment><en>microclass</en></comment></lib>
+<lib><word>CLASS:</word><path>~day/mc/microclass.f</path><comment><en>microclass</en></comment></lib>
+<lib><word>CLASS</word><path>~day/hype3/hype3.f</path><comment><en>Hype 3, including reference (<path>~day/hype3/reference.pdf</path>)</en><ru>Hype3, с руководством пользователя (<path>~day/hype3/reference.pdf</path>)</ru></comment></lib>
 </section>
 
 <section id="vocs">
 <name><en>Vocabularies</en><ru>Словари</ru></name>
-<lib><word>InVoc{</word><path>~ac/lib/transl/vocab.f</path><comment><en>shortening vocabulary manipulations (MODULE: analogue) </en></comment></lib>
-<lib><word>ForEach</word><path>~ac/lib/ns/iterators.f</path><comment><en>iterators for context vocabularies</en></comment></lib>
-<lib><word>ForEach-Word</word><path>~pinka/lib/Words.f</path><comment><en>ForEach-Word </en></comment></lib>
-<lib><word>QuickSWL-Support</word><path>~pinka/spf/quick-swl2.f</path><comment><en>Quick Search Wordlist (due to hashing) </en></comment></lib>
-<lib><word>DLOPEN</word><path>~ac/lib/ns/dlopen.f</path><comment><en>unix-compatible way of loading WindowsDLL/UnixSO </en></comment></lib>
-<other><path>~ac/lib/ns/</path><comment><en>mapping external tree structures on forth wordlist</en></comment></other>
+<lib><word>InVoc{</word><path>~ac/lib/transl/vocab.f</path><comment><en>shortening vocabulary manipulations (MODULE: analogue)</en><ru>упрощение манипуляций со словарями (аналог MODULE:)</ru></comment></lib>
+<lib><word>ForEach</word><path>~ac/lib/ns/iterators.f</path><comment><en>iterators for context vocabularies</en><ru>итераторы для контекстных словарей</ru></comment></lib>
+<lib><word>ForEach-Word</word><path>~pinka/lib/Words.f</path><comment><en>ForEach-Word</en></comment></lib>
+<lib><word>QuickSWL-Support</word><path>~pinka/spf/quick-swl2.f</path><comment><en>Quick Search Wordlist (due to hashing)</en><ru>быстрый поиск по словарю (за счёт хэширования)</ru></comment></lib>
+<lib><word>DLOPEN</word><path>~ac/lib/ns/dlopen.f</path><comment><en>unix-compatible way of loading WindowsDLL/UnixSO</en><ru>unix-совместимый способ подключения WindowsDLL/UnixSO</ru></comment></lib>
+<other><path>~ac/lib/ns/</path><comment><en>mapping external tree structures on forth wordlist</en><ru>отображение внешних древовидных структур на форт-словарь</ru></comment></other>
 </section>
 
 <section id="mem">
 <name><en>Memory</en><ru>Память</ru></name>
-<lib><word>STACK_MEM</word><path>~ac/lib/memory/mem_stack.f</path><comment><en>"Stack"-way memory allocation</en></comment></lib>
-<lib><word>LowMemory?</word><path>~ac/lib/memory/low_memory.f</path><comment><en>Controlling extra memory consumption</en></comment></lib>
-<lib><word>PAllocSupport</word><path>~af/lib/pallocate.f</path><comment><en>Allocating memory in the global process space (shareable between threads) </en></comment></lib>
-<lib><word>LOCALLOC</word><path>~mak/lalloc.f</path><comment><en>local array allocation (on the return stack) </en></comment></lib>
-<lib><word>ALLOCATE2</word><path>~pinka/spf/mem2.f</path><comment><en>switching memory words for process and thread heap</en></comment></lib>
-<lib><word>LoadDelphiMM</word><path>~ss/lib/borlndmm.f</path><comment><en>Borland memory manager</en></comment></lib>
-<lib><word>INIT-TASK-VALUES</word><path>~ss/lib/task-values.f</path><comment><en>global thread variables </en></comment></lib>
-<lib><word>PROTECT-RETURN-STACK</word><path>~ss/ext/stack-quard.f</path><comment><en>Protecting return stack from erasing with data stack</en></comment></lib>
-<lib><word>GMEM</word><path>~yz/lib/gmem.f</path><comment><en>Global memory shareable between threads</en></comment></lib>
+<lib><word>STACK_MEM</word><path>~ac/lib/memory/mem_stack.f</path><comment><en>"stack"-way memory allocation</en><ru>"стековое" управление памятью</ru></comment></lib>
+<lib><word>LowMemory?</word><path>~ac/lib/memory/low_memory.f</path><comment><en>controlling extra memory consumption</en><ru>контроль за чрезмерным потреблением памяти</ru></comment></lib>
+<lib><word>PAllocSupport</word><path>~af/lib/pallocate.f</path><comment><en>allocating memory in the global process space (shareable between threads)</en><ru>выделение памяти в глобальном хипе процесса (разделяемом между потоками)</ru></comment></lib>
+<lib><word>LOCALLOC</word><path>~mak/lalloc.f</path><comment><en>local array allocation (on the return stack)</en><ru>локальный массив (на стеке возвратов)</ru></comment></lib>
+<lib><word>ALLOCATE2</word><path>~pinka/spf/mem2.f</path><comment><en>switching memory words for process and thread heap</en><ru>слова для переключение памяти процсса и потока</ru></comment></lib>
+<lib><word>LoadDelphiMM</word><path>~ss/lib/borlndmm.f</path><comment><en>Borland memory manager</en><ru>менеджер памяти Borland</ru></comment></lib>
+<lib><word>INIT-TASK-VALUES</word><path>~ss/lib/task-values.f</path><comment><en>global thread variables</en><ru>глобальные переменные потока</ru></comment></lib>
+<lib><word>PROTECT-RETURN-STACK</word><path>~ss/ext/stack-quard.f</path><comment><en>protecting return stack from erasing with data stack</en><ru>защита стека возвратов от затирания стеком данных</ru></comment></lib>
+<lib><word>GMEM</word><path>~yz/lib/gmem.f</path><comment><en>global memory shareable between threads</en><ru>глобальная память разделяемая между потоками</ru></comment></lib>
 </section>
 
 <section id="misc">
 <name><en>Miscellaneous</en><ru>Разное</ru></name>
-<lib><word>CONST</word><path>~micro/lib/const/const.f</path><comment><en>constants enumeration</en></comment></lib>
-<lib><word>ENUM</word><path>~ygrek/lib/enum.f</path><comment><en>enumerating similar words</en></comment></lib>
-<lib><word>enqueueNOTFOUND</word><path>~pinka/samples/2006/core/trans/nf-ext.f</path><comment><en>extending translators (NOTFOUND)</en></comment></lib>
+<lib><word>CONST</word><path>~micro/lib/const/const.f</path><comment><en>constants enumeration</en><ru>перечисление констант</ru></comment></lib>
+<lib><word>ENUM</word><path>~ygrek/lib/enum.f</path><comment><en>enumerating similar words</en><ru>перечисление подобных слов</ru></comment></lib>
+<lib><word>enqueueNOTFOUND</word><path>~pinka/samples/2006/core/trans/nf-ext.f</path><comment><en>extending translators (NOTFOUND)</en><ru>расширение транслятора (NOTFOUND)</ru></comment></lib>
 </section>
 
 
 <section id="encoding">
 <name><en>Encodings</en><ru>Кодировки</ru></name>
-<lib><word>UNICODE>UTF8</word><path>~ac/lib/win/com/com.f</path><comment><en>Convertation from Unicode (UTF-16) to UTF-8 and reverse</en></comment></lib>
-<lib><word>unicode></word><path>~day/lib/unicode.f</path><comment><en>Convertation from Unicode to ANSI and reverse</en></comment></lib>
-<lib><word>utf8Decode</word><path>~profit/lib/utf8.f</path><comment><en>Covertation from UTF-8 to Unicode (UTF-16). Doesn't use WINAPI\'s functions</en></comment></lib>
-<lib><word>debase64</word><path>~ac/lib/string/conv.f</path><comment><en>base64, win-koi, urlencode etc. </en></comment></lib>
-<lib><word>iconv:</word><path>~ygrek/lib/iconv.f></path><comment><en>libiconv wrapper</en></comment></lib>
+<lib><word>UNICODE>UTF8</word><path>~ac/lib/win/com/com.f</path><comment><en>convertation from Unicode (2 byte) to UTF-8 and reverse</en><ru>преобразование из Unicode (2 байта) в UTF-8 и обратно</ru></comment></lib>
+<lib><word>unicode></word><path>~day/lib/unicode.f</path><comment><en>convertation from Unicode to ANSI and reverse</en><ru>преобразование из Unicode в ANSI и обратно</ru></comment></lib>
+<lib><word>utf8Decode</word><path>~profit/lib/utf8.f</path><comment><en>covertation from UTF-8 to Unicode (2 byte). Doesn't use WINAPI's functions</en><ru>преобразование из UTF-8 в Unicode (2 байта), без использования WINAPI функций</ru></comment></lib>
+<lib><word>debase64</word><path>~ac/lib/string/conv.f</path><comment><en>base64, win-koi, urlencode etc.</en><ru>base64, win-koi, urlencode, etc</ru></comment></lib>
+<lib><word>iconv:</word><path>~ygrek/lib/iconv.f></path><comment><en>libiconv wrapper</en><ru>libiconv обёртка</ru></comment></lib>
 </section>
 
 </spf_devel>
