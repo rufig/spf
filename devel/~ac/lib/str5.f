@@ -420,6 +420,8 @@ USER _LASTFILE
   "" DUP ROT ! STR+
 \ ValidateThreadHeap>
 ;
+\ ~ygrek:
+: >STR ( addr u -- str ) "" >R R@ STR+ R> ;
 
 (
 
