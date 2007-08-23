@@ -4,7 +4,7 @@
 \  \ \  /\  / / _ _ __   __) | ) |  pi@alarmomsk.ru
 \   \ \/  \/ / | | '_ \ |__ < / /   Библиотека вывода графики на граф. консоль
 \    \  /\  /  | | | | |___) / /_   Pretorian 2007
-\     \/  \/   |_|_| |_|____/____|  v 1.3
+\     \/  \/   |_|_| |_|____/____|  v 1.4
 \ -----------------------------------------------------------------------------
 REQUIRE wincon	~pi/lib/wincon/wincon.f
 
@@ -16,6 +16,10 @@ WINAPI: RoundRect		GDI32.DLL
 WINAPI: LoadImageA		USER32.DLL
 WINAPI: StretchBlt		GDI32.DLL
 WINAPI: GetObjectA		GDI32.DLL
+WINAPI: DrawIcon		USER32.DLL
+WINAPI: GetPixel		GDI32.DLL
+WINAPI: Arc			GDI32.DLL
+WINAPI: Pie			GDI32.DLL
 
 0
 CELL -- bmType
@@ -82,6 +86,32 @@ BITMAP ALLOCATE THROW TO bitmap
 	hbitmap DeleteObject DROP
 	bhdc DeleteDC DROP ;
 
+\ Возвращает цвет пиксела в указанных координатах
+: GPixel ( x y -> RGB )
+	SWAP phdc GetPixel ;
+	
+\ Вывести иконку ico из файла на консоль
+: Icon ( addr u x y -> )
+	2SWAP DROP >R 0x10 0 0 1 R> hwdwin LoadImageA DUP
+	2SWAP SWAP phdc DrawIcon DROP DeleteObject DROP ;
+\ Дуга
+\ X1, Y1: Веpхний левый угол огpаничивающего пpямоугольника.
+\ X2, Y2: Пpавый нижний угол огpаничивающего пpямоугольника.
+\ X3, Y3: Начальная точка дуги.
+\ X4, Y4: Конечная точка дуги. 
+: Arcs  ( x1 y1 x2 y2 x3 y3 x4 y4 -> )
+	{ x1 y1 x2 y2 }
+	SWAP 2SWAP SWAP y2 x2 y1 x1 phdc Arc DROP ;
+
+\ Сектор
+\ X1, Y1: Веpхний левый угол огpаничивающего пpямоугольника.
+\ X2, Y2: Пpавый нижний угол огpаничивающего пpямоугольника.
+\ X3, Y3: Начальная точка сектора.
+\ X4, Y4: Конечная точка сектора. 
+: Sector ( x1 y1 x2 y2 x3 y3 x4 y4 -> )
+	{ x1 y1 x2 y2 }
+	SWAP 2SWAP SWAP y2 x2 y1 x1 phdc Pie DROP ;
+
 \EOF
 
 Point		( x y -> ) - нарисовать точку
@@ -95,3 +125,7 @@ Circle		( x y d -> ) - нарисовать круг
 RRect		( x y x1 y1 h l -> ) - нарисовать прямоугольник c кругленными концами
 RSquare		( x y l ll lh-> ) - нарисовать квадрат  c кругленными концами
 Image		( addr u x y -> ) - вывести изображение bmp из файла на консоль
+Icon		( addr u x y -> ) - вывести иконку ico из файла на консоль
+GPixel		( x y -> RGB ) - возвращает цвет пиксела в указанных координатах
+Arcs		( x1 y1 x2 y2 x3 y3 x4 y4 -> ) - дуга
+Sector		( x1 y1 x2 y2 x3 y3 x4 y4 -> ) - сектор

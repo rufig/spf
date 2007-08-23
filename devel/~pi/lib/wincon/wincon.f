@@ -26,6 +26,7 @@ WINAPI: BeginPaint		USER32.DLL
 WINAPI: EndPaint		USER32.DLL
 WINAPI: GetDC			USER32.DLL
 WINAPI: ReleaseDC		USER32.DLL
+WINAPI: SendMessageA		USER32.DLL
 
 WINAPI: DeleteObject		GDI32.DLL
 WINAPI: CreateSolidBrush	GDI32.DLL
@@ -236,6 +237,10 @@ WNDPROC: MyWndProc
 	height length 0 0 phdc Rectangle DROP
 	Color ;
 
+\ Обновить консоль
+: ConRefresh ( ->)
+	0 0 WM_PAINT hwdwin SendMessageA DROP ;
+
 ConCreate
 
 \EOF
@@ -261,6 +266,7 @@ ConSize		( length height -> ) - изменить длинну и высоту консоли и очистить ее
 Color		( RGB -> ) - установить цвет рисования
 Background	( RGB -> ) - установить фон рисования
 Cls		( -> ) - очистить окно
+ConRefresh	( ->) - обновить консоль
 
 -+- Преобразования -+-
 RGB		( R G B -> RGB ) - перевод цветовой гаммы в цвет
