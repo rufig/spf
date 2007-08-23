@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf8"?>
+﻿<?xml version="1.0" encoding="utf8"?>
 <spf_devel>
 
 <meta>
@@ -61,7 +61,6 @@
 <lib><word>Stack</word><path>~day/joop/lib/stack.f</path><comment><en>stack</en><ru>стек</ru></comment></lib>
 <lib><word>New-Queue</word><path>~pinka/lib/queue_pr.f</path><comment><en>priority queue</en><ru>очередь с приоритетом</ru></comment></lib>
 <lib><word>x.mask</word><path>~mlg/SrcLib/bitfield.f</path><comment><en>bit array</en><ru>битовый массив</ru></comment></lib>
-<lib><word>RATIO</word><path>~pinka/lib/BigMath.f</path><comment><en>rational fractions</en><ru>рациональные дроби</ru></comment></lib>
 <lib><word>new-set</word><path>~pinka/lib/charset.f</path><comment><en>ASCII characters set (as 256 bit array)</en><ru>множество ASCII (как 256-битный массив)</ru></comment></lib>
 </section>
 
@@ -81,14 +80,21 @@
 </section>
 
 <section id="debug">
-<name><en>Debugging facilities</en><ru>Отладка</ru></name> 
+<name><en>Debugging facilities</en><ru>Отладка</ru></name>
 <lib><word>HeapEnum</word><path>~ac/lib/memory/heap_enum2.f</path><comment><en>enumerating allocated memory blocks on the heap</en><ru>перечисление блоков памяти выделенных на хипе</ru></comment></lib>
 <lib><word>mem_stub</word><path>~day/lib/mem_sanity.f</path><comment><en>verifying FREE (via filling with template)</en><ru>проверка корректности удаления (с помощью заполнения шаблоном)</ru></comment></lib>
 <lib><word>MemReport</word><path>~day/lib/memreport.f</path><comment><en>memory leakages checking with stack report (supports multithreading)<ru>отчёт об утечках памяти (поддерживает многопоточность)</ru></en></comment></lib>
 <lib><word>ACCERT(</word><path>lib/ext/debug/accert.f</path><comment><en>conditional compilation</en><ru>условная компиляция</ru></comment></lib>
 <lib><word>TRACER</word><path>lib/ext/debug/tracer.f</path><comment><en>detailed execution report</en><ru>подробный отчёт о выполнении</ru></comment></lib>
+<lib><word>.AllStatistic</word><path>~pinka/lib/tools/profiler.f</path><comment><en>word profiling (generates statistics for words and their run times)</en><ru>профилирование слов (выводит статистику о временах работы)</ru></comment></lib>
 <lib><word>TESTCASES</word><path>~ygrek/lib/testcase.f</path><comment><en>TESTCASES by ~day</en></comment></lib>
 <lib><word>/TEST</word><path>~profit/lib/testing.f</path><comment><en>marking tests in code</en><ru>отметка тестов в коде</ru></comment></lib>
+</section>
+
+<section id="math">
+<name><en>Math</en><ru>Вычисления</ru></name>
+<lib><word>FR*</word><path>~nn/lib/fraction.f</path><comment><en>fractions' lib (enables fractions as '1/3')</en><ru>работа с дробями (в виде чисел вида: "1/3")</ru></comment></lib>
+<lib><word>RATIO</word><path>~pinka/lib/BigMath.f</path><comment><en>rational fractions</en><ru>рациональные дроби</ru></comment></lib>
 </section>
 
 <section id="random">
