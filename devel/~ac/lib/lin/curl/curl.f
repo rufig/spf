@@ -1,54 +1,67 @@
 \ ѕолучение файлов по HTTP/FTP через библиотеку CURL
 \ ~ac: переписал через xt-so.f 18.08.2005
 \ $Id$
+\ требуетс€ libcurl.dll - http://curl.haxx.se/latest.cgi?curl=win32-devel-ssl
 
-WARNING @ WARNING 0!
 REQUIRE SO            ~ac/lib/ns/so-xt.f
 REQUIRE QUICK_WNDPROC ~af/lib/quickwndproc.f 
 REQUIRE STR@          ~ac/lib/str5.f
-WARNING !
+
+REQUIRE ADD-CONST-VOC ~day/wincons/wc.f
+S" ~ygrek/lib/data/curl.const" ADD-CONST-VOC
 
 ALSO SO NEW: libcurl.dll
 
-10001 CONSTANT CURLOPT_FILE
-10002 CONSTANT CURLOPT_URL
-10004 CONSTANT CURLOPT_PROXY
-10005 CONSTANT CURLOPT_USERPWD
-20011 CONSTANT CURLOPT_WRITEFUNCTION
-CURLOPT_FILE CONSTANT CURLOPT_WRITEDATA
+\ Global libcurl initialization
+: CURL-GLOBAL-INIT CURL_GLOBAL_ALL 1 curl_global_init THROW ;
+..: AT-PROCESS-STARTING CURL-GLOBAL-INIT ;..
+CURL-GLOBAL-INIT
+
+\ Maximum number of bytes to download. 0 - unlimited
+USER-VALUE CURL-MAX-SIZE
 
 :NONAME { stream nmemb size ptr \ asize -- stream nmemb size ptr size*nmemb }
   size nmemb * -> asize
   ptr asize stream @ STR+
   stream nmemb size ptr asize
+  CURL-MAX-SIZE IF
+    stream @ STR@ NIP CURL-MAX-SIZE > IF DROP 0 THEN
+  THEN
 ; QUICK_WNDPROC CURL_CALLBACK
 
-: GET-FILE-VIAPROXY { addr u paddr pu \ h data -- str }
+: CURL-SETOPT ( value opt h -- ) 3 curl_easy_setopt THROW ;
+
+\ —лово-расширение - вызываетс€ перед curl_perform
+: AT-CURL-PRE ( h -- h ) ... ;
+
 \ если прокси paddr pu - непуста€ строка, то €вно используетс€ этот прокси
 \ curl умеет использовать переменные окружени€ http_proxy, ftp_proxy
 \ поэтому можно не задавать прокси €вно.
-
+: GET-FILE-VIAPROXY { addr u paddr pu \ h data -- str }
   "" -> data
   0 curl_easy_init -> h
-  addr CURLOPT_URL h 3 curl_easy_setopt DROP
+  addr u >STR DUP STRA CURLOPT_URL h CURL-SETOPT STRFREE
 
 \  S" name:passw" DROP CURLOPT_USERPWD  h 3 curl_easy_setopt DROP
 
-  pu IF paddr CURLOPT_PROXY h 3 curl_easy_setopt DROP THEN
+  pu IF paddr pu >STR DUP STRA CURLOPT_PROXY h CURL-SETOPT STRFREE THEN
 
-  CURL_CALLBACK CURLOPT_WRITEFUNCTION h 3 curl_easy_setopt DROP
-  ^ data CURLOPT_WRITEDATA h 3 curl_easy_setopt DROP
+  CURL_CALLBACK CURLOPT_WRITEFUNCTION h CURL-SETOPT
+  ^ data CURLOPT_WRITEDATA h CURL-SETOPT
+
+  h AT-CURL-PRE DROP
 
   h 1 curl_easy_perform
   ?DUP IF 1 curl_easy_strerror ASCIIZ> TYPE CR THEN
   h 1 curl_easy_cleanup DROP
+  0 TO CURL-MAX-SIZE
   data
 ;
+
 : GET-FILE ( addr u -- str )
   \ без прокси или с заданным в переменной окружени€ http_proxy
-  2DUP FILE ?DUP
-  IF 2SWAP 2DROP OVER >R sALLOT R> FREE THROW
-  ELSE DROP S" " GET-FILE-VIAPROXY THEN
+  2DUP FILE-EXIST IF FILE 2DUP >STR NIP SWAP FREE THROW EXIT THEN
+  S" " GET-FILE-VIAPROXY
 ;
 
 PREVIOUS
