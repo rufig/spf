@@ -422,6 +422,8 @@ USER _LASTFILE
 ;
 \ ~ygrek:
 : >STR ( addr u -- str ) "" >R R@ STR+ R> ;
+: STRLEN STR@ NIP ;
+: STRA STR@ DROP ;
 
 (
 
