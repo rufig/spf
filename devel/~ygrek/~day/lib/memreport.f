@@ -6,16 +6,19 @@
 (
   + выводит не только утечки но распечатку стека возвратов при их возникновении
   + многопоточна, может выводить отчеты дл€ отдельных потоков, MemReportThread
+  + отметки блоков пам€ти с воможностью указать диапазон дл€ вывода в отчЄте
 )
 
-\ пр€чЄм всЄ внутрь т.к. эта либа дл€ отладки и увеличение размера не критично
+REQUIRE /TEST ~profit/lib/testing.f
+REQUIRE RTRACE ~ygrek/lib/debug/rtrace.f
+REQUIRE HEAP-ID ~pinka/spf/mem.f
+
+\ пр€чем всЄ внутрь т.к. эта либа дл€ отладки и увеличение размера не критично
 \ а отсутствие дополнительных глюков от каких-нибудь переопределений - существенно
 MODULE: _VOC_MEMREPORT
 
 REQUIRE CZGETMEM ~yz/lib/common.f
 REQUIRE MALLOCATE ~yz/lib/gmem.f
-REQUIRE RTRACE ~ygrek/lib/debug/rtrace.f
-REQUIRE HEAP-ID ~pinka/spf/mem.f
 
   MODULE: inner
 
@@ -32,6 +35,8 @@ REQUIRE HEAP-ID ~pinka/spf/mem.f
 
 20 CONSTANT TRACE_DEPTH
 
+0 VALUE CURRENT-GENERATION
+
 /node
 CELL -- .fileNameA
 CELL -- .fileNameU
@@ -40,6 +45,7 @@ CELL -- .addr
 CELL -- .size
 CELL -- .threadId
 CELL -- .heapId
+CELL -- .generation
 TRACE_DEPTH CELLS -- .stackTrace
 CONSTANT /allocList
 
@@ -64,6 +70,7 @@ WINAPI: GetCurrentThreadId KERNEL32.DLL
     HEAP-ID R@ .heapId !
     R@ .size !
     R@ .addr !
+    CURRENT-GENERATION R@ .generation !
 
     RP@ CELL+ ( skip ourselfes) R@ .stackTrace TRACE_DEPTH CELLS MOVE
 
@@ -155,12 +162,19 @@ DEFINITIONS
 USER vLeaks
 USER vSize
 USER vThreadId
+USER vGeneration
 
 : (printNode) ( node -- )
     vThreadId @
     IF
        DUP .threadId @ vThreadId @ = 0=
        IF DROP EXIT THEN
+    THEN
+
+    vGeneration @ 
+    IF
+        DUP .generation @ vGeneration @ <
+        IF DROP EXIT THEN
     THEN
 
     >R
@@ -184,8 +198,14 @@ USER vThreadId
 : (countMem)
     vThreadId @
     IF
-       DUP .threadId @ vThreadId @ = 0=
-       IF DROP EXIT THEN
+        DUP .threadId @ vThreadId @ = 0=
+        IF DROP EXIT THEN
+    THEN
+
+    vGeneration @
+    IF
+        DUP .generation @ vGeneration @ < 
+        IF DROP EXIT THEN
     THEN
 
     .size @ vSize +!
@@ -241,29 +261,85 @@ EXPORT
     (MemReport)
 ;
 
-\ ..: AT-THREAD-FINISHING GetCurrentThreadId RemoveThreadMemoryInfo ;..
+\ ”становить новую отметку и вернуть еЄ номер
+: NewMemoryMark ( -- n ) CURRENT-GENERATION 1+ DUP TO CURRENT-GENERATION ;
+
+\ ¬ отчЄте MemReport показывать только те блоки пам€ти что были выделены после отметки n 
+\ 0 дл€ того чтобы показывать все блоки
+: SetReportMark ( n -- ) vGeneration ! ;
+
+..: AT-THREAD-FINISHING GetCurrentThreadId RemoveThreadMemoryInfo ;..
 
 ;MODULE
 
 \ -----------------------------------------------------------------------
 
-\EOF
+/TEST
 
-~ac\lib\str4.f
+REQUIRE STR@ ~ac/lib/str5.f
+REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
-: test "   " ;
+TESTCASES memreport
 
-:NONAME test ; TASK: task1
+\ test simple
+\ -------------------------------------------
 
-0 task1 START DROP
+MemReport
+(( countMem -> 0 0 ))
+CR
 
-\ EOF
-\ STARTLOG
+" string1" " foobar :)" " leaky leaky string" 
 
+(( countMem NIP 0= -> FALSE ))
+STRFREE STRFREE STRFREE
+(( countMem NIP -> 0 ))
 
-: test "  " ;
+\ test threads
+\ -------------------------------------------
 
-: tt 100 ALLOCATE THROW ;
+FALSE VALUE stop-tasks
 
+:NONAME 100 ALLOCATE THROW DROP . BEGIN stop-tasks 0= WHILE 100 PAUSE REPEAT ; TASK: test1
+: run-tasks 10 0 DO I test1 START DROP LOOP ;
+run-tasks
+200 PAUSE \ wait for all threads to start
+(( countMem NIP -> 10 ))
+TRUE TO stop-tasks
+200 PAUSE \ wait for all threads to finish
+(( countMem NIP -> 0 )) \ threads die and memory is freed and DebugAlloc records are deleted
 
-\ MemReport
+\ test memory marks
+\ -------------------------------------------
+
+: LEAK ALLOCATE THROW DROP ;
+
+: inner
+   NewMemoryMark SetReportMark
+   100 LEAK
+   200 LEAK
+   CR ." inner leaks : " countMem . .
+   ;
+
+: outer
+   2000 LEAK
+   100000 ALLOCATE THROW
+   inner
+   FREE THROW 
+   3000 LEAK
+;
+
+outer
+
+CR .( inner with subsequent leaks : ) countMem . .
+(( countMem -> 3300 3 ))
+0 SetReportMark
+CR .( all leaks : ) countMem . .
+(( countMem -> 5300 4 ))
+
+CR
+ClearMemInfo
+MemReport
+(( countMem -> 0 0 ))
+
+END-TESTCASES
+
