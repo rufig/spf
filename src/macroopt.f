@@ -200,22 +200,20 @@ TC-WL ALSO TC-IMM
 \  11XX.X000 1000.0011
    DUP C7FF AND  C083 <> IF \ ADD|OR|ADC|SBB|AND|SUB|XOR|CMP  EAX, # X
    DUP          0478B <> IF \ MOV  EAX, X [EDI]
-   DUP          0588B <> IF \ MOV  EBX, X [EAX]
-   DUP          0508B <> IF \ MOV  EDX, X [EAX]
+
+   DUP E4FD AND 04089 <> IF \ MOV  E<ACDB>X, X [E<ACDB>X] | MOV  X [E<ACDB>X] ,  E<ACDB>X
+
+   DUP          0788B <> IF \ MOV  EDI, X [EAX]
+   DUP          0708B <> IF \ MOV  ESI, X [EAX]
+   DUP          07589 <> IF \ MOV X [EAX], ESI
 
 
    DUP          0588D <> IF \ LEA  EBX, X [EAX]
    DUP          0508D <> IF \ LEA  EDX, X [EAX]
-   DUP          05089 <> IF \ MOV X [EAX], EDX
-   DUP          07589 <> IF \ MOV X [EAX], ESI
+   DUP          0408D <> IF \ LEA  EAX, X [EAX]
 
-   DUP          0F8C1 <> IF \ SAR  EAX, # X
-   DUP          0E0C1 <> IF \ SHL  EAX, # X
-   DUP          0E1C1 <> IF \ SHL  ECX, # X
+   DUP  E4FF AND E0C1 <> IF \ SHL|SHR|SHL|SAR  E<ACDB>X, # X
 
-   DUP          0E8C1 <> IF \ SHR  EAX, # X
-   DUP          0408D <> IF \ LEA  EAX , X [EAX]
-   DUP          0408B <> IF \ MOV  EAX , X [EAX]
              FALSE EXIT
   DUPENDCASE TRUE ;
 
@@ -229,7 +227,7 @@ TC-WL ALSO TC-IMM
   DUP           01001 <> IF  \ ADD  [EAX], EDX
   DUP            0003 <> IF  \ ADD  EAX, [EAX]
   DUP		F633 <> IF  \ XOR  ESI, ESI
-
+  DUP		108B <> IF  \ MOV     EDX , [EAX]
   DUP 0C0FF AND  C085 <> IF \ TEST E__ , E__
 
 \ 110X.X0XX  1000.10X1
@@ -241,11 +239,9 @@ TC-WL ALSO TC-IMM
   DUP           0008B <> IF \ MOV EAX, [EAX]
   DUP            028B <> IF \ MOV EAX, [EDX]
   DUP           0C78B <> IF \ MOV EAX,  EDI
+  DUP           0C68B <> IF \ MOV EAX,  ESI
   DUP           0F88B <> IF \ MOV EDI,  EAX
   DUP           0F08B <> IF \ MOV ESI,  EAX
-  DUP           0C88B <> IF \ MOV ECX , EAX
-  DUP           0D18B <> IF \ MOV EDX , ECX
-  DUP           0C68B <> IF \ MOV EAX,  ESI
 \ 111X.X0XX  1101.00XX
   DUP 0E4FC AND 0E0D0 <> IF \  S(AH)(LR)  (ABCD)L | E(ABCD)X,  CL | 1
   DUP           0C0DD <> IF \ FFREE ST
@@ -276,11 +272,8 @@ TC-WL ALSO TC-IMM
 \   DUP 0C0FF <> IF \ INC  EAX
 \   DUP 0C3FF <> IF \ INC  EBX
 \   DUP 0C8FF <> IF \ DEC  EAX
-  DUP           0D0F7 <> IF \ NOT EAX
-  DUP           0D1F7 <> IF \ NOT ECX
-  DUP           0D8F7 <> IF \ NEG EAX
-  DUP           0D9F7 <> IF \ NEG ECX
-  DUP           0DAF7 <> IF \ NEG EDX
+  DUP  0F0FF AND 0D0F7 <> IF \  NOT|NEG E<ACDB>X
+
   DUP           0E9F7 <> IF \ IMUL ECX
   DUP           0F1F7 <> IF \  DIV ECX
   DUP           0F9F7 <> IF \ IDIV ECX
@@ -2033,6 +2026,17 @@ OP0 @ W@ 48B XOR OR  \  8B0424             MOV     EAX , [ESP]
        EXIT
    THEN
 
+OP2 @ @ 8B24048B XOR \ 582723 8B0424         MOV     EAX , [ESP]
+OP1 @ W@ D08B XOR OR \ 582726 8BD0              MOV     EDX , EAX
+OP0 @ W@ 458B XOR OR \ 582728 8B45FC            MOV     EAX , FC [EBP]
+0= IF  M\ 188 DTST
+	1000 OP2 @ +!	\ MOV     EAX , [ESP]
+	OP1 OPexcise
+	FALSE  M\ 189 DTST
+	EXIT
+   THEN
+
+
 M\ PPPP
 OP3 @ :-SET U< IF TRUE EXIT THEN
 
@@ -2880,6 +2884,20 @@ OP0 @ W@ C12B XOR OR \ 58214A 2BC1              SUB     EAX , ECX
        C22B  OP1 @ W! \    SUB     EAX , ECX
        OP0 OPexcise
        FALSE  M\ 181 DTST
+       EXIT
+   THEN
+
+DUP W@ D2FF XOR \ CALL    EDX    \ $ R@ EXECUTE
+OP1 @ @ 8B240C8B XOR OR \ 582793 8B0C24         MOV     ECX , [ESP]
+OP0 @ W@ D18B XOR OR \ 582796 8BD1              MOV     EDX , ECX
+0= IF  M\ 186 DTST
+	OP1 OPexcise
+	OP0 OPexcise	
+	EVEN-EBP
+        EVEN-EAX
+	SetOP	FF C, 14 C, 24 C, \  CALL [ESP]
+	2+
+       FALSE  M\ 187 DTST
        EXIT
    THEN
 
