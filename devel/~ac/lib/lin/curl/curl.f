@@ -66,6 +66,7 @@ USER-VALUE CURL-MAX-SIZE
 
 PREVIOUS
 \EOF
+\ регистрация IP для xml-запросов к яндексу: http://xml.yandex.ru/ip.xml
 : TEST
   S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" GET-FILE STYPE
   S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" S" http://otradnoe:3128/" GET-FILE-VIAPROXY STYPE
