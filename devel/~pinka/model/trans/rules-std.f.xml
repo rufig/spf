@@ -44,6 +44,16 @@
   </f:choose>
 </rule>
 
+<rule match="f:q"><!-- 'quote' (seems better than 'xt') -->
+  <m>
+  <f:lit> BFW, <f:p><yield/></f:p> RFW </f:lit>
+  </m>
+</rule>
+<rule match="f:q">
+  STATE? <f:if><exit-fail/></f:if>
+  <f:p><yield/></f:p><!-- todo: late binding -->
+</rule>
+
 <rule match="f:unless">
   <mm> 0EQ <f:if><yield/></f:if></mm>
 </rule>

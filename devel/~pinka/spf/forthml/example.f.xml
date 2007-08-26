@@ -24,13 +24,20 @@ qqq
   DUP 0= <if> DROP <exit/></if> DUP . 1- <again/>
 </def>
 
-5 steps CR
+<def name="quote-the-5steps">
+  <q> 5 steps CR </q>
+</def>
+
+quote-the-5steps EXECUTE
+
+<q> 5 steps CR </q> EXECUTE
+
 
 <def name="make-zzz">
   <def name="zzz">
     `test TYPE SPACE `passed TYPE CR
   </def>
-</def>
+</def><!-- try make-zzz and then  zzz -->
 
 ALSO forthml-support
 
