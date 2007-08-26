@@ -35,9 +35,9 @@ WINAPI: CharLowerA USER32.DLL
 ' USEARCH-WORDLIST ' SEARCH-WORDLIST REPLACE-WORD
 
 : UDIGIT ( C, N1 -> N2, TF / FF ) 
-\ N2 - §­ зҐ­ЁҐ «ЁвҐал C Є Є
-\ жЁдал ў бЁбвҐ¬Ґ бзЁб«Ґ­Ёп Ї® ®б­®ў ­Ёо N1
-\ hex-жЁдал ¬®Јгв Ўлвм бва®з­л¬Ё
+\ N2 - значение литеры C как
+\ цифры в системе счисления по основанию N1
+\ hex-цифры могут быть строчными
   SWAP
   DUP 0x3A < OVER 0x2F > AND
   IF \ within 0..9
