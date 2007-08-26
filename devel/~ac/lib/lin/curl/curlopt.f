@@ -1,7 +1,7 @@
 \ $Id$
 \ libcurl options
 
-REQUIRE CURL-SETOPT curl.f
+REQUIRE CURL-SETOPT ~ac/lib/lin/curl.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE list? ~ygrek/lib/list/ext.f
 REQUIRE /TEST ~profit/lib/test.f
