@@ -47,12 +47,17 @@ HEX
 
 DECIMAL
 
+: SUBSTRING-OPTIONS ( c-addr1 u1 -- c-addr u )
+\ выделить из строки опции, пропустив имя программы
+  DUP 0= IF EXIT THEN
+  OVER C@ [CHAR] " = IF SWAP CHAR+ SWAP 1- [CHAR] " ELSE BL THEN
+  0 >R RP@ TUCK C! 1 SEARCH RDROP  0= IF 2DROP 0. EXIT THEN
+  SWAP CHAR+ SWAP 1-
+;
+: COMMANDLINE-OPTIONS ( -- c-addr u )
+\ дать опции командной строки запуска
+  GetCommandLineA ASCIIZ> SUBSTRING-OPTIONS
+;
 : OPTIONS ( -> ) \ интерпретировать командную строку
-  SAVE-SOURCE N>R  
-  -1 TO SOURCE-ID \ чтобы REFILL не делал ( как по EVALUATE ), т.к. буфер не ATIB.
-  GetCommandLineA ASCIIZ>  SOURCE!
-  PeekChar [CHAR] " = IF [CHAR] " ELSE BL THEN  
-  WORD DROP  \ имя программы
-  <PRE> ['] INTERPRET CATCH ?DUP IF ERROR THEN
-  NR> RESTORE-SOURCE
+  COMMANDLINE-OPTIONS EVALUATE
 ;
