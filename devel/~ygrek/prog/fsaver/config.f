@@ -1,60 +1,104 @@
-REQUIRE FrameWindow ~day\joop\win\framewindow.f
-REQUIRE Button ~day\joop\win\control.f
-REQUIRE Font ~day\joop\win\font.f
+REQUIRE FrameWindow ~day/joop/win/framewindow.f
+REQUIRE Button ~day/joop/win/control.f
+REQUIRE Font ~day/joop/win/font.f
 REQUIRE RG_OpenKey  ~ac/lib/win/registry2.f
+REQUIRE /TEST ~profit/lib/testing.f
+REQUIRE LAMBDA{ ~pinka/lib/lambda.f
+REQUIRE STR@ ~ac/lib/str5.f
+REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 
-: DefaultPath S" D:\WORK\FORTH\spf4" ;
+MODULE: YZ
+REQUIRE CZMOVE ~yz/lib/common.f
+REQUIRE ShellGetDir ~ygrek/lib/win/shell.f
+;MODULE
 
-: getConfigPath ( -- a u )
-   HKEY_CURRENT_USER EK !
-   S" fpath" S" SOFTWARE\fsaver" StrValue 
-   DUP 0= IF 2DROP DefaultPath THEN ;
+: fsaver-version $Revision$ SLITERAL " fsaver v0.{s} - sample screen saver in SP-Forth{CRLF}(see http://spf.sf.net)" STR@ ;
+
+: DefaultPath S" C:\Program Files\SP-Forth" ;
+
+: GetConfigPath ( -- a u )
+    HKEY_CURRENT_USER EK !
+    S" fpath" S" Software\fsaver" StrValue DUP IF EXIT THEN
+    2DROP
+
+    HKEY_LOCAL_MACHINE EK !
+    S" InstallLocation" S" SOFTWARE\RUFIG\SP-Forth" StrValue DUP IF EXIT THEN
+    2DROP
+
+    HKEY_CLASSES_ROOT EK !
+    S" " S" spf\Shell\open\command" StrValue DUP IF EXIT THEN
+    2DROP
+
+    DefaultPath ;
+
+: SetConfigPath ( a u -- )
+    HKEY_CURRENT_USER EK !
+    S" fpath" S" SOFTWARE\fsaver" StrValue! ;
 
 << :bOkClick
-<< :storeConfig
+<< :bCancelClick
+<< :bBrowseClick
+<< :setConfigPath
 
 CLASS: ConfigDialog <SUPER FrameWindow
-        Static OBJ st
-        Edit   OBJ ePath
-        Button OBJ bOk
+    Static OBJ stVersion
+    Static OBJ st1
+    Edit   OBJ ePath
+    Button OBJ bOk
+    Button OBJ bCancel
+    Button OBJ bBrowse
 
 : :init
     own :init
     WS_DLGFRAME WS_CAPTION OR WS_SYSMENU OR vStyle !
 ;
 
+: :setConfigPath ePath :getText SetConfigPath ;
+
 : :bOkClick 
-   self :storeConfig
+   self :setConfigPath
    0 self :modalResult! ;
 
-W: WM_CHAR wparam @ 13 = IF self :bOkClick THEN ;
+: :bCancelClick
+   1 self :modalResult! ;
+
+: :bBrowseClick 
+   S" Select directory to search for *.f files" DROP 0 LAMBDA{ ePath :setText } YZ::ShellGetDir ;
+
+W: WM_CHAR
+   wparam @ 13 = IF self :bOkClick THEN 
+   wparam @ 27 = IF self :bCancelClick THEN ;
 
 : :create
    own :create
-   S" Directory to scan *.f in :" 10 10 120 11 self st :install
-   getConfigPath 10 20 120 11 self ePath :install
-   250 ePath :setLimit
-   S" Ok" 10 36 40 13 self bOk :install
-   ['] :bOkClick bOk <OnClick !
-;
 
-: :storeConfig
-    HKEY_CURRENT_USER EK !
-    ePath :getText S" fpath" S" SOFTWARE\fsaver" StrValue! ;
+   fsaver-version 10 4 120 16 self st1 :install
+
+   S" Directory to search for *.f files :" 10 20 120 10 self st1 :install
+
+   GetConfigPath 10 30 115 11 self ePath :install
+   250 ePath :setLimit
+
+   S" Browse..." 10 46 35 13 self bBrowse :install
+   ['] :bBrowseClick bBrowse <OnClick !
+   S" Ok" 50 46 35 13 self bOk :install
+   ['] :bOkClick bOk <OnClick !
+   S" Cancel" 90 46 35 13 self bCancel :install
+   ['] :bCancelClick bCancel <OnClick !
+;
 
 ;CLASS
 
-: ShowConfigDialog ( hwnd -- a u )
-   >R ConfigDialog :new 
-   R> SWAP >R 
-   R@ :create
-   140 100 140 70 R@ :move
-   S" Input path" R@ :setText
-   R@ :showModal DROP
-   R> :free
+: ShowConfigDialog ( hwnd -- )
+   ConfigDialog :new { dlg }
+   dlg :create
+   120 100 135 78 dlg :move
+   S" Input path" dlg :setText
+   dlg :showModal DROP
+   dlg :free
 ;
 
-\ getConfigPath \ TYPE CR
-
-\EOF
-0 ShowConfigDialog BYE
+/TEST
+GetConfigPath TYPE CR
+0 ShowConfigDialog 
+BYE

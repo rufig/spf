@@ -1,13 +1,15 @@
-\ Remake. Original by ~day : ~day/joop/samples/fsaver.f
+\ Remake of ~day/joop/samples/fsaver.f
 \ 06.Jul.2006
 
-REQUIRE FrameWindow ~day\joop\win\FrameWindow.f
-REQUIRE Font ~day\joop\win\font.f
-REQUIRE NEXT-PARAM ~day\common\clparam.f
-REQUIRE " ~ac/lib/str5.f
+REQUIRE FrameWindow ~day/joop/win/FrameWindow.f
+REQUIRE Font ~day/joop/win/font.f
+REQUIRE NEXT-PARAM ~day/common/clparam.f
+REQUIRE STR@ ~ac/lib/str5.f
+REQUIRE file-get-line ~ygrek/lib/filelines.f
+REQUIRE CASE lib/ext/case.f
 
-filelist.f
-config.f
+S" filelist.f" INCLUDED
+S" config.f" INCLUDED
 
 VARIABLE Count
 -15 Count !
@@ -17,14 +19,16 @@ TRUE FirstMouse !
 
 CLASS: SaverWindow <SUPER FrameWindow
 
-        Font OBJ myFont
-        CELL VAR inFile
-     2 CELLS VAR CURXY-OLD
-     2 CELLS VAR CURXY-NEW
+       Font OBJ myFont
+       CELL VAR inFile
+    2 CELLS VAR CURXY-OLD
+    2 CELLS VAR CURXY-NEW
 
 : :nextFile ( -- a u )
-   randomName 2DUP R/O OPEN-FILE IF S" What the hell?!" ShowMessage BYE ELSE inFile ! THEN
-; 
+   randomName 2DUP R/O OPEN-FILE-SHARED 
+   IF DROP " Failed to open file. {s}" STR@ 
+   ELSE inFile ! 
+   THEN ; 
 
 : :textColor! ( cr -- ) handle @ GetDC SetTextColor DROP ;
 
@@ -37,8 +41,6 @@ CLASS: SaverWindow <SUPER FrameWindow
    S" Comic Sans MS" DROP myFont <lpszFace !
    20 myFont <height !
    FW_BOLD myFont <weight !
-   names-init
-   \ own :nextFile 2DROP
 ;
 
 W: WM_CREATE
@@ -82,12 +84,13 @@ W: WM_TIMER
    Count 1+!
    Count @ 20 = IF
      Count 0!
-     inFile @ IF PAD 256 inFile @ READ-LINE THROW ELSE FALSE THEN
+     inFile @ IF inFile @ file-get-line ELSE 0 THEN
+     DUP
      IF
-       PAD SWAP own :addLine
+       DUP STR@ own :addLine STRFREE
      ELSE
        DROP
-       inFile @ IF inFile @ CLOSE-FILE THROW THEN
+       inFile @ IF inFile @ CLOSE-FILE THROW  0 inFile ! THEN
        \ 50 0 DO own :scrollWindow LOOP
        220 0 0 rgb own :textColor!
        own :nextFile own :addLine
@@ -100,19 +103,22 @@ W: WM_TIMER
 
 ;CLASS
 
-
 : RUN { \ w }
    \ STARTLOG
-   IDLE_PRIORITY_CLASS GetCurrentProcess
-   SetPriorityClass DROP
+   IDLE_PRIORITY_CLASS GetCurrentProcess SetPriorityClass DROP
    NEXT-PARAM 2DROP
-   NEXT-PARAM  DROP 1+ C@ \ DUP [CHAR] p = IF  S" preview" ShowMessage BYE THEN
-   [CHAR] c =
-   IF
-      \ S" There aren't any options" ShowMessage
+   NEXT-PARAM DROP 1+ C@
+   CASE
+    [CHAR] c 
+    OF 
       0 ShowConfigDialog
-   ELSE
-      getConfigPath DROP TO aPath
+    ENDOF
+    [CHAR] p 
+    OF
+      \ S" preview" ShowMessage
+      \ NEXT-PARAM - hwnd
+    ENDOF
+      GetConfigPath names-init
       FALSE ShowCursor DROP
       SaverWindow :new -> w
       0 w :create
@@ -122,7 +128,7 @@ W: WM_TIMER
       w :free
       TRUE ShowCursor DROP
       \ R> IF S" Error" ShowMessage THEN
-   THEN
+   ENDCASE
    BYE   
 ;
 
