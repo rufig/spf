@@ -7,7 +7,7 @@
 
 : kkv-extract [CHAR] $ PARSE -TRAILING ;
 
-\ вкомпильнуть строку a u в кодофайл и вернуть адрес и длину вкомпилированного образа
+\ тъюьяшышЄ№ ёЄЁюъє a u т ъюфюЇрщы ш тхЁэєЄ№ рфЁхё ш фышэє тъюьяшышЁютрээюую юсЁрчр
 : -STRING- ( a u -- a1 u ) HERE -ROT S", COUNT ;
 
 : $Date: kkv-extract ; IMMEDIATE

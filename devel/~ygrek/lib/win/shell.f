@@ -1,3 +1,4 @@
+REQUIRE CZMOVE ~yz/lib/common.f
 REQUIRE single-method ~yz/lib/combase.f 
 REQUIRE init->> ~yz/lib/data.f
 REQUIRE { lib/ext/locals.f
@@ -17,12 +18,13 @@ REQUIRE [UNDEFINED] lib/include/tools.f
 MyWINAPI: SHBrowseForFolder   SHELL32.DLL
 MyWINAPI: SHGetPathFromIDList SHELL32.DLL
 MyWINAPI: SHGetMalloc         SHELL32.DLL
-MyWINAPI: ShellExecuteA       shell32.dll
+MyWINAPI: ShellExecuteA       SHELL32.DLL
 
 5 single-method ::Free
 
 \ Taken from ~yz/prog/tprint/tprint.f
-\ xt ( a u -- )
+\ Display the standard dialog for folder selection
+\ xt ( a u -- ) \ a u - path to the folder selected
 : ShellGetDir { prompt hwnd xt \ shmalloc [ 8 CELLS ] binfo [ MAX_PATH ] dirname }
   binfo init->>
   hwnd >>      \ window handle
@@ -36,8 +38,8 @@ MyWINAPI: ShellExecuteA       shell32.dll
   binfo SHBrowseForFolder ?DUP IF
     DUP dirname SWAP SHGetPathFromIDList DROP
     dirname ASCIIZ> xt EXECUTE
-    \ теперь надо освободить возвращенный PIDL
-    \ делается это, как и все в Майкрософте, через извращение
+    \ ЄхяхЁ№ эрфю юётюсюфшЄ№ тючтЁр∙хээ√щ PIDL
+    \ фхырхЄё  ¤Єю, ъръ ш тёх т ╠рщъЁюёюЇЄх, ўхЁхч шчтЁр∙хэшх
     ^ shmalloc SHGetMalloc DROP
     shmalloc ::Free DROP
     shmalloc release
