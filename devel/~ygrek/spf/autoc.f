@@ -237,7 +237,6 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
 \ --------------------------------
 
 : List=> ( list -- ) R> SWAP ForEach ;
-: >STR ( a u -- s ) "" >R R@ STR+ R> ;
 : add-history ( s -- ) history AllocateNodeEnd .val ! ;
 : dump-history ( -- ) \ всю историю в файл заново
    \ очистить файл

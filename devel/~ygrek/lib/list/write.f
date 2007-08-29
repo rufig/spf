@@ -13,7 +13,6 @@ REQUIRE /STRING lib/include/string.f
    >IN @ OVER + >IN ! ;
 
 : (.) ( n -- ) S>D (D.) TYPE ;
-: >STR "" >R R@ STR+ R> ;
 : print-str-for-eval ( s -- ) STR@ DUP "  {n} PARSE-DATA {s} >STR " STYPE ;
 : print-quoted-str-cut ( s -- ) [CHAR] " EMIT STR@ DUP 20 > IF DROP 17 TYPE ." ..." ELSE TYPE THEN [CHAR] " EMIT ;
 
