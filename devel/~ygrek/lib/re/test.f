@@ -14,6 +14,8 @@ TESTCASES parsing (bad)
 
 CR .( NB: 'REGEX SYNTAX ERROR' messages are expected in this test!)
 
+NewMemoryMark SetReportMark
+
 (( S" (1"     dotto: error.dot -> FALSE ))
 (( S" (1++)"  dotto: error.dot -> FALSE ))
 (( S" ()"     dotto: error.dot -> FALSE ))
@@ -22,7 +24,10 @@ CR .( NB: 'REGEX SYNTAX ERROR' messages are expected in this test!)
 (( S" 123(*)" dotto: error.dot -> FALSE ))
 (( S" a\bc"   dotto: error.dot -> FALSE ))
 
-ClearMemInfo \ тут утечки памяти за счёт некорректных регекспов - игнорируем
+countMem . .
+NewMemoryMark SetReportMark
+
+\ ClearMemInfo \ тут утечки памяти за счёт некорректных регекспов - игнорируем
 
 END-TESTCASES
 
@@ -176,6 +181,14 @@ TESTCASES re_match?
 (( 6 get-group S" world" TEST-ARRAY -> ))
 (( 7 get-group -> str DROP 17 + 0 ))
 (( 8 ' get-group CATCH NIP 0 <> -> TRUE )) \ ловим ожидаемое исключение
+
+(( str RE" ((?:(?:h(e|a)llo|farewell)\s)+)(?:cruel\s)?(world|planet)(!?)..." re_match? -> TRUE ))
+(( 0 get-group -> str ))
+(( 1 get-group S" hello hallo " TEST-ARRAY -> ))
+(( 2 get-group S" e" TEST-ARRAY -> ))
+(( 3 get-group S" world" TEST-ARRAY -> ))
+(( 4 get-group -> str DROP 17 + 0 ))
+(( 5 ' get-group CATCH NIP 0 <> -> TRUE )) \ ловим ожидаемое исключение
 
 \ regexp::re_def_groups regexp::print-array
 

@@ -1,7 +1,7 @@
 \ $Id$
 \ ƒополнительные строковые операции с регекспами
 
-REQUIRE RE" ~ygrek/lib/re/re.f
+REQUIRE re_match? ~ygrek/lib/re/re.f
 
 : re_search { a u re -- a1 u1 }
   a u

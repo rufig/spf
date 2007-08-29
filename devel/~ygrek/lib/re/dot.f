@@ -1,7 +1,7 @@
 \ $Id$
 \ Представление структуры RE в виде dot диаграммы
 
-REQUIRE RE" ~ygrek/lib/re/re.f
+REQUIRE re_match? ~ygrek/lib/re/re.f
 REQUIRE DOT-LINK ~ygrek/lib/dot.f
 
 \ -----------------------------------------------------------------------
@@ -13,6 +13,8 @@ MODULE: regexp
    nfa .c @ STATE_FINAL = IF S" final" EXIT THEN
    nfa .c @ STATE_MATCH_ANY = IF S" any" EXIT THEN
    nfa .c @ STATE_SPACE_CHAR = IF S" space" EXIT THEN
+   nfa .c @ STATE_ANCHOR_BOL = IF S" BOL" EXIT THEN
+   nfa .c @ STATE_ANCHOR_EOL = IF S" EOL" EXIT THEN
    nfa .c @ [CHAR] \ = IF S" \\" EXIT THEN
    nfa .c @ BL 1+ < IF nfa .c @ <# [CHAR] ) HOLD S>D #S S" ascii(" HOLDS #> EXIT THEN
    nfa .c 1 ;

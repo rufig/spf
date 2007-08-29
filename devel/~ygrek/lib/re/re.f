@@ -10,6 +10,7 @@
 
 \ TODO: пункт 2
 \ TODO: ускорить capturing
+\ TODO: fix bugs
 
 \ Сделано :
 \ () выделение подвыражения
@@ -26,12 +27,16 @@
 \ Отличия:
 \ - закрывающая круглая скобка всегда special
 \   должно быть "... special when matched with a preceding left-parenthesis, ..."
+\   но впрочем
+\   "The current  -p1003.2 spec says that ')' is an ordinary character in the absence of an 
+\    unmatched '('; this was an unintentional result of a wording error, and change is likely. 
+\    Avoid relying on it."
 \ - нет backreferences - \1 \2 итд
 \ - однобайтовые символы (unicode to do?), классы символов - только для латинских
 \ - . (точка) ловит любой символ, с кодом 0 тоже
 \ - capturing не соответствует POSIX (TODO!!!), нарушается leftmost longest в некоторых случаях
 
-\ NB Есть ещё Perl'овские регулярные выражения - http://perldoc.perl.org/perlre.html
+\ NB Есть ещё Perl'овский вариант регулярных выражений - http://perldoc.perl.org/perlre.html
 \    но они заточены под бэктрекинговую реализацию, как следствие слишком сложны и запутанны,
 \    поэтому с ними совместимости не будет и не планируется
 
@@ -151,6 +156,7 @@ RE_INIT
  STATE_SPACE_CHAR STATE_SPACE_CHAR_NOT
  STATE_DIGIT_CHAR STATE_DIGIT_CHAR_NOT
  STATE_MATCH_SET STATE_MATCH_SET_NOT
+ STATE_ANCHOR_BOL STATE_ANCHOR_EOL
 ; CONSTANT N_STATE
 
 \ Состояние
@@ -401,6 +407,8 @@ VARIABLE process-continue
 : backslash: [CHAR] \ asc: ;
 : [: [CHAR] [ asc: ;
 : ]: [CHAR] ] asc: ;
+: BOL: [CHAR] ^ asc: ;
+: EOL: [CHAR] $ asc: ;
 
 : unquote-next-liter ( -- nfa ) current-state >R quoted-symbol дать-букву execute-one R> current-state! ;
 
@@ -419,7 +427,7 @@ symbol: + op-+ ;
 quoted-symbol
 
 all: CR ." ERROR: Quoting \" symbol EMIT ."  not allowed!" fragment-error ;
-S" .\()*|+?{[" all-asc: symbol liter ;
+S" .\()*|+?{[$^" all-asc: symbol liter ;
 symbol: t 0x09 liter ; \ Tab
 symbol: n 0x0A liter ; \ LF
 symbol: r 0x0D liter ; \ CR
@@ -434,6 +442,13 @@ symbol: S STATE_SPACE_CHAR_NOT liter ;
 symbol: d STATE_DIGIT_CHAR liter ;
 symbol: D STATE_DIGIT_CHAR_NOT liter ;
 
+\ -----------------------------------------------------------------------
+
+: extract { n -- a -1 | 0 }
+   отсюда n + re_limit >= IF FALSE EXIT THEN
+   отсюда TRUE ;
+
+: proceed ( n -- ) отсюда + поставить-курсор ;
 
 \ VARIABLE indent
 \ : doi CR indent @ SPACES  ;
@@ -513,18 +528,30 @@ right: op-| rollback1 fragment-final ;
 end-input: op-| fragment-final ;
 
 
+: is-(?:) ( -- ? )
+   2 extract 0= IF FALSE EXIT THEN 
+   ( a ) 2 S" ?:" COMPARE IF FALSE EXIT THEN
+   2 proceed
+   TRUE ;
+
 \ Начало RE фрагмента
 start-fragment
 
 all: symbol liter no-brackets-fragment ;
 symbol: . STATE_MATCH_ANY liter no-brackets-fragment ;
+BOL: STATE_ANCHOR_BOL liter no-brackets-fragment ;
+EOL: STATE_ANCHOR_EOL liter no-brackets-fragment ;
 op: fragment-error ;
 left:
  { | pair frag }
- new-brackets-pair -> pair
- get-branches -> frag
- frag .i @ pair set-brackets-start
- pair frag .b @ vcons frag .b !
+ is-(?:) NOT IF \ i.e. we should remeber this bracket!
+   new-brackets-pair -> pair
+   get-branches -> frag
+   frag .i @ pair set-brackets-start
+   pair frag .b @ vcons frag .b !
+ ELSE 
+   get-branches -> frag
+ THEN
  brackets-fin frag ;
 right: fragment-error ;
 backslash: unquote-next-liter no-brackets-fragment ;
@@ -537,15 +564,16 @@ end-input: fragment-final ;
 : copy-set ( src dst -- ) /set MOVE ;
 
 : update-set
-   symbol re_cur_set set+
-   отсюда 2 + re_limit >= IF EXIT THEN
-   отсюда C@ [CHAR] - <> IF EXIT THEN
-   отсюда 1 + C@ [CHAR] ] = IF отсюда 1+ поставить-курсор EXIT THEN
-   отсюда 1 + C@ DUP re_cur_set set+
+   symbol re_cur_set set+ \ eat one symbol always
+   2 extract NOT IF EXIT THEN
+   { addr }
+   addr C@ [CHAR] - <> IF EXIT THEN \ if it is not a range - do nothing
+   addr 1 + C@ [CHAR] ] = IF 1 proceed EXIT THEN \ if '-' is a last symbol in a charset - leave it and quit
+   addr 1 + C@ DUP re_cur_set set+ \ add the range border
    ( c1 ) symbol ( c1 c2 )
    2DUP < IF CR ." Bad order" fragment-error EXIT THEN
-   ?DO I re_cur_set set+ LOOP
-   отсюда 2 + поставить-курсор ;
+   ?DO I re_cur_set set+ LOOP \ add all characters in a range
+   2 proceed ; \ eat all what we have processed
 
 \ внутри квадратных скобок, возможно первый символ отрицание
 fragment-charset-1
@@ -658,8 +686,6 @@ EXPORT
 
 : BUILD-REGEX ( a u -- re ) RESERVE-DYNAMIC (parse-full) ;
 
-DEFINITIONS
-
 : BUILD-REGEX-HERE
    STATE @ IF
     POSTPONE A_AHEAD
@@ -671,6 +697,8 @@ DEFINITIONS
    THEN ; IMMEDIATE
 
 \ -----------------------------------------------------------------------
+
+DEFINITIONS
 
 256 state-table is_alpha_char
 
@@ -715,11 +743,19 @@ STATE_MATCH_SET_NOT  asc: .set @ belong NOT ;
     nfa .out2 @ s RECURSE
     EXIT
    THEN
+
+   nfa .c @ STATE_ANCHOR_BOL =
+   IF
+    re_str_pos 0 <> IF EXIT THEN
+    nfa .out1 @ s RECURSE
+    EXIT
+   THEN
+
    nfa s a:append ;
 
-\ l1 - список состояний предыдущего шага
+\ s1 - список состояний предыдущего шага
 \ c - обрабатываемый символ из строки
-\ вернуть список состояний
+\ s2 - OUT - список состояний для следующего шага
 : step { c s1 s2 | a -- }
    0 s2 .a.n !
    re_gen 1+ TO re_gen
@@ -735,9 +771,9 @@ STATE_MATCH_SET_NOT  asc: .set @ belong NOT ;
 \ z - список подвыражений
 \ subs - состояние подвыражений для nfa
 : subs_addstate { nfa s z subs -- }
-   nfa 0 = IF EXIT THEN
-   nfa .gen @ re_gen = IF EXIT THEN
-   re_gen nfa .gen !
+   nfa 0 = IF EXIT THEN \ !!
+   nfa .gen @ re_gen = IF EXIT THEN \ !!
+   re_gen nfa .gen ! \ !!
 
    subs a:copy TO subs
 
@@ -745,20 +781,31 @@ STATE_MATCH_SET_NOT  asc: .set @ belong NOT ;
     re_str_pos nfa subs adjust-sub-state \ ?DUP IF CR ." SUB " nfa . re_str_pos subs print-sub SWAP ! subs print-sub THEN
    THEN
 
-   nfa .c @ STATE_SPLIT = IF
+   nfa .c @ STATE_SPLIT = IF \ !!
     \ CR ." SPLIT"
     nfa .out2 @ s z subs RECURSE
+    \ nfa .out1 @ s RECURSE \ !!
     \ CR ." CONTINUE"
     nfa .out1 @ s z subs RECURSE
+    \ nfa .out2 @ s RECURSE \ !!
     subs a:free
     \ CR ." <---"
-    EXIT
-   THEN
+    EXIT \ !!
+   THEN \ !!
 
-   nfa s a:append
+   nfa .c @ STATE_ANCHOR_BOL = \ !!
+   IF                          \ !!
+    re_str_pos 0 <> IF EXIT THEN \ !!
+    nfa .out1 @ s z subs RECURSE
+    \ nfa .out1 @ s RECURSE \ !!
+    subs a:free 
+    EXIT \ !!
+   THEN \ !!
+
+   nfa s a:append \ !!
    subs z a:append ;
 
-\ l1 - список состояний предыдущего шага
+\ s1 - список состояний предыдущего шага
 \ z1 - список совпадений подвыражений для каждого состояния предыдущего шага
 \ c - обрабатываемый символ из строки
 \ вернуть новый список состояний и подвыражений
@@ -766,18 +813,18 @@ STATE_MATCH_SET_NOT  asc: .set @ belong NOT ;
 
    z2 START{ a:iter-> @ a:free }EMERGE
 
-   0 s2 .a.n !
    0 z2 .a.n !
-   re_gen 1+ TO re_gen
+   0 s2 .a.n ! \ !!
+   re_gen 1+ TO re_gen \ !!
 
-   0 s1 a:elem -> s
+   0 s1 a:elem -> s \ !!
    0 z1 a:elem -> z
-   s1 .a.n @ 0 ?DO
+   s1 .a.n @ 0 ?DO \ !!
     c s @ DUP .c @ char-nfa-match IF s @ .out1 @ s2 z2 z @ subs_addstate THEN
-    s CELL + -> s
+    \ c a @ DUP .c @ char-nfa-match IF a @ .out1 @ s2 addstate THEN \ !!
+    s CELL + -> s \ !!
     z CELL + -> z
    LOOP ;
-
 
 EXPORT
 
@@ -791,7 +838,7 @@ EXPORT
    re_def_groups 0= THROW
    re_def_groups get-sub ;
 
-: get-group-norm ( n -- u1 u2 )
+: get-idx-group ( n -- u1 u2 )
    0 get-group DROP SWAP get-group { a1 a u }
    u 0= IF 0 0 EXIT THEN
    a a1 - DUP u + ;
@@ -814,7 +861,7 @@ EXPORT
    LOOP
    \ LAMBDA{ .c @ STATE_FINAL = } l1 list-find NIP
    \ l1 FREE-LIST
-   s1 START{ a:scan-> .c @ STATE_FINAL = }EMERGE 0 <>
+   s1 START{ a:scan-> .c @ DUP STATE_FINAL = SWAP STATE_ANCHOR_EOL = OR }EMERGE 0 <>
    re_gen re .nfa @ .gen ! \ для последующих сопоставлений
    s1 a:free
    s2 a:free
@@ -846,26 +893,29 @@ EXPORT
    { a u re | s1 z1 s2 z2 subs1 ? -- ? }
    \ StartTrace
    0 TO re_str_pos
-   re .nfa-n @ a:create -> s1
-   re .nfa-n @ a:create -> s2
    re .nfa-n @ a:create -> z1
    re .nfa-n @ a:create -> z2
 
-   re .nfa @ .gen @ 1+ TO re_gen
-   re .nfa @ s1 z1 re .sub @ subs_addstate
+   re .nfa-n @ a:create -> s1 \ !!
+   re .nfa-n @ a:create -> s2 \ !!
 
-   a u BOUNDS ?DO
+   re .nfa @ .gen @ 1+ TO re_gen \ !!
+   re .nfa @ s1 z1 re .sub @ subs_addstate 
+   \ re .nfa @ s1 addstate \ !!
+
+   a u BOUNDS ?DO \ !!
     I a - 1 + TO re_str_pos
     \ CR re_str_pos . I C@ EMIT
     I C@ s1 s2 z1 z2 subs_step
-    s1 s2 -> s1 -> s2
+    \ I C@ s1 s2 step \ !!
+    s1 s2 -> s1 -> s2 \ !!
     z1 z2 -> z1 -> z2
-    \ CR I a - . l1 write-list
-   LOOP
+    \ CR I a - . s1 print-array
+   LOOP \ !!
    \ CR s1 START{ a:iter-> @ .c @ . }EMERGE
    \ CR z1 START{ a:iter-> @ print-array }EMERGE
-   s1 START{ a:scan-> .c @ STATE_FINAL = }EMERGE
-   DUP 0<> -> ?
+   s1 START{ a:scan-> .c @ DUP STATE_FINAL = SWAP STATE_ANCHOR_EOL = OR }EMERGE \ !!
+   DUP 0<> -> ? \ !!
    ?DUP IF
     s1 .a.data - ( offset ) z1 .a.data + @
    ELSE
@@ -873,18 +923,15 @@ EXPORT
    THEN
    a:copy -> subs1
    a u subs1 normalize-subs
-   s1 a:free
-   s2 a:free
+   s1 a:free \ !!
+   s2 a:free \ !!
    z1 START{ a:iter-> @ a:free }EMERGE
    z2 START{ a:iter-> @ a:free }EMERGE
    z1 a:free
    z2 a:free
    subs1 set-default-groups
-   re_gen re .nfa @ .gen ! \ для последующих сопоставлений
-   ? ;
-
-\ : WITH-REGEX ( re-a re-u xt -- )
-\   BUILD-REGEX
+   re_gen re .nfa @ .gen ! \ !! \ для последующих сопоставлений
+   ? ; \ !!
 
 : STREGEX=> ( re-a re-u --> re \ <-- ) PRO BUILD-REGEX { re } re CONT re FREE-REGEX ;
 
