@@ -332,12 +332,6 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
 \  doc H-STDOUT 3 xmlElemDump DROP
   1 xmlNodeGetContent ASCIIZ> \ גûהאוע UTF-8
 ;
-: >UTF8  ( addr u -- addr2 u2 )
-  >UNICODE OVER >R UNICODE>UTF8 R> FREE THROW
-;
-: UTF8> ( addr u -- addr2 u2 )
-  UTF8>UNICODE UNICODE>
-;
 : NODE>DOC
   x.doc @
 ;
