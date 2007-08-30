@@ -77,6 +77,12 @@ USER UnicodeBuf
   UnicodeBuf @ 
   SWAP 1-
 ;
+: >UTF8  ( addr u -- addr2 u2 )
+  >UNICODE OVER >R UNICODE>UTF8 R> FREE THROW
+;
+: UTF8> ( addr u -- addr2 u2 )
+  UTF8>UNICODE UNICODE>
+;
 : UASCIIZ> ( addr -- addr u ) \ вариант ASCIIZ> для Unicode
   0 OVER
   BEGIN
