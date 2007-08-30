@@ -54,3 +54,5 @@ PREVIOUS
 
 \EOF
 S" <test>test</test>" S" Content-Type: text/xml" S" http://www.forth.org.ru/test.e" S" http://localhost:3128/" POST-FILE-VIAPROXY STR@ TYPE
+REQUIRE >UTF8 ~ac/lib/win/com/com.f
+S" status=тестирую curl" >UTF8 S" " S" http://rufig:spforth@twitter.com/statuses/update.xml" POST-FILE STR@ TYPE
