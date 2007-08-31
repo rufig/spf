@@ -300,22 +300,6 @@ RFW `match SLIT,
 
 
 
-CONCEIVE  
-`NodeName & EXEC, `transform SLIT, 
-`CEQUAL & EXEC, 
-`0= & EXEC, ZBFW, 
-
-`FALSE & EXEC, EXIT, 
-RFW 
-`NamespaceURI & EXEC, `http://forth.org.ru/ForthML/Rules/ SLIT, 
-`CEQUAL & EXEC, 
-`0= & EXEC, ZBFW, 
-
-`FALSE & EXEC, EXIT, 
-RFW 
-`trans-childs & EXEC, 
-`TRUE & EXEC,  BIRTH DUP `r:transform NAMING- advice-rule-before
-  
 
 
 
