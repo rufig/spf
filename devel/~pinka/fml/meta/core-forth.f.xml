@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="ASCII" ?>
-<transform
+<f:forth
  xmlns:xi="http://forth.org.ru/2006/XML/Struct"
     xmlns="http://forth.org.ru/ForthML/Rules/"
   xmlns:r="http://forth.org.ru/ForthML/Rules/" 
   xmlns:f="http://forth.org.ru/ForthML/"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
->
+><!-- to default r:transform -->
+
 <!-- Feb-Mar.2007 -->
 
 <xi:model name="request-core-model" href="#native" />
 <xi:include href="../src/core.union.xml"/>
 
-</transform>
+</f:forth>

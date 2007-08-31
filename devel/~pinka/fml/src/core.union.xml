@@ -129,15 +129,18 @@ and r:m is allowable.
 
 </xi:model><xi:model name="native" advice="after">
 
-<rule match="r:transform"><yield/></rule><!-- to do: explicate  r:transform -->
+<!--
+<rule match="r:transform"><yield/></rule><!- - to do: explicate  r:transform -->
 
 </xi:model><xi:model name="transform" advice="after">
 
+<!-- not so simple
 <xsl:template match="r:transform">
   <f:forth>
     <xsl:apply-templates />
   </f:forth>
 </xsl:template>
+-->
 
 </xi:model>
 
