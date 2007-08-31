@@ -66,6 +66,7 @@ DOS-LINES
 `~pinka/model/trans/rules-std.f.xml         FIND-FULLNAME EMBODY
 `~pinka/model/trans/split-line.f.xml        FIND-FULLNAME EMBODY
 `~pinka/model/trans/rules-ext.f.xml         FIND-FULLNAME EMBODY
+`~pinka/model/trans/rules-string.f.xml      FIND-FULLNAME EMBODY
 
 \ отображение URI-баз (например, http://forth.org.ru/ на каталог локальной файловой системы)
 `~pinka/model/trans/xml-uri-map.f.xml       FIND-FULLNAME EMBODY
