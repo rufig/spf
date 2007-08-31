@@ -27,3 +27,9 @@
 
 \ : CDR ( node1 -- node|0 ) CELL- @ ;
 \ : CAR @ ;
+
+: BIND-NODE-TAIL ( node list -- )
+  DUP @ 0= IF ! EXIT THEN
+  0 ['] NIP ROT FOREACH-LIST-NODE ( node tail-node )
+  CELL- !
+;
