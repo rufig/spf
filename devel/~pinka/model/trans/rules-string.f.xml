@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<f:forth xmlns:f="http://forth.org.ru/ForthML/"
+  xmlns="http://forth.org.ru/ForthML/Rules/"
+>
+<!-- Aug.2007 -->
+<!-- $Id$ -->
+
+<f:comment> string constructing (to the current storage) </f:comment>
+
+ALSO forthml-support
+
+<transform name="rules-string-constructing">
+
+<rule match="#text" test="STATE?"><!-- '@test' doesn't support yet -->
+  NodeValue T-SLIT <m> S, </m>
+</rule>
+
+<rule match="f:ss" test="STATE?"><f:rem> substitute substring </f:rem>
+  <m><yield/> S, </m>
+</rule>
+
+<rule match="f:s" test="STATE?" ds=" -- c-addr u " ><m>
+  HERE >R  <yield/>  HERE R> TUCK - 0 C,
+  </m>
+</rule>
+
+</transform>
+
+<rule match="f:s" ds="-- ">
+  rules-string-constructing apply-rules
+</rule>
+
+PREVIOUS
+
+</f:forth>
