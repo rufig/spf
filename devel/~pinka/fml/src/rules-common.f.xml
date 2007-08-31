@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="ASCII" ?>
-<transform
+<f:forth
   xmlns="http://forth.org.ru/ForthML/Rules/"
   xmlns:f="http://forth.org.ru/ForthML/"
   f:nskeep="yes"
->
+><!-- to default r:transform -->
+
 <!-- Feb.2007 ruvim@forth.org.ru 
 $Id$
 -->
@@ -90,6 +91,13 @@ $Id$
   </m>
 </rule>
 
+<rule match="f:unless"><m>
+  0EQ <direct>ZBFW,</direct>
+  <yield/>
+  <direct>RFW</direct>
+  </m>
+</rule>
+
 
 <rule match="f:cell"><m><!-- this version is not consider content of element (!!!) -->
   ALIGN HERE 0 ,  CONCEIVE LIT, BIRTH
@@ -97,4 +105,4 @@ $Id$
   </m>
 </rule>
 
-</transform>
+</f:forth>

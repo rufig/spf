@@ -9,6 +9,7 @@
 <rule match="f:otherwise"> STATE? <f:if><exit-fail/></f:if>         <yield/>          </rule>
 <rule match="f:when">      STATE? <f:if><exit-fail/></f:if>   <f:if><yield/> ParentNode LastChild </f:if> </rule>
 <rule match="f:if">        STATE? <f:if><exit-fail/></f:if>   <f:if><yield/></f:if>   </rule>
+<rule match="f:unless">    STATE? <f:if><exit-fail/></f:if>  0EQ <f:if><yield/></f:if></rule>
 
 <rule match="f:repeat">    STATE? <f:if><exit-fail/></f:if>
   FALSE gtCS
