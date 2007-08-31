@@ -5,7 +5,7 @@
 <!-- Aug.2007 -->
 <!-- $Id$ -->
 
-<f:comment> string constructing (to the current storage) </f:comment>
+<f:comment> String constructing (to the current storage). Only within 'def'.</f:comment>
 
 ALSO forthml-support
 
@@ -16,7 +16,7 @@ ALSO forthml-support
 </rule>
 
 <rule match="f:ss" test="STATE?"><f:rem> substitute substring </f:rem>
-  <m><yield/> S, </m>
+  rules-default apply-rules <m> S, </m>
 </rule>
 
 <rule match="f:s" test="STATE?" ds=" -- c-addr u " ><m>
@@ -26,10 +26,22 @@ ALSO forthml-support
 
 </transform>
 
+<rule match="f:ss" ds="-- ">
+  <yield/>
+</rule>
+
 <rule match="f:s" ds="-- ">
   rules-string-constructing apply-rules
 </rule>
 
 PREVIOUS
+
+<f:comment><!-- example -->
+  <def name="ttt" ds=" a u -- a2 u2 ">
+    <s>AAA[<ss/>]Z-<ss> 123. (D.) </ss></s>
+  </def>
+
+  `ooo ttt TYPE <!-- output: AAA[ooo]Z-123 -->
+</f:comment>
 
 </f:forth>
