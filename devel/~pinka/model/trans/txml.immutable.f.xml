@@ -6,17 +6,6 @@
   `: SPLIT- 0= <if> 2DUP `# STARTS-WITH <if> 0 0 <exit/></if> 0 0 </if>  Namespace-uri-for-prefix
 </def>
 
-<def name="advice-rule-after" ds=" xt -- ">
-  <p><exec>a-trans @</exec> DUP <if><exit/></if> DROP <exec/></p> a-trans !
-</def>
-<def name="advice-rule-before" ds=" xt -- ">
-  <p><exec/> DUP <if><exit/></if> DROP <exec>a-trans @</exec></p> a-trans !
-</def>
-
-<def name="trans-node-force" ds="i*x -- i*x | j*x">
-  a-trans @ EXECUTE <if><exit/></if> 5321 THROW
-</def>
-
 <def name="trans-childs" ds=" i*x -- j*x ">
   cnode >R
   FirstChild <repeat> cnode <while/> trans-node-force NextSibling </repeat>

@@ -2,7 +2,25 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- Feb.2007 ruvim@forth.org.ru -->
 
-<cell name="a-trans"/> <xt-of name="FALSE"/> a-trans !
+<include href="../data/chain-cond.f.xml"/>
+
+<cell name="rules-default"/> rules-default DUP chain-current ! chain-context !
+
+<def name="advice-rule-after" ds=" xt -- ">
+  advice-after
+</def>
+<def name="advice-rule-before" ds=" xt -- ">
+  advice-before
+</def>
+<def name="trans-node-force" ds="i*x -- i*x | j*x">
+  perform-chain <if><exit/></if> 5321 THROW
+</def>
+
+<def name="apply-rules" ds=" h-rules -- ">
+  chain-context @ >R  chain-context !
+  trans-node-force
+  R> chain-context !
+</def>
 
 <include href="txml.immutable.f.xml"/>
 
