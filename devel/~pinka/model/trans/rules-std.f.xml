@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <f:forth xmlns:f="http://forth.org.ru/ForthML/"
   xmlns="http://forth.org.ru/ForthML/Rules/"
+xmlns:r="http://forth.org.ru/ForthML/Rules/"
 >
 <!-- Apr.2007 ruvim@forth.org.ru -->
 <!-- $Id$ -->
@@ -52,10 +53,6 @@
 <rule match="f:q">
   STATE? <f:if><exit-fail/></f:if>
   <f:p><yield/></f:p><!-- todo: late binding -->
-</rule>
-
-<rule match="f:unless">
-  <mm> 0EQ <f:if><yield/></f:if></mm>
 </rule>
 
 <rule match="f:times"><mm>
@@ -140,6 +137,17 @@
 <rule match="f:let"><mm><!-- ( x addr - ) -->
   DUP DUP @ 2>R !  <yield/>  R> R> !
   </mm>
+</rule>
+
+
+<!-- r: -->
+
+<rule match="r:transform" ds=" -- ">
+  STATE0? <f:unless> ABORT </f:unless>
+  HERE 0 , DUP <f:p><f:lit/></f:p> <get-attribute name="name"/> NAMING-
+  chain-current @ >R chain-current !
+  <yield/>
+  R> chain-current !
 </rule>
 
 </f:forth>
