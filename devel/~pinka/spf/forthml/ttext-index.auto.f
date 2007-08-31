@@ -465,6 +465,11 @@ CONCEIVE
 `@ & EXEC, 
 BIRTH `STATE? NAMING- 
 CONCEIVE 
+`STATE & EXEC, 
+`@ & EXEC, 
+`0EQ & EXEC, 
+BIRTH `STATE0? NAMING- 
+CONCEIVE 
 `I-SLIT-FORM & EXEC, ZBFW, 
 `T-SLIT & EXEC, EXIT, RFW 
 `I-NATIVE & EXEC, ZBFW, 
@@ -495,10 +500,77 @@ BIRTH `T-PLAIN NAMING-
 
 
 
-ALIGN HERE 0 , CONCEIVE LIT, BIRTH `a-trans NAMING- 
-`FALSE &  a-trans !
 
- 
+
+
+ALIGN HERE 0 , CONCEIVE LIT, BIRTH `chain-current NAMING- 
+ALIGN HERE 0 , CONCEIVE LIT, BIRTH `chain-context NAMING- 
+CONCEIVE 0 LIT, 
+`, & EXEC, 
+`HERE & EXEC, 
+`SWAP & EXEC, 
+`, & EXEC, 
+`chain-current & EXEC, 
+`@ & EXEC, 
+`BIND-NODE & EXEC, 
+BIRTH `advice-before NAMING- 
+CONCEIVE 0 LIT, 
+`, & EXEC, 
+`HERE & EXEC, 
+`SWAP & EXEC, 
+`, & EXEC, 
+`chain-current & EXEC, 
+`@ & EXEC, 
+`BIND-NODE-TAIL & EXEC, 
+BIRTH `advice-after NAMING- 
+CONCEIVE 
+`chain-context & EXEC, 
+`@ & EXEC, 
+`DUP & EXEC, 
+`0EQ & EXEC, ZBFW, EXIT, RFW 
+`@ & EXEC, MBW 
+`DUP & EXEC, ZBFW2, 
+`DUP & EXEC, 
+`>R & EXEC, 
+`@ & EXEC, 
+`EXECUTE & EXEC, ZBFW, 
+`RDROP & EXEC, 
+`TRUE & EXEC, EXIT, RFW 
+`R> & EXEC, 
+`CELL- & EXEC, 
+`@ & EXEC, BBW, RFW 
+
+
+BIRTH `perform-chain NAMING- 
+CONCEIVE 
+`perform-chain & EXEC, ZBFW, EXIT, RFW 
+`ABORT & EXEC, 
+BIRTH `perform-chain-sure NAMING- 
+
+ALIGN HERE 0 , CONCEIVE LIT, BIRTH `rules-default NAMING-  rules-default DUP chain-current ! chain-context !
+
+ CONCEIVE 
+`advice-after & EXEC, 
+BIRTH `advice-rule-after NAMING- 
+CONCEIVE 
+`advice-before & EXEC, 
+BIRTH `advice-rule-before NAMING- 
+CONCEIVE 
+`perform-chain & EXEC, ZBFW, EXIT, RFW 5321 LIT, 
+`THROW & EXEC, 
+BIRTH `trans-node-force NAMING- 
+CONCEIVE 
+`chain-context & EXEC, 
+`@ & EXEC, 
+`>R & EXEC, 
+`chain-context & EXEC, 
+`! & EXEC, 
+`trans-node-force & EXEC, 
+`R> & EXEC, 
+`chain-context & EXEC, 
+`! & EXEC, 
+BIRTH `apply-rules NAMING- 
+
 
 CONCEIVE `: SLIT, 
 `SPLIT- & EXEC, 
@@ -507,44 +579,6 @@ CONCEIVE `: SLIT,
 `STARTS-WITH & EXEC, ZBFW, 0 LIT, 0 LIT, EXIT, RFW 0 LIT, 0 LIT, RFW 
 `Namespace-uri-for-prefix & EXEC, 
 BIRTH `name-n-uri NAMING- 
-CONCEIVE 
-
-`CONCEIVE & EXEC, 
-`a-trans & EXEC, 
-`@ & EXEC, 
-`EXEC, & EXEC, 
-`DUP & LIT, `EXEC, & EXEC, 
-`ZBFW, & EXEC, 
-`EXIT, & EXEC, 
-`RFW & EXEC, 
-`DROP & LIT, `EXEC, & EXEC, 
-`EXEC, & EXEC, 
-`BIRTH & EXEC, 
-`a-trans & EXEC, 
-`! & EXEC, 
-BIRTH `advice-rule-after NAMING- 
-CONCEIVE 
-
-`CONCEIVE & EXEC, 
-`EXEC, & EXEC, 
-`DUP & LIT, `EXEC, & EXEC, 
-`ZBFW, & EXEC, 
-`EXIT, & EXEC, 
-`RFW & EXEC, 
-`DROP & LIT, `EXEC, & EXEC, 
-`a-trans & EXEC, 
-`@ & EXEC, 
-`EXEC, & EXEC, 
-`BIRTH & EXEC, 
-`a-trans & EXEC, 
-`! & EXEC, 
-BIRTH `advice-rule-before NAMING- 
-CONCEIVE 
-`a-trans & EXEC, 
-`@ & EXEC, 
-`EXECUTE & EXEC, ZBFW, EXIT, RFW 5321 LIT, 
-`THROW & EXEC, 
-BIRTH `trans-node-force NAMING- 
 CONCEIVE 
 `cnode & EXEC, 
 `>R & EXEC, 
