@@ -10,6 +10,9 @@
  usage = web | local
 -->
 
+<xsl:param name="usage">local</xsl:param>
+<xsl:param name="lang">en</xsl:param>
+
 <!-- main -->
 <xsl:template match="spf_devel">
     <html>
@@ -105,11 +108,6 @@ pre, code { background : #EEEEF4}</xsl:text>
     <!-- sections -->
     <xsl:for-each select="section">
         <a id="{@id}"/>
-        <!--xsl:element name="a">
-            <xsl:attribute name = "id">
-                <xsl:value-of select="@id"/>
-            </xsl:attribute>
-        </xsl:element-->
         <xsl:element name="h3">
             <xsl:for-each select="name">
                 <xsl:call-template name="lang"/>
@@ -127,72 +125,52 @@ pre, code { background : #EEEEF4}</xsl:text>
     </html>
 </xsl:template>
 
-<!-- each lib -->
-<xsl:template match="lib">
-    <xsl:element name="li">
-        <xsl:text>REQUIRE </xsl:text>
-        <xsl:value-of select="word"/>
-        <xsl:text> </xsl:text>
-        <xsl:apply-templates select="path"/>
-        <xsl:text> \ </xsl:text>
-        <xsl:for-each select="comment">
-            <xsl:call-template name="lang"/>
-        </xsl:for-each>
-    </xsl:element>
+<xsl:template match="word">
+  <xsl:value-of select="."/>
+  <xsl:text> </xsl:text>
 </xsl:template>
 
-<!-- -->
+<xsl:template match="comment">
+  <xsl:text> \ </xsl:text>
+  <xsl:call-template name="lang"/>
+</xsl:template>
+
+<!-- each lib entry -->
+<xsl:template match="lib">
+  <xsl:element name="li">
+      <xsl:text>REQUIRE </xsl:text>
+      <xsl:apply-templates />
+  </xsl:element>
+</xsl:template>
+
+<!-- other entry -->
 <xsl:template match="other">
-    <xsl:element name="li">
-        <xsl:text>\ </xsl:text>
-        <xsl:apply-templates select="path"/>
-        <xsl:text> \ </xsl:text>
-        <xsl:for-each select="comment">
-            <xsl:call-template name="lang"/>
-        </xsl:for-each>
-    </xsl:element>
+  <xsl:element name="li">
+      <xsl:text>\ </xsl:text>
+    <xsl:apply-templates />
+  </xsl:element>
 </xsl:template>
 
 <!-- select <en> or <ru> depending on $lang param -->
 <xsl:template name="lang">
-    <!--xsl:value-of select="name($lang)"/-->
-    <xsl:choose>
-    <xsl:when test="$lang='en'">
-        <xsl:value-of select="en"/>
-    </xsl:when>
-    <xsl:when test="$lang='ru'">
-        <xsl:variable name="str"><xsl:value-of select="ru"/></xsl:variable>
-        <xsl:value-of select="ru"/>
-        <xsl:if test="string-length($str)=0">
-            <xsl:value-of select="en"/>
-        </xsl:if>
-    </xsl:when>
-    </xsl:choose>
+  <xsl:variable name="entry" select="*[name() = $lang][node()]"/>
+  <xsl:choose><xsl:when test="$entry">
+      <xsl:apply-templates select="$entry/node()" />
+  </xsl:when><xsl:otherwise>
+      <xsl:apply-templates select="en/node()" />
+  </xsl:otherwise></xsl:choose>
 </xsl:template>
 
 <!-- convert links -->
 <xsl:template match="path">
-    <xsl:choose> 
-    <xsl:when test="$usage='web'">
-        <a href="http://forth.org.ru/{.}">
-            <xsl:value-of select="."/>
-        </a>
-    </xsl:when>
-    <xsl:when test="$usage='local'">
-        <xsl:choose>
-        <xsl:when test="substring(.,1,1)='~'">
-            <a href="../devel/{.}">
-                <xsl:value-of select="."/>
-            </a>
-        </xsl:when>
-        <xsl:otherwise>
-            <a href="../{.}">
-                <xsl:value-of select="."/>
-            </a>
-        </xsl:otherwise>
-        </xsl:choose>
-    </xsl:when>
-    </xsl:choose>
+  <xsl:choose><xsl:when test="$usage='web'">
+    <a href="http://forth.org.ru/{.}"><xsl:value-of select="."/></a>
+  </xsl:when><xsl:when test="starts-with(., '~')">
+    <a href="../devel/{.}"><xsl:value-of select="."/></a>
+  </xsl:when><xsl:otherwise>
+    <a href="../{.}"><xsl:value-of select="."/></a>
+  </xsl:otherwise></xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>
+
