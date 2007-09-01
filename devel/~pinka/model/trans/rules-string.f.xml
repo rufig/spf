@@ -1,47 +1,59 @@
 <?xml version="1.0" ?>
 <f:forth xmlns:f="http://forth.org.ru/ForthML/"
   xmlns="http://forth.org.ru/ForthML/Rules/"
+xmlns:r="http://forth.org.ru/ForthML/Rules/"
 >
 <!-- Aug.2007 -->
 <!-- $Id$ -->
 
-<f:comment> String constructing (to the current storage). Only within 'def'.</f:comment>
-
 ALSO forthml-support
+
+<rule match="r:yield-m"><!-- M-depended version. Experimental -->
+  STATE? <f:unless><exit-fail/></f:unless>
+  `transform HasAttribute <f:unless><exit-fail/></f:unless>
+  `transform GetAttribute &amp; T-EXEC
+  <m>
+    chain-context @ >R chain-context !
+    trans-childs
+    R> chain-context !
+  </m>
+</rule>
+
+
+<f:comment> String constructing (to the current storage) </f:comment>
 
 <transform name="rules-string-constructing">
 
-<rule match="#text" test="STATE?"><!-- '@test' doesn't support yet -->
+<rule match="#text">
   NodeValue T-SLIT <m> S, </m>
 </rule>
 
-<rule match="f:ss" test="STATE?"><f:rem> substitute substring </f:rem>
-  rules-default apply-rules <m> S, </m>
-</rule>
-
-<rule match="f:s" test="STATE?" ds=" -- c-addr u " ><m>
-  HERE >R  <yield/>  HERE R> TUCK - 0 C,
-  </m>
+<rule match="f:ss"><f:rem> substitute substring </f:rem>
+  <yield-m transform="rules-default"/>
+  <m> S, </m>
 </rule>
 
 </transform>
 
-<rule match="f:ss" ds="-- ">
-  <yield/>
-</rule>
 
 <rule match="f:s" ds="-- ">
-  rules-string-constructing apply-rules
+  <mm> HERE >R </mm>
+  <yield-m transform="rules-string-constructing"/>
+  <mm> HERE R> TUCK - 0 C, </mm>
 </rule>
+
 
 PREVIOUS
 
 <f:comment><!-- example -->
+<g xmlns="http://forth.org.ru/ForthML/">
   <def name="ttt" ds=" a u -- a2 u2 ">
     <s>AAA[<ss/>]Z-<ss> 123. (D.) </ss></s>
   </def>
 
-  `ooo ttt TYPE <!-- output: AAA[ooo]Z-123 -->
+  `ooo ttt TYPE CR <!-- output: AAA[ooo]Z-123 -->
+  `qqq <s>AAA[<ss/>]Z-<ss> 123. (D.) </ss></s> TYPE CR <!-- output: AAA[qqq]Z-123 -->
+</g>
 </f:comment>
 
 </f:forth>
