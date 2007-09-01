@@ -87,7 +87,7 @@
 <name><en>Debugging facilities</en><ru>Отладка</ru></name>
 <lib><word>HeapEnum</word><path>~ac/lib/memory/heap_enum2.f</path><comment><en>enumerating allocated memory blocks on the heap</en><ru>перечисление блоков памяти выделенных на хипе</ru></comment></lib>
 <lib><word>mem_stub</word><path>~day/lib/mem_sanity.f</path><comment><en>verifying FREE (via filling with template)</en><ru>проверка корректности удаления (с помощью заполнения шаблоном)</ru></comment></lib>
-<lib><word>MemReport</word><path>~day/lib/memreport.f</path><comment><en>memory leakages checking with stack report (supports multithreading)<ru>отчёт об утечках памяти (поддерживает многопоточность)</ru></en></comment></lib>
+<lib><word>MemReport</word><path>~day/lib/memreport.f</path><comment><en>memory leakages checking with stack report (supports multithreading)</en><ru>отчёт об утечках памяти (поддерживает многопоточность)</ru></comment></lib>
 <lib><word>ACCERT(</word><path>lib/ext/debug/accert.f</path><comment><en>conditional compilation</en><ru>условная компиляция</ru></comment></lib>
 <lib><word>TRACER</word><path>lib/ext/debug/tracer.f</path><comment><en>detailed execution report</en><ru>подробный отчёт о выполнении</ru></comment></lib>
 <lib><word>.AllStatistic</word><path>~pinka/lib/tools/profiler.f</path><comment><en>word profiling (generates statistics for words and their run times)</en><ru>профилирование слов (выводит статистику о временах работы)</ru></comment></lib>
