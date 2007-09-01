@@ -125,7 +125,7 @@ pre, code { background : #EEEEF4}</xsl:text>
     </html>
 </xsl:template>
 
-<xsl:template match="word">
+<xsl:template match="key">
   <xsl:value-of select="."/>
   <xsl:text> </xsl:text>
 </xsl:template>
@@ -162,7 +162,7 @@ pre, code { background : #EEEEF4}</xsl:text>
 </xsl:template>
 
 <!-- convert links -->
-<xsl:template match="path">
+<xsl:template match="src">
   <xsl:choose><xsl:when test="$usage='web'">
     <a href="http://forth.org.ru/{.}"><xsl:value-of select="."/></a>
   </xsl:when><xsl:when test="starts-with(., '~')">
