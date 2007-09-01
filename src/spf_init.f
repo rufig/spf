@@ -165,7 +165,7 @@ TRUE VALUE SPF-INIT?
   SPF-INIT?
   IF
     ['] SPF-INI ERR-EXIT
-    ['] OPTIONS ERR-EXIT
+    ['] OPTIONS CATCH ERROR \ продолжить не смотря на ошибку
   THEN
   CGI? @ 0= POST? @ OR IF ['] <MAIN> ERR-EXIT THEN
   BYE
