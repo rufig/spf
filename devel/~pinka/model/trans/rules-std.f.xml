@@ -17,11 +17,11 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   </m>
 </rule>
 
-<rule match="m0">
+<rule match="r:m0">
   M @ >R  M 0!  <yield/>  R> M !
 </rule>
 
-<rule match="mm"><!-- in addition to 'r:m' -->
+<rule match="r:mm"><!-- in addition to 'r:m' -->
   <m>
   <f:choose> STATE? <f:when>
     <m0> INC-M <yield/> DEC-M </m0>
@@ -31,18 +31,19 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   </m>
 </rule>
 
-<f:def name="(yield2)" ds=" state -- ">
+<f:def name="(yield-within-state)" ds=" state -- ">
   STATE @ >R STATE ! trans-childs R> STATE !
 </f:def>
 
-<rule match="yield"><!-- because of r:mm -->
-  <!-- only within non-nested r:rule -->
+<f:def name="yield," ds=" -- ">
   STATE @ 0 EQ <f:if> 5006 THROW </f:if>
-  <f:choose>
-  STATE @ 1 EQ
-  <f:when> <f:xt-of name="trans-childs"/> EXEC, </f:when>
-  <f:otherwise> STATE @ 1- LIT, <f:xt-of name="(yield2)"/> EXEC, </f:otherwise>
-  </f:choose>
+  STATE @ 1 EQ <f:if><postpone> trans-childs </postpone><f:exit/></f:if>
+  <postpone><f:lit> STATE @ 1- </f:lit> (yield-within-state) </postpone>
+</f:def>
+
+<rule match="r:yield"><!-- because of r:mm -->
+  <!-- only within non-nested r:rule -->
+  yield,
 </rule>
 
 <rule match="f:q"><!-- 'quote' (seems better than 'xt') -->
