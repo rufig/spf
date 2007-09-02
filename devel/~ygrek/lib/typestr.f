@@ -7,7 +7,7 @@
 \ :NONAME 3 . ." test" 3 SPACES ." hello" ; TYPE>STR
 \ даёт " 3 test   hello" 
 
-REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 
 MODULE: TYPE>STR-MODULE
