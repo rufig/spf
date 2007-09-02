@@ -8,17 +8,15 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 
 ALSO forthml-support
 
-<rule match="r:yield-m"><!-- M-depended version. Experimental -->
-  STATE? <f:unless><exit-fail/></f:unless>
+<rule match="r:yield">
   `transform HasAttribute <f:unless><exit-fail/></f:unless>
-  `transform GetAttribute &amp; T-EXEC
-  <m>
+  `transform GetAttribute &amp;
+  <postpone><f:exec/>
     chain-context @ >R chain-context !
-    trans-childs
+    <direct> yield, </direct>
     R> chain-context !
-  </m>
+  </postpone>
 </rule>
-
 
 <f:comment> String constructing (to the current storage) </f:comment>
 
@@ -29,17 +27,18 @@ ALSO forthml-support
 </rule>
 
 <rule match="f:ss"><f:rem> substitute substring </f:rem>
-  <yield-m transform="rules-default"/>
+  <yield transform="rules-default"/>
   <m> S, </m>
 </rule>
 
 </transform>
 
-
 <rule match="f:s" ds="-- ">
-  <mm> HERE >R </mm>
-  <yield-m transform="rules-string-constructing"/>
-  <mm> HERE R> TUCK - 0 C, </mm>
+  <mm>
+    HERE >R
+    <yield transform="rules-string-constructing"/>
+    HERE R> TUCK - 0 C,
+  </mm>
 </rule>
 
 
