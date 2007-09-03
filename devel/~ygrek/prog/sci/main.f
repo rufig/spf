@@ -1,30 +1,39 @@
+\ $Id$
 
 DIS-OPT
+0 TO MM_SIZE
 STARTLOG
 
-MODULE: ASTR
-REQUIRE STR@ ~ac/lib/str4.f
+\ Resolving conflicts first
+
+S" ~yz/lib/common.f" INCLUDED \ Root of all evils..
+REQUIRE tabcontrol ~ygrek/~yz/lib/wincc.f
+
+WARNING @
+WARNING OFF
+ S" ~ac/lib/str5.f" INCLUDED \ " and "" conflicts
+ S" ~profit/lib/logic.f" INCLUDED \ NOT conflicts
+WARNING !
+
+REQUIRE ACCERT-LEVEL lib/ext/debug/accert.f
+1 ACCERT-LEVEL !
+
+REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 CREATE a\CR 0x0D C,
 : \CR a\CR 1 ;
-;MODULE
 
-REQUIRE ACCERT( lib/ext/debug/accert.f
-4 ACCERT-LEVEL !
-
+REQUIRE Z" ~af/lib/c/zstring.f
 REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
 REQUIRE [IF] lib/include/tools.f
-\ REQUIRE v[] ~ygrek/lib/vector.f
+REQUIRE v[] ~ygrek/lib/vector.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
-REQUIRE tabcontrol ~ygrek/~yz/lib/wincc.f
 REQUIRE MGETMEM ~yz/lib/gmem.f
 REQUIRE def-small-icon-il ~ygrek/~yz/lib/icons.f
 REQUIRE LOAD-CONSTANTS ~yz/lib/const.f
 
 S" ~ygrek/lib/data/scintilla.const" LOAD-CONSTANTS
-
-\ REQUIRE box{ sandbox.f
 
 REQUIRE AUS ~ygrek/lib/aus.f
 REQUIRE SCN ~ygrek/prog/sci/struct.f
@@ -32,6 +41,8 @@ REQUIRE ENUM ~ygrek/lib/enum.f
 REQUIRE NFA=> ~ygrek/lib/wid.f
 REQUIRE >ASCIIZ ~ygrek/lib/string.f
 REQUIRE /STRING lib/include/string.f
+
+REQUIRE HEAP-ID ~pinka/spf/mem.f
 
 MODULE: JOOP
 REQUIRE OpenDialog ~day/joop/win/filedialogs.f
@@ -55,7 +66,7 @@ S" editors.f" INCLUDED
 : scintilla-edit ( -- ctl )
   ACCERT( CR ." scintilla-edit "  DEPTH . )
   control ACCERT( DEPTH . )
-  " Scintilla" (* ws_tabstop *) W: ws_ex_clientedge
+  Z" Scintilla" (* ws_tabstop *) W: ws_ex_clientedge
   ACCERT( ." !!! " DEPTH . CR .S )
   create-control-exstyle 
   ACCERT( CR .S )
@@ -78,9 +89,7 @@ MODULE: style
 : SCI-CONST-CREATE
    PARSE-NAME 
    2DUP CREATED
-   [ ALSO ASTR ]
    " SCI_{s}" STR@
-   [ PREVIOUS ]
    FIND-CONST , ;
 
 C" SendMessageA" FIND NIP 0= [IF] WINAPI: SendMessageA USER32.DLL [THEN]
@@ -178,55 +187,54 @@ C" SendMessageA" FIND NIP 0= [IF] WINAPI: SendMessageA USER32.DLL [THEN]
 
 : MyStyle ( a u -- ) ['] colorer EVALUATE-WITH ;
 
-: get-text ( start end -- parse-buf n )
-  ACCERT( CR ." get-text " 2DUP SWAP . . )
-  2DUP - ABS 1+ ACCERT( DUP . ) parse-buf vresize
-  ACCERT( ." !!" )
-  { | [ 3 CELLS ] tr }
-  tr init->>
-  SWAP >>
-  >>
-  parse-buf vptr >>
-  0 tr GetTextRange parse-buf vptr SWAP 
-  ACCERT( DUP . ." get-text done" )
-  ;
+: get-text ( start end -- s )
+   ACCERT( CR ." get-text " 2DUP SWAP . . )
+   2DUP - ABS 1+ ACCERT( DUP . ) ALLOCATE THROW { buf | [ 3 CELLS ] tr }
+   tr init->>
+   SWAP >>
+   >>
+   buf >>
+   0 tr GetTextRange buf SWAP >STR
+   buf FREE THROW
+   ACCERT( DUP . ." get-text done" ) ;
 
-0 VALUE u  0 VALUE a 0 VALUE s
+MODULE: match_impl
+
+USER-VALUE match-a
+USER-VALUE match-u
+
+EXPORT
 
 : //au ( a u // )
-     PRO
-     DUP
-     u < IF 2DROP EXIT THEN
-     OVER
-     u a u COMPARE-U 0= IF CONT THEN 2DROP ;
+   PRO
+   DUP
+   match-u < IF 2DROP EXIT THEN
+   OVER
+   match-u match-a match-u COMPARE-U 0= IF CONT THEN 2DROP ;
 
 : MATCH=> ( a u -- )
-   TO u TO a
+   TO match-u TO match-a
    PRO CONTEXT @ NFA=> DUP COUNT //au CONT ;
 
-: matching ( a u s -- s )
-   TO s
-   START{ MATCH=> 2DUP s ASTR::STR+ S"  " s ASTR::STR+ }EMERGE s ;
+: matching ( a u -- s ) LAMBDA{ START{ MATCH=> 2DUP TYPE SPACE }EMERGE } TYPE>STR ;
 
-\ : z S" RE" ASTR::"" matching ASTR::STR@ TYPE ; \EOF
-\ : z S" CR" MATCH=> 2DUP TYPE CR ; \EOF
+;MODULE
 
-: get-help ( a u -- a2 u2 )
-   ACCERT( ." get-help" )
-   [ ALSO ASTR ]
-   " qwe HELP {s}"
-   LAMBDA{ DUP STR@ EVALUATE STRFREE } 
-   TYPE>STR-CATCH IF ( s ) DROP " no help" THEN
-   DUP " {ASTR::\CR}" "" replace-str-
-   DUP 
-       STR@
-       DUP >R
-       DUP parse-buf vresize
-           parse-buf vptr SWAP CMOVE
-   STRFREE
-   [ PREVIOUS ]
-   parse-buf vptr R> OEM>ANSI
-   ACCERT( ." get help done" )
+: get-help ( a u -- s )
+   { | s }
+   ACCERT( CR ." get-help " DEPTH . )
+   " HELP {s}" -> s
+   s STR@ ['] EVALUATE TYPE>STR-CATCH IF ( a u str-result ) STRFREE 2DROP " no help" THEN
+   s STRFREE
+   -> s
+   \ remove linefeeds
+   s STR@ 10 + DUMP
+   s " {\CR}" "" replace-str-
+   s STR@ 10 + DUMP
+   s STR@ OEM>ANSI 2DROP \ HELP uses CP866 encoded files
+   s STR@ 10 + DUMP
+   s
+   ACCERT( CR ." get help done " DEPTH . )
 ;
 
 : get-line ( i -- parse-buf u )
@@ -235,10 +243,8 @@ C" SendMessageA" FIND NIP 0= [IF] WINAPI: SendMessageA USER32.DLL [THEN]
    parse-buf vptr GetLine parse-buf vptr SWAP ;
 
 : update-status
-   [ ALSO ASTR ]
    GetLength " {n}" DUP STR@ DROP 0 winmain set-status STRFREE 
    ed-tabs -selected@ editors-path@ 1 winmain set-status
-   [ PREVIOUS ]
 ;
 
 \ EOF
@@ -262,12 +268,13 @@ M: SCN_STYLENEEDED { | scn }
     I get-line MyStyle
     ACCERT( CR ." Done line " I . DEPTH . )
    LOOP
+   ACCERT( CR ." STYLENEDED DONE" )
 M;
 
 \ monitor chars from the user
 \ and display the list of the words suitable for completion
 M: SCN_CHARADDED 
-    { | scn }
+    { | scn s sauto }
     TEMPAUS SCN scn
     lparam TO scn
     scn. ch @ BL = IF EXIT THEN
@@ -279,16 +286,22 @@ M: SCN_CHARADDED
     2DUP - DUP 3 < IF DROP 2DROP EXIT THEN
     >R
     SWAP   ( start end )
-    get-text ASTR::"" matching
-    ASTR::STR@ 
-    0= IF DROP RDROP AutoCCancel DROP EXIT THEN
+    get-text -> s
+
+    s STR@ matching -> sauto
+    s STR@ TYPE
+    sauto STR@ TYPE
+    s STRFREE
+    sauto STR@ 0= IF DROP RDROP AutoCCancel DROP EXIT THEN
     R> SWAP AutoCShow DROP
 M;
 
 \ display a calltip if the mouse has stopped for a while
 \ search the word under the cursor (or selection if present) in the help system
 M: SCN_DWELLSTART
-   lparam { scn | pos }
+   DEPTH .
+   CR ." heap : " HEAP-ID .
+   lparam { scn | pos s }
    TEMPAUS SCN scn
 
    scn. position @ -> pos
@@ -305,18 +318,17 @@ M: SCN_DWELLSTART
     pos TRUE WordEndPosition
     2DUP = IF ACCERT( ." no" ) 2DROP EXIT THEN
    THEN
-    get-text 
-    \ ACCERT( 2DUP TYPE OVER . )
-   ( pos a u) get-help DUP 0= IF 2DROP DROP EXIT THEN
-    \ ACCERT( DEPTH . )
-   >ASCIIZ 
-    \ ACCERT( DUP ASCIIZ> TYPE ) 
-   pos SWAP CallTipShow DROP
-    ACCERT( DEPTH . ." ok")
+   get-text DUP STR@ get-help -> s STRFREE
+   s STRLEN IF
+     pos s STRA CallTipShow DROP
+   THEN
+   s STRFREE
+   ACCERT( DEPTH . ." ok")
 M;
 
 \ mouse moved - kill calltip
 M: SCN_DWELLEND
+   ACCERT( ." DWELLEND" )
    CallTipCancel DROP
 M;
 
@@ -325,21 +337,19 @@ M: SCN_CALLTIPCLICK
    CallTipCancel DROP
 M;
 
+: H. BASE @ >R HEX . R> BASE ! ;
+
 \ User selected autocompletion
 \ Insert the text manually and append space character
 M: SCN_AUTOCSELECTION
    lparam { scn } TEMPAUS SCN scn
 
-   scn. lParam @
+   scn. lParam @ 
    GetCurrentPos SetSel DROP
 
-   [ ALSO ASTR ]
-
-   scn. text @ ASCIIZ> " {s} " >R 
+   scn. text @ ASCIIZ> " {s} " >R
    0 R@ STR@ DROP ReplaceSel DROP
    R> STRFREE
-
-   [ PREVIOUS ]
 
    AutoCCancel DROP
 M;
@@ -412,8 +422,8 @@ MESSAGES;
 
 : sci-dll=>
     PRO 
-    " Scintilla.dll" CONT 
-    " SciLexer.dll" CONT
+    Z" Scintilla.dll" CONT 
+    Z" SciLexer.dll" CONT
    ;
 
 : Scintilla-init
@@ -421,13 +431,11 @@ MESSAGES;
 
 : load-file ( a u -- )
    ClearDocumentStyle DROP
-   [ ALSO ASTR ]
    2DUP FILE DUP 0= IF 2DROP " Cant open file {s}" DUP STR@ DROP msg STRFREE EXIT THEN
    2SWAP 2DROP
    >ASCIIZ \ we have extra CELL there, so dont worry
    0 OVER SetText DROP
-   FREE THROW
-   [ PREVIOUS ] ;
+   FREE THROW ;
 
 : TO-FILE ( a u name name-u -- ior ) 
    R/W CREATE-FILE ?DUP IF >R DROP 2DROP R> EXIT THEN
@@ -435,13 +443,11 @@ MESSAGES;
    R> CLOSE-FILE ;
 
 : save-file { a u | m l -- }
-  [ ALSO ASTR ]
   GetLength -> l
   l 1+ ALLOCATE THROW -> m
   l m GetText DROP
   m l a u TO-FILE IF a u " Cant save to file {s}" DUP STR@ DROP msg STRFREE THEN
-  m FREE THROW
-  [ PREVIOUS ] ;
+  m FREE THROW ;
 
 : CUT-NAME ( a u -- a2 u2 )
   2DUP 
@@ -514,7 +520,7 @@ MENU: menu-main
 MENU;
 
 PROC: menu-check
-  " check passed" msg
+  Z" check passed" msg
 PROC;
 
 MENU: menu-rclick1
@@ -541,10 +547,12 @@ menu-rclick1 TO menu-rclick
 : run
    Scintilla-init
 
+   CR ." heap : " HEAP-ID .
+
    WINDOWS...
      0 create-window TO winmain
-     " Arial Cyr" 10 create-font default-font
-     " Scintilla Forth Editor ;)" winmain -text!
+     Z" Arial Cyr" 10 create-font default-font
+     Z" Scintilla Forth Editor ;)" winmain -text!
      GRID
        create-tabs |
      GRID;
@@ -567,4 +575,4 @@ menu-rclick1 TO menu-rclick
 run \EOF 
 0 TO SPF-INIT? 
 :NONAME run BYE ; MAINX ! 
-S" sciforthed.exe" ASTR::" {ModuleDirName}src/spf.fres" ASTR::STR@ devel\~af\lib\save.f BYE
+S" sciforthed.exe" " {ModuleDirName}src/spf.fres" STR@ devel\~af\lib\save.f BYE

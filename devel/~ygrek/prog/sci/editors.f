@@ -1,4 +1,4 @@
-REQUIRE vector vector.f
+REQUIRE vector ~ygrek/lib/vector.f
 
 0
 CELL -- ctl
