@@ -19,7 +19,7 @@ REQUIRE STATIC ~profit/lib/static.f
 : xml.text ( node -- a u ) DUP IF text@ ELSE DROP S" " THEN ;
 
 \ Генерируются вызовы для каждого потомка элемента node
-: xml.children=> ( node --> node2 \ node2 <-- )
+: xml.children=> ( node --> node2 \ <-- node2 )
    DUP 0= IF DROP EXIT THEN
    PRO
     x.children @
@@ -72,16 +72,16 @@ ALSO libxml2.dll
 
 PREVIOUS
 
-\ Загрузить XML документ из файла в память и сгенерировать вызов
+\ Загрузить XML документ из строки ( a u ) и сгенерировать вызов
 \ Удалить документ при откате
-: xml.load=> ( a u --> doc )
+: xml.load=> ( a u --> doc \ <-- doc )
   PRO
   BACK XML_FREE_DOC TRACKING
   XML_READ_DOC_MEM RESTB 
   CONT DROP ;
 
 \ Для RSS документа a u выдать все элементы-записи
-: rss.items=> ( a u --> node )
+: rss.items=> ( a u --> node \ <-- node )
    PRO
    xml.load=> DUP
    XML_DOC_ROOT ?DUP ONTRUE \ корень - должен быть rss, но не проверяем...
@@ -100,7 +100,7 @@ PREVIOUS
    ;
 
 \ выдать все записи RSS документа a u которые новее чем отметка времени stamp
-: rss.items-new=> ( doc stamp -- )
+: rss.items-new=> ( doc stamp --> node \ <-- node )
     STATIC stamp
     stamp !
     PRO
