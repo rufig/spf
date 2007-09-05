@@ -125,7 +125,7 @@ VECT number
 
 PROC: quit
   " Выход" 0 win set-status
-  W: wm_close winmain send DROP
+  winmain W: wm_close ?send DROP
 PROC;
 
 PROC: paint 

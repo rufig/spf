@@ -1,8 +1,8 @@
 
 : ok-cancel
    GRID
-   " Ok" ['] dialog-ok ok-button  |
-   " Cancel" cancel-button  -xspan |
+   Z" Ok" ['] dialog-ok ok-button  |
+   Z" Cancel" cancel-button  -xspan |
    GRID;
 ;
 
@@ -12,7 +12,7 @@ MODULE: F.Options
 
 : my-grid
    GRID
-     \ " Options" label |
+     \ Z" Options" label |
      \ ===
      ok-cancel |
    GRID;
@@ -20,7 +20,7 @@ MODULE: F.Options
 
 PROC: my-dlg ( -- )
 
-    " Options" MODAL...
+    Z" Options" MODAL...
 
     my-grid SHOW
 

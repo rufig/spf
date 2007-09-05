@@ -201,12 +201,8 @@ HERE
 
  err IF a u A" Error writing file {s}" ELSE a u A" File {s} written successfully" THEN
  STR@ DROP gui::set-main-status
-
 ; TO vect-generate
 
-PROC: quit
-  W: wm_close winmain send DROP
-PROC;
 
 : initial-check ( -- )
  S" " S" SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\spf.exe" StrValue DUP
@@ -257,7 +253,4 @@ PROC;
 ;
 
 
-main
-CR .( Clean exit)
-
-BYE
+main BYE

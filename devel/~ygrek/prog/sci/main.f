@@ -4,6 +4,9 @@ DIS-OPT
 0 TO MM_SIZE
 STARTLOG
 
+~ygrek/~day/lib/memreport.f
+\ ..: AT-THREAD-FINISHING MemReport ;..
+
 \ Resolving conflicts first
 
 S" ~yz/lib/common.f" INCLUDED \ Root of all evils..
@@ -16,7 +19,7 @@ WARNING OFF
 WARNING !
 
 REQUIRE ACCERT-LEVEL lib/ext/debug/accert.f
-1 ACCERT-LEVEL !
+4 ACCERT-LEVEL !
 
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
@@ -43,6 +46,8 @@ REQUIRE >ASCIIZ ~ygrek/lib/string.f
 REQUIRE /STRING lib/include/string.f
 
 REQUIRE HEAP-ID ~pinka/spf/mem.f
+REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
+REQUIRE CUT-FILENAME ~ygrek/lib/parse.f
 
 MODULE: JOOP
 REQUIRE OpenDialog ~day/joop/win/filedialogs.f
@@ -224,15 +229,12 @@ EXPORT
    { | s }
    ACCERT( CR ." get-help " DEPTH . )
    " HELP {s}" -> s
-   s STR@ ['] EVALUATE TYPE>STR-CATCH IF ( a u str-result ) STRFREE 2DROP " no help" THEN
+   s STR@ ['] EVALUATE TYPE>STR-CATCH IF ( a u str-result ) DROP STRFREE 2DROP " no help" THEN
    s STRFREE
    -> s
    \ remove linefeeds
-   s STR@ 10 + DUMP
    s " {\CR}" "" replace-str-
-   s STR@ 10 + DUMP
    s STR@ OEM>ANSI 2DROP \ HELP uses CP866 encoded files
-   s STR@ 10 + DUMP
    s
    ACCERT( CR ." get help done " DEPTH . )
 ;
@@ -299,8 +301,7 @@ M;
 \ display a calltip if the mouse has stopped for a while
 \ search the word under the cursor (or selection if present) in the help system
 M: SCN_DWELLSTART
-   DEPTH .
-   CR ." heap : " HEAP-ID .
+   ACCERT( CR ." heap : " HEAP-ID . )
    lparam { scn | pos s }
    TEMPAUS SCN scn
 
@@ -323,7 +324,6 @@ M: SCN_DWELLSTART
      pos s STRA CallTipShow DROP
    THEN
    s STRFREE
-   ACCERT( DEPTH . ." ok")
 M;
 
 \ mouse moved - kill calltip
@@ -416,7 +416,7 @@ MESSAGES;
    \ W: STYLE_CALLTIP 0x00FF00 StyleSetFore DROP
    \ W: STYLE_CALLTIP 0xFFFFFF StyleSetBack DROP
    \ 0 CallTipUseStyle .
-   \ 0 20 SetMarginWidthN DROP
+   0 20 SetMarginWidthN DROP
    0 UsePopup DROP
    ;
 
@@ -427,7 +427,7 @@ MESSAGES;
    ;
 
 : Scintilla-init
-    PREDICATE sci-dll=> LoadLibraryA ONTRUE DROP SUCCEEDS 0= ABORT" Failed to load scintilla dll" ;
+    PREDICATE sci-dll=> LoadLibraryA ONTRUE DROP SUCCEEDS NOT ABORT" Failed to load scintilla dll" ;
 
 : load-file ( a u -- )
    ClearDocumentStyle DROP
@@ -437,22 +437,12 @@ MESSAGES;
    0 OVER SetText DROP
    FREE THROW ;
 
-: TO-FILE ( a u name name-u -- ior ) 
-   R/W CREATE-FILE ?DUP IF >R DROP 2DROP R> EXIT THEN
-   DUP >R WRITE-FILE ?DUP IF RDROP EXIT THEN
-   R> CLOSE-FILE ;
-
 : save-file { a u | m l -- }
   GetLength -> l
   l 1+ ALLOCATE THROW -> m
   l m GetText DROP
-  m l a u TO-FILE IF a u " Cant save to file {s}" DUP STR@ DROP msg STRFREE THEN
+  m l a u ['] OCCUPY CATCH IF 2DROP 2DROP a u " Cant save to file {s}" DUP STR@ DROP msg STRFREE THEN
   m FREE THROW ;
-
-: CUT-NAME ( a u -- a2 u2 )
-  2DUP 
-  CUT-PATH NIP
-  /STRING ;
 
 : new-editor { a u | ed z }
     ACCERT( CR ." New editor" )
@@ -461,8 +451,8 @@ MESSAGES;
     a u CZMGETMEM -> z
     ACCERT( CR ." here 2" )
     z cur-ed editors-add -> ed
-    ACCERT( CR ." HERE" )
-    ( grid) z ASCIIZ> CUT-NAME DROP 0 ed ed-tabs add-item
+    ACCERT( CR ." here 3" )
+    ( grid) z ASCIIZ> CUT-FILENAME DROP 0 ed ed-tabs add-item
     ed ed-tabs switch-tab 
     prepare
     ACCERT( CR ." New editor done" )
@@ -497,7 +487,7 @@ ALSO JOOP
 PREVIOUS
 
 PROC: menu-quit
-  W: wm_close winmain send DROP
+  winmain W: wm_close ?send DROP
 PROC;
 
 MENU: menu-file
@@ -516,15 +506,20 @@ MENU;
 
 MENU: menu-main
   menu-file SUBMENU &File
-\  menu-options SUBMENU &Options
+  menu-options SUBMENU &Options
 MENU;
 
-PROC: menu-check
-  Z" check passed" msg
+PROC: menu-comment-out
+   GetSelectionStart GetSelectionEnd { a1 a2 } 
+   a1 a2 = IF EXIT THEN
+   a2 a2 SetSel DROP
+   0 Z"  ) " ReplaceSel DROP
+   a1 a1 SetSel DROP
+   0 Z"  ( " ReplaceSel DROP
 PROC;
 
 MENU: menu-rclick1
-  menu-check MENUITEM &Check
+  menu-comment-out MENUITEM C&omment out selection
 MENU;
 
 menu-rclick1 TO menu-rclick
@@ -534,9 +529,8 @@ menu-rclick1 TO menu-rclick
   LAMBDA{ 
     thisctl -selected@ editors-ctl@ TO cur-ed 
     cur-ed winfocus
-    update-status
-    }
-  this -command!
+    update-status 
+  } this -command!
   this TO ed-tabs
   def-small-icon-il this -imagelist!
   S" empty" new-editor
@@ -545,6 +539,8 @@ menu-rclick1 TO menu-rclick
 ;
 
 : run
+   ClearMemInfo
+   MemReport
    Scintilla-init
 
    CR ." heap : " HEAP-ID .
@@ -569,6 +565,7 @@ menu-rclick1 TO menu-rclick
      winmain winshow
      cur-ed winfocus
    ...WINDOWS
+   MemReport
    BYE
    ;
 

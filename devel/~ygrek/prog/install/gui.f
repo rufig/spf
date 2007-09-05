@@ -70,7 +70,9 @@ PREVIOUS
 \ : path@ ( buf -- ) edit-path -text@ ;
 \ : path# ( -- n ) edit-path -text# ;
 
-: _quit W: wm_close winmain send DROP ;
+PROC: quit 
+  winmain W: wm_close ?send DROP 
+PROC;
 
 : reg-grid ( -- g )
   GRID
@@ -118,7 +120,7 @@ PREVIOUS
        -xspan |
 
        "    Quit    " button
-       ['] _quit this -command! 
+       quit this -command! 
        " Quit" this -tooltip!
        -xspan |
 
