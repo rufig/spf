@@ -147,6 +147,10 @@
   в разбираемой строке, то значения для вставки берутся не из переменных
   и не из EVALUATE, а со стека - то что там лежало до ". n - просто число,
   s - строка addr u.
+
+  08.09.2007
+  Добавлена спец-обработка случая {c} - вставка символа по его коду со стека.
+  [по пожеланию из бага SF#1785461]
 )
 
 
@@ -244,6 +248,7 @@ VECT {NOTFOUND} ' LAST-WORD TO {NOTFOUND}
 : {sn} ( ... s -- s ) { s }
   TIB C@ [CHAR] s = IF s STR+ s EXIT THEN
   TIB C@ [CHAR] n = IF 0 <# #S #> s STR+ s EXIT THEN
+  TIB C@ [CHAR] c = IF SP@ 1 s STR+ DROP s EXIT THEN
   s {eval}
 ;
 : ({...}) ( -- s ) { \ s }
@@ -479,5 +484,8 @@ STYPE
   " |123|{$t}|123|{#n}|123|{#k}|{S' file1.txt' EVAL-FILE}<End of file>" STYPE
 ;
 TEST3
+
+\ TEST4:
+S" aaa" 15 CHAR z " char by code={c}=, number {n} and string:{s} - OK!" STYPE CR
 
 )
