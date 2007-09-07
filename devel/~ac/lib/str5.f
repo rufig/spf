@@ -203,6 +203,7 @@ USER STRLAST
   u 5 + RESIZE THROW DUP s s!
   addr OVER CELL+ u CMOVE
   u SWAP !
+  0 s STR@ + C!
 ;
 : S+ ( s1 s -- )
   OVER STR@ ROT STR+ STRFREE
