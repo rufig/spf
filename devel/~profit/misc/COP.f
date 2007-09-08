@@ -1,12 +1,19 @@
 REQUIRE /TEST ~profit/lib/testing.f
 
+\ inspired by ~mlg/COP-93/cop93.html
+
 MODULE: mechanisms
 
 0 VALUE cur-status-variable
 
 : undefined-status ( addr u status -- ) ." undefined-status: " DUP @ WordByAddr TYPE ."  in " WordByAddr TYPE ." ::" TYPE ;
+\ undefined method for status, error reporting with RTTI
+
+: trigger ( addr "word" -- )
+CREATE , LATEST NAME> , DOES> 2@ ! ;
 
 EXPORT
+
 : :+ ( "word" -- )
 >IN @ >R
 NextWord 2DUP SFIND 0= IF 2DROP 0 THEN
@@ -26,12 +33,6 @@ POSTPONE = ?BRANCH,
 2DROP
 THEN ;
 
-DEFINITIONS
-
-: trigger ( addr "word" -- )
-CREATE , LATEST NAME> , DOES> 2@ ! ;
-
-EXPORT
 
 : MECHANISM ( "word" -- )
 CREATE HERE 0 , ( status )
@@ -46,10 +47,10 @@ CREATE cur-status-variable , DOES> @ @ ;
 
 /TEST
 
-MECHANISM animals
-STATUS get-animal
+MECHANISM animals \ new 'animals' mechanism (set of methods)
+STATUS get-animal \ define getter for 'animals' status
 
-animals dog
+animals dog \ create a new 'dog' status for 'animals' mechanism
 :+ name-yourself ." dog " ;
 :+ make-noise ." bow" ;
 
@@ -67,14 +68,15 @@ animals cuckoo
 
 animals dragon
 
-CR dog name-yourself make-noise
+CR dog \ saying 'dog' changes status of 'animals' mechanism
+name-yourself make-noise \ call status-depended methods
 CR fish name-yourself make-noise
 CR cat name-yourself make-noise
 CR cuckoo name-yourself make-noise
-CR dragon name-yourself make-noise
+CR dragon name-yourself make-noise \ this should give an 'undefined status' errors
 
 CR CR
-cat get-animal ( type )
+cat get-animal ( status )
 dog make-noise
 CR 
 EXECUTE make-noise
