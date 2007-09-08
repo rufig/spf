@@ -229,7 +229,7 @@ EXPORT
    { | s }
    ACCERT( CR ." get-help " DEPTH . )
    " HELP {s}" -> s
-   s STR@ ['] EVALUATE TYPE>STR-CATCH IF ( a u str-result ) DROP STRFREE 2DROP " no help" THEN
+   s STR@ ['] EVALUATE TYPE>STR-CATCH IF ( a u str-result ) STRFREE 2DROP " no help" THEN
    s STRFREE
    -> s
    \ remove linefeeds
