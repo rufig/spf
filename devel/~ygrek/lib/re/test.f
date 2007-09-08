@@ -273,6 +273,22 @@ END-TESTCASES
 
 \ -----------------------------------------------------------------------
 
+TESTCASES regexp greedness
+
+\ http://sourceforge.net/tracker/index.php?func=detail&aid=1786622&group_id=17919&atid=117919
+
+:NONAME 
+  S" 6.2.0060 #TIB 15.6.1580 FORGET 6.2.2240 SPAN" 
+  RE" \d+\.\d+\.\d+" 
+  re_split-> ." [" TYPE ." ]" ; 
+TYPE>STR 
+DUP STR@ S" [][ #TIB ][ FORGET ][ SPAN]" TEST-ARRAY 
+    STRFREE
+
+END-TESTCASES
+
+\ -----------------------------------------------------------------------
+
 0 regexp::set-default-groups \ чтобы утихомирить MemReport, удаляем результаты последнего сопоставления
 
 MemReport
