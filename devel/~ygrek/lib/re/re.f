@@ -870,23 +870,25 @@ EXPORT
 \ —овпадает ли re с подстрокой (от начала) строки a u
 \ ≈сли есть така€ подстрока - вернуть еЄ длину
 \ »наче 0
-: re_sub { a u re | s1 s2 -- u1 }
+: re_sub { a u re | s1 s2 last -- u1 }
    re .nfa @ .gen @ 1+ TO re_gen
 
    re .nfa-n @ a:create -> s1
    re .nfa-n @ a:create -> s2
 
    re .nfa @ s1 addstate
-   0
+   0 TO last
    a u BOUNDS ?DO
     I C@ s1 s2 step
     s1 s2 -> s1 -> s2
-    s1 START{ a:scan-> .c @ STATE_FINAL = }EMERGE IF ( 0 ) DROP I a - 1+ LEAVE THEN
+\    s1 a:n 1 = IF
+    s1 START{ a:scan-> .c @ STATE_FINAL = }EMERGE IF ( 0 ) I a - 1+ TO last THEN
+    s1 a:n 0= IF LEAVE THEN
    LOOP
    re_gen re .nfa @ .gen ! \ дл€ последующих сопоставлений
    s1 a:free
    s2 a:free
-   ( u ) ;
+   last ;
 
 \ сопоставление RE и строки
 : re_match?

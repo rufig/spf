@@ -29,7 +29,7 @@ REQUIRE re_match? ~ygrek/lib/re/re.f
    >R a - DUP R> + -> m -> n
    ( a---------u )
    ( a---n__m--u )
-   n 0 > IF a n CONT THEN
+   a n CONT
    m u = IF EXIT THEN
    a u m /STRING -> u -> a
   REPEAT

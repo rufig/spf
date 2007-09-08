@@ -217,14 +217,14 @@ TESTCASES re_search
 
 : str S" some absolutely raaaandom text for testing bu bu bu la la la" ;
 
-(( str S" utely\sra+nd?" stre_search -> str DROP 10 + 12 ))
-(( str S" (bu\s)+" stre_search S" bu " TEST-ARRAY -> ))
+(( str S" utely\sra+nd?" stre_search -> str DROP 10 + 13 ))
+(( str S" (bu\s)+" stre_search S" bu bu bu " TEST-ARRAY -> ))
 (( str S" la\sla\sla\s?" stre_search S" la la la" TEST-ARRAY -> ))
-(( str S" l.*l" stre_search S" lutel" TEST-ARRAY -> ))
-(( str S" m.*t.*l" stre_search S" me absolutel" TEST-ARRAY -> ))
-(( str S" m.*t.*" stre_search S" me absolut" TEST-ARRAY -> ))
-(( str S" m.*t" stre_search S" me absolut" TEST-ARRAY -> ))
-(( str S" m.*" stre_search S" m" TEST-ARRAY -> ))
+(( str S" l[^l]*l" stre_search 2DUP TYPE S" lutel" TEST-ARRAY -> ))
+(( str S" m[^t]*t[^l]*l" stre_search S" me absolutel" TEST-ARRAY -> ))
+(( str S" m[^t]*t" stre_search S" me absolut" TEST-ARRAY -> ))
+(( str S" m[^t]*t" stre_search S" me absolut" TEST-ARRAY -> ))
+(( str S" m" stre_search S" m" TEST-ARRAY -> ))
 (( str S" (z?)" stre_search S" " TEST-ARRAY -> ))
 
 END-TESTCASES
