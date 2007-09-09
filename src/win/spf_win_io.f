@@ -150,6 +150,9 @@ CREATE LTL 2 ,   \ line terminator length
   0A0A LT ! 1 LTL !
 ;
 
+\ Разделитель строк
+: EOLN ( -- a u ) LT LTL @ ;
+
 DECIMAL
 
 USER _fp1
