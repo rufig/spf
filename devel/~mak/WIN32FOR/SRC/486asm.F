@@ -1876,7 +1876,11 @@ IN-ASM
      73 '      JCC-COMPILE OPCODE JAE    : JNB    JAE  ; : JNC JAE  ;
      72 '      JCC-COMPILE OPCODE JB     : JNAE   JB   ; : JC  JB   ;
      76 '      JCC-COMPILE OPCODE JBE    : JNA    JBE  ;
-    0E3 '     JCXZ-COMPILE OPCODE JCXZ   : JECXZ  JCXZ ;
+
+\    0E3 '     JCXZ-COMPILE OPCODE JCXZ   : JECXZ  JCXZ ; \ это приводит к ошибке "A16:" в SEARCH !!!
+    0E3 '     JCXZ-COMPILE OPCODE JCXZ
+    0E3 '    JECXZ-COMPILE OPCODE JECXZ
+
      74 '      JCC-COMPILE OPCODE JE     : JZ     JE   ;
      7F '      JCC-COMPILE OPCODE JG     : JNLE   JG   ;
      7D '      JCC-COMPILE OPCODE JGE    : JNL    JGE  ;
