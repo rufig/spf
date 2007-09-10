@@ -1,16 +1,13 @@
 REQUIRE Point	~pi/lib/wincon/graph.f
+REQUIRE _TEXT	~pi/lib/wincon/text.f
 
-S" disketa.bmp" 10 70 Image
-S" yes.bmp" 30 70 Image
-S" Anim.ico" 150 50 Icon
-10 10 Point
-10 10 50 20 20 RSquare
-0x000000FF Color
-0x00FF0000 Background
-20 20 50 20 20 RSquare
-0x0000FF00 Color
-50 50 100 70 Line
-10 10 Draw
-0x0000FF00 Background
-100 10 100 170 115 15 180 70 Sector
+0xFF0000 Color
+0 0 length height 10 10 RRect
+0x00FF00 Color
+3 3 length 3 - height 3 - 10 10 RRect
+0x0000FF Color
+6 6 length 6 - height 6 - 10 10 RRect
+S" disketa.bmp" 10 10 Image
+0x00FFFF ColorText
+10 30 S" Это дискета" Print
 ConRefresh

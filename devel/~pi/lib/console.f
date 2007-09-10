@@ -7,7 +7,7 @@
 \     \/  \/   |_|_| |_|____/____|
 \ -----------------------------------------------------------------------------
 
-MODULE: HIDDEN
+MODULE: _CONSOLE
 
 WINAPI: SetConsoleTitleA		KERNEL32.DLL
 WINAPI: SetConsoleCursorPosition	KERNEL32.DLL
@@ -21,14 +21,14 @@ WINAPI: FillConsoleOutputAttribute	KERNEL32.DLL
 WINAPI: SetConsoleDisplayMode		KERNEL32.DLL
 WINAPI: WriteConsoleOutputCharacterA	KERNEL32.DLL
 
-EXPORT
-
 0 VALUE XWin \ координата X виртуального окна
 0 VALUE YWin \ координата Y виртуального окна
 0 VALUE LWin \ длина виртуального окна
 0 VALUE HWin \ высота виртуального окна
 7 VALUE CWin \ цвет символов
 0 VALUE BWin \ фон символов
+
+EXPORT
 
 \ Дублирует указанное количество чисел в стеке
 : DUPS ( n -> )
@@ -238,14 +238,6 @@ GetBackground	TO BWin
 
 ;MODULE
 \EOF
-
----Свойства виртуального окна консоли nWin---
-XWin		( -> n ) - координата X виртуального окна
-YWin		( -> n ) - координата Y виртуального окна
-LWin		( -> n ) - длина виртуального окна
-HWin		( -> n ) - высота виртуального окна
-CWin		( -> n ) - цвет символов
-BWin		( -> n ) - фон символов
 
 ---Общие слова---
 DUPS		( n -> ) - дублирует указанное количество чисел в стеке

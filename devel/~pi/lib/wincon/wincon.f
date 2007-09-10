@@ -89,7 +89,7 @@ CREATE paint PAINTSTRUCT::/SIZE ALLOT
 \ hendle потока консоли
 0 VALUE hwdwinp
 \ Длинна консоли в пикселях
-0 VALUE length 
+0 VALUE length
 \ Высота консоли в пикселах
 0 VALUE height
 \ Расположение консоли относительно экрана по верху

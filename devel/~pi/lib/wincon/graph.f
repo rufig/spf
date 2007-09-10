@@ -6,7 +6,9 @@
 \    \  /\  /  | | | | |___) / /_   Pretorian 2007
 \     \/  \/   |_|_| |_|____/____|  v 1.4
 \ -----------------------------------------------------------------------------
-REQUIRE wincon	~pi/lib/wincon/wincon.f
+REQUIRE ConCreate ~pi/lib/wincon/wincon.f
+
+MODULE: _GRAPH
 
 WINAPI: SetPixel		GDI32.DLL
 WINAPI: MoveToEx		GDI32.DLL
@@ -33,6 +35,7 @@ CONSTANT BITMAP
 0 VALUE bitmap
 BITMAP ALLOCATE THROW TO bitmap
 
+EXPORT
 
 \ Перемещает точку начала рисования для Draw
 : MoveTo ( x y -> )
@@ -112,6 +115,8 @@ BITMAP ALLOCATE THROW TO bitmap
 	{ x1 y1 x2 y2 }
 	SWAP 2SWAP SWAP y2 x2 y1 x1 phdc Pie DROP ;
 
+;MODULE
+
 \EOF
 
 Point		( x y -> ) - нарисовать точку
@@ -122,10 +127,10 @@ Square		( x y l -> ) - нарисовать квадрат
 Rect 		( x y x1 y1 -> ) - нарисовать прямоугольник
 Ellips		( x y x1 y1 -> ) - нарисовать элипс
 Circle		( x y d -> ) - нарисовать круг
-RRect		( x y x1 y1 h l -> ) - нарисовать прямоугольник c кругленными концами
-RSquare		( x y l ll lh-> ) - нарисовать квадрат  c кругленными концами
-Image		( addr u x y -> ) - вывести изображение bmp из файла на консоль
-Icon		( addr u x y -> ) - вывести иконку ico из файла на консоль
-GPixel		( x y -> RGB ) - возвращает цвет пиксела в указанных координатах
+RRect		( x y x1 y1 h l -> ) - нарисовать прямоугольник c скругленными углами
+RSquare		( x y l ll lh-> ) - нарисовать квадрат  c скругленными углами
+Image		( c-addr u x y -> ) - вывести изображение bmp из файла на консоль
+Icon		( c-addr u x y -> ) - вывести иконку ico из файла на консоль
+GPixel		( x y -> RGB ) - возвращает цвет пикселz в указанных координатах
 Arcs		( x1 y1 x2 y2 x3 y3 x4 y4 -> ) - дуга
 Sector		( x1 y1 x2 y2 x3 y3 x4 y4 -> ) - сектор
