@@ -76,6 +76,13 @@ CODE UMIN ( n1 n2 -- n3 ) \ 94
      RET
 END-CODE
 
+CODE 0MAX       ( N1 -- N2 ) \ return n2 the greater of n1 and zero
+     XOR     EDX, EDX
+     CMP     EDX, EAX
+     CMOVG   EAX, EDX
+     RET
+END-CODE
+
 CODE 2DROP ( x1 x2 -- ) \ 94
 \ ”брать со стека пару €чеек x1 x2.
      MOV EAX, 4 [EBP]
@@ -602,6 +609,12 @@ CODE 2/ ( x1 -- x2 ) \ 94
      RET
 END-CODE
 
+
+CODE U2/        ( N1 -- N2 ) \ unsigned divide n1 by two
+     SHR     EAX, # 1
+     RET
+END-CODE
+
 CODE */MOD ( n1 n2 n3 -- n4 n5 ) \ 94
 \ ”множить n1 на n2, получить промежуточный двойной результат d.
 \ –азделить d на n3, получить остаток n4 и частное n5.
@@ -645,6 +658,15 @@ CODE RSHIFT ( x1 u -- x2 ) \ 94
      LEA EBP, 4 [EBP]     
      RET
 END-CODE
+
+CODE ARSHIFT ( u1 n -- n2 )  \ arithmetic shift u1 right by n bits
+     MOV     ECX, EAX
+     MOV     EAX, [EBP]
+     SAR     EAX, CL
+     LEA EBP, 4 [EBP]     
+     RET
+END-CODE
+
 
 CODE SM/REM ( d1 n1 -- n2 n3 ) \ 94
 \ –азделить d1 на n1, получить симметричное частное n3 и остаток n2.
@@ -731,22 +753,22 @@ END-CODE
 
 CODE < ( n1 n2 -- flag ) \ 94
 \ flag "истина" тогда и только тогда, когда n1 меньше n2.
-    XOR     EDX, EDX
-    CMP     [EBP], EAX
-    LEA     EAX, -1 [EDX]
-    CMOVGE  EAX, EDX
-    LEA  EBP, 4 [EBP]
-    RET
+       CMP  EAX, [EBP]
+       SETLE AL
+       AND  EAX, # 1
+       DEC  EAX
+       LEA  EBP, 4 [EBP]
+       RET
 END-CODE
 
 CODE > ( n1 n2 -- flag ) \ 94
 \ flag "истина" тогда и только тогда, когда n1 больше n2.
-    XOR     EDX, EDX
-    CMP     [EBP], EAX
-    MOV     EAX, # -1
-    CMOVLE  EAX, EDX
-    LEA  EBP, 4 [EBP]
-    RET
+       CMP  EAX, [EBP]
+       SETGE AL
+       AND  EAX,  # 1
+       DEC  EAX
+       LEA  EBP, 4 [EBP]
+       RET
 END-CODE
 
 CODE WITHIN     ( n1 low high -- f1 ) \ f1=true if ((n1 >= low) & (n1 < high))
