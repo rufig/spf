@@ -1,3 +1,11 @@
+\ $Id$
+\ IRC bot
+\ Требуемые библиотеки :
+\ sqlite3.dll - http://sqlite.org/download.html
+\ libexslt.dll libxslt.dll libxml2.dll iconv.dll zlib1.dll - http://zlatkovic.com/pub/libxml/
+\ libcurl.dll - http://curl.haxx.se/latest.cgi?curl=win32-devel-ssl
+\ zlibwapi.dll - http://www.winimage.com/zLibDll/
+
 REQUIRE ACCERT( lib/ext/debug/accert.f
 0 ACCERT-LEVEL ! \ не компилировать ACCERT'ы
 
