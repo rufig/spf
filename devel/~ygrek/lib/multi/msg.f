@@ -1,9 +1,9 @@
 \ $Id$
-\ ÐžÑ‡ÐµÑ€ÐµÐ´Ð¸ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ð¹ Ð¸ Ð¾Ð±Ð¼ÐµÐ½ Ð´Ð°Ð½Ð½Ñ‹Ð¼Ð¸ Ð¼ÐµÐ¶Ð´Ñƒ Ð¿Ð¾Ñ‚Ð¾ÐºÐ°Ð¼Ð¸
-\ ÑÑ‹Ñ€Ð¾Ðµ
+\ Î÷åðåäè ñîîáùåíèé è îáìåí äàííûìè ìåæäó ïîòîêàìè
+\ ñûðîå
 
 REQUIRE [IF] lib/include/tools.f
-REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE #define ~af/lib/c/define.f
 REQUIRE NEW-CS ~pinka/lib/multi/critical.f
@@ -48,7 +48,6 @@ VALUE /node-msg
 
 HEAP-ID VALUE process-heap
 
-: >STR ( a u -- s ) "" >R R@ STR+ R> ;
 : STRCOPY ( s -- s' ) STR@ >STR ;
 
 : CREATE-THREAD ( x task -- th ti )
