@@ -43,3 +43,6 @@
 : OCCUPY ( a u a-file u-file -- )
   2DUP EMPTY ATTACH
 ;
+: OCCUPY-CATCH ( a u a-file u-file -- ior )
+  ['] OCCUPY CATCH DUP IF >R 2DROP 2DROP R> THEN
+;
