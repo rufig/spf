@@ -33,7 +33,7 @@ ALSO forthml-support
 
 </transform>
 
-<rule match="f:s" ds="-- ">
+<rule match="f:s" ds=" -- addr u ">
   <mm>
     HERE >R
     <yield transform="rules-string-constructing"/>
