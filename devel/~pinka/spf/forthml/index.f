@@ -57,6 +57,14 @@ UNIX-LINES
 Include ~pinka/fml/forthml-core.f \ базовый набор слов (правил) ForthML
 DOS-LINES
 
+: EMBODY ( i*x url-a url-u -- j*x )
+\ set and restore CURFILE (spf4 specific)
+  CURFILE @ >R   2DUP HEAP-COPY CURFILE !
+    ['] EMBODY CATCH
+  CURFILE @ FREE THROW   R> CURFILE !
+    THROW
+;
+
 \ лексикон ForthML первого уровня:
 `~pinka/fml/src/rules-common.f.xml FIND-FULLNAME EMBODY
 `~pinka/fml/src/rules-forth.f.xml  FIND-FULLNAME EMBODY
