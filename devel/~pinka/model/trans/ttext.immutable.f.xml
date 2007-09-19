@@ -5,9 +5,12 @@
 <def name="STATE?" ds=" -- 0|u "> STATE @ </def>
 <def name="STATE0?" ds=" -- flag"> STATE @ 0EQ </def>
 
+<include href="iword-qnative.f.xml"/>
+
 <def name="T-NAME" ds=" i*x c-addr u -- j*x | i*x">
   I-SLIT-FORM <if> T-SLIT <exit/></if>
   I-NATIVE    <if> T-EXEC <exit/></if>
+  I-QNATIVE   <if> T-EXEC <exit/></if>
   I-LIT       <if> T-LIT  <exit/></if>
   I-HLIT-FORM <if> T-LIT  <exit/></if>
   I-DLIT-FORM <if> T-2LIT <exit/></if>

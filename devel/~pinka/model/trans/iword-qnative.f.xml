@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<comment> Native words qualified by wordlists as wid1::wid2::word </comment>
+<!-- 2007 -->
+
+<def name="EXECUTE-BALANCED(0)" ds=" xt -- x ">
+  SP@ >R
+    EXECUTE <!-- ( xt - x ) -->
+  SP@ R> EQ  <unless> -5010 THROW </unless>
+</def>
+
+<def name="(I-QNATIVE)" ds=" a u wid1 -- xt true | false ">
+  >R `:: SPLIT- <unless> R> SEARCH-WORDLIST <exit/></unless>
+  R> SEARCH-WORDLIST <unless> 2DROP FALSE <exit/></unless>
+  EXECUTE-BALANCED(0)
+  <again/>
+</def>
+
+<def name="I-QNATIVE" ds=" c-addr u -- xt true | c-addr u false ">
+  2DUP `:: SPLIT- <unless> 2DROP FALSE <exit/></unless>
+  I-NATIVE   <unless> 2DROP 2DROP FALSE <exit/></unless>
+  EXECUTE-BALANCED(0) <!-- ( c-addr u  a1 u1 wid ) -->
+  (I-QNATIVE) <unless> FALSE <exit/></unless>
+  NIP NIP TRUE
+</def>
+
+</forth>
