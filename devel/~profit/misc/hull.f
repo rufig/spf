@@ -1,8 +1,11 @@
 REQUIRE CHOOSE lib/ext/rnd.f
 REQUIRE F. lib/include/float2.f
 
+\ REQUIRE /TEST ~profit/lib/testing.f
+: /TEST INCLUDE-DEPTH @ 1 <> IF \EOF THEN ; \ в SPF 4.18 testing.f корявый
+
 REQUIRE PRO ~profit/lib/bac4th.f
-: 2DROPB R> EXECUTE 2DROP ;
+: 2DROPB R> EXECUTE 2DROP ; \ в SPF 4.18 в bac4th.f нет 2DROPB
 
 REQUIRE split ~profit/lib/bac4th-str.f
 REQUIRE iterateByByteValues ~profit/lib/bac4th-iterators.f
@@ -54,10 +57,14 @@ CONSTANT /point
 \ CHAR a letter-str TYPE \EOF
 \ CHAR Z letter-str TYPE \EOF
 
+\ Взять значение из хэша POINTS которое имеет строковый идентификатор addr u, если такого нет -- создать
+: (POINTS@) ( addr u -- addr )
+2DUP POINTS HASH@R ?DUP 0= IF
+/point -ROT POINTS HASH!R  ELSE
+NIP NIP                    THEN ;
+
 \ Выдать область памяти (размером в три ячейки) из хэша для символа c
-: POINTS@  ( c -- addr )
-DUP letter-str POINTS HASH@R ?DUP 0= IF
-/point SWAP letter-str POINTS HASH!R ELSE NIP THEN ;
+: POINTS@  ( c -- addr ) letter-str (POINTS@) ;
 
 \ Читаем строку addr u , пишем результат в хэш POINTS
 : read-points ( addr u -- )
@@ -121,7 +128,7 @@ DUP 1 AND 0= IF FPI 2e F/ F- FNEGATE THEN \ разворачиваем на 90 градусов в 2 и 4
 ;
 
 \ "Развернуть" угол
-: flip-angle ( F: a -- F: 2Pi-a ) FPI 2e F* FSWAP F- ;
+: flip-angle ( F: a -- F: 2Pi-a ) FNEGATE FPI F+ FPI F+ ;
 
 \ Угловое расстояние -- разница двух углов (абсолютное значение)
 : angle-distance ( F: angle1 angle2 -- F: delta )
@@ -211,20 +218,6 @@ found 0!
 START{ points=>
 DUP y @ found @ MAX found ! }EMERGE found @ ;
 
-\ Случайно расставить точки по доске 40x30
-: generate-points ( n -- )
-POINTS clear-hash
-RANDOMIZE
-[CHAR] A TUCK + SWAP DO
-
-0. BEGIN 2DROP
-40 CHOOSE 30 CHOOSE
-2DUP findXY 0= UNTIL \ удостоверяемся что сгенерированная точка не занята
-( x y ) \ CR 2DUP . .
-I POINTS@ xy 2! \ записываем координаты
-I I POINTS@ name ! \ записываем имя
-LOOP ;
-
 \ Показать "доску"
 : show-board
 maxY 1+ 0 DO CR
@@ -235,6 +228,42 @@ LOOP LOOP ;
 
 \ Распечатать точки из выпуклой оболочки
 : print-hull ." [ " BACK ."  ]" TRACKING hull=> DUP name @ EMIT ;
+
+VECT INPUT-POINT ( -- x y ) \ во время ввода точек в хэш, будет вызываться этот вектор, он должен выдавать координаты точек
+VECT END-OF-POINTS ( -- f ) \ этот вектор определяет остались ли ещё там точки
+
+: INPUT ( -- )
+POINTS clear-hash
+-1 [CHAR] A DO \ сознательно делаю бесконечный цикл
+END-OF-POINTS IF LEAVE THEN \ выход из цикла
+I SP@ CELL ( i addr u ) \ addr u -- это "строка"-идентификатор, на самом деле не строка, а четыре байта составляющие число i на стеке
+\ при этом мы полагаемся на то что в реализации хэшей строки-идентификаторы обрабатываются без ASCIIZ-мухлежа
+(POINTS@) INPUT-POINT ( i addr x y )
+>R OVER x !
+R> OVER y !
+( I addr ) name !
+LOOP ;
+
+40 VALUE width
+30 VALUE height
+
+\ Поставить одну точку в незанятую ячейку на доске 40x30
+: generate-point ( -- x y ) BEGIN
+width CHOOSE height CHOOSE
+2DUP findXY                 WHILE \ повторять пока не будет 0 (т.е. ячейка с выданными координатами не занята)
+2DROP                       REPEAT ;
+
+VARIABLE points#
+: points0= ( -- f ) points# @ 0=   -1 points# +! ;
+
+\ Случайно расставить точки по доске 40x30
+: generate-points ( n -- )
+points# ! RANDOMIZE
+['] generate-point TO INPUT-POINT
+['] points0= TO END-OF-POINTS
+INPUT ;
+
+/TEST
 
  ( отладочные строки, если эту строчку закоментировать, то они откроются
 
@@ -315,3 +344,14 @@ KEY DROP
 \ На выбор: или загрузка точек из файла, либо случайная генерация
 \ S" hull.txt" load-points show-board CR print-hull (
 26 generate-points show-board CR print-hull \ )
+
+\ проверка проходимости стресс-теста, на первый взгляд -- похоже на правду
+( \ закоментируй эту строчку чтобы включить
+1000 TO width
+1000 TO height
+5000 generate-points
+
+
+CR S" points generated. Press any key" TYPE KEY DROP
+: r hull=> CR DUP x @ . DUP y @ . ; r
+\ )
