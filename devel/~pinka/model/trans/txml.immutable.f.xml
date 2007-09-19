@@ -20,7 +20,7 @@
 
 <def name="EMBODY" ds=" i*x url-a url-u -- j*x ">
   2DUP
-  DefaultLSParser parseURI DUP 0= <if> 5003 THROW </if>
+  DefaultLSParser parseURI DUP 0= <if> -5003 THROW </if>
   DUP >R <!-- ( a u doc ) -->
   push-document
   R@ trans-document R> DefaultLSParser freeDoc

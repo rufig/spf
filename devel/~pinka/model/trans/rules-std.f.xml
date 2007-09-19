@@ -36,7 +36,7 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 </f:def>
 
 <f:def name="yield," ds=" -- ">
-  STATE @ 0 EQ <f:if> 5006 THROW </f:if>
+  STATE @ 0 EQ <f:if> -5006 THROW </f:if>
   STATE @ 1 EQ <f:if><postpone> trans-childs </postpone><f:exit/></f:if>
   <postpone><f:lit> STATE @ 1- </f:lit> (yield-within-state) </postpone>
 </f:def>

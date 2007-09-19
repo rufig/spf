@@ -4,11 +4,11 @@
 
 <cell name="M" />
 
-<def name="INC-M" ds=" -- "> M @    <if>  5005 THROW </if> M 1+!</def>
-<def name="DEC-M" ds=" -- "> M @ 0= <if>  5004 THROW </if> M 1-!</def>
+<def name="INC-M" ds=" -- "> M @    <if>  -5005 THROW </if> M 1+!</def>
+<def name="DEC-M" ds=" -- "> M @ 0= <if>  -5004 THROW </if> M 1-!</def>
 
 <def name="INC-S" ds=" -- "> STATE 1+!  </def>
-<def name="DEC-S" ds=" -- "> STATE @ 0= <if> 5004 THROW </if> STATE 1-! </def>
+<def name="DEC-S" ds=" -- "> STATE @ 0= <if> -5004 THROW </if> STATE 1-! </def>
 
 <def name="T-LIT" ds=" x -- x | ">
   M @ <if> STATE @ <if>
