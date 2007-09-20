@@ -5,6 +5,7 @@
 \ libexslt.dll libxslt.dll libxml2.dll iconv.dll zlib1.dll - http://zlatkovic.com/pub/libxml/
 \ libcurl.dll - http://curl.haxx.se/latest.cgi?curl=win32-devel-ssl
 \ zlibwapi.dll - http://www.winimage.com/zLibDll/
+\ libeay32.dll libssl32.dll - http://www.slproweb.com/products/Win32OpenSSL.html
 
 REQUIRE ACCERT( lib/ext/debug/accert.f
 0 ACCERT-LEVEL ! \ не компилировать ACCERT'ы
