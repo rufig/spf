@@ -13,10 +13,12 @@ BASE @ HEX
 : REL@ ( ADDR -- ADDR' )
          DUP @ + ;
 
-\  FALSE VALUE OPT?
-   TRUE VALUE OPT?
+\ FALSE VALUE OPT?
+   TRUE VALUE OPT?  \ ok
 
-  084 VALUE J_COD
+USER-VALUE ~BR-OPT
+USER-VALUE J_COD
+\ See also: INIT-MACROOPT-LIGHT
 
 : SET-OPT TRUE TO OPT? ;
 
@@ -26,31 +28,29 @@ INLINEVAR
 [IF]
 0x20 VALUE MM_SIZE
 
-0 VALUE OFF-EBP
+USER-VALUE OFF-EBP
 
-0 VALUE OFF-EAX
+USER-VALUE OFF-EAX
 
-0 VALUE :-SET
+USER-VALUE :-SET
 
-0 VALUE J-SET
+USER-VALUE J-SET
 
-0 VALUE LAST-HERE
+USER-VALUE LAST-HERE
 
 0x44 CELLS DUP CONSTANT OpBuffSize
 
-CREATE OP0 HERE >T DUP , 0 , SWAP ALLOT
-
-DUP OpBuffSize + CELL- CONSTANT OPLast
-
-CELL+ DUP CONSTANT OP1
-CELL+ DUP CONSTANT OP2
-CELL+ DUP CONSTANT OP3
-CELL+ DUP CONSTANT OP4
-CELL+ DUP CONSTANT OP5
-CELL+ DUP CONSTANT OP6
-CELL+ DUP CONSTANT OP7
-CELL+ DUP CONSTANT OP8
-
+USER-CREATE OP0 2 CELLS + [DEFINED] TC [IF] TC-USER-ALLOT [ELSE] USER-ALLOT [THEN]
+0
+CELL+ DUP : OP1 OP0 LITERAL + ;
+CELL+ DUP : OP2 OP0 LITERAL + ;
+CELL+ DUP : OP3 OP0 LITERAL + ;
+CELL+ DUP : OP4 OP0 LITERAL + ;
+CELL+ DUP : OP5 OP0 LITERAL + ;
+CELL+ DUP : OP6 OP0 LITERAL + ;
+CELL+ DUP : OP7 OP0 LITERAL + ;
+CELL+ DUP : OP8 OP0 LITERAL + ;
+          : OPLast OP0 OpBuffSize + CELL- ;
 DROP
 
 : SetOP ( -- )
@@ -63,25 +63,25 @@ DROP
 
 0x11 CELLS DUP CONSTANT JpBuffSize
 
-CREATE JP0 HERE DUP , OVER ALLOT
-
-
-DUP ROT ERASE
-
-CELL+ DUP CONSTANT JP1
-
-
-CELL+ DUP CONSTANT JP2
-
-
-CELL+ DUP CONSTANT JP3
-
-
-CELL+ DUP CONSTANT JP4
-
+USER-CREATE JP0 1 CELLS +  [DEFINED] TC [IF] TC-USER-ALLOT [ELSE] USER-ALLOT [THEN]
+0
+CELL+ DUP : JP1 JP0 LITERAL + ;
+CELL+ DUP : JP2 JP0 LITERAL + ;
+CELL+ DUP : JP3 JP0 LITERAL + ;
+CELL+ DUP : JP4 JP0 LITERAL + ;
 DROP
 
+\ macroopt грузится дважды: вначале в инструментальную систему, а потом в целевую;
+\ и, из-за особенностей целевого компилятора, надо по разному делать USER-ALLOT.
+\ Слова "TC" присутствует лишь во втором случае.
+
 [THEN]
+
+: INIT-MACROOPT-LIGHT ( -- )
+  084 TO J_COD
+  TRUE TO ~BR-OPT
+;
+[UNDEFINED] TC [IF] INIT-MACROOPT-LIGHT [THEN]
 
 : ClearJpBuff JP0 JpBuffSize ERASE ;
 
@@ -143,6 +143,11 @@ LAST @ SWAP !
 ALSO ' MACROOPT-WL EXECUTE CONTEXT ! DEFINITIONS
 TC-WL ALSO TC-IMM
 
+( Код для отделения слов оптимизатора в отдельный список MACROOPT-WL
+внесен в версии 1.42, но он НЕ дает эффекта, т.к. инструментальное
+слово ":" принудительно устанавливает целевым список TC-WL.
+Со списком NON-OPT-WL финт проходит, т.к. там слова создаются через CODE1
+)
 [THEN]
 
 \ \\\\\\\\\\\\
@@ -328,7 +333,7 @@ TC-WL ALSO TC-IMM
 
 ;
 
- 0 VALUE TTTT
+\ 0 VALUE TTTT \ not used (22.Sep.2007)
 
 \ 0 VALUE ZZZZ \ VECT VVV
 
@@ -532,8 +537,8 @@ TC-WL ALSO TC-IMM
   R> SWAP +!
 ;
 
-VARIABLE ?~EAX
-VARIABLE SAVE-?~EAX
+USER ?~EAX
+USER SAVE-?~EAX
 : ?~EAX{ ( FLAG -- )
  ?~EAX @  SAVE-?~EAX ! ?~EAX ! ;
 
@@ -1402,8 +1407,6 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
 \     CELL-
 ;
 
-TRUE VALUE  ~BR-OPT
-
 : ?EAX:=ECX  ( -- )
    ?~EAX @
    IF SetOP 8B C, C1 C, \ MOV     EAX , ECX
@@ -1440,7 +1443,7 @@ TRUE VALUE  ~BR-OPT
          M\ 40F DTST
       THEN R>
 ;
-M\  VARIABLE VPPP : PPPP DUP VPPP @ <> IF 0 @ THEN ;
+M\  USER VPPP : PPPP DUP VPPP @ <> IF 0 @ THEN ;
 
 VECT FPOP
 
@@ -2260,7 +2263,7 @@ OP1 @ W@ D02B XOR OR \ 5969A4 2BD0              SUB     EDX , EAX
 
 \ : SSSSSS ;
 \ TRUE VALUE ?C-JMP
- FALSE VALUE ?C-JMP
+ FALSE VALUE ?C-JMP \ ok
 
 \ $ - указывает на фрагмент исходного текста, оптимизируемый
 \ данным методом
@@ -5034,9 +5037,7 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
   NIP NEGATE DUP ALLOT  :-SET + TO :-SET EXIT
    ;
 
- TRUE VALUE J_OPT?
-
-
+   TRUE VALUE J_OPT?   \ ok
 \ FALSE VALUE J_OPT?
 
 : RESOLVE_OPT ( ADR -- )
