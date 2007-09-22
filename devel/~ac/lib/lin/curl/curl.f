@@ -7,7 +7,7 @@ REQUIRE SO            ~ac/lib/ns/so-xt.f
 REQUIRE QUICK_WNDPROC ~af/lib/quickwndproc.f 
 REQUIRE STR@          ~ac/lib/str5.f
 
-REQUIRE ADD-CONST-VOC ~day/wincons/wc.f
+REQUIRE ADD-CONST-VOC lib/ext/const.f
 S" ~ygrek/lib/data/curl.const" ADD-CONST-VOC
 
 ALSO SO NEW: libcurl.dll
