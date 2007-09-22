@@ -1,15 +1,7 @@
 \ 2006, 2007
+\ $Id$
 
-REQUIRE Require     ~pinka/lib/ext/requ.f
-REQUIRE [UNDEFINED] lib/include/tools.f
-REQUIRE NDROP       ~pinka/lib/ext/common.f
-
-[UNDEFINED] CELL-! [IF]
-: CELL-! -1 CELLS SWAP +! ; [THEN]
-
-[UNDEFINED] CELL+! [IF]
-: CELL+!  1 CELLS SWAP +! ; [THEN]
-
+REQUIRE lexicon.basics-aligned ~pinka/lib/ext/basics.f
 
 MODULE: ControlStackSupport
 
@@ -41,6 +33,8 @@ EXPORT
   ZP@ Z0 @ U> ABORT" Control stack undeflow"
   ZP@ Z9 @ U< ABORT" Control stack overflow"
 ;
+
+..: AT-THREAD-STARTING ?CSP ;.. ?CSP
 
 ( 
 `Z@ `CS@  aka

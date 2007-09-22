@@ -27,9 +27,6 @@ REQUIRE Require   ~pinka/lib/ext/requ.f
 
 Require CS@     control-stack.f
 
-..: AT-THREAD-STARTING ?CSP ;..
-?CSP \ также, инициирует, если еще не распределен (CS локален для потока)
-
 Include inlines.f
 
 : DEFER-LIT, ( -- addr )
