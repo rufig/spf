@@ -10,6 +10,11 @@
 <lib><key></key><src></src><comment><en></en><ru></ru></comment></lib>
 -->
 
+<!-- 
+Requirements : 
+ <en></en> tags should always be present and positioned first in the list of children tags (e.g. in <comment>)
+-->
+
 <section id="net">
 <name><en>Network</en><ru>Сеть</ru></name>
 <lib><key>CreateSocket</key><src>~ac/lib/win/winsock/sockets.f</src><comment><en>basic TCP/IP support</en><ru>базовая поддержка TCP/IP</ru></comment></lib>
