@@ -1,6 +1,8 @@
 \ $Id$
 \ Константы времени компиляции
 
+\ Ветка от ~day/wincons/wc.f v1.5
+
 \ REQUIRE +LibraryDirName  src/win/spf_win_module.f
 REQUIRE TryOpenFile      lib/ext/util.f
 
@@ -81,8 +83,8 @@ WARNING !
   ChainOfConst 0!
 ;
 
-\ сохранённый образ не будет пытаться использовать константы 
-\ которые были подгружены в предыдущем режиме интерпретации
+\ сохранённый образ не будет пытаться использовать константы
+\ которые были подгружены в родительском сеансе
 \ ~ruvim 21.09.2007
 ..: AT-PROCESS-STARTING ChainOfConst 0! ;..
 
