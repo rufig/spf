@@ -1,3 +1,4 @@
+\ $Id$
 \ Построчное чтение файла
 \ READ-LINE модифицирован чтобы возвращать флаг
 
@@ -40,7 +41,7 @@ CREATE buf 1026 ALLOT
    AGAIN
 ;
 
-: FileLines=> ( a u --> s \ s <-- )
+: FileLines=> ( a u --> s \ <-- s )
   PRO
   R/O OPEN-FILE-SHARED IF DROP EXIT THEN
 \  START{

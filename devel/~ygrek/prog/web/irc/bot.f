@@ -153,7 +153,7 @@ MODULE: VOC-IRC-COMMAND
 
 : PRIVMSG 
    ACCERT( ." PRIVMSG of bot" CR )
-   ['] EXECUTE xt-on-privmsg list-find 
+   LAMBDA{ car EXECUTE } xt-on-privmsg scan-list 
    ACCERT( ." PRIVMSG of bot almost done" CR )
    2DROP ;
 

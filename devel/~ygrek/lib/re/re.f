@@ -80,7 +80,7 @@ REQUIRE >= ~profit/lib/logic.f
 REQUIRE ANSI-FILE lib/include/ansi-file.f
 REQUIRE состояние ~profit/lib/chartable.f
 REQUIRE { lib/ext/locals.f
-REQUIRE list-find ~ygrek/lib/list/more.f
+REQUIRE scan-list ~ygrek/lib/list/more.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE /TEST ~profit/lib/testing.f
@@ -859,7 +859,7 @@ EXPORT
     I C@ s1 s2 step
     s1 s2 -> s1 -> s2
    LOOP
-   \ LAMBDA{ .c @ STATE_FINAL = } l1 list-find NIP
+   \ LAMBDA{ car .c @ STATE_FINAL = } l1 scan-list NIP
    \ l1 FREE-LIST
    s1 START{ a:scan-> .c @ DUP STATE_FINAL = SWAP STATE_ANCHOR_EOL = OR }EMERGE 0 <>
    re_gen re .nfa @ .gen ! \ для последующих сопоставлений

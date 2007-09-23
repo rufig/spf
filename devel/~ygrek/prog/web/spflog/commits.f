@@ -31,7 +31,7 @@ REQUIRE LAMBDA{ ~pinka/lib/lambda.f
    a u " {cl-path}{s}" STR@ GET-FILE STR@ a u OCCUPY ;
 
 : find-author ( a u list -- node | 0 )
-  LAMBDA{ >R 2DUP R> car STR@ COMPARE 0= } SWAP list-find DROP NIP NIP ;
+  LAMBDA{ car >R 2DUP R> car STR@ COMPARE 0= } SWAP scan-list DROP NIP NIP ;
 
 : inc-author ( node -- ) cdr DUP car 1+ SWAP setcar ;
 

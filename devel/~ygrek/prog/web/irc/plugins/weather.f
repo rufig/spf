@@ -59,7 +59,7 @@ MODULE: bot_plugin_gismeteo
 ]% VALUE short-cities
 
 : short-city ( a u -- a1 u1 )
-   LAMBDA{ car STR@ 2OVER COMPARE 0= } short-cities list-find
+   LAMBDA{ car car STR@ 2OVER COMPARE 0= } short-cities scan-list
    IF car cdar STR@ 2SWAP 2DROP ELSE DROP THEN ;
 
 EXPORT
