@@ -25,8 +25,9 @@ REQUIRE axt=> ~profit/lib/bac4th-closures.f
 
 \ ѕоиск по списку
 \ ¬ случае успеха (xt вернул -1) возвращаетс€ node1 на которой поиск был остановлен
+\ иначе - пустой список
 \ xt: ( node -- ? ) \ TRUE - stop scan, FALSE - continue
-: scan-list ( xt node -- node1 -1 | 0 0 )
+: scan-list ( xt node -- node1 -1 | empty-list 0 )
    BEGIN
     DUP empty? 0=
    WHILE
@@ -34,7 +35,7 @@ REQUIRE axt=> ~profit/lib/bac4th-closures.f
     2R@ SWAP EXECUTE IF R> RDROP TRUE EXIT THEN
     2R> cdr
    REPEAT
-   2DROP FALSE FALSE ;
+   NIP FALSE ;
 
 \ Ѕолее быстрые версии map и mapcar
 WARNING @
