@@ -1,37 +1,37 @@
 \ $Id$
 \ Больше операций со списками
 
-REQUIRE lst( ~ygrek/lib/list/ext.f
+REQUIRE as-value ~ygrek/lib/list/ext.f
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE axt=> ~profit/lib/bac4th-closures.f
 
-\ Вызвать xt для каждого элемента списка ( параметр - car ячейка)
+\ Вызвать xt для каждого элемента списка
 \ Если xt возвращает 0 - элемент удаляется из списка (память занимаемая самой ячейкой освобождается)
 \ Иначе остаётся
 \ Возвращается результирующий список
-: reduce-this ( xt node1 -- node2 )
-  ( xt: node-car -- ? ) \ TRUE - remain, FALSE - free node
+: filter-this ( xt node1 -- node2 )
+  ( xt: node -- ? ) \ TRUE - remain, FALSE - free node
    lst(
     BEGIN
      DUP empty? 0=
     WHILE
      2>R
-     2R@ car SWAP EXECUTE IF R> DUP cdr >R add-node 2R> ELSE R> DUP cdr >R FREE-NODE 2R> THEN
+     2R@ SWAP EXECUTE IF R> DUP cdr >R add-node 2R> ELSE R> DUP cdr >R FREE-NODE 2R> THEN
     REPEAT
     2DROP
    )lst ;
 
 \ Поиск по списку
 \ В случае успеха (xt вернул -1) возвращается node1 на которой поиск был остановлен
-\ xt: ( node-car -- ? ) \ TRUE - stop scan, FALSE - continue
-: list-find ( xt node -- node1 -1 | 0 0 )
+\ xt: ( node -- ? ) \ TRUE - stop scan, FALSE - continue
+: scan-list ( xt node -- node1 -1 | 0 0 )
    BEGIN
     DUP empty? 0=
    WHILE
     2>R
-    2R@ car SWAP EXECUTE IF R> RDROP TRUE EXIT THEN
+    2R@ SWAP EXECUTE IF R> RDROP TRUE EXIT THEN
     2R> cdr
    REPEAT
    2DROP FALSE FALSE ;
@@ -60,14 +60,14 @@ WARNING !
 \ тут используем тот факт что axt=> работает на чистом стеке то есть можно
 \ передавать параметр node в bac4th-вызов и возвращать результат из вызова напрямую на стеке
 : list-remove-all ( val node -- node1 )
-   SWAP S" LITERAL <>" axt=> SWAP reduce-this ;
+   SWAP S" car LITERAL <>" axt=> SWAP filter-this ;
 
 \ Модифицировать каждый элемент списка с помощью xt
 \ xt: ( node-car -- val ) \ val будет записано в текущий обрабатываемый элемент списка
 : mapcar! ( xt node -- )
    SWAP S" >R R@ car [ COMPILE, ] R> setcar" axt=> SWAP map ;
 
-(
+( 
 0 VALUE _list-map-xt
 : mapcar!
    SWAP TO _list-map-xt

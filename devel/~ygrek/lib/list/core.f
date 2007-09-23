@@ -138,3 +138,6 @@ HERE /NODE ALLOT VALUE ()
     cdr
    REPEAT
    2DROP FALSE ;
+
+\ Ёлементы списка на стек
+: LIST> ( node -- x1 x2 ... xn ) ['] NOOP SWAP mapcar ;
