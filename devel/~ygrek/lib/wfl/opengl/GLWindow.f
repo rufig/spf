@@ -34,11 +34,11 @@ init:
    SELF _canvas :bind 
 ;
 
-dispose: CR ." Kill " ;
+dispose: ( CR ." Kill ") ;
 
 : :resize { | WindowRect -- }
 \ Подогнать запрашиваемые размеры к возможным GLевским
-   CR ." Request dimensions : " _canvas :width@ . _canvas :height@ .
+   \ CR ." Request dimensions : " _canvas :width@ . _canvas :height@ .
 
    RECT::/SIZE ALLOCATE THROW TO WindowRect
                  0 WindowRect RECT::left ! \ Set Left Value To 0
@@ -55,7 +55,7 @@ dispose: CR ." Kill " ;
    \ Теперь устанавливаем GL параметры окна
    _canvas :resize
    
-   CR ." Changed dimensions to : " _canvas :width@ . _canvas :height@ .
+   \ CR ." Changed dimensions to : " _canvas :width@ . _canvas :height@ .
 ;
 
 W: WM_CREATE { lpar wpar msg hwnd -- n }
@@ -88,7 +88,7 @@ W: WM_DESTROY ( lpar wpar msg hwnd -- n )
 ;
 
 W: WM_SIZE ( lpar wpar msg hwnd )
-   CR ." WM_SIZE"
+   \ CR ." WM_SIZE"
    3 PICK LOWORD _canvas :width!
    3 PICK HIWORD _canvas :height!
    2DROP 2DROP 
