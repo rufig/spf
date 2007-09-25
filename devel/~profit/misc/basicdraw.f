@@ -1,3 +1,10 @@
+\ TODO: вывод текста
+\ TODO: исправление неточности в позиционировании курсора мыши
+\ TODO: попеременное послание нескольких клавиш при одновременном нажатии
+\ TODO: обработка пропущенных кадров, синхронизация по времени при вызовах REFRESH'а
+\ TODO: внедрение в Grid
+
+REQUIRE WL-MODULES ~day/lib/includemodule.f
 REQUIRE WFL ~day/wfl/wfl.f
 REQUIRE CGLWindow ~ygrek/lib/wfl/opengl/GLWindow.f
 REQUIRE CBMP24 ~ygrek/lib/spec/bmp.f
@@ -6,20 +13,22 @@ REQUIRE state-table ~profit/lib/chartable.f
 REQUIRE CONST ~micro/lib/const/const.f
 REQUIRE VK_F11 ~micro/lib/const/vk_.f
 
-
+WINAPI: glColor3i OpenGL32.DLL
+WINAPI: glReadPixels OpenGL32.DLL
 WINAPI: wglUseFontBitmapsA OpenGL32.DLL
+WINAPI: wglUseFontBitmapsW OpenGL32.DLL
+WINAPI: wglUseFontOutlinesA OpenGL32.DLL
 WINAPI: wglGetCurrentContext OpenGL32.DLL
-WINAPI: wglDeleteContext OpenGL32.DLL
-WINAPI: wglCreateContext OpenGL32.DLL
-WINAPI: wglMakeCurrent OpenGL32.DLL
 
 WINAPI: glCallLists OpenGL32.DLL
 WINAPI: glListBase OpenGL32.DLL
 
+WINAPI: wglGetCurrentDC OpenGL32.DLL
+
 MODULE: basic-graph
 
 0 VALUE glwindow
-0 VALUE list1
+\ 0 VALUE list1
 0 VALUE bmp
 VECT drawer
 
@@ -46,7 +55,7 @@ RECT::/SIZE ALLOCATE THROW TO WindowRect
 10 WindowRect RECT::right ! \ Set Right Value To Requested Width  
 0 WindowRect RECT::top ! \ Set Top Value To 0
 10 WindowRect RECT::bottom ! \ Set Bottom Value To Requested Height
-glwindow => exStyle @ FALSE glwindow => style @ WindowRect AdjustWindowRectEx DROP
+SUPER exStyle @ FALSE SUPER style @ WindowRect AdjustWindowRectEx DROP
 bmp => height @ SWAP - WindowRect RECT::top @ + SWAP
 WindowRect RECT::left @ + WindowRect RECT::left @ + SWAP
 WindowRect FREE THROW
@@ -57,6 +66,8 @@ WindowRect FREE THROW
 ;CLASS
 
 EXPORT
+
+: glTHROW ( res -- ) 0= IF GetLastError THROW THEN ;
 
 : CLS ( -- ) bmp => :cls ;
 : PIXEL ( x y -- ) bmp => :pixel ;
@@ -69,18 +80,39 @@ glwindow => moveWindow ;
 : START-DRAW ( xt -- n ) TO drawer
 || CMessageLoop loop ||
 CGLMyWindow NewObj TO glwindow
-CGLObjectList NewObj TO list1
 CGLImage NewObj TO bmp
-bmp list1 => :add
-list1 glwindow => :add
+bmp glwindow => :add
 0 glwindow => create DROP
 SW_SHOW glwindow => showWindow
 drawer
-loop run ;
+loop run 
+glwindow FreeObj
+0 TO glwindow ;
 
 : REFRESH ( -- ) drawer  glwindow => updateWindow ;
 
 ;MODULE
+
+VARIABLE addr
+
+CREATE rrr 1000 ALLOT
+
+: r
+\ 13 GetStockObject wglGetCurrentDC SelectObject 111 . .
+\ 200 wglGetCurrentDC SetTextColor 111 . .
+\ 200 0 0 glColor3i DROP
+\ 20000 wglGetCurrentDC SetBkColor 222 . .
+1000 255 0 wglGetCurrentDC wglUseFontBitmapsA 333 . .
+\ 0 rrr 0 0 1000 255 0 wglGetCurrentDC wglUseFontOutlinesA 333 . . GetLastError . rrr 20 DUMP
+1000 glListBase 444 . .
+S" Hello" GL_UNSIGNED_BYTE SWAP glCallLists 555 . .
+\ 1 GL_UNPACK_ALIGNMENT glPixelStorei glTHROW
+\ 10000 CELLS ALLOCATE THROW addr !
+\ addr @ GL_UNSIGNED_BYTE GL_LUMINANCE ( height @ width @ ) 100 100 0 0 glReadPixels glTHROW
+\ addr @ 1000 DUMP
+\ R> wglDeleteContext glTHROW
+\ wglMakeCurrent glTHROW
+;
 
 /TEST
 
@@ -98,6 +130,7 @@ CHAR W asc:  10 y +! REFRESH ;
 CHAR S asc: -10 y +! REFRESH ;
 CHAR A asc: -10 x +! REFRESH ;
 CHAR D asc:  10 x +! REFRESH ;
+CHAR Q asc:  r ;
 
 \ F11 -- смена цвета
 VK_F11 asc:
@@ -116,23 +149,11 @@ y ! x ! REFRESH ; TO click
 
 \ Создание слова-отрисовщика
 :NONAME
-600 400 SET-SIZE \ установка размера экрана (одновременно с его очисткой)
+700 300 SET-SIZE \ установка размера экрана (одновременно с его очисткой)
 current-color @ colors SET-COLOR \ установка текущего цвета
 \ рисование квадратика
 y @ 10 + y @ DO
 x @ 10 + x @ DO I J PIXEL LOOP LOOP
-; START-DRAW \ BYE
+
+400 0 DO 0 I PIXEL LOOP ; START-DRAW \ BYE
 \ и запуск его параметром в слово START-DRAW начинающего весь цикл отображения
-
-
-\ wglGetCurrentContext
-\ CreateCompatibleDC DUP wglCreateContext >R
-\ 1000 255 0 R@ wglUseFontBitmapsA
-\ 1000 glListBase
-\ S" Hello Win32 OpenGL World" GL_UNSIGNED_BYTE SWAP glCallLists
-\ 1 GL_UNPACK_ALIGNMENT glPixelStorei DROP
-\ 1000 CELLS ALLOCATE THROW addr !
-\ addr @ GL_UNSIGNED_BYTE GL_LUMINANCE ( height @ width @ ) 100 100 0 0 glReadPixels DROP
-\ addr @
-\ R> wglDeleteContext DROP \ THROW
-\ wglMakeCurrent
