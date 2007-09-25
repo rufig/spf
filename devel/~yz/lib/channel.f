@@ -29,7 +29,7 @@ CELL -- :chEvent
 
 WINAPI: GetVersionExA KERNEL32.DLL
 
-: isXP? { \ [ 148 ] vers -- ?}
+: isXP? { \ [ 148 ] vers -- ? }
   148 vers !  vers GetVersionExA DROP
   vers 4 CELLS@ 2 ( W: ver_platform_win32_nt) = IF
     vers 1 CELLS@ 5 < NOT  vers 2 CELLS@ 1 < NOT AND
@@ -101,7 +101,7 @@ EXPORT
   ch :chEvent @ PulseEvent DROP
 ;
 
-: read-channel { a ch -- a #}
+: read-channel { a ch -- a # }
   -1 ch :chEvent @ WaitForSingleObject DROP
   ch :chLock @ [[[
   ch :chAddress @ DUP C@ >R 1+ a R@ CMOVE
