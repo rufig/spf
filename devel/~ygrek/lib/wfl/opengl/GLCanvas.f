@@ -1,3 +1,5 @@
+\ $Id$
+
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
 NEEDS lib/include/float2.f
@@ -66,6 +68,7 @@ dispose: :deleteRC SUPER release ;
 \ GL полотно - то на чём собственно происходит рисование
 \ требует hwnd окна на котором рисует (метод :initialize)
 \ сообщения НЕ перехватывает - это делается в классах-обёртках
+\ создаёт таймер - можно вешаться на него и отрисовываться
 CLASS CGLCanvas
 
   VAR _hwnd
@@ -87,14 +90,14 @@ init:
 : :height! _height ! ;
 
 dispose:          \ Properly Kill The Window
-  CR ." CGLCanvas dispose"
+  \ CR ." CGLCanvas dispose"
   1 _hwnd @ KillTimer DROP
 ;
 
 : :setupTimer 0 20 1 _hwnd @ SetTimer DROP ;
 
 : :initGL
-   CR ." CGLCanvas :initGL"
+   \ CR ." CGLCanvas :initGL"
    GL_SMOOTH glShadeModel  DROP \ Enable Smooth Shading
 
    0.5E float 0E float  0E float 0E float glClearColor DROP \ Black Background
@@ -119,13 +122,13 @@ dispose:          \ Properly Kill The Window
 
    GL_SCISSOR_TEST glDisable DROP
 
-   CR ." InitGL done."
+   \ CR ." InitGL done."
 
-   CR ." Run :prepare"
+   \ CR ." Run :prepare"
 
    SELF => :prepare
 
-   CR ." All set!"
+   \ CR ." All set!"
 ;
 
 \ Запрашиваемые размеры в _width и _height
@@ -180,10 +183,10 @@ dispose:          \ Properly Kill The Window
 
 \   status
 \   pfd PIXELFORMATDESCRIPTOR::/SIZE DUMP
-   ." PFD created"
+   \ ." PFD created"
    status
 
-   _hwnd @ _context create
+   _hwnd @ _context create DROP
 
    pfd _context checkDC ChoosePixelFormat TO PixelFormat
    PixelFormat 0= S" Can't Find A Suitable PixelFormat." SUPER abort
@@ -202,8 +205,7 @@ dispose:          \ Properly Kill The Window
 
    :resize
 
-   :setupTimer
-   ;
+   :setupTimer ;
 
 : :doPaint ( -- )
    _hwnd @ _context :enable

@@ -3,10 +3,10 @@ REQUIRE WL-MODULES ~day/lib/includemodule.f
 NEEDS ~ygrek/lib/data/opengl.f
 
 : status
-  CR
+  ( CR
   ." f=" FDEPTH .
-  ." d=" DEPTH  .
-  DEPTH 10 MIN .SN
+  ." d=" DEPTH  . 
+  DEPTH 10 MIN .SN )
   GetLastError ?DUP IF CR ." Error " . THEN
   glGetError ?DUP IF CR ." GL error " . THEN
 ;
