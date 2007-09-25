@@ -1,6 +1,6 @@
 \ Диаграмма классов wfl
 \ На выходе dot-файл для GraphViz
-\ "C:\Program Files\ATT\Graphviz\bin\dot.exe" -Tpng wfl.dot -owfl.dot.png
+\ "C:\Program Files\ATT\Graphviz\bin\dot.exe" -Tpng wfl.dot -owfl.png
 \ Соответствующую картинка - http://forth.org.ru/~ygrek/files/wfl.png
 
 REQUIRE WL-MODULES ~day/lib/includemodule.f
@@ -25,7 +25,7 @@ S" wfl.dot" dot{
  S" yellow" DOT-FILLCOLOR
  NEEDS ~ygrek/lib/wfl/opengl/GLWindow.f
  NEEDS ~ygrek/lib/wfl/opengl/GLControl.f
- NEEDS ~profit/lib/wfl/openGL/CGLImage.f
+ NEEDS ~profit/lib/wfl/openGL/GLImage.f
  S" grey" DOT-FILLCOLOR
  NEEDS ~day/wfl/controls/urllabel.f
  S" grey" DOT-FILLCOLOR
