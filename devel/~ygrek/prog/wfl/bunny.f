@@ -1,8 +1,9 @@
 \ чтобы увидеть кролика - модель брать тут : http://www.forth.org.ru/~ygrek/files/bun_zipper.7z
 \ распаковать и положить рядом
 
-REQUIRE WFL ~day/wfl/wfl.f
+REQUIRE WL-MODULES ~day/lib/includemodule.f
 
+NEEDS ~day/wfl/wfl.f
 NEEDS ~ygrek/lib/wfl/opengl/GLWindow.f
 NEEDS ~day/common/clparam.f
 NEEDS ~ygrek/lib/neilbawd/mersenne.f
@@ -47,17 +48,6 @@ CGLWindow SUBCLASS CMyGLWindow
   || CMyGLWindow aa CMessageLoop loop D: m CTimer timer CModelLoaderPLY2 ml1  CModelLoaderOFF ml2  D: filename ||
 
   S" bun_zipper_res2.ply2" " {s}" filename !
-
-  NEXT-PARAM CUT-FILENAME S" spf4.exe" COMPARE
-  IF
-   NEXT-PARAM DUP 0=
-   IF
-    2DROP
-    ELSE
-    filename @ STRFREE
-    " {s}" filename !
-   THEN
-  THEN
 
   \ CGLMayaModel NewObj m !
   \ S" m16.obj1" m @ => :load
