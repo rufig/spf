@@ -93,11 +93,13 @@ xml-специфичность этих слов. Во многом они похожи на шаблоны XSL.
 </p>
 
 <p>Для представления ядра Транслятора в языке plainForth используется набор
-слов форт-процессора и <a href="../../spf/compiler/index.f">форт-компилятора</a>.
+слов форт-процессора, <a href="../../spf/compiler/index.f">форт-компилятора</a>
+и DOM-<a href="../../spf/forthml/cdomnode.immutable.f">интерфейса</a>
+(<a href="../../lib/lin/xml/libxml2-dom.f">обертка</a> поверх libxml2).
 </p>
 
 <p>Ядро мета-форта (Языка) составляет лексикон, служащий для определения новых слов мета-форта (xml-элементов).
-В&nbsp;него входят <code>rule m yield direct postpone get-attribute for-each</code>.
+В&nbsp;него входят: <code>rule m yield direct postpone get-attribute for-each</code>.
 Этот лексикон вынесен в отдельное пространство имен xml.
 Все определения в <a href="rules-common.f.xml"><code>rules-common.f.xml</code></a> сделаны в разметке
 из лишь этих семи слов; далее, определенные в этом модуле слова уже используются
