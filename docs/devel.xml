@@ -47,7 +47,7 @@ Requirements :
  <key>zip-pack</key>
  <src>~profit/lib/7zip-dll.f</src>
  <comment><en>packing and unpacking zip/7zip archives</en><ru>упаковка и распаковка архивов zip/7zip</ru></comment>
- <link rel="dll" href="http://www.csdinc.co.jp/archiver/lib/7-zip32.html#download">7-zip32.dll</link>
+ <link rel="wrap" href="http://www.csdinc.co.jp/archiver/lib/7-zip32.html#download">7-zip32.dll</link>
 </lib>
 </section>
 
@@ -143,7 +143,7 @@ Requirements :
 <section id="compiletime-const">
 <name><en>Compile-time constants</en><ru>Константы времени компиляции</ru></name>
 <lib><key>LOAD-CONSTANTS</key><src>~yz/lib/const.f</src><comment><en>including constants - search via W: word prefix</en><ru>подключение констант - поиск через префиксное слово W:</ru></comment></lib>
-<lib><key>ADD-CONST-VOC</key><src>~day/wincons/wc.f</src><comment><en>including constants - search via NOTFOUND</en><ru>подключение констант - поиск по NOTFOUND</ru></comment></lib>
+<lib><key>ADD-CONST-VOC</key><src>lib/ext/const.f</src><comment><en>including constants - search via NOTFOUND</en><ru>подключение констант - поиск по NOTFOUND</ru></comment></lib>
 <lib><key>BEGIN-CONST</key><src>~day/wincons/compile.f</src><comment><en>*.const files compiler</en><ru>компилятор *.const файлов</ru></comment></lib>
 <other><src>~day/wincons/h2f.f</src><comment><en>extracting constants from C language header files</en><ru>выдирание констант из сишных заголовочных файлов</ru></comment></other>
 <other><src>~yz/cons/</src><comment><en>precompiled constants for sql, commctrl, windows</en><ru>файлы констант для sql, commctrl, windows</ru></comment></other>
@@ -155,13 +155,21 @@ Requirements :
 <lib>
   <key>WINDOWS...</key><src>~yz/lib/winlib.f</src>
   <comment>
-    <en>WinLib - Windows GUI interface library. Stretches forms and controls on it. Specifying controls position without coordinates, only position in grid - know-how! Good documentation : <src>~yz/winlib.html</src></en>
-    <ru>WinLib - библиотека интерфейса Windows. Умеет растягивать формы и контролы в ней. Задание вида окна без указания точных координат, с помощью размещения в сетке - ноу-хау! Хорошая документация : <src>~yz/winlib.html</src></ru>
+    <en>WinLib - Windows GUI interface library. Stretches forms and controls on it. Specifying controls position without coordinates, only position in grid - know-how!</en>
+    <ru>WinLib - библиотека интерфейса Windows. Умеет растягивать формы и контролы в ней. Задание вида окна без указания точных координат, с помощью размещения в сетке - ноу-хау!</ru>
   </comment>
+  <link rel="doc" lang="ru" href="~yz/winlib.html">окна и общая функциональность</link>
+  <link rel="doc" lang="ru" href="~yz/winctl.html">элементы управления</link>
+  <link rel="doc" lang="ru" href="~yz/wincc.html">новые элементы управления</link> 
+  <link rel="example" href="~yz/prog/winlib"/>
 </lib>
 <lib><key>FrameWindow</key><src>~day/joop/win/framewindow.f</src><comment><en>windows library based on joop</en><ru>библиотка интерфейса поверх joop</ru></comment></lib>
 <other><src>~ac/lib/win/window</src><comment><en>simple and small implementation</en><ru>маленькая и простая реализация</ru></comment></other>
-<lib><key>WFL</key><src>~day/wfl/wfl.f</src><comment><en>windows library based on hype3, with examples (<src>~day/wfl/examples</src>)</en><ru>библиотека интерфейса поверх hype3, с примерами (<src>~day/wfl/examples</src>)</ru></comment></lib>
+<lib>
+ <key>WFL</key><src>~day/wfl/wfl.f</src>
+ <comment><en>windows library based on hype3</en><ru>библиотека интерфейса поверх hype3</ru></comment>
+ <link rel="example" href="~day/wfl/examples"/>
+</lib>
 <lib><key>AT-XY</key><src>~day/common/console.f</src><comment><en>minimum words for console</en><ru>минимальный набор слов для консоли</ru></comment></lib>
 <lib><key>SetLocate</key><src>~pi/lib/console.f</src><comment><en>console support</en><ru>поддержка консоли</ru></comment></lib>
 </section>
@@ -208,7 +216,6 @@ Requirements :
 <lib><key>WaitAll</key><src>~pinka/lib/multi/synchr.f</src><comment><en>threads synchronization - "wait for single", "wait for all"</en><ru>синхронизация потоков - "wait for single", "wait for all"</ru></comment></lib>
 </section>
 
-
 <section id="ini-registry">
 <name><en>Windows registry and ini-files</en><ru>Реестр Windows</ru></name>
 <lib><key>RG_CreateKey</key><src>~ac/lib/win/registry2.f</src><comment><en>Windows registry</en><ru>реестр Windows</ru></comment></lib> 
@@ -246,7 +253,10 @@ Requirements :
 <section id="xml">
 <name><en>XML</en></name>
 <lib><key>XML_Evaluate</key><src>~ac/lib/lin/xml/expat.f</src><comment><en>XML via libexpat</en></comment></lib>
-<lib><key>XML_READ_DOC</key><src>~ac/lib/lin/xml/xml.f</src><comment><en>XML via libxml2 </en></comment></lib>
+<lib>
+ <key>XML_READ_DOC</key><src>~ac/lib/lin/xml/xml.f</src><comment><en>XML via libxml2 </en></comment>
+ <link rel="wrap" href="http://zlatkovic.com/pub/libxml/">libxml2.dll</link>
+</lib>
 <lib><key>XSLT</key><src>~ac/lib/lin/xml/xslt.f</src><comment><en>XSLT via libxslt </en></comment></lib>
 </section>
 
