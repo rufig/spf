@@ -1,24 +1,27 @@
-( gzip [ addr u -- addr2 u2 ] - сжать переданный буфер
-  в формате формате GZIP [RFC1952].
-  Для исключения собственно файловых операций 
-  применена ручная конвертация формата zlib->gzip.
-  При записи полученного буфера в файл получается обычный
-  .gz файл [без указания имени и даты исходного файла,
-  т.к. сжимается не файл, а буфер]
-  При записи в сокет удовлетворяет спецификации
-  Content-Encoding: gzip, т.е. непосредственно может
-  вставляться в тело http-ответа.
+( gzip [ addr u -- addr2 u2 ] - ёцрЄ№ яхЁхфрээ√щ сєЇхЁ
+  т ЇюЁьрЄх ЇюЁьрЄх GZIP [RFC1952].
+  ─ы  шёъы■ўхэш  ёюсёЄтхээю Їрщыют√ї юяхЁрЎшщ 
+  яЁшьхэхэр Ёєўэр  ъюэтхЁЄрЎш  ЇюЁьрЄр zlib->gzip.
+  ╧Ёш чряшёш яюыєўхээюую сєЇхЁр т Їрщы яюыєўрхЄё  юс√ўэ√щ
+  .gz Їрщы [схч єърчрэш  шьхэш ш фрЄ√ шёїюфэюую Їрщыр,
+  Є.ъ. ёцшьрхЄё  эх Їрщы, р сєЇхЁ]
+  ╧Ёш чряшёш т ёюъхЄ єфютыхЄтюЁ хЄ ёяхЎшЇшърЎшш
+  Content-Encoding: gzip, Є.х. эхяюёЁхфёЄтхээю ьюцхЄ
+  тёЄрты Є№ё  т Єхыю http-юЄтхЄр.
 
-  gzip_write [ addr u -- ] - для использования вместо 
-  WRITE-FILE, WriteSocket или TYPE
-  - сжимает переданный буфер и записывает в формате GZIP [RFC1952]
-  При записи используется слово VECT gzip_write_function,
-  которое по умолчанию выполняет TYPE.
-  gzip_write экономнее, чем gzip[] за счет исключения
-  операций копирования в памяти и выделения дополнительной памяти.
+  gzip_write [ addr u -- ] - фы  шёяюы№чютрэш  тьхёЄю 
+  WRITE-FILE, WriteSocket шыш TYPE
+  - ёцшьрхЄ яхЁхфрээ√щ сєЇхЁ ш чряшё√трхЄ т ЇюЁьрЄх GZIP [RFC1952]
+  ╧Ёш чряшёш шёяюы№чєхЄё  ёыютю VECT gzip_write_function,
+  ъюЄюЁюх яю єьюыўрэш■ т√яюыэ хЄ TYPE.
+  gzip_write ¤ъюэюьэхх, ўхь gzip[] чр ёўхЄ шёъы■ўхэш 
+  юяхЁрЎшщ ъюяшЁютрэш  т ярь Єш ш т√фхыхэш  фюяюыэшЄхы№эющ ярь Єш.
 
-  zlib_compress и zlib_uncompress [ addr u -- addr2 u2 ]
-  используют формат zlib deflate [RFC1950]
+  zlib_compress ш zlib_uncompress [ addr u -- addr2 u2 ]
+  шёяюы№чє■Є ЇюЁьрЄ zlib deflate [RFC1950]
+
+  [─юсртыхэшх 01.10.2007] dll єфрыхэ ё CVS. ┼ёыш эх ьюцхЄх эрщЄш,
+  уфх ёърўрЄ№, Єю ьюцэю юЄё■фр: http://www.forth.org.ru/ext/zlib.dll [2003у]
 )
 
 WINAPI: compress   zlib.dll
@@ -72,9 +75,9 @@ VECT gzip_write_function ' TYPE TO gzip_write_function
 : gzip
   DUP >R
   2DUP CRC32 >R
-  zlib_compress OVER >R \ потом освободим
-  6 - SWAP 2+ SWAP      \ сжатый блок
-  DUP /gzip_header + 2 CELLS + DUP >R \ размер полного gzip
+  zlib_compress OVER >R \ яюЄюь юётюсюфшь
+  6 - SWAP 2+ SWAP      \ ёцрЄ√щ сыюъ
+  DUP /gzip_header + 2 CELLS + DUP >R \ ЁрчьхЁ яюыэюую gzip
   ALLOCATE THROW >R
   gzip_header R@ /gzip_header CMOVE
   R@ /gzip_header + SWAP CMOVE
@@ -86,7 +89,7 @@ VECT gzip_write_function ' TYPE TO gzip_write_function
   2DUP CRC32 >R
   gzip_header /gzip_header gzip_write_function
   zlib_compress
-  6 - SWAP 2+ SWAP \ отрезаем 2 байта в начале и 4 в конце (deflate-specific?)
+  6 - SWAP 2+ SWAP \ юЄЁхчрхь 2 срщЄр т эрўрых ш 4 т ъюэЎх (deflate-specific?)
   gzip_write_function
   RP@ 4 gzip_write_function \ crc
   RDROP RP@ 4 gzip_write_function \ size
