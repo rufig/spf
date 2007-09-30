@@ -16,7 +16,7 @@ NEEDS ~ygrek/lib/list/write.f
 NEEDS ~pinka/lib/lambda.f
 NEEDS ~ygrek/lib/hype/timer.f
 NEEDS ~ygrek/lib/hype/point.f
-NEEDS  ~day/wincons/wc.f
+NEEDS  lib/ext/const.f
 S" ~ygrek/lib/data/opengl.const" ADD-CONST-VOC
 
 : float ( F: f -- D: f )
