@@ -13,11 +13,12 @@ REQUIRE re_match? ~ygrek/lib/re/re.f
 : re_search-> ( a u re --> a u \ <-- )
   PRO { a u re | a1 m -- list }
   BEGIN
+   a u CR TYPE
    a u re re_search -> m -> a1
    m
   WHILE
    a1 m CONT
-   a u m /STRING -> u -> a
+   a1 u a1 a - - m /STRING -> u -> a
   REPEAT ;
 
 : re_split-> ( a u re --> a u \ <-- )
@@ -48,3 +49,15 @@ REQUIRE re_match? ~ygrek/lib/re/re.f
 : stre_search STREGEX=> re_search ;
 
 \ : re_search_bwd
+
+/TEST
+
+REQUIRE TESTCASES ~ygrek/lib/testcase.f
+
+TESTCASES re_search_all
+
+S" 12 34 56 78 90" RE" \d+" re_search_all VALUE l
+(( :NONAME STR@ NUMBER 0= ABORT" not a number" ; l mapcar -> 12 34 56 78 90 ))
+l FREE-LIST
+
+END-TESTCASES
