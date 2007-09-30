@@ -13,7 +13,6 @@ REQUIRE re_match? ~ygrek/lib/re/re.f
 : re_search-> ( a u re --> a u \ <-- )
   PRO { a u re | a1 m -- list }
   BEGIN
-   a u CR TYPE
    a u re re_search -> m -> a1
    m
   WHILE
