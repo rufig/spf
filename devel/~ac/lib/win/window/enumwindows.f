@@ -9,13 +9,14 @@ WINAPI: IsWindowVisible          USER32.DLL
 \ flag=false - stop enumeration
   SWAP EXECUTE
 ;
-' (EnumWindow1) WNDPROC: EnumWindow1
+\ ' (EnumWindow1) WNDPROC: EnumWindow1
+' (EnumWindow1) 8 CALLBACK: EnumWindow1
 
 : ForEachWindow ( xt -- ior )
   ['] EnumWindow1 EnumWindows ERR
 ;
 
-\EOF
+\ EOF
 
 : PWND
   DUP .
