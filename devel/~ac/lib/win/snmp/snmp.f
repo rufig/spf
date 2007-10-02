@@ -108,7 +108,7 @@ VECT vSnmpOnRecv ' NOOP TO vSnmpOnRecv
      vSnmpOnRecv
   ELSE ." retransmit;" THEN \ 1+!
   1
-; WNDPROC: SnmpCallback
+; 6 CELLS CALLBACK: SnmpCallback
 
 \ .1.3.6.1.2.1.1.1
 \ .iso.org.dod.internet.mgmt.mib-2.system.sysDescr
