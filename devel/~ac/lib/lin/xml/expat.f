@@ -108,6 +108,7 @@ USER XML_ParseDebug
 
 :NONAME ( **attrs *name *userData -- )
   TlsIndex@ >R DUP TlsIndex!
+  S0 @ >R SP@ CELL+ CELL+ CELL+ S0 !
   OVER ASCIIZ> 
   XML_ParseDebug @ IF CR ." X{ " 2DUP TYPE SPACE THEN
   CONTEXT @ SEARCH-WORDLIST-NFA
@@ -126,7 +127,7 @@ USER XML_ParseDebug
        IF 2 PICK ASCIIZ> ROT EXECUTE THEN
   THEN
   0
-  R> TlsIndex!
+  R> S0 ! R> TlsIndex!
 ; 3 CELLS CALLBACK: XML_StartElementHandler
 
 : VOC-NAME ( wid -- addr u ) \ имя списка слов, если он именован
@@ -135,6 +136,8 @@ USER XML_ParseDebug
 ;
 :NONAME ( *name *userData -- )
   TlsIndex@ >R DUP TlsIndex!
+  S0 @ >R SP@ CELL+ CELL+ S0 !
+  \ чтобы DEPTH соответствовал действительности переключенного на чужой USER но со своим стеком колбэка
   OVER ASCIIZ> CONTEXT @ VOC-NAME COMPARE 0=
   \ если в словарь не входили, то PREVIOUS сдисбалансит контекст
   IF
@@ -142,14 +145,15 @@ USER XML_ParseDebug
     IF EXECUTE ELSE 2DROP THEN
     PREVIOUS
   THEN 0
-  R> TlsIndex!
+  R> S0 ! R> TlsIndex!
 ; 2 CELLS CALLBACK: XML_EndElementHandler
 
 :NONAME ( len *s *userData -- )
   TlsIndex@ >R DUP TlsIndex!
+  S0 @ >R SP@ CELL+ CELL+ CELL+ S0 !
   OVER 3 PICK S" .CDATA" CONTEXT @ SEARCH-WORDLIST
   IF EXECUTE ELSE 2DROP THEN 0
-  R> TlsIndex!
+  R> S0 ! R> TlsIndex!
 ; 3 CELLS CALLBACK: XML_CharacterDataHandler
 
 \ ===== Генерация исполнителя =====
