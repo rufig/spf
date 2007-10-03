@@ -1,3 +1,5 @@
+( openssl брать на openssl.org, gnutls win32 на http://josefsson.org/gnutls4win/ )
+
 REQUIRE {             ~ac/lib/locals.f
 REQUIRE CreateSocket  ~ac/lib/win/winsock/sockets.f
 REQUIRE FreeLibrary   ~ac/lib/win/dll/load_lib.f
@@ -5,20 +7,35 @@ REQUIRE CREATE-MUTEX  lib/win/mutex.f
 
 VARIABLE SSL_LIB
 VARIABLE SSLE_LIB
+VARIABLE TLSLIB
 
 : LoadLibEx ( addr u -- h )
   DROP LOAD_WITH_ALTERED_SEARCH_PATH 0 ROT LoadLibraryExA
 ;
 : LoadSslLibrary ( -- )
-  S" libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
-  S" conf\plugins\ssl\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
-  S" ..\CommonPlugins\plugins\ssl\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+  TLSLIB @ 1 =
+  IF
+    S" ..\ext\libgnutls-openssl-13.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+    S" libgnutls-openssl-13.dll " LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+  ELSE
+    S" ..\ext\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+    S" libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+    S" conf\plugins\ssl\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+    S" ..\CommonPlugins\plugins\ssl\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+  THEN
   -2009 THROW
 ;
 : LoadSsleLibrary ( -- )
-  S" libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
-  S" conf\plugins\ssl\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
-  S" ..\CommonPlugins\plugins\ssl\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+  TLSLIB @ 1 =
+  IF
+    S" ..\ext\libgnutls-openssl-13.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+    S" libgnutls-openssl-13.dll " LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+  ELSE
+    S" ..\ext\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+    S" libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+    S" conf\plugins\ssl\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+    S" ..\CommonPlugins\plugins\ssl\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+  THEN
   -2009 THROW
 ;
 VARIABLE SSL-MUT
@@ -53,6 +70,7 @@ SSLAPI: SSL_load_error_strings
 SSLAPI: SSL_library_init
 SSLAPI: SSL_CTX_new
 SSLAPI: TLSv1_method
+SSLAPI: TLSv1_client_method
 SSLAPI: SSLv3_method
 SSLAPI: SSLv23_method
 SSLAPI: SSL_new
@@ -122,7 +140,9 @@ VARIABLE vSSL_INIT
   c
 ;
 : SslNewClientContext { pema pemu type \ c -- context }
-  SSLv23_client_method SSL_CTX_new DUP 0= THROW NIP
+  SSLv23_client_method 
+\  TLSv1_client_method
+  SSL_CTX_new DUP 0= THROW NIP
   -> c
 
 \ сертификаты и ключи, используемые в соединении
