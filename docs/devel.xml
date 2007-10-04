@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href='../tools/doc/devel.xsl'?>
 <spf_devel>
 
 <meta>
@@ -27,7 +28,9 @@ Requirements :
 <lib><key>SendDnsQuery</key><src>~ac/lib/win/winsock/dns_q.f</src><comment><en>querying DNS-servers</en><ru>DNS запросы</ru></comment></lib>
 <lib><key>PutFileTr</key><src>~ac/lib/win/winsock/transmit.f</src><comment><en>high-speed file transmition in Windows</en><ru>высокоскоростная передача файлов в Windows</ru></comment></lib>
 <lib><key>SnmpInit</key><src>~ac/lib/win/snmp/snmp.f</src><comment><en>SNMP support</en><ru>поддержка SNMP</ru></comment></lib>
-<lib><key>GET-FILE-VIAPROXY</key><src>~ac/lib/lin/curl/curl.f</src><comment><en>cURL-wrapper - send/receive files via HTTP/FTP/etc</en><ru>cURL обёртка - получение/передача файлов по HTTP/FTP/etc</ru></comment></lib>
+<lib><key>GET-FILE-VIAPROXY</key><src>~ac/lib/lin/curl/curl.f</src><comment><en>cURL-wrapper - send/receive files via HTTP/FTP/etc</en><ru>cURL обёртка - получение/передача файлов по HTTP/FTP/etc</ru></comment>
+ <link rel="wrap" href="http://curl.haxx.se/latest.cgi?curl=win32-devel-ssl">libcurl.dll</link>
+</lib>
 <lib><key>WEB-SERVER</key><src>~nn/lib/web/server.f</src><comment><en>simple HTTP-server</en><ru>простой сервер HTTP</ru></comment></lib>
 <other><src>~nn/lib/net</src><comment><en>HTTP, POP3, FTP, etc</en><ru>HTTP, POP3, FTP, etc</ru></comment></other>
 </section>
@@ -42,7 +45,9 @@ Requirements :
 
 <section id="arc">
 <name><en>Archives</en><ru>Архивы</ru></name>
-<lib><key>gzip_write</key><src>~ac/lib/win/arc/gzip/zlib.f</src><comment><en>packing and unpacking GZip-streams</en><ru>упаковка и распаковка gzip-потоков</ru></comment></lib>
+<lib><key>gzip_write</key><src>~ac/lib/win/arc/gzip/zlib.f</src><comment><en>packing and unpacking GZip-streams</en><ru>упаковка и распаковка gzip-потоков</ru></comment>
+ <link rel="wrap" href="http://www.forth.org.ru/ext/zlib.dll">zlib.dll</link>
+</lib>
 <lib>
  <key>zip-pack</key>
  <src>~profit/lib/7zip-dll.f</src>
@@ -201,8 +206,12 @@ Requirements :
 <lib><key>StartSQL</key><src>~yz/lib/odbc.f</src><comment><en>ODBC, typed data</en><ru>ODBC, типизированные данные</ru></comment></lib>
 <lib><key>StartSQL</key><src>~ac/lib/win/odbc/odbc.f</src><comment><en>ODBC, all data as strings</en><ru>ODBC, все данные как строки</ru></comment></lib>
 <lib><key>ExecSQLTxt</key><src>~pinka/lib/win/odbc/odbc-txt.f</src><comment><en>DELETE and UPDATE support for Text File Driver</en><ru>поддержка DELETE и UPDATE для Text File Driver</ru></comment></lib>
-<lib><key>db3_open</key><src>~ac/lib/lin/sql/sqlite3.f</src><comment><en>SQLite</en><ru>SQLite</ru></comment></lib>
-<lib><key>MyQuery</key><src>~day/lib/mysql.f</src><comment><en>MySQL wrapper</en><ru>MySQL обёртка</ru></comment></lib>
+<lib><key>db3_open</key><src>~ac/lib/lin/sql/sqlite3.f</src><comment><en>SQLite</en><ru>SQLite</ru></comment>
+ <link rel="wrap" href="http://www.sqlite.org/download.html">sqlite3.dll</link>
+</lib>
+<lib><key>MyQuery</key><src>~day/lib/mysql.f</src><comment><en>MySQL wrapper</en><ru>MySQL обёртка</ru></comment>
+ <link rel="wrap" href="http://dev.mysql.com/downloads/">libmysql.dll</link>
+</lib>
 </section>
 
 <section id="threads">
@@ -229,9 +238,12 @@ Requirements :
 <lib><key>CHECK-SET</key><src>~day/common/sbnf.f</src><comment><en>simple BNF parser</en><ru>простой BNF парсер</ru></comment></lib>
 <lib><key>WildCMP-U</key><src>~pinka/lib/mask.f</src><comment><en>comparing string and wildcard mask</en><ru>сравнение строки с маской</ru></comment></lib>
 <lib><key>ULIKE</key><src>~pinka/lib/like.f</src><comment><en>comparing string and wildcard mask</en><ru>сравнение строки и маски</ru></comment></lib>
-<lib><key>re_start</key><src>~nn/lib/re.f</src><comment><en>regexps via regexp.dll</en><ru>регулярные выражения с помощью regexp.dll</ru></comment></lib>
-<lib><key>PcreMatch</key><src>~ac/lib/string/regexp.f</src><comment><en>PCRE wrapper</en><ru>PCRE обёртка</ru></comment></lib>
-<lib><key>BregexpMatch</key><src>~ac/lib/string/bregexp/bregexp.f</src><comment><en>bregexp.dll wrapper</en><ru>bregexp.dll обёртка</ru></comment></lib>
+<lib><key>PcreMatch</key><src>~ac/lib/string/regexp.f</src><comment><en>PCRE wrapper</en><ru>PCRE обёртка</ru></comment>
+ <link rel="wrap" href="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/">pcre.dll</link>
+</lib>
+<lib><key>BregexpMatch</key><src>~ac/lib/string/bregexp/bregexp.f</src><comment><en>bregexp.dll wrapper</en><ru>bregexp.dll обёртка</ru></comment>
+ <link rel="wrap" href="http://www.hi-ho.ne.jp/babaq/eng/bregexp.html">bregexp.dll</link>
+</lib>
 <lib><key>UPPERCASE</key><src>~ac/lib/string/uppercase.f</src><comment><en>uppercase conversion</en><ru>перевод в верхний регистр</ru></comment></lib>
 <lib><key>COMPARE-U</key><src>~ac/lib/string/compare-u.f</src><comment><en>case-ignorant comparison</en><ru>сравнение без учёта регистра</ru></comment></lib>
 <lib><key>GetParam</key><src>~ac/lib/string/get_params.f</src><comment><en>URL-parameters string parser</en><ru>рахбор строки URL-параметров</ru></comment></lib>
@@ -252,12 +264,19 @@ Requirements :
 
 <section id="xml">
 <name><en>XML</en></name>
-<lib><key>XML_Evaluate</key><src>~ac/lib/lin/xml/expat.f</src><comment><en>XML via libexpat</en></comment></lib>
+<lib><key>XML_Evaluate</key><src>~ac/lib/lin/xml/expat.f</src><comment><en>XML via libexpat</en></comment>
+ <link rel="wrap" href="http://sourceforge.net/projects/expat/">libexpat.dll</link>
+</lib>
 <lib>
  <key>XML_READ_DOC</key><src>~ac/lib/lin/xml/xml.f</src><comment><en>XML via libxml2 </en></comment>
  <link rel="wrap" href="http://zlatkovic.com/pub/libxml/">libxml2.dll</link>
 </lib>
-<lib><key>XSLT</key><src>~ac/lib/lin/xml/xslt.f</src><comment><en>XSLT via libxslt </en></comment></lib>
+<lib><key>XSLT</key><src>~ac/lib/lin/xml/xslt.f</src><comment><en>XSLT via libxslt </en></comment>
+ <link rel="wrap" href="http://zlatkovic.com/pub/libxml/">libxslt.dll</link>
+</lib>
+<lib><key>Tidy</key><src>~ac/lib/lin/tidy/tidy.f</src><comment><en>Wrapper for tidy.dll</en></comment>
+ <link rel="wrap" href="http://dev.int64.org/tidy.html">tidy.dll</link>
+</lib>
 </section>
 
 <section id="oop">
@@ -275,7 +294,7 @@ Requirements :
 <lib><key>ForEach-Word</key><src>~pinka/lib/Words.f</src><comment><en>ForEach-Word</en></comment></lib>
 <lib><key>QuickSWL-Support</key><src>~pinka/spf/quick-swl2.f</src><comment><en>Quick Search Wordlist (due to hashing)</en><ru>быстрый поиск по словарю (за счёт хэширования)</ru></comment></lib>
 <lib><key>DLOPEN</key><src>~ac/lib/ns/dlopen.f</src><comment><en>unix-compatible way of loading WindowsDLL/UnixSO</en><ru>unix-совместимый способ подключения WindowsDLL/UnixSO</ru></comment></lib>
-<other><src>~ac/lib/ns/</src><comment><en>mapping external tree structures on forth wordlist</en><ru>отображение внешних древовидных структур на форт-словарь</ru></comment></other>
+<other><src>~ac/lib/ns/</src><comment><en>mapping external tree structures on forth wordlist (XML, files and dirs, sqlite)</en><ru>отображение внешних древовидных структур на форт-словарь (на XML, на структуру файлов, на БД sqlite)</ru></comment></other>
 </section>
 
 <section id="mem">
@@ -294,8 +313,9 @@ Requirements :
 <section id="misc">
 <name><en>Miscellaneous</en><ru>Разное</ru></name>
 <lib><key>CONST</key><src>~micro/lib/const/const.f</src><comment><en>constants enumeration</en><ru>перечисление констант</ru></comment></lib>
-<lib><key>ENUM</key><src>~ygrek/lib/enum.f</src><comment><en>enumerating similar words</en><ru>перечисление подобных слов</ru></comment></lib>
+<lib><key>ENUM</key><src>~ygrek/lib/enum.f</src><comment><en>enumerate groups of similar words</en><ru>перечисление групп подобных слов</ru></comment></lib>
 <lib><key>enqueueNOTFOUND</key><src>~pinka/samples/2006/core/trans/nf-ext.f</src><comment><en>extending translators (NOTFOUND)</en><ru>расширение транслятора (NOTFOUND)</ru></comment></lib>
+<lib><key>StringToCB</key><src>~day/lib/clipboard.f</src><comment><en>read/write strings from Windows-Clipboard</en><ru>Чтение/запись строковых значений из буфера обмена Windows</ru></comment></lib>
 </section>
 
 
@@ -303,9 +323,11 @@ Requirements :
 <name><en>Encodings</en><ru>Кодировки</ru></name>
 <lib><key>UNICODE>UTF8</key><src>~ac/lib/win/com/com.f</src><comment><en>convertation from Unicode (2 byte) to UTF-8 and reverse</en><ru>преобразование из Unicode (2 байта) в UTF-8 и обратно</ru></comment></lib>
 <lib><key>unicode></key><src>~day/lib/unicode.f</src><comment><en>convertation from Unicode to ANSI and reverse</en><ru>преобразование из Unicode в ANSI и обратно</ru></comment></lib>
-<lib><key>utf8Decode</key><src>~profit/lib/utf8.f</src><comment><en>covertation from UTF-8 to Unicode (2 byte). Doesn't use WINAPI's functions</en><ru>преобразование из UTF-8 в Unicode (2 байта), без использования WINAPI функций</ru></comment></lib>
+<lib><key>utf8Decode</key><src>~profit/lib/utf8.f</src><comment><en>convertation from UTF-8 to Unicode (2 byte). Doesn't use WINAPI's functions</en><ru>преобразование из UTF-8 в Unicode (2 байта), без использования WINAPI функций</ru></comment></lib>
 <lib><key>debase64</key><src>~ac/lib/string/conv.f</src><comment><en>base64, win-koi, urlencode etc.</en><ru>base64, win-koi, urlencode, etc</ru></comment></lib>
-<lib><key>iconv:</key><src>~ygrek/lib/iconv.f</src><comment><en>libiconv wrapper</en><ru>libiconv обёртка</ru></comment></lib>
+<lib><key>iconv:</key><src>~ygrek/lib/iconv.f</src><comment><en>libiconv wrapper</en><ru>обёртка для libiconv</ru></comment>
+ <link rel="wrap" href="http://www.zlatkovic.com/pub/libxml/">libiconv.dll</link>
+</lib>
 </section>
 
 </spf_devel>
