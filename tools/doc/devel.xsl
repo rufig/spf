@@ -151,6 +151,14 @@ pre, code { background : #EEEEF4}</xsl:text>
   </xsl:element>
 </xsl:template>
 
+<!-- links in wrapper libs -->
+<xsl:template match="link[@rel='wrap' or @rel='doc']">
+  <xsl:element name="a">
+    <xsl:copy-of select='@href' />
+    <xsl:apply-templates />
+  </xsl:element>
+</xsl:template>
+
 <!-- select <en> or <ru> depending on $lang param -->
 <xsl:template name="lang">
   <xsl:apply-templates select="(*[name() = $lang] | en )[last()]/node() " />
@@ -168,4 +176,3 @@ pre, code { background : #EEEEF4}</xsl:text>
 </xsl:template>
 
 </xsl:stylesheet>
-
