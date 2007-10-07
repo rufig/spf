@@ -171,7 +171,14 @@ pre, code { background : #EEEEF4}</xsl:text>
 <xsl:template match="link[@rel='doc']">
   <xsl:element name="a">
     <xsl:copy-of select='@href' />
-    <img src="images/doc.png"></img>
+    <xsl:choose>
+      <xsl:when test="@rel='doc'">
+      <img src="images/doc.png"></img>
+      </xsl:when>
+      <xsl:when test="@rel='wrap'">
+      <img src="images/wrap.png"></img>
+      </xsl:when>
+    </xsl:choose>  
     <xsl:apply-templates />
   </xsl:element>
 </xsl:template>
