@@ -172,6 +172,7 @@ pre, code { background : #EEEEF4}</xsl:text>
   <xsl:element name="a">
     <xsl:copy-of select='@href' />
   <xsl:element name="img">
+  <xsl:attribute name="border">0</xsl:attribute>
   <xsl:attribute name="style">vertical-align:bottom; margin-left:0.5em;</xsl:attribute>
   <xsl:attribute name="src">
     <xsl:choose>
