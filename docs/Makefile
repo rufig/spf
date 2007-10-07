@@ -14,8 +14,8 @@ usage=local
 ifeq ($(host),win)
 output=type
 delete=del
-tools_path="..\\tools\\doc\\"
-parts_path="$(tools_path)parts\\"
+tools_path=..\\tools\\doc\\
+parts_path=$(tools_path)parts\\
 else
 output=cat
 delete=rm -f
@@ -41,7 +41,7 @@ clean_mark:
 %.html: css = intro.md.css
 
 %.md: %.mdt
-	spf ../tools/markdown/std.f S" $<" REPLACE S" $@" OCCUPY BYE
+	spf ../tools/doc/std.f S" $<" REPLACE S" $@" OCCUPY BYE
 
 devel.en.html: $(tools_path)devel.xsl devel.xml
 	xsltproc --stringparam lang en --stringparam usage $(usage) $^ > $@
