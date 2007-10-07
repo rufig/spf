@@ -178,7 +178,10 @@ pre, code { background : #EEEEF4}</xsl:text>
       <xsl:when test="@rel='wrap'">
       <img src="images/wrap.png"></img>
       </xsl:when>
-    </xsl:choose>  
+      <xsl:when test="@rel='example'">
+      <img src="images/example.png"></img>
+      </xsl:when>
+    </xsl:choose>
     <xsl:apply-templates />
   </xsl:element>
 </xsl:template>
