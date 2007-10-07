@@ -97,7 +97,9 @@ Requirements :
 <lib><key>{</key><src>lib/ext/locals.f</src><comment><en>local variables</en><ru>локальные переменные</ru></comment></lib>
 <lib><key>LAMBDA{</key><src>~pinka/lib/lambda.f</src><comment><en>:NONAME but in the compilation state</en><ru>:NONAME в режиме компиляции</ru></comment></lib>
 <lib><key>(:</key><src>~yz/lib/inline.f</src><comment><en>lambda analogue</en><ru>аналог лямбда-конструкции</ru></comment></lib>
-<lib><key>CONT</key><src>~profit/lib/bac4th.f</src><comment><en>backtracking, see description in <src>~mlg/index.html#bacforth</src></en><ru>перебор с возвратами, см. описание в <src>~mlg/index.html#bacforth</src></ru></comment></lib>
+<lib><key>CONT</key><src>~profit/lib/bac4th.f</src><comment><en>backtracking</en><ru>перебор с возвратами</ru></comment>
+  <link rel="doc" href="~mlg/index.html#bacforth">~mlg/index.html#bacforth</link>
+</lib>  
 </section>
 
 <section id="debug">
@@ -284,7 +286,9 @@ Requirements :
 <lib><key>CLASS:</key><src>~day/joop/oop.f</src><comment><en>just oop with great pile of examples</en><ru>just oop с кучей примеров</ru></comment></lib>
 <lib><key>CLASS:</key><src>~af/mc/microclass.f</src><comment><en>microclass</en></comment></lib>
 <lib><key>CLASS:</key><src>~day/mc/microclass.f</src><comment><en>microclass</en></comment></lib>
-<lib><key>CLASS</key><src>~day/hype3/hype3.f</src><comment><en>Hype 3, including reference (<src>~day/hype3/reference.pdf</src>)</en><ru>Hype3, с руководством пользователя (<src>~day/hype3/reference.pdf</src>)</ru></comment></lib>
+<lib><key>CLASS</key><src>~day/hype3/hype3.f</src><comment><en>Hype 3</en></comment>
+  <link rel="doc" lang="ru" href="~day/hype3/reference.pdf">reference</link>
+</lib>
 </section>
 
 <section id="vocs">
