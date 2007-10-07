@@ -189,8 +189,7 @@ pre, code { background : #EEEEF4}</xsl:text>
 
 <!-- select <en> or <ru> depending on $lang param -->
 <xsl:template name="lang">
-<xsl:param name='node' select='.' />
-  <xsl:apply-templates select="($node/*[name() = $lang] | en )[last()]/node() " />
+ <xsl:apply-templates select="(*[name() = $lang] | en )[last()]/node() " />
 </xsl:template>
 
 <!-- convert links -->
