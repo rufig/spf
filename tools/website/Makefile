@@ -10,11 +10,9 @@
 
 # 24 - this is random minute
 
-#path=/home/groups/s/sp/spf
-#spf=$(path)/spf
-#web=$(path)/htdocs
-web=~/work/forth/spf/tools/website/qu
-spf=../..
+path=/home/groups/s/sp/spf
+spf=$(path)/spf
+web=$(path)/htdocs
 
 target: www
 
