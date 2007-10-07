@@ -168,7 +168,7 @@ pre, code { background : #EEEEF4}</xsl:text>
 </xsl:template>
 
 <!-- links -->
-<xsl:template match="link[@rel='doc']">
+<xsl:template match="link">
   <xsl:element name="a">
     <xsl:copy-of select='@href' />
     <xsl:choose>
@@ -179,14 +179,6 @@ pre, code { background : #EEEEF4}</xsl:text>
       <img src="images/wrap.png"></img>
       </xsl:when>
     </xsl:choose>  
-    <xsl:apply-templates />
-  </xsl:element>
-</xsl:template>
-
-<xsl:template match="link[@rel='wrap']">
-  <xsl:element name="a">
-    <xsl:copy-of select='@href' />
-    <img src="images/wrap.png"></img>
     <xsl:apply-templates />
   </xsl:element>
 </xsl:template>
