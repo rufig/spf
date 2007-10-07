@@ -117,6 +117,22 @@ pre, code { background : #EEEEF4}</xsl:text>
             <xsl:apply-templates select="lib | other"/>
         </xsl:element>
     </xsl:for-each>
+    
+    <!-- footer with copyrights -->
+    
+    <hr />
+    
+    <p><em>
+    <xsl:choose>
+        <xsl:when test="$lang='en'">
+        <xsl:text>Used icons from </xsl:text>
+        </xsl:when>
+        <xsl:when test="$lang='ru'">
+        <xsl:text>Использованы иконки </xsl:text>
+        </xsl:when>
+    </xsl:choose>
+    <a href="http://tango.freedesktop.org/Tango_Icon_Library">Tango project</a>
+    </em></p>
 
     </td></tr>
     </table>
@@ -151,10 +167,19 @@ pre, code { background : #EEEEF4}</xsl:text>
   </xsl:element>
 </xsl:template>
 
-<!-- links in wrapper libs -->
-<xsl:template match="link[@rel='wrap' or @rel='doc']">
+<!-- links -->
+<xsl:template match="link[@rel='doc']">
   <xsl:element name="a">
     <xsl:copy-of select='@href' />
+    <img src="images/doc.png"></img>
+    <xsl:apply-templates />
+  </xsl:element>
+</xsl:template>
+
+<xsl:template match="link[@rel='wrap']">
+  <xsl:element name="a">
+    <xsl:copy-of select='@href' />
+    <img src="images/wrap.png"></img>
     <xsl:apply-templates />
   </xsl:element>
 </xsl:template>
