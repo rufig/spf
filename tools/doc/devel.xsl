@@ -18,14 +18,12 @@
     <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf8"/>
-        <xsl:choose>
-            <xsl:when test="$lang='en'">
-            <title>SP-Forth: additional libraries</title>
-            </xsl:when>
-            <xsl:when test="$lang='ru'">
-            <title>SP-Forth: дополнительные библиотеки</title>
-            </xsl:when>
-        </xsl:choose>
+<xsl:element name='title'>
+<xsl:call-template name='lang'>
+<xsl:with-param name='node'>
+<en><xsl:text>SP-Forth: additional libraries</xsl:text></en>
+<ru><xsl:text>SP-Forth: дополнительные библиотеки</xsl:text></ru>
+</xsl:with-param></xsl:call-template></xsl:element>
         <style type="text/css">
         <xsl:text>body {background:white;}
 * {font-family: arial, verdana, sans-serif}
@@ -48,23 +46,21 @@ pre, code { background : #EEEEF4}</xsl:text>
     
     <h1>
     <a href="readme.{$lang}.html">SP-Forth</a>
-    <xsl:choose>
-        <xsl:when test="$lang='en'"><xsl:text>: Additional libraries</xsl:text></xsl:when>
-        <xsl:when test="$lang='ru'"><xsl:text>: Дополнительные библиотеки</xsl:text></xsl:when>
-    </xsl:choose>
+<xsl:call-template name='lang'>
+<xsl:with-param name='node'>
+<en><xsl:text>: Additional libraries</xsl:text></en>
+<ru><xsl:text>: Дополнительные библиотеки</xsl:text></ru>
+</xsl:with-param></xsl:call-template>
     </h1>
     
     <p><small><xsl:value-of select="meta/date"/></small></p>
 
     <p><em>
-    <xsl:choose>
-        <xsl:when test="$lang='en'">
-        <xsl:text>REQUIRE is a forth word, which loads library; unnecessary text is commented out, so you can use this list as a forth code to include libs :)</xsl:text>
-        </xsl:when>
-        <xsl:when test="$lang='ru'">
-        <xsl:text>REQUIRE это слово подключающее либу, всё лишнее закомментировано, так что можно использовать этот список как форт код при подключении либ :)</xsl:text>
-        </xsl:when>
-    </xsl:choose>
+<xsl:call-template name='lang'>
+<xsl:with-param name='node'>
+<en><xsl:text>REQUIRE is a forth word, which loads library; unnecessary text is commented out, so you can use this list as a forth code to include libs :)</xsl:text></en>
+<ru><xsl:text>REQUIRE это слово подключающее либу, всё лишнее закомментировано, так что можно использовать этот список как форт код при подключении либ :)</xsl:text></ru>
+</xsl:with-param></xsl:call-template>
     </em></p>
     
     <hr/>
@@ -123,14 +119,10 @@ pre, code { background : #EEEEF4}</xsl:text>
     <hr />
     
     <p><em>
-    <xsl:choose>
-        <xsl:when test="$lang='en'">
-        <xsl:text>Used icons from </xsl:text>
-        </xsl:when>
-        <xsl:when test="$lang='ru'">
-        <xsl:text>Использованы иконки </xsl:text>
-        </xsl:when>
-    </xsl:choose>
+<xsl:call-template name='lang'>
+<xsl:with-param name='node'>
+<en><xsl:text>Used icons from </xsl:text></en><ru><xsl:text>Использованы иконки </xsl:text></ru>
+</xsl:with-param></xsl:call-template>
     <a href="http://tango.freedesktop.org/Tango_Icon_Library">Tango project</a>
     </em></p>
 
@@ -171,24 +163,34 @@ pre, code { background : #EEEEF4}</xsl:text>
 <xsl:template match="link">
   <xsl:element name="a">
     <xsl:copy-of select='@href' />
+  <xsl:element name="img">
+  <xsl:attribute name="style">vertical-align:bottom; margin-left:0.5em;</xsl:attribute>
+  <xsl:attribute name="src">
     <xsl:choose>
-      <xsl:when test="@rel='doc'">
-      <img src="images/doc.png"></img>
-      </xsl:when>
-      <xsl:when test="@rel='wrap'">
-      <img src="images/wrap.png"></img>
-      </xsl:when>
-      <xsl:when test="@rel='example'">
-      <img src="images/example.png"></img>
-      </xsl:when>
-    </xsl:choose>
+      <xsl:when test="@rel='doc'">images/doc.png</xsl:when>
+      <xsl:when test="@rel='wrap'">images/wrap.png</xsl:when>
+      <xsl:when test="@rel='example'">images/example.png</xsl:when>
+    </xsl:choose></xsl:attribute>
+  </xsl:element>
     <xsl:apply-templates />
+    <xsl:if test='string-length(translate(normalize-space()," ",""))=0'>
+<xsl:call-template name='lang'>
+<xsl:with-param name='node'>
+    <xsl:choose>
+      <xsl:when test="@rel='doc'"><ru>документация</ru><en>documentation</en></xsl:when>
+      <xsl:when test="@rel='wrap'"><ru>библиотека</ru><en>library</en></xsl:when>
+      <xsl:when test="@rel='example'"><ru>пример</ru><en>example</en></xsl:when>
+    </xsl:choose>
+</xsl:with-param>
+</xsl:call-template>
+    </xsl:if>
   </xsl:element>
 </xsl:template>
 
 <!-- select <en> or <ru> depending on $lang param -->
 <xsl:template name="lang">
-  <xsl:apply-templates select="(*[name() = $lang] | en )[last()]/node() " />
+<xsl:param name='node' select='.' />
+  <xsl:apply-templates select="($node/*[name() = $lang] | en )[last()]/node() " />
 </xsl:template>
 
 <!-- convert links -->
