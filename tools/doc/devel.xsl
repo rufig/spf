@@ -169,6 +169,8 @@ pre, code { background : #EEEEF4}</xsl:text>
 
 <!-- links -->
 <xsl:template match="link">
+ <!-- show link only for matching @lang or if no @lang at all -->
+ <xsl:if test="@lang=$lang or string(@lang)=''">
   <xsl:element name="a">
     <xsl:copy-of select='@href' />
   <xsl:element name="img">
@@ -205,6 +207,7 @@ pre, code { background : #EEEEF4}</xsl:text>
     </xsl:choose>
     </xsl:if>
   </xsl:element>
+ </xsl:if> 
 </xsl:template>
 
 <!-- select <en> or <ru> depending on $lang param -->
