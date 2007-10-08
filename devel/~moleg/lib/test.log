@@ -44,6 +44,7 @@ testing: devel\~moleg\lib\strings\messages.f                           passed
 testing: devel\~moleg\lib\strings\sconst.f                             passed
 testing: devel\~moleg\lib\strings\string.f                             passed
 testing: devel\~moleg\lib\strings\subst.f                              passed
+testing: devel\~moleg\lib\strings\utf8.f                               passed
 testing: devel\~moleg\lib\struct\struct.f                              passed
 testing: devel\~moleg\lib\drafts\vars.f                                passed
 testing: devel\~moleg\lib\drafts\mem.f                                 passed
