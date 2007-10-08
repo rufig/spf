@@ -26,7 +26,7 @@ REQUIRE ShellGetDir ~ygrek/lib/win/shell.f
     2DROP
 
     HKEY_CLASSES_ROOT EK !
-    S" " S" spf\Shell\open\command" StrValue DUP IF EXIT THEN
+    S" " S" spf\Shell\open\command" StrValue DUP IF CUT-PATH 2DUP + 0 SWAP C! EXIT THEN
     2DROP
 
     DefaultPath ;
