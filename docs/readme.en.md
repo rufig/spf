@@ -4,7 +4,7 @@ SP-Forth for Windows
 
 <title>SP-Forth for Windows</title>
 
-<!-- Translated from readme.ru.md (rev. 1.5) -->
+<!-- Translation in sync with readme.ru.md r1.6 -->
 
 ABOUT
 -----
@@ -13,9 +13,7 @@ SP-Forth is a reliable and comfortable forth system producing optimized native
 code for the Intel x86 processors. It runs on MS Windows 9x, NT
 (Linux and Kolibri OS ports exist).
 
-SP-Forth is free software, you can redistribute and/or modify it under the
-terms of the GNU General Public License. See
-[docs/license/gpl.en.txt](license/gpl.en.txt) for details.
+SP-Forth is free software, see COPYRIGHT section for more information.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
@@ -123,6 +121,26 @@ DEVELOPMENT
 *    Russian Forth Interest Group :
 
      <http://www.forth.org.ru>
+     
+
+COPYRIGHT
+---------
+
+You can modify and/or redistribute the core SP-Forth system (i.e. all files in `src`) 
+under the terms of GNU General Public License. See [docs/license/gpl.en.txt](license/gpl.en.txt) 
+for details. All other files, including contrubuted code in `devel`, are by default 
+(if not stated anything else) licensed under GNU LGPL. 
+
+Shortly speaking it means that :
+
+*    You are prohibited to modify core SPF system and distribute the result of this modification without providing full sources.
+
+*    You are allowed to compile and distribute closed-source projects with original SPF.
+
+*    You are allowed to use unmodified code from `devel` in combination with your own code in closed-source projects.
+
+*    You are obliged to contribute back your modifications to original code from `devel` if you modified and used it in closed-source project, 
+     but you may leave your own code closed.
 
 
 AUTHORS
