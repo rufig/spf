@@ -17,3 +17,28 @@ ACCELERATORS_1 ACCELERATORS
  VK_TAB, CtrlTAB, VIRTKEY, CONTROL
 }
 
+1 VERSIONINFO
+ FILEVERSION 0, 6, 0, 13
+ PRODUCTVERSION 0, 6, 0, 13
+ FILEFLAGSMASK 0x3f
+ FILEOS 0x4
+ FILETYPE 0x1
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    BEGIN
+      VALUE "CompanyName", "Open source project at http://spf.sf.net\0"
+      VALUE "FileDescription", "SP-FORTH 4.0 win console\0"
+      VALUE "FileVersion", "0.6.0.13\0"
+      VALUE "InternalName", "spf4wc\0"
+      VALUE "OriginalFilename", "spf4wc.exe\0"
+      VALUE "ProductName", "spf4wc\0"
+      VALUE "ProductVersion", "0.6.13\0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1252
+  END
+END

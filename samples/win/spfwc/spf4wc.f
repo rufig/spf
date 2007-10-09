@@ -1,7 +1,6 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
 
-\ WIN console ver 0.6.12
+\ WIN console ver 0.6.13
 \ For spf4
 
 \ Based on -
@@ -1035,7 +1034,7 @@ EXPORT
     IDC_ARROW 0 LoadCursor      CONS_ hCursor       !
     0                           CONS_ hbrBackground !
     0                           CONS_ lpszMenuName  !
-    Z" SP-FORTH 4.0 win console ver 0.6.12" CONS_ lpszClassName !
+    Z" SP-FORTH 4.0 win console ver 0.6.13" CONS_ lpszClassName !
   }}
   CONS_  RegisterClass DROP
 
