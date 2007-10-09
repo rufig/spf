@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding="utf-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0" >
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 <xsl:output encoding="utf-8" method="html" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN"/>
 
 <!-- $Id$ -->
@@ -170,44 +170,47 @@ pre, code { background : #EEEEF4}</xsl:text>
 <!-- links -->
 <xsl:template match="link">
  <!-- show link only for matching @lang or if no @lang at all -->
- <xsl:if test="@lang=$lang or string(@lang)=''">
-  <xsl:element name="a">
-    <xsl:copy-of select='@href' />
-  <xsl:element name="img">
-  <xsl:attribute name="border">0</xsl:attribute>
-  <xsl:attribute name="style">vertical-align:bottom; margin-left:0.5em;</xsl:attribute>
-  <xsl:attribute name="src">
-    <xsl:choose>
-      <xsl:when test="@rel='doc'">images/doc.png</xsl:when>
-      <xsl:when test="@rel='wrap'">images/wrap.png</xsl:when>
-      <xsl:when test="@rel='example'">images/example.png</xsl:when>
-    </xsl:choose></xsl:attribute>
-  </xsl:element>
-    <xsl:apply-templates />
-    <xsl:if test='string-length(translate(normalize-space()," ",""))=0'>
-    <xsl:choose>
-      <xsl:when test="@rel='doc'">
+  <xsl:if test="@lang=$lang or string(@lang)=''">
+    <xsl:element name="a">
+      <xsl:attribute name="href">
+        <xsl:call-template name="addr-resolution"><xsl:with-param name='adr' select='@href'/></xsl:call-template>
+      </xsl:attribute>
+      <xsl:element name="img">
+      <xsl:attribute name="border">0</xsl:attribute>
+      <xsl:attribute name="style">vertical-align:bottom; margin-left:0.5em;</xsl:attribute>
+      <xsl:attribute name="src">
         <xsl:choose>
-          <xsl:when test="$lang='en'"><xsl:text>documentation</xsl:text></xsl:when>
-          <xsl:when test="$lang='ru'"><xsl:text>документация</xsl:text></xsl:when>
-       </xsl:choose>
-      </xsl:when>
-      <xsl:when test="@rel='wrap'">
-        <xsl:choose>
-          <xsl:when test="$lang='en'"><xsl:text>library</xsl:text></xsl:when>
-          <xsl:when test="$lang='ru'"><xsl:text>библиотека</xsl:text></xsl:when>
+          <xsl:when test="@rel='doc'">images/doc.png</xsl:when>
+          <xsl:when test="@rel='wrap'">images/wrap.png</xsl:when>
+          <xsl:when test="@rel='example'">images/example.png</xsl:when>
         </xsl:choose>
-      </xsl:when>
-      <xsl:when test="@rel='example'">
+      </xsl:attribute>
+      </xsl:element>
+      <xsl:apply-templates />
+      <xsl:if test="string(translate(normalize-space(),' ',''))=''">
         <xsl:choose>
-          <xsl:when test="$lang='en'"><xsl:text>example</xsl:text></xsl:when>
-          <xsl:when test="$lang='ru'"><xsl:text>пример</xsl:text></xsl:when>
+          <xsl:when test="@rel='doc'">
+            <xsl:choose>
+              <xsl:when test="$lang='en'"><xsl:text>documentation</xsl:text></xsl:when>
+              <xsl:when test="$lang='ru'"><xsl:text>документация</xsl:text></xsl:when>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:when test="@rel='wrap'">
+            <xsl:choose>
+              <xsl:when test="$lang='en'"><xsl:text>library</xsl:text></xsl:when>
+              <xsl:when test="$lang='ru'"><xsl:text>библиотека</xsl:text></xsl:when>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:when test="@rel='example'">
+            <xsl:choose>
+              <xsl:when test="$lang='en'"><xsl:text>example</xsl:text></xsl:when>
+              <xsl:when test="$lang='ru'"><xsl:text>пример</xsl:text></xsl:when>
+            </xsl:choose>
+          </xsl:when>
         </xsl:choose>
-      </xsl:when>
-    </xsl:choose>
-    </xsl:if>
+      </xsl:if>
   </xsl:element>
- </xsl:if> 
+</xsl:if>
 </xsl:template>
 
 <!-- select <en> or <ru> depending on $lang param -->
@@ -217,13 +220,23 @@ pre, code { background : #EEEEF4}</xsl:text>
 
 <!-- convert links -->
 <xsl:template match="src">
-  <xsl:choose><xsl:when test="$usage='web'">
-    <a href="http://forth.org.ru/{.}"><xsl:value-of select="."/></a>
-  </xsl:when><xsl:when test="starts-with(., '~')">
-    <a href="../devel/{.}"><xsl:value-of select="."/></a>
-  </xsl:when><xsl:otherwise>
-    <a href="../{.}"><xsl:value-of select="."/></a>
-  </xsl:otherwise></xsl:choose>
+    <xsl:element name='a'>
+      <xsl:attribute name='href'>
+        <xsl:call-template name="addr-resolution"><xsl:with-param name='adr' select='.'/></xsl:call-template>
+      </xsl:attribute>
+      <xsl:value-of select="."/>
+    </xsl:element>
+</xsl:template>
+
+
+<!-- convert links' addresses -->
+<xsl:template name="addr-resolution">
+<xsl:param name='adr'/>
+  <xsl:choose>
+    <xsl:when test="$usage='web' or starts-with($adr, 'http://') or starts-with($adr, 'ftp://')"><xsl:value-of select="$adr"/></xsl:when>
+    <xsl:when test="starts-with($adr, '~')"><xsl:value-of select="concat('../devel/',$adr)"/></xsl:when>
+    <xsl:otherwise><xsl:value-of select="concat('../',$adr)"/></xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>
