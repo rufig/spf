@@ -11,8 +11,8 @@ REQUIRE axt=> ~profit/lib/bac4th-closures.f
 \ Если xt возвращает 0 - элемент удаляется из списка (память занимаемая самой ячейкой освобождается)
 \ Иначе остаётся
 \ Возвращается результирующий список
+\ xt: ( node -- ? ) \ TRUE - remain, FALSE - free node
 : filter-this ( xt node1 -- node2 )
-  ( xt: node -- ? ) \ TRUE - remain, FALSE - free node
    lst(
     BEGIN
      DUP empty? 0=
@@ -57,7 +57,7 @@ WARNING 0!
 
 WARNING !
 
-\ Вариация с использованием closure
+\ Вариация с использованием динамического xt
 \ тут используем тот факт что axt=> работает на чистом стеке то есть можно
 \ передавать параметр node в bac4th-вызов и возвращать результат из вызова напрямую на стеке
 : list-remove-all ( val node -- node1 )

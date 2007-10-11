@@ -50,10 +50,10 @@ VECT (print-list)
    ABORT" ??? Bad list" ;
 
 \ –аспечатать список, строковое представление пригодное дл€ восстановление EVALUATE'ом
-\ ¬ момент выполнени€ EVALUATE потребуютс€ слова
-\ " из ~ac/lib/str5.f
-\ lst( и компани€ из ~ygrek/lib/list/ext.f
-\ PARSE-DATA и >STR из этой либы
+\ ¬ момент выполнени€ EVALUATE потребуютс€ слова 
+\ >STR из ~ac/lib/str5.f
+\ lst( % %l %s )lst из ~ygrek/lib/list/ext.f
+\ PARSE-DATA из этой либы
 : print-list ( node -- )
    ." lst( "
    BEGIN
