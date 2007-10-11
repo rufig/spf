@@ -228,15 +228,23 @@ pre, code { background : #EEEEF4}</xsl:text>
     </xsl:element>
 </xsl:template>
 
-
 <!-- convert links' addresses -->
 <xsl:template name="addr-resolution">
 <xsl:param name='adr'/>
-  <xsl:choose>
-    <xsl:when test="$usage='web' or starts-with($adr, 'http://') or starts-with($adr, 'ftp://')"><xsl:value-of select="$adr"/></xsl:when>
-    <xsl:when test="starts-with($adr, '~')"><xsl:value-of select="concat('../devel/',$adr)"/></xsl:when>
-    <xsl:otherwise><xsl:value-of select="concat('../',$adr)"/></xsl:otherwise>
-  </xsl:choose>
+<xsl:choose>
+    <xsl:when test="starts-with($adr, 'http://') or starts-with($adr, 'ftp://')">
+        <xsl:value-of select="$adr"/>
+    </xsl:when>
+    <xsl:when test="$usage='web'">
+        <xsl:value-of select="concat('http://forth.org.ru/',$adr)"/>
+    </xsl:when>
+    <xsl:otherwise>
+        <xsl:choose> 
+            <xsl:when test="starts-with($adr, '~')"><xsl:value-of select="concat('../devel/',$adr)"/></xsl:when>
+            <xsl:otherwise><xsl:value-of select="concat('../',$adr)"/></xsl:otherwise>
+        </xsl:choose>
+    </xsl:otherwise>
+</xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>
