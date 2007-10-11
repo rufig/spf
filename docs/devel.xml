@@ -310,7 +310,7 @@ Requirements :
 <lib><key>ALLOCATE2</key><src>~pinka/spf/mem2.f</src><comment><en>switching memory words for process and thread heap</en><ru>слова для переключение памяти процсса и потока</ru></comment></lib>
 <lib><key>LoadDelphiMM</key><src>~ss/lib/borlndmm.f</src><comment><en>Borland memory manager</en><ru>менеджер памяти Borland</ru></comment></lib>
 <lib><key>INIT-TASK-VALUES</key><src>~ss/lib/task-values.f</src><comment><en>global thread variables</en><ru>глобальные переменные потока</ru></comment></lib>
-<lib><key>PROTECT-RETURN-STACK</key><src>~ss/ext/stack-quard.f</src><comment><en>protecting return stack from erasing with data stack</en><ru>защита стека возвратов от затирания стеком данных</ru></comment></lib>
+<lib><key>PROTECT-RETURN-STACK</key><src>~ss/ext/stack-guard.f</src><comment><en>protecting return stack from erasing with data stack</en><ru>защита стека возвратов от затирания стеком данных</ru></comment></lib>
 <lib><key>GMEM</key><src>~yz/lib/gmem.f</src><comment><en>global memory shareable between threads</en><ru>глобальная память разделяемая между потоками</ru></comment></lib>
 </section>
 
