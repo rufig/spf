@@ -150,7 +150,7 @@ VARIABLE   &INTERPRET
 : OK1
   STATE @ 0=
   IF
-    DEPTH 6 < IF
+    DEPTH 6 U< IF
                  DEPTH IF ."  Ok ( " DEPTH .SN  ." )" CR
                        ELSE ."  Ok" CR
                        THEN
