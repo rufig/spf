@@ -27,10 +27,11 @@
             </xsl:when>
         </xsl:choose>
         <style type="text/css">
-        <xsl:text>body {background:white;}
-* {font-family: arial, verdana, sans-serif}
-code {font-family: 'Lucida Console', 'Courier New', monospace}
-pre, code { background : #EEEEF4}</xsl:text>
+            body {background:white;}
+            * {font-family: arial, verdana, sans-serif}
+            code {font-family: 'Lucida Console', 'Courier New', monospace}
+            pre, code { background : #EEEEF4}
+            img.icon { vertical-align:bottom; margin-left:0.5em; margin-right:0.2em; border:0; }
         </style>
     </head>
     <body>
@@ -175,17 +176,7 @@ pre, code { background : #EEEEF4}</xsl:text>
       <xsl:attribute name="href">
         <xsl:call-template name="addr-resolution"><xsl:with-param name='adr' select='@href'/></xsl:call-template>
       </xsl:attribute>
-      <xsl:element name="img">
-      <xsl:attribute name="border">0</xsl:attribute>
-      <xsl:attribute name="style">vertical-align:bottom; margin-left:0.5em;</xsl:attribute>
-      <xsl:attribute name="src">
-        <xsl:choose>
-          <xsl:when test="@rel='doc'">images/doc.png</xsl:when>
-          <xsl:when test="@rel='wrap'">images/wrap.png</xsl:when>
-          <xsl:when test="@rel='example'">images/example.png</xsl:when>
-        </xsl:choose>
-      </xsl:attribute>
-      </xsl:element>
+      <img src="images/{@rel}.png" class="icon"/>
       <xsl:apply-templates />
       <xsl:if test="normalize-space()=''">
         <xsl:choose>
