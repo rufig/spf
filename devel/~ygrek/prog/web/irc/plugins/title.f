@@ -24,7 +24,7 @@ MODULE: bot_plugin_title
    2 CURLOPT_MAXREDIRS CURLOPT!
    10 1024 * TO CURL-MAX-SIZE \ maximum download 10K
    GET-FILE-AU
-   DUP STR@ RE" .*<title>(.*)</title>.*" re_match? 
+   DUP STR@ RE" .*<[tT][iI][tT][lL][eE]>(.*)</[tT][iI][tT][lL][eE]>.*" re_match? 
    IF
     1 get-group " Title: {s}" DUP STR@ S-REPLY STRFREE 
    THEN 
