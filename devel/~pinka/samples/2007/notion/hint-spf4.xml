@@ -26,17 +26,12 @@
 
 
 <chapter id="scope"><title>Область видимости при EXPORT</title>
-<p>Пример <pre>
-MODULE: SomethingSupport
-
-INCLUDE core-implementation.f \ provide A
-
+<p>Пример
+<pre>MODULE: SomethingSupport
+  INCLUDE core-implementation.f \ provide A
 EXPORT
-
-: A action-before A action-after ;
-
-: B some-actions A ;
-
+  : A action-before A action-after ;
+  : B some-actions A ;
 ;MODULE
 </pre></p>
 <p>Здесь перекрывается обычный принцип <i>локальности</i>: в слове B будет использованно
