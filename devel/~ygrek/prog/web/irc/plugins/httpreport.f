@@ -14,6 +14,8 @@ TIME&DATE DateTime>Num VALUE last-message-stamp
    message-text byWhites break-string-to-list names-list concat-list TO names-list ;
 
 : sHTTP-REQUEST-DROP ( s -- )
+\   CR ." Requesting : " DUP STR@ TYPE
+   30 CURLOPT_TIMEOUT CURLOPT!
    DUP STR@ GET-FILE STRFREE
        STRFREE ;
 
@@ -45,6 +47,8 @@ MODULE: VOC-IRC-COMMAND
    TIME&DATE DateTime>Num TO last-message-stamp ;
 : NAMREPLY MEMORIZE-NAMES ;
 : ENDOFNAMES REPORT-NAMES ;
+: 353 NAMREPLY ;
+: 366 ENDOFNAMES ;
 
 ;MODULE
 
