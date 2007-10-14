@@ -21,6 +21,7 @@ REQUIRE #N## ~ac/lib/win/date/date-int.f
 REQUIRE %[ ~ygrek/lib/list/all.f
 REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
 REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
+REQUIRE CURLOPT! ~ac/lib/lin/curl/curlopt.f
 
 ' ACCEPT1 TO ACCEPT \ disables autocompletion if present ;)
 
