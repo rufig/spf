@@ -37,7 +37,7 @@ REQUIRE RECORD:        ~yz/lib/record.f
   CURFILE @ ?DUP IF FREE DROP CURFILE 0! THEN
 ;
 
-: include-file { filename-a filename-# \ depth -- ?}
+: include-file { filename-a filename-# \ depth -- ? }
   DEPTH TO depth
   filename-a filename-# ['] INCLUDED CATCH
   ?DUP IF
@@ -474,7 +474,7 @@ WINAPI: GetCurrentDirectoryA  KERNEL32.DLL
   REPEAT 2DROP
 ;
 
-: run-program-in-dir { dir prog args \ [ 15 CELLS ] shexinfo ih -- ?}
+: run-program-in-dir { dir prog args \ [ 15 CELLS ] shexinfo ih -- ? }
   shexinfo init->>
   15 CELLS >>
   0x1000C0 >>  \ see_mask_connectnetdrv see_mask_nocloseprocess 
@@ -488,7 +488,7 @@ WINAPI: GetCurrentDirectoryA  KERNEL32.DLL
   shexinfo ShellExecuteExA DROP ;
 
 : run-program ( prog args -- )
-  { \ [ MAX_PATH ] dir -- ?}
+  { \ [ MAX_PATH ] dir -- ? }
   OVER dir ZMOVE  dir only-dir
   dir -ROT run-program-in-dir 
 ;
@@ -631,7 +631,7 @@ WINAPI: SHGetFileInfoA	       SHELL32.DLL
   DUP file-info-icon ?DUP IF PRESS EXIT THEN
   associated-icon ;
 
-: ?associated-icon-from-a# { a # \ [ MAX_PATH ] s -- 0}
+: ?associated-icon-from-a# { a # \ [ MAX_PATH ] s -- 0 }
   a # s CZMOVE  s ?associated-icon
 ;
 
