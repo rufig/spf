@@ -15,6 +15,7 @@ REQUIRE domain:port ~ygrek/lib/net/domain.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 REQUIRE RTRACE ~ygrek/lib/debug/rtrace.f
+REQUIRE NEW-CS ~pinka/lib/multi/critical.f 
 
 \ MODULE: IRC-CONN
 
@@ -56,6 +57,11 @@ TRUE VALUE ?LOGMSG
 
 \ --------------------------------------------------------
 
+CREATE-CS lsock-cs
+
+: WITH-CS ( xt cs -- ) 
+   >R R@ ENTER-CS CATCH R> LEAVE-CS THROW ;
+
 : ECHO ( a u -- ) TYPE CR ;
 
 : BAD CR TYPE RTRACE ABORT ;
@@ -63,8 +69,9 @@ TRUE VALUE ?LOGMSG
 : BAD" [CHAR] " PARSE POSTPONE SLITERAL POSTPONE (BAD) ; IMMEDIATE
 
 : CMD ( a u -- )
-  ?LOGSEND IF 2DUP ." > " ECHO THEN
-  lsock WriteSocketLine BAD" WriteSocket failed" ;
+   ?LOGSEND IF 2DUP ." > " ECHO THEN
+   LAMBDA{ lsock WriteSocketLine } lsock-cs WITH-CS 
+   BAD" WriteSocket failed" ;
 
 : SCMD ( s -- ) DUP STR@ CMD STRFREE ;
 : DataPending ( sock -- u ) ToRead BAD" ToRead failed!" ;
