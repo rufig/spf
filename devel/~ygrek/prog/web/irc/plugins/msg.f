@@ -79,7 +79,7 @@ MODULE: BOT-COMMANDS
 ;MODULE
 
 MODULE: BOT-COMMANDS-HELP
-: !msg S" !msg <nick> message - bot will send message to <nick> when <nick> will be online" S-REPLY ;
+: !msg S" !msg <nick> message - bot will send message to <nick> when <nick> will join this channel" S-REPLY ;
 ;MODULE
 
 ..: AT-CONNECT load-all-msgs ;..
