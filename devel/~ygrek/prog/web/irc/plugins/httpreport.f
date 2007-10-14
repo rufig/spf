@@ -5,7 +5,12 @@ MODULE: bot_plugin_httpreport
 
 : report-url ( nu tt -- s ) " http://fforum.winglion.ru/irc_out.php?tt={n}&nu={n}" ;
 
+EXPORT
+
 () VALUE names-list
+
+DEFINITIONS
+
 TIME&DATE DateTime>Num VALUE last-message-stamp
 
 : break-string-to-list ( a u -- list ) %[ START{ split-patch DUP ONTRUE 2DUP " {s}" %s }EMERGE ]% ;
@@ -18,6 +23,12 @@ TIME&DATE DateTime>Num VALUE last-message-stamp
    30 CURLOPT_TIMEOUT CURLOPT!
    DUP STR@ GET-FILE STRFREE
        STRFREE ;
+
+EXPORT
+
+VECT GOT-NAMES
+
+DEFINITIONS
 
 : REPORT-NAMES1
    names-list length
@@ -46,7 +57,7 @@ MODULE: VOC-IRC-COMMAND
    PRIVMSG
    TIME&DATE DateTime>Num TO last-message-stamp ;
 : NAMREPLY MEMORIZE-NAMES ;
-: ENDOFNAMES REPORT-NAMES ;
+: ENDOFNAMES GOT-NAMES REPORT-NAMES ;
 : 353 NAMREPLY ;
 : 366 ENDOFNAMES ;
 
