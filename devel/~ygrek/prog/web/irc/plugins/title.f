@@ -19,6 +19,10 @@ MODULE: bot_plugin_title
    1 get-group 
    \ 5 get-group NIP 0= IF " {s}/" STR@ THEN
    2DUP ." Getting url " TYPE CR
+   30 CURLOPT_TIMEOUT CURLOPT! \ timeout
+   TRUE CURLOPT_FOLLOWLOCATION CURLOPT!
+   2 CURLOPT_MAXREDIRS CURLOPT!
+   10 1024 * TO CURL-MAX-SIZE \ maximum download 10K
    GET-FILE-AU
    DUP STR@ RE" .*<title>(.*)</title>.*" re_match? 
    IF
