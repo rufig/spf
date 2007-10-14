@@ -9,6 +9,7 @@ S" ~ygrek/prog/web/irc/plugins/weather.f" INCLUDED
 S" ~ygrek/prog/web/irc/plugins/httpreport.f" INCLUDED
 S" ~ygrek/prog/web/irc/plugins/history.f" INCLUDED
 S" ~ygrek/prog/web/irc/plugins/title.f" INCLUDED
+S" ~ygrek/prog/web/irc/plugins/msg.f" INCLUDED
 
 " exsample" TO nickname
 S" irc.run.net:6669" server!
