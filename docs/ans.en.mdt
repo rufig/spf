@@ -104,8 +104,7 @@ helpful for using non-SPF libraries.
 
   Input line is terminated with the sequence of two characters CRLF (ASCII codes
   hex 0D 0A). `UNIX-LINES` switches to LF (ASCII hex 0x0A), `DOS-LINES` restores
-  default behavior. Internal variable that holds the terminator sequence is
-  LT and the length of the sequence is stored in LTL, thus `LT LTL @ ( a u )`.
+  default behavior. Current input line terminator is `EOLN ( -- a u )`.
 
 * maximum size of a counted string, in characters ({std 3.1.3.4} Counted strings, {std 6.1.2450} WORD); 
 
