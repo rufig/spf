@@ -29,12 +29,10 @@
   <div><xsl:apply-templates/></div>
 </xsl:template>
 
-<xsl:template match="book">
+<xsl:template match="toc">
   <div><h4>Содержание</h4>
-  <ul><xsl:apply-templates mode="toc"/></ul>
+  <ul><xsl:apply-templates mode="toc" select=".."/></ul>
   </div>
-
-  <xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="/">
