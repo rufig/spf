@@ -7,6 +7,7 @@ REQUIRE TESTCASES ~ygrek/lib/testcase.f
 REQUIRE re_match? ~ygrek/lib/re/re.f
 REQUIRE dottify ~ygrek/lib/re/dot.f
 REQUIRE re_search ~ygrek/lib/re/ext.f
+REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 
 \ -----------------------------------------------------------------------
 

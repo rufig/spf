@@ -1,6 +1,7 @@
 \ $Id$
 \ Представление структуры RE в виде dot диаграммы
 
+REQUIRE ANSI-FILE lib/include/ansi-file.f
 REQUIRE re_match? ~ygrek/lib/re/re.f
 REQUIRE DOT-LINK ~ygrek/lib/dot.f
 

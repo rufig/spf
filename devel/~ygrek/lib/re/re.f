@@ -77,21 +77,17 @@
 
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE >= ~profit/lib/logic.f
-REQUIRE ANSI-FILE lib/include/ansi-file.f
 REQUIRE состояние ~profit/lib/chartable.f
 REQUIRE { lib/ext/locals.f
-REQUIRE scan-list ~ygrek/lib/list/more.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
-REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE ENUM: ~ygrek/lib/enum.f
 REQUIRE A_AHEAD ~mak/lib/a_if.f
 REQUIRE NUMBER ~ygrek/lib/parse.f
 REQUIRE new-set ~pinka/lib/charset.f
-
-REQUIRE write-list ~ygrek/lib/list/write.f
-REQUIRE U.R lib/include/core-ext.f
+REQUIRE PRO ~profit/lib/bac4th.f
+REQUIRE as-list ~ygrek/lib/list/ext.f
 
 \ -----------------------------------------------------------------------
 
