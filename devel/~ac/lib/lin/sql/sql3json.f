@@ -32,6 +32,26 @@ REQUIRE replace-str ~pinka/samples/2005/lib/replace-str.f
     2DUP + 3 - [CHAR] ] SWAP C!
   ELSE 2DROP S" []" THEN
 ;
+: (jquery2) { i par ppStmt -- flag }
+  S" {" SQS @ STR+
+  ppStmt db3_cols 0 ?DO
+    I ppStmt db3_col DUP 0= >R 2DUP S" NULL" COMPARE 0= R> OR IF 2DROP S" " THEN
+    I ppStmt db3_coltype 3 < 
+    IF \ число не преобразуем
+    ELSE ">\" " {''}{s}{''}" STR@ THEN
+    I ppStmt db3_colname " {''}{s}{''}:{s}" STR@
+    I 0 > IF " , {s}" ELSE "  {s}" THEN SQS @ S+
+  LOOP  S" }" " {s},{CRLF}" SQS @ S+
+  TRUE
+;
+: jquery2 ( addr u -- addr2 u2 )
+  " [{CRLF}" SQS !
+  0 ['] (jquery2) SQH @ db3_exec
+  SQS @ STR@ DUP 3 >
+  IF
+    2DUP + 3 - [CHAR] ] SWAP C!
+  ELSE 2DROP S" []" THEN
+;
 
 \EOF
 
