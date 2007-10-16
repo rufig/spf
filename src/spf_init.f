@@ -86,7 +86,7 @@ VARIABLE IN-EXCEPTION
 ;
 
 : AT-EXC-DUMP ( addr -- addr ) ... ;
-\ example: ."  REGISTERS:" DUP 12 CELLS DUMP CR
+\ example: ..: AT-EXC-DUMP ." REGISTERS:" DUP 12 CELLS DUMP CR ;..
 
 : DUMP-TRACE ( up low -- )
   BEGIN 2DUP U< 0= WHILE STACK-ADDR. CELL+ REPEAT 2DROP
