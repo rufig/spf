@@ -32,6 +32,8 @@
             code {font-family: 'Lucida Console', 'Courier New', monospace}
             pre, code { background : #EEEEF4}
             img.icon { vertical-align:bottom; margin-left:0.5em; margin-right:0.2em; border:0; }
+            h3::before {content:'( '}
+            h3::after {content:' )'}
         </style>
     </head>
     <body>
