@@ -99,9 +99,11 @@ Requirements :
 <lib><key>{</key><src>lib/ext/locals.f</src><comment><en>local variables</en><ru>локальные переменные</ru></comment></lib>
 <lib><key>LAMBDA{</key><src>~pinka/lib/lambda.f</src><comment><en>:NONAME but in the compilation state</en><ru>:NONAME в режиме компиляции</ru></comment></lib>
 <lib><key>(:</key><src>~yz/lib/inline.f</src><comment><en>lambda analogue</en><ru>аналог лямбда-конструкции</ru></comment></lib>
-<lib><key>CONT</key><src>~profit/lib/bac4th.f</src><comment><en>backtracking</en><ru>перебор с возвратами</ru></comment>
-  <link rel="doc" href="~mlg/index.html#bacforth">~mlg/index.html#bacforth</link>
-</lib>  
+<lib><key>s(</key><src>~spn/se.f</src><comment><en>S-Expressions with garbage collector on top of SPF</en><ru>S-выражения со сборщиком мусора поверх SPF</ru></comment><link rel="doc" lang="ru" href="~spn/forth-fp.html" /></lib>
+<lib><key>memoize:</key><src>~ygrek/lib/fun/memoize.f</src><comment><en>Memoize for (CELL -> CELL) functions</en><ru>Сохранение (кэширование) промежуточных значение при вызове функции вида (CELL -> CELL)</ru></comment><link rel="example" href="~ygrek/prog/fun/memoize.f" /></lib>
+<lib><key>CONT</key><src>~profit/lib/bac4th.f</src><comment><en>backtracking</en><ru>перебор с возвратами</ru></comment>  <link rel="doc" href="~mlg/index.html#bacforth">~mlg/index.html#bacforth</link></lib>
+<lib><key>axt=></key><src>~profit/lib/bac4th-closures.f</src><comment><en>Dynamically generated patches of code (closures)</en><ru>Динамически генерируемые отрезки кода (замыкания)</ru></comment></lib>
+
 </section>
 
 <section id="debug">
@@ -111,6 +113,7 @@ Requirements :
 <lib><key>MemReport</key><src>~day/lib/memreport.f</src><comment><en>memory leakages checking with stack report (supports multithreading)</en><ru>отчёт об утечках памяти (поддерживает многопоточность)</ru></comment></lib>
 <lib><key>ACCERT(</key><src>lib/ext/debug/accert.f</src><comment><en>conditional compilation</en><ru>условная компиляция</ru></comment></lib>
 <lib><key>TRACER</key><src>lib/ext/debug/tracer.f</src><comment><en>detailed execution report</en><ru>подробный отчёт о выполнении</ru></comment></lib>
+<lib><key>.elapsed</key><src>~af/lib/elapse.f</src><comment><en>word's run-time measurement</en><ru>замеры времени выполнения слова</ru></comment></lib>
 <lib><key>.AllStatistic</key><src>~pinka/lib/tools/profiler.f</src><comment><en>word profiling (generates statistics for words and their run times)</en><ru>профилирование слов (выводит статистику о временах работы)</ru></comment></lib>
 <lib><key>TESTCASES</key><src>~ygrek/lib/testcase.f</src><comment><en>TESTCASES by ~day</en></comment></lib>
 <lib><key>/TEST</key><src>~profit/lib/testing.f</src><comment><en>marking tests in code</en><ru>отметка тестов в коде</ru></comment></lib>
@@ -322,6 +325,10 @@ Requirements :
 <lib><key>ENUM</key><src>~ygrek/lib/enum.f</src><comment><en>enumerate groups of similar words</en><ru>перечисление групп подобных слов</ru></comment></lib>
 <lib><key>enqueueNOTFOUND</key><src>~pinka/samples/2006/core/trans/nf-ext.f</src><comment><en>extending translators (NOTFOUND)</en><ru>расширение транслятора (NOTFOUND)</ru></comment></lib>
 <lib><key>StringToCB</key><src>~day/lib/clipboard.f</src><comment><en>read/write strings from Windows-Clipboard</en><ru>Чтение/запись строковых значений из буфера обмена Windows</ru></comment></lib>
+<lib><key>JsInit</key><src>~ac/lib/lin/lang/js_binding.f</src><comment><en>Wrapper for Mozilla's js-engine</en><ru>Обёртка для js-движка от Mozilla</ru></comment>
+<link rel="wrap" href="http://www.mozilla.org/download.html">nspr4.dll</link>
+<link rel="wrap" href="http://www.mozilla.org/download.html">js3250.dll</link>
+</lib>
 </section>
 
 
