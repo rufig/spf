@@ -46,7 +46,9 @@ Requirements :
 <section id="arc">
 <name><en>Archives</en><ru>Архивы</ru></name>
 <lib><key>gzip_write</key><src>~ac/lib/win/arc/gzip/zlib.f</src><comment><en>packing and unpacking GZip-streams</en><ru>упаковка и распаковка gzip-потоков</ru></comment>
- <link rel="wrap" href="http://www.forth.org.ru/ext/zlib.dll">zlib.dll</link>
+ <link rel="wrap" href="http://www.forth.org.ru/ext/zlib.dll">zlib.dll (1.1.4)</link>
+ <!-- seems zlib.f doesn't work with new versions of zlibwapi.dll
+ link rel="wrap" href="http://www.winimage.com/zLibDll/">zlib.dll</link -->
 </lib>
 <lib>
  <key>zip-pack</key>
