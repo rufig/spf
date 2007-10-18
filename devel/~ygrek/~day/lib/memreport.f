@@ -37,6 +37,8 @@ REQUIRE MALLOCATE ~yz/lib/gmem.f
 
 0 VALUE CURRENT-GENERATION
 
+FALSE VALUE SHOW-FAILED-FREE?
+
 /node
 CELL -- .fileNameA
 CELL -- .fileNameU
@@ -123,10 +125,11 @@ USER vAddr
      FreeNode 
     ELSE ( addr 0 ) 
      DROP
-     \ too much false positives
-     DROP
-     \ CR ." MEMREPORT: Unknown block to FREE : " .  
-     \ RTRACE
+     SHOW-FAILED-FREE?
+     IF 
+       CR ." MEMREPORT: FREE: Block was not previously allocated at " .
+       RTRACE
+     THEN
     THEN
 ;
 
@@ -267,6 +270,9 @@ EXPORT
 \ В отчёте MemReport показывать только те блоки памяти что были выделены после отметки n 
 \ 0 для того чтобы показывать все блоки
 : SetReportMark ( n -- ) vGeneration ! ;
+
+: ShowFailedFree ( -- ) TRUE TO SHOW-FAILED-FREE? ;
+: HideFailedFree ( -- ) FALSE TO SHOW-FAILED-FREE? ;
 
 ..: AT-THREAD-FINISHING GetCurrentThreadId RemoveThreadMemoryInfo ;..
 
