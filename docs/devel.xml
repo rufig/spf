@@ -175,6 +175,7 @@ Requirements :
   <link rel="doc" lang="ru" href="~yz/wincc.html">новые элементы управления</link> 
   <link rel="example" href="~yz/prog/winlib"/>
 </lib>
+<lib><key>through-control</key><src>~profit/lib/winlibex.f</src><comment><en>Some extensions to winlib</en><ru>Некоторые дополнения к winlib</ru></comment></lib>
 <lib><key>FrameWindow</key><src>~day/joop/win/framewindow.f</src><comment><en>windows library based on joop</en><ru>библиотка интерфейса поверх joop</ru></comment></lib>
 <other><src>~ac/lib/win/window</src><comment><en>simple and small implementation</en><ru>маленькая и простая реализация</ru></comment></other>
 <lib>
@@ -259,6 +260,7 @@ Requirements :
 <lib><key>FINE-HEAD</key><src>~pinka/samples/2005/lib/split-white.f</src><comment><en>removing spaces at string bounds</en><ru>удаление пробелов по краям строк</ru></comment></lib>
 <lib><key>TYPE>STR</key><src>~ygrek/lib/typestr.f</src><comment><en>redirecting whole TYPE output to string</en><ru>перенаправление всего TYPE вывода в строку</ru></comment></lib>
 <lib><key>split</key><src>~profit/lib/bac4th-str.f</src><comment><en>strings operations via bac4th with automatic memory management</en><ru>строковые операции на bac4th с автоматическим управлением памятью</ru></comment></lib>
+<lib><key>CEQUAL</key><src>~pinka/spf/string-equal.f</src><comment><en>CEQUAL ( addr1 u1 addr2 u2 -- ? )</en></comment></lib>
 </section>
 
 <section id="files">
