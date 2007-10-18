@@ -95,8 +95,6 @@ test{
       2 + DUP 8  isUTF16 0= THROW
       2 + DUP 6  isUTF16 0= THROW
       2 + 4  isUTF16 THROW
-
-
 S" passed" TYPE
 }test
 

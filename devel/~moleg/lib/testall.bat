@@ -40,6 +40,7 @@
 @st.exe .S" devel\~moleg\lib\util\words.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\spells.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\queue.f"              TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\tricks.f"             TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\mtask\mutex.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\mtask\pmutex.f"            TESTED CR BYE
