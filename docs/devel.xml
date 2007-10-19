@@ -327,10 +327,11 @@ Requirements :
 <lib><key>ENUM</key><src>~ygrek/lib/enum.f</src><comment><en>enumerate groups of similar words</en><ru>перечисление групп подобных слов</ru></comment></lib>
 <lib><key>enqueueNOTFOUND</key><src>~pinka/samples/2006/core/trans/nf-ext.f</src><comment><en>extending translators (NOTFOUND)</en><ru>расширение транслятора (NOTFOUND)</ru></comment></lib>
 <lib><key>StringToCB</key><src>~day/lib/clipboard.f</src><comment><en>read/write strings from Windows-Clipboard</en><ru>Чтение/запись строковых значений из буфера обмена Windows</ru></comment></lib>
-<lib><key>JsInit</key><src>~ac/lib/lin/lang/js_binding.f</src><comment><en>Wrapper for Mozilla's js-engine</en><ru>Обёртка для js-движка от Mozilla</ru></comment>
+<!-- <lib><key>JsInit</key><src>~ac/lib/lin/lang/js_binding.f</src><comment><en>Wrapper for Mozilla's js-engine</en><ru>Обёртка для js-движка от Mozilla</ru></comment>
 <link rel="wrap" href="http://www.mozilla.org/download.html">nspr4.dll</link>
 <link rel="wrap" href="http://www.mozilla.org/download.html">js3250.dll</link>
 </lib>
+https://sourceforge.net/tracker/?func=detail&atid=117919&aid=1815133&group_id=17919 -->
 </section>
 
 
