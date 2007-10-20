@@ -9,6 +9,7 @@
   EBP       Data Stack
  [EBP]      Second item on Stack
   ESP       Return Stack
+  EDI       Thread data pointer
 )
 
 HEX
@@ -44,34 +45,54 @@ END-CODE
 
 CODE MAX ( n1 n2 -- n3 ) \ 94
 \ n3 - большее из n1 и n2.
+ARCH-P6 [IF]
      MOV     EDX, [EBP]
      CMP     EDX, EAX
      CMOVG   EAX, EDX
+[ELSE]     
+     CMP     EAX, [EBP]
+     JL # ' DROP
+[THEN]     
      LEA EBP, 4 [EBP]
      RET
 END-CODE
 
 CODE MIN ( n1 n2 -- n3 ) \ 94
  \ n3 - меньшее из n1 и n2.
+ ARCH-P6 [IF]
      MOV     EDX, [EBP]
      CMP     EDX, EAX
      CMOVL   EAX, EDX
+[ELSE]     
+     CMP     EAX, [EBP]
+     JG # ' DROP
+[THEN]     
      LEA EBP, 4 [EBP]
      RET
 END-CODE
 
 CODE UMAX ( n1 n2 -- n3 ) \ 94
+ARCH-P6 [IF]
      MOV     ECX, [EBP]
      CMP     ECX, EAX
      CMOVA   EAX, ECX
+[ELSE]
+     CMP     EAX, [EBP]
+     JB # ' DROP
+[THEN]     
      LEA EBP, 4 [EBP]
      RET
 END-CODE
 
 CODE UMIN ( n1 n2 -- n3 ) \ 94
+ARCH-P6 [IF]
      MOV     ECX, [EBP]
      CMP     ECX, EAX
      CMOVB   EAX, ECX
+[ELSE]
+     CMP     EAX, [EBP]
+     JA # ' DROP
+[THEN]
      LEA EBP, 4 [EBP]
      RET
 END-CODE
@@ -79,7 +100,13 @@ END-CODE
 CODE 0MAX       ( N1 -- N2 ) \ return n2 the greater of n1 and zero
      XOR     EDX, EDX
      CMP     EDX, EAX
+ARCH-P6 [IF]     
      CMOVG   EAX, EDX
+[ELSE]
+     JL SHORT @@1
+     MOV EAX, EDX
+@@1: 
+[THEN]
      RET
 END-CODE
 
