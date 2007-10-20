@@ -143,6 +143,11 @@ EXPORT
    DUP IF RDROP EXIT THEN \ в случае неудачи выделения памяти - не журналируем
    OVER R> MEMREPORT-ALLOCATE ;
 
+: HEAP-COPY ( addr u -- addr1 )
+  >R
+  R@ HEAP-COPY ( addr1 )
+  DUP R> MEMREPORT-ALLOCATE ; 
+
 : FREE ( addr -- ior ) 
   \ AllocList listSize CR ." Size - " .
   DUP MEMREPORT-FREE FREE ;
@@ -345,6 +350,13 @@ CR .( all leaks : ) countMem . .
 CR
 ClearMemInfo
 MemReport
+(( countMem -> 0 0 ))
+
+200 ALLOCATE THROW DUP 200 HEAP-COPY
+(( countMem -> 400 2 ))
+FREE THROW
+(( countMem -> 200 1 ))
+FREE THROW
 (( countMem -> 0 0 ))
 
 END-TESTCASES
