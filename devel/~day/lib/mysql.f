@@ -33,20 +33,20 @@ WINAPI: mysql_fetch_field_direct  LIBMYSQL
     mysql_error ASCIIZ>
 ;
 
+\ fixed by ~ygrek and ~kamikadze
+
 : MyConnect { host hu user uu passw pu -- h ior }
 \ h - connection handle
 \ ior - error code
-    /MYSQL ALLOCATE THROW DUP
-    mysql_init 2DUP <>
-    IF DROP FREE THROW 0 EXIT
-    ELSE NIP
-    THEN
-    >R 0 0
+    0 mysql_init DUP 0= IF 8 ( ERROR_NOT_ENOUGH_MEMORY) EXIT THEN
+    >R
+    0 0
     MYSQL_PORT
     0
     passw
     user
-    host R@
+    host
+    R@
     mysql_real_connect
     DUP 0= IF R@ mysql_errno
               R> FREE THROW EXIT
@@ -55,8 +55,7 @@ WINAPI: mysql_fetch_field_direct  LIBMYSQL
 ;
 
 : MyClose ( h -- )
-   DUP mysql_close DROP
-   FREE THROW
+   mysql_close DROP
 ;
 
 : MyStat ( h -- addr u )

@@ -238,9 +238,11 @@ VALUE /list
    R> FREE THROW
 ;
 
+: FastFreeNode FREE THROW ;
+
 : FreeList ( list -- )
 \ Удалить все элементы списка
-   ['] FreeNode SWAP ForEach
+   ['] FastFreeNode SWAP ForEach
 ;
 
 VARIABLE listSize_

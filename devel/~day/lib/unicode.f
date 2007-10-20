@@ -9,7 +9,7 @@ WINAPI: WideCharToMultiByte   KERNEL32.DLL
      0 0 
      0 0
      u 0 > IF u 2/ ELSE -1 THEN addr
-     0 0 
+     0 0
      WideCharToMultiByte u 0 > IF 1+ THEN DUP -> u1
      ALLOCATE THROW -> addr1
      0 addr1 u1 + 1- C!
