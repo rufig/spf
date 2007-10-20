@@ -35,16 +35,14 @@ init:
     SUPER hWnd @ ShellExecuteA 32 >
 ;
 
-R: WM_CTLCOLORSTATIC ( lpar wpar msg hwnd -- n )
-    2DROP NIP DUP
-
+R: WM_CTLCOLORSTATIC ( -- n )
     pressed @
     IF pressedColor @
     ELSE normalColor @
-    THEN SWAP
+    THEN SUPER msg wParam @
     SetTextColor CLR_INVALID = SUPER wthrow
     
-    TRANSPARENT SWAP SetBkMode DROP
+    TRANSPARENT SUPER msg wParam @ SetBkMode DROP
     NULL_BRUSH GetStockObject
 ;
 
@@ -62,7 +60,7 @@ W: WM_LBUTTONDOWN
     0 0 SUPER invalidate
     setCursor
     SUPER hWnd@ SetCapture DROP    
-    2DROP 2DROP 0
+    0
 ;
 
 W: WM_CAPTURECHANGED
@@ -70,12 +68,12 @@ W: WM_CAPTURECHANGED
     0 0 SUPER invalidate
     setCursor
     execute DROP
-    2DROP 2DROP 0
+    0
 ;
 
 W: WM_LBUTTONUP
     ReleaseCapture DROP
-    2DROP 2DROP 0
+    0
 ;
 
 : attach ( hwnd -- )

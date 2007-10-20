@@ -77,17 +77,15 @@ CLASS CWinBaseClass
 
 WINAPI: HeapValidate     KERNEL32.DLL
 
-: SendFromThunk ( lpar wpar msg hwnd obj n )
+: SendFromThunk ( lpar wpar msg hwnd obj n -- result )
 \ We can't fetch threadUserData without TlsIndex set, so lets apply a small hack
      OVER CELL+ @ ( threadUserData@ hack! ) TlsIndex!
-
      <SET-EXC-HANDLER>
 
      S0 @ >R
      SP@  + CELL+ S0 !
-
      ^ message
-
+    
      R> S0 !
 ;
 

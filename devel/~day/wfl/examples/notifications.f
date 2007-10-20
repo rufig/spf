@@ -9,7 +9,7 @@ CDialog SUBCLASS CTestDialog
 
     CListView OBJ listView
 
-W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
+W: WM_INITDIALOG ( -- n )
 
     lvID SUPER getDlgItem listView set
 
@@ -21,7 +21,7 @@ W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
     0 S" Test string1" listView insertString
     0 S" Test string2" listView insertString
 
-    2DROP 2DROP TRUE
+    TRUE
 ;
 
 N: lvID ( nmhdr code -- retCode )

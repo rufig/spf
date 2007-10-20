@@ -15,28 +15,25 @@ CButton SUBCLASS CColorButton
 ;
 
 W: WM_LBUTTONDBLCLK
-   captureCursor
-   2DROP 2DROP 0
+   captureCursor 0
 ;
 
 W: WM_LBUTTONDOWN
-   captureCursor
-   2DROP 2DROP 0
+   captureCursor 0
 ;
 
-W: WM_MOUSEMOVE
-   2DROP 2DROP 0
+W: WM_MOUSEMOVE 0
 ;
 
 W: WM_CAPTURECHANGED
    0 captured !
    0 0 SUPER hWnd@ InvalidateRect DROP
-   2DROP 2DROP 0
+   0
 ;
 
 W: WM_LBUTTONUP
-   ReleaseCapture DROP
-   2DROP 2DROP 0
+   ReleaseCapture DROP 
+   0
 ;
 
 : getBrushColor ( -- rgb )
@@ -70,9 +67,9 @@ W: WM_LBUTTONUP
 ;
 
 W: WM_PAINT
-   || R: hwnd CPaintDC dc CBrush brush CRect r ||
+   || CPaintDC dc CBrush brush CRect r ||
 
-   2DROP DROP hwnd @ dc create DROP
+   SUPER msg hwnd @ dc create DROP
 
    getTextColor dc setTextColor
    getBrushColor brush createSolid dc selectObject DROP
@@ -94,7 +91,6 @@ CFrameWindow SUBCLASS CMainWindow
 12345 CONSTANT btnID
 
 W: WM_CREATE ( lpar wpar msg hwnd -- n )
-    2DROP 2DROP
 
     btnID SELF btn create 
     btn attach
@@ -104,8 +100,8 @@ W: WM_CREATE ( lpar wpar msg hwnd -- n )
 ;
 
 W: WM_DESTROY ( lpar wpar msg hwnd -- n )
-   2DROP 2DROP 0
    0 PostQuitMessage DROP
+   0
 ;
 
 ;CLASS
@@ -113,7 +109,7 @@ W: WM_DESTROY ( lpar wpar msg hwnd -- n )
 : winTest ( -- n )
   || CMainWindow wnd CMessageLoop loop ||
 
-  0 wnd create DROP
+  0 0 wnd create DROP
   SW_SHOW wnd showWindow
 
   S" test window" wnd setText

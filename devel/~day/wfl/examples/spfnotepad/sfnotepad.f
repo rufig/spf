@@ -47,8 +47,7 @@ CFrameWindow SUBCLASS CScintillaNotepad
     SUPER setText
 ;
 
-W: WM_CREATE ( lpar wpar msg hwnd -- n )
-    2DROP 2DROP
+W: WM_CREATE ( -- n )
     editID SELF edit create DROP
     edit setFocus
 
@@ -59,15 +58,15 @@ W: WM_CREATE ( lpar wpar msg hwnd -- n )
     FALSE
 ;
 
-W: WM_DESTROY ( lpar wpar msg hwnd -- n )
-   2DROP 2DROP 0
+W: WM_DESTROY ( -- n )
    0 PostQuitMessage DROP
+   0
 ;
 
-W: WM_SIZE ( lpar wpar msg hwnd -- n )
+W: WM_SIZE ( -- n )
    0 SUPER getClientRect Rect>Width 
    edit moveWindow
-   2DROP 2DROP 0
+   0
 ;
 
 FILTER: fn

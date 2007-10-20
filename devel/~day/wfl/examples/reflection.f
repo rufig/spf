@@ -13,9 +13,9 @@ init:
 
 \ Note - it is R: for reflected message, not W:
 
-R: WM_CTLCOLORSTATIC ( lpar wpar msg hwnd -- n )
-    2 PICK TRANSPARENT SWAP SetBkMode DROP
-    2DROP 2DROP
+R: WM_CTLCOLORSTATIC ( -- n )
+    SUPER msg wParam @
+    TRANSPARENT SWAP SetBkMode DROP
     brush handle @
 ;
 
@@ -26,25 +26,17 @@ CFrameWindow SUBCLASS CMainWindow
 
        CColorStatic OBJ label
 
-W: WM_DESTROY ( lpar wpar msg hwnd -- n )
-    2DROP 2DROP 0
+\ послылаем уведомления обратно дочерним окнам
+REFLECT_NOTFICATIONS
+
+W: WM_DESTROY ( -- n )
     0 PostQuitMessage DROP
-;
-
-\ Let a message be reflected
-: message ( lpar wpar msg hwnd -- n )
-    || CWinMessage msg ||
-
-    msg copy INHERIT
-
-    msg @ ReflectNotifications
-    IF NIP THEN
+    0
 ;
 
 12345 CONSTANT labelID
 
-W: WM_CREATE ( lpar wpar msg hwnd -- n )
-  2DROP 2DROP
+W: WM_CREATE ( -- n )
 
   labelID SELF label create
   label attach
@@ -62,7 +54,7 @@ W: WM_CREATE ( lpar wpar msg hwnd -- n )
 : winTest ( -- n )
   || CMainWindow wnd CMessageLoop loop ||
 
-  0 wnd create DROP
+  0 0 wnd create DROP
   SW_SHOW wnd showWindow
 
   S" test window" wnd setText

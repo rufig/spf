@@ -7,15 +7,21 @@ WINAPI: AtlAxWinInit       ATL.DLL
 WINAPI: CoInitializeEx  OLE32.DLL
 WINAPI: CoUninitialize    OLE32.DLL
 
+
+WINAPI: OleInitialize ole32.dll
+WINAPI: OleUninitialize ole32.dll
+
 2 CONSTANT COINIT_APARTMENTTHREADED
 
 : StartCOM
-   COINIT_APARTMENTTHREADED
-   0 CoInitializeEx ABORT" Cannot initialize COM"
+   0 OleInitialize DROP
+\   COINIT_APARTMENTTHREADED
+ \  0 CoInitializeEx ABORT" Cannot initialize COM"
 ;
 
 : EndCOM
-   CoUninitialize DROP
+    OleUninitialize DROP
+\   CoUninitialize DROP
 ;
 
 CChildWindow SUBCLASS CAxControl

@@ -39,17 +39,9 @@ CWindow SUBCLASS CDialog
 ;
 
 : message ( lpar wpar msg hwnd -- result )
-    OVER
-    || R: msg ||
+    SUPER message
 
-    DEPTH >R
-    OVER [CHAR] W SWAP SUPER sendWinMessage 0=
-    IF
-       R> DROP 2DROP 2DROP 0 EXIT
-    THEN
-    DEPTH R> SWAP - 3 =  INVERT S" Wrong data stack size" SUPER abort
-
-    msg @ skipMsgResult? 0=
+    SUPER msg message @ skipMsgResult? 0=
     IF
         0 SetLastError DROP
         DWL_MSGRESULT
@@ -76,12 +68,13 @@ CWindow SUBCLASS CDialog
    SUPER checkWindow EndDialog SUPER -wthrow
 ;
 
+
 C: IDCANCEL  ( code -- )
-    DROP IDCANCEL endDialog
+   DROP IDCANCEL endDialog
 ;
 
-W: WM_CLOSE
-    2DROP 2DROP IDCANCEL endDialog 0
+W: WM_CLOSE ( -- res )
+    IDCANCEL endDialog 0
 ;
 
 : showModal ( template parent-obj -- result )

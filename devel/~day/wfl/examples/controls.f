@@ -11,16 +11,10 @@ CDialog SUBCLASS CTestDialog
        CUrlLabel OBJ label
        CEventButton  OBJ eventBtn
 
-\ Let a messages such WM_CTLCOLORSTATIC be reflected
- \ we catch it in urllabel
-: message ( lpar wpar msg hwnd -- n )
-    || CWinMessage msg ||
-    msg copy INHERIT
 
-    msg @ ReflectNotifications
-    IF NIP THEN
-;
-
+\ послылаем уведомления обратно дочерним окнам
+\ этим пользуется например URLLabel
+REFLECT_NOTFICATIONS
 
 ( it is not called as HYPE method, just as FORTH word, so 
   do not call SELF here )
@@ -30,8 +24,6 @@ CDialog SUBCLASS CTestDialog
 ;
 
 W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
-   2DROP 2DROP
-
    S" http://forth.org.ru" label setURL
    urlLabelID SUPER getDlgItem label attach
 

@@ -5,9 +5,9 @@ NEEDS ~day\wfl\wfl.f
 
 CFrameWindow SUBCLASS CVerySimpleWindow
 
-W: WM_DESTROY ( lpar wpar msg hwnd -- n )
-   2DROP 2DROP 0
-   0 PostQuitMessage DROP
+W: WM_DESTROY ( -- n )
+   0 PostQuitMessage DROP 
+   0
 ;
 
 ;CLASS
@@ -15,7 +15,7 @@ W: WM_DESTROY ( lpar wpar msg hwnd -- n )
 : winTest ( -- n )
   || CVerySimpleWindow wnd CMessageLoop loop ||
 
-  0 wnd create DROP
+  0 0 wnd create DROP
   SW_SHOW wnd showWindow
 
   loop run

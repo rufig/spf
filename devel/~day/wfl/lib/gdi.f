@@ -185,7 +185,7 @@ WINAPI: CreateFontIndirectA GDI32.DLL
 
 CGDIObject SUBCLASS CFont
 
-: create ( lfHeight lfWeight addr u )
+: create ( lfHeight lfWeight addr u -- handle )
     || CLOGFONT lf ||
 
     SUPER handle @ IF SUPER releaseObject THEN
@@ -194,7 +194,7 @@ CGDIObject SUBCLASS CFont
     lf lfWeight !
     lf lfHeight !
 
-    lf addr CreateFontIndirectA SUPER handle !
+    lf addr CreateFontIndirectA DUP SUPER handle !
 ;
 
 ;CLASS

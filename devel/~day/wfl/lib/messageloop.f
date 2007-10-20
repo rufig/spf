@@ -8,6 +8,7 @@ NEEDS ~day\wfl\lib\wfunc.f
 NEEDS ~day\lib\macros.f
 
 NEEDS ~profit\lib\logic.f
+NEEDS ~ac/lib/win/window/accel.f
 
 0 VALUE TRACE-WINMESSAGES
 
@@ -30,7 +31,8 @@ OBJ-SIZE
     VAR wParam
     VAR lParam
     VAR time
-    VAR point
+    VAR point.x
+    VAR point.y
 
 OBJ-SIZE SWAP - 
 CONSTANT /MSG
@@ -72,6 +74,7 @@ WM_USER 117 + CONSTANT PSM_ISDIALOGMESSAGE
 CLASS CMessageLoop
 
      CWinMessage OBJ msg
+     CELL PROPERTY accelh
 
 \ process keyboard for modeless dialogs and property sheets
  \ a bit hackish
@@ -100,6 +103,8 @@ CLASS CMessageLoop
 ;
 
 : run ( -- retcode )
+  InitAccel accelh !
+
   BEGIN
     idleLoop
     0 0 0 msg addr GetMessageA
@@ -110,6 +115,7 @@ CLASS CMessageLoop
     THEN
 
     pretranslateMessage 0=
+    msg addr accelh @ msg hwnd @ TranslateAcceleratorA 0= AND
     IF
        msg addr DUP
        TranslateMessage DROP

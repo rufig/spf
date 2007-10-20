@@ -1,12 +1,7 @@
-( Dmitry Yakimov 2006
+( Dmitry Yakimov 2006/2007
   Контроллер сплиттера включает в себя сам сплиттер и два окна-панели.
-  И сплиттер и панели являются дочерними по отношению к окну на котором
-  они находятся. Контроллер управляет сплиттером и панелями, изменяет размеры
+  Контроллер управляет сплиттером и панелями, изменяет размеры
   панелей и положение сплиттера. 
-
-  Особенность в том что контроллер является окном и перехватывает сообщение
-  WM_SIZE окна родителя для того чтобы при изменении окна родителя соответсвенно
-  изменить и размеры панелей.
 
   Пример:
          CSplitterController OBJ vsplitter
@@ -17,8 +12,6 @@ W: WM_CREATE \ Или WM_INITDIALOG
    ...
 )
 
-WM_USER 1501 + CONSTANT MSG_GETSPLITTERCONTROLLER
-
 WINAPI: SetROP2  GDI32.DLL
 WINAPI: PatBlt   GDI32.DLL
 WINAPI: DrawEdge USER32.DLL
@@ -26,14 +19,14 @@ WINAPI: GetCapture USER32.DLL
 
 ( Window that can resize itself according to parent size )
 
-CChildCustomWindow SUBCLASS CPanel
+CChildCustomWindow SUBCLASS CSplitterPane
+       VAR splitterController
+;CLASS
+
+CSplitterPane SUBCLASS CPanel
 
 init: WS_CHILD WS_VISIBLE OR SUPER style ! 
       WS_EX_CONTROLPARENT SUPER exStyle !
-;
-
-: splitterController ( -- obj | 0 )
-    0 0 MSG_GETSPLITTERCONTROLLER SUPER hWnd @ GetParent SendMessageA
 ;
 
 \ percent * 100
@@ -45,7 +38,7 @@ init: WS_CHILD WS_VISIBLE OR SUPER style !
     DUP 0= IF EXIT THEN
 
     \ учтем ширину сплиттера
-    splitterController 
+    SUPER splitterController @
     ?DUP IF ^ splitterWidth 2* - THEN
 
     SUPER getClientRect 2DROP NIP ( w1 w0 )
@@ -54,9 +47,7 @@ init: WS_CHILD WS_VISIBLE OR SUPER style !
 
 ;CLASS
 
-CChildCustomWindow SUBCLASS CSplitter
-
-          VAR controller
+CSplitterPane SUBCLASS CSplitter
 
 : setCursor ( id -- )
      0 LoadCursorA SUPER class hCursor !
@@ -69,47 +60,38 @@ init:
     COLOR_BTNFACE GetSysColorBrush SUPER class hbrBackground !
 ;
 
-: getController ( obj )
-     controller @ 0=
-     IF
-        0 0 MSG_GETSPLITTERCONTROLLER SUPER hWnd @ GetParent SendMessageA
-        controller !
-     THEN
-     controller @ DUP 0= ABORT" Splitter controller should be attached to main window"
-;
+: getController SUPER splitterController @ ;
 
 W: WM_CAPTURECHANGED
-     2DROP 2DROP 
      getController ^ captureChanged 0
 ;
 
 W: WM_LBUTTONDOWN
-    2DROP DROP DUP LOWORD SWAP HIWORD 
+    SUPER msg lParam @ DUP LOWORD SWAP HIWORD 
     getController ^ buttonDown 0
 ;
 
 W: WM_LBUTTONDBLCLK
-    2DROP DROP DUP LOWORD SWAP HIWORD 
+    SUPER msg lParam @ DUP LOWORD SWAP HIWORD 
     getController ^ buttonDown 0
 ;
 
 W: WM_LBUTTONUP
-    2DROP DROP DUP LOWORD SWAP HIWORD 
+    SUPER msg lParam @ DUP LOWORD SWAP HIWORD 
     getController ^ buttonUp 0
 ;
 
 W: WM_MOUSEMOVE
-    2DROP MK_LBUTTON AND
-    IF DUP LOWORD SWAP HIWORD 
+    SUPER msg wParam @ MK_LBUTTON AND
+    IF SUPER msg lParam @ DUP LOWORD SWAP HIWORD 
        getController ^ mouseMove
-    ELSE DROP
     THEN 0
 ;
 
 W: WM_PAINT
     || CPaintDC dc CRect r CBrush b CPen p ||
-    NIP NIP NIP
-    dc create DROP
+
+    SUPER msg hwnd @ dc create DROP
 
     SUPER getClientRect r ! r @
     COLOR_3DFACE b getSysColorBrush
@@ -151,7 +133,7 @@ W: WM_PAINT
 
 10000 CONSTANT SPLIT_INTERVAL
 
-CChildCustomWindow SUBCLASS CSplitterController
+CMsgController SUBCLASS CSplitterController
 
     VAR leftPane
     VAR rightPane
@@ -181,7 +163,6 @@ CChildCustomWindow SUBCLASS CSplitterController
 init:
     4 splitWidth !
     SPLIT_INTERVAL 2/ splitRatio !
-    WS_CHILD SUPER style !
     TRUE vertical? !
 ;
 
@@ -194,10 +175,6 @@ dispose:
     FALSE vertical? !
     IDC_SIZENS splitter setCursor
 ;
-
-\ invisible window
-
-: initialPosition 0 0 0 0 ;
 
 : ?rotate vertical? @ 0= IF SWAP 2SWAP SWAP 2SWAP THEN ;
 
@@ -233,31 +210,44 @@ dispose:
        cy @ cx @ xSplit @ - splitWidth @ -
     THEN Rect>Win rightPane @ ^ moveWindow
 
-    \ force paint splitter
     0 0 splitter invalidate
-
-    splitter updateWindow
 ;
 
 : createSplitter ( parent-obj -- )
-    DUP DUP ^ hWnd @ parent hWnd !
+    DUP ^ hWnd @ parent hWnd !
 
     ID_SPLITTER OVER splitter create DROP
+    SELF splitter splitterController !
+    SELF SWAP ^ injectMsgController
 
-    0 SWAP SUPER create DROP
-    parent hWnd @ SUPER attach
-
-    ^ getClientRect 2DROP vertical? @ 0= IF SWAP THEN cx ! cy !
+    parent getClientRect 2DROP vertical? @ 0= IF SWAP THEN cx ! cy !
     update
 ;
 
-: setLeftPane ( obj parent-obj )
+: isSplitterPane ( obj -- f )
+     @ S" splitterController" HYPE::MFIND 0=
+     IF 2DROP DROP 0
+     ELSE DROP TRUE
+     THEN
+;
+
+: setPaneController ( obj -- )
+     DUP isSplitterPane
+     IF
+        SELF SWAP ^ splitterController !
+     ELSE DROP
+     THEN
+;
+
+: setLeftPane ( panel-obj parent-obj )
      OVER leftPane !
+     OVER setPaneController
      ID_LEFT_PANEL SWAP ROT ^ create DROP
 ;
 
 : setRightPane ( obj parent-obj )
      OVER rightPane !
+     OVER setPaneController
      ID_RIGHT_PANEL SWAP ROT ^ create DROP
 ;
 
@@ -282,32 +272,22 @@ dispose:
     TRUE rightPaneOwner !
 ;
 
-W: WM_SIZE ( lpar wpar msg hwnd -- n )
-\ change size of parent window
-
+W: WM_SIZE ( -- n )
     leftPane @ ^ hWnd @ 0= ABORT" SplitterController: Create panels before!"
 
-    \ we are looking for parent messages only
-    DUP parent hWnd @ =
+    SUPER msg lParam @ DUP
+    vertical? @
     IF
-       3 PICK DUP
-       vertical? @
-       IF
-          LOWORD cx !
-          HIWORD cy !
-       ELSE
-          LOWORD cy !
-          HIWORD cx !
-       THEN
-       update
-    
-       SUPER inheritWinMessage
-    ELSE 2DROP 2DROP 0
+       LOWORD cx !
+       HIWORD cy !
+    ELSE
+       LOWORD cy !
+       HIWORD cx !
     THEN
-;
+    update    
 
-W: MSG_GETSPLITTERCONTROLLER
-    2DROP 2DROP SELF
+    FALSE SUPER SetHandled
+    0
 ;
 
 : moveSplitter ( x -- )

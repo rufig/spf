@@ -54,7 +54,16 @@ CLASS CRect
     ." height " height . CR
 ;
 
+: hwyx! ( h w y x -- )
+   left !
+   top !
+   left @ + right !
+   top @ + bottom ! ;
+
+: hwyx@ ( -- h w y x ) hw yx ;
+
 \ The last definitions in class
+\ ATTENTION: ! and @ are reloaded!
 
 : ! ( bottom right top left )
     left !
@@ -72,7 +81,7 @@ CLASS CRect
 
 ;CLASS
 
-: Rect>Width ( bottom right top left -- height width top left )
+: Rect>Width ( bottom right top left -- height width y x )
     || CRect r ||
     r !
     r hw r yx

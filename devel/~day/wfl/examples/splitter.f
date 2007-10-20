@@ -20,7 +20,6 @@ CPanel SUBCLASS CPercentPanel
 ;
 
 W: WM_PAINT
-    2DROP 2DROP
     || CPaintDC dc ||
     SUPER hWnd @ dc create
     DUP TRANSPARENT SWAP SetBkMode SUPER -wthrow
@@ -38,7 +37,6 @@ CFrameWindow SUBCLASS CVerySimpleWindow
        CPercentPanel       OBJ rightPane
 
 W: WM_CREATE
-   2DROP 2DROP
    hsplitter setHorizontal
 
    \ Мы не назначаем стиль WS_EX_CLIENTEDGE панелям, как в complexsplitter
@@ -68,9 +66,9 @@ W: WM_CREATE
    0
 ;
 
-W: WM_DESTROY ( lpar wpar msg hwnd -- n )
-   2DROP 2DROP 0
+W: WM_DESTROY ( -- n )
    0 PostQuitMessage DROP
+   0
 ;
 
 ;CLASS
@@ -78,7 +76,7 @@ W: WM_DESTROY ( lpar wpar msg hwnd -- n )
 : winTest ( -- n )
   || CVerySimpleWindow wnd CMessageLoop loop ||
 
-  0 wnd create DROP
+  0 0 wnd create DROP
   SW_SHOW wnd showWindow
 
   loop run

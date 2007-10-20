@@ -10,9 +10,9 @@ WINAPI: MessageBeep USER32.DLL
 
 CFrameWindow SUBCLASS CVerySimpleWindow
 
-W: WM_DESTROY ( lpar wpar msg hwnd -- n )
-   2DROP 2DROP 0
+W: WM_DESTROY ( -- n )
    0 PostQuitMessage DROP
+   0
 ;
 
 M: HOORAY_ID ( -- )
@@ -42,6 +42,7 @@ M: BEEP_ID ( -- )
 : winTest ( -- n )
   || CVerySimpleWindow wnd CMessageLoop loop ||
 
+  wnd createMenu
   0 wnd create DROP
   SW_SHOW wnd showWindow
 

@@ -34,8 +34,6 @@ CFrameWindow SUBCLASS CSplitterViewDemo
 ;
 
 W: WM_CREATE
-   2DROP 2DROP
-
    \ установим нужные стили контролов
    LVS_REPORT listView style OR!
    TVS_HASBUTTONS TVS_HASLINES OR TVS_LINESATROOT OR treeView style OR!
@@ -65,9 +63,9 @@ W: WM_CREATE
    0
 ;
 
-W: WM_DESTROY ( lpar wpar msg hwnd -- n )
-   2DROP 2DROP 0
+W: WM_DESTROY ( -- n )
    0 PostQuitMessage DROP
+   0
 ;
 
 ;CLASS
@@ -76,7 +74,7 @@ W: WM_DESTROY ( lpar wpar msg hwnd -- n )
   StartCOM
   || CSplitterViewDemo wnd CMessageLoop loop ||
 
-  0 wnd create DROP
+  0 0 wnd create DROP
   SW_SHOW wnd showWindow
 
   loop run

@@ -8,9 +8,7 @@ CFrameWindow SUBCLASS CVerySimpleWindow
        CAxControl OBJ ctl
        CAxControl OBJ ctl2
 
-W: WM_CREATE ( lpar wpar msg hwnd -- n )
-  2DROP 2DROP
-
+W: WM_CREATE ( -- n )
   S" MSHTML:<HTML><BODY> ActiveX HTML label! </BODY></HTML>" 
   0 SELF ctl create DROP
 
@@ -21,9 +19,9 @@ W: WM_CREATE ( lpar wpar msg hwnd -- n )
   FALSE
 ;
 
-W: WM_DESTROY ( lpar wpar msg hwnd -- n )
-   2DROP 2DROP 0
+W: WM_DESTROY ( -- n )
    0 PostQuitMessage DROP
+   0
 ;
 
 ;CLASS
@@ -33,7 +31,7 @@ W: WM_DESTROY ( lpar wpar msg hwnd -- n )
 
   StartCOM
 
-  0 wnd create DROP
+  0 0 wnd create DROP
   SW_SHOW wnd showWindow
 
   loop run
