@@ -128,7 +128,11 @@ S" src\compiler\spf_compile0.f"      INCLUDED
 \  Макроподстановщик-оптимизатор
 TRUE TO INLINEVAR
 
-S" src\macroopt.f"                    INCLUDED
+SPF-WITH-OPT [IF]
+S" src/macroopt.f"                   INCLUDED
+[ELSE]
+S" src/noopt.f"                      INCLUDED
+[THEN]
 M\ ' DROP (TO) DTST
 
 S" src\compiler\spf_compile.f"       INCLUDED
