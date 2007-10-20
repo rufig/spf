@@ -43,8 +43,11 @@ USER uPrevCurrent
 USER uCurrShift
 USER uAddDepth
 
-: CompileMethod ( ta addr u )
-    HYPE::MFIND DROP LIT,
+\ ???
+: CompileMethod ( ta addr u -- f )
+\    2 PICK >R    
+    HYPE::MFIND-ERR TUCK 1 = IF -1 ABORT" do not support!" R@ SWAP HYPE::(SEND) ELSE LIT, THEN
+\    R> DROP
 ;
 
 : CompileLocalRec ( u -- )
@@ -63,7 +66,12 @@ USER uAddDepth
 \    ['] RP+ COMPILE, \ object
     ROT CELLS CompileLocalRec 
     CompileMethod \ method
-    SEND-XT COMPILE,
+    -1 =  \ non immediate means non object
+    IF
+      [ ALSO HYPE ]
+      POSTPONE (SEND)
+      [ PREVIOUS ]
+    THEN
 ;
 
 : AlignToCELL ( u -- u1 )
@@ -76,7 +84,7 @@ USER uAddDepth
 : (objinit) ( xt ta size )
     ['] ALLOCATE HYPE::ALLOC-XT ! \ For nested objects use allocate
     R> SWAP RALLOT SWAP >R ( ta addr )
-    TUCK ! SWAP HYPE::SEND
+    TUCK ! SWAP HYPE::(SEND)
 ;
 
 : ClassNormalizedSize ( ta -- size )
@@ -85,7 +93,7 @@ USER uAddDepth
 : CompileInitObj ( ta )
     uPrevCurrent @ ALSO CONTEXT ! DEFINITIONS
 
-    DUP S" init" CompileMethod
+    DUP S" init" CompileMethod DROP
     DUP LIT,
     ClassNormalizedSize LIT,
     ['] (objinit) COMPILE,
@@ -239,7 +247,7 @@ SET-CURRENT
 PREVIOUS
 
 \EOF
-  
+   
 CLASS CNested
 
 init: ." init of CNested" CR ;
@@ -262,11 +270,11 @@ lib\ext\disasm.f
 
 : test2
    || CTest a CTest a ||
-   ." CTest instance " a this . CR
-   ." a instance " a n ^ this . CR
+\    ." CTest instance " a this . CR
+\    ." a instance " a n this . CR
    
-\   ." obj size " CTest ^ size . CR
-\   ." top of return stack " 0 RP+ . CR
+   ." obj size " CTest ^ size . CR
+   ." top of return stack " 0 RP+ . CR
 \   ." object a " a this . CR
 \   ." object b " b this . CR
 \   ." object c " c this . CR

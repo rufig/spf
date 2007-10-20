@@ -26,56 +26,43 @@ USER FREE-XT
 
 : SELF+ ( n - a) SELF + ;
 
-: SEND ( a xt) SELF >R SWAP TO SELF EXECUTE  R> TO SELF ;
+: (SEND) ( a xt) SELF >R SWAP TO SELF EXECUTE  R> TO SELF ;
 
 VARIABLE CLS ( contains ta -> |size|wid|super|)
 VARIABLE PREVIOUS-CURRENT
 
-: CLASS@ ( - aa) CLS @ ?DUP 0= ABORT" scope?" ;
+: CLASS@ ( - aa) CLS @ ?DUP 0= ABORT" Use in CLASS ;CLASS statements" ;
 : OBJ-SIZE CLASS@ .size @ ;
 
-\ For errors detection
-VARIABLE lmu
-VARIABLE lma
-
-: .lastMethod
-    lma @
-    IF
-       lma @ lmu @ TYPE
-    THEN
-;
-
-: (MFIND) ( ta c-addr u - 0 | xt 1 | xt -1 )
-   2>R 
+: MFIND ( ta c-addr u - ta c-addr u 0 | xt 1 | xt -1 )
+   ROT DUP >R
+   ROT ROT 2>R
    BEGIN 
      DUP 
    WHILE
      DUP .wl @ 2R@
-     ROT SEARCH-WORDLIST ?DUP IF ROT 2R> DROP 2DROP EXIT THEN
+     ROT SEARCH-WORDLIST ?DUP IF ROT 2R> R> 2DROP 2DROP EXIT THEN
      .super @
-   REPEAT
-   2R> lmu !
-       lma !
-   DROP 0
+   REPEAT 
+   DROP 2R> R> ROT ROT 0
 ;
 
-: MFIND ( ta c-addr u - xt n )
-  (MFIND)
-  DUP 0=
-  IF
-     <# lma @ lmu @ HOLDS S" can't find method " HOLDS 0. #>
-     TUCK PAD SWAP CMOVE PAD SWAP ER-U ! ER-A !
-     -2 THROW
-  THEN
+: SEND ( a ta addr u )
+   MFIND
+   IF (SEND)
+   ELSE 2SWAP S" unknown" RECURSE
+   THEN
 ;
 
-: S-SEND' ( a ta addr u )
-   MFIND 0< STATE @ AND
-   IF SWAP LIT, LIT, POSTPONE SEND ELSE SEND THEN
+: MFIND-ERR ( ta c-addr u - xt 1 | xt -1 | abort )
+    MFIND ?DUP 0=
+    IF
+       ROT DUP S" unknown" SEND
+    THEN
 ;
 
-: SEND' ( a ta "m ") 
-   BL WORD COUNT S-SEND'
+: SEND, ( a ta addr u )
+   MFIND-ERR DROP SWAP LIT, LIT, POSTPONE (SEND)
 ;
 
 : ALIGN-CUSTOM ( n -- )
@@ -85,10 +72,6 @@ VARIABLE lma
 ;
 
 VARIABLE AlignFields?
-
-: DoNotAlign
-   0 AlignFields? !
-;
 
 : AlignDefs ( n -- )
    AlignFields? @ 0= IF DROP EXIT THEN
@@ -178,26 +161,21 @@ CREATE FIRST-OBJCHAIN
     0 CLS ! 
 ;
 
-: (SEND) ( a addr u )
-   2>R DUP @ ( fetch class ) 2R>
-   MFIND  ( a xt n )
-   DROP SEND
-;
-
 : ^ ( obj "word" )
-   BL PARSE
    STATE @
    IF
+     POSTPONE DUP
+     POSTPONE @
+     PARSE-NAME
      POSTPONE SLITERAL
-     POSTPONE (SEND)
-   ELSE (SEND)
+     POSTPONE SEND
+   ELSE DUP @ PARSE-NAME SEND
    THEN
 ; IMMEDIATE
 
-
 : (') ( a addr u -- xt )
    2>R @ 2R>
-   MFIND  ( xt n )
+   MFIND-ERR  ( xt n )
    DROP
 ;
 : ^' ( obj "word" )
@@ -298,7 +276,7 @@ CREATE FIRST-OBJCHAIN
 ; IMMEDIATE
 
 : SUPER ( "m ")
-   CLASS@ .super @ BL WORD COUNT MFIND 0<
+   CLASS@ .super @ BL WORD COUNT MFIND-ERR 0<
    IF COMPILE, ELSE EXECUTE THEN ; IMMEDIATE
 
 : init: S" : init HYPE::INIT-SUBOBJECTS SUPER init" EVALUATE ;
@@ -365,6 +343,12 @@ CLASS MetaClass
     THEN
 ;
 
+: unknown ( addr u )
+    <# name HOLDS S"  in class " HOLDS HOLDS S" can't find method " HOLDS 0. #>
+    TUCK PAD SWAP CMOVE PAD SWAP ER-U ! ER-A !
+    -2 THROW
+;
+
 ;CLASS
 
 : (SUBCLASS)
@@ -401,8 +385,8 @@ MetaClass SUBCLASS ProtoObj
 ;
 
 : CLASS-EMPTY-DISPOSE? ( ta -- f )
-    S" dispose" MFIND DROP ( xt )
-    ProtoObj S" dispose" MFIND DROP =
+    S" dispose" MFIND-ERR DROP
+    ProtoObj S" dispose" MFIND-ERR DROP =
 ;
 
 EXPORT
@@ -423,11 +407,16 @@ EXPORT
 ;
 
 : (send-obj) ( xt shift )
-   SELF+ @ SWAP SEND
+   SELF+ @ SWAP (SEND)
 ;
 
 : (enter-subobject) ( shift -- R: prev-self )
    SELF SWAP SELF+ @ TO SELF
+   R> SWAP >R >R
+;
+
+: (enter-subobject0) ( obj -- R: prev-self )
+   SELF SWAP TO SELF
    R> SWAP >R >R
 ;
 
@@ -438,7 +427,7 @@ EXPORT
 \ with support of syntax: var var var prop
 
 : OBJ-SEND, ( class shift addr u )
-   2>R SWAP 2R> MFIND
+   2>R SWAP 2R> MFIND-ERR
    STATE @
    IF \ compilation
      -1 = ( shift xt )
@@ -453,7 +442,7 @@ EXPORT
           ['] (exit-subobject) COMPILE,
      THEN
    ELSE
-     DROP SWAP (send-obj)     
+     DROP SWAP (send-obj)
    THEN
 ;
 
@@ -463,7 +452,7 @@ EXPORT
           CLASS@ .objchain !
           , CELL AlignDefs OBJ-SIZE ,
           CELL CLASS@ .size +!
-   DOES>  DUP CELL+ @ ( class )
+   DOES>  DUP CELL+ @ ( chain class )
           SWAP CELL+ CELL+ @ ( shift )
           PARSE-NAME OBJ-SEND,
 ;
@@ -489,13 +478,29 @@ EXPORT
     ;CLASS
 ;
 
+: CompileDeferredStatic ( a ta "name" )
+    PARSE-NAME MFIND-ERR
+    STATE @ 0=
+    IF
+       DROP (SEND)
+    ELSE
+       -1 = \ var or method
+       IF
+            LIT, POSTPONE (SEND)
+       ELSE \ [obj] var-xt
+            \ owner.child method
+            >BODY CELL+ DUP @ ( class ) SWAP CELL+ @ LIT, ( shift )
+            POSTPONE +
+            POSTPONE @
+            RECURSE
+      THEN
+    THEN
+;
+
 : :: ( obj "word" )
     [CHAR] . WORD FIND 0= IF ABORT" can't find class name!" THEN
-    EXECUTE
-    BL PARSE MFIND DROP 
-    STATE @
-    IF LIT, POSTPONE SEND
-    ELSE SEND THEN
+    EXECUTE ( ta )
+    CompileDeferredStatic
 ; IMMEDIATE
 
 VOCABULARY HypeSupport
@@ -529,8 +534,6 @@ SET-CURRENT PREVIOUS
 
 : SELF POSTPONE SELF ; IMMEDIATE
 
-: SEND-XT ['] SEND ;
-
 : NewObj ( ta -- addr )
     ['] ALLOCATE NewObjWith
 ;
@@ -541,7 +544,11 @@ SET-CURRENT PREVIOUS
 
 : NEW ( ta "name ")
     CREATE ['] ZALLOT NewObjWith DROP IMMEDIATE
-    DOES> DUP @ ( ta ) SEND'
+    DOES> DUP @ ( fetch class ) 
+          STATE @ 0= INVERT
+          IF SWAP LIT,
+          THEN
+          CompileDeferredStatic
 ;
 
 : HypeDisposeVoc HypeDisposeVoc ;
@@ -553,8 +560,12 @@ SET-CURRENT PREVIOUS
    SMUDGE
    LATEST COUNT 
    CLASS@ .super @ 
-   ROT ROT MFIND DROP COMPILE,
+   ROT ROT MFIND-ERR DROP COMPILE,
    SMUDGE
 ; IMMEDIATE
+
+: DoNotAlign
+   0 AlignFields? !
+;
 
 ;MODULE

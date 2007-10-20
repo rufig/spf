@@ -116,7 +116,7 @@ MODULE: HYPE
    >R I>F R> 
    
    COM-TRACE IF 2DUP ComCall. THEN
-   SEND
+   (SEND)
 
    COM-TRACE IF ."  OK" CR THEN
 
@@ -394,6 +394,12 @@ ICLASS CComBase {00000000-0000-0000-0000-000000000000}
 
 : instances ( -- n )
     SELF @ .instancesnumber @
+;
+
+: unknown ( addr u )
+    <# HOLDS S" can't find method " HOLDS 0. #>
+    TUCK PAD SWAP CMOVE PAD SWAP ER-U ! ER-A !
+    -2 THROW
 ;
 
 ;ICLASS
@@ -705,8 +711,8 @@ ICLASS IDispatch {00020400-0000-0000-C000-000000000046}
      UUID:: unicode>buf DUP >R
      ASCIIZ> COM-TRACE IF ." GetIDsOfNames: " 2DUP TYPE THEN
 
-     SELF @ ROT ROT (MFIND)
-     0= IF DISPID_UNKNOWN DISP_E_UNKNOWNNAME -> result THEN
+     SELF @ ROT ROT MFIND
+     0= IF 2DROP DROP DISPID_UNKNOWN DISP_E_UNKNOWNNAME -> result THEN
 
      rgDispId TUCK ! CELL+ -> rgDispId
      R> FREE THROW
