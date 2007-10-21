@@ -31,7 +31,7 @@ else
 html_vect_header=html_header_3
 endif
 
-docs = intro.ru.html intro.en.html readme.ru.html readme.en.html devel.ru.html devel.en.html
+docs = intro.ru.html intro.en.html readme.ru.html readme.en.html devel.ru.html devel.en.html src.ru.html
 
 target: clean_mark $(docs)
 
