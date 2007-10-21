@@ -16,7 +16,8 @@ NEEDS ~ygrek/lib/list/write.f
 NEEDS ~pinka/lib/lambda.f
 NEEDS ~ygrek/lib/hype/timer.f
 NEEDS ~ygrek/lib/hype/point.f
-NEEDS  lib/ext/const.f
+\ NEEDS  lib/ext/const.f \ can't switch because of conflict with ~day/wincons/wc.f being used in WFL
+NEEDS ~day/wincons/wc.f
 S" ~ygrek/lib/data/opengl.const" ADD-CONST-VOC
 
 : float ( F: f -- D: f )

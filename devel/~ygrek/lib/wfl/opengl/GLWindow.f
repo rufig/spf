@@ -58,7 +58,7 @@ dispose: ( CR ." Kill ") ;
    \ CR ." Changed dimensions to : " _canvas :width@ . _canvas :height@ .
 ;
 
-W: WM_CREATE { lpar wpar msg hwnd -- n }
+W: WM_CREATE ( -- n )
     SUPER hWnd @ _canvas :initialize
     0 ;
 
@@ -70,28 +70,24 @@ W: WM_CREATE { lpar wpar msg hwnd -- n }
 
 : :prepare ;
 
-(
+( 
 W: WM_PAINT
-   2DROP 2DROP
    :onPaint
    0 ;)
 
 \ timer was created by canvas!
 W: WM_TIMER
-   2DROP 2DROP
    :onPaint
    0 ;
 
-W: WM_DESTROY ( lpar wpar msg hwnd -- n )
-   2DROP 2DROP 0
-   0 PostQuitMessage DROP
+W: WM_DESTROY ( -- n )
+   0 0 PostQuitMessage DROP
 ;
 
-W: WM_SIZE ( lpar wpar msg hwnd )
+W: WM_SIZE ( -- n )
    \ CR ." WM_SIZE"
-   3 PICK LOWORD _canvas :width!
-   3 PICK HIWORD _canvas :height!
-   2DROP 2DROP 
+   SUPER msg lParam @ LOWORD _canvas :width!
+   SUPER msg lParam @ HIWORD _canvas :height!
    :resize
    0
 ;

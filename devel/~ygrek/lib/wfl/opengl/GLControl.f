@@ -13,23 +13,18 @@ dispose: ;
 
 : create SUPER create ( hwnd ) canvas :initialize ;
 
-(
-W: WM_PAINT
-   2DROP 2DROP
+( W: WM_PAINT
    ." paint"
    :onPaint 
    0 ;)
 
 W: WM_TIMER
-   2DROP 2DROP
    canvas :doPaint 
    0 
 ;
 
-W: WM_DESTROY ( lpar wpar msg hwnd -- n )
-   2DROP 2DROP 0
-   0 PostQuitMessage DROP
-;
+W: WM_DESTROY ( -- n )
+   0 0 PostQuitMessage DROP ;
 
 : :resize { | WindowRect }
     RECT::/SIZE ALLOCATE THROW TO WindowRect
@@ -48,11 +43,10 @@ W: WM_DESTROY ( lpar wpar msg hwnd -- n )
 ;
 
 
-W: WM_SIZE ( lpar wpar msg hwnd )
+W: WM_SIZE ( -- n )
    \ CR ." WM_SIZE"
-   3 PICK LOWORD canvas :width!
-   3 PICK HIWORD canvas :height!
-   2DROP 2DROP
+   SUPER msg lParam @ LOWORD canvas :width!
+   SUPER msg lParam @ HIWORD canvas :height!
    :resize
    0
 ;
