@@ -97,7 +97,7 @@ CGLWindow SUBCLASS CMyGLWindow
 
   -15e -15e -40e aa :setShift
 
-  0 aa create DROP
+  0 0 aa create DROP
   SW_SHOW aa showWindow
 
   timer :start
