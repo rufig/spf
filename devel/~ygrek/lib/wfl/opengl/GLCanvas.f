@@ -40,7 +40,7 @@ init: NULL _hRC ! ;
     NULL NULL wglMakeCurrent 0= S" Failed to release Rendering Context" SUPER abort ;
 
 : :enable ( hwnd -- )
-   SUPER create DROP
+   SUPER createDC DROP
    :takeRC
 ;
 
@@ -186,7 +186,7 @@ dispose:          \ Properly Kill The Window
    \ ." PFD created"
    status
 
-   _hwnd @ _context create DROP
+   _hwnd @ _context createDC DROP
 
    pfd _context checkDC ChoosePixelFormat TO PixelFormat
    PixelFormat 0= S" Can't Find A Suitable PixelFormat." SUPER abort
