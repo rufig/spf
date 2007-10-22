@@ -21,7 +21,7 @@ CPanel SUBCLASS CPercentPanel
 
 W: WM_PAINT
     || CPaintDC dc ||
-    SUPER hWnd @ dc create
+    SUPER hWnd @ dc createDC
     DUP TRANSPARENT SWAP SetBkMode SUPER -wthrow
     drawPercent
     0

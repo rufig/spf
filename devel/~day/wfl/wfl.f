@@ -8,7 +8,8 @@ NEEDS   ~day\hype3\locals.f
 
 MODULE: COM
 
-NEEDS              ~yz/lib/automate.f
+NEEDS           ~yz/lib/automate.f
+NEEDS 		~yz\lib\comevents.f 
 
 EXPORT
 

@@ -23,7 +23,7 @@ REFLECT_NOTFICATIONS
     S" button pressed!" ROT ^ showMessage
 ;
 
-W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
+W: WM_INITDIALOG ( -- n )
    S" http://forth.org.ru" label setURL
    urlLabelID SUPER getDlgItem label attach
 

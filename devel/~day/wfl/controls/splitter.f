@@ -91,7 +91,7 @@ W: WM_MOUSEMOVE
 W: WM_PAINT
     || CPaintDC dc CRect r CBrush b CPen p ||
 
-    SUPER msg hwnd @ dc create DROP
+    SUPER msg hwnd @ dc createDC DROP
 
     SUPER getClientRect r ! r @
     COLOR_3DFACE b getSysColorBrush
@@ -310,7 +310,7 @@ W: WM_SIZE ( -- n )
 
 : drawMark 
     || CDC dc CBrush b ||
-    parent hWnd @ dc create DROP
+    parent hWnd @ dc createDC DROP
     b createHalftoneBrush dc selectObject DROP
 
     PATINVERT

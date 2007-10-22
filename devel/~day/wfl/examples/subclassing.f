@@ -69,7 +69,7 @@ W: WM_LBUTTONUP
 W: WM_PAINT
    || CPaintDC dc CBrush brush CRect r ||
 
-   SUPER msg hwnd @ dc create DROP
+   SUPER msg hwnd @ dc createDC DROP
 
    getTextColor dc setTextColor
    getBrushColor brush createSolid dc selectObject DROP

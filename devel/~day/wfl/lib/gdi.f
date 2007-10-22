@@ -46,7 +46,7 @@ init:
     TRUE ?own !
 ;
 
-: create ( hwnd -- hdc )
+: createDC ( hwnd -- hdc )
     GetDC DUP -WIN-THROW
     DUP SUPER handle !
 ;
@@ -66,7 +66,7 @@ dispose: release ;
 CDCHandle SUBCLASS CPaintDC
     /PS DEFS ps
 
-: create ( hwnd -- hdc )
+: createDC ( hwnd -- hdc )
     DUP SUPER hWnd !
     ps SWAP BeginPaint DUP -WIN-THROW
     DUP SUPER handle !
@@ -100,14 +100,14 @@ dispose:
 
 CGDIObject SUBCLASS CPen
 
-: create ( color width style -- hPen )
+: createPen ( color width style -- hPen )
     SUPER handle @ IF SUPER releaseObject THEN
     CreatePen DUP -WIN-THROW
     DUP SUPER handle !
 ;
 
 : createSimple ( color -- hPen )
-    1 PS_SOLID create
+    1 PS_SOLID createPen
 ;
 
 ;CLASS
@@ -185,7 +185,7 @@ WINAPI: CreateFontIndirectA GDI32.DLL
 
 CGDIObject SUBCLASS CFont
 
-: create ( lfHeight lfWeight addr u -- handle )
+: createFont ( lfHeight lfWeight addr u -- handle )
     || CLOGFONT lf ||
 
     SUPER handle @ IF SUPER releaseObject THEN

@@ -60,7 +60,7 @@ CMsgController SUBCLASS CFontController
 \ этот метод вызывается каждый раз когда контроллер цепляется к окну
  \ (в том числе и в attach методе)
 : onAttached
-    -18 FW_BOLD S" Tahoma" m_font create
+    -18 FW_BOLD S" Tahoma" m_font createFont
     0 SUPER parent-obj@ ^ setFont
 ;
 

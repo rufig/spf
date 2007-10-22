@@ -11,7 +11,7 @@ CDialog SUBCLASS CHtmlDialog
 	CWebBrowser OBJ ctl 
 	CWebBrowser OBJ ctl2
 
-W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
+W: WM_INITDIALOG ( -- n )
    \ file system
    ctl className leftCtlID SUPER getDlgItem ctl attach
    S" c:\" ctl navigate
