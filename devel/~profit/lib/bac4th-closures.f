@@ -81,13 +81,13 @@ WARNING !
 
 EXPORT
 
-: axt ( addr u -- xt ) LOCAL t
-CREATE-VC t ! \ создаём виртуальный кодофайл
+: axt ( addr u -- xt )
+CREATE-VC >R \ создаём виртуальный кодофайл
 ALSO bac4th-closures \ подключаем словарь с своими структурами управления
-t @ VC-COMPILED \ компилируем строку в виртуальный кодофайл
+R@ VC-COMPILED \ компилируем строку в виртуальный кодофайл
 PREVIOUS \ отключаем его по окончании компиляции
-t @ VC-RET, \ ставим команду выхода
-t @ \ берём исполняемый адрес начала кодофайла
+R@ VC-RET, \ ставим команду выхода
+R> \ берём исполняемый адрес начала кодофайла
 ;
 
 
@@ -99,7 +99,8 @@ CONT \ и кидаем его наверх
 
 \ То же самое что и compiledCode , но с динамическими строками из ~ac/lib/str4.f
 \ Это позволяет писать код в несколько строк
-: straxt=> ( s --> xt \ <-- ) PRO LOCAL s DUP s ! STR@ axt=> s @ STRFREE CONT ;
+: straxt=> ( s --> xt \ <-- ) PRO  DUP >R STR@ axt R> STRFREE
+BACK DESTROY-VC TRACKING RESTB CONT ;
 
 : compiledCode ( addr u --> xt \ <-- ) \ синоним для axt=>
 RUSH> axt=> ;
@@ -109,11 +110,10 @@ RUSH> axt=> ;
 ;MODULE
 
 /TEST
-REQUIRE SEE lib/ext/disasm.f
 
 0 VALUE t 
 
-: eval ( addr u -- ) compiledCode XT-VC EXECUTE ;
+: eval ( str -- ) straxt=> EXECUTE ;
 
 
 
@@ -123,16 +123,19 @@ REQUIRE TESTCASES ~ygrek/lib/testcase.f
 TESTCASES compile to heap test
 
 \ Переносим данные со стека внутрь генерируемого кода
-(( 4 2 1 S" LITERAL LITERAL + LITERAL *" eval -> 12 ))
+(( 4 2 1 " LITERAL LITERAL + LITERAL *" eval -> 12 ))
 
 \ Переносим данные со стека внутрь цикла (BEGIN REPEAT) генерируемого кода
-:NONAME
-23 100 5 S" 0 BEGIN DUP LITERAL < WHILE LITERAL LITERAL + . 1+ REPEAT DROP "
-['] eval TYPE>STR DUP STR@ S" 123 123 123 123 123 " TEST-ARRAY
-STRFREE ; EXECUTE
+23 100 5 "
+0 BEGIN
+DUP LITERAL < WHILE
+LITERAL LITERAL + . 1+
+REPEAT DROP " 
+' eval TYPE>STR DUP STR@ S" 123 123 123 123 123 " TEST-ARRAY
+STRFREE
 
 \ Переносим данные со стека внутрь цикла (DO LOOP) генерируемого кода
-11 S" 3 0 DO LITERAL . LOOP " ' eval TYPE>STR DUP STR@
+11 " 3 0 DO LITERAL . LOOP " ' eval TYPE>STR DUP STR@
 S" 11 11 11 " TEST-ARRAY
 STRFREE
 
