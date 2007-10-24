@@ -21,11 +21,17 @@
 \ * . " straxt=> ( xt )
 
 \ При этом в генерируемый отрезок кода кода можно скомпилировывать
-\ свои куски, задавая их на стеке и выполняя компилирующией действия
-\ IMMEDIATE-словами подобными LITERAL , оно нужно для передачи числа
-\ на стеке в компилируемую функцию.
-\ Или же можно входить напрямую в режим интерпретации словами [ и ] 
-\ (см. примеры внизу)
+\ свои куски, задавая их на стеке или выполняя компилирующие действия
+\ IMMEDIATE-словами подобными LITERAL , его можно использовать для
+\ передачи числа на стеке в компилируемую функцию:
+\ 4 2 1 S" LITERAL LITERAL + LITERAL * ." axt EXECUTE
+\ Сформирует код "1 2 + 4 *" и выполнив его, напечатает: "12"
+
+\ Или же можно входить напрямую в режим интерпретации словами [ и ] :
+\ ' . S" 3 0 DO I [ COMPILE, ] LOOP " axt EXECUTE
+\ выведет 0 1 2
+\ Действие для обработки чисел мы задали снаружи замыкания ( ' . )
+\ [ COMPILE, ] вкомпилировал xt внутрь генерируемой функции
 
 \ Такая передача значений, внутрь "замыкания", противоречит
 \ следующему абзацу пункта 3.2.3.2 ANS-94:
@@ -45,9 +51,10 @@
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE CONT ~profit/lib/bac4th.f
 REQUIRE FREEB ~profit/lib/bac4th-mem.f
+REQUIRE LOCAL ~profit/lib/static.f
 \ REQUIRE EVALUATED-HEAP ~profit/lib/evaluated.f
 REQUIRE VC-COMPILED ~profit/lib/compile2Heap.f
-REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE A_BEGIN ~mak/lib/a_if.f
 
 MODULE: bac4th-closures
@@ -62,6 +69,15 @@ MODULE: bac4th-closures
 : AGAIN	[COMPILE] A_AGAIN ; IMMEDIATE
 : REPEAT [COMPILE] A_REPEAT ; IMMEDIATE
 : UNTIL [COMPILE] A_UNTIL ; IMMEDIATE
+
+WARNING @ WARNING 0!
+\ "Патчим" определения в словаре no-inline
+\ чтобы они тоже использовали отдельные control-flow stack
+: DO    CS-SP>< POSTPONE DO    CS-SP>< ; IMMEDIATE
+: ?DO   CS-SP>< POSTPONE ?DO   CS-SP>< ; IMMEDIATE
+: LOOP  CS-SP>< POSTPONE LOOP  CS-SP>< ; IMMEDIATE
+: +LOOP CS-SP>< POSTPONE +LOOP CS-SP>< ; IMMEDIATE
+WARNING !
 
 EXPORT
 
@@ -95,8 +111,36 @@ RUSH> axt=> ;
 /TEST
 REQUIRE SEE lib/ext/disasm.f
 
-: showMeTheCode ( addr u -- ) compiledCode XT-VC DUP REST EXECUTE CR CR ;
+0 VALUE t 
 
-$> 4 2 1 S" LITERAL LITERAL + LITERAL * ." showMeTheCode
+: eval ( addr u -- ) compiledCode XT-VC EXECUTE ;
 
-$> 100 S" 0 BEGIN DUP 10 < WHILE LITERAL . 1+ REPEAT DROP " showMeTheCode
+
+
+REQUIRE TYPE>STR ~ygrek/lib/typestr.f
+REQUIRE TESTCASES ~ygrek/lib/testcase.f
+
+TESTCASES compile to heap test
+
+\ Переносим данные со стека внутрь генерируемого кода
+(( 4 2 1 S" LITERAL LITERAL + LITERAL *" eval -> 12 ))
+
+\ Переносим данные со стека внутрь цикла (BEGIN REPEAT) генерируемого кода
+:NONAME
+23 100 5 S" 0 BEGIN DUP LITERAL < WHILE LITERAL LITERAL + . 1+ REPEAT DROP "
+['] eval TYPE>STR DUP STR@ S" 123 123 123 123 123 " TEST-ARRAY
+STRFREE ; EXECUTE
+
+\ Переносим данные со стека внутрь цикла (DO LOOP) генерируемого кода
+11 S" 3 0 DO LITERAL . LOOP " ' eval TYPE>STR DUP STR@
+S" 11 11 11 " TEST-ARRAY
+STRFREE
+
+\ DIS-OPT
+\ Вписываем код снаружи "внутрь" замыкания
+\ ' . S" 3 0 DO I LITERAL EXECUTE LOOP " ' eval TYPE>STR DUP STR@
+\ S" 0 1 2 " TEST-ARRAY
+\ STRFREE
+\ ^--- работает только с отключённым оптимизатором ????
+
+END-TESTCASES
