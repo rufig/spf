@@ -10,8 +10,8 @@ REQUIRE CGLWindow ~ygrek/lib/wfl/opengl/GLWindow.f
 REQUIRE CBMP24 ~ygrek/lib/spec/bmp.f
 REQUIRE CGLImage ~profit/lib/wfl/openGL/GLImage.f
 REQUIRE state-table ~profit/lib/chartable.f
-REQUIRE CONST ~micro/lib/const/const.f
-REQUIRE VK_F11 ~micro/lib/const/vk_.f
+\ REQUIRE CONST ~micro/lib/const/const.f
+\ REQUIRE VK_F11 ~micro/lib/const/vk_.f
 
 WINAPI: glColor3i OpenGL32.DLL
 WINAPI: glReadPixels OpenGL32.DLL
@@ -82,7 +82,7 @@ glwindow => moveWindow ;
 CGLMyWindow NewObj TO glwindow
 CGLImage NewObj TO bmp
 bmp glwindow => :add
-0 glwindow => create DROP
+0 0 glwindow => create DROP
 SW_SHOW glwindow => showWindow
 drawer
 loop run 
