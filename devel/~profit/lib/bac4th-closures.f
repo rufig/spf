@@ -51,7 +51,6 @@
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE CONT ~profit/lib/bac4th.f
 REQUIRE FREEB ~profit/lib/bac4th-mem.f
-REQUIRE LOCAL ~profit/lib/static.f
 \ REQUIRE EVALUATED-HEAP ~profit/lib/evaluated.f
 REQUIRE VC-COMPILED ~profit/lib/compile2Heap.f
 REQUIRE STR@ ~ac/lib/str5.f
