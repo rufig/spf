@@ -1,6 +1,6 @@
 \ Бэкфорт, порт на SPF
-\ см. http://forth.org.ru/~mlg/index.html#bacforth
-\ Копия есть в дистрибутиве: <папка SPF>/devel/~mlg/index.html#bacforth
+\ см. статью http://forth.org.ru/~mlg/index.html#bacforth
+\ Копия этой статьи есть в дистрибутиве: <папка SPF>/devel/~mlg/index.html#bacforth
 
 
 REQUIRE /TEST ~profit/lib/testing.f
@@ -30,7 +30,7 @@ MODULE: bac4th
 
 EXPORT
 
-\ Выполнение вектора исполнения xt (не совсем тоже самое что и EXECUTE)
+\ Выполнение вектора исполнения xt
 : ENTER ( xt -- ) POSTPONE EXECUTE ; IMMEDIATE ( \ это тоже самое, но что быстрее?
 : ENTER           >R ;                           \ )
 
@@ -46,30 +46,17 @@ EXPORT
 : ONFALSE ( f -- ) IF RDROP THEN ;   \ Откат если f=true, то есть _пропускает_ только f=0
 : ONTRUE ( f -- ) NOT IF RDROP THEN ; \ Откат если f=false
 
-: R@ENTER, SetOP 0xFF C, 0x14 C, 0x24 C, ; ( \ CALL [ESP]
-: R@ENTER, ['] R@ COMPILE, ['] ENTER COMPILE, ; \ )
+\ : R@ENTER, SetOP 0xFF C, 0x14 C, 0x24 C, ; ( \ CALL [ESP]
+: R@ENTER, ['] R@ COMPILE, ['] EXECUTE COMPILE, ; \ )
 
-: R>ENTER, SetOP 0x5B C, SetOP 0xFF C, 0xD3 C, ; ( \ POP EBX    CALL EBX
-: R>ENTER, ['] R> COMPILE, ['] ENTER COMPILE, ;  \ )
+\ : R>ENTER, SetOP 0x5B C, SetOP 0xFF C, 0xD3 C, ; ( \ POP EBX    CALL EBX
+: R>ENTER, ['] R> COMPILE, ['] EXECUTE COMPILE, ;  \ )
 
-\ VARIABLE PRO1
 : PRO R> R> >L ['] LDROP >R >R ;      \ Делает текущий исполняемый код откатным, ставится в начало
 \ : PRO R> R> >L ENTER [ HERE PRO1 ! ] LDROP ;
 
 \ : CONT L> >R R@ ENTER R> >L ; (
 : CONT L> >R [ R@ENTER, ] R> >L ; \ Выполняет успех в таком коде (в слове где в начале есть PRO )
-
-DEFINITIONS
-
-\ Хаковый CONT !
-\ : REL! ( ADDR' ADDR  --  ) TUCK - CELL- SWAP ! ;
-\ : CONT
-\ L@ R@ CELL- REL!
-\ R0 @ RP@ DO I @ PRO1 @ = IF ['] NOOP I ! LEAVE THEN CELL +LOOP
-\ L@ >R ;
-
-EXPORT
-
 
 : RUSH ( xt -- )        \ Безусловный переход по адресу на стеке
 0x8B C, 0xD8 C,         \ MOV EBX, EAX
@@ -143,13 +130,9 @@ EXPORT
 ] ; \ )
 
 \ Запись значения в переменную addr с восстановлением при откате
-\ : B!     ( n addr --> / <-- )  R> OVER DUP @  2>R -ROT !  ENTER 2R> SWAP ! ; (
-: B!     ( n addr --> / <-- )  PRO DUP KEEP ! CONT ; \ )
-
-
-\ Запись байта в переменную addr с восстановлением при откате
-\ : BC!    ( n addr --> / <-- )  R> OVER DUP C@ 2>R -ROT C!  ENTER 2R> SWAP C! ; (
-: BC!    ( n addr --> / <-- )  PRO DUP KEEP C! CONT ; \ )
+\ : KEEP!     ( n addr --> / <-- )  R> OVER DUP @  2>R -ROT !  ENTER 2R> SWAP ! ; (
+: KEEP!     ( n addr --> / <-- )  PRO DUP KEEP ! CONT ; \ )
+\ у ~mlg было B! -- переименовано в KEEP! чтобы убрать конфликт по имени
 
 \ Задать действия при откате ( BACK .. TRACKING ), или, иначе говоря,
 \ положить адрес начала последовательности шитого кода между словами 
@@ -330,13 +313,13 @@ VARIABLE a
 VARIABLE b
 
 : r
-10 a B!
-a @ 1+ b B!
+10 a KEEP!
+a @ 1+ b KEEP!
 ." r2.a=" a @ .
 ." r2.b=" b @ . ;
 
 : localsTest
-5 a B!
+5 a KEEP!
 ." r.a=" a @ .
 r
 ." r.a=" a @ . ;

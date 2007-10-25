@@ -1,9 +1,9 @@
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE FIND-FILES-R ~ac/lib/win/file/findfile-r.f
-REQUIRE B! ~profit/lib/bac4th.f
+REQUIRE KEEP! ~profit/lib/bac4th.f
 
 \ Итератор по файлам в папке указанной addr u , максимальная глубина -- depth
-: ITERATE-FILES ( addr u depth --> addr1 u1 data flag \ <-- ) R> SWAP FIND-FILES-DEPTH B!  FIND-FILES-R ;
+: ITERATE-FILES ( addr u depth --> addr1 u1 data flag \ <-- ) R> SWAP FIND-FILES-DEPTH KEEP!  FIND-FILES-R ;
 \ При каждой итерации выдаёт:
 \ addr u - путь и имя файла или каталога (готово для open-file, etc)
 \ flag=true, если каталог, false если файл

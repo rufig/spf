@@ -119,15 +119,15 @@ REQUIRE lastChar ~profit/lib/strings.f
 REQUIRE number ~profit/lib/number.f
 REQUIRE charTable ~profit/lib/chartable-eng.f
 REQUIRE enqueueNOTFOUND ~pinka/samples/2006/core/trans/nf-ext.f
-REQUIRE B! ~profit/lib/bac4th.f
+REQUIRE KEEP! ~profit/lib/bac4th.f
 \ REQUIRE cascaded ~profit/lib/colorForth/cascaded.f
 
 MODULE: colorSPF
 
 : wordCode ( addr u -- ) SFIND NOT IF 2DROP -321 THROW  THEN ;
 : numberOrWord ( addr u -- ) SFIND NOT IF
-lastChar [CHAR] # = IF 10 BASE B! CHAR- THEN CHAR+
-lastChar [CHAR] $ = IF 16 BASE B! CHAR- THEN CHAR+
+lastChar [CHAR] # = IF 10 BASE KEEP! CHAR- THEN CHAR+
+lastChar [CHAR] $ = IF 16 BASE KEEP! CHAR- THEN CHAR+
 number THEN ;
 
 charTable colors
@@ -178,23 +178,23 @@ typeNumber: .. \ Хех.. Прям морзянка.
 \ В следствие того что цвет компиляции ( , ) знать 
 \ ничего не хочет про IMMEDIATE-статус, то нужно 
 \ задавать действие "во время компиляции if"
-IF,:   TRUE, STATE, B!, IF.
-THEN,: TRUE, STATE, B!, THEN.
+IF,:   TRUE, STATE, KEEP!, IF.
+THEN,: TRUE, STATE, KEEP!, THEN.
 
 \ INLINE-подстановочные слова (src/compiler/spf_inline.f)
-RDROP,:   TRUE, STATE, B!, RDROP.
-?DUP,:    TRUE, STATE, B!, ?DUP.
-EXECUTE,: TRUE, STATE, B!, EXECUTE.
+RDROP,:   TRUE, STATE, KEEP!, RDROP.
+?DUP,:    TRUE, STATE, KEEP!, ?DUP.
+EXECUTE,: TRUE, STATE, KEEP!, EXECUTE.
 
->R,:  TRUE, STATE, B!, >R.
-R>,:  TRUE, STATE, B!, R>.
+>R,:  TRUE, STATE, KEEP!, >R.
+R>,:  TRUE, STATE, KEEP!, R>.
 
 >R:   >R, .
 R>:   R>, .
 
 
 
-\ ."' .": TRUE, STATE, B!, , .
+\ ."' .": TRUE, STATE, KEEP!, , .
 
 fact: ( x -- fx ) ?DUP, 0=, IF, 1; . THEN, DUP, 1-, fact, *.
 

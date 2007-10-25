@@ -41,12 +41,12 @@ EXPORT
 
 \ Временное переключение реакций на маш. команды начинающиеся
 \ с 0xE8 и 0xE9 на "наши" слова
-['] JSR OP-TABLE 0xE8 CELLS + B!
-['] JMP OP-TABLE 0xE9 CELLS + B!
+['] JSR OP-TABLE 0xE8 CELLS + KEEP!
+['] JMP OP-TABLE 0xE9 CELLS + KEEP!
 
 \ Временное подавление вывода/ввода дизассемблера
-['] 2DROP ['] TYPE CFL + B!
-['] BL ['] KEY CFL + B!
+['] 2DROP ['] TYPE CFL + KEEP!
+['] BL ['] KEY CFL + KEEP!
 REST-AREA ;
 
 USER delta

@@ -88,7 +88,7 @@ S@ S" 2OVER" COMPARE ONTRUE
 BACK SDROP TRACKING
 <* CONT ;
 
-: start-search START{ counter 0! BEGIN counter @ 1+ counter B!
+: start-search START{ counter 0! BEGIN counter @ 1+ counter KEEP!
 opBlock
 stack-needed IF CR S-TYPE THEN
 counter @ 5 > UNTIL }EMERGE CR ." ----" ;
