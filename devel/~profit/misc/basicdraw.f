@@ -44,11 +44,11 @@ DEFINITIONS
 
 CGLWindow SUBCLASS CGLMyWindow
 W: WM_KEYDOWN ( lpar wpar msg hwnd -- res )
-2DROP NIP keys
+SUPER msg wParam @ keys
 0 ;
 
 W: WM_LBUTTONDOWN ( lpar wpar msg hwnd -- res )  { | WindowRect }
-2DROP DROP DUP LOWORD SWAP HIWORD ( x y ) 
+SUPER msg lParam @ DUP LOWORD SWAP HIWORD ( x y ) 
 
 RECT::/SIZE ALLOCATE THROW TO WindowRect
 0 WindowRect RECT::left ! \ Set Left Value To 0
@@ -61,7 +61,8 @@ WindowRect RECT::left @ + WindowRect RECT::left @ + SWAP
 WindowRect FREE THROW
 
 ( x' y' ) click
-0 ;
+0
+;
 
 ;CLASS
 
