@@ -4,17 +4,22 @@ http://www.taygeta.com/fsl/sciforth.html
 Подключение к SPF
 
 Требуется слой совместимости ~diver/fsl-util.f
-Файлы FSL имеют Unix-овые концы строк.
 Есть несколько конфликтов имён поэтому лучше загружать в отдельный словарь.
 
 Код для подключения может выглядеть как-то так
 
 MODULE: FSL
  REQUIRE fsl-util ~diver/fsl-util.f
- UNIX-LINES
-  REQUIRE JDAY ~clf/fsl/dates.seq
- DOS-LINES
+ REQUIRE JDAY ~clf/fsl/dates.seq
 ;MODULE
 
 Оставлены только файлы которые которые используются другими либами в devel.
+
 Вся библиотека - http://www.taygeta.com/fsl/library/Library.tgz
+
+PS 
+Изначально файлы FSL имеют Unix-овые концы строк, но те что находятся в devel/~clf/fsl
+соответствуют остальным файлам в репозитории spf, поэтому переключать UNIX-LINES не нужно.
+Никаких других изменений в оригиналных файлах не было.
+
+$Date$
