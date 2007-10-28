@@ -41,14 +41,13 @@ REQUIRE { lib/ext/locals.f
     I OVER BIT@ (.) 
    LOOP DROP ;
 
-: BITS-APPEND { from bits to tbits -- bits }
+: BITS-APPEND { from bits to tbits -- }
    bits 0 DO
     I from BIT@ tbits to BIT!
     tbits 1+ -> tbits
-   LOOP
-   tbits ;
+   LOOP ;
 
-: BITS-MOVE ( from to bits -- ) SWAP 0 BITS-APPEND DROP ;
+: BITS-MOVE ( from to bits -- ) SWAP 0 BITS-APPEND ;
 
 : BITS-EQUAL? { a1 a2 bits -- ? }
    bits 0 ?DO
