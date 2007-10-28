@@ -31,6 +31,7 @@ Forth-system and ANS'94 standard.</i>
 * [Numbers](#numbers)
 * [Structures, records](#struct)
 * [Where is FORGET?](#forget)
+* [Where is NOT?](#not)
 * [How to clear the stack with one word?](#cls)
 * [Debugging facilities](#debug)
 * [Comments](#comments)
@@ -271,7 +272,6 @@ Structures can be inherited:
 
 No `FORGET`. But we have `MARKER ( "name" -- )` (use `lib\include\core-ext.f`).
 
-
 ----
 <a id="cls"/>
 ###[How to clear the stack with one word?][start]
@@ -493,7 +493,7 @@ of the inner variables in `AT-THREAD-STARTING`.
 <a id="task"/>
 ###[Multitasking][start]
 
-Threads are created with `TASK: ( xt -- task)` and started with
+Threads are created with `TASK: ( xt "name" -- )` and started with
 `START ( u task -- tid )`, 
 `xt` is an executable token to get control at the thread start with one
 parameter on the stack - `u`. The returned value `tid` can be used to stop the
