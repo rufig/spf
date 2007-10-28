@@ -46,15 +46,35 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   yield,
 </rule>
 
-<rule match="f:q"><!-- 'quote' (seems better than 'xt') -->
-  <m>
-  <f:lit> BFW, <f:p><yield/></f:p> RFW </f:lit>
-  </m>
-</rule>
-<rule match="f:q">
-  STATE? <f:if><exit-fail/></f:if>
-  <f:p><yield/></f:p><!-- todo: late binding -->
-</rule>
+<f:cell name="q-s0"/>
+
+<f:def name="q-prol">
+  q-s0 @ >CS STATE0? q-s0 !
+  <f:choose> q-s0 @ <f:when>
+    CONCEIVE STATE 1+!
+  </f:when> M @ 0EQ <f:when>
+    <m><direct>BFW, CONCEIVE</direct></m>
+  </f:when><f:otherwise>
+    <f:lit>GERM</f:lit> EXEC,
+  </f:otherwise></f:choose>
+</f:def>
+
+<f:def name="q-epil">
+  <f:choose> q-s0 @ <f:when>
+    STATE 1-! BIRTH
+  </f:when> M @ 0EQ <f:when>
+    <m><direct>BIRTH RFW LIT,</direct></m>
+  </f:when><f:otherwise>
+    <f:lit>GERM</f:lit> EXEC,
+  </f:otherwise></f:choose>
+  CS> q-s0 !
+</f:def>
+
+<r:rule match="f:q" ds=" -- xt "><!-- 'quote' (seems better than 'xt') -->
+  <!-- not within of the r:mm when using the r:yield (!!!) -->
+  q-prol <r:yield/> q-epil
+</r:rule>
+
 
 <rule match="f:times"><mm>
   <f:repeat> DUP <f:while/> >R <yield/> R> 1- </f:repeat> DROP
