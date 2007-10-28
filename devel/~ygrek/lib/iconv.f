@@ -1,5 +1,5 @@
 \ $Id$
-\ Обёртка к iconv
+\ wrapper for iconv
 \ more to do
 
 REQUIRE CAPI: ~af/lib/c/capi.f
@@ -19,7 +19,7 @@ WINAPI: _errno MSVCRT.DLL
 MODULE: iconv
 
 : convert { a u cd | buf addr size u2 s -- s }
-   u 10 MAX -> size \ для слишком короткой входной строки гарантируем достаточный размер буфера
+   u 10 MAX -> size
    size ALLOCATE THROW -> buf
    "" -> s
    0 0 0 0 cd libiconv DROP \ set to initial state
