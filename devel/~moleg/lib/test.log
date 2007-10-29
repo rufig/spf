@@ -29,6 +29,7 @@ testing: devel\~moleg\lib\util\rstack.f                                passed
 testing: devel\~moleg\lib\util\words.f                                 passed
 testing: devel\~moleg\lib\util\spells.f                                passed
 testing: devel\~moleg\lib\util\queue.f                                 passed
+testing: devel\~moleg\lib\util\tricks.f                                passed
 testing: devel\~moleg\lib\mtask\mutex.f                                passed
 testing: devel\~moleg\lib\mtask\pmutex.f                               passed
 testing: devel\~moleg\lib\arrays\arrays.f                              passed
@@ -45,6 +46,7 @@ testing: devel\~moleg\lib\strings\sconst.f                             passed
 testing: devel\~moleg\lib\strings\string.f                             passed
 testing: devel\~moleg\lib\strings\subst.f                              passed
 testing: devel\~moleg\lib\strings\utf8.f                               passed
+testing: devel\~moleg\lib\strings\utf16.f                              passed
 testing: devel\~moleg\lib\struct\struct.f                              passed
 testing: devel\~moleg\lib\drafts\vars.f                                passed
 testing: devel\~moleg\lib\drafts\mem.f                                 passed
