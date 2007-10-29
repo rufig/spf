@@ -230,7 +230,7 @@ HERE vc @ there ! ; \ сохранение HERE виртуального кодофайла после
 : VC-DLIT, ( du vc -- ) >R SWAP R@ VC-LIT, R> VC-LIT, ;
 : VC-RET, ( vc -- ) VC- POSTPONE EXIT ;
 
-\ Которое _компилирует_ команды форта, заданные в виде строки addr u,
+\ Скомпилировать команды форта, заданные в виде строки addr u,
 \ в кодофайл vc
 : VC-COMPILED ( addr u vc -- )
 VC- TRUE STATE KEEP! EVALUATE ;
