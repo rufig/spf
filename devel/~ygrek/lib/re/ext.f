@@ -2,6 +2,7 @@
 \ ƒополнительные строковые операции с регекспами
 
 REQUIRE re_match? ~ygrek/lib/re/re.f
+REQUIRE str-replace- ~pinka/samples/2005/lib/replace-str.f
 
 : re_search { a u re -- a1 u1 }
   a u
@@ -10,8 +11,32 @@ REQUIRE re_match? ~ygrek/lib/re/re.f
    1 /STRING
   LOOP ;
 
-: re_search-> ( a u re --> a u \ <-- )
-  PRO { a u re | a1 m -- list }
+\ a1 u1 - not-matched part
+\ a2 u2 - matched part
+: re_divide-> ( a u re --> a2 u2 a1 u1 \ <-- )
+  PRO { a u re | s m n }
+  BEGIN
+   a u re re_search -> m -> s
+   m
+  WHILE
+   s a - -> n
+   s m a n CONT
+   ( a___n______u )
+   ( ----s__m---- )
+   a u n m + /STRING -> u -> a
+   u 0= IF EXIT THEN
+  REPEAT
+  0 0 a u CONT ;
+
+: re_search-> PRO re_divide-> 2DROP CONT ;
+: re_split-> PRO re_divide-> 2SWAP 2DROP CONT ;
+
+\ : re_out re_divide-> TYPE CR TYPE CR ;
+\ S" 1fqwe7e677ew8ew77re8fd090fdf" RE" \d+" re_out
+
+0 [IF]
+: re_search1-> ( a u re --> a u \ <-- )
+  PRO { a u re | a1 m }
   BEGIN
    a u re re_search -> m -> a1
    m
@@ -20,8 +45,8 @@ REQUIRE re_match? ~ygrek/lib/re/re.f
    a1 u a1 a - - m /STRING -> u -> a
   REPEAT ;
 
-: re_split-> ( a u re --> a u \ <-- )
-  PRO { a u re | n m -- list }
+: re_split1-> ( a u re --> a u \ <-- )
+  PRO { a u re | n m }
   BEGIN
    a u re re_search
    DUP
@@ -35,19 +60,53 @@ REQUIRE re_match? ~ygrek/lib/re/re.f
   REPEAT
   2DROP
   a u CONT ;
+[THEN]
 
 : re_search_all ( a u re -- list ) %[ START{ re_search-> >STR %s }EMERGE ]% ;
 
 : re_split ( a u re -- list ) %[ START{ re_split-> >STR %s }EMERGE ]% ;
 
-\ : re_replace { s t re -- s1 }
-\    BEGIN
-\   s STR@ re re_match? ;
+: shorthand DUP " : \{n} {n} get-group ;" DUP STR@ EVALUATE STRFREE ;
+:NONAME 10 0 DO I shorthand LOOP ; EXECUTE
+
+: str-replace-matches ( s -- )
+   10 0 DO
+    DUP I " \{n}" I get-group >STR replace-str-
+   LOOP 
+   DROP ;
+
+0 [IF]
+USER-VALUE r_re
+USER-VALUE r_
+
+\ st is STRFREE'd
+: re_replace { a u re st | s -- s }
+    a u re 
+    START{ 
+     re_divide->
+     s STR+
+     re re_match? DROP
+     st STR@ >STR DUP str-replace-matches 
+                      s S+
+     }EMERGE
+    IF
+     
+     st STR@ s STR!
+    THEN
+    st STRFREE
+;
+[THEN]
+
 
 : stre_split STREGEX=> re_split ;
 : stre_search STREGEX=> re_search ;
 
 \ : re_search_bwd
+
+: "TYPE" [CHAR] " EMIT TYPE [CHAR] " EMIT ;
+
+: re_match_result
+   groups-total 0 ?DO I " {n} : " STYPE I get-group "TYPE" CR LOOP ;
 
 /TEST
 
