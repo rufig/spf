@@ -7,7 +7,7 @@
 \ строки
 
 \ Взятый таким образом отрезок кода необходимо снимать
-\ словом DESTROY-VC из ~profit/lib/compile2Heap.f
+\ словом DESTROY-VC (~profit/lib/compile2Heap.f)
 
 \ Чтобы снимать отрезок кода автоматически, при выходе 
 \ из текущего определения (или при поднятии "из глубины"
@@ -16,7 +16,7 @@
 
 \ Возможно также отрезок кода задать в несколько строк
 \ через динамические строки ~ac/lib/str5.f
-\ (со снятием памяти):
+\ (строка со стека освобождается внутри слова):
 \ " 2 DUP
 \ * . " straxt=> ( xt )
 
@@ -50,11 +50,9 @@
 
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE CONT ~profit/lib/bac4th.f
-REQUIRE FREEB ~profit/lib/bac4th-mem.f
-\ REQUIRE EVALUATED-HEAP ~profit/lib/evaluated.f
 REQUIRE VC-COMPILED ~profit/lib/compile2Heap.f
-REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE A_BEGIN ~mak/lib/a_if.f
+REQUIRE STR@ ~ac/lib/str5.f
 
 MODULE: bac4th-closures
 
@@ -69,14 +67,12 @@ MODULE: bac4th-closures
 : REPEAT [COMPILE] A_REPEAT ; IMMEDIATE
 : UNTIL [COMPILE] A_UNTIL ; IMMEDIATE
 
-WARNING @ WARNING 0!
-\ "Патчим" определения в словаре no-inline
-\ чтобы они тоже использовали отдельные control-flow stack
+\ Создаём отдельные структуры циклов в своём модуле,
+\ чтобы они тоже использовали отдельный control-flow stack
 : DO    CS-SP>< POSTPONE DO    CS-SP>< ; IMMEDIATE
 : ?DO   CS-SP>< POSTPONE ?DO   CS-SP>< ; IMMEDIATE
 : LOOP  CS-SP>< POSTPONE LOOP  CS-SP>< ; IMMEDIATE
 : +LOOP CS-SP>< POSTPONE +LOOP CS-SP>< ; IMMEDIATE
-WARNING !
 
 EXPORT
 
@@ -86,9 +82,8 @@ ALSO bac4th-closures \ подключаем словарь с своими структурами управления
 R@ VC-COMPILED \ компилируем строку в виртуальный кодофайл
 PREVIOUS \ отключаем его по окончании компиляции
 R@ VC-RET, \ ставим команду выхода
-R> \ берём исполняемый адрес начала кодофайла
+R> \ оставляем исполняемый адрес начала кодофайла
 ;
-
 
 : axt=> ( addr u --> xt \ <-- ) PRO
 axt \ компилируем строку, берём исполняемый адрес кода
@@ -96,10 +91,10 @@ BACK DESTROY-VC TRACKING RESTB \ по окончании обработки очистить кодофайл
 CONT \ и кидаем его наверх
 ;
 
-\ То же самое что и compiledCode , но с динамическими строками из ~ac/lib/str4.f
+\ То же самое что и compiledCode , но с динамическими строками из ~ac/lib/str5.f
 \ Это позволяет писать код в несколько строк
-: straxt=> ( s --> xt \ <-- ) PRO  DUP >R STR@ axt R> STRFREE
-BACK DESTROY-VC TRACKING RESTB CONT ;
+\ Поданая на вход строка сразу после использования освобождается
+: straxt=> ( s --> xt \ <-- ) PRO DUP STR@ axt=> SWAP STRFREE CONT ;
 
 : compiledCode ( addr u --> xt \ <-- ) \ синоним для axt=>
 RUSH> axt=> ;
@@ -109,40 +104,26 @@ RUSH> axt=> ;
 ;MODULE
 
 /TEST
-
-0 VALUE t 
-
-: eval ( str -- ) straxt=> EXECUTE ;
-
-
-
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
+\ REQUIRE SEE lib/ext/disasm.f
 
-TESTCASES compile to heap test
+TESTCASES bac4th-closures
 
 \ Переносим данные со стека внутрь генерируемого кода
-(( 4 2 1 " LITERAL LITERAL + LITERAL *" eval -> 12 ))
+:NONAME 4 2 1 S" LITERAL LITERAL + LITERAL * ." axt=> EXECUTE ; TYPE>STR
+DUP STR@ S" 12 " TEST-ARRAY STRFREE
 
-\ Переносим данные со стека внутрь цикла (BEGIN REPEAT) генерируемого кода
-23 100 5 "
-0 BEGIN
-DUP LITERAL < WHILE
-LITERAL LITERAL + . 1+
-REPEAT DROP " 
-' eval TYPE>STR DUP STR@ S" 123 123 123 123 123 " TEST-ARRAY
-STRFREE
+\ Переносим данные со стека внутрь цикла генерируемого кода
+:NONAME 23 100 5 S" 0 BEGIN DUP LITERAL < WHILE LITERAL LITERAL + . 1+ REPEAT DROP " axt=> EXECUTE ; TYPE>STR
+DUP STR@ S" 123 123 123 123 123 " TEST-ARRAY STRFREE
 
-\ Переносим данные со стека внутрь цикла (DO LOOP) генерируемого кода
-11 " 3 0 DO LITERAL . LOOP " ' eval TYPE>STR DUP STR@
-S" 11 11 11 " TEST-ARRAY
-STRFREE
+\ Переносим данные со стека внутрь цикла генерируемого кода
+:NONAME 11 S" 3 0 DO LITERAL . LOOP" axt=> EXECUTE ;  TYPE>STR
+DUP STR@ S" 11 11 11 " TEST-ARRAY STRFREE
 
-\ DIS-OPT
-\ Вписываем код снаружи "внутрь" замыкания
-\ ' . S" 3 0 DO I LITERAL EXECUTE LOOP " ' eval TYPE>STR DUP STR@
-\ S" 0 1 2 " TEST-ARRAY
-\ STRFREE
-\ ^--- работает только с отключённым оптимизатором ????
+\ Вписываем код взятый снаружи, "внутрь" замыкания
+:NONAME ['] . S" 3 0 DO I [ COMPILE, ] LOOP " axt=> EXECUTE ; TYPE>STR
+DUP STR@ S" 0 1 2 " TEST-ARRAY STRFREE
 
 END-TESTCASES
