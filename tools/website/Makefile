@@ -14,7 +14,7 @@
 
 path:=/home/groups/s/sp/spf
 spf:=$(path)/spf
-web:=$(web)/htdocs
+web:=$(path)/htdocs
 
 # testing
 #spf:=/home/ygrek/work/forth/spf
