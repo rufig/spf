@@ -1,4 +1,6 @@
-
+# $Id$
+# Automatic updating of website from CVS
+#
 # put this command in crontab (login via ssh and crontab -e)
 # Dont forget to remove leading # sign
 # http://sourceforge.net/docs/E07/#cron
@@ -7,12 +9,22 @@
 # # update web pages from the cvs
 # 24 * * * * cd /home/groups/s/sp/spf/spf/tools/website && cvs up -d -P -C && make
 # ----
-
+#
 # 24 - this is random minute
 
-path=/home/groups/s/sp/spf
-spf=$(path)/spf
-web=$(path)/htdocs
+path:=/home/groups/s/sp/spf
+spf:=$(path)/spf
+web:=$(web)/htdocs
+
+# testing
+#spf:=/home/ygrek/work/forth/spf
+#web:=/home/ygrek/work/forth/spf/tools/website/htdocs
+
+# Files copied to the web space unconditionally
+# for now all files from docs/images
+images:=$(notdir $(wildcard $(spf)/docs/images/*.png))
+# those files with the full path at the web space
+webimages:=$(addprefix $(web)/docs/images/, $(images))
 
 target: www
 
@@ -23,27 +35,25 @@ update:
 make_docs:
 	$(MAKE) -C $(spf)/docs host=linux usage=web
 
-$(web)/index.html: index.html
-	cp index.html $(web)
-
-$(web)/favicon.ico: favicon.ico
-	cp favicon.ico $(web)
+$(web)/docs:
+	if ! test -d "$@"; then mkdir $@; fi
 
 $(web)/docs/images: $(web)/docs
 	if ! test -d "$@"; then mkdir $@; fi
 
-$(web)/docs/images/%.png: $(spf)/docs/images/%.png $(web)/docs/images 
+$(web)/index.html: $(spf)/tools/website/index.html
 	cp $< $@
 
-images: $(web)/docs/images $(web)/docs/images/wrap.png $(web)/docs/images/doc.png $(web)/docs/images/example.png
+$(web)/favicon.ico: $(spf)/tools/website/favicon.ico
+	cp $< $@
 
-www: update web_docs $(web)/index.html $(web)/favicon.ico 
+$(web)/docs/images/%: $(spf)/docs/images/%
+	cp $< $@
 
-$(web)/docs:
-	if ! test -d "$@"; then mkdir $@; fi
+www: update web_docs $(web)/index.html $(web)/favicon.ico $(web)/docs/images $(webimages)
 
 # copy to the web space only newly generated files
-web_docs: $(web)/docs make_docs images
+web_docs: $(web)/docs make_docs
 	if test -f "$(spf)/docs/mark.new"; then \
-	cd $(spf)/docs && cp $(shell cat $(spf)/docs/mark.new) $(web)/docs; \
+	cd $(spf)/docs && cp $(shell cat $(spf)/docs/mark.new) $(web)/docs/; \
 	fi
