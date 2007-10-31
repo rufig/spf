@@ -1459,14 +1459,6 @@ VECT FPOP
            OP1 OPexcise
            M\ 1 DTST
    REPEAT
-   OP1 @ @ FC458B58 = \ POP     EAX   MOV     EAX , FC [EBP]
-   IF      M\ F0 DTST
-           0424648D OP1 @ !
-           OP1 ToOP0
-           FALSE    M\ F1 DTST
-           EXIT
-   THEN
- M\ PPPP
 
    OP2 @ :-SET U< 0= IF  \ GOTO OP2>
    OP2 @ C@ B8 =    \  MOV     EAX , # 44444
@@ -2039,6 +2031,18 @@ OP0 @ W@ 458B XOR OR \ 582728 8B45FC            MOV     EAX , FC [EBP]
 	EXIT
    THEN
 
+OP2 @ 2+ C@ 
+OP0 @ 2+ C@    XOR
+OP2 @ W@ 4589  XOR OR \       MOV     FC [EBP] , EAX
+
+OP1 @ C@ 58 XOR OR   \       POP     EAX
+OP0 @ W@ 458B XOR OR \       MOV     EAX , FC [EBP]
+0= IF      M\ F0 DTST
+           0424648D OP1 @ !
+           OP1 ToOP0
+           FALSE    M\ F1 DTST
+           EXIT
+   THEN
 
 M\ PPPP
 OP3 @ :-SET U< IF TRUE EXIT THEN

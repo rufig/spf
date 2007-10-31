@@ -783,7 +783,7 @@ CODE < ( n1 n2 -- flag ) \ 94
        CMP  EAX, [EBP]
        SETLE AL
        AND  EAX, # 1
-       DEC  EAX
+       A; 0x48 C, \ DEC  EAX
        LEA  EBP, 4 [EBP]
        RET
 END-CODE
@@ -793,7 +793,7 @@ CODE > ( n1 n2 -- flag ) \ 94
        CMP  EAX, [EBP]
        SETGE AL
        AND  EAX,  # 1
-       DEC  EAX
+       A; 0x48 C, \ DEC  EAX
        LEA  EBP, 4 [EBP]
        RET
 END-CODE
