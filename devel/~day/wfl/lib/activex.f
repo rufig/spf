@@ -45,6 +45,37 @@ init:
    * A fragment of HTML such as "MSHTML:<HTML><BODY>This is a line of text</BODY></HTML>" 
 )
 
+\ Each method that should be hooked must be implemented via H: word
+
+
+: (event) ( xt obj n -- res )
+     OVER CELL+ @ ( threadUserData@ hack! ) TlsIndex!
+     <SET-EXC-HANDLER>
+
+     S0 @ >R
+     SP@  + CELL+ S0 !
+
+     SWAP HYPE:: (SEND)
+     R> S0 ! 0
+;
+
+: createEventThunk ( xt )
+    SELF 1 ['] (event) DynamicObjectWndProc
+;
+
+: hookEventsWid ( wid -- )
+     DROP
+;
+
+: hookEvents
+     SELF @ DUP HYPE:: .wl @ hookEventsWid
+     BEGIN
+        HYPE:: .super @ DUP
+     WHILE
+        DUP hookEventsWid
+     REPEAT DROP
+;
+
 : createControl ( addr u )
      AtlAxWinInit DROP
 
@@ -60,6 +91,8 @@ init:
 
      control COM::IID_IDispatch control @ COM:: ::QueryInterface
      S" Control does not support IDispatch" SUPER abort
+
+     hookEvents
 ;
 
 : create ( addr u id parent-obj -- hwnd )

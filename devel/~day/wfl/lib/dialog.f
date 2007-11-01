@@ -17,6 +17,8 @@ WINAPI: DialogBoxIndirectParamA    USER32.DLL
 
 CWindow SUBCLASS CDialog
 
+	CELL PROPERTY modal?
+
 : SKIP
    S" OF TRUE EXIT ENDOF" EVALUATE
 ; IMMEDIATE
@@ -53,6 +55,10 @@ CWindow SUBCLASS CDialog
     THEN
 ;
 
+: defWinProc ( -- n )
+    0
+;
+
 \ create modeless dialog
 : show ( template parent-obj -- hwnd )
     || R: parent-obj R: template ||
@@ -79,6 +85,7 @@ W: WM_CLOSE ( -- res )
 
 : showModal ( template parent-obj -- result )
     || R: parent-obj R: template ||
+    TRUE modal? !
     SELF
     ['] BaseDlgProc
     parent-obj @ DUP IF ^ checkWindow THEN

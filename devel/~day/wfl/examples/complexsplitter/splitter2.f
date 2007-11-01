@@ -8,7 +8,6 @@ CFrameWindow SUBCLASS CSplitterViewDemo
 
        CSplitterController OBJ hsplitter
        CSplitterController OBJ vsplitter
-       CListView           OBJ listView
        CWebBrowser         OBJ htmlView
        CTreeView           OBJ treeView
        CListView           OBJ listView
@@ -31,6 +30,11 @@ CFrameWindow SUBCLASS CSplitterViewDemo
 
    treeView expand
    treeView expand
+;
+
+\ OnDocumentComplete
+H: 0x103
+    0 S" «¿√–”∆≈ÕŒ" listView insertString
 ;
 
 W: WM_CREATE

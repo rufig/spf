@@ -246,6 +246,8 @@ WM_USER 0x1C00 + CONSTANT OCM_BASE
 : M: [CHAR] M CreateMsgProcessor ; \ Menu items
 : A: [CHAR] A CreateMsgProcessor ; \ Accelerator
 : X: [CHAR] X CreateMsgProcessor ; \ Fast comment this method
+: H: [CHAR] X CreateMsgProcessor ; \ COM event
+
 
 \ Reflected message
 : R: [CHAR] W PARSE-NAME EVALUATE OCM_BASE + 

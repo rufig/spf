@@ -34,11 +34,11 @@ USER DynP
      5 DALLOT
 ;
 
-: CompileCall ( addr-call addr -- )
+: CompileCall ( addr-call -- )
      0xE8 CompileBranch 
 ;
 
-: CompileJmp ( addr-call addr -- )
+: CompileJmp ( addr-call -- )
      0xE9 CompileBranch
 ;
 
@@ -77,20 +77,21 @@ CLASS CWinBaseClass
 
 WINAPI: HeapValidate     KERNEL32.DLL
 
-: SendFromThunk ( lpar wpar msg hwnd obj n -- result )
+: SendFromThunk ( lpar wpar msg hwnd param obj n -- result )
 \ We can't fetch threadUserData without TlsIndex set, so lets apply a small hack
      OVER CELL+ @ ( threadUserData@ hack! ) TlsIndex!
      <SET-EXC-HANDLER>
 
      S0 @ >R
-     SP@  + CELL+ S0 !
-     ^ message
+     SP@ + CELL+ S0 !
+     NIP ^ message
     
      R> S0 !
 ;
 
-: ObjExtern ( xt1 n obj -- xt2 )
+: ObjExtern ( xt1 n obj param -- xt2 )
      DHERE
+     SWAP CompileLiteral
      SWAP CompileLiteral \ obj
      SWAP CompileLiteral  \ n
      SWAP CompileCall
@@ -125,17 +126,18 @@ INIT-WFL
 
 WINAPI: FlushInstructionCache KERNEL32.DLL
 
-: DynamicObjectWndProc ( obj -- xt-addr start-addr )
-     64 AllocExec THROW DUP DynP ! >R
-     ['] SendFromThunk SWAP
-     4 CELLS
-     CELL+ ( obj parameter )
-     SWAP ObjExtern ( xt2 )
-     DHERE SWAP
-     ['] _WNDPROC-CODE CompileCall
-     DHERE ! CELL DALLOT
-     R>
+: DynamicObjectWndProc { param obj cells xt \ thunk xt2 -- xt-addr start-addr }
+     48 AllocExec THROW DUP DynP ! -> thunk
+     xt cells CELLS
+     2 CELLS + ( object+parameter )
+     obj param ObjExtern -> xt2
 
-     DUP 64 SWAP
+     DHERE
+     ['] _WNDPROC-CODE CompileCall
+     xt2 DHERE ! CELL DALLOT  
+
+     48 thunk
      GetCurrentProcess FlushInstructionCache -WIN-THROW
+    
+     thunk
 ;

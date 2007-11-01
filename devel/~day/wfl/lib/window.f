@@ -131,7 +131,7 @@ CMsgController SUBCLASS CWinMessageReceiver
   CELL PROPERTY hWnd
 
 : createThunk
-    SELF DynamicObjectWndProc 
+    0 SELF 4 ['] SendFromThunk DynamicObjectWndProc 
     thunkAddr!
     thunk-xt!
 ;
