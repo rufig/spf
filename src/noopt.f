@@ -2,11 +2,6 @@
 \ Заглушка/отключение оптимизатора
 \ http://www.fforum.winglion.ru/viewtopic.php?p=1929#1929
 
-[UNDEFINED] QCMOVE 
-[IF] 
-: QCMOVE CMOVE ; 
-[THEN] 
-
 : SHORT? ( n -- -129 < n < 128 ) 
   0x80 + 0x100 U< ; 
 
