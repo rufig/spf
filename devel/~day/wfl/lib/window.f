@@ -509,7 +509,11 @@ CWindow SUBCLASS CCustomWindow
     CreateWindowExA DUP SUPER hWnd ! ( for controls )
     DUP SUPER -wthrow
     R> FREE THROW
+
+    DUP SELF ^ onCreated
 ;
+
+: onCreated ( hwnd ) DROP ;
 
 : initialPosition
     30 60 10 10
