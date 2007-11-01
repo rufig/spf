@@ -72,6 +72,7 @@ HERE TC-CALL,
 \ Основные низкоуровневые слова Форта,
 \ независимые от операционной системы
 0x20 TO MM_SIZE
+
 S" src\spf_defkern.f"                INCLUDED
 S" src\spf_forthproc.f"              INCLUDED
 S" src\spf_floatkern.f"              INCLUDED
@@ -128,7 +129,7 @@ S" src\compiler\spf_compile0.f"      INCLUDED
 \  Макроподстановщик-оптимизатор
 TRUE TO INLINEVAR
 
-SPF-WITH-OPT [IF]
+BUILD-OPTIMIZER [IF]
 S" src/macroopt.f"                   INCLUDED
 [ELSE]
 S" src/noopt.f"                      INCLUDED

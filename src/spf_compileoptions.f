@@ -6,11 +6,23 @@
 \ FALSE = pentium only (?) *default
 FALSE CONSTANT ARCH-P6 
 
-\ TRUE = enable SPF optimizer *default
-\ FALSE = disable
-TRUE CONSTANT SPF-WITH-OPT
 
-\ TODO for 4.19
-1 CONSTANT USE-OPTIMIZATOR \ use but not compile optimizator
-1 CONSTANT COMPILE-OPTIMIZATOR
-0 CONSTANT OPTIMIZE-BY-SIZE ( without align and short literals )
+TRUE CONSTANT BUILD-OPTIMIZER \ build optimizer into the forth system for further compilation
+TRUE CONSTANT USE-OPTIMIZER    \ use optimizer while building to produce a better code
+FALSE CONSTANT OPTIMIZE-BY-SIZE \ without align literals, may decrease speed, TODO short literals like in 3.75
+
+0 CONSTANT SMALLEST-SPF
+
+\ Internal code, do not touch it
+
+SMALLEST-SPF [IF]
+FALSE CONSTANT BUILD-OPTIMIZER
+TRUE CONSTANT USE-OPTIMIZER
+TRUE CONSTANT OPTIMIZE-BY-SIZE
+[THEN]
+
+OPTIMIZE-BY-SIZE [IF]
+1 CONSTANT ALIGN-BYTES-CONSTANT
+[ELSE]
+4 CONSTANT ALIGN-BYTES-CONSTANT
+[THEN]

@@ -107,7 +107,12 @@ HEX
 
 TRUE VALUE J_OPT?
 
-S" src\macroopt.f"                   INCLUDED
+USE-OPTIMIZER [IF]
+S" src/macroopt.f"                   INCLUDED
+[ELSE]
+S" src/noopt.f"                      INCLUDED
+[THEN]
+
 
 TRUE TO ?C-JMP
 0    TO ?C-JMP
@@ -247,7 +252,9 @@ VARIABLE _VOC-LIST ' _VOC-LIST TO VOC-LIST
   HERE 2SWAP S", SWAP DUP @ , !
 ;
 
-4 ALIGN-BYTES !
+
+ALIGN-BYTES-CONSTANT ALIGN-BYTES !
+
 
 : SHEADER ( addr u -- )
   HERE 0 , ( cfa )
