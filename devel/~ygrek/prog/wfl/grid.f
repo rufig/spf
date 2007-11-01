@@ -42,17 +42,13 @@ dispose: ;
     cube @ => <visible toggle!
 ;
 
-: create ( id parent -- hwnd )
-    SUPER create
-    SUPER checkWindow SUPER attach
+: onAttached
     populate
 ;
 
-: createSimple ( height width top left xt parent -- )
-    0 SWAP create DROP
-    DROP \ :)
-    2>R 0 ROT ROT 2R> SUPER moveWindow
-;
+: create ( id parent -- hwnd )
+    SUPER create
+    SUPER checkWindow SUPER attach ;
 
 ;CLASS
 
@@ -90,39 +86,38 @@ CDialog SUBCLASS CGridDialog
    \ 2DUP CR ." MIN : w = " . ." h = " .
    SWAP ;
 
-W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
-   2DROP 2DROP
+W: WM_INITDIALOG ( -- n )
    { | b v }
 
   GRID
-    CButton put
-    CButton put -xspan 100 -xmin! S" Min width: 100" -text!
+     CButton put
+     CButton put -xspan 100 -xmin! S" Min width: 100" -text!
     ROW
-    CEventButton put -yspan 100 -ymin! S" Min height: 100" -text!
+     CEventButton put -yspan 100 -ymin! S" Min height: 100" -text!
      LAMBDA{ S" button pressed!" ROT => showMessage } -command!
-    CGLControlTest put
-    ctl S" DROP LITERAL => :switch" axt ( xt )
-    CEventButton put ( xt ) -command!  S" CLICK!" -text!
+      CGLControlTest put
+     ctl S" DROP LITERAL => :switch" axt ( xt )
+     CEventButton put ( xt ) -command!  S" CLICK!" -text!
     ROW
-    GRID
-     CButton put
+     GRID
+      CButton put
      ROW
-     CButton put
+      CButton put
      ROW
-     CButton put
-    ;GRID put-box
-    S" MediaPlayer.MediaPlayer.1" CAxControl put
-    \ CListView put -xspan 120 -xmin!
-    \ ctl -> v
+      CButton put
+     ;GRID put-box
+     S" MediaPlayer.MediaPlayer.1" CAxControl put
+     CListView put -xspan 120 -xmin!
+     ctl -> v
     ROW
-    CEventButton put S" debug" -text! ctl -> b
+     CEventButton put S" debug" -text! ctl -> b
   ;GRID :grid!
 
-  \ 0 120 S" column1" v => insertColumn
-   \ 1 60 S" column2" v => insertColumn
+   0 120 S" column1" v => insertColumn
+   1 60 S" column2" v => insertColumn
 
-   \ 0 S" Test string1" v => insertString
-   \ 0 S" Test string2" v => insertString
+   0 S" Test string1" v => insertString
+   0 S" Test string2" v => insertString
 
    _g @ 0= S" Initialize dialog grid before creating a dialog" SUPER abort
 
@@ -135,13 +130,13 @@ W: WM_INITDIALOG ( lpar wpar msg hwnd -- n )
    TRUE
 ;
 
-W: WM_SIZE { lpar wpar msg hwnd }
-   lpar LOWORD lpar HIWORD :resize
+W: WM_SIZE 
+   SUPER msg lParam @ LOWORD SUPER msg lParam @ HIWORD :resize
    FALSE
 ;
 
-W: WM_SIZING ( lpar wpar msg hwnd -- )
-   2DROP DROP
+W: WM_SIZING ( -- n )
+   SUPER msg lParam @
    || R: lpar CRect r ||
    lpar @ r rawCopyFrom
    r width r height :minsize r height! r width!
