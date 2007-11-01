@@ -11,20 +11,18 @@ CGLCanvas OBJ canvas
 init: ;
 dispose: ;
 
-: create SUPER create ( hwnd ) canvas :initialize ;
+: create ( id h -- hwnd ) SUPER create ( hwnd ) DUP canvas :initialize ;
 
 ( W: WM_PAINT
    ." paint"
    :onPaint 
    0 ;)
 
-W: WM_TIMER
+W: WM_TIMER ( -- n )
    canvas :doPaint 
-   0 
-;
+   0 ;
 
-W: WM_DESTROY ( -- n )
-   0 0 PostQuitMessage DROP ;
+W: WM_DESTROY ( -- n ) 0 0 PostQuitMessage DROP ;
 
 : :resize { | WindowRect }
     RECT::/SIZE ALLOCATE THROW TO WindowRect
@@ -48,7 +46,6 @@ W: WM_SIZE ( -- n )
    SUPER msg lParam @ LOWORD canvas :width!
    SUPER msg lParam @ HIWORD canvas :height!
    :resize
-   0
-;
+   0 ;
 
 ;CLASS
