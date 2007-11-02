@@ -94,26 +94,6 @@ glwindow FreeObj
 
 ;MODULE
 
-VARIABLE addr
-
-CREATE rrr 1000 ALLOT
-
-: r
-\ 13 GetStockObject wglGetCurrentDC SelectObject 111 . .
-\ 200 wglGetCurrentDC SetTextColor 111 . .
-\ 200 0 0 glColor3i DROP
-\ 20000 wglGetCurrentDC SetBkColor 222 . .
-1000 255 0 wglGetCurrentDC wglUseFontBitmapsA 333 . .
-\ 0 rrr 0 0 1000 255 0 wglGetCurrentDC wglUseFontOutlinesA 333 . . GetLastError . rrr 20 DUMP
-1000 glListBase 444 . .
-S" Hello" GL_UNSIGNED_BYTE SWAP glCallLists 555 . .
-\ 1 GL_UNPACK_ALIGNMENT glPixelStorei glTHROW
-\ 10000 CELLS ALLOCATE THROW addr !
-\ addr @ GL_UNSIGNED_BYTE GL_LUMINANCE ( height @ width @ ) 100 100 0 0 glReadPixels glTHROW
-\ addr @ 1000 DUMP
-\ R> wglDeleteContext glTHROW
-\ wglMakeCurrent glTHROW
-;
 
 /TEST
 
@@ -131,7 +111,6 @@ CHAR W asc:  10 y +! REFRESH ;
 CHAR S asc: -10 y +! REFRESH ;
 CHAR A asc: -10 x +! REFRESH ;
 CHAR D asc:  10 x +! REFRESH ;
-CHAR Q asc:  r ;
 
 \ F11 -- смена цвета
 VK_F11 asc:
