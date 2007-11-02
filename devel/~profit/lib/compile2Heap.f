@@ -67,6 +67,7 @@
 \ Все куски развязываются и освобождаются DESTROY-VC ( vc -- )
 
 \ REQUIRE MemReport ~day/lib/memreport.f
+REQUIRE [IF] lib/include/tools.f
 REQUIRE PageSize ~profit/lib/get-system-info.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE __ ~profit/lib/cellfield.f
@@ -124,7 +125,7 @@ USER vc \ текущий виртуальный кодофайл
 \ От адреса его начала блока вычислить адрес начала концевого набора полей блока
 : end-struct-addr ( addr1 -- addr2 ) DUP blockSize @ + end-struc - ;
 
-\ Слова для вычисления адресов полей в концевом блока от адреса начала блока
+\ Слова для вычисления адресов полей в концевом блоке от адреса начала блока
 : rlit1 ( addr1 -- addr2 ) end-struct-addr rlit0 ;
 : ret1 ( addr1 -- addr2 ) end-struct-addr ret0 ;
 : nextBlock ( addr1 -- addr2 ) end-struct-addr nextBlock0 ;
@@ -164,10 +165,21 @@ EXPORT
 
 ' NOOP ->VECT ON-COMPILE-START ( xt -- xt )
 
+[DEFINED] _INLINE, [IF]
 : INLINE2, ( CFA --  ) ON-COMPILE-START  OPT_INIT  _INLINE, OPT_CLOSE ;
+[ELSE]
+\ Если оптимизатор не будет включён в ядро (BUILD-OPTIMIZER в src/spf_compileoptions.f),
+\ то INLINE, определяется по-другому
+
+: INLINE2, ( CFA --  ) 
+ON-COMPILE-START
+ BEGIN COUNT DUP 0xC3 <> 
+ WHILE C, 
+ REPEAT 2DROP ;
+[THEN]
+
 
 ' INLINE2, ' INLINE, REPLACE-WORD \ заменяем системное действие прямой подстановки маш. кода
-\ Несмотря на то что 
 
 : COMPILE2,  \ 94 CORE EXT
     ON-COMPILE-START
@@ -180,6 +192,10 @@ EXPORT
 ;
 ' COMPILE2, ' COMPILE,  REPLACE-WORD \ заменяем системное действие компиляции
 
+\ Создать кодофайл (хранилище кода) где:
+\ blockSize -- размер "кусков" которые создаются когда компиляция внутри этого кодофайла приближается к границе
+\ end-vc -- действие выполняемое после исполнения всего кода из всех кусков внутри кодофайла 
+\ (при условии что выход их определения EXIT не будет вызван явно)
 : _CREATE-VC ( end-vc blockSize -- vc )
 codePatches ALLOCATE THROW >R
 0x68 R@ rlit C!
@@ -189,8 +205,11 @@ R@ end-vc !
 R@ allocatePatch R@ firstBlock!
 R> ;
 
+\ Создать кодофайл со значениями по умолчанию
 : CREATE-VC (  -- vc ) ['] NOOP MEM-PAGE _CREATE-VC ; \ по-умолчанию блоки по размеру памяти минимально забираемой из кучи
 
+
+\ Уничтожить кодофайл и память занятую под его "куски"
 : DESTROY-VC ( vc -- )
 DUP end-vc @ SWAP DUP firstBlock@ blocks'Code ( end-vc vc xt )
 SWAP FREE THROW \ освобождаем управляющую структуру кодофайла
@@ -201,14 +220,19 @@ SWAP FREE THROW
 \ -1 counter +!  counter @ CR . \ для контроля забора и отдачи памяти
 2DUP = UNTIL 2DROP ;
 
-
+\ vc является и хэндлом-указателем на структуру, и одновременно исполняемым адресом
+\ Т.е. значение vc можно дать на вход EXECUTE в любое время
+\ Вначале это структуры расположены маш. инструкции делающие переход в первый кусок
+\ кодофайла
+\ Но если нужен именно адрес кода первого куска, а не адрес перехода (например для 
+\ дизассемблирования), то это делается словом:
 : XT-VC ( vc -- xt ) firstBlock@ blocks'Code ;
-\ : XT-VC ( vc -- xt ) ; \ можно и так, но дизассемблер будет показывать тогда только переход...
 
-
+\ Слово-"шаблон" задающее начальные (до CONT) и конечные действия (после CONT) для 
+\ группы слов VC-... которые имеют дело с компиляцией в кучу
 : VC- ( ... vc --> \ <-- ) PRO
 DUP vc KEEP! \ сохраняем текущий вирт. кодофайл в глобальной скрытой переменной
-there @ DP KEEP! \ запись в переменную DP с восстановлением при откате
+there @ DP KEEP! \ запись в переменную DP с восстановлением старого значения при откате
 ClearJpBuff \ так как мы теперь находимся уже в другом кодофайле, то
 \ переходы старого нам не нужны ("исправление" для J_@ которое не
 \ учитывает возможность переключения DP )
@@ -218,10 +242,9 @@ HERE DUP TO LAST-HERE DUP TO :-SET TO J-SET \ выставляем отметки условных и безу
 ['] ON-COMPILE-START CFL + KEEP \ сохраняем старое значение контроля
 VC-CHECK TO ON-COMPILE-START \ включаем контроль компиляции на время активности виртуального кодофайла
 \ BACK TO MM_SIZE TRACKING MM_SIZE BDROP  0 TO MM_SIZE \ окончательно глушим оптимизатор, запрещая ему инлайн
-CONT \ нырок
+CONT \ "нырок" -- здесь выполняется код идущий после VC-
 HERE MM_SIZE CELL+ 2 CELLS MAX 0x90 FILL \ лом против оптимизатора которые "схлопывая" маш. инструкцию, заполняет образующиеся пустоты 0x00
-HERE vc @ there ! ; \ сохранение HERE виртуального кодофайла после
-\ компиляции в него
+HERE vc @ there ! ; \ сохранение HERE виртуального кодофайла после компиляции в него
 
 : VC-COMPILE, ( xt vc -- ) VC- COMPILE, ;
 : VC-POSTPONE ( vc "word" -- ) ?COMP ' LIT, POSTPONE SWAP POSTPONE VC-COMPILE, ; IMMEDIATE
@@ -234,7 +257,6 @@ HERE vc @ there ! ; \ сохранение HERE виртуального кодофайла после
 \ в кодофайл vc
 : VC-COMPILED ( addr u vc -- )
 VC- TRUE STATE KEEP! EVALUATE ;
-
 
 ;MODULE
 
