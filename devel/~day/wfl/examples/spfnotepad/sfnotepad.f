@@ -214,7 +214,8 @@ M: ID_NEW
 : winTest ( -- n )
   || CScintillaNotepad wnd CMessageLoop loop ||
 
-  0 0 wnd create DROP
+  wnd createMenu
+  0 wnd create DROP
   SW_SHOW wnd showWindow
 
   loop run
