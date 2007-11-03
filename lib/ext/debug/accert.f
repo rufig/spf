@@ -1,16 +1,17 @@
+\ $Id$
 \ ~day 11.02.2001
 \ В ACCERT удобно выводить лог, например
 \ ACCERT( 2DUP LOG )
 \ проверять значения на правильность, выводить отладочную
 \ информацию
 \ Уровни ACCERT-LEVEL:
-\ 0 - не компилировать ACCERTION
-\ 1 - компилировать все ACCERTION
+\ 0 - не компилировать ACCERT'ы
+\ 1 - компилировать все ACCERT'ы
 \ 2 - компилировать ACCERT уровня выше 1
 \ 3 - компилировать ACCERT уровня выше 2
 
 VARIABLE ACCERT-LEVEL
-1 ACCERT-LEVEL !
+0 ACCERT-LEVEL ! \ по умолчанию выключен
 
 : _LINE_
 \ компилирует строковый литерал - u - номер текущей строки
@@ -23,7 +24,7 @@ VARIABLE ACCERT-LEVEL
 ; IMMEDIATE
 
 : ACCERT-EV ( addr u n -- )
-   ACCERT-LEVEL @ 1- > IF EVALUATE ELSE 2DROP THEN
+   ACCERT-LEVEL @ 1- U> IF EVALUATE ELSE 2DROP THEN
 ;
 
 : _ACCERT( ( n -- )
