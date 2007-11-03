@@ -1,5 +1,6 @@
 \ 07.Dec.2006
 \ used by fix-refill.f
+\ $Id$
 
 MODULE: CORE_OF_REFILL
 
@@ -29,6 +30,9 @@ EXPORT
   4 - >R  B9 ! W ! R ! B0 !
   R> RESTORE-SOURCE
 ;
+
+' RECEIVE-WITH \ используется в DECODE-ERROR, поэтому надо и старый вариант пофиксить
+
 : RECEIVE-WITH  ( i*x source xt -- j*x ior )
   SAVE-SOURCE N>R
   SWAP TO SOURCE-ID
@@ -38,6 +42,8 @@ EXPORT
   R> FREE THROW
   NR> RESTORE-SOURCE
 ;
+
+' RECEIVE-WITH SWAP REPLACE-WORD
 
 \ RECEIVE-WITH-XT  остается старое, ему буфер без пользы
 
