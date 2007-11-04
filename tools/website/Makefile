@@ -47,6 +47,9 @@ $(web)/index.html: $(spf)/tools/website/index.html
 $(web)/favicon.ico: $(spf)/tools/website/favicon.ico
 	cp $< $@
 
+$(web)/spf.png: $(spf)/tools/website/spf.png
+	cp $< $@
+
 $(web)/docs/images/%: $(spf)/docs/images/%
 	cp $< $@
 
