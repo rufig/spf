@@ -51,7 +51,7 @@
 \ Del-Ensemble ( Ens -- )
 \ освобождение, если создано динамически.
 
-\ ensemble+   ( key value  Ens -- )
+\ ensemble+   ( value key Ens -- )
 \ добавить элемент [key value] к множеству Ens
 
 \ ensemble-   ( key Ens -- )
