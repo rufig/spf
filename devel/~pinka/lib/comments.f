@@ -1,9 +1,9 @@
 
-\ еще один многострочный коментарий  :-)
+\ х∙х юфшэ ьэюуюёЄЁюўэ√щ ъюьхэЄрЁшщ  :-)
 : (*  ( -- )
   BEGIN
       BL WORD COUNT  DUP   0=
-      IF  NIP  REFILL   0= ABORT" Нет доступа"
+      IF  NIP  REFILL   0= ABORT" No access"
       ELSE  S" *)" COMPARE 0=  THEN
   UNTIL
 ; IMMEDIATE
