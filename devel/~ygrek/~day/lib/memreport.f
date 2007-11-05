@@ -110,26 +110,28 @@ USER vAddr
 : MEMREPORT-FREE ( addr -- )
     DUP FindMem DUP 
     IF ( addr node )
-     NIP
+      NIP
       DUP .heapId @ HEAP-ID <> 
       IF 
-       CR ." MEMREPORT wrong heap (FREE) : "
-       DUP .addr @ .
-       DUP .heapId @ ." heap " .
-       HEAP-ID ." current " .
-       CR ."  Block was allocated at : " 
-       CR
-       DUP PrintTrace
-       RTRACE
+        CR ." MEMREPORT wrong heap (FREE) : "
+        DUP .addr @ .
+        DUP .heapId @ ." heap " .
+        HEAP-ID ." current " .
+        CR ."  Block was allocated at : " 
+        CR
+        DUP PrintTrace
+        RTRACE
       THEN 
-     FreeNode 
+      FreeNode 
     ELSE ( addr 0 ) 
-     DROP
-     SHOW-FAILED-FREE?
-     IF 
-       CR ." MEMREPORT: FREE: Block was not previously allocated at " .
-       RTRACE
-     THEN
+      DROP
+      SHOW-FAILED-FREE?
+      IF 
+        CR ." MEMREPORT: FREE: Block was not previously allocated at " .
+        RTRACE
+      ELSE
+        DROP
+      THEN
     THEN
 ;
 
@@ -162,7 +164,7 @@ EXPORT
    NIP 0 ;
 
 : ClearMemInfo ( -- )
-    AllocList FreeList
+   ['] FreeNode AllocList ForEach \ FreeList is broken?
 ;
 
 DEFINITIONS
@@ -360,4 +362,3 @@ FREE THROW
 (( countMem -> 0 0 ))
 
 END-TESTCASES
-
