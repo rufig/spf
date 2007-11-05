@@ -98,7 +98,7 @@ PROC;
     " FAR Manager" checkbox  this TO farmanager 
         " Check to associate *.f and *.spf files with SPF in FAR manager. Cleared box will do nothing." this -tooltip! 
     -xfixed |
-    "  " label  this TO farmanager-notice 
+    "                        " label  this TO farmanager-notice 
     -xspan |
     ===
     " Script Map" checkbox  this TO scriptmap 

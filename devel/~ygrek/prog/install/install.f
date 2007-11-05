@@ -12,10 +12,10 @@ REQUIRE tabcontrol ~ygrek/~yz/lib/wincc.f
 REQUIRE 2VALUE ~ygrek/lib/2value.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 
-$Revision$ 2VALUE CVS-REVISION
-
 \ : StrValue 2OVER 2OVER CR ." Read Key :" TYPE CR ." Value: " TYPE StrValue ;
 \ : RG_OpenKey >R 2DUP CR ." Open Key : " TYPE R> RG_OpenKey ;
+
+: CVS-REVISION $Revision$ SLITERAL ;
 
 MODULE: A-STR
  REQUIRE STR@ ~ac/lib/str5.f
@@ -127,9 +127,9 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
     [HKEY_CLASSES_ROOT\spf\Shell\Open\Command])
 
     \ [HKEY_CLASSES_ROOT\spf\Shell\Open\Command]
-    \ @="c:\\spf\\spf4.exe \"%1\" %*"
+    \ @="c:\\spf\\spf4.exe S\" %*\" INCLUDED"
 
-     path A" {s} {''}%1{''} %*" STR@ S" " S" spf\Shell\Open\Command" StrValue!
+     path A" {s} S{''} %*{''} INCLUDED" STR@ S" " S" spf\Shell\Open\Command" StrValue!
  ELSE
     S" .spf" RG_DeleteKey DROP 
     S" .f"   RG_DeleteKey DROP
@@ -148,7 +148,7 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
    \ [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map]
    \ ".spf"="c:\\spf\\spf4.exe %s"
    path
-   A" {s} %s" STR@  S" .spf" S" SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map" StrValue!
+   A" {s} %s" STR@ S" .spf" S" SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map" StrValue!
 
    \ [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map]
    \ ".spf"="c:\\spf\\spf4.exe %s"
@@ -248,8 +248,6 @@ HERE
   ON-WINDOW-INIT
 
   ...WINDOWS
-
-  spf STRFREE
 ;
 
 
