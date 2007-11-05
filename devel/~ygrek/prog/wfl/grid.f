@@ -54,93 +54,84 @@ dispose: ;
 
 \ -----------------------------------------------------------------------
 
-CRect SUBCLASS CRect
+\ copied from ~day/wfl/examples/msgcontroller.f
+CMsgController SUBCLASS CColorController
 
-: rawCopyFrom ( ^RECT -- ) SUPER addr 4 CELLS CMOVE ;
-: rawCopyTo ( ^RECT -- ) SUPER addr SWAP 4 CELLS CMOVE ;
+       CBrush OBJ brush
 
-: height! ( u -- ) SUPER top @ + SUPER bottom ! ;
-: width! ( u -- ) SUPER left @ + SUPER right ! ;
+init:
+    0xFF 0xFF 0 rgb brush createSolid SUPER -wthrow
+;
+
+R: WM_CTLCOLORSTATIC ( -- n )
+    SUPER msg wParam @
+    TRANSPARENT SWAP SetBkMode DROP
+    brush handle @ 
+;
 
 ;CLASS
 
 \ -----------------------------------------------------------------------
 
-CDialog SUBCLASS CGridDialog
+: aButton ( ctl -- )
+   S" DROP LITERAL => :switch" axt ( xt )
+   CEventButton put 
+   ( xt ) =command  
+   S" CLICK!" =text ;
 
- VAR _g
+CDialog SUBCLASS CExampleDialog
 
-: :grid! ( grid-obj -- ) _g ! ;
+ CGridController OBJ grid
+ CColorController OBJ bkcolor
+ CStatic OBJ _static 
 
-: :resize ( w h -- )
-   _g @ => :yformat
-   _g @ => :xformat
-   0 0 _g @ => :finalize ;
-
-: :minsize ( w h -- w1 h1 )
-   _g @ => :ymin 30 + \ BUG: высота заголовка
-   2DUP > IF DROP ELSE NIP THEN
-   SWAP
-   _g @ => :xmin 8 + \ BUG: ширина рамки
-   2DUP > IF DROP ELSE NIP THEN
-   \ 2DUP CR ." MIN : w = " . ." h = " .
-   SWAP ;
+REFLECT_NOTFICATIONS
 
 W: WM_INITDIALOG ( -- n )
-   { | b v }
+   { | btn lv }
 
-  GRID
-     CButton put
-     CButton put -xspan 100 -xmin! S" Min width: 100" -text!
+  0 GRID
+     CButton put -xspan 120 =xmin S" Fixed width: 120" =text
+     CButton put -yspan  30 =ymin S" Fixed height: 30" =text
     ROW
-     CEventButton put -yspan 100 -ymin! S" Min height: 100" -text!
-     LAMBDA{ S" button pressed!" ROT => showMessage } -command!
-      CGLControlTest put
-     ctl S" DROP LITERAL => :switch" axt ( xt )
-     CEventButton put ( xt ) -command!  S" CLICK!" -text!
+
+    \ DEFAULTS -xspan \ breaks everything FIXME
+     CGLControlTest put ctl
+     CGLControlTest put ctl
+     CGLControlTest put ctl 
+     -ROT SWAP
+     0 GRID aButton ROW aButton ROW aButton ;GRID put-box
+
     ROW
-     GRID
-      CButton put
-     ROW
-      CButton put
-     ROW
-      CButton put
-     ;GRID put-box
-     S" MediaPlayer.MediaPlayer.1" CAxControl put
-     CListView put -xspan 120 -xmin!
-     ctl -> v
+     CEventButton put 
+     ctl -> btn
+     S" debug" =text
+
     ROW
-     CEventButton put S" debug" -text! ctl -> b
-  ;GRID :grid!
+     CListView put -xspan 
+     120 =xmin
+     ctl -> lv
 
-   0 120 S" column1" v => insertColumn
-   1 60 S" column2" v => insertColumn
+     S" MediaPlayer.MediaPlayer.1" CAxControl put 
+     150 =ymin
 
-   0 S" Test string1" v => insertString
-   0 S" Test string2" v => insertString
+    ROW
+     CStatic put
+     S" CStatic with CColorController" =text
+     ctl => checkWindow _static attach 
+  ;GRID grid :grid!
 
-   _g @ 0= S" Initialize dialog grid before creating a dialog" SUPER abort
+   0 120 S" column1" lv => insertColumn
+   1 60 S" column2" lv => insertColumn
 
-   _g @ S" DROP LITERAL => :print" axt b => setHandler
+   0 S" Test string1" lv => insertString
+   0 S" Test string2" lv => insertString
 
-   SUPER getClientRect DROP DROP SWAP :minsize :resize
+   grid :grid S" DROP LITERAL => :print" axt btn => setHandler
 
-   FALSE _g @ => _h @ _g @ => _w @ SUPER getClientRect 2SWAP 2DROP SWAP SUPER clientToScreen SWAP SUPER moveWindow
+   bkcolor this _static injectMsgController
+   grid this SUPER injectMsgController
 
-   TRUE
-;
-
-W: WM_SIZE 
-   SUPER msg lParam @ LOWORD SUPER msg lParam @ HIWORD :resize
-   FALSE
-;
-
-W: WM_SIZING ( -- n )
-   SUPER msg lParam @
-   || R: lpar CRect r ||
-   lpar @ r rawCopyFrom
-   r width r height :minsize r height! r width!
-   lpar @ r rawCopyTo
    TRUE
 ;
 
@@ -152,14 +143,14 @@ W: WM_SIZING ( -- n )
 WS_POPUP WS_SYSMENU OR WS_CAPTION OR DS_MODALFRAME OR WS_SIZEBOX OR
 DS_CENTER OR
 
-DIALOG: GridDialog1 Grid test
+DIALOG: dlg1 Grid test
 DIALOG;
 
 : winTest ( -- n )
-  || CGridDialog dlg ||
+  || CExampleDialog dlg ||
 
   StartCOM
-  GridDialog1 0 dlg showModal DROP
+  dlg1 0 dlg showModal DROP
 ;
 
 winTest
