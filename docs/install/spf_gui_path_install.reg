@@ -22,7 +22,7 @@ REGEDIT4
 [HKEY_CLASSES_ROOT\spf\Shell\Open]
 
 [HKEY_CLASSES_ROOT\spf\Shell\Open\Command]
-@="c:\\spf\\spf4wc.exe \"%1\" %*"
+@="c:\\spf\\spf4wc.exe S\" %*\" INCLUDED"
 
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map]
 ".spf"="c:\\spf\\spf4wc.exe %s"
