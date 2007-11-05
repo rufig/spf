@@ -53,7 +53,7 @@ $(web)/spf.png: $(spf)/tools/website/spf.png
 $(web)/docs/images/%: $(spf)/docs/images/%
 	cp $< $@
 
-www: update web_docs $(web)/index.html $(web)/favicon.ico $(web)/docs/images $(webimages)
+www: update web_docs $(web)/index.html $(web)/favicon.ico $(web)/spf.png $(web)/docs/images $(webimages)
 
 # copy to the web space only newly generated files
 web_docs: $(web)/docs make_docs
