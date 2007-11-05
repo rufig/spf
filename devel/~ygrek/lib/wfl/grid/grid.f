@@ -7,6 +7,7 @@
 REQUIRE WFL ~day/wfl/wfl.f
 NEEDS ~ygrek/lib/list/all.f
 NEEDS lib/include/core-ext.f
+REQUIRE NOT ~profit/lib/logic.f
 
 \ -----------------------------------------------------------------------
 
@@ -21,58 +22,61 @@ NEEDS lib/include/core-ext.f
 
 \ -----------------------------------------------------------------------
 
-\ 20 VALUE def-h
-\ 20 VALUE def-w
-30 VALUE def-hmin
-50 VALUE def-wmin
-TRUE VALUE def-xspan
-TRUE VALUE def-yspan
+CLASS CGridBoxData
+ CELL PROPERTY _yspan \ флаг - рас€тжение по высоте
+ CELL PROPERTY _xspan \ флаг - раст€жение по ширине
+ CELL PROPERTY _hmin  \ минимальна€ высота
+ CELL PROPERTY _wmin  \ минимальна€ ширина
 
-\ -----------------------------------------------------------------------
+: :print
+   PRINT: _wmin
+   PRINT: _xspan
+
+   PRINT: _hmin
+   PRINT: _yspan 
+;
+
+;CLASS
+
+CGridBoxData NEW DefaultBox
+
+30 DefaultBox _hmin!
+50 DefaultBox _wmin!
+TRUE DefaultBox _xspan!
+TRUE DefaultBox _yspan!
 
 \ Ѕазовый элемент сетки - €чейка
-CLASS CGridBox
+CGridBoxData SUBCLASS CGridBox
 
  VAR _h     \ актуальна€ высота
  VAR _w     \ актуальна€ ширина
- VAR _yspan \ флаг - рас€тжение по высоте
- VAR _xspan \ флаг - раст€жение по ширине
- VAR _hmin  \ минимальна€ высота
- VAR _wmin  \ минимальна€ ширина
  VAR _obj   \ обьект-контрол
 
 init:
   0 _h !
   0 _w !
   0 _obj !
-  def-wmin _wmin !
-  def-hmin _hmin !
-  def-xspan _xspan !
-  def-yspan _yspan !
+  DefaultBox _wmin@ SUPER _wmin!
+  DefaultBox _hmin@ SUPER _hmin!
+  DefaultBox _xspan@ SUPER _xspan!
+  DefaultBox _yspan@ SUPER _yspan!
 ;
 
+: :yspan? SUPER _yspan@ ;
+: :xspan? SUPER _xspan@ ;
+
+: :xmin SUPER _wmin@ ;
+: :ymin SUPER _hmin@ ;
+
 \ выполнить раст€жку по x если €чейка раст€гиваема
-: :xformat ( given -- ) _xspan @ 0= IF DROP 0 THEN _wmin @ MAX _w ! ;
+: :xformat ( given -- ) :xspan? NOT IF DROP 0 THEN :xmin MAX _w ! ;
 \ выполнить раст€жку по y если €чейка раст€гиваема
-: :yformat ( given -- ) _yspan @ 0= IF DROP 0 THEN _hmin @ MAX _h ! ;
-
-: :xmin _wmin @ ;
-: :ymin _hmin @ ;
-
-\ : :yformat ( u -- ) SELF => :ymin - 0 MAX SELF => :yformat-extra ;
-\ : :xformat ( u -- ) SELF => :xmin - 0 MAX SELF => :xformat-extra ;
-
-: :yspan? _yspan @ ;
-: :xspan? _xspan @ ;
+: :yformat ( given -- ) :yspan? NOT IF DROP 0 THEN :ymin MAX _h ! ;
 
 : :print
-   PRINT: _wmin
+   SUPER :print
    PRINT: _w
-   PRINT: _xspan
-
-   PRINT: _hmin
    PRINT: _h
-   PRINT: _yspan
 ;
 
 : :control! ( ctl-obj -- ) _obj ! ;
@@ -93,7 +97,7 @@ init:
   () _cells !
 ;
 
-: :add ( cell -- ) vnode _cells @ cons _cells ! ;
+: :add ( cell -- ) vnode _cells @ append _cells ! ;
 
 : traverse-row ( xt -- ) _cells @ mapcar ;
 
@@ -246,7 +250,7 @@ init:
    0 LAMBDA{ => _h @ + } traverse-grid SUPER _h !
 ;
 
-: :add ( row -- ) 0 OVER => :xformat 0 OVER => :yformat vnode _rows @ cons _rows ! ;
+: :add ( row -- ) 0 OVER => :xformat 0 OVER => :yformat vnode _rows @ append _rows ! ;
 
 : :print ( -- )
    CR ." CGrid :print"
@@ -296,6 +300,7 @@ init:
 0 VALUE ctl  \ контрол в текущей €чейке
 0 VALUE row  \ текущий р€д
 0 VALUE grid \ текуща€ сетка
+0 VALUE parent
 
 \ создать новую клетку в текущем р€ду и поместить в неЄ контрол класса class
 : put-box ( box -- )
@@ -305,7 +310,7 @@ init:
 : put ( class -- )
    NewObj TO ctl
    CGridBox NewObj put-box
-   0 SELF ctl => create DROP
+   parent SELF ctl => create DROP
    ctl box => :control! ;
 
 \ начать новый р€д клеток
@@ -314,29 +319,43 @@ init:
   row grid => :add
 ;
 
-: save-vars ( -- l )  %[ grid % row % box % def-hmin % def-wmin % def-xspan % def-yspan % ]% ;
+() VALUE grid-vars
 
-: restore-vars { l -- }
-   ['] NOOP l mapcar ( ... )
-   TO def-yspan
-   TO def-xspan
-   TO def-wmin
-   TO def-hmin
+: save-vars ( -- ) 
+   %[ parent % grid % row % box % 
+      DefaultBox _hmin@ % 
+      DefaultBox _wmin@ % 
+      DefaultBox _xspan@ % 
+      DefaultBox _yspan@ % 
+   ]% vnode as-list grid-vars cons TO grid-vars ;
+
+: restore-vars 
+   grid-vars car >R
+   grid-vars cdr TO grid-vars
+   R@ LIST> ( ... )
+   DefaultBox _yspan!
+   DefaultBox _xspan!
+   DefaultBox _wmin!
+   DefaultBox _hmin!
    TO box
    TO row
    TO grid
-   l FREE-LIST ;
+   TO parent
+   R> FREE-LIST ;
+
+: DEFAULTS DefaultBox this TO box ;
 
 \ начать новую таблицу
 \ сохранить значени€ параметров сетки по-умолчани€
-: GRID ( -- i*x )
+: GRID ( parent -- )
    save-vars
+   TO parent
    CGrid NewObj TO grid
    ROW ;
 
 \ закончить таблицу
 \ восстановить сохранЄнные значени€ параметров сетки по-умолчанию
-: ;GRID ( i*x -- grid ) grid >R restore-vars R> ;
+: ;GRID ( -- grid ) grid >R restore-vars R> ;
 
 : xspan! ( ? -- ) box :: CGridBox._xspan ! ;
 
@@ -354,12 +373,84 @@ init:
 
 \ установить обработчик событи€
 \ xt: ( obj -- )
-: -command! ( xt -- ) ctl => setHandler ;
-: -text! ( a u -- ) ctl => setText ;
+: =command ( xt -- ) ctl => setHandler ;
+: =text ( a u -- ) ctl => setText ;
 
-: -xmin! ( u -- ) box :: CGridBox._wmin ! ;
-: -ymin! ( u -- ) box :: CGridBox._hmin ! ;
+: =xmin ( u -- ) box :: CGridBox._wmin ! ;
+: =ymin ( u -- ) box :: CGridBox._hmin ! ;
 
 \ ;MODULE
+
+\ -----------------------------------------------------------------------
+
+CRect SUBCLASS CRect
+
+: rawCopyFrom ( ^RECT -- ) SUPER addr 4 CELLS CMOVE ;
+: rawCopyTo ( ^RECT -- ) SUPER addr SWAP 4 CELLS CMOVE ;
+
+: height! ( u -- ) SUPER top @ + SUPER bottom ! ;
+: width! ( u -- ) SUPER left @ + SUPER right ! ;
+
+;CLASS
+
+\ -----------------------------------------------------------------------
+
+\  онтроллер дл€ управлени€ сеткой
+\ »спользование :
+\ - обь€вить обьект класса CGridController
+\ - назначить ему сетку с помощью :grid!
+\ - присоединить контроллер к окну (диалогу, контролу)
+\
+\  онтроллер будет перехватывать сообщени€ WM_SIZE и WM_SIZING 
+\ и измен€ть содержимое сетки соответствующим образом
+\
+\ FIXME исследовать вариант FALSE setHandled в обработчиках
+CMsgController SUBCLASS CGridController
+
+  VAR _g
+
+: :resize ( w h -- )
+   _g @ => :yformat
+   _g @ => :xformat
+   0 0 _g @ => :finalize ;
+
+: :grid _g @ ;
+
+: :minsize ( w h -- w1 h1 )
+   _g @ => :ymin 30 + \ FIXME высота заголовка
+   2DUP > IF DROP ELSE NIP THEN
+   SWAP
+   _g @ => :xmin 8 + \ FIXME ширина рамки
+   2DUP > IF DROP ELSE NIP THEN
+   \ 2DUP CR ." MIN : w = " . ." h = " .
+   SWAP ;
+
+: :grid! _g ! ;
+: :hw _g @ => _h @ _g @ => _w @ ;
+
+W: WM_SIZE 
+   SUPER msg lParam @ LOWORD SUPER msg lParam @ HIWORD :resize
+   FALSE
+;
+
+W: WM_SIZING ( -- n )
+   SUPER msg lParam @
+   || R: lpar CRect r ||
+   lpar @ r rawCopyFrom
+   r width r height :minsize r height! r width!
+   lpar @ r rawCopyTo
+   TRUE
+;
+
+: :init { win }
+  _g @ 0= S" Setup controls grid with :grid! before attaching controller" SUPER abort
+  win => getClientRect DROP DROP SWAP :minsize :resize
+  FALSE :hw win => getClientRect 2SWAP 2DROP SWAP win => clientToScreen SWAP win => moveWindow 
+  ;
+
+\ RFD: is it ok to automatically resize grid when controller is injected?
+: onAttached SUPER parent-obj@ :init ;
+
+;CLASS
 
 \ -----------------------------------------------------------------------
