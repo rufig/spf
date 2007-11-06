@@ -9,8 +9,9 @@ REQUIRE /STRING lib/include/string.f
 REQUIRE /GIVE ~ygrek/lib/parse.f
 REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
 REQUIRE 2VALUE ~ygrek/lib/2value.f
-REQUIRE RE" ~ygrek/lib/re/re.f
+REQUIRE re_match? ~ygrek/lib/re/re.f
 REQUIRE FINE-HEAD ~pinka/samples/2005/lib/split-white.f
+REQUIRE /TEST ~profit/lib/testing.f
 
 MODULE: IRC
 
@@ -44,6 +45,9 @@ EXPORT
 
 : message-text ( -- a u ) trailing ;
 
+: irc-action? ( a u -- a u ? ) 
+   RE" \x01ACTION\s(.*)\x01" re_match? IF 1 get-group TRUE ELSE 0 get-group FALSE THEN ;
+
 \ получить контекст общения
 \ если сообщение было направлено в канал - вернуть имя канала
 \ если же соощение было направлено лично нам - вернуть имя отправителя
@@ -55,3 +59,23 @@ EXPORT
    THEN ;
 
 ;MODULE
+
+\ -----------------------------------------------------------------------
+
+/TEST
+
+REQUIRE TESTCASES ~ygrek/lib/testcase.f
+
+TESTCASES basic IRC parsing
+
+(( S" :irc.run.net 353 exsample = #forth :exsample mak4444 ygrek @TiReX" PARSE-IRC-MSG -> TRUE ))
+(( S" :somebody!~user@example.com PRIVMSG exsample :!spf DROP" PARSE-IRC-MSG -> TRUE ))
+(( :NONAME S" :somebody!~user@example.com JOIN :#forth" ; EXECUTE PARSE-IRC-MSG -> TRUE ))
+message-sender S" somebody" TEST-ARRAY
+IRC::command S" JOIN" TEST-ARRAY 
+(( S" :ChanServ!service@RusNet MODE #forth +o ЗверюгА" PARSE-IRC-MSG -> TRUE ))
+(( S" :irc.run.net PING" PARSE-IRC-MSG -> TRUE ))
+(( S" PING" PARSE-IRC-MSG -> TRUE ))
+(( S" PING :irc.run.net" PARSE-IRC-MSG -> TRUE ))
+
+END-TESTCASES
