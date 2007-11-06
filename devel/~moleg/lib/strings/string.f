@@ -2,7 +2,6 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ строковые литералы с поддержкой символов подстановки \n \r \t \\ \" \123
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE KEEP     devel\~moleg\lib\spf_print\pad.f
  REQUIRE SkipChar devel\~mOleg\lib\util\parser.f
  REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f

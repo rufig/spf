@@ -2,7 +2,6 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ ƒополнительные слова дл€ работы с парсером
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE WHILENOT devel\~mOleg\lib\util\ifnot.f
 
 ?DEFINED char  1 CHARS CONSTANT char

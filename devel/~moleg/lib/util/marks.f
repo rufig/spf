@@ -2,7 +2,6 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ пост-скрипт подобна€ работа со стеком. ћаркеры.
 
- REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
  REQUIRE NewStack  devel\~mOleg\lib\util\stack.f
 
         USER-VALUE MARKERS  \ хранит указатель на стек маркеров

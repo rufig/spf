@@ -2,7 +2,6 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ слова с инициализацией
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE ADDR     devel\~moleg\lib\util\addr.f
 
 \ по смещению получить адрес USER переменной.

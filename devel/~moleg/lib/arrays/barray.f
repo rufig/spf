@@ -2,9 +2,7 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ битовый буффер накопитель
 
- REQUIRE ?DEFINED devel\~mOleg\lib\util\ifdef.f
  REQUIRE B@       devel\~mOleg\lib\util\bytes.f
-
 
         USER retain \ количество сохраненных бит
 

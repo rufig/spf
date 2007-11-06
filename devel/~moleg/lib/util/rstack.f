@@ -3,7 +3,6 @@
 \ манипуляции данными на стеке возвратов
 \ в трех вариантах исполнения (два закомментированы)
 
- REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
  REQUIRE STREAM[   devel\~mOleg\lib\arrays\stream.f
 
 \ REQUIRE B@        devel\~mOleg\lib\util\bytes.f

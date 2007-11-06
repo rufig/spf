@@ -5,7 +5,6 @@
 \ все слова набраны на нижнем регистре, чтобы не путать их с системными
 \ следующий код интересен с точки зрения переносимости, а не скорости!!!
 
- REQUIRE ?DEFINED devel\~mOleg\lib\util\ifdef.f
  REQUIRE B@       devel\~mOleg\lib\util\bytes.f
  REQUIRE TILL     devel\~mOleg\lib\util\for-next.f
 

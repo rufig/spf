@@ -2,7 +2,6 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ неименованные стеки
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE ADDR     devel\~moleg\lib\util\addr.f
  REQUIRE FRAME    devel\~mOleg\lib\util\stackadd.f
 

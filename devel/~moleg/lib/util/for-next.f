@@ -3,7 +3,6 @@
 \ реализация циклов FOR NEXT для СПФ
 \ c возможностью использования во время исполнения (т.е при STATE = 0)
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
  REQUIRE IFNOT    devel\~moleg\lib\util\ifnot.f
  REQUIRE controls devel\~moleg\lib\util\run.f

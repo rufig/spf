@@ -2,7 +2,6 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ обработка параметров командной строки
 
- REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
  REQUIRE SEAL      devel\~moleg\lib\util\useful.f
  REQUIRE cmdline>  devel\~mOleg\lib\util\parser.f
  REQUIRE VLIST     devel\~mOleg\lib\util\words.f

@@ -41,6 +41,7 @@
 @st.exe .S" devel\~moleg\lib\util\spells.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\queue.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\tricks.f"             TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\alias.f"              TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\mtask\mutex.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\mtask\pmutex.f"            TESTED CR BYE
@@ -68,6 +69,7 @@
 
 @st.exe .S" devel\~moleg\lib\drafts\vars.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\drafts\mem.f"              TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\drafts\inline.f"           TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\newfind\clear.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\newfind\new_find.f"        TESTED CR BYE

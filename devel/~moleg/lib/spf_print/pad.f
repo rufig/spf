@@ -2,7 +2,6 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ дополнительные слова для удобной работы с буфером PAD
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE ADDR     devel\~moleg\lib\util\addr.f
 
 ?DEFINED char  1 CHARS CONSTANT char

@@ -8,7 +8,6 @@
 \ файл и тому подобные вещи и при этом нет никакой возможности
 \ воспользоваться CATCH THROW механизмом...
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE ADDR     devel\~moleg\lib\util\addr.f
 
 \ ---------------------------------------------------------------------------

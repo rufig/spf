@@ -2,7 +2,6 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ работа с небольшими массивами в стеке данных.
 
- REQUIRE ?DEFINED   devel\~moleg\lib\util\ifdef.f
  REQUIRE FRAME      devel\~moleg\lib\util\stackadd.f
 
 \ выделить на стеке место под массив без инициализации

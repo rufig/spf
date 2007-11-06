@@ -2,7 +2,6 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ преобразование строки согласно указанной маски
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE KEEPS    devel\~moleg\lib\spf_print\pad.f
  REQUIRE R+        devel\~moleg\lib\util\rstack.f
  REQUIRE SKIPn    devel\~moleg\lib\strings\stradd.f

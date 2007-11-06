@@ -2,9 +2,8 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ работа с числами двойной длинны
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
- REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
  REQUIRE ADDR     devel\~moleg\lib\util\addr.f
+ REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
 
 \ -- стековые манипуляции ----------------------------------------------------
 

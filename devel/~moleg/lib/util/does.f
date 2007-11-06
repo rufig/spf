@@ -3,9 +3,8 @@
 \ DOES> механизм для СПФ
 \ высокоуровневый вариант не требует переменной DOES>A и более портабельный.
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
- REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
  REQUIRE ADDR     devel\~moleg\lib\util\addr.f
+ REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
 
 FALSE WARNING !
 

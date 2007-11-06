@@ -11,7 +11,6 @@
 \ то есть указать, что на стеке возвратов оказывается не три, как обычно,
 \ а четыре параметра.
 
- REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
  REQUIRE COMPILE   devel\~moleg\lib\util\compile.f
 
 FALSE WARNING !

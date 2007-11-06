@@ -2,7 +2,6 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ распечатка списка слов (альтернативный вариант)
 
- REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
  REQUIRE ROUND     devel\~moleg\lib\util\stackadd.f
  REQUIRE R+        devel\~moleg\lib\util\rstack.f
  REQUIRE BLANKS    devel\~moleg\lib\spf_print\pad.f

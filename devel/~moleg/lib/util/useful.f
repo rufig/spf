@@ -2,7 +2,6 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ набор часто используемых и просто удобных слов
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
  REQUIRE SeeForw  devel\~mOleg\lib\util\parser.f
 

@@ -37,6 +37,5 @@ CREATE archtag unnum ,
 test{ ?CELL# 32 <> THROW      \ СПФ сейчас 32 битный
       ?LITTLE-ENDIAN 0= THROW \ ix86 процессор хранит байты в обратном порядке
       ?BIG-ENDIAN THROW       \ это пока что не ожидается
-
 S" passed" TYPE
 }test

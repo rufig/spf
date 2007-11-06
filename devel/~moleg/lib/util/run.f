@@ -2,7 +2,6 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ поддержка временного буфера для создания безымянных временных слов
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE ADDR     devel\~moleg\lib\util\addr.f
  REQUIRE ON-ERROR devel\~moleg\lib\util\on-error.f
  REQUIRE IFNOT    devel\~moleg\lib\util\ifnot.f
