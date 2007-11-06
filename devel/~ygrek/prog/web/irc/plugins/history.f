@@ -26,12 +26,13 @@ MODULE: VOC-IRC-COMMAND
 : PRIVMSG 
    ACCERT( ." PRIVMSG of history" CR )
    TIME&DATE DateTime>Num { stamp -- }
-   ACCERT( ." try orevious PRIVMSG" CR )
+   ACCERT( ." try previous PRIVMSG" CR )
    PRIVMSG
    %[ 
      stamp % 
-     message-text message-sender stamp Num>Time Time>PAD
-     " ({s}) [{s}] {s}" %s 
+     message-text irc-action? >R
+     message-sender stamp Num>Time Time>PAD
+     R> IF " ({s}) {s} {s}" ELSE " ({s}) [{s}] {s}" THEN %s 
    ]% vnode as-list log-history append TO log-history 
    ACCERT( ." PRIVMSG of history done" CR )
   ;

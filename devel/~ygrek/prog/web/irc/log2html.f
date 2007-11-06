@@ -50,9 +50,9 @@ STYPE ;
 : line=> PRO put-time CONT put-break ;
 
 : put-message-text
-   message-text RE" \x01ACTION\s+(.*)\x01" re_match?
-   IF 1 get-group message-sender " <b>{s}</b> {s}" sput-text
-   ELSE message-sender put-nick message-text put-text
+   message-text irc-action?
+   IF message-sender " <b>{s}</b> {s}" sput-text
+   ELSE message-sender put-nick ( a u ) put-text
    THEN ;
 
 MODULE: BOT-LOG-TALK

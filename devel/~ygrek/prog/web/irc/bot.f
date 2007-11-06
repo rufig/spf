@@ -7,7 +7,7 @@
 \ zlibwapi.dll - http://www.winimage.com/zLibDll/
 \ libeay32.dll libssl32.dll - http://www.slproweb.com/products/Win32OpenSSL.html
 
-REQUIRE ACCERT( lib/ext/debug/accert.f
+REQUIRE ACCERT-LEVEL lib/ext/debug/accert.f
 0 ACCERT-LEVEL ! \ не компилировать ACCERT'ы
 
 REQUIRE VOC-IRC-COMMAND ~ygrek/lib/net/irc/conn.f
@@ -18,7 +18,7 @@ REQUIRE TIME&DATE lib/include/facil.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 REQUIRE ltcreate ~ygrek/lib/multi/msg.f
 REQUIRE #N## ~ac/lib/win/date/date-int.f
-REQUIRE %[ ~ygrek/lib/list/all.f
+REQUIRE scan-list ~ygrek/lib/list/all.f
 REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
 REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
 REQUIRE CURLOPT! ~ac/lib/lin/curl/curlopt.f
