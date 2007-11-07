@@ -7,32 +7,45 @@
 
 * свежую чистую рабочую копию CVS репозитория. Без лишних файлов.
 * jpf375c.exe
-* spf4_notitle который не выводит стандартного заголовка в stdout. Например так
-        spf4.exe ' NOOP MAINX ! S" spf4_notitle.exe" SAVE BYE
-* NSIS <http://nsis.sourceforge.net>
-* upx (не обязательно) <http://upx.sourceforge.net>
 * GNU make <http://mingw.org/download.shtml> <http://www.gnu.org/software/make/>
 * WinRAR <http://www.rarlabs.com>
+
+Для сборки полного дистра также :
+
+* NSIS <http://nsis.sourceforge.net>
+* upx (не обязательно) <http://upx.sourceforge.net>
 * perl
 
 ## Для чего нужен perl?
 
 Для того чтобы конвертнуть доку из markdown в html.
 Markdown это простая разметка(подобно Wiki) текстовых файлов.
-Этот файл в частности набран с разметкой markdown. Для конвертации
+Этот файл в частности набран в разметке markdown. Для конвертации
 используется perl-скрипт.
 
 Официальный сайт markdown - <http://daringfireball.net/projects/markdown>
 
-## Что делать:
+## Для сборки снапшота devel
 
 1. Скопировать jpf375c.exe в корневой каталог рабочей копии.
-2. Скопировать html и сопутствующие файлы с http://www.forth.org.ru/~yz
+2. В каталоге src выполнить compile.bat
+3. Перейти в каталог tools/nsis.
+4. Проверить(отредактировать) пути к makensis и winrar в Makefile
+5. Дать команду make devel-snap
+
+Всё.
+
+## Для сборки инсталлятора
+
+1. Скопировать jpf375c.exe в корневой каталог рабочей копии.
+2. Скопировать содержимое spf4root в корневой каталог рабочей копии.
+3. Скопировать html и сопутствующие файлы с http://www.forth.org.ru/~yz
    (например wget'ом) и положить в devel/~yz
-3. Увеличить SPF-KERNEL-VERSION в src/spf.f
-4. Перейти в каталог tools/nsis.
-5. Проверить (отредактировать) параметры в Makefile, не забыть spf_ver_minor
-6. Дать команду make
-7. Изменённый src/spf.f и Makefile закоммитить на CVS
+4. Увеличить SPF-KERNEL-VERSION в src/spf.f, удалить src/VERSION.SPF если есть (не должно быть!)
+5. В каталоге src выполнить compile.bat
+6. Перейти в каталог tools/nsis.
+7. Проверить(отредактировать) пути к makensis и winrar в Makefile
+8. Дать команду make
+9. Изменённый src/spf.f закоммитить на CVS
 
 Всё.

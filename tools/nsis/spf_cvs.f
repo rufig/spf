@@ -20,6 +20,7 @@ SPF-PATH double-slashed VALUE path\\
 : DateRaw# { d m y -- } d #N## DROP m #N## DROP y #N DROP ;
 : MY_DATE ( -- a u ) <# TIME&DATE MyDate# 0 0 #> ;
 : DATE_RAW ( -- a u ) <# TIME&DATE DateRaw# 0 0 #> ;
+: NUM_RAW ( n -- ) S>D (D.) ;
 
 : PROD_NAME    S" {PROD_NAME}" ;
 : PROD_FILE    S" {PROD_FILE}" ;
@@ -128,7 +129,7 @@ SPF-PATH double-slashed VALUE path\\
   1-
   DUP SPF-PATH-LEN < ABORT" STRANGE"
   SPF-PATH-LEN /STRING
-  "  SetOutPath $INSTDIR{s}" STYPE CR
+  "  SetOutPath {''}$INSTDIR{s}{''}" STYPE CR
   "  File {''}{s}{''}" STYPE CR
 ;
 

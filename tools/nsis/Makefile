@@ -6,6 +6,7 @@
 # make - собрать полный дистр
 # make devel-snap - собрать снапшот devel
 # make clean - удалить промежуточные файлы
+# make cleanall - удалить все результирующие файлы
 
 #########################################
 
@@ -13,67 +14,50 @@
 # Эти переменные отредактируйте по своим настройкам!
 #
 
-spf4_notitle=D:\WORK\FORTH\spf4\spf4_notitle.exe
-makensis="C:\Program Files\NSIS\makensis.exe"
-winrar="C:\Program Files\WinRAR\rar.exe"
-
-spf_path=..\..
-spf_tc=jpf375c.exe
+makensis := "D:\Program Files\NSIS\makensis.exe"
+winrar := "D:\Program Files\WinRAR\rar.exe"
 
 #########################################
 
-spf_ver_major=4
-spf_ver_minor=18
+spf_path := ..\..
+run_spf := $(spf_path)\spf4.exe
 
 #########################################
 
-host=win
-delete=del
+datestamp := $(shell $(run_spf) : SPF-PATH S" $(spf_path)" ; S" spf_cvs.f" INCLUDED DATE_RAW TYPE BYE)
+devel-snapshot := spf-devel-$(datestamp)
+spf_script := $(run_spf) : SPF-VER-MAJOR VERSION 100000 / ; : SPF-VER-MINOR VERSION 1000 / 100 MOD ; : SPF-PATH S" $(spf_path)" ; S" spf_cvs.f" INCLUDED
 
-ifneq ($(host),win)
-delete=rm -f
-endif
+spf_ver_major := $(shell $(spf_script) SPF-VER-MAJOR NUM_RAW TYPE BYE)
+spf_ver_minor := $(shell $(spf_script) SPF-VER-MINOR NUM_RAW TYPE BYE)
+dist-exe := spf$(spf_ver_major)-$(spf_ver_minor)-setup.exe
+dist-rar := spf$(spf_ver_major)-$(spf_ver_minor).rar
 
-exe=spf-$(spf_ver_major)$(spf_ver_minor)-setup.exe
-arch=spf-$(spf_ver_major)$(spf_ver_minor).rar
-datestamp=$(shell $(spf4_notitle) : SPF-PATH S" $(spf_path)" ; S" spf_cvs.f" INCLUDED DATE_RAW TYPE BYE)
-devel-snapshot=spf-devel-$(datestamp)
-spf_script=$(spf4_notitle) : SPF-VER-MAJOR S" $(spf_ver_major)" ; : SPF-VER-MINOR S" $(spf_ver_minor)" ; : SPF-PATH S" $(spf_path)" ; S" spf_cvs.f" INCLUDED
+#########################################
 
-all: dist-exe dist-arch
+default: $(dist-exe) $(dist-rar)
 
-dist-exe: $(exe)
 devel-snap: $(devel-snapshot).rar
-dist-arch: $(arch)
 
-.PHONY: all docs clean cleanall
+.PHONY: default docs clean cleanall
 
-spf_cvs.nsi: spf_cvs.f
+spf_cvs.nsi: $(run_spf) spf_cvs.f
 	$(spf_script) NSI-LIST > $@ BYE
 
-spf.nsi: spf.src.nsi spf_cvs.nsi spf_cvs.f
+spf.nsi: $(run_spf) spf.src.nsi spf_cvs.nsi spf_cvs.f
 	$(spf_script) S" spf.src.nsi" EVAL-FILE TYPE BYE > $@
 
-spf.lst: spf_cvs.f
+spf.lst: $(run_spf) spf_cvs.f
 	$(spf_script) RAR-LIST > $@ BYE
 
 docs:
 	$(MAKE) -C $(spf_path)/docs
 
-$(spf_path)\spf4.exe: $(spf_path)\jpf375c.exe $(spf_path)\src\VERSION.SPF
-	copy $(spf_path)\spf4root\* $(spf_path)
-	cd $(spf_path) && $(spf_tc) src\spf.f
-#	echo $(spf_ver_major)$(spf_ver_minor)000 > $(spf_path)\src\VERSION.SPF
-
-# просто макрос для ручного тестирования
-#spfexe:
-#	$(MAKE) $(spf_path)\spf4.exe
-
-$(exe): docs $(spf_path)\spf4.exe spf.nsi
+$(dist-exe): $(run_spf) spf.nsi
 	$(makensis) spf.nsi
 
-$(arch): docs $(spf_path)\spf4.exe spf.lst
-	$(winrar) a -m5 -s $(arch) @spf.lst
+$(dist-rar): $(run_spf) spf.lst
+	$(winrar) a -m5 -s $(dist-rar) @spf.lst
 
 $(devel-snapshot).rar:
 	$(winrar) a -x*\CVS -x*\CVS\* -m5 -s $@ ..\..\devel
@@ -83,7 +67,7 @@ $(devel-snapshot).7z:
 
 clean:
 	$(MAKE) -C $(spf_path)/docs clean
-	$(delete) spf.nsi spf.lst spf_cvs.nsi
+	-del spf.nsi spf.lst spf_cvs.nsi
 
 cleanall: clean
-	$(delete) $(exe) $(arch)
+	-del $(dist-exe) $(dist-rar)

@@ -15,7 +15,6 @@
 
 !define VER_DATE "{MY_DATE}"
 !define PROD_NAME "SP-Forth"
-!define PROD_FILE "spf-"
 !define PROD_VENDOR "RUFIG"
 !define PROD_ICON "{SPF-PATH}\src\spf.ico"
 
@@ -26,7 +25,7 @@ SetCompressor /SOLID lzma
 CRCCheck on
 Name "${PROD_NAME}"
 Caption "$(LSetup) ${PROD_NAME} ${VER_MAJOR}.${VER_MINOR} [${VER_DATE}]"
-OutFile "${PROD_FILE}${VER_MAJOR}${VER_MINOR}-setup.exe"
+OutFile "spf${VER_MAJOR}-${VER_MINOR}-setup.exe"
 
 ;Folder selection page
 InstallDir "$PROGRAMFILES\${PROD_NAME}"
@@ -246,6 +245,14 @@ Section "$(LSecSPFText)" SecSPF
   WriteUninstaller uninstall.exe
 
   {S" spf_cvs.nsi" FILE}
+
+; for english users
+; replace russian spf.err with spf.eng.err and backup previous to spf.ru.err
+  StrCmp $LANGUAGE ${LANG_ENGLISH} 0 spf_err_done
+    Rename $INSTDIR\lib\spf.err $INSTDIR\lib\spf.ru.err
+	Rename $INSTDIR\lib\spf.eng.err $INSTDIR\lib\spf.err
+
+  spf_err_done:
 
 ;     NSISdl::download http://www.forth.org.ru/bin.rar bin.rar
 ;       Pop $R0 ;Get the return value
