@@ -10,7 +10,8 @@ REQUIRE /TEST ~profit/lib/testing.f
 2 CAPI: libiconv_open  iconv.dll
 1 CAPI: libiconv_close iconv.dll
 
-WINAPI: _errno MSVCRT.DLL
+\ iconv depends on msvcrt anyway so it is not an issue
+WINAPI: _errno msvcrt.dll
 
 7 CONSTANT E2BIG
 22 CONSTANT EINVAL
@@ -58,8 +59,7 @@ S" CP1251" S" UTF-8" iconv: WIN>UTF
 
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
-TESTCASES UTF>WIN and back                                                                                          
-(( S" Òåñò" WIN>UTF DUP STR@ S" Ð¢ÐµÑÑ‚" TEST-ARRAY STRFREE -> ))                                                      
-(( S" Ð¢ÐµÑÑ‚" UTF>WIN DUP STR@ S" Òåñò" TEST-ARRAY STRFREE -> ))                                                      
+TESTCASES UTF>WIN and back
+(( S" Òåñò" WIN>UTF DUP STR@ S" Ð¢ÐµÑÑ‚" TEST-ARRAY STRFREE -> ))
+(( S" Ð¢ÐµÑÑ‚" UTF>WIN DUP STR@ S" Òåñò" TEST-ARRAY STRFREE -> ))
 END-TESTCASES
-
