@@ -4,24 +4,37 @@ REQUIRE B@ ~pinka/lib/ext/basics.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE { lib/ext/locals.f
 
+\ n addr -- адрес отдельного бита в памяти, то есть n-й бит отсчитывая от ячейки памяти addr 
+\ n при этом может выходить за границу ячейки
+
+\ this-bit приводит адрес бита к "нормализированному" виду, где координата бита n будет меньше 8-и,
+\ и адрес addr выровнен до одного байта
 : this-bit ( n addr -- n1 addr1 ) >R 8 /MOD R> + ;
 \ : this-bit4 ( n addr -- n1 addr1 ) >R 32 /MOD 4 * R> + ;
 
 \ CREATE _mask 1 B, 2 B, 4 B, 8 B, 16 B, 32 B, 64 B, 128 B,
 \ : and-mask1 _mask + B@ ;
-: and-mask 1 SWAP LSHIFT ;
+: and-mask ( n -- 2^n ) 1 SWAP LSHIFT ;
 
+\ Установить бит с координатами n a в единицу
 : :1 ( n a -- ) this-bit >R and-mask R@ @ OR R> ! ;
 \ : :1-1 ( n a -- ) this-bit >R and-mask1 R@ @ OR R> ! ;
+
+\ Установить бит с координатами n a в ноль
 : :0 ( n a -- ) this-bit >R and-mask INVERT R@ @ AND R> ! ;
+
 : BBIT@ ( n byte -- b ) SWAP RSHIFT 1 AND ;
+
+\ Прочитать значение бита n addr 
 : BIT@ ( n addr -- 0|1 ) this-bit @ BBIT@ ;
+
+\ Записать значение бита n addr 
 : BIT! ( 0|1 n a -- ) ROT IF :1 ELSE :0 THEN ;
 
 \ ----------------
 
 : (.) S>D (D.) TYPE ;
-: ?01 0 SWAP - ;
+: ?01 ( ? -- 0|1 ) 0 SWAP - ;
 
 : bits, 8 /MOD SWAP 0 <> ?01 + ALLOT ;
 
