@@ -176,6 +176,7 @@ WM_USER 53 + CONSTANT EM_EXLIMITTEXT
 
 #define WM_INITDIALOG           0x0110
 #define WM_COMMAND              0x0111
+#define WM_SYSTIMER             0x0118
 #define WM_NOTIFY               0x004E
 
 \ Классы DialogBoxControls
