@@ -186,12 +186,19 @@ USER uMapiDir
 : MapiSubject! ( subj-a subj-u -- )
   MapiMessage PR_SUBJECT MapiProp!
 ;
+: MapiSubject@ ( -- subj-a subj-u )
+  MapiMessage PR_SUBJECT MapiProp@
+;
 : MapiSender! ( email-a email-u name-a name-u -- )
   2DUP MapiMessage PR_SENT_REPRESENTING_NAME MapiProp! \ это имя показывается в "От"
        MapiMessage PR_SENDER_NAME MapiProp!
   2DUP MapiMessage PR_SENT_REPRESENTING_EMAIL_ADDRESS MapiProp!
        MapiMessage PR_SENDER_EMAIL_ADDRESS MapiProp!
   S" SMTP" MapiMessage PR_SENDER_ADDRTYPE MapiProp!
+;
+: MapiSender@ ( -- email-a email-u name-a name-u )
+  MapiMessage PR_SENT_REPRESENTING_EMAIL_ADDRESS MapiProp@
+  MapiMessage PR_SENT_REPRESENTING_NAME MapiProp@
 ;
 : MapiBody! ( body-a body-u -- )
   MapiMessage PR_BODY MapiProp!
