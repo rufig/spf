@@ -53,6 +53,7 @@ REQUIRE NOTFOUND  ~ac/lib/ns/notfound.f
 : INVOKE ( ... oid addr u -- ... )
 \ выполнить метод с именем addr u для объекта oid
   ROT ( addr u oid )
+  DUP 0= ABORT" Invalid INVOKE call"
   CLASS@ DUP 0= IF DROP FORTH-WORDLIST THEN ( addr u class-oid )
   SEARCH-WORDLIST-R
   IF EXECUTE ELSE -3004 THROW THEN
@@ -158,6 +159,29 @@ USER _C-EXEC
 \ Например: S" http://forth.org.ru/rss.xml" ' XML_DOC VOC: FORTH_NEWS
 
   >IN @ VOCABULARY >IN ! ALSO ' EXECUTE
+  ALSO EXECUTE CONTEXT @ PREVIOUS CONTEXT @ CLASS! 
+  CONTEXT @ OBJ-NAME!
+  PREVIOUS
+;
+: TEMP-VOCABULARY ( "<spaces>name" -- )
+\ Создать временный список слов с именем name. Выполнение name заменит первый 
+\ список в порядке поиска на список с именем name.
+  TEMP-WORDLIST DUP
+  CREATE
+  ,
+  LATEST OVER CELL+ ! ( ссылка на имя словаря )
+  GET-CURRENT SWAP PAR! ( словарь-предок )
+\  FORTH-WORDLIST SWAP CLASS! ( класс )
+  VOC
+  DOES> @ CONTEXT !
+;
+: voc: ( name-a name-u class-xt "word-name" -- )
+\ Создать временный словарь с именем "word-name" в текущем словаре.
+\ Установить его класс равным "class-xt EXECUTE", а "внутреннее" имя name
+\ Контекст не менять.
+\ Например: S" http://forth.org.ru/rss.xml" ' XML_DOC voc: FORTH_NEWS
+
+  >IN @ TEMP-VOCABULARY >IN ! ALSO ' EXECUTE
   ALSO EXECUTE CONTEXT @ PREVIOUS CONTEXT @ CLASS! 
   CONTEXT @ OBJ-NAME!
   PREVIOUS
