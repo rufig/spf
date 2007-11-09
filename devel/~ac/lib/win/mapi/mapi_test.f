@@ -22,24 +22,26 @@ DUP ( folder ) PR_DISPLAY_NAME  MapiProp@ ANSI>OEM TYPE CR \ дает "Корень личных
     ( folder ) ' MapiListFolder MapiEnumSubfolders
 
 \ MapiOpenInbox DUP uMapiFolder ! ' MapiListMessage MapiEnumContent
+MapiOpenInbox uMapiFolder !
 
-S" Входящие/test" MapiOpenFolderPath DUP uMapiFolder ! ' MapiListMessage MapiEnumContent
+\ S" Входящие/test" MapiOpenFolderPath DUP uMapiFolder ! ' MapiListMessage MapiEnumContent
 
-\ S" IPF.Task" MapiGetIPF MapiOpenFolder DROP
+\ S" IPF.Task" MapiGetIPF MapiOpenFolder DROP 
 \ DUP ( folder ) PR_DISPLAY_NAME  MapiProp@ ANSI>OEM TYPE CR \ дает "Корень личных папок"
 \     ( folder ) DUP uMapiFolder ! ' MapiListMessage MapiEnumContent
 
-S" IPM.Note" MapiNewMessage
+S" IPM.Task" MapiNewMessage
 
 S" test.eml" MapiImportMime
 
 \ перезапишем дату импортированного письма текущей датой
 MapiMessage PR_CREATION_TIME MapiProp@ ( x1 x2 )
 MapiMessage PR_MESSAGE_DELIVERY_TIME MapiProp! \ эта дата показывается в "Получено"
+S" IPM.Task" MapiMessage PR_MESSAGE_CLASS MapiProp!
 
 
-S" Test subject 9" MapiSubject!
-S" tester@forth.org.ru" S" AYC8" MapiSender!
+S" Test subject 99" MapiSubject!
+S" tester@forth.org.ru" S" AYC88" MapiSender!
 \ S" Это тест 10" MapiBody!
 \ " X-MapiLib: LibMapi/$Id$/eserv.ru
 \ " STR@ MapiHeaders!
