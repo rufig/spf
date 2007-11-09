@@ -38,7 +38,13 @@ REQUIRE replace-str ~pinka/samples/2005/lib/replace-str.f
     I ppStmt db3_col DUP 0= >R 2DUP S" NULL" COMPARE 0= R> OR IF 2DROP S" " THEN
     I ppStmt db3_coltype 3 < 
     IF \ число не преобразуем
-    ELSE ">\" " {''}{s}{''}" STR@ THEN
+    ELSE 2DUP S" true" COMPARE 0=
+       IF 
+       ELSE 2DUP S" false" COMPARE 0=
+          IF
+          ELSE ">\" " {''}{s}{''}" STR@ THEN
+       THEN
+    THEN
     I ppStmt db3_colname " {''}{s}{''}:{s}" STR@
     I 0 > IF " , {s}" ELSE "  {s}" THEN SQS @ S+
   LOOP  S" }" " {s},{CRLF}" SQS @ S+
