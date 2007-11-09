@@ -158,7 +158,7 @@ CREATE   CC_INITS 8 , BASE @ HEX 3FFF , BASE !
       mem CELL+ @ WM_QUIT <> AND
     ELSE FALSE THEN
   WHILE
-    DEBUG @ IF mem 16 DUMP CR THEN
+    DEBUG @ IF mem CELL+ @ WM_SYSTIMER <> IF mem 16 DUMP CR THEN THEN
     mem TranslateMessage DROP
     mem DispatchMessageA DROP
   REPEAT
