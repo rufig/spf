@@ -89,16 +89,21 @@ VARIABLE IN-EXCEPTION
 : AT-EXC-DUMP ( addr -- addr ) ... ;
 \ example: ..: AT-EXC-DUMP ." REGISTERS:" DUP 12 CELLS DUMP CR ;..
 
-: DUMP-TRACE ( up low -- )
+: DUMP-TRACE ( addr-h addr-l -- ) \ bottom top --
   BEGIN 2DUP U< 0= WHILE STACK-ADDR. CELL+ REPEAT 2DROP
 ;
-: DUMP-TRACE-SHRUNKEN ( up low -- )
-  2DUP - 30 CELLS < IF DUMP-TRACE EXIT THEN
-  DUP 10 CELLS + SWAP DUMP-TRACE ." [...]" CR
-  DUP 15 CELLS -      DUMP-TRACE
+
+12 VALUE TRACE-HEAD-SIZE
+15 VALUE TRACE-TAIL-SIZE
+
+: DUMP-TRACE-SHRUNKEN ( addr-h addr-l -- ) \ bottom top --
+  2DUP -  TRACE-HEAD-SIZE TRACE-TAIL-SIZE + 5 + CELLS
+  U< IF DUMP-TRACE EXIT THEN
+  DUP TRACE-HEAD-SIZE CELLS + SWAP DUMP-TRACE ." [...]" CR
+  DUP TRACE-TAIL-SIZE CELLS - DUMP-TRACE
 ;
 
-: EXC-DUMP1 ( exc-info -- ) 
+: EXC-DUMP1 ( exc-info -- )
   IN-EXCEPTION @ IF DROP EXIT THEN
   TRUE IN-EXCEPTION !
   BASE @ >R HEX
@@ -125,12 +130,15 @@ VARIABLE IN-EXCEPTION
   DUP 5 CELLS + @ ( eax ) 8 .0 ." ]" CR
 
   ." RETURN STACK:" CR
-  HANDLER @ DUP 0= IF DROP R0 @ THEN ( up-border ) >R
-  6 CELLS + DUP @  SWAP  4 CELLS + @ ( a1 a2 )
-  \ берем ближайший снизу к up-border:
-  2DUP U> IF SWAP THEN ( min max ) DUP R@ U< IF NIP ELSE DROP THEN ( low-border ) R>
-  ( low-border up-border )
-  2DUP U< IF 3 CELLS + R0 @ UMIN  SWAP DUMP-TRACE-SHRUNKEN ELSE 2DROP R0 @ DUP 50 CELLS - DUMP-TRACE THEN
+  10 CELLS + @ ( esp )  R0 @ 
+  
+  2DUP U<
+  IF 2DUP TRACE-HEAD-SIZE + TRACE-TAIL-SIZE CELLS - 10 CELLS -
+     U< IF 10 CELLS - THEN \ skip early bottom
+     SWAP DUMP-TRACE-SHRUNKEN
+  ELSE
+     NIP DUP 50 CELLS - DUMP-TRACE 
+  THEN
 
   ." END OF EXCEPTION REPORT" CR
   R> BASE !  FALSE IN-EXCEPTION !
