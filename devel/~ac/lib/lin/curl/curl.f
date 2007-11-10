@@ -13,7 +13,10 @@ S" ~ygrek/lib/data/curl.const" ADD-CONST-VOC
 ALSO SO NEW: libcurl.dll
 
 \ Global libcurl initialization
-: CURL-GLOBAL-INIT CURL_GLOBAL_ALL 1 curl_global_init THROW ;
+: (CURL-GLOBAL-INIT) CURL_GLOBAL_ALL 1 curl_global_init THROW ;
+: CURL-GLOBAL-INIT ['] (CURL-GLOBAL-INIT) CATCH
+  ?DUP IF DUP 126 = IF DROP ELSE THROW THEN THEN
+;
 ..: AT-PROCESS-STARTING CURL-GLOBAL-INIT ;..
 CURL-GLOBAL-INIT
 
