@@ -1,13 +1,13 @@
 \ 26-06-2005 ~mOleg
-\ à ¡®â  á ¯ ¬ïâìî
+\ ðàáîòà ñ ïàìÿòüþ
 
-\ x - §­ ç¥­¨¥ ¯®  ¤à¥áã a-addr.
+\ x - çíà÷åíèå ïî àäðåñó a-addr.
 CODE @ ( a-addr --> x )
        MOV tos , [tos]
      exit
   END-CODE
 
-\ ‡ ¯¨á âì x ¯®  ¤à¥áã a-addr.
+\ Çàïèñàòü x ïî àäðåñó a-addr.
 CODE ! ( x a-addr --> )
        MOV temp , subtop
        MOV [tos] , temp
@@ -16,14 +16,14 @@ CODE ! ( x a-addr --> )
      exit
   END-CODE
 
-\ ®«ãç¨âì byte ¯®  ¤à¥áã c-addr.
-\ ¥§­ ç é¨¥ áâ àè¨¥ ¡¨âë ïç¥©ª¨ ­ã«¥¢ë¥.
+\ Ïîëó÷èòü byte ïî àäðåñó c-addr.
+\ Íåçíà÷àùèå ñòàðøèå áèòû ÿ÷åéêè íóëåâûå.
 CODE B@ ( c-addr --> char )
         MOVZX tos , BYTE [tos]
       exit
    END-CODE
 
-\ ‡ ¯¨á âì byte ¯®  ¤à¥áã a-addr.
+\ Çàïèñàòü byte ïî àäðåñó a-addr.
 CODE B! ( char c-addr --> )
         MOV temp , subtop
         MOV BYTE [tos] , temp-byte
@@ -32,14 +32,14 @@ CODE B! ( char c-addr --> )
       exit
    END-CODE
 
-\ ®«ãç¨âì á¨¬¢®« ¯®  ¤à¥áã c-addr.
-\ ¥§­ ç é¨¥ áâ àè¨¥ ¡¨âë ïç¥©ª¨ ­ã«¥¢ë¥.
+\ Ïîëó÷èòü ñèìâîë ïî àäðåñó c-addr.
+\ Íåçíà÷àùèå ñòàðøèå áèòû ÿ÷åéêè íóëåâûå.
 CODE C@ ( c-addr --> char )
         MOVZX tos , BYTE [tos]
       exit
    END-CODE
 
-\ ‡ ¯¨á âì char ¯®  ¤à¥áã a-addr.
+\ Çàïèñàòü char ïî àäðåñó a-addr.
 CODE C! ( char c-addr --> )
         MOV temp , subtop
         MOV BYTE [tos] , temp-byte
@@ -48,13 +48,13 @@ CODE C! ( char c-addr --> )
       exit
    END-CODE
 
-\ ®«ãç¨âì word ¯®  ¤à¥áã c-addr. ¥§­ ç é¨¥ áâ àè¨¥ ¡¨âë ïç¥©ª¨ ­ã«¥¢ë¥.
+\ Ïîëó÷èòü word ïî àäðåñó c-addr. Íåçíà÷àùèå ñòàðøèå áèòû ÿ÷åéêè íóëåâûå.
 CODE W@ ( c-addr --> word )
         MOVZX tos , WORD [tos]
       exit
    END-CODE
 
-\ ‡ ¯¨á âì word ¯®  ¤à¥áã a-addr.
+\ Çàïèñàòü word ïî àäðåñó a-addr.
 CODE W! ( word c-addr --> )
         MOV temp , subtop
         MOV WORD [tos] , temp-word
@@ -63,7 +63,7 @@ CODE W! ( word c-addr --> )
       exit
    END-CODE
 
-\ ¨§¢«¥çì ç¨á«® ¤¢®©­®© â®ç­®áâ¨ ¨§ ¯ ¬ïâ¨ ¯®  ¤à¥áã addr
+\ èçâëå÷ü ÷èñëî äâîéíîé òî÷íîñòè èç ïàìÿòè ïî àäðåñó addr
 CODE 2@ ( addr --> d )
         MOV temp , CELL [tos]
         dpush temp
@@ -71,7 +71,7 @@ CODE 2@ ( addr --> d )
       exit
    END-CODE
 
-\ á®åà ­¨âì ç¨á«® ¤¢®©­®© â®ç­®áâ¨ ¢ ¯ ¬ïâ¨ ¯®  ¤à¥áã addr
+\ ñîõðàíèòü ÷èñëî äâîéíîé òî÷íîñòè â ïàìÿòè ïî àäðåñó addr
 CODE 2! ( d addr --> )
         MOV temp , subtop
         MOV [tos] , temp
@@ -82,14 +82,14 @@ CODE 2! ( d addr --> )
       exit
    END-CODE
 
-\ ã¢¥«¨ç¨âì §­ ç¥­¨¥ ¯®  ¤à¥áã addr
+\ óâåëè÷èòü çíà÷åíèå ïî àäðåñó addr
 CODE 1+! ( addr --> )
          INC DWORD [tos]
          dpop tos
       exit
     END-CODE
 
-\ à¨¡ ¢¨âì ç¨á«® n ª ç¨á«ã åà ­ïé¥¬ãáï ¢ ¯ ¬ïâ¨ ¯®  ¤à¥áã addr
+\ Ïðèáàâèòü ÷èñëî n ê ÷èñëó õðàíÿùåìóñÿ â ïàìÿòè ïî àäðåñó addr
 CODE +! ( n addr --> )
         MOV temp , subtop
         ADD [tos] , temp
@@ -98,17 +98,17 @@ CODE +! ( n addr --> )
       exit
    END-CODE
 
-\ ¢ ®á¬ëá«¥­¨¨...
-\ á¬ëá« ¢ â®¬, çâ® à §àï¤­®áâì  ¤à¥á­®© ááë«ª¨ ¬®¦¥â ­¥ á®¢¯ ¤ âì á
-\ à §àï¤­®áâìî ¤ ­­ëå, â® ¥áâì ¬®¦¥â ¡ëâì ¬¥­ìè¥ ¨«¨ à ¢­® ¢ ¤ ­­®¬ á«ãç ¥.
+\ â îñìûñëåíèè...
+\ ñìûñë â òîì, ÷òî ðàçðÿäíîñòü àäðåñíîé ññûëêè ìîæåò íå ñîâïàäàòü ñ
+\ ðàçðÿäíîñòüþ äàííûõ, òî åñòü ìîæåò áûòü ìåíüøå èëè ðàâíî â äàííîì ñëó÷àå.
 
-\ ¨§¢«¥çì  ¤à¥á
+\ èçâëå÷ü àäðåñ
 CODE A@ ( a-addr --> x )
         MOV tos , [tos]
       exit
    END-CODE
 
-\ á®åà ­¨âì  ¤à¥á
+\ ñîõðàíèòü àäðåñ
 CODE A! ( x a-addr --> )
         MOV temp , subtop
         MOV [tos] , temp
@@ -117,7 +117,7 @@ CODE A! ( x a-addr --> )
       exit
    END-CODE
 
-\ § ¬¥­¨âì §­ ç¥­¨¥ ¯® ãª § ­­®¬ã  ¤à¥áã ­  new - áâ à®¥ ¢¥à­ãâì
+\ çàìåíèòü çíà÷åíèå ïî óêàçàííîìó àäðåñó íà new - ñòàðîå âåðíóòü
 CODE ACHANGE ( new addr --> old )
              dpop temp
              MOV addr , tos
