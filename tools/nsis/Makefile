@@ -53,10 +53,10 @@ spf.lst: $(run_spf) spf_cvs.f
 docs:
 	$(MAKE) -C $(spf_path)/docs
 
-$(dist-exe): $(run_spf) spf.nsi
+$(dist-exe): docs $(run_spf) spf.nsi
 	$(makensis) spf.nsi
 
-$(dist-rar): $(run_spf) spf.lst
+$(dist-rar): docs $(run_spf) spf.lst
 	$(winrar) a -m5 -s $(dist-rar) @spf.lst
 
 $(devel-snapshot).rar:
