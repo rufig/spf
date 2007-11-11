@@ -7,7 +7,13 @@
 REQUIRE WFL ~day/wfl/wfl.f
 NEEDS ~ygrek/lib/list/all.f
 NEEDS lib/include/core-ext.f
-REQUIRE NOT ~profit/lib/logic.f
+NEEDS ~profit/lib/logic.f
+NEEDS lib/ext/debug/accert.f
+
+0 VALUE indent
+
+: inc-indent indent 2 + TO indent ;
+: dec-indent indent 2 - TO indent ;
 
 \ -----------------------------------------------------------------------
 
@@ -23,16 +29,20 @@ REQUIRE NOT ~profit/lib/logic.f
 \ -----------------------------------------------------------------------
 
 CLASS CGridBoxData
- CELL PROPERTY _yspan \ флаг - расятжение по высоте
- CELL PROPERTY _xspan \ флаг - растяжение по ширине
- CELL PROPERTY _hmin  \ минимальная высота
- CELL PROPERTY _wmin  \ минимальная ширина
+ VAR _yspan \ флаг - растяжение ячейки по высоте
+ VAR _xspan \ флаг - растяжение ячейки по ширине
+ VAR _ymin  \ минимальная высота контрола внутри ячейки
+ VAR _xmin  \ минимальная ширина контрола внутри ячейки
+ VAR _xpad  \ обрамление по ширине
+ VAR _ypad  \ обрамление по высоте
+ VAR _xfill \ флаг - растяжение контрола за ячейкой по ширине
+ VAR _yfill \ флаг - растяжение контрола за ячейкой по высоте
 
 : :print
-   PRINT: _wmin
+   PRINT: _xmin
    PRINT: _xspan
 
-   PRINT: _hmin
+   PRINT: _ymin
    PRINT: _yspan 
 ;
 
@@ -40,10 +50,16 @@ CLASS CGridBoxData
 
 CGridBoxData NEW DefaultBox
 
-30 DefaultBox _hmin!
-50 DefaultBox _wmin!
-TRUE DefaultBox _xspan!
-TRUE DefaultBox _yspan!
+30 DefaultBox _ymin !
+50 DefaultBox _xmin !
+TRUE DefaultBox _xspan !
+TRUE DefaultBox _yspan !
+TRUE DefaultBox _xfill !
+TRUE DefaultBox _yfill !
+10 DefaultBox _xpad !
+5 DefaultBox _ypad !
+
+\ -----------------------------------------------------------------------
 
 \ Базовый элемент сетки - ячейка
 CGridBoxData SUBCLASS CGridBox
@@ -56,22 +72,36 @@ init:
   0 _h !
   0 _w !
   0 _obj !
-  DefaultBox _wmin@ SUPER _wmin!
-  DefaultBox _hmin@ SUPER _hmin!
-  DefaultBox _xspan@ SUPER _xspan!
-  DefaultBox _yspan@ SUPER _yspan!
+  \ ugh, ugly!
+  DefaultBox _xmin @ SUPER _xmin !
+  DefaultBox _ymin @ SUPER _ymin !
+  DefaultBox _xspan @ SUPER _xspan !
+  DefaultBox _yspan @ SUPER _yspan !
+  DefaultBox _xfill @ SUPER _xfill !
+  DefaultBox _yfill @ SUPER _yfill !
+  DefaultBox _xpad @ SUPER _xpad !
+  DefaultBox _ypad @ SUPER _ypad !
 ;
 
-: :yspan? SUPER _yspan@ ;
-: :xspan? SUPER _xspan@ ;
+: :yspan? SUPER _yspan @ ;
+: :xspan? SUPER _xspan @ ;
 
-: :xmin SUPER _wmin@ ;
-: :ymin SUPER _hmin@ ;
+: :xmin SUPER _xmin @ SUPER _xpad @ 2 * + ;
+: :ymin SUPER _ymin @ SUPER _ypad @ 2 * + ;
+
+: :xfill? SUPER _xfill @ ;
+: :yfill? SUPER _yfill @ ;
+
+\ : :xpad SUPER _xpad @ ;
+\ : :ypad SUPER _ypad @ ;
 
 \ выполнить растяжку по x если ячейка растягиваема
 : :xformat ( given -- ) :xspan? NOT IF DROP 0 THEN :xmin MAX _w ! ;
 \ выполнить растяжку по y если ячейка растягиваема
 : :yformat ( given -- ) :yspan? NOT IF DROP 0 THEN :ymin MAX _h ! ;
+
+: :h _h @ ;
+: :w _w @ ;
 
 : :print
    SUPER :print
@@ -82,20 +112,35 @@ init:
 : :control! ( ctl-obj -- ) _obj ! ;
 
 \ передать информацию о расположении и размере ячейки контролу с тем чтобы он себя отрисовал
-: :finalize { x y -- } _obj @ 0= IF EXIT THEN TRUE _h @ _w @ y x _obj @ => moveWindow ;
+: :finalize { x y -- } 
+    _obj @ 0= IF EXIT THEN 
+    TRUE
+    :h SUPER _ypad @ 2 * - 0 MAX
+    :w SUPER _xpad @ 2 * - 0 MAX 
+    y SUPER _ypad @ +
+    x SUPER _xpad @ +
+    _obj @ => moveWindow ;
 
 ;CLASS
+
+: FORLIST ( l -- )
+   S" >R BEGIN R@ empty? NOT WHILE R@ car" EVALUATE
+; IMMEDIATE
+
+: ENDFOR 
+   S" R> cdr >R REPEAT RDROP" EVALUATE
+; IMMEDIATE
 
 \ --------------------------
 
 \ ряд ячеек как одна ячейка
-CGridBox SUBCLASS CGridRow
+CLASS CGridRow
 
  VAR _cells \ список ячеек этого ряда
+ VAR _w 
+ VAR _h
 
-init:
-  () _cells !
-;
+init: () _cells ! ;
 
 : :add ( cell -- ) vnode _cells @ append _cells ! ;
 
@@ -106,8 +151,8 @@ init:
 \ минимальная высота ряда как сумма минимальной высоты каждой ячейки
 : :ymin ( -- n ) 0 LAMBDA{ => :ymin MAX } traverse-row ;
 
-\ будет ли этот ряд растягиваться
-: :yspan? ( -- ? ) FALSE LAMBDA{ => :yspan? OR } traverse-row SUPER :yspan? OR ;
+: :xspan? ( -- ? ) LAMBDA{ car => :xspan? } _cells @ scan-list NIP ;
+: :yspan? ( -- ? ) LAMBDA{ car => :yspan? } _cells @ scan-list NIP ;
 
 \ число ячеек которые можно растянуть по горизонтали
 : :xspan-count ( -- n ) 0 LAMBDA{ => :xspan? IF 1 + THEN } traverse-row ;
@@ -116,48 +161,49 @@ init:
    :xspan-count \ если у нас есть внутри потребители - отдаём всё им
    DUP
    IF
-    given :xmin - 0 MAX SWAP / -> extra
+    given :xmin - 0 MAX SWAP / 
+   ELSE 
+    DROP 0
+   THEN 
+    -> extra
 
-    \ раздадим xspan-extra каждой клетке
+    \ раздадим xmin + extra каждой клетке
     \ те у которых xspan включен займут его
     _cells @
-    BEGIN
-     DUP empty? 0=
-    WHILE
-     DUP car DUP => :xmin extra + SWAP => :xformat
-     cdr
-    REPEAT
-    DROP
-   ELSE \ иначе забираем всё себе
-    DROP
-    given SUPER :xformat
-   THEN
+    FORLIST
+     >R R@ => :xmin extra + R> => :xformat
+    ENDFOR
 
-   0 LAMBDA{ => _w @ + } traverse-row
-   \ SUPER _wmin !
-   given MAX SUPER :xformat
+\    extra 0 = IF given SUPER :xformat THEN \ wth? FIXME
+
+   0 LAMBDA{ => :w + } traverse-row
+   \ given MAX
+   _w !
 ;
 
-: :yformat { given -- }
+: :yformat ( given -- )
    \ дать каждой ячейке растянуться не более чем на given
-   _cells @
-   BEGIN
-    DUP empty? 0=
-   WHILE
-    DUP car given SWAP => :yformat
-    cdr
-   REPEAT
+   LAMBDA{ OVER SWAP => :yformat } traverse-row
    DROP
 
    \ сколько места осталось нераспределённым?
-   0 LAMBDA{ => _h @ MAX } traverse-row given MAX SUPER :yformat
+   0 LAMBDA{ => :h MAX } traverse-row 
+   \ given MAX 
+   _h !
 ;
 
+: :w _w @ ;
+: :h _h @ ;
+
 : :print ( -- )
-   CR ." CGridRow :print"
-   CR ." Row: " SUPER :print
-   CR ." Cells : "
-   LAMBDA{ CR => :print } traverse-row
+\   CR ." CGridRow :print"
+   CR
+   indent SPACES
+   ." Row: " \ SUPER :print
+   inc-indent   
+   CR indent SPACES ." Cells : "
+   LAMBDA{ CR indent SPACES => :print } traverse-row
+   dec-indent
 ;
 
 : :draw { | x }
@@ -181,7 +227,7 @@ init:
     DUP empty? 0=
    WHILE
     DUP car x y ROT => :finalize
-    DUP car => _w @ x + -> x
+    DUP car => :w x + -> x
     cdr
    REPEAT
    DROP
@@ -193,71 +239,63 @@ init:
 
 \ Сетка - это список рядов
 \ и одновременно также одна ячейка
-CGridBox SUBCLASS CGrid
+CLASS CGrid
 
  VAR _rows
+ VAR _w
+ VAR _h
 
-init:
-  () _rows ! ;
+init: () _rows ! ;
 
 : traverse-grid ( xt -- ) _rows @ mapcar ;
 
 : :xmin ( -- n ) 0 LAMBDA{ => :xmin MAX } traverse-grid ;
 : :ymin ( -- n ) 0 LAMBDA{ => :ymin + } traverse-grid ;
 
+: :xspan? ( -- ? ) LAMBDA{ car => :xspan? } _rows @ scan-list NIP ;
+: :yspan? ( -- ? ) LAMBDA{ car => :yspan? } _rows @ scan-list NIP ;
+
 \ число рядов которые можно растянуть по вертикали
 : :yspan-count ( -- n ) 0 LAMBDA{ => :yspan? 1 AND + } traverse-grid ;
 
-: :xformat { given -- }
-
-   _rows @
-   BEGIN
-    DUP empty? 0=
-   WHILE
-    DUP car given SWAP => :xformat
-    cdr
-   REPEAT
-   DROP
-
-   \ считаем ширину как максимум из ширины каждого ряда
-   0 LAMBDA{ => _w @ MAX } traverse-grid SUPER _w !
-;
-
 : :yformat { given | extra -- }
-
-   \ будем раздавать каждому +yspan ряду поровну
-   :yspan-count
+   :yspan-count \ если у нас есть внутри потребители - отдаём всё им
    DUP
    IF
-    given :ymin - 0 MAX SWAP / -> extra
+    given :ymin - 0 MAX SWAP / 
+   ELSE 
+    DROP 0
+   THEN 
+    -> extra
 
-    \ раздадим extra каждому ряду
-    \ те у которых yspan включен займут его
+    \ раздадим xmin + extra каждой клетке
+    \ те у которых xspan включен займут его
     _rows @
-    BEGIN
-     DUP empty? 0=
-    WHILE
-     DUP car DUP => :ymin extra + SWAP => :yformat
-     cdr
-    REPEAT
-    DROP
-   ELSE
-    DROP
-    given SUPER :yformat
-   THEN
-
-   \ считаем высоту как сумму высоты каждой ячейки
-   0 LAMBDA{ => _h @ + } traverse-grid SUPER _h !
+    FORLIST
+     >R R@ => :ymin extra + R> => :yformat
+    ENDFOR
+    0 LAMBDA{ => :h + } traverse-grid _h !
 ;
+
+: :xformat ( given -- )
+   LAMBDA{ OVER SWAP => :xformat } traverse-grid
+   DROP 
+   0 LAMBDA{ => :w MAX } traverse-grid _w !
+   ;
+
+: :w _w @ ;
+: :h _h @ ;
 
 : :add ( row -- ) 0 OVER => :xformat 0 OVER => :yformat vnode _rows @ append _rows ! ;
 
 : :print ( -- )
-   CR ." CGrid :print"
-   CR ." Grid: " SUPER :print
-   CR ." Rows----- "
-   LAMBDA{ CR => :print } traverse-grid
-   CR ." ------End"
+\   CR ." CGrid :print"
+   CR indent SPACES ." Grid: " 
+\   CR ." Rows----- "
+  inc-indent
+   LAMBDA{ CR indent SPACES => :print } traverse-grid
+   dec-indent
+\   CR ." ------End"
 ;
 
 : :draw { | y }
@@ -268,7 +306,7 @@ init:
    WHILE
     CR y 3 .R SPACE ." --->"
     DUP car => :draw
-    DUP car => _h @ y + -> y
+    DUP car => :h y + -> y
     cdr
    REPEAT
    DROP
@@ -280,7 +318,7 @@ init:
     DUP empty? 0=
    WHILE
     DUP car x y ROT => :finalize
-    DUP car => _h @ y + -> y
+    DUP car => :h y + -> y
     cdr
    REPEAT
    DROP
@@ -291,6 +329,18 @@ init:
 \ -----------------------------------------------------------------------
 
 \ макросы
+\ +имя - включает булевый параметр (например +xspan включает растяжку по ширине)
+\ -имя - выключает
+\ =имя - устанавливает параметр в указанное значение (например S" text" =text или 20 =xpad )
+\ Все установки действуют на последний размещённый элемент
+
+\ Установка параметров после слова DEFAULTS меняет свойства по-умолчанию для текущей сетки (внутри GRID ;GRID)
+\ Если же установить параметры для DEFAULTS вне сетки то это (логично) изменяет глобальные умолчания.
+\ Установки по-умолчанию изначальные :) такие 
+\ +xspan +yspan 10 =xpad 5 =ypad 50 =xmin 30 =ymin
+
+\ FIXME возможно у CGrid должны быть свойства pad? А может и у Row?
+\ Но у них нет и по-моему не должно быть свойства span..
 
 \ память, ресурсы - всё течет
 
@@ -323,20 +373,24 @@ init:
 
 : save-vars ( -- ) 
    %[ parent % grid % row % box % 
-      DefaultBox _hmin@ % 
-      DefaultBox _wmin@ % 
-      DefaultBox _xspan@ % 
-      DefaultBox _yspan@ % 
+      DefaultBox _ymin @ % 
+      DefaultBox _xmin @ % 
+      DefaultBox _xspan @ % 
+      DefaultBox _yspan @ % 
+      DefaultBox _xpad @ %
+      DefaultBox _ypad @ %
    ]% vnode as-list grid-vars cons TO grid-vars ;
 
 : restore-vars 
    grid-vars car >R
    grid-vars cdr TO grid-vars
    R@ LIST> ( ... )
-   DefaultBox _yspan!
-   DefaultBox _xspan!
-   DefaultBox _wmin!
-   DefaultBox _hmin!
+   DefaultBox _ypad !
+   DefaultBox _xpad !
+   DefaultBox _yspan !
+   DefaultBox _xspan !
+   DefaultBox _xmin !
+   DefaultBox _ymin !
    TO box
    TO row
    TO grid
@@ -371,13 +425,22 @@ init:
 \ выключить растяжение клетки по высоте
 : -yspan ( -- ) FALSE yspan! ;
 
+: -span -xspan -yspan ;
+: +span +xspan +yspan ;
+
 \ установить обработчик события
 \ xt: ( obj -- )
 : =command ( xt -- ) ctl => setHandler ;
 : =text ( a u -- ) ctl => setText ;
 
-: =xmin ( u -- ) box :: CGridBox._wmin ! ;
-: =ymin ( u -- ) box :: CGridBox._hmin ! ;
+: =xmin ( u -- ) box :: CGridBox._xmin ! ;
+: =ymin ( u -- ) box :: CGridBox._ymin ! ;
+
+: =xpad ( u -- ) box :: CGridBox._xpad ! ;
+: =ypad ( u -- ) box :: CGridBox._ypad ! ;
+
+: =pad DUP =xpad =ypad ;
+: -pad 0 =pad ;
 
 \ ;MODULE
 
@@ -410,6 +473,7 @@ CMsgController SUBCLASS CGridController
   VAR _g
 
 : :resize ( w h -- )
+   ACCERT3( CR ." :resize " 2DUP . . )
    _g @ => :yformat
    _g @ => :xformat
    0 0 _g @ => :finalize ;
@@ -417,16 +481,17 @@ CMsgController SUBCLASS CGridController
 : :grid _g @ ;
 
 : :minsize ( w h -- w1 h1 )
+   ACCERT3( 2DUP SWAP CR ." PREMIN : w = " . ." h = " . )
    _g @ => :ymin 30 + \ FIXME высота заголовка
-   2DUP > IF DROP ELSE NIP THEN
+   MAX
    SWAP
    _g @ => :xmin 8 + \ FIXME ширина рамки
-   2DUP > IF DROP ELSE NIP THEN
-   \ 2DUP CR ." MIN : w = " . ." h = " .
+   MAX
+   ACCERT3( 2DUP CR ." MIN : w = " . ." h = " . )
    SWAP ;
 
 : :grid! _g ! ;
-: :hw _g @ => _h @ _g @ => _w @ ;
+: :hw _g @ => :h _g @ => :w ;
 
 W: WM_SIZE 
    SUPER msg lParam @ LOWORD SUPER msg lParam @ HIWORD :resize
@@ -434,10 +499,13 @@ W: WM_SIZE
 ;
 
 W: WM_SIZING ( -- n )
+   \ CR ." WM_SIZING"
    SUPER msg lParam @
    || R: lpar CRect r ||
    lpar @ r rawCopyFrom
+\    CR r width . r height .
    r width r height :minsize r height! r width!
+\   CR r width . r height .
    lpar @ r rawCopyTo
    TRUE
 ;

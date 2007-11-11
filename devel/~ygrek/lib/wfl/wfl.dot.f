@@ -28,9 +28,7 @@ S" wfl.dot" dot{
  NEEDS ~profit/lib/wfl/openGL/GLImage.f
  S" grey" DOT-FILLCOLOR
  NEEDS ~day/wfl/controls/urllabel.f
- S" grey" DOT-FILLCOLOR
  NEEDS ~day/wfl/controls/splitter.f
- S" grey" DOT-FILLCOLOR
  NEEDS ~day/wfl/controls/scintilla/scintilla.f
 }dot
 
