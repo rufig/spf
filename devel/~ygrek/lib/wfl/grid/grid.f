@@ -2,7 +2,7 @@
 
 \ Идея ~yz
 \ Контролы размещаются в сетках, которые можно растягивать
-\ pre alpha
+\ alpha
 
 REQUIRE WFL ~day/wfl/wfl.f
 NEEDS ~ygrek/lib/list/all.f
