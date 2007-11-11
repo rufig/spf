@@ -1,6 +1,8 @@
 \ original (c) A.Cherezov  ( SPF314\EXT\MUTEX.F)
 \ Ruv 22.10.99г. - добавил WaitAny, WaitAll
 
+REQUIRE [UNDEFINED] lib\include\tools.f
+
 WINAPI: CreateMutexA        KERNEL32.DLL
 WINAPI: ReleaseMutex        KERNEL32.DLL
 WINAPI: WaitForSingleObject KERNEL32.DLL
@@ -32,10 +34,14 @@ DECIMAL
   NIP 1 AND 0 CreateMutexA DUP
   0= IF GetLastError ELSE 0 THEN
 ;
+: CLOSE-MUTEX ( handle -- ior )
+  CloseHandle ERR
+;
 : RELEASE-MUTEX ( handle -- ior )
 \ освобождает объект
   ReleaseMutex 0= IF GetLastError ELSE 0 THEN
 ;
+[UNDEFINED] WAIT [IF]
 : WAIT ( time handle -- flag ior )
 \ возвращает истину, если объект освобожден другим потоком
 \ (либо он освободился сам собой при завершении др.потока)
@@ -43,7 +49,7 @@ DECIMAL
   WaitForSingleObject DUP WAIT_FAILED =
   IF GetLastError ELSE DUP WAIT_OBJECT_0 = SWAP WAIT_ABANDONED = OR 0 THEN
 ;
-
+[THEN]
 
 (
 : TEST
@@ -58,66 +64,4 @@ DECIMAL
 
 
 \ Ruv 22.10.99г. 21:24:22
-
-WINAPI:  WaitForMultipleObjects    KERNEL32.DLL
-
-\ WaitForMultipleObjects ( time flag a-array number --  WAIT_FAILD | WAIT_OBJECT_0+n | WAIT_ABANDONED+n | WAIT_TIMEOUT )
-(
-  DWORD WaitForMultipleObjects
-    DWORD  cObjects,            // number of handles in handle array
-    CONST HANDLE *  lphObjects, // address of object-handle array
-    BOOL  fWaitAll,             // wait flag
-    DWORD  dwTimeout            // time-out interval in milliseconds
-)
-
-\
-\ : WaitAny  ( time  a-array n -- flag ior )
-\   0 ( flag-WaitAll  - any object)   ROT ROT
-\   WaitForMultipleObjects
-\   DUP WAIT_FAILED  =  IF   GetLastError  ( true  err_no ) ELSE
-\       WAIT_TIMEOUT =  IF   FALSE  0      ( false 0      ) ELSE
-\   TRUE 0              THEN THEN
-\ ;
-\ : WaitAll  ( time  a-array n -- flag ior )
-\   -1 ( flag-WaitAll  - all objects) ROT ROT
-\   WaitForMultipleObjects
-\   DUP WAIT_FAILED  =  IF   GetLastError  ( true  err_no ) ELSE
-\       WAIT_TIMEOUT =  IF   FALSE  0      ( false 0      ) ELSE
-\   TRUE 0              THEN THEN
-\ ;
-\ ===
-
-
-\ неудобно было возится с дополнительными массивами.
-\ Такая, как ниже, стековая нотация кажется удобней.
-
-: WaitAny  (  h1 h2 ... hn  n time -- flag ior )
-  SWAP >R 0    ( S: h1 h2 ... hn time 0 ) \ flag-WaitAll=0  - any object
-  SP@ 8 +  R@  ( S: h1 h2 ... hn  time 0  a-array n )
-  WaitForMultipleObjects  ( S: ... wait_flag )
-  R> 2>R  SP@ R> CELLS + SP!  R>  ( wait_flag ) \ убираем список хэндлов
-  DUP WAIT_FAILED  =  IF   GetLastError  ( true  err_no ) ELSE
-      WAIT_TIMEOUT =  IF   FALSE  0      ( false 0      ) ELSE
-  TRUE 0              THEN THEN
-;
-
-: WaitAll  ( h1 h2 ... hn  n time  -- flag ior )
-  SWAP >R -1   ( S: h1 h2 ... hn time -1 ) \ flag-WaitAll = -1  -all objects
-  SP@ 8 +  R@  ( S: h1 h2 ... hn  time -1 a-array n )
-  WaitForMultipleObjects  ( S: ... wait_flag )
-  R> 2>R  SP@ R> CELLS + SP!  R>  ( wait_flag ) \ убираем список хэндлов
-  DUP WAIT_FAILED  =  IF   GetLastError  ( true  err_no ) ELSE
-      WAIT_TIMEOUT =  IF   FALSE  0      ( false 0      ) ELSE
-  TRUE 0              THEN THEN
-;
-
-
-\ и Wait  можно  в том же стиле сделать.
-
-: Wait ( handle time -- flag ior )
-\ возвращает истину, если объект освобожден другим потоком
-\ (либо он освободился сам собой при завершении др.потока)
-\ и после этого занят текущим
-  SWAP WaitForSingleObject DUP WAIT_FAILED =
-  IF GetLastError ELSE DUP WAIT_OBJECT_0 = SWAP WAIT_ABANDONED = OR 0 THEN
-;
+S" ~pinka/lib/multi/Synchr.f" INCLUDED \ Wait* перенесены в отдельный файл 04.2001
