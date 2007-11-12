@@ -541,6 +541,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   DNS-SERVER ! TRUE
 ;
 : DNS-SERVER.
+  DNS-SERVER @ 0= IF DNS-SERVERS @ ?DUP IF DNS-SERVER ! THEN THEN
   DNS-SERVER @ ?DUP 
   IF COUNT TYPE
   ELSE NextDNS IF RECURSE THEN THEN
