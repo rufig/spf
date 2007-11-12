@@ -151,7 +151,13 @@ RDROP ;
 HERE vc @ limit @ < IF EXIT THEN \ Проверка на выход за границы текущего блока кодофайла
 \ Если пред. проверка не выкинула нас, то нужно добавлять ещё кусок кода
 \ HERE 1- C@ 0= IF 0 HERE 1- C! THEN
-HERE MM_SIZE CELL+ 2 CELLS MAX 0x90 FILL \ лом против оптимизатора которые "схлопывая" маш. инструкцию, заполняет образующиеся пустоты 0x00
+
+vc @ lastBlock @ end-struct-addr HERE - \ узнаём сколько нужно байтов нужно забить NOP'ами до конца блока
+6 /MOD 0 ?DO SetOP I 1 AND IF 0x898D W, ELSE 0x9B8D W, THEN  0 , LOOP   \ пишем длинные NOP'ы (шестибайтовые) -- LEA ECX, 0 [ECX] / LEA EBX, 0 [EBX]
+DUP 2/ 0 ?DO SetOP I 1 AND IF 0x098D W, ELSE 0x1B8D W, THEN LOOP        \ пишем средние NOP'ы (двухбайтовые) -- LEA ECX, [ECX] / LEA EBX, [EBX]
+1 AND IF SetOP 0x90 C, THEN  \ и (если надо) ставим последний байт -- XCHG EAX, EAX
+
+
 vc @ lastBlock @                 \ запоминаем текущий блок в который компилировали
 vc @ allocatePatch ( block )     \ берём из кучи новый блок
 blocks'Code SWAP nextBlock !     \ связываем новый блок кода с предыдущим
@@ -269,7 +275,8 @@ REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
 0 VALUE t
 
-: numb3rs  S" 1 2 3 4 5 6" EVALUATE ; IMMEDIATE
+
+: numb3rs  S" 1 2 3 4 5 6" EVALUATE ;
 
 : simple-numb3rs  numb3rs ;
 
@@ -282,28 +289,20 @@ t DESTROY-VC ;
 
 
 
-: loop S" 10 1 DO I DUP * . LOOP " EVALUATE ; IMMEDIATE
+: loop ;
 
-: simple-loop  1000 0 DO loop LOOP ;
+: simple-loop  1000 0 DO  10 1 DO I DUP * . LOOP  LOOP ;
 
 : compile-loop-in-heap
 CREATE-VC TO t
 1000 0 DO
-START{ t VC- loop }EMERGE
+S" 10 1 DO I DUP * . LOOP " t VC-COMPILED
 LOOP
 t VC-RET,
 t XT-VC EXECUTE
 t DESTROY-VC ;
 
-
 TESTCASES compile to heap test
-
-CREATE-VC TO t
-1 t VC-LIT,
-2 t VC-LIT,
-3 t VC-LIT,
-(( t EXECUTE -> 1 2 3 ))
-t DESTROY-VC
 
 (( numb3rs-in-heap -> simple-numb3rs ))
 
@@ -315,6 +314,4 @@ STR@ ROT STR@ TEST-ARRAY
 STRFREE STRFREE
 
 
-END-TESTCASES 
-
-\ MemReport
+END-TESTCASES
