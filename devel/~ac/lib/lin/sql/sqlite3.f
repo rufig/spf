@@ -270,6 +270,9 @@ USER _db3_gets
 \  1 1 sqlite3_soft_heap_limit DROP \ недоступно
   0 sqlite3_thread_cleanup DROP     \ ничего не делает...
 ;
+: db3_enable_extensions ( sqh -- )
+  TRUE SWAP 2 sqlite3_enable_load_extension DROP
+;
 PREVIOUS
 
 : '>` ( addr u -- )
