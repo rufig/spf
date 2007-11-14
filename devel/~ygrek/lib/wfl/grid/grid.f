@@ -115,10 +115,10 @@ init:
 : :finalize { x y -- } 
     _obj @ 0= IF EXIT THEN 
     TRUE
-    :h SUPER _ypad @ 2 * - 0 MAX
-    :w SUPER _xpad @ 2 * - 0 MAX 
-    y SUPER _ypad @ +
-    x SUPER _xpad @ +
+    :yfill? IF :h SUPER _ypad @ 2 * - ELSE SUPER _ymin @ THEN 0 MAX
+    :xfill? IF :w SUPER _xpad @ 2 * - ELSE SUPER _xmin @ THEN 0 MAX
+    y :yfill? IF SUPER _ypad @ ELSE :h SUPER _ymin @ - 2 / THEN +
+    x :xfill? IF SUPER _xpad @ ELSE :w SUPER _xmin @ - 2 / THEN +
     _obj @ => moveWindow ;
 
 ;CLASS
@@ -379,12 +379,16 @@ init: () _rows ! ;
       DefaultBox _yspan @ % 
       DefaultBox _xpad @ %
       DefaultBox _ypad @ %
+      DefaultBox _xfill @ %
+      DefaultBox _yfill @ %
    ]% vnode as-list grid-vars cons TO grid-vars ;
 
 : restore-vars 
    grid-vars car >R
    grid-vars cdr TO grid-vars
    R@ LIST> ( ... )
+   DefaultBox _yfill !
+   DefaultBox _xfill !
    DefaultBox _ypad !
    DefaultBox _xpad !
    DefaultBox _yspan !
@@ -441,6 +445,17 @@ init: () _rows ! ;
 
 : =pad DUP =xpad =ypad ;
 : -pad 0 =pad ;
+
+: xfill! ( ? -- ) box :: CGridBox._xfill ! ;
+: +xfill ( -- ) TRUE xfill! ;
+: -xfill ( -- ) FALSE xfill! ;
+
+: yfill! ( ? -- ) box :: CGridBox._yfill ! ;
+: +yfill ( -- ) TRUE yfill! ;
+: -yfill ( -- ) FALSE yfill! ;
+
+: -fill -xfill -yfill ;
+: +fill +xfill +yfill ;
 
 \ ;MODULE
 
