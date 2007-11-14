@@ -16,9 +16,9 @@ REQUIRE UNICODE>UTF8           ~ac/lib/win/com/com.f
 ;
 
 GET-CURRENT ALSO CHARSET-DECODERS DEFINITIONS
-: UTF-8 UTF8>UNICODE " {s}" STR@ UNICODE> ;
-: Utf-8 UTF8>UNICODE " {s}" STR@ UNICODE> ;
-: utf-8 UTF8>UNICODE " {s}" STR@ UNICODE> ;
+: UTF-8 UTF8> ;
+: Utf-8 UTF8> ;
+: utf-8 UTF8> ; \ UTF8>UNICODE " {s}" STR@ UNICODE> ;
 : iso-8859-5 iso-8859-5>UNICODE " {s}" STR@ UNICODE> ;
 PREVIOUS SET-CURRENT
 
@@ -274,7 +274,7 @@ USER _LASTMSGHTML
            COMPARE-U 0= IF dequotep OVER -> tf_dq THEN
            S" Content-Transfer-Encoding" mp FindMimeHeader S" base64"
            COMPARE-U 0= IF debase64 OVER -> tf_db THEN
-           2DUP _>BL
+\           2DUP _>BL ( отключено: портит unicode-букву "К" )
            mp mpCharsetAddr @ mp mpCharsetLen @ ?DUP
            IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN ELSE DROP THEN
 
