@@ -95,12 +95,11 @@ W: WM_INITDIALOG ( -- n )
      CButton put -yspan  30 =ymin S" Fixed height: 30" =text
     ROW
 
-    \ DEFAULTS -xspan \ breaks everything FIXME
      CGLControlTest put ctl
      CGLControlTest put ctl
      CGLControlTest put ctl 
      -ROT SWAP
-     0 GRID aButton ROW aButton ROW aButton ;GRID put-box
+     0 GRID DEFAULTS -xspan aButton ROW aButton ROW aButton ;GRID put-box
 
     ROW
      CEventButton put 
