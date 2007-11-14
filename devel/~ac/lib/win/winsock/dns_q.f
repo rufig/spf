@@ -341,19 +341,27 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 ;
 
 : PrintType
-  ." Type=" REP @ W@ >B< . 2 REP +!
+  ." Type=" REP @ W@ >B<
+  DUP 16 ( TXT) > ABORT" DNS reply format error (type)"
+  . 2 REP +!
 ;
 
 : ParseType
-  REP @ W@ >B< 2 REP +!
+  REP @ W@ >B<
+  DUP 16 ( TXT) > ABORT" DNS reply format error (type)"
+  2 REP +!
   CURRENT-R @ ?DUP IF RLtype ! ELSE DROP THEN
 ;
 
 : PrintClass
-  ." Class=" REP @ W@ >B< . 2 REP +!
+  ." Class=" REP @ W@ >B<
+  DUP 255 <> ( ANY) OVER 1 ( INternet) <> AND ABORT" DNS reply format error (class)"
+  . 2 REP +!
 ;
 
 : ParseClass
+  REP @ W@ >B<
+  DUP 255 <> ( ANY) SWAP 1 ( INternet) <> AND ABORT" DNS reply format error (class)"
   2 REP +!
 ;
 
@@ -392,6 +400,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 
   REP @ W@ >B< DUP . 2 REP +!
   REP @ OVER 1500 MIN CR DUMP CR
+  DUP 1500 > <> ABORT" DNS reply format error (RD size)"
   REP +! \ 1500 MIN - защита от неверных входных форматов
 ;
 
