@@ -1,9 +1,9 @@
- \ ¯à®¨§¢¥áâ¨ à¥¢¥àá ¡¨â ãª § ­­®£® ç¨á« 
+ \ ïðîèçâåñòè ðåâåðñ áèò óêàçàííîãî ÷èñëà
 
  REQUIRE FOR   devel\~mOleg\lib\util\for-next.f
  REQUIRE ROL   shift.f
 
-\ ¯à®¨§¢¥áâ¨ à¥¢¥àá ¡¨â ãª § ­­®£® ç¨á« 
+\ ïðîèçâåñòè ðåâåðñ áèò óêàçàííîãî ÷èñëà
 : revcell ( u --> u )
           DUP 0xFF00FF00 AND SWAP 0x00FF00FF AND 0x10 ROL OR
           DUP 0xF0F0F0F0 AND SWAP 0x0F0F0F0F AND 0x08 ROL OR
@@ -11,7 +11,7 @@
           DUP 0xAAAAAAAA AND SWAP 0x55555555 AND 0x02 ROL OR
           0x01 ROL ;
 
-\ ¤«ï ¬ áá¨¢  addr # ¯à®¨§¢¥áâ¨ ¡¨â®¢ë© à¥¢¥àá
+\ äëÿ ìàññèâà addr # ïðîèçâåñòè áèòîâûé ðåâåðñ
 : revarr ( addr # --> )
          FOR DUP @ revcell OVER !
              CELL +

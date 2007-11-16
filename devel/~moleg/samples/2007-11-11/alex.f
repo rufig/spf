@@ -1,10 +1,10 @@
 
  REQUIRE FOR   devel\~mOleg\lib\util\for-next.f
 
-\ ¯à®¨§¢¥áâ¨ à¥¢¥àá ¡¨â ãª § ­­®£® ç¨á« 
+\ ïðîèçâåñòè ðåâåðñ áèò óêàçàííîãî ÷èñëà
 : revcell ( u - u ) 0  32 0 DO  SWAP 0 D2*  I LSHIFT ROT +  LOOP  NIP ;
 
-\ ¤«ï ¬ áá¨¢  addr # ¯à®¨§¢¥áâ¨ ¡¨â®¢ë© à¥¢¥àá
+\ äëÿ ìàññèâà addr # ïðîèçâåñòè áèòîâûé ðåâåðñ
 : revarr ( addr # --> )
          FOR DUP @ revcell OVER !
              CELL +

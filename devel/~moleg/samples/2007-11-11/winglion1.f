@@ -1,9 +1,9 @@
- \ ¯à®¨§¢¥áâ¨ à¥¢¥àá ¡¨â ãª § ­­®£® ç¨á« 
+ \ ïðîèçâåñòè ðåâåðñ áèò óêàçàííîãî ÷èñëà
 
  REQUIRE FOR   devel\~mOleg\lib\util\for-next.f
  REQUIRE ROL   shift.f
 
-\ ¯à®¨§¢¥áâ¨ à¥¢¥àá ¡¨â ãª § ­­®£® ç¨á« 
+\ ïðîèçâåñòè ðåâåðñ áèò óêàçàííîãî ÷èñëà
 : revcell ( u --> u )
           BSWAP
           DUP 0xF0F0F0F0 AND 4 RSHIFT SWAP 0x0F0F0F0F AND 4 LSHIFT OR
@@ -11,7 +11,7 @@
           DUP 0xAAAAAAAA AND 1 RSHIFT SWAP 0x55555555 AND 1 LSHIFT OR
           ;
 
-\ ¤«ï ¬ áá¨¢  addr # ¯à®¨§¢¥áâ¨ ¡¨â®¢ë© à¥¢¥àá
+\ äëÿ ìàññèâà addr # ïðîèçâåñòè áèòîâûé ðåâåðñ
 : revarr ( addr # --> )
          FOR DUP @ revcell OVER !
              CELL +

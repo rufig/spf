@@ -1,21 +1,21 @@
  REQUIRE FOR            devel\~mOleg\lib\util\for-next.f
  REQUIRE B@             devel\~mOleg\lib\util\bytes.f
 
-\ ¯à®¨§¢¥áâ¨ à¥¢¥àá ¡¨â ãª § ­­®£® ¡ ©â 
+\ ïðîèçâåñòè ðåâåðñ áèò óêàçàííîãî áàéòà
 : revbyte ( b --> b )
           0 8 FOR 2* OVER 1 AND OR
                   SWAP 2/ SWAP
               TILL NIP ;
 
-\ ¬ áá¨¢ á ¨­¢¥àâ¨à®¢ ­­ë¬¨ ¡ ©â ¬¨
+\ ìàññèâ ñ èíâåðòèðîâàííûìè áàéòàìè
 CREATE brarr  256 FOR 256 R@ - revbyte B, TILL
 
-\ ¯à®¨§¢¥áâ¨ à¥¢¥àá ïç¥©ª¨
+\ ïðîèçâåñòè ðåâåðñ ÿ÷åéêè
 : revcell ( u --> u )
           0 4 FOR 8 LSHIFT
                   OVER 0xFF AND brarr + B@ OR
                   SWAP 8 RSHIFT SWAP
               TILL NIP ;
 
-\ ¤«ï ¬ áá¨¢  addr # ¯à®¨§¢¥áâ¨ ¡¨â®¢ë© à¥¢¥àá
+\ äëÿ ìàññèâà addr # ïðîèçâåñòè áèòîâûé ðåâåðñ
 : revarr ( addr # --> ) FOR DUP @ revcell OVER ! CELL + TILL DROP ;

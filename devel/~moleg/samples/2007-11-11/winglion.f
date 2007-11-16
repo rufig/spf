@@ -1,8 +1,8 @@
- \ ¯à®¨§¢¥áâ¨ à¥¢¥àá ¡¨â ãª § ­­®£® ç¨á« 
+ \ ïðîèçâåñòè ðåâåðñ áèò óêàçàííîãî ÷èñëà
 
  REQUIRE FOR   devel\~mOleg\lib\util\for-next.f
 
-\ ¯à®¨§¢¥áâ¨ à¥¢¥àá ¡¨â ãª § ­­®£® ç¨á« 
+\ ïðîèçâåñòè ðåâåðñ áèò óêàçàííîãî ÷èñëà
 : revcell ( u --> u )
           DUP 0x10 RSHIFT SWAP 0x10 LSHIFT OR
           DUP 0xFF00FF00 AND 8 RSHIFT SWAP 0x00FF00FF AND 8 LSHIFT OR
@@ -11,7 +11,7 @@
           DUP 0xAAAAAAAA AND 1 RSHIFT SWAP 0x55555555 AND 1 LSHIFT OR
           ;
 
-\ ¤«ï ¬ áá¨¢  addr # ¯à®¨§¢¥áâ¨ ¡¨â®¢ë© à¥¢¥àá
+\ äëÿ ìàññèâà addr # ïðîèçâåñòè áèòîâûé ðåâåðñ
 : revarr ( addr # --> )
          FOR DUP @ revcell OVER !
              CELL +

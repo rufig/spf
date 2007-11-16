@@ -1,17 +1,17 @@
 \ 11-11-2007 ~mOleg
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
-\ ¯à¨¬¥à à¥è¥­¨ï § ¤ çª¨ á ä®àã¬ 
+\ ïðèìåð ðåøåíèÿ çàäà÷êè ñ ôîðóìà
 \ http://fforum.winglion.ru/viewtopic.php?t=1022&start=0&postdays=0&postorder=asc&highlight=
 
  REQUIRE FOR  devel\~mOleg\lib\util\for-next.f
 
-\ ¯à®¨§¢¥áâ¨ à¥¢¥àá ¡¨â ãª § ­­®£® ç¨á« 
+\ ïðîèçâåñòè ðåâåðñ áèò óêàçàííîãî ÷èñëà
 : revcell ( u --> u )
           0 32 FOR 2* OVER 1 AND OR
                    SWAP 2/ SWAP
                TILL NIP ;
 
-\ ¤«ï ¬ áá¨¢  addr # ¯à®¨§¢¥áâ¨ ¡¨â®¢ë© à¥¢¥àá
+\ äëÿ ìàññèâà addr # ïðîèçâåñòè áèòîâûé ðåâåðñ
 : revarr ( addr # --> )
          FOR DUP @ revcell OVER !
              CELL +
