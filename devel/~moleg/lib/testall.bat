@@ -85,6 +85,7 @@
 
 @st.exe .S" devel\~moleg\lib\math\math.f"               TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\math\fixed.f"              TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\math\shift.f"              TESTED CR BYE
 
 @rem удаляем тестирующую версию СПФа
 @del st.exe

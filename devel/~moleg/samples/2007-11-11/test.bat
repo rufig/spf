@@ -1,0 +1,1 @@
+spf4.exe %1 testspd.f test BYE >spd.log
