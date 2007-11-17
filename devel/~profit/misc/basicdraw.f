@@ -7,7 +7,6 @@
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 REQUIRE WFL ~day/wfl/wfl.f
 REQUIRE CGLWindow ~ygrek/lib/wfl/opengl/GLWindow.f
-REQUIRE CBMP24 ~ygrek/lib/spec/bmp.f
 REQUIRE CGLImage ~profit/lib/wfl/openGL/GLImage.f
 REQUIRE state-table ~profit/lib/chartable.f
 \ REQUIRE CONST ~micro/lib/const/const.f
@@ -29,7 +28,7 @@ MODULE: basic-graph
 
 0 VALUE glwindow
 \ 0 VALUE list1
-0 VALUE bmp
+0 VALUE img
 VECT drawer
 
 EXPORT
@@ -56,7 +55,7 @@ RECT::/SIZE ALLOCATE THROW TO WindowRect
 0 WindowRect RECT::top ! \ Set Top Value To 0
 10 WindowRect RECT::bottom ! \ Set Bottom Value To Requested Height
 SUPER exStyle @ FALSE SUPER style @ WindowRect AdjustWindowRectEx DROP
-bmp => height @ SWAP - WindowRect RECT::top @ + SWAP
+img => height @ SWAP - WindowRect RECT::top @ + SWAP
 WindowRect RECT::left @ + WindowRect RECT::left @ + SWAP
 WindowRect FREE THROW
 
@@ -70,10 +69,10 @@ EXPORT
 
 : glTHROW ( res -- ) 0= IF GetLastError THROW THEN ;
 
-: CLS ( -- ) bmp => :cls ;
-: PIXEL ( x y -- ) bmp => :pixel ;
-: SET-COLOR ( r g b -- ) bmp => :set-color ;
-: SET-SIZE ( w h -- ) 2DUP bmp => :set-size
+: CLS ( -- ) img => :cls ;
+: PIXEL ( x y -- ) img => :pixel ;
+: SET-COLOR ( r g b -- ) img => :set-color ;
+: SET-SIZE ( w h -- ) 2DUP img => :set-size
 SWAP TRUE -ROT
 glwindow => getWindowRect 2SWAP 2DROP ( true height width y x )
 glwindow => moveWindow ;
@@ -81,8 +80,8 @@ glwindow => moveWindow ;
 : START-DRAW ( xt -- n ) TO drawer
 || CMessageLoop loop ||
 CGLMyWindow NewObj TO glwindow
-CGLImage NewObj TO bmp
-bmp glwindow => :add
+CGLImage NewObj TO img
+img glwindow => :add
 0 0 glwindow => create DROP
 SW_SHOW glwindow => showWindow
 drawer

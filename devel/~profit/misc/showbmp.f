@@ -23,13 +23,13 @@ picture bmp :: CGLImage.:load-image
 
 0 0 200 bmp :: CGLImage.:set-color
 20 0 DO
-10 0 DO I J bmp => :pixel LOOP LOOP
+10 0 DO J I bmp => :pixel LOOP LOOP
 
 
 bmp list1 :: CGLObjectList.:add
  
 list1 aa :add
-0 aa create DROP
+0 0 aa create DROP
 SW_SHOW aa showWindow
 
 loop run ;

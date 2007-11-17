@@ -35,7 +35,7 @@ addr @ ?DUP IF FREE THROW THEN
 || CBMP24 img D: data ||
 \ объект CBMP24 не храню во всем объекте, он создаётся и уничтожается только на время загрузки картинки
 img :load-file
-img :size SWAP :set-size
+img :size :set-size
 addr @ data !
 img sizeY @ 0 DO
 img sizeX @ 0 DO
