@@ -31,6 +31,7 @@ testing: devel\~moleg\lib\util\spells.f                                passed
 testing: devel\~moleg\lib\util\queue.f                                 passed
 testing: devel\~moleg\lib\util\tricks.f                                passed
 testing: devel\~moleg\lib\util\alias.f                                 passed
+testing: devel\~moleg\lib\util\priority.f                              passed
 testing: devel\~moleg\lib\mtask\mutex.f                                passed
 testing: devel\~moleg\lib\mtask\pmutex.f                               passed
 testing: devel\~moleg\lib\arrays\arrays.f                              passed
@@ -62,3 +63,4 @@ testing: devel\~moleg\lib\spf_print\pad.f                              passed
 testing: devel\~moleg\lib\asm\psevdoasm.f                              passed
 testing: devel\~moleg\lib\math\math.f                                  passed
 testing: devel\~moleg\lib\math\fixed.f                                 passed
+testing: devel\~moleg\lib\math\shift.f                                 passed

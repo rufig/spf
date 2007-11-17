@@ -2,7 +2,7 @@
 \ тестируем скорость работы алгоритма
 
  REQUIRE FOR  devel\~mOleg\lib\util\for-next.f
-
+ REQUIRE own  priority.f
                                    DECIMAL
 
  16000 CONSTANT #array   \ размер массива в €чейках
@@ -27,8 +27,12 @@
 \ реверс пор€дка бит дл€ каждой €чейки массива
 : sample ( --> ) array #array revarr ;
 
+realtime own 0= THROW \ не могу установить приоритет
+
 : test ( --> )
        filarr
          ResetProfiles
          100 FOR sample TILL
         CR .AllStatistic ;
+
+normal own DROP
