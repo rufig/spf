@@ -21,6 +21,7 @@ VECT SHEADER
      IF DROP 2DUP TYPE ."  isn't unique" CR THEN
   THEN
   CURRENT @ +SWORD
+  ALIGN
   HERE SWAP ! ( заполнили cfa )
 ;
 ' SHEADER1 (TO) SHEADER
