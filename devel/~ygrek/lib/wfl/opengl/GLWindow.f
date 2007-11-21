@@ -18,7 +18,7 @@ CGLCanvas SUBCLASS CGLWindowCanvas
 
 init: 0 _obj ! ;
 : :bind ( obj -- ) _obj ! ;
-: :prepare _obj @ IF _obj @ => :prepare THEN ;
+: :prepare SUPER :prepare _obj @ IF _obj @ => :prepare THEN ;
 
 ;CLASS
 
