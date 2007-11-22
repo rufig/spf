@@ -400,7 +400,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 
   REP @ W@ >B< DUP . 2 REP +!
   REP @ OVER 1500 MIN CR DUMP CR
-  DUP 1500 > <> ABORT" DNS reply format error (RD size)"
+  DUP 1500 > ABORT" DNS reply format error (RD size)"
   REP +! \ 1500 MIN - защита от неверных входных форматов
 ;
 
