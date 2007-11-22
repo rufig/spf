@@ -254,6 +254,11 @@ CREATE dbCRLFCRLF 13 C, 10 C, 13 C, 10 C,
 USER _LASTMSGHTML
 
 : MessageHtml { mp s \ tf_dq tf_db tf_pl -- addr u }
+
+\ ¬нимание! ѕри не-windows-1251 кодировках сообщение перекодируетс€ на
+\ месте (но кодировка в заголовке не мен€етс€), поэтому дважды дл€ одного mp
+\ вызывать MessageHtml нельз€, надо использовать LastMsgHtml (см. ниже).
+
 \  mp GetFrom DUP IF 2DUP S" unknown@email" COMPARE
 \                    IF 2SWAP " <h4>{s} [{s}]</h4>" s S+ ELSE 2DROP 2DROP THEN
 \                 ELSE 2DROP 2DROP THEN
@@ -291,6 +296,9 @@ USER _LASTMSGHTML
   UNTIL
   " </table>" s S+
   s DUP _LASTMSGHTML ! STR@
+;
+: LastMsgHtml
+  _LASTMSGHTML @ ?DUP IF STR@ ELSE S" " THEN
 ;
 : LastMsgHtmlFree
   _LASTMSGHTML @ ?DUP IF STRFREE _LASTMSGHTML 0! THEN
