@@ -40,6 +40,7 @@ testing: devel\~moleg\lib\arrays\barray.f                              passed
 testing: devel\~moleg\lib\arrays\stream.f                              passed
 testing: devel\~moleg\lib\parsing\number.f                             passed
 testing: devel\~moleg\lib\parsing\xWord.f                              passed
+testing: devel\~moleg\lib\parsing\xWordn.f                             passed
 testing: devel\~moleg\lib\postscript\dsadd.f                           passed
 testing: devel\~moleg\lib\postscript\ps{}.f                            passed
 testing: devel\~moleg\lib\strings\stradd.f                             passed

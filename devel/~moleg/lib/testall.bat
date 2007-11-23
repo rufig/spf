@@ -54,6 +54,7 @@
 
 @st.exe .S" devel\~moleg\lib\parsing\number.f"          TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\parsing\xWord.f"           TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\parsing\xWordn.f"          TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\postscript\dsadd.f"        TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\postscript\ps{}.f"         TESTED CR BYE
