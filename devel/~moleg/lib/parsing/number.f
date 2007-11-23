@@ -5,7 +5,7 @@
  REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
 \ умножение числа двойной длинны на одинарное
-: DU* ( d u --> d ) TUCK * >R UM* R> + ;
+?DEFINED DU* : DU* ( d u --> d ) TUCK * >R UM* R> + ;
 
 \ преобразовать символ в цифру »
 : >CIPHER ( c --> u|-1 )
