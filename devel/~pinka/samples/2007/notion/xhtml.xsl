@@ -18,7 +18,11 @@
 </xsl:template>
 
 <xsl:template match="*">
-  <xsl:element name="{name()}"><xsl:apply-templates/></xsl:element>
+  <xsl:element name="{name()}"><xsl:copy-of select="@*"/><xsl:apply-templates/></xsl:element>
+</xsl:template>
+
+<xsl:template match="w">
+  <span class="w"><xsl:apply-templates/><xsl:if test="@ds"> ( <xsl:value-of select="@ds"/> )</xsl:if></span>
 </xsl:template>
 
 <xsl:template match="title">
@@ -38,10 +42,12 @@
 <xsl:template match="/">
 <html><head>
 <style>
-  h3 { margin-top: 2em; }
+  h3 { margin-top: 3em; }
   body { padding: 1em 5em 25em 2em; font-family: "Lucida Grande", sans-serif; line-height:150%;}
   p { margin: 0; margin-top: 0.5em; }
+  ul { margin-top: 0.2em; }
   *:target { border-bottom: 2px dotted gray;}
+  .w { white-space: nowrap; font-family: monospace; font-weight: bold; color: #000066;}
 </style>
 </head><body>
   <xsl:apply-templates/>
