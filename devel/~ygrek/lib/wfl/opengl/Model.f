@@ -70,35 +70,35 @@ CLASS CSimpleModelBase
 
  vector OBJ ver
 
-init: CGLPoint ^ size ver :setup ;
+init: CPoint4f ^ size ver :setup ;
 
 : :xmax ( -- F: f ) { | a }
    ver :start -> a
    0e
-   ver :size 0 ?DO a :: CGLPoint.:x@ FABS FMAX a ver :iterate -> a LOOP ;
+   ver :size 0 ?DO a :: CPoint4f.:x@ FABS FMAX a ver :iterate -> a LOOP ;
 
 : :ymax ( -- F: f ) { | a }
    ver :start -> a
    0e
-   ver :size 0 ?DO a :: CGLPoint.:y@ FABS FMAX a ver :iterate -> a LOOP ;
+   ver :size 0 ?DO a :: CPoint4f.:y@ FABS FMAX a ver :iterate -> a LOOP ;
 
 : :zmax ( -- F: f ) { | a }
    ver :start -> a
    0e
-   ver :size 0 ?DO a :: CGLPoint.:z@ FABS FMAX a ver :iterate -> a LOOP ;
+   ver :size 0 ?DO a :: CPoint4f.:z@ FABS FMAX a ver :iterate -> a LOOP ;
 
 : :vertices ( -- n ) ver :size ;
 : :vnth ( n -- a ) ver :nth ;
 
 : :printall { | a }
    ver :start -> a
-   ver :size 0 DO CR a :: CGLPoint.:getr F. F. F. a ver :iterate -> a KEY DROP LOOP ;
+   ver :size 0 DO CR a :: CPoint4f.:getr F. F. F. a ver :iterate -> a KEY DROP LOOP ;
 
 : :print CR ." Total vertices = " :vertices . ;
 
 : :add-vertex ( F: x y z -- )
    ver :resize1
-   ver :last :: CGLPoint.:set ;
+   ver :last :: CPoint4f.:set ;
 
 ;CLASS
 
@@ -111,7 +111,7 @@ CSimpleModelBase SUBCLASS CSimpleModel
 
 init:
   CTri ^ size tri :setup
-  CGLPoint ^ size norm :setup
+  CPoint4f ^ size norm :setup
 ;
 
 : :faces ( -- n ) tri :size ;
@@ -130,16 +130,16 @@ init:
    tri :resize1
    tri :last :: CTri.:set1 ;
 
-: :norm-inc ( F: x y z D: n -- ) :nnth :: CGLPoint.:inc ;
+: :norm-inc ( F: x y z D: n -- ) :nnth :: CPoint4f.:inc ;
 
 : :add-norm ( F: x y z -- )
    norm :resize1
-   norm :last :: CGLPoint.:set ;
+   norm :last :: CPoint4f.:set ;
 
 \ Посчитать нормаль к точке p0 для треугольника p0-pa-pb
 ( [pb-p0]x[pa-p0] )
 : (tri-norm) ( p0 pa pb -- F: x y z )
-   || CGLPoint p0 CGLPoint pa CGLPoint pb ||
+   || CPoint4f p0 CPoint4f pa CPoint4f pb ||
 
    pb :pset
    pa :pset
@@ -165,8 +165,8 @@ init:
    t :: CTri.v3@ SUPER :vnth
    t :: CTri.v1@ SUPER :vnth
    (tri-norm) t :: CTri.v2@ :norm-inc
-   \ norm :last :: CGLPoint.:get :add-norm
-   \ norm :last :: CGLPoint.:get :add-norm
+   \ norm :last :: CPoint4f.:get :add-norm
+   \ norm :last :: CPoint4f.:get :add-norm
 
    t :: CTri.v3@ SUPER :vnth
    t :: CTri.v1@ SUPER :vnth
@@ -179,7 +179,7 @@ init:
 
    norm :start -> a
    norm :size 0 ?DO
-     0e 0e 0e a :: CGLPoint.:set
+     0e 0e 0e a :: CPoint4f.:set
      a norm :iterate -> a
    LOOP
 

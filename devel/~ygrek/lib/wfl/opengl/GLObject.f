@@ -1,32 +1,11 @@
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
-NEEDS ~ygrek/lib/data/opengl.f
-
-: status
-  ( CR
-  ." f=" FDEPTH .
-  ." d=" DEPTH  . 
-  DEPTH 10 MIN .SN )
-  GetLastError ?DUP IF CR ." Error " . THEN
-  glGetError ?DUP IF CR ." GL error " . THEN
-;
-
+NEEDS ~ygrek/lib/wfl/opengl/common.f
 NEEDS ~day/hype3/locals.f
 NEEDS ~ygrek/lib/list/write.f
 NEEDS ~pinka/lib/lambda.f
 NEEDS ~ygrek/lib/hype/timer.f
 NEEDS ~ygrek/lib/hype/point.f
-\ NEEDS  lib/ext/const.f \ can't switch because of conflict with ~day/wincons/wc.f being used in WFL
-NEEDS ~day/wincons/wc.f
-S" ~ygrek/lib/data/opengl.const" ADD-CONST-VOC
-
-: float ( F: f -- D: f )
-[ 0x8D C, 0x6D C, 0xFC C,
-  0xD9 C, 0x5D C, 0x00 C,
-  0x87 C, 0x45 C, 0x00 C,
-  0xC3 C, ] ;
-
-: double ( F: f -- D: f1 f2 ) FLOAT>DATA SWAP ;
 
 \ -----------------------------------------------------------------------
 
@@ -43,13 +22,23 @@ NEEDS ~ygrek/lib/wfl/opengl/Model.f
 
 \ -----------------------------------------------------------------------
 
-\ всё что рисуется в GL окне - наследуется от этого класса
-CLASS CGLObject
+\ все обьекты которые рисуются в GL-окне должны предоставлять такой интерфейс
+CLASS (CGLObject)
 
-     CGLPoint OBJ angle
-     CGLPoint OBJ angle.speed
-     CGLPoint OBJ shift
-     CGLPoint OBJ scale
+: :draw ;
+
+;CLASS
+
+\ -----------------------------------------------------------------------
+
+\ простой обьект
+\ 
+(CGLObject) SUBCLASS CGLObject
+
+     CGLPoint OBJ angle \ поворот
+     CGLPoint OBJ angle.speed \ скорость вращения
+     CGLPoint OBJ shift \ сдвиг
+     CGLPoint OBJ scale \ сжатие-растяжение
      CELL PROPERTY <visible
 
 : :print
@@ -64,11 +53,11 @@ CLASS CGLObject
 : :draw
    <visible@ 0= IF 0e float 0e float 0e float glScalef DROP EXIT THEN
 
-   shift :getf glTranslatef DROP \ Сдвиг
-   scale :getf glScalef DROP \ сжатие-растяжение
+   shift :getf glTranslatef DROP 
+   scale :getf glScalef DROP 
 
-   1e float 0e float 0e float  \ вектор-ось вращения
-   angle :x@ float glRotatef DROP  \ Поворот
+   1e float 0e float 0e float
+   angle :x@ float glRotatef DROP  
 
    0e float 1e float 0e float
    angle :y@ float glRotatef DROP
@@ -167,7 +156,12 @@ CGLObject SUBCLASS CGLPyramid
            top :vertex   a3 :vertex   a4 :vertex
          Green SetColor
            top :vertex   a4 :vertex   a1 :vertex
-   glEnd  DROP   \ Finished Drawing
+   glEnd DROP   \ Finished Drawing
+
+   GL_QUADS glBegin DROP
+      Magenta SetColor
+           a1 :vertex   a2 :vertex   a3 :vertex   a4 :vertex
+   glEnd DROP
 ;
 
 init:
@@ -262,7 +256,7 @@ dispose: timer :ms@ CR ." Time in " SUPER name TYPE ."  = " . ;
 
 : :prepare
    1 glGenLists _list !
-   status
+   gl-status
    GL_COMPILE _list @ glNewList DROP
     :draw-model
    glEndList DROP ;
