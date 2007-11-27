@@ -121,6 +121,7 @@ Requirements :
 
 <section id="math">
 <name><en>Math</en><ru>Вычисления</ru></name>
+<lib><key>F.</key><src>lib/include/float2.f</src><comment><en>floating point numbers</en><ru>числа с плавающей точкой</ru></comment></lib>
 <lib><key>FR*</key><src>~nn/lib/fraction.f</src><comment><en>fractions' lib (enables fractions as '1/3')</en><ru>работа с дробями (в виде чисел вида: "1/3")</ru></comment></lib>
 <lib><key>RATIO</key><src>~pinka/lib/BigMath.f</src><comment><en>rational fractions</en><ru>рациональные дроби</ru></comment></lib>
 <lib><key>inv_normalDF</key><src>~ygrek/lib/math/inv_normal.f</src><comment><en>Normal distribution quantile</en><ru>Квантиль нормального распределения</ru></comment></lib>
