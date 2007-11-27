@@ -1,8 +1,9 @@
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
-NEEDS ~ygrek/lib/wfl/opengl/GLControl.f
+NEEDS ~ygrek/lib/wfl/opengl/GLWindow.f
 NEEDS ~ygrek/lib/wfl/grid/grid.f
 NEEDS ~profit/lib/bac4th-closures.f
+NEEDS ~ygrek/lib/neilbawd/mersenne.f
 
 \ -----------------------------------------------------------------------
 
@@ -12,26 +13,25 @@ NEEDS ~profit/lib/bac4th-closures.f
 
 \ -----------------------------------------------------------------------
 
-CGLControl SUBCLASS CGLControlTest
+CGLSimpleCanvas SUBCLASS CGLMyScene
 
  VAR cube
  VAR pyr
 
-init: ;
 dispose: ;
 
-: populate
+init:
      CGLCube NewObj cube !
      0.75e cube @ :: CGLCube.:resize
      0e 0e -10e cube @ :: CGLObject.:setShift
      5e FGENRANDABS 5e FGENRANDABS 5e FGENRANDABS cube @ :: CGLObject.:setAngleSpeed
-     cube @ SUPER canvas :add
+     cube @ SUPER :add
 
      CGLPyramid NewObj pyr !
      cube @ => :getScale pyr @ => :setScale
      cube @ => :getShift pyr @ => :setShift
      cube @ :: CGLObject.:getAngleSpeed pyr @ :: CGLObject.:setAngleSpeed
-     pyr @ SUPER canvas :add
+     pyr @ SUPER :add
 
      TRUE cube @ :: CGLObject.<visible!
      FALSE pyr @ :: CGLObject.<visible!
@@ -42,14 +42,15 @@ dispose: ;
     cube @ => <visible toggle!
 ;
 
-: onAttached
-    populate
-;
+;CLASS
 
-: create ( id parent -- hwnd )
-    SUPER create
-    SUPER checkWindow SUPER attach ;
+CGLControl SUBCLASS CGLControlTest
 
+ CGLMyScene OBJ scene
+
+init: scene this SUPER canvas! ;
+: :switch scene :switch ;
+  
 ;CLASS
 
 \ -----------------------------------------------------------------------
@@ -98,7 +99,7 @@ W: WM_INITDIALOG ( -- n )
      CGLControlTest put ctl
      CGLControlTest put ctl
      CGLControlTest put ctl 
-     -ROT SWAP
+     ( ctl1 ctl2 ctl3 ) -ROT SWAP
      0 GRID DEFAULTS -xspan aButton ROW aButton ROW aButton ;GRID put-box
 
     ROW
