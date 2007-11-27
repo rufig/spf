@@ -6,7 +6,7 @@ REQUIRE T-SLIT ~pinka\samples\2006\core\trans\common.f
 REQUIRE TAIL   ~pinka\samples\2006\lib\head-tail.f
 
 : I-QName ( a-text u-text -- a1 u1 true | a u false )
-\ пытается интерпретировать text как маскированное обратным тиком имя "`name"
+\ пытается интерпретировать text как маскированное обратным тиком имя "`name" (quoted name)
 \ дает имя (как строку) при успехе.
   DUP /CHAR U> IF
     OVER C@  [CHAR] ` = IF TAIL TRUE EXIT THEN
