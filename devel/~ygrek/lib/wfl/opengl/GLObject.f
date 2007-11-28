@@ -216,11 +216,12 @@ CGLObject SUBCLASS CGLSimpleModel
  CGLPoint OBJ color
  CTimer OBJ timer
  VAR _list
+ VAR _init
 
 : :setColor color :set ;
 : :model model this ;
 
-init: 0.5e 0.5e 0.5e :setColor ;
+init: 0.5e 0.5e 0.5e :setColor FALSE _init ! ;
 dispose: timer :ms@ CR ." Time in " SUPER name TYPE ."  = " . ;
 
 : :draw-model { | t }
@@ -242,24 +243,26 @@ dispose: timer :ms@ CR ." Time in " SUPER name TYPE ."  = " . ;
    glEnd DROP
 ;
 
-: :draw
-   SUPER :draw
-   color :get SetColor
-   timer :start
-   _list @ glCallList DROP
-   timer :stop
-;
-
-: :xmax model :xmax ;
-: :ymax model :ymax ;
-: :zmax model :zmax ;
-
 : :prepare
    1 glGenLists _list !
    gl-status
    GL_COMPILE _list @ glNewList DROP
     :draw-model
    glEndList DROP ;
+
+: :draw
+   _init @ NOT IF :prepare TRUE _init ! THEN
+   SUPER :draw
+   color :get SetColor
+   timer :start
+   _list @ glCallList DROP
+\   :draw-model
+   timer :stop
+;
+
+: :xmax model :xmax ;
+: :ymax model :ymax ;
+: :zmax model :zmax ;
 
 ;CLASS
 

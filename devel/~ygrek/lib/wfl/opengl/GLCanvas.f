@@ -26,8 +26,6 @@ CLASS CGLCanvas
 \ —годитс€ дл€ простых случаев
 CGLCanvas SUBCLASS CGLSimpleCanvas
 
- CGLObjectList OBJ _scene
-
 : :resize { w h -- }
     \ CR w . h .
 
@@ -64,15 +62,25 @@ CGLCanvas SUBCLASS CGLSimpleCanvas
 
     GL_MODELVIEW glMatrixMode DROP
     glLoadIdentity DROP
-
-    _scene :draw
-    _scene :rotate
 ;
+
+;CLASS
+
+\ -----------------------------------------------------------------------
+
+CGLSimpleCanvas SUBCLASS CGLSimpleScene
+
+ CGLObjectList OBJ _scene
+
+: :display
+   SUPER :display 
+   _scene :draw
+   _scene :rotate ;
 
 : :add _scene :add ;
 : :setShift _scene :setShift ;
 : :setAngleSpeed _scene :setAngleSpeed ;
-
+ 
 ;CLASS
 
 \ -----------------------------------------------------------------------

@@ -5,6 +5,8 @@ NEEDS lib/include/float2.f
 NEEDS ~ygrek/lib/hype/array.f
 NEEDS ~ygrek/lib/parse.f
 NEEDS ~ygrek/lib/debug/ensure.f
+NEEDS ~ygrek/lib/hype/point.f
+NEEDS ~day/hype3/locals.f
 
 : ?FLOAT-EXT ( addr u -- bool )
     DUP 2 < IF 2DROP 0 EXIT THEN
