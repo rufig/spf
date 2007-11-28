@@ -148,6 +148,7 @@ ALSO SO NEW: sqlite3.dll
 \ выполнить SQL-запрос(ы) из addr u,
 \ вызывая для каждого результата функцию xt с параметрами i par ppStmt
 \ в запросах биндятся макроподстановки :name и $name
+  u 0= IF EXIT THEN
   BEGIN
     addr u sqh db3_prepare -> ppStmt -> pzTail
     ppStmt db3_bind
