@@ -43,9 +43,10 @@ USER-CREATE ATIB
   CharAddr C@       \ символ из текущего значения >IN
 ;
 
-: IsDelimiter ( char -- flag )
+: IsDelimiter1 ( char -- flag )
   BL 1+ <
 ;
+VECT IsDelimiter ' IsDelimiter1 (TO) IsDelimiter
 
 : GetChar ( -- char flag )
   EndOfChunk
