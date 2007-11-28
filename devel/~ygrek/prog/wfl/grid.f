@@ -13,7 +13,7 @@ NEEDS ~ygrek/lib/neilbawd/mersenne.f
 
 \ -----------------------------------------------------------------------
 
-CGLSimpleCanvas SUBCLASS CGLMyScene
+CGLSimpleScene SUBCLASS CGLMyScene
 
  VAR cube
  VAR pyr
