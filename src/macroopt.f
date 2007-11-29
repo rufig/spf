@@ -877,9 +877,11 @@ HEX  U. U. ." EAX>EBX" ABORT
         IF
   DUP 428D <>       \ LEA     EAX , 1 [EDX]
         IF
-\  DUP 808D <>       \ LEA     EAX , X [EAX]
-\        IF
+  DUP 808D <>       \ LEA     EAX , X [EAX]
+        IF
   DUP C28B <>       \ MOV     EAX , EDX
+        IF
+  DUP 878D <>       \ LEA     EAX , 2D98 [EDI]
         IF
 TRUE ?~EAX !
   DUP C00B <>       \ OR      EAX , EAX
@@ -938,10 +940,11 @@ TRUE ?~EAX !
         IF
   DUP A1 <>         \  MOV     EAX ,   1000
         IF
+  DUP 58 <>	\ POP     EAX
+        IF
 TRUE ?~EAX !
   DUP 25 <>       \ AND     EAX , # X
         IF
-
 }?~EAX
   DUP BA <>         \  MOV     EDX , # 1000
         IF
@@ -1001,6 +1004,11 @@ TRUE ?~EAX !
   DUP C28B =        \ MOV     EAX , EDX
         IF DROP
            CA OVER @ 1+ C!  CELL- TRUE EXIT
+        THEN
+
+  DUP 878D =        \ LEA     EAX , 2D98 [EDI]
+        IF DROP
+           8F OVER @ 1+ C!  CELL- TRUE EXIT
         THEN
   DUP 808D =              \ LEA     EAX , 1 [EAX]
         IF DROP
@@ -1092,6 +1100,10 @@ TRUE ?~EAX !
            0D8B OVER @  W!  CELL- TRUE EXIT
         THEN
 
+  DUP 58 =         \  POP     EAX
+        IF DROP	 59 OVER @  C!  CELL- TRUE EXIT
+        THEN
+
 HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
 ;
 
@@ -1127,6 +1139,11 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
   DUP C28B =        \ MOV     EAX , EDX
         IF DROP
            CA OVER @ 1+ C!  CELL- FALSE EXIT
+        THEN
+
+  DUP 878D =        \ LEA     EAX , 2D98 [EDI]
+        IF DROP
+           8F OVER @ 1+ C!  CELL- FALSE EXIT
         THEN
 
   DUP E0C1 =        \ SHL     EAX , 7
@@ -1328,6 +1345,11 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
         IF DROP  DUP 1 OPresize
            0D8B OVER @  W!  CELL- FALSE EXIT
         THEN
+
+  DUP 58 =         \  POP     EAX
+        IF DROP 59 OVER @  C!  CELL- FALSE EXIT
+        THEN
+
   DUP 25 =       \ AND     EAX , # X
         IF DROP  DUP 1 OPresize
            E181 OVER @  W!  CELL- FALSE EXIT
@@ -2973,6 +2995,17 @@ OP0 @ W@ C483 XOR OR \  83C404            ADD     ESP , # 4
        EXIT
    THEN
 
+DUP C@ C3 XOR
+OP1 @ W@ 8F8B XOR OR \ 579C53 8B8F801F0000      MOV     ECX , 1F80 [EDI]
+OP0 @ C@ 51 XOR OR \ 579C59 51          PUSH    ECX
+0= IF  M\ 292 DTST
+	B7FF OP1 @ W!
+       OP0 OPexcise
+       FALSE  M\ 293 DTST
+       EXIT
+   THEN
+
+
 M\ PPPP
 OP2 @ :-SET U< IF TRUE EXIT THEN
 
@@ -3953,6 +3986,19 @@ OP1 @ @ EAF7C28B XOR OR \  8BC2       MOV     EAX , EDX
        EXIT
    THEN
 )
+
+DUP C@ C3 XOR
+OP2 @ C@ 59 XOR OR \ 579CD3 59          POP     ECX
+OP1 @ W@ 498D XOR OR \ 579CD4 8D4901            LEA     ECX , 1 [ECX]
+OP0 @ C@ 51 XOR OR \ 579CD7 51          PUSH    ECX
+0= IF  M\ 282 DTST
+       OP0 OPexcise
+       80  OP1 @ C!
+       2404 OP1 @ 1+ W! \  ADD     [ESP] , # 1 
+        OP1 ToOP0	
+       FALSE   M\ 283 DTST
+       EXIT
+   THEN
 
 
 OP3 @ :-SET U< IF TRUE EXIT THEN
