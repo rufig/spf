@@ -97,7 +97,7 @@
 ;
 
 
-: LIB-PROC1 ( addr_winapi_structure )
+: PROC-ERROR1 ( addr_winapi_structure )
     DUP
     CELL+ @ ASCIIZ> ROT
     CELL+ CELL+ @ ASCIIZ> 2SWAP
