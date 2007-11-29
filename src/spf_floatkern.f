@@ -264,7 +264,7 @@ CODE D>F    \ *
 END-CODE
 
 
-\ Extention words
+\ Extension words
  
 CODE DF!
        FSTP  QWORD [EAX]
@@ -287,35 +287,37 @@ CODE F!
        RET
 END-CODE
 
-CODE FLOAT>DATA ( F: f -- D: u )
+\ Move the number from float to the data stack
+\ The number is not converted to integer, instead the bits of the float number 
+\ are transfered "as is" (8 bytes) \ = 2 CELLS) BTW 64 bit issue! FIXME
+CODE FLOAT>DATA ( F: f -- D: du )
        LEA  EBP, -8 [EBP]
        FSTP  QWORD [EBP]
        XCHG  EAX, 4 [EBP]
        RET
 END-CODE
 
-CODE DATA>FLOAT ( D: f -- F: f )
+\ Load the representation of the float number from the data stack (8 bytes)
+CODE DATA>FLOAT ( D: du -- F: f )
        XCHG EAX, 4 [EBP]
        FLD  QWORD [EBP]
        LEA  EBP, 8 [EBP]
        RET
 END-CODE
 
-\ float takes 32 bit here
-
+\ Same as FLOAT>DATA but as 4 bytes (single-precision floats)
 CODE FLOAT>DATA32 ( F: f -- D: f )
-       LEA  EBP, -8 [EBP]
+       LEA  EBP, -4 [EBP]
        FSTP  DWORD [EBP]
-       XCHG  EAX, 4 [EBP]
+       XCHG  EAX, [EBP]
        RET
 END-CODE
 
-\ float takes 32 bit here
-
+\ 4 byte floats
 CODE DATA>FLOAT32 ( D: f -- F: f )
-       XCHG EAX, 4 [EBP]
+       XCHG EAX, [EBP]
        FLD  DWORD [EBP]
-       LEA  EBP, 8 [EBP]
+       LEA  EBP, 4 [EBP]
        RET
 END-CODE
 
@@ -493,7 +495,9 @@ CODE GETFPUCW ( -- u )     \ *
        RET
 END-CODE
 
-CODE DS>F    \ *
+\ Push TOS to the float stack
+\ D: 2 --> F: 2e
+CODE DS>F    ( D: f -- F: f )
        MOV -4 [EBP], EAX
        FILD DWORD -4 [EBP]
        MOV EAX, [EBP]
@@ -501,7 +505,9 @@ CODE DS>F    \ *
        RET
 END-CODE
 
-CODE F>DS     \ *
+\ Pop the top float stack number to the data stack
+\ Round or truncate according to the current mode
+CODE F>DS     ( F: f -- D: [f] )
        LEA   EBP, -4 [EBP]
        MOV   [EBP], EAX
        FISTP DWORD -4 [EBP]
