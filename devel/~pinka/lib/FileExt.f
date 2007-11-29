@@ -32,7 +32,12 @@ WINAPI: CopyFileA              KERNEL32.DLL
 
 \  MoveFile (  lpNewFileName  lpExistingFileName -- flag:BOOL )
 
-: COPY-FILE-OVER ( c-addr1 u1  c-addr2 u2 -- ior )
+: COPY-FILE ( src-a src-u  dst-a dst-u -- ior )
+  DROP NIP SWAP
+  1 \ fail if exists
+  -ROT CopyFileA ERR
+;
+: COPY-FILE-OVER ( src-a src-u  dst-a dst-u -- ior )
   DROP NIP
   SWAP FALSE -ROT CopyFileA ERR
 ;
