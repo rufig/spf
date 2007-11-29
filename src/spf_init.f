@@ -48,24 +48,24 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
 \ один раз на процесс
 : PROCESS-INIT ( n )
   ERASE-IMPORTS
-  ['] NOOP       TO <PRE>
-  ['] FIND1      TO FIND
-  ['] ?LITERAL2  TO ?LITERAL
-  ['] ?SLITERAL2 TO ?SLITERAL
-  ['] OK1        TO OK
-  ['] ERROR2     TO ERROR
-  ['] (ABORT1")  TO (ABORT")
-  ['] ACCEPT1    TO ACCEPT
-  ['] TYPE1      TO TYPE
-  ['] KEY1       TO KEY
-  ['] LIB-PROC1  TO PROC-ERROR
-  ['] LIB-ERROR1 TO LIB-ERROR
-
   CREATE-PROCESS-HEAP
   <SET-EXC-HANDLER>
   POOL-INIT
   ['] AT-PROCESS-STARTING ERR-EXIT
 ;
+
+\ ранее неустановленные вектора
+' NOOP          (TO) <PRE>
+' FIND1         (TO) FIND
+' ?LITERAL2     (TO) ?LITERAL
+' ?SLITERAL2    (TO) ?SLITERAL
+' OK1           (TO) OK
+' ERROR2        (TO) ERROR
+' (ABORT1")     (TO) (ABORT")
+' PROC-ERROR1   (TO) PROC-ERROR
+' LIB-ERROR1    (TO) LIB-ERROR
+\ другие уже установлены
+
 
 : USER-EXIT
   AT-THREAD-FINISHING
