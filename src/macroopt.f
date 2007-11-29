@@ -2316,7 +2316,7 @@ OP1 @ W@ D02B XOR OR \ 5969A4 2BD0              SUB     EDX , EAX
 : OPT-RULES  ( ADDR  -- ADDR' FLAG )
 
    BEGIN M\ -1 DTST
-   OP0 @ :-SET U< IF TRUE EXIT THEN
+OP0 @ :-SET U< IF TRUE EXIT THEN
 
    OP0 @  W@  408D =  \  LEA   EAX,  X [EAX]
    WHILE  M\ 2 DTST
@@ -2949,10 +2949,32 @@ OP0 @ W@ D18B XOR OR \ 582796 8BD1              MOV     EDX , ECX
        EXIT
    THEN
 
+OP1 @ 2 + C@
+OP0 @ 2 + C@    XOR
+OP1 @ W@ 4503 XOR OR \  034500            ADD     EAX , 0 [EBP]
+OP0 @ W@ 558B XOR OR \  8B5500            MOV     EDX , 0 [EBP]
+0= IF  M\ 288 DTST
+	558B OP1 @  W!
+        C203 OP0 @  W!                \      ADD     EAX , EDX
+        -1 ALLOT
+       FALSE  M\ 289 DTST
+       EXIT
+   THEN
+
+OP1 @ 2 + C@
+OP0 @ 2 + C@  + FFFFFF00 AND
+OP1 @ W@ C483 XOR OR \  83C404            ADD     ESP , # 4
+OP0 @ W@ C483 XOR OR \  83C404            ADD     ESP , # 4
+0= IF  M\ 290 DTST
+	OP0 @ 2 + C@
+	OP1 @ 2 + +!
+       OP0 OPexcise
+       FALSE  M\ 291 DTST
+       EXIT
+   THEN
+
 M\ PPPP
-OP2 @ :-SET
-\ TTTT  IF ." T=" 2DUP HEX U. U. THEN
- U< IF TRUE EXIT THEN
+OP2 @ :-SET U< IF TRUE EXIT THEN
 
 \ $ - DUP
     OP2 @ W@ D8F7 XOR
