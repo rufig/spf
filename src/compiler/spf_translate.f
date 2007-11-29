@@ -133,7 +133,9 @@ VARIABLE   &INTERPRET
 
 : INTERPRET &INTERPRET @ EXECUTE ;
 
-
+: #(SIGNED) ( d1 -- d2 )
+  [CHAR] ) HOLD DUP >R DABS #S R> SIGN [CHAR] ( HOLD
+;
 
 : .SN ( n --)
 \ Распечатать n верхних элементов стека
@@ -141,8 +143,8 @@ VARIABLE   &INTERPRET
          R@
       WHILE
         SP@ R@ 1- CELLS + @ DUP 0< 
-        IF DUP U>D <# #S #> TYPE
-           ." (" ABS 0 <# #S [CHAR] - HOLD #> TYPE ." ) " ELSE . THEN
+        IF DUP U>D (D.) TYPE <# S>D #(SIGNED) #> TYPE SPACE
+        ELSE . THEN
         R> 1- >R
       REPEAT RDROP
 ;
