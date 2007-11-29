@@ -1475,6 +1475,29 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
         DUMP
 ;
 
+
+: DIS-DB   CR .S" DB " COUNT H.>S ;
+: DIS-DW   CR .S" DW " W@+ H.>S ;
+: DIS-DD   CR .S" DD " @+ H.>S ;
+: DIS-DS   CR .S" STRING " 0x22 EMIT>S COUNT 2DUP >S + 0x22 EMIT>S ;
+
+: FIND-REST-END ( xt -- addr | 0)
+    DUP NextNFA DUP
+    IF
+      NIP
+      NAME>C 1- \ Skip CFA field
+    ELSE
+      DROP
+      DP @ - ABS 100 > IF 0 EXIT THEN \ no applicable end found
+      DP @ 1-
+    THEN
+
+    BEGIN \ Skip alignment
+      DUP C@ 0= WHILE 1-
+    REPEAT ;
+
+( wid ) SET-CURRENT
+
 : INST  ( ADR -- ADR' )
         DUP TO NEXT-INST
         COLS 0x29 <
@@ -1502,28 +1525,6 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
                     ENDCASE
                 THEN  ;
 
-
-: DIS-DB   CR .S" DB " COUNT H.>S ;
-: DIS-DW   CR .S" DW " W@+ H.>S ;
-: DIS-DD   CR .S" DD " @+ H.>S ;
-: DIS-DS   CR .S" STRING " 0x22 EMIT>S COUNT 2DUP >S + 0x22 EMIT>S ;
-
-: FIND-REST-END ( xt -- addr | 0)
-    DUP NextNFA DUP
-    IF
-      NIP
-      NAME>C 1- \ Skip CFA field
-    ELSE
-      DROP
-      DP @ - ABS 100 > IF 0 EXIT THEN \ no applicable end found
-      DP @ 1-
-    THEN
-
-    BEGIN \ Skip alignment
-      DUP C@ 0= WHILE 1-
-    REPEAT ;
-
-( wid ) SET-CURRENT
 
 : DIS  ( ADR -- )
         BEGIN
@@ -1558,7 +1559,7 @@ VARIABLE  COUNT-LINE
                         \ We do not look for JMP's because there may be
                          \ a jump in a forth word
                         CR
-                        OVER 0= IF  NEXT-INST C@ 0xC3 <>
+                        OVER 0= IF  NEXT-INST C@ 0xC3 <> 
                                 ELSE 2DUP < INVERT
                                 THEN
                 WHILE   INST
@@ -1574,7 +1575,7 @@ VARIABLE  COUNT-LINE
                 ;
 
 : REST ( addr -- )
-    0 REST-AREA
+    DUP HERE U> 0=  HERE 1- AND REST-AREA
 ;
 
 : SEE       ( "name" -- )
