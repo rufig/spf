@@ -50,8 +50,8 @@
       TUCK SYSTEM-PAD SWAP CHARS MOVE
       SYSTEM-PAD SWAP   R> STATE ! EXIT
     THEN
-  REPEAT ( n ) 0
-  <# SOURCE SWAP CHAR+ SWAP 1 - HOLDS #S #> \ Unknown error
+  REPEAT ( n )
+  <# SOURCE SWAP CHAR+ SWAP 1 - HOLDS  DUP 0< IF DUP S>D #(SIGNED) 2DROP THEN U>D #S #> \ Unknown error
   R> STATE !
 ;
 
