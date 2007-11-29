@@ -43,6 +43,7 @@
 @st.exe .S" devel\~moleg\lib\util\tricks.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\alias.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\priority.f"           TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\avds.f"               TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\mtask\mutex.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\mtask\pmutex.f"            TESTED CR BYE
