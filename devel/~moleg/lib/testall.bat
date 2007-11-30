@@ -71,6 +71,7 @@
 @st.exe .S" devel\~moleg\lib\struct\struct.f"           TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\drafts\vars.f"             TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\drafts\vars2.f"            TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\drafts\mem.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\drafts\inline.f"           TESTED CR BYE
 

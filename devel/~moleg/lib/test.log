@@ -53,6 +53,7 @@ testing: devel\~moleg\lib\strings\utf8.f                               passed
 testing: devel\~moleg\lib\strings\utf16.f                              passed
 testing: devel\~moleg\lib\struct\struct.f                              passed
 testing: devel\~moleg\lib\drafts\vars.f                                passed
+testing: devel\~moleg\lib\drafts\vars2.f                               passed
 testing: devel\~moleg\lib\drafts\mem.f                                 passed
 testing: devel\~moleg\lib\drafts\inline.f                              passed
 testing: devel\~moleg\lib\newfind\clear.f                              passed
