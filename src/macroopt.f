@@ -2984,7 +2984,7 @@ OP0 @ W@ 558B XOR OR \  8B5500            MOV     EDX , 0 [EBP]
    THEN
 
 OP1 @ 2 + C@
-OP0 @ 2 + C@  + FFFFFF00 AND
+OP0 @ 2 + C@  + FFFFFF80 AND
 OP1 @ W@ C483 XOR OR \  83C404            ADD     ESP , # 4
 OP0 @ W@ C483 XOR OR \  83C404            ADD     ESP , # 4
 0= IF  M\ 290 DTST
@@ -3004,6 +3004,16 @@ OP0 @ C@ 51 XOR OR \ 579C59 51          PUSH    ECX
        FALSE  M\ 293 DTST
        EXIT
    THEN
+
+DUP C@ C3 XOR
+OP1 @ W@ F7FF AND 558B XOR OR	\  8B5D08            MOV     E(BD)X , 8 [EBP]
+OP0 @ W@ 4D89 XOR OR		\  894D08            MOV     8 [EBP] , ECX
+0= IF  M\ 294 DTST
+       OP1 OPexcise
+       FALSE  M\ 295 DTST
+       EXIT
+   THEN
+
 
 
 M\ PPPP
