@@ -21,7 +21,15 @@ VECT SHEADER
      IF DROP 2DUP TYPE ."  isn't unique" CR THEN
   THEN
   CURRENT @ +SWORD
+
   ALIGN
+  ( сдвигаем указатель кода так, чтобы при компил€ции переменных и векторов )
+  ( следующа€ €чейка данных, наход€ща€с€ после CALL *-CODE была выровнена:  )
+  ALIGN-BYTES @ DUP 4 >
+  IF 5 - ALLOT
+  ELSE 1 - ALLOT
+  THEN
+
   HERE SWAP ! ( заполнили cfa )
 ;
 ' SHEADER1 (TO) SHEADER
@@ -39,10 +47,6 @@ VECT SHEADER
 \ a-addr - адрес пол€ данных name. —емантика выполнени€ name может
 \ быть расширена с помощью DOES>.
   SHEADER
-  ALIGN-BYTES @ DUP 4 >
-  IF 5 - ALLOT
-  ELSE 1 - ALLOT
-  THEN
 
   HERE DUP LAST-CFA @ !
   DOES>A ! ( дл€ DOES )
