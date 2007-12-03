@@ -2,7 +2,8 @@
 \ тестируем скорость работы алгоритма
 
  REQUIRE FOR  devel\~mOleg\lib\util\for-next.f
- REQUIRE own  priority.f
+ REQUIRE own  devel\~moleg\lib\util\priority.f
+
                                    DECIMAL
 
  16000 CONSTANT #array   \ размер массива в €чейках

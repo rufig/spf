@@ -28,10 +28,13 @@
 : TopAddr ( stack --> addr ) DUP StackDepth CELLS - ;
 
 \ проверить не выходит ли указатель стека за его пределы
-: ?Balanced ( stack --> ) DUP TopAddr OVER StackBottom A@ ROT 1 + WITHIN ;
+: ?Balanced ( stack --> flag ) DUP TopAddr OVER StackBottom A@ ROT 1 + WITHIN ;
 
 \ прочесть верхний элемент указанного стека
 : ReadTop ( stack --> n ) TopAddr @ ;
+
+\ прочесть указанный # элемент со стека Stack
+: PickFrom ( # Stack --> n ) TopAddr SWAP CELLS + @ ;
 
 \ переместить указатель вершины стека на указанное количество ячеек
 : MoveTop ( stack u --> ) OVER StackTop +! ?Balanced 0= THROW ;

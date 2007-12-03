@@ -21,7 +21,7 @@
 \ -- скрытые заклинани€ -----------------------------------------------------
 
 \ иногда хочетс€ уметь попасть в консоль
-SECRET: ~ ( --> ) ONLY ." My Master" CR QUIT BYE ;S
+\ SECRET: ~ ( --> ) ONLY ." My Master" CR QUIT BYE ;S
 
 \ если опци€ не опознана - отображаем ошибку и машем ручкой
 SECRET: NOTFOUND ( asc # --> ) ." invalid spell: " TYPE BYE ;S
@@ -32,7 +32,7 @@ SECRET: NOTFOUND ( asc # --> ) ." invalid spell: " TYPE BYE ;S
 SPELL: -? ( --> ) ." spells are: " CONTEXT @ 1 VLIST BYE ;S
 
 \ добавл€ем все необходимые заклинани€
-SPELL: --help ( --> ) ." add any spells you need." CR ;S
+\ SPELL: --help ( --> ) ." add any spells you need." CR ;S
 
 \ ---------------------------------------------------------------------------
 
@@ -45,7 +45,8 @@ SPELL: --help ( --> ) ." add any spells you need." CR ;S
           \ тут должен быть вызов главного слова, если только оно
           \ не запускаетс€ по NOTFOUND или ключем.
 
-         BYE ;
+\        BYE
+         ;
 
 \ ' options MAINX ! S" sample.exe" SAVE
 

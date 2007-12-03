@@ -1,4 +1,5 @@
- \ произвести реверс бит указанного числа
+\ идея WingLion
+\ реализация ~mOleg
 
  REQUIRE FOR   devel\~mOleg\lib\util\for-next.f
 

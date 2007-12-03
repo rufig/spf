@@ -3,10 +3,10 @@
 \ константы, vect и value переменные, работа с ними.
 \ второй вариант.
 
-REQUIRE [IF]     lib\include\tools.f
-REQUIRE PERFORM  devel\~moleg\lib\util\useful.f
-REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
-REQUIRE ADDR     devel\~moleg\lib\util\addr.f
+ REQUIRE [IF]     lib\include\tools.f
+ REQUIRE PERFORM  devel\~moleg\lib\util\useful.f
+ REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
+ REQUIRE ADDR     devel\~moleg\lib\util\addr.f
 
 WARNING 0!
 

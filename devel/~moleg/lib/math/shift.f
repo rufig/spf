@@ -4,6 +4,9 @@
 
  REQUIRE STREAM[   devel\~mOleg\lib\arrays\stream.f
 
+\ поменять порядо следования байтов в ячейке на обратный порядок
+: BSWAP ( U --> U )  STREAM[ x0FC8 C3 ] ;
+
 \ циклически сдвинуть число U на указанное число бит влево
 : ROL ( U # --> U ) STREAM[ x8AC8 8B4500 8D6D04 D3C0 C3 ] ;
 

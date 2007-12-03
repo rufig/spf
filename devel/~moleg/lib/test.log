@@ -33,6 +33,8 @@ testing: devel\~moleg\lib\util\tricks.f                                passed
 testing: devel\~moleg\lib\util\alias.f                                 passed
 testing: devel\~moleg\lib\util\priority.f                              passed
 testing: devel\~moleg\lib\util\avds.f                                  passed
+testing: devel\~moleg\lib\util\csp.f                                   passed
+testing: devel\~moleg\lib\util\case.f                                  passed
 testing: devel\~moleg\lib\mtask\mutex.f                                passed
 testing: devel\~moleg\lib\mtask\pmutex.f                               passed
 testing: devel\~moleg\lib\arrays\arrays.f                              passed

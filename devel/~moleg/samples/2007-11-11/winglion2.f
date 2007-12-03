@@ -1,7 +1,8 @@
- \ произвести реверс бит указанного числа
+\ идея WingLion
+\ реализация ~mOleg
 
  REQUIRE FOR   devel\~mOleg\lib\util\for-next.f
- REQUIRE ROL   shift.f
+ REQUIRE ROL   devel\~moleg\lib\math\shift.f
 
 \ произвести реверс бит указанного числа
 : revcell ( u --> u )
