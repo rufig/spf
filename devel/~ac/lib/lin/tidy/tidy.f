@@ -42,7 +42,9 @@ ALSO DLL NEW: tidy.dll
   ^ buf doc tidySaveBuffer DROP
 \  errbuf errlen TYPE CR
   ^ errbuf tidyBufFree DROP
-  buf len
+  buf len " {s}" STR@
+  ^ buf tidyBufFree DROP
+  doc tidyRelease DROP
 ;
 : TIDY_CYR_HTML_SAVE { addr u fa fu \ h _buf1 buf1 len buf -- }
   fa fu R/W CREATE-FILE THROW -> h
@@ -50,7 +52,7 @@ ALSO DLL NEW: tidy.dll
 \  UTF8>UNICODE UNICODE>
   h WRITE-FILE THROW
   h CLOSE-FILE THROW
-  ^ buf tidyBufFree DROP
+\  ^ buf tidyBufFree DROP
 ;
 : TIDY_HTML { addr u \ doc  _buf0 buf0 errlen errbuf  _buf1 buf1 len buf  _buf2 buf2 ilen ibuf -- addr2 u2 }
   tidyCreate -> doc
@@ -70,14 +72,16 @@ ALSO DLL NEW: tidy.dll
   ^ buf doc tidySaveBuffer DROP
 \  errbuf errlen TYPE CR
   ^ errbuf tidyBufFree DROP
-  buf len
+  buf len " {s}" STR@
+  ^ buf tidyBufFree DROP
+  doc tidyRelease DROP
 ;
 : TIDY_HTML_SAVE { addr u fa fu \ h _buf1 buf1 len buf -- }
   fa fu R/W CREATE-FILE THROW -> h
   addr u TIDY_HTML 2DUP DUP -> len -> buf1 -> buf
   h WRITE-FILE THROW
   h CLOSE-FILE THROW
-  ^ buf tidyBufFree DROP
+\  ^ buf tidyBufFree DROP
 ;
 
 \ S" <title>Foo</title><p>О рус!" TIDY_CYR_HTML TYPE
