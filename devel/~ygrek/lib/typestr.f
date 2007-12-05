@@ -1,19 +1,30 @@
 \ $Id$
 \
 \ Перенаправление всего вывода слова в строку
-\ В отличие от предыдущей либы эта ловит исключения
+\ TYPE>STR ( xt -- s )
+\ Ловит исключения внутри xt, работает независимо в каждом потоке
 
 \ Пример
 \ :NONAME 3 . ." test" 3 SPACES ." hello" ; TYPE>STR
-\ даёт " 3 test   hello" 
+\ даёт " 3 test   hello"
+
+\ в TYPE подсовывается попоточный USER-TYPE
+\ см. обсуждение в http://www.nabble.com/IsDelimiter-t4856219.html
+USER-VECT USER-TYPE
+' TYPE1 TO USER-TYPE
+..: AT-THREAD-STARTING ['] TYPE1 TO USER-TYPE ;..
+' USER-TYPE TO TYPE
+
+\ -------------------------------------------------
 
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
+REQUIRE /TEST ~profit/lib/testing.f
 
 MODULE: TYPE>STR-MODULE
 
-0 VALUE this.str
-0 VALUE this.heap \ thanks to ruvim (in callback the THREAD-HEAP is changed)
+USER-VALUE this.str
+USER-VALUE this.heap \ thanks to ruvim (in callback the THREAD-HEAP is changed)
 
 EXPORT
 
@@ -21,7 +32,7 @@ EXPORT
 : TYPE>STR-CATCH { xt | old.type old.heap old.str -- str ior }
 
    \ save all values that we will modify
-   ['] TYPE BEHAVIOR TO old.type
+   ['] USER-TYPE BEHAVIOR USER+ @ TO old.type
    this.str TO old.str
    this.heap TO old.heap
 
@@ -33,7 +44,7 @@ EXPORT
      THREAD-HEAP @ >R
      this.heap THREAD-HEAP ! 
      this.str STR+ 
-     R> THREAD-HEAP ! } TO TYPE
+     R> THREAD-HEAP ! } TO USER-TYPE
 
    \ execute with overloaded TYPE
    xt CATCH 
@@ -42,15 +53,34 @@ EXPORT
    this.str SWAP ( str ior -- )
 
    \ restore modified values on exit
-   old.type TO TYPE 
+   old.type TO USER-TYPE 
    old.heap TO this.heap
    old.str TO this.str ;
 
 \ Сохранить весь консольный вывод
-\ Игнорировать исключения - лог будет сохранён в строку
+\ Игнорировать исключения - лог будет сохранён в строку (если был)
 : TYPE>STR ( xt -- str ) TYPE>STR-CATCH DROP ;
 
 ;MODULE
+
+\ -------------------------------------------------
+
+/TEST
+
+:NONAME { x | s }
+  ." START" CR
+  5 0 DO 
+   x LAMBDA{ ."   thread " LAMBDA{ . ." hello" } TYPE>STR STYPE CR } TYPE>STR STYPE 
+   100 PAUSE 
+  LOOP
+  ." END" CR
+  ; TASK: q
+
+: main
+  3 0 DO I q START DROP LOOP
+  10 0 DO " MAIN THREAD{CRLF}" STYPE 50 PAUSE LOOP ;
+
+main   
 
 \EOF
 
