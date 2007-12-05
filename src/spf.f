@@ -14,7 +14,7 @@ WARNING 0!
 : PARSE-NAME NextWord ;
 : UMIN 2DUP U< IF DROP EXIT THEN NIP ;
 
-S" ~mak\LIB\ext\spf-asm.f"    INCLUDED
+S" LIB\ext\spf-asm.f"    INCLUDED
 S" lib\include\tools.f"       INCLUDED
 S" src\spf_compileoptions.f"  INCLUDED
 
