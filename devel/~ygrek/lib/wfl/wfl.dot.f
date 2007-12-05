@@ -24,7 +24,6 @@ S" wfl.dot" dot{
  NEEDS ~day/wfl/wfl.f
  S" yellow" DOT-FILLCOLOR
  NEEDS ~ygrek/lib/wfl/opengl/GLWindow.f
- NEEDS ~ygrek/lib/wfl/opengl/GLControl.f
  NEEDS ~profit/lib/wfl/openGL/GLImage.f
  S" grey" DOT-FILLCOLOR
  NEEDS ~day/wfl/controls/urllabel.f
