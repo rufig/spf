@@ -13,6 +13,7 @@ USER     BASE ( -- a-addr ) \ 94
 4096 DUP CONSTANT NUMERIC-OUTPUT-LENGTH
 
 USER-CREATE SYSTEM-PAD
+CHARS
 TC-USER-ALLOT \ Область форматного преобразования - обязательно перед PAD
 
 USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
@@ -34,19 +35,19 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ Добавить char к началу форматной числовой строки.
 \ Исключительная ситуация возникает, если использовать HOLD
 \ вне <# и #>, ограничивающивающих преобразование чисел.
-  HLD @ 1- 
+  HLD @ CHAR- 
   DUP SYSTEM-PAD U< IF -17 THROW THEN
   DUP HLD ! C!
 ;
 
 : HOLDS ( addr u -- ) \ from eserv src
-  TUCK + SWAP 0 ?DO DUP I - 1- C@ HOLD LOOP DROP
+  TUCK CHARS + SWAP 0 ?DO DUP I CHARS - CHAR- C@ HOLD ( /CHAR +LOOP FIXME) LOOP DROP
 ;
 
 : <# ( -- ) \ 94
 \ Начать форматное преобразование чисел.
-  PAD 1- HLD !
-  0 PAD 1- C!
+  PAD CHAR- HLD !
+  0 PAD CHAR- C!
 ;
 
 : # ( ud1 -- ud2 ) \ 94
@@ -74,7 +75,7 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ Убрать xd. Сделать буфер форматного преобразования доступным в виде
 \ строки символов, заданной c-addr и u.
 \ Программа может менять символы в этой строке.
-  2DROP HLD @ PAD OVER - 1-
+  2DROP HLD @ PAD OVER - >CHARS 1-
 ;
 
 : SIGN ( n -- ) \ 94
@@ -184,8 +185,9 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ дать длину строки при выводе (при печати)
 \  - число знакомест, которое строка займет на экране.
 \ addr n  - строка. n1 число знакомест на экран.
-  0 -ROT OVER + SWAP ?DO
+  0 -ROT CHARS OVER + SWAP ?DO
     I C@ 9 = IF 3 RSHIFT 1+ 3 LSHIFT
     ELSE 1+ THEN
+  \ /CHAR +LOOP \ FIXME
   LOOP
 ;
