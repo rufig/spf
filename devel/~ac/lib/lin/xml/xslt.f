@@ -18,8 +18,8 @@ ALSO libxml2.dll
   style 1 xsltFreeStylesheet DROP
   res 1 xmlFreeDoc DROP
   doc 1 xmlFreeDoc DROP
-  0 xsltCleanupGlobals DROP
-  0 xmlCleanupParser DROP
+\  0 xsltCleanupGlobals DROP
+\  0 xmlCleanupParser DROP
 ;
 : XSLTm { xaddr xu saddr su \ style doc res len str -- addr u }
 \ преобразовать XML-строку xaddr xu с использованием XSL-файла saddr su
@@ -31,8 +31,8 @@ ALSO libxml2.dll
   style 1 xsltFreeStylesheet DROP
   res 1 xmlFreeDoc DROP
   doc 1 xmlFreeDoc DROP
-  0 xsltCleanupGlobals DROP
-  0 xmlCleanupParser DROP
+\  0 xsltCleanupGlobals DROP
+\  0 xmlCleanupParser DROP
 ;
 : XSLTmm { xaddr xu saddr su \ sdoc style doc res len str -- addr u }
 \ преобразовать XML-строку xaddr xu с использованием XSL-СТРОКИ saddr su
@@ -44,8 +44,9 @@ ALSO libxml2.dll
   style 1 xsltFreeStylesheet DROP
   res 1 xmlFreeDoc DROP
   doc 1 xmlFreeDoc DROP
-  0 xsltCleanupGlobals DROP
-  0 xmlCleanupParser DROP
+\  sdoc 1 xmlFreeDoc DROP
+\  0 xsltCleanupGlobals DROP
+\  0 xmlCleanupParser DROP
 ;
 PREVIOUS PREVIOUS
 
