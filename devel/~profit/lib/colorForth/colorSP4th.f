@@ -152,13 +152,22 @@ NEW: CSPFWords
 \ заводим общий словарь дл€ слов CSPF
 PREVIOUS )
 
+: processWord ( addr u -- ) lastChar colors processChar ;
+
 EXPORT
 
+\ ѕерехват NOTFOUND-действи€ дл€ случа€ "::" -- чтобы не срабатывала логика vocabulary::word
+: NOTFOUND
+2DUP S" ::" COMPARE 0= IF processWord EXIT THEN 
+NOTFOUND ;
+
 : startColorSPF
-(: ( addr u -- addr u false | i*x true ) lastChar colors processChar TRUE ;) enqueueNOTFOUND
+(: ( addr u -- addr u false | i*x true ) processWord TRUE ;) enqueueNOTFOUND
 \ [COMPILE] ]
 \ ALSO CSPFWords DEFINITIONS
 ;
+
+: typeNumber . ; \ чтобы можно было обратитьс€ к точке без коллизий с существующим в €дре словом ..
 
 ;MODULE
 
@@ -167,7 +176,6 @@ REQUIRE SEE lib/ext/disasm.f
 
 startColorSPF
 
-typeNumber: .. \ ’ех.. ѕр€м морз€нка.
 .: RET,.
 ;: LIT,.
 |: ,.
