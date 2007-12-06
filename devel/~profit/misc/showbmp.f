@@ -11,7 +11,7 @@ REQUIRE " ~ac/lib/str5.f
 \ Картинка должна быть в формате BMP 24bit
  
 0 VALUE list1
- 
+0 VALUE canvas
 0 VALUE bmp
 
 : test ( -- n )
@@ -19,16 +19,16 @@ REQUIRE " ~ac/lib/str5.f
 
 CGLObjectList NewObj TO list1
 CGLImage NewObj TO bmp
+CGLSimpleScene NewObj TO canvas
+bmp canvas => :add
+
 picture bmp :: CGLImage.:load-image
 
 0 0 200 bmp :: CGLImage.:set-color
 20 0 DO
 10 0 DO J I bmp => :pixel LOOP LOOP
 
-
-bmp list1 :: CGLObjectList.:add
- 
-list1 aa :add
+canvas aa canvas!
 0 0 aa create DROP
 SW_SHOW aa showWindow
 
