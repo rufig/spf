@@ -29,6 +29,7 @@ MODULE: basic-graph
 0 VALUE glwindow
 \ 0 VALUE list1
 0 VALUE img
+0 VALUE canvas
 VECT drawer
 
 EXPORT
@@ -81,7 +82,9 @@ glwindow => moveWindow ;
 || CMessageLoop loop ||
 CGLMyWindow NewObj TO glwindow
 CGLImage NewObj TO img
-img glwindow => :add
+CGLSimpleScene NewObj TO canvas
+img canvas => :add
+canvas glwindow => canvas!
 0 0 glwindow => create DROP
 SW_SHOW glwindow => showWindow
 drawer
