@@ -94,7 +94,9 @@ CONT \ и кидаем его наверх
 \ То же самое что и compiledCode , но с динамическими строками из ~ac/lib/str5.f
 \ Это позволяет писать код в несколько строк
 \ Поданая на вход строка сразу после использования освобождается
-: straxt=> ( s --> xt \ <-- ) PRO DUP STR@ axt=> SWAP STRFREE CONT ;
+: straxt=> ( s --> xt \ <-- ) PRO 
+*> BACK STRFREE TRACKING RESTB
+   STR@ axt=> <* CONT ;
 
 : compiledCode ( addr u --> xt \ <-- ) \ синоним для axt=>
 RUSH> axt=> ;
