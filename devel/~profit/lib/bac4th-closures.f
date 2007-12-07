@@ -94,9 +94,9 @@ CONT \ и кидаем его наверх
 \ То же самое что и compiledCode , но с динамическими строками из ~ac/lib/str5.f
 \ Это позволяет писать код в несколько строк
 \ Поданая на вход строка сразу после использования освобождается
-: straxt=> ( s --> xt \ <-- ) PRO 
-*> BACK STRFREE TRACKING RESTB
-   STR@ axt=> <* CONT ;
+: straxt=> ( s --> xt \ <-- ) PRO
+*> BACK STRFREE TRACKING RESTB STR@ axt <*
+BACK DESTROY-VC TRACKING RESTB CONT ;
 
 : compiledCode ( addr u --> xt \ <-- ) \ синоним для axt=>
 RUSH> axt=> ;
@@ -127,5 +127,35 @@ DUP STR@ S" 11 11 11 " TEST-ARRAY STRFREE
 \ Вписываем код взятый снаружи, "внутрь" замыкания
 :NONAME ['] . S" 3 0 DO I [ COMPILE, ] LOOP " axt=> EXECUTE ; TYPE>STR
 DUP STR@ S" 0 1 2 " TEST-ARRAY STRFREE
+
+\ Теперь тоже самое только с straxt=>
+
+\ Переносим данные со стека внутрь генерируемого кода
+:NONAME 4 2 1 "
+LITERAL LITERAL + LITERAL * ." straxt=> EXECUTE ; TYPE>STR
+DUP STR@ S" 12 " TEST-ARRAY STRFREE
+
+\ Переносим данные со стека внутрь цикла генерируемого кода
+:NONAME 23 100 5 "
+0 BEGIN
+DUP LITERAL < WHILE
+LITERAL LITERAL + . 1+ REPEAT
+DROP " straxt=> EXECUTE ; TYPE>STR
+DUP STR@ S" 123 123 123 123 123 " TEST-ARRAY STRFREE
+
+\ Переносим данные со стека внутрь цикла генерируемого кода
+:NONAME 11 "
+3 0 DO
+LITERAL .
+LOOP" straxt=> EXECUTE ;  TYPE>STR
+DUP STR@ S" 11 11 11 " TEST-ARRAY STRFREE
+
+\ Вписываем код взятый снаружи, "внутрь" замыкания
+:NONAME ['] . "
+3 0 DO
+I [ COMPILE, ]
+LOOP " straxt=> EXECUTE ; TYPE>STR
+DUP STR@ S" 0 1 2 " TEST-ARRAY STRFREE
+
 
 END-TESTCASES
