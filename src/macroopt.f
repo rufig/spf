@@ -333,7 +333,7 @@ TC-WL ALSO TC-IMM
 
 ;
 
-\ 0 VALUE TTTT \ not used (22.Sep.2007)
+ 0 VALUE TTTT \ not used (22.Sep.2007)
 
 \ 0 VALUE ZZZZ \ VECT VVV
 
@@ -1395,7 +1395,6 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
      DUP @ @ FFFFFF AND 85448B = \ MOV  EAX , FC [EBP] [EAX*4]
               IF DROP EXIT THEN
 
-\     DUP @  2+ C@ DUP U. OFF-EBP FF AND DUP U. =
      DUP @ 2+ C@ OFF-EBP FF AND =
      IF   DUP  @ W@  E7FF AND  4589 =    \ MOV X [EBP] , EAX|EDX|EBX|ECX
           OVER @ W@            45C7 = OR \ MOV     F8 [EBP] , # 2710
@@ -2817,23 +2816,14 @@ OP0 @ W@ 1189 XOR OR \ 596738 8911              MOV     [ECX] , EDX
 OP1 @ 2+ C@
 OP0 @ 2+ C@   XOR
 OP1 @ W@ 5589 XOR OR \  8955F8            MOV     F8 [EBP] , EDX
+OP0 @ W@ FFC7 AND 4503 XOR OR \  0B45F8  ADD|OR|ADC|SBB|AND|SUB|XOR|CMP      EAX , F8 [EBP]
 0=  IF
-    OP0 @ W@ 450B = \  0B45F8            OR      EAX , F8 [EBP]
-         IF   M\ B2 DTST
-              C20B  OP0 @ W!      \    OR      EAX , EDX
-              -1 ALLOT
-              FALSE M\ B3 DTST
-              EXIT
-         THEN
-    OP0 @ W@ 453B = \  3B45F8            CMP     EAX , F8 [EBP]  !!!
-         IF   M\ BE DTST
-              C23B  OP0 @ W!      \    CMP      EAX , EDX
-              -1 ALLOT
-              FALSE M\ BF DTST
-              EXIT
-         THEN
+        M\ B2 DTST
+        C2 OP0 @ 1+ C!      \    OR      EAX , EDX
+        -1 ALLOT
+        FALSE M\ B3 DTST
+        EXIT
     THEN
-
 OP1 @ W@ C28B XOR    \ 8BC2              MOV     EAX , EDX
 OP0 @ W@ 4589 XOR OR \ 8945FC            MOV     FC [EBP] , EAX
 0=  IF   M\ C0 DTST
@@ -4649,6 +4639,13 @@ PREVIOUS PREVIOUS SET-CURRENT
       FALSE  M\ 77 DTST
       EXIT
    THEN
+        DUP 'DROP XOR
+        OP0 @ W@   C233 XOR OR 0=  \ XOR EAX , EDX
+ IF M\ BE DTST
+      3B OP0 @ C!   \  CMP  EAX, EDX
+      FALSE  M\ BF DTST
+      EXIT
+   THEN
 
    OP1 @ :-SET U< IF TRUE EXIT THEN
 \ $       0<> IF
@@ -5010,6 +5007,7 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
         OVER C083  <> AND  \ ADD EAX , # X
         OVER C203  <> AND  \ ADD EAX , EDX
         OVER C133  <> AND  \ XOR EAX , ECX
+        OVER C233  <> AND  \ XOR EAX , EDX
         OVER F8C1  <> AND  \ SAR EAX ,   X
         OVER 7D83  <> AND  \ CMP X [EBP], # Z
         OVER 3D81  <> AND  \ CMP 44444, # 55555
@@ -5194,5 +5192,6 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
 \  0 TO J_OPT?
 
 BASE !
+
 
 
