@@ -23,4 +23,10 @@
   </repeat>  2DROP RDROP RDROP
 </def>
 
+<def name="I-NATIVE-FORCE" ds=" c-addr u -- xt ">
+  I-NATIVE  <if><exit/></if>
+  I-QNATIVE <if><exit/></if>
+  -321 THROW
+</def>
+
 </forth>
