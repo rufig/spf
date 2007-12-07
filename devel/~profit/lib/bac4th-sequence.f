@@ -68,14 +68,9 @@ REQUIRE CONT ~profit/lib/bac4th.f
 REQUIRE LOCAL ~profit/lib/static.f
 REQUIRE CREATE-VC ~profit/lib/compile2Heap.f
 REQUIRE FREEB ~profit/lib/bac4th-mem.f
+REQUIRE PageSize ~profit/lib/get-system-info.f
 
 MODULE: bac4th-sequence
-
-: RET,-1ALLOT
-DP KEEP
-['] RDROP COMPILE,
-RET, ; \ установка шлагбаума для кода, чтобы не лез куда не надо
-\ шлагбаум "автоматически" сломается при попытке преодолеть его (читай: компиляции)
 
 0
 1 -- rlit
@@ -87,28 +82,26 @@ CONSTANT seq-struct \ дополнительная структура
 
 :NONAME  ( -- seq ) \ процедура инициализации seq{
 seq-struct ALLOCATE THROW >R
-CREATE-VC
-START{ DUP VC- RET,-1ALLOT }EMERGE
+(: RDROP ;) PageSize CELL - _CREATE-VC
 R@ handle ! R@ counter 0!
 0x68 R@ rlit C!  0xC3 R@ ret C!
 R> ; CONSTANT (seq{)
 
-:NONAME
-PRO LOCAL t @ t !
-\ ['] RDROP
-\ t @ handle @ VC-COMPILE,
-\ t @ handle @ VC-RET, \ закрываем итератор
-t @ CONT \ делаем нырок
-t @ handle @ DESTROY-VC
-t @ FREE THROW \ снимаем и дополнительную структуру
+:NONAME PRO @
+BACK
+DUP handle @ DESTROY-VC \ стираем сгенерированный код
+FREE THROW \ снимаем и дополнительную структуру
+TRACKING RESTB
+CONT \ делаем нырок
+
 ; CONSTANT (}seq) \ процедура успеха }seq
 
 EXPORT
 
 : +VC ( x seq -- ) VC-
 LIT,
-R@ENTER, POSTPONE DROP
-RET,-1ALLOT ;
+R@ENTER,
+POSTPONE DROP ;
 
 \ Общая открывающая скобка для генерации всех видов списков-итераторов
 : seq{ ( -- ) ?COMP (seq{) COMPILE, agg{ ; IMMEDIATE
@@ -124,24 +117,27 @@ handle @ +VC ;) (}seq) }agg ; IMMEDIATE
 DUP counter 1+!
 handle @ VC-
 2DUP DLIT,
-R@ENTER, POSTPONE 2DROP
-RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
+R@ENTER, \ POSTPONE CONT
+POSTPONE 2DROP
+;) (}seq) }agg ; IMMEDIATE
 
 \ Закрывающая скобка для тройных значений
 : }seq3 ( n -- list-xt ) ?COMP (: @
 DUP counter 1+!
 handle @ VC-
 ROT DUP LIT, -ROT 2DUP DLIT,
-R@ENTER, POSTPONE 2DROP POSTPONE DROP
-RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
+R@ENTER, \ POSTPONE CONT
+POSTPONE 2DROP POSTPONE DROP
+;) (}seq) }agg ; IMMEDIATE
 
 \ Закрывающая скобка для квартетов значений
 : }seq4 ( n -- list-xt ) ?COMP (: @
 DUP counter 1+!
 handle @ VC-
 2OVER DLIT, 2DUP DLIT,
-R@ENTER, POSTPONE 2DROP POSTPONE 2DROP
-RET,-1ALLOT ;) (}seq) }agg ; IMMEDIATE
+R@ENTER, \ POSTPONE CONT 
+POSTPONE 2DROP POSTPONE 2DROP
+;) (}seq) }agg ; IMMEDIATE
 
 : {seq} ( -- list-xt ) ?COMP (: ;) {agg} ; IMMEDIATE
 
@@ -174,7 +170,7 @@ agg{
 
 : list. ( list-xt -- ) ENTER DUP . ;
 
-: list-xt-generated seq{ 5 INTSTO }seq ( list-xt ) DUP {#} ." length: " . CR ." execute:" list. ;
+: list-xt-generated seq{ 5 INTSTO }seq ( list-xt ) DUP . DUP {#} ." length: " . CR ." execute:" list. ;
 $> list-xt-generated
 
 : intermediate seq{ 5 INTSTO  CR {seq} list.  }seq ( xt ) ENTER ;
