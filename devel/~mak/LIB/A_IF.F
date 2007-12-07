@@ -12,9 +12,11 @@ REQUIRE [IFNDEF] ~nn\lib\ifdef.f
 
 [UNDEFINED] CS-CELLS [IF] : CS-CELLS 2* CELLS ; [THEN]
 
+[IFNDEF] CS-SP
  VARIABLE CS-SP
  99 CS-CELLS ALLOT
  HERE CS-SP !
+[THEN]
 
 : CS-SP><  \  stack substitution
  CS-SP @ SP@ CELL+ CS-SP ! SP! ;
