@@ -9,6 +9,7 @@ NEEDS ~ygrek/lib/list/all.f
 NEEDS lib/include/core-ext.f
 NEEDS ~profit/lib/logic.f
 NEEDS lib/ext/debug/accert.f
+NEEDS ~pinka/samples/2006/syntax/qname.f
 
 0 VALUE indent
 
@@ -111,15 +112,17 @@ init:
 
 : :control! ( ctl-obj -- ) _obj ! ;
 
-\ передать информацию о расположении и размере ячейки контролу с тем чтобы он себя отрисовал
-: :finalize { x y -- } 
+: :finalize { x y res -- } 
     _obj @ 0= IF EXIT THEN 
-    TRUE
+    \ h
     :yfill? IF :h SUPER _ypad @ 2 * - ELSE SUPER _ymin @ THEN 0 MAX
+    \ w 
     :xfill? IF :w SUPER _xpad @ 2 * - ELSE SUPER _xmin @ THEN 0 MAX
+    \ y 
     y :yfill? IF SUPER _ypad @ ELSE :h SUPER _ymin @ - 2 / THEN +
+    \ x
     x :xfill? IF SUPER _xpad @ ELSE :w SUPER _xmin @ - 2 / THEN +
-    _obj @ => moveWindow ;
+    _obj @ res => :resize ;
 
 ;CLASS
 
@@ -221,17 +224,13 @@ init: () _cells ! ;
 \   SUPER _w @ 3 .R SPACE
 ;
 
-: :finalize { x y -- }
+: :finalize { x y res | obj -- }
    _cells @
-   BEGIN
-    DUP empty? 0=
-   WHILE
-    DUP car x y ROT => :finalize
-    DUP car => :w x + -> x
-    cdr
-   REPEAT
-   DROP
-;
+   FORLIST
+    -> obj
+    x y res obj => :finalize
+    obj => :w x + -> x
+   ENDFOR ;
 
 ;CLASS
 
@@ -312,16 +311,13 @@ init: () _rows ! ;
    DROP
 ;
 
-: :finalize { x y -- }
-   _rows @
-   BEGIN
-    DUP empty? 0=
-   WHILE
-    DUP car x y ROT => :finalize
-    DUP car => :h y + -> y
-    cdr
-   REPEAT
-   DROP
+: :finalize { x y res | obj -- }
+   _rows @ 
+   FORLIST 
+    -> obj
+    x y res obj => :finalize
+    obj => :h y + -> y
+   ENDFOR
 ;
 
 ;CLASS
@@ -473,6 +469,50 @@ CRect SUBCLASS CRect
 
 \ -----------------------------------------------------------------------
 
+CLASS CResizer
+: fail TRUE S" override!" SUPER abort ;
+: :start ( -- ) fail ;
+: :resize ( h w y x obj -- ) fail ;
+: :finish ( -- ) fail ;
+;CLASS
+
+CResizer SUBCLASS CSimpleResizer
+: :start ;
+: :resize { h w y x obj } TRUE h w y x obj => moveWindow ;
+: :finish ;
+;CLASS
+
+WINAPI: BeginDeferWindowPos USER32.DLL
+WINAPI: DeferWindowPos USER32.DLL
+WINAPI: EndDeferWindowPos USER32.DLL
+
+\ actually it doesn't prevent flickering..
+\ removing CS_*REDRAW from class styles helps a little bit though
+
+CResizer SUBCLASS CDeferingResizer
+ VAR _hdwp
+
+: abort SUPER abort ;
+
+: :start 
+   _hdwp @ 0 <> `already abort
+   20 BeginDeferWindowPos _hdwp !
+   _hdwp @ 0 = `failed abort ;
+
+: :finish
+   _hdwp @ 0 = `notready abort
+   _hdwp @ EndDeferWindowPos 0 = `failed abort
+   \ no cleanup needed (?)
+   0 _hdwp ! ;
+
+: :resize { h w y x obj -- }
+   SWP_NOZORDER
+   h w y x 0 obj => checkWindow _hdwp @ 
+   DeferWindowPos _hdwp !
+   _hdwp @ 0 = `failed abort ;
+
+;CLASS
+
 \ Контроллер для управления сеткой
 \ Использование :
 \ - обьявить обьект класса CGridController
@@ -481,17 +521,21 @@ CRect SUBCLASS CRect
 \
 \ Контроллер будет перехватывать сообщения WM_SIZE и WM_SIZING 
 \ и изменять содержимое сетки соответствующим образом
-\
-\ FIXME исследовать вариант FALSE setHandled в обработчиках
 CMsgController SUBCLASS CGridController
 
   VAR _g
+  CDeferingResizer OBJ _resizer
+  \ CSimpleResizer OBJ _resizer
 
 : :resize ( w h -- )
    ACCERT3( CR ." :resize " 2DUP . . )
    _g @ => :yformat
    _g @ => :xformat
-   0 0 _g @ => :finalize ;
+   _resizer :start
+   0 0 _resizer this _g @ => :finalize 
+   _resizer :finish
+   \ TRUE 0 SUPER parent-obj@ => checkWindow InvalidateRect DROP
+    ;
 
 : :grid _g @ ;
 
