@@ -1,3 +1,9 @@
+\ Поиск оболочки для множества заданных точек
+\ http://fforum.winglion.ru/viewtopic.php?t=877
+\ Кроме задавания точек в виде псевдографики реализация
+\ поддерживает ввод точек через векторы INPUT-POINT ( -- x y )
+\ и END-OF-POINTS ( -- f ), последний обозначает конец множества точек
+
 REQUIRE CHOOSE lib/ext/rnd.f
 REQUIRE F. lib/include/float2.f
 
