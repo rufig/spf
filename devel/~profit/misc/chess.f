@@ -24,7 +24,7 @@ REQUIRE list+ ~pinka\lib\list.f
 3 CONSTANT W \ ширина поля
 4 CONSTANT H \ высота поля
 
-40 CONSTANT MAX-MOVES \ максимальное кол-во ходов в переборе
+50 CONSTANT MAX-MOVES \ максимальное кол-во ходов в переборе
 
 : list=> ( list --> value \ <-- ) R> SWAP List-ForEach ; \ итератор по списку
 
@@ -36,7 +36,7 @@ __ board-moves
 CONSTANT board-elem
 
 \ Откатываемое двойное присваивание
-: 2B! ( d addr --> \ <-- ) PRO SWAP OVER B! CELL+ B! CONT ;
+: 2KEEP! ( d addr --> \ <-- ) PRO SWAP OVER KEEP! CELL+ KEEP! CONT ;
 
  \ массив который хранит указатели на представление позиций для ходов
 CREATE LAST-BOARDS MAX-MOVES CELLS ALLOT
@@ -116,12 +116,12 @@ S| NOT: ?IS-ATTACKED-BY-WHITE -NOT CONT ;
 \ двинуть белого коня под номером i
 : MOVE-WHITE-HORSE ( i --> \ <-- i ) PRO LOCAL h DUP
 HORSE DUP h ! 2@ HORSE-MOVES ( x y )
-?CAN-WHITE-MOVE-HERE  2DUP h @ 2B! CONT ;
+?CAN-WHITE-MOVE-HERE  2DUP h @ 2KEEP! CONT ;
 
 \ двинуть чёрного коня под номером i
 : MOVE-BLACK-HORSE ( i --> \ <-- i ) PRO LOCAL h DUP
 HORSE DUP h ! 2@ HORSE-MOVES ( x y )
-?CAN-BLACK-MOVE-HERE  2DUP h @ 2B! CONT ;
+?CAN-BLACK-MOVE-HERE  2DUP h @ 2KEEP! CONT ;
 
 \ расставить коней по начальным стойлам
 : INIT-POS
