@@ -157,7 +157,6 @@ vc @ lastBlock @ end-struct-addr HERE - \ узнаЄм сколько нужно байтов нужно заби
 DUP 2/ 0 ?DO SetOP I 1 AND IF 0x098D W, ELSE 0x1B8D W, THEN LOOP        \ пишем средние NOP'ы (двухбайтовые) -- LEA ECX, [ECX] / LEA EBX, [EBX]
 1 AND IF SetOP 0x90 C, THEN  \ и (если надо) ставим последний байт -- XCHG EAX, EAX
 
-
 vc @ lastBlock @                 \ запоминаем текущий блок в который компилировали
 vc @ allocatePatch ( block )     \ берЄм из кучи новый блок
 blocks'Code SWAP nextBlock !     \ св€зываем новый блок кода с предыдущим
@@ -243,8 +242,8 @@ ClearJpBuff \ так как мы теперь находимс€ уже в другом кодофайле, то
 \ переходы старого нам не нужны ("исправление" дл€ J_@ которое не
 \ учитывает возможность переключени€ DP )
 \ ещЄ немножко придушим оптимизатор:
-10 0 DO SetOP LOOP \ выставл€ем отметки предыдущих операций на один и тот же текущий HERE
-HERE DUP TO LAST-HERE DUP TO :-SET TO J-SET \ выставл€ем отметки условных и безусловных переходов на текущий HERE
+\ 10 0 DO SetOP LOOP \ выставл€ем отметки предыдущих операций на один и тот же текущий HERE
+\ HERE DUP TO LAST-HERE DUP TO :-SET TO J-SET \ выставл€ем отметки условных и безусловных переходов на текущий HERE
 ['] ON-COMPILE-START CFL + KEEP \ сохран€ем старое значение контрол€
 VC-CHECK TO ON-COMPILE-START \ включаем контроль компил€ции на врем€ активности виртуального кодофайла
 \ BACK TO MM_SIZE TRACKING MM_SIZE BDROP  0 TO MM_SIZE \ окончательно глушим оптимизатор, запреща€ ему инлайн
