@@ -68,4 +68,4 @@ S" : " conv :
 
 $> : r [ HEX ] 12 DUP ;
 
-S" C:\lang\spf\devel\~profit\misc\moleg do.f" INCLUDED
+S" ~profit/lib/logic.f" INCLUDED
