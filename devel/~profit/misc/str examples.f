@@ -1,10 +1,10 @@
 \ REQUIRE MemReport ~day/lib/memreport.f
 
-~ac\lib\str4.f
+REQUIRE { ~ac/lib/str5.f
 
-: r { a b -- } " {$a}+{$b}={$a $b + }" STYPE ;
+: r { a b -- } a b + " {#a}+{#b}={n}" STYPE ;
 1 2 r
-\EOf
+\ \EOF
 
 : z ( addr u f -- ) IF S" rules!" ELSE S" sucks!" THEN
 2SWAP
