@@ -1,4 +1,4 @@
-REQUIRE BENCHMARK Bench.f
+REQUIRE BENCHMARK ~profit/misc/Bench.f
 REQUIRE PLACE ~mak/place.f
 REQUIRE U.R lib/include/core-ext.f
 
