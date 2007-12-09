@@ -6,7 +6,7 @@ REQUIRE iterateBy ~profit/lib/bac4th-iterators.f
 REQUIRE arr{ ~profit/lib/bac4th-sequence.f
 REQUIRE time-reset ~af/lib/elapse.f
 REQUIRE GENRAND ~ygrek/lib/neilbawd/mersenne.f
-REQUIRE memoize: ~ygrek/lib/memoize.f
+REQUIRE memoize: ~ygrek/lib/fun/memoize.f
 REQUIRE CODE lib/ext/spf-asm-tmp.f
 
 GetTickCount SGENRAND \ заряжаем рулетку
