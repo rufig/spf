@@ -53,6 +53,7 @@ DECIMAL
   OVER C@ [CHAR] " = IF SWAP CHAR+ SWAP 1- [CHAR] " ELSE BL THEN
   0 >R RP@ TUCK C! 1 SEARCH RDROP  0= IF 2DROP 0. EXIT THEN
   SWAP CHAR+ SWAP 1-
+  -TRAILING
 ;
 : COMMANDLINE-OPTIONS ( -- c-addr u )
 \ дать опции командной строки запуска
