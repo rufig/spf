@@ -95,7 +95,7 @@ CONT \ и кидаем его наверх
 \ Это позволяет писать код в несколько строк
 \ Поданая на вход строка сразу после использования освобождается
 : straxt=> ( s --> xt \ <-- ) PRO
-*> BACK STRFREE TRACKING RESTB STR@ axt <*
+START{ BACK STRFREE TRACKING RESTB STR@ axt }EMERGE
 BACK DESTROY-VC TRACKING RESTB CONT ;
 
 : compiledCode ( addr u --> xt \ <-- ) \ синоним для axt=>
@@ -108,6 +108,7 @@ RUSH> axt=> ;
 /TEST
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
+REQUIRE MemReport ~day/lib/memreport.f
 \ REQUIRE SEE lib/ext/disasm.f
 
 TESTCASES bac4th-closures
@@ -157,5 +158,6 @@ I [ COMPILE, ]
 LOOP " straxt=> EXECUTE ; TYPE>STR
 DUP STR@ S" 0 1 2 " TEST-ARRAY STRFREE
 
+(( countMem -> 0 0 ))
 
 END-TESTCASES
