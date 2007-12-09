@@ -5,7 +5,7 @@ REQUIRE CONT ~profit/lib/bac4th.f
 REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
 REQUIRE ITERATE-FILES ~profit/lib/iterate-files.f
 REQUIRE split ~profit/lib/bac4th-str.f
-REQUIRE DBG{ ~profit/lib/debug.f
+\ REQUIRE DBG{ ~profit/lib/debug.f
 
 : SPF-PATH S" c:\lang\spf" ;
 
@@ -13,7 +13,7 @@ REQUIRE DBG{ ~profit/lib/debug.f
 byChar split DUP STR@ [CHAR] / byChar split DUP STR@ *> <*> S" \\" <* }concat DUP STR@ ;
 
 : r SPF-PATH DOUBLE-SLASHES TYPE ;
-DBG{
+
 : EXCEPTIONS  ( --> addr u ) PRO *>
 " {SPF-PATH}/spf4.exe"          <*>
 " {SPF-PATH}/jpf375c.exe"       <*>
@@ -59,6 +59,6 @@ CUT: EXCEPTIONS 2OVER 2SWAP COMPARE-U 0= ONTRUE -CUT DEPTH ." =" . ." ="  CONT .
 
 
 : DISTR ( addr u --> filea fileu ) PRO 1 ITERATE-FILES ( filea fileu data flag ) 2DROP FILTER CONT 2DROP ;
-}DBG
+
 : r START{ S" c:\lang\spf" DISTR CR 2DUP TYPE }EMERGE CR ." ------------" ;
 r
