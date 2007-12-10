@@ -3,17 +3,24 @@
 \ циклы DO LOOP для СПФ - портабельный вариант.
 
 \ ВНИМАНИЕ для совместимости с библиотекой lib\ext\locals.f
-\ необходимо подправить locals в следующим образом:
-\ : DO    POSTPONE DO     [  4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
-\ : ?DO   POSTPONE ?DO    [  4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
-\ : LOOP  POSTPONE LOOP   [ -4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
-\ : +LOOP POSTPONE +LOOP  [ -4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
-\ то есть указать, что на стеке возвратов оказывается не три, как обычно,
-\ а четыре параметра.
+\ необходимо, чтобы локалсы были загружены перед этой библиотекой
 
  REQUIRE COMPILE   devel\~moleg\lib\util\compile.f
 
 FALSE WARNING !
+
+?DEFINED [IF] lib\include\tools.f
+
+TRUE ?DEFINED vocLocalsSupport DROP FALSE
+[IF]
+   ALSO vocLocalsSupport DEFINITIONS ALSO FORTH
+     : DO    FORTH::POSTPONE DO     [  4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+     : ?DO   FORTH::POSTPONE ?DO    [  4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+     : LOOP  FORTH::POSTPONE LOOP   [ -4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+     : +LOOP FORTH::POSTPONE +LOOP  [ -4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+   PREVIOUS PREVIOUS DEFINITIONS
+[THEN]
+
 \ ---------------------------------------------------------------------------
 
 \ на стеке возвратов лежит 4-ре параметра.
