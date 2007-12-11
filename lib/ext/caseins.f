@@ -4,6 +4,8 @@
 
 REQUIRE REPLACE-WORD lib\ext\patch.f
 REQUIRE ON           lib\ext\onoff.f
+REQUIRE [IF]         lib\include\tools.f \ должно быть подключено до caseins-варианта
+REQUIRE [else]       lib\ext\caseins-tools.f
 
 VARIABLE CASE-INS \ switcher
 CASE-INS ON
@@ -20,19 +22,21 @@ WINAPI: CharLowerA USER32.DLL
 ;
 
 : USEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 )
+  CASE-INS @ 0= IF
+    [ ' SEARCH-WORDLIST BEHAVIOR COMPILE, ] EXIT
+  THEN
   @
   BEGIN
     DUP
   WHILE
     >R 2DUP
-    R@ COUNT 
-    CASE-INS @ IF UCOMPARE ELSE COMPARE THEN  0= 
+    R@ COUNT UCOMPARE 0= 
     IF 2DROP R@ NAME> R> ?IMMEDIATE IF 1 ELSE -1 THEN EXIT THEN
     R> CDR
   REPEAT DROP 2DROP 0
 ;
 
-' USEARCH-WORDLIST ' SEARCH-WORDLIST REPLACE-WORD
+' USEARCH-WORDLIST TO SEARCH-WORDLIST
 
 : UDIGIT ( C, N1 -> N2, TF / FF ) 
 \ N2 - значение литеры C как
