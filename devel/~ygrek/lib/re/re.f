@@ -212,7 +212,7 @@ CONSTANT /arr
 : a:iter-> ( arr --> elem \ <-- )
    PRO
    DUP .a.data { z }
-   .a.n @ 0 ?DO
+   a:n 0 ?DO
     z CONT
     z CELL+ -> z
    LOOP ;
@@ -220,10 +220,17 @@ CONSTANT /arr
 : a:scan-> ( arr --> elem@ \ elem|0 <-- TRUE|FALSE )
    PRO
    DUP .a.data { z }
-   .a.n @ 0 ?DO
+   a:n 0 ?DO
     z @ CONT IF z UNLOOP EXIT THEN
     z CELL+ -> z
    LOOP 0 ;
+
+: arr-find-c ( arr c -- ? )
+  { c }
+  DUP .a.data SWAP a:n 0 ?DO 
+    DUP @ .c @ c = IF DROP UNLOOP TRUE EXIT THEN
+    CELL+
+  LOOP DROP FALSE ;
 
 0 [IF]
 : a:scanback-> ( arr --> elem@ \ elem|0 <-- TRUE|FALSE )
@@ -244,7 +251,7 @@ CONSTANT /arr
 
 : adjust-sub-state { val nfa subs -- }
    subs .a.data
-   subs .a.n @ 0 ?DO
+   subs a:n 0 ?DO
     DUP @ nfa = IF val OVER ! THEN
     CELL+
    LOOP
@@ -256,7 +263,7 @@ CONSTANT /arr
 : set-brackets-end ( end-nfa brackets-pair -- ) OVER .flags NFA_GROUP_END SWAP ! car cdr setcar ;
 
 : print-array { arr }
-  CR arr .a.n @ " [{n}] : " STYPE
+  CR arr a:n " [{n}] : " STYPE
   arr a:iter-> @ . ;
 
 : normalize-subs { a u subs | z -- }
@@ -269,7 +276,7 @@ CONSTANT /arr
    LOOP ;
 
 : get-sub { n subs -- a u }
-   n 2 * subs .a.n @ < NOT ABORT" Man, you've crossed the bounds!"
+   n 2 * subs a:n < NOT ABORT" Man, you've crossed the bounds!"
    n 2 * subs a:elem 2@ ;
 
 \ -----------------------------------------------------------------------
@@ -694,8 +701,6 @@ EXPORT
 
 \ -----------------------------------------------------------------------
 
-DEFINITIONS
-
 256 state-table is_alpha_char
 
 all: FALSE ;
@@ -710,6 +715,8 @@ CHAR 0 CHAR 9 range: TRUE ;
 : is_alphanum_char ( c -- ? ) DUP is_alpha_char SWAP is_digit_char OR ;
 : is_word_char ( c -- ? ) DUP is_alphanum_char SWAP [CHAR] _ = OR ;
 : is_space_char ( c -- ? ) BL 1+ < ;
+
+DEFINITIONS
 
 N_STATE state-table char-nfa-match ( c nfa -- ? )
 
@@ -757,7 +764,7 @@ STATE_MATCH_SET_NOT  asc: .set @ belong NOT ;
    re_gen 1+ TO re_gen
    \ CR ." STEP " re_gen .
    0 s1 a:elem -> a
-   s1 .a.n @ 0 ?DO
+   s1 a:n 0 ?DO
     c a @ DUP .c @ char-nfa-match IF a @ .out1 @ s2 addstate THEN
     a CELL+ -> a
    LOOP ;
@@ -815,7 +822,7 @@ STATE_MATCH_SET_NOT  asc: .set @ belong NOT ;
 
    0 s1 a:elem -> s \ !!
    0 z1 a:elem -> z
-   s1 .a.n @ 0 ?DO \ !!
+   s1 a:n 0 ?DO \ !!
     c s @ DUP .c @ char-nfa-match IF s @ .out1 @ s2 z2 z @ subs_addstate THEN
     \ c a @ DUP .c @ char-nfa-match IF a @ .out1 @ s2 addstate THEN \ !!
     s CELL + -> s \ !!
@@ -878,7 +885,9 @@ EXPORT
     I C@ s1 s2 step
     s1 s2 -> s1 -> s2
 \    s1 a:n 1 = IF
-    s1 START{ a:scan-> .c @ STATE_FINAL = }EMERGE IF ( 0 ) I a - 1+ TO last THEN
+    \ s1 START{ a:scan-> .c @ STATE_FINAL = }EMERGE 
+    s1 STATE_FINAL arr-find-c 
+    IF ( 0 ) I a - 1+ TO last THEN
     s1 a:n 0= IF LEAVE THEN
    LOOP
    re_gen re .nfa @ .gen ! \ для последующих сопоставлений
