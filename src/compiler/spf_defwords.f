@@ -206,6 +206,9 @@ END-CODE
 : BEHAVIOR! ( xt1 xt2 -- )
   CFL + !
 ;
+\ В данной реализации слова BEHAVIOR и BEHAVIOR! 
+\ не применимы к USER-векторам, а только к обычным.
+
 
 USER C-SMUDGE \ 12 C,
 
