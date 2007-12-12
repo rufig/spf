@@ -133,11 +133,17 @@ VARIABLE IN-EXCEPTION
   10 CELLS + @ ( esp )  R0 @ 
   
   2DUP U<
-  IF 2DUP TRACE-HEAD-SIZE + TRACE-TAIL-SIZE CELLS - 10 CELLS -
-     U< IF 10 CELLS - THEN \ skip early bottom
-     SWAP DUMP-TRACE-SHRUNKEN
-  ELSE
-     NIP DUP 50 CELLS - DUMP-TRACE 
+  IF ( top bottom )
+    2DUP HANDLER @ WITHIN IF
+      >R HANDLER @ SWAP DUMP-TRACE-SHRUNKEN
+      HANDLER @ CELL+ R> 
+    THEN
+    2DUP  TRACE-HEAD-SIZE TRACE-TAIL-SIZE + CELLS - 10 CELLS -
+    U< IF 10 CELLS - THEN \ skip early bottom
+    SWAP DUMP-TRACE-SHRUNKEN
+  ELSE ( esp bottom ) 
+    NIP DUP 50 CELLS - DUMP-TRACE 
+    \ при несогласованности предпочтение отдается R0
   THEN
 
   ." END OF EXCEPTION REPORT" CR
