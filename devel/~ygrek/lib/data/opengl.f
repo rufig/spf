@@ -1,3 +1,5 @@
+MODULE: GL-FUNCS
+
 WINAPI: glViewport        OpenGL32.DLL
 WINAPI: glMatrixMode      OpenGL32.DLL
 WINAPI: glLoadIdentity    OpenGL32.DLL
@@ -44,6 +46,26 @@ WINAPI: glDisable         OpenGL32.DLL
 WINAPI: glColorMaterial   OpenGL32.DLL
 WINAPI: glMaterialf       OpenGL32.DLL
 WINAPI: glDrawPixels      OpenGL32.DLL
+WINAPI: glLightModeli     OpenGL32.DLL
+WINAPI: glFrontFace       OpenGL32.DLL
+WINAPI: glCullFace        OpenGL32.DLL
 
 WINAPI: gluPerspective    Glu32.DLL
 WINAPI: gluOrtho2D        Glu32.DLL
+
+;MODULE
+
+ALSO GL-FUNCS
+
+\EOF \ просмотр порядка вызова функций
+
+REQUIRE enqueueNOTFOUND ~pinka/samples/2006/core/trans/nf-ext.f
+REQUIRE [WID] ~ygrek/lib/wid.f
+
+: LOG-THIS 2>R CR CR .S 2R> CR TYPE KEY DROP ;
+
+:NONAME ( a u -- a u FALSE | i*x TRUE )
+  2DUP [WID] GL-FUNCS SEARCH-WORDLIST 0 = IF FALSE EXIT THEN
+  >R POSTPONE SLITERAL POSTPONE LOG-THIS R> COMPILE, 
+  TRUE
+ ; enqueueNOTFOUND

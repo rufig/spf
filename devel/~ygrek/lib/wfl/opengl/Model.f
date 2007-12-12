@@ -1,3 +1,8 @@
+\ $Id$
+\
+\ Класс модели (набор треугольников и нормалей)
+\ Загрузка из форматов PLY2 и OFF (Maya Text Export ?)
+
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
 NEEDS ~ygrek/lib/filelines.f
@@ -7,6 +12,8 @@ NEEDS ~ygrek/lib/parse.f
 NEEDS ~ygrek/lib/debug/ensure.f
 NEEDS ~ygrek/lib/hype/point.f
 NEEDS ~day/hype3/locals.f
+
+\ ------------------------------------------------------------------------------
 
 : ?FLOAT-EXT ( addr u -- bool )
     DUP 2 < IF 2DROP 0 EXIT THEN
@@ -40,6 +47,8 @@ NEEDS ~day/hype3/locals.f
 : PARSE-FLOAT PARSE-NAME >FLOAT-EXT ENSURE ;
 : PARSE-NUMBER PARSE-NAME NUMBER ENSURE ;
 
+\ ------------------------------------------------------------------------------
+
 CLASS CTriBase
 
  CELL PROPERTY v1
@@ -52,7 +61,7 @@ CLASS CTriBase
 
 ;CLASS
 
-\ --------------------------
+\ ------------------------------------------------------------------------------
 
 CTriBase SUBCLASS CTri
 
@@ -151,7 +160,9 @@ init:
    p0 :get pa :inc ( a := a - 0 )
    p0 :get pb :inc ( b := b - 0 )
 
-   pa this pb :pvect ;
+   pa this pb :pvect 
+   -1e F* FROT -1e F* FROT -1e F* FROT \ FIXME temporary patch to invert normal
+   ;
 
 : :calc-tri-normales { t }
    t :: CTri.v1@

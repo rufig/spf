@@ -1,3 +1,14 @@
+\ $Id$
+\
+\ Для простых сцен достаточно использовать(наследовать) класс CGLObject
+\ который представляет собой обьект отрисовываемый на GL-полотне
+\ Свойства : угол, сдвиг
+\ Действия : вращать, отрисовать
+\
+\ CGLCube CGLPyramid
+\ CGLObjectList - список обьектов как один обьект
+\ CGLSimpleModel - моделька из треугольников
+
 REQUIRE WL-MODULES ~day/lib/includemodule.f
 
 NEEDS ~ygrek/lib/wfl/opengl/common.f
@@ -6,6 +17,7 @@ NEEDS ~ygrek/lib/list/write.f
 NEEDS ~pinka/lib/lambda.f
 NEEDS ~ygrek/lib/hype/timer.f
 NEEDS ~ygrek/lib/hype/point.f
+NEEDS ~ygrek/lib/float.f
 
 \ -----------------------------------------------------------------------
 
@@ -187,14 +199,35 @@ CGLObject SUBCLASS CGLCube
 
 : :draw
   SUPER :draw
+
   GL_QUADS glBegin DROP \ Drawing Using Squares
-     Red SetColor   a1 :vertex   a2 :vertex   a3 :vertex   a4 :vertex
-  Yellow SetColor   a1 :vertex   a2 :vertex   b2 :vertex   b1 :vertex
-    Blue SetColor   a2 :vertex   a3 :vertex   b3 :vertex   b2 :vertex
-   Green SetColor   a3 :vertex   a4 :vertex   b4 :vertex   b3 :vertex
-  Orange SetColor   a4 :vertex   a1 :vertex   b1 :vertex   b4 :vertex
-  Magenta SetColor   b1 :vertex   b2 :vertex   b3 :vertex   b4 :vertex
-   glEnd  DROP   \ Finished Drawing
+
+     \ -y
+     Red SetColor
+     0f -1f 0f glNormal3f DROP
+     a1 :vertex   a2 :vertex   a3 :vertex   a4 :vertex
+     \ +x
+     Yellow SetColor
+     0f 0f 1f glNormal3f DROP
+     a1 :vertex   b1 :vertex   b2 :vertex   a2 :vertex
+     \ +z
+     Blue SetColor
+     1f 0f 0f glNormal3f DROP
+     a3 :vertex   a2 :vertex   b2 :vertex   b3 :vertex
+     \ -x
+     Green SetColor
+     0f 0f -1f glNormal3f DROP
+     a3 :vertex   b3 :vertex   b4 :vertex   a4 :vertex
+     \ -z
+     Orange SetColor
+     -1f 0f 0f glNormal3f DROP
+     b4 :vertex   b1 :vertex   a1 :vertex   a4 :vertex
+     \ +y
+     Magenta SetColor
+     0f 1f 0f glNormal3f DROP
+     b4 :vertex   b3 :vertex   b2 :vertex   b1 :vertex
+
+  glEnd  DROP   \ Finished Drawing
 ;
 
 
@@ -247,14 +280,15 @@ dispose: timer :ms@ CR ." Time in " SUPER name TYPE ."  = " . ;
    1 glGenLists _list !
    gl-status
    GL_COMPILE _list @ glNewList DROP
+    color :get SetColor
     :draw-model
    glEndList DROP ;
 
 : :draw
    _init @ NOT IF :prepare TRUE _init ! THEN
    SUPER :draw
-   color :get SetColor
    timer :start
+   \ color :get SetColor
    _list @ glCallList DROP
 \   :draw-model
    timer :stop
