@@ -203,6 +203,9 @@ END-CODE
 \ Возвращает xt процедуры, присвоенной VECT-переменной.
   CFL + @
 ;
+: BEHAVIOR! ( xt1 xt2 -- )
+  CFL + !
+;
 
 USER C-SMUDGE \ 12 C,
 
