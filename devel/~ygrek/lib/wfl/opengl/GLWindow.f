@@ -257,7 +257,7 @@ W: WM_DESTROY ( -- n )
 /TEST
 
 : test ( -- n )
-  || CGLWindow aa  CMessageLoop loop  CGLSimpleCanvas z ||
+  || CGLWindow aa  CMessageLoop loop  CGLSimpleScene z ||
 
   CGLCube NewObj >R
   2e 3e 4e R@ => :setAngleSpeed
