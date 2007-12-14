@@ -30,17 +30,15 @@ USER HANDLER      \ программные исключения
 \   Иначе система может вывести на дисплей зависящее от реализации 
 \   сообщение об условии, соответствующем THROW с кодом n. Затем 
 \   система выполнит функцию ABORT (версию ABORT из CORE).
+  DUP 0= IF DROP EXIT THEN
   DUP 109 = IF DROP EXIT THEN \ broken pipe - обычно не ошибка, а конец входного потока в CGI
   
-  ?DUP
-  IF HANDLER @ 
-     ?DUP
-     IF RP!
-        R> HANDLER !
-        R> SWAP >R
-        SP! DROP R>
-     ELSE FATAL-HANDLER THEN
-  THEN
+  HANDLER @  DUP IF  RP!
+  R> HANDLER !
+  R> SWAP >R
+  SP! DROP R>
+  EXIT         THEN
+  DROP FATAL-HANDLER
 ;
 
 ' THROW (TO) THROW-CODE
