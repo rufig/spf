@@ -1,5 +1,6 @@
 тестировалось на "Compaq evo n610c" P4M 2GHz
 
-        Calls      Ticks        AverageTicks     Name
-mOleg    100 |       679,500 |          6,795 | sample
-profit   100 | 1,296,518,256 |     12,965,182 | sample
+        Calls      Ticks        AverageTicks
+mOleg    100 |       679,500 |          6,795
+profit   100 | 1,296,518,256 |     12,965,182
+mak4444  100 |       558,264 |          5,582
