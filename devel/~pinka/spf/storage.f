@@ -158,7 +158,9 @@ EXPORT
 : DEFINITIONS ( -- ) \ 94 SEARCH
   CONTEXT @ SET-CURRENT
 ;
-' DEFINITIONS  SWAP REPLACE-WORD
+DROP \ ' DEFINITIONS  SWAP REPLACE-WORD
+\ перехват вызывает конфликт, т.к. 
+\ новый вариант становится используем в POOL-INIT
 
 ' MODULE:
 : MODULE: ( "name" -- old-current )
