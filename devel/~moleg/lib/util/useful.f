@@ -4,6 +4,7 @@
 
  REQUIRE COMPILE  devel\~mOleg\lib\util\compile.f
  REQUIRE SeeForw  devel\~mOleg\lib\util\parser.f
+ REQUIRE FRAME    devel\~mOleg\lib\util\stackadd.f
 
 \ -- константы ----------------------------------------------------------------
 
@@ -54,6 +55,15 @@ TRUE WARNING !
 \ поменять местами два словаря на вершине контекста
 : UNDER ( --> ) GET-ORDER DUP 1 - IF >R SWAP R> THEN SET-ORDER ;
 
+\ сохранить текущее состояние контекста, текущего словаря
+: SaveOrder ( addr --> )
+            >R GET-ORDER GET-CURRENT SWAP 1 + DUP
+            1 + >R SP@ 2R> CELLS CMOVE nDROP ;
+
+\ восставовить сохраненное состояние контекста, текущий словарь
+: LoadOrder ( addr --> )
+            DUP >R @ 1 + FRAME CELLS >R SP@ R> R> -ROT CMOVE
+            SWAP SET-CURRENT 1 - SET-ORDER ;
 
 \ -- распределение пространства форт системы ----------------------------------
 

@@ -4,18 +4,18 @@
 
 REQUIRE { devel\~mak\locals4.f
 
-\ ¢¥à­ãâì ª®«¨ç¥áâ¢® ¡¨â ¢ áâ ­¤ àâ­®© ïç¥©ª¥
+\ âåðíóòü êîëè÷åñòâî áèò â ñòàíäàðòíîé ÿ÷åéêå
 : bits/cell ( --> u ) 0 -1 BEGIN TUCK WHILE 1+ SWAP 2* REPEAT NIP ;
 
-        0 VALUE buffer \  ¤à¥á ¬¥áâ , £¤¥ åà ­¨âáï à¥§ã«ìâ¨àãîé¨© ¬ áá¨¢
+        0 VALUE buffer \ àäðåñ ìåñòà, ãäå õðàíèòñÿ ðåçóëüòèðóþùèé ìàññèâ
 
-\ ¢ë¤¥«¥­¨¥ ¯ ¬ïâ¨ ¯®¤ ¬ áá¨¢ ¨ ¥£® ¨­¨æ¨ «¨§ æ¨ï
+\ âûäåëåíèå ïàìÿòè ïîä ìàññèâ è åãî èíèöèàëèçàöèÿ
  1 bits/cell 4 / LSHIFT CELLS CELL + ALLOCATE THROW DUP TO buffer 0!
 
 \
 : aCount ( addr --> addr # ) DUP CELL + SWAP @ ;
 
-\ ®â¯à ¢¨âì §­ ç¥­¨¥ ¢ ¡ãä¥à
+\ îòïðàâèòü çíà÷åíèå â áóôåð
 : ->buf ( u --> )
         buffer aCount + !
         CELL buffer +! ;

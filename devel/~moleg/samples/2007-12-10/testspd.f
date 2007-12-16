@@ -14,9 +14,10 @@
 
 realtime own 0= THROW \ не могу установить приоритет
 
+\ замерить скорость работы алгоритма
 : test ( --> )
        ResetProfiles
          100 FOR sample TILL
        CR .AllStatistic ;
 
-normal own DROP
+

@@ -47,7 +47,7 @@ FALSE WARNING !
 \ условынй выход из цикла, если flag <> 0. Используется аналогично WHILE
 : WHILENOT ( flag --> )
            ?COMP 2 controls +!
-           HERE N?BRANCH, >MARK 1 ; IMMEDIATE
+           HERE N?BRANCH, >MARK 1 2SWAP ; IMMEDIATE
 
 \ безусловный возврат на BEGIN. Используется вместе с BEGIN и WHILE
 : REPEAT ( --> )

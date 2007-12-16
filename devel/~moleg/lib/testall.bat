@@ -46,6 +46,7 @@
 @st.exe .S" devel\~moleg\lib\util\avds.f"               TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\csp.f"                TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\case.f"               TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\console.f"            TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\mtask\mutex.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\mtask\pmutex.f"            TESTED CR BYE
@@ -80,6 +81,7 @@
 @st.exe .S" devel\~moleg\lib\newfind\clear.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\newfind\new_find.f"        TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\newfind\spf_find.f"        TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\newfind\search.f"          TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\testing\testing.f"         TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\testing\say.f"             TESTED CR BYE
