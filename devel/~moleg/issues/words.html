@@ -1,0 +1,278 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1251">
+	<TITLE>Основным понятием языка форт является слово</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.3  (Win32)">
+	<META NAME="AUTHOR" CONTENT="Oleg">
+	<META NAME="CREATED" CONTENT="20070330;16400000">
+	<META NAME="CHANGEDBY" CONTENT="mOleg">
+	<META NAME="CHANGED" CONTENT="20071201;9480000">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 21cm 29.7cm; margin-right: 0.5cm; margin-top: 0.5cm; margin-bottom: 1.2cm }
+		P { margin-bottom: 0.21cm; direction: ltr; color: #000000; widows: 2; orphans: 2 }
+		P.western { font-family: "Times New Roman", serif; font-size: 12pt; so-language: ru-RU }
+		P.cjk { font-family: "Times New Roman", serif; font-size: 12pt }
+		P.ctl { font-family: "Times New Roman", serif; font-size: 12pt; so-language: ar-SA }
+		P.sdfootnote-western { margin-bottom: 0cm; direction: ltr; color: #000000; font-family: "Times New Roman", serif; font-size: 10pt; so-language: ru-RU; widows: 2; orphans: 2 }
+		P.sdfootnote-cjk { margin-bottom: 0cm; direction: ltr; color: #000000; font-family: "Times New Roman", serif; font-size: 10pt; widows: 2; orphans: 2 }
+		P.sdfootnote-ctl { margin-bottom: 0cm; direction: ltr; color: #000000; font-family: "Times New Roman", serif; font-size: 10pt; so-language: ar-SA; widows: 2; orphans: 2 }
+		A.sdfootnoteanc { font-size: 57% }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="ru-RU" TEXT="#000000" LINK="#000080" VLINK="#800000" DIR="LTR">
+<P CLASS="western" STYLE="margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=1 STYLE="font-size: 8pt"><SPAN LANG="en-US">\
+~mOleg </SPAN></FONT></FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=1 STYLE="font-size: 8pt"><SPAN LANG="en-US">2007-04-17</SPAN></FONT></FONT></P>
+<P LANG="en-US" CLASS="western" STYLE="margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=1 STYLE="font-size: 8pt">\
+Copyright [C] 2006 mOleg mininoleg@yahoo.com</FONT></FONT></P>
+<P CLASS="western" ALIGN=RIGHT STYLE="text-indent: 1.25cm; margin-bottom: 0cm">
+<FONT FACE="Bookman Old Style, serif"><I>&laquo;</I></FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=4><I><B>сначала
+было слово</B></I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>&raquo;
+</I></FONT>
+</P>
+<P LANG="en-US" CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm">
+<BR>
+</P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif">Большинство
+литературы посвященной изучению различных языков программирования
+рассчитаны на читателя, изучающего программирование с нуля. Поэтому
+повествование обычно начинается с того, как будет правильно сложить
+(2+3) или 2 3 + , а может (+ 2 3) &ndash; то есть с того, как делать
+самые простые вещи. В итоге при беглом просмотре (я имею в виду
+программиста), остается непонятно, ради чего создавался тот или иной
+язык и в чем его основное отличие от остальных, какие идеологические
+причины заставили создать этот самый язык. </FONT>
+</P>
+<P CLASS="western" STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif">Практически
+все современные языки программирования рассчитаны на то, что текст
+программы будет разбит на множество маленьких именованных кусочков,
+которые в различных языках называются то функциями, то
+подпрограммами, то процедурами, впрочем, есть и другие названия. У
+форта именованные кусочки кода называются </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>словами</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">или </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>определениями</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">.</FONT></P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><BR>
+</P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif">Основным
+понятием языка форт</FONT><SUP><FONT COLOR="#0000ff"><FONT FACE="Bookman Old Style, serif"><B><A CLASS="sdfootnoteanc" NAME="sdfootnote1anc" HREF="#sdfootnote1sym"><SUP>1</SUP></A></B></FONT></FONT></SUP><FONT FACE="Bookman Old Style, serif">
+является </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><B>слово</B></I></FONT></FONT><SUP><FONT COLOR="#0000ff"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B><A CLASS="sdfootnoteanc" NAME="sdfootnote2anc" HREF="#sdfootnote2sym"><SUP>2</SUP></A></B></FONT></FONT></FONT></SUP><FONT FACE="Bookman Old Style, serif">.
+Каждое </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слово</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">
+языка может быть исполнено, но не обязательно должно исполняться.
+Программа в </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>форт-среде</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">
+&ndash; это набор слов. Обычно для выполнения программы достаточно
+выполнения последнего определенного </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>понятия</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">
+(</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слова</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">).
+</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Форт-среда</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">не разбирается в
+том, является ли очередное слово оператором языка или данными. </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Слова</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">
+просто ищутся в списке, называемом </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><B>словарем</B></I></FONT></FONT><SUP><FONT COLOR="#0000ff"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B><A CLASS="sdfootnoteanc" NAME="sdfootnote3anc" HREF="#sdfootnote3sym"><SUP>3</SUP></A></B></FONT></FONT></FONT></SUP><FONT FACE="Bookman Old Style, serif">
+и при условии нахождения </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt">выполняются</FONT></FONT><FONT FACE="Bookman Old Style, serif">.
+</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Словарей
+</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">может быть
+много, и </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>словари
+</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">тоже являются
+</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>словами</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">.
+Каждое новое </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слово</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">добавляется в
+</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>словарь</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">с помощью уже
+существующих </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слов</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">
+или их комбинации. Тот словарь, в который добавляется </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слово</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>,
+</I></FONT><FONT FACE="Bookman Old Style, serif">называется </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><B>текущим</B></I></FONT></FONT><SUP><FONT COLOR="#0000ff"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B><A CLASS="sdfootnoteanc" NAME="sdfootnote4anc" HREF="#sdfootnote4sym"><SUP>4</SUP></A></B></FONT></FONT></FONT></SUP><FONT FACE="Bookman Old Style, serif">,
+а тот, из которого исполняется - </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><B>контекстным</B></I></FONT></FONT><SUP><FONT COLOR="#0000ff"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B><A CLASS="sdfootnoteanc" NAME="sdfootnote5anc" HREF="#sdfootnote5sym"><SUP>5</SUP></A></B></FONT></FONT></FONT></SUP><FONT FACE="Bookman Old Style, serif">.
+Современная</FONT><SUP><FONT COLOR="#0000ff"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B><A CLASS="sdfootnoteanc" NAME="sdfootnote6anc" HREF="#sdfootnote6sym"><SUP>6</SUP></A></B></FONT></FONT></FONT></SUP><FONT FACE="Bookman Old Style, serif">
+</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>форт</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>-</I></FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>среда</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">умеет работать с
+одним </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>текущим</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">и несколькими
+</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>контекстными</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>словарями</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">,
+причем </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>текущий</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>словарь</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">не обязан находиться
+в </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>контексте</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">,
+и список </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>словарей</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">,
+находящихся в </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>контексте</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">тоже не фиксирован.
+В отличие, например от Лиспа, </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>базовый
+словарь форт-среды</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">не является
+&laquo;суперсловарем&raquo;, то есть не всегда находится в контексте,
+поэтому возможны ситуации, когда программист сам ограничивает знания
+системы словарем, в котором нет слов, позволяющих системе прийти в
+нормальное рабочее состояние. Этот момент позволят создавать
+совершенно не связанные с базовой средой </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>лексиконы</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">
+&ndash; то есть полностью менять правила поведения среды.</FONT></P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><BR>
+</P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif">Любое
+</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слово</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">можно условно
+разделить на две части: </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><B>имя
+слова</B></I></FONT></FONT><SUP><FONT COLOR="#0000ff"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B><A CLASS="sdfootnoteanc" NAME="sdfootnote7anc" HREF="#sdfootnote7sym"><SUP>7</SUP></A></B></FONT></FONT></FONT></SUP><FONT FACE="Bookman Old Style, serif">
+и содержимое </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слова</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">.
+Содержимое </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слова</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">тоже можно условно
+разделить на две части: исполнимую часть - код и неисполнимую часть &ndash;
+данные. В зависимости от типа слова содержимое слова может
+отсутствовать вообще, содержать только код или только данные. </FONT>
+</P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><BR>
+</P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><B>Форт-среда</B></I></FONT></FONT><FONT FACE="Bookman Old Style, serif">
+состоит из: </FONT>
+</P>
+<P CLASS="western" STYLE="margin-left: 0.3cm; text-indent: -0.3cm; margin-bottom: 0cm">
+<FONT FACE="Bookman Old Style, serif">- </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>виртуальной</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>форт-машины</I></FONT></FONT><SUP><FONT COLOR="#0000ff"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B><A CLASS="sdfootnoteanc" NAME="sdfootnote8anc" HREF="#sdfootnote8sym"><SUP>8</SUP></A></B></FONT></FONT></FONT></SUP><FONT FACE="Bookman Old Style, serif">,
+адаптирующей вычислительную модель используемой аппаратной платформы
+к принятой в форте; </FONT>
+</P>
+<P CLASS="western" STYLE="margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif">-
+механизма обмена данными между </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>словами</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">;
+</FONT>
+</P>
+<P CLASS="western" STYLE="margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif">-
+набора </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слов</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">,
+достаточного, как минимум, для дальнейшего развития </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>среды</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">;
+</FONT>
+</P>
+<P CLASS="western" STYLE="margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif">-
+и </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>интерпретатора</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">поступающих данных.</FONT></P>
+<P CLASS="western" STYLE="margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif">	</FONT></P>
+<P CLASS="western" STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif">В
+</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>форт-среде</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">принята </FONT><FONT FACE="Lucida Console, monospace">0</FONT><FONT FACE="Bookman Old Style, serif">-операндная
+вычислительная модель. Это значит, что данные находятся всегда в
+одном месте, называемом </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>стеком
+данных</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">, и все
+параметры от одного </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слова</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">к другому передаются
+через этот самый </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>стек
+данных</I></FONT></FONT><SUP><FONT COLOR="#0000ff"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B><A CLASS="sdfootnoteanc" NAME="sdfootnote9anc" HREF="#sdfootnote9sym"><SUP>9</SUP></A></B></FONT></FONT></FONT></SUP><FONT FACE="Bookman Old Style, serif">.
+Количество передаваемых данных от одного </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слова</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">другому во время
+исполнения не ограничивается и не контролируется системой. </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Слова</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">всегда берут данные
+с вершины стека данных и туда же возвращают результат своей работы
+(это не означает, что в языке нельзя использовать переменные или
+константы из памяти &ndash; можно, но в процессе исполнения слова
+либо значение этих переменных, либо их адреса в любом случае побывают
+на стеке). </FONT>
+</P>
+<P CLASS="western" STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><B>Интерпретатор</B></I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><B>
+</B></FONT><FONT FACE="Bookman Old Style, serif">- это бесконечный
+цикл, в котором производится последовательно: чтение очередной
+</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>лексемы</I></FONT></FONT><SUP><FONT COLOR="#0000ff"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B><A CLASS="sdfootnoteanc" NAME="sdfootnote10anc" HREF="#sdfootnote10sym"><SUP>10</SUP></A></B></FONT></FONT></FONT></SUP><FONT FACE="Bookman Old Style, serif">
+из </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>входного
+потока</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">, поиск
+ее в </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>контексте</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">,
+и выполнение. </FONT>
+</P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><BR>
+</P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><B>Компилятор</B></I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I><B>
+</B></I></FONT><FONT FACE="Bookman Old Style, serif">состоит из
+большого количества </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слов</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">,
+находящихся в </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>базовом
+словаре</I></FONT></FONT><SUP><FONT COLOR="#0000ff"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B><A CLASS="sdfootnoteanc" NAME="sdfootnote11anc" HREF="#sdfootnote11sym"><SUP>11</SUP></A></B></FONT></FONT></FONT></SUP><FONT FACE="Bookman Old Style, serif">
+системы. Набор </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>слов</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">компилятора не
+ограничен, не фиксирован, может быть заменен или переопределен,
+расширен или урезан. Это значит, что компилятор </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>форт-среды</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">находится внутри
+</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>среды</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">,
+доступен для изменения и расширения. </FONT>
+</P>
+<P LANG="en-US" CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm">
+<BR>
+</P>
+<P CLASS="western" STYLE="text-indent: 1.25cm; margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Форт-среда</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">может находиться в
+одном из двух</FONT><SUP><FONT COLOR="#0000ff"><FONT FACE="Bookman Old Style, serif"><B><A CLASS="sdfootnoteanc" NAME="sdfootnote12anc" HREF="#sdfootnote12sym"><SUP>12</SUP></A></B></FONT></FONT></SUP><FONT FACE="Bookman Old Style, serif">
+состояний: состояния </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>компиляции</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+</I></FONT><FONT FACE="Bookman Old Style, serif">или </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>интерпретации</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">.
+Состояние системы определяется содержимым стандартной переменной
+</FONT><FONT FACE="Bookman Old Style, serif"><SPAN LANG="en-US">STATE</SPAN></FONT><FONT FACE="Bookman Old Style, serif">.
+Если в ней находится 0 &ndash; </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>режим
+интерпретации</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">,
+иначе &ndash; </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>компиляции</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">.
+</FONT>
+</P>
+<P CLASS="western" STYLE="margin-bottom: 0cm"><FONT FACE="Bookman Old Style, serif">Отличие
+режимов работы заключается в поведении </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>интерпретатора</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 11pt">,
+</FONT></FONT><FONT FACE="Bookman Old Style, serif">который в режиме
+компиляции не исполняет слова, а добавляет в собираемое определение
+вызовы указываемых слов.</FONT></P>
+<DIV ID="sdfootnote1">
+	<P CLASS="sdfootnote-western"><A CLASS="sdfootnotesym" NAME="sdfootnote1sym" HREF="#sdfootnote1anc">1</A>
+	Собственно форт нельзя назвать языком программирования, так как он
+	скорее является средой программирования.</P>
+</DIV>
+<DIV ID="sdfootnote2">
+	<P CLASS="sdfootnote-western"><A CLASS="sdfootnotesym" NAME="sdfootnote2sym" HREF="#sdfootnote2anc">2</A>
+	В английской транскрипции <SPAN LANG="en-US">word</SPAN>, но чаще
+	<SPAN LANG="en-US">definition</SPAN>, по-русски так же часто говорят
+	определение.</P>
+</DIV>
+<DIV ID="sdfootnote3">
+	<P CLASS="sdfootnote-western"><A CLASS="sdfootnotesym" NAME="sdfootnote3sym" HREF="#sdfootnote3anc">3</A>
+	В английской транскрипции <SPAN LANG="en-US">vocabulary</SPAN>.</P>
+</DIV>
+<DIV ID="sdfootnote4">
+	<P CLASS="sdfootnote-western"><A CLASS="sdfootnotesym" NAME="sdfootnote4sym" HREF="#sdfootnote4anc">4</A>
+	В английской транскрипции <SPAN LANG="en-US">current</SPAN>
+	<SPAN LANG="en-US">vocabulary</SPAN>.</P>
+</DIV>
+<DIV ID="sdfootnote5">
+	<P CLASS="sdfootnote-western"><A CLASS="sdfootnotesym" NAME="sdfootnote5sym" HREF="#sdfootnote5anc">5</A>
+	В английской транскрипции <SPAN LANG="en-US">context</SPAN>
+	<SPAN LANG="en-US">vocabulary</SPAN>.</P>
+</DIV>
+<DIV ID="sdfootnote6">
+	<P CLASS="sdfootnote-western"><A CLASS="sdfootnotesym" NAME="sdfootnote6sym" HREF="#sdfootnote6anc">6</A>
+	На данный момент система, соответствующая стандарту <SPAN LANG="en-US">ANSI</SPAN>-94.</P>
+</DIV>
+<DIV ID="sdfootnote7">
+	<P CLASS="sdfootnote-western" STYLE="margin-left: 0.2cm; text-indent: -0.2cm">
+	<A CLASS="sdfootnotesym" NAME="sdfootnote7sym" HREF="#sdfootnote7anc">7</A>
+	Ключ или идентификатор, то есть набор данных, благодаря которым
+	может быть найдено содержимое, ассоциируемое с данным ключом.</P>
+</DIV>
+<DIV ID="sdfootnote8">
+	<P CLASS="sdfootnote-western"><A CLASS="sdfootnotesym" NAME="sdfootnote8sym" HREF="#sdfootnote8anc">8</A>
+	Сокращенно <SPAN LANG="en-US">FVM</SPAN>.</P>
+</DIV>
+<DIV ID="sdfootnote9">
+	<P CLASS="sdfootnote-western"><A CLASS="sdfootnotesym" NAME="sdfootnote9sym" HREF="#sdfootnote9anc">9</A>
+	<FONT FACE="Bookman Old Style, serif">Для удобства работы в
+	</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 9pt"><I>форт-среде</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I>
+	</I></FONT><FONT FACE="Bookman Old Style, serif">разделены </FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 9pt"><I>стек
+	данных</I></FONT></FONT><FONT FACE="Bookman Old Style, serif"><I> </I></FONT><FONT FACE="Bookman Old Style, serif">от
+	</FONT><FONT FACE="Bookman Old Style, serif"><FONT SIZE=2 STYLE="font-size: 9pt"><I>стека
+	возвратов</I></FONT></FONT><FONT FACE="Bookman Old Style, serif">.</FONT></P>
+</DIV>
+<DIV ID="sdfootnote10">
+	<P CLASS="sdfootnote-western"><A CLASS="sdfootnotesym" NAME="sdfootnote10sym" HREF="#sdfootnote10anc">10</A>
+	Обычно лексемы отделены друг от друга пробелом, в отдельных случаях
+	может быть любой другой символ.</P>
+</DIV>
+<DIV ID="sdfootnote11">
+	<P CLASS="sdfootnote-western"><A CLASS="sdfootnotesym" NAME="sdfootnote11sym" HREF="#sdfootnote11anc">11</A>
+	Базовый словарь системы называется <SPAN LANG="en-US">FORTH</SPAN>. 
+	</P>
+</DIV>
+<DIV ID="sdfootnote12">
+	<P CLASS="sdfootnote-western"><A CLASS="sdfootnotesym" NAME="sdfootnote12sym" HREF="#sdfootnote12anc">12</A>
+	Обычно двух, но может быть и больше.</P>
+</DIV>
+</BODY>
+</HTML>

@@ -1,6 +1,6 @@
 \ 08-12-2007 ~mOleg
-\ Сopyright [C] 2007 mOleg mininoleg@yahoo.com
-\ работа с консолью: page setxy getxy screen# ~chars
+\ ╤opyright [C] 2007 mOleg mininoleg@yahoo.com
+\ ЁрсюЄр ё ъюэёюы№■: page setxy getxy screen# ~chars
 
  REQUIRE ?DEFINED     devel\~moleg\lib\util\ifdef.f
  REQUIRE THIS         devel\~moleg\lib\util\useful.f
@@ -32,40 +32,40 @@ VOCABULARY Console
 
 CREATE buffer /buffer ALLOT
 
-\ извлечь содержимое поля coord
+\ шчтыхў№ ёюфхЁцшьюх яюы  coord
 : xy@ ( addr --> x y ) DUP off_x W@ SWAP off_y W@ ;
 
 ALSO FORTH THIS
 
-\ получить текущее положение курсора
+\ яюыєўшЄ№ Єхъє∙хх яюыюцхэшх ъєЁёюЁр
 : getxy ( --> x y )
         buffer H-STDOUT GetConsoleScreenBufferInfo DROP
         buffer Position xy@ ;
 
-\ установить курсор в указанную позицию
+\ єёЄрэютшЄ№ ъєЁёюЁ т єърчрээє■ яючшЎш■
 : setxy ( x y --> )
         16 LSHIFT OR H-STDOUT SetConsoleCursorPosition DROP ;
 
-\ получить размеры консоли
+\ яюыєўшЄ№ ЁрчьхЁ√ ъюэёюыш
 : screen# ( --> x y )
           buffer H-STDOUT GetConsoleScreenBufferInfo DROP
           buffer Dimensions xy@ ;
 
-\ вывести # символо char начиная с текущей позиции
-\ позиция курсора не смещается.
+\ т√тхёЄш # ёшьтюыю char эрўшэр  ё Єхъє∙хщ яючшЎшш
+\ яючшЎш  ъєЁёюЁр эх ёьх∙рхЄё .
 : ~chars ( char # --> )
          SP@ getxy 16 LSHIFT OR 2SWAP SWAP H-STDOUT
          FillConsoleOutputCharacterA DROP ;
 
-\ очистить содержимое экрана
+\ юўшёЄшЄ№ ёюфхЁцшьюх ¤ъЁрэр
 : page ( --> ) 0 0 setxy BL screen# * ~chars ;
 
-\ установить заглавие окна
+\ єёЄрэютшЄ№ чруыртшх юъэр
 : ~title ( asc # --> ) DROP SetConsoleTitleA DROP ;
 
 RECENT
 
-?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+?DEFINED test{ \EOF -- ЄхёЄютр  ёхъЎш  ---------------------------------------
 
 test{ getxy * 0 < THROW
       screen# * getxy * < THROW

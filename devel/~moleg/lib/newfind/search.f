@@ -1,16 +1,16 @@
 \ 21-01-2007 ~mOleg
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
-\ поиск слова в указанном списке словарей
+\ яюшёъ ёыютр т єърчрээюь ёяшёъх ёыютрЁхщ
 
  REQUIRE WHILENOT devel\~moleg\lib\util\control.f
  REQUIRE FRAME    devel\~mOleg\lib\util\stackadd.f
 
-\ адрес и длинна искомого слова будет лежать здесь.
+\ рфЁхё ш фышээр шёъюьюую ёыютр сєфхЄ ыхцрЄ№ чфхё№.
 CREATE word-to-find 2 CELLS ALLOT ( --> addr )
 
-\ найти слово в указанном списке словарей
-\ под xt после выполнения поиска может лежать
-\ произвольное количество параметров
+\ эрщЄш ёыютю т єърчрээюь ёяшёъх ёыютрЁхщ
+\ яюф xt яюёых т√яюыэхэш  яюшёър ьюцхЄ ыхцрЄ№
+\ яЁюшчтюы№эюх ъюышўхёЄтю ярЁрьхЄЁют
 : sFindIn ( asc #  vidn ... vidb vida #  --> asc # false | ?? xt imm )
           N>R word-to-find 2!
           BEGIN R@ WHILE
@@ -21,8 +21,8 @@ CREATE word-to-find 2 CELLS ALLOT ( --> addr )
           THEN RDROP
           word-to-find 2@ FALSE ;
 
-?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+?DEFINED test{ \EOF -- ЄхёЄютр  ёхъЎш  ---------------------------------------
 
-test{ \ тут просто проверка на собираемость.
+test{ \ ЄєЄ яЁюёЄю яЁютхЁър эр ёюсшЁрхьюёЄ№.
   S" passed" TYPE
 }test

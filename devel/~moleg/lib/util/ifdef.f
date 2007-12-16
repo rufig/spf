@@ -13,7 +13,7 @@
 : ADMIT ( flag --> ) IF ELSE [COMPILE] \ THEN ; IMMEDIATE
 
 \ выполнить следующий за token код, если token не найден в контексте
-: ?DEFINED ( / token --> ) ?WORD 0= [COMPILE] ADMIT ; IMMEDIATE
+: ?DEFINED ( / token --> ) ?WORD 0 = [COMPILE] ADMIT ; IMMEDIATE
 
 \ выполнить следующий за token код, если token найден в контексте
 : N?DEFINED ( / token --> ) ?WORD [COMPILE] ADMIT ; IMMEDIATE

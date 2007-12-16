@@ -3,6 +3,13 @@
 \ реализация циклов FOR NEXT для СПФ
 \ c возможностью использования во время исполнения (т.е при STATE = 0)
 
+\ для корректной работы с локалсами необходимо добавить следующий код:
+\  ALSO vocLocalsSupport DEFINITIONS ALSO FORTH
+\     : FOR    FORTH::POSTPONE DO     [  1 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+\     : NEXT   FORTH::POSTPONE ?DO    [ -1 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+\     : TILL   FORTH::POSTPONE ?DO    [ -1 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+\  PREVIOUS PREVIOUS DEFINITIONS
+
  REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
  REQUIRE IFNOT    devel\~moleg\lib\util\ifnot.f
  REQUIRE controls devel\~moleg\lib\util\run.f
