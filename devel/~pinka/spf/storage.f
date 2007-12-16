@@ -24,8 +24,9 @@
     SAVE -- вызывает AT-SAVING-BEFORE и AT-SAVING-AFTER
 
   Модуль определяет слово UNUSED, учитывающее текущее хранилище, поэтому 
-  при использовании lib/include/core-ext.f оно должно быть подключено раньше,
+  при использовании lib/include/core-ext.f оно должно быть до storage.f,
   т.к. в нем UNUSED тоже определяется.
+  В остальном же, storage.f должен быть подключен на самой ранней стадии.
 
   Дискуссия:
     оправдано ли значению CURRENT быть локальным для хранилища, как сейчас.
@@ -141,35 +142,30 @@ EXPORT
 ;MODULE
 
 
-\ переопределяем все слова, завязанные на SET-CURRENT
+\ Переопределяем все слова, завязанные на SET-CURRENT
 \ (т.к. оптимизатор делал подстановку, и перехвата только причинного слова недостаточно)
 
-' SET-CURRENT
 : SET-CURRENT ( wid -- )
   DUP IF DUP WL-STORAGE MOUNT  CURRENT ! EXIT THEN
   CURRENT ! DISMOUNT DROP
 ;
-' SET-CURRENT SWAP REPLACE-WORD
 
 ..: AT-THREAD-STARTING STORAGE-ID 0= IF CURRENT 0! THEN ;..
 \ из дочернего потока нельзя писать в занятое основным потоком базовое хранилище
 
-' DEFINITIONS
 : DEFINITIONS ( -- ) \ 94 SEARCH
   CONTEXT @ SET-CURRENT
 ;
-DROP \ ' DEFINITIONS  SWAP REPLACE-WORD
-\ перехват вызывает конфликт, т.к. 
-\ новый вариант становится используем в POOL-INIT
 
-' MODULE:
 : MODULE: ( "name" -- old-current )
   >IN @ 
   ['] ' CATCH
   IF >IN ! VOCABULARY LATEST NAME> ELSE NIP THEN
   GET-CURRENT SWAP ALSO EXECUTE DEFINITIONS
 ;
-' MODULE: SWAP REPLACE-WORD
+: ;MODULE ( old-current -- )
+  SET-CURRENT PREVIOUS
+;
 
 
 : ORDER ( -- ) \ 94 SEARCH EXT
