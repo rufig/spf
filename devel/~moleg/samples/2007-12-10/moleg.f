@@ -12,7 +12,7 @@
 \ выделение памяти под массив и его инициализация
 bits/cell 4 / 1 SWAP LSHIFT CELLS CELL + ALLOCATE THROW DUP TO buffer 0!
 
-\
+\ посчитать длину массива
 : aCount ( addr --> addr # ) DUP CELL + SWAP @ ;
 
 \ отправить значение в буфер

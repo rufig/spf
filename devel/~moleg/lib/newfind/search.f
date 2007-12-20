@@ -5,6 +5,9 @@
  REQUIRE WHILENOT devel\~moleg\lib\util\control.f
  REQUIRE FRAME    devel\~mOleg\lib\util\stackadd.f
 
+    -1 CONSTANT std_word ( const - слово можно компилировать )
+     1 CONSTANT imm_word ( const - слово нужно исполнять )
+
 \ адрес и длинна искомого слова будет лежать здесь.
 CREATE word-to-find 2 CELLS ALLOT ( --> addr )
 

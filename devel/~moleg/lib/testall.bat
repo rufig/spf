@@ -47,6 +47,9 @@
 @st.exe .S" devel\~moleg\lib\util\csp.f"                TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\case.f"               TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\console.f"            TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\root.f"               TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\qif.f"                TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\c-style.f"            TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\mtask\mutex.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\mtask\pmutex.f"            TESTED CR BYE
