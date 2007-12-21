@@ -12,6 +12,7 @@ REQUIRE SO            ~ac/lib/ns/so-xt.f
 REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE GET-FILE      ~ac/lib/lin/curl/curl.f
 REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
+REQUIRE 1-!           ~pinka/lib/ext/basics.f 
 WARNING !
 
 ALSO SO NEW: libxml2.dll
@@ -88,7 +89,7 @@ CONSTANT /xmlBuffer
 
 
 USER RECURSE-LEVEL
-: 1-! DUP @ 1- SWAP ! ;
+\ : 1-! DUP @ 1- SWAP ! ;
 VECT vlistNodes
 
 : nextNode
