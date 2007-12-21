@@ -288,15 +288,25 @@ CHAR } VALUE [CHAR]}
   REPEAT
   s DUP STRLAST !
 ;
-: (") ( addr u -- s ) { \ c }
 
+
+100 VALUE STR_DEEP_MAX
+
+USER _STR_DEEP
+
+: (") ( addr u -- s ) { \ c }
   [CHAR]{ -> c
   2DUP ^ c 1 SEARCH NIP NIP
   IF
-    ['] ((")) EVALUATE-WITH
-  ELSE
-    sALLOT DUP STRLAST !
+    _STR_DEEP @ STR_DEEP_MAX  U< IF
+      1  _STR_DEEP +!
+      ['] ((")) EVALUATE-WITH
+      -1 _STR_DEEP +!
+      EXIT
+    THEN
+    2DROP S" (Error: STR TOO DEEP)"
   THEN
+  sALLOT DUP STRLAST !
 ;
 
 ( вечная слава Андрею Филаткину: )
