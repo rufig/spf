@@ -12,6 +12,16 @@
           0 VALUE  H-STDLOG
 
 
+: AT-THREAD-FINISHING ( -- ) ... ;
+: AT-PROCESS-FINISHING ( -- ) ... DESTROY-HEAP ;
+
+: HALT ( ERRNUM -> ) \ выход с кодом ошибки
+  AT-THREAD-FINISHING
+  AT-PROCESS-FINISHING
+  ExitProcess
+;
+
+
 USER EXC-HANDLER  \ аппаратные исключения (преобразуемые в программные)
 
 ( DispatcherContext ContextRecord EstablisherFrame ExceptionRecord ExceptionRecord --
@@ -27,6 +37,9 @@ VECT <EXC-DUMP> \ действия по обработке исключения
 \  2DROP 2DROP
 \  0 (LEAVE)               \ это если нужно передать обработку выше
 
+  DUP @ 0xC000013A = IF \ CONTROL_C_EXIT - Ctrl+C on wine
+    0xC000013A HALT
+  THEN
   DUP <EXC-DUMP>
 
   HANDLER @ 0=
@@ -55,12 +68,3 @@ VECT <EXC-DUMP> \ действия по обработке исключения
   >R >R
 ;
 ' SET-EXC-HANDLER (TO) <SET-EXC-HANDLER>
-
-: AT-THREAD-FINISHING ( -- ) ... ;
-: AT-PROCESS-FINISHING ( -- ) ... DESTROY-HEAP ;
-
-: HALT ( ERRNUM -> ) \ выход с кодом ошибки
-  AT-THREAD-FINISHING
-  AT-PROCESS-FINISHING
-  ExitProcess
-;
