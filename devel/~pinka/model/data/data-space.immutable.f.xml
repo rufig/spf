@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<comment>2005-2007 ruvim@forth.org.ru</comment>
+
+<rem><bind-up> D0 DP D9 </bind-up></rem>
+
+<def name="HERE"    ds=" -- addr "  > DP @       </def>
+<def name="UNUSED"  ds=" -- u "     > D9 @ DP @ -  </def>
+<def name="ALLOT"   ds=" n -- "     > DP +!      </def>
+<def name="ALIGN"   ds=" -- "       > DP @ ALIGNED DP ! </def>
+
+<rem> unused yet
+<def name="B,"      ds=" b -- "     > HERE B!     1 ALLOT </def>
+</rem>
+
+<def name="C,"      ds=" c -- "     > HERE C! /CHAR ALLOT </def>
+<def name=","       ds=" x -- "     > HERE  ! /CELL ALLOT </def>
+<def name="2,"      ds=" x x -- "   > HERE 2! 2 CELLS ALLOT </def>
+<def name="DATA,"   ds=" addr u -- "> UNUSED UMIN HERE SWAP DUP ALLOT MOVE <!-- it is safe for overflow --></def>
+
+<def name="SAVE-DATASPACE" ds=" -- i*x i ">
+  DP @ D0 @ D9 @  3
+</def>
+
+<def name="RESTORE-DATASPACE" ds=" i*x i -- ">
+  3 NEQ <if> ABORT </if>
+  D9 ! D0 ! DP !
+</def>
+
+<def name="DATASPACE!" ds=" a u -- ">
+  OVER DUP D0 ! DP ! + D9 !
+</def>
+
+<def name="DATASPACE" ds=" -- a u ">
+  D0 @ D9 @ OVER -
+</def>
+
+<def name="DATASPACE-CONTENT" ds=" -- a u ">
+  D0 @ DP @ OVER -
+</def>
+
+<def name="RESET-DATASPACE" ds=" -- ">
+  D0 @ DP !
+</def>
+
+</forth>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<comment>2005-2007, ruvim@forth.org.ru</comment>
+
+<wordlist name="dataspace-hidden">
+
+<cell name="D0"/><rem> begin of buffer </rem>
+<cell name="DP"/><rem> pointer of write</rem>
+<cell name="D9"/><rem> end of buffer   </rem>
+
+<export>
+  <include href="data-space.immutable.f.xml" />
+</export>
+
+</wordlist>
+
+</forth>
