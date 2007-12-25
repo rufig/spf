@@ -141,11 +141,10 @@ init: make-bunny make-cubes ;
 
 test
 
-\EOF
-
 : save
-   0 TO SPF-INIT?
+   FALSE TO SPF-INIT?
    ['] ANSI>OEM TO ANSI><OEM
    TRUE TO ?GUI
-   ['] test MAINX !
-   S" wflgl.exe" SAVE ;
+   ['] test TO <MAIN>
+   S" bunny.exe" SAVE ;
+
