@@ -2,12 +2,11 @@
 \ Коммиты в SPF CVS по авторам
 \ Файлы Spf*ChangeLog.xml тянутся из сети и кэшируются на диск, чтобы обновить результаты - удалите их
 
-\ REQUIRE EXC-DUMP2 ~pinka/spf/exc-dump.f
 REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
 REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
 REQUIRE xml.children=> ~ygrek/lib/spec/rss.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
-REQUIRE lst( ~ygrek/lib/list/all.f
+REQUIRE mapcar ~ygrek/lib/list/all.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 
 : cl-path S" http://www.forth.org.ru/log/" ;
@@ -30,21 +29,24 @@ REQUIRE LAMBDA{ ~pinka/lib/lambda.f
    a u " {CRLF}Downloading {s} ..." STYPE
    a u " {cl-path}{s}" STR@ GET-FILE STR@ a u OCCUPY ;
 
-: find-author ( a u list -- node | 0 )
-  LAMBDA{ car >R 2DUP R> car STR@ COMPARE 0= } SWAP scan-list DROP NIP NIP ;
+: find-author ( a u list -- node ? )
+  LAMBDA{ car >R 2DUP R> car STR@ COMPARE 0= } SWAP scan-list 2SWAP 2DROP ;
 
 : inc-author ( node -- ) cdr DUP car 1+ SWAP setcar ;
 
 : add-author { a u list -- }
    a u list find-author
-   ?DUP IF car inc-author
-   ELSE lst( a u " {s}" %s 1 % )lst vnode as-list list insert-after
+   IF car inc-author
+   ELSE DROP lst( a u " {s}" %s 1 % )lst vnode as-list list insert-after
    THEN ;
 
 : author-sum ( node -- n ) >R 0 LAMBDA{ cdar + } R> mapcar ;
 
+: BKSP 0x08 EMIT ;
+
 : print-authors ( node -- )
-   LAMBDA{ DUP car STR@ CR TYPE ."  = " cdar . } SWAP mapcar ;
+   LAMBDA{ DUP cdar SWAP car STR@ " {s} : {n}, " STYPE } SWAP mapcar 
+   BKSP BKSP SPACE ; \ hack - erase last comma :)
 
 : sort-by-num ( node -- )
    LAMBDA{ cdar SWAP cdar U< } SWAP list-qsort ;
@@ -60,19 +62,21 @@ lst(
  lst( " SpfDevChangeLog.xml" % " devel" % )lst %l
  lst( " SpfLibChangeLog.xml" % " lib" % )lst %l
  lst( " SpfSrcChangeLog.xml" % " src" % )lst %l
+ lst( " SpfDocsChangeLog.xml" % " docs" % )lst %l
 )lst VALUE l
 
 : commits. ( num -- )
    TO stamp
    stamp Num>DateTime DateTime>PAD CR CR ." --------- Data since " TYPE
    LAMBDA{
-    DUP cdar STR@ " {CRLF}{CRLF}::: New commits in {s}" >R
+    DUP cdar STR@ " {CRLF}{CRLF}::: New commits in {s}" STYPE
         car STR@ go cdr \ забываем "пустое" значение
-          DUP author-sum "  = {n}" R@ S+ R> STYPE
+          DUP author-sum DUP "  = {n}" STYPE
+          ( n ) 0 = IF DROP EXIT THEN
           DUP sort-by-num
-          print-authors
+          CR print-authors
    } l mapcar ;
 
 0 0 0 1 6 2007 DateTime>Num commits. \ Since spf-devel-20070601 snapshot
-0 0 0 1 4 2007 DateTime>Num commits. \ Since spf-devel-20070401 snapshot
-0 0 0 1 12 2006 DateTime>Num commits. \ Since SPF 4.18
+0 0 0 17 9 2007 DateTime>Num commits. \ Since spf-devel-20070917 snapshot
+BYE
