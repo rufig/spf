@@ -151,6 +151,10 @@
   08.09.2007
   Добавлена спец-обработка случая {c} - вставка символа по его коду со стека.
   [по пожеланию из бага SF#1785461]
+
+  26.12.2007
+  Добавлена спец-обработка случая {m} - вставка числа со знаком.
+  [вместо неработающего "-n" в mlogc из Eserv]
 )
 
 
@@ -248,6 +252,7 @@ VECT {NOTFOUND} ' LAST-WORD TO {NOTFOUND}
 : {sn} ( ... s -- s ) { s }
   TIB C@ [CHAR] s = IF s STR+ s EXIT THEN
   TIB C@ [CHAR] n = IF 0 <# #S #> s STR+ s EXIT THEN
+  TIB C@ [CHAR] m = IF S>D DUP >R DABS <# #S R> SIGN #> s STR+ s EXIT THEN
   TIB C@ [CHAR] c = IF SP@ 1 s STR+ DROP s EXIT THEN
   s {eval}
 ;
@@ -498,4 +503,5 @@ TEST3
 \ TEST4:
 S" aaa" 15 CHAR z " char by code={c}=, number {n} and string:{s} - OK!" STYPE CR
 
+-5 DUP " {n} : {m}" STYPE
 )
