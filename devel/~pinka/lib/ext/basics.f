@@ -17,7 +17,7 @@ REQUIRE [UNDEFINED] lib/include/tools.f
 [THEN]
 
 
-REQUIRE NDROP  ~pinka/lib/ext/common.f
+REQUIRE NDROP   ~pinka/lib/ext/common.f
 
 [UNDEFINED] /CELL [IF]
 1 CELLS CONSTANT /CELL [THEN]
@@ -26,12 +26,7 @@ REQUIRE NDROP  ~pinka/lib/ext/common.f
 1 CHARS CONSTANT /CHAR [THEN]
 
 
-[UNDEFINED] EQUAL [IF]
-: EQUAL ( addr1 u1 addr2 u2 -- flag )
-  DUP 3 PICK <> IF 2DROP 2DROP FALSE EXIT THEN
-  COMPARE 0=
-;
-[THEN]
+REQUIRE EQUAL   ~pinka/spf/string-equal.f
 
 
 [UNDEFINED] CELL-! [IF]
