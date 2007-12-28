@@ -2,7 +2,8 @@
 \ Copyright [C] 2006-2007 mOleg mininoleg@yahoo.com
 \ работа с небольшими массивами в стеке данных.
 
- REQUIRE FRAME      devel\~moleg\lib\util\stackadd.f
+ REQUIRE FRAME       devel\~moleg\lib\util\stackadd.f
+ REQUIRE WHILENOT    devel\~moleg\lib\util\ifnot.f
 
 \ выделить на стеке место под массив без инициализации
 : array ( # --> [array] # ) FRAME ;
@@ -57,6 +58,13 @@
 : cmparr ( [a1] # [a2] # --> flag )
          SP@ OVER 1 + CELLS 2DUP 2>R +
          2R> TUCK COMPARE 0= ;
+
+\ вернуть значение х, если оно присутствует в списке [ a b c .. ]
+: anyof ( [ a b c .. ] # x --> x | false )
+        >R BEGIN DUP WHILE 1 -
+                 SWAP R@ = WHILENOT
+             REPEAT nDROP R> EXIT
+           THEN RDROP ;
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 

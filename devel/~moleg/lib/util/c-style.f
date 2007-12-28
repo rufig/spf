@@ -3,7 +3,12 @@
 \ многострочные коментарии в стиле Си
 \ с возможностью многократной вложенности
 
- REQUIRE [IFNOT]  devel\~moleg\lib\util\qif.f
+ REQUIRE ROOT      devel\~moleg\lib\util\root.f
+ REQUIRE sFindIn   devel\~moleg\lib\newfind\search.f
+ REQUIRE CS>       devel\~moleg\lib\util\csp.f
+ REQUIRE ALIAS     devel\~moleg\lib\util\alias.f
+
+ ?DEFINED IS   ALIAS TO IS
 
 ALSO ROOT DEFINITIONS
 
@@ -11,6 +16,21 @@ ALSO ROOT DEFINITIONS
    VECT *\ IMMEDIATE
 
 RECENT
+
+\ искать слово в словаре ROOT, если найдено, вернуть его wid
+\ найденное слово должно быть immediate
+: qfnd ( --> wid | 0 )
+       SP@ >R
+       NEXT-WORD [ ALSO ROOT CONTEXT @ PREVIOUS ] LITERAL 1 sFindIn
+       imm_word = IFNOT R> SP! FALSE ELSE RDROP THEN ;
+
+\ пропустить все слова во входном потоке
+\ вплоть до одного из двух указанных 'a 'b
+: skipto'' ( 'a 'b / .... a|b --> ' )
+           2>R BEGIN 2R@ qfnd TUCK = WHILENOT \ ?a
+                                   = WHILENOT \ ?b
+                 REPEAT RDROP R> EXIT
+               THEN 2DROP R> RDROP ;
 
 \ пропустить весь текст до заключающего слова *\
 \ пробел перед *\ обязателен
