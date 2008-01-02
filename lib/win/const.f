@@ -1,1 +1,1 @@
-REQUIRE ADD-CONST-VOC ~day/wincons/wc.f
+S" lib/ext/const.f" INCLUDED
