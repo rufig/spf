@@ -1,4 +1,14 @@
+\ $Id$
+\ 
 \ Ansifying SPF file i/o
+\ 
+\ By default spf kernel FILE words expect file names 
+\ to end with zero and thus ignore the length param.
+\ This extension redefines those words to ensure that 
+\ the arguments are zero-ended (possibly copying filename 
+\ to additional buffer PFILENAME and putting zero as
+\ appropriate)
+\ Just include this lib
 
 MODULE: ANSI-FILE
 
@@ -41,7 +51,7 @@ WARNING 0!
   >R >ZFILENAME R> OPEN-FILE-SHARED ;
 
 : DELETE-FILE ( c-addr u -- ior ) \ 94 FILE
-  >ZFILENAME DROP DeleteFileA ERR ;
+  >ZFILENAME DELETE-FILE ;
 
 : OPEN-FILE ( c-addr u fam -- fileid ior ) \ 94 FILE
   >R >ZFILENAME R> OPEN-FILE ;
@@ -49,7 +59,3 @@ WARNING 0!
 WARNING !
 
 ;MODULE
-
-\ ..: AT-THREAD-STARTING ANSI-FILE::INIT ;..
-\ ANSI-FILE::INIT
-
