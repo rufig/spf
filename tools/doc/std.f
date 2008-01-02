@@ -2,6 +2,7 @@
 \ возможно в будущем будет копия ANS в дистре - тогда легко будет менять ссылки
 \ и не загромождают текст в md шаблонах
 
+REQUIRE ANSI-FILE lib/include/ansi-file.f
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 
