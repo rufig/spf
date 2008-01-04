@@ -5,27 +5,26 @@
 
 <title>SPF ANS support</title>
 
-<i>Documentation for implementation-specific issues of the ANS standard as required
-by section {std 4.}</i>
+<i>System documentation as required by ANS standard section {std 4.}</i>
 
 <small>Last update: $Date$</small>
 
 ----
 
-[[Russian](ans.ru.html)] [[English](ans.en.html)]
+<!-- [[Russian](ans.ru.html)] [[English](ans.en.html)]
 
-----
+---- -->
 
 ##Contents
 
-* [qqq](#qqq)
+* [General notes](#general)
 * [Implementation-defined options](#impl)
 * [Ambigous conditions](#amb)
 * [Other system documentation](#other)
 
 ----
-<a id="qqq"/>
-###[qqq](#qqq)
+<a id="general"/>
+###[General notes](#general)
 
 Maximum ANS conformity is achieved by including `lib/include/ansi.f`.
 Additional words are defined, some of them dummies, etc. 
@@ -207,9 +206,18 @@ helpful for using non-SPF libraries.
 
 * encoding of keyboard events ({std 10.6.2.1305} EKEY);
 
+		byte	value
+		0		AsciiChar
+		2		ScanCod
+		3		KeyDownFlag
+
 * duration of a system clock tick;
 
+  ?
+
 * repeatability to be expected from execution of {std 10.6.2.1905} MS.
+
+  not implemented
 
 * file access methods used by {std 11.6.1.0765} BIN, {std 11.6.1.1010} CREATE-FILE, {std 11.6.1.1970} OPEN-FILE, {std 11.6.1.2054} R/O, {std 11.6.1.2056} R/W, and {std 11.6.1.2425} W/O;
 
@@ -346,15 +354,28 @@ helpful for using non-SPF libraries.
 
 * interpretating a word with undefined interpretation semantics; 
 
+  Usually it will raise exception -312 (Compilation mode only), but can be an undefined behaviour
+
 * modifying the contents of the input buffer or a string literal ({std 3.3.3.4} Text-literal regions, {std 3.3.3.5} Input buffers); 
+
+  no problems as long as you don't exceed the buffer space
 
 * overflow of a pictured numeric output string; 
 
+  AV
+
 * parsed string overflow; 
+
+  AV
 
 * producing a result out of range, e.g., multiplication (using \*) results in a value too big to be represented by a single-cell integer ({std 6.1.0090} \*, {std 6.1.0100} \*/, {std 6.1.0110} \*/MOD, {std 6.1.0570} >NUMBER, {std 6.1.1561} FM/MOD, {std 6.1.2214} SM/REM, {std 6.1.2370} UM/MOD, {std 6.2.0970} CONVERT, {std 8.6.1.1820} M*/); 
 
+  silent truncation modulo maximum value size (2^32, 2^64)
+
 * reading from an empty data stack or return stack (stack underflow); 
+
+  data stack underflow results in exception -4, underflowing return stack will either 
+  do nothing or silently take down the system
 
 * unexpected end of input buffer, resulting in an attempt to use a zero-length string as a name; 
 
@@ -370,48 +391,86 @@ helpful for using non-SPF libraries.
 
 * data space read/write with incorrect alignment ({std 3.3.3.1} Address alignment); 
 
+  Ok
+
 * data-space pointer not properly aligned ({std 6.1.0150} ,, {std 6.1.0860} C,); 
 
+  Ok
+
 * less than u+2 stack items ({std 6.2.2030} PICK, {std 6.2.2150} ROLL); 
+
+  Silently returns some random number
 
 * loop-control parameters not available ( {std 6.1.0140} +LOOP, {std 6.1.1680} I, {std 6.1.1730} J, {std 6.1.1760} LEAVE, {std 6.1.1800} LOOP, {std 6.1.2380} UNLOOP); 
 
 * most recent definition does not have a name ({std 6.1.1710} IMMEDIATE); 
 
+  AV
+
 * name not defined by {std 6.2.2405} VALUE used by {std 6.2.2295} TO; 
+
+  AV
 
 * name not found ({std 6.1.0070} ', {std 6.1.2033} POSTPONE, {std 6.1.2510} ['], {std 6.2.2530} [COMPILE]); 
 
+  exception -321 (Not found)
+
 * parameters are not of the same type ({std 6.1.1240} DO, {std 6.2.0620} ?DO, {std 6.2.2440} WITHIN); 
+
+  not verified, all types are treated the same
 
 * {std 6.1.2033} POSTPONE or {std 6.2.2530} [COMPILE] applied to {std 6.2.2295} TO; 
 
+  ?
+
 * string longer than a counted string returned by {std 6.1.2450} WORD; 
+
+  ?
 
 * u greater than or equal to the number of bits in a cell ({std 6.1.1805} LSHIFT, {std 6.1.2162} RSHIFT); 
 
+  the number of bits is taken modulo 32
+
 * word not defined via {std 6.1.1000} CREATE ({std 6.1.0550} >BODY, {std 6.1.1250} DOES>); 
 
+  undefined behaviour
+
 * words improperly used outside {std 6.1.0490} <# and {std 6.1.0040} #> ({std 6.1.0030} #, {std 6.1.0050} #S, {std 6.1.1670} HOLD, {std 6.1.2210} SIGN). 
+
+  UB
 
 
 
 
 * {std 10.6.1.0742} AT-XY operation can't be performed on user output device.
 
+  not available in core SPF. Extension-implementation-defined
+
 * attempting to position a file outside its boundaries ({std 11.6.1.2142} REPOSITION-FILE);
+
+  Ok
 
 * attempting to read from file positions not yet written ({std 11.6.1.2080} READ-FILE, {std 11.6.1.2090} READ-LINE);
 
+  Ok (nothing is read)
+
 * fileid is invalid ({std 11.6.1.1717} INCLUDE-FILE);
+
+  exception (invalid handle)
 
 * I/O exception reading or closing fileid ({std 11.6.1.1717} INCLUDE-FILE, {std 11.6.1.1718} INCLUDED);
 
 * named file cannot be opened ({std 11.6.1.1718} INCLUDED);
 
+  exception 2 (file not found)
+
 * requesting an unmapped block number ({std 11.3.2} Blocks in files);
 
+  not implemented
+
 * using {std 11.6.1.2218} SOURCE-ID when {std 7.6.1.0790} BLK is not zero.
+
+  ?
 
 
 
@@ -432,6 +491,8 @@ helpful for using non-SPF libraries.
 
 
 * BASE is not decimal ({std 12.6.1.2143} REPRESENT, {std 12.6.2.1427} F., {std 12.6.2.1513} FE., {std 12.6.2.1613} FS.);
+
+  prints number in hexadecimal
 
 * both arguments equal zero ({std 12.6.2.1489} FATAN2);
 
@@ -474,9 +535,13 @@ helpful for using non-SPF libraries.
 
 * deleting the compilation word-list ({std 15.6.2.1580} FORGET);
 
+  `FORGET` not implemented
+
 * fewer than u+1 items on control-flow stack ({std 15.6.2.1015} CSPICK, {std 15.6.2.1020} CSROLL);
 
 * name can't be found ({std 15.6.2.1580} FORGET);
+
+  `FORGET` not implemented
 
 * name not defined via {std 6.1.1000} CREATE ({std 15.6.2.0470} ;CODE);
 
@@ -486,11 +551,15 @@ helpful for using non-SPF libraries.
 
 * removing a needed definition ({std 15.6.2.1580} FORGET).
 
+  `FORGET` not implemented
+
 * changing the compilation word list ({std 16.3.3} Finding definition names);
 
 * search order empty ({std 16.6.2.2037} PREVIOUS);
 
 * too many word lists in search order ({std 16.6.2.0715} ALSO).
+
+  AV
 
 
 ----
