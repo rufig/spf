@@ -29,7 +29,8 @@ MODULE: qqq
    EVAL-FILE
    ONLY FORTH ;
 
-: perform: ( "source" "target" -- ) PARSE-NAME 2DUP CR TYPE REPLACE DUP . PARSE-NAME 2DUP CR TYPE OCCUPY ;
+: perform ( source-a u target-a u -- ) 2SWAP ( 2DUP CR TYPE) REPLACE ( DUP CR .) 2SWAP ( 2DUP CR TYPE) OCCUPY ;
+: perform: ( "source" "target" -- ) PARSE-NAME >STR STR@ PARSE-NAME >STR STR@ perform ;
 
 : test
    S" 3.1.3" get-part 3 <> ABORT" FAILED"
