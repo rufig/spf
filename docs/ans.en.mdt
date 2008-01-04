@@ -124,8 +124,8 @@ helpful for using non-SPF libraries.
 
 * method of selecting {std 3.2.4.1} User input device; 
 
-  User input is a file with handle `H-STDIN`. By default it is a standard
-  input stream, i.e. console.
+  User input is taken from file handle `H-STDIN`. By default it is a standard
+  input stream, i.e. console. 
 
 * method of selecting {std 3.2.4.2} User output device; 
 
@@ -149,7 +149,7 @@ helpful for using non-SPF libraries.
   0 <= u <= 4294967295  
   -2^63 <= d <= 2^63 - 1  
   0 <= +d <= 2^63 - 1  
-  0 <= ud <= 2^64
+  0 <= ud <= 2^64 - 1
 
 * read-only data-space regions ({std 3.3.3} Data space); 
 
@@ -265,11 +265,11 @@ helpful for using non-SPF libraries.
 
 * width of floating-point stack ({std 12.3.3} Floating-point stack).
 
-  4, 8 or 10 bytes.
+  10 bytes. Float values can be represented in memory as 4, 8 and 10 byte values.
 
 * maximum number of locals in a definition ({std 13.3.3} Processing locals, {std 13.6.2.1795} LOCALS|).
 
-  Not limited (?)
+  Not limited by implementation of locals `lib/ext/locals.f`
 
 * values and meaning of ior ({std 14.3.1} I/O Results data type, {std 14.6.1.0707} ALLOCATE, {std 14.6.1.1605} FREE, {std 14.6.1.2145} RESIZE).
 
@@ -298,13 +298,24 @@ helpful for using non-SPF libraries.
 
 * a name is neither a valid definition name nor a valid number during text interpretation ({std 3.4} The Forth text interpreter); 
 
+  Context vocabulary is searched for the `NOTFOUND` word. If it is present - it is executed
+  with the name in question as a parameter. More details in [intro](intro.en.html#notfound).
+  If the word is not processed by `NOTFOUND` or `NOTFOUND` itself is missing - exception `-2003`
+  is thrown. By default exception is caught by main handler and system `QUIT`s. 
+
 * a definition name exceeded the maximum length allowed ({std 3.3.1.2} Definition names); 
+
+  exception
 
 * addressing a region not listed in {std 3.3.3} Data Space; 
 
 * argument type incompatible with specified input parameter, e.g., passing a flag to a word expecting an n ({std 3.1} Data types); 
 
+  No types verification available. Everything on the data stack is a cell.
+
 * attempting to obtain the execution token, (e.g., with {std 6.1.0070} ', {std 6.1.1550} FIND, etc.) of a definition with undefined interpretation semantics; 
+
+  Returns execution token which will fail when executed
 
 * dividing by zero ({std 6.1.0100} \*/, {std 6.1.0110} \*/MOD, {std 6.1.0230} /, {std 6.1.0240} /MOD, {std 6.1.1561} FM/MOD, {std 6.1.1890} MOD, {std 6.1.2214} SM/REM, {std 6.1.2370} UM/MOD, {std 8.6.1.1820} M*/); 
 
@@ -323,6 +334,15 @@ helpful for using non-SPF libraries.
   ?
 
 * insufficient space in the dictionary; 
+
+  Ordinary dictionary size is limited by the size of data space. On overflow AV exception occurs
+  (0xC0000005). Data space size can be increased by N bytes before `SAVE`ing new system with 
+
+		HERE IMAGE-BASE - N + TO IMAGE-SIZE
+
+  This will take effect only after `SAVE`ing and launching saved system.
+  
+  <small>It is possible to reallocate data space in live system (?)</small>
 
 * interpretating a word with undefined interpretation semantics; 
 
