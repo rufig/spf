@@ -31,7 +31,7 @@ else
 html_vect_header=html_header_3
 endif
 
-docs = intro.ru.html intro.en.html readme.ru.html readme.en.html devel.ru.html devel.en.html src.ru.html
+docs = intro.ru.html intro.en.html readme.ru.html readme.en.html devel.ru.html devel.en.html src.ru.html ans.en.html
 
 target: clean_mark $(docs)
 
@@ -41,7 +41,9 @@ clean_mark:
 %.html: css = intro.md.css
 
 %.md: %.mdt
-	spf ../tools/doc/std.f S" $<" REPLACE S" $@" OCCUPY BYE
+	echo perform: $< $@ > mdt2md.f
+	spf ../tools/doc/std.f mdt2md.f BYE
+	$(delete) mdt2md.f
 
 devel.en.html: $(tools_path)devel.xsl devel.xml
 	xsltproc --stringparam lang en --stringparam usage $(usage) $^ > $@
