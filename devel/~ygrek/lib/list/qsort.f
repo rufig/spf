@@ -2,24 +2,20 @@
 \ —ортировка списка
 \ "Ѕыстра€" сортировка превращаетс€ в медленную т.к. список адресуетс€ итераци€ми
 
-REQUIRE [DEFINED] lib/include/tools.f
-
-[UNDEFINED] []exch[] [IF] 
-VECT []>[]
-VECT []exch[]
-VECT []<[]
-[THEN]
-
-REQUIRE quick_sort ~pinka/samples/2003/common/qsort.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE /TEST ~profit/lib/testing.f
-
 REQUIRE setcar ~ygrek/lib/list/core.f
 
 \ nth used! Dumb list iteration. 
 \ Thus sorting long lists (more than 1000 elements) is really SLOW 
 
 MODULE: list-quick-sort
+
+VECT []>[]
+VECT []exch[]
+VECT []<[]
+
+S" ~pinka/samples/2003/common/qsort.f" INCLUDED
 
 0 VALUE list_
 0 VALUE list_compare_xt
@@ -39,7 +35,7 @@ EXPORT
 
 : list-qsort ( xt node -- )
 \ xt: ( node[i]-car node[j]-car -- ? ) ? = -1 if node[i] < node[j]
-   DUP length 0= ABORT" list empty!"
+   DUP empty? IF 2DROP EXIT THEN
    TO list_
    TO list_compare_xt
    LAMBDA{ 2nodes-from-sort-list car SWAP car SWAP list_compare_xt EXECUTE } TO []<[] 
@@ -64,7 +60,7 @@ WINAPI: GetTickCount KERNEL32.DLL
 : generate
    GetTickCount SGENRAND
    lst( 
-    10 0 DO
+    100 0 DO
     100 GENRANDMAX %
     LOOP
    )lst ;
@@ -89,3 +85,4 @@ DUP CR write-list
     check -> TRUE ))
 
 END-TESTCASES
+
