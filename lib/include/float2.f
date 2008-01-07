@@ -161,9 +161,7 @@ WARNING !
     BEGIN
       OVER C@ -1
       OVER [CHAR] e <> AND
-      OVER [CHAR] E <> AND
-      OVER [CHAR] d <> AND
-      SWAP [CHAR] D <> AND
+      SWAP [CHAR] E <> AND
       OVER AND
     WHILE
       1- SWAP 1+ SWAP
@@ -251,7 +249,7 @@ WARNING !
 ;
 
 : <EXP> ( addr u max min -- addr2 u2 bool )
-    S" EeDd" CHECK-SET
+    S" Ee" CHECK-SET
 ;
 
 : <DOT> ( addr u max min -- addr2 u2 bool )
