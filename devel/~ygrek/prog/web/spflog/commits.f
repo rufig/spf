@@ -48,8 +48,7 @@ REQUIRE LAMBDA{ ~pinka/lib/lambda.f
    LAMBDA{ DUP cdar SWAP car STR@ " {s} : {n}, " STYPE } SWAP mapcar 
    BKSP BKSP SPACE ; \ hack - erase last comma :)
 
-: sort-by-num ( node -- )
-   LAMBDA{ cdar SWAP cdar U< } SWAP list-qsort ;
+: sort-by-num ( node -- ) LAMBDA{ cdar SWAP cdar U< } list-sort ;
 
 : go STATIC rl
   lst( lst( "" %s 0 % )lst %l )lst rl ! \ "пустое" значение чтобы можно было делать insert
