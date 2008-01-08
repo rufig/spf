@@ -6,7 +6,6 @@
 REQUIRE REPLACE-WORD lib\ext\patch.f
 REQUIRE ON           lib\ext\onoff.f
 REQUIRE [IF]         lib\include\tools.f \ должно быть подключено до caseins-варианта
-REQUIRE COMPARE-U    ~ac/lib/string/compare-u.f
 REQUIRE [else]       lib\ext\caseins-tools.f
 
 VARIABLE CASE-INS \ switcher
@@ -21,7 +20,7 @@ CASE-INS ON
     DUP
   WHILE
     >R 2DUP
-    R@ COUNT COMPARE-U 0= 
+    R@ COUNT CEQUAL-U 
     IF 2DROP R@ NAME> R> ?IMMEDIATE IF 1 ELSE -1 THEN EXIT THEN
     R> CDR
   REPEAT DROP 2DROP 0
