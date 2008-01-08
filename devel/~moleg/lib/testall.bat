@@ -50,6 +50,7 @@
 @st.exe .S" devel\~moleg\lib\util\root.f"               TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\qif.f"                TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\c-style.f"            TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\util\switch.f"             TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\mtask\mutex.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\mtask\pmutex.f"            TESTED CR BYE
@@ -100,10 +101,3 @@
 
 @rem удаляем тестирующую версию СПФа
 @del st.exe
-
-
-
-
-
-
-
