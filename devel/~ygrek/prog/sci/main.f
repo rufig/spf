@@ -4,7 +4,7 @@ DIS-OPT
 0 TO MM_SIZE
 STARTLOG
 
-~ygrek/~day/lib/memreport.f
+S" ~day/lib/memreport.f" INCLUDED
 \ ..: AT-THREAD-FINISHING MemReport ;..
 
 \ Resolving conflicts first

@@ -1,6 +1,7 @@
 \ $Id$
 \ one-dimensional array
 
+\ S" ~day/lib/memreport.f" INCLUDED
 REQUIRE ACCERT-LEVEL lib/ext/debug/accert.f
 REQUIRE /TEST ~profit/lib/testing.f
 
@@ -78,11 +79,9 @@ EXPORT
 
 /TEST
 
-REQUIRE MemReport ~ygrek/~day/lib/memreport.f
-
 : =? <> IF ABORT" dsds" THEN ;
 
-countMem DROP 0 =?
+\ countMem DROP 0 =?
 
 0 VALUE a
 : test1
@@ -107,6 +106,6 @@ test1
 10 svector TO a
 test1
 
-countMem DROP 0 =?
+\ countMem DROP 0 =?
 
 CR .( Test passed)

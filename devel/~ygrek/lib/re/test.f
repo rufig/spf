@@ -1,6 +1,6 @@
 \ $Id$
 
-S" ~ygrek/~day/lib/memreport.f" INCLUDED
+S" ~day/lib/memreport.f" INCLUDED
 
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
