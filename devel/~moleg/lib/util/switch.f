@@ -1,14 +1,14 @@
 \ 2008-01-08 ~mOleg
-\ ‘opyright [C] 2008 mOleg mininoleg@yahoo.com
-\ ¢ë¡®à ¢ à¨ ­â  ¯® ­®¬¥àã (ª®­¥ç­ë©  ¢â®¬ â)
+\ Ñopyright [C] 2008 mOleg mininoleg@yahoo.com
+\ âûáîð âàðèàíòà ïî íîìåðó (êîíå÷íûé àâòîìàò)
 
  REQUIRE init:          .\devel\~mOleg\lib\util\run.f
  REQUIRE imm_word       .\devel\~moleg\lib\newfind\search.f
  REQUIRE COMPILE        .\devel\~moleg\lib\util\compile.f
  REQUIRE NEXT-WORD      .\devel\~mOleg\lib\util\parser.f
 
-\ ¢ë¡à âì u-âë© ¢ à¨ ­â ¨§ á¯¨áª  á«®¢,
-\ ¯®«ãç¥­­ëå ¬¥¦¤ã SWITCH: err_name namea nameb ... ;SWITCH
+\ âûáðàòü u-òûé âàðèàíò èç ñïèñêà ñëîâ,
+\ ïîëó÷åííûõ ìåæäó SWITCH: err_name namea nameb ... ;SWITCH
 : (switch) ( u --> )
            ADDR * R@ @ OVER CELL + SWAP 0 SWAP WITHIN
            IF R@ + [ 2 CELLS ] LITERAL
@@ -16,15 +16,15 @@
            THEN + A@ EXECUTE
            R> DUP @ + CELL + >R ;
 
-\ ¬ àª¥à ®ª ­ç¨¢ ¥â á¥ªæ¨î SWITCH: ;ENDSWITCH
+\ ìàðêåð îêàí÷èâàåò ñåêöèþ SWITCH: ;ENDSWITCH
 : ;SWITCH ( --> ) ." ;SWITCH without SWITCH:" TYPE -1 THROW  ; IMMEDIATE
 
-\ ­ ç¨­ ¥â á¥ªæ¨î SWITCH: ;SWITCH
+\ íà÷èíàåò ñåêöèþ SWITCH: ;SWITCH
 : SWITCH: ( --> )
           STATE @ IFNOT init: THEN 5 controls +!
           COMPILE (switch) <MARK 1 0 A,
           BEGIN NEXT-WORD DUP WHILE
-                SFIND DUP IFNOT -1 THROW THEN    \ ¥á«¨ á«®¢® ­¥ ­ ©¤¥­®
+                SFIND DUP IFNOT -1 THROW THEN    \ åñëè ñëîâî íå íàéäåíî
                 imm_word = WHILENOT
               A,
             REPEAT ['] ;SWITCH = IFNOT -1 THROW THEN
@@ -33,9 +33,9 @@
           controls @ IFNOT [COMPILE] ;stop THEN
           ; IMMEDIATE
 
-\ ¯¥à¢®¥ á«®¢® ¯®á«¥ SWITCH: ¢ë¯®«­ï¥âáï ¢ á«ãç ¥ ¢ëå®¤  §  ¤¨ ¯ §®­
+\ ïåðâîå ñëîâî ïîñëå SWITCH: âûïîëíÿåòñÿ â ñëó÷àå âûõîäà çà äèàïàçîí
 
-?DEFINED test{ \EOF -- â¥áâ®¢ ï á¥ªæ¨ï ---------------------------------------
+?DEFINED test{ \EOF -- òåñòîâàÿ ñåêöèÿ ---------------------------------------
 
 test{ : inv 123 ; : 1st 234 ; : 2st 345 ; : 3st 456 ; : 4st 567 ;
       : test SWITCH: inv 1st 2st 3st 4st ;SWITCH 678 ;

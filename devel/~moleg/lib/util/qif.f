@@ -1,6 +1,6 @@
 \ 22-12-2007 ~mOleg
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
-\ управление трансляцией входного потока. [IF] [IFNOT] [ELSE] [THEN]
+\ єяЁртыхэшх ЄЁрэёы Ўшхщ тїюфэюую яюЄюър. [IF] [IFNOT] [ELSE] [THEN]
 
  REQUIRE CS>         devel\~moleg\lib\util\csp.f
  REQUIRE NEXT-WORD   devel\~mOleg\lib\util\parser.f
@@ -17,15 +17,15 @@ VOCABULARY immediatest
 
         USER qcontrols
 
-\ пропускать все слова до первого опозанного в словаре qiff
+\ яЁюяєёърЄ№ тёх ёыютр фю яхЁтюую юяючрээюую т ёыютрЁх qiff
 : -undefined ( --> )
-             BEGIN NEXT-WORD DUP WHILE  \ пока не конец потока
+             BEGIN NEXT-WORD DUP WHILE  \ яюър эх ъюэхЎ яюЄюър
                    [ ALSO immediatest CONTEXT @ PREVIOUS ] LITERAL
-                   SEARCH-WORDLIST WHILENOT   \ пока не найдено
+                   SEARCH-WORDLIST WHILENOT   \ яюър эх эрщфхэю
                REPEAT EXECUTE EXIT
              THEN -1 THROW ;
 
-\ в случае ошибки восстановить переменные
+\ т ёыєўрх ю°шсъш тюёёЄрэютшЄ№ яхЁхьхээ√х
 : qerrexit ( -->)
            CSDepth BEGIN DUP WHILE CSDrop 1 - REPEAT DROP
            qcontrols OFF ;
@@ -37,18 +37,18 @@ ALSO immediatest DEFINITIONS
         VECT [THEN]     IMMEDIATE  ( --> )
         VECT [ELSE]     IMMEDIATE  ( --> | / ... )
 
-\ для того, чтобы обрабатывались корректно стандартные коментарии:
-\ коментарий до конца строки
+\ фы  Єюую, ўЄюс√ юсЁрсрЄ√трышё№ ъюЁЁхъЄэю ёЄрэфрЁЄэ√х ъюьхэЄрЁшш:
+\ ъюьхэЄрЁшщ фю ъюэЎр ёЄЁюъш
 : \ ( / ... eol] --> )
     [COMPILE] \ qcontrols @ IF -undefined THEN ; IMMEDIATE
 
-\ коментарий до завершающей обратной скобки
+\ ъюьхэЄрЁшщ фю чртхЁ°р■∙хщ юсЁрЄэющ ёъюсъш
 : ( ( / ... bracket --> )
     [COMPILE] ( qcontrols @ IF -undefined THEN ; IMMEDIATE
 
 ALSO FORTH THIS
 
-\ завершение секции управления трансляцией текста
+\ чртхЁ°хэшх ёхъЎшш єяЁртыхэш  ЄЁрэёы Ўшхщ ЄхъёЄр
 : [THEN] ( --> )
          ['] [IF] CS@ =
          IF qcontrols @ -1 < IFNOT qcontrols OFF CSDrop EXIT-ERROR EXIT THEN
@@ -56,9 +56,9 @@ ALSO FORTH THIS
           ELSE -1 THROW
          THEN ; IMMEDIATE
 
-\ альтернативная секция управления трансляцией текста.
-\ если текст до [ELSE] транслировался - за [ELSE] текст пропускается
-\ если текст до [ELSE] пропускался - за [ELSE] начинает транслироваться.
+\ ры№ЄхЁэрЄштэр  ёхъЎш  єяЁртыхэш  ЄЁрэёы Ўшхщ ЄхъёЄр.
+\ хёыш ЄхъёЄ фю [ELSE] ЄЁрэёышЁютрыё  - чр [ELSE] ЄхъёЄ яЁюяєёърхЄё 
+\ хёыш ЄхъёЄ фю [ELSE] яЁюяєёърыё  - чр [ELSE] эрўшэрхЄ ЄЁрэёышЁютрЄ№ё .
 : [ELSE] ( --> )
          ['] [IF] CS@ =
          IF qcontrols @ 1 + IFNOT FALSE qcontrols ! EXIT THEN
@@ -67,10 +67,10 @@ ALSO FORTH THIS
           ELSE -1 THROW
          THEN ; IMMEDIATE
 
-\ начинает описание секции управления трансляцией текста,
-\ если flag равн нулю, текст за [IFNOT] транслируется
-\ иначе текст пропускается до первой лексемы, встреченной в
-\ словаре immediatest
+\ эрўшэрхЄ юяшёрэшх ёхъЎшш єяЁртыхэш  ЄЁрэёы Ўшхщ ЄхъёЄр,
+\ хёыш flag Ёртэ эєы■, ЄхъёЄ чр [IFNOT] ЄЁрэёышЁєхЄё 
+\ шэрўх ЄхъёЄ яЁюяєёърхЄё  фю яхЁтющ ыхъёхь√, тёЄЁхўхээющ т
+\ ёыютрЁх immediatest
 : [IFNOT] ( flag --> )
           ['] [IF] CS@ =
           IF qcontrols @ IF -1 qcontrols +! -undefined EXIT THEN THEN
@@ -78,10 +78,10 @@ ALSO FORTH THIS
           ['] qerrexit ON-ERROR
                IF -undefined THEN ; IMMEDIATE
 
-\ начинает описание секции управления трансляцией текста,
-\ если flag отличен от нуля, текст за [IF] транслируется
-\ иначе текст пропускается до первой лексемы, встреченной в
-\ словаре immediatest
+\ эрўшэрхЄ юяшёрэшх ёхъЎшш єяЁртыхэш  ЄЁрэёы Ўшхщ ЄхъёЄр,
+\ хёыш flag юЄышўхэ юЄ эєы , ЄхъёЄ чр [IF] ЄЁрэёышЁєхЄё 
+\ шэрўх ЄхъёЄ яЁюяєёърхЄё  фю яхЁтющ ыхъёхь√, тёЄЁхўхээющ т
+\ ёыютрЁх immediatest
 : [IF] ( flag --> ) 0 = [COMPILE] [IFNOT] ; IMMEDIATE
 
  ALSO FORTH ' [IF]    PREVIOUS IS [IF]
@@ -91,13 +91,13 @@ ALSO FORTH THIS
 
 PREVIOUS
 
-?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
+?DEFINED test{ \EOF -- ЄхёЄютр  ёхъЎш  ---------------------------------------
 
 test{ 0 [IFNOT] 82704958 [ELSE] 36547236 [THEN] 82704958 <> THROW
   S" passed" TYPE
 }test
 
-\EOF расширенный тест работоспособности
+\EOF Ёрё°шЁхээ√щ ЄхёЄ ЁрсюЄюёяюёюсэюёЄш
 
  0 [IFNOT] s" ifnot test pased" [THEN] TYPE CR
  1 [IF] s" if test pased" [THEN] TYPE CR
@@ -119,8 +119,5 @@ test{ 0 [IFNOT] 82704958 [ELSE] 36547236 [THEN] 82704958 <> THROW
 : test2 [ 1 ] [IF] ( s" test2 failed "
                [ELSE] ) s" test2 passed "
               [THEN] TYPE ; test2 CR
-
-
-
 
 \ lib\ext\caseins.f CaseInsensitive 0 [IF] [ElSe] s" case insensitive" TYPE CR [THEN]
