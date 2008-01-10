@@ -7,7 +7,7 @@
 )
 
 REQUIRE GetIniString ~af/lib/ini.f
-REQUIRE STR@         ~ac/lib/str2.f
+REQUIRE STR@         ~ac/lib/str5.f
 
 4000 VALUE IniMaxString
 
