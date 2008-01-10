@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translation is in sync with intro.ru.md rev. 1.21 -->
+<!-- Translation is in sync with intro.ru.md rev. 1.29 -->
 
 ----
 
@@ -29,9 +29,11 @@ Forth-system and ANS'94 standard.</i>
 * [Modules](#module)
 * [Case sensitivity](#case)
 * [Numbers](#numbers)
+* [Float numbers](#float)
 * [Structures, records](#struct)
 * [Where is FORGET?](#forget)
 * [Where is NOT?](#not)
+* [Where is DEFER?](#defer)
 * [How to clear the stack with one word?](#cls)
 * [Debugging facilities](#debug)
 * [Comments](#comments)
@@ -210,23 +212,59 @@ by `MODULE:` is a simple [vocabulary](#voc).
 
 ----
 <a id="case"/>
-###[Case sensitivity][start]
+###[Case sensitivity](#case)
 
 SPF is case-sensitive, i.e. the words `CHAR`, `Char` and `char` are different
 words. Switching to case-insensitive mode is as simple as including file
 `lib/ext/caseins.f`. 
+
+Switching case-insensitivity on and off is possible with `CASE-INS` variable :
+
+	REQUIRE CASE-INS lib/ext/caseins.f
+	2 dup * .
+	CASE-INS OFF \ make SPF case sensitive as before
+	2 DUP * .
+	CASE-INS ON  \ enable case insensitivity
+	2 dup * .
 
 
 ----
 <a id="numbers"/>
 ###[Numbers][start]
 
-You can input the hexadecimal numbers at any time independently of the current
+You can input hexadecimal numbers at any time independently of the current
 BASE in the following manner:
  
 	0x7FFFFFFF
+The number is treated as double (i.e. represented with 2 cells on the stack) 
+if it has dot at the end :
+
+	9999999999. 1. D+ D.
+
+----
+<a id="float"/>
+###[Float numbers][start]
+
 Float numbers are recognized in form `[+|-][dddd][.][dddd]e[+|-][dddd]` after
-including `lib\include\float2.f`.
+including `lib\include\float2.f`. So the necessary attribute of the float number
+is the exponent symbol - `e`.
+
+Float wordset is implemented as defined by ANS-94 :
+
+	REQUIRE F. lib/include/float2.f
+	0.1e 0.2e F+ F.
+	FVARIABLE a
+	FPI a F!
+	a F@ F.
+
+The words `D>F ( D: d -- F: f )` and `F>D ( F: f -- D: d )` transfer double integer
+values from data to float stack and reverse. The fractional part of float number is 
+truncated in this case. Similar words for single values are available :
+
+	10 DS>F 3 DS>F F+ F>DS .
+
+Float stack is implemented using the hardware x87 stack, hence the inherited 
+features (circular stack with maximum capacity of 8 elements).
 
 
 ----
@@ -272,6 +310,30 @@ Structures can be inherited:
 
 No `FORGET`. But we have `MARKER ( "name" -- )` (use `lib\include\core-ext.f`).
 
+
+----
+<a id="not"/>
+###[Where is NOT?][start]
+
+The word `NOT` (logical negation) is not implemented. It can be added with 
+`~profit/lib/logic.f` extension. Companion words `>=` (more or equal) and 
+`<=` (less or equal) are also defined there.
+
+ 
+----
+<a id="defer"/>
+###[Where DEFER?][start]
+
+Deferred words in SPF are created with `VECT ( "word" -- )` (as 'VECTor'). 
+`TO ( xt "word" -- )` assigns action to the deferred word.
+
+The deferred xt cell can be placed in thread USER-space with `USER-VECT ( "word" -- )`.
+Note, the deferred word created with `USER-VECT` will be initialized with zero, as all
+other [USER](#task) allocated values (`USER`, `USER-VALUE`). Zero is not a valid xt and it will
+trigger an exception at runtime if executed. So it is solely your responsibility to initialize
+deferred word (for example using [AT-THREAD-STARTING](#scatcoln)).
+
+
 ----
 <a id="cls"/>
 ###[How to clear the stack with one word?][start]
@@ -285,8 +347,9 @@ find the word. And the proper way to clear stack is: `S0 @ SP!`
 <a id="debug"/>
 ###[Debugging facilities][start]
 
-`STARTLOG` starts the logging of all console output to the `spf.log` file in
-the current directory. `ENDLOG`, respectively, stops such behaviour.
+`STARTLOG` starts logging all console output (`TYPE`, `.`, etc) 
+to the `spf.log` file in the current directory. `ENDLOG`, respectively, 
+stops such behaviour.
 
 [More in devel](devel.en.html#debug)
 
@@ -345,15 +408,16 @@ Additionally to such handy concatenation, library provides substitution:
 
 Read full description and more examples in the library itself.
 
-Note, SPF utilizes word prefix `S-` and suffix `-ED`.
+Note, SPF kernel adopts the following naming convention for word prefix `S-` 
+and suffix `-ED`.
 
 `S-` means that the word takes two values denoting a string from the stack (e.g. 
 we have `SFIND` and standard `FIND`, `SLITERAL` and `LITERAL`, and so on).
 
 `-ED` in the words `CREATED`, `INCLUDED`, `REQUIRED`, `ALIGNED` means that the
 arguments are taken from the stack, contrary to the original words taking
-arguments from the input. Consider equivalent examples `CREATE some` and 
-`S" some" CREATED`.
+arguments from the input stream (or global variable as in `ALIGN` and `ALIGNED`). 
+Consider equivalent examples `CREATE some` and `S" some" CREATED`.
 
 ----
 <a id="save"/>
@@ -395,7 +459,19 @@ Not available in the kernel, but included.
 	1 2 test
 	>1 2
 	> Ok
-Full description and more examples available in the library itself.
+See full description and more examples in the library `lib/ext/locals.f`.
+
+`lib/ext/locals.f` introduces syntax incompatible with ANS-94. ANS-compatible
+local variables are implemented in `~af/lib/locals-ans.f`:
+
+	REQUIRE LOCALS| ~af/lib/locals-ans.f
+	
+	: plus  LOCALS| a b |
+	a b + TO a
+	a b * ;
+	2 3 plus .
+	>10
+	> Ok
 
 
 ----
@@ -462,6 +538,8 @@ Or:
 	   NOTFOUND
 	   ;
 
+`~pinka/samples/2006/core/trans/nf-ext.f` simplifies adding custom xt to the `NOTFOUND` chain.
+
 
 ----
 <a id="scatcoln"/>
@@ -497,9 +575,12 @@ Threads are created with `TASK: ( xt "name" -- )` and started with
 `START ( u task -- tid )`, 
 `xt` is an executable token to get control at the thread start with one
 parameter on the stack - `u`. The returned value `tid` can be used to stop the
-thread from outside with `STOP ( tid -- )`. `PAUSE ( ms -- )` will pause the
-thread for the given time.
-E.g.:
+thread from outside with `STOP ( tid -- )`. `SUSPEND ( tid -- )` and
+`RESUME ( tid -- )` will pause the requested thread, and resume its execution 
+(this words should be executed from the context of another thread than the one 
+being paused or resumed)
+
+`PAUSE ( ms -- )` will pause the current thread for the given time (in milliseconds).
 
 	REQUIRE { lib/ext/locals.f
 
@@ -520,7 +601,7 @@ E.g.:
 	go
 
 Variables defined with `VARIABLE`, `VALUE` etc will share their values among
-the threads. If you need a thread-local variable - define it with 
+all threads. If you need a thread-local variable - define it with 
 `USER ("name" -- )` or `USER-VALUE ( "name" -- )`. 
 USER-variables are zero-initialized at thread start.
 
@@ -532,7 +613,7 @@ USER-variables are zero-initialized at thread start.
 One creates vocabularies with standard word `VOCABULARY ( "name" -- )` 
 or `WORDLIST ( -- wid )`. 
 To be precise, `WORDLIST` is a more general object - just a list of words.
-The word `TEMP-WORDLIST ( -- wid)` will create a temporary wordlist, which
+The word `TEMP-WORDLIST ( -- wid )` will create a temporary wordlist, which
 must be freed with `FREE-WORDLIST`. The contents of the temporary wordlist
 won't be present in the SAVEd image.
 The word `{{ ( "name" -- )` will set `name` as a context vocabulary, and `}}`
@@ -609,7 +690,7 @@ Many words return `ior` (input/output result code), e.g. file operations (`CREAT
        S" dsderewfdstrtr" R/O OPEN-FILE IF ." bad file" ELSE ." Good file" THEN CR ;
     test
 
-All error codes, passed to `THROW` and generated by `CATCH`,
+All error codes, passed to `THROW` and left on stack after `CATCH`,
 are interpreted according to `spf.err` file, from the `lib` directory. Text messages printed
 in report are taken from this file.
 
