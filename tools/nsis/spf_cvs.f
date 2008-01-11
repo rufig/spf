@@ -89,6 +89,7 @@ SPF-PATH double-slashed VALUE path\\
   S" *.pid" CONT
   S" *-setup.exe" CONT
   S" *.md" CONT
+  S" *.mdt" CONT
   S" *.md.css" CONT
   S" *\\docs\\mark.new" CONT
   S" *\\docs\\Makefile" CONT ;
