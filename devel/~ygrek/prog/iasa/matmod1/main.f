@@ -1,4 +1,4 @@
-REQUIRE runRK         ~ygrek/lib/difur.old.f
+REQUIRE runRK         ~ygrek/lib/difur.f
 REQUIRE GLWindow      ~ygrek/lib/joopengl/GLWindow.f
 \ REQUIRE >FNUM ~ygrek/lib/float-fnum.f
 
