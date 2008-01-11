@@ -1,4 +1,5 @@
-REQUIRE   Matrix ~ygrek/lib/matrix/matrix.f
+\ REQUIRE   Matrix ~ygrek/lib/matrix/matrix.f
+REQUIRE Matrix ~ygrek/prog/iasa/nm1/matrix.f
 
 
 0Matrix VALUE a
