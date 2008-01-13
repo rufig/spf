@@ -43,7 +43,7 @@
 <html><head>
 <style>
   h3 { margin-top: 3em; }
-  body { padding: 1em 5em 25em 2em; font-family: "Lucida Grande", sans-serif; line-height:150%;}
+  body { padding: 1em 5em 25em 2em; font-family: sans-serif, "trebuchet ms"; line-height:150%;}
   p { margin: 0; margin-top: 0.5em; }
   ul { margin-top: 0.2em; margin-bottom: 0.2em;}
   *:target { border-bottom: 2px dotted gray;}
