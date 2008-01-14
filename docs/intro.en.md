@@ -50,7 +50,7 @@ Forth-system and ANS'94 standard.</i>
 
 ----
 <a id="devel"/>
-###[Installed SPF4. And what's next?][start]
+###[Installed SPF4. And what's next?](#devel)
 
 The first and the most important - placement of your working files. There is a
 subdir `DEVEL` in the SPF directory where all the the developers' code is located
@@ -70,7 +70,7 @@ binary `spf4wc.exe` to the root installation folder (near to `spf4.exe`).
 
 ----
 <a id="opt"/>
-###[Optimizer][start]
+###[Optimizer](#opt)
 
 SPF uses the subroutine threaded code, i.e. the compiled code looks like the
 chains of `CALL <word-cfa-address>`. This code can be ran directly, but by
@@ -108,7 +108,7 @@ or get the line-by-line listing (forth code with the corresponding asm code)
 
 ----
 <a id="ans"/>
-###[ANS support][start]
+###[ANS support](#ans)
 
 Maximum ANS conformity is achieved by including `lib/include/ansi.f`.
 Additional words are defined, some of them dummies, etc. 
@@ -124,7 +124,7 @@ helpful for using non-SPF libraries.
 
 ----
 <a id="include"/>
-###[How to run and include forth code?][start]
+###[How to run and include forth code?](#include)
 
 * Running the file from the command line is fairly simple, just start SPF with 
 the file path as a command line parameter, 
@@ -146,7 +146,7 @@ the file path as a command line parameter,
 
 ----
 <a id="require"/>
-###[REQUIRE][start]
+###[REQUIRE](#require)
 
 SPF has a non-standard word `REQUIRE ("word" "file" -- )`, where `word` is
 some word defined in the library `file`. If `word` is present in the 
@@ -165,7 +165,7 @@ first argument for `REQUIRE`.
 
 ----
 <a id="included-path"/>
-###[INCLUDED search path][start]
+###[INCLUDED search path](#included-path)
 
 `S" file.f" INCLUDED` will search following locations in specified order 
 
@@ -191,7 +191,7 @@ spf.exe).
 
 ----
 <a id="module"/>
-###[Modules][start]
+###[Modules](#module)
 
 SPF has modules, which hide the internal implementation and leave visible the
 words of the outer interface.
@@ -230,7 +230,7 @@ Switching case-insensitivity on and off is possible with `CASE-INS` variable :
 
 ----
 <a id="numbers"/>
-###[Numbers][start]
+###[Numbers](#numbers)
 
 You can input hexadecimal numbers at any time independently of the current
 BASE in the following manner:
@@ -243,7 +243,7 @@ if it has dot at the end :
 
 ----
 <a id="float"/>
-###[Float numbers][start]
+###[Float numbers](#float)
 
 Float numbers are recognized in form `[+|-][dddd][.][dddd]e[+|-][dddd]` after
 including `lib\include\float2.f`. So the necessary attribute of the float number
@@ -269,7 +269,7 @@ features (circular stack with maximum capacity of 8 elements).
 
 ----
 <a id="struct"/>
-###[Structures, records][start]
+###[Structures, records](#struct)
 
 Records are created with the `--` word (the same as `FIELD`). Example:
 
@@ -306,14 +306,14 @@ Structures can be inherited:
 
 ----
 <a id="forget"/>
-###[Where is FORGET?][start]
+###[Where is FORGET?](#forget)
 
 No `FORGET`. But we have `MARKER ( "name" -- )` (use `lib\include\core-ext.f`).
 
 
 ----
 <a id="not"/>
-###[Where is NOT?][start]
+###[Where is NOT?](#not)
 
 The word `NOT` (logical negation) is not implemented. It can be added with 
 `~profit/lib/logic.f` extension. Companion words `>=` (more or equal) and 
@@ -322,7 +322,7 @@ The word `NOT` (logical negation) is not implemented. It can be added with
  
 ----
 <a id="defer"/>
-###[Where DEFER?][start]
+###[Where DEFER?](#defer)
 
 Deferred words in SPF are created with `VECT ( "word" -- )` (as 'VECTor'). 
 `TO ( xt "word" -- )` assigns action to the deferred word.
@@ -336,7 +336,7 @@ deferred word (for example using [AT-THREAD-STARTING](#scatcoln)).
 
 ----
 <a id="cls"/>
-###[How to clear the stack with one word?][start]
+###[How to clear the stack with one word?](#cls)
 
 Write `lalala`. Or `bububu`. Error will occur and the stack will be cleared. In fact,
 the stack is emptied with `ABORT`, which is called when the interpreter cant
@@ -345,7 +345,7 @@ find the word. And the proper way to clear stack is: `S0 @ SP!`
 
 ----
 <a id="debug"/>
-###[Debugging facilities][start]
+###[Debugging facilities](#debug)
 
 `STARTLOG` starts logging all console output (`TYPE`, `.`, etc) 
 to the `spf.log` file in the current directory. `ENDLOG`, respectively, 
@@ -356,7 +356,7 @@ stops such behaviour.
 
 ----
 <a id="comments"/>
-###[Comments][start]
+###[Comments](#comments)
 
 Comments to the end of line are ` \ `. There are also bracket-comments, which
 are multiline. So:
@@ -375,7 +375,7 @@ file.
 
 ----
 <a id="string"/>
-###[Strings][start]
+###[Strings](#string)
 
 Mainly SPF uses strings with counter on the stack - i.e. two values `(addr u)`. 
 The string literals are defined with `S"`, which performs slightly different
@@ -421,7 +421,7 @@ Consider equivalent examples `CREATE some` and `S" some" CREATED`.
 
 ----
 <a id="save"/>
-###[Producing executable modules][start]
+###[Producing executable modules](#save)
 
 `SAVE ( a u -- )` will save the whole system, including all the wordlists
 (except temporary ones!) to the executable file, with the path specified
@@ -445,7 +445,7 @@ or
 
 ----
 <a id="locals"/>
-###[Local and temporary variables][start]
+###[Local and temporary variables](#locals)
 
 Not available in the kernel, but included.
 
@@ -476,7 +476,7 @@ local variables are implemented in `~af/lib/locals-ans.f`:
 
 ----
 <a id="dll"/>
-###[Using external DLLs][start]
+###[Using external DLLs](#dll)
 
 Import functions with stdcall calling convention (e.g. Win32 API) as follows :
 
@@ -508,7 +508,7 @@ or:
 
 ----
 <a id="notfound"/>
-###[NOTFOUND][start]
+###[NOTFOUND](#notfound)
 
 This word is called from the context vocabulary during the interpretation
 cycle when the word being parsed cannot be found. `NOTFOUND ( a u -- )` should
@@ -543,7 +543,7 @@ Or:
 
 ----
 <a id="scatcoln"/>
-###[Scattered colons][start]
+###[Scattered colons](#scatcoln)
 
 Read the full description of this technique: "[Scattering a Colon
 Definition][scatter]" in English. Briefly: new actions can be added to the
@@ -569,7 +569,7 @@ of the inner variables in `AT-THREAD-STARTING`.
 
 ----
 <a id="task"/>
-###[Multitasking][start]
+###[Multitasking](#task)
 
 Threads are created with `TASK: ( xt "name" -- )` and started with
 `START ( u task -- tid )`, 
@@ -608,7 +608,7 @@ USER-variables are zero-initialized at thread start.
 
 ----
 <a id="voc"/>
-###[Vocabularies][start]
+###[Vocabularies](#voc)
 
 One creates vocabularies with standard word `VOCABULARY ( "name" -- )` 
 or `WORDLIST ( -- wid )`. 
@@ -628,7 +628,7 @@ will print 6, not 5.
 
 ----
 <a id="doublecolon"/>
-###[Search scope][start]
+###[Search scope](#doublecolon)
 
 As expected the search scope is generally controlled by `CONTEXT`, but sometimes there is a
 need to explicitely specify vocabulary for searching particular word. In such cases special
@@ -655,7 +655,7 @@ and corresponding `NOTFOUND`.
 
 ----
 <a id="catch"/>
-###[Exceptions][start]
+###[Exceptions](#catch)
 
 Exceptions handling in SPF is performed according to ANS-94 with `THROW` and `CATCH`.
 
@@ -694,5 +694,4 @@ All error codes, passed to `THROW` and left on stack after `CATCH`,
 are interpreted according to `spf.err` file, from the `lib` directory. Text messages printed
 in report are taken from this file.
 
-
-[start]: #start
+----
