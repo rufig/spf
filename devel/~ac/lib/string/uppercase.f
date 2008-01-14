@@ -1,8 +1,15 @@
 \ новая версия сделана ~ygrek
 
+\ : CHAR-UPPERCASE ( c -- c1 )
+\   DUP [CHAR] a [CHAR] z 1+ WITHIN
+\   OVER [CHAR] а [CHAR] я 1+ WITHIN OR IF 32 - THEN ;
+
+\ еще новее ~ruv
+
 : CHAR-UPPERCASE ( c -- c1 )
-  DUP [CHAR] a [CHAR] z 1+ WITHIN
-  OVER [CHAR] а [CHAR] я 1+ WITHIN OR IF 32 - THEN ;
+  DUP [CHAR] a [CHAR] z 1+ WITHIN IF 32 - EXIT THEN
+  DUP [CHAR] а [CHAR] я 1+ WITHIN IF 32 - THEN
+;
 
 : UPPERCASE ( addr1 u1 -- )
   OVER + SWAP ?DO
