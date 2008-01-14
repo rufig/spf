@@ -263,6 +263,7 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
    a u a1 u1 COMPARE ;
 
 : ACCEPT-WITH-AUTOCOMPLETION ( a u -- n )
+   history 0 = IF load-history THEN
    TO _n1
    TO _addr
    0 TO in-history
@@ -288,14 +289,18 @@ CREATE CONSOLE_SCREEN_BUFFER_INFO 22 ALLOT
     dump-history
   ELSE
    DROP
-   _addr _in " {s}" add-history \ добавили в историю
+   _addr _in >STR add-history \ добавили в историю
    _addr _in history-file ATTACH-LINE-CATCH DROP
   THEN
   _in
 ;
 
-load-history
-' ACCEPT-WITH-AUTOCOMPLETION TO ACCEPT
-CR .( Autocompletion loaded) CR
+: init 
+  0 TO history
+  ['] ACCEPT-WITH-AUTOCOMPLETION TO ACCEPT ;
+
+init 
+.( Autocompletion loaded) CR
+..: AT-PROCESS-STARTING init ;..
 
 ;MODULE
