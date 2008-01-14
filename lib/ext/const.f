@@ -89,6 +89,3 @@ WARNING !
 ..: AT-PROCESS-STARTING ChainOfConst 0! ;..
 
 ;MODULE
-
-S" lib/win/winconst/windows.const" ADD-CONST-VOC
-
