@@ -5,8 +5,6 @@
 \ - Числа вида 12.34f - на стек данных (в вещественном IEEE формате 4 байта)
 \ - Числа вида 12.34d - на стек данных (в вещественном IEEE формате 8 байт) - двойное значение
 
-\ NB В связи с тем что float2.f распознаёт числа 12.3d также как и 12.3e то эта либа может нарушить совместимость.
-
 REQUIRE enqueueNOTFOUND ~pinka/samples/2006/core/trans/nf-ext.f
 REQUIRE \1 ~ygrek/lib/re/ext.f
 REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
@@ -24,7 +22,7 @@ REQUIRE >FLOAT lib/include/float2.f
   ELSE
    FLOAT>DATA SWAP POSTPONE 2LITERAL
   THEN
-  TRUE ; preemptNOTFOUND
+  TRUE ; enqueueNOTFOUND
 
 \ -------------------------------------------------
 
