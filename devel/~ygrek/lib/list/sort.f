@@ -12,16 +12,16 @@ REQUIRE { lib/ext/locals.f
 
 MODULE: voc_list_sort
 
-USER-VECT list_compare
+USER-VALUE list_compare
 
 : merge ( l1 l2 -- l )  
    { l1 l2 | head start -- }
    \ l1 write-list l2 write-list CR
-   l1 car l2 car list_compare IF l1 DUP cdr -> l1 ELSE l2 DUP cdr -> l2 THEN DUP TO start TO head
+   l1 car l2 car list_compare EXECUTE IF l1 DUP cdr -> l1 ELSE l2 DUP cdr -> l2 THEN DUP TO start TO head
    BEGIN
     l1 empty? IF head l2 LINK-NODE start EXIT THEN
     l2 empty? IF head l1 LINK-NODE start EXIT THEN
-    l1 car l2 car list_compare IF l1 DUP cdr -> l1 ELSE l2 DUP cdr -> l2 THEN head OVER LINK-NODE -> head
+    l1 car l2 car list_compare EXECUTE IF l1 DUP cdr -> l1 ELSE l2 DUP cdr -> l2 THEN head OVER LINK-NODE -> head
    AGAIN
   ;
 
@@ -42,12 +42,14 @@ EXPORT
 
 : COPY-NODE ( n1 n2 -- ) /NODE MOVE ;
 
-: list-sort ( node xt -- )
+: list-sort ( xt node -- )
 \ xt: ( node[i]-car node[j]-car -- ? )
-   TO list_compare
-   { orig | lst prev [ /NODE ] tmp }
+   { cmp orig | lst prev [ /NODE ] tmp }
    orig empty? IF EXIT THEN
+   list_compare
+   cmp TO list_compare
    orig orig length merge-sort -> lst
+   ( list_compare ) TO list_compare
    lst orig = IF EXIT THEN
    \ Т.к. голова списка в результате сортировки переместилась, меняем содержимое
    \ ячеек так чтобы вернуть голову на место
@@ -65,6 +67,8 @@ EXPORT
    tmp lst COPY-NODE
    ( ? ) IF orig ELSE prev THEN lst LINK-NODE
    ;
+
+: list-sort- SWAP list-sort ;   
 
 ;MODULE
 
@@ -95,17 +99,17 @@ WINAPI: GetTickCount KERNEL32.DLL
     cdr
    REPEAT DROP TRUE ;
 
-: (test) generate ( DUP CR write-list) DUP ['] < list-sort ( DUP CR write-list) DUP check SWAP FREE-LIST ;
+: (test) generate ( DUP CR write-list) DUP ['] < list-sort- ( DUP CR write-list) DUP check SWAP FREE-LIST ;
 : test TRUE SWAP 0 DO (test) AND LOOP ;
 
 \ fuzz
 (( 100 test -> TRUE ))
 
 \ corner cases
-(( %[ ]% ' ABORT list-sort -> ))
-(( %[ 1 % ]% DUP ' ABORT list-sort %[ 1 % ]%     2DUP equal? SWAP FREE-LIST SWAP FREE-LIST -> TRUE ))
-(( %[ 1 % 2 % ]% DUP ' < list-sort %[ 1 % 2 % ]% 2DUP equal? SWAP FREE-LIST SWAP FREE-LIST -> TRUE ))
-(( %[ 1 % 2 % ]% DUP ' > list-sort %[ 2 % 1 % ]% 2DUP equal? SWAP FREE-LIST SWAP FREE-LIST -> TRUE ))
+(( %[ ]% ' ABORT list-sort- -> ))
+(( %[ 1 % ]% DUP ' ABORT list-sort- %[ 1 % ]%     2DUP equal? SWAP FREE-LIST SWAP FREE-LIST -> TRUE ))
+(( %[ 1 % 2 % ]% DUP ' < list-sort- %[ 1 % 2 % ]% 2DUP equal? SWAP FREE-LIST SWAP FREE-LIST -> TRUE ))
+(( %[ 1 % 2 % ]% DUP ' > list-sort- %[ 2 % 1 % ]% 2DUP equal? SWAP FREE-LIST SWAP FREE-LIST -> TRUE ))
 
 END-TESTCASES
 
