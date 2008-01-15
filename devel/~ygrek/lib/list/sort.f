@@ -3,6 +3,7 @@
 \ list-sort ( node xt -- )
 \ xt: ( node1-car node2-car -- ? ) \ задаёт порядок
 
+\ S" ~day/lib/memreport.f" INCLUDED
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE setcar ~ygrek/lib/list/core.f
@@ -84,10 +85,10 @@ REQUIRE GENRANDMAX  ~ygrek/lib/neilbawd/mersenne.f
 TESTCASES list-sort
 
 WINAPI: GetTickCount KERNEL32.DLL
+GetTickCount SGENRAND
 
-: generate
-   GetTickCount SGENRAND
-   %[ 1000 0 DO 1000 GENRANDMAX % LOOP ]% ;
+: generate ( n -- l )
+   %[ 0 ?DO 1000 GENRANDMAX % LOOP ]% ;
 
 : check { | u -- ? }
    -1 TO u
@@ -99,7 +100,13 @@ WINAPI: GetTickCount KERNEL32.DLL
     cdr
    REPEAT DROP TRUE ;
 
-: (test) generate ( DUP CR write-list) DUP ['] < list-sort- ( DUP CR write-list) DUP check SWAP FREE-LIST ;
+: (test) 1000 generate 
+  ( DUP CR write-list) 
+  DUP ['] < list-sort- 
+  ( DUP CR write-list) 
+  DUP check
+  SWAP FREE-LIST ;
+
 : test TRUE SWAP 0 DO (test) AND LOOP ;
 
 \ fuzz
@@ -111,5 +118,38 @@ WINAPI: GetTickCount KERNEL32.DLL
 (( %[ 1 % 2 % ]% DUP ' < list-sort- %[ 1 % 2 % ]% 2DUP equal? SWAP FREE-LIST SWAP FREE-LIST -> TRUE ))
 (( %[ 1 % 2 % ]% DUP ' > list-sort- %[ 2 % 1 % ]% 2DUP equal? SWAP FREE-LIST SWAP FREE-LIST -> TRUE ))
 
-END-TESTCASES
+\ test reenterability
+\ artificial example
+:NONAME %[ 10 0 DO 10 generate %l LOOP ]% ; EXECUTE VALUE l
 
+: sum-list ( node -- n ) 0 ['] + ROT mapcar ;
+
+\ CR l write-list
+
+l :NONAME 
+   DUP ['] < list-sort- 
+   OVER ['] < list-sort- 
+   sum-list SWAP 
+   sum-list SWAP 
+   < ; list-sort-
+
+\ CR l write-list
+
+(( %[ :NONAME sum-list % ; l mapcar ]% 
+   \ DUP CR write-list 
+   DUP check SWAP FREE-LIST -> TRUE ))
+
+\ negative tests
+\ l car end car l car setcar
+\ 10000 l car setcar
+
+\ CR l write-list
+
+(( TRUE :NONAME check AND ; l mapcar -> TRUE ))
+
+l FREE-LIST
+() TO l
+
+\ MemReport
+
+END-TESTCASES
