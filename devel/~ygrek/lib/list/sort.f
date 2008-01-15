@@ -1,6 +1,7 @@
 \ $Id$
 \ Сортировка списка 
-\ list-sort ( node xt -- )
+\ list-sort ( xt node -- )
+\ list-sort- ( node xt -- ) 
 \ xt: ( node1-car node2-car -- ? ) \ задаёт порядок
 
 \ S" ~day/lib/memreport.f" INCLUDED
