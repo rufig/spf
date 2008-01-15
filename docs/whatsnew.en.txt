@@ -1,3 +1,48 @@
+?? January 2008   Version 4.19
+
+* enhancements and fixes in optimizer
++ optimizer internals are now thread-safe, so it is possible in runtime
+  to compile code from parallel threads
+* refreshed assembler
++ with new compile options for SPF in src/spf_compileoptions.f it is possible to :
+  ARCH-P6           use new Intel P6 processor commands
+  BUILD-OPTIMIZER   exclude optimizer from the target system
+  USE-OPTIMIZER     not use optimizer while building
+  OPTIMIZE-BY-SIZE  minimize size by disabling alignment
+! fixed FLOAT>DATA32
+* enhanced some low-level primitives
+- Now TITLE is not shown when there are command-line arguments (makes scripting easier)
++ Many enhancements in exception handling
+  ! more correct way to locate register dump space (works in wine and x64)
+  + AT-EXC-DUMP chain
+  + data stack dump
+  - registers hexadecimal dump is disabled (can be enabled back through AT-EXC-DUMP)
++ Special handling of 0xC000013A CONTROL_C_EXIT exception (Ctrl+C and Ctrl+Break in wine console)
++ FATAL-HANDLER -- for the uncaught exception, produces return stack dump and finishes thread.
+! System vectors are saved during SAVE's (before they were reset with PROCESS-INIT)
+* fixed alignment in SHEADER
++ zero-length words in wordlist will be foundable
++ VECT IsDelimiter
+! enhanced WordByAddr
++ ENUM-VOCS ENUM-VOCS-FORTH FOR-WORDLIST (word and wordlist iterators)
++ VECT VOC-LIST
++ additional cell in WORDLIST structure for use in extensions and new chain AT-WORDLIST-CREATING
++ BEHAVIOR! ( not applicable to USER-VECT )
++ IS-IMMEDIATE IS-VOC
++ COMMANDLINE-OPTIONS
++ EOLN
+
+libs:
+! enhanced lib/ext/caseins.f, understands [if] [else] [then]
+! more strict parsing in lib/ext/locals.f
+- lib/include/float2.f from now on doesn't recognize float numbers given as 12.34d,
+  but only 12.34e and 12.34E
++ precompiled constants lib/ext/const.f
+
+documentation:
++ extended intro and devel, added src.ru.html and ans.en.html
+
+
 1 December 2006   Version 4.18
 
 * Increased default buffers size.
