@@ -106,6 +106,8 @@ SP-Forth (SPF) для Windows распространяется как архив или как
 
     <http://lists.sourceforge.net/lists/listinfo/spf-dev>
 
+    Или используйте зеркало рассылки на [SP-Forth - DEV (rus)](http://www.nabble.com/SP-Forth---DEV-(rus%29-f26012.html)
+
 *   Багтрекер (пожелания и багрепорты)
 
     <http://sourceforge.net/tracker/?group_id=17919>

@@ -90,6 +90,9 @@ DEVELOPMENT
 
     <http://lists.sourceforge.net/lists/listinfo/spf-dev>
 
+    Mailing list also is mirrored on: [SP-Forth - DEV (rus)](http://www.nabble.com/SP-Forth---DEV-(rus%29-f26012.html)
+    (though title has 'rus' in it, you may write english)
+
 *   Bugtracker (feature requests and bugreports welcome)
 
     <http://sourceforge.net/tracker/?group_id=17919>
