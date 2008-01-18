@@ -327,6 +327,8 @@ The word `NOT` (logical negation) is not implemented. It can be added with
 Deferred words in SPF are created with `VECT ( "word" -- )` (as 'VECTor'). 
 `TO ( xt "word" -- )` assigns action to the deferred word.
 
+If you have tou use `DEFER` and `IS`, you can include `lib/include/defer.f` file.
+
 The deferred xt cell can be placed in thread USER-space with `USER-VECT ( "word" -- )`.
 Note, the deferred word created with `USER-VECT` will be initialized with zero, as all
 other [USER](#task) allocated values (`USER`, `USER-VALUE`). Zero is not a valid xt and it will
