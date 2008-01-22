@@ -219,7 +219,7 @@ USER uPhParamNum
     2- SWAP 2+ SWAP
   REPEAT 2DROP R>
 ;
-: GetMimePart { addr u mp \ n -- addr2 u2 }
+: GetMimePartMp { addr u mp \ n -- mp }
   mp mpIsMultipart @ IF addr u " 1.{s}" STR@ -> u -> addr THEN
   BEGIN
     mp 0= IF S" " EXIT THEN
@@ -237,6 +237,10 @@ USER uPhParamNum
              mp mpParts @ -> mp
           THEN
   REPEAT
+  mp
+;
+: GetMimePart { addr u mp \ n -- addr2 u2 }
+  addr u mp GetMimePartMp -> mp
   uBodySectionHeader @
   IF mp mpHeaderAddr @ mp mpHeaderLen @
   ELSE mp mpBodyAddr @ mp mpBodyLen @ THEN
