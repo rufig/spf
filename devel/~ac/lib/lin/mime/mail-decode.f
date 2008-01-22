@@ -159,7 +159,16 @@ USER uStripCRLFtemp
   IF 2DROP base64 OVER >R " =?windows-1251?B?{s}?=" STR@ R> FREE DROP
   ELSE
      S" -8" SEARCH NIP NIP
-     IF base64 OVER >R " =?UTF-8?B?{s}?=" STR@ R> FREE DROP THEN
+     IF base64 OVER >R " =?UTF-8?B?{s}?=" STR@ R> FREE DROP
+     ELSE ( addr u ) \ если в заголовке кодировка не указана, попробуем найти её в первой mime-части
+        mp S" 1" ROT GetMimePartMp S" Content-Type" ROT FindMimeHeader  2DUP
+        S" indows-1251" SEARCH NIP NIP
+        IF 2DROP base64 OVER >R " =?windows-1251?B?{s}?=" STR@ R> FREE DROP
+        ELSE
+           S" -8" SEARCH NIP NIP
+           IF base64 OVER >R " =?UTF-8?B?{s}?=" STR@ R> FREE DROP THEN
+        THEN
+     THEN
   THEN
 ;
 : GetSubject { mp -- addr u }
