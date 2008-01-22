@@ -16,7 +16,7 @@
 <def name="C,"      ds=" c -- "     > HERE C! /CHAR ALLOT </def>
 <def name=","       ds=" x -- "     > HERE  ! /CELL ALLOT </def>
 <def name="2,"      ds=" x x -- "   > HERE 2! 2 CELLS ALLOT </def>
-<def name="DATA,"   ds=" addr u -- "> UNUSED UMIN HERE SWAP DUP ALLOT MOVE <!-- it is safe for overflow --></def>
+<def name="S,"      ds=" addr u -- "> UNUSED UMIN HERE SWAP DUP ALLOT MOVE <!-- it is safe for overflow --></def>
 
 <def name="SAVE-DATASPACE" ds=" -- i*x i ">
   DP @ D0 @ D9 @  3
