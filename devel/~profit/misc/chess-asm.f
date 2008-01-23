@@ -41,21 +41,22 @@ THEN  ;
 
 : @R=# ( # SM R -- )  \ MOV (SM) [R], # 
 0xC7 C, 
-  OVER 
+  2DUP EBP = SWAP 0<> OR
   IF 
-    0x40 OR C, 0x00 C,
+    0x40 OR C, C,
   ELSE 
     C, DROP
   THEN , ;
 
-
+\EOF
 : d [
 1 EBP EAX R=@R
 0 EBP EAX R=@R
 1 EBP EAX @R=R
 0 EBX EBX @R=R
 RET,
-1 0 EAX @R=#
+1 0 EBX @R=#
+1 0 EBP @R=#
 ] ;
 
 
