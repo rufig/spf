@@ -16,7 +16,7 @@ OR OR C, ;
 
 : R=@R ( SM R1 R2 -- ) \ MOV  R1, (SM) [R2] 
 ROT DUP >R -ROT 0x8B C, SWAP 3 LSHIFT
-R>
+OVER EBP = R> 0<> OR
 IF 
   0x40 SM C,
 ELSE
@@ -25,7 +25,7 @@ THEN  ;
 
 : @R=R ( SM R1 R2 -- ) \ MOV (SM) [R1], R2 
 ROT DUP >R -ROT 0x89 C,  3 LSHIFT 
-R>
+OVER EBP = R> 0<> OR
 IF 
   0x40 SM C,
 ELSE 
@@ -57,6 +57,10 @@ THEN  ;
 RET,
 1 0 EBX @R=#
 1 0 EBP @R=#
+0 EBP EAX @R=R
+0 EAX EBP R=@R
+1 EBP R=#
+0 EAX EBP R+SM
 ] ;
 
 
