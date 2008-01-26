@@ -9,14 +9,14 @@
 <include href="../data/data-space.f.xml"/>
 <include href="../data/marker.immutable.f.xml"/>
 
-<export>
-
 <cell name="_doc"/>
 <cell name="_doc-url"/>
 
+<export>
+
 <def name="push-document" ds=" url-a url-u doc -- ">
   _doc     PUSH-MARKER ,
-  _doc-url PUSH-MARKER SC,
+  _doc-url PUSH-MARKER SCZ,
 </def>
 
 <def name="drop-document" ds=" -- ">
@@ -27,7 +27,7 @@
 <def name="init-document-context" ds="">
   256000 ALLOCATED DATASPACE!
   HERE _doc-url ! 0 ,
-  _doc     0!
+       _doc    0!
 </def>
 
 <def name="document-url" ds=" -- url-a url-u ">
