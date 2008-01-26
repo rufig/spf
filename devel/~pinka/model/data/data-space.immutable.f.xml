@@ -18,6 +18,9 @@
 <def name="2,"      ds=" x x -- "   > HERE 2! 2 CELLS ALLOT </def>
 <def name="S,"      ds=" addr u -- "> UNUSED UMIN HERE SWAP DUP ALLOT MOVE <!-- it is safe for overflow --></def>
 
+<def name="SX,"     ds=" addr u -- "> DUP  , S, 0 C, </def>
+<def name="SC,"     ds=" addr u -- "> DUP C, S, 0 C, </def>
+
 <def name="SAVE-DATASPACE" ds=" -- i*x i ">
   DP @ D0 @ D9 @  3
 </def>
