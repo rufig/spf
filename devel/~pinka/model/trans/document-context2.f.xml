@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 26.Jan.2008 -->
+
+<!-- ALSO forthml-support -->
+
+<wordlist name="document-context-hidden">
+
+<include href="../data/data-space.f.xml"/>
+<include href="../data/marker.immutable.f.xml"/>
+
+<export>
+
+<cell name="_doc"/>
+<cell name="_doc-url"/>
+
+<def name="push-document" ds=" url-a url-u doc -- ">
+  _doc     PUSH-MARKER ,
+  _doc-url PUSH-MARKER SC,
+</def>
+
+<def name="drop-document" ds=" -- ">
+  _doc-url DROP-MARKER
+  _doc     DROP-MARKER
+</def>
+
+<def name="init-document-context" ds="">
+  256000 ALLOCATED DATASPACE!
+  HERE _doc-url ! 0 ,
+  _doc     0!
+</def>
+
+<def name="document-url" ds=" -- url-a url-u ">
+  _doc-url @ COUNT
+</def>
+
+<def name="document-base" ds=" -- url-a url-u ">
+  document-url CUT-PATH
+</def>
+
+<def name="composed-" ds=" a2 u2 a1 u1 -- a u ">
+  HERE >R
+  S, S,
+  R> HERE OVER -  0 ,
+</def>
+
+<def name="document-based-url" ds=" rel-a rel-u -- full-a full-u ">
+  _doc-url @ <unless><exit/></unless>
+  document-base composed-
+</def>
+
+<def name="cnode-based-url" ds=" rel-a rel-u -- full-a full-u ">
+  _doc-url @ <unless><exit/></unless>
+  BaseURI composed-
+</def>
+
+</export>
+</wordlist>
+
+</forth>
