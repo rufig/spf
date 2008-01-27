@@ -11,11 +11,6 @@ TRUE CONSTANT BUILD-OPTIMIZER \ build optimizer into the forth system for furthe
 TRUE CONSTANT USE-OPTIMIZER    \ use optimizer while building to produce a better code
 FALSE CONSTANT OPTIMIZE-BY-SIZE \ without align literals, may decrease speed, TODO short literals like in 3.75
 
-FALSE CONSTANT BUILD-OPTIMIZER
-FALSE CONSTANT USE-OPTIMIZER
-
-2 CONSTANT CHAR-SIZE \ only 1 or 2
-
 0 CONSTANT SMALLEST-SPF
 
 \ Internal code, do not touch it

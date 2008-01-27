@@ -212,7 +212,6 @@ USER lpNumberOfBytesWritten
 \ позицию в файле за последним записанным в файл символом, и
 \ FILE-SIZE возвращает значение большее или равное значению,
 \ возвращаемому FILE-POSITION.
-  SWAP CHARS SWAP
   OVER >R
   >R 2>R
   0 lpNumberOfBytesWritten R> R> R>

@@ -293,16 +293,14 @@ CODE ! ( x a-addr -- ) \ 94
      RET
 END-CODE
 
-CODE B@ ( c-addr -- char ) \ 94
-\ получить байт
-\ \ Получить символ по адресу c-addr. Незначащие старшие биты ячейки нулевые.
+CODE C@ ( c-addr -- char ) \ 94
+\ Получить символ по адресу c-addr. Незначащие старшие биты ячейки нулевые.
      MOVZX EAX, BYTE [EAX]
      RET
 END-CODE
 
-CODE B! ( char c-addr -- ) \ 94
-\ записать байт
-\ \ Записать char по адресу a-addr.
+CODE C! ( char c-addr -- ) \ 94
+\ Записать char по адресу a-addr.
      MOV EDX, [EBP]
      MOV BYTE [EAX], DL
      MOV EAX, 4 [EBP]

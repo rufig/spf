@@ -7,7 +7,7 @@ WARNING 0! \ чтобы не было сообщений isn't unique
 : _FLIT-CODE10 ;
 : _FLIT-CODE8 ;
 
- S" lib\ext\disasm.f"             INCLUDED
+\ S" lib\ext\disasm.f"             INCLUDED
 
 WARNING 0! 
 
@@ -183,9 +183,7 @@ S" src\spf_init.f"                   INCLUDED
 
 \ ==============================================================
 
-: DONE 
-  ." DONE" CR
-  UNIX-LINES
+: DONE CR ." DONE"
   S" src\done.f" INCLUDED
 ;
 
@@ -205,18 +203,13 @@ CR
 S"  DONE " GetCommandLineA ASCIIZ> S"  " SEARCH 2DROP SWAP 1+ MOVE
 
 \ на стеке - token слова INIT целевой системы, запускаем её для
-\ того чтобы она сама себя сохранила в spf4.exe выполнением слова DONE,
+\ того чтобы она сама себя сохранила в spf37x.exe выполнением слова DONE,
 \ переданного ей в командной строке
 
 CREATE-XML-HELP
 [IF]
-FINISH-XML-HELP
+FINISH-XMLHELP
 [THEN]
-
-\ ALSO TC-WL
-\ SEE DONE
-\ SEE INCLUDED
-\ SEE _CLITERAL-CODE
 
 \ SEE CATCH
 EXECUTE

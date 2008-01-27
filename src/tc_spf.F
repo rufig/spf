@@ -240,20 +240,6 @@ VARIABLE _VOC-LIST ' _VOC-LIST TO VOC-LIST
     SWAP ROT SWAP
 ;
 
-: TC-B, C, ; : TC-CHARS CHAR-SIZE * ;
-1 CHAR-SIZE = [IF]
-: TC-C, C, ; : TC-C! C! ;
-[ELSE]
-: TC-C, W, ; : TC-C! W! ;
-[THEN]
-
-: EXPAND ( from to n -- )
-  0 ?DO
-   OVER C@ OVER TC-C!
-   SWAP 1+ SWAP CHAR-SIZE +
-  LOOP 2DROP ;
-  
-
 : S", ( addr u -- ) \ компил€ци€ строки, заданной addr u, в виде строки со счетчиком
   DUP C, DP @ SWAP DUP ALLOT CMOVE
 ;
@@ -471,27 +457,26 @@ ALSO TC-IMM DEFINITIONS PREVIOUS
 
 : ."
   CLITERAL-CODE COMPILE,
-  [CHAR] " PARSE DUP TC-B, 
-  DP @ SWAP DUP TC-CHARS ALLOT EXPAND 0 TC-C,
+  [CHAR] " PARSE DUP C,
+  DP @ SWAP DUP ALLOT MOVE 0 C,
   (.")-CODE COMPILE,
 ; IMMEDIATE
-
 
 : SLITERAL  \ 94 STRING
   STATE @ IF
              SLITERAL-CODE COMPILE,
-             DUP TC-B,
-             DP @ SWAP DUP TC-CHARS ALLOT EXPAND 0 TC-C,
+             DUP C,
+             DP @ SWAP DUP ALLOT MOVE 0 C,
           ELSE
-             2DUP TC-CHARS * + 0 SWAP TC-C!
+             2DUP + 0 SWAP C!
           THEN
 ; IMMEDIATE
 
 : CLITERAL ( addr -- )
   STATE @ IF
             CLITERAL-CODE COMPILE,
-            COUNT DUP TC-B,
-            DP @ SWAP DUP TC-CHARS ALLOT EXPAND 0 TC-C,
+            COUNT DUP C,
+            DP @ SWAP DUP ALLOT MOVE 0 C,
           THEN
 ; IMMEDIATE
 

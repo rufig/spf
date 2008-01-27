@@ -96,18 +96,13 @@ END-CODE
 
 CODE _SLITERAL-CODE
       LEA   EBP, -8 [EBP]
-      MOV   4 [EBP], EAX 
+      MOV   4 [EBP], EAX
       POP   EBX
-      MOVZX EAX, BYTE [EBX] \ length
-      LEA   EBX, 1 [EBX] \ skip length byte
-      MOV   [EBP], EBX  \ addr
-1 CHAR-SIZE = [IF]
-      LEA   EBX, [EBX] [EAX] \ skip string body
-      LEA   EBX, 1 [EBX] \ skip ending zero
-[ELSE]
-      LEA   EBX, [EBX] [EAX*2]
-      LEA   EBX, 2 [EBX]
-[THEN]
+      MOVZX EAX, BYTE [EBX]
+      LEA   EBX, 1 [EBX]
+      MOV   [EBP], EBX
+      LEA   EBX, [EBX] [EAX]
+      LEA   EBX, 1 [EBX]
       JMP   EBX
 END-CODE
 
@@ -119,13 +114,8 @@ CODE _CLITERAL-CODE
      MOV   [EBP], EAX
      POP   EAX
      MOVZX EBX, BYTE [EAX]
-1 CHAR-SIZE = [IF]
      LEA   EBX, [EBX] [EAX]
      LEA   EBX, 2 [EBX]
-[ELSE]
-     LEA   EBX, [EBX*2] [EAX]
-     LEA   EBX, 3 [EBX]
-[THEN]
      JMP   EBX
      RET
 END-CODE
