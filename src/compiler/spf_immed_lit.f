@@ -41,7 +41,7 @@
 : CLITERAL ( addr -- )
   STATE @ IF
             ['] _CLITERAL-CODE COMPILE,
-            COUNT DUP C, CHARS
+            COUNT DUP B, CHARS
             HERE SWAP DUP ALLOT MOVE 0 C,
           THEN
 ; IMMEDIATE

@@ -12,6 +12,8 @@
 
 4 CONSTANT CELL
 
+CHAR-SIZE CONSTANT /CHAR
+
 : */ ( n1 n2 n3 -- n4 ) \ 94
 \ Умножить n1 на n2, получить промежуточный двойной результат d.
 \ Разделить d на n3, получить частное n4.
@@ -19,19 +21,32 @@
 ;
 : CHAR+ ( c-addr1 -- c-addr2 ) \ 94
 \ Прибавить размер символа к c-addr1 и получить c-addr2.
-  1+
+  /CHAR +
 ;
 : CHAR- ( c-addr1 -- c-addr2 ) \ 94
 \ Вычесть размер символа из c-addr1 и получить c-addr2.
-  1-
+  /CHAR -
 ;
 : CHARS ( n1 -- n2 ) \ 94
 \ n2 - размер n1 символов.
-; IMMEDIATE
+  /CHAR *
+; \ IMMEDIATE
 
 : >CHARS ( n1 -- n2 ) \ "to-chars"
 \ n2 - число символов в n1
-; IMMEDIATE
+  /CHAR / 
+; \ IMMEDIATE
+
+CHAR-SIZE 2 = [IF]
+: C! W! ; : C@ W@ ;
+[ELSE]
+CHAR-SIZE 1 = [IF]
+: C! B! ; : C@ B@ ;
+[ELSE]
+CR .( Unsupported CHAR-SIZE) ABORT
+[THEN]
+[THEN]
+  
 
 : >CELLS ( n1 -- n2 ) \ "to-cells" [http://forth.sourceforge.net/word/to-cells/index.html]
 \ Convert n1, the number of bytes, to n2, the corresponding number
