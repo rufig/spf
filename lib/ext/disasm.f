@@ -161,11 +161,6 @@ CREATE S-BUF MAXSTRING ALLOT
                 0 <# #S #> R> OVER - SSPACES >S
                 R> BASE ! ;
 
-C" NEAR_NFA" FIND NIP 0=
-[IF] : NEAR_NFA ( addr -- NFA addr | 0 addr ) DUP  WordByAddr DROP 1- SWAP
-        2DUP 1000 - U< IF NIP 0 SWAP THEN ;
-[THEN]
-
 : ?.NAME>S      ( CFA -- )
 \ ELIMINATE " 0X"
                 DUP   1 H.R>S SSPACE

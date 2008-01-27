@@ -15,6 +15,11 @@
 
 0x200 VALUE MAX-WORD-SIZE
 
+C" NEAR_NFA" FIND NIP 0=
+[IF] : NEAR_NFA ( addr -- NFA addr | 0 addr ) DUP  WordByAddr DROP 1- SWAP
+        2DUP 1000 - U< IF NIP 0 SWAP THEN ;
+[THEN]
+
 \ Opposite to CDR, might be slow!
  \ It does not take wordlists into account.
 : NextNFA ( nfa1 -- nfa2 | 0 )
