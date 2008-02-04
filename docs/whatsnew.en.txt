@@ -1,4 +1,4 @@
-?? January 2008   Version 4.19
+18 January 2008   Version 4.19
 
 * enhancements and fixes in optimizer
 + optimizer internals are now thread-safe, so it is possible in runtime
