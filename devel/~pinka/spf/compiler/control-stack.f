@@ -48,8 +48,8 @@ EXPORT
 : CS>   Z> ;
 : CSDROP ZDROP ;
 
-: gtCS  >Z ;
-: CSgt  Z> ;
+\ : gtCS  >Z ;
+\ : CSgt  Z> ;
 
 \ : .CS .Z ;
 ;MODULE
