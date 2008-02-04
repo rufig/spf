@@ -105,7 +105,7 @@ EXPORT
     ELSE
       WORDLIST TO-CONTEXT DEFINITIONS
       CR ." TESTING: "
-      SOURCE >IN @ DUP >R - SWAP R> + SWAP TYPE
+      SOURCE >IN @ DUP >R - SWAP R> CHARS + SWAP TYPE
       SOURCE NIP >IN !
     THEN
 ;
@@ -119,7 +119,7 @@ EXPORT
 
 ;MODULE
 
-\EOF \ Пример использования
+\EOF \ ╧ЁшьхЁ шёяюы№чютрэш 
 
 TESTCASES testcase.f
 

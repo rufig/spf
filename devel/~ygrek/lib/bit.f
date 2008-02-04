@@ -41,10 +41,10 @@ REQUIRE { lib/ext/locals.f
 : b: ( "bits" -- num )
    PARSE-NAME
    0 -ROT
-   OVER + 1- ?DO
+   CHARS OVER + CHAR- ?DO
     1 LSHIFT
     I C@ [CHAR] 1 = IF 1 OR THEN
-   -1 +LOOP ;
+   /CHAR NEGATE +LOOP ;
 
 : b- b: B, ;
 
@@ -159,4 +159,3 @@ in #N RANDOM-FILL
 
 \ :NONAME #N 8 * 0 DO I out :1 LOOP ; measure CR .
 \ :NONAME #N 8 * 0 DO I out :1-1 LOOP ; measure CR .
-
