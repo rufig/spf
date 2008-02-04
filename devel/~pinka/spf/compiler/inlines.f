@@ -31,7 +31,8 @@ VARIABLE h-compilers
 `R>      SFIND 0= THROW ' R>      ADVICE-COMPILER
 `>R      SFIND 0= THROW ' >R      ADVICE-COMPILER
 
-\ hint: ' (тик) ищет c NON-OPT-WL на вершине
+\ hint: ' (тик) ищет c NON-OPT-WL на вершине, 
+\ поэтому здесь имена разрешаются через SFIND
 
 \ I-NATIVE не ищет в NON-OPT-WL, с учетом этого
 \ пропишем компиляторы для эти слов из словаря FORTH:
