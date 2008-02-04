@@ -1,18 +1,25 @@
 \ 03.Feb.2007 ruv
 \ $Id$
-( Лексикон:
+( Лексикон кодогенератора:
+
+    -- запись данных /в область данных/
     HERE ALLOT , C, S,
+
+    -- запись кода /в область кода и в область данных при необходимости/
     EXEC, LIT, 2LIT, SLIT,
     CONCEIVE GERM BIRTH
 
+    -- формирование кода, управляющего потоком исполнения
     BFW, ZBFW, RFW MBW BBW, ZBBW, BFW2, ZBFW2,
-    \ abbr from -- Branch, ZeroBranch, ForWard, BackWard, Mark, Resolve.
+    \ abbr. from -- Branch, ZeroBranch, ForWard, BackWard, Mark, Resolve.
     \ обязательно используют лишь управляющий стек.
 
+    -- возможна совмещенность областей кода и данных в зависимости от реализации.
 
- 'S,' -- записывает только указанные ему данные и больше ничего.
+
+ 'S,' -- записывает только указанный ему блок данных /счетчик в единицах адреса/ и больше ничего.
  'SLIT,' -- никак не специфицирует, не навязывет формат, а лишь гарантирует [c-addr u] при исполнении;
-          наличие x0 в конце строки вне счетчика -- зависит от реализации, на windows-системах рекоменуется.
+          возможно наличие x0 в конце блока данных вне счетчика, если это удобно /когда API хост-системы требуют Z-строки/.
  'EXEC,' -- откладывает исполнение семантики, представленной токеном xt.
  'EXIT,' -- откладывает выход из слова.
 
@@ -20,75 +27,48 @@
   Пара CONCEIVE [ -- ]  BIRTH [ -- xt ] сохраняет и восстанавливает предыдущий GERM
     и требует согласованности по управляющему стеку CS.
 
+
   Cлово '&' [ c-addr u -- xt ]  -- постфиксный вариант ' [tick]
   /вообще, оно к кодогенерации имеет малое отношение/.
 )
 
+
+REQUIRE lexicon.basics-aligned ~pinka/lib/ext/basics.f
 REQUIRE Require   ~pinka/lib/ext/requ.f
 
-Require CS@     control-stack.f
-
-Include inlines.f
-
-: DEFER-LIT, ( -- addr )
-  -1 LIT,
-  HERE 3 - CELL-
-;
-: EXEC, ( xt -- )
-  \ COMPILE,
-  GET-COMPILER? IF EXECUTE EXIT THEN COMPILE,
-;
-: EXIT, ( -- )
-  RET,
-;
-
-: 2LIT, ( x x -- )
-  SWAP LIT, LIT,
-;
-: &  ( c-addr u -- xt )  \ see also ' (tick)
-  ALSO NON-OPT-WL CONTEXT !
-  SFIND
-  PREVIOUS
-  IF EXIT THEN -321 THROW
-;
-
-\ : &EX, ( c-addr u -- )
-\   & EXEC,
-\ ;
-\ : &LT, ( c-addr u -- )
-\   I-LIT IF LIT, EXIT THEN -321 THROW
-\ ;
 
 
-USER GERM-A
+\ Некоторые слова в SPF4 имеют специальную процедуру 
+\ для откладывания их исполнения (компиляции), -- как например inlines.
+Require ADVICE-COMPILER inlines.f \ все особые слова SPF4 обработанны
 
-: GERM  GERM-A @ ;
-: GERM! GERM-A ! ;
+\ Слово ADVICE-COMPILER ( xt-compiler xt -- ) позволяет навесить
+\ необходимую семантику компиляции на xt
+\ а слово GET-COMPILER? ( xt -- xt-compiler true | xt false ) 
+\ дает эту семантику, если она имеется.
+\ Слово "EXEC," (отложить исполнение) использует специфичный компилятор,
+\ если он задан для данного xt.
 
-S" xt.immutable.f" Included
+\ Дискуссионный вопрос о сигнатуре xt-compiler.
+\ Пока принято, что это слово замкнуто на xt и имеет стек ( -- )
 
-: BFW, ( -- ) ( CS: -- a )
-  0 BRANCH, >MARK >CS
-;
-: BFW2, ( -- ) ( CS: a1 -- a2 a1 )
-  CS> BFW, >CS
-;
-: ZBFW, ( -- ) ( CS: -- a )
-  0 ?BRANCH, >MARK >CS
-;
-: ZBFW2, ( -- ) ( CS: a1 -- a2 a1 )
-  CS> ZBFW, >CS
-;
-: RFW ( -- ) ( CS: a -- )
-  CS> >RESOLVE1
-;
 
-: MBW ( -- ) ( CS: -- a )
-  HERE >CS
-;
-: BBW, ( -- ) ( CS: a -- )
-  CS> BRANCH,
-;
-: ZBBW, ( -- ) ( CS: a -- )
-  CS> ?BRANCH,
-;
+
+Require >CS control-stack.f \ управляющий стек
+
+Require PUSH-DEVELOP native-context.f \ контекст поиска и именования форт-слов
+
+
+\ ---
+\ Лексикон кодогенератора, в список CODEGEN-WL
+WORDLIST DUP CONSTANT CODEGEN-WL  LAST @ SWAP CELL+ ! \ ссылка на имя словаря, SPF4 (!)
+
+CODEGEN-WL PUSH-DEVELOP
+
+Include codegen.f
+
+DROP-DEVELOP \ see:  CODEGEN-WL NLIST
+\ ---
+
+
+Require NAMING- native-wordlist.f \ простые списки форт-слов
