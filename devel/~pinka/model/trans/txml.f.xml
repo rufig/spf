@@ -4,7 +4,8 @@
 
 <include href="../data/chain-cond.f.xml"/>
 
-<cell name="rules-default"/> rules-default DUP chain-current ! chain-context !
+<cell name="rules-default"/> 
+<init> rules-default DUP chain-current ! chain-context ! </init>
 
 <def name="advice-rule-after" ds=" xt -- ">
   advice-after
@@ -21,6 +22,9 @@
   trans-node-force
   R> chain-context !
 </def>
+
+
+<include href="document-context2.f.xml"/>
 
 <include href="txml.immutable.f.xml"/>
 

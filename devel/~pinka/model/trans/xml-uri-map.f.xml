@@ -4,30 +4,17 @@
 >
 <!-- Jul.2007 -->
 
-<also wordlist="forthml-hidden">
-
-<r:rule match="within-document-storage"><r:mm>
-  DISMOUNT >R document-storage MOUNT
-  <r:yield/>
-  DISMOUNT DROP R> MOUNT
-</r:mm>
-</r:rule>
-
-</also>
-
 <wordlist name="urimap-hidden">
 
 <def name="compose-uri" ds=" a-rest u-rest  a-base u-base -- a-uri u-uri ">
-  <within-document-storage>
-    HERE >R S, S, R> HERE 0 C, OVER -
-  </within-document-storage>
+  concat-in-document-
 </def>
 
 <include href="../data/code-list.f.xml"/>
 
 
 <def name="default-map" ds=" a u -- a1 u1 flag ">
-  `http://forth.org.ru/~ MATCH-STARTS <if> `devel/~ compose-uri FIND-FULLNAME TRUE <exit/></if>
+  `http://forth.org.ru/~ MATCH-HEAD <if> `devel/~ compose-uri FIND-FULLNAME TRUE <exit/></if>
   FALSE
 </def>
 
@@ -35,7 +22,7 @@
 
 <def name="add-uri-map" ds="a-src u-src a-trg u-trg -- ">
   2SWAP
-  <p> <slit/> MATCH-STARTS <if> <slit/> compose-uri TRUE <exit/></if> FALSE </p>
+  <p> <slit/> MATCH-HEAD <if> <slit/> compose-uri TRUE <exit/></if> FALSE </p>
   advice-before
 </def>
 
