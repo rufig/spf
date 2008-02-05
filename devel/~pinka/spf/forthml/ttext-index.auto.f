@@ -161,6 +161,7 @@ BIRTH `TAIL|HEAD NAMING-
 
 
 
+
 CONCEIVE 
 `DUP & EXEC, 
 `0= & EXEC, ZBFW, 
@@ -239,10 +240,10 @@ CONCEIVE
 `EXEC, & EXEC, 
 BIRTH `TS-2LIT NAMING- 
 
-ALIGN HERE 0 , CONCEIVE LIT, BIRTH `STATE NAMING- 
+SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH `STATE NAMING- 
 
 
-ALIGN HERE 0 , CONCEIVE LIT, BIRTH `M NAMING- 
+SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH `M NAMING- 
 CONCEIVE 
 `M & EXEC, 
 `@ & EXEC, ZBFW, -5005 LIT, 
@@ -499,7 +500,7 @@ CONCEIVE
 `0EQ & EXEC, ZBFW, 
 `2DROP & EXEC, 
 `FALSE & EXEC, EXIT, RFW 
-`EXECUTE-BALANCED(+1) & EXEC, GERM gtCS BBW, 
+`EXECUTE-BALANCED(+1) & EXEC, GERM >CS BBW, 
 
 BIRTH `(I-QNATIVE) NAMING- 
 CONCEIVE 
@@ -563,8 +564,8 @@ BIRTH `I-NATIVE-FORCE NAMING-
 
 
 
-ALIGN HERE 0 , CONCEIVE LIT, BIRTH `chain-current NAMING- 
-ALIGN HERE 0 , CONCEIVE LIT, BIRTH `chain-context NAMING- 
+SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH `chain-current NAMING- 
+SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH `chain-context NAMING- 
 CONCEIVE 0 LIT, 
 `, & EXEC, 
 `HERE & EXEC, 
@@ -607,9 +608,15 @@ CONCEIVE
 `ABORT & EXEC, 
 BIRTH `perform-chain-sure NAMING- 
 
-ALIGN HERE 0 , CONCEIVE LIT, BIRTH `rules-default NAMING-  rules-default DUP chain-current ! chain-context !
+SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH `rules-default NAMING- 
 
- CONCEIVE 
+`rules-default & EXECUTE 
+`DUP & EXECUTE 
+`chain-current & EXECUTE 
+`! & EXECUTE 
+`chain-context & EXECUTE 
+`! & EXECUTE 
+CONCEIVE 
 `advice-after & EXEC, 
 BIRTH `advice-rule-after NAMING- 
 CONCEIVE 
@@ -630,6 +637,222 @@ CONCEIVE
 `chain-context & EXEC, 
 `! & EXEC, 
 BIRTH `apply-rules NAMING- 
+
+
+`document-context-hidden WORDLIST-NAMED PUSH-DEVELOP 
+
+
+`dataspace-hidden WORDLIST-NAMED PUSH-DEVELOP 
+SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH `D0 NAMING- 
+SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH `DP NAMING- 
+SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH `D9 NAMING- 
+BEGIN-EXPORT 
+
+
+
+CONCEIVE 
+`DP & EXEC, 
+`@ & EXEC, 
+BIRTH `HERE NAMING- 
+CONCEIVE 
+`D9 & EXEC, 
+`@ & EXEC, 
+`DP & EXEC, 
+`@ & EXEC, 
+`- & EXEC, 
+BIRTH `UNUSED NAMING- 
+CONCEIVE 
+`DP & EXEC, 
+`+! & EXEC, 
+BIRTH `ALLOT NAMING- 
+CONCEIVE 
+`DP & EXEC, 
+`@ & EXEC, 
+`ALIGNED & EXEC, 
+`DP & EXEC, 
+`! & EXEC, 
+BIRTH `ALIGN NAMING- 
+
+CONCEIVE 
+`HERE & EXEC, 
+`C! & EXEC, 
+`/CHAR & EXEC, 
+`ALLOT & EXEC, 
+BIRTH `C, NAMING- 
+CONCEIVE 
+`HERE & EXEC, 
+`! & EXEC, 
+`/CELL & EXEC, 
+`ALLOT & EXEC, 
+BIRTH `, NAMING- 
+CONCEIVE 
+`HERE & EXEC, 
+`2! & EXEC, 2 LIT, 
+`CELLS & EXEC, 
+`ALLOT & EXEC, 
+BIRTH `2, NAMING- 
+CONCEIVE 
+`UNUSED & EXEC, 
+`UMIN & EXEC, 
+`HERE & EXEC, 
+`SWAP & EXEC, 
+`DUP & EXEC, 
+`ALLOT & EXEC, 
+`MOVE & EXEC, 
+BIRTH `S, NAMING- 
+CONCEIVE 
+`DUP & EXEC, 
+`, & EXEC, 
+`S, & EXEC, 0 LIT, 
+`C, & EXEC, 
+BIRTH `SXZ, NAMING- 
+CONCEIVE 
+`DUP & EXEC, 
+`C, & EXEC, 
+`S, & EXEC, 0 LIT, 
+`C, & EXEC, 
+BIRTH `SCZ, NAMING- 
+CONCEIVE 
+`DP & EXEC, 
+`@ & EXEC, 
+`D0 & EXEC, 
+`@ & EXEC, 
+`D9 & EXEC, 
+`@ & EXEC, 3 LIT, 
+BIRTH `SAVE-DATASPACE NAMING- 
+CONCEIVE 3 LIT, 
+`NEQ & EXEC, ZBFW, 
+`ABORT & EXEC, RFW 
+`D9 & EXEC, 
+`! & EXEC, 
+`D0 & EXEC, 
+`! & EXEC, 
+`DP & EXEC, 
+`! & EXEC, 
+BIRTH `RESTORE-DATASPACE NAMING- 
+CONCEIVE 
+`OVER & EXEC, 
+`DUP & EXEC, 
+`D0 & EXEC, 
+`! & EXEC, 
+`DP & EXEC, 
+`! & EXEC, 
+`+ & EXEC, 
+`D9 & EXEC, 
+`! & EXEC, 
+BIRTH `DATASPACE! NAMING- 
+CONCEIVE 
+`D0 & EXEC, 
+`@ & EXEC, 
+`D9 & EXEC, 
+`@ & EXEC, 
+`OVER & EXEC, 
+`- & EXEC, 
+BIRTH `DATASPACE NAMING- 
+CONCEIVE 
+`D0 & EXEC, 
+`@ & EXEC, 
+`DP & EXEC, 
+`@ & EXEC, 
+`OVER & EXEC, 
+`- & EXEC, 
+BIRTH `DATASPACE-CONTENT NAMING- 
+CONCEIVE 
+`D0 & EXEC, 
+`@ & EXEC, 
+`DP & EXEC, 
+`! & EXEC, 
+BIRTH `RESET-DATASPACE NAMING- 
+
+END-EXPORT 
+DROP-DEVELOP 
+
+
+CONCEIVE 
+`DUP & EXEC, 
+`@ & EXEC, 
+`, & EXEC, 
+`HERE & EXEC, 
+`SWAP & EXEC, 
+`! & EXEC, 
+BIRTH `PUSH-MARKER NAMING- 
+CONCEIVE 
+`DUP & EXEC, 
+`@ & EXEC, 
+`CELL- & EXEC, 
+`DUP & EXEC, 
+`@ & EXEC, 
+`ROT & EXEC, 
+`! & EXEC, 
+`HERE & EXEC, 
+`- & EXEC, 
+`ALLOT & EXEC, 
+BIRTH `DROP-MARKER NAMING- 
+
+SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH `_doc NAMING- 
+SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH `_doc-url NAMING- 
+BEGIN-EXPORT 
+CONCEIVE 256000 LIT, 
+`ALLOCATED & EXEC, 
+`DATASPACE! & EXEC, 
+`HERE & EXEC, 
+`_doc-url & EXEC, 
+`! & EXEC, 0 LIT, 
+`, & EXEC, 
+`_doc & EXEC, 
+`0! & EXEC, 
+BIRTH `init-document-context NAMING- 
+CONCEIVE 
+`_doc & EXEC, 
+`PUSH-MARKER & EXEC, 
+`, & EXEC, 
+`_doc-url & EXEC, 
+`PUSH-MARKER & EXEC, 
+`SCZ, & EXEC, 
+BIRTH `push-document NAMING- 
+CONCEIVE 
+`_doc-url & EXEC, 
+`DROP-MARKER & EXEC, 
+`_doc & EXEC, 
+`DROP-MARKER & EXEC, 
+BIRTH `drop-document NAMING- 
+CONCEIVE 
+`_doc-url & EXEC, 
+`@ & EXEC, 
+`COUNT & EXEC, 
+BIRTH `document-url NAMING- 
+CONCEIVE 
+`document-url & EXEC, 
+`CUT-PATH & EXEC, 
+BIRTH `document-base NAMING- 
+CONCEIVE 
+`HERE & EXEC, 
+`>R & EXEC, 
+`S, & EXEC, 
+`S, & EXEC, 
+`R> & EXEC, 
+`HERE & EXEC, 
+`OVER & EXEC, 
+`- & EXEC, 0 LIT, 
+`, & EXEC, 
+BIRTH `concat-in-document- NAMING- 
+CONCEIVE 
+`_doc-url & EXEC, 
+`@ & EXEC, 
+`0EQ & EXEC, ZBFW, EXIT, RFW 
+`document-base & EXEC, 
+`concat-in-document- & EXEC, 
+BIRTH `document-based-url NAMING- 
+CONCEIVE 
+`_doc-url & EXEC, 
+`@ & EXEC, 
+`0EQ & EXEC, ZBFW, EXIT, RFW 
+`BaseURI & EXEC, 
+`concat-in-document- & EXEC, 
+BIRTH `cnode-based-url NAMING- 
+END-EXPORT 
+DROP-DEVELOP 
+
 
 
 CONCEIVE `: SLIT, 
@@ -658,111 +881,6 @@ CONCEIVE
 `R> & EXEC, 
 `cnode! & EXEC, 
 BIRTH `trans-document NAMING- 
-
-
-
-ALIGN HERE 0 , CONCEIVE LIT, BIRTH `_document-storage NAMING- 
-ALIGN HERE 0 , CONCEIVE LIT, BIRTH `_document-top NAMING- 
-CONCEIVE 
-`_document-storage & EXEC, 
-`@ & EXEC, 
-`DUP & EXEC, ZBFW, EXIT, RFW 
-`DROP & EXEC, 256000 LIT, 
-`NEW-STORAGE & EXEC, 
-`DUP & EXEC, 
-`_document-storage & EXEC, 
-`! & EXEC, 
-BIRTH `document-storage NAMING- 
-CONCEIVE 
-`DISMOUNT & EXEC, 
-`>R & EXEC, 
-`document-storage & EXEC, 
-`MOUNT & EXEC, 0 LIT, 
-`, & EXEC, 
-`HERE & EXEC, 
-`_document-top & EXEC, 
-`BIND-NODE & EXEC, 
-`, & EXEC, 
-`S", & EXEC, 
-`DISMOUNT & EXEC, 
-`DROP & EXEC, 
-`R> & EXEC, 
-`MOUNT & EXEC, 
-BIRTH `push-document NAMING- 
-CONCEIVE 
-`DISMOUNT & EXEC, 
-`>R & EXEC, 
-`document-storage & EXEC, 
-`MOUNT & EXEC, 
-`_document-top & EXEC, 
-`UNBIND-NODE & EXEC, 
-`CELL- & EXEC, 
-`HERE & EXEC, 
-`- & EXEC, 
-`ALLOT & EXEC, 
-`DISMOUNT & EXEC, 
-`DROP & EXEC, 
-`R> & EXEC, 
-`MOUNT & EXEC, 
-BIRTH `drop-document NAMING- 
-CONCEIVE 
-`_document-top & EXEC, 
-`@ & EXEC, 
-`CELL+ & EXEC, 
-`COUNT & EXEC, 
-BIRTH `document-url NAMING- 
-CONCEIVE 
-`document-url & EXEC, 
-`CUT-PATH & EXEC, 
-BIRTH `document-base NAMING- 
-CONCEIVE 
-`_document-top & EXEC, 
-`@ & EXEC, 
-`0= & EXEC, ZBFW, EXIT, RFW 
-`DISMOUNT & EXEC, 
-`>R & EXEC, 
-`document-storage & EXEC, 
-`MOUNT & EXEC, 
-`HERE & EXEC, 
-`>R & EXEC, 
-`document-base & EXEC, 
-`S, & EXEC, 
-`S, & EXEC, 
-`R> & EXEC, 
-`HERE & EXEC, 
-`OVER & EXEC, 
-`- & EXEC, 0 LIT, 
-`, & EXEC, 
-`DISMOUNT & EXEC, 
-`DROP & EXEC, 
-`R> & EXEC, 
-`MOUNT & EXEC, 
-BIRTH `document-based-url NAMING- 
-CONCEIVE 
-`_document-top & EXEC, 
-`@ & EXEC, 
-`0= & EXEC, ZBFW, EXIT, RFW 
-`DISMOUNT & EXEC, 
-`>R & EXEC, 
-`document-storage & EXEC, 
-`MOUNT & EXEC, 
-`HERE & EXEC, 
-`>R & EXEC, 
-`BaseURI & EXEC, 
-`S, & EXEC, 
-`S, & EXEC, 
-`R> & EXEC, 
-`HERE & EXEC, 
-`OVER & EXEC, 
-`- & EXEC, 0 LIT, 
-`, & EXEC, 
-`DISMOUNT & EXEC, 
-`DROP & EXEC, 
-`R> & EXEC, 
-`MOUNT & EXEC, 
-BIRTH `cnode-based-url NAMING- 
-
-
 CONCEIVE 
 `2DUP & EXEC, 
 `DefaultLSParser & EXEC, 
