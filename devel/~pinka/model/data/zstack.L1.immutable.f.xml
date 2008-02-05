@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Feb.2007 ruvim@forth.org.ru
+ Need to bind: ZP Z0
+-->
+
+<def name="ZP@" ds=" — a "> ZP @ </def>
+<def name="ZP!" ds=" a — "> ZP ! </def>
+<def name="Z@"  ds=" — x "> ZP @ @ </def>
+<def name=">Z"  ds=" x — "> ZP CELL-!  ZP@ ! </def>
+<def name="Z>"  ds=" — x "> ZP@ @   ZP CELL+! </def>
+<def name="ZDROP"   ds=" — "> CELL ZP +! </def>
+<def name="ZCLEAR"  ds=" — "> Z0 @ ZP! </def>
+<def name="ZASSUME" ds=" addr u — "> + DUP Z0 ! ZP ! </def>
+
+</forth>

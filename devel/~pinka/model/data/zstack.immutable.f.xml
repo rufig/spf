@@ -4,28 +4,11 @@
  Need to bind: ZP Z0
 -->
 
-<def name="ZP@" ds=" — a ">
-  ZP @
-</def>
-<def name="ZP!" ds=" a — ">
-  ZP !
-</def>
-
-<def name="Z@" ds=" — x ">
-  ZP @ @
-</def>
+<include href="zstack.L1.immutable.f.xml"/>
 
 <def name="2Z@" ds=" — x x ">
   ZP @ CELL+ @
   ZP @ @
-</def>
-
-<def name=">Z" ds=" x — ">
-  ZP CELL-!  ZP@ !
-</def>
-
-<def name="Z>" ds=" — x ">
-  ZP@ @   ZP CELL+!
 </def>
 
 <def name="2>Z" ds=" x x — ">
@@ -33,10 +16,6 @@
 </def>
 <def name="2Z>" ds=" — x x ">
   ZP@ 2@   2 CELLS ZP +!
-</def>
-
-<def name="ZDROP" ds=" — ">
-  CELL ZP +!
 </def>
 
 <def name="NZDROP" ds=" n — ">
@@ -69,9 +48,6 @@
 </def>
 <def name="ZPICK" ds=" i — x ">
   CELLS ZP@ + @
-</def>
-<def name="ZCLEAR" ds=" — ">
-  Z0 @ ZP!
 </def>
 
 </forth>
