@@ -9,13 +9,16 @@
 <def name="stop-error-nesting">
   <xsl:message terminate = "yes">
     <xsl:text>Unsupported nesting, error in context of: </xsl:text>
-    <xsl:value-of select="name()" />
-    <xsl:text>, $state=</xsl:text><xsl:value-of select="$state" />
-    <xsl:text>
-</xsl:text>
+    <xsl:if test=" . instance of node()"><!-- XPath 2.0 -->
+    <xsl:for-each select="ancestor-or-self::*">
+      <xsl:text>/</xsl:text><xsl:value-of select="name()" />
+    </xsl:for-each>
+    </xsl:if>
+    <xsl:text>, $state=</xsl:text><xsl:value-of select="$state" /><xsl:text>, content: </xsl:text>
     <xsl:copy-of select="." />
   </xsl:message>
 </def>
+
 
 <var name="state" select="0" /><!-- has a dynamic binding -->
 
