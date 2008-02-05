@@ -7,7 +7,7 @@
   <xsl:message terminate = "yes">
     <xsl:text>Semantic undefined for:</xsl:text>
     <xsl:for-each select="ancestor-or-self::*">
-      <xsl:text> | </xsl:text><xsl:value-of select="name()" />
+      <xsl:text>/</xsl:text><xsl:value-of select="name()" />
     </xsl:for-each><xsl:text>
 </xsl:text>
     <xsl:choose><xsl:when test="node()">

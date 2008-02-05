@@ -18,13 +18,7 @@
 
 <xsl:namespace-alias stylesheet-prefix="x"  result-prefix="xsl" />
 
-<xsl:template name="stop-error" >
-  <xsl:message terminate = "yes">
-    <xsl:text>Semantic undefined for: </xsl:text><xsl:value-of select="name()" /><xsl:text>
-</xsl:text>
-    <xsl:copy-of select="." />
-  </xsl:message>
-</xsl:template>
+<xsl:include href="stop-error.xsl"/>
 
 <xsl:template match="*" >
   <xsl:call-template name="stop-error"/>

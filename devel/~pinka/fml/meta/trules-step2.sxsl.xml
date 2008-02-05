@@ -23,14 +23,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 <xsl:param name="code.xt-of.s1"> &amp; LIT, </xsl:param><!--
                form: `some-name & LIT, ( on STATE is 1) -->
 
-
-<xsl:template name="stop-error" >
-  <xsl:message terminate = "yes">
-    <xsl:text>Semantic undefined for: </xsl:text><xsl:value-of select="name()" /><xsl:text>
-</xsl:text>
-    <xsl:copy-of select="." />
-  </xsl:message>
-</xsl:template>
+<xsl:include href="../meta/stop-error.xsl"/>
 
 <s:var name="yield"   select="/.." />
 <s:var name="yield-m" select="/.." />
