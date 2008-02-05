@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem> ( u -- ) </rem><!-- (!!!) -->
+
+<cell name="ZP"/>
+<cell name="Z0"/>
+<include href="zstack.L1.immutable.f.xml" />
+
+DUP
+<const name="/Z"/>
+<space name="Z9"/>
+
+<init>
+  Z9 /Z ZASSUME
+</init>
+
+<def name="?ZP" ds=" -- ">
+  Z0 @ ZP@ ULT <if> ABORT </if>
+  ZP@ Z9 @ ULT <if> ABORT </if>
+</def>
+
+</forth>
