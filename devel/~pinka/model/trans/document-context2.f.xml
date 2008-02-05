@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="ASCII" ?>
 <forth xmlns="http://forth.org.ru/ForthML/">
-<!-- 26.Jan.2008 -->
-
-<!-- ALSO forthml-support -->
+<!-- 2007, Jan.2008 -->
 
 <wordlist name="document-context-hidden">
 
@@ -12,7 +10,13 @@
 <cell name="_doc"/>
 <cell name="_doc-url"/>
 
-<export>
+<export><rem> the document data-space is in the context/scope! </rem>
+
+<def name="init-document-context" ds=" -- ">
+  256000 ALLOCATED DATASPACE!
+  HERE _doc-url ! 0 ,
+       _doc    0!
+</def>
 
 <def name="push-document" ds=" url-a url-u doc -- ">
   _doc     PUSH-MARKER ,
@@ -24,11 +28,6 @@
   _doc     DROP-MARKER
 </def>
 
-<def name="init-document-context" ds="">
-  256000 ALLOCATED DATASPACE!
-  HERE _doc-url ! 0 ,
-       _doc    0!
-</def>
 
 <def name="document-url" ds=" -- url-a url-u ">
   _doc-url @ COUNT
@@ -38,7 +37,7 @@
   document-url CUT-PATH
 </def>
 
-<def name="composed-" ds=" a2 u2 a1 u1 -- a u ">
+<def name="concat-in-document-" ds=" a2 u2 a1 u1 -- a u ">
   HERE >R
   S, S,
   R> HERE OVER -  0 ,
@@ -46,12 +45,12 @@
 
 <def name="document-based-url" ds=" rel-a rel-u -- full-a full-u ">
   _doc-url @ <unless><exit/></unless>
-  document-base composed-
+  document-base concat-in-document-
 </def>
 
 <def name="cnode-based-url" ds=" rel-a rel-u -- full-a full-u ">
   _doc-url @ <unless><exit/></unless>
-  BaseURI composed-
+  BaseURI concat-in-document-
 </def>
 
 </export>
