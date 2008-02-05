@@ -134,8 +134,8 @@ BASE @ HEX
   ['] DUP MACRO,
   LocalOffs DUP  SHORT?
   OPT_INIT SetOP
-  IF    8B C, 44 C, 24 C, C, \ mov eax, offset [esp]
-  ELSE  8B C, 84 C, 24 C,  , \ mov eax, offset [esp]
+  IF    8B B, 44 B, 24 B, B, \ mov eax, offset [esp]
+  ELSE  8B B, 84 B, 24 B,  , \ mov eax, offset [esp]
   THEN  OPT
   OPT_CLOSE
 ;
@@ -147,8 +147,8 @@ BASE @ HEX
 : CompileLocal! ( n -- )
   LocalOffs DUP  SHORT?
   OPT_INIT SetOP
-  IF    89 C, 44 C, 24 C, C, \ mov  offset [esp], eax
-  ELSE  89 C, 84 C, 24 C,  , \ mov  offset [esp], eax
+  IF    89 B, 44 B, 24 B, B, \ mov  offset [esp], eax
+  ELSE  89 B, 84 B, 24 B,  , \ mov  offset [esp], eax
   THEN  OPT
   OPT_CLOSE
   ['] DROP MACRO,
@@ -159,8 +159,8 @@ BASE @ HEX
   ['] DUP MACRO,
   SHORT?
   OPT_INIT SetOP
-  IF    8D C, 44 C, 24 C, C, \ lea eax, offset [esp]
-  ELSE  8D C, 84 C, 24 C,  , \ lea eax, offset [esp]
+  IF    8D B, 44 B, 24 B, B, \ lea eax, offset [esp]
+  ELSE  8D B, 84 B, 24 B,  , \ lea eax, offset [esp]
   THEN  OPT
   OPT_CLOSE
 ;
