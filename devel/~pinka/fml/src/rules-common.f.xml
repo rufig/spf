@@ -44,7 +44,7 @@ $Id$
   <m><direct>GERM EXEC,</direct></m>
 </rule>
 <rule match="f:again">
-  <m><direct>GERM gtCS BBW,</direct></m><!-- depend on.. -->
+  <m><direct>GERM >CS BBW,</direct></m><!-- depend on.. -->
 </rule>
 
 
@@ -99,9 +99,33 @@ $Id$
 </rule>
 
 
-<rule match="f:cell"><m><!-- this version is not consider content of element (!!!) -->
-  ALIGN HERE 0 ,  CONCEIVE LIT, BIRTH
+<rule match="f:cell"><m>
+  SP@ >CS <yield/><!--( x| )--> SP@ CS> EQ ?DUP XOR <!--( x|0 )-->
+  ALIGN HERE SWAP , CONCEIVE LIT, BIRTH
   <get-attribute name="name" /> NAMING-
+  </m>
+</rule>
+
+<rule match="f:const"><m>
+  <yield/> CONCEIVE LIT, BIRTH
+  <get-attribute name="name" /> NAMING-
+  </m>
+</rule>
+
+<rule match="f:space"><m>
+  <yield/> ALIGN HERE SWAP ALLOT CONCEIVE LIT, BIRTH
+  <get-attribute name="name" /> NAMING-
+  </m>
+</rule>
+
+
+<rule match="f:wordlist"><m>
+  <get-attribute name="name"/> WORDLIST-NAMED PUSH-DEVELOP <yield/> DROP-DEVELOP
+  </m>
+</rule>
+
+<rule match="f:export"><m><!-- child of f:wordlist only -->
+  BEGIN-EXPORT <yield/> END-EXPORT
   </m>
 </rule>
 
