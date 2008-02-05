@@ -2,11 +2,11 @@
 
 \ набор синонимов для избегания маскировки в xml
 
-REQUIRE & ~pinka/spf/compiler/index.f
+REQUIRE NAMING- ~pinka/spf/compiler/index.f
 
 \ & ( c-addr u -- xt )
 
-: aka ( olda oldu newa newu -- ) 2>R & 2R> ALIAS ;
+: aka ( olda oldu newa newu -- ) 2SWAP  &  NAMING  ;
 
 `<>  `NEQ   aka
 `=   `EQ    aka
@@ -16,12 +16,3 @@ REQUIRE & ~pinka/spf/compiler/index.f
 `U<  `ULT   aka
 `U>  `UGT   aka
 
-\EOF
-
-`U<  `Ult   aka
-`U>  `Ugt   aka
-
-`>R  `gtR   aka
-`R>  `Rgt   aka
-`2>R `2gtR  aka
-`2R> `2Rgt  aka
