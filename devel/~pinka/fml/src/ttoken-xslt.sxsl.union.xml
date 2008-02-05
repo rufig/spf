@@ -35,14 +35,16 @@
 </xi:model><xi:model name="transform" advice="after">
 
 <def name="m0">
-  <xsl:if test="$state != 1 or $m &gt; 1"><stop-error-nesting/></xsl:if>
-  <xsl:if test="$m = 0"><yield/> </xsl:if>
+  <xsl:if test="$state &gt; 1 or $m &gt; 1"><stop-error-nesting/></xsl:if>
+  <xsl:if test="$m = 0 and $state = 1"><yield/> </xsl:if>
+  <!-- on $state = 0 is nothing (!) -->
 </def>
 <def name="m1">
-  <xsl:if test="$m = 1"><yield/> </xsl:if>
+  <xsl:if test="$m = 1 and $state = 0 "><stop-error-nesting/></xsl:if>
+  <xsl:if test="$m = 1 and $state = 1"><yield/> </xsl:if>
 </def>
 
-<def name="T-LIT"><!-- only within state is 1 -->
+<def name="T-LIT"><!-- only within state is 1 or 0 -->
   <m0>LIT,</m0>
   <m1>LIT,  `T-LIT  &amp; EXEC,</m1>
 </def>
@@ -51,6 +53,7 @@
   <m1>SLIT, `T-SLIT &amp; EXEC,</m1>
 </def>
 <def name="T-EXEC">
+  <xsl:if test="$state = 0"> EXECUTE </xsl:if>
   <m0>EXEC,</m0>
   <m1>LIT,  `T-EXEC &amp; EXEC,</m1>
 </def>
