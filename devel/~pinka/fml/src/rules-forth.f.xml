@@ -12,17 +12,17 @@
 <rule match="f:unless">    STATE? <f:if><exit-fail/></f:if>  0EQ <f:if><yield/></f:if></rule>
 
 <rule match="f:repeat">    STATE? <f:if><exit-fail/></f:if>
-  FALSE gtCS
+  FALSE >CS
   <f:until> <yield/>  CS@ </f:until>
   CSDROP
 </rule>
 
 <rule match="f:while">     STATE? <f:if><exit-fail/></f:if>
-  0= <f:if> ParentNode LastChild  CSDROP TRUE gtCS</f:if>
+  0= <f:if> ParentNode LastChild  CSDROP TRUE >CS</f:if>
 </rule>
 
 <rule match="f:until">     STATE? <f:if><exit-fail/></f:if>
-  FALSE gtCS
+  FALSE >CS
   <f:until> <yield/> CS@ OR </f:until>
   CSDROP
 </rule>
@@ -43,6 +43,10 @@
 
 <rule match="f:text">
   cnode firstChild <f:choose> DUP <f:when> nodeValue T-SLIT </f:when> 0 T-2LIT </f:choose>
+</rule>
+
+<rule match="f:init">
+  <yield/>
 </rule>
 
 </f:forth>

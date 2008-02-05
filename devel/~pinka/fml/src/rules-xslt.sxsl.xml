@@ -27,4 +27,11 @@
   <xsl:text>`</xsl:text><xsl:value-of select="."/><xsl:text> DROP C@ </xsl:text><T-LIT/>
 </def>
 
+<def match="f:init[not(*)]">
+  <assure-state0/>
+  <xsl:analyze-string select="." regex="\S+"><xsl:matching-substring>
+    <T-WORD/>
+  </xsl:matching-substring></xsl:analyze-string>
+</def>
+
 </xi:include>
