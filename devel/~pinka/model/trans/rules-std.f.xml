@@ -102,22 +102,6 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   t-child-slit <m>TYPE CR</m>
 </rule>
 
-<rule match="f:wordlist-named-after"><mm>
-  WORDLIST GET-CURRENT >CS
-  DUP SET-CURRENT ALSO CONTEXT !
-  <yield/>
-  CONTEXT @ <!-- wid -->
-  CS> SET-CURRENT PREVIOUS
-  <get-attribute name="name"/>
-  <f:choose> DUP <f:when>
-    ROT DUP >R <f:p><f:lit/></f:p> NAMING
-    LATEST R> CELL+ ! <!-- spf4; ref to wordlist's name -->
-  </f:when>
-    2DROP
-  </f:choose>
-  </mm>
-</rule>
-
 <rule match="f:wid"><f:comment>anonymous wordlist, returns as wid </f:comment>
 <mm>
   WORDLIST PUSH-DEVELOP <yield/> POP-DEVELOP
