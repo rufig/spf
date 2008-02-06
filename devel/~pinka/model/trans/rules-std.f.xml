@@ -121,17 +121,6 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   </mm>
 </rule>
 
-<rule match="f:const"><mm>
-  <yield/>
-  <f:p><f:lit/></f:p><get-attribute name="name"/> NAMING-
-  </mm>
-</rule>
-
-<rule match="f:cell">
-  <f:choose> cnode firstChild <f:when><yield/></f:when><m>0</m></f:choose>
-  <mm> HERE SWAP , <f:p><f:lit/></f:p> <get-attribute name="name"/> NAMING- </mm>
-</rule>
-
 <rule match="f:cell2">
   <f:choose> cnode firstChild <f:when><yield/></f:when><m>0 0</m></f:choose>
   <mm> ALIGN HERE 2 CELLS ALLOT DUP >CS 2! CS> <f:p><f:lit/></f:p> <get-attribute name="name"/> NAMING- </mm>
