@@ -16,16 +16,16 @@ TESTCASES locals.f
 : TEST4a { a b | c } a b c ;
 : TEST6a { a b | c -- d } a b c ;
 : TEST7a { | a b } a b  1 -> a  2 -> b  a b ;
-: TEST8 { | [ 120 ] a [ 10 ] b f[ 20 ] }
+: TEST8 { | [ 120 CHARS ] a [ 10 CHARS ] b f[ 20 CHARS ] }
    a 120 2 FILL
    b 10 3 FILL
    f[ 20 4 FILL
    a C@
-   a 119 + C@
+   a 119 CHARS + C@
    b C@
-   b 9 + C@
+   b 9 CHARS + C@
    f[ C@
-   f[ 19 + C@ ;
+   f[ 19 CHARS + C@ ;
 
 (( 1 2 3 4 TEST1 -> 1 2 3 5 0 1 ))
 (( 12 34 TEST2 -> 12 34 0 12 34 1 12 34 2 12 34 3 12 34 4 12 34 ))
