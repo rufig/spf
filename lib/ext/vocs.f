@@ -1,4 +1,5 @@
 
+REQUIRE [DEFINED] lib/include/tools.f
 
 \ Распечатать список словарей.
 : VOCS
