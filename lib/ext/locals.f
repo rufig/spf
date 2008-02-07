@@ -278,7 +278,7 @@ WARNING @ WARNING 0!
      2DROP CreateLocArray LocalsRecDoes@
    ELSE 
      CREATED
-     LATEST DUP C@ + C@
+     LATEST DUP C@ CHARS + C@
      [CHAR] [ =
      IF
        LocalsRecDoes@2

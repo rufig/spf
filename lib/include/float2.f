@@ -159,12 +159,12 @@ WARNING !
 
 : SEARCH-EXP ( c-addr1 u -- c-addr2 u flag )
     BEGIN
-      OVER C@ -1
+      OVER C@ TRUE
       OVER [CHAR] e <> AND
       SWAP [CHAR] E <> AND
       OVER AND
     WHILE
-      1- SWAP 1+ SWAP
+      SKIP1
     REPEAT
 ;
 
@@ -172,10 +172,10 @@ WARNING !
 : GET-EXP ( addr u -- d )    \ *
   SEARCH-EXP DUP
   IF                    \ addr u
-    >R 1+ DUP C@        \ addr1 c
+    >R CHAR+ DUP C@        \ addr1 c
     DUP [CHAR] - =
-    IF DROP 1+ R> 2 - TNUM DNEGATE   
-    ELSE [CHAR] + = IF 1+ R> 2 - TNUM ELSE R> 1- TNUM THEN
+    IF DROP CHAR+ R> 2 - TNUM DNEGATE   
+    ELSE [CHAR] + = IF CHAR+ R> 2 - TNUM ELSE R> 1- TNUM THEN
     THEN
   ELSE
     2DROP 0.
@@ -186,17 +186,17 @@ WARNING !
 
 : FRAC>F ( addr u -- F: r )              \ использует 2 регистра FPU
   .e
-  OVER + SWAP
+  CHARS OVER + SWAP
   DO
     ?IS-COMMA @ IF PAST-COMMA 1+! THEN
-    I C@ DUP 47 > 
-    OVER 58 < AND
-    IF 48 - DS>F F+ F10* 
+    I C@ DUP [CHAR] 0 1- > 
+    OVER [CHAR] 9 1+ < AND
+    IF [CHAR] 0 - DS>F F+ F10* 
     ELSE [CHAR] . = IF TRUE ?IS-COMMA ! 
                          ELSE LEAVE
                          THEN
     THEN
-  LOOP
+  /CHAR +LOOP
 ;
 
 : >FLOAT-ABS  ( addr u -- F: r D:  bool )
@@ -212,7 +212,7 @@ WARNING !
 ;
 
 ( : SKIP1
-   1- SWAP 1+ SWAP 
+   1- SWAP CHAR+ SWAP 
 ;)
 
 \ Simple BNF parser ( ver. 2.2)
@@ -228,20 +228,20 @@ WARNING !
     BEGIN
       DUP R@ >
     WHILE
-      OVER R@ + C@
+      OVER R@ CHARS + C@
       2 CELLS RP+@
       3 CELLS RP+@       
       ROT 
       >R RP@ 1 SEARCH RDROP NIP NIP
       0= IF     \ первый несовпавший символ
            DROP SWAP
-           R@ - SWAP R@ + SWAP 
+           R@ - SWAP R@ CHARS + SWAP
            2R> 1+ < RDROP RDROP EXIT
          THEN
       R> 1+ >R
     REPEAT
-    + SWAP R@ -
-    2R> 1+ < RDROP RDROP
+    CHARS + SWAP R@ -
+    2R> 1+ < RDROP RDROP 
 ;
 
 : <SIGN> ( addr u max min -- addr2 u2 bool )
