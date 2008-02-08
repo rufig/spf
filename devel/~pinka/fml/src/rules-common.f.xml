@@ -21,7 +21,7 @@ $Id$
 </rule>
 
 <rule match="f:def">
-  <m>CONCEIVE <postpone><yield/></postpone> BIRTH <get-attribute name="name" /> NAMING-</m>
+  <m><get-name/> 2>CS CONCEIVE <postpone><yield/></postpone> BIRTH 2CS> NAMING-</m>
 </rule>
 
 <rule match="f:lit">
@@ -100,27 +100,30 @@ $Id$
 
 
 <rule match="f:cell"><m>
+  <get-name/> 2>CS
   SP@ >CS <yield/><!--( x| )--> SP@ CS> EQ ?DUP XOR <!--( x|0 )-->
   ALIGN HERE SWAP , CONCEIVE LIT, BIRTH
-  <get-attribute name="name" /> NAMING-
+  2CS> NAMING-
   </m>
 </rule>
 
 <rule match="f:const"><m>
+  <get-name/> 2>CS
   <yield/> CONCEIVE LIT, BIRTH
-  <get-attribute name="name" /> NAMING-
+  2CS> NAMING-
   </m>
 </rule>
 
 <rule match="f:space"><m>
+  <get-name/> 2>CS
   <yield/> ALIGN HERE SWAP ALLOT CONCEIVE LIT, BIRTH
-  <get-attribute name="name" /> NAMING-
+  2CS> NAMING-
   </m>
 </rule>
 
 
 <rule match="f:wordlist"><m>
-  <get-attribute name="name"/> WORDLIST-NAMED PUSH-DEVELOP <yield/> DROP-DEVELOP
+  <get-name/> WORDLIST-NAMED PUSH-DEVELOP <yield/> DROP-DEVELOP
   </m>
 </rule>
 

@@ -123,7 +123,7 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 
 <rule match="f:cell2">
   <f:choose> cnode firstChild <f:when><yield/></f:when><m>0 0</m></f:choose>
-  <mm> ALIGN HERE 2 CELLS ALLOT DUP >CS 2! CS> <f:p><f:lit/></f:p> <get-attribute name="name"/> NAMING- </mm>
+  <mm><get-name/> 2>CS ALIGN HERE 2 CELLS ALLOT DUP >CS 2! CS> <f:p><f:lit/></f:p> 2CS> NAMING- </mm>
 </rule>
 
 <rule match="f:let"><mm><!-- ( x addr - ) -->
@@ -136,7 +136,8 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 
 <rule match="r:transform" ds=" -- ">
   STATE0? <f:unless> ABORT </f:unless>
-  HERE 0 , DUP <f:p><f:lit/></f:p> <get-attribute name="name"/> NAMING-
+  <get-name/> 2>R
+  HERE 0 , DUP <f:p><f:lit/></f:p> 2R> NAMING-
   chain-current @ >R chain-current !
   <yield/>
   R> chain-current !
