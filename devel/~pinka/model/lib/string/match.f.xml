@@ -4,6 +4,7 @@
 
 <!-- Functions Based on Substring Matching -->
 
+<!-- string length is calculated in units of address (!) -->
 
 <def name="CONTAINS" ds=" a u a-key u-key -- flag ">
   SEARCH NIP NIP

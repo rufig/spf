@@ -4,7 +4,7 @@
 
 <!-- Functions Based on Substring White-Matching -->
 
-<!-- sting counts in address unit (!) -->
+<!-- string length is calculated in units of address (!) -->
 
 <def name="IS-WHITE" ds=" c -- flag ">
   0x21 ULT
