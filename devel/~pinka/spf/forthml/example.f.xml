@@ -7,13 +7,13 @@ REQUIRE EMBODY ~pinka/spf/forthml/index.f
 
 10 <repeat> DUP <while/> DUP . 1- </repeat> DROP CR
 
-<def name="qqq">
+<def name="qqq" ds=" -- ">
   10 <until> DUP . 1-  DUP 0LT </until> DROP CR
 </def>
 
 qqq
 
-<def name="even?">
+<def name="even?" ds=" n -- ">
   DUP . `is TYPE SPACE
   <choose> 2 MOD 0= <when> `even </when> `odd </choose> TYPE CR
 </def>
@@ -24,7 +24,7 @@ qqq
   DUP 0= <if> DROP <exit/></if> DUP . 1- <again/>
 </def>
 
-<def name="quote-the-5steps">
+<def name="quote-the-5steps" ds=" -- xt "><!-- quotation -->
   <q> 5 steps CR </q>
 </def>
 
@@ -33,11 +33,26 @@ quote-the-5steps EXECUTE
 <q> 5 steps CR </q> EXECUTE
 
 
-<def name="make-zzz">
-  <def name="zzz">
-    `test TYPE SPACE `passed TYPE CR
+<def name="make-zzz" ds=" -- ">
+  <def name="zzz" ds=" -- ">
+    <emit-line>test passed</emit-line>
   </def>
 </def><!-- try make-zzz and then  zzz -->
+
+
+
+<wordlist name="mnames">
+ ORDER
+ `A 5 <times ds=" a u -- a u">
+  
+    2DUP <def name="word-{}--"> <slit>2DUP</slit> TYPE <emit> ok </emit> </def>
+    OVER 1+!
+
+  </times> 2DROP
+
+  WORDS  word-A-- CR CR
+</wordlist>
+
 
 ALSO forthml-support
 
