@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../horses/default.xsl"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="sscells-wl"/>
+
+<cell name="_rows"/>
+<cell name="_cols"/>
+
+
+<def name="save-max" ds=" r c -- ">
+  _cols @ UMAX _cols !
+  _rows @ UMAX _rows !
+</def>
+
+
+<def name="calc-name" ds=" r c -- a u ">
+  HERE >R
+  <char>A</char> 1- + C, 0 (D.) S,
+  R> HERE OVER -
+</def>
+
+<def name="calc-value-by-rc" ds=" r c -- a u ">
+  calc-name sscells-wl RESOLVE-NAME <if> EXECUTE <exit/></if> 2DROP 0.
+</def>
+
+
+
+<def name="eval-sscell" ds=" a1 u1 -- a2 u2 ">
+  <rem> on first iteration it is identity </rem>
+</def>
+
+
+<cell name="_row"/>
+<cell name="_col"/>
+
+<def name="build-sscel-current" ds=" a u -- ">
+  sscells-wl PUSH-DEVELOP
+    
+    HERE 0 ,
+    
+    _row @ _col @  2DUP save-max
+    calc-name
+
+    <def name="{}" ds=" -- a u">
+      <lit/> DUP @ <if>DROP `#circle <exit/></if>
+      1 SWAP <let>
+        <slit/> eval-sscell
+      </let>
+    </def>
+
+  DROP-DEVELOP
+</def>
+
+<def name="?build-sscel-current" ds=" a u -- ">
+  DUP <unless> 2DROP <exit/></unless>
+  build-sscel-current
+</def>
+
+<def name="td-delimiter" ds=" -- a u"><text>^</text></def>
+
+<def name="parse-row" ds=" a u -- ">
+  1 _col <let>
+  <repeat> td-delimiter SPLIT- <while/>
+    build-sscel-current  _col 1+!
+  </repeat> ?build-sscel-current
+  </let>
+</def>
+
+<def name="parse-table" ds=" a1 u1 -- ">
+  1 _row <let>
+  <each-line> parse-row _row 1+! </each-line>
+  </let>
+</def>
+
+<def name="print-table" ds=" -- ">
+  0 _rows @ <times> 1+
+  0 _cols @ <times> 1+
+    <g ds=" r c -- r c ">
+    2DUP calc-value-by-rc TYPE SPACE td-delimiter TYPE SPACE
+    </g>
+  </times> DROP CR
+  </times> DROP CR
+</def>
+
+<def name="calc-n-print-table" ds=" a1 u1 -- ">
+  parse-table
+  print-table
+</def>
+
+
+<text> ^ ^
+=1 ^ =2 ^ =3 ^
+'A ^ 'B ^ 'C ^
+</text> calc-n-print-table
+
+</forth>
