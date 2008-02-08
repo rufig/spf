@@ -69,4 +69,6 @@ SET-CURRENT
 : cnode  ( -- node ) cnode-a @ ;
 : cnode! ( node -- ) cnode-a ! ;
 
+: GetName ( -- a u ) `name GetAttribute ;
+
 PREVIOUS FREE-WORDLIST
