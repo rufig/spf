@@ -45,7 +45,7 @@ quote-the-5steps EXECUTE
  ORDER
  `A 5 <times ds=" a u -- a u">
   
-    2DUP <def name="word-{}--"> <slit>2DUP</slit> TYPE <emit> ok </emit> </def>
+    <def name="word-{ 2DUP }--"><slit> 2DUP </slit> TYPE <emit> ok </emit> </def>
     OVER 1+!
 
   </times> 2DROP
