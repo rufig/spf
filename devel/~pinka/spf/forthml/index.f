@@ -104,16 +104,22 @@ FORTH-WORDLIST XMLDOM-WL CODEGEN-WL forthml-hidden  4 SET-ORDER  DEFINITIONS
                         init-document-context \ входит в работу и здесь же
 
 
+VECT T-PAT  ' T-SLIT TO T-PAT \ используется при <get-name/>
+
 `~pinka/fml/forthml-core.f Included \ базовый набор слов (правил) ForthML
 
 
+\ ---
+\ set and restore CURFILE on EMBODY (spf4 specific)
+WARNING @  WARNING 0! 
+
 : EMBODY ( i*x url-a url-u -- j*x )
-\ set and restore CURFILE (spf4 specific)
   CURFILE @ >R   2DUP HEAP-COPY CURFILE !
     ['] EMBODY CATCH
   CURFILE @ FREE THROW   R> CURFILE !
     THROW
 ;
+WARNING !
 
 
 \ лексикон ForthML первого уровня:
@@ -129,6 +135,15 @@ FORTH-WORDLIST XMLDOM-WL CODEGEN-WL forthml-hidden  4 SET-ORDER  DEFINITIONS
 `~pinka/model/trans/rules-string.f.xml      FIND-FULLNAME EMBODY
 
 
+document-context-hidden PUSH-SCOPE `tpat-hidden WORDLIST-NAMED PUSH-DEVELOP
+
+`~pinka/model/trans/tpat.f.xml              FIND-FULLNAME EMBODY
+
+DROP-DEVELOP DROP-SCOPE   `T-PAT tpat-hidden RESOLVE-NAME 0EQ THROW TO T-PAT
+
+  
+
+
 \ отображение URI-баз (например, http://forth.org.ru/ на каталог локальной файловой системы)
 `~pinka/model/trans/xml-uri-map.f.xml       FIND-FULLNAME EMBODY
 
@@ -138,7 +153,7 @@ SET-ORDER SET-CURRENT
 TO ?C-JMP  \ оставлять включенным нельзя, т.к. дает глюки для r-чувствительных слов.
 
 
-GET-CURRENT forthml-hidden ALSO!
+forthml-hidden PUSH-SCOPE
 
 `EMBODY             2DUP aka
 
@@ -156,5 +171,4 @@ GET-CURRENT forthml-hidden ALSO!
 
 `T-PLAIN            2DUP aka
 
-
-PREVIOUS SET-CURRENT
+DROP-SCOPE

@@ -149,7 +149,7 @@ RFW
 `GetName & LIT,  
 `STATE & EXEC, 
 `@ & EXEC, 
-`TS-EXEC & EXEC, `T-SLIT & LIT,  
+`TS-EXEC & EXEC, `T-PAT & LIT,  
 `STATE & EXEC, 
 `@ & EXEC, 
 `TS-EXEC & EXEC, 

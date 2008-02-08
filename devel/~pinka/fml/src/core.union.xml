@@ -43,7 +43,7 @@ and r:m is allowable.
 
 <rule match="r:get-name">
   <f:xt-of name="GetName"/>       STATE @ TS-EXEC
-  <f:xt-of name="T-SLIT"/>        STATE @ TS-EXEC <!-- so not useable outside of <m>... -->
+  <f:xt-of name="T-PAT"/>         STATE @ TS-EXEC <!-- so not useable outside of <m>... -->
 </rule>
 
 </xi:model><xi:model name="transform" advice="after">
