@@ -133,6 +133,30 @@ RFW `name SLIT,
   
 
 
+CONCEIVE  
+`NodeName & EXEC, `get-name SLIT, 
+`CEQUAL & EXEC, 
+`0= & EXEC, ZBFW, 
+
+`FALSE & EXEC, EXIT, 
+RFW 
+`NamespaceURI & EXEC, `http://forth.org.ru/ForthML/Rules/ SLIT, 
+`CEQUAL & EXEC, 
+`0= & EXEC, ZBFW, 
+
+`FALSE & EXEC, EXIT, 
+RFW 
+`GetName & LIT,  
+`STATE & EXEC, 
+`@ & EXEC, 
+`TS-EXEC & EXEC, `T-SLIT & LIT,  
+`STATE & EXEC, 
+`@ & EXEC, 
+`TS-EXEC & EXEC, 
+`TRUE & EXEC,  BIRTH DUP `r:get-name NAMING- advice-rule-before
+  
+
+
 
 
 

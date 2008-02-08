@@ -36,6 +36,10 @@
   <T><xsl:text>`</xsl:text><x:value-of select="@{@name}"/></T>
 </xsl:template>
 
+<xsl:template match="r:get-name">
+  <T><xsl:text>`</xsl:text><x:value-of select="@name"/></T>
+</xsl:template>
+
 <xsl:template match="r:m">
   <xsl:apply-templates />
 </xsl:template>

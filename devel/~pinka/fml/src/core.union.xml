@@ -41,10 +41,19 @@ and r:m is allowable.
   <f:xt-of name="T-SLIT"/>        STATE @ TS-EXEC <!-- so not useable outside of <m>... -->
 </rule>
 
+<rule match="r:get-name">
+  <f:xt-of name="GetName"/>       STATE @ TS-EXEC
+  <f:xt-of name="T-SLIT"/>        STATE @ TS-EXEC <!-- so not useable outside of <m>... -->
+</rule>
+
 </xi:model><xi:model name="transform" advice="after">
 
 <xsl:template match="r:get-attribute">
   <xsl:text>`</xsl:text><xsl:value-of select="@name"/><xsl:text> GetAttribute T-SLIT</xsl:text>
+</xsl:template>
+
+<xsl:template match="r:get-name">
+  <xsl:text>`name GetAttribute T-SLIT</xsl:text>
 </xsl:template>
 
 </xi:model><!-- /\ = = = = =  \/ -->
