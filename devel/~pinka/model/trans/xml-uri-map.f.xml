@@ -34,7 +34,9 @@
   <xt-of name="default-map"/> handle !
 </def>
 
+<init>
   reset-uri-map <!-- (!!!) -->
+</init>
 
 <r:rule match="system-uri-map"><r:mm>
   <r:get-attribute name="base"/>
