@@ -34,7 +34,7 @@
 <cell name="_row"/>
 <cell name="_col"/>
 
-<def name="build-sscel-current" ds=" a u -- ">
+<def name="build-sscell-current" ds=" a u -- ">
   sscells-wl PUSH-DEVELOP
     
     HERE 0 ,
@@ -52,9 +52,10 @@
   DROP-DEVELOP
 </def>
 
-<def name="?build-sscel-current" ds=" a u -- ">
+<def name="?build-sscell-current" ds=" a u -- ">
+  FINE-HEAD
   DUP <unless> 2DROP <exit/></unless>
-  build-sscel-current
+  build-sscell-current
 </def>
 
 <def name="td-delimiter" ds=" -- a u"><text>^</text></def>
@@ -62,8 +63,8 @@
 <def name="parse-row" ds=" a u -- ">
   1 _col <let>
   <repeat> td-delimiter SPLIT- <while/>
-    build-sscel-current  _col 1+!
-  </repeat> ?build-sscel-current
+    ?build-sscell-current  _col 1+!
+  </repeat> ?build-sscell-current
   </let>
 </def>
 
