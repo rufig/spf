@@ -5,13 +5,21 @@
 <!-- Apr.2007 -->
 <!-- $Id$ -->
 
-<rule match="f:each-textline" ds="c-addr u -- "><mm>
-  <!-- applys to nonempty lines only -->
+<rule match="f:each-line" ds="c-addr u -- "><mm>
+  <!-- each line, include last without line-delimiter -->
   <f:repeat>
     SPLIT-LINE
   <f:while/>
-    2>R <f:choose> DUP <f:when> <yield/> </f:when> 2DROP </f:choose> 2R>
-  </f:repeat> 2DROP
+    2>R <yield/> 2R>
+  </f:repeat> <f:choose> DUP <f:when> <yield/> </f:when> 2DROP </f:choose>
+  </mm>
+</rule>
+
+<rule match="f:each-textline" ds="c-addr u -- "><mm>
+  <!-- applys to nonempty lines only -->
+  <f:each-line>
+    <f:choose> DUP <f:when> <yield/> </f:when> 2DROP </f:choose>
+  </f:each-line>
   </mm>
 </rule>
 
