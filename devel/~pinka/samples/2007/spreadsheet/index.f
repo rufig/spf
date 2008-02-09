@@ -4,5 +4,4 @@
 
 REQUIRE EMBODY ~pinka/spf/forthml/index.f
 
-S" mini.f.xml" EMBODY
-
+S" mini.f.xml" FIND-FULLNAME2 EMBODY
