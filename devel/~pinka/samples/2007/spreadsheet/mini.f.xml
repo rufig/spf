@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../algo/horses/default.xsl"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
+<!-- $Id$ -->
 
 <wordlist name="sscells-wl"/>
 
+<def name="i-sscell" ds=" a-name u-name -- xt true | a u false ">
+  sscells-wl RESOLVE-NAME
+</def>
+
+
 <cell name="_rows"/>
 <cell name="_cols"/>
-
 
 <def name="save-max" ds=" r c -- ">
   _cols @ UMAX _cols !
@@ -20,14 +25,30 @@
   R> HERE OVER -
 </def>
 
+
 <def name="calc-value-by-rc" ds=" r c -- a u ">
-  calc-name sscells-wl RESOLVE-NAME <if> EXECUTE <exit/></if> 2DROP 0.
+  calc-name i-sscell <if> EXECUTE <exit/></if> 2DROP 0.
 </def>
 
+<def name="eval-token" ds=" i*x a1 u1 -- j*x ">
+  i-sscell <if> EXECUTE 2DUP `# STARTS-WITH <if> STHROW </if> StoN <exit/></if>
+  SFIND    <if> EXECUTE <exit/></if>
+  StoN
+</def><!-- analogue of EVALUATE with custom NOTFOUND -->
+<def name="eval-formula" ds=" a1 u1 -- x ">
+  SP@ >R
+  <each-word> eval-token </each-word>
+  SP@ R> - >CELLS 1 NEQ <if> `#NaN STHROW </if>
+</def>
 
+<def name="calc-formula" ds=" a1 u1 -- a2 u2 ">
+  <xt-of name="eval-formula"/> SCATCH <if> 2NIP <exit/></if> NtoS
+</def>
 
-<def name="eval-sscell" ds=" a1 u1 -- a2 u2 ">
-  <rem> on first iteration it is identity </rem>
+<def name="calc-value" ds=" a1 u1 -- a2 u2 ">
+  2DUP `' STARTS-WITH <if><exit/></if>
+  `= MATCH-HEAD  <if> calc-formula <exit/></if>
+  FINE-TAIL
 </def>
 
 
@@ -44,9 +65,7 @@
 
     <def name="{}" ds=" -- a u">
       <lit/> DUP @ <if>DROP `#circle <exit/></if>
-      1 SWAP <let>
-        <slit/> eval-sscell
-      </let>
+      1 SWAP <let>  <slit/> calc-value </let>
     </def>
 
   DROP-DEVELOP
@@ -90,9 +109,9 @@
 </def>
 
 
-<text> ^ ^
-=1 ^ =2 ^ =3 ^
-'A ^ 'B ^ 'C ^
+<text> -2 ^ =B1            ^ = 2 3 4 -- will be NaN
+        4 ^ = A1 A2 + 3 *  ^ =3  ^ = A1 0 /
+      =C3 ^ 'B             ^ =A3 ^
 </text> calc-n-print-table
 
 </forth>
