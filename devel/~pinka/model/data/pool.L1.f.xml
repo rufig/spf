@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem>
+  <bind-up-events> init shutdown startup </bind-up-events>
+  <!-- require Synchr.f Semaphore.f critical.f -->
+</rem>
+
+<wordlist name="pool-L1-hidden">
+
+<const name="limit">5000</const>
+<const name="cs"> ALIGN HERE MAKE-CS, </const>
+
+<cell name="_sem"/>     <def name="sem" ds=" -- sem " > _sem @ </def>
+<cell name="_zbuf"/>
+
+<cell name="ZP"/>
+<cell name="Z0"/>
+
+<include href="zstack.L1.immutable.f.xml" />
+
+<bind event="init">
+  _sem 0!  0 0 ZASSUME _zbuf 0!
+</bind>
+
+<bind event="shutdown" ds=" -- ">
+  _sem  @ ?DUP <if> CloseSem THROW  _sem 0! </if>
+  _zbuf @ ?DUP <if> FREE THROW     _zbuf 0! </if>
+  0 0 ZASSUME
+</bind>
+
+<bind event="startup" ds=" -- ">
+  0. limit 0 CreateSem THROW _sem !
+  limit 1+ CELLS ALLOCATE THROW _zbuf !
+  _zbuf @ limit CELLS ZASSUME
+</bind>
+
+<export>
+
+<def name="pool-idle" ds=" -- u ">
+  sem SemState
+</def>
+
+<def name="wait-worker" ds=" timeout -- x true | false ">
+  sem SWAP Wait <unless> FALSE <exit/></unless>
+  cs ENTER-CS
+    Z>
+  cs LEAVE-CS TRUE
+</def>
+
+<def name="release-worker" ds=" x -- ">
+  cs ENTER-CS
+    >Z
+  cs LEAVE-CS
+  sem ReleaseSem
+</def>
+
+<def name="hire-worker" ds=" -- x true | false ">
+  0 wait-actor
+</def>
+
+</export>
+</wordlist>
+
+</forth>
