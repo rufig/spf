@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth
+   xmlns="http://forth.org.ru/ForthML/"
+   xmlns:f="http://forth.org.ru/ForthML/"
+   xmlns:r="http://forth.org.ru/ForthML/Rules/"
+>
+
+<!-- require list-plain.f.xml -->
+
+<def name="ALLOT-EVENT" ds=" -- addr ">
+  ALIGN HERE 0 , 0 ,
+</def>
+
+<def name="BIND-EVENT" ds=" xt ev -- ">
+  >R 0 , HERE SWAP , R> BIND-DNODE-TAIL
+</def>
+
+<def name="FIRE-EVENT" ds=" ev -- ">
+  <xt-of name="EXECUTE"/> FOR-LIST-VALUE
+</def>
+
+
+<r:rule match="f:event" ds=" -- ">
+  <r:m><r:get-name/><const name="{}"> ALLOT-EVENT </const></r:m>
+</r:rule>
+
+<r:rule match="f:bind" ds=" -- ">
+  <r:m>
+    <q><r:yield/></q><r:exec-attribute name="event"/>  BIND-EVENT
+  </r:m>
+</r:rule>
+
+</forth>
