@@ -21,7 +21,7 @@
 
 
 <r:rule match="f:event" ds=" -- ">
-  <r:m><r:get-name/><const name="{}"> ALLOT-EVENT </const></r:m>
+  <r:mm><r:get-name/><const name="{}"> ALLOT-EVENT </const></r:mm>
 </r:rule>
 
 <r:rule match="f:bind" ds=" -- ">
