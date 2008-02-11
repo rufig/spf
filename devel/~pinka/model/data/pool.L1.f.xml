@@ -55,8 +55,8 @@
   sem ReleaseSem
 </def>
 
-<def name="hire-worker" ds=" -- x true | false ">
-  0 wait-actor
+<def name="hire-worker" ds=" -- x ">
+  0 wait-worker <unless> ABORT </unless>
 </def>
 
 </export>
