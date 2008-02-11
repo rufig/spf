@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <f:forth xmlns:f="http://forth.org.ru/ForthML/"
   xmlns="http://forth.org.ru/ForthML/Rules/"
+xmlns:r="http://forth.org.ru/ForthML/Rules/"
 >
 <!-- Apr.2007 -->
 <!-- $Id$ -->
@@ -29,5 +30,11 @@
   </f:repeat> 2DROP RDROP RDROP
   </mm>
 </rule>
+
+
+<rule match="r:exec-attribute" ds=" i*x -- j*x ">
+  <postpone><f:slit>`name GetAttribute</f:slit> GetAttribute T-PLAIN </postpone>
+</rule>
+
 
 </f:forth>
