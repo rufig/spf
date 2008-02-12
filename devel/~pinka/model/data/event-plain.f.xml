@@ -30,4 +30,8 @@
   </r:m>
 </r:rule>
 
+<!-- What about the f:handler instead of the f:bind?
+  see also XML Binding Language (XBL), http://www.w3.org/TR/xbl/#the-handler
+-->
+
 </forth>
