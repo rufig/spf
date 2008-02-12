@@ -21,9 +21,9 @@ REQUIRE CREATE-CS ~pinka/lib/multi/Critical.f
 
  startup FIRE-EVENT
 
- 1 release-worker pool-idle . CR
- 2 release-worker pool-idle . CR
- 3 release-worker pool-idle . CR
+ 10 release-worker pool-idle . CR
+ 20 release-worker pool-idle . CR
+ 30 release-worker pool-idle . CR
 
  hire-worker . pool-idle . CR
  hire-worker . pool-idle . CR
