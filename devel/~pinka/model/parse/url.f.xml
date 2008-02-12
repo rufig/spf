@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Ported from whead, (c) 25.Dec.2006 me -->
+
+<comment>
+  See also: http://www.w3.org/TR/Window/#location -- The Location Interface
+</comment>
+
+<rem> pieces of the URI, per the generic URI syntax </rem>
+<text>
+  user pass  url   href protocol host hostname port pathname search hash
+</text>
+             2DUP
+<each-word>
+  HERE 0 , 0 , DUP 2SWAP
+  <def name="{2DUP}" ><lit>ROT</lit>2@</def>
+  <def name="{2DUP}!"><lit>ROT</lit>2!</def>
+  2DROP
+</each-word>
+
+<def name="dump-location" ds=" -- " xmlns:r="http://forth.org.ru/ForthML/Rules/">
+  <r:direct><each-word>
+    2DUP <r:postpone><slit/> TYPE <emit> -- </emit><exec>&amp;</exec> TYPE CR </r:postpone>
+  </each-word></r:direct>
+</def>
+
+
+<cell name="_port-number"/>
+<cell name="_port-number-default"> 80 </cell>
+
+<def name="port-number" ds=" -- n "> _port-number @ </def>
+
+<def name="port!" ds=" a u -- ">
+  <choose>
+    DUP <when> 2DUP StoN </when>
+    <otherwise> _port-number-default @ </otherwise>
+  </choose> _port-number !  port!
+</def>
+
+<def name="auth!" ds=" a u -- "><!-- user@pass:port -->
+  `: SPLIT <unless> 0. </unless> pass! user!
+</def>
+
+<def name="hostport!" ds=" a u -- "><!-- user:pass@hostname:port  -->
+  `@ SPLIT- <unless> 0. </unless> auth!
+  2DUP host!
+  `: SPLIT  <unless> 0. </unless> port!  hostname!
+</def>
+
+<!-- http://hostname:port/pathname?search#hash -->
+
+<def name="(parse-url)" ds=" -- ">
+  url
+  `? SPLIT >R
+  `# SPLIT <choose><when> 1 CBACK </when> 0. </choose> hash!
+        R> <choose><when> 1 CBACK </when> 0. </choose> search!
+  `:// SPLIT- <choose><when> 1 CFORW  </when> `http: </choose>  protocol!
+  `/   SPLIT  <choose><when> 1 CBACK  </when> 0.     </choose>  pathname! hostport!
+</def>
+
+<def name="assume-url" ds=" a u -- ">
+  2DUP url! href! (parse-url)
+</def>
+<rem> Not URI overall (any scheme), e.g. http://gbiv.com/protocols/uri/rfc/rfc3986.html#examples </rem>
+
+</forth>
