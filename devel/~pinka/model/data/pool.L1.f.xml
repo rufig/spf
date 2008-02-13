@@ -19,21 +19,21 @@
 
 <include href="zstack.L1.immutable.f.xml" />
 
-<bind event="init">
+<handler event="init">
   _sem 0!  0 0 ZASSUME _zbuf 0!
-</bind>
+</handler>
 
-<bind event="shutdown" ds=" -- ">
+<handler event="shutdown" ds=" -- ">
   _sem  @ ?DUP <if> CloseSem THROW  _sem 0! </if>
   _zbuf @ ?DUP <if> FREE THROW     _zbuf 0! </if>
   0 0 ZASSUME
-</bind>
+</handler>
 
-<bind event="startup" ds=" -- ">
+<handler event="startup" ds=" -- ">
   0. limit 0 CreateSem THROW _sem !
   limit 1+ CELLS ALLOCATE THROW _zbuf !
   _zbuf @ limit CELLS ZASSUME
-</bind>
+</handler>
 
 <export>
 

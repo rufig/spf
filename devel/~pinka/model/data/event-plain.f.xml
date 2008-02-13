@@ -24,14 +24,25 @@
   <r:mm><r:get-name/><const name="{}"> ALLOT-EVENT </const></r:mm>
 </r:rule>
 
-<r:rule match="f:bind" ds=" -- ">
+<r:rule match="f:handler" ds=" -- ">
   <r:m>
     <q><r:yield/></q><r:exec-attribute name="event"/>  BIND-EVENT
   </r:m>
 </r:rule>
 
+
 <!-- What about the f:handler instead of the f:bind?
-  see also XML Binding Language (XBL), http://www.w3.org/TR/xbl/#the-handler
+  see also:
+  XML Binding Language (XBL), http://www.w3.org/TR/xbl/#the-handler
+  Scalable Vector Graphics (SVG), http://www.w3.org/TR/SVGMobile12/script.html#HandlerElement
+  Remote Events for XML (REX), http://www.w3.org/TR/rex/#elem-event
+  An Events Syntax for XML, http://www.w3.org/TR/xml-events/#section-listener-element
+
+  ColdFusion XML format (using bind Element)
+    http://gisnet.cstx.gov/cfdocs/htmldocs/help.html?content=XMLForms_10.html
+
+  MSDN, Speech Server, bind Element
+    http://msdn2.microsoft.com/en-us/library/bb857583.aspx
 -->
 
 </forth>
