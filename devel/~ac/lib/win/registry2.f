@@ -95,7 +95,7 @@ DECIMAL
   -> key DROP -> name
   1024 ALLOCATE THROW -> data  1000 -> cbdata
   ^ cbdata data ^ type 0 name key RegQueryValueExA
-  DUP 0= IF DROP data cbdata type ELSE S" " ROT THEN
+  DUP 0= IF DROP data cbdata type ELSE data 0 ROT THEN
   \ освобождать по FREE возвращенный data должна вызывающая программа!
   \ type=1=REG_SZ - строка, 4=REG_DWORD - число
 ;
@@ -114,7 +114,7 @@ HKEY_LOCAL_MACHINE EK !
 
 : Value ( valuename-a valuename-u keyname-a keyname-u -- addr u type )
   EK @ RG_OpenKey
-  IF DROP 2DROP S" " 0
+  IF DROP 2DROP ( S" ") 1 ALLOCATE THROW 0  0
   ELSE RG_QueryValue THEN
 ;
 : Value! ( addr u type valuename-a valuename-u keyname-a keyname-u -- )

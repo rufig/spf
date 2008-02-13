@@ -113,7 +113,7 @@ HKEY_LOCAL_MACHINE EK !
 
 : Value ( valuename-a valuename-u keyname-a keyname-u -- addr u type )
   EK @ RG_OpenKey
-  IF DROP 2DROP S" " 0
+  IF DROP 2DROP ( S" ") 1 ALLOCATE THROW 0  0
   ELSE RG_QueryValue THEN
 ;
 : Value! ( addr u type valuename-a valuename-u keyname-a keyname-u -- )
