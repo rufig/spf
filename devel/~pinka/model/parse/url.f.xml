@@ -52,10 +52,10 @@
 <def name="(parse-url)" ds=" -- ">
   url
   `? SPLIT >R
-  `# SPLIT <choose><when> 1 CBACK </when> 0. </choose> hash!
-        R> <choose><when> 1 CBACK </when> 0. </choose> search!
-  `:// SPLIT- <choose><when> 1 CFORW  </when> `http: </choose>  protocol!
-  `/   SPLIT  <choose><when> 1 CBACK  </when> 0.     </choose>  pathname! hostport!
+  `# SPLIT <choose><when> 1 CLEFT+ </when> 0. </choose> hash!
+        R> <choose><when> 1 CLEFT+ </when> 0. </choose> search!
+  `:// SPLIT- <choose><when> 1 CRIGHT+ </when> `http: </choose>  protocol!
+  `/   SPLIT  <choose><when> 1 CLEFT+  </when> 0.     </choose>  pathname! hostport!
 </def>
 
 <def name="assume-url" ds=" a u -- ">

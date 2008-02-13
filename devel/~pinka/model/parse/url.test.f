@@ -1,7 +1,6 @@
 REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
 \ temporary, need a better name(?):
-
 : StoN ( c-addr u -- x )
   forthml-hidden::I-LIT IF EXIT THEN 2DROP 0
 ;
@@ -9,10 +8,10 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
 \ experimetal words:
 
-: CBACK ( a u cn -- a2 u2 )
+: CLEFT+ ( a u cn -- a2 u2 )
   CHARS TUCK + >R - R>
 ;
-: CFORW ( a u cn -- a2 u2 )
+: CRIGHT+ ( a u cn -- a2 u2 )
   CHARS +
 ;
 
