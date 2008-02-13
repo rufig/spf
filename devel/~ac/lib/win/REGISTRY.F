@@ -94,7 +94,7 @@ DECIMAL
   key ! DROP name !
   1024 ALLOCATE THROW data !  1000 cbdata !
   cbdata data @ type 0 name @ key @ RegQueryValueExA
-  DUP 0= IF DROP data @ cbdata @ type @ ELSE S" " ROT THEN
+  DUP 0= IF DROP data @ cbdata @ type @ ELSE data 0 ROT THEN
   \ освобождать по FREE возвращенный data должна вызывающая программа!
   \ type=1=REG_SZ - строка, 4=REG_DWORD - число
 ;
