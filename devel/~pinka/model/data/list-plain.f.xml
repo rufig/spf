@@ -17,12 +17,12 @@
 <def name="CDR-BY-VALUE" ds=" x node1 -- x node2|0 ">
   <repeat> DUP <while/> 2DUP @ NEQ <while/> CELL- @ </repeat>
 </def>
-<def name="FIND-NODE" ds=" x list -- node true | false ">
-  @ CDR-BY-VALUE NIP DUP <if> TRUE </if>
+<def name="FIND-NODE" ds=" x list -- node true | x false ">
+  @ CDR-BY-VALUE DUP <if> NIP TRUE </if>
 </def>
-<def name="FIND-LIST" ds=" x list -- sub-list true | false ">
+<def name="FIND-LIST" ds=" x list -- sub-list true | x false ">
   SWAP >R DUP @  <repeat> DUP <while/> <!-- ( list node ) -->
-  DUP @ R@ = <if> DROP RDROP TRUE <exit/></if> NIP CELL- DUP @ </repeat> RDROP NIP <!-- ( false ) -->
+  DUP @ R@ = <if> DROP RDROP TRUE <exit/></if> NIP CELL- DUP @ </repeat> 2DROP R> FALSE
 </def>
 <def name="FOREACH-LIST-NODE" ds=" xt list -- "><rem> xt ( node -- ) </rem>
   @ <repeat> DUP <while/> 2DUP 2>R SWAP EXECUTE 2R> CELL- @ </repeat> 2DROP
