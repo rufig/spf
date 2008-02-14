@@ -9,10 +9,7 @@
 <def name="ALLOT"   ds=" n -- "     > DP +!      </def>
 <def name="ALIGN"   ds=" -- "       > DP @ ALIGNED DP ! </def>
 
-<rem> unused yet
 <def name="B,"      ds=" b -- "     > HERE B!     1 ALLOT </def>
-</rem>
-
 <def name="C,"      ds=" c -- "     > HERE C! /CHAR ALLOT </def>
 <def name=","       ds=" x -- "     > HERE  ! /CELL ALLOT </def>
 <def name="2,"      ds=" x x -- "   > HERE 2! 2 CELLS ALLOT </def>
@@ -42,7 +39,7 @@
   D0 @ DP @ OVER -
 </def>
 
-<def name="RESET-DATASPACE" ds=" -- ">
+<def name="CLEAR-DATASPACE" ds=" -- ">
   D0 @ DP !
 </def>
 
