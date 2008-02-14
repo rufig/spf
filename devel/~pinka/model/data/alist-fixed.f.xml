@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="alist-text-hidden"><rem> alist is associative list </rem>
+
+<!-- aggregation -->
+<include href="data-space.f.xml" />
+<include href="wordlist-plain.static.f.xml" />
+
+<cell name="_size"> 20 1024 * </cell><!-- it is fixed -->
+
+<handler event="init">
+  0. DATASPACE!
+  reset-list
+</handler>
+
+<handler event="startup" ds=" -- ">
+  _size @ ALLOCATED DATASPACE!
+  reset-list
+</handler>
+
+<handler event="shutdown" ds=" -- ">
+  DATASPACE DROP FREE THROW
+  0. DATASPACE!
+  reset-list
+</handler>
+
+<export>
+
+<def name="clear-alist" ds=" -- ">
+  CLEAR-DATASPACE reset-list
+</def>
+
+<def name="save-pair" ds=" a1 u1 a-key u-key -- ">
+  2>R ALIGN HERE >R SXZ, R> 2R> relate
+  <!-- may be check for overflow -->
+</def>
+<def name="obtain-value" ds=" a-key u-key -- a2 u1 ">
+  find <if> XCOUNT <exit/></if> 2DROP 0.
+</def>
+
+</export>
+</wordlist>
+
+</forth>
