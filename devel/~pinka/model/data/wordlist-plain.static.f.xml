@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<include href="wordlist-plain.f.xml"/>
+
+<cell name="_list"/><!-- is static -->
+
+<def name="reset-list" ds=" -- "><rem> It does't free any resources </rem> 
+  _list 0!
+</def>
+
+<def name="find" ds=" c-addr u -- x true | c-addr u false ">
+  _list FIND-WORDLIST
+</def>
+
+<def name="relate" ds=" x c-addr u -- ">
+  _list RELATE-WORDLIST
+</def>
+
+</forth>
