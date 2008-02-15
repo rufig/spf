@@ -56,7 +56,7 @@
 </def>
 
 <def name="hire-worker" ds=" -- x ">
-  0 wait-worker <unless> ABORT </unless>
+  -1 wait-worker <unless> ABORT </unless>
 </def>
 
 </export>
