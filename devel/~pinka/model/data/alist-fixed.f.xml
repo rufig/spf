@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1251"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<wordlist name="alist-text-hidden"><rem> alist is associative list </rem>
+<wordlist name="alist-fixed-hidden"><rem> alist is associative list </rem>
 
 <!-- aggregation -->
 <include href="data-space.f.xml" />
@@ -32,9 +32,10 @@
 </def>
 
 <def name="save-pair" ds=" a1 u1 a-key u-key -- ">
+  2 PICK OVER + 10 CELLS + UNUSED ULT <unless> -8 THROW </unless>
   2>R ALIGN HERE >R SXZ, R> 2R> relate
-  <!-- may be check for overflow -->
 </def>
+
 <def name="obtain-value" ds=" a-key u-key -- a2 u1 ">
   find <if> XCOUNT <exit/></if> 2DROP 0.
 </def>
