@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="APPEND-WORDLIST" ds=" h-list2 h-list -- "><rem> it saves order </rem>
+  SWAP 0 >R
+  @ <repeat> DUP <while/> DUP >R CDR </repeat> DROP
+  <repeat> R@ <while/>
+    0 ,   <!-- link -->
+    HERE  R@ @ , R> CELL+ @ , <!-- [ x key-addr ] -->
+    OVER  BIND-NODE
+  </repeat> RDROP DROP
+</def>
+
+<def name="NODE-NAME" ds=" node -- a u "> CELL+ @ COUNT </def>
+
+<def name="NLIST" ds=" wid -- ">
+  CR 0 SWAP 0 >R  @
+  <repeat> DUP <while/> SWAP 1+ SWAP  DUP NODE-NAME
+    DUP R> + DUP 74 UGT <if> DROP 0 CR </if>  >R
+    TYPE  15 R@ 15 MOD - DUP RP@ +! SPACES
+    CDR
+  </repeat> DROP RDROP
+  CR CR <emit>Words: </emit> U. CR
+</def>
+
+</forth>
