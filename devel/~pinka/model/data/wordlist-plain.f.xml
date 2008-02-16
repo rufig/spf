@@ -4,12 +4,12 @@
 
 <def name="RELATE-WORDLIST" ds=" x c-addr u h-list -- ">
   >R  ALIGN 0 , HERE >R
-  ROT , SCZ, <!-- [ x [ u ccc 0 ] ] -->
+  ROT , HERE CELL+ , SCZ, <!-- [ x key-addr [ u ccc 0 ] ] -->
   R> R> BIND-NODE
 </def>
 
 <def name="CDR-BY-NAME" ds=" c-addr u node1|0 -- c-addr u node2|0 ">
-  <repeat> DUP <while/> >R 2DUP R@ CELL+ COUNT EQUAL R> SWAP 0EQ <while/> CDR </repeat>
+  <repeat> DUP <while/> >R 2DUP R@ CELL+ @ COUNT EQUAL R> SWAP 0EQ <while/> CDR </repeat>
 </def>
 
 <def name="FIND-WORDLIST" ds=" c-addr u h-list -- x true | c-addr u false ">
