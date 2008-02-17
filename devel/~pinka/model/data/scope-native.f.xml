@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<include href="scope.static.f.xml"/>
+
+<def name="I-NATIVE" ds=" c-addr u -- xt true | c-addr u false ">
+  <xt-of name="FIND-WORDLIST"/> SCAN-SCOPE-WITH
+</def>
+
+
+<rem>
+<also wordlist="scope-hidden">
+
+<def name="ORDER" ds=" -- ">
+  <emit>Context>: </emit>
+  ZDEPTH <repeat> DUP <while/> 1- DUP ZPICK VOC-NAME. </repeat> DROP CR
+  <emit>Current: </emit> CURRENT @ VOC-NAME. CR
+</def>
+
+</also>
+</rem>
+
+</forth>
