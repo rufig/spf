@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 01.2008 -->
+
+<def name="SCAN-Z-WITH" ds=" i*x xt -- j*x flag "><rem> xt ( i*x x-nth -- j*x flag ) </rem>
+  ZP @ <repeat> Z0 @ OVER UGT <while ds="xt a"/>
+  2DUP 2>R @ SWAP EXECUTE <if> RDROP RDROP TRUE <exit/></if>
+  2R> CELL+ </repeat> 2DROP FALSE
+</def>
+
+</forth>
