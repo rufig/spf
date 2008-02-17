@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="scope-hidden">
+
+32 CELLS <include href="zstack.L1.static.f.xml"/>
+
+<include href="zstack-scan.f.xml"/>
+
+<export>
+
+<def name="CLEAR-SCOPE"   ds=" -- "    >  ZCLEAR    </def>
+<def name="PUSH-SCOPE"    ds=" wid -- ">  >Z    ?ZP </def>
+<def name="POP-SCOPE"     ds=" -- "    >  Z>    ?ZP </def>
+<def name="DROP-SCOPE"    ds=" -- "    >  ZDROP ?ZP </def>
+
+<def name="SCAN-SCOPE-WITH" ds=" c-addr u -- xt true | c-addr u false ">
+  SCAN-Z-WITH
+</def>
+
+</export></wordlist>
+
+</forth>
