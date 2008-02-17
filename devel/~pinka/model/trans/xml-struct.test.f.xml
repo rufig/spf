@@ -7,10 +7,13 @@
 
   <emit-line> #A 1 </emit-line>
 
+  <xi:model name="B"><emit-line> B, 1 </emit-line></xi:model>
+  <xi:model name="B"><emit-line> B, 2 </emit-line></xi:model>
+
   <xi:model name="A" href="#A">
 
     <emit-line> fallback, #A is not found </emit-line>
-
+    <xi:include href="#B"><emit>where is B?</emit>CR</xi:include><!-- must produce B, 2 -->
   </xi:model>
 
   <emit-line> #A 2 </emit-line>
