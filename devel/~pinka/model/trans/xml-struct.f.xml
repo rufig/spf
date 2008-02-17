@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+     xmlns:f="http://forth.org.ru/ForthML/"
+     xmlns:r="http://forth.org.ru/ForthML/Rules/"
+
+    xmlns:xi="http://forth.org.ru/ForthML/Struct/"
+>
+<also wordlist="forthml-hidden">
+
+<wordlist name="xml-struct-hidden">
+
+<g xml:base="../data/">
+<include href="data-space.f.xml" />
+<include href="wordlist-plain.static.f.xml" />
+<include href="wordlist-plain-tools.f.xml" />
+</g>
+
+<cell name="_size"> 200 1024 * </cell><!-- it is fixed -->
+
+<handler event="startup" ds=" -- ">
+  _size @ ALLOCATED DATASPACE! reset-list
+</handler>
+
+<cell name="_list2"/>
+
+<def name="compose-new-list" ds=" cnode -- node-as-list ">
+  _list2 0! <g ds=" cnode -- cnode ">
+  _list <q><rem> put other nodes to new list </rem>
+    <choose> 2DUP @ NEQ <when> _list2 APPEND-WORDLIST-NODE </when> DROP </choose>
+  </q> FOR-LIST-NODE </g> DROP
+  _list2 @
+</def>
+
+<def name="include-model" >
+  `href GetAttribute DUP <if> `# MATCH-HEAD <unless> Embody <exit/></unless></if>
+  find <unless> 2DROP <r:yield/><exit/></unless><!-- it is fallback -->
+  <g ds=" xml-node -- "><rem> substituate model </rem>
+   cnode _list @ 2>R
+   DUP cnode! compose-new-list _list !
+   <recurse/>
+   2R> _list ! cnode!
+  </g>
+</def>
+
+<r:rule match="xi:model">
+  cnode GetName relate
+</r:rule>
+
+<r:rule match="xi:include">
+  include-model
+</r:rule>
+
+<r:rule match="f:forth"><!-- redefined, not so good (!!!) -->
+  _list @ _list <let><r:yield/></let>
+  <!-- need to free an alloted space -->
+</r:rule>
+
+</wordlist></also>
+</forth>
