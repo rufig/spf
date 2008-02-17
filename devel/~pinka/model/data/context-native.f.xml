@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<include href="scope-native.f.xml"/>
+
+<cell name="CURRENT"/>
+
+<def name="PUSH-CURRENT" ds=" wid -- ">
+  CURRENT @ >CS CURRENT !
+</def>
+<def name="DROP-CURRENT" ds=" -- ">
+  CS> CURRENT !
+</def>
+
+<def name="PUSH-DEVELOP" ds=" wid -- ">
+  DUP PUSH-SCOPE PUSH-CURRENT
+</def>
+<def name="POP-DEVELOP" ds=" -- wid ">
+  DROP-CURRENT POP-SCOPE
+</def>
+<def name="DROP-DEVELOP" ds=" -- "><!-- FURL -->
+  DROP-CURRENT DROP-SCOPE
+</def>
+<def name="BEGIN-EXPORT" ds=" -- ">
+  CS@ PUSH-CURRENT
+</def>
+<def name="END-EXPORT" ds=" -- ">
+  DROP-CURRENT
+</def>
+
+</forth>
