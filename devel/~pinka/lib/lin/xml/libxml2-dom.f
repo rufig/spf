@@ -316,12 +316,17 @@ ALSO libxml2.dll \ WARNING @ WARNING OFF
   2>R DROP xmlParserOption SWAP 0 R> R>
   5 xmlReadMemory
 ;
-: LOAD-XMLDOC ( addrz u -- doc|0 )
+: old_LOAD-XMLDOC ( addrz u -- doc|0 )
   2DUP
   GET-FILE DUP >R STR@ LOAD-XMLMEM R> STRFREE
   ( a u doc|0 )
   DUP IF DUP >R documentURI! R> EXIT THEN
   NIP NIP
+;
+: LOAD-XMLDOC ( addrz u -- doc|0 )
+  DROP
+  xmlParserOption 0 ROT 
+  3 xmlReadFile
 ;
 : FREE-XML ( doc -- )
   1 xmlFreeDoc DROP
