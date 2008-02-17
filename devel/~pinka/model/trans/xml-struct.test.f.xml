@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+    xmlns:xi="http://forth.org.ru/ForthML/Struct/"
+>
+
+<xi:model name="A">
+
+  <emit-line> #A 1 </emit-line>
+
+  <xi:model name="A" href="#A">
+
+    <emit-line> fallback, #A is not found </emit-line>
+
+  </xi:model>
+
+  <emit-line> #A 2 </emit-line>
+
+  <xi:include href="#A">
+    <emit-line> fallback in include </emit-line>
+  </xi:include>
+
+  <emit-line> #A 3 </emit-line>
+
+</xi:model>
+
+<xi:include href="#A"/>
+
+</forth>
