@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<def name="APPEND-WORDLIST-NODE" ds=" node h-list -- ">
-  0 ,  <!-- link -->
-  HERE SWAP  BIND-NODE <!-- does not any allot -->
+<def name="COPY-WORDLIST-NODE" ds=" node1 -- node2 ">
+  0 , HERE SWAP <!-- link -->
   DUP @ , CELL+ @ , <!-- [ x key-addr ] -->
 </def>
 
+<def name="APPENDED-WORDLIST-NODE-" ds=" node2 node1 -- node3 ">
+  COPY-WORDLIST-NODE CONCATED-
+</def>
+
 <def name="APPEND-WORDLIST" ds=" h-list2 h-list -- "><rem> it saves order </rem>
-  SWAP 0 >R
-  @ <repeat> DUP <while/> DUP >R CDR </repeat> DROP
-  <repeat> R> DUP <while/> OVER APPEND-WORDLIST-NODE </repeat> 2DROP
+  SWAP @  0 >R  
+  <repeat> DUP <while/> DUP >R CDR </repeat> DROP
+  DUP @
+  <repeat> R> DUP <while/> APPENDED-WORDLIST-NODE- </repeat> DROP  SWAP !
 </def>
 
 <def name="NODE-NAME" ds=" node -- a u "> CELL+ @ COUNT </def>

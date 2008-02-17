@@ -12,6 +12,16 @@
 <comment> node format is:
   | link-to-next-node-data |^ node-data ... |
 </comment>
+<!--
+<def name="CAR" > @ </def> -->
+<def name="CDR" ds=" node1 - node|0 "> CELL- @ </def>
+
+<def name="CONCATED" ds=" node2 node1 -- node2 ">
+  OVER CELL- !
+</def>
+<def name="CONCATED-" ds=" node1 node2 -- node2 ">
+  TUCK CELL- !
+</def>
 
 <def name="BIND-NODE" ds=" node list -- ">
   2DUP @ <!-- ( node list node node-o ) -->
@@ -24,6 +34,14 @@
 <def name="CDR-BY-VALUE" ds=" x node1 -- x node2|0 ">
   <repeat> DUP <while/> 2DUP @ NEQ <while/> CELL- @ </repeat>
 </def>
+<def name="FOREACH-NODE" ds=" xt node -- "><rem> xt ( node-i -- ) </rem>
+    <repeat> DUP <while/> 2DUP 2>R SWAP EXECUTE 2R> CELL- @ </repeat> 2DROP
+</def>
+<def name="REVERSE-NODE" ds=" node1 -- node2 ">
+  0 SWAP <repeat> DUP <while ds=" prev next" /> TUCK CELL- DUP @ -ROT ! </repeat> DROP
+</def>
+
+
 <def name="FIND-NODE" ds=" x list -- node true | x false ">
   @ CDR-BY-VALUE DUP <if> NIP TRUE </if>
 </def>
@@ -32,7 +50,7 @@
   DUP @ R@ = <if> DROP RDROP TRUE <exit/></if> NIP CELL- DUP @ </repeat> 2DROP R> FALSE
 </def>
 <def name="FOREACH-LIST-NODE" ds=" xt list -- "><rem> xt ( node -- ) </rem>
-  @ <repeat> DUP <while/> 2DUP 2>R SWAP EXECUTE 2R> CELL- @ </repeat> 2DROP
+  @ FOREACH-NODE
 </def>
 <def name="FOREACH-LIST-VALUE" ds=" xt list -- "><rem> xt ( node -- ) </rem>
   @ <repeat> DUP <while/> 2DUP 2>R @ SWAP EXECUTE 2R> CELL- @ </repeat> 2DROP
@@ -45,10 +63,6 @@
   SWAP FOREACH-LIST-VALUE
 </def>
 
-<!--
-<def name="CAR" > @ </def>
--->
-<def name="CDR" ds=" node1 - node|0 "> CELL- @ </def>
 
 <def name="CALC-NODE-LAST" ds=" list -- node|0 ">
   0 <xt-of name="NIP"/> ROT FOREACH-LIST-NODE
