@@ -21,14 +21,12 @@
   _size @ ALLOCATED DATASPACE! reset-list
 </handler>
 
-<cell name="_list2"/>
-
-<def name="compose-new-list" ds=" cnode -- node-as-list ">
-  _list2 0! <g ds=" cnode -- cnode ">
-  _list <q><rem> put other nodes to new list </rem>
-    <choose> 2DUP @ NEQ <when> _list2 APPEND-WORDLIST-NODE </when> DROP </choose>
-  </q> FOR-LIST-NODE </g> DROP
-  _list2 @
+<def name="compose-new-list" ds=" -- node-as-list ">
+  0 
+  <q ds=" n1 node -- n2 "><rem> put an other nodes to the new list </rem>
+    <choose> DUP @ cnode NEQ <when> APPENDED-WORDLIST-NODE- </when> DROP </choose>
+  </q> _list @ FOREACH-NODE
+  REVERSE-NODE
 </def>
 
 <def name="include-model" >
@@ -36,7 +34,7 @@
   find <unless> 2DROP <r:yield/><exit/></unless><!-- it is fallback -->
   <g ds=" xml-node -- "><rem> substituate model </rem>
    cnode _list @ 2>R
-   DUP cnode! compose-new-list _list !
+   cnode! compose-new-list _list !
    <recurse/>
    2R> _list ! cnode!
   </g>
