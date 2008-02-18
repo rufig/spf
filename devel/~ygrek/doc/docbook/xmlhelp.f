@@ -27,8 +27,6 @@ REQUIRE LAY-PATH ~pinka/samples/2005/lib/lay-path.f
   DUP C, S,
 ;
 
-EXPORT
-
 (
 
 Переопределяются : и ;
@@ -49,7 +47,7 @@ VARIABLE xmlIndent
                         \ для того чтобы взять только те комменты которые идут до слова
 "" VALUE comments-storage \ хранилище комментариев
 0 VALUE HERE-AT-MODULE-START
-\ 0x1FFFFFFF VALUE TC-IMAGE-BASE
+0x1FFFFFFF VALUE TC-IMAGE-BASE
 
 : XMLHELP-ON
     TRUE TO generateHelp?
@@ -221,6 +219,25 @@ SPECIAL > &gt;
     2DROP
    THEN ;
 
+: StartModuleComment
+    +indent
+    0 TO str-of-comments
+    TRUE TO moduleComment?
+    HERE TO HERE-AT-MODULE-START
+;
+
+: EndModuleComment
+   moduleComment?
+   IF
+     -indent
+     FALSE TO moduleComment?
+   THEN
+;
+
+: :: : ;
+
+EXPORT
+
 : (
   BEGIN
     [CHAR] ) >R
@@ -240,21 +257,6 @@ SPECIAL > &gt;
    CURSTR @ TO str-of-comments
    0 PARSE HandleSpecialChars " <comment>{s}</comment>" comments-storage S+
 ; IMMEDIATE
-
-: StartModuleComment
-    +indent
-    0 TO str-of-comments
-    TRUE TO moduleComment?
-    HERE TO HERE-AT-MODULE-START
-;
-
-: EndModuleComment
-   moduleComment?
-   IF
-     -indent
-     FALSE TO moduleComment?
-   THEN
-;
 
 \ Таким образом мы знаем какой модуль в каком подключается
 : INCLUDED ( addr u )
@@ -297,12 +299,10 @@ SPECIAL > &gt;
     THEN
 ;
 
-: :: : ;
-
 : StartColonHelp ( primitive? )
 
   \ Skip words of target compiler
-\  HERE TC-IMAGE-BASE < IF DROP EXIT THEN
+  HERE TC-IMAGE-BASE < IF DROP EXIT THEN
 
   EndModuleComment
   generateHelp? 0= IF DROP EXIT THEN
@@ -407,5 +407,7 @@ XMLHELP-OFF
       docHandle CLOSE-FILE THROW
     THEN
 ;
+
+: SET-XMLHELP-FENCE ( addr -- ) TO TC-IMAGE-BASE ;
 
 ;MODULE
