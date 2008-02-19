@@ -8,13 +8,12 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
   startup FIRE-EVENT
 
-`index.f.xml EMBODY
+`index.f.xml FIND-FULLNAME2 EMBODY
+
 
 target-wl ALSO!
 
-CR ORDER
-WORDS 
-
+CR ORDER WORDS
 
 
 \EOF
