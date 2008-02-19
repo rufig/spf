@@ -19,7 +19,6 @@ REQUIRE ftLastWriteTime ~ac/lib/win/file/findfile-r.f
 
   NIP SWAP
   /WIN32_FIND_DATA RALLOT >R
-  R@ /WIN32_FIND_DATA ERASE
   R@ SWAP FindFirstFileA ( xt id )
   DUP -1 = IF 2DROP ELSE FindClose DROP ( xt )
   R@ cFileName ASCIIZ> ( xt a u ) ROT R@ SWAP EXECUTE
