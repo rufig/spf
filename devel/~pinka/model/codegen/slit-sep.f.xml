@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 02.2008 -->
+
+<def name="SXZ,TAKE" ds=" c-addr u -- a2 u ">
+  ALIGN HERE OVER 2SWAP SXZ,
+</def>
+
+<def name="SLIT," ds=" c-addr u -- "><rem> counts in address unit </rem>
+  SXZ,TAKE 2LIT,
+</def>
+
+</forth>

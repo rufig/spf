@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 2007 -->
+
+<def name="BFW," ds=" -- " cs=" -- a ">
+  0 BRANCH, MARK-FW >CS
+</def>
+<def name="BFW2," ds=" -- " cs=" a1 -- a2 a1 " >
+  CS> BFW, >CS
+</def>
+<def name="ZBFW," ds=" -- " cs=" -- a ">
+  0 ?BRANCH, MARK-FW >CS
+</def>
+<def name="ZBFW2," ds=" -- " cs=" a1 -- a2 a1 ">
+  CS> ZBFW, >CS
+</def>
+<def name="RFW" ds=" -- " cs=" a -- ">
+  CS> RESOLVE-FW
+</def>
+<def name="MBW" ds=" -- " cs=" -- a ">
+  MARK-BW >CS
+</def>
+<def name="BBW," ds=" -- " cs=" a -- ">
+  CS> BRANCH,
+</def>
+<def name="ZBBW," ds=" -- " cs=" a -- ">
+  CS> ?BRANCH,
+</def>
+
+
+<comment> 
+  The word "GET-COMPILER?" is not defined here. The CS (control stack) is too.
+</comment>
+
+
+<def name="EXEC," ds=" xt -- ">
+  GET-COMPILER? <unless> CALL, <exit/></unless> EXECUTE
+</def>
+
+<def name="EXIT," ds=" -- ">
+  RET,
+</def>
+
+
+<cell name="GERM-A" />
+
+<def name="GERM"  ds=" -- xt " > GERM-A @ </def>
+<def name="GERM!" ds=" xt -- " > GERM-A ! </def>
+
+<def name="CONCEIVE" ds=" -- ">
+  (CONCEIVE) ?CSP GERM >CS GERM!
+</def>
+
+<def name="BIRTH" ds=" -- xt ">
+  GERM  CS> GERM! (BIRTH)
+</def>
+
+<def name="MAKE-CONST" ds=" x -- xt "><rem> xt ( -- x ) </rem>
+  CONCEIVE LIT, BIRTH
+</def>
+
+</forth>

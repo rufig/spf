@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 2005-2007 -->
+
+<def name="SLIT," ds=" c-addr u -- "><rem> counts in address unit </rem>
+  MARK-FW >R HERE OVER 2SWAP S, 0 C, R> BRANCH, 2LIT,
+</def>
+
+</forth>
