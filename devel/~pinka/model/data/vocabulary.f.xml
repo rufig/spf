@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<!-- 2006-2007 ruvim@forth.org.ru -->
+
+<def name="&amp;" ds=" addr u -- xt ">
+  I-NATIVE <if><exit/></if> -321 THROW
+</def>
+
+<def name="NAMING-" ds=" xt c-addr u -- ">
+  CURRENT @ @ CDR-BY-NAME <if> 2DUP TYPE <emit-line> isn't unique</emit-line></if>
+  CURRENT @ RELATE-NAME
+</def>
+
+<def name="NAMING" ds=" c-addr u xt -- ">
+  -ROT NAMING-
+</def>
+
+<rem> not used yet
+<def name="GET-CURRENT" ds=" -- wid ">  CURRENT @  </def>
+<def name="SET-CURRENT" ds=" wid -- ">  CURRENT !  </def>
+</rem>
+
+
+<cell name="VOC-LIST" />
+
+<def name="WORDLIST" ds=" -- wid ">
+  ALIGN 0 , HERE VOC-LIST BIND-NODE
+  HERE 0 , 0 , <rem> list | c-addr </rem>
+</def>
+
+<def name="(WORDLIST-NAME!)" ds=" c-addr wid -- ">
+  CELL+ !
+</def>
+
+<def name="WORDLIST-NAME" ds=" wid -- addr u ">
+  CELL+ @ DUP <unless> 0 <!-- UNNAMED --><exit/></unless> COUNT
+</def>
+
+
+<def name="NAMING-WORDLIST" ds=" addr u wid -- ">
+  ALIGN HERE SWAP (WORDLIST-NAME!) SCZ,
+</def>
+
+<def name="NAMING-WORDLIST-" ds=" wid addr u -- ">
+  ROT NAMING-WORDLIST
+</def>
+
+<def name="WORDLIST-NAMED" ds=" addr u -- wid ">
+  WORDLIST DUP 2OVER <const name="{}"/>
+           DUP 2SWAP NAMING-WORDLIST-
+</def>
+
+<def name="VOC-NAME." ds=" wid -- ">
+  DUP <unless> DROP <emit>[NULL] </emit><exit/></unless>
+  DUP WORDLIST-NAME DUP <if> TYPE SPACE DROP <exit/></if> 2DROP
+  `# TYPE .
+</def>
+
+<def name="ORDER" ds=" -- ">
+  <emit>Context>: </emit>
+  0 <q> SWAP 1+ FALSE </q> SCAN-SCOPE-WITH DROP <rem>( i*x i )</rem>
+  <repeat> DUP <while/> 1- SWAP VOC-NAME. </repeat> DROP CR
+  <emit>Current: </emit> CURRENT @ VOC-NAME. CR
+</def>
+
+</forth>
