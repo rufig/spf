@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<g xml:base="http://forth.org.ru/~pinka/model/">
+<!-- ../../../model/data/  by uri-map -->
+
+<include href="data/list-plain.f.xml" />
+<include href="data/event-plain.f.xml" />
+<include href="data/events-common.f.xml" />
+
+<include href="trans/xml-struct.f.xml" />
+
+</g>
+
+</forth>

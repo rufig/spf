@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<also wordlist="FORTH-WORDLIST::CODEGEN-WL">
+<text>
+
+  CS> >CS 2>CS 2CS> CS@ CSDROP
+  
+  GET-COMPILER?
+
+</text><each-word> import-word </each-word>
+</also>
+
+
+
+<g xml:base="http://forth.org.ru/~pinka/model/codegen/">
+
+  <also wordlist="STORAGE-WL">
+  
+    <also wordlist="CODESPACE-WL">
+      <include href="spf4-prime.L1.f.xml"/>
+    </also>
+
+    <include href="slit-sep.f.xml"/>
+
+  </also>
+
+  <include href="common.L2.f.xml"/>
+
+</g>
+
+</forth>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+    xmlns:xi="http://forth.org.ru/ForthML/Struct/"
+>
+
+<xi:model name="main">
+
+<wordlist name="FORTHPROC-WL">
+  <xi:include href="#forthproc"/>
+</wordlist>
+
+<wordlist name="STRINGS-WL"><!-- according to default character size -->
+  <xi:include href="#strings"/>
+</wordlist>
+
+<wordlist name="STORAGE-WL">
+  <xi:include href="#storage"/>
+</wordlist>
+
+<wordlist name="CODEGEN-WL">
+  <xi:include href="#codegen"/>
+</wordlist>
+
+
+<wordlist name="HOST-WL">
+  <xi:include href="#host"/>
+</wordlist>
+
+<wordlist name="WINAPI-WL">
+  <!-- host-system API, will be provided -->
+</wordlist>
+
+<wordlist name="HEAP-WL">
+  <xi:include href="#heap"/>
+</wordlist>
+
+<wordlist name="FILES-WL">
+  <xi:include href="#files"/>
+</wordlist>
+
+
+<wordlist name="TRANSLATER-WL">
+  <xi:include href="#translater"/>
+</wordlist>
+
+
+</xi:model>
+
+<xi:include href="model.f.xml"/>
+
+</forth>

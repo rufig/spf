@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<g xml:base="http://forth.org.ru/~pinka/">
+
+<include href="model/data/data-space.f.xml"/>
+
+<wordlist name="CODESPACE-WL">
+  <include href="model/data/data-space.f.xml"/>
+</wordlist>
+
+<def name="SAVE-STORAGE" ds=" -- i*x i">
+  SAVE-DATASPACE DUP >R
+  CODESPACE-WL::SAVE-DATASPACE DUP R> + 2+
+</def>
+
+<def name="RESTORE-STORAGE" ds=" i*x i -- ">
+  DROP
+  CODESPACE-WL::RESTORE-DATASPACE
+  RESTORE-DATASPACE
+</def>
+
+<def name="CODESPACE!" ds=" addr u -- ">
+  CODESPACE-WL::DATASPACE!
+</def>
+
+</g>
+
+</forth>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+    xmlns:xi="http://forth.org.ru/ForthML/Struct/"
+>
+
+<wordlist name="target-wl">
+
+<include href="carcase.f.xml"/>
+
+
+<text>
+  NLIST WORDS ORDER BYE
+</text><each-word> import-word </each-word>
+
+</wordlist>
+
+</forth>

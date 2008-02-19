@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+
+<include href="model-trial.f.xml"/>
+
+
+</forth>

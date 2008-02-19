@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<text>
+
+DUP            2DUP           DROP           
+MAX            MIN            UMAX           UMIN           0MAX           
+2DROP          SWAP           2SWAP          OVER           2OVER          
+NIP            ROT            -ROT           PICK           ROLL           
+TUCK           2>R            2R>            R@             2R@            
+@              !              C@             C!             W@             
+W!             2@             2!             1+             1-             
+2+             2-             2*             +              CELL+          
+CELL-          CELLS          D+             D-             -              
+1+!            0!             COUNT          *              AND            
+OR             XOR            INVERT         NEGATE         ABS            
+DNEGATE        NOOP           S>D            D>S            U>D            
+C>S            UM*            /              U/             +!             
+MOD            /MOD           UMOD           UM/MOD         2/             
+U2/            */MOD          M*             LSHIFT         RSHIFT         
+ARSHIFT        SM/REM         FM/MOD         DIGIT          =              
+
+&lt;>          &lt;           >              WITHIN         D&lt;             
+D>             U&lt;          U>             0&lt;          0=             
+0&lt;>         D0=            D=             D2*            D2/            
+
+ULT UGT EQ NEQ 0EQ 0NEQ 0LT
+
+FALSE          TRUE           /CELL          */             >CELLS
+MOVE           ERASE          DABS           HASH           EQUAL
+
+TlsIndex!      TlsIndex@      FS@            FS!            
+SP!            RP!            SP@            RP@            
+DRMOVE         NR>            N>R            NRCOPY         RP+@           
+RP+            RP+!           RALLOT         (RALLOT)       RFREE          
+
+R>             >R             RDROP          ?DUP
+
+EXECUTE        EXIT
+
+CATCH          THROW
+
+</text><each-word> import-word </each-word>
+
+</forth>
