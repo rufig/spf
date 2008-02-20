@@ -1,7 +1,7 @@
 \ $Id$
 
-lib/include/float2.f
-~ygrek/lib/testcase.f
+REQUIRE >FLOAT lib/include/float2.f
+REQUIRE TESTCASES ~ygrek/lib/testcase.f
 
 TESTCASES floats
 (( 0.99e 1.00e F< -> TRUE ))
