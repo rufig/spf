@@ -59,6 +59,8 @@
   -1 wait-worker <unless> ABORT </unless>
 </def>
 
+<comment> or 'acquire'? </comment>
+
 </export>
 </wordlist>
 
