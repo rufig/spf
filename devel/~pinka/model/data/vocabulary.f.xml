@@ -16,17 +16,15 @@
   -ROT NAMING-
 </def>
 
-<rem> not used yet
 <def name="GET-CURRENT" ds=" -- wid ">  CURRENT @  </def>
 <def name="SET-CURRENT" ds=" wid -- ">  CURRENT !  </def>
-</rem>
 
 
 <cell name="VOC-LIST" />
 
 <def name="WORDLIST" ds=" -- wid ">
   ALIGN 0 , HERE VOC-LIST BIND-NODE
-  HERE 0 , 0 , <rem> list | c-addr </rem>
+  HERE 0 , 0 , <rem> list | cname-addr </rem>
 </def>
 
 <def name="(WORDLIST-NAME!)" ds=" c-addr wid -- ">
@@ -61,7 +59,11 @@
   <emit>Context>: </emit>
   0 <q> SWAP 1+ FALSE </q> SCAN-SCOPE-WITH DROP <rem>( i*x i )</rem>
   <repeat> DUP <while/> 1- SWAP VOC-NAME. </repeat> DROP CR
-  <emit>Current: </emit> CURRENT @ VOC-NAME. CR
+  <emit>Current: </emit> GET-CURRENT VOC-NAME. CR
+</def>
+
+<def name="WORDS" ds=" -- ">
+  SCOPE-TOP DUP <if> NLIST <exit/></if> DROP
 </def>
 
 </forth>
