@@ -53,22 +53,7 @@
 <!-- MATCH-HEAD 
      MATCH-TAIL 
 -->
+<!-- old name: -->
 <def name="MATCH-STARTS"> MATCH-HEAD </def>
-
-
-<!-- some other -->
-
-<def name="TAIL" ds=" a u -- a1 u1 ">
-  DUP <if> SWAP CHAR+ SWAP CHAR- <exit/></if><!-- ( a 0 ) -->
-</def>
-<def name="HEAD" ds=" a u -- a u1 ">
-  DUP <if> DROP /CHAR <exit/></if>
-</def>
-<def name="HEAD|TAIL" ds=" a u -- a /char a2 u2 ">
-  2DUP HEAD 2SWAP TAIL
-</def>
-<def name="TAIL|HEAD" ds=" a u -- a2 u2 a /char ">
-  2DUP TAIL 2SWAP HEAD
-</def>
 
 </forth>
