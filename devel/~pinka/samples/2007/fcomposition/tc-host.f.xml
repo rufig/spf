@@ -1,7 +1,43 @@
 <?xml version="1.0" encoding="ASCII"?>
-<forth xmlns="http://forth.org.ru/ForthML/">
+<forth xmlns="http://forth.org.ru/ForthML/"
+    xmlns:xi="http://forth.org.ru/ForthML/Struct/"
+>
 
 <include href="envir.f.xml"/>
 
+  startup FIRE-EVENT
+
+<xi:model name="main">
+<wordlist name="TC-WL">
+
+  <g><rem> target format </rem>
+  <xi:include href="#storage"/>
+  <xi:include href="#codegen"/>
+  <xi:include href="#translater"/>
+  </g>
+  
+  <g xml:base="http://forth.org.ru/~pinka/model/trans/">
+  <rem> deep forthml translater </rem>
+    <include href="tcode.f.xml"/>
+    <include href="ttoken.f.xml"/>
+    <include href="ttext.f.xml"/>
+    
+  <r:transform name="target-translater" xmlns:r="http://forth.org.ru/ForthML/Rules/">
+    <g xml:base="http://forth.org.ru/~pinka/fml/src/">
+      <include href="rules-common.f.xml"/>
+    </g>
+    <!-- need refactoring
+      <include href="rules-forth.f.xml"/>
+    <also wordlist="forthml-hidden">
+      <include href="rules-std.f.xml"/>
+    </also>
+    -->
+  </r:transform>  
+  </g>
+  
+</wordlist>
+</xi:model>
+
+<xi:include href="model.f.xml"/>
 
 </forth>

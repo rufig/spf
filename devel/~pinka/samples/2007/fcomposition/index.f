@@ -8,6 +8,11 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
   startup FIRE-EVENT
 
+TC-WL NLIST
+
+\EOF
+QUIT
+
 `index.f.xml FIND-FULLNAME2 EMBODY
 
 
