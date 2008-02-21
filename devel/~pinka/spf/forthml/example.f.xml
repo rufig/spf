@@ -33,6 +33,11 @@ quote-the-5steps EXECUTE
 <q> 5 steps CR </q> EXECUTE
 
 
+<emit-line>--- closure: </emit-line>
+
+ 3 7 <p><p><lit/> * </p></p> OK EXECUTE OK EXECUTE . CR
+
+
 <def name="make-zzz" ds=" -- ">
   <def name="zzz" ds=" -- ">
     <emit-line>test passed</emit-line>
@@ -73,5 +78,7 @@ PREVIOUS
 <!-- output:
 A_ B_ 111 _B B_ 222 _B _A
 -->
+
+OK
 
 </forth>
