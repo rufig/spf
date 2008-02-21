@@ -31,8 +31,6 @@
 
   <include href="list-plain.f.xml"/>
 
-<also wordlist="STORAGE-WL">
-
   <include href="wordlist-plain.f.xml"/>
   <include href="wordlist-plain-tools.f.xml"/>
 
@@ -40,8 +38,7 @@
 
   <include href="vocabulary.f.xml"/>
 
-</also>
-
+  <include href="../trans/ilit.f.xml"/>
 </g>
 </xi:model>
 
