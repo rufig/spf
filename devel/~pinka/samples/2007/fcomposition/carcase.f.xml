@@ -5,25 +5,30 @@
 
 <xi:model name="main">
 
+<wordlist name="FORTH-WL">
+
+<def name="give-forth">
+  GET-CURRENT FORTH-WL APPEND-WORDLIST
+</def>
+
 <wordlist name="FORTHPROC-WL">
-  <xi:include href="#forthproc"/>
+  <xi:include href="#forthproc"/> give-forth
 </wordlist>
 
 <wordlist name="STRINGS-WL"><!-- according to default character size -->
-  <xi:include href="#strings"/>
+  <xi:include href="#strings"/> give-forth
 </wordlist>
 
 <wordlist name="STORAGE-WL">
-  <xi:include href="#storage"/>
+  <xi:include href="#storage"/> give-forth
 </wordlist>
 
 <wordlist name="CODEGEN-WL">
-  <xi:include href="#codegen"/>
+  <xi:include href="#codegen"/> give-forth
 </wordlist>
 
-
 <wordlist name="HOST-WL">
-  <xi:include href="#host"/>
+  <xi:include href="#host"/> give-forth
 </wordlist>
 
 <wordlist name="WINAPI-WL">
@@ -31,18 +36,17 @@
 </wordlist>
 
 <wordlist name="HEAP-WL">
-  <xi:include href="#heap"/>
+  <xi:include href="#heap"/> give-forth
 </wordlist>
 
 <wordlist name="FILES-WL">
-  <xi:include href="#files"/>
+  <xi:include href="#files"/> give-forth
 </wordlist>
 
 
 <wordlist name="TRANSLATER-WL">
-  <xi:include href="#translater"/>
+  <xi:include href="#translater"/> give-forth
 </wordlist>
-
 
 </xi:model>
 
