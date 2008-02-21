@@ -6,7 +6,7 @@
 
 <def name="EXECUTE-BALANCED(+1)" ds=" xt -- x ">
   SP@ >R
-    EXECUTE <!-- ( xt - x ) -->
+    EXECUTE <rem> xt ( -- x ) </rem>
   SP@ R> EQ  <unless> -5010 THROW </unless>
 </def>
 
