@@ -2,7 +2,11 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- 2006, Feb.2007 ruvim@forth.org.ru -->
 
+<cell name="STATE" />
 <cell name="M" />
+
+<def name="STATE?" ds=" -- 0|u "> STATE @ </def>
+<def name="STATE0?" ds=" -- flag"> STATE @ 0EQ </def>
 
 <def name="INC-M" ds=" -- "> M @    <if>  -5005 THROW </if> M 1+!</def>
 <def name="DEC-M" ds=" -- "> M @ 0= <if>  -5004 THROW </if> M 1-!</def>
