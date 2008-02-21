@@ -4,7 +4,8 @@
 <text>
 
  H-STDIN H-STDOUT  TYPE CR  BYE
-
+ KEY EMIT
+ 
 </text><each-word> import-word </each-word>
 
 </forth>
