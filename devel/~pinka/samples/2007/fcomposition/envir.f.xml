@@ -4,6 +4,8 @@
 <g xml:base="http://forth.org.ru/~pinka/model/">
 <!-- ../../../model/data/  by uri-map -->
 
+<include href="lib/string/slice.f.xml" />
+
 <include href="data/list-plain.f.xml" />
 <include href="data/event-plain.f.xml" />
 <include href="data/events-common.f.xml" />

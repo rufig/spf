@@ -14,10 +14,11 @@ SEARCH         COMPARE
 
 
 
-<g xml:base="http://forth.org.ru/~pinka/">
+<g xml:base="http://forth.org.ru/~pinka/model/lib/string/">
 
-  <include href="model/lib/string/match.f.xml"/>
-  <include href="model/lib/string/match-white.f.xml"/>
+  <include href="match.f.xml"/>
+  <include href="match-white.f.xml"/>
+  <include href="slice.f.xml"/>
 </g>
 
 </forth>
