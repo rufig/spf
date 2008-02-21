@@ -115,7 +115,7 @@ WARNING @  WARNING 0!
 
 : EMBODY ( i*x url-a url-u -- j*x )
   CURFILE @ >R   2DUP HEAP-COPY CURFILE !
-    ['] EMBODY CATCH
+    0 ['] EMBODY RECEIVE-WITH \ делает SAVE-ERR
   CURFILE @ FREE THROW   R> CURFILE !
     THROW
 ;
