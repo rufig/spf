@@ -15,15 +15,11 @@
 
 <g xml:base="http://forth.org.ru/~pinka/model/codegen/">
 
-  <also wordlist="STORAGE-WL">
-  
-    <also wordlist="CODESPACE-WL">
-      <include href="spf4-prime.L1.f.xml"/>
-    </also>
-
-    <include href="slit-sep.f.xml"/>
-
+  <also wordlist="CODESPACE-WL">
+    <include href="spf4-prime.L1.f.xml"/>
   </also>
+
+  <include href="slit-sep.f.xml"/>
 
   <include href="common.L2.f.xml"/>
 
