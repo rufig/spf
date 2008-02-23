@@ -6,7 +6,7 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 <!-- Aug.2007 -->
 <!-- $Id$ -->
 
-ALSO forthml-support
+<f:also wordlist="forthml-hidden">
 
 <rule match="r:yield">
   `transform HasAttribute <f:unless><exit-fail/></f:unless>
@@ -42,7 +42,7 @@ ALSO forthml-support
 </rule>
 
 
-PREVIOUS
+</f:also>
 
 <f:comment><!-- example -->
 <g xmlns="http://forth.org.ru/ForthML/">

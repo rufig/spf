@@ -59,7 +59,7 @@ quote-the-5steps EXECUTE
 </wordlist>
 
 
-ALSO forthml-support
+<also wordlist="forthml-hidden">
 
 <r:rule match="A" xmlns:r="http://forth.org.ru/ForthML/Rules/">
   `A_ TYPE SPACE
@@ -71,7 +71,7 @@ ALSO forthml-support
   `_A TYPE SPACE
 </r:rule>
 
-PREVIOUS
+</also>
 
 <A> <B>111</B> <any> <other/> </any> <B>222</B> <elements/> </A>
 

@@ -2,7 +2,7 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- Apr.2007 ruvim@forth.org.ru -->
 
-<!-- ALSO forthml-support -->
+<!-- forthml-hidden ALSO! -->
 
 <cell name="_document-storage" />
 <cell name="_document-top" />

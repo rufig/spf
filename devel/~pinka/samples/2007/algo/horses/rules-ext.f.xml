@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1251"?>
 <forth xmlns="http://forth.org.ru/ForthML/" xmlns:r="http://forth.org.ru/ForthML/Rules/">
 
-ALSO forthml-support
+<also wordlist="forthml-hidden">
 
 <!-- мета-слово <test/> - для испытаний фрагментов кода BacFORTH -->
 
@@ -25,6 +25,6 @@ ALSO forthml-support
   R> cnode!
 </r:rule>
 
-PREVIOUS
+</also>
 
 </forth>
