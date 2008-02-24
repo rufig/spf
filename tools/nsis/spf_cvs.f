@@ -91,6 +91,7 @@ SPF-PATH double-slashed VALUE path\\
   S" *.md" CONT
   S" *.mdt" CONT
   S" *.md.css" CONT
+  S" *\\~yz\\prog\\blank\\*" CONT \ http://sourceforge.net/tracker/index.php?func=detail&aid=1874989&group_id=17919&atid=117919
   S" *\\docs\\mark.new" CONT
   S" *\\docs\\Makefile" CONT ;
 
