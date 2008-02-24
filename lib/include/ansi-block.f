@@ -5,15 +5,6 @@
 \ by Forthware 
 \ http://fforum.winglion.ru/viewtopic.php?p=12991#12991
 
-
-\ EVALUATE - должно ложить 0 в BLK перед своим выполнением, и восстанавливать в конце 
-\ REFILL - будет иметь вид: 
-\ : REFILL BLK @ IF 1 BLK +! 0 >IN ! TRUE ELSE ( старый  REFILL ) THEN ; 
-\ SOURCE - будет иметь вид: 
-\ : SOURCE BLK @ IF BLK @ BLOCK 1024 ELSE ( старый SOURCE ) THEN ; 
-\ бэкслеш "\" будет иметь вид: 
-\ : \ BLK @ IF >IN @ 63 + -64 AND >IN ! ELSE ( старый \ ) THEN ; IMMEDIATE 
-
 CREATE $BUFFERS 2500 ALLOT \ можно выделять память и по другому, главное, чтобы $buffers возвращал ее адресс 
 $BUFFERS 2500 0 FILL $BUFFERS DUP 100 + DUP 1100 + ROT 2! 
 CREATE BLK 0 , 
@@ -68,23 +59,32 @@ VARIABLE SCR
  LOOP DROP 
 ; 
 
+: INTERPRET-BLOCK 
+  BLK @ BLOCK TIB 1024 CMOVE 1024 TRUE TAKEN-TIB INTERPRET ;
+
 : LOAD ( i*x u — j*x ) 
-\ ВНИМАНИЕ!!! это пример кода, я не знаю как будет в SPF, но код слова простой, 
-\ думаю будет не сложно разобраться, главное тут реализация INTERPRET 
- BLK @ >R >IN @ >R \ сохраняем старый источник (только то что перепишем) 
- DUP BLK ! 0 >IN ! \ устанавливаем новый источник 
+ DUP  
  IF 
-  ['] INTERPRET CATCH \ в данном случае, INTERPRET читает входной поток через SOURCE которе описано выше 
+  BLK @ >R 
+  >IN @ >R \ сохраняем старый источник (только то что перепишем) 
+  BLK ! 0 >IN ! \ устанавливаем новый источник 
+  ['] INTERPRET-BLOCK CATCH
   ?DUP 
   IF \ дальше идет вывод сообщения об ошибке 
    CR ." BLOCK " BLK @ . ." , LINE " >IN @ 1- 64 / DUP 1+ . ." :" CR 
    SOURCE DROP SWAP 64 * + >IN @ 1- 64 MOD OVER + SWAP 
-   ?DO I C@ BL MAX EMIT LOOP SPACE ." ERROR #" . ABORT 
-  THEN 
+   ?DO I C@ BL MAX EMIT LOOP SPACE ." ERROR #" . CR 
+   R> >IN ! R> BLK ! ABORT
+  THEN
+  R> >IN ! R> BLK !
  ELSE 
   -35 ( invalid block number ) THROW \ нулевого блока не существует 
  THEN 
- R> >IN ! R> BLK ! \ восстанавливаем то что переписали 
 ; 
 
 : THRU ( i*x u1 u2 -- j*x ) 1+ SWAP ?DO I LOAD LOOP ;
+
+: EVALUATE BLK @ >R 0 BLK ! ['] EVALUATE CATCH R> BLK ! THROW ;
+: REFILL BLK @ IF 1 BLK +! 0 >IN ! TRUE ELSE [ ' REFILL BEHAVIOR COMPILE, ] THEN ; 
+: \ BLK @ IF >IN @ 63 + -64 AND >IN ! ELSE POSTPONE \ THEN ; IMMEDIATE 
+
