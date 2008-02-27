@@ -158,7 +158,7 @@
 )
 
 
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 
 USER STRLAST
 
