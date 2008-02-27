@@ -5,9 +5,10 @@
 \ by Forthware 
 \ http://fforum.winglion.ru/viewtopic.php?p=12991#12991
 
-CREATE $BUFFERS 2500 ALLOT \ Ð¼Ð¾Ð¶Ð½Ð¾ Ð²Ñ‹Ð´ÐµÐ»ÑÑ‚ÑŒ Ð¿Ð°Ð¼ÑÑ‚ÑŒ Ð¸ Ð¿Ð¾ Ð´Ñ€ÑƒÐ³Ð¾Ð¼Ñƒ, Ð³Ð»Ð°Ð²Ð½Ð¾Ðµ, Ñ‡Ñ‚Ð¾Ð±Ñ‹ $buffers Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°Ð» ÐµÐµ Ð°Ð´Ñ€ÐµÑÑ 
-$BUFFERS 2500 0 FILL $BUFFERS DUP 100 + DUP 1100 + ROT 2! 
-CREATE BLK 0 , 
+MODULE: BLK-SUPPORT
+
+CREATE $BUFFERS 2500 ALLOT \ ìîæíî âûäåëÿòü ïàìÿòü è ïî äðóãîìó, ãëàâíîå, ÷òîáû $buffers âîçâðàùàë åå àäðåññ 
+$BUFFERS 2500 ERASE $BUFFERS DUP 100 + DUP 1100 + ROT 2! 
 
 CREATE $STORAGE 0 , 
 : STORAGE-NAME S" storage1.blk" ; 
@@ -17,6 +18,10 @@ CREATE $STORAGE 0 ,
  $STORAGE ! 
 ; 
 : CLOSE-STORAGE ( -- ) $STORAGE @ CLOSE-FILE THROW ; 
+
+
+EXPORT
+
 : SAVE-BUFFER ( addr -- ) 
   DUP 2 CELLS - @ 1 AND 
   IF 
@@ -38,7 +43,7 @@ CREATE $STORAGE 0 ,
  R@ 1 CELLS - ! 0 R@ 2 CELLS - ! R> 
 ; 
 : BLOCK ( u -- addr ) 
- BUFFER DUP 8 - @ 2 AND 0= 
+ BUFFER DUP 2 CELLS - @ 2 AND 0= 
  IF 
   OPEN-STORAGE 
   DUP 1 CELLS - @ 1- 1024 M* $STORAGE @ REPOSITION-FILE IF CLOSE-STORAGE -35 THROW THEN 
@@ -47,6 +52,7 @@ CREATE $STORAGE 0 ,
   CLOSE-STORAGE 
  THEN 
 ; 
+
 : SAVE-BUFFERS ( -- ) $BUFFERS 2@ SAVE-BUFFER SAVE-BUFFER ; 
 : FLUSH ( -- ) SAVE-BUFFERS $BUFFERS 2@ 2 CELLS - 2 CELLS ERASE 2 CELLS - 2 CELLS ERASE ; 
 : UPDATE ( -- ) $BUFFERS @ 2 CELLS - DUP @ 3 OR SWAP ! ; 
@@ -58,33 +64,24 @@ VARIABLE SCR
   CR I 0 <# # # #> TYPE SPACE 64 0 DO DUP C@ BL MAX EMIT CHAR+ LOOP ." \" 
  LOOP DROP 
 ; 
+: LOAD ( i*x u — j*x ) 
+  DUP 0= IF -35 ( invalid block number ) THROW THEN \ íóëåâîãî áëîêà íå ñóùåñòâóåò 
 
-: INTERPRET-BLOCK 
-  BLK @ BLOCK TIB 1024 CMOVE 1024 TRUE TAKEN-TIB INTERPRET ;
-
-: LOAD ( i*x u â€” j*x ) 
- DUP  
- IF 
-  BLK @ >R 
-  >IN @ >R \ ÑÐ¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ ÑÑ‚Ð°Ñ€Ñ‹Ð¹ Ð¸ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº (Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ñ‚Ð¾ Ñ‡Ñ‚Ð¾ Ð¿ÐµÑ€ÐµÐ¿Ð¸ÑˆÐµÐ¼) 
-  BLK ! 0 >IN ! \ ÑƒÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼ Ð½Ð¾Ð²Ñ‹Ð¹ Ð¸ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº 
-  ['] INTERPRET-BLOCK CATCH
-  ?DUP 
-  IF \ Ð´Ð°Ð»ÑŒÑˆÐµ Ð¸Ð´ÐµÑ‚ Ð²Ñ‹Ð²Ð¾Ð´ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ñ Ð¾Ð± Ð¾ÑˆÐ¸Ð±ÐºÐµ 
+  BLK @ >IN @ SOURCE 4 N>R \ ñîõðàíÿåì ñòàðûé èñòî÷íèê (òîëüêî òî, ÷òî ïåðåïèøåì)
+  DUP BLK ! BLOCK 1024 SOURCE! \ óñòàíàâëèâàåì íîâûé èñòî÷íèê
+  ['] INTERPRET CATCH DUP IF \ äàëüøå èäåò âûâîä ñîîáùåíèÿ îá îøèáêå
    CR ." BLOCK " BLK @ . ." , LINE " >IN @ 1- 64 / DUP 1+ . ." :" CR 
    SOURCE DROP SWAP 64 * + >IN @ 1- 64 MOD OVER + SWAP 
-   ?DO I C@ BL MAX EMIT LOOP SPACE ." ERROR #" . CR 
-   R> >IN ! R> BLK ! ABORT
-  THEN
-  R> >IN ! R> BLK !
- ELSE 
-  -35 ( invalid block number ) THROW \ Ð½ÑƒÐ»ÐµÐ²Ð¾Ð³Ð¾ Ð±Ð»Ð¾ÐºÐ° Ð½Ðµ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚ 
- THEN 
-; 
+   ?DO I C@ BL MAX EMIT LOOP SPACE ." ERROR #" DUP . CR
+  THEN ( ior )
+  NR> DROP SOURCE! >IN ! BLK !  THROW
+;
 
 : THRU ( i*x u1 u2 -- j*x ) 1+ SWAP ?DO I LOAD LOOP ;
 
 : EVALUATE BLK @ >R 0 BLK ! ['] EVALUATE CATCH R> BLK ! THROW ;
-: REFILL BLK @ IF 1 BLK +! 0 >IN ! TRUE ELSE [ ' REFILL BEHAVIOR COMPILE, ] THEN ; 
+: REFILL_BLK BLK @ IF 1 BLK +! 0 >IN ! TRUE ELSE [ ' REFILL BEHAVIOR COMPILE, ] THEN ; ' REFILL_BLK TO REFILL
 : \ BLK @ IF >IN @ 63 + -64 AND >IN ! ELSE POSTPONE \ THEN ; IMMEDIATE 
 
+
+;MODULE
