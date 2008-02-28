@@ -18,12 +18,12 @@ REQUIRE ftLastWriteTime ~ac/lib/win/file/findfile-r.f
 \ Обрабатывается только один файл, явно заданный по addr u.
 
   NIP SWAP
-  /WIN32_FIND_DATA RALLOT >R
+  /WIN32_FIND_DATA >CELLS 1+ RALLOT >R
   R@ SWAP FindFirstFileA ( xt id )
   DUP -1 = IF 2DROP ELSE FindClose DROP ( xt )
   R@ cFileName ASCIIZ> ( xt a u ) ROT R@ SWAP EXECUTE
   THEN RDROP
-  /WIN32_FIND_DATA RFREE
+  /WIN32_FIND_DATA >CELLS 1+ RFREE
 ; 
 : (GET-FILETIME-WRITE-S) ( 0 0 addr u data -- filetime )
   ftLastWriteTime 2@ SWAP 2>R
@@ -36,6 +36,7 @@ REQUIRE ftLastWriteTime ~ac/lib/win/file/findfile-r.f
 
 \EOF
 filetime.f
+S" CVS" GET-FILETIME-WRITE-S UTC>LOCAL FILETIME>TIME&DATE . . . . . . CR
 S" ." GET-FILETIME-WRITE-S UTC>LOCAL FILETIME>TIME&DATE . . . . . . CR
 S" fileprop.f" GET-FILETIME-WRITE-S UTC>LOCAL FILETIME>TIME&DATE . . . . . . CR
 S" fileprop.f" R/O OPEN-FILE-SHARED THROW GET-FILETIME-WRITE UTC>LOCAL FILETIME>TIME&DATE . . . . . . CR
