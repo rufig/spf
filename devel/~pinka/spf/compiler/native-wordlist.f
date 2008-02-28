@@ -2,8 +2,11 @@
 \ Jan.2008 something extracted from xt.immutable.f
 \ Нативные списки форт-слов
 
-: RESOLVE-NAME ( c-addr u wid -- xt true | c-addr u false )
+: FIND-WORDLIST ( c-addr u wid -- xt true | c-addr u false )
   @ CDR-BY-NAME DUP IF NIP NIP NAME> TRUE THEN
+;
+: RESOLVE-NAME ( c-addr u wid -- xt true | c-addr u false )
+  FIND-WORDLIST
 ;
 
 : RELATE-NAME ( xt  c-addr u  wid -- )
@@ -25,10 +28,14 @@
 WARNING !                   [THEN]
 
 
+: CHECK-UNIQUENESS ( a u -- a u )
+  WARNING @ IF 2DUP GET-CURRENT SEARCH-WORDLIST IF DROP 2DUP TYPE ."  isn't unique" CR THEN THEN
+;
 
 : NAMING- ( xt c-addr u -- )
 \ Добавить слово, заданное семантикой xt, 
 \ под именем, заданным строкой c-addr u, в текущий список.
+  \ CHECK-UNIQUENESS
   GET-CURRENT RELATE-NAME
 ;
 : NAMING ( c-addr u xt -- ) \ NAMED or GIVE-NAME or ?
