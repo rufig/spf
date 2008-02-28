@@ -26,6 +26,9 @@
   -6 - ошибки на всех DNS-серверах списка [только GetMXs]
   -7 - ошибка DNS-сервера [обычно NS-сервера запрашиваемого домена]
 
+  Добавление 28.02.2008:
+  -8 - ошибка в формате DNS-ответа
+
   GetRRn отличается от GetRRs тем, что не разбирает список
   полученных записей, а только выясняет их число, т.е. экономит
   время и память, если не нужен собственно список записей. 
@@ -573,7 +576,8 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
       0=
       DNSREPLY @ HeaderID W@ >B< QID W@ = AND
       IF
-        ParseAnswer  DnsDebug @ IF PrintRLIST THEN
+        ['] ParseAnswer CATCH IF -8 EXIT THEN \ format error
+        DnsDebug @ IF PrintRLIST THEN
         type EnumReceivedRDs
         DUP 0=
         IF
