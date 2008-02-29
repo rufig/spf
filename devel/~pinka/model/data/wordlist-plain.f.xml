@@ -8,6 +8,8 @@
   R> R> BIND-NODE
 </def>
 
+<def name="NODE-NAME" ds=" node -- a u "> CELL+ @ COUNT </def>
+
 <def name="CDR-BY-NAME" ds=" c-addr u node1|0 -- c-addr u node2|0 ">
   <repeat> DUP <while/> >R 2DUP R@ CELL+ @ COUNT EQUAL R> SWAP 0EQ <while/> CDR </repeat>
 </def>

@@ -17,8 +17,6 @@
   <repeat> R> DUP <while/> APPENDED-WORDLIST-NODE- </repeat> DROP  SWAP !
 </def>
 
-<def name="NODE-NAME" ds=" node -- a u "> CELL+ @ COUNT </def>
-
 <def name="NLIST" ds=" wid -- ">
   CR 0 SWAP 0 >R  @
   <repeat> DUP <while/> SWAP 1+ SWAP  DUP NODE-NAME
