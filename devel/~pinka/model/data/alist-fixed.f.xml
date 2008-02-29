@@ -40,6 +40,13 @@
   find <if> XCOUNT <exit/></if> 2DROP 0.
 </def>
 
+<def name="dump-alist-text" ds=" -- ">
+  _list @ <repeat> DUP <while/>
+    DUP NODE-NAME TYPE <emit>:&#9;</emit> DUP @ XCOUNT TYPE CR
+    CDR
+  </repeat> DROP
+</def>
+
 </export>
 </wordlist>
 
