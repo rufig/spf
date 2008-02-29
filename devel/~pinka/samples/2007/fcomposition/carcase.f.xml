@@ -48,6 +48,7 @@
   <xi:include href="#translater"/> give-forth
 </wordlist>
 
+</wordlist>
 </xi:model>
 
 <xi:include href="model.f.xml"/>
