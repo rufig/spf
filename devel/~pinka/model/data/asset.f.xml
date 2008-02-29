@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/" flags="throwable heap">
+
+<!-- 2006-2007 -->
+<comment> It is ever so close to the core of str5.f </comment>
+
+
+<def name="XCOUNT" ds=" xaddr -- a u ">
+  DUP <unless> 0 <exit/></unless>
+  DUP CELL+ SWAP @
+</def>
+
+<def name="(XUPDATE)" ds=" a u xaddr -- ">
+  2DUP ! CELL+ SWAP 2DUP + 0! MOVE
+</def>
+
+<def name="XALLOC" ds=" a u -- xaddr ">
+  DUP CELL+ CELL+ ALLOCATE THROW <!-- ( a u addr ) -->
+  DUP >R (XUPDATE) R>
+</def>
+
+<def name="XUPDATED" ds=" a u xaddr --  xaddr2 ">
+  DUP <unless> DROP XALLOC <exit/></unless>
+  OVER CELL+ CELL+ RESIZE THROW <!-- ( a u addr-x2 ) -->
+  DUP >R (XUPDATE) R>
+</def>
+
+<def name="XENCLOSED" ds=" a u xaddr -- xaddr2 ">
+  DUP <unless> DROP XALLOC <exit/></unless>
+  2DUP @ + <!-- ( a u xaddr u+u1 ) -->
+  CELL+ CELL+ RESIZE THROW <!-- ( a u xaddr2 ) -->
+  DUP XCOUNT + -ROT <!-- ( a a2 u xaddr2 ) -->
+  2DUP +! >R 2DUP + 0! MOVE R>
+</def>
+
+
+<def name="ASSET@" ds=" addr -- a u ">
+  @ XCOUNT
+</def>
+
+<def name="ASSET0!" ds=" addr -- ">
+  DUP @ DUP <unless> 2DROP <exit/></unless>
+  FREE THROW 0!
+</def>
+
+<def name="ASSET!" ds=" a u addr -- ">
+  OVER <unless> ASSET0! 2DROP <exit/></unless>
+  DUP >R ASSET@ NIP OVER <!-- ( a u u1 u ) -->
+  ULT <if> R@ @ XUPDATED R> ! <exit/></if>
+  R> @ (XUPDATE)
+</def>
+
+</forth>
