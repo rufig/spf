@@ -40,11 +40,15 @@
   find <if> XCOUNT <exit/></if> 2DROP 0.
 </def>
 
+<def name="enum-alist" ds=" xt -- "><rem> xt ( a1 u1 a-name u-name -- ) </rem>
+  >R _list @
+  <repeat> DUP <while/>
+    DUP >R @ XCOUNT 2R@ NODE-NAME ROT EXECUTE R> CDR
+  </repeat> RDROP DROP
+</def>
+
 <def name="dump-alist-text" ds=" -- ">
-  _list @ <repeat> DUP <while/>
-    DUP NODE-NAME TYPE <emit>:&#9;</emit> DUP @ XCOUNT TYPE CR
-    CDR
-  </repeat> DROP
+  <q> TYPE <emit>:&#9;</emit> TYPE CR </q> enum-alist
 </def>
 
 </export>
