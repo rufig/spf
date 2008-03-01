@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="queue-L1-hidden">
+
+<include href="pool.L1.f.xml"/><rem> pool of carts for messages </rem>
+
+
+<const name="limit">1000</const>
+<const name="cs"> ALIGN HERE MAKE-CS, </const>
+
+<cell name="_sem"/>     <def name="sem" ds=" -- sem " > _sem @ </def>
+<cell name="_buf"/>
+
+<cell2 name="_h"/>
+
+<cell name="_len"/>
+
+<handler event="init">
+  _sem 0!  _buf 0!  0. _h 2!
+</handler>
+
+<handler event="shutdown" ds=" -- ">
+  _sem  @ ?DUP <if> CloseSem THROW  _sem 0! </if>
+  _buf @ FREE THROW _buf 0!  0. _h 2!
+</handler>
+
+<handler event="startup" ds=" -- ">
+  0. limit 0 CreateSem THROW _sem !
+  limit CELLS 2* ALLOCATE THROW _buf !
+  _buf @
+  limit <times> DUP release-worker 2 CELLS + </times> DROP
+</handler>
+
+<export>
+
+<def name="enqueueN" ds=" x -- "><rem> or, "push"? </rem>
+  hire-worker TUCK !
+  cs ENTER-CS
+  _h BIND-DNODE-TAIL _len 1+!
+  cs LEAVE-CS
+  sem ReleaseSem
+</def>
+
+<def name="dequeueN" ds=" -- x "><rem> or, "pop"? </rem>
+  sem -1 Wait <unless> ABORT </unless>
+  cs ENTER-CS
+  _len 1-! _h UNBIND-NODE 
+  cs LEAVE-CS
+  DUP @ SWAP release-worker
+</def>
+
+<def name="queue-length" ds=" -- n ">
+  _len @
+</def>
+
+</export>
+</wordlist>
+
+</forth>
