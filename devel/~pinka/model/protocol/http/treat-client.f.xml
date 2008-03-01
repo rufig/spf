@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem><bind-up>
+  socket-line.f.xml
+  next-line?
+  treat-request
+</bind-up></rem>
+
+<def name="read-request-line?" ds=" -- flag ">
+  next-line? <unless> FALSE <exit/></unless>
+  TEST-EOLN <unless> `#414 STHROW </unless><!-- Request-URI Too Large -->
+  FINE-HEAD DUP <unless> 2DROP <again/></unless><!-- skip empty lines -->
+  save-request-line 
+  http-ver-d OR 1 EQ <unless> `#505 STHROW </unless><!-- HTTP/1.1 only -->
+  TRUE
+</def>
+
+<def name="read-headers" ds=" -- ">
+  next-line? <unless><exit/></unless><!-- no more data -->
+  DUP <unless> 2DROP <exit/></unless><!-- end of header reached -->
+  TEST-EOLN <unless> `#413 STHROW </unless><!-- line is too long -->
+  TEST-HEAD-WHITE <if> `#400 STHROW </if><!-- don't support a multiple lines value (see 4.2 Message Headers) -->
+  save-header? <unless> `#400 STHROW </unless><!-- header name is not found, bad request -->
+  <again/>
+</def>
+
+<def name="accept-request?" ds=" -- flag ">
+  read-request-line? <unless> FALSE <exit/></unless>
+  read-headers  TRUE
+</def>
+
+<def name="allow-pipelining?" ds=" -- flag ">
+  FALSE <!-- not supported yet -->
+</def>
+
+<def name="connection-alive?" ds=" -- flag ">
+  sock 0NEQ
+</def>
+
+<def name="treat-error" ds=" code -- ">
+  CR . CR
+</def>
+   
+<def name="treat-request-async" ds=" -- ">
+  <emit-line>treat-request-async -- to be provided</emit-line> ABORT
+</def>
+
+<def name="dispatch-request" ds=" -- ">
+  allow-pipelining?    <if> post-data? <unless>  
+  treat-request-async  <exit/></unless></if>
+  treat-request
+
+  <!-- 8.1.2.2 Pipelining 
+    Clients SHOULD NOT pipeline requests using non-idempotent methods
+    or non-idempotent sequences of methods 
+  -->
+</def>
+
+<def name="(perform-dialog)" ds=" -- ">
+  <repeat>
+    connection-alive?
+  <while/>
+    accept-request?
+  <while/>
+    dispatch-request
+  </repeat>
+</def>
+
+<def name="perform-dialog" ds=" -- ">
+  <xt-of name="(perform-dialog)"/> CATCH treat-error
+</def>
+
+<def name="treat-client" ds=" sock -- ">
+  assume-sock
+  perform-dialog
+  close-socketline
+</def>
+
+</forth>

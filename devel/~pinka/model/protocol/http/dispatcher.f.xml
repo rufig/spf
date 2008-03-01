@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="dispatcher-hidden">
+
+<g xml:base="../../">
+<include href="data/pool.L1.f.xml"/>
+<include href="qms/treat-request.f.xml"/>
+</g>
+
+<def name="send-request" ds=" sock x -- ">
+  . . CR
+</def>
+
+<def name="default-action" ds=" sock -- true ">
+  500 wait-worker <if> send-request TRUE <exit/></if>
+  >R <text>too busy &#xD;&#xA;</text> R@ WriteSocket THROW
+  R> CloseSocket THROW TRUE
+</def>
+
+<init>
+  <xt-of name="default-action"/> add-request-handler
+</init>
+
+<export>
+
+<def name="add-client-dispatcher" ds=" xt -- "><rem> xt ( sock -- sock false | true ) </rem>
+  add-request-handler
+</def>
+
+<def name="dispatch-client" ds=" sock -- ">
+  DUP . CR
+  treat-request
+</def>
+
+</export>
+</wordlist>
+
+</forth>

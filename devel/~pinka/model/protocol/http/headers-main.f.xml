@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="location">
+  <include href="http://forth.org.ru/~pinka/model/parse/url.f.xml"/>
+</wordlist>
+
+<cell name="_http-major"/>
+<cell name="_http-minor"/>
+
+<def name="assume-http-version" ds=" a u -- "><!-- HTTP/1.1 -->
+  `HTTP/ SPLIT- <if> 2DROP </if>
+  `. SPLIT <unless> 0. </unless>
+  StoN _http-minor !
+  StoN _http-major !
+</def>
+
+<def name="http-ver-d" ds=" -- minor major ">
+  _http-minor @
+  _http-major @
+</def>
+
+<def name="http-ver-major" ds=" -- major ">
+  _http-major @
+</def>
+
+
+
+<def name="save-request-line" ds=" a u -- "><!-- Request-Line -->
+  2DUP            `http-request h!
+  WORD|TAIL 2SWAP `http-method  h!
+  WORD|TAIL 2SWAP 2DUP `http-url     h! location::assume-url
+  WORD|TAIL 2DROP 2DUP `http-version h! assume-http-version
+</def>
+
+<def name="http-method" ds=" -- a u ">
+  `http-method h@
+</def>
+<def name="eq-method" ds=" a u -- flag ">
+  http-method EQUAL
+</def>
+<def name="content-length" ds=" -- a u ">
+  `Content-Length h@
+</def>
+<def name="post-data?" ds=" -- flag">
+  content-length StoN 0NEQ
+</def>
+<def name="close?" ds=" -- flag ">
+  `Connection h@ `lose CONTAINS
+</def>
+
+</forth>
