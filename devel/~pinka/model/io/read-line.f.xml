@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem> ( xt_of_readout_data -- ) </rem><rem> xt_of_readout_data ( a u1 -- a u2 ) </rem>
+
+<wordlist name="readline-hidden">
+<!-- ( xt ) -->
+<def name="_readout?" ds="a u1 -- a u2 flag">
+  <exec/> DUP 0NEQ
+</def>
+
+<include href="buffer-rw.f.xml" />
+
+<export>
+
+<include href="read-line.immutable.f.xml" />
+
+</export></wordlist>
+
+</forth>
