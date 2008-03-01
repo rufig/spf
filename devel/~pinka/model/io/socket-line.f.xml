@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<forth xmlns="http://forth.org.ru/ForthML/" >
+
+<cell name="_sock" />
+
+<p> _sock @ READOUT-SOCK THROW </p><include href="read-line.f.xml"/>
+
+<def name="write" ds=" addr u -- ">
+  _sock @ WriteSocket THROW
+</def>
+
+<def name="close-socketline" ds=" -- ">
+  readline-hidden::clear 
+  _sock @  _sock 0!  CloseSocket THROW
+</def>
+
+<def name="?close-socketline" ds=" -- ">
+  _sock @ <if> close-socketline </if> 
+</def>
+
+<def name="assume-sock" ds=" sock -- "><rem> take up</rem>
+  ?close-socketline _sock !
+</def>
+
+<def name="sock" ds=" -- sock ">
+  _sock @
+</def>
+
+<handler event="shutdown"> ?close-socketline </handler>
+
+</forth>
