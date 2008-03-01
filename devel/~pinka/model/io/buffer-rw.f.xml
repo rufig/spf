@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="buffer-rw-hidden">
+
+<cell name="D0"/><rem> begin of buffer </rem>
+<cell name="DPR"/><rem> pointer of write</rem>
+<cell name="DPW"/><rem> pointer of write</rem>
+<cell name="D9"/><rem> end of buffer   </rem>
+
+<export>
+
+<include href="buffer-rw.immutable.f.xml"/>
+
+</export>
+</wordlist>
+
+<cell name="_buf-size"> 20 1024 * </cell>
+
+<handler event="init"    > 0. assume  </handler>
+<handler event="startup" > _buf-size @ CELL+ ALLOCATED 2DUP + CELL- 0! assume </handler>
+<handler event="shutdown"> content DROP ?DUP <if> FREE THROW  0. assume </if></handler>
+
+</forth>

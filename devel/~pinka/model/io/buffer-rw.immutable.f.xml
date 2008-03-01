@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem><bind-up> D0 DPR DPW D9 </bind-up></rem>
+
+<!-- read -->
+<def name="rest"    ds=" -- a u "> DPR @ DPW @ OVER - </def><!-- (*) -->
+<def name="rewind"  ds=" --     "> D0 @ DPR ! </def>
+<def name="elapse"  ds=" u --   "> DPR +! </def>
+<def name="rest!"   ds=" a u -- "> DROP DPR ! </def>
+<def name="readout" ds=" a u -- a u2"> rest SEATED- DUP elapse </def>
+
+<!-- write -->
+<def name="vacant"  ds=" -- a u "> DPW @ D9 @ OVER - </def>
+<def name="unused"  ds=" -- u   "> D9 @ DPW @ - </def>
+<def name="content" ds=" -- a u "> D0 @ DPW @ OVER - </def>
+<def name="confirm" ds=" a u -- "> + DPW ! </def>
+<def name="enclose" ds=" a u -- "> vacant SEATED confirm </def> <!-- (!!!) may be truncated -->
+
+<!-- both -->
+<def name="clear"  ds=" -- "> D0 @ DUP DPW ! DPR ! </def>
+<def name="assume" ds=" a u -- "> OVER DUP D0 ! DUP DPW ! DPR ! + D9 ! </def>
+
+</forth>
