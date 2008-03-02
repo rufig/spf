@@ -16,7 +16,6 @@ REQUIRE [UNDEFINED]     lib/include/tools.f
 REQUIRE AsQName         ~pinka/samples/2006/syntax/qname.f \ понятие однословных строк в виде `abc
 REQUIRE CORE_OF_REFILL  ~pinka/spf/fix-refill.f
 REQUIRE Require         ~pinka/lib/ext/requ.f
-REQUIRE INCLUDED-LINES-WITH ~pinka/lib/ext/include.f
 REQUIRE AT-SAVING-BEFORE ~pinka/spf/storage.f
 
 REQUIRE lexicon.basics-aligned ~pinka/lib/ext/basics.f
@@ -91,7 +90,7 @@ FORTH-WORDLIST XMLDOM-WL CODEGEN-WL forthml-hidden  4 SET-ORDER  DEFINITIONS
   BEGIN PARSE-NAME DUP WHILE T-WORD-TC REPEAT 2DROP
 ;
 : INCLUDED-PLAIN-TC ( a u -- )
-  FIND-FULLNAME2 ['] (INCLUDED-PLAIN-TC) INCLUDED-LINES-WITH
+  FIND-FULLNAME2 FILE ['] (INCLUDED-PLAIN-TC) EVALUATE-WITH
   \ - relative to current file
 ;
 
@@ -163,7 +162,6 @@ forthml-hidden PUSH-SCOPE
 `SUBSTRING-AFTER    2DUP aka
 `SUBSTRING-BEFORE   2DUP aka
 
-`MATCH-STARTS       2DUP aka
 `MATCH-HEAD         2DUP aka
 
 `IS-WHITE           2DUP aka
