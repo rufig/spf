@@ -225,7 +225,7 @@ VECT (NEAREST-NFA) ( addr nfa1 -- addr nfa2 )
 : (WordByAddr) ( addr -- c-addr u )
   0 (NEAREST-NFA)
   DUP 0= IF 2DROP S" <?not in the image>" EXIT THEN
-  TUCK - 4096 U< IF COUNT EXIT THEN
+  TUCK - ABS 4096 U< IF COUNT EXIT THEN
   DROP S" <?not found>"
 ;
 : WordByAddr ( addr -- c-addr u )
