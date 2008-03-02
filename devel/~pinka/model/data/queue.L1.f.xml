@@ -11,24 +11,24 @@
 
 <cell name="_sem"/>     <def name="sem" ds=" -- sem " > _sem @ </def>
 <cell name="_buf"/>
+<cell name="_len"/>
 
 <cell2 name="_h"/>
 
-<cell name="_len"/>
 
 <handler event="init">
-  _sem 0!  _buf 0!  0. _h 2!
+  _sem 0!  _buf 0!  0. _h 2!  _len 0!
 </handler>
 
 <handler event="shutdown" ds=" -- ">
   _sem  @ ?DUP <if> CloseSem THROW  _sem 0! </if>
-  _buf @ FREE THROW _buf 0!  0. _h 2!
+  _buf @ FREE THROW _buf 0!  0. _h 2!  _len 0!
 </handler>
 
 <handler event="startup" ds=" -- ">
   0. limit 0 CreateSem THROW _sem !
   limit CELLS 2* ALLOCATE THROW _buf !
-  _buf @
+  _buf @ CELL+
   limit <times> DUP release-worker 2 CELLS + </times> DROP
 </handler>
 
