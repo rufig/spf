@@ -41,6 +41,7 @@
 * [Генерация исполняемых модулей (exe-файлов)](#save)
 * [Локальные и временные переменные](#locals)
 * [Подключение dll-библиотек](#dll)
+* [Callback'и](#callback)
 * [Слово NOTFOUND](#notfound)
 * [Scattered colons](#scatcoln)
 * [Многозадачность](#task)
@@ -517,6 +518,34 @@ stdcall :
 	REQUIRE SO ~ac/lib/ns/so-xt.f
 	SO NEW: "имя_библиотеки"
 
+----
+<a id="callback"/>
+###[Callback'и](#callback)
+
+Слово `CALLBACK: ( "name" xt bytes -- )` принимает `xt` слова которое надо
+оформить callback'ом и число __байт__ которые будут использованы под параметры
+на стеке при вызове. Совмещение формата вызова (cdecl,stdcall) целиком ложится
+на вас.  При формате вызова cdecl (по умолчанию для C/C++) вы должны оставить на
+стеке все входные параметры (продубировать перед использованием например). При
+stdcall - `xt` должно снять все параметры. Также обратите внимание, что callback
+должен всегда возвращать одно дополнительное значение - результат, даже если в
+коде вызывающем callback-функцию она описана как void (это особенность работы
+`CALLBACK:`).
+Пример :
+
+В cpp коде функция callback объявлена так :
+
+    typedef void (*TestCallback)(char*,int);
+форт-код callback'а
+
+    :NONAME ( n str -- )
+      2DUP \ дублируем параметры (т.к. cdecl)
+      ASCIIZ> CR TYPE \ строка
+      CR . \ число
+      0 \ возвращаемое значение
+    ; 2 CELLS \ 2 параметра - 8 байт
+    CALLBACK: Test \ слово Test это callback
+
 
 ----
 <a id="notfound"/>
@@ -533,24 +562,24 @@ stdcall :
 старый вариант, и если он не отвалится по исключению - выполнять свои
 действия. Пример:
 
-	 : MY? ( a u -- ? ) S" !!" SEARCH >R 2DROP R> ;
-	 : DO-MY ( a u -- ) ." My NOTFOUND: " TYPE CR ;
+    : MY? ( a u -- ? ) S" !!" SEARCH >R 2DROP R> ;
+    : DO-MY ( a u -- ) ." My NOTFOUND: " TYPE CR ;
 
-	 : NOTFOUND ( a u -- )
+    : NOTFOUND ( a u -- )
 	   2DUP 2>R ['] NOTFOUND CATCH 
 	   IF
 	     2DROP
 	     2R@ MY? IF 2R@ DO-MY ELSE -2003 THROW THEN
 	   THEN
 	   RDROP RDROP
-	   ;
+	  ;
 Или так:
 
-	 : NOTFOUND ( a u -- )
-	   2DUP MY? IF DO-MY EXIT THEN
-	   ( a u )
-	   NOTFOUND
-	   ;
+    : NOTFOUND ( a u -- )
+	    2DUP MY? IF DO-MY EXIT THEN
+      ( a u )
+	    NOTFOUND
+	  ;
 
 Для подключения в цепочку `NOTFOUND`'ов удобно использовать расширение `~pinka/samples/2006/core/trans/nf-ext.f`
 
