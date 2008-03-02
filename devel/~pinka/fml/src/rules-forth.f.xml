@@ -29,8 +29,8 @@
 
 <!-- = = = = = -->
 
-<rule match="f:include">
-  `href GetAttribute Embody <!-- xml:base aware -->
+<rule match="f:include"><!-- xml:base aware -->
+  `href GetAttribute expanded-url T-SLIT <m>EMBODY</m>
 </rule>
 
 <rule match="f:xt-of">
