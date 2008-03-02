@@ -16,6 +16,11 @@
   cnode >R documentElement cnode! trans-childs R> cnode!
 </def>
 
+<def name="expanded-url" ds=" a1 u1 -- a2 u2 ">
+  2DUP `/ SPLIT- <if> `: CONTAINS <if> 2DROP <exit/></if></if> 2DROP
+  cnode-based-url
+</def>
+
 <def name="EMBODY" ds=" i*x url-a url-u -- j*x ">
   2DUP
   DefaultLSParser parseURI DUP 0= <if> -5003 THROW </if>
@@ -26,12 +31,7 @@
 </def>
 
 <def name="Embody" ds=" i*x url-a url-u -- j*x "><!-- takes into account baseURI of current node -->
-  2DUP `/ SPLIT- <if> `: SUBSTRING-BEFORE NIP <if>
-    2DROP EMBODY <!-- by full path -->
-    <exit/>
-  </if></if> 2DROP
-
-  cnode-based-url EMBODY
+  expanded-url EMBODY
 </def>
 
 </forth>
