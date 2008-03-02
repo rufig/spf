@@ -15,6 +15,10 @@
   save-pair
 </def>
 
+<def name="h!@" ds=" a1 u1 a2 u2 -- a u1 ">
+  2DUP 2>R save-pair 2R> obtain-value
+</def>
+
 <def name="clear-headers" ds=" -- ">
   clear-alist
 </def>
