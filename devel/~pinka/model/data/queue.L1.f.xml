@@ -47,6 +47,7 @@
   cs ENTER-CS
   _len 1-! _h UNBIND-NODE 
   cs LEAVE-CS
+  DUP <unless> ABORT </unless><!-- `#queue-is-underflow STHROW -->
   DUP @ SWAP release-worker
 </def>
 
