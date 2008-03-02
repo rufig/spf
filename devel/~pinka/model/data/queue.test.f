@@ -5,7 +5,7 @@ REQUIRE CreateSem ~pinka/lib/multi/Semaphore.f
 REQUIRE CREATE-CS ~pinka/lib/multi/Critical.f
 
 
-\ paths is relatively to current directory(!)
+\ paths is relatively to the current directory(!)
 
 `list-plain.f.xml EMBODY
 
@@ -18,7 +18,7 @@ REQUIRE CREATE-CS ~pinka/lib/multi/Critical.f
 
  startup FIRE-EVENT
 
- : T SOURCE TYPE SPACE ." --> " INTERPRET CR POSTPONE \ ;
+ : T SOURCE TYPE SPACE ." --> " INTERPRET CR ;
 
   T queue-L1-hidden::pool-idle .
   T 10 enqueueN queue-length .
