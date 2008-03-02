@@ -29,7 +29,7 @@
 <def name="save-request-line" ds=" a u -- "><!-- Request-Line -->
   2DUP            `http-request h!
   WORD|TAIL 2SWAP `http-method  h!
-  WORD|TAIL 2SWAP 2DUP `http-url     h! location::assume-url
+  WORD|TAIL 2SWAP `http-url     h!@ location::assume-url
   WORD|TAIL 2DROP 2DUP `http-version h! assume-http-version
 </def>
 
