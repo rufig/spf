@@ -566,20 +566,20 @@ stdcall - `xt` должно снять все параметры. Также обратите внимание, что callback
     : DO-MY ( a u -- ) ." My NOTFOUND: " TYPE CR ;
 
     : NOTFOUND ( a u -- )
-	   2DUP 2>R ['] NOTFOUND CATCH 
-	   IF
-	     2DROP
-	     2R@ MY? IF 2R@ DO-MY ELSE -2003 THROW THEN
-	   THEN
-	   RDROP RDROP
-	  ;
+      2DUP 2>R ['] NOTFOUND CATCH 
+      IF
+        2DROP
+        2R@ MY? IF 2R@ DO-MY ELSE -2003 THROW THEN
+      THEN
+      RDROP RDROP
+    ;
 Или так:
 
     : NOTFOUND ( a u -- )
-	    2DUP MY? IF DO-MY EXIT THEN
+      2DUP MY? IF DO-MY EXIT THEN
       ( a u )
-	    NOTFOUND
-	  ;
+      NOTFOUND
+    ;
 
 Для подключения в цепочку `NOTFOUND`'ов удобно использовать расширение `~pinka/samples/2006/core/trans/nf-ext.f`
 
