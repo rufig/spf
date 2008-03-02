@@ -27,3 +27,6 @@ REQUIRE CREATE-CS ~pinka/lib/multi/Critical.f
   T dequeueN . queue-length .
   T dequeueN . queue-length .
   T queue-L1-hidden::pool-idle .
+
+  T 30 enqueueN queue-length .
+  T dequeueN . queue-length .
