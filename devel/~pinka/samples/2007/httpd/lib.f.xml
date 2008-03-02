@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="TEST-EOLN" ds=" a u -- a u flag ">
+  2DUP + C@ DUP 0x0D EQ <if> 0NEQ <exit/></if> 0x0A EQ
+</def>
+
+<def name="TEST-HEAD-WHITE" ds=" a u -- a u flag ">
+  DUP <if> OVER C@ IS-WHITE <exit/></if> TRUE
+</def>
+
+
+<def name="StoD" ds=" a u -- xl xh | 0 0 ">
+  I-DLIT <if><exit/></if> 2DROP 0.
+</def>
+
+<def name="StoN" ds=" a u -- x|0 ">
+  I-LIT <if><exit/></if> 2DROP 0
+</def>
+
+
+<def name="READOUT-SOCK" ds=" a u1 h -- a u2 ior ">
+  >R OVER SWAP R>   <rem> ( a a h1 h ) </rem>
+  ReadSocket        <rem> ( a u2 ior ) </rem>
+  DUP -1002 EQ <if> 2DROP 0. </if>
+</def>
+
+<def name="(LAUNCHER)"> CATCH  ERROR </def>
+
+<const name="LAUNCHER"><xt-of name="(LAUNCHER)"/> TASK </const>
+
+<def name="LAUNCH" ds=" xt -- "><rem> xt ( -- ) </rem>
+  LAUNCHER START  CloseHandle ERR THROW
+</def>
+
+<def name="OBEY-SURE" ds=" i*x a u wid -- j*x ">
+  FIND-WORDLIST <if> EXECUTE <exit/></if>
+  TYPE CR -321 THROW
+</def>
+
+<def name="OBEY-SURE-" ds=" i*x wid a u -- j*x ">
+  ROT OBEY-SURE
+</def>
+
+</forth>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<cell name="_cnt"/>
+<cell name="_cnt-idle"/>
+
+<def name="workers-quantity" ds=" -- n ">  _cnt @ </def>
+
+<def name="workers-idle++" ds=" -- ">
+  _cnt-idle 1+!
+</def>
+<def name="workers-idle--" ds=" -- ">
+  _cnt-idle 1-!
+</def>
+<def name="workers-idle" ds=" -- n ">
+  _cnt-idle @
+</def>
+
+<comment> need using the Interlocked* </comment>
+
+
+
+<def name="load-worker" ds=" -- ">
+  <include href="worker.f.xml"/> _cnt 1+!
+</def>
+
+<def name="decrement-workers" ds=" -- ">
+  _cnt 1-!
+</def>
+
+
+<g xml:base="http://forth.org.ru/~pinka/model/">
+
+<cell name="_storage"/>
+
+<wordlist name="tcp-server">
+
+<include href="data/events-common.f.xml" />
+
+<include href="data/queue.L1.f.xml"/>
+
+<def name="get-client?" ds=" -- x true | false "> 
+  workers-idle++
+  dequeueN ?DUP 0NEQ 
+  workers-idle--
+</def>
+
+<def name="instantiate-worker" ds=" -- ">
+  <wid>
+    <def name="get-client?"> get-client? </def><rem> local alias </rem>
+    load-worker
+  </wid> `start OBEY-SURE-
+</def>
+
+<def name="dispatch-client" ds=" sock -- ">
+  DUP . CR  enqueueN
+  queue-length  workers-idle ULT <if><exit/></if>
+  workers-quantity 20 UGT <if><exit/></if>
+  instantiate-worker
+</def>
+
+<include href="qms/tcp4-server.L1.f.xml" />
+<include href="qms/tcp-server.L2.f.xml" />
+
+<handler event="startup">
+  200 1024 * NEW-STORAGE  DUP _storage !  MOUNT
+</handler>
+
+<handler event="shutdown">
+  _storage @ DEL-STORAGE _storage 0!
+</handler>
+
+</wordlist>
+
+</g>
+</forth>

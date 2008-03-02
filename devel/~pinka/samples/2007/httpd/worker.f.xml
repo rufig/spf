@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+
+<g xml:base="http://forth.org.ru/~pinka/model/">
+
+<include href="data/events-common.f.xml" />
+
+<include href="io/socket-line.f.xml" />
+
+<g xml:base="protocol/http/">
+<include href="headers-storage.f.xml" />
+<include href="headers-main.f.xml" />
+</g>
+
+
+<def name="treat-request" ds=" -- ">
+  location::url write
+  <text> -- test passed &#xD;&#xA;</text> write
+</def>
+
+
+<include href="protocol/http/treat-client.f.xml" />
+
+</g>
+
+<def name="quit" ds=" -- ">
+  startup FIRE-EVENT
+  <repeat> get-client? <while/> treat-client </repeat>
+  decrement-workers
+  shutdown FIRE-EVENT
+  TERMINATE <!-- finish thread on 0 -->
+</def>
+
+<def name="start" ds=" -- ">
+  <xt-of name="quit"/> LAUNCH
+</def>
+
+</forth>
