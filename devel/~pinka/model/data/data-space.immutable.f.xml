@@ -18,6 +18,10 @@
 <def name="SXZ,"    ds=" addr u -- "> DUP  , S, 0 C, </def>
 <def name="SCZ,"    ds=" addr u -- "> DUP C, S, 0 C, </def>
 
+<def name="CARBON" ds=" a1 u -- a2 u ">
+  ALIGN HERE >R S, R> HERE OVER -
+</def>
+
 <def name="SAVE-DATASPACE" ds=" -- i*x i ">
   DP @ D0 @ D9 @  3
 </def>
