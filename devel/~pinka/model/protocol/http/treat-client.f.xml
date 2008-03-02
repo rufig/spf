@@ -47,8 +47,8 @@
 </def>
 
 <def name="dispatch-request" ds=" -- ">
-  allow-pipelining?    <if> post-data? <unless>  
-  treat-request-async  <exit/></unless></if>
+  allow-pipelining?    <if> connection-close? <unless> has-content? <unless>  
+  treat-request-async  <exit/></unless></unless></if>
   treat-request
 
   <!-- 8.1.2.2 Pipelining 

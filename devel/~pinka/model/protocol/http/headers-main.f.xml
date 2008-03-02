@@ -36,16 +36,16 @@
 <def name="http-method" ds=" -- a u ">
   `http-method h@
 </def>
-<def name="eq-method" ds=" a u -- flag ">
+<def name="is-http-method" ds=" a u -- flag ">
   http-method EQUAL
 </def>
 <def name="content-length" ds=" -- a u ">
   `Content-Length h@
 </def>
-<def name="post-data?" ds=" -- flag">
+<def name="has-content?" ds=" -- flag">
   content-length StoN 0NEQ
 </def>
-<def name="close?" ds=" -- flag ">
+<def name="connection-close?" ds=" -- flag ">
   `Connection h@ `lose CONTAINS
 </def>
 
