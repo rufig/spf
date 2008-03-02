@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<cell name="_sock" />
+<cell name="_ip"   />
+<cell name="_port" />
+<cell name="_last-accepted" />
+
+<def name="close" ds=" -- ">
+  <rem> closing FIRE-EVENT <!-- before --></rem>
+  _sock @ _sock 0! CloseSocket THROW
+</def>
+
+<def name="?close" ds=" -- ">
+  _sock @ 0EQ <if><exit/></if> close
+</def>
+
+<def name="alive?" ds=" -- sock|0 ">
+  _sock @
+</def>
+
+<def name="(open)" ds=" -- ">
+  ?close
+  CreateSocket THROW _sock !
+  _port @ _ip @
+  _sock @ BindSocketInterface THROW
+  _sock @ ListenSocket THROW
+  <rem> opening FIRE-EVENT <!-- after --></rem>
+</def>
+
+<def name="open" ds=" port-a port-u interface-a interface-u -- ">
+  <choose> DUP <when> GetHostIP THROW </when> NIP </choose> _ip !
+  StoN _port ! (open)
+</def>
+
+<def name="accept-client" ds=" -- sock ">
+  _sock @ AcceptSocket THROW DUP _last-accepted !
+</def>
+
+</forth>

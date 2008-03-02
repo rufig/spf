@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="(quit)" ds=" -- " >
+  accept-client dispatch-client
+  <again/>
+</def>
+
+<def name="quit" ds=" -- ">
+  startup FIRE-EVENT
+  <emit-line> tcp server started </emit-line>
+  <xt-of name="(quit)"/> CATCH
+  <choose>
+    DUP 10004 EQ <when><rem> WSAEINTR Interrupted system call </rem> DROP 0 </when>
+    DUP 10038 EQ <when><rem> WSAENOTSOCK </rem> alive? <unless> DROP 0 </unless></when>
+  </choose>
+  ERROR
+  <emit-line> tcp server stoped </emit-line>
+  shutdown FIRE-EVENT
+</def>
+
+
+<def name="start" ds=" -- ">
+  <xt-of name="quit"/> LAUNCH
+</def>
+
+<def name="stop">
+  ?close
+</def>
+<rem> </rem>
+
+</forth>
