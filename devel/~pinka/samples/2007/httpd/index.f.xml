@@ -1,55 +1,59 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
+<wordlist name="counters">
+
 <cell name="_cnt"/>
 <cell name="_cnt-idle"/>
 
+<export>
+
+<def name="inc-workers" ds=" -- "> _cnt InterlockedIncrement DROP </def>
+<def name="dec-workers" ds=" -- "> _cnt InterlockedDecrement DROP </def>
+
 <def name="workers-quantity" ds=" -- n ">  _cnt @ </def>
 
-<def name="workers-idle++" ds=" -- ">
-  _cnt-idle 1+!
-</def>
-<def name="workers-idle--" ds=" -- ">
-  _cnt-idle 1-!
-</def>
-<def name="workers-idle" ds=" -- n ">
-  _cnt-idle @
-</def>
 
-<comment> need using the Interlocked* </comment>
+<def name="inc-idle" ds=" -- "> _cnt-idle InterlockedIncrement DROP </def>
+<def name="dec-idle" ds=" -- "> _cnt-idle InterlockedDecrement DROP </def>
 
+<def name="workers-idle" ds=" -- n "> _cnt-idle @ </def>
+
+</export>
+</wordlist>
 
 
 <def name="load-worker" ds=" -- ">
-  <include href="worker.f.xml"/> _cnt 1+!
-</def>
-
-<def name="decrement-workers" ds=" -- ">
-  _cnt 1-!
+  <include href="worker.f.xml"/> inc-workers
 </def>
 
 
-<g xml:base="http://forth.org.ru/~pinka/model/">
 
-<cell name="_storage"/>
 
-<wordlist name="tcp-server">
+<wordlist name="tcp-server" xml:base="http://forth.org.ru/~pinka/model/">
 
-<include href="data/events-common.f.xml" />
+<include href="data/events-common.f.xml"/>
 
 <include href="data/queue.L1.f.xml"/>
 
-<def name="get-client?" ds=" -- x true | false "> 
-  workers-idle++
-  dequeueN ?DUP 0NEQ 
-  workers-idle--
+<def name="get-client?" ds=" -- x true | false ">
+  inc-idle
+  dequeueN ?DUP 0NEQ  <rem> returns false when sock is 0 </rem>
+  dec-idle
 </def>
 
-<def name="instantiate-worker" ds=" -- ">
+<cell name="_workers"/>
+
+<def name="store-worker" ds=" wid -- ">
+  0 , HERE _workers BIND-NODE ,
+</def>
+
+<def name="instantiate-worker" ds=" -- "><!-- 10 K on woker -->
   <wid>
+    <const name="my-wid">GET-CURRENT</const>
     <def name="get-client?"> get-client? </def><rem> local alias </rem>
     load-worker
-  </wid> `start OBEY-SURE-
+  </wid> DUP store-worker `start OBEY-SURE-
 </def>
 
 <def name="dispatch-client" ds=" sock -- ">
@@ -59,11 +63,16 @@
   instantiate-worker
 </def>
 
+
+
 <include href="qms/tcp4-server.L1.f.xml" />
 <include href="qms/tcp-server.L2.f.xml" />
 
+
+<cell name="_storage"/>
+
 <handler event="startup">
-  200 1024 * NEW-STORAGE  DUP _storage !  MOUNT
+  300 1024 * NEW-STORAGE  DUP _storage !  MOUNT
 </handler>
 
 <handler event="shutdown">
@@ -72,5 +81,5 @@
 
 </wordlist>
 
-</g>
+
 </forth>

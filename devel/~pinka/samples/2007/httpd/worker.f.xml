@@ -25,9 +25,9 @@
 </g>
 
 <def name="quit" ds=" -- ">
-  startup FIRE-EVENT
+  startup FIRE-EVENT  my-wid PUSH-SCOPE
   <repeat> get-client? <while/> treat-client </repeat>
-  decrement-workers
+  dec-workers
   shutdown FIRE-EVENT
   TERMINATE <!-- finish thread on 0 -->
 </def>
