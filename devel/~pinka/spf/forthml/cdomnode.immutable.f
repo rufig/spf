@@ -58,6 +58,7 @@ SET-CURRENT
 `getAttributeNS wrap
 `hasAttribute   wrap
 `hasAttributeNS wrap
+`hasChildNodes  wrap
 `firstChildValue wrap
 `baseURI        wrap
 
