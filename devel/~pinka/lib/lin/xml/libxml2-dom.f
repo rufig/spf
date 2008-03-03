@@ -219,7 +219,7 @@ CONSTANT /xmlNs
 : previousSiblingByTagName- ( node1 name-a name-u -- node2|0 ) ROT previousSiblingByTagName ;
 : previousSiblingByTagNameNS- ( node1 localname-a localname-u uri-a uri-u -- node2|0 ) 4 PICK previousSiblingByTagNameNS NIP ;
 
-: enumChilds ( xt node -- ) \ xt ( node -- )
+: foreachChild ( xt node -- ) \ xt ( node -- )
   SWAP >R
   firstChild BEGIN DUP WHILE R@ OVER >R EXECUTE R> nextSibling REPEAT DROP RDROP
 ;
@@ -238,7 +238,7 @@ CONSTANT /xmlNs
   DUP >R searchNamespaceLocal IF RDROP TRUE EXIT THEN
   R> ownerDocument documentElement searchNamespaceLocal
 ;
-: enumNamespaces ( xt node -- ) \ xt ( uri-a uri-u prefix-a prefix-u -- )
+: foreachNamespace ( xt node -- ) \ xt ( uri-a uri-u prefix-a prefix-u -- )
   SWAP >R
   ownerDocument documentElement
   x.ns @ BEGIN DUP WHILE
@@ -248,7 +248,10 @@ CONSTANT /xmlNs
   REPEAT DROP RDROP
 ;
 : namespace-uri-for-prefix ( prefix-a prefix-u node -- uri-a uri-u | 0 0 )
-  searchNamespace IF EXIT THEN 2DROP 0.
+  BEGIN DUP WHILE
+  DUP >R searchNamespaceLocal IF RDROP EXIT THEN
+  R> parentNode
+  REPEAT DROP 2DROP 0.
 ;
 
 : firstChildValue ( element -- c-addr u )
@@ -263,7 +266,8 @@ ALSO libxml2.dll
 
 : baseURI ( node -- a u )
   DUP ownerDocument  ( node doc )
-  2 xmlNodeGetBase ?ASCIIZ>
+  2 xmlNodeGetBase ?ASCIIZ> 
+  \ "it does not return the document base (5.1.3), use xmlDocumentGetBase() for this"
   CUT-PATH \ workaround
 ;
 : baseURI! ( addrz u node -- )
