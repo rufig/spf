@@ -248,10 +248,11 @@ CONSTANT /xmlNs
   REPEAT DROP RDROP
 ;
 : namespace-uri-for-prefix ( prefix-a prefix-u node -- uri-a uri-u | 0 0 )
-  BEGIN DUP WHILE
-  DUP >R searchNamespaceLocal IF RDROP EXIT THEN
-  R> parentNode
-  REPEAT DROP 2DROP 0.
+  DUP ownerDocument
+  BEGIN 2DUP <> WHILE \ document-element has't the x.ns property
+  >R DUP >R searchNamespaceLocal IF RDROP RDROP EXIT THEN
+  R> parentNode R>
+  REPEAT 2DROP 2DROP 0.
 ;
 
 : firstChildValue ( element -- c-addr u )
