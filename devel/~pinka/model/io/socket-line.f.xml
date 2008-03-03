@@ -10,12 +10,13 @@
 </def>
 
 <def name="close-socketline" ds=" -- ">
-  readline-hidden::clear 
+  readline-hidden::clear
   _sock @  _sock 0!  CloseSocket THROW
 </def>
 
 <def name="?close-socketline" ds=" -- ">
-  _sock @ <if> close-socketline </if> 
+  _sock @ <if> close-socketline <exit/></if>
+  readline-hidden::clear
 </def>
 
 <def name="assume-sock" ds=" sock -- "><rem> take up</rem>
@@ -24,6 +25,9 @@
 
 <def name="sock" ds=" -- sock ">
   _sock @
+</def>
+<def name="sock!" ds=" sock -- ">
+  _sock !
 </def>
 
 <handler event="shutdown"> ?close-socketline </handler>
