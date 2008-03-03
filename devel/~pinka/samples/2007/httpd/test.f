@@ -6,6 +6,11 @@ REQUIRE Wait      ~pinka/lib/multi/Synchr.f
 REQUIRE CreateSem ~pinka/lib/multi/Semaphore.f
 REQUIRE CREATE-CS ~pinka/lib/multi/Critical.f
 
+[UNDEFINED] InterlockedIncrement [IF]
+WINAPI: InterlockedIncrement KERNEL32.DLL
+WINAPI: InterlockedDecrement KERNEL32.DLL
+[THEN]
+
 
 : STHROW ( addr u -- )  ER-U ! ER-A ! -2 THROW ;
 
