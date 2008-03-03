@@ -11,8 +11,8 @@
   next-line? <unless> FALSE <exit/></unless>
   TEST-EOLN <unless> `#414 STHROW </unless><!-- Request-URI Too Large -->
   FINE-HEAD DUP <unless> 2DROP <again/></unless><!-- skip empty lines -->
-  save-request-line 
-  http-ver-d OR 1 EQ <unless> `#505 STHROW </unless><!-- HTTP/1.1 only -->
+  save-request-line
+  http-ver-d AND 1 EQ <unless> `#505 STHROW </unless><!-- HTTP/1.1 only -->
   TRUE
 </def>
 
@@ -35,11 +35,18 @@
 </def>
 
 <def name="connection-alive?" ds=" -- flag ">
-  sock 0NEQ
+  sock <unless> FALSE <exit/></unless>
+  connection-close? 0EQ
 </def>
 
 <def name="treat-error" ds=" code -- ">
-  CR . CR
+  <choose>
+    DUP 10058 EQ <rem> WSAESHUTDOWN </rem>
+    <when> DROP 0  0 sock!
+      <emit-line> log: interrupted</emit-line>
+    </when>
+  </choose>
+  CR ERROR
 </def>
    
 <def name="treat-request-async" ds=" -- ">
@@ -74,7 +81,7 @@
 <def name="treat-client" ds=" sock -- ">
   assume-sock
   perform-dialog
-  close-socketline
+  ?close-socketline
 </def>
 
 </forth>
