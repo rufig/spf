@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<include href="engine.f.xml"/>
+<include href="main.f.xml"/>
+
+</forth>

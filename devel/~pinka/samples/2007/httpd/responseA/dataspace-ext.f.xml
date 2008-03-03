@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="CRLF" ds=" -- a u "><text>&#x0D;&#x0A;</text></def>
+<def name="CRLF," ds=" -- "> CRLF S, </def>
+
+</forth>

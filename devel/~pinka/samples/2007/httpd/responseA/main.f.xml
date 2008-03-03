@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+     xmlns:h="local:http"
+>
+
+<r:develop transform="http-responses" xmlns:r="http://forth.org.ru/ForthML/Rules/">
+
+<def name="Reply505" ds=" -- ">
+  <h:response-error>
+    <h:status-text>501 Not Implemented</h:status-text>
+    <h:type>text/plain</h:type>
+    <h:body>501 Not Implemented</h:body>
+  </h:response-error>
+</def>
+
+<def name="Reply410txt" ds=" a u -- ">
+  <h:response>
+    <h:status-text>410 Gone</h:status-text>
+    <h:type>text/plain</h:type>
+    <h:body/>
+  </h:response>
+</def>
+
+<def name="Reply405Methods" ds=" a u -- ">
+  <h:response>
+    <h:status-text>405 Method Not Allowed</h:status-text>
+    <h:header>Allow: <h:ss/></h:header>
+    <h:type>text/plain</h:type>
+    <h:body>405 Method Not Allowed</h:body>
+  </h:response>
+</def>
+
+<def name="Reply404txt" ds=" a u -- ">
+  <h:response>
+    <h:status-text>404 Not Found</h:status-text>
+    <h:type>text/plain</h:type>
+    <h:body/>
+  </h:response>
+</def>
+
+<def name="Reply403txt" ds=" a u -- ">
+  <h:response>
+    <h:status-text>403 Forbidden</h:status-text>
+    <h:type>text/plain</h:type>
+    <h:body/>
+  </h:response>
+</def>
+
+<def name="Reply400" ds=" -- ">
+  <h:response>
+    <h:status-text>400 Bad Request</h:status-text>
+    <h:type>text/plain</h:type>
+    <h:body>400 Bad Request</h:body>
+  </h:response>
+</def>
+
+<def name="Reply303Uri" ds=" a u -- "><!-- redirect in answer on POST -->
+  2DUP
+  <h:response>
+    <h:status-text>303 See Other</h:status-text>
+    <h:type>text/plain</h:type>
+    <h:header>Location: <h:ss/></h:header>
+    <h:body/>
+  </h:response>
+</def>
+
+<def name="Reply200xml" ds=" a u -- ">
+  <h:response-ok>
+    <h:type>text/xml</h:type>
+    <h:body/>
+  </h:response-ok>
+</def>
+
+<def name="Reply200txt" ds=" a u -- ">
+  <h:response-ok>
+    <h:type>text/plain</h:type>
+    <h:body/>
+  </h:response-ok>
+</def>
+
+</r:develop>
+
+</forth>

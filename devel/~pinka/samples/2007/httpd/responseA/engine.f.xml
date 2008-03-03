@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="ASCII"?>
+<f:forth
+ xmlns:f="http://forth.org.ru/ForthML/"
+   xmlns="http://forth.org.ru/ForthML/Rules/"
+ xmlns:r="http://forth.org.ru/ForthML/Rules/"
+ xmlns:h="local:http"
+>
+
+<f:include href="dataspace-ext.f.xml"/>
+
+<f:def name="header-pair," ds=" a-value u-value a-name u-name -- ">
+  S, <f:text>: </f:text> S, S, CRLF,
+</f:def>
+
+<f:also wordlist="forthml-hidden">
+
+<transform name="as-data" />
+
+<f:def name="treat-as-data">
+  HasChildNodes <f:if><yield transform="as-data"/><f:exit/></f:if>
+  <m> S, </m>
+</f:def>
+
+<expand transform="as-data">
+  <rule match="#text">
+    treat-text-node <m> S, </m>
+  </rule>
+  <rule match="h:ss">
+    <f:choose> M @ <f:when>
+      <postpone> treat-as-data </postpone>
+    </f:when>
+      <m> S, </m>
+    </f:choose>
+  </rule>
+</expand>
+
+<transform name="http-responses">
+  <import-context/>
+  <rule match="h:ss">
+    <postpone> treat-as-data </postpone>
+  </rule>
+</transform>
+
+</f:also>
+
+
+
+<develop transform="http-responses">
+
+<rule match="h:header">
+  <m><h:ss/> CRLF,</m>
+</rule>
+<rule match="h:status-text">
+  <m><h:header>HTTP/1.1 <h:ss/></h:header></m>
+</rule>
+<rule match="h:status-ok">
+  <m><h:status-text>200 OK</h:status-text></m>
+</rule>
+<rule match="h:type">
+  <m><h:header>Content-Type: <h:ss/></h:header></m>
+</rule>
+<rule match="h:connection">
+  <m><h:header>Connection: <h:ss/></h:header></m>
+</rule>
+<rule match="h:close" ds=" -- ">
+  <m><h:connection>close</h:connection></m>
+</rule>
+<rule match="h:disposition">
+  <m><h:header>Content-disposition: attachment; filename=<h:ss/></h:header></m>
+</rule>
+<rule match="h:response-headers" ds=" -- a u ">
+  <m> CLEAR-DATASPACE <yield/> CRLF, DATASPACE-CONTENT </m>
+</rule>
+<rule match="h:response">
+  <m><h:response-headers><yield/></h:response-headers> put put </m>
+</rule>
+<rule match="h:response-error">
+  <m><h:response><yield/></h:response></m>
+</rule>
+<rule match="h:response-ok">
+  <m><h:response><h:status-text>200 OK</h:status-text><yield/></h:response></m>
+</rule>
+
+<f:also wordlist="forthml-hidden">
+<rule match="h:body">
+  HasChildNodes <f:if> FirstChildValue T-SLIT </f:if>
+  <m> DUP 0 (D.) `Content-Length header-pair, </m>
+</rule>
+</f:also>
+
+</develop>
+
+</f:forth>
