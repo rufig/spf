@@ -560,11 +560,7 @@ BIRTH 2CS> NAMING-
 `@ & EXEC, 
 `BIND-NODE-TAIL & EXEC, 
 BIRTH 2CS> NAMING- 
-`perform-chain 2>CS CONCEIVE 
-`chain-context & EXEC, 
-`@ & EXEC, 
-`DUP & EXEC, 
-`0EQ & EXEC, ZBFW, EXIT, RFW 
+`(perform-chain) 2>CS CONCEIVE 
 `@ & EXEC, MBW 
 `DUP & EXEC, ZBFW2, 
 `DUP & EXEC, 
@@ -577,6 +573,14 @@ BIRTH 2CS> NAMING-
 `CELL- & EXEC, 
 `@ & EXEC, BBW, RFW 
 
+
+BIRTH 2CS> NAMING- 
+`perform-chain 2>CS CONCEIVE 
+`chain-context & EXEC, 
+`@ & EXEC, 
+`DUP & EXEC, 
+`0EQ & EXEC, ZBFW, EXIT, RFW 
+`(perform-chain) & EXEC, 
 
 BIRTH 2CS> NAMING- 
 `perform-chain-sure 2>CS CONCEIVE 
