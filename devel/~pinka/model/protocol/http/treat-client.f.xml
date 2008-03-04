@@ -41,12 +41,19 @@
 
 <def name="treat-error" ds=" code -- ">
   <choose>
-    DUP 10058 EQ <rem> WSAESHUTDOWN </rem>
-    <when> DROP 0  0 sock!
-      <emit-line> log: interrupted</emit-line>
+    DUP 10058 EQ <when>
+      <logN>WSAESHUTDOWN</logN> 0 sock! 0
     </when>
+
+    DUP 10054 EQ <when>
+      <logN>WSAECONNRESET</logN> 0 sock! 0
+    </when>
+     
   </choose>
-  DUP <if> DUP <logN>error, ior</logN></if>
+  DUP <unless> DROP <exit/></unless>
+  DUP <logN>error, ior</logN>
+  <xt-of name="treat-error-lite"/> CATCH
+  DUP <logN>result, ior</logN>
   ERROR <rem> if any </rem>
 </def>
    
