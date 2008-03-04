@@ -12,14 +12,14 @@
 </def>
 
 
-<!-- experemental name, maybe will be changed -->
+<!-- experimental name, maybe will be changed -->
 <def name="TAIL|HEAD" ds=" a u -- a2 u2 a /char ">
   2DUP TAIL 2SWAP HEAD
 </def>
 
 
 
-<!-- experimetal words -->
+<!-- experimental words -->
 
 <def name="CLEFT+" ds=" a u cn -- a2 u2 ">
   CHARS TUCK + >R - R>
