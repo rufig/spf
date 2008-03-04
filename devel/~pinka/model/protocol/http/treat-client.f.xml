@@ -46,7 +46,8 @@
       <emit-line> log: interrupted</emit-line>
     </when>
   </choose>
-  CR ERROR
+  DUP <if> DUP <logN>error, ior</logN></if>
+  ERROR <rem> if any </rem>
 </def>
    
 <def name="treat-request-async" ds=" -- ">
@@ -54,7 +55,7 @@
 </def>
 
 <def name="dispatch-request" ds=" -- ">
-  allow-pipelining?    <if> connection-close? <unless> has-content? <unless>  
+  allow-pipelining?    <if> connection-close? <unless> has-content? <unless>
   treat-request-async  <exit/></unless></unless></if>
   treat-request
 
@@ -65,13 +66,12 @@
 </def>
 
 <def name="(perform-dialog)" ds=" -- ">
-  <repeat>
-    connection-alive?
-  <while/>
+  <until> sock <while/>
     accept-request?
   <while/>
     dispatch-request
-  </repeat>
+    connection-close?
+  </until>
 </def>
 
 <def name="perform-dialog" ds=" -- ">
@@ -79,8 +79,10 @@
 </def>
 
 <def name="treat-client" ds=" sock -- ">
+  DUP <logN>begin dialog</logN>
   assume-sock
   perform-dialog
+  <log>end dialog</log>
   ?close-socketline
 </def>
 
