@@ -10,6 +10,9 @@
 <def name="HEAD|TAIL" ds=" a u -- a /char a2 u2 ">
   2DUP HEAD 2SWAP TAIL
 </def>
+
+
+<!-- experemental name, maybe will be changed -->
 <def name="TAIL|HEAD" ds=" a u -- a2 u2 a /char ">
   2DUP TAIL 2SWAP HEAD
 </def>
