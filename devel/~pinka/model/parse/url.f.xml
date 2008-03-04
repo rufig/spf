@@ -3,7 +3,9 @@
 <!-- Ported from whead, (c) 25.Dec.2006 me -->
 
 <comment>
-  See also: http://www.w3.org/TR/Window/#location -- The Location Interface
+  See also: 
+    http://www.w3.org/TR/Window/#location-attributes
+    -- The Location Interface
 </comment>
 
 <rem> pieces of the URI, per the generic URI syntax </rem>
