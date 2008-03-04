@@ -14,6 +14,8 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 : CRIGHT+ ( a u cn -- a2 u2 )
   CHARS +
 ;
+\ see also: ~pinka/model/lib/string/slice.f.xml
+
 
 \ load (from current directory):
 
