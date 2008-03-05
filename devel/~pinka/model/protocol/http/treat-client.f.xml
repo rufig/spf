@@ -46,7 +46,7 @@
     </when>
 
     DUP 10054 EQ <when>
-      <logN>WSAECONNRESET</logN> 0 sock! 0
+      <logN>WSAECONNRESET</logN> 0
     </when>
      
   </choose>
