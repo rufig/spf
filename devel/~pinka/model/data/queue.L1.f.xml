@@ -43,11 +43,11 @@
 </def>
 
 <def name="dequeueN" ds=" -- x "><rem> or, "pop"? </rem>
-  sem -1 Wait <unless> ABORT </unless>
+  sem -1 Wait <unless> `#dequeueN STHROW </unless>
   cs ENTER-CS
   _len 1-! _h UNBIND-NODE 
   cs LEAVE-CS
-  DUP <unless> ABORT </unless><!-- `#queue-is-underflow STHROW -->
+  DUP <unless> `#queue-is-underflow STHROW </unless>
   DUP @ SWAP release-worker
 </def>
 

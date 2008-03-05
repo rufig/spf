@@ -56,7 +56,7 @@
 </def>
 
 <def name="hire-worker" ds=" -- x ">
-  -1 wait-worker <unless> ABORT </unless>
+  -1 wait-worker <unless> `#hire-worker-error STHROW </unless>
 </def>
 
 <comment> or 'acquire'? </comment>

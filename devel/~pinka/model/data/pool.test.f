@@ -1,5 +1,6 @@
 REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
+REQUIRE STHROW    ~pinka/spf/sthrow.f
 REQUIRE Wait      ~pinka/lib/multi/Synchr.f
 REQUIRE CreateSem ~pinka/lib/multi/Semaphore.f
 REQUIRE CREATE-CS ~pinka/lib/multi/Critical.f
