@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+     xmlns:f="http://forth.org.ru/ForthML/"
+     xmlns:r="http://forth.org.ru/ForthML/Rules/"
+>
+
+
+<also wordlist="forthml-hidden">
+
+<r:rule match="f:log">
+  FirstChildValue T-SLIT <r:m>GetCurrentThreadId . TYPE CR</r:m>
+</r:rule>
+
+<r:rule match="f:logN">
+  FirstChildValue T-SLIT <r:m>GetCurrentThreadId . TYPE `: TYPE SPACE . CR</r:m>
+</r:rule>
+
+<r:rule match="f:logS">
+  FirstChildValue T-SLIT <r:m>GetCurrentThreadId . TYPE `: TYPE SPACE TYPE CR</r:m>
+</r:rule>
+
+</also>
+
+<rem>
+<log>abc</log>
+</rem>
+
+</forth>
