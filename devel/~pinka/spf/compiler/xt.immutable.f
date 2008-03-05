@@ -8,6 +8,7 @@
 ;
 : BIRTH ( -- xt )
   RET, GERM  CS> GERM!
+  ClearJpBuff \ for OPT
   \ AT-BIRTH ( xt -- xt ) \ is event
 ;
 : MAKE-CONST ( x -- xt ) \ xt ( -- x )
