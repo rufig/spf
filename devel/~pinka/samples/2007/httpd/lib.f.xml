@@ -33,6 +33,13 @@
   LAUNCHER START  CloseHandle ERR THROW
 </def>
 
+<def name="OBEY" ds=" c-addr u wid -- true | a u false ">
+  >R 2DUP R> SEARCH-WORDLIST <if> NIP NIP EXECUTE TRUE <exit/></if> FALSE
+</def>
+<def name="OBEY-" ds=" wid c-addr u -- true | a u false ">
+  ROT OBEY
+</def>
+
 <def name="OBEY-SURE" ds=" i*x a u wid -- j*x ">
   FIND-WORDLIST <if> EXECUTE <exit/></if>
   TYPE CR -321 THROW
@@ -41,5 +48,27 @@
 <def name="OBEY-SURE-" ds=" i*x wid a u -- j*x ">
   ROT OBEY-SURE
 </def>
+
+
+
+<f:g xmlns:f="http://forth.org.ru/ForthML/"
+     xmlns:r="http://forth.org.ru/ForthML/Rules/"
+       xmlns="http://forth.org.ru/ForthML/Rules/"
+>
+<rule match="f:develop" ds=" -- ">
+  <m>
+  <exec-attribute name="wordlist"/> PUSH-DEVELOP <yield/> DROP-DEVELOP
+  </m>
+</rule>
+
+<rule match="f:file-content" ds=" a u --">
+  <mm> FILE OVER >R <yield/> R> FILEFREE </mm>
+</rule>
+
+<rule match="f:stack-effect" ds=" i*x -- j*x n ">
+  <mm> SP@ >R <yield/> SP@ NEGATE R> + /CELL / </mm>
+</rule>
+
+</f:g>
 
 </forth>
