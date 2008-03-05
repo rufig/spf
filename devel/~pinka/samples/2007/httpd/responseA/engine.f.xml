@@ -6,6 +6,18 @@
  xmlns:h="local:http"
 >
 
+<f:wordlist name="response-hidden">
+
+<f:include href="http://forth.org.ru/~pinka/model/data/data-space.f.xml"/>
+
+<f:handler event="startup">
+  7000 ALLOCATED DATASPACE!
+</f:handler>
+
+<f:handler event="shutdown">
+  DATASPACE DROP FREE THROW   0. DATASPACE!
+</f:handler>
+
 <f:include href="dataspace-ext.f.xml"/>
 
 <f:def name="header-pair," ds=" a-value u-value a-name u-name -- ">
@@ -34,16 +46,19 @@
   </rule>
 </expand>
 
+<f:export>
 <transform name="http-responses">
   <import-context/>
   <rule match="h:ss">
     <postpone> treat-as-data </postpone>
   </rule>
 </transform>
+</f:export>
 
 </f:also>
 
 
+<f:export>
 
 <develop transform="http-responses">
 
@@ -89,5 +104,6 @@
 </f:also>
 
 </develop>
+</f:export></f:wordlist>
 
 </f:forth>
