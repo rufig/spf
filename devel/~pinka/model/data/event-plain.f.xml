@@ -7,18 +7,30 @@
 
 <!-- require list-plain.f.xml -->
 
-<def name="ALLOT-EVENT" ds=" -- addr ">
+<def name="ALLOT-EVENT" ds=" -- chain ">
   ALIGN HERE 0 , 0 ,
 </def>
 
-<def name="BIND-EVENT" ds=" xt ev -- ">
+<comment>
+  for further: ATTACH-EVENT ( a1 u1 a2 u2 -- )
+</comment>
+
+<def name="ADVICE-EVENT-AFTER" ds=" xt chain -- ">
   >R 0 , HERE SWAP , R> BIND-DNODE-TAIL
 </def>
 
-<def name="FIRE-EVENT" ds=" ev -- ">
-  <xt-of name="EXECUTE"/> FOR-LIST-VALUE
+<def name="ADVICE-EVENT-BEFORE" ds=" xt chain -- ">
+  >R 0 , HERE SWAP , R> BIND-NODE
 </def>
 
+<def name="ADVICE-EVENT-LIKE" ds=" xt chain a u -- ">
+  `before EQUAL <if> ADVICE-EVENT-BEFORE <exit/></if>
+  ADVICE-EVENT-AFTER
+</def>
+
+<def name="FIRE-EVENT" ds=" chain -- ">
+  <xt-of name="EXECUTE"/> FOR-LIST-VALUE
+</def>
 
 <r:rule match="f:event" ds=" -- ">
   <r:mm><r:get-name/><const name="{}"> ALLOT-EVENT </const></r:mm>
@@ -26,7 +38,8 @@
 
 <r:rule match="f:handler" ds=" -- ">
   <r:m>
-    <q><r:yield/></q><r:exec-attribute name="event"/>  BIND-EVENT
+    <q><r:yield/></q><r:exec-attribute name="event"/>
+    <r:get-attribute name="advice"/> ADVICE-EVENT-LIKE
   </r:m>
 </r:rule>
 
