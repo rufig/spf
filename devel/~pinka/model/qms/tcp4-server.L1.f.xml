@@ -6,21 +6,21 @@
 <cell name="_port" />
 <cell name="_last-accepted" />
 
-<def name="close" ds=" -- ">
+<def name="close-listen" ds=" -- ">
   <rem> closing FIRE-EVENT <!-- before --></rem>
   _sock @ _sock 0! CloseSocket THROW
 </def>
 
-<def name="?close" ds=" -- ">
-  _sock @ 0EQ <if><exit/></if> close
+<def name="?close-listen" ds=" -- ">
+  _sock @ 0EQ <if><exit/></if> close-listen
 </def>
 
 <def name="alive?" ds=" -- sock|0 ">
   _sock @
 </def>
 
-<def name="(open)" ds=" -- ">
-  ?close
+<def name="open-listen" ds=" -- ">
+  ?close-listen
   CreateSocket THROW _sock !
   _port @ _ip @
   _sock @ BindSocketInterface THROW
@@ -28,9 +28,9 @@
   <rem> opening FIRE-EVENT <!-- after --></rem>
 </def>
 
-<def name="open" ds=" port-a port-u interface-a interface-u -- ">
+<def name="assume-listen" ds=" port-a port-u interface-a interface-u -- ">
   <choose> DUP <when> GetHostIP THROW </when> NIP </choose> _ip !
-  StoN _port ! (open)
+  StoN _port !
 </def>
 
 <def name="accept-client" ds=" -- sock ">
