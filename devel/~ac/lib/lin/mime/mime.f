@@ -148,7 +148,8 @@ USER uPhParamNum
   TIB MimePart @ mpHeaderAddr !
   BEGIN
     13 PARSE DUP
-    TIB >IN @ + C@ 10 = IF >IN 1+! THEN
+    PeekChar 13 = IF >IN 1+! THEN \ неправильные концы строк CRCRLF
+    PeekChar 10 = IF >IN 1+! THEN
   WHILE
     ['] ParseHeaderLine EVALUATE-WITH
   REPEAT 2DROP
@@ -159,14 +160,17 @@ USER uPhParamNum
   SOURCE SWAP >IN @ + SWAP >IN @ - 0 MAX
   MimePart @ mpBoundaryLen @ 0= IF DROP FALSE EXIT THEN
   2DUP
-  MimePart @  mpBoundaryAddr @ MimePart @ mpBoundaryLen @ " {s}{CRLF}" STR@ SEARCH
-  IF 2SWAP 2DROP TRUE 
+  MimePart @  mpBoundaryAddr @ MimePart @ mpBoundaryLen @ ( " {s}{CRLF}" STR@) SEARCH
+  IF 2+ 2SWAP 2DROP TRUE 
   ELSE 2DROP MimePart @  mpBoundaryAddr @ MimePart @ mpBoundaryLen @ " {s}--" STR@ SEARCH THEN
   IF
     DROP DUP 4 - SWAP
     MimePart @ mpBoundaryLen @ + TIB - >IN !
     TIB >IN @ + 2 S" --" COMPARE 0<> IF 2 >IN +! TRUE EXIT THEN
-    4 >IN +! TRUE
+    4 >IN +!
+    PeekChar 0x0A = ( неправильные концы строк )
+    IF >IN 1+! THEN
+    TRUE
   ELSE DROP FALSE THEN
 ;
 : ParseMimeX { addr u i \ mp ch -- mp }
@@ -196,7 +200,7 @@ USER uPhParamNum
 : ParseMultipartBody { \ i pp -- }
   PartBoundary NIP 0= IF EXIT THEN
   BEGIN
-    TIB >IN @ +
+    CharAddr DUP C@ 0x0A = IF 1+ THEN \ неправильные концы строк
     PartBoundary
   WHILE
     i 1+ -> i
@@ -246,7 +250,7 @@ USER uPhParamNum
   ELSE mp mpBodyAddr @ mp mpBodyLen @ THEN
 ;
 : ParseBody
-  TIB >IN @ + MimePart @ mpBodyAddr ! 
+  CharAddr MimePart @ mpBodyAddr ! 
   #TIB @ >IN @ - 0 MAX MimePart @ mpBodyLen !
   MimePart @ mpIsMultipart @
   IF ParseMultipartBody 
