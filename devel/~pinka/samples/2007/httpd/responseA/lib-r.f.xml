@@ -18,12 +18,12 @@
 </def>
 
 <def name="?rule1" ds=" -- ">
-  M @ <unless> ABORT </unless>
-  STATE? 1 EQ <unless> ABORT </unless>
+  M @ <unless> `#not-M STHROW </unless>
+  STATE? 1 EQ <unless> `#not-STATE1 STHROW </unless>
 </def>
 
 <def name="?S0" ds=" -- ">
-  STATE0? <unless> ABORT </unless>
+  STATE0? <unless> `#not-STATE0 STHROW </unless>
 </def>
 
 
