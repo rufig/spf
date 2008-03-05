@@ -44,40 +44,65 @@
 
 <cell name="_workers"/>
 
-<def name="store-worker" ds=" wid -- ">
+<def name="remember-worker" ds=" wid -- ">
   0 , HERE _workers BIND-NODE ,
 </def>
 
-<def name="instantiate-worker" ds=" -- "><!-- 10 K on woker -->
+<def name="instantiate-worker" ds=" -- "><!-- up to 20 K on worker, as yet -->
   <wid>
     <const name="my-wid">GET-CURRENT</const>
     <def name="get-client?"> get-client? </def><rem> local alias </rem>
     load-worker
-  </wid> DUP store-worker `start OBEY-SURE-
+  </wid> DUP <logN>worker wid</logN>
+  DUP remember-worker `start OBEY-SURE-
+</def>
+
+<def name="stop-workers" ds=" -- ">
+  2 <times>
+    workers-quantity <times> 0 enqueueN </times>
+    <repeat> workers-idle <while/> queue-length <while/> 20 PAUSE </repeat>
+    queue-length <if> 50 PAUSE </if>
+  </times>
 </def>
 
 <def name="dispatch-client" ds=" sock -- ">
-  DUP . CR  enqueueN
-  queue-length  workers-idle ULT <if><exit/></if>
+  DUP <logN>dispatch client</logN>
+  enqueueN
+  <!-- <exit/> -->
+  queue-length  workers-idle UGT <unless><exit/></unless>
   workers-quantity 20 UGT <if><exit/></if>
   instantiate-worker
 </def>
 
 
-
 <include href="qms/tcp4-server.L1.f.xml" />
 <include href="qms/tcp-server.L2.f.xml" />
-
 
 <cell name="_storage"/>
 
 <handler event="startup">
-  300 1024 * NEW-STORAGE  DUP _storage !  MOUNT
+  <log>tcp server started</log>
+  450 1024 * NEW-STORAGE
+  <!-- DUP <logN>native storage</logN> -->
+  DUP _storage !  MOUNT
+  instantiate-worker
+</handler>
+
+<handler event="shutdown" advice="before">
+  stop-workers
+  DISMOUNT DROP
+  _storage @ DEL-STORAGE _storage 0!
 </handler>
 
 <handler event="shutdown">
-  _storage @ DEL-STORAGE _storage 0!
+  <log>tcp server stoped</log>
 </handler>
+
+<def name="restart" ds=" -- ">
+  stop
+  50 PAUSE
+  start
+</def>
 
 </wordlist>
 

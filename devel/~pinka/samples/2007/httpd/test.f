@@ -2,6 +2,7 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
 REQUIRE ReadSocket ~ac/lib/win/winsock/sockets.f
 
+REQUIRE STHROW    ~pinka/spf/sthrow.f
 REQUIRE Wait      ~pinka/lib/multi/Synchr.f
 REQUIRE CreateSem ~pinka/lib/multi/Semaphore.f
 REQUIRE CREATE-CS ~pinka/lib/multi/Critical.f
@@ -11,15 +12,9 @@ WINAPI: InterlockedIncrement KERNEL32.DLL
 WINAPI: InterlockedDecrement KERNEL32.DLL
 [THEN]
 
-
-: STHROW ( addr u -- )  ER-U ! ER-A ! -2 THROW ;
-
-: SCATCH ( -- addr u true | false ) 
-  CATCH
-  DUP 0EQ IF EXIT THEN
-  DUP -2 NEQ IF THROW THEN
-  DROP ER-A @ ER-U @ TRUE
-;
+[UNDEFINED] GetCurrentThreadId [IF]
+WINAPI: GetCurrentThreadId KERNEL32.DLL
+[THEN]
 
 
 [UNDEFINED] BIND-DNODE-TAIL [IF]
@@ -33,5 +28,8 @@ WINAPI: InterlockedDecrement KERNEL32.DLL
  SocketsStartup THROW
 
 
- `701 `localhost tcp-server::open tcp-server::start
+ `701 `localhost tcp-server::assume-listen
+ tcp-server::start
  
+ 
+\ : BYE  tcp-server::stop 200 PAUSE BYE ;

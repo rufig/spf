@@ -19,6 +19,10 @@
   <text> -- test passed &#xD;&#xA;</text> write
 </def>
 
+<def name="treat-error-lite" ds=" ior -- ">
+  DROP
+  sock <if><text>error occured</text> write </if>
+</def>
 
 <include href="protocol/http/treat-client.f.xml" />
 
