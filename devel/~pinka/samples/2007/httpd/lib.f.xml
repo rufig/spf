@@ -9,6 +9,9 @@
   DUP <if> OVER C@ IS-WHITE <exit/></if> TRUE
 </def>
 
+<def name="TEST-FILE-EXIST" ds=" a u -- a u flag ">
+  2DUP FILE-EXIST
+</def>
 
 <def name="StoD" ds=" a u -- xl xh | 0 0 ">
   I-DLIT <if><exit/></if> 2DROP 0.
