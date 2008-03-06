@@ -7,7 +7,9 @@
 </def>
 
 <def name="quit" ds=" -- ">
-  open-listen
+  <xt-of name="open-listen"/> CATCH
+  DUP <if> DUP <logN>tcp-server is not started</logN> ERROR <exit/></if>
+  
   startup FIRE-EVENT
   <xt-of name="(quit)"/> CATCH
   <choose>
@@ -15,7 +17,7 @@
     DUP 10038 EQ <when><rem> WSAENOTSOCK </rem> alive? <unless> DROP 0 </unless></when>
     DUP 10009 EQ <when><rem> WSAEBADF Bad file number </rem> alive? <unless> DROP 0 </unless> </when>
   </choose>
-  ERROR
+  ERROR <!-- if any -->
   ?close-listen
   shutdown FIRE-EVENT
 </def>
