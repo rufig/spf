@@ -30,7 +30,9 @@
 
 <def name="quit" ds=" -- ">
   startup FIRE-EVENT  my-wid PUSH-SCOPE
+  my-wid <logN>worker started</logN>
   <repeat> get-client? <while/> treat-client </repeat>
+  my-wid <logN>worker finished</logN>
   dec-workers
   shutdown FIRE-EVENT
   TERMINATE <!-- finish thread on 0 -->
