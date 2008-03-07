@@ -8,9 +8,10 @@
 \ 3 - выражения явно заданные словом RE" парсятся на этапе компиляции и сохраняют в
 \     кодофайл готовую структуру дерева состояний экономя на этом в рантайме!
 
-\ TODO: пункт 2
-\ TODO: ускорить capturing
-\ TODO: fix bugs
+\ TODO во время компиляции строить сразу DFA, кардинальное ускорение сопоставления
+\ TODO пункт 2
+\ TODO ускорить capturing
+\ TODO fix bugs
 
 \ Сделано :
 \ () выделение подвыражения
@@ -30,7 +31,7 @@
 \   но впрочем
 \   "The current  -p1003.2 spec says that ')' is an ordinary character in the absence of an 
 \    unmatched '('; this was an unintentional result of a wording error, and change is likely. 
-\    Avoid relying on it."
+\    Avoid relying on it." - http://linux.die.net/man/7/regex
 \ - нет backreferences - \1 \2 итд
 \ - однобайтовые символы (unicode to do?), классы символов - только для латинских
 \ - . (точка) ловит любой символ, с кодом 0 тоже
@@ -969,6 +970,9 @@ EXPORT
 \ Выделить строку до символа конца строки, скомпилировать в RE
 \ Во время исполнения положит RE на стек
 : EOLRE: ( -- re ) -1 PARSE POSTPONE BUILD-REGEX-HERE ; IMMEDIATE
+
+\ короткие названия для карманов - \0 \1 ... \10
+:NONAME 10 0 DO I DUP " : \{n} {n} get-group ;" DUP STR@ EVALUATE STRFREE LOOP ; EXECUTE
 
 ;MODULE
 

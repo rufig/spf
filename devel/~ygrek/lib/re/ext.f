@@ -66,8 +66,6 @@ REQUIRE str-replace- ~pinka/samples/2005/lib/replace-str.f
 
 : re_split ( a u re -- list ) %[ START{ re_split-> >STR %s }EMERGE ]% ;
 
-: shorthand DUP " : \{n} {n} get-group ;" DUP STR@ EVALUATE STRFREE ;
-:NONAME 10 0 DO I shorthand LOOP ; EXECUTE
 
 : str-replace-matches ( s -- )
    10 0 DO
