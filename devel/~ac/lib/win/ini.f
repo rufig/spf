@@ -11,13 +11,18 @@ REQUIRE STR@         ~ac/lib/str5.f
 
 4000 VALUE IniMaxString
 
-: IniFile@ ( S" key" S" section" S" file"  -- S" value" )
-\ получить значение ключа из ini-файла
+: (IniFile@) ( S" key" S" section" S" file"  -- S" value" )
+\ получить значение ключа из ini-файла (без раскрытия {})
   { ka ku sa su fa fu \ mem }
   IniMaxString ALLOCATE THROW -> mem
   fa IniMaxString mem S" " DROP ka sa GetPrivateProfileStringA
-  mem SWAP S@
-  mem FREE THROW
+  mem SWAP
+;
+: IniFile@ ( S" key" S" section" S" file"  -- S" value" )
+\ получить значение ключа из ini-файла
+  (IniFile@)			\ получить строку без раскрытия
+  OVER >R S@			\ раскрыть макросы в строке
+  R> FREE THROW			\ освободить буфер
 ;
 : IniFile! ( S" value" S" key" S" section" S" file" -- ) \ throwable
 \ записать значение ключа в ini-файл
@@ -92,10 +97,12 @@ USER _fskKEY
 
 : (IniS@)
   File.Section[Key]>
-  IniFile@ DUP 0=
-  IF 2DROP LSTRFREE >IN 0! FileOrig.Section[Key]>
-     IniFile@
+  (IniFile@) DUP 0=
+  IF DROP FREE THROW >IN 0! FileOrig.Section[Key]>
+     (IniFile@)
   THEN
+  OVER >R S@			\ раскрыть макросы в строке
+  R> FREE THROW			\ освободить буфер
 ;
 : (IniS!) ( va vu -- )
   File.Section[Key]> IniFile!
