@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<g xml:base="http://forth.org.ru/~pinka/model/">
+
+<include href="data/events-common.f.xml"/><rem> local domain for events </rem>
+<include href="data/queue.L1.f.xml"/><rem> to delivering tasks to workers </rem>
+
+
+<text> workers idles </text><each-word> create-interlocked </each-word>
+
+
+<def name="get-client?" ds=" -- x true | false ">
+  inc-idles
+  dequeueN ?DUP 0NEQ  <rem> returns false when sock is 0 </rem>
+  dec-idles
+</def>
+
+<cell name="_workers"/>
+
+<def name="remember-worker" ds=" wid -- ">
+  0 , HERE _workers BIND-NODE ,
+</def>
+
+<def name="instantiate-worker" ds=" -- "><!-- up to 20 K on worker, as yet -->
+  <wid>
+    <const name="my-wid">GET-CURRENT</const>
+    <!-- local alias: -->
+    <def name="get-client?"> get-client? </def>
+    <def name="dec-workers"> dec-workers </def>
+  
+    load-worker inc-workers
+
+  </wid> DUP <logN>worker wid</logN>
+  DUP remember-worker `start OBEY-SURE-
+</def>
+
+<def name="stop-workers" ds=" -- ">
+  <q> `?close-socketline OBEY-SURE- </q> _workers FOREACH-LIST-VALUE
+  2 <times>
+    workers-quan <times> 0 enqueueN </times>
+    <repeat> idles-quan <while/> queue-length <while/> 20 PAUSE </repeat>
+    queue-length <if> 50 PAUSE </if>
+  </times>
+</def>
+
+<def name="dispatch-client" ds=" sock -- ">
+  DUP <logN>dispatch client</logN>
+  enqueueN
+  <!-- <exit/> -->
+  queue-length  idles-quan UGT <unless><exit/></unless>
+  workers-quan 20 UGT <if><exit/></if>
+  instantiate-worker
+</def>
+
+
+<include href="qms/tcp4-server.L1.f.xml" />
+<include href="qms/tcp-server.L2.f.xml" />
+
+</g>
+
+
+<cell name="_storage"/>
+
+<handler event="startup">
+  <log>tcp server started</log>
+  450 1024 * NEW-STORAGE
+  DUP _storage !  MOUNT
+  instantiate-worker
+</handler>
+
+<handler event="shutdown" advice="before">
+  stop-workers _workers 0!
+  DISMOUNT DROP
+  _storage @ DEL-STORAGE _storage 0!
+</handler>
+
+<handler event="shutdown">
+  <log>tcp server stoped</log>
+</handler>
+
+<def name="restart" ds=" -- ">
+  stop
+  500 PAUSE
+  start
+</def>
+
+
+</forth>
