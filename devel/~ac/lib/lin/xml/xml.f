@@ -65,7 +65,11 @@ CONSTANT /xmlNode
 CELL -- xpo.type       \ xmlXPathObjectType
 CELL -- xpo.nodesetval \ xmlNodeSetPtr
 CELL -- xpo.boolval    \ int
+[DEFINED] WINAPI: [IF]
   12 -- xpo.floatval   \ double
+[ELSE]
+   8 -- xpo.floatval   \ double
+[THEN]
 CELL -- xpo.stringval  \ xmlChar
 CELL -- xpo.user       \ void
 CELL -- xpo.index      \ int
