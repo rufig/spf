@@ -5,11 +5,16 @@
 
 REQUIRE SO            ~ac/lib/ns/so-xt.f
 REQUIRE STR@          ~ac/lib/str5.f
+REQUIRE [IF]          lib/include/tools.f
 
 REQUIRE ADD-CONST-VOC lib/ext/const.f
 S" ~ygrek/lib/data/curl.const" ADD-CONST-VOC
 
-ALSO SO NEW: libcurl.dll
+[DEFINED] WINAPI: [IF]
+  ALSO SO NEW: libcurl.dll
+[ELSE]
+  ALSO SO NEW: /usr/lib/libcurl.so.4
+[THEN]
 
 \ Global libcurl initialization
 : (CURL-GLOBAL-INIT) CURL_GLOBAL_ALL 1 curl_global_init THROW ;
@@ -73,7 +78,7 @@ USER uCurlRes
 
 PREVIOUS
 
-\ EOF
+\EOF
 \ регистрация IP для xml-запросов к яндексу: http://xml.yandex.ru/ip.xml
 : TEST
   S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" GET-FILE STYPE CR
