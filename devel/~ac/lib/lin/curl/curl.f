@@ -38,7 +38,7 @@ USER uCurlRes
     stream @ STR@ NIP CURL-MAX-SIZE > IF DROP 0 THEN
   THEN
   ti TlsIndex!
-; WNDPROC: CURL_CALLBACK
+; 16 CALLBACK: CURL_CALLBACK
 
 : CURL-SETOPT ( value opt h -- ) 3 curl_easy_setopt THROW ;
 
