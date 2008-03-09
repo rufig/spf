@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="create-interlocked" ds=" a u -- ">
+  ALIGN HERE >R 0 ,
+  <def name="inc-{2DUP}" ds=" -- "><lit>R@</lit> InterlockedIncrement DROP </def>
+  <def name="dec-{2DUP}" ds=" -- "><lit>R@</lit> InterlockedDecrement DROP </def>
+  <def name="{2DUP}-quan" ds=" -- "><lit>R@</lit> @ </def>
+  RDROP 2DROP
+</def>
+
+</forth>
