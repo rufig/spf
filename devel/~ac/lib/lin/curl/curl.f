@@ -43,14 +43,14 @@ USER uCurlRes
 \ если прокси paddr pu - непустая строка, то явно используется этот прокси
 \ curl умеет использовать переменные окружения http_proxy, ftp_proxy
 \ поэтому можно не задавать прокси явно.
-: GET-FILE-VIAPROXY { addr u paddr pu \ h -- str }
+: GET-FILE-VIAPROXY { addr u paddr pu \ h url pr -- str }
   "" uCurlRes !
   0 curl_easy_init -> h
-  addr u >STR DUP STRA CURLOPT_URL h CURL-SETOPT STRFREE
+  addr u >STR DUP -> url STRA CURLOPT_URL h CURL-SETOPT
 
 \  S" name:passw" DROP CURLOPT_USERPWD  h 3 curl_easy_setopt DROP
 
-  pu IF paddr pu >STR DUP STRA CURLOPT_PROXY h CURL-SETOPT STRFREE THEN
+  pu IF paddr pu >STR DUP -> pr STRA CURLOPT_PROXY h CURL-SETOPT THEN
 
   ['] CURL_CALLBACK CURLOPT_WRITEFUNCTION h CURL-SETOPT
   TlsIndex@ CURLOPT_WRITEDATA h CURL-SETOPT
@@ -60,6 +60,7 @@ USER uCurlRes
   h 1 curl_easy_perform
   ?DUP IF 1 curl_easy_strerror ASCIIZ> TYPE CR THEN
   h 1 curl_easy_cleanup DROP
+  url STRFREE pr ?DUP IF STRFREE THEN
   0 TO CURL-MAX-SIZE
   uCurlRes @
 ;
@@ -72,7 +73,7 @@ USER uCurlRes
 
 PREVIOUS
 
-\EOF
+\ EOF
 \ регистрация IP для xml-запросов к яндексу: http://xml.yandex.ru/ip.xml
 : TEST
   S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" GET-FILE STYPE CR
