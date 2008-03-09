@@ -18,7 +18,7 @@ WARNING !
 [DEFINED] WINAPI: [IF]
   ALSO SO NEW: libxml2.dll
 [ELSE]
-  ALSO SO NEW: /usr/lib/libxml.so.2
+  ALSO SO NEW: /usr/lib/libxml2.so.2
 [THEN]
 
 \ struct _xmlNode {
