@@ -35,7 +35,7 @@ USER uCurlRes
   ptr asize uCurlRes @ STR+
   stream nmemb size ptr asize
   CURL-MAX-SIZE IF
-    stream @ STR@ NIP CURL-MAX-SIZE > IF DROP 0 THEN
+    uCurlRes @ STR@ NIP CURL-MAX-SIZE > IF DROP 0 THEN
   THEN
   ti TlsIndex!
 ; 16 CALLBACK: CURL_CALLBACK
