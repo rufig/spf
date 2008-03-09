@@ -15,7 +15,11 @@ REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
 REQUIRE 1-!           ~pinka/lib/ext/basics.f 
 WARNING !
 
-ALSO SO NEW: libxml2.dll
+[DEFINED] WINAPI: [IF]
+  ALSO SO NEW: libxml2.dll
+[ELSE]
+  ALSO SO NEW: /usr/lib/libxml.so.2
+[THEN]
 
 \ struct _xmlNode {
 0
