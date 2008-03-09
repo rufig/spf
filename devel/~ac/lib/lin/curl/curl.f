@@ -4,7 +4,7 @@
 \ требуется libcurl.dll - http://curl.haxx.se/latest.cgi?curl=win32-devel-ssl
 
 REQUIRE SO            ~ac/lib/ns/so-xt.f
-REQUIRE QUICK_WNDPROC ~af/lib/quickwndproc.f 
+REQUIRE QUICK_WNDPROC ~af/lib/QuickWNDPROC.f 
 REQUIRE STR@          ~ac/lib/str5.f
 
 REQUIRE ADD-CONST-VOC lib/ext/const.f
