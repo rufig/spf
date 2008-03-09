@@ -4,7 +4,6 @@
 \ требуется libcurl.dll - http://curl.haxx.se/latest.cgi?curl=win32-devel-ssl
 
 REQUIRE SO            ~ac/lib/ns/so-xt.f
-REQUIRE QUICK_WNDPROC ~af/lib/QuickWNDPROC.f 
 REQUIRE STR@          ~ac/lib/str5.f
 
 REQUIRE ADD-CONST-VOC lib/ext/const.f
@@ -23,14 +22,18 @@ CURL-GLOBAL-INIT
 \ Maximum number of bytes to download. 0 - unlimited
 USER-VALUE CURL-MAX-SIZE
 
-:NONAME { stream nmemb size ptr \ asize -- stream nmemb size ptr size*nmemb }
+USER uCurlRes
+
+:NONAME { stream nmemb size ptr \ asize ti -- stream nmemb size ptr size*nmemb }
+  TlsIndex@ -> ti stream TlsIndex!
   size nmemb * -> asize
-  ptr asize stream @ STR+
+  ptr asize uCurlRes @ STR+
   stream nmemb size ptr asize
   CURL-MAX-SIZE IF
     stream @ STR@ NIP CURL-MAX-SIZE > IF DROP 0 THEN
   THEN
-; QUICK_WNDPROC CURL_CALLBACK
+  ti TlsIndex!
+; WNDPROC: CURL_CALLBACK
 
 : CURL-SETOPT ( value opt h -- ) 3 curl_easy_setopt THROW ;
 
@@ -40,8 +43,8 @@ USER-VALUE CURL-MAX-SIZE
 \ если прокси paddr pu - непустая строка, то явно используется этот прокси
 \ curl умеет использовать переменные окружения http_proxy, ftp_proxy
 \ поэтому можно не задавать прокси явно.
-: GET-FILE-VIAPROXY { addr u paddr pu \ h data -- str }
-  "" -> data
+: GET-FILE-VIAPROXY { addr u paddr pu \ h -- str }
+  "" uCurlRes !
   0 curl_easy_init -> h
   addr u >STR DUP STRA CURLOPT_URL h CURL-SETOPT STRFREE
 
@@ -49,8 +52,8 @@ USER-VALUE CURL-MAX-SIZE
 
   pu IF paddr pu >STR DUP STRA CURLOPT_PROXY h CURL-SETOPT STRFREE THEN
 
-  CURL_CALLBACK CURLOPT_WRITEFUNCTION h CURL-SETOPT
-  ^ data CURLOPT_WRITEDATA h CURL-SETOPT
+  ['] CURL_CALLBACK CURLOPT_WRITEFUNCTION h CURL-SETOPT
+  TlsIndex@ CURLOPT_WRITEDATA h CURL-SETOPT
 
   h AT-CURL-PRE DROP
 
@@ -58,7 +61,7 @@ USER-VALUE CURL-MAX-SIZE
   ?DUP IF 1 curl_easy_strerror ASCIIZ> TYPE CR THEN
   h 1 curl_easy_cleanup DROP
   0 TO CURL-MAX-SIZE
-  data
+  uCurlRes @
 ;
 
 : GET-FILE ( addr u -- str )
@@ -68,11 +71,12 @@ USER-VALUE CURL-MAX-SIZE
 ;
 
 PREVIOUS
+
 \EOF
 \ регистрация IP для xml-запросов к яндексу: http://xml.yandex.ru/ip.xml
 : TEST
-  S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" GET-FILE STYPE
-  S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" S" http://otradnoe:3128/" GET-FILE-VIAPROXY STYPE
+  S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" GET-FILE STYPE CR
+  S" http://xmlsearch.yandex.ru/xmlsearch?query=sp-forth" S" http://proxy.enet.ru:3128/" GET-FILE-VIAPROXY STYPE CR
   S" ftp://ftp.forth.org.ru/" GET-FILE STYPE
 ;
 TEST
