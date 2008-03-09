@@ -21,8 +21,13 @@
 
 </also>
 
-<rem>
-<log>abc</log>
-</rem>
+
+<comment><rem>example</rem>
+
+       <log>one message</log>
+  123 <logN>the number</logN>
+  `ab <logS>the string</logS>
+
+</comment>
 
 </forth>
