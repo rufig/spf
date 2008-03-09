@@ -175,6 +175,7 @@ USER STRLAST
 : SALLOT ( addr u -- xs )
   DUP 9 + ALLOCATE THROW >R
   DUP R@ ! R@ CELL+ SWAP CMOVE R>
+  0 OVER XCOUNT + C!
 ;
 : sALLOT
   SALLOT CELL ALLOCATE THROW DUP >R ! R>
@@ -205,6 +206,7 @@ USER STRLAST
   u + 9 + RESIZE THROW DUP DUP s s!
   XCOUNT + addr SWAP u CMOVE
   u SWAP +!
+  0 s STR@ + C!
 ;
 : STR! { addr u s -- }
   s s@
