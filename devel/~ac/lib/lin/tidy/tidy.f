@@ -13,7 +13,11 @@ REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
 REQUIRE DelXmlDecl    ~ac/lib/lin/tidy/delxmldecl.f
 WARNING !
 
-ALSO DLL NEW: tidy.dll
+[DEFINED] WINAPI: [IF]
+  ALSO DLL NEW: tidy.dll
+[ELSE]
+  ALSO DLL NEW: /usr/lib/libtidy.so
+[THEN]
 
 23 CONSTANT TidyXhtmlOut
 25 CONSTANT TidyXmlDecl
