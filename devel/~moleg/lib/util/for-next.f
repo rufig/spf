@@ -13,32 +13,39 @@
  REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
  REQUIRE IFNOT    devel\~moleg\lib\util\ifnot.f
  REQUIRE controls devel\~moleg\lib\util\run.f
+ REQUIRE R+       devel\~moleg\lib\util\rstack.f
+
+\ начать цикл NOW .. SINCE .. TILL\NEXT
+: NOW ( u --> )
+      STATE @ IFNOT init: THEN
+      3 controls +! COMPILE >R ; IMMEDIATE
+
+\ метка для перехода назад
+: SINCE ( --> ) <MARK ; IMMEDIATE
 
 \ начать определения цикла со счетчиком
-: FOR ( n --> )
-      STATE @ IFNOT init: THEN 3 controls +!
-      <MARK COMPILE >R  ; IMMEDIATE
+: FOR ( n --> ) [COMPILE] NOW [COMPILE] SINCE ; IMMEDIATE
 
 \ если счетчик цикла не равен нулю перейти к точке, отмеченной словом FOR
-\ иначе, продолжить выполнение программы со слова за NEXT
+\ иначе удалить счетчик цикла, и выйти из цикла.
 : NEXT ( --> )
        ?COMP -3 controls +!
-       COMPILE R> COMPILE DUP 1 LIT, COMPILE - COMPILE SWAP
-       N?BRANCH, COMPILE DROP
+       COMPILE R@ -1 LIT, COMPILE R+ N?BRANCH, COMPILE RDROP
        controls @ IFNOT [COMPILE] ;stop THEN ; IMMEDIATE
 
 \ аналогично NEXT позволяет создавать циклы со счетчиком,
 \ только счет ведется до достижения 1, а не 0
 : TILL ( --> )
        ?COMP -3 controls +!
-       COMPILE R> 1 LIT, COMPILE - COMPILE DUP
-       N?BRANCH, COMPILE DROP
+       -1 LIT, COMPILE R+ COMPILE R@ N?BRANCH, COMPILE RDROP
        controls @ IFNOT [COMPILE] ;stop THEN ; IMMEDIATE
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
 test{ 3 FOR R@ NEXT 0 <> THROW 1 <> THROW 2 <> THROW 3 <> THROW
       3 FOR R@ TILL 1 <> THROW 2 <> THROW 3 <> THROW
+      : summa ( [ a .. z ] # --> d ) 1 - NOW S>D SINCE ROT S>D D+ TILL ;
+      11 22 33 44 4 summa THROW 110 <> THROW
    S" passed" TYPE
 }test
 
@@ -48,3 +55,14 @@ test{ 3 FOR R@ NEXT 0 <> THROW 1 <> THROW 2 <> THROW 3 <> THROW
 
      в то время, как 10 FOR R@ . TILL
      должен выдать ряд чисел от 10 до 1
+
+дополнительные варианты:
+
+ NOW ... SINCE ... TILL
+ NOW ... SINCE ... NEXT
+
+пример:
+\ найти сумму чисел a .. z количеством #
+: summa ( [ a .. z ] # --> d ) 1 - NOW S>D SINCE ROT S>D D+ TILL ;
+
+10 20 30 40 4 summa D.
