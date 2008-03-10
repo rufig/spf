@@ -2,7 +2,7 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ работа с utf8: диапазон символов 0 -- 0x7FFFFFFF
 
- REQUIRE B@        devel\~mOleg\lib\util\bytes.f  \ чтобы не путаться с C@
+ REQUIRE B,        devel\~mOleg\lib\util\bytes.f  \ чтобы не путаться с C@
 
 \ ------------------------------------------------------------------------------
 
