@@ -10,7 +10,11 @@ REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
 WARNING !
 
-ALSO SO NEW: sqlite3.dll
+[DEFINED] WINAPI: [IF]
+  ALSO SO NEW: sqlite3.dll
+[ELSE]
+  ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
+[THEN]
 
   0 CONSTANT SQLITE_STATIC
   5 CONSTANT SQLITE_BUSY
