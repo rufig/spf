@@ -2,6 +2,8 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ работа с utf8: диапазон символов 0 -- 0x7FFFFFFF
 
+ REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
+
  S" devel\~mOleg\lib\util\bytes.f" INCLUDED  \ чтобы не путаться с C@
 
 \ ------------------------------------------------------------------------------

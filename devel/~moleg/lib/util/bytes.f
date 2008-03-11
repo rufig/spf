@@ -5,7 +5,7 @@
 
  REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
-N?DEFINED B! \EOF если уже есть поддержка
+N?DEFINED B! N?DEFINED B@ N?DEFINED B, \EOF если уже есть поддержка
 
  REQUIRE ALIAS    devel\~moleg\lib\util\alias.f
 
