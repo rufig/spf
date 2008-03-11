@@ -2,7 +2,7 @@
 \ (c) Валентин Первых, 17 февраля 2004, вторник, 23:34
 
 REQUIRE LOAD-CONSTANTS ~yz/lib/const.f
-S" ~vsp/lib/mmedia.const" LOAD-CONSTANTS
+S" ~vsp/cons/mmedia.const" LOAD-CONSTANTS
 
 WINAPI: PlaySound WINMM.DLL
 
