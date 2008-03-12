@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<cell name="_http-major"/>
+<cell name="_http-minor"/>
+
+<def name="assume-http-version" ds=" a u -- "><!-- HTTP/1.1 -->
+  `HTTP/ SPLIT- <if> 2DROP </if>
+  `. SPLIT <unless> 0. </unless>
+  StoN _http-minor !
+  StoN _http-major !
+</def>
+
+<def name="http-ver-d" ds=" -- minor major ">
+  _http-minor @
+  _http-major @
+</def>
+
+<def name="http-ver-major" ds=" -- major ">
+  _http-major @
+</def>
+
+<def name="content-length" ds=" -- a u ">
+  `Content-Length h@
+</def>
+<def name="has-content?" ds=" -- flag">
+  content-length StoN 0NEQ
+</def>
+<def name="connection-close?" ds=" -- flag ">
+  `Connection h@ `lose CONTAINS
+</def>
+
+</forth>

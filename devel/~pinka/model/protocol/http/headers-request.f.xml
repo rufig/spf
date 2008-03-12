@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="location">
+  <include href="http://forth.org.ru/~pinka/model/parse/url.f.xml"/>
+</wordlist>
+
+<def name="save-request-line" ds=" a u -- "><!-- Request-Line -->
+  clear-headers
+  2DUP            `http-request h!
+  WORD|TAIL 2SWAP `http-method  h!
+  WORD|TAIL 2SWAP `http-url     h!@ location::assume-url
+  WORD|TAIL 2DROP `http-version h!@ assume-http-version
+</def>
+
+<def name="http-method" ds=" -- a u ">
+  `http-method h@
+</def>
+<def name="is-http-method" ds=" a u -- flag ">
+  http-method EQUAL
+</def>
+
+</forth>
