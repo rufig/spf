@@ -155,6 +155,10 @@
   26.12.2007
   Добавлена спец-обработка случая {m} - вставка числа со знаком.
   [вместо неработающего "-n" в mlogc из Eserv]
+
+  12.03.2008
+  {m} [вставка числа со знаком] заменено на {-} из-за конфликта {m} с
+  большим объемом старого кода, где {m} обозначает месяц.
 )
 
 
@@ -254,7 +258,7 @@ VECT {NOTFOUND} ' LAST-WORD TO {NOTFOUND}
 : {sn} ( ... s -- s ) { s }
   TIB C@ [CHAR] s = IF s STR+ s EXIT THEN
   TIB C@ [CHAR] n = IF 0 <# #S #> s STR+ s EXIT THEN
-  TIB C@ [CHAR] m = IF S>D DUP >R DABS <# #S R> SIGN #> s STR+ s EXIT THEN
+  TIB C@ [CHAR] - = IF S>D DUP >R DABS <# #S R> SIGN #> s STR+ s EXIT THEN
   TIB C@ [CHAR] c = IF SP@ 1 s STR+ DROP s EXIT THEN
   s {eval}
 ;
