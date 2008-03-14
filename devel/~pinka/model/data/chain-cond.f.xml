@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="windows-1251" ?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- 2007 -->
+<comment>See also: http://en.wikipedia.org/wiki/Chain-of-responsibility_pattern</comment>
 
 <!-- require list-plain.f.xml -->
 
