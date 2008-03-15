@@ -353,11 +353,13 @@ init: () _rows ! ;
    TO box
    box row => :add ;
 
-: put ( class -- )
-   NewObj TO ctl
+: (put) ( obj -- )
+   TO ctl
    CGridBox NewObj put-box
    parent SELF ctl => create DROP
    ctl box => :control! ;
+
+: put ( class -- ) NewObj (put) ;
 
 \ начать новый ряд клеток
 : ROW ( -- )
