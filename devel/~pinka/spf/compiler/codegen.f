@@ -17,7 +17,7 @@ S" ALLOT" GET-CURRENT SEARCH-WORDLIST [IF] DROP [ELSE]
 
 
 : DEFER-LIT, ( -- addr )
-  -1 LIT,
+  -1 LIT,  \  т.к. для 0  оптимизатор сделает  XOR  EAX, EAX
   HERE 3 - CELL-
 ;
 : EXEC, ( xt -- )
