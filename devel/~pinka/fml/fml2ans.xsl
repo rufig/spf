@@ -66,10 +66,7 @@
   <xsl:if test="node()">
     <xsl:text> </xsl:text>
     <xsl:apply-templates />
-    <xsl:text> </xsl:text>
-    <xsl:value-of select="@name"/>
-    <xsl:text> </xsl:text>
-    <xsl:text>!</xsl:text>
+    <xsl:value-of select="concat(' ', @name, ' !' )"/>
   </xsl:if>
 </xsl:template>
 
@@ -91,15 +88,14 @@
   <xsl:text>RECURSE </xsl:text>
 </xsl:template>
 
-<xsl:template match="f:if">
+<xsl:template match="f:if" name="if">
   <xsl:text>IF </xsl:text>
     <xsl:apply-templates />
   <xsl:text>THEN </xsl:text>
 </xsl:template>
+
 <xsl:template match="f:unless">
-  <xsl:text>0= IF </xsl:text>
-    <xsl:apply-templates />
-  <xsl:text>THEN </xsl:text>
+  <xsl:text>0= </xsl:text><xsl:call-template name="if"/>
 </xsl:template>
 
 <xsl:template match="f:repeat">
