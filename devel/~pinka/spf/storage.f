@@ -33,9 +33,6 @@
 
 
   Cовместимо с quick-swl3.f, который следует подгружать после данного модуля.
-
-  Библиотеки, зависимые от TEMP-WORDLIST также следует подгружать только после!
-  / в том числе locals.f и str5.f /
 )
 
 REQUIRE Included ~pinka\lib\ext\requ.f
@@ -198,6 +195,9 @@ EXPORT
 ;
 : FREE-WORDLIST ( wid -- )
   WL-STORAGE DEL-STORAGE
+;
+: IS-TEMP-WL ( wid -- flag )
+  WL-STORAGE FORTH-STORAGE <>
 ;
 
 WARNING !
