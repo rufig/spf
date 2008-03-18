@@ -16,7 +16,7 @@
 </def>
 
 <def name="(perform-chain)" ds=" i*x list -- j*x flag ">
-  @ <repeat> DUP <while/> DUP >R @ EXECUTE <if> RDROP TRUE <exit/></if> R> CELL- @ </repeat>
+  @ <repeat> DUP <while/> DUP >R @ EXECUTE DUP <if> RDROP <exit/></if> DROP R> CELL- @ </repeat>
   <!-- ( false ) -->
 </def>
 
