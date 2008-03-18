@@ -269,6 +269,8 @@ ALSO libxml2.dll
   DUP ownerDocument  ( node doc )
   2 xmlNodeGetBase ?ASCIIZ> 
   \ "it does not return the document base (5.1.3), use xmlDocumentGetBase() for this"
+  \ FIXME: "It's up to the caller to free the memory with xmlFree()"
+  \ -- http://xmlsoft.org/html/libxml-tree.html#xmlNodeGetBase
   CUT-PATH \ workaround
 ;
 : baseURI! ( addrz u node -- )
