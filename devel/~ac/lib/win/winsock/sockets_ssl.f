@@ -12,7 +12,11 @@ USER uSSL_CONTEXT
 VECT dFailedSsl
 
 : FailedSsl ( ior -- namea nameu cert )
-  DUP 6 <> IF uSSL_SOCKET @ CloseSocket DROP THEN uSSL_SOCKET 0!
+  DUP 6 <>
+  IF uSSL_SOCKET @ CloseSocket DROP
+     uSSL_CONTEXT @ SSL_CTX_free 2DROP
+  THEN
+  uSSL_SOCKET 0! uSSL_CONTEXT 0!
   DROP S" " 0
 ; ' FailedSsl TO dFailedSsl
 
