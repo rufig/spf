@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="dataspace-L3-hidden">
+
+<include href="data-space.f.xml" />
+<include href="marker.immutable.f.xml"/>
+
+<cell name="_stack"/>
+<cell name="_size"> 50 1024 * </cell>
+
+<handler event="init">
+  0. DATASPACE!
+</handler>
+
+<handler event="startup" ds=" -- ">
+  _size @ ALLOCATED DATASPACE!
+</handler>
+
+<handler event="shutdown" ds=" -- ">
+  DATASPACE DROP FREE THROW
+  0. DATASPACE!
+</handler>
+
+<handler event="cleanup" ds=" -- ">
+  CLEAR-DATASPACE
+</handler>
+
+<export>
+
+<def name="assume-dataspace-size" ds=" u -- ">
+  _size !
+</def>
+
+<def name="mark-dataspace" ds=" -- ">
+  _stack PUSH-MARKER
+</def>
+
+<def name="free-dataspace" ds=" -- ">
+  _stack DROP-MARKER
+</def>
+
+<def name="concat-string-" ds=" a2 u2 a1 u1 -- a u ">
+  HERE >R S, S, R> HERE OVER -
+  UNUSED 20 ULT <if> -8 THROW </if>
+  0 C,
+</def>
+<def name="concat-string" ds=" a1 u1 a2 u2 -- a u ">
+  2SWAP concat-string-
+</def>
+
+</export>
+</wordlist>
+
+</forth>
