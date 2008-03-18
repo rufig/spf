@@ -4,6 +4,7 @@
 <event name="init"/>
 <event name="startup"/>
 <event name="shutdown"/>
+<event name="cleanup"/>
 
 <!--
   start stop
