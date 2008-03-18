@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Jul.2007, 2008 -->
+
+<wordlist name="rewrite-L2-hidden">
+
+<include href="../data/data-space.L3.f.xml"/>
+
+<export>
+
+<include href="rewrite.L1.f.xml"/>
+
+</export>
+</wordlist>
+
+</forth>

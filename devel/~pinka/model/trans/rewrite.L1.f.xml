@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Jul.2007, 2008 -->
+
+<rem>
+  <bind-up> concat-string- </bind-up>
+</rem>
+
+<wordlist name="rewrite-L1-hidden">
+
+<include href="../data/chain-cond.f.xml"/>
+
+<cell name="list"/>
+<init> list DUP chain-current ! chain-context ! </init>
+
+<export>
+
+<def name="advice-rewrite-head" ds=" d-subs d-head -- ">
+  <p><slit/> MATCH-HEAD DUP <if> DROP <slit/> concat-string- TRUE </if></p>
+  advice-before
+</def>
+
+<def name="rewrite" ds=" a1 u1 -- a2 u2 ">
+  perform-chain <if><again/></if>
+</def>
+
+<comment> Нужны ли терминальные правила?
+  Как вариант, терминальное может вернуть 1, по которому делать завершение, вместо повтора perform-chain.
+</comment>
+
+</export>
+</wordlist>
+
+</forth>
