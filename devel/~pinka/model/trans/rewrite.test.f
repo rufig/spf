@@ -1,4 +1,5 @@
 REQUIRE EMBODY    ~pinka/spf/forthml/index.f
+REQUIRE STHROW    ~pinka/spf/sthrow.f
 
 \ библиотеки
 `../data/list-plain.f.xml EMBODY
