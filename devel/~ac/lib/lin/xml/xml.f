@@ -99,6 +99,8 @@ CONSTANT /xmlBuffer
 USER RECURSE-LEVEL
 \ : 1-! DUP @ 1- SWAP ! ;
 VECT vlistNodes
+VARIABLE XML_GS \ GlobalState потока, вызвавшего XML_INIT
+                \ а вообще xmlGetGlobalState свой у каждого потока
 
 : nextNode
 \ пропуск текстовых узлов, атрибутов, комментариев и т.д.
@@ -350,13 +352,20 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
   node 2 xmlAddChild DROP s STRFREE
 ;
 : XML_INIT
+\  XML_GS @ IF EXIT THEN
   0 xmlInitParser DROP
-\  0 xmlInitThreads DROP
+  0 xmlInitThreads DROP
 \  0 xmlLockLibrary DROP
+  0 xmlGetGlobalState XML_GS !
 ;
 : XML_CLEAN
   0 xmlCleanupParser DROP
 ;
+: XML-GLOBAL-INIT ['] XML_INIT CATCH
+  DUP 126 = IF DROP ELSE THROW THEN
+;
+..: AT-PROCESS-STARTING XML-GLOBAL-INIT ;..
+XML-GLOBAL-INIT
 
 \ S" http://www.w3schools.com/xpath/xpath_functions.asp" XML_LIST_NODES
 \ S" http://www.forth.org.ru/xpath_functions.asp.htm" S" //td[@valign='top' and starts-with(.,'fn:')]" XML_XPATH
