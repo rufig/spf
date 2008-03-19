@@ -8,6 +8,10 @@ WARNING !
 ALSO SO NEW: libxslt.dll
 ALSO libxml2.dll
 
+: XmlMemFree ( ptr 1 -- res )
+  \ замена для xmlMemFree, который переопределен в windows-версии libxml через xmlMemSetup
+  PAD 12 + PAD 8 + PAD 4 + PAD 4 xmlMemGet DROP PAD @ C-EXEC
+;
 : XSLT { xaddr xu saddr su \ style doc res len str -- addr u }
 \ преобразовать XML-файл с именем/url xaddr xu с использованием XSL-файла saddr su
   saddr 1 xsltParseStylesheetFile DUP -> style 0= IF 60002 THROW THEN
@@ -15,6 +19,7 @@ ALSO libxml2.dll
   0 doc style 3 xsltApplyStylesheet DUP -> res 0= IF 60004 THROW THEN
   style res ^ len ^ str 4 xsltSaveResultToString DROP str len " {s}" STR@
 \  0 style res S" test11.xml" DROP 4 xsltSaveResultToFilename .
+  str 1 XmlMemFree DROP
   style 1 xsltFreeStylesheet DROP
   res 1 xmlFreeDoc DROP
   doc 1 xmlFreeDoc DROP
@@ -28,6 +33,7 @@ ALSO libxml2.dll
   0 doc style 3 xsltApplyStylesheet DUP -> res 0= IF 60004 THROW THEN
   style res ^ len ^ str 4 xsltSaveResultToString DROP str len " {s}" STR@
 \  0 style res S" test11.xml" DROP 4 xsltSaveResultToFilename .
+  str 1 XmlMemFree DROP
   style 1 xsltFreeStylesheet DROP
   res 1 xmlFreeDoc DROP
   doc 1 xmlFreeDoc DROP
@@ -41,6 +47,7 @@ ALSO libxml2.dll
   xaddr xu XML_READ_DOC_MEM DUP -> doc 0= IF 60005 THROW THEN
   0 doc style 3 xsltApplyStylesheet DUP -> res 0= IF 60004 THROW THEN
   style res ^ len ^ str 4 xsltSaveResultToString DROP str len " {s}" STR@
+  str 1 XmlMemFree DROP
   style 1 xsltFreeStylesheet DROP
   res 1 xmlFreeDoc DROP
   doc 1 xmlFreeDoc DROP
