@@ -10,20 +10,20 @@
 <cell name="_size"> 50 1024 * </cell>
 
 <handler event="init">
-  0. DATASPACE!
+  0. DATASPACE!  _stack 0!
 </handler>
 
 <handler event="startup" ds=" -- ">
-  _size @ ALLOCATED DATASPACE!
+  _size @ ALLOCATED DATASPACE!  _stack 0!
 </handler>
 
 <handler event="shutdown" ds=" -- ">
   DATASPACE DROP FREE THROW
-  0. DATASPACE!
+  0. DATASPACE!  _stack 0!
 </handler>
 
 <handler event="cleanup" ds=" -- ">
-  CLEAR-DATASPACE
+  CLEAR-DATASPACE  _stack 0!
 </handler>
 
 <export>
