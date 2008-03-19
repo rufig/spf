@@ -2,9 +2,10 @@
 \ Copyright [C] 2007 mOleg mininoleg@yahoo.com
 \ работа с utf8: диапазон символов 0 -- 0x7FFFFFFF
 
- REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
-
+ REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
  S" devel\~mOleg\lib\util\bytes.f" INCLUDED  \ чтобы не путаться с C@
+ REQUIRE WHILENOT  devel\~moleg\lib\util\ifnot.f
+ REQUIRE /chartype devel\~moleg\lib\strings\chars.f
 
 \ ------------------------------------------------------------------------------
 
@@ -50,14 +51,14 @@ CREATE utf8hhh \ маска для сохранения счетчика в первом байте
 
 \ сохранить символ char в utf8 кодировке по указанному адресу.
 : CHAR! ( char addr --> )
-        OVER 0x80 U< IF C! EXIT THEN
+        OVER 0x80 U< IF B! EXIT THEN
         >R 0 SWAP charr
         R> BEGIN OVER WHILE
                  TUCK B! 1 +
            REPEAT 2DROP ;
 
 \ компилировать utf8 символ на вершину кодфайла
-: CHAR, ( char --> ) HERE TUCK CHAR! CHAR# ALLOT ;
+\ : CHAR, ( char --> ) HERE TUCK CHAR! CHAR# ALLOT ;
 
 \ является ли текст utf8 кодированным.
 \ на входе адрес начала текста.
@@ -83,10 +84,20 @@ CREATE utf8hhh \ маска для сохранения счетчика в первом байте
            REPEAT NIP ?utf8char EXIT
          THEN 2DROP FALSE ;
 
+\ уменьшить указатель addr на 1 символ
+: <CHAR ( addr --> addr )
+        BEGIN 1 - DUP B@ DUP 0x80 AND WHILE
+                         0x40 AND WHILENOT
+          REPEAT EXIT
+        THEN DROP ;
+
+\ вернуть адреса слов, работающих с символами
+: UTF8> ( --> '@ '! '+ 'char# )
+        ['] CHAR@  ['] CHAR!  ['] CHAR+  ['] CHAR#  ['] <CHAR ;
+
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
-test{
-
+test{ : CHAR, ( char --> ) HERE TUCK CHAR! CHAR# ALLOT ;
 0x7F HERE CHAR!  HERE CHAR@ 0x7F <> THROW
 0x80 HERE CHAR!  HERE CHAR@ 0x80 <> THROW
 HERE ?utf8char INVERT THROW

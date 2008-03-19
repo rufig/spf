@@ -3,6 +3,7 @@
 \ работа с utf16 : диапазон от 0 до 0xD7FF и от 0xE000 до 0xFFFFF.
 
  REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
+ REQUIRE /chartype devel\~moleg\lib\strings\chars.f
 
 ?DEFINED IS : IS POSTPONE TO ; IMMEDIATE
 
@@ -48,9 +49,9 @@
          ELSE WN!
         THEN ;
 
-\ компилировать utf8 символ на вершину кодфайла
+\ компилировать utf16 символ на вершину кодфайла
 \ внимание, сначала пишем, затем защищаем с помощью ALLOT
-: CHAR, ( char --> ) HERE TUCK CHAR! CHAR# ALLOT ;
+\ : CHAR, ( char --> ) HERE TUCK CHAR! CHAR# ALLOT ;
 
 \ является ли текст utf16 кодированным.
 \ на входе адрес начала текста.
@@ -65,7 +66,7 @@
                      ELSE 2DROP FALSE
                     THEN ;
 
-\ содержит ли фрагмент текста utf8 символ(ы)
+\ содержит ли фрагмент текста utf16 символ(ы)
 \ я предполагаю, что подразумевается, что текст в utf16 кодировке всегда
 \ начинается с четного адреса, и любой символ всегда начинается с четного
 \ адреса.
@@ -82,9 +83,18 @@
          OVER = >R = R> AND
          ;
 
+\ уменьшить addr на длину одного символа
+: <CHAR ( addr --> addr )
+        BEGIN 2 - DUP WN@ 0xD0000000 TUCK AND = WHILE REPEAT ;
+
+
+\ вернуть адреса слов, работающих с символами
+: UTF16> ( --> '@ '! '+ 'char# )
+         ['] CHAR@  ['] CHAR!  ['] CHAR+  ['] CHAR#  ['] <CHAR ;
+
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
-test{
+test{ : CHAR, ( char --> ) HERE TUCK CHAR! CHAR# ALLOT ;
       0x2315 DUP HERE CHAR! HERE CHAR@ <> THROW
       0x12315 DUP HERE CHAR! HERE CHAR@ <> THROW
       HERE 0xFFFE W, 0x2315 CHAR, 0x2316 CHAR, 0x23FF CHAR, 0x12432 CHAR,
@@ -97,4 +107,3 @@ test{
       2 + 4  isUTF16 THROW
 S" passed" TYPE
 }test
-

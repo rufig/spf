@@ -4,9 +4,6 @@
 \ С@ С! C, - остается за символами, разрядность которых может быть 16 бит
 
  REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
-
-N?DEFINED B! N?DEFINED B@ N?DEFINED B, \EOF если уже есть поддержка
-
  REQUIRE ALIAS    devel\~moleg\lib\util\alias.f
 
 0xFEFF SP@ C@ 256 > NIP \ если символы двойной длины
