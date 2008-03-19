@@ -36,7 +36,7 @@
   _stack PUSH-MARKER
 </def>
 
-<def name="free-dataspace" ds=" -- ">
+<def name="sweep-dataspace" ds=" -- ">
   _stack DROP-MARKER
 </def>
 
