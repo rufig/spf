@@ -41,6 +41,10 @@
   _stack DROP-MARKER
 </def>
 
+<def name="carbon-xstring" ds=" a1 u -- xaddr ">
+  ALIGN HERE >R SXZ, R>
+</def>
+
 <def name="concat-string-" ds=" a2 u2 a1 u1 -- a u ">
   HERE >R S, S, R> HERE OVER -
   UNUSED 20 ULT <if> -8 THROW </if>
