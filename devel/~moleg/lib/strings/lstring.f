@@ -27,8 +27,8 @@
 : SCNT! ( u addr --> # )
         OVER 0x1FFFFF U> IF SWAP 4 LSHIFT 7 OR SWAP ! 4 EXIT THEN
         OVER 0x3FFF > IF SWAP 3 LSHIFT 3 OR SWAP ! 3 EXIT THEN
-        OVER 0x7F > IF SWAP 2 LSHIFT 1 OR SWAP ! 2 EXIT THEN
-        SWAP 1 LSHIFT SWAP ! 1 ;
+        OVER 0x7F > IF SWAP 2 LSHIFT 1 OR SWAP W! 2 EXIT THEN
+        SWAP 1 LSHIFT SWAP B! 1 ;
 
 \ вернуть адрес начала и длину поля (строки)
 : COUNT ( addr --> addr u ) DUP SCNT@ ROT + SWAP ;
