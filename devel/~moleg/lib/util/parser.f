@@ -35,8 +35,6 @@
            GetCommandLineA ASCIIZ> SOURCE!
            ParseFileName 2DROP ;
 
-FALSE WARNING !
-
 \ слово берет очередную лексему из входного потока до тех пор, пока он
 \ не исчерпается.
 : NEXT-WORD ( --> asc # | asc 0 )
@@ -45,8 +43,6 @@ FALSE WARNING !
                   2DROP
                REPEAT
             THEN ;
-
-TRUE WARNING !
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 

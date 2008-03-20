@@ -76,6 +76,7 @@
 @st.exe .S" devel\~moleg\lib\strings\utf16.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\strings\chars.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\strings\iso.f"             TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\strings\lstring.f"         TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\struct\struct.f"           TESTED CR BYE
 

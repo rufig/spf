@@ -8,8 +8,6 @@
  REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
  REQUIRE ADDR     devel\~moleg\lib\util\addr.f
 
-WARNING 0!
-
 \ адресная ссылка на VARIABLE переменную прямо в код компилируется
 \ поэтому скорость возрастает, но при этом CFA слова менять без толку
 : VARIABLE ( / NAME --> )
@@ -120,8 +118,6 @@ VECT _vcsmpl USER-VECT _uvcsmpl 0 VALUE _vlsmpl USER-VALUE _uvlsmpl
      [ ' _vcsmpl  raddr ] LITERAL OVER = IF DROP (isvect) EXIT THEN
      [ ' _uvcsmpl raddr ] LITERAL      = IF DROP (uisvect) EXIT THEN
      9 + STATE @ IF COMPILE, ELSE EXECUTE THEN ; IMMEDIATE
-
--1 WARNING !
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 

@@ -42,8 +42,6 @@
           REPEAT 2DROP
          THEN DROP 2R> NIP ;
 
-FALSE WARNING !
-
 \ отобразить список слова в указанном словаре
 : NLIST ( vid --> )
         DUP ." in vocabulary " VOC-NAME. ."  words are: " CR
@@ -51,8 +49,6 @@ FALSE WARNING !
 
 \ распечатать список слов из верхнего контекстного словаря
 : WORDS ( --> ) GET-ORDER OVER NLIST  nDROP ;
-
-TRUE WARNING !
 
 \ распечатать все слова в контексте в порядке следования словарей
 : ALLWORDS ( --> )

@@ -6,8 +6,6 @@
  REQUIRE ADDR     devel\~moleg\lib\util\addr.f
  REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
 
-FALSE WARNING !
-
 \ та часть, котора€ работает одновременно с CREATE (обычно) ї
 : (DOES1) ( r: addr --> ) LATEST NAME> R> OVER - CFL - SWAP 1 + A! ;
 
@@ -20,8 +18,6 @@ FALSE WARNING !
 \ во врем€ компил€ции св€зывает текст за DOES> с текущим определением   ї
 \ используетс€ в паре с CREATE : name CREATE data, DOES> ( --> 'data ) ;
 : DOES> ( --> )  ?COMP  COMPILE (DOES1)  COMPILE (DOES2) ; IMMEDIATE
-
-TRUE WARNING !
 
 ?DEFINED test{ \EOF -- тестова€ секци€ ---------------------------------------
 

@@ -39,13 +39,9 @@
 \ добавить литеральную строку в определение (либо просто вернуть строку)
 : s" ( / name" --> ) [CHAR] " CookLine [COMPILE] SLITERAL ; IMMEDIATE
 
-FALSE WARNING !
-
 \ выделить строку, ограниченную символом " из входного потока,
 \ компилировать в текущее слово код, выводящий строку на экран терминала
 : ." ( --> ) ?COMP [COMPILE] s" COMPILE TYPE ; IMMEDIATE
-
-TRUE WARNING !
 
 ?DEFINED test{ \EOF -- тестовая секция --------------------------------------
 
@@ -57,5 +53,3 @@ test{ \ пока просто тест на подключаемость.
 
 : test s" \tSimple\nsample\n\"text\" \nwith\123codes\125" TYPE ;
 test
-
-

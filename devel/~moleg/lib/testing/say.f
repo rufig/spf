@@ -4,8 +4,6 @@
 
  REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
 
-FALSE WARNING !
-
 \ ѕример очень простой реализации.
 
         0 VALUE standoff \ кол-во отступов от начала экрана
@@ -50,8 +48,6 @@ FALSE WARNING !
 \ дополн€ем стандартное ':'
 : : ( --> ) : say ;
 
-TRUE WARNING !
-
 \ дл€ выполнени€ тестов в конце файла следует закоментировать следующие
 \ отсюда до STARTLOG строки
 ?DEFINED test{ \EOF
@@ -78,4 +74,3 @@ STARTLOG
 : fifth   X 9 7 DO fourth LOOP ;
 
 fifth
-

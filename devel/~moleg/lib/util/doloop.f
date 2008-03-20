@@ -7,8 +7,6 @@
 
  REQUIRE COMPILE   devel\~moleg\lib\util\compile.f
 
-FALSE WARNING !
-
 ?DEFINED [IF] lib\include\tools.f
 
 TRUE ?DEFINED vocLocalsSupport DROP FALSE
@@ -94,8 +92,6 @@ TRUE ?DEFINED vocLocalsSupport DROP FALSE
 \ Убрать параметры цикла текущего уровня. UNLOOP требуется для каждого
 \ уровня вложения циклов перед выходом из определения по EXIT.
 : UNLOOP ( --> ) R> RDROP RDROP RDROP RDROP >R ;
-
-TRUE WARNING !
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 

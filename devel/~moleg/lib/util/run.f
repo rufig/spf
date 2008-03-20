@@ -40,21 +40,14 @@
     EXIT-ERROR rest
         CompBuf EXECUTE ;
 
-FALSE WARNING !
-
 \ пока так
 \ при входе в определение переменна€ controls увеличиваетс€ на 1
 \ при выходе из определени€ - уменьшаетс€ на 1
 : : 1 controls ! : ;
 : ; controls @ 1 = IFNOT -22 THROW THEN  0 controls ! [COMPILE] ; ; IMMEDIATE
 
-TRUE WARNING !
-
 ?DEFINED test{ \EOF -- “естова€ секци€і ---------------------------------------
 
 test{ \ пока просто тестирование собираемости
   S" passed" TYPE
 }test
-
-
-

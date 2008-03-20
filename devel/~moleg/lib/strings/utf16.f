@@ -85,7 +85,7 @@
 
 \ уменьшить addr на длину одного символа
 : <CHAR ( addr --> addr )
-        BEGIN 2 - DUP WN@ 0xD0000000 TUCK AND = WHILE REPEAT ;
+        BEGIN 2 - DUP WN@ 0xD000 TUCK AND = WHILE REPEAT ;
 
 
 \ вернуть адреса слов, работающих с символами

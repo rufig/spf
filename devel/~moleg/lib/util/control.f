@@ -7,8 +7,6 @@
  REQUIRE IFNOT    devel\~moleg\lib\util\ifnot.f
  REQUIRE ;stop    devel\~moleg\lib\util\run.f
 
-FALSE WARNING !
-
 \ Начало ветвления. Код за словом IF выполняется в случае, если flag <> 0
 : IF ( flag --> )
      STATE @ IFNOT init: THEN
@@ -70,8 +68,6 @@ FALSE WARNING !
 
 \ Начало ветвления. Код за словом IFNOT выполняется в случае, если flag = 0
 : IFNOT ifnot ; IMMEDIATE
-
-TRUE WARNING !
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 

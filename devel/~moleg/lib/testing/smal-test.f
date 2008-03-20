@@ -83,10 +83,12 @@ test-delimiter S: ( --> ) S" testing delimiters unpaired!" SERROR ; IMMEDIATE
 FALSE WARNING !
 \ чтобы не тестировались вложенные библиотеки
 : REQUIRE  TESTING @ >R FALSE TESTING ! REQUIRE R> TESTING ! ;
-: TESTED   TRUE TESTING ! DEPTH >R 2DUP INCLUDED
-           DEPTH R> <> IF CR ."          stack leaking !!!" THEN 2DROP ;
+: TESTED   FALSE WARNING ! \ чтобы не отображались предупреждения во время теста
+           TRUE TESTING ! DEPTH >R 2DUP INCLUDED
+           DEPTH R> <> IF CR ."          stack leaking !!!" THEN 2DROP
+           ;
+
 : INCLUDED TESTING @ >R FALSE TESTING ! INCLUDED R> TESTING ! ;
-TRUE WARNING !
 
 : testing.. ." testing: " ; ' testing.. MAINX !
 S" st.exe" SAVE BYE
@@ -96,4 +98,3 @@ S" st.exe" SAVE BYE
 test{ : simple ." simple sample" CR ;
       simple
 }test
-

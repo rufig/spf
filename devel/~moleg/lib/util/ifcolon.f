@@ -57,7 +57,8 @@ PREVIOUS PREVIOUS
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
-test{  ?: simple 871654 ; 871654 simple <> THROW
+test{  TRUE WARNING !
+       ?: simple 871654 ; 871654 simple <> THROW
        ?: simple 672098 ; 871654 simple <> THROW
      FALSE WARNING !
        ?: simple 672098 ; 672098 simple <> THROW

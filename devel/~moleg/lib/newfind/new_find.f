@@ -13,8 +13,6 @@
 S" lib\include\tools.f" INCLUDED
 \ можно убрать, но тогда нужно убирать и все [IF]-ы и т.п.
 
-FALSE WARNING !
-
 \ в СПФ4 - это слово работает не очень верно - переопределил
 : ?IMMEDIATE ( NFA -> F ) NAME>F C@ &IMMEDIATE AND 0<> ;
 
@@ -176,8 +174,6 @@ TRUE [IF] \ это вариант аналогичный стандартному
 \ просто мне кажется, что так назвать логичнее
 : EVAL-WORD ( asc # --> ) eval-name ;
 
-TRUE WARNING !
-
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
 test{ \ просто проверяем собирабельность кода
@@ -271,6 +267,3 @@ S" 12345678 eval-word " TYPE S" 12345678" eval-word . CR
 interpret S" interpret " TYPE  ~test CR
 
 \ в основном все работает.
-
-
-

@@ -4,8 +4,6 @@
 
  REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
-FALSE WARNING !
-
 \ на во-первых, написанный на форте, а во вторых
 \            немного иначе разбитый Sfind. оригинальный текст взят
 \            из версии 4.17
@@ -80,8 +78,6 @@ FALSE WARNING !
 : FIND1 ( c-addr -- c-addr 0 | xt 1 | xt -1 ) \ 94 SEARCH
         DUP >R COUNT SFIND
         DUP 0= IF NIP NIP R> SWAP ELSE RDROP THEN ;
-
-TRUE WARNING !
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 

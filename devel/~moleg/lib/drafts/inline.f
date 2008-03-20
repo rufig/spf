@@ -13,13 +13,11 @@
 
 VOCABULARY INLINE  \ в этом словаре будут все примитивы
 
-WARNING 0!
 \ перехватываются ':' и ';' хотя правильнее было бы перехватывать '[' и ']'
 \ Однако, для этого нужно менять код ядра, либо собирать ядро без оптимизации,
 \ это значит, что слова '[' и ']' внутри определений не стоит использовать
 :: : ( --> ) ALSO INLINE [COMPILE] : ;;
 :: ; ( --> ) PREVIOUS    [COMPILE] ; ;; IMMEDIATE
-TRUE WARNING !
 
 \ начинает создание макроса для инлайн подстановки
 : inline{  ( | name hex-stream --> )
@@ -51,4 +49,3 @@ inline{ RDROP 5B 8D642404 }inline
 test{ : proba OVER OVER ; 1 2 proba D= 1 + THROW
   S" passed" TYPE
 }test
-

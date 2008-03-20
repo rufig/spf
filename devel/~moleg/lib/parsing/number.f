@@ -17,8 +17,6 @@
 \ добавить цифру x к числу d*base »
 : CIPHER ( d x --> d ) U>D 2SWAP BASE @ DU* D+ ;
 
-FALSE WARNING !
-
 \ попытаться преобразовать символ char в цифру,
 \ в системе исчисления, определяемой base »
 : DIGIT ( char base --> u TRUE | FALSE )
@@ -34,8 +32,6 @@ FALSE WARNING !
             -ROT SKIP1 2>R CIPHER 2R>   \ добавить цифру
            REPEAT
           THEN ;
-
-TRUE WARNING !
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 

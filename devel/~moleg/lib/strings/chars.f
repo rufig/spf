@@ -33,7 +33,6 @@
         \ хранилище для структуры описывающей текущий символьный поток
         USER-CREATE CSTREAM /chartype USER-ALLOT
 
-FALSE WARNING !
 \ методы для работы с символами текущего входного потока
 : C@ ( addr --> char ) CSTREAM (C@) ;
 : C! ( char addr --> ) CSTREAM (C!) ;
@@ -41,8 +40,6 @@ FALSE WARNING !
 : C# ( addr --> # )    CSTREAM (C#) ;
 : <C ( addr --> addr ) CSTREAM (<C) ;
 : C, ( char --> ) HERE TUCK C! C# ALLOT ;
-
-TRUE WARNING !
 
 \ установить параметры входного потока
 : INPUT-STREAM ( '@ '! '+ ' # --> ) CSTREAM stream-type ;
