@@ -25,6 +25,10 @@
   reset-list
 </handler>
 
+<handler event="cleanup" ds=" -- ">
+  CLEAR-DATASPACE reset-list
+</handler>
+
 <export>
 
 <def name="clear-alist" ds=" -- ">
