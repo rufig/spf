@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<include href="wordstack.f.xml" />
+<also wordlist="wordstack-hidden">
+
+<def name="push-pair-" ds=" word-a word-u a2 u2 -- ">
+  mark-dataspace
+  carbon-xstring push-word-
+</def>
+
+<def name="push-pair" ds=" a2 u2 word-a word-u -- ">
+  2SWAP push-pair-
+</def>
+
+<def name="drop-pair" ds=" -- ">
+  drop-word
+  sweep-dataspace
+</def>
+
+<def name="find-pair" ds=" addr u -- a2 u2 true | addr u false ">
+  find-word DUP <if> DROP XCOUNT TRUE </if>
+</def>
+
+</also>
+
+</forth>
