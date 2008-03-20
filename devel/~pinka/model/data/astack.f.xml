@@ -4,6 +4,13 @@
 <include href="wordstack.f.xml" />
 <also wordlist="wordstack-hidden">
 
+<def name="enum-pairs" ds=" xt -- "><rem> xt ( a1 u1 a-name u-name -- ) </rem>
+  >R _list @
+  <repeat> DUP <while/>
+    DUP >R @ XCOUNT 2R@ NODE-NAME ROT EXECUTE R> CDR
+  </repeat> RDROP DROP
+</def>
+
 <def name="push-pair-" ds=" word-a word-u a2 u2 -- ">
   mark-dataspace
   carbon-xstring push-word-
