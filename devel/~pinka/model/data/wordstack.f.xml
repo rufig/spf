@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="wordstack-hidden">
+
+<include href="data-space.L3.f.xml" />
+<also wordlist="dataspace-L3-hidden">
+<include href="wordlist-plain.static.f.xml" />
+</also>
+
+<handler event="init"> reset-list </handler>
+<handler event="startup"> reset-list </handler>
+<handler event="shutdown"> reset-list </handler>
+<handler event="cleanup"> reset-list </handler>
+
+<def name="unrelate" ds=" -- x ">
+  _list @ <unless> `#wordlist-is-empty STHROW </unless>
+  _list UNBIND-NODE @
+</def>
+
+<export>
+
+<def name="push-word" ds=" x word-a word-u -- ">
+  mark-dataspace
+  relate
+</def>
+<def name="push-word-" ds=" word-a word-u x -- ">
+  -ROT push-word
+</def>
+
+<def name="drop-word" ds=" -- ">
+  unrelate DROP
+  sweep-dataspace 
+</def>
+
+<def name="find-word" ds=" addr u -- x true | addr u false ">
+  find
+</def>
+
+</export>
+</wordlist>
+
+</forth>
