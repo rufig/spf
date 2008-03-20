@@ -4,35 +4,32 @@
 
  REQUIRE ADDR     devel\~moleg\lib\util\addr.f
  REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
+ REQUIRE ALIAS    devel\~moleg\lib\util\alias.f
 
 \ -- стековые манипуляции ----------------------------------------------------
 
-\ удалить двойное число с вершины стека данных
-: DDROP ( d --> ) 2DROP ;
+ ALIAS 2DROP DDROP ( d --> )
+ ALIAS 2DUP  DDUP  ( d --> d d )
+ ALIAS 2SWAP DSWAP ( da db --> db da )
 
-\ копировать двойное число d на вершине стека данных
-: DDUP ( d --> d d ) 2DUP ;
-
-\ поменять местами два двойных числа на вершине стека данных местами
-: DSWAP ( da db --> db da ) 2SWAP ;
+ ALIAS 2>R   D>R
+ ALIAS 2R>   DR>
+ ALIAS 2R@   DR@
 
 \ копировать на вершину стека двойное число,
 \ находящееся под двойным же на вершине стека
-: DOVER ( da db --> da db da ) 2>R 2DUP 2R> 2SWAP ;
+: DOVER ( da db --> da db da ) D>R DDUP DR> DSWAP ;
 
 \ удалить второе двойное число, от вершины стека
-: DNIP ( da db --> db ) 2>R 2DROP 2R> ;
+: DNIP ( da db --> db ) D>R DDROP DR> ;
 
 \ подложить двойное число, находящееся на вершине стека данных под нижнее d
-: DTUCK ( da db --> db da db ) 2DUP 2>R 2SWAP 2>R ;
+: DTUCK ( da db --> db da db ) DDUP D>R DSWAP D>R ;
 
 \ -- работа с памятью -------------------------------------------------------
 
-\ извлечь число двойной длины из памяти по указанному адресу
-: D@ ( addr --> d ) 2@ ;
-
-\ сохранить число двойной длины в память по указаному адресу
-: D! ( d addr --> ) 2! ;
+ ALIAS 2@ D@ ( addr --> d )
+ ALIAS 2! D! ( d addr --> )
 
 \ компилировать двойное число на вершину кодофайла
 : D, ( d --> ) HERE 2 CELLS ALLOT D! ;
@@ -40,17 +37,17 @@
 \ -- константы, переменные, значения двойной длины --------------------------
 
 \ создать именованую переменную хранящюю число двойной длины
-: DVARIABLE ( / name --> ) CREATE 0 0 D, DOES> ;
+: DVARIABLE ( / name --> ) CREATE 0  0 D, DOES> ;
 
 \ создать именованую константу для числа двойной длины d
 : DCONSTANT ( d / name --> ) CREATE D, DOES> D@ ;
 
 \ метод извлечения двойного числа из VALUE переменной двойной длины
-: DVAL-CODE ( r: addr --> d ) R> A@ 2@ ;
+: DVAL-CODE ( r: addr --> d ) R> A@ D@ ;
 
 \ метод сохранения двойного числа в VALUE переменную двойной длины
 : DTOVAL-CODE ( r: addr d: d --> )
-              R> [ CELL CFL + ] LITERAL - A@ 2! ;
+              R> [ CELL CFL + ] LITERAL - A@ D! ;
 
 \ создать именованую VALUE переменную, хранящую число двойной длины
 : DVALUE ( d / name --> )
@@ -60,11 +57,11 @@
          D, ;
 
 \ метод извлечения двойного числа из VALUE переменной двойной длины
-: DUVAL-CODE ( r: addr --> d ) R> A@ TlsIndex@ + 2@ ;
+: DUVAL-CODE ( r: addr --> d ) R> A@ TlsIndex@ + D@ ;
 
 \ метод сохранения двойного числа в VALUE переменную двойной длины
 : DTOUVAL-CODE ( r: addr d: d --> )
-               R> [ CELL CFL + ] LITERAL - A@ TlsIndex@ + 2! ;
+               R> [ CELL CFL + ] LITERAL - A@ TlsIndex@ + D! ;
 
 \ создать пользовательскую именованую переменную двойной длины
 : USER-DVAL ( --> d )
@@ -86,5 +83,3 @@ test{ 1 DEPTH NIP
       DEPTH <> THROW
   S" passed" TYPE
 }test
-
-
