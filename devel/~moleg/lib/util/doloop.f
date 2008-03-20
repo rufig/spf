@@ -9,16 +9,6 @@
 
 ?DEFINED [IF] lib\include\tools.f
 
-TRUE ?DEFINED vocLocalsSupport DROP FALSE
-[IF]
-   ALSO vocLocalsSupport DEFINITIONS ALSO FORTH
-     : DO    FORTH::POSTPONE DO     [  4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
-     : ?DO   FORTH::POSTPONE ?DO    [  4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
-     : LOOP  FORTH::POSTPONE LOOP   [ -4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
-     : +LOOP FORTH::POSTPONE +LOOP  [ -4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
-   PREVIOUS PREVIOUS DEFINITIONS
-[THEN]
-
 \ ---------------------------------------------------------------------------
 
 \ на стеке возвратов лежит 4-ре параметра.
@@ -92,6 +82,16 @@ TRUE ?DEFINED vocLocalsSupport DROP FALSE
 \ Убрать параметры цикла текущего уровня. UNLOOP требуется для каждого
 \ уровня вложения циклов перед выходом из определения по EXIT.
 : UNLOOP ( --> ) R> RDROP RDROP RDROP RDROP >R ;
+
+TRUE ?DEFINED vocLocalsSupport DROP FALSE
+[IF]
+   ALSO vocLocalsSupport DEFINITIONS ALSO FORTH
+     : DO    FORTH::POSTPONE DO     [  4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+     : ?DO   FORTH::POSTPONE ?DO    [  4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+     : LOOP  FORTH::POSTPONE LOOP   [ -4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+     : +LOOP FORTH::POSTPONE +LOOP  [ -4 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
+   PREVIOUS PREVIOUS DEFINITIONS
+[THEN]
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
