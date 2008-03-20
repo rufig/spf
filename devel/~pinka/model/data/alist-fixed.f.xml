@@ -31,7 +31,7 @@
   CLEAR-DATASPACE reset-list
 </def>
 
-<def name="save-pair" ds=" a1 u1 a-key u-key -- ">
+<def name="store-pair" ds=" a1 u1 a-key u-key -- ">
   2 PICK OVER + 10 CELLS + UNUSED ULT <unless> -8 THROW </unless>
   2>R ALIGN HERE >R SXZ, R> 2R> relate
 </def>
