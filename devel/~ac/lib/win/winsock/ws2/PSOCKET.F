@@ -24,7 +24,7 @@
 
 REQUIRE CreateSocket ~ac/lib/win/winsock/ws2/sockets.f
 REQUIRE SocketLine   ~ac/lib/win/winsock/ws2/socketline2.f
-REQUIRE STR@         ~ac/lib/str2.f
+REQUIRE STR@         ~ac/lib/str5.f
 
 \ socketline - замена сокета во всех операциях
 \ специальная структура, хранящая доп.данные для буферизации

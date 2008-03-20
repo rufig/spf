@@ -7,7 +7,7 @@
   Основные слова - GetParam, SetParam, IsSet, примеры см. в конце.
 )
 REQUIRE {             ~ac/lib/locals.f
-REQUIRE "             ~ac/lib/str2.f
+REQUIRE "             ~ac/lib/str5.f
 REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
 
 : CONVERT { a u c1 c2 -- }

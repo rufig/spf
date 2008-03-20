@@ -1,5 +1,5 @@
 REQUIRE {            ~ac/lib/locals.f
-REQUIRE STR@         ~ac/lib/str2.f
+REQUIRE STR@         ~ac/lib/str5.f
 REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
 
 : IsRblBlocked { ip hosta hostu -- flag }

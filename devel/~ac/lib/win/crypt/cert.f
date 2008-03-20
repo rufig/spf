@@ -1,4 +1,4 @@
-REQUIRE FILE        ~ac/lib/str2.f
+REQUIRE FILE        ~ac/lib/str5.f
 
 WINAPI: CertCreateCertificateContext        CRYPT32.DLL
 WINAPI: CertFreeCertificateContext          CRYPT32.DLL

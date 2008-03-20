@@ -11,7 +11,7 @@
 )
 
 REQUIRE ConnectFile ~ac/lib/win/odbc/odbc2.f
-REQUIRE STR@         ~ac/lib/str2.f
+REQUIRE STR@         ~ac/lib/str5.f
 
 VARIABLE SqlQ
 

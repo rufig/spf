@@ -17,7 +17,7 @@
 
 REQUIRE FIND-FILES       ~ac/lib/win/file/findfile.f
 REQUIRE {                ~ac/lib/locals.f
-REQUIRE STR@             ~ac/lib/str2.f
+REQUIRE STR@             ~ac/lib/str5.f
 
 USER FIND-FILES-RL    \ уровень вложенности 0-...
 USER FIND-FILES-DEPTH \ ограничение вложенности, 0 - без ограничения,
