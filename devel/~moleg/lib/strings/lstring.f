@@ -1,6 +1,6 @@
 \ 2008-03-20 ~mOleg
 \ Сopyright [C] 2008 mOleg mininoleg@yahoo.com
-\ поддержка длинных строк
+\ хранение длинных строк со счетчиком переменной длины
 
  REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
  REQUIRE SWITCH:  devel\~moleg\lib\util\switch.f
