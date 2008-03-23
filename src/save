@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Создание форт-системы из объектного файла
+# Ю. Жиловец, 9.06.2007
+
+# Аргументы: рабочий-каталог адрес-сборки выходной-файл
+
+if [ $# -lt 3 ]; then
+  echo "This file is invoked by SPF when saving a new forth-system"
+  exit
+fi
+
+DIR=$1
+START=$2
+OUT=$3
+
+sed -i "s|/\*!\*/.*/\*!\*/|/*!*/0x$START/*!*/|" $DIR/forth.ld
+cc $DIR/spf4.o -ldl -lpthread -D_REENTRANT \
+-Xlinker -T$DIR/default.ld -Xlinker -T$DIR/forth.ld -o $OUT
