@@ -6,7 +6,7 @@
 
 REQUIRE {         ~ac/lib/locals.f
 REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
-REQUIRE "         ~ac/lib/str5.f
+REQUIRE STR@      ~ac/lib/str5.f
 
 USER Look \ будем заглядывать вперед на один символ
 

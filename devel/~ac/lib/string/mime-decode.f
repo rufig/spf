@@ -15,7 +15,7 @@
 )
 
 REQUIRE {             ~ac/lib/locals.f
-REQUIRE "             ~ac/lib/str5.f
+REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE base64        ~ac/lib/string/conv.f
 REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
 REQUIRE SPLIT-        ~pinka/samples/2005/lib/split.f 
