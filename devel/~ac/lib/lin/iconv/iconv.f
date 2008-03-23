@@ -14,7 +14,8 @@ REQUIRE [IF]          lib/include/tools.f
 [DEFINED] WINAPI: [IF]
   ALSO SO NEW: iconv.dll
 [ELSE]
-  ALSO SO NEW: /lib/libc.so.6
+  ALSO SO NEW: libc.so.6
+  : libiconv_open iconv_open ; : libiconv iconv ; : libiconv_close iconv_close ;
 [THEN]
 
 : ICONV { a u cpfa cpfu cpta cptu \ ico oa ou aa -- oa ou }
