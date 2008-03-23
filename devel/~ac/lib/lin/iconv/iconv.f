@@ -22,7 +22,7 @@ REQUIRE [IF]          lib/include/tools.f
 \ преобразовать строку a u из кодировки cpfa cpfu в cpta cptu,
 \ например: S" тест" S" CP1251" S" UTF-8" ICONV
 \ возвращает результат oa ou; oa освобождать вызывающему по FREE
-  u 3 * DUP -> ou ALLOCATE THROW DUP -> oa -> aa
+  u 3 * 2+ DUP -> ou ALLOCATE THROW DUP -> oa -> aa
   cpfa cpta 2 libiconv_open -> ico
   ^ ou ^ oa ^ u ^ a ico 5 libiconv THROW
   aa oa OVER -
