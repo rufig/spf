@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# $Id$
+
+rm spf4.o
+cd ..
+echo Wait a bit while compiling...
+./spf4orig src/spf.f
+cd src
+cc spf4.o -ldl -lpthread -D_REENTRANT -Xlinker -Tdefault.ld -Xlinker -Tforth.ld -v
+mv spf4 ..
+#ld spf4.o -ldl -lpthread -v -e 0x532000 -m elf_i386

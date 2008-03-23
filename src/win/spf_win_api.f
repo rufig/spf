@@ -49,12 +49,14 @@ CODE API-CALL ( ... extern-addr -- x )
       PUSH EDI
       PUSH EBP
       SUB  ESP, # 60
+      MOV  EBX, EDI
       MOV  EDI, ESP
       MOV  ESI, EBP
       MOV  ECX, # 15
       CLD
       REP MOVS DWORD
       MOV  EBP, ESP
+      MOV  EDI, EBX
       CALL EAX
       MOV  EBX, EBP
       SUB  EBX, ESP

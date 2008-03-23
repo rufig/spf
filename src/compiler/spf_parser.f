@@ -46,7 +46,8 @@ USER-CREATE ATIB
 : IsDelimiter1 ( char -- flag )
   BL 1+ <
 ;
-VECT IsDelimiter ' IsDelimiter1 (TO) IsDelimiter
+VECT IsDelimiter 
+' IsDelimiter1 ' IsDelimiter TC-VECT!
 
 : GetChar ( -- char flag )
   EndOfChunk

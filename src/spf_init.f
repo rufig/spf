@@ -30,13 +30,6 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
   INIT-MACROOPT-LIGHT
 ;
 
-: USER-INIT ( n )
-\ n - размер параметров, к-е Windows передает callback процедуре (в байтах)
-  CREATE-HEAP
-  <SET-EXC-HANDLER>
-  POOL-INIT
-  AT-THREAD-STARTING  
-;
 
 : ERR-EXIT ( xt -- )
   CATCH
@@ -45,125 +38,21 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
   \ 4 - если вложенна€
 ;
 
-\ один раз на процесс
-: PROCESS-INIT ( n )
-  ERASE-IMPORTS
-  CREATE-PROCESS-HEAP
-  <SET-EXC-HANDLER>
-  POOL-INIT
-  ['] AT-PROCESS-STARTING ERR-EXIT
-;
 
-\ ранее неустановленные вектора
-' NOOP          (TO) <PRE>
-' FIND1         (TO) FIND
-' ?LITERAL2     (TO) ?LITERAL
-' ?SLITERAL2    (TO) ?SLITERAL
-' OK1           (TO) OK
-' ERROR2        (TO) ERROR
-' (ABORT1")     (TO) (ABORT")
-' PROC-ERROR1   (TO) PROC-ERROR
-' LIB-ERROR1    (TO) LIB-ERROR
-\ другие уже установлены
+TARGET-POSIX [IF]
+  S" src/posix/init.f" INCLUDED
+[ELSE]
+  S" src/win/spf_win_init.f" INCLUDED
+[THEN]
 
 
-: USER-EXIT
-  AT-THREAD-FINISHING
-  DESTROY-HEAP
-\  TlsIndex@ FREE DROP
-;
+' USER-INIT ' FORTH-INSTANCE>  TC-VECT!
+' USER-EXIT ' <FORTH-INSTANCE  TC-VECT!
+' QUIT      ' <MAIN>           TC-VECT!
 
-' USER-INIT (TO) FORTH-INSTANCE>
-' USER-EXIT (TO) <FORTH-INSTANCE
-' QUIT      (TO) <MAIN>
-
-VARIABLE IN-EXCEPTION
-
-: STACK-ADDR. ( addr -- addr )
-      DUP U. ." :  "
-      DUP ['] @ CATCH 
-      IF DROP 
-      ELSE DUP U. WordByAddr TYPE CR THEN
-;
-
-: AT-EXC-DUMP ( addr -- addr ) ... ;
-\ example: ..: AT-EXC-DUMP ." REGISTERS:" DUP 12 CELLS DUMP CR ;..
-
-: DUMP-TRACE ( addr-h addr-l -- ) \ bottom top --
-  BEGIN 2DUP U< 0= WHILE STACK-ADDR. CELL+ REPEAT 2DROP
-;
-
-12 VALUE TRACE-HEAD-SIZE
-15 VALUE TRACE-TAIL-SIZE
-
-: DUMP-TRACE-SHRUNKEN ( addr-h addr-l -- ) \ bottom top --
-  2DUP -  TRACE-HEAD-SIZE TRACE-TAIL-SIZE + 5 + CELLS
-  U< IF DUMP-TRACE EXIT THEN
-  DUP TRACE-HEAD-SIZE CELLS + SWAP DUMP-TRACE ." [...]" CR
-  DUP TRACE-TAIL-SIZE CELLS - DUMP-TRACE
-;
-
-: EXC-DUMP1 ( exc-info -- )
-  IN-EXCEPTION @ IF DROP EXIT THEN
-  TRUE IN-EXCEPTION !
-  BASE @ >R HEX
-
-  ." EXCEPTION! "
-  DUP @ ."  CODE:" U.
-  DUP 3 CELLS + @ ."  ADDRESS:" DUP U.  ."  WORD:" WordByAddr TYPE CR
-
-  ( DispatcherContext ContextRecord EstablisherFrame ExceptionRecord  ExceptionRecord )
-  DROP 2 PICK
-
-  8 CELLS 80 + \ FLOATING_SAVE_AREA
-    11 CELLS + \ сдвиг оносительно контекст к регистрам, начина€ с edi
-  + \ вычисление базового адреса образа регистров (~ygrek)
-
-  AT-EXC-DUMP ( addr -- addr )
-
-  ." USER DATA: " TlsIndex@ U. ." THREAD ID: " 36 FS@ U.
-  ." HANDLER: " HANDLER @ U. CR
-  ." STACK: "
-  DUP 6 CELLS + @ ( ebp )
-  DUP 5 CELLS + BEGIN DUP ['] @ CATCH IF DROP ELSE 8 .0 SPACE THEN CELL- 2DUP U> UNTIL 2DROP
-  ." ["
-  DUP 5 CELLS + @ ( eax ) 8 .0 ." ]" CR
-
-  ." RETURN STACK:" CR
-  10 CELLS + @ ( esp )  R0 @ 
-  
-  2DUP U<
-  IF ( top bottom )
-    2DUP HANDLER @ WITHIN IF
-      >R HANDLER @ SWAP DUMP-TRACE-SHRUNKEN
-      HANDLER @ CELL+ R> 
-    THEN
-    2DUP  TRACE-HEAD-SIZE TRACE-TAIL-SIZE + CELLS - 10 CELLS -
-    U< IF 10 CELLS - THEN \ skip early bottom
-    SWAP DUMP-TRACE-SHRUNKEN
-  ELSE ( esp bottom ) 
-    NIP DUP 50 CELLS - DUMP-TRACE 
-    \ при несогласованности предпочтение отдаетс€ R0
-  THEN
-
-  ." END OF EXCEPTION REPORT" CR
-  R> BASE !  FALSE IN-EXCEPTION !
-;
-' EXC-DUMP1 (TO) <EXC-DUMP>
-
-: FATAL-HANDLER1 ( ior -- )
-  HEX
-  ." UNHANDLED EXCEPTION: " DUP U. CR
-  ." RETURN STACK: " CR
-  R0 @ RP@ DUMP-TRACE-SHRUNKEN
-  ." SOURCE: " CR ERROR CR
-  ." THREAD EXITING." CR
-  TERMINATE
-;
-' FATAL-HANDLER1 (TO) FATAL-HANDLER \ see THROW
 
 : (TITLE)
-  ." SP-FORTH - ANS FORTH 94 for Win95/98/ME/NT/2000/XP" CR
+  ." SP-FORTH - ANS FORTH 94 for " PLATFORM TYPE CR
   ." Open source project at http://spf.sf.net" CR
   ." Russian FIG at http://www.forth.org.ru ; Started by A.Cherezov" CR
   ." Version " VERSION 1000 / 0 <# # # [CHAR] . HOLD # #> TYPE
@@ -171,11 +60,11 @@ VARIABLE IN-EXCEPTION
   ."  at " BUILD-DATE COUNT TYPE CR CR
 ;
 : TITLE  CGI? @ 0=  ?GUI 0= AND COMMANDLINE-OPTIONS NIP 0= AND IF (TITLE) THEN ;
-' TITLE ' MAINX EXECUTE !
+' TITLE ' MAINX TC-ADDR!
 
 : SPF-INI
-  S" SPF4.INI" INCLUDE-PROBE
-  IF  S" SPF4.INI" +ModuleDirName INCLUDE-PROBE DROP  THEN
+  S" spf4.ini" INCLUDE-PROBE
+  IF  S" spf4.ini" +ModuleDirName INCLUDE-PROBE DROP  THEN
 ;
 
 \ Scattering a Colon Definition
@@ -188,9 +77,15 @@ TRUE VALUE SPF-INIT?
 \ Startup
 \ “очка входа при запуске:
 
+TARGET-POSIX [IF]
+: (INIT) ( env argv argc -- )
+  TO ARGC TO ARGV
+[ELSE]
 : (INIT)
+[THEN]
   SetOP
   HERE OP0 OpBuffSize + !
+  NATIVE-LINES
   0 TO H-STDLOG
   CONSOLE-HANDLES
   ['] CGI-OPTIONS ERR-EXIT
@@ -206,4 +101,7 @@ TRUE VALUE SPF-INIT?
 
 ' PROCESS-INIT TO TC-FORTH-INSTANCE>
 ' (INIT) PROCESSPROC: INIT
+
+TARGET-POSIX 0 = [IF]
 ' INIT OVER - OVER 1+ +!
+[THEN]

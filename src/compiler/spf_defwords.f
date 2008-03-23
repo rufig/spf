@@ -32,7 +32,7 @@ VECT SHEADER
 
   HERE SWAP ! ( заполнили cfa )
 ;
-' SHEADER1 (TO) SHEADER
+' SHEADER1 ' SHEADER TC-VECT!
 
 : HEADER ( "name" -- )
   PARSE-NAME SHEADER
@@ -71,7 +71,7 @@ CODE (DOES2)
    JMP  EBX
 END-CODE
 
-' (DOES2) (TO) DOES-CODE
+' (DOES2) ' DOES-CODE TC-VECT!
 
 : DOES>  \ 94
 \ Интерпретация: семантика неопределена.

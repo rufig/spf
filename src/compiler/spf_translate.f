@@ -1,5 +1,3 @@
-\ $Id$
-
 ( “рансл€ци€ исходных текстов программ.
   ќ—-независимые определени€.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org
@@ -129,9 +127,10 @@ VECT ?SLITERAL
 
 VARIABLE   &INTERPRET
 
-' INTERPRET_ ' &INTERPRET EXECUTE !
+' INTERPRET_ ' &INTERPRET TC-ADDR!
 
 : INTERPRET &INTERPRET @ EXECUTE ;
+
 
 : #(SIGNED) ( d1 -- d2 )
   [CHAR] ) HOLD DUP >R DABS #S R> SIGN [CHAR] ( HOLD
@@ -239,7 +238,7 @@ VECT PROCESS-ERR ( ior -- ior ) \ обработать ошибку трансл€ции (файла).
 : PROCESS-ERR1 ( ior -- ior )  \ тут проверка на ior=0 тоже нужна.
   DUP IF SEEN-ERR? IF DUP SAVE-ERR THEN THEN
 ;
-' PROCESS-ERR1 (TO) PROCESS-ERR
+' PROCESS-ERR1 ' PROCESS-ERR TC-VECT!
 
 : RECEIVE-WITH-XT  ( i*x source source-xt xt -- j*x ior )
 \ сохранить спецификации входного потока
@@ -278,7 +277,7 @@ VECT FIND-FULLNAME \ найти указанный файл и вернуть его с полным путем
   2DUP +ModuleDirName   2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
   2 ( ERROR_FILE_NOT_FOUND ) THROW
 ;
-' FIND-FULLNAME1 (TO) FIND-FULLNAME
+' FIND-FULLNAME1 ' FIND-FULLNAME TC-VECT!
 
 
 : TranslateFlow ( -- )
@@ -320,7 +319,7 @@ VECT (INCLUDED)
   R/O OPEN-FILE-SHARED THROW
   INCLUDE-FILE
 ;
-' (INCLUDED1) (TO) (INCLUDED)
+' (INCLUDED1) ' (INCLUDED) TC-VECT!
 
 USER INCLUDE-DEPTH
 

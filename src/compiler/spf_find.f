@@ -1,5 +1,3 @@
-\ $Id$
-
 ( Поиск слов в словарях и управление порядком поиска.
   ОС-независимые определения.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org
@@ -24,15 +22,12 @@ CODE CDR-BY-NAME ( c-addr u nfa1|0 -- c-addr u nfa1|nfa2|0 )
       PUSH EDI
 
       MOV EDX, [EBP]                \ длина (счетчик)
-      MOV ESI, EAX                  \ вход в список
-      MOV EDI, 4 [EBP]              \ искомое слово
-
       OR EDX, EDX 		    
-      JNZ SHORT @@4    \ особую маску вычисляем только если длина не ноль
-      MOV EBX, # 0xFF
-      JMP @@1
+      JZ SHORT @@2                  \ если длина ноль - сразу на выход 
 
-@@4:
+      MOV ESI, EAX                  \ вход в список
+      MOV EDI, 4 [EBP]              \ искомое слово в ES:DI
+
       A;  0xBB C, -1 W, 0 W, \    MOV EBX, # FFFF
       CMP EDX, # 3
       JB  SHORT @@8
@@ -91,7 +86,7 @@ END-CODE
 \ ;
 
 : SEARCH-WORDLIST-NFA ( c-addr u wid -- 0 | nfa -1 )
-   @ CDR-BY-NAME NIP NIP ?DUP 0<>
+  @ CDR-BY-NAME NIP NIP ?DUP 0<>
 ;
 
 : SEARCH-WORDLIST1
@@ -100,7 +95,7 @@ END-CODE
    SWAP ?IMMEDIATE IF 1 EXIT THEN -1
 ;
 
-' SEARCH-WORDLIST1 (TO) SEARCH-WORDLIST
+' SEARCH-WORDLIST1 ' SEARCH-WORDLIST TC-VECT!
 
 
 USER-CREATE S-O 16 CELLS TC-USER-ALLOT \ порядок поиска
@@ -117,7 +112,7 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 \ возвращаемых не в режиме компиляции.
   S-O 1- CONTEXT
   DO
-   2DUP I @ SEARCH-WORDLIST
+    2DUP I @ SEARCH-WORDLIST
     DUP IF 2SWAP 2DROP UNLOOP EXIT THEN DROP
    I S-O = IF LEAVE THEN
    1 CELLS NEGATE

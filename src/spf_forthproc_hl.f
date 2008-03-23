@@ -54,6 +54,9 @@
 \ начиная с адреса addr.
   0 FILL
 ;
+
+: CZMOVE ( a # z --) 2DUP + >R SWAP CMOVE R> 0 SWAP C! ;
+
 : DABS ( d -- ud ) \ 94 DOUBLE
 \ ud абсолютная величина d.
   DUP 0< IF DNEGATE THEN
@@ -69,3 +72,27 @@
 ;
 
 0  VALUE  DOES-CODE
+
+HEX
+
+CREATE LT 0A0D , \ line terminator
+CREATE LTL 2 ,   \ line terminator length
+
+: DOS-LINES ( -- )
+  0A0D LT ! 2 LTL !
+;
+: UNIX-LINES ( -- )
+  0A0A LT ! 1 LTL !
+;
+
+DECIMAL
+
+\ Разделитель строк
+: EOLN ( -- a u ) LT LTL @ ;
+
+UNIX-ENVIRONMENT [IF]
+: NATIVE-LINES UNIX-LINES ;
+[ELSE]
+: NATIVE-LINES DOS-LINES ;
+[THEN]
+

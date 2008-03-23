@@ -1,11 +1,13 @@
-\ $Id$
-
 ( Слова, к-е нельзя инлайнить  ) 
 ( Используются словом '        )
 
+VARIABLE VOC-LIST \ список словарей
+
+' VOC-LIST EXECUTE 0!
+
 GET-CURRENT
 
-WORDLIST CONSTANT NON-OPT-WL
+WORDLIST VALUE NON-OPT-WL
 
 \ запишем адрес имени словаря
 ' NON-OPT-WL EXECUTE CELL+ ( name_addr )

@@ -1,16 +1,10 @@
-\ $Id$
-
-( Файловый ввод-вывод.
-  Windows-зависимые слова.
-  Copyright [C] 1992-1999 A.Cherezov ac@forth.org
-  Преобразование из 16-разрядного в 32-разрядный код - 1995-96гг
-  Ревизия - сентябрь 1999
-)
+\ Файловый ввод-вывод
+\ Ю. Жиловец, 9.05.2007
 
 : CLOSE-FILE ( fileid -- ior ) \ 94 FILE
 \ Закрыть файл, заданный fileid.
 \ ior - определенный реализацией код результата ввода/вывода.
-  CloseHandle ERR
+  1 <( )) close ?ERR NIP
 ;
 
 : CREATE-FILE ( c-addr u fam -- fileid ior ) \ 94 FILE
@@ -22,66 +16,25 @@
 \ и указатель чтения/записи установлен на начало файла.
 \ Иначе ior - определенный реализацией код результата ввода/вывода,
 \ и fileid неопределен.
-  NIP SWAP >R >R
-  0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
-  CREATE_ALWAYS
-  0 ( secur )
-  0 ( share )  
-  R> ( access=fam )
-  R> ( filename )
-  CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
-;
-
-CREATE SA 12 , 0 , 1 ,
-
-: CREATE-FILE-SHARED ( c-addr u fam -- fileid ior )
-  NIP SWAP >R >R
-  0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
-  CREATE_ALWAYS
-  SA ( secur )
-  3 ( share )  
-  R> ( access=fam )
-  R> ( filename )
-  CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
-;
-: OPEN-FILE-SHARED ( c-addr u fam -- fileid ior )
-  NIP SWAP >R >R
-  0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
-  OPEN_EXISTING
-  SA ( secur )
-  3 ( share )  
-  R> ( access=fam )
-  R> ( filename )
-  CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
+  NIP 
+  \ для совместимости с SPF/Win, если маска < 3 (т.е. на деле передано
+  \ W/O, R/O, R/W), устанавливаем маску u+rw
+  DUP 3 < IF DROP 0x180 THEN
+  2 <( )) creat64 ?ERR
 ;
 
 : DELETE-FILE ( c-addr u -- ior ) \ 94 FILE
 \ Удалить файл с именем, заданным строкой c-addr u.
 \ ior - определенный реализацией код результата ввода/вывода.
-  DROP DeleteFileA ERR
+  DROP 1 <( )) unlink ?ERR NIP
 ;
-
-USER lpDistanceToMoveHigh
 
 : FILE-POSITION ( fileid -- ud ior ) \ 94 FILE
 \ ud - текущая позиция в файле, идентифицируемом fileid.
 \ ior - определенный реализацией код результата ввода/вывода.
 \ ud неопределен, если ior не ноль.
-  >R FILE_CURRENT lpDistanceToMoveHigh DUP 0! 0 R>
-  SetFilePointer
-  DUP -1 = IF GetLastError ELSE 0 THEN
-  lpDistanceToMoveHigh @ SWAP
-;
-
-: FILE-SIZE ( fileid -- ud ior ) \ 94 FILE
-\ ud - размер в символах файла, идентифицируемом fileid.
-\ ior - определенный реализацией код результата ввода/вывода.
-\ Эта операция не влияет на значение, возвращаемое FILE-POSITION.
-\ ud неопределен, если ior не ноль.
-  lpDistanceToMoveHigh SWAP
-  GetFileSize
-  DUP -1 = IF GetLastError ELSE 0 THEN
-  lpDistanceToMoveHigh @ SWAP
+  1 <( 0. SEEK_CUR __ret2 )) lseek64
+  2DUP -1. D= IF errno ELSE 0 THEN
 ;
 
 : OPEN-FILE ( c-addr u fam -- fileid ior ) \ 94 FILE
@@ -91,17 +44,18 @@ USER lpDistanceToMoveHigh
 \ позиционирован на начало.
 \ Иначе ior - определенный реализацией код результата ввода/вывода,
 \ и fileid неопределен.
-  NIP SWAP >R >R
-  0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
-  OPEN_EXISTING
-  0 ( secur )
-  0 ( share )  
-  R> ( access=fam )
-  R> ( filename )
-  CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
+  NIP 2 <( )) open64 ?ERR
 ;
 
-USER lpNumberOfBytesRead
+\ В Линуксе файлы по умолчанию не блокируются.
+\ Слова определены для совместимости с SPF/Win
+
+: CREATE-FILE-SHARED ( c-addr u fam -- fileid ior )
+  CREATE-FILE
+;
+: OPEN-FILE-SHARED ( c-addr u fam -- fileid ior )
+  OPEN-FILE
+;
 
 : READ-FILE ( c-addr u1 fileid -- u2 ior ) \ 94 FILE
 \ Прочесть u1 символов в c-addr из текущей позиции файла,
@@ -121,10 +75,7 @@ USER lpNumberOfBytesRead
 \ пытается прочесть незаписанную часть файла.
 \ После завершения операции FILE-POSITION возвратит следующую позицию
 \ в файле после последнего прочитанного символа.
-  >R 2>R
-  0 lpNumberOfBytesRead R> R> R>
-  ReadFile ERR
-  lpNumberOfBytesRead @ SWAP
+  -ROT 3 <( )) read ?ERR
 ;
 
 : REPOSITION-FILE ( ud fileid -- ior ) \ 94 FILE
@@ -133,9 +84,8 @@ USER lpNumberOfBytesRead
 \ Неопределенная ситуация возникает, если позиционируется вне
 \ его границ.
 \ После завершения операции FILE-POSITION возвращает значение ud.
-  >R lpDistanceToMoveHigh ! FILE_BEGIN lpDistanceToMoveHigh ROT R>
-  SetFilePointer
-  -1 = IF GetLastError ELSE 0 THEN
+  -ROT 3 <( SEEK_SET __ret2 )) lseek64
+  -1. D= IF errno ELSE 0 THEN
 ;
 
 
@@ -185,9 +135,6 @@ USER _addr
   TRUE 0
 ;
 
-
-USER lpNumberOfBytesWritten
-
 : WRITE-FILE ( c-addr u fileid -- ior ) \ 94 FILE
 \ Записать u символов из c-addr в файл, идентифицируемый fileid,
 \ в текущую позицию.
@@ -196,13 +143,14 @@ USER lpNumberOfBytesWritten
 \ позицию в файле за последним записанным в файл символом, и
 \ FILE-SIZE возвращает значение большее или равное значению,
 \ возвращаемому FILE-POSITION.
-  OVER >R
-  >R 2>R
-  0 lpNumberOfBytesWritten R> R> R>
-  WriteFile ERR ( ior )
-  ?DUP IF RDROP EXIT THEN
-  lpNumberOfBytesWritten @ R> <>
-  ( если записалось не столько, сколько требовалось, то тоже ошибка )
+  -ROT DUP >R
+  3 write-adr @ C-CALL 
+  DUP -1 = IF 
+    R> 2DROP errno
+  ELSE
+    R> <>
+    ( если записалось не столько, сколько требовалось, то тоже ошибка )
+  THEN
 ;
 
 : RESIZE-FILE ( ud fileid -- ior ) \ 94 FILE
@@ -213,8 +161,7 @@ USER lpNumberOfBytesWritten
 \ не записана.
 \ После завершения операции FILE-SIZE возвращает значение ud
 \ и FILE-POSITION возвращает неопределенное значение.
-  DUP >R REPOSITION-FILE  ?DUP IF RDROP EXIT THEN
-  R> SetEndOfFile ERR
+  -ROT 3 <( )) ftruncate64 ?ERR NIP
 ;
 
 : WRITE-LINE ( c-addr u fileid -- ior ) \ 94 FILE
@@ -230,9 +177,21 @@ USER lpNumberOfBytesWritten
 ;
 
 : FLUSH-FILE ( fileid -- ior ) \ 94 FILE EXT
-  FlushFileBuffers ERR
+  1 <( )) fsync ?ERR NIP
 ;
 
+USER-CREATE API-BUFFER
+200 TC-USER-ALLOT
+
 : FILE-EXIST ( addr u -- f )
-    DROP GetFileAttributesA -1 = 0=
+  DROP >R (( 3 R> API-BUFFER )) __xstat 0=
+;
+
+: FILE-SIZE ( fileid -- ud ior ) \ 94 FILE
+\ ud - размер в символах файла, идентифицируемом fileid.
+\ ior - определенный реализацией код результата ввода/вывода.
+\ Эта операция не влияет на значение, возвращаемое FILE-POSITION.
+\ ud неопределен, если ior не ноль.
+  >R (( 1 R> API-BUFFER )) __fxstat64
+  -1 = IF 0. errno ELSE API-BUFFER 11 CELLS + 2@ SWAP 0 THEN
 ;

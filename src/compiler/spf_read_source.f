@@ -1,5 +1,3 @@
-\ $Id$
-
 ( Чтение строки исходного текста из входного потока: консоли или файла.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org
   Ревизия: Сентябрь 1999
@@ -19,19 +17,22 @@ USER CURSTR \ номер строки
 FALSE VALUE ?GUI
 FALSE VALUE ?CONSOLE
 
+TARGET-POSIX [IF] 
+: CONSOLE-HANDLES ; 
+[ELSE]
 : CONSOLE-HANDLES
 \  0 TO SOURCE-ID
   -10 GetStdHandle TO H-STDIN 
   -11 GetStdHandle TO H-STDOUT
   -12 GetStdHandle TO H-STDERR
 
-  \ ~day На случай печати в GUI приложении запущеным из под Explorer  
+ \ ~day На случай печати в GUI приложении запущеным из под Explorer  
   ?GUI
   IF
     H-STDOUT 65537 = IF -1 TO H-STDOUT THEN \ Invalid handle
   THEN
 ;
-
+[THEN]
 
 VECT REFILL ( -- flag )
 
@@ -46,7 +47,7 @@ VECT REFILL ( -- flag )
   DUP -1002 = IF DROP 2DROP 0 0 ELSE THROW -1 THEN
   TAKEN-TIB
 ;
-' REFILL-STDIN (TO) REFILL ( -- flag ) \ 94 CORE EXT
+' REFILL-STDIN ' REFILL TC-VECT!   ( -- flag ) \ 94 CORE EXT
 \ Попытаться заполнить входной буфер из входного потока, вернуть
 \ флаг "истина", если успешно.
 \ Когда входным потоком является пользовательское входное устройство,
@@ -72,7 +73,7 @@ VECT REFILL ( -- flag )
   FREFILL  EXIT     THEN
   DROP REFILL-STDIN
 ;
-' REFILL-FILE (TO) REFILL ( -- flag ) \ 94 FILE EXT
+' REFILL-FILE ' REFILL TC-VECT!   ( -- flag ) \ 94 FILE EXT
 \ Расширить семантику выполнения CORE EXT REFILL следующим:
 \ Когда входной поток - текстовый файл, попытаться прочесть следующую
 \ строку из текстового входного файла. Если успешно, сделать результат
@@ -88,7 +89,7 @@ VECT REFILL ( -- flag )
   THEN THEN
   REFILL-FILE
 ;
-' REFILL-SOURCE (TO) REFILL ( -- flag ) \ SPF EXT
+' REFILL-SOURCE ' REFILL TC-VECT!   ( -- flag ) \ SPF EXT
 \ Расширить семантику выполнения FILE EXT REFILL следующим:
 \ Если  SOURCE-ID-XT возвращает не ноль, то, считая это 
 \ значение xt-ом для слова, подобного READ-LINE,

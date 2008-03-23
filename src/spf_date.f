@@ -1,6 +1,6 @@
 \ Формирования строки текущей даты
 
-S" lib\include\facil.f" INCLUDED
+S" lib/include/facil.f" INCLUDED
 
 : MONTH,
    PARSE-NAME CHARS HERE OVER ALLOT
@@ -37,4 +37,3 @@ MONTH, Dec
 ;
 
 \ NOWADAYS TYPE
-

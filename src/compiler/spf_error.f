@@ -1,5 +1,3 @@
-\ $Id$
-
 ( Обработка ошибок.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org
   Ревизия: Cентябрь 1999
@@ -69,6 +67,14 @@ USER-CREATE ERR-DATA [T] /err-data [I] TC-USER-ALLOT
   S" Exception " HOLDS
   0 0 #> ROT BASE !
 ;
+
+\ Заменяет при печати нулевые символы пробелами
+: TYPE0 ( a n -- )
+  OVER + SWAP ?DO
+    I C@ ?DUP 0= IF BL THEN EMIT
+  LOOP
+;
+
 : LAST-WORD ( -- )
   SEEN-ERR?
   IF
@@ -79,7 +85,7 @@ USER-CREATE ERR-DATA [T] /err-data [I] TC-USER-ALLOT
     ERR-LINE DROP ERR-IN# SCREEN-LENGTH
   THEN
 
-  -ROT TYPE CR
+  -ROT TYPE0 CR
   2- 0 MAX SPACES [CHAR] ^ EMIT SPACE
 ;
 

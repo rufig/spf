@@ -1,19 +1,54 @@
 ( Целевой компилятор для компиляции SP-Forth v3.7x
   Copyright [C] 1992-2000 A.Cherezov ac@forth.org
+
+  Компиляция в виртуальные адреса
+  Ю. Жиловец, 1.05.2007
 )
 
-HEX 
-IMAGE-BASE 1034 + CONSTANT AddrOfLoadLibrary      \ адреса процедур в spf-stub.exe
-IMAGE-BASE 1038 + CONSTANT AddrOfGetProcAddress
-DECIMAL
+\ ----------------------------------------------------
+
+0 VALUE virt-offset
+
+TARGET-POSIX [IF]
+: >VIRT ( a -- va) virt-offset + ;
+: VIRT> ( va -- a) virt-offset - ;
+: >VIRT! ( a -- ) virt-offset SWAP +! ;
+[ELSE]
+: >VIRT ; 
+[THEN]
+
+: virtual-address ( va -- ) HERE - TO virt-offset ;
+: *DP@ ( -- va) DP @ >VIRT ;
+
+\ ----------------------------------------------------
+
+: ASCIIZ" ( ->" ) [CHAR] " PARSE 
+ HERE OVER ALLOT SWAP CMOVE 0 C,
+;
+
+0 VALUE elf-offset
+
+: +elf-offset ( n -- ) elf-offset + TO elf-offset ;
+: offset,size, ( n -- ) elf-offset , DUP , +elf-offset ;
+
+\ ----------------------------------------------------
+
+TARGET-POSIX [IF]
+  S" src/tc-dl.f" INCLUDED
+[ELSE]
+  HEX 
+  IMAGE-BASE 1034 + CONSTANT AddrOfLoadLibrary      \ адреса процедур в spf-stub.exe
+  IMAGE-BASE 1038 + CONSTANT AddrOfGetProcAddress
+  DECIMAL
+[THEN]
 
 : LOAD-BUILD-NUMBER ( -- n )
-  S" src\version.spf" ['] INCLUDED CATCH IF 2DROP 0 THEN 
+  S" src/version.spf" ['] INCLUDED CATCH IF 2DROP 0 THEN 
 ;
 
 : SAVE-BUILD-NUMBER ( n -- )
   H-STDOUT >R
-  S" src\version.spf" R/W CREATE-FILE THROW TO H-STDOUT
+  S" src/version.spf" R/W CREATE-FILE THROW TO H-STDOUT
   . CR
   H-STDOUT CLOSE-FILE THROW
   R> TO H-STDOUT 
@@ -56,6 +91,10 @@ VARIABLE SAVED-CURRENT
 0 VALUE OFF-LOOP
 0 VALUE OFF-+LOOP
 
+0 VALUE ()))-adr
+0 VALUE symbol-call-adr
+0 VALUE symbol-call2-adr
+
 : TC-FINDOUT
    SFIND 0= ABORT" Can't find - TC-FINDOUT"
 ;
@@ -96,6 +135,8 @@ HEX
 0 VALUE  'DUP_V
 0 VALUE 'DROP_V
 
+\ : H. BASE @ >R HEX . R> BASE ! ;
+
 :  'DUP  'DUP_V ;
 : 'DROP 'DROP_V ;
 
@@ -129,6 +170,9 @@ M\ ' DROP TO DTST
   DP @ TO LAST-HERE
 ;
 
+TARGET-POSIX [IF]
+: MCOMPILE, TC-CALL, ; \ need Position Independent Code
+[ELSE]
 : MCOMPILE, ( CFA -- )
     CON>LIT 
     IF  INLINE?
@@ -137,6 +181,7 @@ M\ ' DROP TO DTST
       THEN
     THEN
 ;
+[THEN]
 
 : TC-LIT,
   S" DUP" TC-FINDOUT INLINE,
@@ -148,7 +193,8 @@ M\ ' DROP TO DTST
   S" DUP" TC-FINDOUT TC-LIT, ; IMMEDIATE
 
 : 'DROP
-  S" DROP" TC-FINDOUT TC-LIT, ; IMMEDIATE
+  \ CR ." NEW 'DROP " CURFILE @ ASCIIZ> TYPE SPACE CURSTR @ .
+  S" DROP" TC-FINDOUT >VIRT TC-LIT, ; IMMEDIATE
 
 : TC-DLIT, ( D --)
   SWAP
@@ -345,7 +391,7 @@ ALSO TC DEFINITIONS PREVIOUS
 
 : VECT ( -> )
   [T] HEADER [I]
-  VECT-CODE COMPILE, NOOP-CODE ,
+  VECT-CODE COMPILE, NOOP-CODE >VIRT ,
   TOVALUE-CODE COMPILE,
 ;
 : ->VECT ( x -> )
@@ -373,6 +419,12 @@ ALSO TC DEFINITIONS PREVIOUS
 \  OVER , +
 ;
 
+TARGET-POSIX [IF]
+
+S" src/tc-dl-tc.f" INCLUDED
+
+[ELSE]
+
 ALSO TC
 
 : WINAPI: ( "ИмяПроцедуры" "ИмяБиблиотеки" -- )
@@ -394,20 +446,40 @@ ALSO TC
 
 PREVIOUS
 
+[THEN]
+
 (  Отличие от WNDPROC - на выходе не вызываем USER-EXIT, 
    потому что при завершении процесса нет необходимости вызывать AT-THREAD-FINISHING,
    AT-PROCESS-FINISHING вызовется в BYE в конце INIT
    ~day  )
 
+TARGET-POSIX [IF]
+: PROCESSPROC: ( xt "name" -- )
+  HERE
+  2 CELLS LIT,
+[ELSE]  
 : PROCESSPROC: ( xt "name" -- )
   HERE
   0 CELLS LIT,
+[THEN]  
   TC-FORTH-INSTANCE> COMPILE,
   SWAP COMPILE,
   RET,
   [T] HEADER [I]
   WNDPROC-CODE COMPILE,
-  ,
+  >VIRT ,
+;
+
+: TC-CALLBACK: ( xt n "name" -- )
+  HERE
+  SWAP 2* 2* LIT,
+  TC-FORTH-INSTANCE> COMPILE,
+  SWAP COMPILE,
+  TC-<FORTH-INSTANCE COMPILE,
+  RET,
+  HEADER
+  WNDPROC-CODE COMPILE,
+  >VIRT ,
 ;
 
 : ' ALSO TC-WL ' PREVIOUS ;
@@ -430,6 +502,16 @@ PREVIOUS TC DEFINITIONS PREVIOUS
   IF COMPILE, ELSE [ ALSO TC ] EXECUTE [ PREVIOUS ] THEN
   PREVIOUS
 ; IMMEDIATE
+
+: TC-VECT! ( xt xt-vect -- )
+  >R >VIRT R>
+  9 + 
+  [ ALSO TC ] EXECUTE [ PREVIOUS ]
+;
+: TC-ADDR! ( addr xt-variable -- )
+  >R >VIRT R>
+  [ ALSO TC ] EXECUTE [ PREVIOUS ] !
+;
 
 : TC-LATEST->
   ALSO TC-WL CONTEXT @ @ ' [ ALSO TC ] EXECUTE ! [ PREVIOUS ] PREVIOUS
@@ -502,7 +584,7 @@ C" SHERE-TAB-CUR" FIND NIP
   ?SET SetOP  POSTPONE ; [I] OPT OPT_CLOSE  ; IMMEDIATE
 [THEN]
 
-: ['] ALSO TC-WL ' TC-LIT, PREVIOUS ; IMMEDIATE
+: ['] ALSO TC-WL ' >VIRT TC-LIT, PREVIOUS ; IMMEDIATE
 
 : TO ALSO TC-WL [COMPILE] TO PREVIOUS ; IMMEDIATE
 
@@ -612,7 +694,7 @@ HEX
     4 - 0F C, 81 C, , \ jno near
   THEN    SetOP
   0C24648D , \ lea esp, 0c [esp]
-  DP @ SWAP !
+  *DP@ SWAP !
 ; IMMEDIATE
 
 : +LOOP    \ 94
@@ -629,7 +711,7 @@ HEX
    2 ALLOT
   DP @ CELL+ -  ,
   SetOP 0x0C24648D , \ lea esp, 0xC [esp]
-  DP @ SWAP !
+  *DP@ SWAP !
 ; IMMEDIATE
 
 : I   \ 94
@@ -688,13 +770,21 @@ HEX
 
 : NOTFOUND ( a u -- )  TC-?SLITERAL ;
 
-: ... 0 TC-BRANCH, >MARK DUP , 1 >RESOLVE ; IMMEDIATE 
+: ... 0 TC-BRANCH, >MARK DUP >VIRT , 1 >RESOLVE ; IMMEDIATE 
 : ..: '  >BODY DUP @  1 >RESOLVE ] ;
 : ;..  DUP CELL+ TC-BRANCH, >MARK SWAP ! [COMPILE] [ ; IMMEDIATE
 
 : _@    8B C, 00 C, ; IMMEDIATE
+
+TARGET-POSIX [IF]
+S" src/tc-dl-imm.f" INCLUDED
+[THEN]
+
 HERE 10000 + 10000 / 10000 * 2000 + DP !    \ выравнивание
 DECIMAL
+
+IMAGE-START virtual-address
+
 \ *** поехали! ***
 ONLY FORTH DEFINITIONS ALSO TC
 

@@ -7,15 +7,15 @@
   Ревизия - сентябрь 1999, март 2000
 )
 
-_VOC-LIST @
+_VOC-LIST @ \ готовая цепочка
 
 VARIABLE _VOC-LIST \ список словарей
 
-' _VOC-LIST EXECUTE ! \ запись уже созданной цепочки
+' _VOC-LIST TC-ADDR! \ запись уже созданной цепочки
 ' _VOC-LIST TO VOC-LIST  \ исправление в tc
 
 VECT VOC-LIST \ точка для модификаций
-' _VOC-LIST (TO) VOC-LIST \ начальное значение
+' _VOC-LIST ' VOC-LIST TC-VECT!  \ начальное значение
 
 
 USER LAST     \ указывает на поле имени последней
@@ -220,7 +220,7 @@ END-CODE
 
 VECT (NEAREST-NFA) ( addr nfa1 -- addr nfa2 )
 
-' (NEAREST3) (TO) (NEAREST-NFA)
+' (NEAREST3) ' (NEAREST-NFA) TC-VECT!
 
 : (WordByAddr) ( addr -- c-addr u )
   0 (NEAREST-NFA)

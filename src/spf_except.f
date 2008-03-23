@@ -6,7 +6,7 @@
 
 USER HANDLER      \ программные исключения
 
-' NOOP ->VECT FATAL-HANDLER
+VECT FATAL-HANDLER      ' NOOP ' FATAL-HANDLER TC-VECT!
 \ если в результате сбоев повредилось исходное значение HANDLER,
 \ установленное при входе в поток/задачу или позднее,
 \ то выполнится этот обработчик FATAL-HANDLER
@@ -41,7 +41,7 @@ USER HANDLER      \ программные исключения
   DROP FATAL-HANDLER
 ;
 
-' THROW (TO) THROW-CODE
+' THROW TO THROW-CODE \ вектор в инструментальной системе, в рамках TC
 
 VECT <SET-EXC-HANDLER> \ установить обработчик аппаратных исключений
 

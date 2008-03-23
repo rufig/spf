@@ -67,4 +67,4 @@ VECT <EXC-DUMP> \ действия по обработке исключения
   ['] DROP-EXC-HANDLER >R \ самоубираемый фрейм ловли аппаратн.исключения
   >R >R
 ;
-' SET-EXC-HANDLER (TO) <SET-EXC-HANDLER>
+' SET-EXC-HANDLER ' <SET-EXC-HANDLER> TC-VECT!

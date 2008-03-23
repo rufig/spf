@@ -52,7 +52,7 @@ VECT ACCEPT
   LT LTL @ TO-LOG \ Если ввод с user-device записать cr в лог, то есть нажали Enter
 ;
 
-' ACCEPT1 (TO) ACCEPT
+' ACCEPT1 ' ACCEPT TC-VECT!
 
 VECT TYPE
 
@@ -64,7 +64,7 @@ VECT TYPE
   H-STDOUT DUP 0 > IF WRITE-FILE THROW ELSE 2DROP DROP THEN
 ;
 
-' TYPE1 (TO) TYPE
+' TYPE1 ' TYPE TC-VECT!
 
 : EMIT ( x -- ) \ 94
 \ Если x - изображаемый символ, вывести его на дисплей.
@@ -129,3 +129,43 @@ HEX
   SWAP FF000000 AND 0<>
 ;
 DECIMAL
+
+VARIABLE PENDING-CHAR \ клавиатура одна -> переменная глобальная, не USER
+
+: KEY? ( -- flag ) \ 94 FACILITY
+\ Если символ доступен, вернуть "истину". Иначе "ложь". Если несимвольное
+\ клавиатурное событие доступно, оно отбрасывается и больше недоступно.
+\ Символ будет возвращен следующим выполнением KEY.
+\ После того как KEY? возвратило значение "истина", следующие выполнения
+\ KEY? до выполнения KEY или EKEY также возвращают "истину" без отбрасывания
+\ клавиатурных событий.
+  PENDING-CHAR @ 0 > IF TRUE EXIT THEN
+  BEGIN
+    EKEY?
+  WHILE
+    EKEY  EKEY>CHAR
+    IF PENDING-CHAR !
+       TRUE EXIT
+    THEN
+    DROP
+  REPEAT FALSE
+;
+
+VECT KEY
+
+: KEY1 ( -- char ) \ 94
+\ Принять один символ char. Клавиатурные события, не соответствующие
+\ символам, отбрасываются и более не доступны.
+\ Могут быть приняты все стандартные символы. Символы, принимаемые по KEY,
+\ не отображаются на дисплее.
+\ Программы, требующие возможность получения управляющих символов,
+\ зависят от окружения.
+  PENDING-CHAR @ 0 >
+  IF PENDING-CHAR @ -1 PENDING-CHAR ! EXIT THEN
+  BEGIN
+    EKEY  EKEY>CHAR 0=
+  WHILE
+    DROP
+  REPEAT
+;
+' KEY1 ' KEY TC-VECT!
