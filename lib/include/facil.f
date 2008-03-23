@@ -32,12 +32,19 @@ WINAPI: GetTickCount KERNEL32.DLL
   SYSTEMTIME wYear W@
 ;
 
+: ms@ GetTickCount ;
+
 [ELSE]
 
 : NSYM: ( num "name" -- ) PARSE-NAME 2DUP CREATED symbol-lookup , , DOES> DUP CELL+ @ SWAP @ symbol-call ;
 
 1 NSYM: time
 2 NSYM: localtime_r
+1 NSYM: times \ 10 ms resolution (everywhere?)
+\ alternatives :
+\ clock_gettime CLOCK_MONOTONIC (librt)
+\ clock()
+\ gettimeofday (as GetTickCount in wine)
 
 \ tm struct
 0
@@ -74,6 +81,9 @@ USER-CREATE TM /TM USER-ALLOT
   TM tm_mon @ 1 +
   TM tm_year @ 1900 +
 ;
+
+\ ok to pass NULL?
+: ms@ 0 times ;
 
 [THEN]
 
