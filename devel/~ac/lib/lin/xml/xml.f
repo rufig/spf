@@ -11,13 +11,14 @@ WARNING @ WARNING 0!
 REQUIRE SO            ~ac/lib/ns/so-xt.f
 REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE GET-FILE      ~ac/lib/lin/curl/curl.f
-REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
 REQUIRE 1-!           ~pinka/lib/ext/basics.f 
 WARNING !
 
 [DEFINED] WINAPI: [IF]
+  REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
   ALSO SO NEW: libxml2.dll
 [ELSE]
+  REQUIRE UNICODE>UTF8  ~ac/lib/lin/iconv/iconv.f
   ALSO SO NEW: /usr/lib/libxml2.so.2
 [THEN]
 
