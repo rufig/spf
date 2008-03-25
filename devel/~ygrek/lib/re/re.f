@@ -76,6 +76,7 @@
 
 \ -----------------------------------------------------------------------
 
+REQUIRE [IFNDEF] ~nn/lib/ifdef.f
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE >= ~profit/lib/logic.f
 REQUIRE состояние ~profit/lib/chartable.f
@@ -84,7 +85,7 @@ REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE ENUM: ~ygrek/lib/enum.f
-REQUIRE A_AHEAD ~mak/lib/a_if.f
+REQUIRE A_AHEAD ~mak/LIB/A_IF.F
 REQUIRE NUMBER ~ygrek/lib/parse.f
 REQUIRE new-set ~pinka/lib/charset.f
 REQUIRE PRO ~profit/lib/bac4th.f
