@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="stream-mem-hidden">
+
+<wordlist name="block-r">
+  <include href="buffer-rw.L1.f.xml"/>
+</wordlist>
+<wordlist name="block-w">
+  <include href="buffer-rw.L1.f.xml"/>
+</wordlist>
+
+<cell2 name="_hlist"/>
+<cell name="_size"> 3400 </cell>
+<cell name="_cnt"/>
+
+<def name="(alloc-block)" ds=" u-min -- a1 u1 ">
+  500 + _size @ UMAX ALIGNED ALLOCATED 
+  _cnt @ 1 UGT <if> DUP _size +! </if>
+</def>
+<def name="alloc-block" ds=" u-min -- a u ">
+  (alloc-block) >R
+  DUP 0! CELL+ DUP _hlist BIND-DNODE-TAIL _cnt 1+!
+  R> 2 CELLS - OVER !  XCOUNT
+</def>
+<def name="free-last-block" ds=" -- ">
+  _hlist UNBIND-NODE CELL- FREE THROW _cnt 1-!
+  _cnt @ 1 EQ <if> 0. block-r::assume <exit/></if>
+  _hlist @ XCOUNT 2DUP block-r::assume block-r::confirm
+</def>
+<def name="push-new-block" ds=" u-min -- ">
+  _cnt @ 1 EQ <if> block-w::content block-r::assume block-w::rest block-r::confirm </if>
+  alloc-block block-w::assume
+</def>
+
+<export>
+
+<def name="readout" ds=" a1 u1 -- a1 u2 ">
+  _cnt @ DUP <unless>NIP <exit/></unless>
+  1 EQ <if> block-w::readout <exit/></if>
+  block-r::rest NIP <if> block-r::readout <exit/></if>
+  free-last-block <again/>
+</def>
+
+<def name="next-chunk" ds=" -- a u ">
+  _cnt @ DUP <unless>0 <exit/></unless>
+  1 EQ <if> block-w::rest DUP block-w::elapse <exit/></if>
+  block-r::rest DUP <if>DUP block-r::elapse <exit/></if>
+  2DROP
+  free-last-block <again/>
+</def>
+
+<also wordlist="block-w">
+
+<def name="write" ds=" a1 u1 -- ">
+  _cnt @ 0= <if> DUP alloc-block assume </if>
+  DUP unused ULT <if> enclose <exit/></if>
+  rest NIP 0EQ <if> clear DUP unused ULT <if>enclose <exit/></if></if>
+  unused
+  <g ds="a u u1 --  a2 u2  a u1"><rem>BLOCK|REST-</rem>
+  TUCK - >R 2DUP + R> 2SWAP
+  </g>
+  enclose
+  DUP <unless> 2DROP <exit/></unless>
+  DUP push-new-block enclose
+</def>
+</also>
+
+</export></wordlist>
+</forth>
