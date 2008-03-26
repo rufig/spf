@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<cell name="D0"/><rem> begin of buffer </rem>
+<cell name="DPR"/><rem> pointer of write</rem>
+<cell name="DPW"/><rem> pointer of write</rem>
+<cell name="D9"/><rem> end of buffer   </rem>
+
+<include href="buffer-rw.immutable.f.xml"/>
+
+</forth>
