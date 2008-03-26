@@ -9,6 +9,10 @@
 
 <text> workers idles </text><each-word> create-interlocked </each-word>
 
+<cell name="_max-workers"> 20 </cell>
+<def name="max-workers"  ds=" -- u "> _max-workers @ </def>
+<def name="max-workers!" ds=" u -- "> _max-workers ! </def>
+
 
 <def name="get-client?" ds=" -- x true | false ">
   inc-idles
@@ -49,7 +53,7 @@
   enqueueN
   <!-- <exit/> -->
   queue-length  idles-quan UGT <unless><exit/></unless>
-  workers-quan 20 UGT <if><exit/></if>
+  workers-quan max-workers UGT <if><exit/></if>
   instantiate-worker
 </def>
 
@@ -64,7 +68,7 @@
 
 <handler event="startup">
   <log>tcp server started</log>
-  450 1024 * NEW-STORAGE
+  30 1024 * max-workers 10 + * NEW-STORAGE
   DUP _storage !  MOUNT
   instantiate-worker
 </handler>
