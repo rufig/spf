@@ -6,6 +6,7 @@ REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
 WARNING !
 
 ALSO SO NEW: libxslt.dll
+ALSO SO NEW: /usr/lib/libxslt.so.1
 ALSO libxml2.dll
 
 : XmlMemFree ( ptr 1 -- res )
@@ -55,7 +56,7 @@ ALSO libxml2.dll
 \  0 xsltCleanupGlobals DROP
 \  0 xmlCleanupParser DROP
 ;
-PREVIOUS PREVIOUS
+PREVIOUS PREVIOUS PREVIOUS
 
 \ S" 1.xml" S" 1.xsl" XSLT
 \ Здесь запись имя:пароль поддерживается через curl, а сам libxml не умеет.
