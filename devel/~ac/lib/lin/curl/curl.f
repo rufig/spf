@@ -10,11 +10,8 @@ REQUIRE [IF]          lib/include/tools.f
 REQUIRE ADD-CONST-VOC lib/ext/const.f
 S" ~ygrek/lib/data/curl.const" ADD-CONST-VOC
 
-[DEFINED] WINAPI: [IF]
-  ALSO SO NEW: libcurl.dll
-[ELSE]
-  ALSO SO NEW: /usr/lib/libcurl.so.4
-[THEN]
+ALSO SO NEW: libcurl.dll
+ALSO SO NEW: /usr/lib/libcurl.so.3
 
 \ Global libcurl initialization
 : (CURL-GLOBAL-INIT) CURL_GLOBAL_ALL 1 curl_global_init THROW ;
@@ -76,7 +73,7 @@ USER uCurlRes
   S" " GET-FILE-VIAPROXY
 ;
 
-PREVIOUS
+PREVIOUS PREVIOUS
 
 \EOF
 \ регистрация IP для xml-запросов к яндексу: http://xml.yandex.ru/ip.xml
