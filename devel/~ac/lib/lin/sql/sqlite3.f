@@ -10,11 +10,8 @@ REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
 WARNING !
 
-[DEFINED] WINAPI: [IF]
-  ALSO SO NEW: sqlite3.dll
-[ELSE]
-  ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
-[THEN]
+ALSO SO NEW: sqlite3.dll
+ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
 
   0 CONSTANT SQLITE_STATIC
   5 CONSTANT SQLITE_BUSY
@@ -278,7 +275,7 @@ USER _db3_gets
 : db3_enable_extensions ( sqh -- )
   TRUE SWAP 2 sqlite3_enable_load_extension DROP
 ;
-PREVIOUS
+PREVIOUS PREVIOUS
 
 : '>` ( addr u -- )
   0 ?DO DUP C@ [CHAR] ' = IF [CHAR] ` OVER C! THEN 1+ LOOP DROP
