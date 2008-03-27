@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- $Id$ -->
+
+<comment> Foreign function interface </comment>
+<!-- experimental version -->
+
+<def name="DLOPEN-SURE" ds=" a u -- h ">
+  2DUP DLOPEN DUP <if> NIP NIP <exit/></if>
+  DROP CR TYPE CR `#lib-not-found STHROW
+</def>
+
+<def name="DLSYM-SURE" ds=" a u h -- a ">
+  >R 2DUP R> DLSYM DUP <if> NIP NIP <exit/></if>
+  DROP CR TYPE CR `#func-not-found STHROW
+</def>
+
+<def name="CACHE-DL" ds=" func-a func-u  lib-a lib-u  addr -- ">
+  >R DLOPEN-SURE DLSYM-SURE R> !
+</def>
+
+<comment> see also: ~ac/lib/ns/ns.f
+                    ~ac/lib/ns/so-xt.f
+</comment>
+
+<rem>
+  EXEC-FOREIGN-C ( i*x i j entry-point -- j*x  )
+  EXEC-FOREIGN-P ( i*x i j entry-point -- j*x  )
+
+  EXEC-FOREIGN-C1 ( i*x i entry-point -- x  )
+  EXEC-FOREIGN-P1 ( i*x i entry-point -- x  )
+</rem>
+
+<def name="EXEC-FOREIGN-C1" ds=" i*x  n-in  entry-point  -- x ">
+  SWAP DUP 2+ CELLS DRMOVE R> 0 R> EXECUTE <!-- ( n-in x ) -->
+  SWAP RFREE
+</def>
+
+<def name="CALL-FOREIGN-C1" ds=" i*x  n-in d-func d-lib  -- x ">
+  DLOPEN-SURE DLSYM-SURE EXEC-FOREIGN-C1
+</def>
+
+
+<def name="EXEC-FOREIGN-P1" ds=" i*x  n-in  entry-point  -- x ">
+  SWAP 1+ CELLS DRMOVE 0 R> EXECUTE <!-- ( x ) -->
+</def>
+
+<def name="CALL-FOREIGN-P1" ds=" i*x  n-in d-func d-lib  -- x ">
+  DLOPEN-SURE DLSYM-SURE EXEC-FOREIGN-P1
+</def>
+
+
+<g xmlns:r="http://forth.org.ru/ForthML/Rules/">
+
+<def name="EXEC-FOREIGN-C1," ds=" n-in ptr -- "><rem> ptr @ is entry-point </rem>
+  >R 
+  DUP 0 EQ <if> DROP <r:postpone>          0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
+  DUP 1 EQ <if> DROP <r:postpone> >R       0 <lit> R> </lit> @ EXECUTE RDROP </r:postpone><exit/></if>
+  DUP 2 EQ <if> DROP <r:postpone> >R >R    0 <lit> R> </lit> @ EXECUTE RDROP RDROP </r:postpone><exit/></if>
+  DUP 3 EQ <if> DROP <r:postpone> >R >R >R 0 <lit> R> </lit> @ EXECUTE RDROP RDROP RDROP </r:postpone><exit/></if>
+  <r:postpone><lit/><lit> R> </lit> @ EXEC-FOREIGN-C1 </r:postpone>
+</def>
+
+<def name="EXEC-FOREIGN-P1," ds=" n-in ptr -- ">
+  >R
+  DUP 0 EQ <if> DROP <r:postpone>          0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
+  DUP 1 EQ <if> DROP <r:postpone> >R       0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
+  DUP 2 EQ <if> DROP <r:postpone> >R >R    0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
+  DUP 3 EQ <if> DROP <r:postpone> >R >R >R 0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
+  <r:postpone><lit/><lit> R> </lit> @ EXEC-FOREIGN-P1 </r:postpone>
+</def>
+
+</g>
+
+
+</forth>
