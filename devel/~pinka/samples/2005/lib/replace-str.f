@@ -1,9 +1,9 @@
 \ Dec.2004
 \ $Id$
 
-REQUIRE STR@ ~ac/lib/str2.f
+REQUIRE STR@ ~ac/lib/str5.f
 
-REQUIRE SPLIT- ~pinka\samples\2005\lib\split.f
+REQUIRE SPLIT- ~pinka/samples/2005/lib/split.f
 
 : replace-str- ( s s-old s-new -- )
   \ заменить  s-old на s-new в строке s
