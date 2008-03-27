@@ -54,19 +54,19 @@
 
 <def name="EXEC-FOREIGN-C1," ds=" n-in ptr -- "><rem> ptr @ is entry-point </rem>
   >R 
-  DUP 0 EQ <if> DROP <r:postpone>          0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
-  DUP 1 EQ <if> DROP <r:postpone> >R       0 <lit> R> </lit> @ EXECUTE RDROP </r:postpone><exit/></if>
-  DUP 2 EQ <if> DROP <r:postpone> >R >R    0 <lit> R> </lit> @ EXECUTE RDROP RDROP </r:postpone><exit/></if>
-  DUP 3 EQ <if> DROP <r:postpone> >R >R >R 0 <lit> R> </lit> @ EXECUTE RDROP RDROP RDROP </r:postpone><exit/></if>
+  DUP 0 EQ <if> DROP <r:postpone>            0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
+  DUP 1 EQ <if> DROP <r:postpone> >R         0 <lit> R> </lit> @ EXECUTE RDROP </r:postpone><exit/></if>
+  DUP 2 EQ <if> DROP <r:postpone> SWAP >R >R 0 <lit> R> </lit> @ EXECUTE RDROP RDROP </r:postpone><exit/></if>
+  DUP 3 EQ <if> DROP <r:postpone> ROT >R 2>R 0 <lit> R> </lit> @ EXECUTE RDROP RDROP RDROP </r:postpone><exit/></if>
   <r:postpone><lit/><lit> R> </lit> @ EXEC-FOREIGN-C1 </r:postpone>
 </def>
 
 <def name="EXEC-FOREIGN-P1," ds=" n-in ptr -- ">
   >R
-  DUP 0 EQ <if> DROP <r:postpone>          0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
-  DUP 1 EQ <if> DROP <r:postpone> >R       0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
-  DUP 2 EQ <if> DROP <r:postpone> >R >R    0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
-  DUP 3 EQ <if> DROP <r:postpone> >R >R >R 0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
+  DUP 0 EQ <if> DROP <r:postpone>            0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
+  DUP 1 EQ <if> DROP <r:postpone> >R         0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
+  DUP 2 EQ <if> DROP <r:postpone> SWAP >R >R 0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
+  DUP 3 EQ <if> DROP <r:postpone> ROT >R 2>R 0 <lit> R> </lit> @ EXECUTE </r:postpone><exit/></if>
   <r:postpone><lit/><lit> R> </lit> @ EXEC-FOREIGN-P1 </r:postpone>
 </def>
 
