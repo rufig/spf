@@ -10,8 +10,13 @@ REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
 WARNING !
 
-ALSO SO NEW: sqlite3.dll
-ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
+REQUIRE [IF]          lib/include/tools.f
+
+[DEFINED] WINAPI: [IF]
+  ALSO SO NEW: sqlite3.dll
+[ELSE]
+  ALSO SO NEW: /usr/lib/libsqlite3.so
+[THEN]
 
   0 CONSTANT SQLITE_STATIC
   5 CONSTANT SQLITE_BUSY
@@ -59,8 +64,6 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
 )
 
 : db3_error? { ior addr u sqh -- }
-  ior -1 = IF EXIT THEN \ 27.03.2008
-
   ior IF DB3_DEBUG @ IF CR addr u TYPE ."  failed: " ior . THEN
          sqh 1 sqlite3_errmsg ASCIIZ> DB3_DEBUG @ IF 2DUP TYPE CR THEN
          " {s}" STR@ ER-U ! ER-A !
@@ -68,6 +71,12 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
          THROW
       THEN
 \  ior THROW ( ior почти всегда 1 в случае ошибки)
+;
+: db3_version ( -- n )
+  0 sqlite3_libversion_number
+;
+: db3_version_str ( -- addr u )
+  0 sqlite3_libversion ASCIIZ>
 ;
 : db3_open { addr u \ sqh -- sqh }
   ^ sqh addr 2 sqlite3_open S" DB3_OPEN" sqh db3_error? sqh
@@ -113,9 +122,6 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
   ['] sqlite3_prepare1 CATCH
   ?DUP IF NIP NIP NIP NIP NIP NIP THEN \ добавим аппаратные exceptions в коды возврата
 ;
-: db3_err_fix ( ior1 -- ior2 )
-  DUP -1 = IF DROP 0 THEN \ 27.03.08: похоже, на sf.net SQLITE_OK=-1 ?
-;
 : db3_prepare { addr u sqh \ pzTail ppStmt -- pzTail ppStmt }
   DB3_DEBUG @ IF CR ." DB3_PREP====================" sqh . CR addr u TYPE CR THEN
 
@@ -125,8 +131,6 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
     DB3_DEBUG @ IF ." DB3_PREP_WAIT" ppStmt . THEN
     DROP 1000 PAUSE
   REPEAT
-
-  db3_err_fix
 
   S" DB3_PREPARE" sqh db3_error?
   pzTail ppStmt
@@ -147,9 +151,9 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
   LOOP
 ;
 : db3_fin ( ppStmt -- )
-  DUP 1 sqlite3_reset db3_err_fix THROW
-  DUP 1 sqlite3_clear_bindings db3_err_fix THROW
-      1 sqlite3_finalize db3_err_fix THROW
+  DUP 1 sqlite3_reset THROW
+  DUP 1 sqlite3_clear_bindings THROW
+      1 sqlite3_finalize THROW
   DB3_STMT_CNT @ 1- DB3_STMT_CNT !
 ;
 : db3_exec { addr u par xt sqh \ pzTail ppStmt i -- }
@@ -171,9 +175,6 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
           DB3_DEBUG @ IF CR ." DB3_STEP_WAIT(" sqh . ppStmt . addr u TYPE ." )" CR THEN
           DROP 1000 PAUSE
         REPEAT
-
-        DB3_DEBUG @ IF ." DB3_STEP_RESULT1=" DUP . THEN
-        db3_err_fix
 
         DUP 1 SQLITE_ROW WITHIN 
         IF ppStmt ['] db3_fin CATCH ?DUP IF NIP NIP DB3_DEBUG @ IF ." DB3_FIN_failed" DUP . THEN THEN 
@@ -210,9 +211,6 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
     DB3_DEBUG @ IF ." DB3_CDR_WAIT" ppStmt . THEN
     DROP 1000 PAUSE
   REPEAT
-
-  DB3_DEBUG @ IF ." DB3_STEP_RESULT=" DUP . THEN
-  db3_err_fix
 
   DUP 1 SQLITE_ROW WITHIN ABORT" DB3_STEP error"
 
@@ -288,7 +286,7 @@ USER _db3_gets
 : db3_enable_extensions ( sqh -- )
   TRUE SWAP 2 sqlite3_enable_load_extension DROP
 ;
-PREVIOUS PREVIOUS
+PREVIOUS
 
 : '>` ( addr u -- )
   0 ?DO DUP C@ [CHAR] ' = IF [CHAR] ` OVER C! THEN 1+ LOOP DROP
