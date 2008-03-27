@@ -116,7 +116,8 @@ REQUIRE [IF]          lib/include/tools.f
   2 sqlite3_column_type
 ;
 : sqlite3_prepare1
-  db3_version 3005000 < IF sqlite3_prepare ELSE sqlite3_prepare_v2 THEN
+\  db3_version 3005000 < IF sqlite3_prepare ELSE sqlite3_prepare_v2 THEN
+  sqlite3_prepare_v2
 ;
 : sqlite3_prepare2
   ['] sqlite3_prepare1 CATCH
