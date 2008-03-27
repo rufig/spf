@@ -172,6 +172,7 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
           DROP 1000 PAUSE
         REPEAT
 
+        DB3_DEBUG @ IF ." DB3_STEP_RESULT1=" DUP . THEN
         db3_err_fix
 
         DUP 1 SQLITE_ROW WITHIN 
@@ -210,6 +211,7 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
     DROP 1000 PAUSE
   REPEAT
 
+  DB3_DEBUG @ IF ." DB3_STEP_RESULT=" DUP . THEN
   db3_err_fix
 
   DUP 1 SQLITE_ROW WITHIN ABORT" DB3_STEP error"
