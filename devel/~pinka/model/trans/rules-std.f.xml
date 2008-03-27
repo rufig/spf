@@ -18,8 +18,18 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   </m>
 </rule>
 
+<rule match="f:defer-lit"><m>
+  <direct>DEFER-LIT, <yield/></direct>
+  </m>
+</rule>
+
 <rule match="f:ahead"><m>
   <direct>BFW,</direct><yield/><direct>RFW</direct>
+  </m>
+</rule>
+
+<rule match="r:ahead"><m>
+  <direct>BFW, <yield/> RFW</direct>
   </m>
 </rule>
 
