@@ -15,7 +15,7 @@ REQUIRE [IF]          lib/include/tools.f
 [DEFINED] WINAPI: [IF]
   ALSO SO NEW: sqlite3.dll
 [ELSE]
-  ALSO SO NEW: /usr/lib/libsqlite3.so
+  ALSO SO NEW: /usr/lib/libsqlite3.so.0
 [THEN]
 
   0 CONSTANT SQLITE_STATIC
