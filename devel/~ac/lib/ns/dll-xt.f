@@ -59,7 +59,7 @@ REQUIRE NEW: ~ac/lib/ns/ns.f
   DUP >R 6 CELLS + ASCIIZ> R@ CELL+ CELL+ @
   [ ALSO DL ] SEARCH-WORDLIST [ PREVIOUS ]
 \  S" SEARCH-WORDLIST-I" INVOKE ( то же самое, но медленнее :)
-  0= IF ABORT THEN R> CELL+ !
+  0= IF -2010 THROW THEN R> CELL+ !
 ;
 : DLL-CALL ( на стеке возвратов адрес структуры импорта вызываемой функции )
   R@ CELL+ @

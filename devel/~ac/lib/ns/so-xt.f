@@ -22,7 +22,7 @@ REQUIRE NEW: ~ac/lib/ns/ns.f
 : SO-INIT ( addr -- ) \ = DLL-INIT
   DUP >R 6 CELLS + ASCIIZ> R@ CELL+ CELL+ @
   [ ALSO DL ] SEARCH-WORDLIST [ PREVIOUS ]
-  0= IF ABORT THEN R> CELL+ !
+  0= IF -2010 THROW THEN R> CELL+ !
 ;
 : SO-CALL ( на стеке возвратов адрес структуры импорта вызываемой функции )
   \ C-EXEC вместо API-CALL
