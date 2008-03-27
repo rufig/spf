@@ -59,6 +59,8 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
 )
 
 : db3_error? { ior addr u sqh -- }
+  ior -1 = IF EXIT THEN \ 27.03.2008
+
   ior IF DB3_DEBUG @ IF CR addr u TYPE ."  failed: " ior . THEN
          sqh 1 sqlite3_errmsg ASCIIZ> DB3_DEBUG @ IF 2DUP TYPE CR THEN
          " {s}" STR@ ER-U ! ER-A !
@@ -111,6 +113,9 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
   ['] sqlite3_prepare1 CATCH
   ?DUP IF NIP NIP NIP NIP NIP NIP THEN \ добавим аппаратные exceptions в коды возврата
 ;
+: db3_err_fix ( ior1 -- ior2 )
+  DUP -1 = IF DROP 0 THEN \ 27.03.08: похоже, на sf.net SQLITE_OK=-1 ?
+;
 : db3_prepare { addr u sqh \ pzTail ppStmt -- pzTail ppStmt }
   DB3_DEBUG @ IF CR ." DB3_PREP====================" sqh . CR addr u TYPE CR THEN
 
@@ -121,7 +126,7 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
     DROP 1000 PAUSE
   REPEAT
 
-  DUP -1 = IF DROP 0 THEN \ 27.03.08: похоже, на sf.net SQLITE_OK=-1 ?
+  db3_err_fix
 
   S" DB3_PREPARE" sqh db3_error?
   pzTail ppStmt
@@ -142,9 +147,9 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
   LOOP
 ;
 : db3_fin ( ppStmt -- )
-  DUP 1 sqlite3_reset THROW
-  DUP 1 sqlite3_clear_bindings THROW
-      1 sqlite3_finalize THROW
+  DUP 1 sqlite3_reset db3_err_fix THROW
+  DUP 1 sqlite3_clear_bindings db3_err_fix THROW
+      1 sqlite3_finalize db3_err_fix THROW
   DB3_STMT_CNT @ 1- DB3_STMT_CNT !
 ;
 : db3_exec { addr u par xt sqh \ pzTail ppStmt i -- }
@@ -166,6 +171,8 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
           DB3_DEBUG @ IF CR ." DB3_STEP_WAIT(" sqh . ppStmt . addr u TYPE ." )" CR THEN
           DROP 1000 PAUSE
         REPEAT
+
+        db3_err_fix
 
         DUP 1 SQLITE_ROW WITHIN 
         IF ppStmt ['] db3_fin CATCH ?DUP IF NIP NIP DB3_DEBUG @ IF ." DB3_FIN_failed" DUP . THEN THEN 
@@ -202,6 +209,8 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
     DB3_DEBUG @ IF ." DB3_CDR_WAIT" ppStmt . THEN
     DROP 1000 PAUSE
   REPEAT
+
+  db3_err_fix
 
   DUP 1 SQLITE_ROW WITHIN ABORT" DB3_STEP error"
 
