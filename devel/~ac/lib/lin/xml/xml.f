@@ -14,13 +14,10 @@ REQUIRE GET-FILE      ~ac/lib/lin/curl/curl.f
 REQUIRE 1-!           ~pinka/lib/ext/basics.f 
 WARNING !
 
-[DEFINED] WINAPI: [IF]
-  REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
-  ALSO SO NEW: libxml2.dll
-[ELSE]
-  REQUIRE UNICODE>UTF8  ~ac/lib/lin/iconv/iconv.f
-  ALSO SO NEW: /usr/lib/libxml2.so.2
-[THEN]
+REQUIRE UNICODE>UTF8  ~ac/lib/lin/iconv/iconv.f
+
+ALSO SO NEW: libxml2.dll
+ALSO SO NEW: /usr/lib/libxml2.so.2
 
 \ struct _xmlNode {
 0
@@ -405,4 +402,4 @@ XML-GLOBAL-INIT
 ; TEST
 )
 \ ALSO libxml2.dll DEFINITIONS : TEST ; \ должно вызвать 5 THROW
-PREVIOUS
+PREVIOUS PREVIOUS
