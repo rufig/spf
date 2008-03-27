@@ -121,6 +121,8 @@ ALSO SO NEW: /usr/lib/libsqlite3.so.0.8.6
     DROP 1000 PAUSE
   REPEAT
 
+  DUP -1 = IF DROP 0 THEN \ 27.03.08: похоже, на sf.net SQLITE_OK=-1 ?
+
   S" DB3_PREPARE" sqh db3_error?
   pzTail ppStmt
   DB3_DEBUG @ IF CR ." DB3_PREP_OK====================" sqh . CR THEN
