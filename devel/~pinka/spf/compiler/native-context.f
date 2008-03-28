@@ -7,6 +7,20 @@ REQUIRE Require   ~pinka/lib/ext/requ.f
 Require >CS control-stack.f \ управл€ющий стек
 
 
+: PARENT-NODE-FROM ( node1 node9 -- node2|0 ) \ node2-->node1
+  SWAP >R
+  BEGIN DUP WHILE \ ( node4 )
+  DUP CDR DUP R@ = IF ( node4 node3 ) DROP RDROP EXIT THEN
+  NIP REPEAT RDROP
+;
+: FIND-PARENT-NODE ( node1 node9 -- node2 true | node1 falst ) \ node2-->node1
+  OVER >R PARENT-NODE-FROM DUP IF RDROP TRUE EXIT THEN
+  DROP R> FALSE
+;
+: (CONCAT-WORDLIST) ( node1 node9 wid -- )
+  DUP @ >R ! NAME>L R> SWAP !
+;
+
 
 : PUSH-SCOPE ( wid -- )
   ALSO CONTEXT !
@@ -27,10 +41,17 @@ Require >CS control-stack.f \ управл€ющий стек
   POP-DEVELOP DROP
 ;
 : BEGIN-EXPORT ( -- )
-  GET-CURRENT CS@ SET-CURRENT >CS
+  GET-CURRENT @ >CS
 ;
 : END-EXPORT ( -- )
-  CS> SET-CURRENT
+  CS> GET-CURRENT 2DUP @ FIND-PARENT-NODE 0= IF DROP 2DROP EXIT THEN
+  ( node wid-current  pnode )
+  GET-CURRENT @ CS@ (CONCAT-WORDLIST)
+  ( node wid-current ) !
+  [DEFINED] QuickSWL-Support    [IF]
+    GET-CURRENT REFRESH-WLCACHE
+    CS@         REFRESH-WLCACHE
+  [THEN]
 ;
 
 
