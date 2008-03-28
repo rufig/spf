@@ -144,11 +144,7 @@ S" src\spf_con_io.f"                 INCLUDED
 \ Имя модуля.
 
 S" src/spf_print.f"                  INCLUDED
-TARGET-POSIX [IF]
-S" src/posix/module.f"         INCLUDED
-[ELSE]
-S" src\win\spf_win_module.f"         INCLUDED
-[THEN]
+S" src/spf_module.f"                 INCLUDED
 
 \ ==============================================================
 \ Парсер исходного текста форт-программ
