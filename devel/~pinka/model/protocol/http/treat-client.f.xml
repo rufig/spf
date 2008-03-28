@@ -39,6 +39,11 @@
   connection-close? 0EQ
 </def>
 
+<def name="log-error" ds=" code -- ">
+  DUP -2 EQ <if> DROP LAST-ERROR-MSG <logS>error -2</logS><exit/></if>
+  <logN>error, ior</logN>
+</def>
+
 <def name="treat-error" ds=" code -- ">
   <choose>
     DUP 10058 EQ <when>
@@ -51,7 +56,7 @@
      
   </choose>
   DUP <unless> DROP <exit/></unless>
-  DUP <logN>error, ior</logN>
+  DUP log-error
   <xt-of name="treat-error-lite"/> CATCH
   DUP <logN>result, ior</logN>
   ERROR <rem> if any </rem>
