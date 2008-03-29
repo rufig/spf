@@ -332,16 +332,16 @@ matrix.
 
 : RUN  1000 0 DO  I 5 MOD 0= IF CR THEN  GENRAND U. CR  LOOP ;
 
-WINAPI: GetTickCount KERNEL32.DLL
+REQUIRE ms@ lib/include/facil.f
 
 10000000 VALUE #N
 
 : TEST
-  GetTickCount DUP SGENRAND
+  ms@ DUP SGENRAND
   #N DUP 0 DO
    GENRAND DROP
   LOOP
-  SWAP GetTickCount - ABS / . ." pseudorandom numbers in 1 ms"
+  SWAP ms@ - ABS / . ." pseudorandom numbers in 1 ms"
 ;
 
 \ На Celeron 3.2 GHz - 5 000 000 псевдослучайных чисел в секунду

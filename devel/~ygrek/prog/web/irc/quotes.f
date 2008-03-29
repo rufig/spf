@@ -2,24 +2,21 @@
 
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE FileLines=> ~ygrek/lib/filelines.f
-REQUIRE lst( ~ygrek/lib/list/all.f
+REQUIRE scan-list ~ygrek/lib/list/all.f
 REQUIRE GENRAND ~ygrek/lib/neilbawd/mersenne.f
 REQUIRE UPPERCASE ~ac/lib/string/uppercase.f
-REQUIRE RE" ~ygrek/lib/re/re.f
+REQUIRE re_match? ~ygrek/lib/re/re.f
 REQUIRE ULIKE ~pinka/lib/like.f
 REQUIRE 2VALUE ~ygrek/lib/2value.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE ATTACH ~pinka/samples/2005/lib/append-file.f
+REQUIRE ms@ lib/include/facil.f
 
 ' ANSI>OEM TO ANSI><OEM
 
 MODULE: quotes
 
-[UNDEFINED] GetTickCount [IF]
-WINAPI: GetTickCount KERNEL32.DLL
-[THEN]
-
-GetTickCount SGENRAND
+ms@ SGENRAND
 
 () VALUE quotes
 

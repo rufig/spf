@@ -138,14 +138,14 @@ END-TESTCASES
 \EOF \ some speed comparison
 
 REQUIRE GENRAND ~ygrek/lib/neilbawd/mersenne.f
+REQUIRE ms@ lib/include/facil.f
 
-WINAPI: GetTickCount KERNEL32.DLL
-GetTickCount SGENRAND
+ms@ SGENRAND
 
 : measure 
-   GetTickCount >R
+   ms@ >R
    EXECUTE
-   GetTickCount R> - ;
+   ms@ R> - ;
 
 : RANDOM-FILL ( addr n -- ) 0 ?DO GENRAND OVER B! LOOP DROP ;
 
