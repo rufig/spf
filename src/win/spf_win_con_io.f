@@ -16,6 +16,8 @@
   H-STDOUT DUP 0 > IF WRITE-FILE THROW ELSE 2DROP DROP THEN
 ;
 
+' TYPE1 ' TYPE TC-VECT!
+
 : EKEY? ( -- flag ) \ 93 FACILITY EXT
 \ Если клавиатурное событие доступно, вернуть "истина". Иначе "ложь".
 \ Событие должно быть возвращено следующим выполнением EKEY.

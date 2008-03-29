@@ -5,13 +5,6 @@
   Ревизия - сентябрь 1999
 )
 
-TARGET-POSIX [IF]
-\ TODO KEY EKEY
-S" src/posix/con_io.f" INCLUDED
-[ELSE]
-S" src/win/spf_win_con_io.f" INCLUDED
-[THEN]
-
 32 VALUE BL ( -- char ) \ 94
 \ char - значение символа "пробел".
 
@@ -78,8 +71,6 @@ VECT ACCEPT
 
 VECT TYPE
 
-' TYPE1 ' TYPE TC-VECT!
-
 : EMIT ( x -- ) \ 94
 \ Если x - изображаемый символ, вывести его на дисплей.
 \ Программы, использующие управляющие символы, зависят от окружения.
@@ -91,4 +82,11 @@ VECT TYPE
 \ Перевод строки.
   EOLN TYPE
 ;
+
+TARGET-POSIX [IF]
+\ TODO KEY EKEY
+S" src/posix/con_io.f" INCLUDED
+[ELSE]
+S" src/win/spf_win_con_io.f" INCLUDED
+[THEN]
 
