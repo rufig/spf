@@ -125,7 +125,7 @@ USER _addr
 
   DUP >R 0= IF RDROP RDROP 0 0 0 EXIT THEN \ были в конце файла
 
-  _addr @ R@ LT LTL @ SEARCH
+  _addr @ R@ EOLN SEARCH
   IF   \ найден разделитель строк
      DROP _addr @ -
      DUP
@@ -175,7 +175,7 @@ USER _addr
 \ FILE-SIZE возвращает значение большее или равное значению,
 \ возвращаемому FILE-POSITION.
   DUP >R WRITE-FILE ?DUP IF RDROP EXIT THEN
-  LT LTL @ R> WRITE-FILE
+  EOLN R> WRITE-FILE
 ;
 
 : FLUSH-FILE ( fileid -- ior ) \ 94 FILE EXT

@@ -130,14 +130,12 @@ S" src/win/spf_win_except.f"         INCLUDED
 
 TARGET-POSIX [IF]
 S" src/posix/io.f"                   INCLUDED
-S" src/posix/con_io.f"               INCLUDED
-S" src/spf_con_io.f"                 INCLUDED
 [ELSE]
 S" src\win\spf_win_io.f"             INCLUDED
 S" src\win\spf_win_conv.f"           INCLUDED
-S" src\win\spf_win_con_io.f"         INCLUDED
-S" src\spf_con_io.f"                 INCLUDED
 [THEN]
+
+S" src/spf_con_io.f"                 INCLUDED
 
 \ ==============================================================
 \ Печать чисел
