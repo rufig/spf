@@ -5,23 +5,12 @@
   Ревизия - сентябрь 1999
 )
 
-32 VALUE BL ( -- char ) \ 94
-\ char - значение символа "пробел".
-
-: SPACE ( -- ) \ 94
-\ Вывести на экран один пробел.
-  BL EMIT
-;
-
-: SPACES ( n -- ) \ 94
-\ Если n>0 - вывести на дисплей n пробелов.
-  DUP 1 < IF DROP EXIT THEN
-  BEGIN
-    DUP
-  WHILE
-    BL EMIT 1-
-  REPEAT DROP
-;
+TARGET-POSIX [IF]
+\ TODO KEY EKEY
+S" src/posix/con_io.f" INCLUDED
+[ELSE]
+S" src/win/spf_win_con_io.f" INCLUDED
+[THEN]
 
 : ENDLOG
 \ Закончить лог.
@@ -71,6 +60,16 @@ VECT ACCEPT
 
 VECT TYPE
 
+: TYPE1 ( c-addr u -- ) \ 94
+\ Если u>0 - вывести строку символов, заданную c-addr и u.
+\ Программы, использующие управляющие символы, зависят от окружения.
+  ANSI><OEM
+  2DUP TO-LOG
+  H-STDOUT DUP 0 > IF WRITE-FILE THROW ELSE 2DROP DROP THEN
+;
+
+' TYPE1 ' TYPE TC-VECT!
+
 : EMIT ( x -- ) \ 94
 \ Если x - изображаемый символ, вывести его на дисплей.
 \ Программы, использующие управляющие символы, зависят от окружения.
@@ -83,10 +82,20 @@ VECT TYPE
   EOLN TYPE
 ;
 
-TARGET-POSIX [IF]
-\ TODO KEY EKEY
-S" src/posix/con_io.f" INCLUDED
-[ELSE]
-S" src/win/spf_win_con_io.f" INCLUDED
-[THEN]
+32 VALUE BL ( -- char ) \ 94
+\ char - значение символа "пробел".
 
+: SPACE ( -- ) \ 94
+\ Вывести на экран один пробел.
+  BL EMIT
+;
+
+: SPACES ( n -- ) \ 94
+\ Если n>0 - вывести на дисплей n пробелов.
+  DUP 1 < IF DROP EXIT THEN
+  BEGIN
+    DUP
+  WHILE
+    BL EMIT 1-
+  REPEAT DROP
+;
