@@ -1,6 +1,10 @@
 \ $Id$
 \ 
 \ Get current local date and time
+\
+\ TIME&DATE ( -- sec min hour day month year )
+\
+\ ms@ ( -- n ) \ the number of milliseconds since some fixed point in the past
 
 REQUIRE [IF] lib/include/tools.f
 
