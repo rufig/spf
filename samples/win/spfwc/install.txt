@@ -1,0 +1,6 @@
+Build:
+  run compile.bat
+
+Install:
+  copy spf4wc,exe and spf4wc.exe.manifest to the root SPF folder (so that it can
+  find needed libs at runtiem as usual)
