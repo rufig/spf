@@ -9,5 +9,7 @@ cd ..\..\..\devel\~yz\prog\fres
 ..\..\..\..\spf4.exe fres.f
 cd ..\..\..\..\samples\win\spfwc
 :fres_exe_done
+if exist spf4wc.fres goto fres_done
 ..\..\..\devel\~yz\prog\fres\fres.exe spf4wc.res
+:fres_done
 ..\..\..\spf4.exe spf4wc.f
