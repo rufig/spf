@@ -86,13 +86,13 @@ S" должно быть true = " TYPE  1 testa
 S" должно быть false = " TYPE 0 testa
 
 S" убывающий ряд от 10 до 0 = " TYPE 10
-BEGIN DUP . DUP WHILE 1 - REPEAT DROP CR
+ BEGIN DUP . DUP WHILE 1 - REPEAT DROP CR
 
 S" убывающий ряд от 10 до 1 = " TYPE 10
-BEGIN DUP . 1 - DUP 0= UNTIL DROP CR
+ BEGIN DUP . 1 - DUP 0= UNTIL DROP CR
 
 S" убывающий ряд от 9 до 6 = "  TYPE 10
-BEGIN 1 - DUP WHILE DUP 5 <> WHILE DUP . REPEAT THEN DROP CR
+ BEGIN 1 - DUP WHILE DUP 5 <> WHILE DUP . REPEAT THEN DROP CR
 
 S" убывающий ряд от 10 до 6 = " TYPE 10
-BEGIN DUP . 1 - DUP WHILE DUP 5 = UNTIL ELSE THEN DROP CR
+ BEGIN DUP . 1 - DUP WHILE DUP 5 = UNTIL ELSE THEN DROP CR

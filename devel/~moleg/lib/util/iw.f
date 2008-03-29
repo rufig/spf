@@ -3,10 +3,11 @@
 \ слова с инициализацией
 
  REQUIRE ADDR     devel\~moleg\lib\util\addr.f
+ REQUIRE B,       devel\~mOleg\lib\util\bytes.f
 
 \ по смещению получить адрес USER переменной.
 : >uaddr, ( user --> addr )
-          0x8D C, 0x04 C, 0x07 C, \ LEA EAX, [EDI] [EAX]
+          0x8D B, 0x04 B, 0x07 B, \ LEA EAX, [EDI] [EAX]
           ; IMMEDIATE
 
 \ создать слово, работающее следующим образом:
@@ -16,9 +17,9 @@
 : ivect ( ' init ' work / name --> )
         CREATE A, A, USER-HERE , 1 USER-ALLOT
         DOES>
-              DUP >R [ 2 CELLS ] LITERAL + @ >uaddr, C@
+              DUP >R [ 2 CELLS ] LITERAL + @ >uaddr, B@
                   IF ELSE R@ CELL + A@ EXECUTE
-                     TRUE R@ [ 2 CELLS ] LITERAL + @ >uaddr, C!
+                     TRUE R@ [ 2 CELLS ] LITERAL + @ >uaddr, B!
                   THEN
               R> A@ EXECUTE ;
 

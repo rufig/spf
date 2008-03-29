@@ -18,7 +18,7 @@ CREATE nStack 0 , nesting CELLS ALLOT
 : n-- ( --> )
       nStack DUP @
       IF 1-!
-       ELSE TRUE ABORT" n underflow!"
+       ELSE TRUE ABORT" nunderflow!"
       THEN ;
 
 : n++ ( --> )
@@ -78,8 +78,3 @@ test{ \ пока просто тест на подключаемость.
 
 особенность в том, что такие массивы могут быть вложенными, то есть
 внутри {} могут быть другие {}
-
-
-
-
-

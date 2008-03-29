@@ -42,6 +42,3 @@ test{
 
       S" passed" TYPE
 }test
-
-
-

@@ -56,7 +56,6 @@ testing: devel\~moleg\lib\strings\utf16.f                              passed
 testing: devel\~moleg\lib\strings\chars.f                              passed
 testing: devel\~moleg\lib\strings\iso.f                                passed
 testing: devel\~moleg\lib\strings\lstring.f                            passed
-testing: devel\~moleg\lib\strings\l1string.f                           passed
 testing: devel\~moleg\lib\struct\struct.f                              passed
 testing: devel\~moleg\lib\drafts\vars.f                                passed
 testing: devel\~moleg\lib\drafts\vars2.f                               passed

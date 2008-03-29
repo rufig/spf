@@ -77,8 +77,6 @@
 @st.exe .S" devel\~moleg\lib\strings\chars.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\strings\iso.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\strings\lstring.f"         TESTED CR BYE
-@st.exe .S" devel\~moleg\lib\strings\l1string.f"        TESTED CR BYE
-
 
 @st.exe .S" devel\~moleg\lib\struct\struct.f"           TESTED CR BYE
 

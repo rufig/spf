@@ -11,8 +11,8 @@
 
 \ начать описание выбора варианта
 : CASE ( n --> )
-        STATE @ IFNOT init: THEN 5 controls +!
-        !CSP COMPILE DUP ; IMMEDIATE
+       STATE @ IFNOT init: THEN 5 controls +!
+       !CSP COMPILE DUP ; IMMEDIATE
 
 \ в отличие от OF данный вариант не сам сравнивает число,
 \ а лишь получает флаг. Сравнение производится перед uOF
@@ -94,14 +94,3 @@ test{ 3 CASE  0 OF 123456 ENDOF
        5 < uOF ." четверг или пятница " ENDOF
                ." другой "
   ENDCASE
-
-
-
-
-
-
-
-
-
-
-

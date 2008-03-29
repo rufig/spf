@@ -119,6 +119,6 @@ test{ \ пока просто тест на подключаемость.
 : tst0 Message" message number one" ;
 : tst1 Warning" warning number two" ;
 : tst2 Error" error number three" ;
-: tst3 Error" message number one"
+: tst3 Error" message number one" ;
 
 \EOF ------------------------------------------------------------------------

@@ -6,9 +6,9 @@
  REQUIRE MUTEX:   devel\~moleg\lib\mtask\mutex.f
 
   0 \ описатель циклического буфера
-    CELL -- QueueBegin  \ адрес начала области, отведенной под очередь
-    CELL -- QueueFirst  \ адрес извлекаемого значения из очереди
-    CELL -- QueueLast   \ адрес для сохранения значения в очереди
+    ADDR -- QueueBegin  \ адрес начала области, отведенной под очередь
+    ADDR -- QueueFirst  \ адрес извлекаемого значения из очереди
+    ADDR -- QueueLast   \ адрес для сохранения значения в очереди
     CELL -- QueueAccess \ монополизация доступа к очереди
   CONSTANT /queue
 
@@ -47,8 +47,8 @@
         TUCK QueueLast A@ !
         DUP Shove
         DUP CheckQueue
-            IF DUP ResetQueue QueueAccess UnlockMutex -1 THROW
-        THEN QueueAccess UnlockMutex ;
+            IF DUP ResetQueue QueueAccess UnlockMutex -1 THROW THEN
+        QueueAccess UnlockMutex ;
 
 \ извлечь значение из указанной очереди
 \ исключение, если очередь пуста.

@@ -1,78 +1,102 @@
 раскраска исходных текстов в редакторе NDN (ndn.muxe.com)
 
 содержание следующих строк до конца файла добавить в начало ndn.hlg
-FILES *.f;*.4;*.spf;*.4th;
+FILES *.f;*.voc;*.spf;*.wrd;*.trg;
    GeneralFLAGS 31
    STRINGFLAGS 96
 
-   RegKeyWords Color lightgray \s\;CREATE\s+,\sCREATE\-FILE\s+,>RESOLVE\s+
-   RegKeyWords Color lightgray ERR-EXIT,SKIP1,THIS\s+,\&INTERPRET
+   RegKeywords Color lightmagenta (^|\s)+(ALSO|ONLY|only|PREVIOUS|DEFINITIONS)(?=\s|$)
+   RegKeywords Color lightmagenta (^|\s)+(GET-ORDER|SET-ORDER|GET-CURRENT|SET-CURRENT)(?=\s|$)
+   RegKeywords Color lightmagenta (^|\s)+(RECENT|SEAL|UNDER|WITH|THIS)(?=\s|$)
+   RegKeywords Color lightmagenta (^|\s)+(ROOT|FORTH|ASSEMBLER|NUMBERS|HEAP)(?=\s|$)
 
-   RegKeywords Color White \s\;SWITCH,\sSWITCH\:,\sRECURSE,\sNOW\s
-   RegKeywords Color White \sFOR\s,\sTILL,\sBEGIN\s,\sWHILENOT,\sWHILE
-   RegKeywords Color White \sIFNOT,\sIF\s,\sELSE,\sTHEN,\sSINCE
-   RegKeywords Color White \sREPEAT,\sUNTIL,\sDO\s,\sLOOP\s,\sNEXT\s
+; конструкции управления
+   RegKeywords Color White (^|\s)+(\;SWITCH|SWITCH\:)(?=\s|$)
+   RegKeywords Color White (^|\s)+(NOW|FOR|TILL|SINCE|NEXT)(?=\s|$)
+   RegKeywords Color White (^|\s)+(BEGIN|WHILENOT|WHILE|REPEAT|UNTIL)(?=\s|$)
+   RegKeywords Color White (^|\s)+(IFNOT|IF|ELSE|THEN)(?=\s|$)
+   RegKeywords Color White (^|\s)+(DO|LOOP|\?DO|\+LOOP)(?=\s|$)
+   RegKeywords Color White (^|\s)+(CASE|OF|uOF|ENDOF|ENDCASE)(?=\s|$)
+   RegKeywords Color White (^|\s)+RECURSE(?=\s|$)
 
-   RegKeyWords Color white/red ^\\EOF[\13-¤]*, ^\s*\\EOF[\13-¤]*
+   RegKeyWords Color white/red (^|\s)*\\EOF[\13-¤]*
    RegKeyWords Color yellow/blue \\\?[\13-¤]*
 
-   RegKeywords ColoR CYAN \\\s[\13-¤]*
-
-   RegKeywords Color green/lightgray \.\"\s[\s-!#-¤]*\"
-   RegKeywords Color green S\"\s[\s-!#-¤]*\"
+   RegKeywords ColoR CYAN (^|\s)*\\\s[\13-¤]*
+; строки
+   RegKeywords Color green/lightgray \.\"\s[\s-!#-¤]*\"(?=\s|$)
+   RegKeywords Color green (^|\s)S\"\s[\s-!#-¤]*\",s\"\s[\s-!#-¤]*\"
    RegKeyWords Color green cp\\\s+[!-¤]*,tc\\\s+[!-¤]*,vm\\\s+[!-¤]*,os\\\s+[!-¤]*
 
-   RegKeyWords Color lightgreen [0-9]*\.[0-9]*
-   RegKeyWords Color lightgreen \[CHAR\]\s+[!-¤]+,BL\s+,W\/O\s+,LITERAL\s+,t\'\s+[!-¤]+
-   RegKeyWords Color lightgreen R\/O\s+,S0\s+,R0\s+,CHAR\"\s+[!-¤]+,CFL\s+
-   RegKeyWords Color lightgreen COMPILE\s+[!-¤]+,\[COMPILE\]\s+[!-¤]+,\[\'\]\s+[!-¤]+
-   RegKeyWords Color lightgreen \.\\[!-¤]*,REQUIRE\s+[!-¤]*\s+[!-¤]*,C\/L\s+
-   RegKeyWords Color lightgreen CELL\s,ADDR\s,BYTE\s,CELLS\s
-   RegKeyWords Color lightgreen \s+0x[0-9A-F]*,\s+[0-9]+\s,\s+-[0-9]+\s
-   RegKeyWords Color lightgreen CHARS\s,char\s,\sTRUE,\sFALSE
-   RegKeyWords Color lightgreen off_[!-¤]+,\/[!-¤]+,comma\s+,imm_word\s*,\&[!-¤]+
-   RegKeyWords Color lightgreen to_[!-¤]+,NewLine\s*
+; числа:
+   RegKeyWords Color lightgreen [0-9]*\.[0-9]+,(\s|^)+-?[0-9]+(?=\s|$)
+   RegKeyWords Color lightgreen (\s|^)+0x[0-9A-F]+(?=\s|$)
 
-   RegKeywords Color LIGHTRED \sAR\x2B,R\x2B,\sAR>,\s>AR,\sAR\@,\sARDROP
-   RegKeywords Color LIGHTRED \sDR@,\s2R@,\sR@
-   RegKeywords Color LIGHTRED \sDR>,\s2R>,\sR>
-   RegKeywords Color LIGHTRED \sD>R,\s2>R,\s>R
-   RegKeywords Color LIGHTRED \sN>R,\sRDROP,\sNR>
-   RegKeywords Color LIGHTRED \sexecute,\'\s+,tEXECUTE\s+,tIMMEDIATE,\s+PERFORM
-   RegKeywords Color LIGHTRED \[[!-¤]*\]
-   RegKeyWords Color LIGHTRED  THROW,CATCH,EXECUTE,IMMEDIATE,unfeasible,SERROR,BYE
+; R/W R/O W/O
+   RegKeyWords Color lightgreen (\s|^)(R|W)/(O|W)(?=\s|$)
+; base constants
+   RegKeyWords Color lightgreen (\s|^)+(CELL|ADDR|BYTE|CELLS|CHARS|TRUE|FALSE)(?=\s|$)
+   RegKeyWords Color lightgreen (\s|^)+(off_[!-¤]+|\/[!-¤]+|to_[!-¤]+|\&[!-¤]+)(?=\s|$)
+   RegKeyWords Color lightgreen (\s|^)+(S0|R0|BL|comma|point|imm_word|std_word)(?=\s|$)
 
-   RegKeywords Color lightblue \s#S,\<\#,\#\>,\s#},\$S,HOLDS,HOLD,\sSIGN
-   RegKeywords Color lightblue BLANKS\s*,BLANK\s*,\{\#\s*,\<\|\s*,KEEPS\s*,KEEP\s*
-   RegKeywords Color lightblue \|\>\s+,\s#
+   RegKeyWords Color lightgreen \sLITERAL(?=\s|$),\s2LITERAL(?=\s|$),\sDLITERAL(?=\s|$)
+   RegKeyWords Color lightgreen (\s|^)+\[CHAR\]\s+[!-¤]+,t\'\s+[!-¤]+
+   RegKeyWords Color lightgreen CHAR\"\s+[!-¤]+,CFL\s+
+   RegKeyWords Color lightgreen COMPILE\s+[!-¤]+,\[COMPILE\]\s+[!-¤]+,\s\[\'\]\s+[!-¤]+(?=\s)
+   RegKeyWords Color lightgreen \s*\.\\[!-¤]+,REQUIRE\s+[!-¤]*\s+[!-¤]*,C\/L\s+
+   RegKeyWords Color lightgreen NewLine\s*
+   RegKeyWords Color lightgreen \sPOSTPONE\s+[!-¤]+,\s\[COMPILE\]\s+[!-¤]+
+; работа со стеком возвратов
+   RegKeywords Color LIGHTRED (^|\s)+(AR\x2B|R\x2B|AR>|>AR|AR\@|ARDROP)(?=\s|$)
+   RegKeywords Color LIGHTRED (^|\s)+(DR@|2R@|R@|DR>|2R>|R>)(?=\s|$)
+   RegKeywords Color LIGHTRED (^|\s)+(D>R|2>R|>R|N>R|NR>)(?=\s|$)
 
-   RegKeywords Color blue \(\s[\20-(*-¤]*.
+   RegKeywords Color LIGHTRED (^|\s)+(execute|tEXECUTE|PERFORM|CATCH|SP\!|RP\!)(?=\s|$)
+   RegKeyWords Color LIGHTRED (\s|^)+(THROW|UNLOOP|LEAVE|SERROR|BYE)(?=\s|$)
+   RegKeyWords Color LIGHTRED (\s|^)+(IMMEDIATE|tIMMEDIATE|EXECUTE|unfeasible)(?=\s|$)
 
-   RegKeyWords Color RED \?DEFINED[\13-¤]*,N\?DEFINED[\13-¤]*
+   RegKeywords Color LIGHTRED \s\'(?=\s),(\s+|^)\[[!-¤]*\](?=\s|$)
+   RegKeyWords Color LIGHTRED (\s+|^)ABORT\"\s+.+\"(?=\s|$)
 
-   RegKeyWords Color brown img\{\s+,std\{\s+,\}\s*,trg\{\s+,stc\{\s+,dtc\{\s+
-   RegKeyWords Color brown itc\{\s+,rep\{\s+,\{\s+[\x20-|~-¤]+.,windows\{\s+,linux\{\s+
+   RegKeyWords Color LIGHTRED (\s+|^)(DECIMAL|HEX|BASE)(?=\s|$)
 
-   RegKeywords Color yellow ^\s*:>\s[!-¤]*,\s*\;$,ALIAS\s+[!-¤]+\s+[!-¤]+,EXIT\s+
+; форматное приобразование чисел
+   RegKeywords Color lightblue (^|\s)+(HOLDS|HOLD|KEEPS|KEEP|BLANKS|BLANK|SIGN)(?=\s|$)
+   RegKeywords Color lightblue (^|\s)+(<#|#>|\{#|#\}|<\||\|>|#S|#|\$|\$S)(?=\s|$)
+
+   RegKeywords Color blue \(\s[\20-(*-¤]*\)(?=\s|$)
+
+   RegKeyWords Color RED/lightgray (\s+|^)(\?DEFINED|N\?DEFINED)[\13-¤]*$
+
+   RegKeyWords Color brown (\s|^)+[!-¤]*\{(?=\s|$),(\s|^)+\}[!-¤]*(?=\s|$)
+
+   RegKeywords Color yellow ^\s*[!-¤]*\:\s+[!-¤]+,^\s*\:NONAME(?=\s|$)
+   RegKeywords Color yellow (\s|^)+(EXIT|DOES\>|S\:)(?=\s|$)
+
+   RegKeywords Color yellow (\s|^)+\;[!-¤]*(?=\s|$)
+   RegKeywords Color yellow ^\s*:>\s[!-¤]*,ALIAS\s+[!-¤]+\s+[!-¤]+
    RegKeyWords Color yellow \-\-\s[!-¤]*
-   RegKeywords Color yellow VECT\s*[!-¤]*,VARIABLE\s*[!-¤]*,VALUE\s*[!-¤]*,USER\s[!-¤]*
-   RegKeywords Color yellow USER-VECT\s*[!-¤]*,USER-VALUE\s*[!-¤]*
-   RegKeywords Color yellow CONSTANT\s*[!-¤]*,VOCABULARY\s*[!-¤]*,USER-CREATE\s[!-¤]*
-   RegKeywords Color yellow \s*CREATE\s*[!-¤]*,\s*\[\s+,\s*\]\s+
-   RegKeywords Color yellow \s*;tc,^:\s+[!-¤]*,\s+:\s+[!-¤]*,S\:\s+,tc\:\s+[!-¤]+
-   RegKeywords Color yellow WINAPI\:\s+[!-¤]+\s+,CODE\s+[!-¤]+,END\-CODE
-   RegKeywords Color yellow \sDOES\>
+   RegKeywords Color yellow (^|\s+)(CREATE|VECT|VARIABLE|VOCABULARY)\s*[!-¤]*(?=\s|$)
+   RegKeywords Color yellow (^|\s+)(USER-VECT|USER-VALUE|USER|USER-CREATE)\s*[!-¤]*(?=\s|$)
+
+   RegKeywords Color yellow \s+(VALUE|CONSTANT)\s+[!-¤]*(?=\s|$)
+
+; слова с квадратными скобками
+   RegKeywords Color yellow (\s|^)+[!-¤]*\[(?=\s|$),(\s|^)+\][!-¤]*(?=\s|$)
+
+   RegKeywords Color yellow ^\s*WINAPI\:\s+[!-¤]+\s+,^\s*CODE\s+[!-¤]+,END\-CODE
+   RegKeywords Color yellow (\s+|^)path\:\s+[!-¤]+
 
    RegKeywords Color LIGHTCYAN TO\s+[!-¤]*,IS\s+[!-¤]*,FROM\s+[!-¤]*,AT\s+[!-¤]*
-   RegKeyWords Color lightcyan \([!-¤]+\)
+   RegKeyWords Color lightcyan (\s|^)+\([!-¤]+\)(?=\s|$)
 
   Macro 1
     GoToX 0
     InsLine
     Print '\ '
     InsertDate
-    Print ' ~you'^M
-    Print '\ Сopyright [C] 2008 you you@mail.com'^M
+    Print ' ~mOleg'^M
+    Print '\ Сopyright [C] 2008 mOleg mininoleg@yahoo.com'^M
     Print '\ ???'^M^M
   EndMacro
 

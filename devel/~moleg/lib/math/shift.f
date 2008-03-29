@@ -27,5 +27,3 @@ test{ 0x12345678 4 ROL 0x23456781 <> THROW
       0x70000001 3 SAL 0x80000008 <> THROW
   S" passed" TYPE
 }test
-
-
