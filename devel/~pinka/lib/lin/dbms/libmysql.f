@@ -1,7 +1,8 @@
 \ Mar.2008
-\ ­ ¤® Ўг¤Ґв г©вЁ ®в "WINAPI:"
+\ надо будет уйти от "WINAPI:"
 
 \ something from ~day/lib/mysql.f
+
 
 WINAPI: mysql_init          LIBMYSQL \ included in mySQL package
 WINAPI: mysql_real_connect  LIBMYSQL
@@ -19,7 +20,7 @@ WINAPI: mysql_fetch_lengths LIBMYSQL
 WINAPI: mysql_stat          LIBMYSQL           
 
 WINAPI: mysql_fetch_field_direct  LIBMYSQL
-WINAPI: mysql_next_result         LIBMYSQL
+WINAPI: mysql_next_result         LIBMYSQL \ 0 -- Successful and there are more results
 WINAPI: mysql_more_results        LIBMYSQL
 WINAPI: mysql_set_server_option   LIBMYSQL
 WINAPI: mysql_options             LIBMYSQL
@@ -42,7 +43,7 @@ WINAPI: mysql_options             LIBMYSQL
 : mysql_free_res ( res -- )
   DUP 0= IF DROP EXIT THEN
   mysql_free_result 1 = IF EXIT THEN
-  `#error(mysql_free_result) STHROW
+  ABORT" #error(mysql_free_result)"
 ;
 
 : mysql_get_value ( u-column row res -- addr u )
