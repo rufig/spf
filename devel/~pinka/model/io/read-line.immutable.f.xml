@@ -6,9 +6,9 @@
   clear enclose <!-- move to begin -->
   vacant DUP <while/> _readout? <while/> confirm
   </repeat> 2DROP
-  rest DUP <unless> NIP <exit/></unless>
+  rest DUP <unless> NIP <exit/></unless><!-- false, there is no data -->
   vacant NIP <unless> UNBROKEN </unless>
-  DUP elapse TRUE
+  DUP elapse TRUE  <!-- the line is more than a buffer -->
 </def>
 
 <def name="readout" ds=" addr u -- addr u2 ">
