@@ -1,0 +1,33 @@
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- $Id$ -->
+
+<def name="PIPELINE-XML-ESCAPING-" ds=" xt a u -- "><rem> transparent for data stack </rem>
+  <repeat>
+  <text>&amp;</text> SPLIT <while/> 2>R
+
+  <repeat>
+  <text>&lt;</text>  SPLIT <while/> 2>R
+  ROT DUP >R EXECUTE 
+  `&amp;lt;
+          R@ EXECUTE  R>            2R>
+  </repeat>
+
+  ROT DUP >R EXECUTE 
+  `&amp;amp;
+          R@ EXECUTE  R>            2R>
+  </repeat>
+  <repeat>
+
+  <text>&lt;</text>  SPLIT <while/> 2>R
+  ROT DUP >R EXECUTE 
+  `&amp;lt;
+          R@ EXECUTE  R>            2R>
+  </repeat>
+  ROT EXECUTE
+</def>
+
+<def name="PIPELINE-XML-ESCAPING" ds=" a u xt -- "><rem> xt ( addr1 u1 -- ) </rem>
+  -ROT PIPELINE-XML-ESCAPING-
+</def>
+
+</forth>
