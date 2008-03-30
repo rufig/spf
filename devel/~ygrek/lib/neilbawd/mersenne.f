@@ -344,4 +344,4 @@ REQUIRE ms@ lib/include/facil.f
   SWAP ms@ - ABS / . ." pseudorandom numbers in 1 ms"
 ;
 
-\ На Celeron 3.2 GHz - 5 000 000 псевдослучайных чисел в секунду
+\ Celeron 3.2 GHz - 5 000 000 numbers/second
