@@ -65,5 +65,12 @@
 </def>
 </also>
 
+<def name="clear" ds=" -- ">
+  _cnt @ 1 UGT <if> free-last-block <again/></if>
+  block-w::clear
+</def>
+
+
 </export></wordlist>
+
 </forth>
