@@ -21,6 +21,6 @@ REQUIRE [UNDEFINED] lib\include\tools.f
 : HEAD|TAIL ( a u -- a /char a2 u2 )
   2DUP HEAD 2SWAP TAIL
 ;
-: TAIL|HEAD ( a u -- a2 u2 a /char )
+: HEAD|TAIL- ( a u -- a2 u2 a /char )
   2DUP TAIL 2SWAP HEAD
 ;

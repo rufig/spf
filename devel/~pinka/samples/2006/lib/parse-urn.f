@@ -1,12 +1,12 @@
 \ 20.Feb.2006 ruvim@forth.org.ru
 
 REQUIRE /STRING   lib\include\string.f
-REQUIRE TAIL|HEAD ~pinka\samples\2006\lib\head-tail.f
+REQUIRE HEAD|TAIL ~pinka\samples\2006\lib\head-tail.f
 REQUIRE SPLIT-    ~pinka\samples\2005\lib\split.f
 REQUIRE HASH!     ~pinka\lib\hash-table.f
 
 : DECODE-URN-CHAR ( a u -- a2 u2 c ) \ u > 0
-  TAIL|HEAD DROP C@
+  HEAD|TAIL- DROP C@
   DUP [CHAR] + =  IF DROP BL EXIT THEN
   DUP [CHAR] % <> IF EXIT THEN
   DROP ( a1 u1 )
