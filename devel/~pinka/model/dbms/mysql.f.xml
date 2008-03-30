@@ -68,6 +68,10 @@
   res mysql_get_value
 </def>
  
+<def name="query-first-value" ds=" d-query -- d-value | 0 0 ">
+  query get-first-value
+</def>
+
 
 <wordlist name="buf">
   <include href="http://forth.org.ru/~pinka/model/io/stream-mem.L1.f.xml"/>
@@ -109,9 +113,12 @@
   buf::write
 </def>
 
-<def name="with-resultX-chunks" ds=" xt -- ">
+<def name="for-resultX-chunks" ds=" xt -- ">
   >R <repeat> buf::next-chunk DUP <while/> R@ EXECUTE </repeat> RDROP 2DROP
 </def>
 
+<def name="pipeline-resultset" ds=" d-query xt -- ">
+  >R query store-resultX R> with-resultX-chunks 
+</def>
 
 </forth>
