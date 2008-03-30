@@ -3,6 +3,9 @@
 : LAST-ERROR-MSG ( -- a u )
   ER-A @ ER-U @
 ;
+: LAST-ERROR-MSG! ( a u -- )
+  ER-U ! ER-A !
+;
 
 : STHROW ( addr u -- )  ER-U ! ER-A ! -2 THROW ;
 
