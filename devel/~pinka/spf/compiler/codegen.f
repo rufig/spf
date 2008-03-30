@@ -15,13 +15,16 @@ S" ALLOT" GET-CURRENT SEARCH-WORDLIST [IF] DROP [ELSE]
 
 [THEN]
 
+: CALL, ( entry-point -- )
+  COMPILE,
+;
 
 : DEFER-LIT, ( -- addr )
   -1 LIT,  \  т.к. для 0  оптимизатор сделает  XOR  EAX, EAX
   HERE 3 - CELL-
 ;
 : EXEC, ( xt -- )
-  GET-COMPILER? IF EXECUTE EXIT THEN COMPILE,
+  GET-COMPILER? IF EXECUTE EXIT THEN CALL,
 ;
 : EXIT, ( -- )
   RET,
