@@ -26,6 +26,9 @@ S" ALLOT" GET-CURRENT SEARCH-WORDLIST [IF] DROP [ELSE]
 : EXEC, ( xt -- )
   GET-COMPILER? IF EXECUTE EXIT THEN CALL,
 ;
+\ Был выбор между парами имен "EXEC,", <exec/> и  "CALL," <call/>
+\ Возможно, стоит мигрировать на второй вариант.
+
 : EXIT, ( -- )
   RET,
 ;
@@ -34,6 +37,17 @@ S" ALLOT" GET-CURRENT SEARCH-WORDLIST [IF] DROP [ELSE]
   SWAP LIT, LIT,
 ;
 
+
+\ В spf4 отложенное выражение "POSTPONE EXECUTE"
+\ работает по разному в режиме исполнения и в режиме компиляции.
+\ Следующее слово работает однозначно:
+
+: EXECUTE, ( -- )
+  ['] EXECUTE EXEC,
+;
+
+\ Еще встречается "@EXECUTE" и "PERFORM" с семантикой "@ EXECUTE"
+\ По идее, такой случай оптимизатор сам может обработать.
 
 
 USER GERM-A
