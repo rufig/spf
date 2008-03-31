@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
+<wordlist name="mysql-hidden">
+
 <text>
   charset database user pass  hostname port host
 
 </text><each-word> create-slot2 </each-word>
 <text>
-  nport conn errno res
+  nport conn errno res row col
 
 </text><each-word> create-slot </each-word>
 
-<def name="get-err" ds=" -- ior ">
-  conn mysql_errno DUP errno! <unless> 0 <exit/></unless>
-  conn mysql_error ASCIIZ> LAST-ERROR-MSG! -2
+<def name="treat-err" ds=" -- ">
+  conn mysql_errno DUP errno! <unless><exit/></unless>
+  conn mysql_error ASCIIZ> STHROW
 </def>
 
 <def name="set-conn-options" ds=" -- ">
   charset DUP <unless> 2DROP `utf8 </unless>
-  DROP  MYSQL_SET_CHARSET_NAME  conn  mysql_options <unless> get-err THROW </unless>
+  DROP  MYSQL_SET_CHARSET_NAME  conn  mysql_options <unless> treat-err </unless>
 </def>
 
-<def name="(connect)" ds=" -- ior ">
+<include href="mysql.immutable.f.xml"/>
+
+<export>
+
+<def name="connect" ds=" -- ">
   conn <unless> mysql_new_conn conn! set-conn-options </unless>
   CLIENT_MULTI_STATEMENTS
   0 <rem> unix_socket </rem>
@@ -30,95 +36,54 @@
   user      DROP
   hostname  DROP
   conn
-  mysql_real_connect <if> 0 <exit/></if>
-  get-err
-</def>
-
-<def name="connect" ds=" -- ">
-  (connect) THROW
+  mysql_real_connect <if><exit/></if>
+  treat-err
 </def>
 
 <def name="close" ds=" -- ">
   conn <unless><exit/></unless>
+  free-res-all
   conn mysql_close DROP 0 conn!
 </def>
 
-<def name="free-res" ds=" -- ">
-  res mysql_free_res  0 res!
+
+<def name="assume-cred" ds=" d-db d-host d-user d-passw -- ">
+  pass! user! hostname! database!
 </def>
 
-<def name="store-res" ds=" -- ">
-  res <if> res mysql_free_res </if> conn mysql_store_result res!
+<def name="query-value" ds=" d-query -- d-value | 0 0 ">
+  query  next-result? <if> next-row? <if> next-col? <if> get-value <exit/></if></if></if>
+  0.
 </def>
 
-<def name="query" ds=" a u -- ">
-  conn <unless> `#mysql-no-conn STHROW </unless>
-  free-res
-  SWAP conn mysql_real_query <unless> get-err THROW </unless>
-  <until>
-    conn mysql_store_result ?DUP <if> free-res res! </if>
-    conn mysql_next_result <rem> 0 -- Successful and there are more results </rem>
-  </until>
+<def name="query-2value" ds=" d-query -- d-value1 d-value2 | 0 0  0 0 ">
+  query-value
+  res <if> row <if> next-col? <if> get-value <exit/></if></if></if>
+  0.
 </def>
 
-<def name="get-first-value" ds=" -- a u | 0 0 ">
-  res <unless> 0. <exit/></unless>
-  0 <rem> column </rem>
-  res mysql_fetch_row DUP <unless><exit/></unless>
-  res mysql_get_value
-</def>
- 
-<def name="query-first-value" ds=" d-query -- d-value | 0 0 ">
-  query get-first-value
-</def>
+</export>
+
+<include href="enum-response.f.xml"/>
 
 
 <wordlist name="buf">
   <include href="http://forth.org.ru/~pinka/model/io/stream-mem.L1.f.xml"/>
 </wordlist>
 
-<def name="(store-value)" ds=" addr u -- ">
-  buf::write <!-- need to escape: & < > -->
-</def>
-
-<def name="(store-field)" ds=" u-col row -- ">
-  <text>&lt;</text> buf::write
-  OVER res mysql_field_name 2DUP 2>R buf::write
-       res mysql_get_value
-  OVER <unless> 2DROP <text> xsi:nil="true"/&gt;</text> buf::write RDROP RDROP <exit/></unless>
-  <text>&gt;</text> buf::write (store-value)
-  <text>&lt;/</text> buf::write 2R> buf::write <text>&gt;</text> buf::write
-</def>
-
-<def name="(store-resultX)" ds=" -- ">
-  res <unless><exit/></unless>
-  <repeat>
-    res mysql_fetch_row  DUP <while/>
-    <text>&#xA;<![CDATA[<row>]]></text> buf::write
-    0 res mysql_num_fields <times ds=" row 0 -- row u-col ">
-      2DUP SWAP (store-field)
-      1+
-    </times> 2DROP
-    <text><![CDATA[</row>]]></text> buf::write
-  </repeat> DROP
-</def>
-
-<def name="store-resultX" ds=" -- ">
-  buf::clear
-<text><![CDATA[<?xml version="1.0"?>
-<resultset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">]]></text>
-  buf::write
-  (store-resultX)
-  <text>&#xA;<![CDATA[</resultset>]]></text>
+<def name="store-chunk" ds=" addr u -- ">
   buf::write
 </def>
 
-<def name="for-resultX-chunks" ds=" xt -- ">
-  >R <repeat> buf::next-chunk DUP <while/> R@ EXECUTE </repeat> RDROP 2DROP
+<include href="serialize-xml.f.xml"/>
+
+<export>
+
+<def name="pipeline-response" ds=" d-query xt -- ">
+  >R query store-response
+  <repeat> buf::next-chunk DUP <while/> R@ EXECUTE </repeat> RDROP 2DROP
 </def>
 
-<def name="pipeline-resultset" ds=" d-query xt -- ">
-  >R query store-resultX R> with-resultX-chunks 
-</def>
-
+</export>
+</wordlist>
 </forth>

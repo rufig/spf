@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem><bind-up> next-result? next-row? next-col? get-value get-name </bind-up></rem>
+
+<def name="enum-results" ds=" xt -- ">
+  >R <repeat> next-result? <while/> R@ EXECUTE </repeat> RDROP
+</def>
+<def name="enum-cols" ds=" xt -- "><rem> xt ( d-value d-name -- ) </rem>
+  >R <repeat> next-col? <while/> get-value get-name  R@ EXECUTE </repeat> RDROP
+</def>
+<def name="enum-rows" ds=" xt -- ">
+  >R <repeat> next-row? <while/> R@ EXECUTE </repeat> RDROP
+</def>
+
+</forth>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem><bind-up> conn res row col </bind-up></rem>
+
+<def name="free-res" ds=" -- ">
+  res mysql_free_res  0 res!
+</def>
+<def name="store-res" ds=" -- ">
+  res <if> res mysql_free_res </if> conn mysql_store_result res!
+</def>
+<def name="next-res" ds=" -- ">
+  res <unless> store-res <exit/></unless>
+  free-res <repeat>
+  conn mysql_next_result 0EQ  <while/>
+  conn mysql_store_result DUP <if> res! <exit/></if> DROP
+  </repeat>
+</def>
+<def name="free-res-all" ds=" -- ">
+  free-res conn mysql_next_result 0EQ <if> store-res <again/></if>
+  0 row! 0 col!
+</def>
+<def name="query" ds=" a u -- ">
+  conn <unless> `#mysql-no-conn STHROW </unless>
+  free-res-all
+  SWAP conn mysql_real_query <unless> treat-err </unless>
+</def>
+
+<def name="next-result?" ds=" -- flag ">
+  next-res res   0 row!
+</def>
+<def name="next-row?" ds=" -- flag ">
+  res DUP <if> mysql_fetch_row </if> DUP row!  -1 col!
+</def>
+<def name="next-col?" ds=" -- flag ">
+  col 1+ DUP col! res mysql_num_fields ULT 
+</def>
+<def name="get-value" ds=" -- a u ">
+  col row res mysql_get_value 
+</def>
+<def name="get-name" ds=" -- a u ">
+  col res mysql_field_name 
+</def>
+
+</forth>

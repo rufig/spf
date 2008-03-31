@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem><bind-up> store-chunk enum-resutls enum-rows enum-cols get-value get-name</bind-up></rem>
+
+<def name="store-value" ds=" addr u -- ">
+  <xt-of name="store-chunk"/> PIPELINE-XML-ESCAPING
+</def>
+
+<def name="store-col" ds=" d-value d-name -- ">
+  <text>&lt;</text> store-chunk
+  2DUP 2>R store-chunk
+  OVER <unless> 2DROP <text> xsi:nil="true"/&gt;</text> store-chunk RDROP RDROP <exit/></unless>
+  <text>&gt;</text> store-chunk store-value
+  <text>&lt;/</text> store-chunk 2R> store-chunk <text>&gt;</text> store-chunk
+</def>
+
+<def name="store-row" ds=" -- ">
+  <text>&#xA;&lt;row></text> store-chunk
+  <xt-of name="store-col"/> enum-cols
+  <text>&lt;/row></text> store-chunk
+</def>
+
+<def name="store-result" ds=" -- ">
+  <text>&#xA;&lt;resultset></text> store-chunk
+  <xt-of name="store-row"/> enum-rows
+  <text>&#xA;&lt;/resultset></text> store-chunk
+</def>
+
+<def name="store-response" ds=" -- ">
+  <text><![CDATA[<?xml version="1.0"?>
+<response xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">]]></text> store-chunk
+  <xt-of name="store-result"/> enum-results
+  <text><![CDATA[</response>]]></text> store-chunk
+</def>
+
+</forth>
