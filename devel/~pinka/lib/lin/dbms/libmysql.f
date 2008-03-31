@@ -24,6 +24,16 @@ WINAPI: mysql_more_results        libmySQL
 WINAPI: mysql_set_server_option   libmySQL
 WINAPI: mysql_options             libmySQL
 WINAPI: mysql_real_escape_string  libmySQL
+WINAPI: mysql_thread_safe         libmySQL \  1 if the client library is thread-safe,
+                                            \ 0 otherwise.
+WINAPI: mysql_thread_end          libmySQL \ -- void
+\ -- is not invoked automatically by the client library.
+\ It must be called explicitly to avoid a memory leak. 
+
+WINAPI: mysql_thread_init         libmySQL \ Zero if successful.
+\ This function must be called early within each created thread 
+\ to initialize thread-specific variables.
+
 
 7 CONSTANT MYSQL_SET_CHARSET_NAME
 0 CONSTANT MYSQL_OPTION_MULTI_STATEMENTS_ON
@@ -37,9 +47,15 @@ WINAPI: mysql_real_escape_string  libmySQL
 131072 CONSTANT CLIENT_MULTI_RESULTS    \ Enable/disable multi-results
                                          \ This is automatically set if CLIENT_MULTI_STATEMENTS is set.
 
+
+
 : mysql_new_conn ( -- h )
-  0 mysql_init DUP IF EXIT THEN 
-  8 THROW 
+  0 mysql_init DUP IF EXIT THEN
+  \ it calls mysql_library_init() wich is not thread-safe and must be synchronized.
+  \ Also mysql_thread_init() is automatically called by my_init(), 
+  \ which itself is automatically called by mysql_init()
+
+  8 THROW
 ;
 
 : mysql_free_res ( res -- )
