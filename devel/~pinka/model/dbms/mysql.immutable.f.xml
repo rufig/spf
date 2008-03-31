@@ -24,7 +24,9 @@
 <def name="query" ds=" a u -- ">
   conn <unless> `#mysql-no-conn STHROW </unless>
   free-res-all
-  SWAP conn mysql_real_query <unless> treat-err </unless>
+  SWAP conn mysql_real_query 0EQ <if><exit/></if>
+  <rem> Zero if the statement was successful </rem>
+  treat-err
 </def>
 
 <def name="next-result?" ds=" -- flag ">
