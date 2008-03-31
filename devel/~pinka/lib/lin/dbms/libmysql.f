@@ -3,33 +3,35 @@
 
 \ something from ~day/lib/mysql.f
 
+WINAPI: mysql_init                libmySQL
+WINAPI: mysql_real_connect        libmySQL
+WINAPI: mysql_close               libmySQL
+WINAPI: mysql_errno               libmySQL
+WINAPI: mysql_error               libmySQL
+WINAPI: mysql_real_query          libmySQL
+WINAPI: mysql_select_db           libmySQL
+WINAPI: mysql_store_result        libmySQL
+WINAPI: mysql_free_result         libmySQL
+WINAPI: mysql_num_rows            libmySQL
+WINAPI: mysql_num_fields          libmySQL
+WINAPI: mysql_fetch_row           libmySQL
+WINAPI: mysql_fetch_lengths       libmySQL
+WINAPI: mysql_stat                libmySQL           
 
-WINAPI: mysql_init          LIBMYSQL \ included in mySQL package
-WINAPI: mysql_real_connect  LIBMYSQL
-WINAPI: mysql_close         LIBMYSQL
-WINAPI: mysql_errno         LIBMYSQL
-WINAPI: mysql_error         LIBMYSQL
-WINAPI: mysql_real_query    LIBMYSQL
-WINAPI: mysql_select_db     LIBMYSQL
-WINAPI: mysql_store_result  LIBMYSQL
-WINAPI: mysql_free_result   LIBMYSQL
-WINAPI: mysql_num_rows      LIBMYSQL
-WINAPI: mysql_num_fields    LIBMYSQL
-WINAPI: mysql_fetch_row     LIBMYSQL
-WINAPI: mysql_fetch_lengths LIBMYSQL
-WINAPI: mysql_stat          LIBMYSQL           
-
-WINAPI: mysql_fetch_field_direct  LIBMYSQL
-WINAPI: mysql_next_result         LIBMYSQL \ 0 -- Successful and there are more results
-WINAPI: mysql_more_results        LIBMYSQL
-WINAPI: mysql_set_server_option   LIBMYSQL
-WINAPI: mysql_options             LIBMYSQL
-
-\ http://www.google.com/codesearch?hl=en&q=+MYSQL_SET_CHARSET_NAME+MYSQL_OPT_CONNECT_TIMEOUT+show:LXdgaP_KS48:OAUvlXKKbcI:NGWZpAIjpNM&sa=N&cd=1&ct=rc&cs_p=http://fjf.gnu.de/crystal/crystal.tar.bz2&cs_f=crystal-0.999/mysql.pas#l260
+WINAPI: mysql_fetch_field_direct  libmySQL
+WINAPI: mysql_next_result         libmySQL \ 0 -- Successful and there are more results
+WINAPI: mysql_more_results        libmySQL
+WINAPI: mysql_set_server_option   libmySQL
+WINAPI: mysql_options             libmySQL
+WINAPI: mysql_real_escape_string  libmySQL
 
 7 CONSTANT MYSQL_SET_CHARSET_NAME
 0 CONSTANT MYSQL_OPTION_MULTI_STATEMENTS_ON
 1 CONSTANT MYSQL_OPTION_MULTI_STATEMENTS_OFF
+
+20    CONSTANT MYSQL_OPT_RECONNECT \ include/mysql_h.ic
+\ Note: mysql_real_connect()  incorrectly reset the MYSQL_OPT_RECONNECT option
+\ to its default value before MySQL 5.1.6. 
 
 65536  CONSTANT CLIENT_MULTI_STATEMENTS \ Enable/disable multi-stmt support
 131072 CONSTANT CLIENT_MULTI_RESULTS    \ Enable/disable multi-results

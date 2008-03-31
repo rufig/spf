@@ -12,22 +12,7 @@
 
 </text><each-word> create-slot </each-word>
 
-<def name="treat-err" ds=" -- ">
-  conn mysql_errno DUP errno! <unless><exit/></unless>
-  conn mysql_error ASCIIZ> STHROW
-</def>
-
-<def name="set-conn-options" ds=" -- ">
-  charset DUP <unless> 2DROP `utf8 </unless>
-  DROP  MYSQL_SET_CHARSET_NAME  conn  mysql_options <unless> treat-err </unless>
-</def>
-
-<include href="mysql.immutable.f.xml"/>
-
-<export>
-
-<def name="connect" ds=" -- ">
-  conn <unless> mysql_new_conn conn! set-conn-options </unless>
+<def name="(connect)" ds=" -- ior ">
   CLIENT_MULTI_STATEMENTS
   0 <rem> unix_socket </rem>
   nport
@@ -36,7 +21,30 @@
   user      DROP
   hostname  DROP
   conn
-  mysql_real_connect <if><exit/></if>
+  mysql_real_connect
+</def>
+
+<def name="treat-err" ds=" -- ">
+  conn mysql_errno DUP errno! <unless><exit/></unless>
+  errno 2006 = <if><rem> MySQL server has gone away </rem> (connect) DROP `#mysql-gone-away STHROW </if>
+  conn mysql_error ASCIIZ> STHROW
+</def>
+
+<def name="set-conn-options" ds=" -- ">
+  charset DUP <unless> 2DROP `utf8 </unless>
+  DROP  MYSQL_SET_CHARSET_NAME  conn  mysql_options <unless> treat-err </unless>
+
+  1 SP@ MYSQL_OPT_RECONNECT conn  mysql_options <unless> treat-err </unless>
+  DROP  <!-- does't work -->
+</def>
+
+<include href="mysql.immutable.f.xml"/>
+
+<export>
+
+<def name="connect" ds=" -- ">
+  conn <unless> mysql_new_conn conn! set-conn-options </unless>
+  (connect) <if><exit/></if>
   treat-err
 </def>
 
