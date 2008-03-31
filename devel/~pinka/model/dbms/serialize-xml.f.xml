@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<rem><bind-up> store-chunk enum-resutls enum-rows enum-cols get-value get-name</bind-up></rem>
+<rem><bind-up> store-chunk enum-resutls enum-rows enum-cols </bind-up></rem>
 
 <def name="store-value" ds=" addr u -- ">
   <xt-of name="store-chunk"/> PIPELINE-XML-ESCAPING
