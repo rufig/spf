@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 2007-2008 -->
+
+<def name="create-slot" ds=" name-a name-u -- ">
+  HERE >R 0 ,
+  <const name="_{2DUP}" > R@ </const>
+  <def name="{2DUP}" ><lit>R@</lit> @ </def>
+  <def name="{2DUP}!"><lit>R@</lit> ! </def>
+  RDROP 2DROP
+</def>
+
+<def name="create-slot2" ds=" name-a name-u -- ">
+  HERE 0 , 0 , DUP 2SWAP
+  <def name="{2DUP}" ><lit>ROT</lit>2@</def>
+  <def name="{2DUP}!"><lit>ROT</lit>2!</def>
+  2DROP
+</def>
+
+<def name="create-vect" ds=" name-a name-u -- ">
+  HERE >R <xt-of name="NOOP"/> ,
+  <const name="_{2DUP}" > R@ </const>
+  <def name="{2DUP}" ><lit>R@</lit> @ EXECUTE </def>
+  <def name="{2DUP}!"><lit>R@</lit> ! </def>
+  RDROP 2DROP
+</def>
+
+
+<also wordlist="forthml-hidden"
+  xmlns:r="http://forth.org.ru/ForthML/Rules/"
+  xmlns:f="http://forth.org.ru/ForthML/"
+>
+
+<r:rule match="f:slot">
+  FirstChildValue T-SLIT
+  <r:mm><each-word> create-slot </each-word></r:mm>
+</r:rule>
+
+<r:rule match="f:slot2">
+  FirstChildValue T-SLIT
+  <r:mm><each-word> create-slot2 </each-word></r:mm>
+</r:rule>
+
+<r:rule match="f:vect">
+  FirstChildValue T-SLIT
+  <r:mm><each-word> create-vect </each-word></r:mm>
+</r:rule>
+
+</also>
+
+</forth>
