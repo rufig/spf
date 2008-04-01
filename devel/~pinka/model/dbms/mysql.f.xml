@@ -3,14 +3,8 @@
 
 <wordlist name="mysql-hidden">
 
-<text>
-  charset database user pass  hostname port host
-
-</text><each-word> create-slot2 </each-word>
-<text>
-  nport conn errno res row col
-
-</text><each-word> create-slot </each-word>
+<slot2> charset database user pass  hostname port host </slot2>
+<slot> nport conn errno res row col </slot>
 
 <def name="(connect)" ds=" -- ior ">
   CLIENT_MULTI_STATEMENTS
