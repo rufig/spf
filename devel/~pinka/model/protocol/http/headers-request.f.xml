@@ -20,4 +20,9 @@
   http-method EQUAL
 </def>
 
+<def name="content-length-number" ds=" -- u ">
+  content-length FINE-TAIL StoD 0EQ <if><exit/></if>
+  `#413 STHROW <!-- Request Entity Too Large -->
+</def>
+
 </forth>
