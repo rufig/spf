@@ -96,7 +96,7 @@
   assume-sock
   perform-dialog
   <log>end dialog</log>
-  ?close-socketline
+  close-socketline
 </def>
 
 </forth>

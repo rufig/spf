@@ -18,7 +18,7 @@
     DUP 10009 EQ <when><rem> WSAEBADF Bad file number </rem> alive? <unless> DROP 0 </unless> </when>
   </choose>
   ERROR <!-- if any -->
-  ?close-listen
+  close-listen
   shutdown FIRE-EVENT
 </def>
 
@@ -28,7 +28,7 @@
 </def>
 
 <def name="stop">
-  ?close-listen
+  close-listen
 </def>
 
 <rem> </rem>

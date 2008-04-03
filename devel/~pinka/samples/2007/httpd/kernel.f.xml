@@ -40,7 +40,7 @@
 </def>
 
 <def name="stop-workers" ds=" -- ">
-  <q> `?close-socketline OBEY-SURE- </q> _workers FOREACH-LIST-VALUE
+  <q> `close-socketline OBEY-SURE- </q> _workers FOREACH-LIST-VALUE
   2 <times>
     workers-quan <times> 0 enqueueN </times>
     <repeat> idles-quan <while/> queue-length <while/> 20 PAUSE </repeat>
