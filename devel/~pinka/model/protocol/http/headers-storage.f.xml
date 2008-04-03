@@ -30,12 +30,18 @@
 </export>
 </wordlist>
 
+<rem><!-- to be removed -->
 <def name="save-header?" ds=" a u -- flag ">
   `: SPLIT <unless> 2DROP FALSE <exit/></unless> FINE-HEAD 2SWAP h! TRUE
 </def>
 
 <def name="save-header" ds=" a u -- ">
   save-header? DROP
+</def>
+</rem>
+
+<def name="parse-header" ds=" a u -- a u false | true ">
+  `: SPLIT DUP <unless><exit/></unless> DROP FINE-HEAD 2SWAP h! TRUE
 </def>
 
 <def name="has-header" ds=" a u -- flag ">
