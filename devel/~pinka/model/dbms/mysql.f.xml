@@ -29,7 +29,7 @@
   DROP  MYSQL_SET_CHARSET_NAME  conn  mysql_options <unless> treat-err </unless>
 
   1 SP@ MYSQL_OPT_RECONNECT conn  mysql_options <unless> treat-err </unless>
-  DROP  <!-- does't work -->
+  DROP  <!-- does't work before 5.1.6 -->
 </def>
 
 <include href="mysql.immutable.f.xml"/>
