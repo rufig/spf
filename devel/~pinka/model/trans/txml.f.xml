@@ -13,16 +13,17 @@
 <def name="advice-rule-before" ds=" xt -- ">
   advice-before
 </def>
-<def name="trans-node-force" ds="i*x -- i*x | j*x">
+<def name="trans-node-force" ds=" i*x -- i*x | j*x">
   perform-chain <if><exit/></if> -5321 THROW
 </def>
 
-<def name="apply-rules" ds=" h-rules -- ">
-  chain-context @ >R  chain-context !
-  trans-node-force
-  R> chain-context !
+<def name="perform-rules" ds=" i*x h-rules -- j*x flag ">
+  PERFORM-LIST-COND
 </def>
 
+<def name="import-rules" ds=" h-rules -- ">
+  <p><lit/> perform-rules </p> advice-rule-before
+</def>
 
 <include href="document-context2.f.xml"/>
 
