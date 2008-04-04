@@ -18,10 +18,10 @@
   R@ - + R> EQUAL
 </def>
 <def name="SUBSTRING-AFTER" ds=" a u a-key u-key -- a2 u2 ">
-  DUP >R SEARCH <if> SWAP R@ + SWAP R> - <exit/></if> RDROP 2DROP 0.
+  DUP >R SEARCH <if> SWAP R@ + SWAP R> - <exit/></if> RDROP 2DROP 0 0
 </def>
 <def name="SUBSTRING-BEFORE" ds=" a u a-key u-key -- a2 u2 ">
-  3 PICK >R  SEARCH  <if> DROP R> TUCK - <exit/></if>  RDROP 2DROP 0.
+  3 PICK >R  SEARCH  <if> DROP R> TUCK - <exit/></if>  RDROP 2DROP 0 0
 </def>
 
 <def name="SPLIT-" ds=" a u a-key u-key -- a-right u-right  a-left u-left  true  |  a u false ">
