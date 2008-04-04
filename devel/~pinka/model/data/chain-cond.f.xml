@@ -15,15 +15,9 @@
   0 , HERE SWAP , chain-current @ BIND-NODE-TAIL
 </def>
 
-<def name="(perform-chain)" ds=" i*x list -- j*x flag ">
-  @ <repeat> DUP <while/> DUP >R @ EXECUTE DUP <if> RDROP <exit/></if> DROP R> CELL- @ </repeat>
-  <!-- ( false ) -->
-</def>
-
 <def name="perform-chain" ds=" i*x -- j*x flag ">
   chain-context @ DUP <unless><exit/></unless>
-  (perform-chain)
-  <!-- ( false ) -->
+  PERFORM-LIST-COND
 </def>
 
 <def name="perform-chain-sure" ds=" i*x -- j*x ">

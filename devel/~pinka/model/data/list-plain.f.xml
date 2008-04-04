@@ -87,4 +87,12 @@
   NIP DUP CELL+ SWAP CALC-NODE-LAST OVER  ! BIND-RNODE
 </def>
 
+<def name="PERFORM-NODE-COND" ds=" i*x node -- j*x flag ">
+  <repeat> DUP <while/> DUP >R @ EXECUTE DUP <if> RDROP <exit/></if> DROP R> CELL- @ </repeat>
+  <!-- ( false ) -->
+</def>
+<def name="PERFORM-LIST-COND" ds=" i*x list -- j*x flag ">
+  @ PERFORM-NODE-COND
+</def>
+
 </forth>
