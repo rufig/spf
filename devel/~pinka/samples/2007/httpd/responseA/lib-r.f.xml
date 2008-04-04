@@ -13,10 +13,6 @@
   NodeValue T-SLIT
 </def>
 
-<def name="apply-rules?" ds=" i*x h-rules -- j*x true | i*x false ">
-  (perform-chain)
-</def>
-
 <def name="?rule1" ds=" -- ">
   M @ <unless> `#not-M STHROW </unless>
   STATE? 1 EQ <unless> `#not-STATE1 STHROW </unless>
@@ -43,7 +39,7 @@
 </rule>
 
 <rule match="r:import-context" ds=" -- "> ?S0
-  <f:p><f:lit> chain-context @ </f:lit> apply-rules? </f:p> advice-rule-before
+  chain-context @ import-rules
 </rule>
 
 <rule match="r:develop" ds=" -- "> ?S0
