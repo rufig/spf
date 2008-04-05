@@ -17,9 +17,12 @@
 
 <cell name="_size"> 200 1024 * </cell><!-- it is fixed -->
 
-<handler event="startup" ds=" -- ">
+<def name="init" ds=" -- ">
+  0. DATASPACE! reset-list
+</def>
+<def name="start" ds=" -- ">
   _size @ ALLOCATED DATASPACE! reset-list
-</handler>
+</def>
 
 <def name="compose-new-list" ds=" -- node-as-list ">
   0 
