@@ -158,18 +158,22 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 <!-- r: -->
 
 <rule match="r:transform" ds=" -- ">
-  STATE0? <f:unless> ABORT </f:unless>
+  STATE0? <f:unless> -5011 THROW </f:unless>
   <get-name/> 2>R
   HERE 0 , DUP <f:p><f:lit/></f:p> 2R> NAMING-
-  chain-current @ >R chain-current !
-  <yield/>
-  R> chain-current !
+  chain-current <f:let> <yield/> </f:let>
 </rule>
 
 <rule match="r:mode" ds=" -- ">
-  STATE0? <f:unless> ABORT </f:unless>
+  STATE0? <f:unless> -5011 THROW </f:unless>
   <exec-attribute name="transform"/>
   DUP chain-context <f:let> chain-current <f:let> <yield/> </f:let></f:let>
+</rule>
+
+<rule match="r:extend" ds=" -- ">
+  STATE0? <f:unless> -5011 THROW </f:unless>
+  <exec-attribute name="transform"/><f:rem>( id )</f:rem>
+  chain-current <f:let> <yield/> </f:let>
 </rule>
 
 </f:forth>
