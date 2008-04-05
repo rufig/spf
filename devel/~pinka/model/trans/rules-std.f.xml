@@ -161,4 +161,10 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   R> chain-current !
 </rule>
 
+<rule match="r:mode" ds=" -- ">
+  STATE0? <f:unless> ABORT </f:unless>
+  <exec-attribute name="transform"/>
+  chain-current <f:let><yield/></f:let>
+</rule>
+
 </f:forth>
