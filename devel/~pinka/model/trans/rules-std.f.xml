@@ -164,7 +164,7 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 <rule match="r:mode" ds=" -- ">
   STATE0? <f:unless> ABORT </f:unless>
   <exec-attribute name="transform"/>
-  chain-current <f:let><yield/></f:let>
+  DUP chain-context <f:let> chain-current <f:let> <yield/> </f:let></f:let>
 </rule>
 
 </f:forth>
