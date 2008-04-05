@@ -9,10 +9,6 @@
 
 <xi:model name="native" advice="after">
 
-<rule match="#comment" /><!-- skip xml-commets -->
-
-<rule match="#text"> NodeValue T-PLAIN </rule>
-
 <rule match="r:m">         INC-M       <yield/> DEC-M </rule>
 <rule match="r:direct">    M-DEC-STATE <yield/> M-INC-STATE </rule>
 <rule match="r:postpone">  M-INC-STATE <yield/> M-DEC-STATE </rule>

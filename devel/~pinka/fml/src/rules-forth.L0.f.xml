@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<f:forth
+  xmlns:f="http://forth.org.ru/ForthML/"
+    xmlns="http://forth.org.ru/ForthML/Rules/"
+>
+
+<rule match="#comment" /><!-- skip xml-commets -->
+
+<rule match="#text"> NodeValue T-PLAIN </rule>
+
+</f:forth>

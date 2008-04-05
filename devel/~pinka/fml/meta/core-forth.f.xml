@@ -10,6 +10,7 @@
 <!-- Feb-Mar.2007 -->
 
 <xi:model name="request-core-model" href="#native" />
+<xi:include href="../src/rules-forth.L0.f.xml"/>
 <xi:include href="../src/core.union.xml"/>
 
 </f:forth>
