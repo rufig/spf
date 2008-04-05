@@ -37,6 +37,10 @@
 
 <def name="RLIT," ds=" x -- "> 0x68 B, ,  <!-- push dword #x --></def>
 
+<def name="DEFER-LIT," ds=" -- addr ">
+  -1 LIT, HERE CELL-
+</def>
+
 
 <def name="(CONCEIVE)" ds=" -- addr ">
   ALIGN HERE
