@@ -9,7 +9,7 @@
 <def name="Z@"  ds=" — x "> ZP @ @ </def>
 <def name=">Z"  ds=" x — "> ZP CELL-!  ZP@ ! </def>
 <def name="Z>"  ds=" — x "> ZP@ @   ZP CELL+! </def>
-<def name="ZDROP"   ds=" — "> CELL ZP +! </def>
+<def name="ZDROP"   ds=" — "> ZP CELL+! </def>
 <def name="ZCLEAR"  ds=" — "> Z0 @ ZP! </def>
 <def name="ZASSUME" ds=" addr u — "> + DUP Z0 ! ZP ! </def>
 
