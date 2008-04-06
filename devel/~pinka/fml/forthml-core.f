@@ -1,4 +1,5 @@
 
+
 CONCEIVE  
 `NodeName & EXEC, `#comment SLIT, 
 `CEQUAL & EXEC, 
@@ -8,7 +9,6 @@ CONCEIVE
 RFW 
 `TRUE & EXEC,  BIRTH DUP `#comment NAMING- advice-rule-before
   
-
 
 CONCEIVE  
 `NodeName & EXEC, `#text SLIT, 
@@ -22,7 +22,25 @@ RFW
 `TRUE & EXEC,  BIRTH DUP `#text NAMING- advice-rule-before
   
 
+CONCEIVE  
+`NodeName & EXEC, `forth SLIT, 
+`CEQUAL & EXEC, 
+`0= & EXEC, ZBFW, 
 
+`FALSE & EXEC, EXIT, 
+RFW 
+`NamespaceURI & EXEC, `http://forth.org.ru/ForthML/ SLIT, 
+`CEQUAL & EXEC, 
+`0= & EXEC, ZBFW, 
+
+`FALSE & EXEC, EXIT, 
+RFW 
+`trans-childs & EXEC, 
+`TRUE & EXEC,  BIRTH DUP `f:forth NAMING- advice-rule-before
+  
+
+
+ 
 CONCEIVE  
 `NodeName & EXEC, `m SLIT, 
 `CEQUAL & EXEC, 

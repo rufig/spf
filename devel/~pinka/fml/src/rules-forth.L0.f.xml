@@ -5,7 +5,7 @@
 >
 
 <rule match="#comment" /><!-- skip xml-commets -->
-
 <rule match="#text"> NodeValue T-PLAIN </rule>
+<rule match="f:forth"><yield/></rule>
 
 </f:forth>

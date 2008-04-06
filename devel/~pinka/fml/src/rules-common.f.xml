@@ -12,7 +12,6 @@ $Id$
 <rule match="f:rem" />
 <rule match="f:comment" />
 <rule match="f:g"><yield/></rule><!-- merely group -->
-<rule match="f:forth"><yield/></rule>
 <!--
 <rule match="f:model"><yield/></rule>-->
 
