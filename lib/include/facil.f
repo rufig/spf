@@ -87,7 +87,7 @@ USER-CREATE TM /TM USER-ALLOT
 ;
 
 \ ok to pass NULL?
-: ms@ 0 times ;
+: ms@ 0 times 10 * ;
 
 [THEN]
 
