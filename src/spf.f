@@ -239,6 +239,7 @@ CR .( Done. Saving the system.)
 CR .( =============================================================)
 CR
 
+
 TC-LATEST-> FORTH-WORDLIST
 HERE ' (DP) TC-ADDR!
 
@@ -257,7 +258,6 @@ HERE .forth - TO .forth#
 ONLY DEFINITIONS
 
 S" src/xsave.f" 		  INCLUDED
-S" src/spf4.o" XSAVE
 
 [ELSE]
 
@@ -270,15 +270,19 @@ CR
 \ записываем "DONE" в командную строку
 S"  DONE " GetCommandLineA ASCIIZ> S"  " SEARCH 2DROP SWAP 1+ MOVE
 
-\ на стеке - token слова INIT целевой системы, запускаем её для
-\ того чтобы она сама себя сохранила в spf37x.exe выполнением слова DONE,
-\ переданного ей в командной строке
+[THEN]
 
 CREATE-XML-HELP
 [IF]
 FINISH-XMLHELP
 [THEN]
 
+TARGET-POSIX [IF]
+S" src/spf4.o" XSAVE
+[ELSE]
+\ на стеке - token слова INIT целевой системы, запускаем её для
+\ того чтобы она сама себя сохранила в spf37x.exe выполнением слова DONE,
+\ переданного ей в командной строке
 EXECUTE
 [THEN]
 
