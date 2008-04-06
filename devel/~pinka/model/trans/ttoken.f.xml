@@ -14,35 +14,7 @@
 <def name="INC-S" ds=" -- "> STATE 1+!  </def>
 <def name="DEC-S" ds=" -- "> STATE @ 0= <if> -5004 THROW </if> STATE 1-! </def>
 
-<def name="T-LIT" ds=" x -- x | ">
-  M @ <if> STATE @ <if>
-    STATE @ TS-LIT
-    <lit>GERM</lit> STATE @ TS-EXEC
-  <exit/></if></if>
-  STATE @ TS-LIT
-</def>
-<def name="T-EXEC" ds=" i*x xt -- j*x | i*x">
-  M @ <if> STATE @ <if>
-    STATE @ TS-LIT
-    <lit>GERM</lit> STATE @ TS-EXEC
-  <exit/></if></if>
-  STATE @ TS-EXEC
-</def>
-<def name="T-SLIT" ds=" c-addr u -- c-addr2 u | ">
-  M @ <if> STATE @ <if>
-    STATE @ TS-SLIT
-    <lit>GERM</lit> STATE @ TS-EXEC
-  <exit/></if></if>
-  STATE @ TS-SLIT
-</def>
-<def name="T-2LIT" ds=" x x -- x x | ">
-  M @ <if> STATE @ <if>
-    STATE @ TS-2LIT
-    <lit>GERM</lit> STATE @ TS-EXEC
-  <exit/></if></if>
-  STATE @ TS-2LIT
-</def>
-
+<include href="ttoken.L1.f.xml"/>
 
 <def name="M-LIT" ds=" x -- x | ">
   M @ <if> STATE @ <if>

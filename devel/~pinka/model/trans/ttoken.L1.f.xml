@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 2006, Feb.2007 ruvim@forth.org.ru -->
+
+<def name="T-LIT" ds=" x -- x | ">
+  M @ <if> STATE @ <if>
+    STATE @ TS-LIT
+    <lit>GERM</lit> STATE @ TS-EXEC
+  <exit/></if></if>
+  STATE @ TS-LIT
+</def>
+
+<def name="T-EXEC" ds=" i*x xt -- j*x | i*x">
+  M @ <if> STATE @ <if>
+    STATE @ TS-LIT
+    <lit>GERM</lit> STATE @ TS-EXEC
+  <exit/></if></if>
+  STATE @ TS-EXEC
+</def>
+
+<def name="T-SLIT" ds=" c-addr u -- c-addr2 u | ">
+  M @ <if> STATE @ <if>
+    STATE @ TS-SLIT
+    <lit>GERM</lit> STATE @ TS-EXEC
+  <exit/></if></if>
+  STATE @ TS-SLIT
+</def>
+
+<def name="T-2LIT" ds=" x x -- x x | ">
+  M @ <if> STATE @ <if>
+    STATE @ TS-2LIT
+    <lit>GERM</lit> STATE @ TS-EXEC
+  <exit/></if></if>
+  STATE @ TS-2LIT
+</def>
+
+</forth>
