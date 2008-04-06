@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<also wordlist="FORTH-WORDLIST::CODEGEN-WL">
-<text>
+<tc:import from="FORTH-WORDLIST::CODEGEN-WL"  xmlns:tc="http://forth.org.ru/ForthML/TC/">
 
-  CS> >CS 2>CS 2CS> CS@ CSDROP
+  CS> >CS 2>CS 2CS> CS@ CSDROP ?CSP
   
   GET-COMPILER?
 
-</text><each-word> import-word </each-word>
-</also>
+</tc:import>
 
 
 
 <g xml:base="http://forth.org.ru/~pinka/model/codegen/">
 
+<rem>
   <also wordlist="CODESPACE-WL">
     <include href="spf4-prime.L1.f.xml"/>
   </also>
+  <include href="slit-sep.f.xml"/><!-- the codespace and the dataspace are separate -->
+</rem>
 
-  <include href="slit-sep.f.xml"/>
+  <include href="spf4-prime.L1.f.xml"/>
+  <include href="slit-co.f.xml"/><!-- the codespace and the dataspace are coincident -->
 
   <include href="common.L2.f.xml"/>
 

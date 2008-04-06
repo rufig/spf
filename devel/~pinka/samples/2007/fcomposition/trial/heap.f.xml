@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="Windows-1251"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<text>
+<tc:import xmlns:tc="http://forth.org.ru/ForthML/TC/">
 
  ALLOCATE RESIZE FREE
 
  ALLOCATED
 
-</text><each-word> import-word </each-word>
+</tc:import>
 
 
 
