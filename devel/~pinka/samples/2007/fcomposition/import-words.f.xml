@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+    xmlns:tc="http://forth.org.ru/ForthML/TC/"
+     xmlns:r="http://forth.org.ru/ForthML/Rules/"
+>
+
+<def name="import-word" ds=" addr u -- ">
+  2DUP FORTH-WORDLIST::&amp; NAMING
+</def>
+
+<def name="import-words-all" ds=" addr u -- ">
+  <each-word> import-word </each-word>
+</def>
+
+<also wordlist="forthml-hidden">
+
+<def name="(import-element)" ds=" -- ">
+  <choose>
+  `from HasAttribute <when>
+    <r:exec-attribute name="from"/> FORTH-WORDLIST::ALSO!
+    FirstChildValue  import-words-all
+    FORTH-WORDLIST::PREVIOUS
+  </when>
+    FirstChildValue import-words-all
+  </choose>
+</def>
+
+</also>
+
+<r:rule match="tc:import">
+  <!-- 
+  STATE0? <f:unless> -5011 THROW </f:unless> -->
+  (import-element)
+</r:rule>
+
+</forth>
