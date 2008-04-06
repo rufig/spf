@@ -5,12 +5,6 @@
 
 <xi:model name="main">
 
-<wordlist name="FORTH-WL">
-
-<def name="give-forth">
-  GET-CURRENT FORTH-WL APPEND-WORDLIST
-</def>
-
 <wordlist name="FORTHPROC-WL">
   <xi:include href="#forthproc"/> give-forth
 </wordlist>
@@ -31,7 +25,7 @@
   <xi:include href="#host"/> give-forth
 </wordlist>
 
-<wordlist name="WINAPI-WL">
+<wordlist name="HOSTAPI-WL">
   <!-- host-system API, will be provided -->
 </wordlist>
 
@@ -43,13 +37,12 @@
   <xi:include href="#files"/> give-forth
 </wordlist>
 
-
 <wordlist name="TRANSLATER-WL">
   <xi:include href="#translater"/> give-forth
 </wordlist>
 
-</wordlist>
 </xi:model>
+
 
 <xi:include href="model.f.xml"/>
 
