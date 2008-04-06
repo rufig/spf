@@ -13,7 +13,7 @@
 </def>
 
 <def name="trans-document" ds=" doc -- ">
-  cnode >R documentElement cnode! trans-childs R> cnode!
+  cnode >R documentElement cnode! trans-node-force R> cnode!
 </def>
 
 <def name="expanded-url" ds=" a1 u1 -- a2 u2 ">

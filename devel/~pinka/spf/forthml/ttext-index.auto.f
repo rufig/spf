@@ -1052,7 +1052,7 @@ BIRTH 2CS> NAMING-
 `>R & EXEC, 
 `documentElement & EXEC, 
 `cnode! & EXEC, 
-`trans-childs & EXEC, 
+`trans-node-force & EXEC, 
 `R> & EXEC, 
 `cnode! & EXEC, 
 BIRTH 2CS> NAMING- 
