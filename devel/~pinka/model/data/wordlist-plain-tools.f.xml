@@ -20,11 +20,11 @@
 <def name="NLIST" ds=" wid -- ">
   CR 0 SWAP 0 >R  @
   <repeat> DUP <while/> SWAP 1+ SWAP  DUP NODE-NAME
-    DUP R> + DUP 74 UGT <if> DROP 0 CR </if>  >R
+    DUP R> + DUP 74 UGT <if> DROP DUP CR </if>  >R
     TYPE  15 R@ 15 MOD - DUP RP@ +! SPACES
     CDR
   </repeat> DROP RDROP
-  CR CR <emit>Words: </emit> U. CR
+  CR CR <text>Words: </text> TYPE U. CR
 </def>
 
 </forth>
