@@ -3,39 +3,41 @@
     xmlns:xi="http://forth.org.ru/ForthML/Struct/"
 >
 
-<include href="envir.f.xml"/>
-
-  startup FIRE-EVENT
-
 <xi:model name="main">
+
+<also wordlist="XMLDOM-WL"><!-- shared library -->
+<also wordlist="forthml-hidden"><!-- the txml (document-context, cnode, EMBODY) is taken from the host's subsystem -->
+
 <wordlist name="TC-WL">
 
-  <g><rem> target format </rem>
+  <g><rem> target form </rem>
   <xi:include href="#storage"/>
   <xi:include href="#codegen"/>
   <xi:include href="#translater"/>
   </g>
   
   <g xml:base="http://forth.org.ru/~pinka/model/trans/">
-  <rem> deep forthml translater </rem>
+  <wordlist name="translater-plain">
     <include href="tcode.f.xml"/>
-    <include href="ttoken.f.xml"/>
+    <include href="ttoken.L1.f.xml"/>
     <include href="ttext.f.xml"/>
-    
-  <r:transform name="target-translater" xmlns:r="http://forth.org.ru/ForthML/Rules/">
-    <g xml:base="http://forth.org.ru/~pinka/fml/src/">
+  </wordlist>
+  
+  <r:transform name="transformer-fml" xmlns:r="http://forth.org.ru/ForthML/Rules/">
+    <also wordlist="translater-plain"><!-- TC case -->
+      <g xml:base="http://forth.org.ru/~pinka/fml/src/">
+      <include href="rules-forth.L0.f.xml"/>
       <include href="rules-common.f.xml"/>
-    </g>
-    <!-- need refactoring
       <include href="rules-forth.f.xml"/>
-    <also wordlist="forthml-hidden">
-      <include href="rules-std.f.xml"/>
+      </g>
     </also>
-    -->
-  </r:transform>  
+    <r:import transform="transformer-xmlstruct"/>
+  </r:transform>
   </g>
   
 </wordlist>
+</also></also>
+
 </xi:model>
 
 <xi:include href="model.f.xml"/>
