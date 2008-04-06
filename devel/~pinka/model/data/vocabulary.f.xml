@@ -7,9 +7,13 @@
   I-NATIVE <if><exit/></if> -321 THROW
 </def>
 
+<def name="SEARCH-WORDLIST" ds=" addr u wid -- xt true | false ">
+  FIND-WORDLIST DUP <if><exit/></if> NIP NIP
+</def>
+
 <def name="NAMING-" ds=" xt c-addr u -- ">
-  CURRENT @ @ CDR-BY-NAME <if> 2DUP TYPE <emit-line> isn't unique</emit-line></if>
-  CURRENT @ RELATE-NAME
+  CURRENT @ @ CDR-BY-NAME <if> 2DUP TYPE <text> isn't unique</text> TYPE CR </if>
+  CURRENT @ RELATE-WORDLIST
 </def>
 
 <def name="NAMING" ds=" c-addr u xt -- ">
@@ -45,25 +49,34 @@
 </def>
 
 <def name="WORDLIST-NAMED" ds=" addr u -- wid ">
-  WORDLIST DUP 2OVER <const name="{}"/>
-           DUP 2SWAP NAMING-WORDLIST-
+  2DUP WORDLIST  DUP >R  
+  MAKE-CONST NAMING  R@ NAMING-WORDLIST  R>
 </def>
 
 <def name="VOC-NAME." ds=" wid -- ">
-  DUP <unless> DROP <emit>[NULL] </emit><exit/></unless>
+  DUP <unless> DROP <text>[NULL] </text> TYPE <exit/></unless>
   DUP WORDLIST-NAME DUP <if> TYPE SPACE DROP <exit/></if> 2DROP
-  `# TYPE .
+  `# TYPE U.
+</def>
+
+<def name="(ORDER-HELPER)" ds=" n1 x -- x n2 0 ">
+  SWAP 1+ FALSE
 </def>
 
 <def name="ORDER" ds=" -- ">
-  <emit>Context>: </emit>
-  0 <q> SWAP 1+ FALSE </q> SCAN-SCOPE-WITH DROP <rem>( i*x i )</rem>
+  <text>Context>: </text> TYPE
+  0 <xt-of name="(ORDER-HELPER)"/> SCAN-SCOPE-WITH DROP <rem>( i*x i )</rem>
   <repeat> DUP <while/> 1- SWAP VOC-NAME. </repeat> DROP CR
-  <emit>Current: </emit> GET-CURRENT VOC-NAME. CR
+  <text>Current: </text> TYPE GET-CURRENT VOC-NAME. CR
 </def>
 
 <def name="WORDS" ds=" -- ">
   SCOPE-TOP DUP <if> NLIST <exit/></if> DROP
+</def>
+
+<def name="VOCS" ds=" -- ">
+  VOC-LIST @
+  <repeat> DUP <while/> DUP VOC-NAME. CDR </repeat> DROP
 </def>
 
 </forth>
