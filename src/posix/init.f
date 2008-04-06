@@ -12,7 +12,7 @@
 
 \ till we have nested exceptions correct
 : STACK-ADDR. ( addr -- addr )
-      DUP U. ." :  " DUP @ U. CR \ WordByAddr TYPE 
+      DUP U. ." :  " DUP @ DUP U. WordByAddr TYPE CR
 ;
 
 : (errsignal) ( context siginfo signo -- )
