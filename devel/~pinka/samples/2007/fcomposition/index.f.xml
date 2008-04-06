@@ -1,17 +1,56 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/"
-    xmlns:xi="http://forth.org.ru/ForthML/Struct/"
+     xmlns:r="http://forth.org.ru/ForthML/Rules/"
+    xmlns:tc="http://forth.org.ru/ForthML/TC/"
 >
 
-<wordlist name="target-wl">
+<init>
+  300 1024 * ALLOCATED TC-WL::DATASPACE!
+  300 1024 * ALLOCATED TC-WL::CODESPACE!
+</init>
 
-<include href="carcase.f.xml"/>
+
+<develop wordlist="TC-WL">
+
+<r:extend transform="transformer-fml" >
+  <include href="import-words.f.xml"/>
+</r:extend>
+
+<def name="(give-wordlist)" ds=" wid -- ">
+  GET-CURRENT SWAP APPEND-WORDLIST
+</def>
 
 
-<text>
-  NLIST WORDS ORDER BYE
-</text><each-word> import-word </each-word>
+ WORDLIST DUP `FORTH-WL NAMING-WORDLIST- DUP PUSH-SCOPE  DUP SET-CURRENT
+ DUP <const name="target-root"/>
+ 
+ <rem> ( wid ) </rem>
 
-</wordlist>
+<def name="give-forth" ds=" -- ">
+  <lit>DUP</lit> (give-wordlist)
+</def>
+
+<def name="quit" ds=" -- ">
+  <repeat>
+    NEXT-LINE-STDIN
+  <while/>
+    <xt-of name="T-PLAIN"/> CATCH
+    <choose> DUP <when> NIP NIP . <emit>ERROR</emit> CR </when> DROP  OK </choose>
+  </repeat>
+</def>
+
+</develop>
+  
+ <rem> ( wid ) </rem>
+
+<r:mode transform="TC-WL::transformer-fml">
+
+  <tc:import from="TC-WL"> quit give-forth U. >NUMBER BASE HEX </tc:import>
+
+  <const name="FORTH-WL"/><rem>( wid -- ) </rem>
+ 
+  <include href="carcase.f.xml"/>
+
+</r:mode>
 
 </forth>

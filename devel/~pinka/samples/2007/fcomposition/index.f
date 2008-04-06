@@ -1,28 +1,15 @@
 REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
+`envir.f.xml            FIND-FULLNAME2 EMBODY  xml-struct-hidden::start
+`import-words.f.xml     FIND-FULLNAME2 EMBODY
+`tc-host.f.xml          FIND-FULLNAME2 EMBODY
 
-: import-word ( addr u -- ) 2DUP aka ;
+\ TC-WL NLIST
+\ TC-WL ALSO!
 
-
-`tc-host.f.xml FIND-FULLNAME2 EMBODY
-
-  startup FIRE-EVENT
-
-TC-WL NLIST
-
-\EOF
-QUIT
+\ 50 TO TRACE-HEAD-SIZE
 
 `index.f.xml FIND-FULLNAME2 EMBODY
 
-
-target-wl ALSO!
-
-CR ORDER WORDS
-
-
-\EOF
-
-\ FORTHPROC-WL STRINGS-WL STORAGE-WL HEAP-WL FILES-WL  5 SET-ORDER
-
-spf ~pinka/lib/words.f FORTH-WORDLIST ReversWL WORDS BYE >words.txt
+  TC-WL ALSO!
+  .( >>>>> Welcome to the target system ) CR ORDER quit
