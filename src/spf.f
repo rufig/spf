@@ -239,19 +239,25 @@ CR .( Done. Saving the system.)
 CR .( =============================================================)
 CR
 
-
 TC-LATEST-> FORTH-WORDLIST
 HERE ' (DP) TC-ADDR!
 
 TARGET-POSIX [IF]
+
+.( VIRT offset is ) 0 >VIRT . CR
 
 \ Перемещаем в виртуальные адреса словарь NON-OPT-WL
 ' NON-OPT-WL EXECUTE DUP >VIRT! CELL+ >VIRT!
 ' NON-OPT-WL EXECUTE ' NON-OPT-WL TC-VECT!
 
 \ Перемещаем в виртуральные адреса словарь FORTH-WORDLIST
-' FORTH-WORDLIST EXECUTE DUP >VIRT! CELL - >VIRT!
+' FORTH-WORDLIST EXECUTE DUP >VIRT! 
+( wid )
+\ CELL - >VIRT! \ очевидно патчинг связи VOC-LIST -- но не работает почему-то
+CELL - 0! \ просто зануляем - останется только один словарь в VOC-LIST целевой системы
 ' FORTH-WORDLIST EXECUTE ' FORTH-WORDLIST TC-VECT!
+
+' FORTH-WORDLIST EXECUTE CELL - VOC-LIST ! \ записываем VOC-LIST
 
 HERE .forth - TO .forth#
 
