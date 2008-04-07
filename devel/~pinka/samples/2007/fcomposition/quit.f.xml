@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+
+<def name="E-NATIVE" ds=" i*x  a u -- j*x true | i*x a u false ">
+  I-NATIVE   <unless>
+  I-QNATIVE  <unless>
+    FALSE <exit/>
+  </unless></unless>
+  EXECUTE TRUE
+</def>
+
+<def name="E-WORD" ds=" i*x  a u -- j*x true | i*x a u false ">
+  I-SLIT-FORM   DUP <if><exit/></if> DROP
+  E-NATIVE      DUP <if><exit/></if> DROP
+  I-LIT         DUP <if><exit/></if> DROP
+  I-HLIT-FORM   DUP <if><exit/></if> DROP
+  I-DLIT-FORM
+</def>
+
+
+<def name="E-WORD-SURE" ds=" i*x  a u -- j*x">
+  E-WORD <if><exit/></if>
+  CR SPACE TYPE <text> - not found</text> TYPE CR  -321 THROW
+</def>
+
+
+<def name="FOREACH-WORD" ds=" xt c-addr u -- ">
+  <repeat>
+    WORD|TAIL 2>R  DUP <while/> ROT DUP >R EXECUTE R> 2R>
+  </repeat> 2DROP DROP RDROP RDROP
+</def>
+
+<def name="EACH-WORD" ds=" c-addr u xt -- ">
+  -ROT FOREACH-WORD
+</def>
+
+<def name="ENUM-STDIN-LINES" ds=" xt -- ">
+  >R <repeat> NEXT-LINE-STDIN <while/> R@ EXECUTE </repeat> RDROP
+</def>
+
+<def name="EVALUATE-INTERACTIVE" ds=" a u -- ">
+  <xt-of name="E-WORD-SURE"/> EACH-WORD OK
+</def>
+
+<def name="(QUIT)" ds=" -- ">
+  <xt-of name="EVALUATE-INTERACTIVE"/> ENUM-STDIN-LINES
+</def>
+
+<def name="QUIT" ds=" -- ">
+  <xt-of name="(QUIT)"/> CATCH ?DUP <if> . `ERROR TYPE CR <again/></if>
+  <text> - end of stream </text> TYPE CR
+</def>
+
+</forth>

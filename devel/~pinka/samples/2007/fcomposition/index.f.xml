@@ -30,27 +30,36 @@
   <lit>DUP</lit> (give-wordlist)
 </def>
 
-<def name="quit" ds=" -- ">
-  <repeat>
-    NEXT-LINE-STDIN
-  <while/>
-    <xt-of name="T-PLAIN"/> CATCH
-    <choose> DUP <when> NIP NIP . <emit>ERROR</emit> CR </when> DROP  OK </choose>
-  </repeat>
-</def>
+<def name="get-storage" ds=" -- i*x i "> SAVE-STORAGE </def>
+
+<def name="get-vocs" ds=" -- h "> VOC-LIST @ </def>
 
 </develop>
   
+ 
+
  <rem> ( wid ) </rem>
+
 
 <r:mode transform="TC-WL::transformer-fml">
 
-  <tc:import from="TC-WL"> quit give-forth U. >NUMBER BASE HEX </tc:import>
+  <tc:import from="TC-WL">
+    get-vocs get-storage  give-forth
+    NEXT-LINE-STDIN  >NUMBER BASE HEX  . U. .S  OK
+  </tc:import>
 
   <const name="FORTH-WL"/><rem>( wid -- ) </rem>
  
   <include href="carcase.f.xml"/>
+  <include href="quit.f.xml"/>
+
+  <init><rem> initiate the target system </rem>
+    get-vocs    VOC-LIST !
+    get-storage RESTORE-STORAGE
+    FORTH-WL DUP SET-CURRENT PUSH-SCOPE
+  </init>
 
 </r:mode>
+
 
 </forth>

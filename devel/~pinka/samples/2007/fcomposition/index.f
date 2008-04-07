@@ -26,5 +26,7 @@ WARNING !
 
 `index.f.xml FIND-FULLNAME2 EMBODY
 
-  TC-WL ALSO!
-  .( >>>>> Welcome to the target system ) CR ORDER quit
+  \ lib/ext/disasm.f 
+
+  \ TC-WL ALSO!
+  .( >>>>> Welcome to the target system ) CR `QUIT TC-WL::& EXECUTE
