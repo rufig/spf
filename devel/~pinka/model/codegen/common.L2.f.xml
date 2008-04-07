@@ -9,7 +9,10 @@
   CS> BFW, >CS
 </def>
 <def name="ZBFW," ds=" -- " cs=" -- a ">
-  0 ?BRANCH, MARK-FW >CS
+  0 ZBRANCH, MARK-FW >CS
+</def>
+<def name="NZBFW," ds=" -- " cs=" -- a ">
+  0 NZBRANCH, MARK-FW >CS
 </def>
 <def name="ZBFW2," ds=" -- " cs=" a1 -- a2 a1 ">
   CS> ZBFW, >CS
@@ -24,7 +27,7 @@
   CS> BRANCH,
 </def>
 <def name="ZBBW," ds=" -- " cs=" a -- ">
-  CS> ?BRANCH,
+  CS> ZBRANCH,
 </def>
 
 

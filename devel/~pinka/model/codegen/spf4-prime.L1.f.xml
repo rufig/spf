@@ -24,14 +24,24 @@
 
 <def name="BRANCH," ds=" addr -- "> 0xE9 B, DISTANCE, <!-- JMP addr --></def>
 
-<def name="?BRANCH," ds=" addr -- "> 
+<def name="ZBRANCH," ds=" addr -- ">
   0x0B B, 0xC0 B, <!-- OR  EAX, EAX -->
-  <xt-of name="DROP"/> CALL,
+  0x8B B, 0x45 B, 0x00 B, <!-- MOV  EAX, 0 [EBP] -->
+  0x8D B, 0x6D B, 0x04 B, <!-- LEA  EBP, 4 [EBP] -->
   0x0F B, 0x84 B, DISTANCE, <!-- JZ addr -->
 </def>
 
+<def name="NZBRANCH," ds=" addr -- ">
+  0x0B B, 0xC0 B, <!-- OR  EAX, EAX -->
+  0x8B B, 0x45 B, 0x00 B, <!-- MOV  EAX, 0 [EBP] -->
+  0x8D B, 0x6D B, 0x04 B, <!-- LEA  EBP, 4 [EBP] -->
+  0x0F B, 0x85 B, DISTANCE, <!-- JNZ addr -->
+</def>
+
 <def name="LIT," ds=" x -- ">
-  <xt-of name="DUP"/> CALL,  0xB8 B, , <!-- MOV EAX, #x -->
+  0x8D B, 0x6D B, 0xFC B, <!-- LEA  EBP, FC [EBP] -->
+  0x89 B, 0x45 B, 0x00 B, <!-- MOV  0 [EBP], EAX  -->
+  0xB8 B, , <!-- MOV EAX, #x -->
 </def>
 
 <def name="2LIT," ds=" x x -- "> SWAP LIT, LIT, </def>
