@@ -10,6 +10,10 @@
   DUP <if> HERE CELL+ - </if> ,
 </def>
 
+<def name="CALL," ds=" addr -- "> 0xE8 B, DISTANCE, </def>
+
+<def name="RET,"  ds=" -- "> 0xC3 B, </def>
+
 <def name="MARK-FW" ds=" -- a "> HERE 4 - </def>
 
 <def name="RESOLVE-FW" ds=" a -- "> HERE OVER - 4 - SWAP ! </def>
@@ -18,16 +22,13 @@
 
 <def name="RESOLVE-BW" ds=" a -- "> DISTANCE, </def>
 
-
 <def name="BRANCH," ds=" addr -- "> 0xE9 B, DISTANCE, <!-- JMP addr --></def>
 
-<def name="?BRANCH," ds=" addr -- "> 0x0F B, 0x84 B, DISTANCE, <!-- JZ addr --></def>
-
-
-<def name="CALL," ds=" addr -- "> 0xE8 B, DISTANCE, </def>
-
-<def name="RET,"  ds=" -- "> 0xC3 B, </def>
-
+<def name="?BRANCH," ds=" addr -- "> 
+  0x0B B, 0xC0 B, <!-- OR  EAX, EAX -->
+  <xt-of name="DROP"/> CALL,
+  0x0F B, 0x84 B, DISTANCE, <!-- JZ addr -->
+</def>
 
 <def name="LIT," ds=" x -- ">
   <xt-of name="DUP"/> CALL,  0xB8 B, , <!-- MOV EAX, #x -->
