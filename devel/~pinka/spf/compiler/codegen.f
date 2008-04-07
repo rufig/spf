@@ -19,6 +19,13 @@ S" ALLOT" GET-CURRENT SEARCH-WORDLIST [IF] DROP [ELSE]
   COMPILE,
 ;
 
+: ZBRANCH, ( addr -- )
+  ?BRANCH,
+;
+: NZBRANCH, ( addr -- )
+  ['] 0= CALL, ZBRANCH,
+;
+
 : DEFER-LIT, ( -- addr )
   -1 LIT,  \  т.к. для 0  оптимизатор сделает  XOR  EAX, EAX
   HERE 3 - CELL-
@@ -64,7 +71,10 @@ S" xt.immutable.f" Included
   CS> BFW, >CS
 ;
 : ZBFW, ( -- ) ( CS: -- a )
-  0 ?BRANCH, >MARK >CS
+  0 ZBRANCH, >MARK >CS
+;
+: NZBFW, ( -- ) ( CS: -- a )
+  0 NZBRANCH, >MARK >CS
 ;
 : ZBFW2, ( -- ) ( CS: a1 -- a2 a1 )
   CS> ZBFW, >CS
@@ -80,6 +90,6 @@ S" xt.immutable.f" Included
   CS> BRANCH,
 ;
 : ZBBW, ( -- ) ( CS: a -- )
-  CS> ?BRANCH,
+  CS> ZBRANCH,
 ;
 
