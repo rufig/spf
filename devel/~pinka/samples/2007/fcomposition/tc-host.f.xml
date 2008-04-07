@@ -13,7 +13,7 @@
   <g><rem> target form </rem>
   <xi:include href="#storage"/>
   <xi:include href="#codegen"/>
-  <xi:include href="#translater"/>
+  <xi:include href="#interpreter"/>
   </g>
   
   <g xml:base="http://forth.org.ru/~pinka/model/trans/">

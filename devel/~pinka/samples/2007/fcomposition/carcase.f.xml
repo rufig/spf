@@ -37,8 +37,8 @@
   <xi:include href="#files"/> give-forth
 </wordlist>
 
-<wordlist name="TRANSLATER-WL">
-  <xi:include href="#translater"/> give-forth
+<wordlist name="INTERPRETER-WL">
+  <xi:include href="#interpreter"/> give-forth
 </wordlist>
 
 </xi:model>

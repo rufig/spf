@@ -27,7 +27,7 @@
 
 
 
-<xi:model name="translater"><g xml:base="http://forth.org.ru/~pinka/model/data/">
+<xi:model name="interpreter"><g xml:base="http://forth.org.ru/~pinka/model/data/">
 
   <include href="list-plain.f.xml"/>
 
