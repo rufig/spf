@@ -90,10 +90,8 @@ $Id$
   </m>
 </rule>
 
-<rule match="f:unless">
-  `0EQ &amp; T-EXEC
-  <m>
-  <direct>ZBFW,</direct>
+<rule match="f:unless"><m>
+  <direct>NZBFW,</direct>
   <yield/>
   <direct>RFW</direct>
   </m>
