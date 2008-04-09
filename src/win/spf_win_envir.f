@@ -15,7 +15,7 @@
 \ Если системе запрашиваемые атрибуты неизвестны, возвращается флаг
 \ "ложь", иначе "истина" и i*x - запрашиваемые атрибуты определенного
 \ в таблице запросов типа.
-  1000 SYSTEM-PAD 2OVER DROP GetEnvironmentVariableA
+  NUMERIC-OUTPUT-LENGTH SYSTEM-PAD 2OVER DROP GetEnvironmentVariableA
   DUP IF NIP NIP SYSTEM-PAD SWAP TRUE EXIT THEN DROP
   \ расширение spf370: если в windows environment есть
   \ запрашиваемая строка, то возвращаем её - c-addr u true
