@@ -1,5 +1,5 @@
 \ 28-10-2007 ~mOleg
-\ вҐбвЁагҐ¬ бЄ®а®бвм а Ў®вл  «Ј®аЁв¬ 
+\ тестируем скорость работы алгоритма
 
  REQUIRE ?DEFINED       devel\~moleg\lib\util\ifdef.f
 ?DEFINED similar CR .( use: spd.bat sample.f |enter ) BYE
@@ -18,4 +18,3 @@
        ;
 
 : test  ResetProfiles alll alll alll CR CR .AllStatistic ;
-
