@@ -22,23 +22,24 @@ REQUIRE [IF]          lib/include/tools.f
 \ преобразовать строку a u из кодировки cpfa cpfu в cpta cptu,
 \ например: S" тест" S" CP1251" S" UTF-8" ICONV
 \ возвращает результат oa ou; oa освобождать вызывающему по FREE
-  u 3 * 2+ DUP -> ou ALLOCATE THROW DUP -> oa -> aa
+  u 3 * CELL+ DUP -> ou ALLOCATE THROW DUP -> oa -> aa
   cpfa cpta 2 libiconv_open -> ico
   ^ ou ^ oa ^ u ^ a ico 5 libiconv THROW
   aa oa OVER -
+  2DUP + 0 SWAP W!
   ico 1 libiconv_close THROW
 ;
 : >UNICODE ( addr u -- addr2 u2 )
-  S" CP1251" S" UTF-16" ICONV
+  S" CP1251" S" UTF-16LE" ICONV
 ;
 : UNICODE> ( addr u -- addr2 u2 )
-  S" UTF-16" S" CP1251" ICONV
+  S" UTF-16LE" S" CP1251" ICONV
 ;
 : UTF8>UNICODE ( addr u -- addr2 u2 )
-  S" UTF-8" S" UTF-16" ICONV
+  S" UTF-8" S" UTF-16LE" ICONV
 ;
 : UNICODE>UTF8 ( addr u -- addr2 u2 )
-  S" UTF-16" S" UTF-8" ICONV
+  S" UTF-16LE" S" UTF-8" ICONV
 ;
 : >UTF8  ( addr u -- addr2 u2 )
   S" CP1251" S" UTF-8" ICONV
@@ -47,6 +48,15 @@ REQUIRE [IF]          lib/include/tools.f
   S" UTF-8" S" CP1251" ICONV
 ;
 PREVIOUS
+
+: UASCIIZ> ( addr -- addr u ) \ вариант ASCIIZ> для Unicode
+  0 OVER
+  BEGIN
+    DUP W@ 0<>
+  WHILE
+    2+ SWAP 1+ SWAP
+  REPEAT DROP 2*
+;
 
 \EOF
 S" тест-123-abc" S" CP1251" S" UTF-8" ICONV 2DUP TYPE CR DROP FREE THROW
