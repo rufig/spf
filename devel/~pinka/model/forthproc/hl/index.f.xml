@@ -7,6 +7,8 @@
   <include href="double.L1.f.xml"/>
   <include href="double.L2.f.xml"/>
 
+  <include href="core.L3.f.xml"/>
+
   <include href="core.L4.f.xml"/>
   <include href="core.L5.f.xml"/>
 
