@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="BMOVE" ds=" src dst cnt -- ">
+  OVER + >R
+  <repeat> DUP R@ XOR <while/> >R DUP B@ R@ B! 1+ R> 1+ </repeat>
+  RDROP 2DROP
+</def>
+
+<def name="BMOVE>" ds=" src dst cnt -- ">
+  <repeat> DUP <while/> 1- >R  OVER R@ + B@  OVER R@ + B! R> </repeat>
+  DROP 2DROP
+</def>
+
+<def name="MOVE" ds=" src dst cnt -- ">
+  >R 2DUP SWAP R@ + ULT <if> 2DUP ULT <if> R> BMOVE> <exit/></if></if>
+  R> BMOVE
+</def>
+
+<def name="FILL" ds=" a u b -- ">
+  >R  OVER + SWAP <repeat> 2DUP XOR <while/> R@ OVER B! 1+ </repeat>
+  RDROP 2DROP
+</def>
+
+<def name="ERASE" ds=" a u -- ">
+  0 FILL
+</def>
+
+<def name="(EQUAL)" ds=" a1 a2 u -- flag ">
+  >R <repeat> R@ <while/> OVER B@ OVER B@ EQ <while/> SWAP 1+ SWAP 1+ R> 1- >R </repeat> 2DROP R> 0EQ
+</def>
+
+<def name="EQUAL" ds=" a1 u1 a2 u2 -- flag ">
+  >R SWAP R@ NEQ <if> RDROP 2DROP FALSE <exit/></if> R> (EQUAL)
+</def>
+
+</forth>

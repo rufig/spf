@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<comment>
+  the definitions taken from eForth
+</comment>
+
+<def name="D0GT" ds=" d -- f "> DNEGATE D0LT </def>
+<def name="D0EQ" ds=" d -- f "> OR 0EQ </def>
+<def name="DEQ" ds=" d d -- f "> D- D0EQ </def>
+
+<def name="FM/MOD" ds=" d n -- r q ">
+  DUP 0LT  DUP >R <if> NEGATE >R DNEGATE R> </if>
+  >R DUP 0LT <if> R@ + </if> R> UM/MOD R> <if> >R NEGATE R> </if>
+</def>
+
+<def name="M*" ds=" n n -- d "> 2DUP XOR 0LT >R  ABS SWAP ABS UM*  R> <if> DNEGATE </if></def>
+
+<def name="M/" ds=" d n -- q "> FM/MOD SWAP DROP </def>
+
+<def name="*/MOD" ds=" n n n -- r q "> >R M* R> FM/MOD </def>
+<def name="*/" ds=" n n n -- q "> */MOD SWAP DROP </def>
+
+<def name="MU/MOD" ds=" ud u -- ur udq "> >R 0 R@ UM/MOD R> SWAP >R UM/MOD R> </def>
+
+<def name="D2*" ds=" d -- d "> 2DUP D+ </def>
+<def name="DU2/" ds=" ud -- ud "> 2 MU/MOD ROT DROP </def>
+<def name="D2/" ds=" d -- d "> DUP >R 1 AND DU2/  R> 2/ OR </def>
+
+</forth>

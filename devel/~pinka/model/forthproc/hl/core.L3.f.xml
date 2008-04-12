@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<comment>
+  the definitions taken from eForth
+</comment>
+
+<def name="UM*" ds=" u u -- ud ">
+  0 SWAP <rem>( u1 0 u2 )</rem> -1 <repeat> DUP <while/> >R
+  DUP UM+ >R >R DUP UM+ R> + R>
+    <if> >R OVER UM+ R> + </if>
+  R> 1 RSHIFT </repeat> DROP
+  ROT DROP
+</def>
+
+<def name="*" ds=" n1 n2 -- n3 "> UM* DROP </def>
+
+
+<def name="UM/MOD" ds=" ud u -- ur uq ">
+  2DUP ULT
+  <if> NEGATE
+  -1 <repeat> DUP <while/> >R
+      >R DUP UM+ >R >R DUP UM+ R> + DUP
+      R> R@ SWAP >R UM+  R> OR
+      <choose><when> >R DROP 1 + R> </when> DROP </choose> R>
+  R> 1 RSHIFT </repeat> DROP
+  DROP SWAP <exit/>
+  </if> DROP 2DROP -1 DUP
+</def>
+
+<def name="M/MOD" ds=" d n -- r q ">
+  DUP 0LT  DUP >R
+  <if> NEGATE >R DNEGATE R> </if> 
+  >R DUP 0LT <if> R@ + </if> R> UM/MOD R>
+  <if> SWAP NEGATE SWAP </if>
+</def>
+
+<def name="/MOD" ds=" n n -- r q "> OVER 0LT SWAP M/MOD </def>
+<def name="MOD" ds=" n n -- r "> /MOD DROP </def>
+<def name="/" ds=" n n -- q "> /MOD SWAP DROP </def>
+
+</forth>

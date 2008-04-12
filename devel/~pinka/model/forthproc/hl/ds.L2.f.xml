@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="NDROP" ds=" n -- ">
+  1+ CELLS SP@ + SP!
+</def>
+
+<def name="N>R" ds=" i*x i -- " rs=" -- i*x i ">
+  SP@    OVER 1+ CELLS   DUP NEGATE <rem> ( src u -u ) </rem>
+  RP@ TUCK CELL+ <!-- skip ret-addr --> + DUP RP! <rem> ( src u  old-rp  new-rp ) </rem>
+  SWAP @ >R <!-- restore ret-addr -->
+  SWAP   MOVE
+  NDROP
+</def>
+
+<def name="NR>" ds=" -- i*x i" rs=" i*x i -- ">
+  RP@ CELL+ <!-- skip ret-addr --> @ 1+ CELLS >R
+  SP@ R@ NEGATE + SP!
+  SP@ RP@ CELL+ CELL+ SWAP R@ MOVE
+  R> R> SWAP RP@ + RP! >R
+</def>
+
+</forth>

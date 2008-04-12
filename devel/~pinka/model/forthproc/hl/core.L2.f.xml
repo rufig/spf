@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<comment>
+  the definitions taken from eForth
+</comment>
+
+<!--
+  0< /CELL /CHAR  LSHIFT  RSHIFT
+-->
+
+<def name="ABS" ds=" n -- +n "> DUP 0LT <if> NEGATE </if></def>
+
+<def name="?DUP" ds=" x -- x x | 0 "> DUP <if> DUP </if></def>
+
+<def name="ULT" ds=" u1 u2 -- f "> 2DUP XOR 0LT <if> NIP  0LT <exit/></if> - 0LT </def>
+<def name="LT" ds=" n1 n2 -- f ">  2DUP XOR 0LT <if> DROP 0LT <exit/></if> - 0LT </def>
+
+<def name="UGT" ds=" u1 u2 -- f "> SWAP ULT </def>
+<def name="GT" ds=" n1 n2 -- f ">  SWAP  LT </def>
+
+<def name="FALSE" ds=" -- false "> 0 </def>
+<def name="TRUE"  ds=" -- true "> -1 </def>
+
+<def name="CELL+" ds=" n -- n "> /CELL + </def>
+<def name="CELL-" ds=" n -- n "> /CELL - </def>
+
+<def name="CHAR+" ds=" n -- n "> /CHAR + </def>
+<def name="CHAR-" ds=" n -- n "> /CHAR - </def>
+
+<def name="2!" ds=" d a -- "> SWAP OVER ! CELL+ ! </def>
+<def name="2@" ds=" a -- d "> DUP CELL+ @ SWAP @ </def>
+
+<def name="PICK" ds=" x1 i*x i -- x1 i*x x1 ">
+  DUP <if> SWAP >R 1- <recurse/> R> SWAP <exit/></if> DROP DUP
+</def>
+
+
+<def name="CELLS" ds=" u1 -- u2 ">
+  <lit>  0 /CELL <repeat> 1 RSHIFT DUP <while/> SWAP 1+ SWAP </repeat> DROP </lit>
+  LSHIFT 
+</def>
+
+<def name="CHARS" ds=" u1 -- u2 ">
+  <lit>  0 /CHAR <repeat> 1 RSHIFT DUP <while/> SWAP 1+ SWAP </repeat> DROP </lit>
+  LSHIFT 
+</def>
+
+</forth>

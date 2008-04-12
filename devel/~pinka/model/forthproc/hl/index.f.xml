@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+  <include href="core.L1.f.xml"/>
+  <include href="core.L2.f.xml"/>
+  
+  <include href="double.L1.f.xml"/>
+  <include href="double.L2.f.xml"/>
+
+  <include href="core.L4.f.xml"/>
+  <include href="core.L5.f.xml"/>
+
+  <include href="ds.L2.f.xml"/>
+
+</forth>

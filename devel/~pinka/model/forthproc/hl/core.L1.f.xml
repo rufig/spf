@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<!--
+  XOR AND DUP DROP OVER >R R> UM+
+  0 1 -1
+-->
+
+<def name="INVERT" ds=" x1 -- x1 "> -1 XOR </def>
+<def name="OR" ds=" x1 x2 -- x3 "> INVERT SWAP INVERT AND INVERT </def>
+<def name="NEGATE" ds=" n1 -- n2 "> INVERT 1 + </def>
+
+<def name="EQ" ds=" x1 x1 -- f "> XOR <if> 0 <exit/></if> -1 </def>
+
+<def name="+" ds=" x1 x1 -- x "> UM+ DROP </def>
+<def name="-" ds=" x1 x1 -- x "> NEGATE + </def>
+
+<def name="0EQ" ds=" x -- f "> 0 EQ </def>
+<def name="NEQ" ds=" x1 x2 -- f "> EQ -1 XOR </def>
+
+<def name="NIP" ds=" x1 x2 -- x2 "> >R DROP R> </def>
+<def name="SWAP" ds=" x1 x2 -- x2 xq "> OVER >R >R DROP R> R> </def>
+
+<def name="TUCK" ds=" n1 n2 -- n2 n1 n2 "> SWAP OVER </def>
+
+<def name="2DROP" ds=" x1 x2  -- "> DROP DROP </def>
+<def name="2DUP" ds=" x1 x2 -- x1 x2 x1 x2 "> OVER OVER </def>
+
+<def name="ROT" ds=" x1 x2 x3 -- x2 x3 x1 "> >R SWAP R> SWAP </def>
+<def name="-ROT" ds=" n1 n2 n3 -- n3 n1 n2 "> SWAP >R SWAP R> </def>
+
+<def name="R@"  ds=" -- x "> R> R> DUP >R SWAP >R </def>
+<def name="RDROP"  ds=" -- " rs=" x -- "> R> R> DROP >R </def>
+
+<def name="1+" ds=" n -- n "> 1 + </def>
+<def name="1-" ds=" n -- n "> 1 - </def>
+
+<def name="0!" ds=" a -- "> 0 SWAP ! </def>
+<def name="+!" ds=" n a -- "> SWAP OVER @ + SWAP ! </def>
+
+</forth>

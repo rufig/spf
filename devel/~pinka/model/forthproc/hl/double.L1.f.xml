@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<comment>
+  the definitions taken from eForth
+</comment>
+
+<def name="2>R" ds=" n1 n2 -- " rs=" -- n1 n2 "> SWAP  R>  SWAP >R  SWAP >R  >R </def>
+<def name="2R>" ds=" -- n1 n2 " rs=" n1 n2 -- "> R>  R> SWAP  R> SWAP  >R  SWAP </def>
+<def name="2R@" ds=" -- n1 n2 " rs="n1 n2 -- n1 n2 "> R>  R> R@  SWAP >R  SWAP R@  SWAP >R </def>
+
+<def name="2SWAP" ds=" d1 d2 -- d2 d1 "> ROT >R ROT R> </def>
+<def name="2OVER" ds=" d1 d2 -- d1 d2 d1 "> >R >R 2DUP R> R> 2SWAP </def>
+<def name="2ROT" ds=" d1 d2 d3 -- d2 d3 d1 "> 2>R 2SWAP 2R> 2SWAP </def>
+
+<def name="DNEGATE" ds=" d -- -d "> INVERT >R INVERT 1 UM+ R> + </def>
+
+<def name="D+" ds=" d d -- d "> >R SWAP >R UM+ R> R> + + </def>
+<def name="D-" ds=" d d -- d "> DNEGATE D+ </def>
+
+<def name="D0LT" ds=" d -- f "> SWAP DROP 0LT </def>
+
+<def name="DABS" ds=" d1 -- d2 "> DUP 0LT <if> DNEGATE </if></def>
+
+<def name="S>D" ds=" n -- d "> DUP 0LT </def>
+<def name="D>S" ds=" d -- n "> DROP </def>
+
+<def name="M+" ds=" d n -- d "> S>D D+ </def>
+<def name="M-" ds=" d n -- d "> S>D D- </def>
+
+</forth>
