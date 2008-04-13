@@ -7,6 +7,8 @@
 
 <!--
   0< /CELL /CHAR  LSHIFT  RSHIFT
+  /CELL-DEGREE
+  /CHAR-DEGREE
 -->
 
 <def name="ABS" ds=" n -- +n "> DUP 0LT <if> NEGATE </if></def>
@@ -37,13 +39,19 @@
 
 
 <def name="CELLS" ds=" u1 -- u2 ">
-  <lit>  0 /CELL <repeat> 1 RSHIFT DUP <while/> SWAP 1+ SWAP </repeat> DROP </lit>
-  LSHIFT 
+  /CELL-DEGREE LSHIFT
+</def>
+
+<def name=">CELLS" ds=" u1 -- u2 ">
+  /CELL-DEGREE RSHIFT
 </def>
 
 <def name="CHARS" ds=" u1 -- u2 ">
-  <lit>  0 /CHAR <repeat> 1 RSHIFT DUP <while/> SWAP 1+ SWAP </repeat> DROP </lit>
-  LSHIFT 
+  /CHAR-DEGREE LSHIFT 
+</def>
+
+<def name=">CHARS" ds=" u1 -- u2 ">
+  /CHAR-DEGREE RSHIFT 
 </def>
 
 </forth>
