@@ -17,7 +17,7 @@
   RP@ CELL+ <!-- skip ret-addr --> @ 1+ CELLS >R
   SP@ R@ NEGATE + SP!
   SP@ RP@ CELL+ CELL+ SWAP R@ MOVE
-  R> R> SWAP RP@ + RP! >R
+  R> R> SWAP RP@ + RP! >R <!-- restore ret-addr -->
 </def>
 
 </forth>
