@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<!--
+  XOR AND DUP DROP OVER >R R> UM+
+  @ ! B@ B! C@ C!
+  0 1 -1
+  0< /CELL /CHAR  LSHIFT  RSHIFT
+-->
+
+
+<def name="LOG2" ds=" x -- u ">
+  0 >R <repeat> 1 RSHIFT DUP <while/> RP@ 1+! </repeat> DROP R>
+</def>
+
+<const name="/CELL-DEGREE">
+  2 CELLS   LOG2
+</const>
+  
+<const name="/CHAR-DEGREE">
+  1 CHARS   LOG2
+</const>
+
+
+<def name="DLSHIFT" ds=" d1 u -- d2 ">
+  <rem> ( lo hi  u ) </rem>
+  2 PICK OVER NEGATE 32 + RSHIFT >R
+  TUCK LSHIFT R> OR >R
+  LSHIFT R>
+</def>
+
+<def name="DRSHIFT" ds=" d1 u -- d2 ">
+  <rem> ( lo hi  u ) </rem>
+  2DUP RSHIFT >R
+  TUCK NEGATE 32 + LSHIFT >R
+  RSHIFT R> OR R>
+</def>
+
+
+<def name="LSHIFT"> DROP DLSHIFT </def>
+<def name="RSHIFT"> DROP DRSHIFT </def>
+
+<def name="/CHAR"> 1. </def>
+<def name="/CELL"> 2 CELLS 0 </def>
+
+<def name="Q@"> DROP @ 0   </def>
+<def name="Q!"> DROP NIP ! </def>
+
+<def name="@"> DROP 2@ </def>
+<def name="!"> DROP 2! </def>
+
+<def name="B@"> DROP  B@ 0 </def>
+<def name="B!"> DROP NIP B! </def>
+
+<def name="C@"> B@ </def>
+<def name="C!"> B! </def>
+
+
+<def name="XOR" ds=" lo1 hi1 lo2 hi2 -- lo3 hi3 "> SWAP >R XOR SWAP R> XOR SWAP </def>
+<def name="AND" ds=" lo1 hi1 lo2 hi2 -- lo3 hi3 "> SWAP >R AND SWAP R> AND SWAP </def>
+<def name="DUP" ds=" lo1 hi1 -- lo1 hi1 lo1 hi1 "> 2DUP </def>
+<def name="DROP" ds=" lo1 hi1 -- "> 2DROP </def>
+<def name="OVER" ds=" lo1 hi1 lo2 hi2 -- lo1 hi1 lo2 hi2 lo1 hi1 "> 2OVER </def>
+
+<def name=">R"> 2>R </def>
+<def name="R>"> 2R> </def>
+
+<def name="0LT"> 0. D&lt; DUP </def>
+
+<def name="0"> 0. </def>
+<def name="1"> 1. </def>
+<def name="-1"> -1. </def>
+
+
+<def name="UM+" ds=" lo1 hi1 lo2 hi2 -- lo3 hi3  lo-cy hi-cy">
+  <r:direct xmlns:r="http://forth.org.ru/ForthML/Rules/">
+    HEX
+    <text>
+     8B 55 00 01  55 08 13 45  04 8D 6D 08  8D 6D FC 89
+     45 00 C7 C0  00 00 00 00  83 D0 00 8D  6D FC 89 45
+     00 C7 C0 00  00 00 00 C3
+    </text><each-word> forthml-hidden::I-LIT <unless> ABORT </unless> B, </each-word>
+    DECIMAL
+  </r:direct>
+<rem>
+  <code name="UDM+" ds=" d1 d2 -- d3 d-cy ">
+     MOV EDX, [EBP]
+     ADD 8 [EBP], EDX
+     ADC EAX, 4 [EBP]
+     LEA EBP, 8 [EBP]
+
+     LEA EBP, -4 [EBP]
+     MOV [EBP], EAX
+     MOV EAX, # 0
+     ADC EAX, # 0
+
+     LEA EBP, -4 [EBP]
+     MOV [EBP], EAX
+     MOV EAX, # 0
+
+     RET
+     <rem>not so perfect but good enough ;) </rem>
+  </code>
+</rem>
+</def>
+
+</forth>
