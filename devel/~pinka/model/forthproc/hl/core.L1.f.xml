@@ -9,7 +9,7 @@
 
 <def name="INVERT" ds=" x1 -- x1 "> -1 XOR </def>
 <def name="OR" ds=" x1 x2 -- x3 "> INVERT SWAP INVERT AND INVERT </def>
-<def name="NEGATE" ds=" n1 -- n2 "> INVERT 1 + </def>
+<def name="NEGATE" ds=" n1 -- n2 "> INVERT 1 UM+ DROP </def>
 
 <def name="EQ" ds=" x1 x1 -- f "> XOR <if> 0 <exit/></if> -1 </def>
 
