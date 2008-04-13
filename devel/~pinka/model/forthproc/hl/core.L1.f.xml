@@ -3,6 +3,7 @@
 
 <!--
   XOR AND DUP DROP OVER >R R> UM+
+  @ !
   0 1 -1
 -->
 
@@ -36,6 +37,6 @@
 <def name="1-" ds=" n -- n "> 1 - </def>
 
 <def name="0!" ds=" a -- "> 0 SWAP ! </def>
-<def name="+!" ds=" n a -- "> SWAP OVER @ + SWAP ! </def>
+<def name="+!" ds=" n a -- "> DUP >R @ + R> ! </def>
 
 </forth>
