@@ -12,6 +12,7 @@
 <def name="2SWAP" ds=" d1 d2 -- d2 d1 "> ROT >R ROT R> </def>
 <def name="2OVER" ds=" d1 d2 -- d1 d2 d1 "> >R >R 2DUP R> R> 2SWAP </def>
 <def name="2ROT" ds=" d1 d2 d3 -- d2 d3 d1 "> 2>R 2SWAP 2R> 2SWAP </def>
+<def name="2NIP" ds=" d1 d2 -- d2 "> 2>R 2DROP 2R> </def>
 
 <def name="DNEGATE" ds=" d -- -d "> INVERT >R INVERT 1 UM+ R> + </def>
 
