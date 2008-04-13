@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Apr.2008 -->
+
+<comment>
+  Работает в 32x, генерит 64x код (расширен только размер ячейки, маш-код 32x).
+</comment>
+
+<def name="_RDROP," ds=" -- ">
+  0x5A B, <rem> pop edx </rem>
+  <!-- or:  83C404  ADD ESP , # 4 -->
+</def>
+
+<include href="spf4-prime.L1.f.xml"/>
+
+<def name="DEFER-LIT," ds=" -- addr "> ABORT <!-- not supported --></def>
+
+<def name="CALL," ds=" addr -- "> 0 RLIT, CALL, _RDROP, </def>
+
+<def name="ULIT," ds=" x -- ">
+  LIT, 0 LIT,
+</def>
+
+<def name="LIT," ds=" x -- ">
+  S&gt;D SWAP LIT, LIT,
+</def>
+
+<def name="2LIT," ds=" x x -- "> SWAP ULIT, ULIT, </def>
+
+<def name="RLIT," ds=" x -- "> RLIT, 0 RLIT, </def>
+
+<def name="ZBRANCH," ds=" addr -- ">
+  0x0B B, 0x45 B, 0x00 B, <!-- OR      EAX , 0 [EBP] -->
+  0x8D B, 0x6D B, 0x04 B, <!-- LEA     EBP , 4 [EBP] -->
+  ZBRANCH,
+</def>
+
+<def name="NZBRANCH," ds=" addr -- ">
+  0x0B B, 0x45 B, 0x00 B, <!-- OR      EAX , 0 [EBP] -->
+  0x8D B, 0x6D B, 0x04 B, <!-- LEA     EBP , 4 [EBP] -->
+  NZBRANCH,
+</def>
+
+</forth>
