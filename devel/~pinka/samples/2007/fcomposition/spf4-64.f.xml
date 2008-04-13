@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+    xmlns:xi="http://forth.org.ru/ForthML/Struct/"
+     xmlns:r="http://forth.org.ru/ForthML/Rules/"
+>
+
+<comment>
+  Для того, чтобы собрать произвольную целевую систему
+  с размером ячейки 64x, вначале надо собрать действующий инструментальный
+  64x форт-процессор и транслятор. Далее все идет точно так же, 
+  как и в предыдущем случае -- делаем хост и грузим гостем целевую систему.
+</comment>
+
+<wordlist name="emu64"><comment> Собираем здесь 64x форт-процессор </comment>
+
+<rem> 
+  Шаг 1. Воплощаем в отдельном словаре действующий
+  транслятор, порождающий 64x-код, но работающий 
+  прямо в инструментальной системе на 32x форт-процессоре.
+  
+  Для этого используем готовую модель tc-host.f.xml,
+  но подставим туда соответствующий 64x кодогенератор,
+  а хранилище и интерпретатор оставим штатые, 
+  от инструментальной системы (для этого подставляем пустые модели).
+</rem>
+
+  <xi:model name="storage"/>
+  <xi:model name="interpreter"/>
+
+  <xi:model name="codegen">
+  <g xml:base="http://forth.org.ru/~pinka/model/codegen/">
+    <include href="spf4-emu64.L1.f.xml"/><!-- Кодогенератор 64x -->
+    <include href="slit-co.f.xml"/><!-- the codespace and the dataspace are coincident -->
+    <include href="common.L2.f.xml"/>
+  </g>
+  </xi:model>
+  
+  <xi:include href="tc-host.f.xml"/>  
+  <rem> Готово: новый транслятор расположен в под-словаре TC-WL </rem>
+
+  <rem> Для исследования, в любом месте ставим QUIT и изучаем пространство :) 
+    Проверка кодогенератора:
+    TC-WL ALSO!
+    CONCEIVE 1 LIT, NZBFW, ' ABORT CALL, RFW 2 LIT, BIRTH EXECUTE
+    --> 2 0 (число двойной длины)
+
+    Проверка метаФорта
+    <r:mode transform="TC-WL::transformer-fml">
+      <def name="abc"> 1 .S CR <if><text>abc</text></if></def>
+    </r:mode>
+    abc
+    -- 1 0 ( на вход if идет число двойной длины )
+    --> 5784191 0 3 0 ( адрес и длина числами двойной длины )
+  </rem>
+  
+  <g xml:base="http://forth.org.ru/~pinka/model/forthproc/">
+
+    <rem> Шаг 2. Загружаем примитивы 64x форт-процессора, 
+      определенные на базе процессора 32x
+    </rem>
+    <include href="doubling-cell.f.xml"/><!-- удвоение размера ячейки -->
+
+    <rem> Шаг 3. Загружаем все остальные слова 64x форт-процессора, 
+      определенные на высоком уровне. При этом используем ранее собранный
+      64x транслятор!
+    </rem>
+    <r:mode transform="TC-WL::transformer-fml">
+      <include href="hl/index.f.xml"/>
+    </r:mode>
+  </g>
+  
+  <rem> Здесь мы имеет 64x форт-процессор. Размер ячейки 8 байт. </rem>
+  
+</wordlist>
+
+</forth>
