@@ -5,7 +5,7 @@
 
 <g xml:base="trial/">
 
-<xi:model name="forthproc">
+<xi:model name="forthproc" href="#forthproc">
   <include href="forthproc.f.xml"/>
 </xi:model>
 
@@ -13,11 +13,11 @@
   <include href="strings.f.xml"/>
 </xi:model>
 
-<xi:model name="storage">
+<xi:model name="storage" href="#storage">
   <include href="storage.f.xml"/>
 </xi:model>
 
-<xi:model name="codegen">
+<xi:model name="codegen" href="#codegen">
   <include href="codegen.f.xml"/>
 </xi:model>
 
@@ -27,7 +27,7 @@
 
 
 
-<xi:model name="interpreter"><g xml:base="http://forth.org.ru/~pinka/model/data/">
+<xi:model name="interpreter" href="#interpreter"><g xml:base="http://forth.org.ru/~pinka/model/data/">
 
   <include href="list-plain.f.xml"/>
 
