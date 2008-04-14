@@ -8,6 +8,7 @@
   0< /CELL /CHAR  LSHIFT  RSHIFT
   /CELL-DEGREE /CHAR-DEGREE
   EXECUTE
+  SP@ SP! RP@ RP!
 -->
 
 <wordlist name="doubling-hidden">
@@ -56,8 +57,14 @@
 <def name="C@"> B@ </def>
 <def name="C!"> B! </def>
 
-
+<!--
 <def name="EXECUTE"> DROP EXECUTE </def>
+-->
+
+<def name="SP@"> SP@ 0 </def>
+<def name="SP!"> DROP SP! </def>
+<def name="RP@"> 2R> RP@ 0 2SWAP 2>R </def>
+<def name="RP!"> 2R> 2SWAP DROP RP! 2>R </def>
 
 <def name="0LT"> 0. D&lt; DUP </def>
 
@@ -107,8 +114,6 @@
   </code>
 </rem>
 </def>
-
-
 
 </export></wordlist>
 
