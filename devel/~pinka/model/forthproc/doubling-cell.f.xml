@@ -4,7 +4,6 @@
 <!--
   XOR AND DUP DROP OVER >R R> UM+
   @ ! B@ B! C@ C!
-  0 1 -1
   0< /CELL /CHAR  LSHIFT  RSHIFT
   /CELL-DEGREE /CHAR-DEGREE
   EXECUTE
@@ -76,11 +75,6 @@
 
 <def name=">R"> 2R> 2SWAP 2>R 2>R </def>
 <def name="R>"> 2R> 2R> 2SWAP 2>R </def>
-
-
-<def name="0"> 0. </def>
-<def name="1"> 1. </def>
-<def name="-1"> -1. </def>
 
 
 <def name="UM+" ds=" lo1 hi1 lo2 hi2 -- lo3 hi3  lo-cy hi-cy">
