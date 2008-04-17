@@ -3,7 +3,7 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 `envir.f.xml            FIND-FULLNAME2 EMBODY  xml-struct-hidden::start
 `spf4-64.f.xml          FIND-FULLNAME2 EMBODY
 
-emu64 ALSO!
+emu64 ALSO! DEFINITIONS
 
  ORDER
 
