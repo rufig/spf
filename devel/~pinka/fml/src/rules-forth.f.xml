@@ -29,6 +29,16 @@
 
 <!-- = = = = = -->
 
+<rule match="f:also">
+  `wordlist GetAttribute T-PLAIN <m> PUSH-SCOPE <yield/> DROP-SCOPE </m>
+</rule>
+
+<rule match="f:alias">
+  <get-name/> `word GetAttribute 
+  <f:choose> DUP <f:when> &amp; T-LIT </f:when> 2DROP <yield/></f:choose>
+  <m>NAMING</m>
+</rule>
+
 <rule match="f:include"><!-- xml:base aware -->
   `href GetAttribute expanded-url T-SLIT <m>EMBODY</m>
 </rule>

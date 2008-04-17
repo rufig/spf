@@ -134,13 +134,6 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   </mm>
 </rule>
 
-<rule match="f:also"><!-- immediately effect! -->
-  0 STATE <f:let><exec-attribute name="wordlist"/></f:let>
-  PUSH-SCOPE
-  <yield/>
-  DROP-SCOPE
-</rule>
-
 <rule match="f:definitions"><mm>
   GET-CURRENT >CS  CONTEXT @ SET-CURRENT
   <yield/>
