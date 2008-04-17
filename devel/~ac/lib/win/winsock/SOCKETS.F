@@ -143,8 +143,10 @@ USER CONNECT-INTERFACE
   IF WSAGetLastError ELSE 0 THEN
 ;
 : CloseSocket ( s -- ior )
+\ linger по умолчанию: graceful close без таймаута, устанавливаем таймаут на закрытие
   DUP >R 4 LINGER SO_LINGER SOL_SOCKET R> setsockopt DROP
-\  100 PAUSE
+  100 PAUSE \ без этой паузы пакеты закрытия иногда доходят раньше хвоста
+            \ данных, что на клиенте выглядит как 10054, никакие варианты linger не спасают
   2 ( SD_BOTH) OVER shutdown DROP
   100 PAUSE
   closesocket SOCKET_ERROR =
