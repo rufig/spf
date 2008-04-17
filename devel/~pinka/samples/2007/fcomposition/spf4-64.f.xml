@@ -33,6 +33,7 @@
     <include href="slit-co.f.xml"/><!-- the codespace and the dataspace are coincident -->
     <include href="common.L2.f.xml"/>
   </g>
+  <def name=","> S>D SWAP , , </def><!-- удвоение размера €чейки в пространстве данных -->
   </xi:model>
   
   <xi:include href="tc-host.f.xml"/>  
