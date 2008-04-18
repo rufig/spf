@@ -3,7 +3,7 @@
 <!-- 02.2008 -->
 
 <def name="SXZ,TAKE" ds=" c-addr u -- a2 u ">
-  ALIGN HERE OVER 2SWAP SXZ,
+  ALIGN HERE OVER 2SWAP S, 0 C,
 </def>
 
 <def name="SLIT," ds=" c-addr u -- "><rem> counts in address unit </rem>
