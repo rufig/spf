@@ -1,19 +1,9 @@
 REQUIRE ParseMime              ~ac/lib/lin/mime/mime.f 
 REQUIRE StripLwsp              ~ac/lib/string/mime-decode.f 
-REQUIRE UNICODE>UTF8           ~ac/lib/win/com/com.f
+\ REQUIRE UNICODE>UTF8           ~ac/lib/win/com/com.f
+REQUIRE UNICODE>UTF8           ~ac/lib/lin/iconv/iconv.f 
 
 \ ================================= subject decoding ==================
-
-: iso-8859-5>UNICODE ( addr u -- addr2 u2 )
-\ специально для чтения писем ~yz :)
-  DUP 2* CELL+ ALLOCATE DROP UnicodeBuf !
-  SWAP >R
-  DUP 2* CELL+ UnicodeBuf @ ROT R> 0 ( flags) 28595 ( iso-8859-5)
-  MultiByteToWideChar
-  UnicodeBuf @ 
-  SWAP 2* 
-  2DUP + 0 SWAP W!
-;
 
 GET-CURRENT ALSO CHARSET-DECODERS DEFINITIONS
 : UTF-8 UTF8> ;
