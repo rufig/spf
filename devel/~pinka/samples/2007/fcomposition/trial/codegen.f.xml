@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
-<forth xmlns="http://forth.org.ru/ForthML/">
+<forth xmlns="http://forth.org.ru/ForthML/"
+    xmlns:xi="http://forth.org.ru/ForthML/Struct/"
+>
 
 <tc:import from="FORTH-WORDLIST::CODEGEN-WL"  xmlns:tc="http://forth.org.ru/ForthML/TC/">
 
@@ -13,18 +15,26 @@
 
 <g xml:base="http://forth.org.ru/~pinka/model/codegen/">
 
-<rem>
+<xi:model name="storage-sep">
   <also wordlist="CODESPACE-WL">
     <include href="spf4-prime.L1.f.xml"/>
   </also>
   <include href="slit-sep.f.xml"/><!-- the codespace and the dataspace are separate -->
-</rem>
+</xi:model>
 
+<xi:model name="storage-co">
   <include href="spf4-prime.L1.f.xml"/>
   <include href="slit-co.f.xml"/><!-- the codespace and the dataspace are coincident -->
+</xi:model>
 
+<xi:model name="codegen-common">
   <include href="common.L2.f.xml"/>
+</xi:model>
 
 </g>
+
+
+  <xi:include href="storage-selected.f.xml"/><rem> #storage-sep or #storage-co </rem>
+  <xi:include href="#codegen-common"/>
 
 </forth>

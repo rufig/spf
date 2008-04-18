@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+    xmlns:xi="http://forth.org.ru/ForthML/Struct/"
+>
+
+<xi:include href="#storage-selected">
+  <rem> fallback </rem>
+  <xi:include href="#storage-sep"/><rem> default storage type ('-co' or '-sep')</rem>
+</xi:include>
+
+</forth>
