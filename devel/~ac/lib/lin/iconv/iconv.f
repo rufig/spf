@@ -35,6 +35,9 @@ REQUIRE [IF]          lib/include/tools.f
 : UNICODE> ( addr u -- addr2 u2 )
   S" UTF-16LE" S" CP1251" ICONV
 ;
+: BUNICODE> ( addr u -- addr2 u2 )
+  S" UTF-16BE" S" CP1251" ICONV
+;
 : UTF8>UNICODE ( addr u -- addr2 u2 )
   S" UTF-8" S" UTF-16LE" ICONV
 ;
@@ -47,6 +50,11 @@ REQUIRE [IF]          lib/include/tools.f
 : UTF8> ( addr u -- addr2 u2 )
   S" UTF-8" S" CP1251" ICONV
 ;
+: iso-8859-5>UNICODE ( addr u -- addr2 u2 )
+\ специально для чтения писем ~yz :)
+  S" ISO-8859-5" S" UTF-16LE" ICONV
+;
+
 PREVIOUS
 
 : UASCIIZ> ( addr -- addr u ) \ вариант ASCIIZ> для Unicode
