@@ -11,15 +11,19 @@
 
 <g xml:base="codegen/">
 
+<xi:model name="codegen-L1" href="#codegen-L1">
+  <include href="spf4-prime.L1.f.xml"/>
+</xi:model>
+
 <xi:model name="storage-sep">
   <also wordlist="CODESPACE-WL">
-    <include href="spf4-prime.L1.f.xml"/>
+    <xi:include href="#codegen-L1"/>
   </also>
   <include href="slit-sep.f.xml"/><!-- the codespace and the dataspace are separate -->
 </xi:model>
 
 <xi:model name="storage-co">
-  <include href="spf4-prime.L1.f.xml"/>
+  <xi:include href="#codegen-L1"/>
   <include href="slit-co.f.xml"/><!-- the codespace and the dataspace are coincident -->
 </xi:model>
 
