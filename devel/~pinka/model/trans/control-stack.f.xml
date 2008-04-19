@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="CS-WL">
+  <cell name="Z0"/>
+  <cell name="ZP"/>
+  <include href="../data/zstack.immutable.f.xml"/>
+  <cell name="Z9"/>
+
+<export>
+  <def name="ASSUME-CS" ds=" addr u -- "> OVER CELL+ Z9 ! ZASSUME </def>
+  <def name="?CSP" ds=" -- ">
+    Z0 @  ZP@  ULT <if> Z0 @ ZP! -311 THROW <!-- `cs-is-underflow STHROW --></if>
+    ZP@  Z9 @  ULT <if> Z0 @ ZP!  -52 THROW <!-- `cs-id-overflow  STHROW --></if>
+  </def>
+  <alias name=">CS"     word=">Z"/>
+  <alias name="CS>"     word="Z>"/>
+  <alias name="2>CS"    word="2>Z"/>
+  <alias name="2CS>"    word="2Z>"/>
+  <alias name="CS@"     word="Z@"/>
+  <alias name="2CS@"     word="2Z@"/>
+  <alias name="CSDROP"  word="ZDROP"/>
+
+  </export>  
+</wordlist>
+
+</forth>
