@@ -25,24 +25,9 @@
   <include href="host-envir.f.xml"/>
 </xi:model>
 
-
-
-<xi:model name="interpreter" href="#interpreter"><g xml:base="http://forth.org.ru/~pinka/model/data/">
-
-  <include href="list-plain.f.xml"/>
-
-  <include href="wordlist-plain.f.xml"/>
-  <include href="wordlist-plain-tools.f.xml"/>
-
-  <include href="context-native.f.xml"/>
-
-  <include href="vocabulary.f.xml"/>
-
-  <include href="../trans/ilit.f.xml"/>
-  <include href="../trans/iword-qnative.f.xml"/>
-</g>
+<xi:model name="interpreter" href="#interpreter">
+  <include href="interpreter.f.xml"/>
 </xi:model>
-
 
 <xi:model name="heap">
   <include href="heap.f.xml"/>

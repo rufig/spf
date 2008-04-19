@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<g xml:base="http://forth.org.ru/~pinka/model/data/">
+
+  <include href="list-plain.f.xml"/>
+
+  <include href="wordlist-plain.f.xml"/>
+  <include href="wordlist-plain-tools.f.xml"/>
+
+  <include href="context-native.f.xml"/>
+
+  <include href="vocabulary.f.xml"/>
+
+  <include href="../trans/ilit.f.xml"/>
+  <include href="../trans/iword-qnative.f.xml"/>
+</g>
+
+</forth>
