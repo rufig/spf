@@ -38,14 +38,19 @@
   <lit> 1 CHARS  LOG2 </lit> 0
 </def>
 
+<def name="ALIGNED"> >R DUP 0x3F AND <if> 0x40 + 0xFFFFFFC0 AND </if> R> </def>
+
 <def name="LSHIFT"> DROP DLSHIFT </def>
 <def name="RSHIFT"> DROP DRSHIFT </def>
 
 <def name="/CHAR"> 1. </def>
 <def name="/CELL"> 2 CELLS 0 </def>
 
-<def name="Q@"> DROP @ 0   </def>
-<def name="Q!"> DROP NIP ! </def>
+<def name="W@"> DROP W@ 0   </def>
+<def name="W!"> DROP NIP W! </def>
+
+<def name="L@"> DROP @ 0   </def>
+<def name="L!"> DROP NIP ! </def>
 
 <def name="@"> DROP 2@ </def>
 <def name="!"> DROP 2! </def>
