@@ -34,7 +34,7 @@ SP!            RP!            SP@            RP@
 DRMOVE         NR>            N>R            NRCOPY         RP+@           
 RP+            RP+!           RALLOT         (RALLOT)       RFREE          
 
-R>             >R             RDROP          ?DUP
+R>             >R             RDROP          ?DUP           NDROP
 
 EXECUTE        EXIT           CATCH          THROW          ABORT
 
