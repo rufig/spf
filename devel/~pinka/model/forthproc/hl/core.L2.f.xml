@@ -21,6 +21,12 @@
 <def name="UGT" ds=" u1 u2 -- f "> SWAP ULT </def>
 <def name="GT" ds=" n1 n2 -- f ">  SWAP  LT </def>
 
+<def name="UMIN" ds=" u1 u2 -- f "> 2DUP ULT <if> DROP <exit/></if> NIP </def>
+<def name="MIN"  ds=" n1 n2 -- f "> 2DUP  LT <if> DROP <exit/></if> NIP </def>
+
+<def name="UMAX" ds=" u1 u2 -- f "> 2DUP ULT <if> NIP <exit/></if> DROP </def>
+<def name="MAX"  ds=" n1 n2 -- f "> 2DUP  LT <if> NIP <exit/></if> DROP </def>
+
 <def name="FALSE" ds=" -- false "> 0 </def>
 <def name="TRUE"  ds=" -- true "> -1 </def>
 
