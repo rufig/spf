@@ -7,7 +7,14 @@
 <init>
   300 1024 * ALLOCATED TC-WL::DATASPACE!
   300 1024 * ALLOCATED TC-WL::CODESPACE!
+  500 CELLS  ALLOCATED TC-WL::ASSUME-CS
 </init>
+
+
+<def name="req-host" ds=" i*x a u -- j*x ">
+  forthml-hidden::I-NATIVE-FORCE <rem>( i*x xt )</rem>
+  EXECUTE
+</def>
 
 
 <develop wordlist="TC-WL">
@@ -30,21 +37,16 @@
   <lit>DUP</lit> (give-wordlist)
 </def>
 
-<def name="get-storage" ds=" -- i*x i "> SAVE-STORAGE </def>
-
-<def name="get-vocs" ds=" -- h "> VOC-LIST @ </def>
-
 </develop>
-  
  
 
  <rem> ( wid ) </rem>
 
-
+ 
 <r:mode transform="TC-WL::transformer-fml">
 
   <tc:import from="TC-WL">
-    get-vocs get-storage  give-forth
+    req-host give-forth
     NEXT-LINE-STDIN  >NUMBER BASE HEX  . U. .S  OK
   </tc:import>
 
@@ -54,8 +56,12 @@
   <include href="quit.f.xml"/>
 
   <init><rem> initiate the target system </rem>
-    get-vocs    VOC-LIST !
-    get-storage RESTORE-STORAGE
+    <rem> The host system and the target system are has a same code form! So we can execute a words from the target system.</rem>
+    
+    `TC-WL::VOC-LIST       req-host    @ VOC-LIST !
+    `TC-WL::SAVE-STORAGE   req-host    RESTORE-STORAGE
+ 
+    500 CELLS ALLOCATED ASSUME-CS
     FORTH-WL DUP SET-CURRENT PUSH-SCOPE
   </init>
 

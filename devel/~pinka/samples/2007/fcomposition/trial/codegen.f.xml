@@ -3,17 +3,13 @@
     xmlns:xi="http://forth.org.ru/ForthML/Struct/"
 >
 
-<tc:import from="FORTH-WORDLIST::CODEGEN-WL"  xmlns:tc="http://forth.org.ru/ForthML/TC/">
+<def name="GET-COMPILER?" ds=" xt -- xt2 true | xt false "> FALSE </def>
 
-  CS> >CS 2>CS 2CS> CS@ CSDROP ?CSP
-  
-  GET-COMPILER?
+<g xml:base="http://forth.org.ru/~pinka/model/">
 
-</tc:import>
+<include href="trans/control-stack.f.xml"/>
 
-
-
-<g xml:base="http://forth.org.ru/~pinka/model/codegen/">
+<g xml:base="codegen/">
 
 <xi:model name="storage-sep">
   <also wordlist="CODESPACE-WL">
@@ -31,10 +27,9 @@
   <include href="common.L2.f.xml"/>
 </xi:model>
 
-</g>
+</g></g>
 
-
-  <xi:include href="storage-selected.f.xml"/><rem> #storage-sep or #storage-co </rem>
-  <xi:include href="#codegen-common"/>
+<xi:include href="storage-selected.f.xml"/><rem> #storage-sep or #storage-co </rem>
+<xi:include href="#codegen-common"/>
 
 </forth>
