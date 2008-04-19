@@ -5,6 +5,9 @@
   /CHAR C@
 -->
 
+<def name="2+" ds=" addr -- ">  2 + </def>
+<def name="2-" ds=" addr -- "> -2 + </def>
+
 <def name="1+!" ds=" addr -- ">  1 SWAP +! </def>
 <def name="1-!" ds=" addr -- "> -1 SWAP +! </def>
 
