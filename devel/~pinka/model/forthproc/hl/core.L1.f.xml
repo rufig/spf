@@ -39,4 +39,8 @@
 <def name="0!" ds=" a -- "> 0 SWAP ! </def>
 <def name="+!" ds=" n a -- "> DUP >R @ + R> ! </def>
 
+
+<alias name="="   word="EQ"/>
+<alias name="0="  word="0EQ"/>
+
 </forth>
