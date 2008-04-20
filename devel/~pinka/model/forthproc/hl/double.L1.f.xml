@@ -23,6 +23,7 @@
 
 <def name="DABS" ds=" d1 -- d2 "> DUP 0LT <if> DNEGATE </if></def>
 
+<def name="U>D" ds=" u -- d "> 0 </def>
 <def name="S>D" ds=" n -- d "> DUP 0LT </def>
 <def name="D>S" ds=" d -- n "> DROP </def>
 
