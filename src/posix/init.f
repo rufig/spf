@@ -39,6 +39,15 @@ CR .( FIXME reuse windows DUMP-TRACE code)
   ." ----------------------------------------------------------------" CR
 ; 
 
+\ see http://forth.sourceforge.net/standard/dpans/dpans9.htm#9.3.5
+: signum>ior ( sig -- ior )
+   DUP SYS_SIGSEGV = IF DROP -9 EXIT THEN
+   DUP SYS_SIGILL = IF DROP -9 EXIT THEN
+   DUP SYS_SIGFPE = IF DROP -55 EXIT THEN
+   DUP SYS_SIGBUS = IF DROP -23 EXIT THEN
+   256 + NEGATE 
+;
+
 \ Signal handler that THROWs forth exception
 \ Usable for synchronous signals
 \ If it exits normally -- kernel will restore context
@@ -49,10 +58,10 @@ CR .( FIXME reuse windows DUMP-TRACE code)
 \ Stack pointers are restored by THROW
 \ EAX is an exception code
 : (errsignal) ( ctxt siginfo num -- x )
-    2>R 
-    DUP SYS_CONTEXT_EDI + @ TlsIndex!
-    2R> DUMP-TRACE
-    0xC0000005 THROW ;
+    >R
+    OVER SYS_CONTEXT_EDI + @ TlsIndex!
+    R@ DUMP-TRACE
+    R> signum>ior THROW ;
 
 ' (errsignal) 3 TC-CALLBACK: errsignal
 
