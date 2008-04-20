@@ -60,8 +60,4 @@
   /CHAR-DEGREE RSHIFT 
 </def>
 
-<def name="DIGIT" ds=" c base -- u flag ">
-  >R <char>0</char> - 9 OVER LT <if> 7 - DUP 10 LT OR </if> DUP R> ULT
-</def>
-
 </forth>
