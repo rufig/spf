@@ -15,13 +15,14 @@
       DUP U. ." :  " DUP @ DUP U. WordByAddr TYPE CR
 ;
 
-: (errsignal) ( context siginfo signo -- )
+CR .( FIXME reuse windows DUMP-TRACE code)
+: DUMP-TRACE ( context siginfo signo -- )
   HEX
   CR ." ----------------------------------------------------------------" CR
   ." [" 1 <( )) strsignal ASCIIZ> TYPE ." ]  Code:"
   DUP 2 CELLS + @ . >R
   ."  Address:" DUP 19 CELLS + @ DUP 8 .0
-  ."   Word:" . CR \ WordByAddr TYPE CR
+  ."   Word:" WordByAddr TYPE CR
   ." At:" R> 3 CELLS + @ 8 .0 ."  UserData:" TlsIndex@ 8 .0 
   ."  ThreadID:" (()) pthread_self 8 .0 ."  Handler:" HANDLER @ 8 .0 CR
   ." Stack: " 
@@ -36,23 +37,39 @@
      DUP I CELLS + STACK-ADDR. DROP
   LOOP DROP
   ." ----------------------------------------------------------------" CR
-  BYE
 ; 
+
+\ Signal handler that THROWs forth exception
+\ Usable for synchronous signals
+\ If it exits normally -- kernel will restore context
+\ and the offending instruction will be executed again and again
+\ So we use THROW to change execution flow
+\ But HANDLER is USER and thus depends on EDI (in current implementation) which
+\ is overwritten, so we restore it from the ctxt.uc_mcontext.edi
+\ Stack pointers are restored by THROW
+\ EAX is an exception code
+: (errsignal) ( ctxt siginfo num -- x )
+    2>R 
+    DUP SYS_CONTEXT_EDI + @ TlsIndex!
+    2R> DUMP-TRACE
+    0xC0000005 THROW ;
 
 ' (errsignal) 3 TC-CALLBACK: errsignal
 
 CREATE sigact
 ' errsignal >VIRT ,   \ обработчик сигнала
-\ маска блокировки
-HERE 128 ALLOT 128 ERASE
-0x10000004  ,   \ флажки: SA_RESTART + SA_SIGINFO
-0           ,   \ sa_restarter
+SYS_SIZEOF_SIGSET ALLOT \ маска блокировки
+SYS_SA_RESTART SYS_SA_SIGINFO + SYS_SA_NODEFER + ,
+0  ,   \ sa_restarter
 
+CR .( FIXME test return result of sigaction)
 : set-errsignal-handler
-  (( 4  ( SIGILL)  sigact 0 )) sigaction DROP
-  (( 7  ( SIGBUS)  sigact 0 )) sigaction DROP
-  (( 8  ( SIGFPE)  sigact 0 )) sigaction DROP
-  (( 11 ( SIGSEGV) sigact 0 )) sigaction DROP
+   \ clear blocking mask
+   (( sigact CELL+ )) sigemptyset DROP \ 0 = ?
+   (( SYS_SIGILL  sigact 0 )) sigaction DROP \ 0 = ?
+   (( SYS_SIGBUS  sigact 0 )) sigaction DROP
+   (( SYS_SIGFPE  sigact 0 )) sigaction DROP
+   (( SYS_SIGSEGV sigact 0 )) sigaction DROP
 ;
 
 : PROCESS-INIT ( n )

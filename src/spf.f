@@ -60,6 +60,10 @@ C" LAST-HERE" FIND NIP 0= VALUE INLINEVAR
 0 VALUE .forth
 0 VALUE .forth#
 
+TARGET-POSIX [IF]
+S" src/posix/config.auto.f" INCLUDED
+[THEN]
+
 S" src/spf_date.f"                INCLUDED
 S" src/spf_xmlhelp.f"             INCLUDED
 S" src/tc_spf.F"                  INCLUDED

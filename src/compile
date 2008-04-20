@@ -3,6 +3,7 @@
 # $Id$
 
 rm spf4.o
+make -C posix # generate posix/config.auto.f
 cd ..
 echo Wait a bit while compiling...
 ./spf4orig src/spf.f
