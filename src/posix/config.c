@@ -23,8 +23,8 @@ void a_const(const char* name, int value, const char* comment)
   printf(": SYS_%s 0x%X STATE @ IF LIT, THEN ; IMMEDIATE\n", (name), (value));
 }
 
-#define CONST(name,value) a_const(#name,value,#value)
-#define DEFINE(name) a_const(#name,name,#name)
+#define CONST(name,value) a_const(#name,value,#value);
+#define DEFINE(name) a_const(#name,name,#name);
 #define ENSURE(p) if (!(p)) { fprintf(stderr,"failed : %s\n", #p); return 0; }
 
 #define CELL 4
@@ -50,15 +50,23 @@ int main()
     return 1;
   }
 
-  CONST( CONTEXT_EDI, offsetof(ucontext_t,uc_mcontext.gregs) + REG_EDI*sizeof(greg_t) );
-  DEFINE( SA_RESTART );
-  DEFINE( SA_SIGINFO );
-  DEFINE( SA_NODEFER );
-  CONST( SIZEOF_SIGSET, sizeof(sigset_t) );
-  DEFINE( SIGILL );
-  DEFINE( SIGSEGV );
-  DEFINE( SIGBUS );
-  DEFINE( SIGFPE );
+  CONST( CONTEXT_EDI, offsetof(ucontext_t,uc_mcontext.gregs) + REG_EDI*sizeof(greg_t) )
+  DEFINE( SA_RESTART )
+  DEFINE( SA_SIGINFO )
+  DEFINE( SA_NODEFER )
+  CONST( SIZEOF_SIGSET, sizeof(sigset_t) )
+  DEFINE( SIGILL )
+  DEFINE( SIGSEGV )
+  DEFINE( SIGBUS )
+  DEFINE( SIGFPE )
+  CONST( SIGINFO_CODE, offsetof(siginfo_t,si_code))
+  DEFINE( FPE_INTDIV )
+  DEFINE( FPE_INTOVF )
+  DEFINE( FPE_FLTDIV )
+  DEFINE( FPE_FLTOVF )
+  DEFINE( FPE_FLTUND )
+  DEFINE( FPE_FLTRES )
+  DEFINE( FPE_FLTINV )
 
   return 0;
 }

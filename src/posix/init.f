@@ -40,11 +40,20 @@ CR .( FIXME reuse windows DUMP-TRACE code)
 ; 
 
 \ see http://forth.sourceforge.net/standard/dpans/dpans9.htm#9.3.5
-: signum>ior ( sig -- ior )
-   DUP SYS_SIGSEGV = IF DROP -9 EXIT THEN
-   DUP SYS_SIGILL = IF DROP -9 EXIT THEN
-   DUP SYS_SIGFPE = IF DROP -55 EXIT THEN
-   DUP SYS_SIGBUS = IF DROP -23 EXIT THEN
+: signum>ior ( code sig -- ior )
+   DUP SYS_SIGSEGV = IF 2DROP -9 EXIT THEN
+   DUP SYS_SIGILL = IF 2DROP -9 EXIT THEN
+   DUP SYS_SIGBUS = IF 2DROP -23 EXIT THEN
+   DUP SYS_SIGFPE = IF DROP 
+    DUP SYS_FPE_INTDIV = IF DROP -10 EXIT THEN
+    DUP SYS_FPE_INTOVF = IF DROP -11 EXIT THEN
+    DUP SYS_FPE_FLTDIV = IF DROP -42 EXIT THEN
+    DUP SYS_FPE_FLTOVF = IF DROP -43 EXIT THEN
+    DUP SYS_FPE_FLTUND = IF DROP -54 EXIT THEN
+    DUP SYS_FPE_FLTRES = IF DROP -41 EXIT THEN
+    DUP SYS_FPE_FLTINV = IF DROP -46 EXIT THEN \ questionable
+    DROP -55 EXIT 
+   THEN
    256 + NEGATE 
 ;
 
@@ -58,10 +67,10 @@ CR .( FIXME reuse windows DUMP-TRACE code)
 \ Stack pointers are restored by THROW
 \ EAX is an exception code
 : (errsignal) ( ctxt siginfo num -- x )
-    >R
-    OVER SYS_CONTEXT_EDI + @ TlsIndex!
-    R@ DUMP-TRACE
-    R> signum>ior THROW ;
+    2>R
+    DUP SYS_CONTEXT_EDI + @ TlsIndex!
+    2R@ DUMP-TRACE
+    2R> SWAP SYS_SIGINFO_CODE + @ SWAP signum>ior THROW ;
 
 ' (errsignal) 3 TC-CALLBACK: errsignal
 
