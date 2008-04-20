@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<cell name="PAD0"/>
+<cell name="PAD9"/>
+<cell name="HLD"/>
+
+<def name="PAD" ds=" -- addr"> PAD0 @ </def>
+<def name="?HLD" ds=" -- "> PAD9 @ HLD @ ULT <unless> -17 THROW </unless></def>
+
+<def name="ASSUME-PAD" ds=" addr u -- "> OVER + CELL- PAD0 ! PAD9 ! </def>
+
+<include href="print.immutable.f.xml"/>
+
+</forth>

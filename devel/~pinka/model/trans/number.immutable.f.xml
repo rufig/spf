@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem><bind-up> BASE </bind-up></rem>
+
+<def name=">NUMBER" ds=" ud1 a1 u1 -- ud2 a2 u2 ">
+  <repeat> 2DUP >R >R <while/> C@ BASE @ (DIGIT) <while/>
+  SWAP BASE @ UM* DROP ROT BASE @ UM* D+
+  R> CHAR+ R> CHAR-
+  </repeat> DROP R> R>
+</def>
+
+<def name="HEX"     ds=" -- "> 16 BASE ! </def>
+<def name="DECIMAL" ds=" -- "> 10 BASE ! </def>
+
+</forth>

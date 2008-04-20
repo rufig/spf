@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="HOLD" ds=" char -- ">
+  ?HLD  HLD @ CHAR-  DUP HLD ! C! 
+</def>
+<def name="BEGIN-HOLD" ds=" -- "><!-- need a better name -->
+  PAD DUP HLD ! ?HLD 0! 
+</def>
+<def name="END-HOLD" ds=" -- c-addr u "><!-- need a better name -->
+  HLD @ PAD OVER -
+</def>
+
+<alias name="&lt;#" word="BEGIN-HOLD"/>
+<def name="#>" ds=" xd -- c-addr u "> 2DROP END-HOLD </def>
+
+<def name="#" ds=" ud1 -- ud2 ">
+  0 BASE @ UM/MOD >R BASE @ UM/MOD R>
+  ROT DUP 10 ULT <unless> 7 + </unless> 48 + 
+  HOLD
+</def>
+
+<def name="#S" ds=" ud1 -- ud2 "><until> # 2DUP D0EQ </until></def>
+<def name="SIGN" ds=" n -- "> 0LT <if><char>-</char> HOLD </if></def>
+
+<def name="(D.)" ds=" d -- addr u "> DUP >R DABS &lt;# #S R> SIGN #> </def>
+<def name="D." ds=" d -- "> (D.) TYPE SPACE </def>
+<def name="." ds=" n -- "> S>D D. </def>
+<def name="U." ds=" u -- ">  U>D D. </def>
+
+<def name="DtoS" ds=" d -- addr1 u1 "> (D.) </def>
+<def name="NtoS" ds=" n -- addr1 u1 "> S>D (D.) </def>
+<def name="UtoS" ds=" u -- addr1 u1 "> U>D (D.) </def>
+
+
+<def name=".0" ds=" n width -- ">
+  >R UtoS R> OVER - 0 MAX
+  <repeat> DUP <while/><char>0</char> EMIT 1- </repeat> DROP TYPE
+</def>
+
+<def name="TYPE-SAFE" ds=" a u -- ">
+  OVER + SWAP <repeat> 2DUP UGT <while/>
+  DUP B@  DUP BL ULT <if> DROP <char>.</char></if> EMIT
+  1+ </repeat> 2DROP
+</def>
+
+<def name="DUMP" ds=" addr u -- ">
+  DUP 0EQ <if> 2DROP <exit/></if>
+  BASE @ >R HEX
+  15 + 16 U/ <repeat> DUP <while/> >R
+    CR DUP 4 .0 SPACE SPACE
+    DUP 16 <repeat> DUP <while/> >R
+      R@ 4 MOD 0EQ <if> SPACE </if>
+      DUP B@ 2 .0 SPACE 1+ <!-- byte+ (byte is address unit) -->
+    R> 1- </repeat> DROP
+    SWAP 16 TYPE-SAFE
+  R> 1- </repeat> 2DROP R> BASE !
+</def>
+<rem> need the f:times in core? </rem>
+
+</forth>
