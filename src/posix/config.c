@@ -6,8 +6,17 @@
 
 #include <stdio.h>
 #include <stddef.h>
+
+/* #define __USE_GNU */
 #include <ucontext.h>
 
+#ifndef REG_EDI
+#define REG_EDI 4
+#endif
+
+/*
+ * Define a STATE-smart constant
+ */
 void a_const(const char* name, int value, const char* comment)
 {
   printf("\\ %s\n", (comment));
@@ -20,6 +29,9 @@ void a_const(const char* name, int value, const char* comment)
 
 #define CELL 4
 
+/*
+ * These conditions are implicitly assumed in SPF code, so let's verify
+ */
 int test()
 {
   ENSURE(sizeof(int) == CELL)
@@ -30,10 +42,6 @@ int test()
   ENSURE(offsetof(struct sigaction,sa_restorer) - offsetof(struct sigaction, sa_flags) == CELL)
   ENSURE(sizeof(struct sigaction) == 3*CELL + sizeof(sigset_t))
 }
-
-#ifndef REG_EDI
-#define REG_EDI 4
-#endif
 
 int main()
 {
