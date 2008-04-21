@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+    xmlns:xi="http://forth.org.ru/ForthML/Struct/"
+>
+
+<cell name="state-init"/>
+
+<def name="T-PLAIN" ds=" i*x a u -- j*x ">
+  STATE @ <if> T-PLAIN <exit/></if>
+  state-init @ <if> T-PLAIN <exit/></if>
+  FINE-HEAD FINE-TAIL DUP <unless> 2DROP <exit/></unless>
+  <text> -- Warning, eval: </text> TYPE 2DUP TYPE CR
+  T-PLAIN
+</def>
+
+</forth>
