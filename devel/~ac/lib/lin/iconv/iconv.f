@@ -24,9 +24,13 @@ REQUIRE [IF]          lib/include/tools.f
 \ возвращает результат oa ou; oa освобождать вызывающему по FREE
   u 3 * CELL+ DUP -> ou ALLOCATE THROW DUP -> oa -> aa
   cpfa cpta 2 libiconv_open -> ico
-  ^ ou ^ oa ^ u ^ a ico 5 libiconv THROW
-  aa oa OVER -
-  2DUP + 0 SWAP W!
+  ^ ou ^ oa ^ u ^ a ico 5 libiconv
+  IF ( ошибка перекодирования, оставляем исходную строку )
+    a aa u 1+ MOVE aa u
+  ELSE
+    aa oa OVER -
+    2DUP + 0 SWAP W!
+  THEN
   ico 1 libiconv_close THROW
 ;
 : >UNICODE ( addr u -- addr2 u2 )
