@@ -51,6 +51,7 @@ CONSTANT /MimePart
   REPEAT DROP
 ;
 : FindMimeHeader { addr u mp -- addr2 u2 }
+  mp 0= IF 0 0 EXIT THEN \ неверный формат письма = multipart, но части не распознаны
   mp mpHeaderList @
   BEGIN
     DUP
@@ -171,7 +172,12 @@ USER uPhParamNum
     PeekChar 0x0A = ( неправильные концы строк )
     IF >IN 1+! THEN
     TRUE
-  ELSE DROP FALSE THEN
+  ELSE
+    DUP 3 < IF DROP FALSE EXIT THEN
+    \ не найден разделитель частей, неверный формат письма, обработаем его хвост
+    DUP >IN +!
+    + TRUE
+  THEN
 ;
 : ParseMimeX { addr u i \ mp ch -- mp }
   MimePart @ -> mp
