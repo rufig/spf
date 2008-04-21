@@ -21,6 +21,7 @@
     <include href="tcode.f.xml"/>
     <include href="ttoken.L1.f.xml"/>
     <include href="ttext.f.xml"/>
+    <xi:include href="#tc-guard"/><!-- if any -->
   </wordlist>
   
   <r:transform name="transformer-fml" xmlns:r="http://forth.org.ru/ForthML/Rules/">
