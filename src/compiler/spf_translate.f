@@ -23,7 +23,7 @@ VECT ?SLITERAL
 : DEPTH ( -- +n ) \ 94
 \ +n - число одинарных €чеек, наход€щихс€ на стеке данных перед
 \ тем как туда было помещено +n.
-  SP@ S0 @ - NEGATE 4 U/
+  SP@ S0 @ - NEGATE 4 /
 ;
 : ?STACK ( -> ) \ выдать ошибку "исчерпание стека", если он более чем пуст
   SP@ S0 @ SWAP U< IF S0 @ SP! -4 THROW THEN
@@ -155,7 +155,7 @@ VARIABLE   &INTERPRET
                  DEPTH IF ."  Ok ( " DEPTH .SN  ." )" CR
                        ELSE ."  Ok" CR
                        THEN
-               ELSE ."  Ok ( [" DEPTH 0 <# #S #> TYPE ." ].. "
+               ELSE ."  Ok ( [" DEPTH S>D (D.) TYPE ." ].. "
                     5 .SN ." )" CR
                THEN
   THEN
