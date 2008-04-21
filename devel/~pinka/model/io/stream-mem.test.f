@@ -31,3 +31,12 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
  next-chunk SWAP . . CR
  next-chunk SWAP . . CR
 
+
+
+(  ќ, попалось архивное по близкой теме:
+    http://article.gmane.org/gmane.comp.lang.forth.spf/733/ 
+    -- письмо от ~yz в spf-dev@ от 2006-05-10
+      http://blogs.msdn.com/larryosterman/archive/2004/04/19/116084.aspx
+      -- создание временного файла в пам€ти через атрибуты
+      FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE
+)
