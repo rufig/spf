@@ -4,11 +4,11 @@
 <tc:import xmlns:tc="http://forth.org.ru/ForthML/TC/">
 
  H-STDIN H-STDOUT  TYPE CR  BYE
- SPACE SPACES 
+ EMIT SPACE SPACES
 </tc:import>
 
 <rem>
- KEY EMIT
+ KEY
 </rem>
 
 </forth>
