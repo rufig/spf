@@ -15,4 +15,4 @@ REQUIRE NAMING- ~pinka/spf/compiler/index.f
 `0=  `0EQ   aka
 `U<  `ULT   aka
 `U>  `UGT   aka
-
+`D0= `D0EQ  aka
