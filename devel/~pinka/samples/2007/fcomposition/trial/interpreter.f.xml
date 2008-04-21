@@ -3,6 +3,8 @@
 
 <g xml:base="http://forth.org.ru/~pinka/model/data/">
 
+  <include href="../trans/numbers.f.xml"/>
+
   <include href="list-plain.f.xml"/>
 
   <include href="wordlist-plain.f.xml"/>
@@ -12,8 +14,10 @@
 
   <include href="vocabulary.f.xml"/>
 
-  <include href="../trans/ilit.f.xml"/>
-  <include href="../trans/iword-qnative.f.xml"/>
+  <g xml:base="../trans/">
+    <include href="ilit.f.xml"/>
+    <include href="iword-qnative.f.xml"/>
+  </g>
 </g>
 
 </forth>
