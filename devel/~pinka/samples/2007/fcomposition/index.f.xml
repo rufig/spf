@@ -2,70 +2,63 @@
 <forth xmlns="http://forth.org.ru/ForthML/"
      xmlns:r="http://forth.org.ru/ForthML/Rules/"
     xmlns:tc="http://forth.org.ru/ForthML/TC/"
+    xmlns:xi="http://forth.org.ru/ForthML/Struct/"
 >
 
-<init>
-  300 1024 * ALLOCATED TC-WL::DATASPACE!
-  300 1024 * ALLOCATED TC-WL::CODESPACE!
-  500 CELLS  ALLOCATED TC-WL::ASSUME-CS
-</init>
+<include href="import-words.f.xml"/>
 
+<xi:model name="tc-guard" href="tc-guard-w.f.xml"/>
 
-<def name="req-host" ds=" i*x a u -- j*x ">
-  forthml-hidden::I-NATIVE-FORCE <rem>( i*x xt )</rem>
-  EXECUTE
-</def>
-
+<include href="tc-host.f.xml"/>
 
 <develop wordlist="TC-WL">
+  <r:extend transform="transformer-fml" >
+    <include href="import-words.f.xml"/>
+  </r:extend>
 
-<r:extend transform="transformer-fml" >
-  <include href="import-words.f.xml"/>
-</r:extend>
+  <init>
+  300 1024 * ALLOCATED DATASPACE!
+  300 1024 * ALLOCATED CODESPACE!
+  500 CELLS  ALLOCATED ASSUME-CS
+    2 1024 * ALLOCATED ASSUME-PAD
+  DECIMAL
 
-<def name="(give-wordlist)" ds=" wid -- ">
-  GET-CURRENT SWAP APPEND-WORDLIST
-</def>
+  WORDLIST DUP `FORTH-WL NAMING-WORDLIST- DUP PUSH-SCOPE  DUP SET-CURRENT
+  DUP MAKE-CONST `FORTH-WL NAMING-
+  </init><rem>( wid )</rem>
+  <const name="target-root"/>
 
-
- WORDLIST DUP `FORTH-WL NAMING-WORDLIST- DUP PUSH-SCOPE  DUP SET-CURRENT
- DUP <const name="target-root"/>
- 
- <rem> ( wid ) </rem>
-
-<def name="give-forth" ds=" -- ">
-  <lit>DUP</lit> (give-wordlist)
-</def>
-
+  <def name="give-forth" ds=" -- ">
+    GET-CURRENT target-root APPEND-WORDLIST
+  </def>
+  <alias name="hcall" word="E-NATIVE-SURE"/>  
 </develop>
- 
 
- <rem> ( wid ) </rem>
 
- 
+<text>fix-inlines.f</text> INCLUDED
+
+
 <r:mode transform="TC-WL::transformer-fml">
 
   <tc:import from="TC-WL">
-    req-host give-forth
-    NEXT-LINE-STDIN  >NUMBER BASE HEX  . U. .S  OK
+    hcall give-forth
+    NEXT-LINE-STDIN OK ?STACK
   </tc:import>
 
-  <const name="FORTH-WL"/><rem>( wid -- ) </rem>
- 
   <include href="carcase.f.xml"/>
   <include href="quit.f.xml"/>
 
   <init><rem> initiate the target system </rem>
     <rem> The host system and the target system are has a same code form! So we can execute a words from the target system.</rem>
     
-    `TC-WL::VOC-LIST       req-host    @ VOC-LIST !
-    `TC-WL::SAVE-STORAGE   req-host    RESTORE-STORAGE
+    `TC-WL::VOC-LIST       hcall    @ VOC-LIST !
+    `TC-WL::SAVE-STORAGE   hcall    RESTORE-STORAGE
  
     500 CELLS ALLOCATED ASSUME-CS
+    2 1024 *  ALLOCATED ASSUME-PAD
+    DECIMAL 
     FORTH-WL DUP SET-CURRENT PUSH-SCOPE
   </init>
-
 </r:mode>
-
 
 </forth>
