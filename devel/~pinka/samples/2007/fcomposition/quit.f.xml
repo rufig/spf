@@ -20,7 +20,7 @@
 
 
 <def name="E-WORD-SURE" ds=" i*x  a u -- j*x">
-  E-WORD <if><exit/></if>
+  E-WORD <if> ?STACK <exit/></if>
   CR SPACE TYPE <text> - not found</text> TYPE CR  -321 THROW
 </def>
 
