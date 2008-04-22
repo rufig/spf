@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="scope-hidden">
+
+<cell name="ZP"/>
+<cell name="Z0"/>
+<include href="zstack.L1.immutable.f.xml" />
+
+<cell name="Z9"/>
+
+<def name="?ZP" ds=" -- ">
+  Z0 @ ZP@ ULT <if> Z0 @ ZP! -50 THROW <rem> search-order underflow </rem></if>
+  ZP@ Z9 @ ULT <if> Z0 @ ZP! -49 THROW <rem> search-order overflow  </rem></if>
+</def>
+
+<include href="zstack-scan.f.xml"/>
+
+
+<export>
+
+  <def name="ASSUME-SCOPE" ds=" addr u -- "> OVER CELL+ Z9 ! ZASSUME </def>
+  <include href="scope.immutable.f.xml"/>
+
+</export></wordlist>
+
+</forth>
