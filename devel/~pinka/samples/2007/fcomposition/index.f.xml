@@ -36,7 +36,7 @@
     <r:rule match="tc:give-forth"> give-forth </r:rule>
 
     <also wordlist="translater-plain">
-      <r:rule match="f:init"> state-init 1+! <r:yield/> state-init 1+! </r:rule>
+      <r:rule match="f:init"> state-init 1+! <r:yield/> state-init 1-! </r:rule>
     </also>
   </r:extend>
 </develop>
