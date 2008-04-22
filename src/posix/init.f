@@ -10,12 +10,6 @@
   AT-THREAD-STARTING 
 ;
 
-\ till we have nested exceptions correct
-: STACK-ADDR. ( addr -- addr )
-      DUP U. ." :  " DUP @ DUP U. WordByAddr TYPE CR
-;
-
-CR .( FIXME reuse windows DUMP-TRACE code)
 : DUMP-TRACE ( context siginfo signo -- )
   HEX
   CR ." ----------------------------------------------------------------" CR
@@ -25,17 +19,13 @@ CR .( FIXME reuse windows DUMP-TRACE code)
   ."   Word:" WordByAddr TYPE CR
   ." At:" R> 3 CELLS + @ 8 .0 ."  UserData:" TlsIndex@ 8 .0 
   ."  ThreadID:" (()) pthread_self 8 .0 ."  Handler:" HANDLER @ 8 .0 CR
-  ." Stack: " 
-  DUP 11 CELLS + @ ( ebp)
-  5 0 DO
-    DUP 4 I - CELLS + @ 8 .0 SPACE
-  LOOP DROP
-  DUP 16 CELLS + @ ( eax) 8 .0 CR
-  ." Return stack:" CR 
-  12 CELLS + @ ( esp)
-  8 0 DO
-     DUP I CELLS + STACK-ADDR. DROP
-  LOOP DROP
+
+  5 CELLS + \ regdump base
+  >R
+  R@ 7 CELLS + @
+  R@ 11 CELLS + @
+  R> 6 CELLS + @
+  DUMP-TRACE-USING-REGS
   ." ----------------------------------------------------------------" CR
 ; 
 

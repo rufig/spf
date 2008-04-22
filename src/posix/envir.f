@@ -19,13 +19,6 @@
     SYSTEM-PAD ER-A ! -2 THROW
 ;
 
-: fatal-error
-  ." fatal error: "  ER-A @ ER-U @ TYPE CR BYE 
-;
-
-' fatal-error ' FATAL-HANDLER TC-VECT!
-
-
 : (ENVIR?) ( addr u -- false | i*x true )
    BEGIN
      REFILL
