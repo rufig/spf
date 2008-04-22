@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<include href="scope.static.f.xml"/>
+<include href="scope.f.xml"/>
 
 <def name="I-NATIVE" ds=" c-addr u -- xt true | c-addr u false ">
   <xt-of name="FIND-WORDLIST"/> SCAN-SCOPE-WITH
 </def>
 
 
-<rem>
+<rem><!-- example of the ORDER impl. -->
 <also wordlist="scope-hidden">
 
 <def name="ORDER" ds=" -- ">

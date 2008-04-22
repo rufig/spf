@@ -8,6 +8,8 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
 `context-native.f.xml EMBODY
 
+  10 CELLS ALLOCATED ASSUME-SCOPE
+
   VARIABLE a
 
   a PUSH-DEVELOP
@@ -15,4 +17,3 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
   123 `aaa CURRENT @ RELATE-WORDLIST
 
   `aaa POP-DEVELOP FIND-WORDLIST . . CR
-  
