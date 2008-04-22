@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/"
+     xmlns:f="http://forth.org.ru/ForthML/"
      xmlns:r="http://forth.org.ru/ForthML/Rules/"
     xmlns:tc="http://forth.org.ru/ForthML/TC/"
     xmlns:xi="http://forth.org.ru/ForthML/Struct/"
@@ -33,6 +34,10 @@
   <r:extend transform="transformer-fml" >
     <include href="import-words.f.xml"/>
     <r:rule match="tc:give-forth"> give-forth </r:rule>
+
+    <also wordlist="translater-plain">
+      <r:rule match="f:init"> state-init 1+! <r:yield/> state-init 1+! </r:rule>
+    </also>
   </r:extend>
 </develop>
 
