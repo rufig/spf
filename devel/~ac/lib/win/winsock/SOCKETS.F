@@ -234,9 +234,12 @@ USER-CREATE sock_addr2 /sockaddr_in USER-ALLOT
 : BindSocket ( port s -- ior )
   0 SWAP BindSocketInterface
 ;
+: ReuseAddrSocket ( s -- ior )
+  >R 4 REUSEADDR SO_REUSEADDR SOL_SOCKET R>
+  setsockopt
+;
 : ReusedBindSocket ( port s -- ior )
-  DUP >R 4 REUSEADDR SO_REUSEADDR SOL_SOCKET R>
-  setsockopt ?DUP IF NIP NIP EXIT THEN
+  DUP ReuseAddrSocket ?DUP IF NIP NIP EXIT THEN
   BindSocket
 ;
 : ListenSocket ( s -- ior )
