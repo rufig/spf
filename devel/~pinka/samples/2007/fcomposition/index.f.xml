@@ -6,8 +6,6 @@
     xmlns:xi="http://forth.org.ru/ForthML/Struct/"
 >
 
-<include href="import-words.f.xml"/>
-
 <xi:model name="tc-guard" href="tc-guard-w.f.xml"/>
 
 <include href="tc-host.f.xml"/>
