@@ -12,10 +12,6 @@
 <include href="tc-host.f.xml"/>
 
 <develop wordlist="TC-WL">
-  <r:extend transform="transformer-fml" >
-    <include href="import-words.f.xml"/>
-  </r:extend>
-
   <init>
   300 1024 * ALLOCATED DATASPACE!
   300 1024 * ALLOCATED CODESPACE!
@@ -32,6 +28,11 @@
     GET-CURRENT target-root APPEND-WORDLIST
   </def>
   <alias name="hcall" word="E-NATIVE-SURE"/>  
+
+  <r:extend transform="transformer-fml" >
+    <include href="import-words.f.xml"/>
+    <r:rule match="tc:give-forth"> give-forth </r:rule>
+  </r:extend>
 </develop>
 
 
@@ -41,7 +42,7 @@
 <r:mode transform="TC-WL::transformer-fml">
 
   <tc:import from="TC-WL">
-    hcall give-forth
+    hcall
     NEXT-LINE-STDIN OK ?STACK
   </tc:import>
 
