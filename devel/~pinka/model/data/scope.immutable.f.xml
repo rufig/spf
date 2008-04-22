@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem>bind-up z-stack </rem>
+
+<def name="CLEAR-SCOPE"   ds=" -- "    >  ZCLEAR    </def>
+<def name="PUSH-SCOPE"    ds=" wid -- ">  >Z    ?ZP </def>
+<def name="POP-SCOPE"     ds=" -- "    >  Z>    ?ZP </def>
+<def name="DROP-SCOPE"    ds=" -- "    >  ZDROP ?ZP </def>
+<def name="SCOPE-TOP"     ds=" -- wid|0" > Z0 @ ZP@ NEQ <if> Z@ <exit/></if> 0 </def>
+<!-- also see ZDEPTH -->
+
+<def name="SCAN-SCOPE-WITH" ds=" c-addr u -- xt true | c-addr u false ">
+  SCAN-Z-WITH
+</def>
+
+</forth>
