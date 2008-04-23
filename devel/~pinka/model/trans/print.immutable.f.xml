@@ -40,7 +40,7 @@
 
 <def name="TYPE-SAFE" ds=" a u -- ">
   OVER + SWAP <repeat> 2DUP UGT <while/>
-  DUP B@  32 ULT <if> DROP <char>.</char></if> EMIT
+  DUP B@  DUP 32 ULT <if> DROP <char>.</char></if> EMIT
   1+ </repeat> 2DROP
 </def>
 
