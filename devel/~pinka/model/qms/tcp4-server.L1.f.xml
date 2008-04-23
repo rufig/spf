@@ -22,6 +22,7 @@
 <def name="open-listen" ds=" -- ">
   close-listen
   CreateSocket THROW _sock !
+  _sock @ ReuseAddrSocket THROW
   _port @ _ip @
   _sock @ BindSocketInterface THROW
   _sock @ ListenSocket THROW
