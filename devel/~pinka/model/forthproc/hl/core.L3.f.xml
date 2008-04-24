@@ -38,5 +38,6 @@
 <def name="/MOD" ds=" n n -- r q "> OVER 0LT SWAP M/MOD </def>
 <def name="MOD" ds=" n n -- r "> /MOD DROP </def>
 <def name="/" ds=" n n -- q "> /MOD SWAP DROP </def>
+<def name="U/" ds=" u1 u2 -- u3 "> 0 SWAP UM/MOD NIP </def>
 
 </forth>
