@@ -10,13 +10,15 @@
 : ?SLITERAL1 ( c-addr u -> ... )
   \ преобразовать строку в число
   0 0 2SWAP
-  OVER C@ [CHAR] - = IF 1 - SWAP CHAR+ SWAP TRUE ELSE FALSE THEN >R
-  >NUMBER
-  DUP 1 > IF -2001 THROW THEN \ ABORT" -?"
-  IF C@ [CHAR] . <> IF -2002 THROW THEN \ ABORT" -??"
+  OVER C@ [CHAR] - = DUP >R IF 1 - SWAP CHAR+ SWAP THEN
+  DUP 1 > IF
+    2DUP CHARS + CHAR- C@ [CHAR] . = DUP >R IF 1- THEN
+  ELSE 0 >R THEN
+  >NUMBER NIP IF -2001 THROW THEN \ ABORT" -?"
+  R> IF
        R> IF DNEGATE THEN
        [COMPILE] 2LITERAL
-  ELSE DROP D>S
+  ELSE D>S
        R> IF NEGATE THEN
        [COMPILE] LITERAL
   THEN
