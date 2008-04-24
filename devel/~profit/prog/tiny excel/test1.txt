@@ -1,0 +1,4 @@
+3	4
+12	=C2	3	'Sample
+=A1+B1*C1/5	=A2*B1	=B3-C3	'Spread
+'Test	=4-3	5	'Sheet
