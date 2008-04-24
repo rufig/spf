@@ -7,6 +7,7 @@
   DUP 1 ULT <if> FALSE <exit/></if>
   2DUP
   OVER C@ <char>-</char> = DUP >R <if> 1- SWAP CHAR+ SWAP </if>
+  DUP <unless> NIP RDROP <exit/></unless>
   0 0 2SWAP >NUMBER NIP <if> RDROP 2DROP FALSE <exit/></if>
   R> <if> DNEGATE </if> 2SWAP 2DROP TRUE
 </def>

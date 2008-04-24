@@ -6,6 +6,7 @@
 <def name="I-DLIT" ds=" a u -- x x true | a u false ">
   DUP <unless> FALSE <exit/></unless>
   2DUP <text>-</text> MATCH-HEAD >R
+  DUP <unless> NIP RDROP <exit/></unless>
   0 0 2SWAP >NUMBER NIP <if> RDROP 2DROP FALSE <exit/></if>
   R> <if> DNEGATE </if> 2SWAP 2DROP TRUE
 </def>
