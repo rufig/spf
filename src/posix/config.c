@@ -41,6 +41,7 @@ int test()
   ENSURE(offsetof(struct sigaction,sa_flags) == sizeof(sigset_t) + CELL)
   ENSURE(offsetof(struct sigaction,sa_restorer) - offsetof(struct sigaction, sa_flags) == CELL)
   ENSURE(sizeof(struct sigaction) == 3*CELL + sizeof(sigset_t))
+  return 1;
 }
 
 int main()
