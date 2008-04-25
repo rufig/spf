@@ -26,7 +26,7 @@ WINAPI: GetUserNameExA             secur32.dll
 0x8009030C CONSTANT SEC_E_LOGON_DENIED \ возврат из второго AcceptSecurityContext при неверном имени или пароле
 
 USER uclientOutput
-: clientOutput ( -- addr )
+: SspiClientOutput ( -- addr )
   8024 ALLOCATE THROW >R
   0 R@ ! \ SECBUFFER_VERSION
   1 R@ CELL+ !
@@ -37,7 +37,7 @@ USER uclientOutput
   R>
   DUP uclientOutput !
 ;
-: readClientOutput { addr u \ r -- }
+: SspiReadClientOutput { addr u \ r -- }
   u 6 CELLS + ALLOCATE THROW -> r
   0 r ! \ SECBUFFER_VERSION
   1 r CELL+ !
@@ -50,7 +50,7 @@ USER uclientOutput
 ;
 
 USER userverOutput
-: serverOutput ( -- addr )
+: SspiServerOutput ( -- addr )
   8024 ALLOCATE THROW >R
   0 R@ ! \ SECBUFFER_VERSION
   1 R@ CELL+ !

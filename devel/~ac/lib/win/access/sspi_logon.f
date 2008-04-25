@@ -39,7 +39,7 @@ USER serverCtxHandleOut2
 \  ." Client:AcquireCredentialsHandle OK:" expiryClient @ U. hcredClient @ . CR
 
 
-  expiryClientCtx grfCtxAttrsClient clientOutput clientCtxHandleOut 0
+  expiryClientCtx grfCtxAttrsClient SspiClientOutput clientCtxHandleOut 0
   0 SECURITY_NATIVE_DREP 0 ISC_REQ_CONNECTION \ ISC_REQ_ALLOCATE_MEMORY OR
   logina 0 hcredClient InitializeSecurityContextA
 \  uclientOutput @ DUP 3 CELLS + @ SWAP 6 CELLS + SWAP DUMP CR
@@ -51,21 +51,21 @@ USER serverCtxHandleOut2
   S" NTLM" DROP 0 AcquireCredentialsHandleA THROW
 \  ." Server:AcquireCredentialsHandle OK:" expiryServer @ U. hcredServer @ . CR
 
-     expiryServerCtx grfCtxAttrsServer serverOutput serverCtxHandleOut
+     expiryServerCtx grfCtxAttrsServer SspiServerOutput serverCtxHandleOut
      SECURITY_NATIVE_DREP ISC_REQ_CONNECTION uclientOutput @
      0 hcredServer AcceptSecurityContext
 \     userverOutput @ DUP 3 CELLS + @ SWAP 6 CELLS + SWAP DUMP CR
  
      DUP SEC_I_CONTINUE_NEEDED =
      IF DROP
-        expiryClientCtx grfCtxAttrsClient clientOutput clientCtxHandleOut 0
+        expiryClientCtx grfCtxAttrsClient SspiClientOutput clientCtxHandleOut 0
         userverOutput @ SECURITY_NATIVE_DREP 0 ISC_REQ_CONNECTION
         logina clientCtxHandleOut hcredClient InitializeSecurityContextA
 \        ." client:" HEX U. CR
 \        uclientOutput @ DUP 3 CELLS + @ SWAP 6 CELLS + SWAP DUMP CR
         DUP 0=
         IF DROP
-           expiryServerCtx grfCtxAttrsServer serverOutput serverCtxHandleOut
+           expiryServerCtx grfCtxAttrsServer SspiServerOutput serverCtxHandleOut
            SECURITY_NATIVE_DREP ISC_REQ_CONNECTION uclientOutput @
            serverCtxHandleOut hcredServer AcceptSecurityContext
 \           ." server:" DUP HEX U. CR THROW
