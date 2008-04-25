@@ -7,6 +7,10 @@
   0 1 -1
 -->
 
+<def name="NIP" ds=" x1 x2 -- x2 "> >R DROP R> </def>
+<def name="SWAP" ds=" x1 x2 -- x2 xq "> OVER >R >R DROP R> R> </def>
+<def name="TUCK" ds=" n1 n2 -- n2 n1 n2 "> SWAP OVER </def>
+
 <def name="INVERT" ds=" x1 -- x1 "> -1 XOR </def>
 <def name="OR" ds=" x1 x2 -- x3 "> INVERT SWAP INVERT AND INVERT </def>
 <def name="NEGATE" ds=" n1 -- n2 "> INVERT 1 UM+ DROP </def>
@@ -19,10 +23,6 @@
 <def name="0EQ" ds=" x -- f "> 0 EQ </def>
 <def name="NEQ" ds=" x1 x2 -- f "> EQ -1 XOR </def>
 
-<def name="NIP" ds=" x1 x2 -- x2 "> >R DROP R> </def>
-<def name="SWAP" ds=" x1 x2 -- x2 xq "> OVER >R >R DROP R> R> </def>
-
-<def name="TUCK" ds=" n1 n2 -- n2 n1 n2 "> SWAP OVER </def>
 
 <def name="2DROP" ds=" x1 x2  -- "> DROP DROP </def>
 <def name="2DUP" ds=" x1 x2 -- x1 x2 x1 x2 "> OVER OVER </def>
