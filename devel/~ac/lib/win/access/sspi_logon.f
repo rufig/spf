@@ -29,6 +29,10 @@ USER clientCtxHandleOut2
 USER serverCtxHandleOut
 USER serverCtxHandleOut2
 
+: SspiFreeContext
+  serverCtxHandleOut @ IF serverCtxHandleOut DeleteSecurityContext THROW serverCtxHandleOut 0! THEN
+  hcredServer @ IF hcredServer FreeCredentialsHandle THROW hcredServer 0! THEN
+;
 \ в ANSI-режиме не работают русские имена и пароли :(
 
 : LocalLogon { logina loginu passa passu -- flag }
@@ -74,5 +78,6 @@ USER serverCtxHandleOut2
         ELSE ." NTLM unknown return 3:" HEX U. 0 THEN
      ELSE ." NTLM unknown return 2:" HEX U. 0 THEN
   ELSE ." NTLM unknown return 1:" HEX U. 0 THEN
+  SspiFreeContext
 ;
 \ S" тест11" S" test11" LocalLogon .

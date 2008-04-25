@@ -10,6 +10,8 @@ WINAPI: AcceptSecurityContext      secur32.dll
 WINAPI: ImpersonateSecurityContext secur32.dll
 WINAPI: RevertSecurityContext      secur32.dll
 WINAPI: GetUserNameExA             secur32.dll
+WINAPI: DeleteSecurityContext      secur32.dll
+WINAPI: FreeCredentialsHandle      secur32.dll
 
      0x200 CONSTANT SEC_WINNT_AUTH_IDENTITY_VERSION
          1 CONSTANT SEC_WINNT_AUTH_IDENTITY_ANSI
