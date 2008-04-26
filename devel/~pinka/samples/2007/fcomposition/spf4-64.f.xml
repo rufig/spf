@@ -45,6 +45,9 @@
     CONCEIVE 1 LIT, NZBFW, ' ABORT CALL, RFW 2 LIT, BIRTH EXECUTE
     --> 2 0 (число двойной длины)
 
+    —лово "LIT," берет число одинарной длины, но откладывает его 
+    как число двойной длины.
+
     ѕроверка мета‘орта
     <r:mode transform="TC-WL::transformer-fml">
       <def name="abc"> 1 .S CR <if><text>abc</text></if></def>
