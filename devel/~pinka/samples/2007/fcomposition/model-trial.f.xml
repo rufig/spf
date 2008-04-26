@@ -9,7 +9,7 @@
   <include href="forthproc.f.xml"/>
 </xi:model>
 
-<xi:model name="strings">
+<xi:model name="strings" href="#strings">
   <include href="strings.f.xml"/>
 </xi:model>
 
