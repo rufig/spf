@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+     xmlns:r="http://forth.org.ru/ForthML/Rules/"
+    xmlns:xi="http://forth.org.ru/ForthML/Struct/"
+>
+
+<r:mode transform="TC-WL::transformer-fml">
+
+  <xi:model name="strings">
+    <g xml:base="http://forth.org.ru/~pinka/model/lib/string/">
+      <include href="match.f.xml"/>
+      <include href="match-white.f.xml"/>
+      <include href="slice.f.xml"/>
+    </g>
+  </xi:model>
+
+  <xi:model name="codegen-L1">
+    <include href="trial64/codegen.L1.f.xml"/>
+  </xi:model>
+
+  <xi:model name="main"><rem> target form </rem>
+    <xi:include href="#storage"/>
+    <xi:include href="#codegen"/>
+    <xi:include href="#strings"/>
+    <xi:include href="#interpreter"/>
+  </xi:model>
+
+  <xi:include href="model.f.xml"/>
+
+  <include href="quit.f.xml"/><!-- we need number's and string's literals as a double-cells -->
+
+  <def name="_init">
+    300 1024 * ALLOCATED DATASPACE!
+    300 1024 * ALLOCATED CODESPACE!
+    500 CELLS  ALLOCATED ASSUME-CS
+     32 CELLS  ALLOCATED ASSUME-SCOPE
+      2 1024 * ALLOCATED ASSUME-PAD
+    DECIMAL
+    WORDLIST DUP `FORTH-WL NAMING-WORDLIST- DUP PUSH-SCOPE  DUP SET-CURRENT
+    DUP MAKE-CONST `FORTH-WL NAMING-
+    <rem>( wid )</rem>
+    FORTH-WORDLIST::DROP <!-- hack, since wid is double-cell -->
+    <const name="target-root"/>
+  </def>
+
+</r:mode>
+
+  
+  <init>
+    _init
+    <also wordlist="FORTH-WORDLIST">
+    emu64 <q> 0 -ROT 0 TUCK emu64::NAMING- </q> FOR-WORDLIST-REV
+    </also>
+  </init>
+
+</forth>

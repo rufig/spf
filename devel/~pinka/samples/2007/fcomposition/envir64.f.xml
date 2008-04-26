@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+     xmlns:r="http://forth.org.ru/ForthML/Rules/"
+>
+
+<def name="FOR-WORDLIST-REV" ds=" wid xt -- "><rem> xt ( xt1 a1 u1 -- ) </rem>
+  <rem> spf4-specific iteration on wordlist </rem>
+  SWAP  @  0 >R
+  <repeat> DUP <while/> DUP >R CDR </repeat> DROP
+  <repeat> R> DUP <while/>
+    SWAP >R
+    DUP NAME> SWAP COUNT R@ EXECUTE R>
+  </repeat> 2DROP
+</def>
+
+<r:extend transform="emu64::TC-WL::transformer-fml">
+  <r:import transform="transformer-xmlstruct"/>
+</r:extend>
+
+<wordlist name="host-tools">
+  <text>
+    NOTFOUND FIND-FULLNAME2 EMBODY
+    QUIT BYE
+    FORTH-WORDLIST XMLDOM-WL forthml-hidden
+    \
+    ORDER WORDS
+    .S CR
+  </text>
+  <each-word> 2DUP &amp; NAMING </each-word>
+  <def name="SPF4"> ONLY FORTH DEFINITIONS </def>
+</wordlist>
+
+<def name="EMU64"> host-tools emu64 2 SET-ORDER DEFINITIONS </def>
+
+</forth>
