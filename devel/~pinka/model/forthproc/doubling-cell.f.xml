@@ -12,18 +12,31 @@
 
 <wordlist name="doubling-hidden">
 
-<def name="DLSHIFT" ds=" d1 u -- d2 ">
+<def name="(DLSHIFT)" ds=" d1 u -- d2 ">
   <rem> ( lo hi  u ) </rem>
-  2 PICK OVER NEGATE 32 + RSHIFT >R
-  TUCK LSHIFT R> OR >R
-  LSHIFT R>
+  TUCK LSHIFT >R 
+  2DUP NEGATE 32 + RSHIFT >R
+  LSHIFT 2R> OR
 </def>
-<def name="DRSHIFT" ds=" d1 u -- d2 ">
+<def name="DLSHIFT" ds=" d1 u -- d2 ">
+  DUP <unless> DROP <exit/></unless>
+  DUP 63 UGT <if> DROP 2DROP 0. <exit/></if>
+  DUP 31 UGT <if> NIP 32 - LSHIFT 0 SWAP <exit/></if>
+  (DLSHIFT) 
+</def>
+<def name="(DRSHIFT)" ds=" d1 u -- d2 ">
   <rem> ( lo hi  u ) </rem>
   2DUP RSHIFT >R
   TUCK NEGATE 32 + LSHIFT >R
   RSHIFT R> OR R>
 </def>
+<def name="DRSHIFT" ds=" d1 u -- d2 ">
+  DUP <unless> DROP <exit/></unless>
+  DUP 63 UGT <if> DROP 2DROP 0. <exit/></if>
+  DUP 31 UGT <if> >R NIP R> 32 - RSHIFT 0 <exit/></if>
+  (DRSHIFT) 
+</def>
+
 <def name="LOG2" ds=" x -- u ">
   0 >R <repeat> 1 RSHIFT DUP <while/> RP@ 1+! </repeat> DROP R>
 </def>
