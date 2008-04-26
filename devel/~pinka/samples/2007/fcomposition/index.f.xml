@@ -21,6 +21,7 @@
 
   WORDLIST DUP `FORTH-WL NAMING-WORDLIST- DUP PUSH-SCOPE  DUP SET-CURRENT
   DUP MAKE-CONST `FORTH-WL NAMING-
+  <!-- we can't use WORDLIST-NAMED since there no current wordlist in that moment -->
   </init><rem>( wid )</rem>
   <const name="target-root"/>
 
