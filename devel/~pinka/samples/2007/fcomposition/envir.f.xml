@@ -7,8 +7,6 @@
 
 <include href="lib/string/slice.f.xml" />
 
-<include href="data/list-plain.f.xml" />
-
 <r:transform name="transformer-xmlstruct">
   <include href="trans/xml-struct.f.xml" />
 </r:transform>

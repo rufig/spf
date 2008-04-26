@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Apr.2008 -->
+
+<wordlist name="trial64-codegen-hidden">
+  <def name="," ds=" x -- "> HERE 4 ALLOT L! </def>
+  <def name="!" ds=" x a -- "> L! </def>
+  <def name="@" ds=" x a -- "> L@ </def>
+  <include href="spf4-prime.L1.f.xml" xml:base="http://forth.org.ru/~pinka/model/codegen/"/>
+
+  <def name="_RDROP," ds=" -- ">
+    0x5A B, <rem> pop edx </rem>
+    <!-- or:  83C404  ADD ESP , # 4 -->
+  </def>
+<export>
+
+<def name="CALL," ds=" addr -- "> 0 RLIT, CALL, _RDROP, </def>
+
+<def name="LIT," ds=" x -- ">
+  DUP LIT, 32 RSHIFT LIT,
+</def>
+
+<def name="2LIT," ds=" x x -- "> SWAP LIT, LIT, </def>
+
+<def name="RLIT," ds=" x -- "> DUP RLIT, 32 RSHIFT RLIT, </def>
+
+<def name="ZBRANCH," ds=" addr -- ">
+  0x0B B, 0x45 B, 0x00 B, <!-- OR      EAX , 0 [EBP] -->
+  0x8D B, 0x6D B, 0x04 B, <!-- LEA     EBP , 4 [EBP] -->
+  ZBRANCH,
+</def>
+
+<def name="NZBRANCH," ds=" addr -- ">
+  0x0B B, 0x45 B, 0x00 B, <!-- OR      EAX , 0 [EBP] -->
+  0x8D B, 0x6D B, 0x04 B, <!-- LEA     EBP , 4 [EBP] -->
+  NZBRANCH,
+</def>
+
+<alias name="MARK-FW"       word="MARK-FW"/>
+<alias name="RESOLVE-FW"    word="RESOLVE-FW"/>
+<alias name="MARK-BW"       word="MARK-BW"/>
+<alias name="RESOLVE-BW"    word="RESOLVE-BW"/>
+<alias name="BRANCH,"       word="BRANCH,"/>
+<alias name="RET,"          word="RET,"/>
+
+<alias name="(CONCEIVE)"    word="(CONCEIVE)"/>
+<alias name="(BIRTH)"       word="(BIRTH)"/>
+
+</export></wordlist>
+
+</forth>
