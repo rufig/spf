@@ -17,7 +17,7 @@ GET-CURRENT emu64 SET-CURRENT
 : CR CR ;
 : SPACE SPACE ;
 : SPACES DROP SPACES ;
-: NEXT-LINE-STDIN ( -- a u true | false ) NEXT-LINE-STDIN IF 0 TUCK -1. EXIT THEN 0 ;
+: NEXT-LINE-STDIN ( -- a u true | false ) NEXT-LINE-STDIN IF 0 TUCK -1. EXIT THEN 0. ;
 : ?STACK ?STACK ;
 : OK OK ;
 : BYE BYE ;
@@ -59,3 +59,4 @@ SPF4 \ вернулись в корневой контекст инструментальной системы
 emu64::QUIT
 \ запустили 64x транслятор plainForth
 \ слово OK работает из инструментальной системы, демонстрируя двойные значения на стеке.
+\ возврат в инструментальную систему доступен по Ctrl+Z,Enter -- "конец входного потока"
