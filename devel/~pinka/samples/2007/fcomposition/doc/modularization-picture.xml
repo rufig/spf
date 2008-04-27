@@ -43,7 +43,7 @@ FOREACH-WORD   E-WORD-SURE    E-WORD         E-NATIVE
 </div>
 </div>
 
-</td></tr><tr><td style="width: 20%;" colspan="2">
+</td></tr><tr><td style="width: 20%;">
 
 <div><h2>codegen</h2><div>
 MAKE-CONST     BIRTH
@@ -56,7 +56,7 @@ NZBRANCH,      ZBRANCH,       RLIT,          2LIT,          LIT,
 CALL,          
 </div></div>
 
-</td><td colspan="2">
+</td><td colspan="3">
 
 <div><h2>interpreter</h2><div>
 
@@ -126,19 +126,7 @@ DECIMAL        HEX            >NUMBER        BASE
 
 </div></div>
 
-</td></tr><tr><td style="width: 15%;">
-
-<div><h2>host API</h2><div>
-
-ALLOCATED
-
-ALLOCATE RESIZE FREE
-OPEN-FILE CLOSE-FILE
-READ-FILE WRITE-FILE
-
-</div></div>
-
-</td><td colspan="2" style="width: 35%;">
+</td></tr><tr><td colspan="2" style="width: 45%;">
 
 <div><h2>storage</h2><div>
 RESTORE-STORAGE               SAVE-STORAGE   
@@ -176,9 +164,19 @@ SPLIT-         SUBSTRING-BEFORE              SUBSTRING-AFTER
 ENDS-WITH      STARTS-WITH    CONTAINS       
 </div></div>
 
-</td></tr><tr><td colspan="4">
+</td><td style="width: 15%;">
 
-TYPE
+<div><h2>host API</h2><div>
+
+TYPE ALLOCATED
+
+ALLOCATE RESIZE FREE
+READ-FILE WRITE-FILE
+OPEN-FILE CLOSE-FILE
+
+</div></div>
+
+</td></tr><tr><td colspan="4">
 
 <div><h2>control stack</h2><div>
 
