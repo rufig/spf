@@ -10,6 +10,10 @@
 
 <def name="ASSUME-PAD" ds=" addr u -- "> OVER + CELL- PAD0 ! PAD9 ! </def>
 
-<include href="print.immutable.f.xml"/>
+<include href="number-converting.immutable.f.xml"/>
+
+<include href="eoln.f.xml"/>
+<include href="print.L1.f.xml"/>
+<include href="print.L2.f.xml"/>
 
 </forth>
