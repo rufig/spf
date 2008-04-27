@@ -24,7 +24,7 @@ ARSHIFT        SM/REM         FM/MOD         DIGIT          =
 D>             U&lt;          U>             0&lt;          0=             
 0&lt;>         D0=            D=             D2*            D2/            
 
-ULT UGT EQ NEQ 0EQ 0NEQ 0LT D0EQ
+ULT UGT EQ NEQ 0EQ 0NEQ 0LT D0EQ 0GT
 
 FALSE          TRUE           /CELL          */             >CELLS
 MOVE           ERASE          DABS           HASH           EQUAL

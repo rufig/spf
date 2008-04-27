@@ -16,3 +16,5 @@ REQUIRE NAMING- ~pinka/spf/compiler/index.f
 `U<  `ULT   aka
 `U>  `UGT   aka
 `D0= `D0EQ  aka
+
+: 0GT NEGATE 0LT ;
