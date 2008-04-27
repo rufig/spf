@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="EMIT" ds=" c -- ">
+  <rem> SP@ /CHAR TYPE DROP <!-- depend on endianness (!) --></rem>
+  SP@ 2DUP C! /CHAR TYPE DROP
+</def>
+
+<def name="SPACE" ds=" -- ">
+  32 EMIT
+</def>
+
+<def name="SPACES" ds=" n -- ">
+  <repeat> DUP 0GT <while/> SPACE 1- </repeat> DROP
+</def>
+
+<def name="CR" ds=" -- ">
+  EOLN TYPE
+</def>
+
+</forth>
