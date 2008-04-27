@@ -74,6 +74,11 @@
 <def name="C@"> B@ </def>
 <def name="C!"> B! </def>
 
+<!-- It is involve an endianness-sensitive solution!
+ For example, 65 SP@ C@ does't give 65 but 0.
+-->
+
+
 <!--
 <def name="EXECUTE"> DROP EXECUTE </def>
 -->
