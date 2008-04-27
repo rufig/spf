@@ -49,6 +49,7 @@
   *:target { border-bottom: 2px dotted gray;}
   .w { white-space: nowrap; font-family: monospace; font-weight: bold; color: #000066;}
 </style>
+<title><xsl:value-of select="(book/h2 | book/h1 )[1]"/></title>
 </head><body>
   <xsl:apply-templates/>
 </body>
