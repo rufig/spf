@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="EOLN-UNIX" ds=" -- a u ">
+  <text>&#xA;</text>
+</def>
+
+<def name="EOLN-DOS" ds=" -- a u ">
+  <text>&#xD;&#xA;</text>
+</def>
+
+<cell name="_EOLN-A"/>
+<cell name="_EOLN-U"/>
+<!-- may be use f:cell2 ?-->
+
+<def name="EOLN!" ds=" a u -- ">
+  _EOLN-U ! _EOLN-A !
+</def>
+
+<def name="EOLN" ds=" -- a u ">
+  _EOLN-A @ _EOLN-U @
+</def>
+
+
+<def name="UNIX-LINES" ds=" -- ">
+  EOLN-UNIX EOLN!
+</def>
+<def name="DOS-LINES" ds=" -- ">
+  EOLN-DOS EOLN!
+</def>
+
+</forth>
