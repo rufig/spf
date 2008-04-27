@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="D." ds=" d -- "> (D.) TYPE SPACE </def>
+
+<def name="." ds=" n -- "> S>D D. </def>
+
+<def name="U." ds=" u -- ">  U>D D. </def>
+
+<def name=".0" ds=" n width -- ">
+  >R UtoS R> OVER - 0 MAX
+  <repeat> DUP <while/><char>0</char> EMIT 1- </repeat> DROP TYPE
+</def>
+
+<def name="TYPE-SAFE" ds=" a u -- ">
+  OVER + SWAP <repeat> 2DUP UGT <while/>
+  DUP B@  DUP 32 ULT <if> DROP <char>.</char></if> EMIT
+  1+ </repeat> 2DROP
+</def>
+
+<def name="DUMP" ds=" addr u -- ">
+  DUP 0EQ <if> 2DROP <exit/></if>
+  BASE @ >R HEX
+  15 + 16 U/ <repeat> DUP <while/> >R
+    CR DUP 4 .0 SPACE SPACE
+    DUP 16 <repeat> DUP <while/> >R
+      R@ 4 MOD 0EQ <if> SPACE </if>
+      DUP B@ 2 .0 SPACE 1+ <!-- byte+ (byte is address unit) -->
+    R> 1- </repeat> DROP
+    SWAP 16 TYPE-SAFE
+  R> 1- </repeat> 2DROP R> BASE !
+</def>
+<rem> need the f:times in core? </rem>
+
+</forth>
