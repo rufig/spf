@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../notion/xhtml.xsl"?>
+<book>
+<!-- Apr.2008 ruvim@forth.org.ru — -->
+<!-- $Id$ -->
+<style>
+  dd { margin-bottom: 0.7em; }
+  dt { font-weight: bold; padding-top: 0.7em; }
+
+  td { background-color: #99FFFF; padding-left: 0.7em; padding-right: 0.7em; vertical-align: top;}
+  table { width: 100%; border-collapse: separate; empty-cells: show; cell-spacing: 0; border-spacing: 0.6em;}
+  table { font-family: monospace; }
+  table td { border: solid 0.3em white; }
+  table table td { border: solid 0.3em #CCFFFF; }
+  table h2 { text-align: center; margin-bottom: 0.2em; margin-top: 0.7em;}
+  table div div { margin-bottom: 0.5em;}
+</style>
+
+<h2>Модуляризация макетной форт-системы</h2>
+
+<chapter id="intro">
+<p>Ниже представлено примерное разбиение на модули и их взаимосвязь.
+На этой плоской схеме не выражены все нюансы зависимостей (или, независимостей) отдельных модулей 
+и не приведены многие служебные слова.
+</p>
+</chapter>
+
+<chapter id="picture"><title>Схема</title>
+<p>Каждый модуль (или, механизм) представлен блоком схемы, содержащим название модуля,
+лексикон и, возможно, вложенные модули.
+Модуль основывается на тех модулях,
+на блоки которых распространяется «вес» его блока в схеме.
+</p>
+<br/>
+<table>
+
+<tr><td colspan="4">
+
+<div><h2>translater (variant of the plainForth)</h2><div>
+QUIT           (QUIT)
+EVALUATE-INTERACTIVE          ENUM-STDIN-LINES              EACH-WORD
+FOREACH-WORD   E-WORD-SURE    E-WORD         E-NATIVE       
+</div>
+</div>
+
+</td></tr><tr><td style="width: 20%;" colspan="2">
+
+<div><h2>codegen</h2><div>
+MAKE-CONST     BIRTH
+CONCEIVE       GERM!          GERM           GERM-A         EXIT,
+EXEC,          ZBBW,          BBW,           MBW            RFW
+ZBFW2,         NZBFW,         ZBFW,          BFW2,          BFW,
+SLIT,          SXZ,TAKE       (BIRTH)        (CONCEIVE)     RET,
+BRANCH,        RESOLVE-BW     MARK-BW        RESOLVE-FW     MARK-FW
+NZBRANCH,      ZBRANCH,       RLIT,          2LIT,          LIT,
+CALL,          
+</div></div>
+
+</td><td colspan="2">
+
+<div><h2>interpreter</h2><div>
+
+I-QNATIVE
+I-SLIT-FORM    I-HLIT-FORM
+I-DLIT-FORM    I-LIT          I-DLIT         VOCS           WORDS
+&amp;          
+
+<div><h2>search order</h2><div>
+ORDER          
+
+END-EXPORT     BEGIN-EXPORT   DROP-DEVELOP   POP-DEVELOP
+PUSH-DEVELOP   DROP-CURRENT   PUSH-CURRENT   CURRENT        I-NATIVE
+SCAN-SCOPE-WITH               SCOPE-TOP      DROP-SCOPE     POP-SCOPE
+PUSH-SCOPE     CLEAR-SCOPE    ASSUME-SCOPE   
+</div></div>
+
+<div><h2>wodlists</h2><div>
+
+SEARCH-WORDLIST
+
+VOC-NAME.      WORDLIST-NAMED
+NAMING-WORDLIST-              NAMING-WORDLIST               WORDLIST-NAME
+WORDLIST       VOC-LIST       SET-CURRENT
+GET-CURRENT    NAMING         NAMING-        
+
+NLIST          APPEND-WORDLIST
+APPENDED-WORDLIST-NODE-       COPY-WORDLIST-NODE            FIND-WORDLIST
+CDR-BY-NAME    NODE-NAME      RELATE-WORDLIST
+</div></div>
+
+<table><tr><td>
+
+<div><h2>lists</h2><div>
+
+PERFORM-LIST-COND             PERFORM-NODE-COND
+BIND-DNODE-TAIL               BIND-RNODE     CALC-NODE-LAST FOR-LIST-VALUE
+FOR-LIST-NODE  FOREACH-LIST-VALUE            FOREACH-LIST-NODE
+FIND-LIST      FIND-NODE      REVERSE-NODE   FOREACH-NODE   CDR-BY-VALUE
+UNBIND-NODE    BIND-NODE      CONCATED-      CONCATED       CDR
+
+</div></div>
+</td><td>
+
+<div><h2>output</h2><div>
+
+DUMP           TYPE-SAFE      .0             U.             .
+D.             CR             SPACES         SPACE          EMIT
+DOS-LINES      UNIX-LINES     EOLN           EOLN!          
+EOLN-DOS       EOLN-UNIX      
+
+<div><h2>number converting</h2><div>
+
+UtoS           NtoS
+DtoS           (D.)           SIGN           #S             #
+#>             &lt;#             END-HOLD       BEGIN-HOLD     HOLD
+ASSUME-PAD     ?HLD           PAD            HLD
+</div></div>
+
+</div></div>
+
+<div><h2>numbers</h2><div>
+DECIMAL        HEX            >NUMBER        BASE
+</div></div>
+
+</td></tr></table>          
+
+</div></div>
+
+</td></tr><tr><td style="width: 15%;">
+
+<div><h2>host API</h2><div>
+
+ALLOCATED
+
+ALLOCATE RESIZE FREE
+OPEN-FILE CLOSE-FILE
+READ-FILE WRITE-FILE
+
+</div></div>
+
+</td><td colspan="2" style="width: 35%;">
+
+<div><h2>storage</h2><div>
+RESTORE-STORAGE               SAVE-STORAGE   
+
+</div>
+<table><tr><td>
+
+<div><h2>codespace</h2><div>
+CODESPACE CODESPACE!
+</div></div>
+
+</td><td>
+
+<div><h2>dataspace</h2><div>
+
+CLEAR-DATASPACE               DATASPACE-CONTENT             DATASPACE
+DATASPACE!     RESTORE-DATASPACE             SAVE-DATASPACE
+SCZ,           SXZ,           S,             2,             ,
+C,             B,             ALIGN          ALLOT          UNUSED
+HERE           
+</div></div>
+
+</td></tr></table></div>
+
+</td><td>
+
+<div><h2>strings</h2><div>
+
+CRIGHT-        CLEFT-         CRIGHT+        CLEFT+         HEAD|TAIL-
+HEAD|TAIL      HEAD           TAIL           WORD|TAIL      UNBROKEN
+
+SPLIT-WHITE-FORCE             FINE-TAIL
+FINE-HEAD      IS-WHITE       MATCH-STARTS   MATCH-HEAD     SPLIT
+SPLIT-         SUBSTRING-BEFORE              SUBSTRING-AFTER
+ENDS-WITH      STARTS-WITH    CONTAINS       
+</div></div>
+
+</td></tr><tr><td colspan="4">
+
+TYPE
+
+<div><h2>control stack</h2><div>
+
+CSDROP         2CS@
+CS@            2CS>           2>CS           CS>            >CS
+?CSP           ASSUME-CS      CS-WL          
+</div></div>
+
+<div><h2>forthporoc-ext</h2><div>
+?STACK
+ABORT          THROW          CATCH          
+EXECUTE
+NR>            N>R
+</div></div>
+
+</td></tr><tr><td colspan="4">
+
+<div><h2>forthporoc</h2><div>
+
+NDROP          SEARCH         
+EQUAL          (EQUAL)
+ERASE          BFILL          MOVE           BMOVE>         BMOVE
+
+WITHIN         COUNT          CELL-!         CELL+!
+1-!            1+!            2-             2+             U/
+/              MOD            /MOD           M/MOD          UM/MOD
+*              UM*            D2/            DU2/           D2*
+MU/MOD         */             */MOD          M/             M*
+FM/MOD         DEQ            D0EQ           D0GT           M-
+M+             D>S            S>D            U>D            DABS
+D0LT           D-             D+             DNEGATE        2NIP
+2ROT           2OVER          2SWAP          2R@            2R>
+2>R            >CHARS         CHARS          >CELLS         CELLS
+PICK           2@             2!             CHAR-          CHAR+
+CELL-          CELL+          TRUE           FALSE          MAX
+UMAX           MIN            UMIN           0GT            GT
+UGT            LT             ULT            ?DUP           ABS
+0=             =              +!             0!             1-
+1+             RDROP          R@             -ROT           ROT
+2DUP           2DROP          NEQ            0EQ            -
++              EQ             NEGATE         OR             INVERT
+TUCK           SWAP           NIP            UM+            R>
+>R             OVER           DROP           DUP            AND
+XOR            0LT            RP!            RP@            SP!
+SP@            C!             C@             B!             B@
+!              @              L!             L@             W!
+W@             /CELL          /CHAR          RSHIFT         LSHIFT
+</div></div>
+
+</td></tr>
+</table>
+
+</chapter>
+
+</book>
