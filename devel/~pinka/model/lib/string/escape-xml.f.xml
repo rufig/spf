@@ -1,33 +1,66 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- $Id$ -->
 
-<def name="PIPELINE-XML-ESCAPING-" ds=" xt a u -- "><rem> transparent for data stack </rem>
-  <repeat>
-  <text>&amp;</text> SPLIT <while/> 2>R
-
-  <repeat>
-  <text>&lt;</text>  SPLIT <while/> 2>R
-  ROT DUP >R EXECUTE 
-  `&amp;lt;
-          R@ EXECUTE  R>            2R>
+<wordlist name="hidden-escape-xml">
+<def name="escape-gt" ds=" xt a u -- xt a2 u2 ">
+  <repeat> `]]&gt; SPLIT <while/> 2>R
+    ROT DUP >R EXECUTE `]]&amp;gt; R@ EXECUTE  R> 2R>
   </repeat>
-
-  ROT DUP >R EXECUTE 
-  `&amp;amp;
-          R@ EXECUTE  R>            2R>
+</def>
+<def name="escape-lt" ds=" xt a u -- xt a2 u2 ">
+  <repeat> `&lt; SPLIT <while/> 2>R escape-gt
+    ROT DUP >R EXECUTE `&amp;lt; R@ EXECUTE  R> 2R>
   </repeat>
-  <repeat>
+</def>
+<def name="escape-amp" ds=" xt a u -- xt a2 u2 ">
+  <repeat> `&amp; SPLIT <while/> 2>R escape-lt
+    ROT DUP >R EXECUTE `&amp;amp; R@ EXECUTE  R> 2R>
+  </repeat>
+</def>
 
-  <text>&lt;</text>  SPLIT <while/> 2>R
-  ROT DUP >R EXECUTE 
-  `&amp;lt;
-          R@ EXECUTE  R>            2R>
+<export>
+
+<def name="ESCAPE-XML-PER-" ds=" xt a u -- "><rem> transparent for data stack </rem>
+  escape-amp escape-lt escape-gt ROT EXECUTE
+</def>
+
+<def name="ESCAPE-XML-PER" ds=" a u xt -- "><rem> xt ( addr1 u1 -- ) </rem>
+  -ROT ESCAPE-XML-PER-
+</def>
+
+<!--
+The right angle bracket (>) ... MUST, for compatibility, be escaped 
+using either "&gt;" or a character reference 
+when it appears in the string "]]>" in content,
+when that string is not marking the end of a CDATA section.
+  -  http://www.w3.org/TR/REC-xml/
+
+  ... well-formed documents need not declare any 
+of the following entities: amp, lt, gt, apos, quot.
+-->
+
+<def name="RESOLVE-ENTITY" ds=" a1 u1 -- a2 u2 ">
+  2DUP `amp   EQUAL <if> 2DROP `&amp;   <exit/></if>
+  2DUP `lt    EQUAL <if> 2DROP `&lt;    <exit/></if>
+  2DUP `gt    EQUAL <if> 2DROP `&gt;    <exit/></if>  
+  2DUP `apos  EQUAL <if> 2DROP `&apos;  <exit/></if>  
+  2DUP `quot  EQUAL <if> 2DROP `&quot;  <exit/></if>  
+  <!-- other not supported yet -->
+</def>
+
+<def name="UNESCAPE-XML-PER-" ds=" xt a u -- "><rem> transparent for data stack </rem>
+  <repeat>
+    <text>&amp;</text> SPLIT <while/> 2>R
+    ROT DUP >R EXECUTE R> 2R>
+    <text>;</text> SPLIT <unless> 0. </unless> 2>R
+    RESOLVE-ENTITY ROT DUP >R EXECUTE R> 2R>
   </repeat>
   ROT EXECUTE
 </def>
 
-<def name="PIPELINE-XML-ESCAPING" ds=" a u xt -- "><rem> xt ( addr1 u1 -- ) </rem>
-  -ROT PIPELINE-XML-ESCAPING-
+<def name="UNESCAPE-XML-PER" ds=" a u xt -- "><rem> xt ( addr1 u1 -- ) </rem>
+  -ROT UNESCAPE-XML-PER-
 </def>
 
+</export></wordlist>
 </forth>
