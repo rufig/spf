@@ -10,18 +10,18 @@
 <def name="escape-lt" ds=" xt a u -- xt a2 u2 ">
   <repeat> `&lt; SPLIT <while/> 2>R escape-gt
     ROT DUP >R EXECUTE `&amp;lt; R@ EXECUTE  R> 2R>
-  </repeat>
+  </repeat> escape-gt
 </def>
 <def name="escape-amp" ds=" xt a u -- xt a2 u2 ">
   <repeat> `&amp; SPLIT <while/> 2>R escape-lt
     ROT DUP >R EXECUTE `&amp;amp; R@ EXECUTE  R> 2R>
-  </repeat>
+  </repeat> escape-lt
 </def>
 
 <export>
 
 <def name="ESCAPE-XML-PER-" ds=" xt a u -- "><rem> transparent for data stack </rem>
-  escape-amp escape-lt escape-gt ROT EXECUTE
+  escape-amp ROT EXECUTE
 </def>
 
 <def name="ESCAPE-XML-PER" ds=" a u xt -- "><rem> xt ( addr1 u1 -- ) </rem>
