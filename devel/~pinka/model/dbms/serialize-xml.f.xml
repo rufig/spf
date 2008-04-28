@@ -4,7 +4,7 @@
 <rem><bind-up> store-chunk enum-resutls enum-rows enum-cols </bind-up></rem>
 
 <def name="store-value" ds=" addr u -- ">
-  <xt-of name="store-chunk"/> PIPELINE-XML-ESCAPING
+  <xt-of name="store-chunk"/> ESCAPE-XML-PER
 </def>
 
 <def name="store-col" ds=" d-value d-name -- ">
