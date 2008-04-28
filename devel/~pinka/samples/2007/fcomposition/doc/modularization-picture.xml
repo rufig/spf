@@ -88,7 +88,7 @@ APPENDED-WORDLIST-NODE-       COPY-WORDLIST-NODE            FIND-WORDLIST
 CDR-BY-NAME    NODE-NAME      RELATE-WORDLIST
 </div></div>
 
-<table><tr><td>
+<table><tr><td style="width: 40%;">
 
 <div><h2>lists</h2><div>
 
@@ -220,6 +220,7 @@ UGT            LT             ULT            ?DUP           ABS
 +              EQ             NEGATE         OR             INVERT
 TUCK           SWAP           NIP            UM+            R>
 >R             OVER           DROP           DUP            AND
+ALIGNED
 XOR            0LT            RP!            RP@            SP!
 SP@            C!             C@             B!             B@
 !              @              L!             L@             W!
