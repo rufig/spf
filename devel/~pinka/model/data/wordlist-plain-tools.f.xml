@@ -27,4 +27,17 @@
   CR CR <text>Words: </text> TYPE U. CR
 </def>
 
+
+<comment><!-- m.b. -->
+<def name="(FOREACH-WORDLIST)" ds=" xt node -- xt " >
+  SWAP >R DUP @ SWAP NODE-NAME R@ EXECUTE R>
+</def>
+<def name="FOREACH-WORDLIST" ds=" xt wid -- "><rem> xt ( xt1 a1 u1 -- ) </rem>
+  <xt-of name="(FOREACH-WORDLIST)"/> SWAP FOREACH-LIST-NODE DROP
+</def>
+<def name="FOREACH-WORDLIST-REV" ds=" xt wid -- "><rem> xt ( xt1 a1 u1 -- ) </rem>
+  ABORT <!-- will be provided -->
+</def>
+</comment>
+
 </forth>
