@@ -81,7 +81,7 @@
 
 <export>
 
-<def name="pipeline-response" ds=" d-query xt -- ">
+<def name="query-xml-per" ds=" d-query xt -- ">
   >R query store-response
   <repeat> buf::next-chunk DUP <while/> R@ EXECUTE </repeat> RDROP 2DROP
 </def>
