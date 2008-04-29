@@ -293,6 +293,9 @@ USER _GetHostIPs
   DROP gethostbyname DUP IF DUP @ SWAP 3 CELLS + @ @ 0
                          ELSE 0 WSAGetLastError THEN
 ;
+
+\ todo: в Vista и Win2008 можно переключиться на WSAConnectByName
+
 : ConnectHost ( addr u port -- sock ior )
 \ Подключиться к хосту addr u на порт port
 \ с автоматическим перебором всех IP хоста.
