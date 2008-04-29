@@ -105,6 +105,9 @@ VARIABLE DnsDebug
    3 VALUE vDnsAttempts \ было 6
 4000 VALUE vDnsTimeout  \ было 8000
 
+VARIABLE DnsPort  53 DnsPort !
+   USER uDnsPort
+
   1 CONSTANT TYPE-A
   2 CONSTANT TYPE-NS
   5 CONSTANT TYPE-CNAME
@@ -261,7 +264,9 @@ CONSTANT /RL
        R> R>
     ELSE 2DROP TOKEN, PAD ( HERE) 0 THEN
   REPEAT TOKEN,
-  WT, QCLASS-ANY WT,
+  WT,
+\  QCLASS-ANY WT,
+  CLASS-IN WT,
 ;
 
 : BsStartup
@@ -291,7 +296,8 @@ CONSTANT /RL
 
   DnsDebug @ IF ."  SendQuery(" DNS-SERVER @ COUNT TYPE ." ):" CR THEN
 
-  DNS-SERVER @ COUNT GetHostIP THROW 53
+  DNS-SERVER @ COUNT GetHostIP THROW
+  uDnsPort @ 0= IF DnsPort @ uDnsPort ! THEN uDnsPort @
   DNSQUERY @ DDP @ OVER - \ 2DUP DUMP
   BS @ WriteTo
 ;
