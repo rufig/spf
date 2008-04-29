@@ -93,3 +93,12 @@ S" xt.immutable.f" Included
   CS> ZBRANCH,
 ;
 
+WARNING @ WARNING 0!
+
+: SLIT, ( addr u -- ) \ снятие ограничения длины в 255
+  BFW,
+    HERE OVER 2SWAP S, 0 C,
+  RFW 2LIT,
+;
+
+WARNING !
