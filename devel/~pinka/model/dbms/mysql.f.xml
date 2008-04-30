@@ -71,6 +71,9 @@
 
 <wordlist name="buf">
   <include href="http://forth.org.ru/~pinka/model/io/stream-mem.L1.f.xml"/>
+<comment> Generally speaking, it is not necessary.
+We can just save the consumer-xt and don't use the intermediate buffering.
+</comment>
 </wordlist>
 
 <def name="store-chunk" ds=" addr u -- ">
@@ -82,6 +85,7 @@
 <export>
 
 <def name="query-xml-per" ds=" d-query xt -- ">
+  buf::clear
   >R query store-response
   <repeat> buf::next-chunk DUP <while/> R@ EXECUTE </repeat> RDROP 2DROP
 </def>
