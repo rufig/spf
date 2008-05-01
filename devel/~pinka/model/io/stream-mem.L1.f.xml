@@ -26,10 +26,10 @@
 <def name="free-last-block" ds=" -- ">
   _hlist UNBIND-NODE CELL- FREE THROW _cnt 1-!
   _cnt @ 1 EQ <if> 0. block-r::assume <exit/></if>
-  _hlist @ XCOUNT 2DUP block-r::assume block-r::confirm
+  _hlist @ XCOUNT 2DUP block-r::assume block-r::confirm <rem> the block is fullness (!)</rem>
 </def>
 <def name="push-new-block" ds=" u-min -- ">
-  _cnt @ 1 EQ <if> block-w::content block-r::assume block-w::rest block-r::confirm </if>
+  _cnt @ 1 EQ <if> block-w::rest 2DUP block-r::assume block-r::confirm </if>
   alloc-block block-w::assume
 </def>
 
