@@ -11,7 +11,7 @@ NEEDS ~ygrek/lib/parse.f
 \ переопределяем наследование для Hype3
 \ собираем инфу о связях между классами
 : SUBCLASS
-   DUP HYPE::.nfa @ COUNT PEEK-NAME DOT-LINK
+   DUP HYPE::.nfa @ COUNT PICK-NAME DOT-LINK
 
    SUBCLASS ;
 

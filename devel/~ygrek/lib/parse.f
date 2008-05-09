@@ -5,7 +5,7 @@ REQUIRE /STRING lib/include/string.f
 REQUIRE /TEST ~profit/lib/testing.f
 
 \ взять следующее слово из входного потока не сдвигая парсер
-: PEEK-NAME ( -- a u ) >IN @ PARSE-NAME ROT >IN ! ;
+: PICK-NAME ( -- a u ) >IN @ PARSE-NAME ROT >IN ! ;
 
 \ Вырезать имя файла из полного пути
 : CUT-FILENAME ( a u -- a2 u2 ) 2DUP CUT-PATH NIP /STRING ;
