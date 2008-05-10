@@ -51,7 +51,7 @@
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE CONT ~profit/lib/bac4th.f
 REQUIRE VC-COMPILED ~profit/lib/compile2Heap.f
-REQUIRE A_BEGIN ~mak/lib/a_if.f
+REQUIRE A_BEGIN ~mak/LIB/A_IF.F
 REQUIRE STR@ ~ac/lib/str5.f
 
 MODULE: bac4th-closures
