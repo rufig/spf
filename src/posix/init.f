@@ -91,15 +91,6 @@ CR .( FIXME test return result of sigaction)
 : PROCESS-INIT ( n -- )
   dl-init
   ERASE-IMPORTS
-  ['] NOOP       TO <PRE>
-  ['] FIND1      TO FIND
-  ['] ?LITERAL2  TO ?LITERAL
-  ['] ?SLITERAL2 TO ?SLITERAL
-  ['] OK1        TO OK
-  ['] ERROR2     TO ERROR
-  ['] (ABORT1")  TO (ABORT")
-  ['] dl-no-symbol  TO symbol-not-found-error
-  ['] dl-no-library TO library-not-found-error
   ['] dl-no-symbol  TO symbol-not-found-error
   ['] dl-no-library TO library-not-found-error
   ALLOCATE-THREAD-MEMORY

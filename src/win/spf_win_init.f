@@ -22,13 +22,6 @@
 ;
 
 \ ранее неустановленные вектора
-' NOOP         ' <PRE>      TC-VECT!
-' FIND1        ' FIND       TC-VECT!
-' ?LITERAL2    ' ?LITERAL   TC-VECT!
-' ?SLITERAL2   ' ?SLITERAL  TC-VECT!
-' OK1          ' OK         TC-VECT!
-' ERROR2       ' ERROR      TC-VECT!
-' (ABORT1")    ' (ABORT")   TC-VECT!
 ' PROC-ERROR1  ' PROC-ERROR TC-VECT!
 ' LIB-ERROR1   ' LIB-ERROR  TC-VECT!
 \ другие уже установлены

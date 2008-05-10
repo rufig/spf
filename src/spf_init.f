@@ -105,11 +105,17 @@ TARGET-POSIX [IF]
   S" src/win/spf_win_init.f" INCLUDED
 [THEN]
 
+' NOOP         ' <PRE>      TC-VECT!
+' FIND1        ' FIND       TC-VECT!
+' ?LITERAL2    ' ?LITERAL   TC-VECT!
+' ?SLITERAL2   ' ?SLITERAL  TC-VECT!
+' OK1          ' OK         TC-VECT!
+' ERROR2       ' ERROR      TC-VECT!
+' (ABORT1")    ' (ABORT")   TC-VECT!
 
 ' USER-INIT ' FORTH-INSTANCE>  TC-VECT!
 ' USER-EXIT ' <FORTH-INSTANCE  TC-VECT!
 ' QUIT      ' <MAIN>           TC-VECT!
-
 
 : (TITLE)
   ." SP-FORTH - ANS FORTH 94 for " PLATFORM TYPE CR
@@ -119,6 +125,7 @@ TARGET-POSIX [IF]
   ."  Build " VERSION 0 <# # # # #> TYPE
   ."  at " BUILD-DATE COUNT TYPE CR CR
 ;
+
 : TITLE  CGI? @ 0=  ?GUI 0= AND COMMANDLINE-OPTIONS NIP 0= AND IF (TITLE) THEN ;
 ' TITLE ' MAINX TC-ADDR!
 
@@ -140,6 +147,7 @@ TRUE VALUE SPF-INIT?
 TARGET-POSIX [IF]
 : (INIT) ( env argv argc -- )
   TO ARGC TO ARGV
+  \ concat argv for COMMANDLINE-OPTIONS
   HERE 
   ARGC 1 ?DO
    ARGV I CELLS + @ ASCIIZ> S, BL C,
