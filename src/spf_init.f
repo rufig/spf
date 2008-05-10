@@ -38,11 +38,13 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
   \ 4 - если вложенная
 ;
 
+: ADDR. ( n -- ) 8 .0 SPACE ;
+
 : STACK-ADDR. ( addr -- addr )
-      DUP U. ." :  "
+      DUP ADDR. ." :  "
       DUP ['] @ CATCH 
       IF DROP 
-      ELSE DUP U. WordByAddr TYPE CR THEN
+      ELSE DUP ADDR. WordByAddr TYPE CR THEN
 ;
 
 \ : AT-EXC-DUMP ( addr -- addr ) ... ;
@@ -64,7 +66,7 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
 
 : DUMP-TRACE-USING-REGS ( esp eax ebp -- )
   ." STACK: "
-  ( ebp ) DUP 5 CELLS + BEGIN DUP ['] @ CATCH IF DROP ELSE 8 .0 SPACE THEN CELL- 2DUP U> UNTIL 2DROP
+  ( ebp ) DUP 5 CELLS + BEGIN DUP ['] @ CATCH IF DROP ELSE ADDR. THEN CELL- 2DUP U> UNTIL 2DROP
   ( eax ) ." [" 8 .0 ." ]" CR
   ( esp )
 

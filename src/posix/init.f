@@ -4,29 +4,37 @@
   Сентябрь 1999
 )
 
-: USER-INIT
+: USER-INIT ( n -- )
   ALLOCATE-THREAD-MEMORY
   POOL-INIT
   AT-THREAD-STARTING 
 ;
 
 : DUMP-TRACE ( context siginfo signo -- )
-  HEX
-  CR ." ----------------------------------------------------------------" CR
-  ." [" 1 <( )) strsignal ASCIIZ> TYPE ." ]  Code:"
-  DUP 2 CELLS + @ . >R
-  ."  Address:" DUP 19 CELLS + @ DUP 8 .0
-  ."   Word:" WordByAddr TYPE CR
-  ." At:" R> 3 CELLS + @ 8 .0 ."  UserData:" TlsIndex@ 8 .0 
-  ."  ThreadID:" (()) pthread_self 8 .0 ."  Handler:" HANDLER @ 8 .0 CR
+  BASE @ >R HEX
+  CR 
+  ." ----------------------------------------------------------------"
+  CR
+  ." [" 1 <( )) strsignal ASCIIZ> TYPE ." ] "
+  ."  Code:" DUP 2 CELLS + @ . >R
+  ."  Address:" DUP 19 CELLS + @ DUP ADDR.
+  ."  Word:" WordByAddr TYPE 
+  CR
+  ." At:" R> 3 CELLS + @ ADDR. 
+  ." UserData:" TlsIndex@ ADDR.
+  ." ThreadID:" (()) pthread_self ADDR. 
+  ." Handler:" HANDLER @ ADDR. 
+  CR
 
   5 CELLS + \ regdump base
   >R
-  R@ 7 CELLS + @
-  R@ 11 CELLS + @
-  R> 6 CELLS + @
+  R@  7 CELLS + @ ( esp )
+  R@ 11 CELLS + @ ( eax )
+  R>  6 CELLS + @ ( ebp )
   DUMP-TRACE-USING-REGS
-  ." ----------------------------------------------------------------" CR
+  ." ----------------------------------------------------------------" 
+  CR
+  R> BASE !
 ; 
 
 \ see http://forth.sourceforge.net/standard/dpans/dpans9.htm#9.3.5
@@ -80,7 +88,7 @@ CR .( FIXME test return result of sigaction)
    (( SYS_SIGSEGV sigact 0 )) sigaction DROP
 ;
 
-: PROCESS-INIT ( n )
+: PROCESS-INIT ( n -- )
   dl-init
   ERASE-IMPORTS
   ['] NOOP       TO <PRE>
@@ -105,10 +113,9 @@ CR .( FIXME test return result of sigaction)
   FREE-THREAD-MEMORY
 ;
 
-
-: PLATFORM S" Linux" ;
+: PLATFORM ( -- a u ) S" Linux" ;
 
 0 VALUE CMDLINE
 0 VALUE #CMDLINE
 
-: COMMANDLINE-OPTIONS CMDLINE #CMDLINE ;
+: COMMANDLINE-OPTIONS ( -- a u ) CMDLINE #CMDLINE ;

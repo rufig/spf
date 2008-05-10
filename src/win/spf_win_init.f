@@ -4,7 +4,7 @@
   Сентябрь 1999
 )
 
-: USER-INIT ( n )
+: USER-INIT ( n -- )
 \ n - размер параметров, к-е Windows передает callback процедуре (в байтах)
   CREATE-HEAP
   <SET-EXC-HANDLER>
@@ -13,7 +13,7 @@
 ;
 
 \ один раз на процесс
-: PROCESS-INIT ( n )
+: PROCESS-INIT ( n -- )
   ERASE-IMPORTS
   CREATE-PROCESS-HEAP
   <SET-EXC-HANDLER>
@@ -51,7 +51,7 @@ VARIABLE IN-EXCEPTION
 
   ." EXCEPTION! "
   DUP @ ."  CODE:" U.
-  DUP 3 CELLS + @ ."  ADDRESS:" DUP U.  ."  WORD:" WordByAddr TYPE CR
+  DUP 3 CELLS + @ ."  ADDRESS:" DUP ADDR.  ."  WORD:" WordByAddr TYPE CR
 
   ( DispatcherContext ContextRecord EstablisherFrame ExceptionRecord  ExceptionRecord )
   DROP 2 PICK
@@ -62,8 +62,8 @@ VARIABLE IN-EXCEPTION
 
   AT-EXC-DUMP ( addr -- addr )
 
-  ." USER DATA: " TlsIndex@ U. ." THREAD ID: " 36 FS@ U.
-  ." HANDLER: " HANDLER @ U. CR
+  ." USER DATA: " TlsIndex@ ADDR. ." THREAD ID: " 36 FS@ ADDR.
+  ." HANDLER: " HANDLER @ ADDR. CR
   >R
   R@ 10 CELLS + @ ( esp )
   R@ 5 CELLS + @ ( eax )
@@ -75,4 +75,5 @@ VARIABLE IN-EXCEPTION
 ;
 ' EXC-DUMP1 ' <EXC-DUMP> TC-VECT!
 
-: PLATFORM S" Win95/98/Me/NT/2k/XP/Vista" ;
+: PLATFORM ( -- a u ) S" Win95/98/Me/NT/2k/XP/Vista" ;
+
