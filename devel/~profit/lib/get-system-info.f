@@ -2,6 +2,9 @@ WINAPI: GetSystemInfo KERNEL32
 
 MODULE: get-system-info
 
+
+[DEFINED] WINAPI: [IF]
+
 0
 2 -- wProcessorArchitecture
 2 -- wReserved
@@ -53,5 +56,13 @@ SYSTEM_INFO wProcessorLevel W@ ;
 SYSTEM_INFO GetSystemInfo DROP
 SYSTEM_INFO wProcessorRevision W@ ;
 
+[ELSE]
+
+1 NSYM: sysconf
+
+: PageSize ( -- n )
+30 sysconf ;
+
+[ENDIF]
 
 ;MODULE
