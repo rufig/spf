@@ -1,9 +1,8 @@
-WINAPI: GetSystemInfo KERNEL32
-
 MODULE: get-system-info
 
 
 [DEFINED] WINAPI: [IF]
+WINAPI: GetSystemInfo KERNEL32
 
 0
 2 -- wProcessorArchitecture
