@@ -357,9 +357,36 @@ CREATE sections
 
 : IMAGE-BASE FORTH-START ;
 
+: (forth.ld) ( a u -- )
+  ." SECTIONS" CR
+  ." {" CR
+  ." . = 0x" BASE @ >R HEX IMAGE-BASE . R> BASE ! ." ;" CR
+  ." .forth : " CR
+  ." { /* forth system */" CR
+  2DUP TYPE ." .o(.forth)" CR
+  ." }" CR
+  ." /* free space for dictionary growth */" CR
+  ." .space :" CR
+  ." {" CR
+  TYPE ." .o(.space)" CR
+  ." }" CR
+  ." }" CR
+;
+
+: forth.ld ( a u -- )
+  H-STDOUT >R
+  2DUP <# S" .ld" HOLDS HOLDS 0 0 #>
+  R/W CREATE-FILE IF DROP R> TO H-STDOUT EXIT THEN TO H-STDOUT
+  ( a u ) (forth.ld)
+  H-STDOUT CLOSE-FILE DROP
+  R> TO H-STDOUT ;
+
 : SAVE ( c-addr u -- )
+  ( создание ld скрипта )
+  2DUP forth.ld
   ( сохранение наработанной форт-системы в объектном файле ELF )
-  S" save/spf4.o" +ModuleDirName
+  2DUP 
+  <# S" .o" HOLDS HOLDS 0 0 #>
   R/W CREATE-FILE THROW >R
   elf-header elf-header-size R@ WRITE-FILE THROW
 
@@ -421,9 +448,8 @@ CREATE sections
   R> CLOSE-FILE THROW
 
   DROP >R
-  (( HERE S" %ssave/save %ssave %x %s" DROP 
+  (( HERE S" %ssave/save %ssave %s" DROP 
      ModuleDirName PAD CZMOVE PAD DUP
-     FORTH-START
      R>
   )) sprintf DROP 
   HERE system
