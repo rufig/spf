@@ -379,8 +379,10 @@ CREATE sections
   R/W CREATE-FILE IF DROP R> TO H-STDOUT EXIT THEN TO H-STDOUT
   ( a u ) (forth.ld)
   H-STDOUT CLOSE-FILE DROP
-  R> TO H-STDOUT ;
+  R> TO H-STDOUT 
+;
 
+\ needs default.ld file placed near spf binary
 : SAVE ( c-addr u -- )
   ( создание ld скрипта )
   2DUP forth.ld
@@ -455,5 +457,4 @@ CREATE sections
     R@ PAD R@ R>
   )) sprintf DROP 
   HERE system
-\  BYE
 ;
