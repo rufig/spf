@@ -447,11 +447,13 @@ CREATE sections
 
   R> CLOSE-FILE THROW
 
-  DROP >R
-  (( HERE S" %ssave/save %ssave %s" DROP 
-     ModuleDirName PAD CZMOVE PAD DUP
-     R>
+  ( a u ) DROP >R
+  ModuleDirName PAD CZMOVE
+  (( 
+    HERE
+    S" cc -v %s.o -ldl -lpthread -D_REENTRANT -Xlinker -T%s/default.ld -Xlinker -T%s.ld -o %s" DROP
+    R@ PAD R@ R>
   )) sprintf DROP 
   HERE system
-  BYE
+\  BYE
 ;
