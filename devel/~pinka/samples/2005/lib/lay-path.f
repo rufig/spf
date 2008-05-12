@@ -8,11 +8,13 @@
   S" test-string" S" c:\work\test1\aaa\bbb\my-file.txt" FORCE-PATH ATTACH
 )
 
-REQUIRE [UNDEFINED]  lib\include\tools.f
+REQUIRE [UNDEFINED]  lib/include/tools.f
 
 [UNDEFINED] /CHAR           [IF] 1 CHARS CONSTANT /CHAR          [THEN]
 
 [UNDEFINED] CREATE-FOLDER [IF]
+
+[DEFINED] WINAPI: [IF]
 
 [UNDEFINED] CreateDirectoryA [IF]
 WINAPI: CreateDirectoryA   KERNEL32.DLL
@@ -21,6 +23,12 @@ WINAPI: CreateDirectoryA   KERNEL32.DLL
 : CREATE-FOLDER ( addr u -- ior )
   DROP 0 SWAP CreateDirectoryA ERR
 ;
+[ELSE]
+
+: CREATE-FOLDER ( a u -- ior )
+  DROP 1 <( 511 )) mkdir ?ERR NIP       \ 511 = 0777
+;
+[THEN]
 [THEN]
 
 \ ===

@@ -3,8 +3,8 @@
 \             SPARSE    â  PARSE-FOR
 \             SPARSETO  â  PARSE-BEFORE
 
-REQUIRE [UNDEFINED]   lib\include\tools.f
-REQUIRE {             ~ac\lib\locals.f
+REQUIRE [UNDEFINED]   lib/include/tools.f
+REQUIRE {             ~ac/lib/locals.f
 
 [UNDEFINED] PARSE-AREA@ [IF]
 \ for desc see http://forth.sourceforge.net/word/parse-area-fetch/index.html

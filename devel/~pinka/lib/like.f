@@ -21,9 +21,9 @@
 \  Особенности: для ускорения работы бэктрекинг сведен к минимуму 
 \  и сделан через обычный цикл; используется SEARCH и COMPARE
 
-REQUIRE SALLOC      ~pinka\lib\ext\alloc.f 
-REQUIRE PARSE-AREA@ ~pinka\lib\ext\parse.f
-REQUIRE UPPERCASE   ~ac\lib\string\uppercase.f 
+REQUIRE SALLOC      ~pinka/lib/ext/alloc.f 
+REQUIRE PARSE-AREA@ ~pinka/lib/ext/parse.f
+REQUIRE UPPERCASE   ~ac/lib/string/uppercase.f 
 
 : SEARCH&SKIP ( a u  a-subs u-subs -- a2 u2 true | a u false )
 \ искать в строке  a u  подстроку  a-subs u-subs
