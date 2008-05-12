@@ -9,7 +9,7 @@
 \ 05.Jul.2002 Fri 23:47 + Queue-Count + ^cnt
 \ 14.Sep.2003 Sun  + mapQueue * Исправлена серьезная ошибка насчет ^cnt
 
-REQUIRE {  ~ac\lib\locals.f
+REQUIRE {  lib/ext/locals.f
 
 MODULE:  VocPrioritySupport
 

@@ -4,7 +4,7 @@
 \             SPARSETO  â  PARSE-BEFORE
 
 REQUIRE [UNDEFINED]   lib/include/tools.f
-REQUIRE {             ~ac/lib/locals.f
+REQUIRE {             lib/ext/locals.f
 
 [UNDEFINED] PARSE-AREA@ [IF]
 \ for desc see http://forth.sourceforge.net/word/parse-area-fetch/index.html

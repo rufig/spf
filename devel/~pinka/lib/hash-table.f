@@ -18,9 +18,9 @@
 \     * итераторы all-hash, for-hash теперь позвол€ют вложенный вызов
 
 
-REQUIRE [UNDEFINED] lib\include\tools.f
+REQUIRE [UNDEFINED] lib/include/tools.f
 
-REQUIRE HASH  ~pinka\lib\hash.f
+REQUIRE HASH  ~pinka/lib/hash.f
 
 [UNDEFINED] SALLOC [IF]
 : SALLOC ( a u -- a1 )

@@ -10,7 +10,7 @@
 \ 14.Sep.2003 Sun  + mapQueue * Исправлена серьезная ошибка насчет ^cnt
 \ 06.Oct.2003 + QueueLow,   rename: Queue-Count -> QueueLen, Aa-Bb -> AaBb
 
-REQUIRE {  ~ac\lib\locals.f
+REQUIRE {  lib/ext/locals.f
 
 MODULE:  VocPrioritySupport
 
