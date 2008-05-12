@@ -18,12 +18,12 @@ Requirements :
 
 <section id="net">
 <name><en>Network</en><ru>Сеть</ru></name>
-<lib><key>CreateSocket</key><src>~ac/lib/win/winsock/sockets.f</src><comment><en>basic TCP/IP support</en><ru>базовая поддержка TCP/IP</ru></comment></lib>
+<lib><key>CreateSocket</key><src>~ac/lib/win/winsock/SOCKETS.F</src><comment><en>basic TCP/IP support</en><ru>базовая поддержка TCP/IP</ru></comment></lib>
 <lib><key>SslInit</key><src>~ac/lib/win/winsock/ssl.f</src><comment><en>basic SSL/TLS support</en><ru>базовая поддержка SSL/TLS</ru></comment></lib>
 <lib><key>SslClientSocket</key><src>~ac/lib/win/winsock/sockets_ssl.f</src><comment><en>SSL/TLS-server</en><ru>SSL/TLS сервер</ru></comment></lib>
 <lib><key>SocketLine</key><src>~ac/lib/win/winsock/socketline2.f</src><comment><en>line-by-line buffered socket reading</en><ru>построчное буферизированное чтение из сокета</ru></comment></lib>
-<lib><key>ReadFrom</key><src>~ac/lib/win/winsock/sockname.f</src><comment><en>UDP support</en><ru>поддержка UDP</ru></comment></lib>
-<lib><key>fsockopen</key><src>~ac/lib/win/winsock/psocket.f</src><comment><en>simplified interface to sockets</en><ru>упрощённый интерфейс к сокетам</ru></comment></lib>
+<lib><key>ReadFrom</key><src>~ac/lib/win/winsock/SOCKNAME.F</src><comment><en>UDP support</en><ru>поддержка UDP</ru></comment></lib>
+<lib><key>fsockopen</key><src>~ac/lib/win/winsock/PSOCKET.F</src><comment><en>simplified interface to sockets</en><ru>упрощённый интерфейс к сокетам</ru></comment></lib>
 <lib><key>ForEachIP</key><src>~ac/lib/win/winsock/foreach_ip.f</src><comment><en>performing given tasks for each IP host</en><ru>выполнение заданных действия для каждого IP хоста</ru></comment></lib>
 <lib><key>SendDnsQuery</key><src>~ac/lib/win/winsock/dns_q.f</src><comment><en>querying DNS-servers</en><ru>DNS запросы</ru></comment></lib>
 <lib><key>PutFileTr</key><src>~ac/lib/win/winsock/transmit.f</src><comment><en>high-speed file transmition in Windows</en><ru>высокоскоростная передача файлов в Windows</ru></comment></lib>
@@ -61,7 +61,7 @@ Requirements :
 <section id="list">
 <name><en>Linked lists</en><ru>Связные списки</ru></name>
 <lib><key>ListNode</key><src>~day/joop/lib/list.f</src><comment><en>double-linked list</en><ru>двухсвязный список</ru></comment></lib>
-<lib><key>AddNode</key><src>~ac/lib/list/STR_LIST.f</src><comment><en>linked list</en><ru>односвязный список</ru></comment></lib>
+<lib><key>AddNode</key><src>~ac/lib/list/STR_LIST.F</src><comment><en>linked list</en><ru>односвязный список</ru></comment></lib>
 <lib><key>LINK,</key><src>~day/common/link.f</src><comment><en>static list (compiles in code area)</en><ru>статический список (компилируется в кодофай)</ru></comment></lib>
 <lib><key>firstNode</key><src>~day/lib/staticlist.f</src><comment><en>double-linked list, pretty much words</en><ru>двухсвязный список, много слов</ru></comment></lib>
 <lib><key>list+s</key><src>~pinka/lib/list_ext.f</src><comment><en>linked list </en><ru>односвязный список</ru></comment></lib>
@@ -90,7 +90,7 @@ Requirements :
 <section id="sort-n-search">
 <name><en>Sorting and search</en><ru>Сортировка и поиск</ru></name>
 <lib><key>HeapSort</key><src>~mlg/SrcLib/hsort.f</src><comment><en>heap sort</en><ru>пирамидальная сортировка</ru></comment></lib>
-<lib><key>quick_sort</key><src>~pinka/samples/2003/common/qsort.f</src><comment><en>"quick" sort</en><ru>"быстрая" сортировка</ru></comment></lib>
+<lib><key>quick_sort</key><src>~pinka/samples/2003/common/QSORT.F</src><comment><en>"quick" sort</en><ru>"быстрая" сортировка</ru></comment></lib>
 <lib><key>binary-search</key><src>~profit/lib/binary-search.f</src><comment><en>binary search</en><ru>двоичный поиск</ru></comment></lib>
 </section>
 
@@ -131,7 +131,7 @@ Requirements :
 <section id="random">
 <name><en>Random numbers</en><ru>Случайные числа</ru></name>
 <lib><key>RANDOM</key><src>lib/ext/rnd.f</src><comment><en>linear congruent generator</en><ru>линейно конгруэнтный генератор</ru></comment></lib>
-<lib><key>RANDOM</key><src>~day/common/rnd.f</src><comment><en>linear congruent generator </en><ru>линейно конгруэнтный генератор</ru></comment></lib>
+<lib><key>RANDOM</key><src>~day/common/RND.F</src><comment><en>linear congruent generator </en><ru>линейно конгруэнтный генератор</ru></comment></lib>
 <lib><key>RANDOM</key><src>~af/lib/random.f</src><comment><en>linear congruent generator</en><ru>линейно конгруэнтный генератор</ru></comment></lib>
 <lib><key>RANDOM</key><src>~nn/lib/ran4.f</src><comment><en>RAN4</en></comment></lib>
 <lib><key>GENRAND</key><src>~ygrek/lib/neilbawd/mersenne.f</src><comment><en>Mersenne twister - high-speed and quality RNG</en><ru>Mersenne twister - быстрый и качественный генератор</ru></comment></lib>
@@ -148,7 +148,7 @@ Requirements :
 
 <section id="hash-func">
 <name><en>Cryptographic hashes</en><ru>Хэши</ru></name>
-<lib><key>MD5</key><src>~clf/md5.f</src><comment><en>MD5</en></comment></lib>
+<lib><key>MD5</key><src>~clf/MD5.F</src><comment><en>MD5</en></comment></lib>
 <lib><key>MD5</key><src>~clf/md5-ts.f</src><comment><en>thread safe MD5</en></comment></lib>
 <lib><key>MD5</key><src>lib/alg/md5-jz.f</src><comment><en>MD5</en></comment></lib>
 </section>
@@ -190,13 +190,13 @@ Requirements :
 
 <section id="WinCOM">
 <name><en>Windows COM</en></name> 
-<lib><key>ComInit</key><src>~ac/lib/win/com/com.f</src><comment><en>basic COM support</en><ru>базовая поддержка COM</ru></comment></lib>
+<lib><key>ComInit</key><src>~ac/lib/win/com/COM.F</src><comment><en>basic COM support</en><ru>базовая поддержка COM</ru></comment></lib>
 <lib><key>Extends</key><src>~ac/lib/win/com/com_server.f</src><comment><en>COM-server</en><ru>COM сервер</ru></comment></lib>
 </section>
 
 <section id="services">
 <name><en>System services</en><ru>Системные сервисы</ru></name>
-<lib><key>CreateService</key><src>~ac/lib/win/service/service.f</src><comment><en>NT services</en><ru>сервисы NT</ru></comment></lib>
+<lib><key>CreateService</key><src>~ac/lib/win/service/SERVICE.F</src><comment><en>NT services</en><ru>сервисы NT</ru></comment></lib>
 <lib><key>InstallService95</key><src>~ac/lib/win/service/service95.f</src><comment><en>"services" for Win9x/ME</en><ru>"сервисы" для Win9x/ME</ru></comment></lib>
 </section>
 
@@ -212,9 +212,9 @@ Requirements :
 
 <section id="db">
 <name><en>Databases</en><ru>Базы данных</ru></name>
-<lib><key>StartSQL</key><src>~yz/lib/odbc.f</src><comment><en>ODBC, typed data</en><ru>ODBC, типизированные данные</ru></comment></lib>
-<lib><key>StartSQL</key><src>~ac/lib/win/odbc/odbc.f</src><comment><en>ODBC, all data as strings</en><ru>ODBC, все данные как строки</ru></comment></lib>
-<lib><key>ExecSQLTxt</key><src>~pinka/lib/win/odbc/odbc-txt.f</src><comment><en>DELETE and UPDATE support for Text File Driver</en><ru>поддержка DELETE и UPDATE для Text File Driver</ru></comment></lib>
+<lib><key>StartSQL</key><src>~yz/lib/ODBC.F</src><comment><en>ODBC, typed data</en><ru>ODBC, типизированные данные</ru></comment></lib>
+<lib><key>StartSQL</key><src>~ac/lib/win/odbc/ODBC.F</src><comment><en>ODBC, all data as strings</en><ru>ODBC, все данные как строки</ru></comment></lib>
+<lib><key>ExecSQLTxt</key><src>~pinka/lib/win/odbc/ODBC-txt.f</src><comment><en>DELETE and UPDATE support for Text File Driver</en><ru>поддержка DELETE и UPDATE для Text File Driver</ru></comment></lib>
 <lib><key>db3_open</key><src>~ac/lib/lin/sql/sqlite3.f</src><comment><en>SQLite</en><ru>SQLite</ru></comment>
  <link rel="wrap" href="http://www.sqlite.org/download.html">sqlite3.dll</link>
 </lib>
@@ -231,7 +231,7 @@ Requirements :
 <lib><key>CREATE-CP</key><src>~ac/lib/win/thread/pool.f</src><comment><en>thread-pool in Win200x</en><ru>пул потоков в Win200x</ru></comment></lib>
 <lib><key>CREATE-MUTEX</key><src>lib/win/mutex.f</src><comment><en>mutexes</en><ru>мутексы</ru></comment></lib>
 <lib><key>ENTER-CS</key><src>~pinka/lib/multi/critical.f</src><comment><en>critical sections</en><ru>критические секции</ru></comment></lib>
-<lib><key>WaitAll</key><src>~pinka/lib/multi/synchr.f</src><comment><en>threads synchronization - "wait for single", "wait for all"</en><ru>синхронизация потоков - "wait for single", "wait for all"</ru></comment></lib>
+<lib><key>WaitAll</key><src>~pinka/lib/multi/Synchr.f</src><comment><en>threads synchronization - "wait for single", "wait for all"</en><ru>синхронизация потоков - "wait for single", "wait for all"</ru></comment></lib>
 </section>
 
 <section id="ini-registry">
@@ -243,7 +243,7 @@ Requirements :
 <section id="str">
 <name><en>Strings</en><ru>Строки</ru></name>
 <lib><key>STR@</key><src>~ac/lib/str5.f</src><comment><en>dynamic strings</en><ru>динамические строки</ru></comment></lib>
-<lib><key>BNF</key><src>~ac/lib/transl/BNF.f</src><comment><en>basic BNF data types</en><ru>основные типы данных BNF</ru></comment></lib>
+<lib><key>BNF</key><src>~ac/lib/transl/BNF.F</src><comment><en>basic BNF data types</en><ru>основные типы данных BNF</ru></comment></lib>
 <lib><key>CHECK-SET</key><src>~day/common/sbnf.f</src><comment><en>simple BNF parser</en><ru>простой BNF парсер</ru></comment></lib>
 <lib><key>WildCMP-U</key><src>~pinka/lib/mask.f</src><comment><en>comparing string and wildcard mask</en><ru>сравнение строки с маской</ru></comment></lib>
 <lib><key>ULIKE</key><src>~pinka/lib/like.f</src><comment><en>comparing string and wildcard mask</en><ru>сравнение строки и маски</ru></comment></lib>
@@ -314,7 +314,7 @@ Requirements :
 <lib><key>STACK_MEM</key><src>~ac/lib/memory/mem_stack.f</src><comment><en>"stack"-way memory allocation</en><ru>"стековое" управление памятью</ru></comment></lib>
 <lib><key>LowMemory?</key><src>~ac/lib/memory/low_memory.f</src><comment><en>controlling extra memory consumption</en><ru>контроль за чрезмерным потреблением памяти</ru></comment></lib>
 <lib><key>PAllocSupport</key><src>~af/lib/pallocate.f</src><comment><en>allocating memory in the global process space (shareable between threads)</en><ru>выделение памяти в глобальном хипе процесса (разделяемом между потоками)</ru></comment></lib>
-<lib><key>LOCALLOC</key><src>~mak/lalloc.f</src><comment><en>local array allocation (on the return stack)</en><ru>локальный массив (на стеке возвратов)</ru></comment></lib>
+<lib><key>LOCALLOC</key><src>~mak/LALLOC.F</src><comment><en>local array allocation (on the return stack)</en><ru>локальный массив (на стеке возвратов)</ru></comment></lib>
 <lib><key>ALLOCATE2</key><src>~pinka/spf/mem2.f</src><comment><en>switching memory words for process and thread heap</en><ru>слова для переключение памяти процсса и потока</ru></comment></lib>
 <lib><key>LoadDelphiMM</key><src>~ss/lib/borlndmm.f</src><comment><en>Borland memory manager</en><ru>менеджер памяти Borland</ru></comment></lib>
 <lib><key>INIT-TASK-VALUES</key><src>~ss/lib/task-values.f</src><comment><en>global thread variables</en><ru>глобальные переменные потока</ru></comment></lib>
@@ -324,7 +324,7 @@ Requirements :
 
 <section id="misc">
 <name><en>Miscellaneous</en><ru>Разное</ru></name>
-<lib><key>CONST</key><src>~micro/lib/const/const.f</src><comment><en>constants enumeration</en><ru>перечисление констант</ru></comment></lib>
+<lib><key>CONST</key><src>~micro/lib/const/CONST.F</src><comment><en>constants enumeration</en><ru>перечисление констант</ru></comment></lib>
 <lib><key>ENUM</key><src>~ygrek/lib/enum.f</src><comment><en>enumerate groups of similar words</en><ru>перечисление групп подобных слов</ru></comment></lib>
 <lib><key>enqueueNOTFOUND</key><src>~pinka/samples/2006/core/trans/nf-ext.f</src><comment><en>extending translators (NOTFOUND)</en><ru>расширение транслятора (NOTFOUND)</ru></comment></lib>
 <lib><key>StringToCB</key><src>~day/lib/clipboard.f</src><comment><en>read/write strings from Windows-Clipboard</en><ru>Чтение/запись строковых значений из буфера обмена Windows</ru></comment></lib>
@@ -338,7 +338,7 @@ https://sourceforge.net/tracker/?func=detail&atid=117919&aid=1815133&group_id=17
 
 <section id="encoding">
 <name><en>Encodings</en><ru>Кодировки</ru></name>
-<lib><key>UNICODE>UTF8</key><src>~ac/lib/win/com/com.f</src><comment><en>convertation from Unicode (2 byte) to UTF-8 and reverse</en><ru>преобразование из Unicode (2 байта) в UTF-8 и обратно</ru></comment></lib>
+<lib><key>UNICODE>UTF8</key><src>~ac/lib/win/com/COM.F</src><comment><en>convertation from Unicode (2 byte) to UTF-8 and reverse</en><ru>преобразование из Unicode (2 байта) в UTF-8 и обратно</ru></comment></lib>
 <lib><key>unicode></key><src>~day/lib/unicode.f</src><comment><en>convertation from Unicode to ANSI and reverse</en><ru>преобразование из Unicode в ANSI и обратно</ru></comment></lib>
 <lib><key>utf8Decode</key><src>~profit/lib/utf8.f</src><comment><en>convertation from UTF-8 to Unicode (2 byte). Doesn't use WINAPI's functions</en><ru>преобразование из UTF-8 в Unicode (2 байта), без использования WINAPI функций</ru></comment></lib>
 <lib><key>debase64</key><src>~ac/lib/string/conv.f</src><comment><en>base64, win-koi, urlencode etc.</en><ru>base64, win-koi, urlencode, etc</ru></comment></lib>
