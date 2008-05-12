@@ -59,9 +59,3 @@ DECIMAL
 \ дать опции командной строки запуска
   GetCommandLineA ASCIIZ> SUBSTRING-OPTIONS
 ;
-: (OPTIONS) ( -- )
-  ['] INTERPRET CATCH PROCESS-ERR THROW
-;
-: OPTIONS ( -> ) \ интерпретировать командную строку
-  COMMANDLINE-OPTIONS ['] (OPTIONS) EVALUATE-WITH
-;
