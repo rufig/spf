@@ -1,5 +1,6 @@
 MODULE: get-system-info
 
+REQUIRE [DEFINED] lib/include/tools.f
 
 [DEFINED] WINAPI: [IF]
 WINAPI: GetSystemInfo KERNEL32
@@ -57,11 +58,10 @@ SYSTEM_INFO wProcessorRevision W@ ;
 
 [ELSE]
 
-1 NSYM: sysconf
-
+EXPORT
 : PageSize ( -- n )
-30 sysconf ;
+(( 30 )) sysconf ;
 
-[ENDIF]
+[THEN]
 
 ;MODULE
