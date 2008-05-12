@@ -9,6 +9,9 @@
 ;
 
 : ModuleName ( -- addr u )
-  ARGV @ ASCIIZ> SYSTEM-PAD SWAP
-  DUP >R CMOVE SYSTEM-PAD R>
+  (( S" /proc/self/exe" DROP SYSTEM-PAD 1024 )) readlink
+  DUP -1 = IF DROP 0 THEN
+  SYSTEM-PAD SWAP 
+  \ NB: not asciiz!
+  \ 2DUP + 0 SWAP C!
 ;
