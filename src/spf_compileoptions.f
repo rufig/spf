@@ -1,6 +1,6 @@
 \ $Id$
 \ Default compile options
-\ Override these options in custom spf.compile.ini place near spf binary
+\ Override these options in custom src/compile.ini
 
 FALSE VALUE CREATE-XML-HELP \ generate spfhelp.xml file
 
@@ -21,8 +21,8 @@ FALSE VALUE UNIX-ENVIRONMENT
 \ build posix-spf
 FALSE VALUE TARGET-POSIX
 
-S" spf.compile.ini" ' INCLUDED CATCH 
- DUP 2 = [IF] CR .( No spf.compile.ini - using defaults) DROP 2DROP [ELSE] THROW [THEN]
+S" src/compile.ini" ' INCLUDED CATCH 
+ DUP 2 = [IF] CR .( No src/compile.ini - using defaults) DROP 2DROP [ELSE] THROW [THEN]
 
 SMALLEST-SPF [IF]
 FALSE TO BUILD-OPTIMIZER
