@@ -42,9 +42,7 @@ VARIABLE IN-EXCEPTION
   TRUE IN-EXCEPTION !
   BASE @ >R HEX
 
-  ." EXCEPTION! "
-  DUP @ ."  CODE:" U.
-  DUP 3 CELLS + @ ."  ADDRESS:" DUP ADDR.  ."  WORD:" WordByAddr TYPE CR
+  DUP 3 CELLS + @ OVER @ ( addr num ) DUMP-EXCEPTION-HEADER 
 
   ( DispatcherContext ContextRecord EstablisherFrame ExceptionRecord  ExceptionRecord )
   DROP 2 PICK
@@ -55,8 +53,6 @@ VARIABLE IN-EXCEPTION
 
   AT-EXC-DUMP ( addr -- addr )
 
-  ." USER DATA: " TlsIndex@ ADDR. ." THREAD ID: " 36 FS@ ADDR.
-  ." HANDLER: " HANDLER @ ADDR. CR
   >R
   R@ 10 CELLS + @ ( esp )
   R@ 5 CELLS + @ ( eax )

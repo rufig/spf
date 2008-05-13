@@ -12,28 +12,21 @@
 
 : DUMP-TRACE ( context siginfo signo -- )
   BASE @ >R HEX
-  CR 
-  ." ----------------------------------------------------------------"
-  CR
-  ." [" 1 <( )) strsignal ASCIIZ> TYPE ." ] "
-  ."  Code:" DUP 2 CELLS + @ . >R
-  ."  Address:" DUP 19 CELLS + @ DUP ADDR.
-  ."  Word:" WordByAddr TYPE 
-  CR
-  ." At:" R> 3 CELLS + @ ADDR. 
-  ." UserData:" TlsIndex@ ADDR.
-  ." ThreadID:" (()) pthread_self ADDR. 
-  ." Handler:" HANDLER @ ADDR. 
+
+  ROT ( siginfo signo context )
+  OVER OVER SYS_CONTEXT_EIP + @ SWAP ( addr code ) DUMP-EXCEPTION-HEADER
+
+  SWAP ( signo ) ." [" 1 <( )) strsignal ASCIIZ> TYPE ." ] "
+  SWAP ( siginfo )
+  ." Code:" DUP 2 CELLS + @ . ." At:" 3 CELLS + @ ADDR.
   CR
 
-  5 CELLS + \ regdump base
   >R
-  R@  7 CELLS + @ ( esp )
-  R@ 11 CELLS + @ ( eax )
-  R>  6 CELLS + @ ( ebp )
+  R@ SYS_CONTEXT_ESP + @ ( esp )
+  R@ SYS_CONTEXT_EAX + @ ( eax )
+  R> SYS_CONTEXT_EBP + @ ( ebp )
   DUMP-TRACE-USING-REGS
-  ." ----------------------------------------------------------------" 
-  CR
+  ." END OF EXCEPTION REPORT" CR
   R> BASE !
 ; 
 
