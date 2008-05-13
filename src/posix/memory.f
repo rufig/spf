@@ -12,6 +12,8 @@
 
 0x80000 VALUE IMAGE-SIZE
 
+VARIABLE THREAD-HEAP \ для совместимости с windows-версией, значение никакой нагрузки не несёт
+
 USER THREAD-MEMORY   \ память текущего потока
 
 VARIABLE USER-OFFS \ смещение в области данных потока, 
