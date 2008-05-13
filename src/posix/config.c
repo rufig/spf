@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <time.h>
+#include <string.h>
 
 #include <gnu/libc-version.h>
 #include <sys/utsname.h>
@@ -70,8 +71,13 @@ int main()
 
   snprintf(buf,sizeof(buf),"%s %s  GNU libc %s %s",name.sysname,name.release,gnu_get_libc_version(),gnu_get_libc_release());
   COMMENT(buf);
-  snprintf(buf,sizeof(buf),"Generated on %s",ctime(&t));
+  char* strtime = asctime(gmtime(&t));
+  char* p = strchr(strtime,'\n');
+  if (p) *p = ' ';
+  snprintf(buf,sizeof(buf),"Generated on %sUTC",strtime);
   COMMENT(buf);
+
+  printf("\n");
 
   COMMENT_VALUE( REG_EDI )
   CONST( CONTEXT_EDI, offsetof(ucontext_t,uc_mcontext.gregs) + REG_EDI*sizeof(greg_t) )
