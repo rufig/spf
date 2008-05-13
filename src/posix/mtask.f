@@ -29,8 +29,11 @@
   1000 /MOD SWAP 1000000 * >R >R
   (( RP@ 0 )) nanosleep DROP RDROP RDROP
 ;
-
 : TERMINATE ( -- )
   \ остановить текущий поток (удалить)
   (( -1 )) pthread_exit DROP
+;
+: THREAD-ID ( -- tid )
+  \ идентификатор потока
+  (()) pthread_self 
 ;
