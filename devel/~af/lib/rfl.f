@@ -1,14 +1,13 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
 \ Work in spf3, spf4
 \ Recent File List
 
-REQUIRE {                 devel\~af\lib\locals.f
-REQUIRE GetIniString      devel\~af\lib\ini.f
-REQUIRE USES              devel\~af\lib\api-func.f
-REQUIRE FileExist         devel\~af\lib\fileexist.f
-REQUIRE STR@              devel\~ac\lib\str2.f
-REQUIRE PAllocSupport     devel\~af\lib\pallocate.f
+REQUIRE {                 ~af/lib/locals.f
+REQUIRE GetIniString      ~af/lib/ini.f
+REQUIRE USES              ~af/lib/api-func.f
+REQUIRE FileExist         ~af/lib/fileexist.f
+REQUIRE STR@              ~ac/lib/str2.f
+REQUIRE PAllocSupport     ~af/lib/pallocate.f
 
 USES user32.dll
 
@@ -22,24 +21,24 @@ USES user32.dll
 1024 CONSTANT MF_BYPOSITION
    0 CONSTANT MF_STRING
 
-0 VALUE IdFirstRFL \ первый идентификатор
-0 VALUE MaxCountRFL \ максимальное число файлов в списке
-0 VALUE RFLBefore \ где вставлять список в меню
-0 VALUE hRFLMenu \ меню содержащее список
+0 VALUE IdFirstRFL \ яхЁт√щ шфхэЄшЇшърЄюЁ
+0 VALUE MaxCountRFL \ ьръёшьры№эюх ўшёыю Їрщыют т ёяшёъх
+0 VALUE RFLBefore \ уфх тёЄрты Є№ ёяшёюъ т ьхэ■
+0 VALUE hRFLMenu \ ьхэ■ ёюфхЁцр∙хх ёяшёюъ
 
 VOCABULARY RFLSupport
 GET-CURRENT ALSO RFLSupport DEFINITIONS
 
-0 VALUE RFList \ лист, хранящий имена файлов. 9 ячеек, 0-вая ячейка - голова
-0 VALUE inifile  \ имя файла, в котором хранится список
-0 VALUE rflsection \ имя секции rfl
+0 VALUE RFList \ ышёЄ, їЁрэ ∙шщ шьхэр Їрщыют. 9  ўххъ, 0-тр   ўхщър - уюыютр
+0 VALUE inifile  \ шь  Їрщыр, т ъюЄюЁюь їЁрэшЄё  ёяшёюъ
+0 VALUE rflsection \ шь  ёхъЎшш rfl
 
 ALSO PAllocSupport
 
-\ в spf3 какие то проблемы с ALLOCATE, пришлось использовать
-\ глобальный ALLOCATE
+\ т spf3 ъръшх Єю яЁюсыхь√ ё ALLOCATE, яЁш°ыюё№ шёяюы№чютрЄ№
+\ уыюсры№э√щ ALLOCATE
 : HEAP-PROCESS-COPY ( addr u -- addr1 )
-\ скопировать строку в хип программы и вернуть её адрес в хипе
+\ ёъюяшЁютрЄ№ ёЄЁюъє т їшя яЁюуЁрьь√ ш тхЁэєЄ№ х╕ рфЁхё т їшях
   0 MAX
   DUP 1+ ALLOCATE THROW DUP >R
   SWAP DUP >R MOVE
@@ -47,11 +46,11 @@ ALSO PAllocSupport
 ;
 
 : AddRFLNode ( addr u -- )
-  \ удаление последнего в списке
+  \ єфрыхэшх яюёыхфэхую т ёяшёъх
   RFList 8 CELLS + @ ?DUP IF FREE DROP THEN
-  \ сдвиг списка
+  \ ёфтшу ёяшёър
   RFList DUP CELL+ 8 CELLS MOVE
-  \ добавление нового файла в начало
+  \ фюсртыхэшх эютюую Їрщыр т эрўрыю
   HEAP-PROCESS-COPY RFList !
 ;
 

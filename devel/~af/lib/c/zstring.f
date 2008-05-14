@@ -1,7 +1,6 @@
-\ $Id$
-\ ã«ì-áâà®ª¨. ’¥å­®«®£¨ï ¢§ïâ  ¨§ ~yz\common.f
+\ Íóëü-ñòðîêè. Òåõíîëîãèÿ âçÿòà èç ~yz\common.f
 
-\ Š®¯¨àã¥â áâà®ªã addr u ¯®  ¤à¥áã z. ‚ ª®­¥æ áâà®ª¨ § ¯¨áë¢ ¥â 0
+\ Êîïèðóåò ñòðîêó addr u ïî àäðåñó z. Â êîíåö ñòðîêè çàïèñûâàåò 0
 : CZMOVE ( a # z --) 2DUP + >R SWAP CMOVE R> 0 SWAP C! ;
 
 VOCABULARY ZStrSupport
@@ -42,8 +41,8 @@ USER toadr  USER fromadr  USER counter
 
 SET-CURRENT
 
-: Z\LITERAL ( addr u -- \ a) \ ¢ à¥¦¨¬¥ ¨­â¥à¯à¥â æ¨¨ ¢®§¢à é ¥â  ¤à¥á
-\ ¡ãä¥à  ¢ ¤¨­ ¬¨ç¥áª®© ¯ ¬ïâ¨. ãä¥à ¦¥« â¥«ì­® ®á¢®¡®¤¨âì
+: Z\LITERAL ( addr u -- \ a) \ â ðåæèìå èíòåðïðåòàöèè âîçâðàùàåò àäðåñ
+\ áóôåðà â äèíàìè÷åñêîé ïàìÿòè. Áóôåð æåëàòåëüíî îñâîáîäèòü
   STATE @ IF
     POSTPONE ALITERAL
     HERE 1+ DUP >R ESC-CZMOVE
@@ -63,10 +62,10 @@ SET-CURRENT
   THEN
 ; IMMEDIATE
 
-\ ‘®§¤ ¥â áâà®ªã, ®ª ­ç¨¢ îéãîáï ­ã«¥¬
+\ Ñîçäàåò ñòðîêó, îêàí÷èâàþùóþñÿ íóëåì
 : Z" ( -->") [CHAR] " PARSE [COMPILE] ZLITERAL ; IMMEDIATE
 
-\ ‘®§¤ ¥â 0-áâà®ªã, ¯à¨ íâ®¬ ¯à¥®¡à §ã¥â ¥¥ ¯® C-¯à ¢¨« ¬.
+\ Ñîçäàåò 0-ñòðîêó, ïðè ýòîì ïðåîáðàçóåò åå ïî C-ïðàâèëàì.
 : Z\" ( -->") [CHAR] " PARSE [COMPILE] Z\LITERAL ; IMMEDIATE
 
 PREVIOUS

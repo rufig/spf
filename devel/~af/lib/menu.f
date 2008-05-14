@@ -1,13 +1,12 @@
-\ $Id$
 \ Высокоуровневая поддержка меню
 
-REQUIRE WinNT?	~ac\lib\win\winver.f
-REQUIRE :M	~af\lib\nwordlist.f
-REQUIRE USES	~af\lib\api-func.f
+REQUIRE WinNT?	~ac/lib/win/winver.f
+REQUIRE :M	~af/lib/nwordlist.f
+REQUIRE USES	~af/lib/api-func.f
 USES user32.dll
 USES kernel32.dll
 0 CONSTANT CP_ACP
-REQUIRE S>UNICODE	~nn\lib\unicode.f
+REQUIRE S>UNICODE	~nn/lib/unicode.f
 
 USER-VALUE MENU-WID
 VECT AppMenu

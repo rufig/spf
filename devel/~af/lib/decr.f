@@ -1,5 +1,3 @@
-\ $Id$
-
 [DEFINED] CODE [IF]
 CODE 1-! ( A -> )
      DEC DWORD [EAX]

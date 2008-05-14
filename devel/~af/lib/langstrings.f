@@ -1,10 +1,8 @@
-\ $Id$
-
-REQUIRE :M           ~af\lib\nwordlist.f
-REQUIRE USES         ~af\lib\api-func.f
+REQUIRE :M           ~af/lib/nwordlist.f
+REQUIRE USES         ~af/lib/api-func.f
 USES kernel32.dll
 0 CONSTANT CP_ACP
-REQUIRE S>UNICODE    ~nn\lib\unicode.f
+REQUIRE S>UNICODE    ~nn/lib/unicode.f
 
 VOCABULARY LStrings
 GET-CURRENT ALSO LStrings DEFINITIONS

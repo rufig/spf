@@ -1,6 +1,5 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
-\ Переменные похожие на VALUE, но поддерживающие операцию AT.
+\ ╧хЁхьхээ√х яюїюцшх эр VALUE, эю яюффхЁцштр■∙шх юяхЁрЎш■ AT.
 
 \ CODE _ATVALUE-CODE
 \     LEA  EBP, -4 [EBP]

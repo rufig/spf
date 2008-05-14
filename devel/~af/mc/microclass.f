@@ -1,4 +1,3 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
 \ Переделка ~day\mc\microclass.f
 ( 13.05.2000 Dmitry Yakimov
@@ -41,7 +40,7 @@
      ;
 )
 
-REQUIRE {  devel\~af\lib\locals.f
+REQUIRE {  ~af/lib/locals.f
 
 VOCABULARY MicroClass
 GET-CURRENT ALSO MicroClass DEFINITIONS

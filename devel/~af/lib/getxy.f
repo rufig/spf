@@ -1,7 +1,6 @@
-\ $Id$
-\ Возвращает позицию курсора в консоли
+\ ┬ючтЁр∙рхЄ яючшЎш■ ъєЁёюЁр т ъюэёюыш
 
-REQUIRE STRUCT:	lib\ext\struct.f
+REQUIRE STRUCT:	lib/ext/struct.f
 
 STRUCT: COORD
 2 -- X

@@ -1,4 +1,3 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
 \ Work in spf3, spf4
 \ Выделение динамической памяти, доступной во всех потоках

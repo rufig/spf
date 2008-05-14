@@ -1,14 +1,13 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
-\  ¡®â  á ªãáª®¬ ¤¨­ ¬¨ç¥áª®© ¯ ¬ïâ¨ ª ª á ¯®â®ª®¬.
-\  ¬ïâì ¤®«¦­  ¡ëâì á ­ã«¥¢ë¬ ¡ ©â®¬ ¢ ª®­æ¥.
-\ ‘«ã¦¥¡­ ï ïç¥©ª  ¨á¯®«ì§ã¥âáï ª ª ãª § â¥«ì ¯®á«¥¤­¥£® ¯à®ç¨â ­­®£® ¡ ©â .
+\ Ðàáîòà ñ êóñêîì äèíàìè÷åñêîé ïàìÿòè êàê ñ ïîòîêîì.
+\ Ïàìÿòü äîëæíà áûòü ñ íóëåâûì áàéòîì â êîíöå.
+\ Ñëóæåáíàÿ ÿ÷åéêà èñïîëüçóåòñÿ êàê óêàçàòåëü ïîñëåäíåãî ïðî÷èòàííîãî áàéòà.
 
-REQUIRE FStream          ~af\lib\stream_io.f
-REQUIRE [DEFINED]        lib\include\tools.f
+REQUIRE FStream          ~af/lib/stream_io.f
+REQUIRE [DEFINED]        lib/include/tools.f
 
 : READ-MEM ( c-addr u1 hmem -- u2 ior=0 )
-\ ¯®â®ª®¢®¥ çâ¥­¨¥ ¨§ ¯ ¬ïâ¨
+\ ïîòîêîâîå ÷òåíèå èç ïàìÿòè
   CELL- DUP >R @
   TUCK + OVER
   BEGIN  2DUP > OVER C@ AND  WHILE  1+  REPEAT
@@ -17,7 +16,7 @@ REQUIRE [DEFINED]        lib\include\tools.f
   R> 0
 ;
 : MEM>RSTREAM ( hmem -- s )
-  DUP DUP CELL- ! \ ãª § â¥«ì â¥ªãé¥© ¯®§¨æ¨¨
+  DUP DUP CELL- ! \ óêàçàòåëü òåêóùåé ïîçèöèè
   ['] READ-MEM
   FStream::HANDLE>STREAM-WITH
 ;

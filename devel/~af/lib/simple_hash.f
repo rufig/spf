@@ -1,19 +1,18 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
 \ Work in spf3, spf4
-\ Либа для работы с массивом строк. Для поиска строки в массиве
-\ используется ее хэш. Каждой строке может быть сопоставлено число.
-\ Создание массива - n_size ListCreate, где n_size - размер хэш-таблицы.
-\ В либе используется свой менеджер памяти, в связи с чем длина одной строки
-\ должна быть не больше чем n_size*4*4.
+\ ╦шср фы  ЁрсюЄ√ ё ьрёёштюь ёЄЁюъ. ─ы  яюшёър ёЄЁюъш т ьрёёштх
+\ шёяюы№чєхЄё  хх ї¤°. ╩рцфющ ёЄЁюъх ьюцхЄ с√Є№ ёюяюёЄртыхэю ўшёыю.
+\ ╤ючфрэшх ьрёёштр - n_size ListCreate, уфх n_size - ЁрчьхЁ ї¤°-ЄрсышЎ√.
+\ ┬ ышсх шёяюы№чєхЄё  ётющ ьхэхфцхЁ ярь Єш, т ёт чш ё ўхь фышэр юфэющ ёЄЁюъш
+\ фюыцэр с√Є№ эх сюы№°х ўхь n_size*4*4.
 
 
-REQUIRE [IF]   lib\include\tools.f
+REQUIRE [IF]   lib/include/tools.f
 
 0
-4 -- ListNodeKey \ строка
-4 -- ListNodeVal \ число
-4 -- ListNodeNext \ ссылка на следующий узел с тем же хэшем
+4 -- ListNodeKey \ ёЄЁюър
+4 -- ListNodeVal \ ўшёыю
+4 -- ListNodeNext \ ёё√ыър эр ёыхфє■∙шщ єчхы ё Єхь цх ї¤°хь
 CONSTANT ListNodeSizeS
 
 0
@@ -28,7 +27,7 @@ CONSTANT ListNodeSizeS
 CONSTANT ListRootSizeS
 
 VERSION 400000 < [IF]
-  REQUIRE HASH devel\~day\common\hash.f
+  REQUIRE HASH devel/~day/common/hash.f
   : HashCode ( addr u list -- hash ) >R HASH ABS R> @ MOD ;
 [ELSE]
   : HashCode ( addr u list -- hash )  @ HASH ;

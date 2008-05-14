@@ -1,20 +1,19 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
 \ Work in spf3, spf4
-\ NOTFOUND для функций в dll
-\ Избавляет от необходимости объявлять используемые API-функции.
-\ Подключение dll - USES "name.dll". Имя dll может содержать путь и быть
-\ заключенным в ковычки. При выполнении слова name.dll в стек кладется
-\ адрес 0-строки с именем длл.
-\ Порядок поиска: сначала ищется враппер функции в оригинальном написании.
-\ Если не найден, то ищем враппер с добавленным суффиксом - сначала с A, потом
-\ с W. Если враппера нет - ищем в подключенных dll-ка. Сначала в оригинальном
-\ написании, затем с суффиксом - если ANSIAPI ON то с A, иначе с W.
-\ Все врапперы компилятся в словарь FORTH
+\ NOTFOUND фы  ЇєэъЎшщ т dll
+\ ╚чсрты хЄ юЄ эхюсїюфшьюёЄш юс· ты Є№ шёяюы№чєхь√х API-ЇєэъЎшш.
+\ ╧юфъы■ўхэшх dll - USES "name.dll". ╚ь  dll ьюцхЄ ёюфхЁцрЄ№ яєЄ№ ш с√Є№
+\ чръы■ўхээ√ь т ъют√ўъш. ╧Ёш т√яюыэхэшш ёыютр name.dll т ёЄхъ ъырфхЄё 
+\ рфЁхё 0-ёЄЁюъш ё шьхэхь фыы.
+\ ╧юЁ фюъ яюшёър: ёэрўрыр ш∙хЄё  тЁряяхЁ ЇєэъЎшш т юЁшушэры№эюь эряшёрэшш.
+\ ┼ёыш эх эрщфхэ, Єю ш∙хь тЁряяхЁ ё фюсртыхээ√ь ёєЇЇшъёюь - ёэрўрыр ё A, яюЄюь
+\ ё W. ┼ёыш тЁряяхЁр эхЄ - ш∙хь т яюфъы■ўхээ√ї dll-ър. ╤эрўрыр т юЁшушэры№эюь
+\ эряшёрэшш, чрЄхь ё ёєЇЇшъёюь - хёыш ANSIAPI ON Єю ё A, шэрўх ё W.
+\ ┬ёх тЁряяхЁ√ ъюьяшы Єё  т ёыютрЁ№ FORTH
 
-REQUIRE [DEFINED]  lib\include\tools.f
-REQUIRE AddNode    ~ac\lib\list\str_list.f
-REQUIRE ON         lib\ext\onoff.f
+REQUIRE [DEFINED]  lib/include/tools.f
+REQUIRE AddNode    ~ac/lib/list/str_list.f
+REQUIRE ON         lib/ext/onoff.f
 
 [UNDEFINED] HOLDS [IF]
   : HOLDS ( addr u -- ) \ from eserv src
@@ -22,25 +21,25 @@ REQUIRE ON         lib\ext\onoff.f
   ;
 [THEN]
 
-\ в этом словаре хранится список dll, в которых ищется функция
+\ т ¤Єюь ёыютрЁх їЁрэшЄё  ёяшёюъ dll, т ъюЄюЁ√ї ш∙хЄё  ЇєэъЎш 
 VOCABULARY API-FUNC-VOC
 VARIABLE ANSIAPI
 ANSIAPI ON
-\ либа замедляет цикл интерпретации, поэтому нужна возможность отключать ее
+\ ышср чрьхфы хЄ Ўшъы шэЄхЁяЁхЄрЎшш, яю¤Єюьє эєцэр тючьюцэюёЄ№ юЄъы■ўрЄ№ хх
 VARIABLE API-FUNC
 API-FUNC ON
 
 VOCABULARY APISupport
 GET-CURRENT ALSO APISupport DEFINITIONS
 
-\ в режиме компиляции используется отложенная компиляция врапперов впервые
-\ вызванных апи-функций. Список функций, которые надо скомпилировать,
-\ хранится в динамическом списке ListFunc
+\ т Ёхцшьх ъюьяшы Ўшш шёяюы№чєхЄё  юЄыюцхээр  ъюьяшы Ўш  тЁряяхЁют тяхЁт√х
+\ т√чтрээ√ї ряш-ЇєэъЎшщ. ╤яшёюъ ЇєэъЎшщ, ъюЄюЁ√х эрфю ёъюьяшышЁютрЄ№,
+\ їЁрэшЄё  т фшэрьшўхёъюь ёяшёъх ListFunc
 USER ListFunc
 
 : FreeListFunc ListFunc FreeList ;
 
-: SWINAPI ( NameLibAddr addrИмяПроцедуры u -- )
+: SWINAPI ( NameLibAddr addr╚ь ╧ЁюЎхфєЁ√ u -- )
   <# ROT ASCIIZ> HOLDS S"  " HOLDS HOLDS S" WINAPI: " HOLDS 0 0 #> EVALUATE
 ;
 
@@ -58,7 +57,7 @@ USER ListFunc
   FALSE
 ;
 
-\ Поиск функции, имя которой лежит в PAD, в подключенных длльках
+\ ╧юшёъ ЇєэъЎшш, шь  ъюЄюЁющ ыхцшЄ т PAD, т яюфъы■ўхээ√ї фыы№ърї
 : SEARCH-FUNC ( -- NameLibAddr ProcAddr t | f )
   [ ALSO API-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL (SEARCH-FUNC)
 ;
@@ -66,16 +65,16 @@ USER ListFunc
 : ,FUNC ( n NameLibAddr u -- )
   0 [ VERSION 400000 < [IF] ] COMPILE, [ [ELSE] ] _COMPILE, [ [THEN] ]
   4 CELLS ALLOCATE THROW >R
-  PAD SWAP HEAP-COPY R@ ! \ 1-ячейка - ссылка на имя процедуры
-  R@ CELL+ !              \ 2-ячейка - ссылка на имя библиотеки
-  HERE 4 - R@ 2 CELLS + ! \ 3-ячейка - адрес для коррекции
-  R@ 3 CELLS + !          \ 4-ячейка - количество аргументов
-                          \ (-1 метка, что это не c-функция)
+  PAD SWAP HEAP-COPY R@ ! \ 1- ўхщър - ёё√ыър эр шь  яЁюЎхфєЁ√
+  R@ CELL+ !              \ 2- ўхщър - ёё√ыър эр шь  сшсышюЄхъш
+  HERE 4 - R@ 2 CELLS + ! \ 3- ўхщър - рфЁхё фы  ъюЁЁхъЎшш
+  R@ 3 CELLS + !          \ 4- ўхщър - ъюышўхёЄтю рЁуєьхэЄют
+                          \ (-1 ьхЄър, ўЄю ¤Єю эх c-ЇєэъЎш )
   R> ListFunc AddNode
 ;
 
-\ Выполнение найденной функции. В режиме компиляции функция заносится
-\ в список для последующей компиляции. В режиме интерпретации - выполняется
+\ ┬√яюыэхэшх эрщфхээющ ЇєэъЎшш. ┬ Ёхцшьх ъюьяшы Ўшш ЇєэъЎш  чрэюёшЄё 
+\ т ёяшёюъ фы  яюёыхфє■∙хщ ъюьяшы Ўшш. ┬ Ёхцшьх шэЄхЁяЁхЄрЎшш - т√яюыэ хЄё 
 : EXEC-FUNC ( NameLibAddr ProcAddr u -- )
   STATE @ IF
     NIP -1 ROT ROT ,FUNC
@@ -103,7 +102,7 @@ USER ListFunc
 
 VECT AddFuncNode
 
-\ Компиляция функции из списка и коррекция слова в котором она используется
+\ ╩юьяшы Ўш  ЇєэъЎшш шч ёяшёър ш ъюЁЁхъЎш  ёыютр т ъюЄюЁюь юэр шёяюы№чєхЄё 
 : (AddFuncNode) ( node -- )
   NodeValue DUP >R
   @ ASCIIZ> FindWrap 0= IF
@@ -139,7 +138,7 @@ VECT AddFuncNode
 
 SET-CURRENT
 
-: USES ( "name.dll" -- ) \ подключение dll к списку поиска
+: USES ( "name.dll" -- ) \ яюфъы■ўхэшх dll ъ ёяшёъє яюшёър
   [ ALSO API-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL (USES)
 ;
 

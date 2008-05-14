@@ -1,4 +1,3 @@
-\ $Id$
 \ Work in spf3, spf4
 ( 28.Mar.2000 Andrey Cherezov  Copyright [C] RU FIG
 
@@ -116,7 +115,7 @@
 ;
 )
 
-REQUIRE [IF] lib\include\tools.f
+REQUIRE [IF] lib/include/tools.f
 
 VOCABULARY vocLocalsSupport
 GET-CURRENT ALSO vocLocalsSupport DEFINITIONS

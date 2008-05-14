@@ -1,5 +1,4 @@
-\ $Id$
-\ ’ ©¬¥ΰ
+\ Òΰιμεπ
 
 REQUIRE /SYSTEMTIME lib/include/facil.f
 

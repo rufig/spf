@@ -1,7 +1,6 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
-\ Работа с DIB'ом.
-\ Только 256 цветов.
+\ ╨рсюЄр ё DIB'юь.
+\ ╥юы№ъю 256 ЎтхЄют.
 
 WINAPI: DeleteObject       GDI32.DLL
 WINAPI: CreateCompatibleDC GDI32.DLL

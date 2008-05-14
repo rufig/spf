@@ -1,10 +1,9 @@
-\ $Id$
 \ Work in spf3, spf4
 \ LOCALS from ANS 94.
 \ Use -
 \ LOCALS| n1 n2 n3 |
 
-REQUIRE { devel\~af\lib\locals.f
+REQUIRE { ~af/lib/locals.f
 
 GET-CURRENT ALSO vocLocalsSupport DEFINITIONS
 

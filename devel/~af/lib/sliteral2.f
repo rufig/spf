@@ -1,11 +1,10 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
 
-REQUIRE REPLACE-WORD lib\ext\patch.f
+REQUIRE REPLACE-WORD lib/ext/patch.f
 
-: SLITERAL2 \ замена стандартного SLITERAL -
-\ в режиме интерпретации строка переносится в 
-\ динамическую память. Так предсказуемей, но появляется утечка памяти.
+: SLITERAL2 \ чрьхэр ёЄрэфрЁЄэюую SLITERAL -
+\ т Ёхцшьх шэЄхЁяЁхЄрЎшш ёЄЁюър яхЁхэюёшЄё  т 
+\ фшэрьшўхёъє■ ярь Є№. ╥ръ яЁхфёърчєхьхщ, эю яю ты хЄё  єЄхўър ярь Єш.
   STATE @ IF
     ['] _SLITERAL-CODE COMPILE,
     DUP C,

@@ -1,4 +1,3 @@
-\ $Id$
 \ Work in spf3, spf4
 \ Потоковая версия файлового ввода-вывода.
 
@@ -16,7 +15,7 @@
 \ на запись - май 2002 ~af
 
 
-REQUIRE PAllocSupport  devel\~af\lib\pallocate.f
+REQUIRE PAllocSupport  ~af/lib/pallocate.f
 
 WINAPI: FlushFileBuffers              KERNEL32.DLL
 

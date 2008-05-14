@@ -1,6 +1,6 @@
 \ Вызов внешних функций, экспортированных по c-правилам
 
-S" lib\ext\spf-asm-tmp.f" INCLUDED
+S" lib/ext/spf-asm-tmp.f" INCLUDED
 
 CODE (CAPI-CALL) ( EAX - extern-addr, ECX - n -- x )
       OR   ECX, ECX

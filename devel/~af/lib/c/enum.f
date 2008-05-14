@@ -1,19 +1,18 @@
-\ $Id$
-\ ‘®§¤ ­ЁҐ бҐаЁЁ Є®­бв ­в
+\ Создание серии констант
 \ enum{ , zero , one DROP 5 , five }
 
 VOCABULARY EnumSupport
 GET-CURRENT ALSO EnumSupport DEFINITIONS
 
-\ ‘®§¤ Ґв ®зҐаҐ¤­го Є®­бв ­вг
+\ Создает очередную константу
 : , ( n -- n+1 )  DUP CONSTANT 1+ ;
 
-\ ‡ Є ­зЁў Ґв б®§¤ ­ЁҐ Є®­бв ­в
+\ Заканчивает создание констант
 : } ( n -- )  DROP PREVIOUS ;
 
 SET-CURRENT
 
-\ Ќ зЁ­ Ґв б®§¤ ­ЁҐ бҐаЁЁ Є®­бв ­в, Є« ¤Ґв 0 ­  бвҐЄ
+\ Начинает создание серии констант, кладет 0 на стек
 : enum{
   0
   ALSO EnumSupport

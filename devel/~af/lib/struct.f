@@ -1,6 +1,5 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
-\ ЋЎкпў«Ґ­ЁҐ бвагЄвга, б®¤Ґа¦ йЁе н«Ґ¬Ґ­вл - дг­ЄжЁЁ.
+\ Объявление структур, содержащих элементы - функции.
 
 : STRUCT: ( "name" -- old-current )
   VOCABULARY

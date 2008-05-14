@@ -1,9 +1,8 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
-\ Локальный стек.
-\ опасная либа - заменяет на лету CATCH и THROW
+\ ╦юъры№э√щ ёЄхъ.
+\ юярёэр  ышср - чрьхэ хЄ эр ыхЄє CATCH ш THROW
 
-REQUIRE REPLACE-WORD lib\ext\patch.f
+REQUIRE REPLACE-WORD lib/ext/patch.f
 
 DECIMAL
 USER-VALUE LSP@
@@ -12,19 +11,19 @@ USER-CREATE S-LSP  64 CELLS USER-ALLOT
 LS-INIT
 ..: AT-THREAD-STARTING LS-INIT ;..
 
-: +LSP ( -- )    \ Добавить уровень
+: +LSP ( -- )    \ ─юсртшЄ№ єЁютхэ№
   LSP@ CELL+ TO LSP@ ;
 
-: -LSP ( -- )    \ Убрать уровень
+: -LSP ( -- )    \ ╙сЁрЄ№ єЁютхэ№
   LSP@ 1 CELLS - TO LSP@ ;
 
-: >L ( n -- ) ( l: -- n ) \ перенести число со стека данных на локальный стек
+: >L ( n -- ) ( l: -- n ) \ яхЁхэхёЄш ўшёыю ёю ёЄхър фрээ√ї эр ыюъры№э√щ ёЄхъ
   LSP@ ! +LSP ;
 
-: L> ( -- n ) ( l: n -- ) \ перенести число с локального стека на стек данных
+: L> ( -- n ) ( l: n -- ) \ яхЁхэхёЄш ўшёыю ё ыюъры№эюую ёЄхър эр ёЄхъ фрээ√ї
   -LSP LSP@ @ ;
 
-: L@ ( -- n ) \ копирует верхнее число с локального стека на стек данных
+: L@ ( -- n ) \ ъюяшЁєхЄ тхЁїэхх ўшёыю ё ыюъры№эюую ёЄхър эр ёЄхъ фрээ√ї
   LSP@ 1 CELLS - @ ;
 
 : LPICK ( n1 -- n2)
@@ -32,7 +31,7 @@ LS-INIT
 
 : LDROP ( l: n -- )  -LSP ;
 
-: 2>L ( x1 x2 -- ) ( l: -- x1 x2 ) \ копирует два числа на лок. стек
+: 2>L ( x1 x2 -- ) ( l: -- x1 x2 ) \ ъюяшЁєхЄ фтр ўшёыр эр ыюъ. ёЄхъ
   SWAP >L >L ;
 
 : 2L> ( -- x1 x2 ) ( l: x1 x2 -- )
@@ -58,7 +57,7 @@ LS-INIT
 : (THROW)2
   DUP
   IF
-     DUP 109 = IF DROP EXIT THEN \ broken pipe - обычно не ошибка, а конец входного потока в CGI
+     DUP 109 = IF DROP EXIT THEN \ broken pipe - юс√ўэю эх ю°шсър, р ъюэхЎ тїюфэюую яюЄюър т CGI
      HANDLER @
      DUP
      IF RP!
@@ -74,7 +73,7 @@ LS-INIT
 : THROW2
   ?DUP
   IF
-     DUP 109 = IF DROP EXIT THEN \ broken pipe - обычно не ошибка, а конец входного потока в CGI
+     DUP 109 = IF DROP EXIT THEN \ broken pipe - юс√ўэю эх ю°шсър, р ъюэхЎ тїюфэюую яюЄюър т CGI
      HANDLER @ 
      DUP
      IF RP! 

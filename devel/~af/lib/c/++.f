@@ -1,24 +1,23 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
-\ ‘Ёи­лҐ Ё­ЄаҐ¬Ґ­в\¤ҐЄаҐ¬Ґ­в ¤«п VAR-ЇҐаҐ¬Ґ­­ле.
+\ Сишные инкремент\декремент для VAR-переменных.
 
-REQUIRE AT	~af\lib\var.f
-REQUIRE 1-!	~af\lib\decr.f
+REQUIRE AT	~af/lib/var.f
+REQUIRE 1-!	~af/lib/decr.f
 
-\ “ўҐ«ЁзЁвм §­ зҐ­ЁҐ VAR-ЇҐаҐ¬Ґ­­®© ­  Ґ¤Ё­Ёжг
+\ Увеличить значение VAR-переменной на единицу
 : ^++ ( "var" -- )
   POSTPONE AT
   STATE @ IF POSTPONE 1+! ELSE 1+! THEN
 ; IMMEDIATE
 
-\ Џ®«®¦Ёвм §­ зҐ­ЁҐ VAR-ЇҐаҐ¬Ґ­­®© ­  бвҐЄ, гўҐ«ЁзЁвм ЇҐаҐ¬Ґ­­го ­  1
+\ Положить значение VAR-переменной на стек, увеличить переменную на 1
 : @++ ( "var" -- n )
   POSTPONE AT
   STATE @ IF POSTPONE DUP POSTPONE @ POSTPONE SWAP POSTPONE 1+!
   ELSE DUP @ SWAP 1+! THEN
 ; IMMEDIATE
 
-\ “ўҐ«ЁзЁвм §­ зҐ­ЁҐ VAR-ЇҐаҐ¬Ґ­­®© ­  Ґ¤Ё­Ёжг, Ї®«®¦Ёвм нв® §­ зҐ­ЁҐ ­  бвҐЄ
+\ Увеличить значение VAR-переменной на единицу, положить это значение на стек
 : ++@ ( "var" -- n )
   POSTPONE AT
   STATE @ IF POSTPONE DUP POSTPONE 1+! POSTPONE @

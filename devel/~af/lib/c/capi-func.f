@@ -1,32 +1,31 @@
-\ $Id$
 \ Andrey Filatkin, af@forth.org.ru
-\ NOTFOUND для функций в dll, экспортированных по c-правилам -
-\ стек чистит вызывающий.
-\ Подключение dll - USES_C "name.dll". Имя dll может содержать путь и быть
-\ заключенным в ковычки.
-\ Все врапперы компилятся в словарь FORTH
+\ NOTFOUND фы  ЇєэъЎшщ т dll, ¤ъёяюЁЄшЁютрээ√ї яю c-яЁртшырь -
+\ ёЄхъ ўшёЄшЄ т√ч√тр■∙шщ.
+\ ╧юфъы■ўхэшх dll - USES_C "name.dll". ╚ь  dll ьюцхЄ ёюфхЁцрЄ№ яєЄ№ ш с√Є№
+\ чръы■ўхээ√ь т ъют√ўъш.
+\ ┬ёх тЁряяхЁ√ ъюьяшы Єё  т ёыютрЁ№ FORTH
 
-REQUIRE ((	~af\lib\c\prefixfun.f
-REQUIRE CAPI:	~af\lib\c\capi.f
-REQUIRE USES	~af\lib\api-func.f
+REQUIRE ((	~af/lib/c/prefixfun.f
+REQUIRE CAPI:	~af/lib/c/capi.f
+REQUIRE USES	~af/lib/api-func.f
 
-\ в этом словаре хранится список dll, в которых ищется функция
+\ т ¤Єюь ёыютрЁх їЁрэшЄё  ёяшёюъ dll, т ъюЄюЁ√ї ш∙хЄё  ЇєэъЎш 
 VOCABULARY CAPI-FUNC-VOC
 
 GET-CURRENT ALSO APISupport DEFINITIONS
 
-: SCAPI ( n NameLibAddr addrИмяПроцедуры u -- )
+: SCAPI ( n NameLibAddr addr╚ь ╧ЁюЎхфєЁ√ u -- )
   <# ROT ASCIIZ> HOLDS S"  " HOLDS HOLDS
   S" CAPI: " HOLDS S"  " HOLDS S>D #S #> EVALUATE
 ;
 
-\ Поиск функции, имя которой лежит в PAD, в подключенных длльках
+\ ╧юшёъ ЇєэъЎшш, шь  ъюЄюЁющ ыхцшЄ т PAD, т яюфъы■ўхээ√ї фыы№ърї
 : SEARCH-CFUNC ( -- NameLibAddr ProcAddr t | f )
   [ ALSO CAPI-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL (SEARCH-FUNC)
 ;
 
-\ Выполнение найденной функции. В режиме компиляции функция заносится
-\ в список для последующей компиляции. В режиме интерпретации - выполняется
+\ ┬√яюыэхэшх эрщфхээющ ЇєэъЎшш. ┬ Ёхцшьх ъюьяшы Ўшш ЇєэъЎш  чрэюёшЄё 
+\ т ёяшёюъ фы  яюёыхфє■∙хщ ъюьяшы Ўшш. ┬ Ёхцшьх шэЄхЁяЁхЄрЎшш - т√яюыэ хЄё 
 : EXEC-CFUNC ( n NameLibAddr ProcAddr u -- )
   STATE @ IF
     NIP ,FUNC
@@ -54,7 +53,7 @@ GET-CURRENT ALSO APISupport DEFINITIONS
 
 SET-CURRENT
 
-: USES_C ( "name.dll" -- ) \ подключение dll к списку поиска
+: USES_C ( "name.dll" -- ) \ яюфъы■ўхэшх dll ъ ёяшёъє яюшёър
   [ ALSO CAPI-FUNC-VOC CONTEXT @  PREVIOUS ] LITERAL (USES)
 ;
 
