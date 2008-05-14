@@ -1,4 +1,4 @@
-REQUIRE fsockopen ~ac\lib\win\winsock\psocket.f 
+REQUIRE fsockopen ~ac/lib/win/winsock/psocket.f 
 
 \ WINAPI: PfCreateInterface Iphlpapi.dll \ вот ведь хитрецы... :)
 WINAPI: _PfCreateInterface@24            Iphlpapi.dll
