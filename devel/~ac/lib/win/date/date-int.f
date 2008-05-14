@@ -2,7 +2,7 @@ REQUIRE >Дата         ~ac/lib/win/date/date.f
 REQUIRE GET-TIME-ZONE ~ac/lib/win/date/timezone.f
 REQUIRE {             ~ac/lib/locals.f
 
-WINAPI: GetTickCount KERNEL32.DLL
+\ WINAPI: GetTickCount KERNEL32.DLL
 1 1 1998 >Дата CONSTANT d01011998
 
 VARIABLE W-DATEA
@@ -44,10 +44,10 @@ M-DATE Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
 : <#N ( n -- xd )
   >R <<# R> #SG
 ;
-: HOLDS ( addr u -- )
-  1024 MIN
-  SWAP OVER + SWAP 0 ?DO DUP I - 1- C@ HOLD LOOP DROP
-;
+\ : HOLDS ( addr u -- )
+\   1024 MIN
+\   SWAP OVER + SWAP 0 ?DO DUP I - 1- C@ HOLD LOOP DROP
+\ ;
 
 : Date# { d m y -- }
   y #N BL HOLD m DateM>S HOLDS BL HOLD d #N## S" , " HOLDS
