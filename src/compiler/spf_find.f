@@ -22,12 +22,15 @@ CODE CDR-BY-NAME ( c-addr u nfa1|0 -- c-addr u nfa1|nfa2|0 )
       PUSH EDI
 
       MOV EDX, [EBP]                \ длина (счетчик)
-      OR EDX, EDX 		    
-      JZ SHORT @@2                  \ если длина ноль - сразу на выход 
-
       MOV ESI, EAX                  \ вход в список
-      MOV EDI, 4 [EBP]              \ искомое слово в ES:DI
+      MOV EDI, 4 [EBP]              \ искомое слово
 
+      OR EDX, EDX 		    
+      JNZ SHORT @@4    \ особую маску вычисляем только если длина не ноль
+      MOV EBX, # 0xFF
+      JMP @@1
+
+@@4:
       A;  0xBB C, -1 W, 0 W, \    MOV EBX, # FFFF
       CMP EDX, # 3
       JB  SHORT @@8
