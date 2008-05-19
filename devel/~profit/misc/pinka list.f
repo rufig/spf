@@ -1,4 +1,4 @@
-REQUIRE list+ ~pinka\lib\list.f
+REQUIRE list+ ~pinka/lib/list.f
 : list=> ( list --> value \ <-- ) R> SWAP List-ForEach ;
 
 VARIABLE r

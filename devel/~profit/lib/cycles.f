@@ -1,6 +1,6 @@
 \ конструкция FOR .. NEXT и DO .. LOOP , не задевающий стек возвратов
 
-REQUIRE >L ~profit\lib\lstack.f
+REQUIRE >L ~profit/lib/lstack.f
 
 : REF@ @ ; \ REF -- спец. тип для ссылок перехода, см. работы Гасаненко
 : REF! ! ;

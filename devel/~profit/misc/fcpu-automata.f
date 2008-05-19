@@ -1,9 +1,9 @@
 \ ForthCPU/VM emulator by WingLion 
 
 \ сначала доопределение Форта (правильное, через REQUIRE)
-REQUIRE AT-XY ~day\common\console.f
+REQUIRE AT-XY ~day/common/console.f
 
-REQUIRE таблица ~profit\lib\chartable.f
+REQUIRE таблица ~profit/lib/chartable.f
 
 BASE @ HEX \ предущую систему счисления лучше сохранять
 

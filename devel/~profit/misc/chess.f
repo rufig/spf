@@ -18,7 +18,7 @@ REQUIRE ENUM  ~nn/lib/enum.f
 REQUIRE seq{  ~profit/lib/bac4th-sequence.f
 REQUIRE NOT   ~profit/lib/logic.f
 REQUIRE iterateByCellValues ~profit/lib/bac4th-iterators.f
-REQUIRE list+ ~pinka\lib\list.f
+REQUIRE list+ ~pinka/lib/list.f
 
 
 3 CONSTANT W \ ширина поля
