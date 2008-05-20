@@ -1,9 +1,6 @@
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE [DEFINED] lib/include/tools.f
 REQUIRE state-table ~profit/lib/chartable.f
-: symbols: символы: ;
-: same-reaction POSTPONE тоже-самое ; IMMEDIATE
-\ ^-- кандидаты на добавление в chartable.f
 
 \ "Ўаблонный" (generic) автоматный обработчик ввода
 \ _выражений_ в €чейку. »з поданного на вход строкового 

@@ -171,6 +171,8 @@ TO граница-обработки          BEGIN
 : end-input: строка-кончилась: ;
 : input-position отсюда ;
 : signal сигнал ;
+: symbols: символы: ;
+: same-reaction POSTPONE тоже-самое ; IMMEDIATE
 
 ;MODULE
 

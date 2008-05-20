@@ -214,7 +214,6 @@ SUPER resolve-cell THEN ;
 \ ------ класс листа ------
 CLASS Spreadsheet
 Table OBJ t
-: boo t :size . ;
 
 256 state-table choose-class ( char -- ta )
 all: inputErrorCell ;
