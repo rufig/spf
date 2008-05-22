@@ -9,8 +9,6 @@ REQUIRE || ~day/hype3/locals.f
 REQUIRE CString ~day/hype3/lib/string.f
 REQUIRE NUMBER ~ygrek/lib/parse.f
 REQUIRE state-table ~profit/lib/chartable.f
-: symbols: символы: ;
-: same-reaction POSTPONE тоже-самое ; IMMEDIATE
 REQUIRE ?EXIT ~mak/utils.f
 REQUIRE >=  ~profit/lib/logic.f
 
