@@ -133,7 +133,6 @@ Requirements :
 <lib><key>RANDOM</key><src>lib/ext/rnd.f</src><comment><en>linear congruent generator</en><ru>линейно конгруэнтный генератор</ru></comment></lib>
 <lib><key>RANDOM</key><src>~day/common/RND.F</src><comment><en>linear congruent generator </en><ru>линейно конгруэнтный генератор</ru></comment></lib>
 <lib><key>RANDOM</key><src>~af/lib/random.f</src><comment><en>linear congruent generator</en><ru>линейно конгруэнтный генератор</ru></comment></lib>
-<lib><key>RANDOM</key><src>~nn/lib/ran4.f</src><comment><en>RAN4</en></comment></lib>
 <lib><key>GENRAND</key><src>~ygrek/lib/neilbawd/mersenne.f</src><comment><en>Mersenne twister - high-speed and quality RNG</en><ru>Mersenne twister - быстрый и качественный генератор</ru></comment></lib>
 </section>
 
