@@ -1,6 +1,8 @@
 \ Mar.2008
 \ надо будет уйти от "WINAPI:"
 
+REQUIRE CREATE-CS ~pinka/lib/multi/critical.f
+
 \ something from ~day/lib/mysql.f
 
 WINAPI: mysql_init                libmySQL
@@ -48,15 +50,32 @@ WINAPI: mysql_thread_init         libmySQL \ Zero if successful.
                                          \ This is automatically set if CLIENT_MULTI_STATEMENTS is set.
 
 
+CREATE-CS _mysql_cs
 
 : mysql_new_conn ( -- h )
-  0 mysql_init DUP IF EXIT THEN
-  \ it calls mysql_library_init() wich is not thread-safe and must be synchronized.
-  \ Also mysql_thread_init() is automatically called by my_init(), 
-  \ which itself is automatically called by mysql_init()
+  _mysql_cs ENTER-CS
+  0 mysql_init
+  \ You must either call mysql_library_init() prior to spawning any threads, 
+  \ or else use a mutex to protect the call, whether you invoke mysql_library_init()
+  \ or indirectly via mysql_init() -- http://dev.mysql.com/doc/refman/5.0/en/mysql-library-init.html
+  _mysql_cs LEAVE-CS
+ 
+  DUP IF EXIT THEN
+
+  \ mysql_thread_init() is automatically called by my_init(),
+  \ which itself is automatically called by mysql_init(),
+  \ mysql_init(), mysql_library_init(), mysql_server_init(), and mysql_connect().
+  \ -- http://dev.mysql.com/doc/refman/5.0/en/mysql-thread-init.html
 
   8 THROW
 ;
+
+\ In the thread, call mysql_thread_end() before calling pthread_exit(). 
+\ This frees the memory used by MySQL thread-specific variables. 
+\ 
+\ http://dev.mysql.com/doc/refman/5.0/en/threaded-clients.html 
+\ -- 24.2.16. How to Make a Threaded Client
+
 
 : mysql_free_res ( res -- )
   DUP 0= IF DROP EXIT THEN
