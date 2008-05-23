@@ -21,8 +21,6 @@ Forth-system and ANS'94 standard.</i>
 ##Contents
 
 * [Installed SPF4. And what's next?](#devel)
-* [Optimizer](#opt)
-* [ANS support](#ans)
 * [How to run and include forth code?](#include)
 * [REQUIRE](#require)
 * [INCLUDED search path](#included-path)
@@ -35,16 +33,18 @@ Forth-system and ANS'94 standard.</i>
 * [Where is NOT?](#not)
 * [Where is DEFER?](#defer)
 * [How to clear the stack with one word?](#cls)
-* [Debugging facilities](#debug)
 * [Comments](#comments)
 * [Strings](#string)
-* [Creating executable modules](#save)
-* [Local and temporary variables](#locals)
-* [Using external DLLs](#dll)
-* [NOTFOUND](#notfound)
-* [Scattered colons](#scatcoln)
 * [Multitasking](#task)
 * [Vocabularies](#voc)
+* [Local and temporary variables](#locals)
+* [Creating executable modules](#save)
+* [Using external DLLs](#dll)
+* [Debugging facilities](#debug)
+* [Optimizer](#opt)
+* [ANS support](#ans)
+* [NOTFOUND](#notfound)
+* [Scattered colons](#scatcoln)
 * [Search scope](#doublecolon)
 * [Exceptions](#catch)
 
@@ -66,61 +66,6 @@ short (very short) list with descriptions is available:
 There is also a fancy GUI frontend for SPF. It is located in
 `samples/win/spfwc`. Just run the compile.bat script and copy the resulting
 binary `spf4wc.exe` to the root installation folder (near to `spf4.exe`).
-
-
-----
-<a id="opt"/>
-###[Optimizer](#opt)
-
-SPF uses the subroutine threaded code, i.e. the compiled code looks like the
-chains of `CALL <word-cfa-address>`. This code can be ran directly, but by
-default it is processed with the optimizer to gain a speedup at runtime. It
-performs inlining and peephole-optimization. More on ForthWiki (in russian):
-"[Optimizing compiler](http://wiki.forth.org.ru/optimizer)".
-
-**Tuning optimizer** *(default values are ok in the vast majority of cases, most
-probably you dont need these options!)*
-
-* `DIS-OPT` disables macrooptimization
-* `SET-OPT` enables macrooptimization (it is on by default)
-* `0 TO MM_SIZE` disables inlining (remember that inlining of `DO` `LOOP` and
-  some other words is performed by the spf kernel itself and thus is not affected with this option)  
-* `TRUE TO ?C-JMP` enables recursion tail-call optimization (experimental,
-  disabled by default, may not work in some cases)
-
-**NB**: If your program starts behaving in a strange way, try to
-temporarily turn off the optimizer using `DIS-OPT`, probably (very unlikely!) you
-have encountered a bug in optimizer. If so - locate the piece of code where the
-bug occurs and file a bugreport please.
-
-You can examine results of the word compilation as a native code with 
-disassembler:
-
-	REQUIRE SEE lib/ext/disasm.f
-	SEE word-in-interest
-
-or get the line-by-line listing (forth code with the corresponding asm code)
-
-	REQUIRE INCLUDED_L ~mak/listing2.f
-	S" file, with the code in interest"  INCLUDED_L
-	\ the listing will be placed in the file near to the file included
-
-
-----
-<a id="ans"/>
-###[ANS support](#ans)
-
-Maximum ANS conformity is achieved by including `lib/include/ansi.f`.
-Additional words are defined, some of them dummies, etc. 
-
-Also, a non-standard optimization of FILE wordset is fixed - `OPEN-FILE`,
-`CREATE-FILE` and other implicitly treat the input string as zero-ended (ignoring the
-length parameter). `lib/include/ansi-file.f` will add an extra zero byte in
-such case, after copying the file name to the dynamic buffer, which remains
-allocated for future use. You don't really need such behaviour when
-defining file names with string literal `S"` or string libraries
-`~ac/lib/str*.f`, as they ensure there is an extra zero byte. Though it can be
-helpful for using non-SPF libraries.
 
 ----
 <a id="include"/>
@@ -344,18 +289,6 @@ Write `lalala`. Or `bububu`. Error will occur and the stack will be cleared. In 
 the stack is emptied with `ABORT`, which is called when the interpreter cant
 find the word. And the proper way to clear stack is: `S0 @ SP!`
 
-
-----
-<a id="debug"/>
-###[Debugging facilities](#debug)
-
-`STARTLOG` starts logging all console output (`TYPE`, `.`, etc) 
-to the `spf.log` file in the current directory. `ENDLOG`, respectively, 
-stops such behaviour.
-
-[More in devel](devel.en.html#debug)
-
-
 ----
 <a id="comments"/>
 ###[Comments](#comments)
@@ -422,28 +355,62 @@ arguments from the input stream (or global variable as in `ALIGN` and `ALIGNED`)
 Consider equivalent examples `CREATE some` and `S" some" CREATED`.
 
 ----
-<a id="save"/>
-###[Producing executable modules](#save)
+<a id="task"/>
+###[Multitasking](#task)
 
-`SAVE ( a u -- )` will save the whole system, including all the wordlists
-(except temporary ones!) to the executable file, with the path specified
-as `a u`. Entry point is set with VALUE `<MAIN>` for the console mode and
-VARIABLE `MAINX`  for GUI. The mode itself is defined with either `?CONSOLE`
-or `?GUI`. `SPF-INIT?` controls interpretation of the command-line and
-spf4.ini auto-including:
+Threads are created with `TASK: ( xt "name" -- )` and started with
+`START ( u task -- tid )`, 
+`xt` is an executable token to get control at the thread start with one
+parameter on the stack - `u`. The returned value `tid` can be used to stop the
+thread from outside with `STOP ( tid -- )`. `SUSPEND ( tid -- )` and
+`RESUME ( tid -- )` will pause the requested thread, and resume its execution 
+(this words should be executed from the context of another thread than the one 
+being paused or resumed)
 
-	0 TO SPF-INIT?
-	' ANSI>OEM TO ANSI><OEM
-	TRUE TO ?GUI
-	' NOOP TO <MAIN>
-	' run MAINX !
-	S" gui.exe" SAVE  
+`PAUSE ( ms -- )` will pause the current thread for the given time (in milliseconds).
 
-or
+	REQUIRE { lib/ext/locals.f
 
-    ' run TO <MAIN>
-	S" console.exe" SAVE
+	:NONAME { u \ -- }
+	   BEGIN
+	   u .
+	   u 10 * 100 + PAUSE
+	  AGAIN
+	; TASK: thread
+	
+	: go
+	  10 0 DO I thread START LOOP
+	  2000 PAUSE
+	  ( tid1 tid2 ... tid10 )
+	  10 0 DO STOP LOOP
+	;
 
+	go
+
+Variables defined with `VARIABLE`, `VALUE` etc will share their values among
+all threads. If you need a thread-local variable - define it with 
+`USER ("name" -- )` or `USER-VALUE ( "name" -- )`. 
+USER-variables are zero-initialized at thread start.
+
+
+----
+<a id="voc"/>
+###[Vocabularies](#voc)
+
+One creates vocabularies with standard word `VOCABULARY ( "name" -- )` 
+or `WORDLIST ( -- wid )`. 
+To be precise, `WORDLIST` is a more general object - just a list of words.
+The word `TEMP-WORDLIST ( -- wid )` will create a temporary wordlist, which
+must be freed with `FREE-WORDLIST`. The contents of the temporary wordlist
+won't be present in the SAVEd image.
+The word `{{ ( "name" -- )` will set `name` as a context vocabulary, and `}}`
+will fall back. Consider:
+
+	MODULE: my
+	: + * ;
+	;MODULE
+	{{ my 2 3 + . }}
+will print 6, not 5.
 
 ----
 <a id="locals"/>
@@ -475,6 +442,28 @@ local variables are implemented in `~af/lib/locals-ans.f`:
 	>10
 	> Ok
 
+----
+<a id="save"/>
+###[Producing executable modules](#save)
+
+`SAVE ( a u -- )` will save the whole system, including all the wordlists
+(except temporary ones!) to the executable file, with the path specified
+as `a u`. Entry point is set with VALUE `<MAIN>` for the console mode and
+VARIABLE `MAINX`  for GUI. The mode itself is defined with either `?CONSOLE`
+or `?GUI`. `SPF-INIT?` controls interpretation of the command-line and
+spf4.ini auto-including:
+
+	0 TO SPF-INIT?
+	' ANSI>OEM TO ANSI><OEM
+	TRUE TO ?GUI
+	' NOOP TO <MAIN>
+	' run MAINX !
+	S" gui.exe" SAVE  
+
+or
+
+    ' run TO <MAIN>
+	S" console.exe" SAVE
 
 ----
 <a id="dll"/>
@@ -507,6 +496,69 @@ or:
 	REQUIRE SO ~ac/lib/ns/so-xt.f
 	SO NEW: "DLL name"
 
+----
+<a id="debug"/>
+###[Debugging facilities](#debug)
+
+`STARTLOG` starts logging all console output (`TYPE`, `.`, etc) 
+to the `spf.log` file in the current directory. `ENDLOG`, respectively, 
+stops such behaviour.
+
+[More in devel](devel.en.html#debug)
+
+----
+<a id="opt"/>
+###[Optimizer](#opt)
+
+SPF uses the subroutine threaded code, i.e. the compiled code looks like the
+chains of `CALL <word-cfa-address>`. This code can be ran directly, but by
+default it is processed with the optimizer to gain a speedup at runtime. It
+performs inlining and peephole-optimization. More on ForthWiki (in russian):
+"[Optimizing compiler](http://wiki.forth.org.ru/optimizer)".
+
+**Tuning optimizer** *(default values are ok in the vast majority of cases, most
+probably you dont need these options!)*
+
+* `DIS-OPT` disables macrooptimization
+* `SET-OPT` enables macrooptimization (it is on by default)
+* `0 TO MM_SIZE` disables inlining (remember that inlining of `DO` `LOOP` and
+  some other words is performed by the spf kernel itself and thus is not affected with this option)  
+* `TRUE TO ?C-JMP` enables recursion tail-call optimization (experimental,
+  disabled by default, may not work in some cases)
+
+**NB**: If your program starts behaving in a strange way, try to
+temporarily turn off the optimizer using `DIS-OPT`, probably (very unlikely!) you
+have encountered a bug in optimizer. If so - locate the piece of code where the
+bug occurs and file a bugreport please.
+
+You can examine results of the word compilation as a native code with 
+disassembler:
+
+	REQUIRE SEE lib/ext/disasm.f
+	SEE word-in-interest
+
+or get the line-by-line listing (forth code with the corresponding asm code)
+
+	REQUIRE INCLUDED_L ~mak/listing2.f
+	S" file, with the code in interest"  INCLUDED_L
+	\ the listing will be placed in the file near to the file included
+
+
+----
+<a id="ans"/>
+###[ANS support](#ans)
+
+Maximum ANS conformity is achieved by including `lib/include/ansi.f`.
+Additional words are defined, some of them dummies, etc. 
+
+Also, a non-standard optimization of FILE wordset is fixed - `OPEN-FILE`,
+`CREATE-FILE` and other implicitly treat the input string as zero-ended (ignoring the
+length parameter). `lib/include/ansi-file.f` will add an extra zero byte in
+such case, after copying the file name to the dynamic buffer, which remains
+allocated for future use. You don't really need such behaviour when
+defining file names with string literal `S"` or string libraries
+`~ac/lib/str*.f`, as they ensure there is an extra zero byte. Though it can be
+helpful for using non-SPF libraries.
 
 ----
 <a id="notfound"/>
@@ -568,65 +620,6 @@ started, respectively. For example, `lib/include/float2.f` adds initialization
 of the inner variables in `AT-THREAD-STARTING`.
 
 [scatter]: http://www.forth.org.ru/~mlg/ScatColn/ScatteredColonDef.html
-
-----
-<a id="task"/>
-###[Multitasking](#task)
-
-Threads are created with `TASK: ( xt "name" -- )` and started with
-`START ( u task -- tid )`, 
-`xt` is an executable token to get control at the thread start with one
-parameter on the stack - `u`. The returned value `tid` can be used to stop the
-thread from outside with `STOP ( tid -- )`. `SUSPEND ( tid -- )` and
-`RESUME ( tid -- )` will pause the requested thread, and resume its execution 
-(this words should be executed from the context of another thread than the one 
-being paused or resumed)
-
-`PAUSE ( ms -- )` will pause the current thread for the given time (in milliseconds).
-
-	REQUIRE { lib/ext/locals.f
-
-	:NONAME { u \ -- }
-	   BEGIN
-	   u .
-	   u 10 * 100 + PAUSE
-	  AGAIN
-	; TASK: thread
-	
-	: go
-	  10 0 DO I thread START LOOP
-	  2000 PAUSE
-	  ( tid1 tid2 ... tid10 )
-	  10 0 DO STOP LOOP
-	;
-
-	go
-
-Variables defined with `VARIABLE`, `VALUE` etc will share their values among
-all threads. If you need a thread-local variable - define it with 
-`USER ("name" -- )` or `USER-VALUE ( "name" -- )`. 
-USER-variables are zero-initialized at thread start.
-
-
-----
-<a id="voc"/>
-###[Vocabularies](#voc)
-
-One creates vocabularies with standard word `VOCABULARY ( "name" -- )` 
-or `WORDLIST ( -- wid )`. 
-To be precise, `WORDLIST` is a more general object - just a list of words.
-The word `TEMP-WORDLIST ( -- wid )` will create a temporary wordlist, which
-must be freed with `FREE-WORDLIST`. The contents of the temporary wordlist
-won't be present in the SAVEd image.
-The word `{{ ( "name" -- )` will set `name` as a context vocabulary, and `}}`
-will fall back. Consider:
-
-	MODULE: my
-	: + * ;
-	;MODULE
-	{{ my 2 3 + . }}
-will print 6, not 5.
-
 
 ----
 <a id="doublecolon"/>
