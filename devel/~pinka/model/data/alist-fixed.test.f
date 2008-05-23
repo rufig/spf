@@ -12,8 +12,8 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
  startup FIRE-EVENT
 
- `some-value-1 `key-1 save-pair
- `some-value-2 `key-2 save-pair
+ `some-value-1 `key-1 store-pair
+ `some-value-2 `key-2 store-pair
  
  `key-1 2DUP TYPE .(  -- ) obtain-value TYPE CR
  `key-2 2DUP TYPE .(  -- ) obtain-value TYPE CR
