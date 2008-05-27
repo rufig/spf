@@ -1,32 +1,25 @@
-sockets.f
-toread2.f
+REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
+REQUIRE ToRead2      ~ac/lib/win/winsock/toread2.f 
 
-WINAPI: WSAEventSelect WS2_32.DLL
-WINAPI: CreateEventA KERNEL32.DLL
-WINAPI: WSACreateEvent WS2_32.DLL
+WINAPI: CreateEventA              KERNEL32.DLL
+WINAPI: WSAEventSelect            WS2_32.DLL
 WINAPI: MsgWaitForMultipleObjects USER32.DLL
-WINAPI: PostThreadMessageA USER32.DLL
-WINAPI: PeekMessageA USER32.DLL
-WINAPI: GetCurrentThreadId KERNEL32.DLL
+WINAPI: PostThreadMessageA        USER32.DLL
+WINAPI: PeekMessageA              USER32.DLL
 
 1 10 LSHIFT 1- CONSTANT FD_ALL_EVENTS
-0x04FF CONSTANT QS_ALLINPUT
-
-USER SOO USER EEE USER PPP
-
-:NONAME ( tid -- )
-  >R
-  ." Poster started" CR
-  BEGIN
-    5000 PAUSE
-    ." Posting..."
-    0 0 0x401 R@ PostThreadMessageA .
-    ." OK" CR
-  AGAIN
-  RDROP
-; TASK: Poster
+        0x04FF CONSTANT QS_ALLINPUT
 
 USER uSocketEvent
+
+VECT vProcessMessage
+
+: ProcessMessage1 ( msg -- )
+  BASE @ >R HEX
+  CELL+ @ 0 <# #S S" EMSG_" HOLDS #> R> BASE !
+  TYPE CR
+;
+' ProcessMessage1 TO vProcessMessage
 
 : ReadSocket ( addr u s -- rlen ior )
   uSocketEvent @ 0= IF
@@ -46,13 +39,32 @@ USER uSocketEvent
          BEGIN
            1 0 0 0 PAD PeekMessageA
          WHILE
-           ." msg=" PAD CELL+ @ .
+           PAD ['] vProcessMessage CATCH ?DUP
+           IF NIP NIP NIP 0 SWAP EXIT THEN
          REPEAT
          FALSE
       THEN
     THEN
   UNTIL
 ;
+
+\EOF
+
+WINAPI: GetCurrentThreadId        KERNEL32.DLL
+
+USER SOO USER PPP
+
+:NONAME ( tid -- )
+  >R
+  ." Poster started" CR
+  BEGIN
+    5000 PAUSE
+    ." Posting..."
+    0 0 0x401 R@ PostThreadMessageA .
+    ." OK" CR
+  AGAIN
+  RDROP
+; TASK: Poster
 
 : TEST
   SocketsStartup THROW
