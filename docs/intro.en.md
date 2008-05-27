@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translation is in sync with intro.ru.md rev. 1.31 -->
+<!-- Translation is in sync with intro.ru.md rev. 1.33 -->
 
 ----
 
@@ -561,6 +561,33 @@ defining file names with string literal `S"` or string libraries
 helpful for using non-SPF libraries.
 
 ----
+<a id="callback"/>
+###[Callbacks](#callback)
+
+`CALLBACK: ( "name" xt bytes -- )` takes the `xt` of word to decorate as a callback
+and the number of __bytes__ which will be used for the stack parameters during invocation.
+You solely own the responsibility for matching calling conventions (cdecl,stdcall).
+Cdecl calling convention (default for C/C++) assumes that you leave all input parameters intact
+(e.g. duplicate before using). Stdcall expects `xt` to eat all paramaters from the stack. Also, bear
+in mind that callback should always return one additional CELL -- result value, even if the code
+calling this callback declares it as void (it is the feature of `CALLBACK:`).
+Example :
+
+Callback is declared as follows (C++) :
+
+    typedef void (*TestCallback)(char*,int);
+Forth code defines callback
+
+    :NONAME ( n str -- )
+      2DUP \ duplicate all params (cause cdecl)
+      ASCIIZ> CR TYPE \ string
+      CR . \ number
+      0 \ return value
+    ; 2 CELLS \ 2 parameters - 8 bytes
+    CALLBACK: Test \ new word Test is a callback
+
+
+----
 <a id="notfound"/>
 ###[NOTFOUND](#notfound)
 
@@ -573,24 +600,24 @@ recognizes numbers and provides access to the [nested vocabularies](#doublecolon
 A good form to redefine `NOTFOUND` is to call its old xt first, and proceed
 with your own code only if previous one fails with exception. Example:
 
-	 : MY? ( a u -- ? ) S" !!" SEARCH >R 2DROP R> ;
-	 : DO-MY ( a u -- ) ." My NOTFOUND: " TYPE CR ;
+    : MY? ( a u -- ? ) S" !!" SEARCH >R 2DROP R> ;
+    : DO-MY ( a u -- ) ." My NOTFOUND: " TYPE CR ;
 
-	 : NOTFOUND ( a u -- )
-	   2DUP 2>R ['] NOTFOUND CATCH 
-	   IF
-	     2DROP
-	     2R@ MY? IF 2R@ DO-MY ELSE -2003 THROW THEN
-	   THEN
-	   RDROP RDROP
-	   ;
+    : NOTFOUND ( a u -- )
+      2DUP 2>R ['] NOTFOUND CATCH 
+      IF
+        2DROP
+        2R@ MY? IF 2R@ DO-MY ELSE -2003 THROW THEN
+      THEN
+      RDROP RDROP
+    ;
 Or:
 
-	 : NOTFOUND ( a u -- )
-	   2DUP MY? IF DO-MY EXIT THEN
-	   ( a u )
-	   NOTFOUND
-	   ;
+    : NOTFOUND ( a u -- )
+      2DUP MY? IF DO-MY EXIT THEN
+      ( a u )
+      NOTFOUND
+    ;
 
 `~pinka/samples/2006/core/trans/nf-ext.f` simplifies adding custom xt to the `NOTFOUND` chain.
 
