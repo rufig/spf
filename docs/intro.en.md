@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translation is in sync with intro.ru.md rev. 1.29 -->
+<!-- Translation is in sync with intro.ru.md rev. 1.31 -->
 
 ----
 
@@ -55,7 +55,7 @@ Forth-system and ANS'94 standard.</i>
 The first and the most important - placement of your working files. There is a
 subdir `DEVEL` in the SPF directory where all the the developers' code is located
 (including yours). Create a subdir there, for example ~john. Now you can refer to 
-your files in short form, `~john\prog\myprog.f`. It simplifies mutual access to 
+your files in short form, `~john/prog/myprog.f`. It simplifies mutual access to 
 contributed code. The general convention is to place libraries in the subdirectory 
 named `lib`, and example programs in `prog`.
 
@@ -115,8 +115,8 @@ first argument for `REQUIRE`.
 `S" file.f" INCLUDED` will search following locations in specified order 
 
 * the short name `file.f` (i.e. in the current directory)
-* `PATH_TO_SPF.EXE\devel\file.f` (thus allowing to use other spf developers' code), 
-* `PATH_TO_SPF.EXE\file.f` (thus including standard libraries and other files from SPF distribution). 
+* `PATH_TO_SPF.EXE/devel/file.f` (thus allowing to use other spf developers' code), 
+* `PATH_TO_SPF.EXE/file.f` (thus including standard libraries and other files from SPF distribution). 
 
 If you need to specify more paths (for example to use some forth code shared between
 several forth systems, or whatever - any code that is not in the spf
@@ -126,7 +126,7 @@ external lib - `~ygrek/spf/included.f`. All you need is to write in
 spf4.ini
 
 	~ygrek/spf/included.f
-	with: my_path\
+	with: my_path/
 	S" my path with spaces/" with
 
 and all the files will be searched in `my_path` in addition to the
@@ -191,7 +191,7 @@ if it has dot at the end :
 ###[Float numbers](#float)
 
 Float numbers are recognized in form `[+|-][dddd][.][dddd]e[+|-][dddd]` after
-including `lib\include\float2.f`. So the necessary attribute of the float number
+including `lib/include/float2.f`. So the necessary attribute of the float number
 is the exponent symbol - `e`.
 
 Float wordset is implemented as defined by ANS-94 :
@@ -253,7 +253,7 @@ Structures can be inherited:
 <a id="forget"/>
 ###[Where is FORGET?](#forget)
 
-No `FORGET`. But we have `MARKER ( "name" -- )` (use `lib\include\core-ext.f`).
+No `FORGET`. But we have `MARKER ( "name" -- )` (use `lib/include/core-ext.f`).
 
 
 ----
@@ -272,7 +272,7 @@ The word `NOT` (logical negation) is not implemented. It can be added with
 Deferred words in SPF are created with `VECT ( "word" -- )` (as 'VECTor'). 
 `TO ( xt "word" -- )` assigns action to the deferred word.
 
-If you have to use `DEFER` and `IS`, you can include `lib/include/defer.f` file.
+If you really have to use `DEFER` and `IS`, you can include `lib/include/defer.f`.
 
 The deferred xt cell can be placed in thread USER-space with `USER-VECT ( "word" -- )`.
 Note, the deferred word created with `USER-VECT` will be initialized with zero, as all
@@ -326,7 +326,7 @@ compiled directly after the symbols of the string (it is not represented in coun
 
 `S"` defines a so called static string, which is located in the buffer, or in the
 code area. If you need dynamic string, the one that uses memory on the heap, 
-use `~ac\lib\str5.f`. Example of usage:
+use `~ac/lib/str5.f`. Example of usage:
 
 	REQUIRE STR@ ~ac/lib/str5.f
 	"" VALUE r \ create an empty string
