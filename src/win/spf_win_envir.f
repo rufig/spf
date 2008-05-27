@@ -22,10 +22,10 @@
 
   SFIND IF EXECUTE TRUE EXIT THEN
 
-  S" lib/envir.spf" +ModuleDirName 2DUP FILE-EXIST 0= 
+  S" lib/ENVIR.SPF" +ModuleDirName 2DUP FILE-EXIST 0= 
   IF
     2DROP
-    S" envir.spf" +ModuleDirName
+    S" ENVIR.SPF" +ModuleDirName
   THEN
 
   R/O OPEN-FILE-SHARED 0=
