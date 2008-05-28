@@ -5,6 +5,8 @@
 \ $Id$
 
 
+REQUIRE [DEFINED] lib/include/tools.f
+
 : HEAP-ID! ( heap -- )
 \ установить хип, с которым будут работать ALLOCATE/FREE
   THREAD-HEAP !
@@ -16,6 +18,10 @@
 
 \ ===
 
+[DEFINED] GetProcessHeap [IF]
+
 : HEAP-GLOBAL ( -- )
   GetProcessHeap HEAP-ID!
 ;
+
+[THEN]
