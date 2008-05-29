@@ -8,7 +8,6 @@
 S" ~ygrek/prog/web/help.cgi/load.f" INCLUDED
 
 REQUIRE FINE-TAIL ~pinka/samples/2005/lib/split-white.f
-REQUIRE uname name.f
 REQUIRE $Revision ~ygrek/lib/fun/kkv.f
 REQUIRE cat ~ygrek/lib/cat.f
 REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
