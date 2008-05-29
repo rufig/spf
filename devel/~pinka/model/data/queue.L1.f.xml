@@ -6,7 +6,7 @@
 <include href="pool.L1.f.xml"/><rem> pool of carts for messages </rem>
 
 
-<const name="limit">1000</const>
+<const name="limit">1000</const><rem> max messages in the queue </rem>
 <const name="cs"> ALIGN HERE MAKE-CS, </const>
 
 <cell name="_sem"/>     <def name="sem" ds=" -- sem " > _sem @ </def>
@@ -30,19 +30,27 @@
   limit CELLS 2* ALLOCATE THROW _buf !
   _buf @ CELL+
   limit <times> DUP release-worker 2 CELLS + </times> DROP
+  <rem> init the pool of carets (!!!)</rem>
 </handler>
+
+<init> CS@ <rem>( wid )</rem></init>
+<def name="log-overflow" ds=" -- ">
+  CR 
+  <emit>The queue defined in the wordlist #</emit><lit/> DUP . VOC-NAME.
+  <emit> is overflow, wait for dequeue.</emit> CR
+</def>
 
 <export>
 
-<def name="enqueueN" ds=" x -- "><rem> or, "push"? </rem>
-  hire-worker TUCK !
+<def name="enqueueN" ds=" x -- ">
+  200 wait-worker <unless> log-overflow hire-worker </unless> TUCK !
   cs ENTER-CS
   _h BIND-DNODE-TAIL _len 1+!
   cs LEAVE-CS
   sem ReleaseSem
 </def>
 
-<def name="dequeueN" ds=" -- x "><rem> or, "pop"? </rem>
+<def name="dequeueN" ds=" -- x ">
   sem -1 Wait <unless> `#dequeueN STHROW </unless>
   cs ENTER-CS
   _len 1-! _h UNBIND-NODE 
