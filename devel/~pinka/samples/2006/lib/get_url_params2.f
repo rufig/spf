@@ -33,6 +33,15 @@ USER uPARAMS-TBL
   HASH!
 ;
 
+USER _xt
+
+: (enumParams) ( akey ukey  addr -- ) COUNT 2SWAP ( d-value d-key ) _xt @ EXECUTE ;
+
+: enumParams ( xt -- ) \ xt ( d-value d-key -- )
+  uPARAMS-TBL @ 0= IF DROP EXIT THEN
+  _xt @ >R _xt ! ['] (enumParams) uPARAMS-TBL @ all-hash R> _xt !
+;
+
 : storeParamsFromString ( a u -- )
   uPARAMS-TBL @ ?DUP IF del-hash uPARAMS-TBL 0! THEN
   PARSE-URN-PARAMS uPARAMS-TBL !
