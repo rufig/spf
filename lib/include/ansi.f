@@ -10,12 +10,16 @@
 
 BASE @ DECIMAL
 
-REQUIRE CASE         LIB\EXT\CASE.F
-REQUIRE /STRING      LIB\INCLUDE\STRING.F
-REQUIRE [IF]         LIB\INCLUDE\TOOLS.F
-REQUIRE SAVE-INPUT   LIB\INCLUDE\CORE-EXT.F
-REQUIRE RENAME-FILE  DEVEL\~PINKA\LIB\FileExt.f
-REQUIRE D0<          lib\include\double.f
+REQUIRE CASE         lib/ext/case.f
+REQUIRE /STRING      lib/include/string.f
+REQUIRE [IF]         lib/include/tools.f
+REQUIRE SAVE-INPUT   lib/include/core-ext.f
+[DEFINED] WINAPI: [IF]
+REQUIRE RENAME-FILE  ~pinka/lib/FileExt.f
+[ELSE]
+REQUIRE RENAME-FILE  lib/posix/file.f
+[THEN]
+REQUIRE D0<          lib/include/double.f
 REQUIRE ANSI-FILE    lib/include/ansi-file.f
 
 WARNING @  0 WARNING !
