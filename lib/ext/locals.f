@@ -102,8 +102,6 @@
   не рекомендуется.
 )
 
-REQUIRE B, ~pinka/lib/ext/basics.f   \ временно, пока ядро не обновится
-
 MODULE: vocLocalsSupport
 
 USER widLocals
