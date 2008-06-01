@@ -24,9 +24,9 @@
   для хранения ссылки на экстра-заголовок.
 )
 
-REQUIRE HEAP-ID     ~pinka\spf\mem.f
-REQUIRE [UNDEFINED] lib\include\tools.f
-REQUIRE HASH!       ~pinka\lib\hash-table.f 
+REQUIRE HEAP-ID     ~pinka/spf/mem.f
+REQUIRE [UNDEFINED] lib/include/tools.f
+REQUIRE HASH!       ~pinka/lib/hash-table.f 
 
 MODULE: QuickSWL-Support
 
@@ -293,7 +293,7 @@ USER-VALUE NOW-COLON?
     [DEFINED] +SWORD1                           [IF]
     ' +SWORD2 TO +SWORD                         [ELSE]
 
-    REQUIRE REPLACE-WORD lib\ext\patch.f
+    REQUIRE REPLACE-WORD lib/ext/patch.f
     ' +SWORD2 ' +SWORD REPLACE-WORD             [THEN]
 
 0SWL  \ иниц.ия
@@ -301,7 +301,7 @@ USER-VALUE NOW-COLON?
     [DEFINED] SEARCH-WORDLIST1                  [IF]
     ' QuickSWL TO SEARCH-WORDLIST               [ELSE]
 
-    REQUIRE REPLACE-WORD lib\ext\patch.f
+    REQUIRE REPLACE-WORD lib/ext/patch.f
     ' QuickSWL ' SEARCH-WORDLIST REPLACE-WORD   [THEN]
 
 ;MODULE

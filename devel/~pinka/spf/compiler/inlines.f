@@ -1,6 +1,6 @@
 \ 18.Feb.2007 Sun 18:31
 \ $Id$
-\ see also src\compiler\spf_inline.f
+\ see also src/compiler/spf_inline.f
 \ NON-OPT-WL contains five words: EXECUTE  ?DUP  R>  >R  RDROP
 
 

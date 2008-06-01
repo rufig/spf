@@ -9,7 +9,7 @@
   иначе с хипом потока THREAD-HEAP -- старое поведение.
 )
 
-REQUIRE [UNDEFINED] lib\include\tools.f
+REQUIRE [UNDEFINED] lib/include/tools.f
 
 USER-VALUE HEAP-ID
 
@@ -17,7 +17,7 @@ USER-VALUE HEAP-ID
 
 [UNDEFINED] ALLOCATE1 [IF]
 ( перехват слов, если нет векторов)
-REQUIRE REPLACE-WORD lib\ext\patch.f
+REQUIRE REPLACE-WORD lib/ext/patch.f
 WARNING @ WARNING 0!
 
 ' ALLOCATE  VECT ALLOCATE ' ALLOCATE  SWAP REPLACE-WORD

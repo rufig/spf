@@ -35,9 +35,9 @@
   Cовместимо с quick-swl3.f, который следует подгружать после данного модуля.
 )
 
-REQUIRE Included ~pinka\lib\ext\requ.f
-REQUIRE REPLACE-WORD lib\ext\patch.f
-REQUIRE NDROP    ~pinka\lib\ext\common.f
+REQUIRE Included ~pinka/lib/ext/requ.f
+REQUIRE REPLACE-WORD lib/ext/patch.f
+REQUIRE NDROP    ~pinka/lib/ext/common.f
 
 WARNING @  WARNING 0!
 

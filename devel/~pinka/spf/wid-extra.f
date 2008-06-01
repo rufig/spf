@@ -83,7 +83,7 @@ WARNING !
   т.к. благодаря оптимизатору оно ссылается на старый VOC-LIST
   несмотря на подмену последнего.
 )
-' WORDLIST  \ see compiler\spf_wordlist.f
+' WORDLIST  \ see compiler/spf_wordlist.f
 : WORDLIST ( -- wid ) \ 94 SEARCH
   HERE VOC-LIST @ , VOC-LIST !
   HERE 0 , \ здесь будет указатель на имя последнего слова списка

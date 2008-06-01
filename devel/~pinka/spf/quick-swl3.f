@@ -27,11 +27,11 @@
   Заменяет вектор SEARCH-WORDLIST -- метод поиска в стандартных словарях SPF.
 )
 
-REQUIRE HEAP-ID     ~pinka\spf\mem.f
-REQUIRE [UNDEFINED] lib\include\tools.f
-REQUIRE HASH!       ~pinka\lib\hash-table.f 
+REQUIRE HEAP-ID     ~pinka/spf/mem.f
+REQUIRE [UNDEFINED] lib/include/tools.f
+REQUIRE HASH!       ~pinka/lib/hash-table.f 
 
-REQUIRE WidExtraSupport ~pinka\spf\wid-extra.f
+REQUIRE WidExtraSupport ~pinka/spf/wid-extra.f
 
 FORTH-WORDLIST VALUE w
 

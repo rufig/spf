@@ -25,8 +25,8 @@
   для хранения ссылки на экстра-заголовок.
 )
 
-REQUIRE [UNDEFINED] lib\include\tools.f
-REQUIRE HASH!       ~pinka\lib\hash-table.f 
+REQUIRE [UNDEFINED] lib/include/tools.f
+REQUIRE HASH!       ~pinka/lib/hash-table.f 
 
 MODULE: QuickSWL-Support
 
@@ -191,7 +191,7 @@ EXPORT
     [DEFINED] SEARCH-WORDLIST1                  [IF]
     ' QuickSWL TO SEARCH-WORDLIST               [ELSE]
 
-    REQUIRE REPLACE-WORD lib\ext\patch.f
+    REQUIRE REPLACE-WORD lib/ext/patch.f
     ' QuickSWL ' SEARCH-WORDLIST REPLACE-WORD   [THEN]
 
 ;MODULE

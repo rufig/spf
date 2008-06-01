@@ -21,11 +21,11 @@
   Есть маленькое отличие в поведении ACCEPT - оно затирает PARSE-AREA когда SOURCE-ID нулевой.
 )
 
-REQUIRE REPLACE-WORD lib\ext\patch.f
-REQUIRE SPLIT- ~pinka\samples\2005\lib\split.f
-REQUIRE UNBROKEN ~pinka\samples\2005\lib\split-white.f
+REQUIRE REPLACE-WORD lib/ext/patch.f
+REQUIRE SPLIT- ~pinka/samples/2005/lib/split.f
+REQUIRE UNBROKEN ~pinka/samples/2005/lib/split-white.f
 
-REQUIRE Included ~pinka\lib\ext\requ.f
+REQUIRE Included ~pinka/lib/ext/requ.f
 
 : SPLIT-LINE ( a u -- a1 u1 a2 u2 true | a u false )
   LT LTL @ SPLIT DUP IF EXIT THEN DROP
