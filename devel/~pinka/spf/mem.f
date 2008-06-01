@@ -24,4 +24,8 @@ REQUIRE [DEFINED] lib/include/tools.f
   GetProcessHeap HEAP-ID!
 ;
 
+[ELSE]
+
+: HEAP-GLOBAL ; \ for linux
+
 [THEN]
