@@ -59,6 +59,7 @@
 @st.exe .S" devel\~moleg\lib\arrays\buff.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\arrays\barray.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\arrays\stream.f"           TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\arrays\tetra.f"            TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\parsing\number.f"          TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\parsing\xWord.f"           TESTED CR BYE
