@@ -1,6 +1,6 @@
 \ Справка к сп-форту. После подключения наберите HELP
 
-REQUIRE [IF] lib\include\tools.f
+REQUIRE [IF] lib/include/tools.f
 
 USER HelpWord-A
 USER HelpWord-U
