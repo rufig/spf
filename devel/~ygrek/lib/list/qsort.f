@@ -15,7 +15,7 @@ VECT []>[]
 VECT []exch[]
 VECT []<[]
 
-S" ~pinka/samples/2003/common/qsort.f" INCLUDED
+S" ~pinka/samples/2003/common/QSORT.F" INCLUDED
 
 0 VALUE list_
 0 VALUE list_compare_xt
