@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translation is in sync with intro.ru.md rev. 1.33 -->
+<!-- Translation is in sync with intro.ru.md rev. 1.35 -->
 
 ----
 
@@ -542,6 +542,80 @@ or get the line-by-line listing (forth code with the corresponding asm code)
 	REQUIRE INCLUDED_L ~mak/listing2.f
 	S" file, with the code in interest"  INCLUDED_L
 	\ the listing will be placed in the file near to the file included
+
+**Optimization effect: conditionals**
+
+Consider the following usual piece of code `10 > IF ... THEN` -- push literal on the stack, compare two
+top stack elements, store the result back on the stack and then conditionally jump using the top of the stack as a
+flag. Optimizer will turn this into just the pair of machine commands:
+
+	lib/ext/disasm.f
+	:NONAME DUP 10 > IF 1 . THEN ; REST
+
+Result:
+
+	cmp eax, # A
+	jle @@1
+	...
+	@@1:
+
+The same applies for other typical code sequences : `2DUP = IF ... THEN` and similar:
+
+	lib/ext/disasm.f
+	:NONAME 2DUP = IF 1 . THEN ; REST
+
+Result:
+
+	cmp eax, 0 [ebp]
+	jne @@1
+	...
+	@@1:
+
+Logical operations are also optimized (`0=` is used as logical negation here, thus 
+`0< 0=` means "more or equal to zero"):
+
+	lib/ext/disasm.f
+	:NONAME DUP 0< 0= IF 1 . THEN ; REST
+
+Result:
+
+	or eax, eax
+	jl @@1
+	...
+	@@1:
+
+**Optimization effect: words created with `CREATE`, `VARIABLE`, `VALUE`, `USER`**
+
+When compiling variables or constants, instead of simply calling a DOES-action of the
+word being compiled, the specialized procedure (which knows the internal representation of such
+words) inlines the corresponding code. E.g.:
+
+	lib/ext/disasm.f
+	10 CONSTANT c
+	:NONAME c ; REST
+	
+	10 VALUE vl
+	:NONAME vl ; REST
+	
+	VARIABLE vr
+	:NONAME vr @ ; REST
+
+Result:
+
+	mov     -4 [ebp] , eax
+	mov     eax , # A
+	lea     ebp , -4 [ebp}
+	ret
+	
+	mov     -4 [ebp] , eax
+	mov     eax , 572410  ( vl+5  )
+	lea     ebp , -4 [ebp]
+	ret
+	
+	mov     -4 [ebp] , eax
+	mov     eax , 57243C  ( vr+5  )
+	lea     ebp , -4 [ebp]
+	ret
 
 
 ----
