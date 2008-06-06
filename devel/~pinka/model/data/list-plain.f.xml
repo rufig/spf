@@ -16,39 +16,52 @@
 <def name="CAR" > @ </def> -->
 <def name="CDR" ds=" node1 - node|0 "> CELL- @ </def>
 
-<def name="CONCATED" ds=" node2 node1 -- node2 ">
+<def name="TIED" ds=" node2 node1 -- node2 ">
   OVER CELL- !
 </def>
-<def name="CONCATED-" ds=" node1 node2 -- node2 ">
+<def name="TIED-" ds=" node1 node2 -- node2 ">
   TUCK CELL- !
 </def>
+<def name="UNTIED" ds=" node1 -- node2 ">
+  CELL- DUP @ SWAP 0!
+</def>
+
+<comment><rem> the 'cons' may be something like this </rem>
+<def name="cons" ds=" cdr car -- pair ">
+  SWAP ALIGN , HERE SWAP ,
+</def>
+</comment>
+
 
 <def name="BIND-NODE" ds=" node list -- ">
   2DUP @ <!-- ( node list node node-o ) -->
   SWAP CELL- ! !
+  <rem><!-- it is: --> DUP >R @ TIED R> ! </rem>
 </def>
 <def name="UNBIND-NODE" ds=" list -- node ">
   DUP @ DUP 0= <if> NIP <exit/></if>  <!-- ( list node ) -->
   TUCK CELL- @ SWAP !
 </def>
+
+
 <def name="CDR-BY-VALUE" ds=" x node1 -- x node2|0 ">
   <repeat> DUP <while/> 2DUP @ NEQ <while/> CELL- @ </repeat>
 </def>
 <def name="FOREACH-NODE" ds=" xt node -- "><rem> xt ( node-i -- ) </rem>
     <repeat> DUP <while/> 2DUP 2>R SWAP EXECUTE 2R> CELL- @ </repeat> 2DROP
 </def>
-<def name="REVERSE-NODE" ds=" node1 -- node2 ">
+<def name="REVERSE-NODE" ds=" node1-head -- node2-head ">
   0 SWAP <repeat> DUP <while ds=" prev next" /> TUCK CELL- DUP @ -ROT ! </repeat> DROP
 </def>
 
-
-<def name="FIND-NODE" ds=" x list -- node true | x false ">
+<def name="FIND-LIST" ds=" x list -- node true | x false ">
   @ CDR-BY-VALUE DUP <if> NIP TRUE </if>
 </def>
-<def name="FIND-LIST" ds=" x list -- sub-list true | x false ">
+<def name="FIND-LIST-SUB" ds=" x list -- sub-list true | x false ">
   SWAP >R DUP @  <repeat> DUP <while/> <!-- ( list node ) -->
   DUP @ R@ = <if> DROP RDROP TRUE <exit/></if> NIP CELL- DUP @ </repeat> 2DROP R> FALSE
 </def>
+
 <def name="FOREACH-LIST-NODE" ds=" xt list -- "><rem> xt ( node -- ) </rem>
   @ FOREACH-NODE
 </def>
@@ -63,9 +76,11 @@
   SWAP FOREACH-LIST-VALUE
 </def>
 
-
-<def name="CALC-NODE-LAST" ds=" list -- node|0 ">
-  0 <xt-of name="NIP"/> ROT FOREACH-LIST-NODE
+<def name="CALC-NODE-TAIL" ds=" node -- node1|0 ">
+  0 <xt-of name="NIP"/> ROT FOREACH-NODE
+</def>
+<def name="CALC-LIST-TAIL" ds=" list -- node1|0 ">
+  @ CALC-NODE-TAIL
 </def>
 
 
@@ -84,7 +99,7 @@
   2DUP @ DUP <if> CELL- ! ! <exit/></if>
   DROP SWAP CELL- <!-- ( node node dlist ) -->
   DUP @ <unless> 2! <exit/></unless>
-  NIP DUP CELL+ SWAP CALC-NODE-LAST OVER  ! BIND-RNODE
+  NIP DUP CELL+ SWAP CALC-NODE-TAIL OVER  ! BIND-RNODE
 </def>
 
 <def name="PERFORM-NODE-COND" ds=" i*x node -- j*x flag ">
@@ -93,6 +108,20 @@
 </def>
 <def name="PERFORM-LIST-COND" ds=" i*x list -- j*x flag ">
   @ PERFORM-NODE-COND
+</def>
+
+
+<def name="MOVE-SUBLIST" ds=" list-src node-boundary list-dst -- ">
+  >R >R
+  DUP @  DUP R@ EQ <if> RDROP RDROP 2DROP <exit/></if>
+  R@ ROT ! <!-- boundary to list-src -->
+  
+  0 OVER <g ds=" 0 node2 -- node1|0 " rs=" node-boundary -- " >
+  <until> DUP <while/> NIP DUP CELL- @  DUP R@ EQ </until> DROP RDROP
+  </g>
+  <rem>( node2 node1 ) (R: list-dst ) </rem>
+  R@ @ SWAP CELL- ! <!-- sublist-tail on dst-head -->
+  R> ! <!-- sublist-head to list-dst -->
 </def>
 
 </forth>
