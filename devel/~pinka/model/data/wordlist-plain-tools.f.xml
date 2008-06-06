@@ -7,7 +7,7 @@
 </def>
 
 <def name="APPENDED-WORDLIST-NODE-" ds=" node2 node1 -- node3 ">
-  COPY-WORDLIST-NODE CONCATED-
+  COPY-WORDLIST-NODE TIED-
 </def>
 
 <def name="APPEND-WORDLIST" ds=" h-list2 h-list -- "><rem> it saves order </rem>
