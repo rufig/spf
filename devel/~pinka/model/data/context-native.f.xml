@@ -11,6 +11,9 @@
 <def name="DROP-CURRENT" ds=" -- ">
   CS> CURRENT !
 </def>
+<def name="POP-CURRENT" ds=" -- wid ">
+  CURRENT @ DROP-CURRENT
+</def>
 
 <def name="PUSH-DEVELOP" ds=" wid -- ">
   DUP PUSH-SCOPE PUSH-CURRENT
@@ -21,11 +24,12 @@
 <def name="DROP-DEVELOP" ds=" -- "><!-- FURL -->
   DROP-CURRENT DROP-SCOPE
 </def>
+
 <def name="BEGIN-EXPORT" ds=" -- ">
-  CS@ PUSH-CURRENT
+  CURRENT @  @ <rem> node-boundary </rem> >CS
 </def>
 <def name="END-EXPORT" ds=" -- ">
-  DROP-CURRENT
+  CURRENT @  CS> CS@ MOVE-SUBLIST
 </def>
 
 </forth>
