@@ -29,7 +29,7 @@
   CURRENT @  @ <rem> node-boundary </rem> >CS
 </def>
 <def name="END-EXPORT" ds=" -- ">
-  CURRENT @  CS> CS@ MOVE-SUBLIST
+  CURRENT @  CS> CS@ DISPLACE-SUBLIST
 </def>
 
 </forth>

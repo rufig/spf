@@ -111,7 +111,7 @@
 </def>
 
 
-<def name="MOVE-SUBLIST" ds=" list-src node-boundary list-dst -- ">
+<def name="DISPLACE-SUBLIST" ds=" list-src node-boundary list-dst -- ">
   >R >R
   DUP @  DUP R@ EQ <if> RDROP RDROP 2DROP <exit/></if>
   R@ ROT ! <!-- boundary to list-src -->
