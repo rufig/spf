@@ -6,9 +6,11 @@ USER StdinRH
 USER StdinWH
 USER StdoutRH
 USER StdoutWH
+USER StderrRH
+USER StderrWH
 
-: ChildApp ( input-handle output-handle a u -- p-handle ior )
-  { i o a u \ pi si res }
+: ChildAppErr ( input-handle output-handle err-handle a u -- p-handle ior )
+  { i o e a u \ pi si res }
   5 CELLS      ALLOCATE THROW -> pi   pi 5 CELLS ERASE
   /STARTUPINFO ALLOCATE THROW -> si   si /STARTUPINFO ERASE
   /STARTUPINFO si cb !
@@ -16,7 +18,7 @@ USER StdoutWH
   STARTF_USESTDHANDLES STARTF_USESHOWWINDOW OR si dwFlags !
   i ( DUP-HANDLE-INHERITED THROW) si hStdInput !
   o ( DUP-HANDLE-INHERITED THROW) si hStdOutput !
-  si hStdOutput @ si hStdError !
+  e ( DUP-HANDLE-INHERITED THROW) si hStdError !
   pi
   si
   0 \ cur dir
@@ -34,6 +36,9 @@ USER StdoutWH
   i CLOSE-FILE THROW
   o CLOSE-FILE THROW
   res
+;
+: ChildApp ( input-handle output-handle a u -- p-handle ior )
+  2>R DUP 2R> ChildAppErr
 ;
 
 (
