@@ -1,27 +1,26 @@
 
-SP-Forth for Windows
-====================
+SP-Forth
+========
 
-<title>SP-Forth for Windows</title>
+<title>SP-Forth</title>
 
-<!-- Translation in sync with readme.ru.md r1.6 -->
+<!-- Translation in sync with readme.ru.md r1.8 -->
 
 ABOUT
 -----
 
 SP-Forth is a reliable and comfortable forth system producing optimized native
-code for the Intel x86 processors. It runs on MS Windows 9x, NT
-(Linux and Kolibri OS ports exist).
+code for the Intel x86 processors. It runs on MS Windows 9x, NT and Linux.
 
-SP-Forth is free software, see COPYRIGHT section for more information.
+SP-Forth is free software, see [LICENSE](#license) section for more information.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.
 
 
-INSTALLATION
-------------
+INSTALLATION (Windows)
+----------------------
 
 SP-Forth (SPF) for Windows is distributed as an archive or the self-installing
 executable.
@@ -45,7 +44,7 @@ Directories:
 * `/docs`    - documentation
 * `/lib`     - standard libraries, ANS and non-ANS extensions like `float.f`, `locals.f` ...
 * `/samples` - debugged GUI and console mode samples.
-* `/src`     - full sources with comments and compile.bat file.
+* `/src`     - full sources with comments and compilation script.
 
 Files in the root directory:
 
@@ -72,7 +71,7 @@ now. If you need an English version, contact us, the translation will be done.
 
 SPF extension (`lib/ext/help.f`) adds help support to the interpreter with the word `HELP`.
 
-If you have more questions - ask them at spf-dev mailing list.
+If you have more questions - ask them at `spf-dev` mailing list.
 
 
 DEVELOPMENT
@@ -86,11 +85,14 @@ DEVELOPMENT
     read-only access is
     `:pserver:anonymous@spf.cvs.sourceforge.net:/cvsroot/spf`
 
-*   The first place to contact the developers is the spf-dev mailing list :
+    Notifications on CVS commits go to
+    [spf-commits](http://lists.sourceforge.net/lists/listinfo/spf-commits) mailing list.
 
-    <http://lists.sourceforge.net/lists/listinfo/spf-dev>
+*   The first place to contact the developers is the [spf-dev](http://lists.sourceforge.net/lists/listinfo/spf-dev) mailing list
 
-    Mailing list also is mirrored on: [SP-Forth - DEV (rus)](http://www.nabble.com/SP-Forth---DEV-(rus%29-f26012.html)
+    Alternatively you can use mailing list web-mirror 
+    [SP-Forth - DEV (rus)](http://www.nabble.com/SP-Forth---DEV-(rus%29-f26012.html) at
+    [Nabble](http://www.nabble.com)
     (though title has 'rus' in it, you may write english)
 
 *   Bugtracker (feature requests and bugreports welcome)
@@ -101,9 +103,7 @@ DEVELOPMENT
     to reproduce. Dont hesitate to report errors or omissions in the 
     documentation too. 
 
-    Notifications on bugtracker activity go to spf-tickets mailing list
-
-    <http://lists.sourceforge.net/lists/listinfo/spf-tickets>
+    Notifications on bugtracker activity go to [spf-tickets](http://lists.sourceforge.net/lists/listinfo/spf-tickets) list
 
 *   Related projects (highly recommended) :
 
@@ -126,13 +126,15 @@ DEVELOPMENT
      <http://www.forth.org.ru>
      
 
-COPYRIGHT
----------
+<a id="license"/>
+LICENSE
+-------
 
 You can modify and/or redistribute the core SP-Forth system (i.e. all files in `src`) 
-under the terms of GNU General Public License. See [docs/license/gpl.en.txt](license/gpl.en.txt) 
-for details. All other files, including contrubuted code in `devel`, are by default 
-(if not stated anything else) licensed under GNU LGPL. 
+under the terms of [GNU GPL](http://www.fsf.org/licensing/licenses/gpl.html) as published by
+[FSF](http://www.fsf.org). All other files, including contrubuted code in `devel`, are 
+licensed under [GNU LGPL](http://www.fsf.org/licensing/licenses/gpl.html) by default (if not stated
+otherwise).
 
 Shortly speaking it means that :
 
