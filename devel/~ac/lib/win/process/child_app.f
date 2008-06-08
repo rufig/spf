@@ -31,6 +31,8 @@ USER StdoutWH
   pi @ \ process handle
  \ pi CELL+ CELL+ @ \ process id
   pi FREE DROP
+  i CLOSE-FILE THROW
+  o CLOSE-FILE THROW
   res
 ;
 
