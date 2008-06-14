@@ -5,13 +5,27 @@
 
 : wordsfile S" words" ;
 
-S" ~ygrek/prog/web/help.cgi/load.f" INCLUDED
 
 REQUIRE FINE-TAIL ~pinka/samples/2005/lib/split-white.f
 REQUIRE $Revision ~ygrek/lib/fun/kkv.f
 REQUIRE cat ~ygrek/lib/cat.f
 REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 REQUIRE DumpParams ~ac/lib/string/get_params.f
+REQUIRE tag ~ygrek/lib/xmltag.f
+
+S" ~ygrek/prog/web/help.cgi/load.f" INCLUDED
+
+: text/html S" Content-type: text/html" TYPE CR CR ;
+
+MODULE: CGI
+
+: CR ." </br>" CR ;
+: SPACE ." &nbsp;" ;
+: SPACES 0 ?DO SPACE LOOP ;
+
+;MODULE 
+
+ALSO CGI
 
 : uname ( ? -- s )
   S" /proc/sys/kernel/ostype" cat 
@@ -26,24 +40,41 @@ REQUIRE DumpParams ~ac/lib/string/get_params.f
 
 : EMPTY? NIP 0= ;
 
-: text/plain S" Content-type: text/plain" TYPE CR CR ;
+: tag: PARSE-NAME POSTPONE SLITERAL POSTPONE tag ; IMMEDIATE
+
+: start-page
+   tag: form
+   " <input name={''}q{''} value={''}{''} type={''}text{''} size={''}60{''}/>" STYPE CR
+   " <input value={''}Search{''} type={''}submit{''}/>" STYPE CR
+;
+
+: << POSTPONE START{ ; IMMEDIATE
+: >> POSTPONE }EMERGE ; IMMEDIATE
 
 : main
   get-params
-  S" q" GetParam EMPTY? IF S" set 'q' param" TYPE CR EXIT THEN
+  S" q" GetParam EMPTY? IF start-page EXIT THEN
   wordsfile load { l }
-  S" q" GetParam l find show ;
+  S" q" GetParam l find 
+  each->
+  << tag: b STR@ TYPE >>
+  SPACE STR@ TYPE 
+  << tag: i ."  \ " STR@ TYPE >>
+  CR ;
 
-:NONAME
-  text/plain
+: content
+  tag: html
+  tag: body
   main
   CR
+  tag: small
   FALSE uname { os }
   os STR@ FINE-TAIL "  help.cgi r{revision} ({s})" STYPE CR
   os STRFREE
-  "  Powered by " STYPE spf-version STYPE CR
-  BYE 
-; 
-MAINX !
+  "  Powered by " STYPE spf-version STYPE CR ;
+
+PREVIOUS
+
+:NONAME text/html content CR BYE ; MAINX !
 
 S" help.cgi" SAVE BYE

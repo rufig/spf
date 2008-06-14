@@ -20,10 +20,13 @@ REQUIRE LIKE ~pinka/lib/like.f
 : find ( a u l -- l' )
    %[ LAMBDA{ >R R@ car STR@ 2OVER LIKE IF R> %l ELSE RDROP THEN } SWAP mapcar 2DROP ]% ;
 
-: show ( l -- )
-  LAMBDA{
+: each-> ( l -- )
+  PRO
+  BACK DROP TRACKING
+  list->
   >R
-  R@ car STR@ TYPE SPACE
-  R@ cdr cdr car STR@ TYPE ."  \ "
-  R> cdr car STR@ TYPE CR } SWAP mapcar ;
+  R@ car cdr car 
+  R@ car cdr cdr car
+  R> car car 
+  CONT ;
 
