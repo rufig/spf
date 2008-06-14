@@ -2,3 +2,4 @@
 span.word {font-weight: bold}
 span.stack {}
 span.source {color: #888}
+span.source * {color: #888}
