@@ -12,6 +12,7 @@ REQUIRE cat ~ygrek/lib/cat.f
 REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 REQUIRE DumpParams ~ac/lib/string/get_params.f
 REQUIRE tag ~ygrek/lib/xmltag.f
+REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f 
 
 S" ~ygrek/prog/web/help.cgi/load.f" INCLUDED
 
@@ -22,6 +23,9 @@ MODULE: CGI
 : CR ." </br>" CR ;
 : SPACE ." &nbsp;" ;
 : SPACES 0 ?DO SPACE LOOP ;
+
+: << POSTPONE START{ ; IMMEDIATE
+: >> POSTPONE }EMERGE ; IMMEDIATE
 
 ;MODULE 
 
@@ -43,30 +47,46 @@ ALSO CGI
 : tag: PARSE-NAME POSTPONE SLITERAL POSTPONE tag ; IMMEDIATE
 
 : start-page
+   <<
+    tag: h2
+    ." Search SP-Forth words (src,lib,devel) :"
+   >>
    tag: form
-   " <input name={''}q{''} value={''}{''} type={''}text{''} size={''}60{''}/>" STYPE CR
+   " <input name={''}q{''} value={''}{''} type={''}text{''} size={''}30{''}/>" STYPE SPACE SPACE
    " <input value={''}Search{''} type={''}submit{''}/>" STYPE CR
+   CR
+   tag: small
+   ." Usual shell wildcards should work : <b>?</b> (any symbol) and <b>*</b> (any number of any symbols)" CR
 ;
 
-: << POSTPONE START{ ; IMMEDIATE
-: >> POSTPONE }EMERGE ; IMMEDIATE
+
+: span PRO ." <span class=" [CHAR] " EMIT TYPE [CHAR] " EMIT ." >" CONT ." </span>" ;
+: span: PARSE-NAME PRO span CONT ;
 
 : main
   get-params
   S" q" GetParam EMPTY? IF start-page EXIT THEN
+  << tag: h2 ." Search results : " >>
   wordsfile load { l }
   S" q" GetParam l find 
   each->
-  << tag: b STR@ TYPE >>
-  SPACE STR@ TYPE 
-  << tag: i ."  \ " STR@ TYPE >>
+  << `word span STR@ TYPE >>
+  SPACE 
+  << `stack span STR@ TYPE >>
+  ."  \ "
+  << `source span STR@ TYPE >>
   CR ;
 
 : content
   tag: html
+  <<
+   tag: head
+   " <link href={''}some.css{''} rel={''}stylesheet{''} type={''}text/css{''}/>" STYPE 
+  >>
   tag: body
   main
   CR
+  ." <hr/>"
   tag: small
   FALSE uname { os }
   os STR@ FINE-TAIL "  help.cgi r{revision} ({s})" STYPE CR
