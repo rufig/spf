@@ -2,4 +2,5 @@
 span.word {font-weight: bold}
 span.stack {}
 span.source {color: #888}
-span.source * {color: #888}
+span.source a {color: #888; text-decoration: none}
+span.source a:hover {color: #00F}

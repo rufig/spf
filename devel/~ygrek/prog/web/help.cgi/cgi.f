@@ -29,7 +29,7 @@ S" ~ygrek/prog/web/help.cgi/load.f" INCLUDED
 
 MODULE: HTML
 
-: CR ." </br>" CR ;
+: CR ." <br/>" CR ;
 : SPACE ." &nbsp;" ;
 : SPACES 0 ?DO SPACE LOOP ;
 : EMIT
@@ -47,16 +47,18 @@ MODULE: HTML
 : << POSTPONE START{ ; IMMEDIATE
 : >> POSTPONE }EMERGE ; IMMEDIATE
 
+\ todo windows
 : uname ( ? -- s )
   S" /proc/sys/kernel/ostype" cat 
   S" /proc/sys/kernel/osrelease" cat OVER S+
   SWAP IF S" /proc/sys/kernel/version" cat OVER S+ THEN
   DUP " {EOLN}" "  " replace-str- ;
 
+\ todo interactive session when no environment present
 : get-params S" QUERY_STRING" ENVIRONMENT? 0= ABORT" Not a CGI" GetParamsFromString ;
 
 : revision $Revision$ SLITERAL ;
-: spf-version VERSION 1000 / 100 /MOD " SP-Forth {n}.{n} (http://spf.sf.net)" ;
+: spf-version VERSION 1000 / 100 /MOD " {n}.{n}" ;
 
 : EMPTY? NIP 0= ;
 
@@ -83,33 +85,38 @@ MODULE: HTML
   HTML::TYPE
   ." </a>" ;
 
-: spf-link ( a u -- )
-  " http://forth.org.ru/" >R
-  2DUP R@ STR+
-  R@ " \" " /" replace-str- \ "
-  R@ STR@ link
-  R> STRFREE ;
+: spf-logo ."  Powered by " `SP-Forth `http://spf.sf.net link SPACE spf-version STYPE ;
 
 : source-from-spf ( a u -- )
-  2DUP S" lib" STARTS-WITH? IF spf-link EXIT THEN
-  2DUP S" ~" STARTS-WITH? IF spf-link EXIT THEN
-  HTML::TYPE ;
+  " http://spf.cvs.sourceforge.net/*checkout*/spf/" >R
+  2DUP S" ~" STARTS-WITH? IF S" devel/" R@ STR+ THEN
+  2DUP R@ STR+
+  R@ " \" " /" replace-str- \ "
+  ( a u ) R@ STR@ link
+  R> STRFREE ;
+
+: hrule ." <hr/>" CR ;
 
 ALSO HTML
 
-: main
-  get-params
-  S" q" GetParam start-page
-  S" q" GetParam EMPTY? IF EXIT THEN
-  ." <hr/>"
-  wordsfile load { l }
-  S" q" GetParam l find 
-  each->
+: show-word ( s1 s2 s3 -- )
   << `word span STR@ TYPE >>
   SPACE
   << `stack span STR@ TYPE >>
   << `source span ."  \ " STR@ source-from-spf >>
   CR ;
+
+: main
+  get-params
+  S" q" GetParam start-page
+  S" q" GetParam EMPTY? IF EXIT THEN
+  hrule
+  wordsfile load { l }
+  << tag: h3 ." Exact matches : " >>
+  S" q" GetParam l find << each-> show-word >>
+  hrule
+  << tag: h3 ." Case-insensitive matches : " >>
+  ul << each-> show-word >> ;
 
 : footer
   CR
@@ -118,7 +125,7 @@ ALSO HTML
   FALSE uname { os }
   os STR@ FINE-TAIL "  help.cgi r{revision} ({s})" STYPE CR
   os STRFREE
-  "  Powered by " STYPE spf-version STYPE CR ;
+  spf-logo CR ;
 
 PREVIOUS
 

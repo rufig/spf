@@ -16,9 +16,12 @@ REQUIRE LIKE ~pinka/lib/like.f
 \ word file stack
 : load ( a u -- l ) %[ load% ]% ;
 
+() VALUE ul
+
 \ I am lazy - l' points to elements in l - can't be FREEd
 : find ( a u l -- l' )
-   %[ LAMBDA{ >R R@ car STR@ 2OVER LIKE IF R> %l ELSE RDROP THEN } SWAP mapcar 2DROP ]% ;
+   %[ LAMBDA{ >R R@ car STR@ 2OVER LIKE IF R> %l ELSE R@ car STR@ 2OVER ULIKE IF R> ul vcons TO ul ELSE RDROP THEN 
+   THEN } SWAP mapcar 2DROP ]% ;
 
 : each-> ( l -- )
   PRO
