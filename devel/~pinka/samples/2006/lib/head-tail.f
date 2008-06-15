@@ -1,5 +1,5 @@
-REQUIRE /CHAR  ~pinka\samples\2005\ext\size.f 
-REQUIRE [UNDEFINED] lib\include\tools.f
+REQUIRE /CHAR  ~pinka/samples/2005/ext/size.f 
+REQUIRE [UNDEFINED] lib/include/tools.f
 
 [UNDEFINED] CHAR- [IF]
 : CHAR- /CHAR - ;
