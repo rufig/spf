@@ -1,6 +1,5 @@
 раскраска исходных текстов в редакторе NDN (ndn.muxe.com)
 
-содержание следующих строк до конца файла добавить в начало ndn.hlg
 FILES *.f;*.voc;*.spf;*.wrd;*.trg;
    GeneralFLAGS 31
    STRINGFLAGS 96
@@ -20,7 +19,7 @@ FILES *.f;*.voc;*.spf;*.wrd;*.trg;
    RegKeywords Color White (^|\s+)(CASE|OF|uOF|ENDOF|ENDCASE)(?=\s|$)
    RegKeywords Color White (^|\s+)RECURSE(?=\s|$)
 
-   RegKeyWords Color yellow/red (^|\s+)\\EOF/s.*(?=\s+|$)
+   RegKeyWords Color yellow/red (^|\s+)\\EOF.*(?=\s+|$)
    RegKeyWords Color yellow/blue \\\?[\13-¤]*
 
    RegKeywords ColoR CYAN (^|\s+)\\(?=\s+|$)[\13-¤]*
@@ -46,11 +45,11 @@ FILES *.f;*.voc;*.spf;*.wrd;*.trg;
    RegKeyWords Color lightgreen (\s|^)+\[CHAR\]\s+[!-¤]+,t\'\s+[!-¤]+
    RegKeyWords Color lightgreen CHAR\"\s+[!-¤]+,CFL\s+
    RegKeyWords Color lightgreen \s*\.\\[!-¤]+,REQUIRE\s+[!-¤]*\s+[!-¤]*,C\/L\s+
-   RegKeyWords Color lightgreen NewLine\s*
+   RegKeyWords Color lightgreen (\s|^)+NewLine(?=\s|$)
    RegKeyWords Color lightgreen \sPOSTPONE\s+[!-¤]+,\s\[COMPILE\]\s+[!-¤]+
 ; работа со стеком возвратов
    RegKeywords Color LIGHTRED (^|\s+)(AR\x2B|R\x2B|AR>|>AR|AR\@|ARDROP)(?=\s|$)
-   RegKeywords Color LIGHTRED (^|\s+)(DR@|2R@|R@|DR>|2R>|R>)(?=\s|$)
+   RegKeywords Color LIGHTRED (^|\s+)(DR@|2R@|R@|DR>|2R>|R>|RDROP)(?=\s|$)
    RegKeywords Color LIGHTRED (^|\s+)(D>R|2>R|>R|N>R|NR>)(?=\s|$)
 
    RegKeywords Color LIGHTRED (^|\s+)(execute|tEXECUTE|PERFORM|CATCH|SP\!|RP\!)(?=\s|$)
@@ -69,17 +68,18 @@ FILES *.f;*.voc;*.spf;*.wrd;*.trg;
    RegKeywords Color blue \(\s[\20-(*-¤]*\)(?=\s|$)
 
    RegKeyWords Color RED/lightgray (\s+|^)(\?DEFINED|N\?DEFINED)[\13-¤]*$
+   RegKeyWords Color RED(\s+|^)(ON-ERROR|EXIT-ERROR)(?=\s|$)
 
    RegKeyWords Color brown (\s|^)+[!-¤]*\{(?=\s|$),(\s|^)+\}[!-¤]*(?=\s|$)
 
    RegKeywords Color yellow ^\s*[!-¤]*\:\s+[!-¤]+,^\s*\:NONAME(?=\s|$)
-   RegKeywords Color yellow (\s|^)+(EXIT|DOES\>|S\:)(?=\s|$)
+   RegKeywords Color yellow (\s|^)+(CREATED|EXIT|DOES\>|S\:)(?=\s|$)
 
    RegKeywords Color yellow (\s|^)+\;[!-¤]*(?=\s|$)
    RegKeywords Color yellow ^\s*:>\s[!-¤]*,ALIAS\s+[!-¤]+\s+[!-¤]+
    RegKeyWords Color yellow \-\-\s[!-¤]*
-   RegKeywords Color yellow (^|\s+)(CREATE|VECT|VARIABLE|VOCABULARY)\s*[!-¤]*(?=\s|$)
-   RegKeywords Color yellow (^|\s+)(USER-VECT|USER-VALUE|USER|USER-CREATE)\s*[!-¤]*(?=\s|$)
+   RegKeywords Color yellow (^|\s+)(CREATE|VECT|VARIABLE|VOCABULARY|fld)\s+[!-¤]*(?=\s|$)
+   RegKeywords Color yellow (^|\s+)(USER-VECT|USER-VALUE|USER|USER-CREATE)\s+[!-¤]*(?=\s|$)
 
    RegKeywords Color yellow \s+(VALUE|CONSTANT)\s+[!-¤]*(?=\s|$)
 

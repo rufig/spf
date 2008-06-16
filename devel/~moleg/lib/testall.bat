@@ -80,6 +80,7 @@
 @st.exe .S" devel\~moleg\lib\strings\lstring.f"         TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\struct\struct.f"           TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\struct\fld.f"              TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\drafts\vars.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\drafts\vars2.f"            TESTED CR BYE
