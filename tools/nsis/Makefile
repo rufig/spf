@@ -68,7 +68,7 @@ $(devel-snapshot).7z:
 	7z a -x!*\CVS -x!*\CVS\* $@ ..\..\devel
 
 $(devel-snapshot).tar.gz:
-	gzip -czf $@ --exclude=CVS ../../devel
+	gzip -cvzf $@ --exclude=CVS ../../devel
 
 clean:
 	$(MAKE) -C $(spf_path)/docs clean
