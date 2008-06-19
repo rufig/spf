@@ -4,7 +4,8 @@
 # см. readme.txt
 #
 # make - собрать полный дистр
-# make devel-snap - собрать снапшот devel
+# make devel-snap-rar - собрать снапшот devel в архив rar (на windows)
+# make devel-snap-gz - собрать снапшот devel в архив gz (на nix)
 # make clean - удалить промежуточные файлы
 # make cleanall - удалить все результирующие файлы
 
@@ -37,7 +38,8 @@ dist-rar := spf$(spf_ver_major)-$(spf_ver_minor).rar
 
 default: $(dist-exe) $(dist-rar)
 
-devel-snap: $(devel-snapshot).rar
+devel-snap-rar: $(devel-snapshot).rar
+devel-snap-gz: $(devel-snapshot).tar.gz
 
 .PHONY: default docs clean cleanall
 
@@ -64,6 +66,9 @@ $(devel-snapshot).rar:
 
 $(devel-snapshot).7z:
 	7z a -x!*\CVS -x!*\CVS\* $@ ..\..\devel
+
+$(devel-snapshot).tar.gz:
+	gzip -czf $@ --exclude=CVS ../../devel
 
 clean:
 	$(MAKE) -C $(spf_path)/docs clean
