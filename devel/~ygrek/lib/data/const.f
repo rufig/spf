@@ -5,7 +5,8 @@
 REQUIRE STR@ ~ac/lib/str5.f
 
 : DUMP-CONST-FILE ( a u -- )
-  FILE 3 CELLS < IF ." Bad const file" CR DROP EXIT THEN { a }
+  FILE DROP { a }
+  a 4 S" CONS" COMPARE 0 <> IF ." Not a const file" CR a FREE THROW EXIT THEN
   a 2 CELLS + @ 0 ?DO
    a 3 I + CELLS + @ a + DUP @ . SPACE ." CONSTANT " CELL+ COUNT TYPE CR
   LOOP
