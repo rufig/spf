@@ -1,24 +1,24 @@
-REQUIRE CZMOVE ~yz/lib/common.f
+\ $Id$
+
+MODULE: yz \ hide conflicting code
+REQUIRE .ansiz ~yz/lib/common.f
 REQUIRE single-method ~yz/lib/combase.f 
 REQUIRE init->> ~yz/lib/data.f
+;MODULE
+
 REQUIRE { lib/ext/locals.f
-REQUIRE [UNDEFINED] lib/include/tools.f
+REQUIRE ?WINAPI: ~ygrek/lib/win/winapi.f
 
 [UNDEFINED] MAX_PATH [IF]
  255 CONSTANT MAX_PATH
 [THEN]
 
-: MyWINAPI: 
-   >IN @
-     POSTPONE [DEFINED] IF DROP NextWord 2DROP EXIT THEN \ skip definition
-   >IN !
-   WINAPI:
-  ;
+?WINAPI: SHBrowseForFolder   shell32.dll
+?WINAPI: SHGetPathFromIDList shell32.dll
+?WINAPI: SHGetMalloc         shell32.dll
+?WINAPI: ShellExecuteA       shell32.dll
 
-MyWINAPI: SHBrowseForFolder   SHELL32.DLL
-MyWINAPI: SHGetPathFromIDList SHELL32.DLL
-MyWINAPI: SHGetMalloc         SHELL32.DLL
-MyWINAPI: ShellExecuteA       SHELL32.DLL
+ALSO yz
 
 5 single-method ::Free
 
@@ -46,7 +46,9 @@ MyWINAPI: ShellExecuteA       SHELL32.DLL
   THEN
 ;
 
-(
+PREVIOUS
+
+( 
    W: SW_SHOW \ nShowCmd
    "" \ directory path empty
    0 \ no parameters for 'open'
