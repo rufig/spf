@@ -360,13 +360,12 @@ CREATE sections
 : (forth.ld) ( a u -- )
   ." SECTIONS" CR
   ." {" CR
-  ." . = 0x" BASE @ >R HEX IMAGE-BASE . R> BASE ! ." ;" CR
-  ." .forth : " CR
-  ." { /* forth system */" CR
+  ." .forth 0x" BASE @ >R HEX IMAGE-BASE . R> BASE ! ." :" CR
+  ." {" CR
   2DUP TYPE ." .o(.forth)" CR
+  ." _eforth = .;" CR
   ." }" CR
-  ." /* free space for dictionary growth */" CR
-  ." .space :" CR
+  ." .space _eforth :" CR
   ." {" CR
   TYPE ." .o(.space)" CR
   ." }" CR
@@ -450,11 +449,10 @@ CREATE sections
   R> CLOSE-FILE THROW
 
   ( a u ) DROP >R
-  ModuleDirName PAD CZMOVE
   (( 
     HERE
-    S" cc -v %s.o -ldl -lpthread -D_REENTRANT -Xlinker -T%s/default.ld -Xlinker -T%s.ld -o %s" DROP
-    R@ PAD R@ R>
+    S" gcc %s.o -Wl,%s.ld -ldl -lpthread -v -o %s" DROP
+    R@ R@ R>
   )) sprintf DROP 
   HERE system
 ;
