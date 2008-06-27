@@ -8,6 +8,14 @@
 
 #include <sys/types.h>
 #include <dirent.h>
+#include <termios.h>
+
+int test()
+{
+  ENSURE( CELL == sizeof(tcflag_t))
+  ENSURE( 1 == sizeof(cc_t))
+  return 1;
+}
 
 void define_consts()
 {
@@ -23,10 +31,30 @@ void define_consts()
   DEFINE( DT_SOCK)
   DEFINE( DT_CHR)
   DEFINE( DT_BLK)
+
+  // termios
+  CONST( SIZEOF_TERMIOS, sizeof(struct termios))
+  CONST( OFFSETOF_C_IFLAG, offsetof(struct termios, c_iflag))
+  CONST( OFFSETOF_C_LFLAG, offsetof(struct termios, c_lflag))
+  CONST( OFFSETOF_C_CC, offsetof(struct termios, c_cc))
+  DEFINE( ICANON)
+  DEFINE( ECHO)
+  DEFINE( IXON)
+  DEFINE( IXOFF)
+  DEFINE( IXANY)
+  DEFINE( INLCR)
+  DEFINE( ICRNL)
+  DEFINE( VTIME)
+  DEFINE( VMIN)
 }
 
 int main()
 {
+  if (!test())
+  {
+    return 1;
+  }
+
   print_header();
 
   define_consts();
