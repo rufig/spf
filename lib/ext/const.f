@@ -40,8 +40,8 @@ EXPORT
   BEGIN @ ?DUP
   WHILE
     DUP CELL+ @ TO CURRENT-VOC
-    0 CURRENT-VOC 2 CELLS + @ 1-
-    DUP 0 < ABORT" The file is corrupted or contains zero constants"
+    0 CURRENT-VOC 2 CELLS + @
+    DUP 0 = ABORT" The file is corrupted or contains zero constants"
     _SEARCH-CONST IF NIP -1 EXIT THEN
   REPEAT
   0
