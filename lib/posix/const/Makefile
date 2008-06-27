@@ -1,6 +1,6 @@
 # $Id$
 
-target: linux.const clean
+target: linux.const
 
 %.auto.f: %.gen
 		./$< > $@
