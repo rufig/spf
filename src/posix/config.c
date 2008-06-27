@@ -4,13 +4,7 @@
  * Generate forth code with system-specific numeric constants
  */
 
-#include <stdio.h>
-#include <stddef.h>
-#include <time.h>
-#include <string.h>
-
-#include <gnu/libc-version.h>
-#include <sys/utsname.h>
+#include "config.h"
 
 #define __USE_GNU
 #include <ucontext.h>
@@ -25,19 +19,6 @@
 #endif
 */
 
-/*
- * Define a STATE-smart constant
- */
-void a_const(const char* name, int value, const char* comment)
-{
-  printf("\\ %s\n", comment);
-  printf(": SYS_%s 0x%X STATE @ IF LIT, THEN ; IMMEDIATE\n", name, value);
-}
-
-#define CONST(name,value) a_const(#name,value,#value);
-#define DEFINE(name) a_const(#name,name,#name);
-#define COMMENT(str) printf("\\ %s\n", str);
-#define COMMENT_VALUE(val) printf("\\ %s = %u\n", #val, val);
 #define ENSURE(p) if (!(p)) { fprintf(stderr,"failed : %s\n", #p); return 0; }
 
 #define CELL 4
@@ -64,20 +45,7 @@ int main()
     return 1;
   }
 
-  char buf[2048];
-  struct utsname name;
-  uname(&name);
-  time_t t = time(NULL);
-
-  snprintf(buf,sizeof(buf),"%s %s  GNU libc %s %s",name.sysname,name.release,gnu_get_libc_version(),gnu_get_libc_release());
-  COMMENT(buf);
-  char* strtime = asctime(gmtime(&t));
-  char* p = strchr(strtime,'\n');
-  if (p) *p = ' ';
-  snprintf(buf,sizeof(buf),"Generated on %sUTC",strtime);
-  COMMENT(buf);
-
-  printf("\n");
+  print_header();
 
   COMMENT_VALUE( REG_EDI )
   CONST( CONTEXT_EDI, offsetof(ucontext_t,uc_mcontext.gregs) + REG_EDI*sizeof(greg_t) )
