@@ -3,7 +3,8 @@
 ( Лексикон кодогенератора:
 
     -- запись данных /в область данных/
-    HERE ALLOT , C, S,
+    HERE ALLOT , C, S, 
+    SXZ, SCZ,
 
     -- запись кода /в область кода и в область данных при необходимости/
     EXEC, LIT, 2LIT, SLIT,
@@ -36,7 +37,8 @@
 REQUIRE lexicon.basics-aligned ~pinka/lib/ext/basics.f
 REQUIRE Require   ~pinka/lib/ext/requ.f
 
-
+: SXZ, ( a u -- ) DUP  , S, 0 C, ;
+: SCZ, ( a u -- ) DUP C, S, 0 C, ;
 
 \ Некоторые слова в SPF4 имеют специальную процедуру 
 \ для откладывания их исполнения (компиляции), -- как например inlines.
