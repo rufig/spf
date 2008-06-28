@@ -14,6 +14,7 @@ REQUIRE tag ~ygrek/lib/xmltag.f
 REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f 
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE CEQUAL ~pinka/spf/string-equal.f
+REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 
 : STARTS-WITH? { a1 u1 a2 u2 -- ? }
   u1 u2 < IF FALSE EXIT THEN
@@ -21,7 +22,8 @@ REQUIRE CEQUAL ~pinka/spf/string-equal.f
 
 S" ~ygrek/prog/web/help.cgi/load.f" INCLUDED
 
-: text/html S" Content-type: text/html" TYPE CR CR ;
+: text/html S" Content-type: text/html" TYPE CR ;
+: length ( n -- ) " Content-Length: {n}" STYPE CR ;
 
 \ what is better?
 \ - introduce new words for HTML output, or
@@ -139,7 +141,11 @@ PREVIOUS
   main
   footer ;
 
-:NONAME text/html output CR BYE ; MAINX !
+\ buffer all output so that we can set Content-Length and server won't use
+\ chunked transfer-encoding (thx to ~pinka for pointing this out)
+: output LAMBDA{ output CR } TYPE>STR ;
+
+:NONAME text/html output DUP STRLEN length CR STYPE BYE ; MAINX !
 
 S" help.cgi" SAVE BYE
 
