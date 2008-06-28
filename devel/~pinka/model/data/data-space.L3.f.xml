@@ -9,7 +9,7 @@
 <cell name="_stack"/>
 <cell name="_size"> 50 1024 * </cell>
 
-<handler event="init">
+<handler event="recovery">
   0. DATASPACE!  _stack 0!
 </handler>
 

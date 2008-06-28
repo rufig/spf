@@ -8,7 +8,7 @@
 <include href="wordlist-plain.static.f.xml" />
 </also>
 
-<handler event="init"> reset-list </handler>
+<handler event="recovery"> reset-list </handler>
 <handler event="startup"> reset-list </handler>
 <handler event="shutdown"> reset-list </handler>
 <handler event="cleanup"> reset-list </handler>

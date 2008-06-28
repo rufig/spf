@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1251"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<event name="init"/>
+<event name="recovery"/>
 <event name="startup"/>
 <event name="shutdown"/>
 <event name="cleanup"/>

@@ -17,7 +17,7 @@
 
 <cell name="_buf-size"> 20 1024 * </cell>
 
-<handler event="init"    > 0. assume  </handler>
+<handler event="recovery"> 0. assume  </handler>
 <handler event="startup" > _buf-size @ CELL+ ALLOCATED 2DUP + CELL- 0! assume </handler>
 <handler event="shutdown"> content DROP ?DUP <if> FREE THROW  0. assume </if></handler>
 

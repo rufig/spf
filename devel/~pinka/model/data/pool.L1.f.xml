@@ -2,7 +2,7 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 
 <rem>
-  <bind-up-events> init shutdown startup </bind-up-events>
+  <bind-up-events> recovery shutdown startup </bind-up-events>
   <!-- require Synchr.f Semaphore.f critical.f -->
 </rem>
 
@@ -19,7 +19,7 @@
 
 <include href="zstack.L1.immutable.f.xml" />
 
-<handler event="init">
+<handler event="recovery">
   _sem 0!  0 0 ZASSUME _zbuf 0!
 </handler>
 

@@ -16,7 +16,7 @@
 <cell2 name="_h"/>
 
 
-<handler event="init">
+<handler event="recovery">
   _sem 0!  _buf 0!  0. _h 2!  _len 0!
 </handler>
 

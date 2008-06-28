@@ -9,7 +9,7 @@
 
 <cell name="_size"> 20 1024 * </cell><!-- it is fixed -->
 
-<handler event="init">
+<handler event="recovery">
   0. DATASPACE!
   reset-list
 </handler>
