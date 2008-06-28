@@ -14,4 +14,19 @@
   -- http://xmlsoft.org/namespaces.html
 
 
+
+  Пример проявления указанного недостатка:
+
+    <forth xmlns="http://forth.org.ru/ForthML/">
+
+    <g xmlns:fn="http://forth.org.ru/~pinka/my-functions">
+
+      <emit>Lib version is </emit>  fn:version . CR
+    
+    </g>
+    </forth>
+
+  при трансляции слова fn:version разрешить префикс fn будет невозможно.
+
+
 $Id$
