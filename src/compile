@@ -1,6 +1,9 @@
-#!/bin/bash
-
+#!/bin/sh
+#
 # $Id$
+#
+# Compile SP-Forth for linux
+# Need src/compile.ini with correct options
 
 rm spf4.o
 make -C posix # generate posix/config.auto.f
@@ -9,5 +12,4 @@ echo Wait a bit while compiling...
 ./spf4orig src/spf.f
 cd src
 gcc -o spf4 spf4.o -Wl,forth.ld -ldl -lpthread -v
-#cc spf4.o -ldl -lpthread -D_REENTRANT -Xlinker -Tdefault.ld -Xlinker -Tforth.ld -v
 mv spf4 ..

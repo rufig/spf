@@ -9,7 +9,7 @@
 #define __USE_GNU
 #include <ucontext.h>
 
-/* ucontext.h defines these (at least for glibc)
+/* (glibc)
 #ifndef REG_EDI
 #define REG_EDI 4
 #define REG_EIP 14
@@ -18,10 +18,6 @@
 #define REG_EBP 6
 #endif
 */
-
-#define ENSURE(p) if (!(p)) { fprintf(stderr,"failed : %s\n", #p); return 0; }
-
-#define CELL 4
 
 /*
  * These conditions are implicitly assumed in SPF code, so let's verify

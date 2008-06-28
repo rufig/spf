@@ -30,6 +30,10 @@ void a_const(const char* name, int value, const char* comment)
 #define COMMENT(str) printf("\\ %s\n", str);
 #define COMMENT_VALUE(val) printf("\\ %s = %u\n", #val, val);
 
+#define ENSURE(p) if (!(p)) { fprintf(stderr,"failed : %s\n", #p); return 0; }
+
+#define CELL 4
+
 void print_header()
 {
   char buf[2048];
