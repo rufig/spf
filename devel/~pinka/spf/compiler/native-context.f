@@ -21,6 +21,15 @@ Require >CS control-stack.f \ управл€ющий стек
   DUP @ >R ! NAME>L R> SWAP !
 ;
 
+: PUSH-CURRENT ( wid -- ) 
+  CURRENT @ >CS CURRENT !
+; 
+: DROP-CURRENT ( -- ) 
+  CS> CURRENT !
+; 
+: POP-CURRENT ( -- wid ) 
+  CURRENT @ DROP-CURRENT
+; 
 
 : PUSH-SCOPE ( wid -- )
   ALSO CONTEXT !
