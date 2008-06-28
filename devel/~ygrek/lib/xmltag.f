@@ -4,7 +4,7 @@
 \ На прямом ходу выводится открывающий тэг, при откате - закрывающий.
 
 REQUIRE PRO ~profit/lib/bac4th.f
-REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE /TEST ~profit/lib/testing.f
 
 USER-VALUE xmltag.indent#
