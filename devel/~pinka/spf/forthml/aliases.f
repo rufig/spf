@@ -18,3 +18,8 @@ REQUIRE NAMING- ~pinka/spf/compiler/index.f
 `D0= `D0EQ  aka
 
 : 0GT NEGATE 0LT ;
+
+
+\ 28.Jun.2008
+\ В XPath 2.0 используются: eq, ne, lt, le, gt, ge
+\ -- http://www.w3.org/TR/xpath20/#id-value-comparisons
