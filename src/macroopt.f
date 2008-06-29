@@ -1,4 +1,9 @@
+\ $Id$
+\ 
 \ Оптимизирующий макроподстановшик        Максимов М.О.
+
+' DUP  >VIRT CONSTANT  'DUP
+' DROP >VIRT CONSTANT 'DROP
 
 [UNDEFINED] C>S
 [IF]
