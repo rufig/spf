@@ -2,7 +2,7 @@
 
 REQUIRE WL-MODULES ~day\lib\includemodule.f
 
-NEEDS    lib\ext\case.f
+REQUIRE CASE   lib/ext/case.f
 
 NEEDS   ~day\hype3\locals.f
 
