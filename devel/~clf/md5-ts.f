@@ -1,10 +1,8 @@
 \ изменения для thread-safe
 \ ~ac
 
-REQUIRE [IF]   LIB/INCLUDE/TOOLS.F
-REQUIRE /STRING LIB/INCLUDE/STRING.F
-\ : D2* 2DUP D+ ;
-\ : D- DNEGATE D+ ;
+REQUIRE [IF]    lib/include/tools.f
+REQUIRE /STRING lib/include/string.f
 
 0 [IF]
 

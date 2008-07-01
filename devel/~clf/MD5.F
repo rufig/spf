@@ -1,9 +1,6 @@
-REQUIRE [IF]   LIB/INCLUDE/TOOLS.F
-REQUIRE MARKER LIB/INCLUDE/CORE-EXT.F
-REQUIRE /STRING LIB/INCLUDE/STRING.F
-\ : D2* 2DUP D+ ;
-\ : D- DNEGATE D+ ;
-
+REQUIRE [IF]    lib/include/tools.f
+REQUIRE MARKER  lib/include/core-ext.f
+REQUIRE /STRING lib/include/string.f
 
 0 [IF]
 
