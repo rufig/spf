@@ -1,7 +1,8 @@
 \ Работа с вариантами
 \ Ю. Жиловец, 27.03.2002
 
-REQUIRE == ~yz/lib/common.f
+REQUIRE ==       ~yz/lib/common.f
+REQUIRE ::AddRef ~yz/lib/interfaces.f
 
 0
 2 -- :var-type
