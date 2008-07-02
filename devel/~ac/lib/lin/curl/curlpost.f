@@ -9,6 +9,7 @@ REQUIRE GET-FILE      ~ac/lib/lin/curl/curl.f
 10084 CONSTANT CURLOPT_HTTP_VERSION
 
 ALSO libcurl.dll
+ALSO /usr/lib/libcurl.so.3
 
 : POST-FILE-VIAPROXY { adata udata act uct addr u paddr pu \ h data slist -- str }
 \ если прокси paddr pu - непустая строка, то явно используется этот прокси
@@ -17,7 +18,8 @@ ALSO libcurl.dll
 \ adata udata - передаваемые через POST данные.
 \ act uct - content-type; если uct=0, то остается default application/x-www-form-urlencoded
 
-  "" -> data
+\  "" -> data
+  "" uCurlRes !
   0 curl_easy_init -> h
   addr CURLOPT_URL h 3 curl_easy_setopt DROP
 
@@ -25,8 +27,9 @@ ALSO libcurl.dll
 
   pu IF paddr CURLOPT_PROXY h 3 curl_easy_setopt DROP THEN
 
-  CURL_CALLBACK CURLOPT_WRITEFUNCTION h 3 curl_easy_setopt DROP
-  ^ data CURLOPT_WRITEDATA h 3 curl_easy_setopt DROP
+  ['] CURL_CALLBACK CURLOPT_WRITEFUNCTION h 3 curl_easy_setopt DROP
+\  ^ data CURLOPT_WRITEDATA h 3 curl_easy_setopt DROP
+  TlsIndex@ CURLOPT_WRITEDATA h CURL-SETOPT
 
   udata CURLOPT_POSTFIELDSIZE h 3 curl_easy_setopt DROP
   adata CURLOPT_POSTFIELDS    h 3 curl_easy_setopt DROP
@@ -41,9 +44,10 @@ ALSO libcurl.dll
   ?DUP IF 1 curl_easy_strerror ASCIIZ> TYPE CR THEN
   slist 1 curl_slist_free_all DROP
   h 1 curl_easy_cleanup DROP
-  data
+\  data
+  uCurlRes @
 ;
-PREVIOUS
+PREVIOUS PREVIOUS
 
 : POST-FILE ( adata udata act uct addr u -- str )
   \ без прокси или с заданным в переменной окружения http_proxy
