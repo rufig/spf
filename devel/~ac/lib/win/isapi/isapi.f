@@ -186,14 +186,17 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
 
 :NONAME ( lpdwSizeofBuffer lpvBuffer lpszVariableName hConn -- flag )
   TlsIndex@ >R
-  TlsIndex!
+  TlsIndex! S0 @ >R SP@ 12 + S0 !
   >R OVER R> SWAP @ 1- 0 MAX >R \ длина входного буфера для переменной
   ASCIIZ> uIsapiDebug @ IF ." >>" 2DUP TYPE ." =" THEN
   2DUP S" TZ" COMPARE 0= IF 2DROP S" TZone" THEN
   2DUP S" SCRIPT_NAME" COMPARE 0= IF uSN_CNT 1+! THEN \ хак для PHP
   SFIND IF EXECUTE uIsapiDebug @ IF 2DUP TYPE THEN
-           R> MIN \ обрежем значение переменной, если не влазит в буфер
-           >R SWAP R@ 2DUP 1+ ERASE MOVE R> 1+ SWAP ! TRUE
+           DUP
+           IF
+             R> MIN \ обрежем значение переменной, если не влазит в буфер
+             >R SWAP R@ 2DUP 1+ ERASE MOVE R> 1+ SWAP ! TRUE
+           ELSE 2DROP RDROP DROP 0! FALSE THEN
         ELSE RDROP
              \ ENVIRONMENT?
              \ IF uIsapiDebug @ IF 2DUP TYPE THEN
@@ -203,6 +206,7 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
              2DROP DROP 0! FALSE
         THEN
   uIsapiDebug @ IF ." (F=" DUP . ." )" CR THEN
+  R> S0 !
   R> TlsIndex!
 ; WNDPROC: IsapiGetServerVariable
 
@@ -216,9 +220,12 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
 
 :NONAME ( dwSync lpdwSizeofBuffer Buffer ConnID -- flag )
   TlsIndex@ >R
-  TlsIndex!
-  SWAP @ dIsapiWriteClient ( flag )
+  TlsIndex! S0 @ >R SP@ 12 + S0 !
+  SWAP @
+\  uIsapiDebug @ IF ." (W=" 2DUP TYPE ." )" CR THEN
+  dIsapiWriteClient ( flag )
   NIP \ 1=sync, 2=async
+  R> S0 !
   R> TlsIndex!
 ; WNDPROC: IsapiWriteClient
 
@@ -245,15 +252,21 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
 
 :NONAME ( lpdwDataType lpdwSizeofBuffer lpvBuffer dwServerSupportFunction ConnID -- flag )
   TlsIndex@ >R
-  TlsIndex!
+  TlsIndex! S0 @ >R SP@ 16 + S0 !
   DUP HSE_REQ_SEND_RESPONSE_HEADER_EX =
   IF DROP >R 2DROP
-     R@ shei.pszStatus @ ASCIIZ> dIsapiSetStatus
-     R> shei.pszHeader @ ASCIIZ> dIsapiSetHeader
+     R@ shei.pszStatus @ ASCIIZ> 
+     uIsapiDebug @ IF ." (S=" 2DUP TYPE ." )" CR THEN
+     dIsapiSetStatus
+     R> shei.pszHeader @ ASCIIZ>
+     uIsapiDebug @ IF ." (H=" 2DUP TYPE ." )" CR THEN
+     dIsapiSetHeader
+     R> S0 !
      TRUE R> TlsIndex! EXIT
   THEN
   DUP HSE_REQ_MAP_URL_TO_PATH_EX =
   IF DROP SWAP @ dIsapiMapPath 1+ ROT umi.lpszPath SWAP MOVE
+     R> S0 !
      TRUE R> TlsIndex! EXIT
   THEN
   DUP HSE_REQ_MAP_URL_TO_PATH =
@@ -262,10 +275,12 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
      R@ SWAP >R
      ASCIIZ> dIsapiMapPath DUP R> !
      R> SWAP MOVE
+     R> S0 !
      TRUE R> TlsIndex! EXIT
   THEN
   uIsapiDebug @ IF ." ServerSupportFunction:" . . . . CR THEN
   FALSE
+  R> S0 !
   R> TlsIndex!
 ; 5 CELLS CALLBACK: IsapiServerSupportFunction
 
