@@ -189,3 +189,8 @@ BASE @ HEX
 0084 CONSTANT DI_Scrollbar 
 0085 CONSTANT DI_Combobox
 BASE !
+
+\ флаги для GetAncestor
+#define     GA_PARENT       1
+#define     GA_ROOT         2
+#define     GA_ROOTOWNER    3

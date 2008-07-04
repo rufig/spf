@@ -26,6 +26,8 @@ WINAPI: SendMessageA         USER32.DLL
 WINAPI: CallWindowProcA      USER32.DLL
 WINAPI: GetCursorPos         USER32.DLL
 WINAPI: EnableWindow         USER32.DLL
+WINAPI: GetParent            USER32.DLL \ owner
+WINAPI: GetAncestor          USER32.DLL
 
 WINAPI: InitCommonControlsEx COMCTL32.DLL
 
