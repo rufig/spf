@@ -118,6 +118,7 @@ WS_EX_WINDOWEDGE WS_EX_TOOLWINDOW OR WS_EX_TOPMOST OR CONSTANT  WS_EX_PALETTEWIN
 #define WM_USER                         0x0400
 #define WM_LBUTTONDOWN                  0x0201
 #define WM_RBUTTONDOWN                  0x0204
+#define WM_KEYDOWN                      0x0100
 
 
 \ Edit Control Styles
