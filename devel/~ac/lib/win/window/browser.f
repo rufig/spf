@@ -153,7 +153,7 @@ VARIABLE AtlInitCnt
   >STR (BrowserThread) START DROP
 ;
 
-\ EOF
+\EOF
 \ Эти окна не отвлекают основной поток, работают сами по себе.
 S" http://127.0.0.1:89/index.html" BrowserThread
 S" http://127.0.0.1:89/email/" BrowserThread

@@ -233,6 +233,8 @@ CONSTANT /WCL
   mem FREE THROW
 ;
 
+\EOF
+
 : TEST { \ h -- }
 
   ['] AC-WND-PROC RegisterClass 0 WS_OVERLAPPEDWINDOW 0 Window -> h
