@@ -13,6 +13,7 @@
 
 REQUIRE {                lib/ext/locals.f
 REQUIRE Window           ~ac/lib/win/window/window.f
+REQUIRE LoadIcon         ~ac/lib/win/window/image.f 
 REQUIRE IID_IWebBrowser2 ~ac/lib/win/com/ibrowser.f 
 REQUIRE NSTR             ~ac/lib/win/com/variant.f 
 
@@ -97,10 +98,25 @@ VARIABLE AtlInitCnt
     ELSE ." Can't get browser" DUP . 0 SWAP THEN
   ELSE ." AtlAxGetControl error" DUP . 0 SWAP THEN
 ;
+
+: BrowserSetIcon1 { addr u h -- }
+\ можно в зависимости от урла выбирать иконку, но в stub'е не используется
+  1 LoadIconResource16 GCL_HICON h SetClassLongA DROP
+;
+VECT vBrowserSetIcon ' BrowserSetIcon1 TO vBrowserSetIcon
+
+: BrowserSetTitle1 { addr u h -- }
+  addr u
+  " SP-Forth: embedded browser ({s})" STR@ DROP h SetWindowTextA DROP
+;
+VECT vBrowserSetTitle ' BrowserSetTitle1 TO vBrowserSetTitle
+
 : Browser { addr u \ h bro -- ior }
 
   addr u WS_OVERLAPPEDWINDOW 0 BrowserWindow -> h
   h 0= IF 0x200B EXIT THEN
+  addr u h vBrowserSetTitle
+  addr u h vBrowserSetIcon
 
 \ PAD bro ::get_AddressBar .
   h BrowserInterface ?DUP IF NIP EXIT THEN -> bro
@@ -151,6 +167,16 @@ VARIABLE AtlInitCnt
 : BrowserThread ( addr u -- )
 \ Запуск браузера в отдельном потоке.
   >STR (BrowserThread) START DROP
+;
+:NONAME ( url -- ior )
+  STR@ ['] Browser CATCH ?DUP IF NIP NIP THEN
+  BYE
+; TASK: (BrowserMainThread)
+
+: BrowserMainThread ( addr u -- )
+\ Запуск браузера в отдельном потоке.
+\ При закрытии его окна программа завершится.
+  >STR (BrowserMainThread) START DROP
 ;
 
 \EOF
