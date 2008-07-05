@@ -8,6 +8,8 @@ WINAPI: DestroyCursor USER32.DLL
 
 BASE @ HEX
 0010 CONSTANT LR_LOADFROMFILE
+0020 CONSTANT LR_LOADTRANSPARENT
+1000 CONSTANT LR_LOADMAP3DCOLORS
 BASE !
 
 0 CONSTANT IMAGE_BITMAP
@@ -27,6 +29,11 @@ BASE !
 \ id - идентификатор ресурса GROUP_ICON
   || id || (( id ))
   0 32 32 IMAGE_ICON id IMAGE-BASE LoadImageA
+;
+: LoadBitmap ( addr u -- h ) \ для вставки в меню, поэтому с LR_LOADMAP3DCOLORS
+  || a u || (( a u ))
+  LR_LOADFROMFILE ( LR_LOADTRANSPARENT OR) LR_LOADMAP3DCOLORS OR 
+  0 0 IMAGE_BITMAP a 0 LoadImageA
 ;
 
 \ S" ico\mail10.ico" LoadIcon .
