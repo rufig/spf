@@ -32,7 +32,7 @@ BASE !
 ;
 : LoadBitmap ( addr u -- h ) \ для вставки в меню, поэтому с LR_LOADMAP3DCOLORS
   || a u || (( a u ))
-  LR_LOADFROMFILE ( LR_LOADTRANSPARENT OR) LR_LOADMAP3DCOLORS OR 
+  LR_LOADFROMFILE LR_LOADTRANSPARENT OR LR_LOADMAP3DCOLORS OR 
   0 0 IMAGE_BITMAP a 0 LoadImageA
 ;
 
