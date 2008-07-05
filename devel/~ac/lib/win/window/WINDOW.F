@@ -28,6 +28,7 @@ WINAPI: GetCursorPos         USER32.DLL
 WINAPI: EnableWindow         USER32.DLL
 WINAPI: GetParent            USER32.DLL \ owner
 WINAPI: GetAncestor          USER32.DLL
+WINAPI: SetClassLongA        USER32.DLL
 
 WINAPI: InitCommonControlsEx COMCTL32.DLL
 
