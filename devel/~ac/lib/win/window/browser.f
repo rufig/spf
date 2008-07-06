@@ -13,6 +13,7 @@
 
 REQUIRE {                lib/ext/locals.f
 REQUIRE Window           ~ac/lib/win/window/window.f
+REQUIRE WindowTransp     ~ac/lib/win/window/decor.f
 REQUIRE LoadIcon         ~ac/lib/win/window/image.f 
 REQUIRE IID_IWebBrowser2 ~ac/lib/win/com/ibrowser.f 
 REQUIRE NSTR             ~ac/lib/win/com/variant.f 
@@ -22,6 +23,8 @@ REQUIRE STR@             ~ac/lib/str5.f
 
 WINAPI: AtlAxWinInit ATL.dll
 WINAPI: AtlAxGetControl ATL.dll
+
+VARIABLE BrTransp \ если не ноль, то задает уровень прозрачности браузеров
 
 : TranslateBrowserAccelerator { mem iWebBrowser2 \ oleip -- flag }
   \ сначала проверим, не является ли клавиша браузерным акселератором
@@ -94,6 +97,10 @@ VECT vBrowserSetIcon ' BrowserSetIcon1 TO vBrowserSetIcon
 ;
 VECT vBrowserSetTitle ' BrowserSetTitle1 TO vBrowserSetTitle
 
+: BrowserSetMenu1 { addr u h -- }
+;
+VECT vBrowserSetMenu ' BrowserSetMenu1 TO vBrowserSetMenu
+
 : BrowserWindow { addr u style parent_hwnd -- hwnd }
 \ создать окно браузера и загрузить URL addr u в него.
   AtlInitCnt @ 0= IF AtlAxWinInit 0= IF 0x200A EXIT THEN AtlInitCnt 1+! THEN
@@ -101,6 +108,8 @@ VECT vBrowserSetTitle ' BrowserSetTitle1 TO vBrowserSetTitle
   CreateWindowExA
   DUP addr u ROT vBrowserSetTitle
   DUP addr u ROT vBrowserSetIcon
+  DUP addr u ROT vBrowserSetMenu
+  BrTransp @ ?DUP IF OVER WindowTransp THEN
 ;
 : BrowserInterface { hwnd \ iu bro -- iwebbrowser2 ior }
   ^ iu hwnd AtlAxGetControl DUP 0=
