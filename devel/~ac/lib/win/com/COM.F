@@ -95,6 +95,7 @@ USER UnicodeBuf
   >UNICODE DROP SysAllocString
 ;
 : BSTR> ( bstr -- addr2 u2 )
+  DUP 0= IF DROP S" " UNICODE> EXIT THEN \ пустые строки передаются в вариантах VT_0x400B
   DUP 4 - @ UNICODE>
 ;
 : ComInit ( -- ior )
