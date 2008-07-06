@@ -186,6 +186,7 @@ Class;
 \ : -Embedding RUN ;
 : -Embedding ;
 
+\EOF
 REQUIRE KoiWin ~ac/lib/string/conv2.f
 
 FALSE TO SPF-INIT?
