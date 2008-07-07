@@ -19,7 +19,9 @@ IID_IUnknown
 Class: SPF.IUnknown {C6DFBA32-DF7B-4829-AA3B-EE4F90ED5961}
 
 : ::QueryInterface ( ppvObject iid oid - hresult )
+  SP@ 12 + S0 !
   COM-DEBUG @ IF Class. SPACE THEN
+  OVER 0= IF 2DROP DROP E_NOINTERFACE EXIT THEN \ ну, мало ли...
   OVER 16 IID_IUnknown 16 COMPARE 0= 
           IF COM-DEBUG @ IF ." QI:Unknown," THEN 2DROP SPF.IUnknown SWAP ! 0 EXIT THEN
   OVER 16 IID_IClassFactory 16 COMPARE 0= 
@@ -28,12 +30,18 @@ Class: SPF.IUnknown {C6DFBA32-DF7B-4829-AA3B-EE4F90ED5961}
           IF COM-DEBUG @ IF ." QI:IDispatch," THEN 2DROP vSPF.IDispatch SWAP ! 0 EXIT THEN
   OVER 16 vSPF.Application Class 16 COMPARE 0= 
           IF COM-DEBUG @ IF ." QI:IForth," THEN 2DROP vSPF.Application SWAP ! 0 EXIT THEN
-  COM-DEBUG @ IF ." QI:" THEN
-  DROP CLSID>String THROW COM-DEBUG @ IF  UNICODE> TYPE ." ;" ELSE 2DROP THEN 0!
+  COM-DEBUG @ IF ." QI:EXT:" THEN
+  OVER CLSID>String THROW UNICODE>
+  SFIND IF ( ppvObject iid oid ) EXECUTE EXIT THEN \ для нереализованных здесь интерфейсов
+  COM-DEBUG @ IF TYPE ." ;" ELSE 2DROP THEN
+  2DROP 0!
   E_NOINTERFACE
 ; METHOD
 
 : ::AddRef ( oid -- cnt )
+\ Можно было бы на каждый ::QueryInterface создавать объект (выделять в хипе)
+\ со ссылкой на интерфейс вместо возврата глобального (общего) указателя, 
+\ и тогда число ссылок хранить в нем, но для базового использования это лишнее.
   COM-DEBUG @ IF Class. THEN
   DROP FCNT 1+! FCNT @
 ; METHOD
@@ -47,11 +55,12 @@ Class;
 
 \ ===================== IClassFactory ===================================
 IID_IClassFactory
-Class: SPF.Application {C6DFBA32-DF7B-4829-AA3B-EE4F90ED5961}
+Class: SPF.Application {C6DFBA32-DF7B-4829-AA3B-EE4F90ED5961} \ свой clsid общий
 Extends SPF.IUnknown
 
 
 : ::CreateInstance ( ppvObject riid pUnkOuter oid -- hresult )
+\ См. комментарий к ::AddRef выше.
   COM-DEBUG @ IF Class. THEN
   DROP DROP DROP ( ForthIForth) SPF.Application SWAP ! 0
 ; METHOD
@@ -120,7 +129,7 @@ USER INVOKE_VOID
 
 \ ===================== IDispatch ===================================
 
-IID_IClassFactory
+IID_IDispatch
 Class: SPF.IDispatch {C6DFBA32-DF7B-4829-AA3B-EE4F90ED5961}
 Extends SPF.IUnknown
 
@@ -150,12 +159,12 @@ DROP
 
 : ::Invoke           ( puArgErr pExcepInfo pVarResult pDispParams wFlags lcid riid dispIdMember oid -- hresult )
   COM-DEBUG @ IF Class. THEN
-  COM-DEBUG @ IF ." oid=" . ELSE DROP THEN
+  COM-DEBUG @ IF ." oid=" DUP . ." class=" @ WordByAddr TYPE CR ELSE DROP THEN
   COM-DEBUG @ IF ." dispIdMember=" DUP . THEN >R
   DROP ( reserved)
   COM-DEBUG @ IF ." lcid=" . ELSE DROP THEN
   COM-DEBUG @ IF ." wFlags=" DUP . THEN uFlags !
-  COM-DEBUG @ IF ." pDispParams=" DUP . THEN >R \ R@ 20 DUMP
+  COM-DEBUG @ IF ." pDispParams=" DUP . CR THEN >R \ R@ 20 DUMP
   COM-DEBUG @ IF ." pVarResult=" DUP . THEN
   DUP 0= IF DROP INVOKE_VOID THEN 2R> ROT >R 2>R
   COM-DEBUG @ IF ." pExcepInfo=" DUP . THEN uExcep !
