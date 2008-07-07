@@ -68,7 +68,7 @@ ID: DISPID_BEFORENAVIGATE2      250   \ hyperlink clicked on
 )
   ." BeforeNavigate2: bro_win=" .
    ."  url=" TYPE ."  flags=" . ." target_frame=" TYPE CR
-  ." post=" DUP IF DUP . 20 DUMP CR ELSE . THEN
+  ." post=" DUP IF DUP 3 CELLS + @ SWAP 4 CELLS + @ TYPE CR ELSE . THEN
   ."  headers=" TYPE ."  cancel=" .
   ." depth=" DEPTH . DropXtParams CR
 ;
