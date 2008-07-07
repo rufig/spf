@@ -13,7 +13,7 @@ REQUIRE CLSID, ~ac/lib/win/com/com.f
   CREATE 
     HERE SWAP
     BL WORD COUNT CLSID, 
-    DUP ,               \ предок
+    DUP ,               \ предок (точнее IID реализуемого интерфейса)
     Methods#            \ к-во методов предка
     DUP ,               \ свои методы (к-во)
     LATEST ,            \ своё имя
@@ -30,6 +30,20 @@ REQUIRE CLSID, ~ac/lib/win/com/com.f
 
 : Class ( oid -- class_int ) 7 CELLS - ;
 
+: SpfClassName ( oid -- addr u )
+  \ здесь oid - com'овский указатель на указатель vtable
+  \ т.е. тот, что первым параметром в вызовах
+  @ 2 CELLS - @ COUNT
+;
+: SpfClassWid ( oid -- wid )
+  @ DUP 3 CELLS - @ \ methods#
+  1+ CELLS + \ пропустили vtable
+  CELL+ \ пропустили -1 в структуре Class: выше
+  CELL+ \ пропустили voc-list
+;
+: ComClassIID ( oid -- addr u )
+  @ 4 CELLS - @
+;
 : Extends ( class_int -- class_int )
   DUP
   ' EXECUTE             \ oid класса, из которого копируем VTABLE
