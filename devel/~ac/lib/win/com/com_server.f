@@ -20,7 +20,9 @@ REQUIRE CLSID, ~ac/lib/win/com/com.f
     HERE CELL+ ,        \ oid класса (указатель на Vtable)
     1+ CELLS HERE SWAP DUP ALLOT ERASE     \ VTABLE
     -1 ,
-    GET-CURRENT WORDLIST SET-CURRENT SWAP
+    GET-CURRENT WORDLIST
+    LATEST OVER CELL+ ! \ для осмысленного представления в ORDER
+    SET-CURRENT SWAP
   DOES> 7 CELLS + ( oid )
 ;
 
