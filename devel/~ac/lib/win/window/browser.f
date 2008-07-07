@@ -31,7 +31,7 @@ WINAPI: AtlAxGetControl ATL.dll
 VARIABLE BrTransp \ если не ноль, то задает уровень прозрачности браузеров
 VARIABLE BrEventsHandler \ если не ноль, то при встраивании браузера подключаем
                          \ обработчик его событий (только в по-поточных Browser)
-SPF.IDispatch BrEventsHandler !
+SPF.IWebBrowserEvents2 BrEventsHandler !
 
 : TranslateBrowserAccelerator { mem iWebBrowser2 \ oleip -- flag }
   \ сначала проверим, не является ли клавиша браузерным акселератором
