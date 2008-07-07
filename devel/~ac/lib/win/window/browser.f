@@ -11,12 +11,16 @@
    \ Я только приспособил его к AtlAx.
 \ Предлагается к подключению внутрь ~day/wfl.
 
+\ + 07.07.2008 еще раз обработка событий.
+
 REQUIRE {                lib/ext/locals.f
 REQUIRE Window           ~ac/lib/win/window/window.f
 REQUIRE WindowTransp     ~ac/lib/win/window/decor.f
 REQUIRE LoadIcon         ~ac/lib/win/window/image.f 
 REQUIRE IID_IWebBrowser2 ~ac/lib/win/com/ibrowser.f 
 REQUIRE NSTR             ~ac/lib/win/com/variant.f 
+REQUIRE EnumConnectionPoints ~ac/lib/win/com/events.f 
+REQUIRE IID_IWebBrowserEvents2 ~ac/lib/win/com/browser_events.f 
 
 \ только для BrowserThread:
 REQUIRE STR@             ~ac/lib/str5.f
@@ -25,6 +29,9 @@ WINAPI: AtlAxWinInit ATL.dll
 WINAPI: AtlAxGetControl ATL.dll
 
 VARIABLE BrTransp \ если не ноль, то задает уровень прозрачности браузеров
+VARIABLE BrEventsHandler \ если не ноль, то при встраивании браузера подключаем
+                         \ обработчик его событий (только в по-поточных Browser)
+SPF.IDispatch BrEventsHandler !
 
 : TranslateBrowserAccelerator { mem iWebBrowser2 \ oleip -- flag }
   \ сначала проверим, не является ли клавиша браузерным акселератором
@@ -121,6 +128,8 @@ VECT vBrowserSetMenu ' BrowserSetMenu1 TO vBrowserSetMenu
     ELSE ." Can't get browser" DUP . 0 SWAP THEN
   ELSE ." AtlAxGetControl error" DUP . 0 SWAP THEN
 ;
+USER uBrowserInterface
+
 : Browser { addr u \ h bro -- ior }
 
   addr u WS_OVERLAPPEDWINDOW 0 BrowserWindow -> h
@@ -128,6 +137,9 @@ VECT vBrowserSetMenu ' BrowserSetMenu1 TO vBrowserSetMenu
 
 \ PAD bro ::get_AddressBar .
   h BrowserInterface ?DUP IF NIP EXIT THEN -> bro
+  bro uBrowserInterface ! \ в этом варианте встраивается одно окно per thread,
+                          \ поэтому удобно хранить указатель в user-переменной
+  BrEventsHandler @ ?DUP IF IID_IWebBrowserEvents2 bro ConnectInterface THEN
   h WindowShow
   h bro AtlMessageLoop 0
   h WindowDelete
@@ -189,6 +201,7 @@ VECT vBrowserSetMenu ' BrowserSetMenu1 TO vBrowserSetMenu
 
 \EOF
 \ Эти окна не отвлекают основной поток, работают сами по себе.
+TRUE COM-DEBUG !
 S" http://127.0.0.1:89/index.html" BrowserThread
 S" http://127.0.0.1:89/email/" BrowserThread
 
