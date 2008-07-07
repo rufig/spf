@@ -80,6 +80,7 @@ USER uParams
 USER uSPInvoke
 USER uExcep
 USER uFlags
+USER uOID
 
 : param@ ( variant -- ... )
 \ переданные по ссылке переменные (обычный FORTH.NEGATE(VAR)) рекурсивно
@@ -93,15 +94,17 @@ USER uFlags
   R@ W@ 3 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." ," THEN EXIT THEN
   R@ W@ 11 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." -b," THEN EXIT THEN \ bool
   R@ W@ 9 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." -d," THEN EXIT THEN \ idisp
-  R@ W@ 8 = IF R> 2 CELLS + @ BSTR> COM-DEBUG @ IF 2DUP TYPE ." ," THEN EXIT THEN
-  R@ W@ 0x400B = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." -?," THEN EXIT THEN \ idisp
+  R@ W@ 8 = IF R> 2 CELLS + @ BSTR> COM-DEBUG @ IF 2DUP ." (" TYPE ." )," THEN EXIT THEN
+  R@ W@ 0x400B = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." in/out bool by ref," THEN EXIT THEN
   R@ W@ 0x400C = IF R> 2 CELLS + @ COM-DEBUG @ IF ." recurse variant:" THEN RECURSE EXIT THEN
+  R@ W@ 0x2011 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." array," THEN EXIT THEN
   COM-DEBUG @ IF ." UNKNOWN PTYPE=" R@ W@ . R> 2 CELLS + @ 16 DUMP THEN
   RDROP
 ;
 : params@ ( dispid -- ... )
   COM-DEBUG @ IF ." params=" THEN
   DUP @ uParams ! 2 CELLS + @ COM-DEBUG @ IF DUP . THEN 0 ?DO
+    COM-DEBUG @ IF CR ." par" I . THEN
     uParams @ I 4 * CELLS + param@
   LOOP
 ;
@@ -113,13 +116,45 @@ USER uFlags
 
 VECT vExecuteByID
 
-: DropXtParams ( ... xt -- )
+: DropXtParams ( ... idxt -- )
   \ при вызове неизвестного id, например необрабатываемых events
   \ просто снимаем параметры и выходим, иначе можно уронить вызывающего
   uSPInvoke @ SP!  
-; ' DropXtParams TO vExecuteByID
+; \ ' DropXtParams TO vExecuteByID
 
+: IINVOKE ( ... oid addr u -- ... )
+\ Выполнить метод с именем addr u для объекта oid
+\ Здесь OID - не COM-oid (указатель на указатель на VTABLE),
+\ а фортовый WID:
+\ это упрощенная реализация INVOKE из ~ac/lib/ns/ns.f, без поиска по предкам.
+  ROT ( addr u oid )
+  DUP 0= ABORT" Invalid IINVOKE call"
+  CLASS@ DUP 0= IF DROP FORTH-WORDLIST THEN ( addr u class-oid )
+  SEARCH-WORDLIST
+  IF EXECUTE ELSE -3004 THROW THEN
+;
+: ExecuteByID1 ( ... idxt -- )
+\  uOID @ SpfClassWid NLIST CR
+  uOID @ SpfClassWid S" EXECUTE-BY-ID" IINVOKE
+; ' ExecuteByID1 TO vExecuteByID
+
+: EXECUTE-BY-ID ( ... idxt -- res ) \ реализация по умолчанию
+  >R
+  uOID @ SpfClassWid @
+  BEGIN
+    DUP
+  WHILE
+    DUP NAME> >BODY @ R@ = IF RDROP NAME> EXECUTE EXIT THEN
+    CDR
+  REPEAT DROP DropXtParams R> CR ." ID:" . ." - not found" CR
+;
+: ID: \ ID: DISPID_DOCUMENTCOMPLETE     259
+  CREATE NextWord EVALUATE , HERE 0 , :NONAME SWAP !
+  DOES> CELL+ @ EXECUTE
+;
 : EXECUTE-COM ( ... xt -- ... )
+  DUP IMAGE-BASE < IF vExecuteByID EXIT THEN
+  DUP HERE >       IF vExecuteByID EXIT THEN
   DUP WordByAddr COM-DEBUG @ IF ." Method=" 2DUP TYPE CR THEN
   DROP 2 S" <?" COMPARE 0= IF vExecuteByID EXIT THEN
   DUP IsVariable@ IF EXECUTE @ EXIT THEN
@@ -159,7 +194,7 @@ DROP
 
 : ::Invoke           ( puArgErr pExcepInfo pVarResult pDispParams wFlags lcid riid dispIdMember oid -- hresult )
   COM-DEBUG @ IF Class. THEN
-  COM-DEBUG @ IF ." oid=" DUP . ." class=" @ WordByAddr TYPE CR ELSE DROP THEN
+  COM-DEBUG @ IF ." oid=" DUP . ." class=" DUP SpfClassName TYPE CR THEN uOID !
   COM-DEBUG @ IF ." dispIdMember=" DUP . THEN >R
   DROP ( reserved)
   COM-DEBUG @ IF ." lcid=" . ELSE DROP THEN
