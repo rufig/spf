@@ -25,8 +25,8 @@ REQUIRE IID_IWebBrowserEvents2 ~ac/lib/win/com/browser_events.f
 \ только для BrowserThread:
 REQUIRE STR@             ~ac/lib/str5.f
 
-WINAPI: AtlAxWinInit ATL.dll
-WINAPI: AtlAxGetControl ATL.dll
+WINAPI: AtlAxWinInit     ATL.dll
+WINAPI: AtlAxGetControl  ATL.dll
 
 VARIABLE BrTransp \ если не ноль, то задает уровень прозрачности браузеров
 VARIABLE BrEventsHandler \ если не ноль, то при встраивании браузера подключаем
@@ -108,16 +108,6 @@ VECT vBrowserSetTitle ' BrowserSetTitle1 TO vBrowserSetTitle
 ;
 VECT vBrowserSetMenu ' BrowserSetMenu1 TO vBrowserSetMenu
 
-: BrowserWindow { addr u style parent_hwnd -- hwnd }
-\ создать окно браузера и загрузить URL addr u в него.
-  AtlInitCnt @ 0= IF AtlAxWinInit 0= IF 0x200A EXIT THEN AtlInitCnt 1+! THEN
-  0 0 0 parent_hwnd 0 CW_USEDEFAULT 0 CW_USEDEFAULT style addr S" AtlAxWin" DROP 0
-  CreateWindowExA
-  DUP addr u ROT vBrowserSetTitle
-  DUP addr u ROT vBrowserSetIcon
-  DUP addr u ROT vBrowserSetMenu
-  BrTransp @ ?DUP IF OVER WindowTransp THEN
-;
 : BrowserInterface { hwnd \ iu bro -- iwebbrowser2 ior }
   ^ iu hwnd AtlAxGetControl DUP 0=
   IF
@@ -128,7 +118,7 @@ VECT vBrowserSetMenu ' BrowserSetMenu1 TO vBrowserSetMenu
     ELSE ." Can't get browser" DUP . 0 SWAP THEN
   ELSE ." AtlAxGetControl error" DUP . 0 SWAP THEN
 ;
-USER uBrowserInterface
+USER uBrowserInterface \ для случая "одно окно на поток" здесь копия из объекта
 USER uBrowserWindow
 
 /COM_OBJ \ ячейка - указатель на VTABLE нашего обработчика WebBrowserEvents2
@@ -138,28 +128,43 @@ CELL -- b.BrowserInterface
 \ остальное можно спросить у браузера
 CONSTANT /BROWSER
 
-: Browser { addr u \ h bro b -- ior }
+: BrowserWindow { addr u style parent_hwnd \ h bro b -- hwnd }
+\ создать окно браузера и загрузить URL addr u в него.
+  AtlInitCnt @ 0= IF AtlAxWinInit 0= IF 0x200A EXIT THEN AtlInitCnt 1+! THEN
+  0 0 0 parent_hwnd 0 CW_USEDEFAULT 0 CW_USEDEFAULT style addr S" AtlAxWin" DROP 0
+  CreateWindowExA -> h
+  h 0= IF EXIT THEN
 
-  addr u WS_OVERLAPPEDWINDOW 0 BrowserWindow -> h
-  h 0= IF 0x200B EXIT THEN
+  addr u h vBrowserSetTitle
+  addr u h vBrowserSetIcon
+  addr u h vBrowserSetMenu
+  BrTransp @ ?DUP IF h WindowTransp THEN
+
   h uBrowserWindow !
 
 \ PAD bro ::get_AddressBar .
-  h BrowserInterface ?DUP IF NIP EXIT THEN -> bro
-  bro uBrowserInterface ! \ в этом варианте встраивается одно окно per thread,
-                          \ поэтому удобно хранить указатель в user-переменной
+  h BrowserInterface ?DUP IF NIP THROW THEN -> bro
+  bro uBrowserInterface !
 
   BrEventsHandler @ ?DUP
-  IF /BROWSER SWAP NewComObj -> b \ а в обработчиках событий надо как-то окна отличать...
+  IF /BROWSER SWAP NewComObj -> b \ в обработчиках событий надо как-то окна отличать...
      TlsIndex@ b b.BrowserThread !
      h         b b.BrowserWindow !
      bro       b b.BrowserInterface !
      b IID_IWebBrowserEvents2 bro ConnectInterface \ поэтому создаем отдельные объекты
   THEN
+  h
+;
+
+: Browser { addr u \ h -- ior }
+
+  addr u WS_OVERLAPPEDWINDOW 0 BrowserWindow -> h
+  h 0= IF 0x200B EXIT THEN
 
   h WindowShow
-  h bro AtlMessageLoop 0
+  h uBrowserInterface @ AtlMessageLoop 0
   h WindowDelete
+  0
 ;
 : AtlMainLoop  { hwnd \ mem -- }
 \ Этот обработчик подходит в качестве главного оконного цикла.
@@ -243,10 +248,14 @@ S" http://127.0.0.1:89/email/" BrowserThread
 
 \EOF
 \ Пример обработки нескольких взаимоподчиненных браузерных окон одним циклом.
+\ Одно главное окно и два полупрозрачных подчиненных "модальных" перед ним.
 : TEST1 { \ h }
   S" http://127.0.0.1:89/index.html" NewBrowserWindow -> h
-  S" http://127.0.0.1:89/email/" 0 h BrowserWindow WindowShow
-  S" http://127.0.0.1:89/chat/" WS_OVERLAPPEDWINDOW h BrowserWindow WindowShow
+  128 BrTransp !
+  S" http://127.0.0.1:89/email/" 0 h BrowserWindow
+     DUP 500 400 ROT WindowSize DUP 90 90 ROT WindowRC WindowShow
+  S" http://127.0.0.1:89/chat/" WS_OVERLAPPEDWINDOW h BrowserWindow
+     DUP 300 300 ROT WindowSize WindowShow
   h AtlMainLoop
   ." done"
 ; TEST1
