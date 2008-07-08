@@ -5,6 +5,8 @@ REQUIRE CLSID, ~ac/lib/win/com/com.f
 0x80020009 CONSTANT DISP_E_EXCEPTION
          4 CONSTANT DISPATCH_PROPERTYPUT
 
+VARIABLE FCNT \ глобальный счетчик AddRef/Release, т.е. счетчик живых объектов
+
 : Class. ( oid -- oid )
   CR DUP @ WordByAddr TYPE R@ WordByAddr TYPE SPACE
 ;
@@ -64,6 +66,18 @@ CONSTANT /COM_OBJ \ вдруг когда-нибудь придется добавлять служ.инф.
 ;
 : IsMyComObject? ( oid -- flag )
   c.MAGIC @ S" SPFR" DROP @ =
+;
+: (AddRef) ( oid -- cnt )
+  DUP IsMyComObject?
+  IF DUP c.REFCNT 1+! c.REFCNT @
+     FCNT 1+!
+  ELSE DROP FCNT 1+! FCNT @ THEN
+;
+: (Release) ( oid -- cnt )
+  DUP IsMyComObject?
+  IF DUP c.REFCNT @ 1- DUP ROT c.REFCNT !
+     FCNT @ 1- FCNT ! \ теоретически, если глобальный счетчик вернулся к нулю, то com-сервер может завершиться
+  ELSE DROP FCNT @ 1- DUP FCNT ! THEN \ но наблюдение показывает, что он бывает и отрицательным ;)
 ;
 : Extends ( class_int -- class_int )
   DUP
