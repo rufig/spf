@@ -100,7 +100,7 @@ VECT vBrowserSetIcon ' BrowserSetIcon1 TO vBrowserSetIcon
 
 : BrowserSetTitle1 { addr u h -- }
   addr u
-  " SP-Forth: embedded browser ({s})" STR@ DROP h SetWindowTextA DROP
+  " {s} -- SP-Forth embedded browser" STR@ DROP h SetWindowTextA DROP
 ;
 VECT vBrowserSetTitle ' BrowserSetTitle1 TO vBrowserSetTitle
 
@@ -129,17 +129,34 @@ VECT vBrowserSetMenu ' BrowserSetMenu1 TO vBrowserSetMenu
   ELSE ." AtlAxGetControl error" DUP . 0 SWAP THEN
 ;
 USER uBrowserInterface
+USER uBrowserWindow
 
-: Browser { addr u \ h bro -- ior }
+/COM_OBJ \ ячейка - указатель на VTABLE нашего обработчика WebBrowserEvents2
+CELL -- b.BrowserThread
+CELL -- b.BrowserWindow
+CELL -- b.BrowserInterface
+\ остальное можно спросить у браузера
+CONSTANT /BROWSER
+
+: Browser { addr u \ h bro b -- ior }
 
   addr u WS_OVERLAPPEDWINDOW 0 BrowserWindow -> h
   h 0= IF 0x200B EXIT THEN
+  h uBrowserWindow !
 
 \ PAD bro ::get_AddressBar .
   h BrowserInterface ?DUP IF NIP EXIT THEN -> bro
   bro uBrowserInterface ! \ в этом варианте встраивается одно окно per thread,
                           \ поэтому удобно хранить указатель в user-переменной
-  BrEventsHandler @ ?DUP IF IID_IWebBrowserEvents2 bro ConnectInterface THEN
+
+  BrEventsHandler @ ?DUP
+  IF /BROWSER SWAP NewComObj -> b \ а в обработчиках событий надо как-то окна отличать...
+     TlsIndex@ b b.BrowserThread !
+     h         b b.BrowserWindow !
+     bro       b b.BrowserInterface !
+     b IID_IWebBrowserEvents2 bro ConnectInterface \ поэтому создаем отдельные объекты
+  THEN
+
   h WindowShow
   h bro AtlMessageLoop 0
   h WindowDelete
@@ -198,6 +215,25 @@ USER uBrowserInterface
 \ При закрытии его окна программа завершится.
   >STR (BrowserMainThread) START DROP
 ;
+
+\ Переопределим некоторые обработчики событий от браузера:
+
+GET-CURRENT SPF.IWebBrowserEvents2 SpfClassWid SET-CURRENT
+
+ID: DISPID_DOCUMENTCOMPLETE 259 ( urla urlu bro -- )
+    ." @DocumentComplete! doc=" DUP . \ IWebBrowser2 загруженного фрейма
+    uBrowserInterface @ = IF ." MAIN!" THEN
+    TYPE CR
+;
+ID: DISPID_STATUSTEXTCHANGE   102 ( addr u -- )
+    ." @StatusTextChange:" TYPE CR
+;
+ID: DISPID_TITLECHANGE    113  ( addr u -- )
+    \ sent when the document title changes
+   ." @Title:" 2DUP TYPE CR
+    uOID @ b.BrowserWindow @ ?DUP IF vBrowserSetTitle ELSE 2DROP THEN
+;
+SET-CURRENT
 
 \EOF
 \ Эти окна не отвлекают основной поток, работают сами по себе.
