@@ -76,6 +76,17 @@ ID: DISPID_PROPERTYCHANGE     112 ( addr u -- )
     \ sent when the PutProperty method is called
     ." PropertyChange:" TYPE CR
 ;
+ID: DISPID_NEWWINDOW3           273 \ new window is to be created
+(      
+    IDispatch **ppDisp,
+    VARIANT_BOOL *Cancel,
+    DWORD dwFlags,
+    BSTR bstrUrlContext,
+    BSTR bstrUrl
+)
+   ." NewWindow3: idisp=" . ." cancel=" . ." flags:" . CR
+   ." referer=" TYPE ."  url=" TYPE CR
+;
 
 Class;
 

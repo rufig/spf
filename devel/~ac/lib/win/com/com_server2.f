@@ -97,6 +97,7 @@ USER uOID
   R@ W@ 8 = IF R> 2 CELLS + @ BSTR> COM-DEBUG @ IF 2DUP ." (" TYPE ." )," THEN EXIT THEN
   R@ W@ 0x400B = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." in/out bool by ref," THEN EXIT THEN
   R@ W@ 0x400C = IF R> 2 CELLS + @ COM-DEBUG @ IF ." recurse variant:" THEN RECURSE EXIT THEN
+  R@ W@ 0x4009 = IF R> 2 CELLS + @ COM-DEBUG @ IF ." disp by ref:" THEN EXIT THEN
   R@ W@ 0x2011 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." array," THEN EXIT THEN
   COM-DEBUG @ IF ." UNKNOWN PTYPE=" R@ W@ . R> 2 CELLS + @ 16 DUMP THEN
   RDROP
