@@ -6,7 +6,7 @@ REQUIRE CLSID, ~ac/lib/win/com/com.f
          4 CONSTANT DISPATCH_PROPERTYPUT
 
 : Class. ( oid -- oid )
-  CR DUP WordByAddr TYPE R@ WordByAddr TYPE SPACE
+  CR DUP @ WordByAddr TYPE R@ WordByAddr TYPE SPACE
 ;
 
 : Class: ( implement_interface "name" "clsid" -- current class_int )
@@ -43,6 +43,27 @@ REQUIRE CLSID, ~ac/lib/win/com/com.f
 ;
 : ComClassIID ( oid -- addr u )
   @ 4 CELLS - @
+;
+
+0
+CELL -- c.VTBL
+CELL -- c.MAGIC  \ SPFR
+CELL -- c.REFCNT \ счетчик ссылок AddRef/Release
+CONSTANT /COM_OBJ \ вдруг когда-нибудь придется добавлять служ.инф.
+
+: NewComObj ( extra_size class_oid -- oid )
+\ Создать объект заданного класса с дополнительной памятью размера size.
+\ Минимально рабочий COM-объект (extra_size=0) требует память только
+\ для указателя на vmt (который тот же что и у нашего объекта "класс").
+\ Наример: /BROWSER SPF.IWebBrowserEvents2 NewComObj
+( Мы можем создавать подобные объекты только для классов, интерфейсы которых
+  реализуем в своей программе, т.е. для которых являемся COM-сервером.)
+  @ SWAP /COM_OBJ + ALLOCATE THROW DUP >R c.VTBL !
+  S" SPFR" DROP @ R@ c.MAGIC !
+  R>
+;
+: IsMyComObject? ( oid -- flag )
+  c.MAGIC @ S" SPFR" DROP @ =
 ;
 : Extends ( class_int -- class_int )
   DUP
