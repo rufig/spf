@@ -14,7 +14,14 @@ IID_IWebBrowserEvents2
 Class: SPF.IWebBrowserEvents2 {C6DFBA32-DF7B-4829-AA3B-EE4F90ED5961} \ свой clsid общий
 Extends SPF.IDispatch
 
-\ Эти обработчики событий браузера вызываются из IDispatch::Invoke по числовому ID
+( Здесь можно при необходимости переопределить методы класса, например
+  : ::Invoke
+    ...
+  ; METHOD
+  Но базовая реализация в com_server2.f годится для применения по наследованию.
+)
+
+\ Обработчики событий браузера (ниже) вызываются из IDispatch::Invoke по числовому ID
 \ Параметры заботливо переведены им из variant'ов к форт-виду :)
 
 ID: DISPID_DOCUMENTCOMPLETE     259 ( urla urlu bro -- )
@@ -91,7 +98,7 @@ ID: DISPID_NEWWINDOW3           273 \ new window is to be created
 Class;
 
 : {34A715A0-6587-11D0-924A-0020AFC7AC4D} ( ppvObject iid oid -- hresult )
-\ Экспортируем реализацию. См. ::QueryInterface
+\ Экспортируем реализацию. См. ::QueryInterface в com_server2.f
   COM-DEBUG @ IF ." SPF.IWebBrowserEvents2 - OK!" THEN
   2DROP SPF.IWebBrowserEvents2 SWAP ! 0
 ;
