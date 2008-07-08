@@ -22,6 +22,7 @@ Class: SPF.IUnknown {C6DFBA32-DF7B-4829-AA3B-EE4F90ED5961}
   SP@ 12 + S0 !
   COM-DEBUG @ IF Class. SPACE THEN
   OVER 0= IF 2DROP DROP E_NOINTERFACE EXIT THEN \ ну, мало ли...
+  2DUP ComClassIID 16 SWAP 16 COMPARE 0= IF NIP DUP c.REFCNT 1+! SWAP ! 0 EXIT THEN \ и так этот интерфейс
   OVER 16 IID_IUnknown 16 COMPARE 0= 
           IF COM-DEBUG @ IF ." QI:Unknown," THEN 2DROP SPF.IUnknown SWAP ! 0 EXIT THEN
   OVER 16 IID_IClassFactory 16 COMPARE 0= 
@@ -42,13 +43,21 @@ Class: SPF.IUnknown {C6DFBA32-DF7B-4829-AA3B-EE4F90ED5961}
 \ ћожно было бы на каждый ::QueryInterface создавать объект (выдел€ть в хипе)
 \ со ссылкой на интерфейс вместо возврата глобального (общего) указател€, 
 \ и тогда число ссылок хранить в нем, но дл€ базового использовани€ это лишнее.
-  COM-DEBUG @ IF Class. THEN
-  DROP FCNT 1+! FCNT @
+  COM-DEBUG @ IF CR Class. THEN
+  DUP IsMyComObject?
+  IF DUP c.REFCNT 1+! c.REFCNT @
+     FCNT 1+!
+  ELSE DROP FCNT 1+! FCNT @ THEN
+  COM-DEBUG @ IF ." ar=" DUP . THEN
 ; METHOD
 
 : ::Release ( oid -- cnt )
   COM-DEBUG @ IF Class. THEN
-  DROP FCNT @ 1- DUP FCNT !
+  DUP IsMyComObject?
+  IF DUP c.REFCNT @ 1- DUP ROT c.REFCNT !
+     FCNT @ 1- FCNT ! \ теоретически, если глобальный счетчик вернулс€ к нулю, то com-сервер может завершитьс€
+  ELSE DROP FCNT @ 1- DUP FCNT ! THEN \ но наблюдение показывает, что он бывает и отрицательным ;)
+  COM-DEBUG @ IF ." re:" DUP . THEN
 ; METHOD
 
 Class;
