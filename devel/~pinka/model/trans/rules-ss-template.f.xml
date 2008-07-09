@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<f:forth
+xmlns:f="http://forth.org.ru/ForthML/"
+  xmlns="http://forth.org.ru/ForthML/Rules/"
+xmlns:r="http://forth.org.ru/ForthML/Rules/"
+>
+<!-- May.2008 -->
+
+<f:also wordlist="forthml-hidden">
+
+<transform name="rules-ss-template">
+  <rule match="#text">
+    NodeValue T-SLIT <m> R> XENCLOSED >R </m>
+  </rule>
+  <rule match="f:ss">
+    <yield transform="rules-default"/>
+    <m> R> XENCLOSED >R </m>
+  </rule>
+</transform>
+
+<rule match="f:template" ds=" i*x -- a u ">
+  M @ <f:if> `#f:template-M-not-supported STHROW </f:if>
+  <mm>
+    ALIGN HERE 0 , <get-name/> <!-- ( addr  a u ) -->
+    <def name="{}" xmlns="http://forth.org.ru/ForthML/">
+      0. <lit> DUP </lit> DUP @ SWAP 0! XUPDATED >R
+      <r:yield transform="rules-ss-template"/>
+      R> DUP <lit/> ! XCOUNT
+    </def>
+  </mm>
+</rule>
+
+</f:also>
+
+</f:forth>
