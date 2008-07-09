@@ -121,10 +121,11 @@ VECT vBrowserSetMenu ' BrowserSetMenu1 TO vBrowserSetMenu
 USER uBrowserInterface \ дл€ случа€ "одно окно на поток" здесь копи€ из объекта
 USER uBrowserWindow
 
-/COM_OBJ \ €чейка - указатель на VTABLE нашего обработчика WebBrowserEvents2
+/COM_OBJ \ указатель на VTABLE нашего обработчика WebBrowserEvents2, и др.служ.
 CELL -- b.BrowserThread
 CELL -- b.BrowserWindow
 CELL -- b.BrowserInterface
+CELL -- b.BrowserMainDocument \ IDispatch, у которого можно спросить IHTMLDocument,2,3
 \ остальное можно спросить у браузера
 CONSTANT /BROWSER
 
@@ -225,10 +226,19 @@ CONSTANT /BROWSER
 
 GET-CURRENT SPF.IWebBrowserEvents2 SpfClassWid SET-CURRENT
 
-ID: DISPID_DOCUMENTCOMPLETE 259 ( urla urlu bro -- )
-    ." @DocumentComplete! doc=" DUP . \ IWebBrowser2 загруженного фрейма
-    uBrowserInterface @ = IF ." MAIN!" THEN
-    TYPE CR
+ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc -- }
+    ." @DocumentComplete! doc=" bro . \ IWebBrowser2 загруженного фрейма
+    uOID @ -> obj
+    TlsIndex@ -> tls
+    obj b.BrowserThread @ TlsIndex!
+    bro uBrowserInterface @ = 
+    IF ." MAIN!" \ если документ содержит фреймы, то его DocumentComplete наступает уже после загрузки фреймов
+       ^ doc bro ::get_Document DROP \ результат зависит от версии браузера
+       doc . CR
+       doc obj b.BrowserMainDocument !
+    THEN
+    urla urlu TYPE CR
+    tls TlsIndex!
 ;
 ID: DISPID_STATUSTEXTCHANGE   102 ( addr u -- )
     ." @StatusTextChange:" TYPE CR
