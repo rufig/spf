@@ -28,6 +28,7 @@ DECIMAL
          CONSTANT CLSCTX_SERVER
 
 USER UnicodeBuf
+VARIABLE COM-DEBUG \ TRUE COM-DEBUG !
 
 : >UNICODE ( addr u -- addr2 u2 )
   DUP 2* CELL+ ALLOCATE DROP UnicodeBuf !
@@ -244,13 +245,14 @@ Interface;
   SWAP 0 ( LOCALE_SYSTEM_DEFAULT) 1 ROT IID_NULL R> ::GetIDsOfNames
   R> SWAP R> FREE THROW
 ;
-: InvokeNamedMethod ( params idisp addr u -- results )
-  2>R DUP 2R> GetIdOfName THROW ( params idisp n )
-  65535 AND \ если запрашиваемое имя - не метода, а property, то там еще флаги
-  6 + InvokeMethod \ 6 - номер последнего метода в IDispatch
-;
 
-\ вызов метода по имени:
-\ GetIDsOfNames(IID_NULL, &pszName, 1, LOCALE_SYSTEM_DEFAULT, &dispid)
-\ pdisp->Invoke(dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, wFlags, &dispparams, pvRet, pexcepinfo, pnArgErr);
+\ хак, работающий только при прямой нумерации dispID
+\ но не всегда работает даже с нашими классами :)
+\ в общем, устарело, отменяем
+\ замену см. в variant.f
 
+\ : InvokeNamedMethod ( params idisp addr u -- results )
+\   2>R DUP 2R> GetIdOfName THROW ( params idisp n )
+\   65535 AND \ если запрашиваемое имя - не метода, а property, то там еще флаги
+\   6 + InvokeMethod \ 6 - номер последнего метода в IDispatch
+\ ;
