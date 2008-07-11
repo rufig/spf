@@ -2,12 +2,12 @@ WARNING 0!
 \ --------- пример ActiveX-сервера ----------------
 \ см. исходный вариант samples\com-sample4.f
 
-REQUIRE Class: ~ac/lib/win/com/com_server.f
+REQUIRE Class:  ~ac/lib/win/com/com_server.f
+REQUIRE params@ ~ac/lib/win/com/variant.f 
 
 VARIABLE ForthComClassObject
 
 VARIABLE LOCKCNT
-VARIABLE COM-DEBUG \ TRUE COM-DEBUG !
 
 VECT vSPF.Application
 VECT vSPF.IDispatch
@@ -80,39 +80,11 @@ Class;
 
 ' SPF.Application TO vSPF.Application
 
-USER uParams
 USER uSPInvoke
 USER uExcep
 USER uFlags
 USER uOID
 
-: param@ ( variant -- ... )
-\ переданные по ссылке переменные (обычный FORTH.NEGATE(VAR)) рекурсивно
-\ разворачиваются, как если бы были переданы значения.
-\ Это лишает некоторых возможностей, но зато логически чище,
-\ и удобнее использовать.
-  >R
-  COM-DEBUG @ IF CR ." TYPE=" R@ W@ . THEN
-  R@ W@ 0 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." -0," THEN EXIT THEN
-  R@ W@ 2 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." ," THEN EXIT THEN
-  R@ W@ 3 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." ," THEN EXIT THEN
-  R@ W@ 11 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." -b," THEN EXIT THEN \ bool
-  R@ W@ 9 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." -d," THEN EXIT THEN \ idisp
-  R@ W@ 8 = IF R> 2 CELLS + @ BSTR> COM-DEBUG @ IF 2DUP ." (" TYPE ." )," THEN EXIT THEN
-  R@ W@ 0x400B = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." in/out bool by ref," THEN EXIT THEN
-  R@ W@ 0x400C = IF R> 2 CELLS + @ COM-DEBUG @ IF ." recurse variant:" THEN RECURSE EXIT THEN
-  R@ W@ 0x4009 = IF R> 2 CELLS + @ COM-DEBUG @ IF ." disp by ref:" THEN EXIT THEN
-  R@ W@ 0x2011 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." array," THEN EXIT THEN
-  COM-DEBUG @ IF ." UNKNOWN PTYPE=" R@ W@ . R> 2 CELLS + @ 16 DUMP THEN
-  RDROP
-;
-: params@ ( dispid -- ... )
-  COM-DEBUG @ IF ." params=" THEN
-  DUP @ uParams ! 2 CELLS + @ COM-DEBUG @ IF DUP . THEN 0 ?DO
-    COM-DEBUG @ IF CR ." par" I . THEN
-    uParams @ I 4 * CELLS + param@
-  LOOP
-;
 : IsVariable@ ( xt -- flag )
   DUP 1+ @ + CFL + ['] _CREATE-CODE =
   uFlags @ DISPATCH_PROPERTYPUT AND 0= AND
