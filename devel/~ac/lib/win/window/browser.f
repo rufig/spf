@@ -21,6 +21,7 @@ REQUIRE IID_IWebBrowser2 ~ac/lib/win/com/ibrowser.f
 REQUIRE NSTR             ~ac/lib/win/com/variant.f 
 REQUIRE EnumConnectionPoints ~ac/lib/win/com/events.f 
 REQUIRE IID_IWebBrowserEvents2 ~ac/lib/win/com/browser_events.f 
+REQUIRE IID_IHTMLDocument3 ~ac/lib/win/com/ihtmldocument.f 
 
 \ только для BrowserThread:
 REQUIRE STR@             ~ac/lib/str5.f
@@ -126,6 +127,8 @@ CELL -- b.BrowserThread
 CELL -- b.BrowserWindow
 CELL -- b.BrowserInterface
 CELL -- b.BrowserMainDocument \ IDispatch, у которого можно спросить IHTMLDocument,2,3
+CELL -- b.HtmlDoc2
+CELL -- b.HtmlDoc3
 \ остальное можно спросить у браузера
 CONSTANT /BROWSER
 
@@ -224,18 +227,45 @@ CONSTANT /BROWSER
 
 \ Переопределим некоторые обработчики событий от браузера:
 
+
 GET-CURRENT SPF.IWebBrowserEvents2 SpfClassWid SET-CURRENT
 
-ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc -- }
+ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc doc2 doc3 -- }
+    \ =onload
     ." @DocumentComplete! doc=" bro . \ IWebBrowser2 загруженного фрейма
     uOID @ -> obj
     TlsIndex@ -> tls
     obj b.BrowserThread @ TlsIndex!
     bro uBrowserInterface @ = 
-    IF ." MAIN!" \ если документ содержит фреймы, то его DocumentComplete наступает уже после загрузки фреймов
+    IF \ если документ содержит фреймы, то его DocumentComplete наступает уже после загрузки фреймов
        ^ doc bro ::get_Document DROP \ результат зависит от версии браузера
        doc . CR
        doc obj b.BrowserMainDocument !
+       ^ doc3 IID_IHTMLDocument3 doc ::QueryInterface 0= doc3 0 <> AND
+       IF doc3 obj b.HtmlDoc3 !
+\ пример:
+\         ^ elcol S" TITLE" >BSTR doc3 ::getElementsByTagName . elcol . CR
+       THEN
+
+       ^ doc2 IID_IHTMLDocument2 doc ::QueryInterface 0= doc2 0 <> AND
+       IF doc2 obj b.HtmlDoc2 ! THEN
+
+\       ^ disp IID_DispHTMLDocument doc ::QueryInterface 0= disp 0 <> AND
+\       IF ." ---" THEN
+
+       doc2 IF
+\ примеры, каждое действие двумя способами:
+\         uCRes doc2 ::get_title THROW uCRes @ UASCIIZ> UNICODE> TYPE CR
+\         S" title" doc2 CP@ TYPE CR
+\         S" New TITLE" >BSTR doc2 ::put_title THROW
+\         S" New TITLE" >VBSTR 1 S" title" doc2 CP!
+\         S" <H1>TEST</H1>" >SARR doc2 ::write ." wr=" .
+\         S" <H1>TEST</H1>" >VBSTR 1 S" write" doc2 CNEXEC .
+
+\ и вперемешку:
+\          doc S" title" doc2 CP@
+\          " {s} (документ doc={n})" STR@ >BSTR doc2 ::put_title THROW
+       THEN
     THEN
     urla urlu TYPE CR
     tls TlsIndex!
@@ -252,7 +282,7 @@ SET-CURRENT
 
 \EOF
 \ Эти окна не отвлекают основной поток, работают сами по себе.
-TRUE COM-DEBUG !
+\ TRUE COM-DEBUG !
 S" http://127.0.0.1:89/index.html" BrowserThread
 S" http://127.0.0.1:89/email/" BrowserThread
 
