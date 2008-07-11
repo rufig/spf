@@ -56,8 +56,12 @@ ID: DISPID_SETSECURELOCKICON    269 ( icon -- )
     \ sent to suggest the appropriate security icon to show
    ." SetSecureLockIcon:" . CR
 ;
-ID: DISPID_UNKNOWN:) 282 ( ... )
-   ." Unknown282 depth=" DEPTH . DropXtParams CR
+ID: DISPID_SETPHISHINGFILTERSTATUS 282 ( ... )
+    \ Константы нет в заголовках, взято из своевременной статьи :
+    \ http://hatayquelua.wordpress.com/2008/07/03/bho-programming/
+    \ Deprecated. Fires to indicate the progress and status of Microsoft Phishing Filter analysis of the current webpage.
+    \ Deprecated? Но IE8 все равно шлет это событие.
+   ." SetPhishingFilterStatus:" . CR
 ;
 ID: DISPID_TITLECHANGE    113  ( addr u -- )
     \ sent when the document title changes
