@@ -15,6 +15,9 @@
 
 \ TODO: кто знает, какой IDM_ у команды TAB - пишите :)
 
+\ FIXED: обработка браузерных акселераторов больше не требует этого трюка,
+\ т.е. есть "более родной", см. TranslateBrowserAccelerator в browser.f.
+
 \ REQUIRE WindowHide    ~ac/lib/win/window/window.f 
 
    1 CONSTANT FVIRTKEY
@@ -31,6 +34,9 @@
 0x72 CONSTANT VK_F3
 0x73 CONSTANT VK_F4
 
+
+\ см. mshtmcid.h, http://msdn.microsoft.com/en-us/library/aa741315(VS.85).aspx
+
 2001 CONSTANT IDM_NEW
 2000 CONSTANT IDM_OPEN
   70 CONSTANT IDM_SAVE
@@ -44,6 +50,13 @@
   17 CONSTANT IDM_DELETE
   17 CONSTANT IDM_CLEAR
 2220 CONSTANT IDM_HELP ( _CONTENT)
+
+\ #define IDM_CONTEXTMENU             2280
+\ #define IDM_GOBACKWARD              2282
+2283 CONSTANT IDM_GOFORWARD               
+\ #define IDM_PRESTOP                 2284
+\ #define IDM_REFRESH                 2300 ( F5)
+
 
 
    0 CONSTANT IDM_NEXT
@@ -69,7 +82,7 @@ FSHIFT   FVIRTKEY OR VK_DELETE IDM_CUT accel,
 FCONTROL FVIRTKEY OR VK_INSERT IDM_COPY accel,
 FSHIFT   FVIRTKEY OR VK_INSERT IDM_PASTE accel,
 
-FVIRTKEY VK_DELETE IDM_CLEAR accel,
+FVIRTKEY VK_DELETE IDM_DELETE accel,
 FVIRTKEY VK_F3     IDM_NEXT accel,
 FVIRTKEY VK_F1     IDM_HELP accel,
 
