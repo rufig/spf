@@ -117,8 +117,11 @@ WS_EX_WINDOWEDGE WS_EX_TOOLWINDOW OR WS_EX_TOPMOST OR CONSTANT  WS_EX_PALETTEWIN
 #define WM_QUIT                         0x0012
 #define WM_USER                         0x0400
 #define WM_LBUTTONDOWN                  0x0201
+#define WM_LBUTTONUP                    0x0202
 #define WM_RBUTTONDOWN                  0x0204
+#define WM_RBUTTONUP                    0x0205
 #define WM_KEYDOWN                      0x0100
+#define WM_LBUTTONDBLCLK                0x0203
 
 
 \ Edit Control Styles
@@ -177,6 +180,7 @@ WM_USER 53 + CONSTANT EM_EXLIMITTEXT
 
 #define WM_INITDIALOG           0x0110
 #define WM_COMMAND              0x0111
+#define WM_TIMER                0x0113
 #define WM_SYSTIMER             0x0118
 #define WM_NOTIFY               0x004E
 
