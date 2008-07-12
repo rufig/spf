@@ -22,7 +22,7 @@ BASE !
 : TrackMenuWnd ( x y w h -- cmd )
   || x y w h || (( x y w h ))
   w SetForegroundWindow DROP
-  0 w 0 y x TPM_RETURNCMD h TrackPopupMenu
+  0 w 0 y x TPM_RETURNCMD TPM_NONOTIFY OR h TrackPopupMenu
 ;
 : TrackMenu ( x y h -- cmd )
   || x y h w || (( x y h ))
