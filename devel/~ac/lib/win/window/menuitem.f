@@ -55,6 +55,47 @@ MF_STRING CONSTANT MFT_STRING
   R> 0 ROT 0 SWAP InsertMenuItemA DROP
 ;
 
+VECT vGetIconFilename
+
+: GetIconFilename1 ( nfa i -- addr u )
+\ по имени и индексу слова в словаре выдать его иконку для меню
+  2DROP S" "
+; ' GetIconFilename1 TO vGetIconFilename
+
+: MenuFromVocImg ( x y wnd wid -- ... )
+  || x y wnd wid h a c i nfa || (( x y wnd wid ))
+  CreatePopupMenu -> h
+  wid @
+  BEGIN
+    DUP
+  WHILE
+\    DUP NAME>        \ пришлось заменить на i, т.к. Win98 не сохраняет полный id :(
+    -> nfa
+    i 1+ -> i
+    h i 0
+    nfa i vGetIconFilename
+    nfa COUNT 2DUP + DUP -> a C@ -> c  0 a C! \ временная запись нуля в конце имени
+    AppendMenuItem DROP
+    c a C!
+    nfa CDR
+  REPEAT DROP
+  x y wnd h TrackMenuWnd -> i \ WinNT позволяет передавать xt в качестве id
+  i                           \ а Win98 'обрезает' большие числа, пришлось
+  IF                          \ вводить эту глупость с нумерацией
+    wid @
+    BEGIN
+      i 1- DUP -> i
+    WHILE
+      CDR
+    REPEAT NAME> EXECUTE
+  THEN
+  h DestroyMenu DROP
+;
+
+
+\EOF
+0 0 S" EDIT" 0 0 Window FORTH-WORDLIST MenuFromVocImg
+
 \EOF
 
 CreatePopupMenu
