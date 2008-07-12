@@ -59,8 +59,28 @@ SPF.IWebBrowserEvents2 BrEventsHandler !
     mem CELL+ @ WM_CLOSE <> AND
     mem CELL+ @ WM_QUIT <> AND
   ELSE FALSE THEN
-  DUP IF DEBUG @ IF mem CELL+ @ WM_SYSTIMER <> IF mem 16 DUMP CR THEN THEN THEN
+  DUP IF DEBUG @ 
+         IF mem CELL+ @ WM_SYSTIMER <>
+            mem CELL+ @ WM_TIMER <> AND
+            IF mem 16 DUMP CR THEN
+         THEN
+      THEN
 ;
+
+VECT vPreprocessMessage ( msg -- flag )
+\ ¬озможность "отн€ть" у окна браузера некоторые событи€
+\ или обработать/транслировать по-своему, до основного обработчика.
+\ ≈сли возвращает TRUE, то сообщение считаетс€ обработанным и далее не пускаетс€.
+
+VECT vContextMenu ( msg -- ) ' DROP TO vContextMenu
+
+: PreprocessMessage1 ( msg -- flag )
+  DUP CELL+ @ WM_RBUTTONUP =
+  IF vContextMenu TRUE
+  ELSE DROP FALSE THEN
+;
+' PreprocessMessage1 TO vPreprocessMessage
+
 : AtlMessageLoop  { wnd iWebBrowser2 \ mem -- }
 
 \ Ётот обработчик рассчитан на ќƒЌќ браузерное окно,
@@ -74,11 +94,14 @@ SPF.IWebBrowserEvents2 BrEventsHandler !
   BEGIN
     mem wnd WindowGetMessage
   WHILE
-    mem iWebBrowser2 TranslateBrowserAccelerator 0=
+    mem vPreprocessMessage 0=
     IF
-      \ тут можно проверить своим TranslateAccelerator, если есть свои окна
-      mem TranslateMessage DROP
-      mem DispatchMessageA DROP
+      mem iWebBrowser2 TranslateBrowserAccelerator 0=
+      IF
+        \ тут можно проверить своим TranslateAccelerator, если есть свои окна
+        mem TranslateMessage DROP
+        mem DispatchMessageA DROP
+      THEN
     THEN
   REPEAT
   mem FREE THROW
