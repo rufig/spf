@@ -234,5 +234,9 @@ USER lpNumberOfBytesWritten
 ;
 
 : FILE-EXIST ( addr u -- f )
-    DROP GetFileAttributesA -1 = 0=
+  DROP GetFileAttributesA -1 <>
+;
+
+: FILE-EXISTS ( addr u -- f )
+  DROP GetFileAttributesA INVERT 16 ( FILE_ATTRIBUTE_DIRECTORY) AND 0<>
 ;
