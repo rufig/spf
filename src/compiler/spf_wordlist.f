@@ -104,6 +104,8 @@ NOWADAYS ,"
   CELL- FREE THROW
 ;
 
+: VOC-NAME! ( c-addr wid --   )  CELL+ ! ;
+: VOC-NAME@ ( wid -- c-addr|0 )  CELL+ @ ;  \ c-addr is an address of a counted string
 : CLASS! ( cls wid -- ) CELL+ CELL+ CELL+ ! ;
 : CLASS@ ( wid -- cls ) CELL+ CELL+ CELL+ @ ;
 : PAR!   ( Pwid wid -- ) CELL+ CELL+ ! ;
