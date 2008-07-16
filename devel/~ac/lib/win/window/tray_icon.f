@@ -29,7 +29,7 @@ VARIABLE vaWND
 VOCABULARY CONT-MENU
 
 ALSO CONT-MENU DEFINITIONS
-: Abort/Exit
+: Выход
   TRUE ImmExit !
   TrayIconDelete 
   SendQuit @ 0=
