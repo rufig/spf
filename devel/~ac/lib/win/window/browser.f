@@ -290,7 +290,7 @@ ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc doc2 doc3 -- }
 \          " {s} (документ doc={n})" STR@ >BSTR doc2 ::put_title THROW
        THEN
     THEN
-    urla urlu TYPE CR
+    COM-DEBUG @ IF urla urlu TYPE CR THEN
     tls TlsIndex!
 ;
 ID: DISPID_STATUSTEXTCHANGE   102 ( addr u -- )
