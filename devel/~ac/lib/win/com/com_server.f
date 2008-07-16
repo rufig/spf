@@ -23,7 +23,7 @@ VARIABLE FCNT \ глобальный счетчик AddRef/Release, т.е. счетчик живых объектов
     1+ CELLS HERE SWAP DUP ALLOT ERASE     \ VTABLE
     -1 ,
     GET-CURRENT WORDLIST
-    LATEST OVER CELL+ ! \ для осмысленного представления в ORDER
+    LATEST OVER VOC-NAME! \ для осмысленного представления в ORDER
     SET-CURRENT SWAP
   DOES> 7 CELLS + ( oid )
 ;
