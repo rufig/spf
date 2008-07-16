@@ -25,47 +25,48 @@ Extends SPF.IDispatch
 \ Параметры заботливо переведены им из variant'ов к форт-виду :)
 
 ID: DISPID_DOCUMENTCOMPLETE     259 ( urla urlu bro -- )
-    ." DocumentComplete! doc=" . \ IWebBrowser2 загруженного фрейма
-    TYPE CR
+    COM-DEBUG @ IF ." DocumentComplete! doc=" . \ IWebBrowser2 загруженного фрейма
+                   TYPE CR
+                ELSE DROP 2DROP THEN
 ;
 ID: DISPID_STATUSTEXTCHANGE   102 ( addr u -- )
-    ." StatusTextChange:" TYPE CR
+    COM-DEBUG @ IF ." StatusTextChange:" TYPE CR ELSE 2DROP THEN
 ;
 ID: DISPID_PROGRESSCHANGE     108  ( ProgressMax Progress -- )
     \ sent when download progress is updated
-   ." ProgressChange:" . ." from " . CR
+    COM-DEBUG @ IF ." ProgressChange:" . ." from " . CR ELSE 2DROP THEN
 ;
 ID: DISPID_FILEDOWNLOAD         270 ( bool bool -- )
     \ Fired to indicate the File Download dialog is opening
-   ." FileDownload:" . . CR
+    COM-DEBUG @ IF ." FileDownload:" . . CR ELSE 2DROP THEN
 ;
 ID: DISPID_NAVIGATECOMPLETE2    252 ( urla urlu bro_win -- )
     \ UIActivate new document
-   ." NavigateComplete2! win/frame=" . TYPE CR
+    COM-DEBUG @ IF ." NavigateComplete2! win/frame=" . TYPE CR ELSE DROP 2DROP THEN
 ;
 ID: DISPID_COMMANDSTATECHANGE 105 ( bool command -- )
-   ." CommandStateChange:" . . CR
+    COM-DEBUG @ IF ." CommandStateChange:" . . CR ELSE 2DROP THEN
 ;
 ID: DISPID_DOWNLOADBEGIN      106 ( -- )
-   ." DownloadBegin..." CR
+    COM-DEBUG @ IF ." DownloadBegin..." CR THEN
 ;
 ID: DISPID_DOWNLOADCOMPLETE   104 ( -- )
-   ." DownloadComplete!" CR
+    COM-DEBUG @ IF ." DownloadComplete!" CR THEN
 ;
 ID: DISPID_SETSECURELOCKICON    269 ( icon -- )
     \ sent to suggest the appropriate security icon to show
-   ." SetSecureLockIcon:" . CR
+    COM-DEBUG @ IF ." SetSecureLockIcon:" . CR ELSE DROP THEN
 ;
 ID: DISPID_SETPHISHINGFILTERSTATUS 282 ( ... )
     \ Константы нет в заголовках, взято из своевременной статьи :
     \ http://hatayquelua.wordpress.com/2008/07/03/bho-programming/
     \ Deprecated. Fires to indicate the progress and status of Microsoft Phishing Filter analysis of the current webpage.
     \ Deprecated? Но IE8 все равно шлет это событие.
-   ." SetPhishingFilterStatus:" . CR
+    COM-DEBUG @ IF ." SetPhishingFilterStatus:" . CR ELSE DROP THEN
 ;
 ID: DISPID_TITLECHANGE    113  ( addr u -- )
     \ sent when the document title changes
-   ." Title:" TYPE CR
+    COM-DEBUG @ IF ." Title:" TYPE CR ELSE 2DROP THEN
 ;
 ID: DISPID_BEFORENAVIGATE2      250   \ hyperlink clicked on
 (      
@@ -77,15 +78,17 @@ ID: DISPID_BEFORENAVIGATE2      250   \ hyperlink clicked on
     VARIANT *Headers,
     VARIANT_BOOL *Cancel
 )
+   COM-DEBUG @ IF 
   ." BeforeNavigate2: bro_win=" .
    ."  url=" TYPE ."  flags=" . ." target_frame=" TYPE CR
   ." post=" DUP IF DUP 3 CELLS + @ SWAP 4 CELLS + @ TYPE CR ELSE . THEN
   ."  headers=" TYPE ."  cancel=" .
   ." depth=" DEPTH . DropXtParams CR
+   ELSE DropXtParams THEN
 ;
 ID: DISPID_PROPERTYCHANGE     112 ( addr u -- )
     \ sent when the PutProperty method is called
-    ." PropertyChange:" TYPE CR
+    COM-DEBUG @ IF ." PropertyChange:" TYPE CR ELSE 2DROP THEN
 ;
 ID: DISPID_NEWWINDOW3           273 \ new window is to be created
 (      
@@ -95,8 +98,10 @@ ID: DISPID_NEWWINDOW3           273 \ new window is to be created
     BSTR bstrUrlContext,
     BSTR bstrUrl
 )
+   COM-DEBUG @ IF 
    ." NewWindow3: idisp=" . ." cancel=" . ." flags:" . CR
    ." referer=" TYPE ."  url=" TYPE CR
+   ELSE DropXtParams THEN
 ;
 
 Class;

@@ -255,14 +255,14 @@ GET-CURRENT SPF.IWebBrowserEvents2 SpfClassWid SET-CURRENT
 
 ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc doc2 doc3 -- }
     \ =onload
-    ." @DocumentComplete! doc=" bro . \ IWebBrowser2 загруженного фрейма
+    COM-DEBUG @ IF ." @DocumentComplete! doc=" bro . THEN \ IWebBrowser2 загруженного фрейма
     uOID @ -> obj
     TlsIndex@ -> tls
     obj b.BrowserThread @ TlsIndex!
     bro uBrowserInterface @ = 
     IF \ если документ содержит фреймы, то его DocumentComplete наступает уже после загрузки фреймов
        ^ doc bro ::get_Document DROP \ результат зависит от версии браузера
-       doc . CR
+\       doc . CR
        doc obj b.BrowserMainDocument !
        ^ doc3 IID_IHTMLDocument3 doc ::QueryInterface 0= doc3 0 <> AND
        IF doc3 obj b.HtmlDoc3 !
@@ -294,11 +294,11 @@ ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc doc2 doc3 -- }
     tls TlsIndex!
 ;
 ID: DISPID_STATUSTEXTCHANGE   102 ( addr u -- )
-    ." @StatusTextChange:" TYPE CR
+    COM-DEBUG @ IF ." @StatusTextChange:" TYPE CR ELSE 2DROP THEN
 ;
 ID: DISPID_TITLECHANGE    113  ( addr u -- )
     \ sent when the document title changes
-   ." @Title:" 2DUP TYPE CR
+    COM-DEBUG @ IF ." @Title:" 2DUP TYPE CR THEN
     uOID @ b.BrowserWindow @ ?DUP IF vBrowserSetTitle ELSE 2DROP THEN
 ;
 SET-CURRENT
