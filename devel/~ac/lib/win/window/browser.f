@@ -22,6 +22,7 @@ REQUIRE NSTR             ~ac/lib/win/com/variant.f
 REQUIRE EnumConnectionPoints ~ac/lib/win/com/events.f 
 REQUIRE IID_IWebBrowserEvents2 ~ac/lib/win/com/browser_events.f 
 REQUIRE IID_IHTMLDocument3 ~ac/lib/win/com/ihtmldocument.f 
+REQUIRE IID_IHTMLElementCollection ~ac/lib/win/com/ihtmlelement.f 
 
 \ только дл€ BrowserThread:
 REQUIRE STR@             ~ac/lib/str5.f
@@ -248,8 +249,13 @@ CONSTANT /BROWSER
   >STR (BrowserMainThread) START DROP
 ;
 
-\ ѕереопределим некоторые обработчики событий от браузера:
+\ вызываетс€ при завершении загрузки основного документа
+\ дл€ выполнени€ произвольной дополнительной обработки
+\ oid здесь - указатель на структуру /BROWSER (выше), т.е. экземпл€р класса SPF.IWebBrowserEvents2
+VECT vOnDocumentComplete ( urla urlu obj -- )
+:NONAME DROP 2DROP ; TO vOnDocumentComplete
 
+\ ѕереопределим некоторые обработчики событий от браузера:
 
 GET-CURRENT SPF.IWebBrowserEvents2 SpfClassWid SET-CURRENT
 
@@ -266,8 +272,17 @@ ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc doc2 doc3 -- }
        doc obj b.BrowserMainDocument !
        ^ doc3 IID_IHTMLDocument3 doc ::QueryInterface 0= doc3 0 <> AND
        IF doc3 obj b.HtmlDoc3 !
-\ пример:
-\         ^ elcol S" TITLE" >BSTR doc3 ::getElementsByTagName . elcol . CR
+\ примеры:
+\         ^ elcol S" DIV" >BSTR doc3 ::getElementsByTagName . elcol . CR
+\         ^ len elcol ::get_length . ." len=" len . CR
+
+\ вызываем ::item трем€ способами
+\         ^ el  0 0 0 VT_I4  0 S" login-form" >BSTR 0 VT_BSTR
+\         elcol ::item . el . 
+\         3 VT_I4 1 S" item" elcol CNEXEC -> el
+\         S" login-form" >VBSTR 1 S" item" elcol CNEXEC -> el
+
+\         el IF S" innerText" el CP@ TYPE CR THEN
        THEN
 
        ^ doc2 IID_IHTMLDocument2 doc ::QueryInterface 0= doc2 0 <> AND
@@ -289,6 +304,7 @@ ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc doc2 doc3 -- }
 \          doc S" title" doc2 CP@
 \          " {s} (документ doc={n})" STR@ >BSTR doc2 ::put_title THROW
        THEN
+       urla urlu obj vOnDocumentComplete
     THEN
     COM-DEBUG @ IF urla urlu TYPE CR THEN
     tls TlsIndex!
