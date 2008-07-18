@@ -122,7 +122,11 @@ WS_EX_WINDOWEDGE WS_EX_TOOLWINDOW OR WS_EX_TOPMOST OR CONSTANT  WS_EX_PALETTEWIN
 #define WM_RBUTTONUP                    0x0205
 #define WM_KEYDOWN                      0x0100
 #define WM_LBUTTONDBLCLK                0x0203
+#define WM_NCDESTROY                    0x0082
+#define WM_SYSCOMMAND                   0x0112
 
+\ Syscommands
+#define SC_MINIMIZE     0xF020
 
 \ Edit Control Styles
 #define ES_LEFT             0x0000L
