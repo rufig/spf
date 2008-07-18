@@ -12,6 +12,10 @@
 \ Предлагается к подключению внутрь ~day/wfl.
 
 \ + 07.07.2008 еще раз обработка событий.
+\ + 18.07.2008 по умолчанию подключаемся к клавиатурным и мышиным событиям
+\   основной страницы; обработчик ищет слова onkeypress onclick onactivate 
+\   ondeactivate onfocusout onhelp onmouseover onmouseout при возникновении
+\   соответствующих событий и передает им объект с интерфейсом IHTMLEventObj
 
 REQUIRE {                lib/ext/locals.f
 REQUIRE Window           ~ac/lib/win/window/window.f
@@ -153,6 +157,7 @@ CELL -- b.BrowserInterface
 CELL -- b.BrowserMainDocument \ IDispatch, у которого можно спросить IHTMLDocument,2,3
 CELL -- b.HtmlDoc2
 CELL -- b.HtmlDoc3
+CELL -- b.HtmlWin2
 \ остальное можно спросить у браузера
 CONSTANT /BROWSER
 
@@ -259,7 +264,7 @@ VECT vOnDocumentComplete ( urla urlu obj -- )
 
 GET-CURRENT SPF.IWebBrowserEvents2 SpfClassWid SET-CURRENT
 
-ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc doc2 doc3 -- }
+ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc doc2 doc3 win2 elcol el b boo -- }
     \ =onload
     COM-DEBUG @ IF ." @DocumentComplete! doc=" bro . THEN \ IWebBrowser2 загруженного фрейма
     uOID @ -> obj
@@ -281,12 +286,41 @@ ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc doc2 doc3 -- }
 \         elcol ::item . el . 
 \         3 VT_I4 1 S" item" elcol CNEXEC -> el
 \         S" login-form" >VBSTR 1 S" item" elcol CNEXEC -> el
+\         el IF
+\            ^ el IID_IHTMLElement el ::QueryInterface THROW \ т.к. item возвращает что-то другое
+\            S" innerText" el CP@ TYPE CR
 
-\         el IF S" innerText" el CP@ TYPE CR THEN
+\ подключаемся к событиям  выбранного элемента
+\            obj VT_DISPATCH 1 S" onkeypress" el CP!
+\            0 obj 0 VT_DISPATCH el ::put_onkeypress THROW
+\            THEN
+\ или всего документа (http://msdn.microsoft.com/en-us/library/ms533051(VS.85).aspx)
+            ^ boo obj S" onkeypress" >BSTR doc3 ::attachEvent THROW
+            ^ boo obj S" onclick" >BSTR doc3 ::attachEvent THROW
+            ^ boo obj S" onactivate" >BSTR doc3 ::attachEvent THROW
+            ^ boo obj S" ondeactivate" >BSTR doc3 ::attachEvent THROW
+            ^ boo obj S" onfocusout" >BSTR doc3 ::attachEvent THROW
+            ^ boo obj S" onhelp" >BSTR doc3 ::attachEvent THROW
+            ^ boo obj S" onmouseover" >BSTR doc3 ::attachEvent THROW
+            ^ boo obj S" onmouseout" >BSTR doc3 ::attachEvent THROW
+
+\            ^ boo obj S" onblur" >BSTR doc3 ::attachEvent THROW \ не приходит
+\            ^ boo obj S" oncontextmenu" >BSTR doc3 ::attachEvent THROW \ не приходит
+\            ^ boo obj S" oncopy" >BSTR doc3 ::attachEvent THROW \ не приходит
+\            ^ boo obj S" ondrop" >BSTR doc3 ::attachEvent THROW \ не приходит
+\            ^ boo obj S" onerror" >BSTR doc3 ::attachEvent THROW \ не приходит
+\            ^ boo obj S" onfocus" >BSTR doc3 ::attachEvent THROW \ не приходит
+\            ^ boo obj S" onmouseenter" >BSTR doc3 ::attachEvent THROW \ не приходит
+\            ^ boo obj S" onmouseleave" >BSTR doc3 ::attachEvent THROW \ не приходит
+\            ^ boo obj S" onsubmit" >BSTR doc3 ::attachEvent THROW \ не приходит
+\            ^ boo obj S" onunload" >BSTR doc3 ::attachEvent THROW \ не приходит
        THEN
 
        ^ doc2 IID_IHTMLDocument2 doc ::QueryInterface 0= doc2 0 <> AND
-       IF doc2 obj b.HtmlDoc2 ! THEN
+       IF doc2 obj b.HtmlDoc2 !
+          ^ win2 doc2 ::get_parentWindow DROP
+          win2 obj b.HtmlWin2 !
+       THEN
 
 \       ^ disp IID_DispHTMLDocument doc ::QueryInterface 0= disp 0 <> AND
 \       IF ." ---" THEN
@@ -317,11 +351,28 @@ ID: DISPID_TITLECHANGE    113  ( addr u -- )
     COM-DEBUG @ IF ." @Title:" 2DUP TYPE CR THEN
     uOID @ b.BrowserWindow @ ?DUP IF vBrowserSetTitle ELSE 2DROP THEN
 ;
+ID: BR_EVENT 0 ( -- ) { \ e el }
+    S" event" uOID @ b.HtmlWin2 @ CP@ -> e
+    COM-DEBUG @ IF 
+      S" type" e CP@ 
+      ." EVENT=" TYPE SPACE
+      S" keyCode" e CP@ ." keyCode=" .
+      S" srcElement" e CP@ -> el
+      ." srcElement=" el .
+      S" tagName" el CP@ TYPE SPACE S" id" el CP@ TYPE SPACE S" className" el CP@ TYPE CR
+\      S" innerHTML" el CP@ TYPE CR
+    THEN
+    S" type" e CP@ SFIND IF e SWAP EXECUTE ELSE 2DROP THEN
+;
 SET-CURRENT
 
 \EOF
 \ Эти окна не отвлекают основной поток, работают сами по себе.
 \ TRUE COM-DEBUG !
+: keypress { e -- } \ см. BR_EVENT выше
+  S" keyCode" e CP@ ." keyCode=" .
+  S" title" uOID @ b.HtmlDoc2 @ CP@ TYPE CR
+;
 S" http://127.0.0.1:89/index.html" BrowserThread
 S" http://127.0.0.1:89/email/" BrowserThread
 
