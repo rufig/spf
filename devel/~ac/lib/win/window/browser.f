@@ -12,10 +12,16 @@
 \ Предлагается к подключению внутрь ~day/wfl.
 
 \ + 07.07.2008 еще раз обработка событий.
+
 \ + 18.07.2008 по умолчанию подключаемся к клавиатурным и мышиным событиям
 \   основной страницы; обработчик ищет слова onkeypress onclick onactivate 
 \   ondeactivate onfocusout onhelp onmouseover onmouseout при возникновении
 \   соответствующих событий и передает им объект с интерфейсом IHTMLEventObj
+
+\ + 19.07.2008 все-таки добавил subclassing ['] BR-WND-PROC h WindowSubclass
+\   т.к. Windows НЕ ставит сообщения WM_CLOSE в очередь, а шлет их напрямую
+\   оконной процедуре. А без WM_CLOSE невозможно перехватить/предотвратить/
+\   модифицировать закрытие окна (обычно требуется в чат-клиентах).
 
 REQUIRE {                lib/ext/locals.f
 REQUIRE Window           ~ac/lib/win/window/window.f
@@ -58,11 +64,10 @@ SPF.IWebBrowserEvents2 BrEventsHandler !
 : WindowGetMessage { mem wnd -- flag }
 \ детектируем необходимость завершения цикла MessageLoop
 \ без собственной WndProc
+\ +19.07.2008: собственную WndProc BR-WND-PROC пришлось таки добавить
   wnd IsWindow
   IF
     0 0 0 mem GetMessageA 0 >
-    mem CELL+ @ WM_CLOSE <> AND
-    mem CELL+ @ WM_QUIT <> AND
   ELSE FALSE THEN
   DUP IF DEBUG @ 
          IF mem CELL+ @ WM_SYSTIMER <>
@@ -161,6 +166,26 @@ CELL -- b.HtmlWin2
 \ остальное можно спросить у браузера
 CONSTANT /BROWSER
 
+VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
+
+: MinimizeOnClose ( wnd -- )
+\ при ' MinimizeOnClose TO vOnClose попытка закрытия окна приведет
+\ к его сворачиванию (минимизации)
+  >R 0 SC_MINIMIZE WM_SYSCOMMAND R> PostMessageA DROP
+;
+
+: (BR-WND-PROC1) { lparam wparam msg wnd -- lresult }
+  msg WM_NCDESTROY = IF 0 EXIT THEN \ упадет при закрытии, если не обработать
+
+  msg WM_CLOSE = IF wnd vOnClose IF FALSE EXIT THEN THEN
+
+  lparam wparam msg wnd   wnd WindowOrigProc
+;
+: (BR-WND-PROC)
+  ['] (BR-WND-PROC1) CATCH IF 2DROP 2DROP TRUE THEN
+;
+' (BR-WND-PROC) WNDPROC: BR-WND-PROC
+
 : BrowserWindow { addr u style parent_hwnd \ h bro b -- hwnd }
 \ создать окно браузера и загрузить URL addr u в него.
   AtlInitCnt @ 0= IF AtlAxWinInit 0= IF 0x200A EXIT THEN AtlInitCnt 1+! THEN
@@ -174,6 +199,7 @@ CONSTANT /BROWSER
   BrTransp @ ?DUP IF h WindowTransp THEN
 
   h uBrowserWindow !
+  ['] BR-WND-PROC h WindowSubclass
 
 \ PAD bro ::get_AddressBar .
   h BrowserInterface ?DUP IF NIP THROW THEN -> bro
@@ -369,6 +395,9 @@ SET-CURRENT
 \EOF
 \ Эти окна не отвлекают основной поток, работают сами по себе.
 \ TRUE COM-DEBUG !
+
+' MinimizeOnClose TO vOnClose
+
 : keypress { e -- } \ см. BR_EVENT выше
   S" keyCode" e CP@ ." keyCode=" .
   S" title" uOID @ b.HtmlDoc2 @ CP@ TYPE CR
