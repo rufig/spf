@@ -3,11 +3,13 @@
 \ Ansifying SPF file i/o
 \ 
 \ By default spf kernel FILE words expect file names 
-\ to end with zero and thus ignore the length param.
-\ This extension redefines those words to ensure that 
-\ the arguments are zero-ended (possibly copying filename 
-\ to additional buffer PFILENAME and putting zero as
-\ appropriate)
+\ to end with zero byte and ignore the length param.
+\ This extension redefines those words to get rid of that 
+\ limitation
+\ (If the file name is zero-ended it is used "as is", else
+\ it is copied to additional buffer PFILENAME and zero byte 
+\ is appended)
+\
 \ Just include this lib
 
 MODULE: ANSI-FILE
@@ -55,6 +57,9 @@ WARNING 0!
 
 : OPEN-FILE ( c-addr u fam -- fileid ior ) \ 94 FILE
   >R >ZFILENAME R> OPEN-FILE ;
+
+: FILE-EXIST ( c-addr u -- ? ) >ZFILENAME FILE-EXIST ;
+: FILE-EXISTS ( c-addr u -- ? ) >ZFILENAME FILE-EXISTS ;
 
 WARNING !
 
