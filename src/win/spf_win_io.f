@@ -233,6 +233,7 @@ USER lpNumberOfBytesWritten
   FlushFileBuffers ERR
 ;
 
+\ TRUE если существует путь addr u
 : FILE-EXIST ( addr u -- f )
   DROP GetFileAttributesA -1 <>
 ;
