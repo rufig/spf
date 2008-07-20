@@ -185,8 +185,14 @@ USER _addr
 USER-CREATE API-BUFFER
 200 TC-USER-ALLOT
 
+\ TRUE если существует путь addr u
 : FILE-EXIST ( addr u -- f )
   DROP >R (( 3 R> API-BUFFER )) __xstat 0=
+;
+
+: FILE-EXISTS ( addr u -- f )
+  FILE-EXIST 0 = IF FALSE EXIT THEN
+  API-BUFFER SYS_STAT_ST_MODE + @ SYS_S_IFMT AND SYS_S_IFREG =
 ;
 
 : FILE-SIZE ( fileid -- ud ior ) \ 94 FILE

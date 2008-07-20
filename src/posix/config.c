@@ -9,6 +9,10 @@
 #define __USE_GNU
 #include <ucontext.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 /* (glibc)
 #ifndef REG_EDI
 #define REG_EDI 4
@@ -31,6 +35,7 @@ int test()
   ENSURE(offsetof(struct sigaction,sa_flags) == sizeof(sigset_t) + CELL)
   ENSURE(offsetof(struct sigaction,sa_restorer) - offsetof(struct sigaction, sa_flags) == CELL)
   ENSURE(sizeof(struct sigaction) == 3*CELL + sizeof(sigset_t))
+  ENSURE(sizeof(mode_t) == CELL)
   return 1;
 }
 
@@ -69,6 +74,9 @@ int main()
   DEFINE( FPE_FLTUND )
   DEFINE( FPE_FLTRES )
   DEFINE( FPE_FLTINV )
+  CONST( STAT_ST_MODE, offsetof(struct stat,st_mode))
+  DEFINE( S_IFREG)
+  DEFINE( S_IFMT)
 
   return 0;
 }
