@@ -238,6 +238,7 @@ USER lpNumberOfBytesWritten
   DROP GetFileAttributesA -1 <>
 ;
 
+\ TRUE если путь addr u существует и является каталогом
 : FILE-EXISTS ( addr u -- f )
   DROP GetFileAttributesA INVERT 16 ( FILE_ATTRIBUTE_DIRECTORY) AND 0<>
 ;

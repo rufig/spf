@@ -77,6 +77,7 @@ int main()
   CONST( STAT_ST_MODE, offsetof(struct stat,st_mode))
   DEFINE( S_IFREG)
   DEFINE( S_IFMT)
+  DEFINE( S_IFDIR)
 
   return 0;
 }
