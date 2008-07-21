@@ -9,6 +9,7 @@
 #define __USE_GNU
 #include <ucontext.h>
 
+#define __USE_LARGEFILE64
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -78,6 +79,8 @@ int main()
   DEFINE( S_IFREG)
   DEFINE( S_IFMT)
   DEFINE( S_IFDIR)
+  DEFINE( _STAT_VER)
+  CONST( STAT64_ST_SIZE, offsetof(struct stat64,st_size))
 
   return 0;
 }
