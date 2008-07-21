@@ -116,6 +116,8 @@
 Т. н. "поля параметров" нет, так как "телом" определений в SPF являются последовательности
 машинных инструкций.
 
+**FIXME** описание VOC-NAME! PAR! CLASS!
+
 ( `src/compiler/spf_wordlist.f` )
 
 
@@ -129,18 +131,26 @@
 переопределить в `src/compile.ini`.
 
 *Windows:* Компиляция ядра выполняется запуском bat-файла `src/compile.bat`. По умолчанию, 
-сборку выполняет одна их младших версий SPF (jpf375c.exe в корневой папке), но
+сборку выполняет одна их младших версий SPF (`jpf375c.exe` в корневой папке), но
 SPF может и сам собирать себя. 
+Пререквизиты для сборки : 
+
+* исходники (`src` и `lib`) 
+* целевой компилятор (например [jpf375c.exe](http://downloads.sourceforge.net/spf/JPF375C.EXE))
 
 *Linux:* Для перекомпиляции ядра можно использовать `src/compile` или `src/Makefile`. Во время
-сборки компилируется и выполняется программа на Си которая генерирует `src/posix/config.auto.f` с
+сборки компилируется и выполняется программа на Си (`config.gen`) которая генерирует `src/posix/config.auto.f` с
 определениями системно-зависимых констант. Целевой компилятор создаёт объектный файл, который потом
 линкуется с системными библиотеками (libdl, libc, libpthread). В `src/compile.ini` необходимо вписать :
 
-    TRUE TO TARGET-POSIX
-    TRUE TO UNIX-ENVIRONMENT
-    FALSE TO USE-OPTIMIZER
-    FALSE TO BUILD-OPTIMIZER \ т.к. оптимизатор в spf/linux не работает (временно).   
+    TRUE TO TARGET-POSIX \ сборка для Linux
+    TRUE TO UNIX-ENVIRONMENT \ юниксовый EOLN
+Пререквизиты для сборки :
+
+* исходники (`src` и `lib`)
+* целевой компилятор (`spf4orig` (ранее собранный бинарник) либо `jpf375c.exe` под [wine](http://winehq.org/))
+* gcc (файлы include'ов, препроцессор, компилятор, линкер) **FIXME** точнее (имена пакетов)
+* src/compile.ini
 
 ----
 <a id="macroopt"/>
