@@ -24,6 +24,7 @@
 \   модифицировать закрытие окна (обычно требуется в чат-клиентах).
 
 REQUIRE {                lib/ext/locals.f
+REQUIRE COMPARE-U        ~ac/lib/string/compare-u.f
 REQUIRE Window           ~ac/lib/win/window/window.f
 REQUIRE WindowTransp     ~ac/lib/win/window/decor.f
 REQUIRE LoadIcon         ~ac/lib/win/window/image.f 
@@ -44,6 +45,7 @@ VARIABLE BrTransp \ если не ноль, то задает уровень прозрачности браузеров
 VARIABLE BrEventsHandler \ если не ноль, то при встраивании браузера подключаем
                          \ обработчик его событий (только в по-поточных Browser)
 SPF.IWebBrowserEvents2 BrEventsHandler !
+VARIABLE BrCreateHidden \ если не ноль, то окно создается невидимым
 
 : TranslateBrowserAccelerator { mem iWebBrowser2 \ oleip -- flag }
   \ сначала проверим, не является ли клавиша браузерным акселератором
@@ -220,7 +222,7 @@ VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
   addr u WS_OVERLAPPEDWINDOW 0 BrowserWindow -> h
   h 0= IF 0x200B EXIT THEN
 
-  h WindowShow
+  BrCreateHidden @ 0= IF h WindowShow THEN
   h uBrowserInterface @ AtlMessageLoop 0
   h WindowDelete
   0
@@ -259,7 +261,7 @@ VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
 \ для дальнейшей обработки. 
 \ После создания всех окон можно запустить цикл AtlMainLoop.
   addr u WS_OVERLAPPEDWINDOW 0 BrowserWindow
-  DUP WindowShow
+  BrCreateHidden @ 0= IF DUP WindowShow THEN
 ;
 :NONAME ( url -- ior )
   STR@ ['] Browser CATCH ?DUP IF NIP NIP THEN
@@ -391,6 +393,38 @@ ID: BR_EVENT 0 ( -- ) { \ e el }
     S" type" e CP@ SFIND IF e SWAP EXECUTE ELSE 2DROP THEN
 ;
 SET-CURRENT
+
+\ полезные утилиты
+
+: GetSiteShortcutIcon { obj \ doc3 elcol len el -- icona iconu }
+\ получить url иконки сайта; 
+\ возвращает тот url, который в <link rel='shortcut icon'...>,
+\ т.е. может быть не полным url'ом
+  obj b.HtmlDoc3 @ -> doc3
+  ^ elcol S" LINK" >BSTR doc3 ::getElementsByTagName THROW
+  ^ len elcol ::get_length THROW
+  S" "
+  len 0 ?DO
+         ^ el  0 I 0 VT_I4  0 I 0 VT_I4
+         elcol ::item THROW
+         S" rel" el CP@ S" shortcut icon" COMPARE-U 0=
+         IF S" href" el CP@ 2SWAP 2DROP LEAVE
+         THEN
+  LOOP
+;
+: GetSiteIconUrl { urla urlu obj -- urla1 urlu1 }
+\ получить полный URL иконки fаvicon.ico
+  obj GetSiteShortcutIcon
+  S" http://" SEARCH 0=
+  IF
+    OVER C@ [CHAR] / =
+    IF S" domain" obj b.HtmlDoc2 @ CP@ " http://{s}{s}"
+    ELSE \ относительный путь
+      urla urlu CUT-PATH " {s}{s}"
+    THEN STR@
+  THEN
+;
+
 
 \EOF
 \ Эти окна не отвлекают основной поток, работают сами по себе.
