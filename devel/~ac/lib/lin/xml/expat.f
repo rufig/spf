@@ -26,6 +26,7 @@ REQUIRE STR@          ~ac/lib/str5.f
 WARNING !
 
 ALSO SO NEW: libexpat.dll
+ALSO SO NEW: libexpat.so
 
 \ ===== Обработчики тэгов, генерирующие шаблон будущего "исполнителя" XML ====
 
@@ -195,6 +196,7 @@ USER XML_ParseDebug
 : X{ GET-CURRENT >IN @ VOCABULARY >IN ! ALSO ' EXECUTE DEFINITIONS ;
 : }X PREVIOUS SET-CURRENT ;
 
+PREVIOUS
 PREVIOUS
 
 \EOF ============== ПРИМЕРЫ ==================
