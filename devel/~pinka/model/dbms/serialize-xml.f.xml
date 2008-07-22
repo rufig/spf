@@ -34,4 +34,9 @@
   <text><![CDATA[</response>]]></text> store-chunk
 </def>
 
+<comment>
+  Another approach:
+    http://www.mysqludf.org/lib_mysqludf_xql/
+      The library for create XML output directly from MySQL
+</comment>
 </forth>
