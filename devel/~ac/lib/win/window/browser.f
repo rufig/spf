@@ -403,7 +403,7 @@ SET-CURRENT
   obj b.HtmlDoc3 @ -> doc3
   ^ elcol S" LINK" >BSTR doc3 ::getElementsByTagName THROW
   ^ len elcol ::get_length THROW
-  S" "
+  S" /favicon.ico"
   len 0 ?DO
          ^ el  0 I 0 VT_I4  0 I 0 VT_I4
          elcol ::item THROW
@@ -424,13 +424,34 @@ SET-CURRENT
     THEN STR@
   THEN
 ;
+WINAPI: URLDownloadToCacheFileA URLMON.DLL
 
+: LoadFile { addr u \ mem -- filea fileu ior }
+\ ”добнее curl'ового GET-FILE тем, что пишет сразу во временный файл,
+\ который можно использовать в LoadIcon.
+\ » не нужно отдельно заботитьс€ о прокси.
+  1000 ALLOCATE THROW -> mem
+  0 0 1000 mem addr 0 URLDownloadToCacheFileA ?DUP 
+  IF S" " ROT mem FREE THROW EXIT THEN
+  mem ASCIIZ> 0
+;
+: SetIconOnDocumentComplete { urla urlu obj \ fa fu -- }
+  urla urlu obj GetSiteIconUrl
+
+  LoadFile 0=
+  IF 2DUP -> fu -> fa LoadIcon
+     GCL_HICON obj b.BrowserWindow @ SetClassLongA DROP
+\     S" title" obj b.HtmlDoc2 @ CP@
+\     fa fu AgentIconID IconData hWnd @ TrayIconModify
+  ELSE 2DROP THEN
+;
 
 \EOF
 \ Ёти окна не отвлекают основной поток, работают сами по себе.
 \ TRUE COM-DEBUG !
 
 ' MinimizeOnClose TO vOnClose
+' SetIconOnDocumentComplete TO vOnDocumentComplete
 
 : keypress { e -- } \ см. BR_EVENT выше
   S" keyCode" e CP@ ." keyCode=" .
