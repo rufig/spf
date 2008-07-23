@@ -9,6 +9,7 @@ REQUIRE NAMING- ~pinka/spf/compiler/index.f
 : aka ( olda oldu newa newu -- ) 2SWAP  &  NAMING  ;
 
 `<>  `NEQ   aka
+`<>  `NE    aka
 `=   `EQ    aka
 `0<  `0LT   aka
 `0<> `0NEQ  aka
