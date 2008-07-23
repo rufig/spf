@@ -1,6 +1,8 @@
 REQUIRE params@       ~ac/lib/win/com/variant.f 
 REQUIRE {             lib/ext/locals.f
 
+-4 CONSTANT DISPID_NEWENUM
+
 IID_IUnknown Interface: IID_IEnumVariant {00020404-0000-0000-C000-000000000046}
   Method: ::Next  ( count *var *returned -- hres )
   Method: ::Skip  ( count -- hres)
@@ -19,4 +21,13 @@ Interface;
   REPEAT
   n
 ;
-
+: EnumCollection { xt col \ enu enum -- n }
+\ col - интерфейс "коллекция", возвращаемый многими методами, производящими
+\ выборки из различных контейнеров.
+\ xt ( vav var -- )
+\ Реализовано под впечатлением (и по необходимости в аналоге) FOREACH..NEXT ~yz, 
+\ но без использования спец-синтаксиса.
+  DISPID_NEWENUM col ID@ DUP 0= IF EXIT THEN -> enu
+  ^ enum IID_IEnumVariant enu ::QueryInterface 0<> enum 0= OR IF 0 EXIT THEN
+  xt enum EnumVariant
+;
