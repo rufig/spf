@@ -50,28 +50,31 @@ Interface: IID_IEnumConnectionPoints {B196B285-BAB4-101A-B69C-00AA00341D07}
 \  Method: ::Clone ( /* [out] */ IEnumConnectionPoints **ppEnum)
 Interface;
 
-: EnumVariant { xt ienum \ var n -- n }
+: EnumVariant { xt ienum \ vax1 vav vax2 var n -- n }
+\ vax1 vav vax2 var - для случая, если ::Next возвращает variant.
+\ тогда в var получим тип VT_* (variant.f), а в vav - значение
   BEGIN
     0 ^ var 1 ienum ::Next 0=
   WHILE
-    var xt EXECUTE
+    vav var xt EXECUTE
     n 1+ -> n
   REPEAT
   n
 ;
-: EnumConnectionPoints { xt iface \ cpointcont cpe cpoint --  }
+: EnumConnectionPoints { xt iface \ cpointcont cpe cpoint -- n }
   ^ cpointcont IID_IConnectionPointContainer iface ::QueryInterface THROW
   COM-DEBUG @ IF ." SP: CPC OK " cpointcont . CR THEN
   ^ cpe cpointcont ::EnumConnectionPoints THROW
   COM-DEBUG @ IF ." SP: CPE OK " cpe . CR THEN
   xt cpe EnumVariant
 ;
-: (ListConnectionPoints) ( cpi -- )
+: (ListConnectionPoints) ( cpv cpi -- )
+  NIP
   ." cp=" PAD SWAP ::GetConnectionInterface THROW PAD 16 DUMP CR
   PAD @ HEX U. DECIMAL CR CR
 ;
 : ListConnectionPoints ( iface -- ) \ распечатать IID всех событийных интерфейсов
-  ['] (ListConnectionPoints) SWAP EnumConnectionPoints
+  ['] (ListConnectionPoints) SWAP EnumConnectionPoints DROP
 ;
 : ConnectInterface { idisp iid iface \ cpointcont cpe cpoint cookie -- }
 \ подключить обработчик idisp к событиям с интерфейсом iid объекта iface
