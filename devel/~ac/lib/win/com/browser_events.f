@@ -86,6 +86,16 @@ ID: DISPID_BEFORENAVIGATE2      250   \ hyperlink clicked on
   ." depth=" DEPTH . DropXtParams CR
    ELSE DropXtParams THEN
 ;
+ID: DISPID_NAVIGATEERROR 271 \ Fires when an error occurs during navigation.
+(      
+    IDispatch *pDisp,
+    VARIANT *URL,
+    VARIANT *TargetFrameName,
+    VARIANT *StatusCode,
+    VARIANT_BOOL *Cancel
+)
+   COM-DEBUG @ IF ." NavigateError." CR THEN DropXtParams
+;
 ID: DISPID_PROPERTYCHANGE     112 ( addr u -- )
     \ sent when the PutProperty method is called
     COM-DEBUG @ IF ." PropertyChange:" TYPE CR ELSE 2DROP THEN

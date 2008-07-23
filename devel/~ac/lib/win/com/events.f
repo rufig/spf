@@ -14,7 +14,7 @@
 
 REQUIRE Class:        ~ac/lib/win/com/com_server.f 
 REQUIRE SPF.IDispatch ~ac/lib/win/com/com_server2.f
-REQUIRE {             lib/ext/locals.f
+REQUIRE EnumVariant   ~ac/lib/win/com/collections.f 
 
 IID_IUnknown
 Interface: IID_IConnectionPointContainer {B196B284-BAB4-101A-B69C-00AA00341D07}
@@ -31,13 +31,6 @@ Interface: IID_IConnectionPoint {B196B286-BAB4-101A-B69C-00AA00341D07}
   Method: ::EnumConnections ( *ienumconn -- ?)
 Interface;
 
-IID_IUnknown Interface: IID_IEnumVariant {00020404-0000-0000-C000-000000000046}
-  Method: ::Next  ( count *var *returned -- hres )
-  Method: ::Skip  ( count -- hres)
-  Method: ::Reset ( -- hres )
-  Method: ::Clone ( *enum )
-Interface;
-
 IID_IEnumVariant
 Interface: IID_IEnumConnectionPoints {B196B285-BAB4-101A-B69C-00AA00341D07}
 ( то же самое, что и IID_IEnumVariant, поэтому имитируем наследование)
@@ -50,17 +43,6 @@ Interface: IID_IEnumConnectionPoints {B196B285-BAB4-101A-B69C-00AA00341D07}
 \  Method: ::Clone ( /* [out] */ IEnumConnectionPoints **ppEnum)
 Interface;
 
-: EnumVariant { xt ienum \ vax1 vav vax2 var n -- n }
-\ vax1 vav vax2 var - для случая, если ::Next возвращает variant.
-\ тогда в var получим тип VT_* (variant.f), а в vav - значение
-  BEGIN
-    0 ^ var 1 ienum ::Next 0=
-  WHILE
-    vav var xt EXECUTE
-    n 1+ -> n
-  REPEAT
-  n
-;
 : EnumConnectionPoints { xt iface \ cpointcont cpe cpoint -- n }
   ^ cpointcont IID_IConnectionPointContainer iface ::QueryInterface THROW
   COM-DEBUG @ IF ." SP: CPC OK " cpointcont . CR THEN
