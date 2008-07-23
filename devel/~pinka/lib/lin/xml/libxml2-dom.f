@@ -265,6 +265,12 @@ CONSTANT /xmlNs
 
 ALSO libxml2.dll
 
+: normalizeURI ( addr-z u1 -- addr u2 )
+  OVER >R `: SEARCH NIP IF CHAR+ THEN \ cut out a scheme
+  1 xmlNormalizeURIPath THROW \ work for pathnames only 
+  R> ASCIIZ>
+;
+
 : baseURI ( node -- a u )
   DUP ownerDocument  ( node doc )
   2 xmlNodeGetBase ?ASCIIZ> 
@@ -292,7 +298,8 @@ ALSO libxml2.dll
   \ -- http://mail.gnome.org/archives/xml/2003-September/msg00112.html
 ;
 
-PREVIOUS
+
+PREVIOUS \ libxml2.dll
 
 
 \ =====
@@ -353,3 +360,19 @@ PREVIOUS \ libxml2.dll
 ;
 
 \ `test1.f.xml DefaultLSParser parseURI DUP . VALUE doc
+
+
+\EOF
+
+see also:
+
+  xmlChar *	xmlBuildURI		(const xmlChar * URI, const xmlChar * base)
+  -- http://xmlsoft.org/html/libxml-uri.html#xmlBuildURI
+
+  int	xmlNormalizeURIPath		(char * path)
+  -- http://xmlsoft.org/html/libxml-uri.html#xmlNormalizeURIPath
+
+  xmlChar *	xmlURIEscape		(const xmlChar * str)
+  -- http://xmlsoft.org/html/libxml-uri.html#xmlURIEscape
+
+  
