@@ -89,6 +89,7 @@ USER uCErr
   R@ W@ 3 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." ," THEN EXIT THEN
   R@ W@ 11 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." -b," THEN EXIT THEN \ bool
   R@ W@ 9 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." -d," THEN EXIT THEN \ idisp
+  R@ W@ 13 = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." -u," THEN EXIT THEN \ iunk
   R@ W@ 8 = IF R> 2 CELLS + @ BSTR> COM-DEBUG @ IF 2DUP ." (" TYPE ." )," THEN EXIT THEN
   R@ W@ 0x400B = IF R> 2 CELLS + @ COM-DEBUG @ IF DUP . ." in/out bool by ref," THEN EXIT THEN
   R@ W@ 0x400C = IF R> 2 CELLS + @ COM-DEBUG @ IF ." recurse variant:" THEN RECURSE EXIT THEN
