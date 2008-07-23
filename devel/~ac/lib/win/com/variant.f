@@ -164,6 +164,25 @@ USER uCErr
   THROW
   uCRes param@
 ;
+: ID@ ( dispid oid -- ... ) \ COM Proprety get by dispid
+\ Многие idispatch-интерфейсы реализуют некоторые "стандартные" методы
+\ с жестко заданными ID, которые сложно доставать по имени -
+\ требуется знать IID конкретного интерфейса, и смещение в vmt, поэтому
+\ "позднее связывание" (для неизвестного заранее интерфейса) невозможно
+\ кроме как через вызов по номеру (dispid), единому для "стандартных" методов.
+\ Это, например, дает возможность заменить жесткие
+\  ^ en IID_КонкретнаяКоллекция elcol ::QueryInterface THROW
+\  ^ enu en ::get__newEnum(КонкретнойКоллекции) THROW enu
+\ на
+\ DISPID_NEWENUM col ID@
+\ Примеры см. в collections.f, стандартные dispid в OAIdl.h.
+
+  >R >R
+  uCErr 0! uCExc 32 ERASE uCRes 16 ERASE
+
+  uCErr uCExc uCRes uCPar 2 0 IID_NULL R> R> ::Invoke THROW
+  uCRes param@
+;
 WINAPI: SafeArrayCreateVector OLEAUT32.DLL
 WINAPI: SafeArrayAccessData   OLEAUT32.DLL
 WINAPI: SafeArrayUnaccessData OLEAUT32.DLL
