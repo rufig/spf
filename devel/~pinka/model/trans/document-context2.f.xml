@@ -45,12 +45,12 @@
 
 <def name="document-based-url" ds=" rel-a rel-u -- full-a full-u ">
   _doc-url @ <unless><exit/></unless>
-  document-base concat-in-document-
+  document-base concat-in-document-  normalizeURI
 </def>
 
 <def name="cnode-based-url" ds=" rel-a rel-u -- full-a full-u ">
   _doc-url @ <unless><exit/></unless>
-  BaseURI concat-in-document-
+  BaseURI concat-in-document-  normalizeURI
 </def>
 
 </export>

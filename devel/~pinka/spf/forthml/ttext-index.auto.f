@@ -1073,6 +1073,7 @@ BIRTH 2CS> NAMING-
 `0EQ & EXEC, ZBFW, EXIT, RFW 
 `document-base & EXEC, 
 `concat-in-document- & EXEC, 
+`normalizeURI & EXEC, 
 BIRTH 2CS> NAMING- 
 `cnode-based-url 2>CS CONCEIVE 
 `_doc-url & EXEC, 
@@ -1080,6 +1081,7 @@ BIRTH 2CS> NAMING-
 `0EQ & EXEC, ZBFW, EXIT, RFW 
 `BaseURI & EXEC, 
 `concat-in-document- & EXEC, 
+`normalizeURI & EXEC, 
 BIRTH 2CS> NAMING- 
 END-EXPORT 
 DROP-DEVELOP 
