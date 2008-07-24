@@ -55,7 +55,7 @@ A;   HERE 4 - ' ST-RES 9 + EXECUTE
      MOV  EBX, [EAX]
      MOV  EAX, -4 [EBP]
      CALL EBX
-     SUB  EBP, # 12
+     LEA EBP, -4 [EBP]
      MOV  [EBP], EAX
      POP  EDI
      POP  ESI
