@@ -6,9 +6,9 @@ REQUIRE SO ~ac/lib/ns/so-xt.f
 
 \ important: link Xm before Xt
 \ http://www.faqs.org/faqs/motif-faq/part9/section-29.html
-ALSO SO NEW: libXm.so
-ALSO SO NEW: libXt.so
-ALSO SO NEW: libX11.so
+ALSO SO NEW: libXm.so.3
+ALSO SO NEW: libXt.so.6
+ALSO SO NEW: libX11.so.6
 
 0 CONSTANT NULL
 
