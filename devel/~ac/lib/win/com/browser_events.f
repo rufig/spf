@@ -113,7 +113,15 @@ ID: DISPID_NEWWINDOW3           273 \ new window is to be created
    ." referer=" TYPE ."  url=" TYPE CR
    ELSE DropXtParams THEN
 ;
-
+ID: DISPID_NEWWINDOW2                   251
+(      
+    IDispatch **ppDisp,
+    VARIANT_BOOL *Cancel
+)
+   COM-DEBUG @ IF 
+   ." NewWindow2: idisp=" . ." cancel=" . 
+   ELSE DropXtParams THEN
+;
 Class;
 
 : {34A715A0-6587-11D0-924A-0020AFC7AC4D} ( ppvObject iid oid -- hresult )
