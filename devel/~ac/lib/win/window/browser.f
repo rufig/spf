@@ -298,6 +298,7 @@ ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc doc2 doc3 win2 elc
     uOID @ -> obj
     TlsIndex@ -> tls
     obj b.BrowserThread @ TlsIndex!
+    obj uOID !
     bro uBrowserInterface @ = 
     IF \ если документ содержит фреймы, то его DocumentComplete наступает уже после загрузки фреймов
        ^ doc bro ::get_Document DROP \ результат зависит от версии браузера
@@ -371,6 +372,34 @@ ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc doc2 doc3 win2 elc
     COM-DEBUG @ IF urla urlu TYPE CR THEN
     tls TlsIndex!
 ;
+ID: DISPID_NAVIGATECOMPLETE2    252 { urla urlu bro \ obj tls doc doc2 doc3 win2 elcol el b boo -- }
+    \ Вызывается после инициализации окна/документа, но до выполнения скриптов,
+    \ самое время поставить обработчики onerror
+    COM-DEBUG @ IF ." @NavigateComplete2! win/frame=" bro . urla urlu TYPE CR THEN
+    uOID @ -> obj
+    TlsIndex@ -> tls
+    obj b.BrowserThread @ TlsIndex!
+\ будем ставить обработчик для всех фреймов
+\    bro uBrowserInterface @ = 
+\    IF 
+       ^ doc bro ::get_Document DROP
+       ^ doc3 IID_IHTMLDocument3 doc ::QueryInterface 0= doc3 0 <> AND
+       IF doc3 obj b.HtmlDoc3 !
+          ^ boo obj S" onerror" >BSTR doc3 ::attachEvent THROW
+          \ в природе IHTMLDocument3::onerror не встречается (?)
+       THEN
+
+       ^ doc2 IID_IHTMLDocument2 doc ::QueryInterface 0= doc2 0 <> AND
+       IF doc2 obj b.HtmlDoc2 !
+          ^ win2 doc2 ::get_parentWindow DROP
+          win2 obj b.HtmlWin2 !
+          obj VT_DISPATCH 1 S" onerror" win2 CP!
+          \ вызывается при ошибках в скриптах
+       THEN
+\    THEN
+    tls TlsIndex!
+;
+
 ID: DISPID_STATUSTEXTCHANGE   102 ( addr u -- )
     COM-DEBUG @ IF ." @StatusTextChange:" TYPE CR ELSE 2DROP THEN
 ;
@@ -379,7 +408,7 @@ ID: DISPID_TITLECHANGE    113  ( addr u -- )
     COM-DEBUG @ IF ." @Title:" 2DUP TYPE CR THEN
     uOID @ b.BrowserWindow @ ?DUP IF vBrowserSetTitle ELSE 2DROP THEN
 ;
-ID: BR_EVENT 0 ( -- ) { \ e el }
+ID: BR_EVENT 0 ( ... -- ) { \ e el }
     S" event" uOID @ b.HtmlWin2 @ CP@ -> e
     COM-DEBUG @ IF 
       S" type" e CP@ 
@@ -387,10 +416,13 @@ ID: BR_EVENT 0 ( -- ) { \ e el }
       S" keyCode" e CP@ ." keyCode=" .
       S" srcElement" e CP@ -> el
       ." srcElement=" el .
-      S" tagName" el CP@ TYPE SPACE S" id" el CP@ TYPE SPACE S" className" el CP@ TYPE CR
+      el IF
+        S" tagName" el CP@ TYPE SPACE S" id" el CP@ TYPE SPACE S" className" el CP@ TYPE CR
 \      S" innerHTML" el CP@ TYPE CR
+      THEN
     THEN
-    S" type" e CP@ SFIND IF e SWAP EXECUTE ELSE 2DROP THEN
+    S" type" e CP@ SFIND IF e SWAP EXECUTE
+                         ELSE 2DROP DropXtParams THEN
 ;
 SET-CURRENT
 
@@ -439,11 +471,17 @@ WINAPI: URLDownloadToCacheFileA URLMON.DLL
   urla urlu obj GetSiteIconUrl
 
   LoadFile 0=
-  IF 2DUP -> fu -> fa LoadIcon
-     GCL_HICON obj b.BrowserWindow @ SetClassLongA DROP
-\     S" title" obj b.HtmlDoc2 @ CP@
-\     fa fu AgentIconID IconData hWnd @ TrayIconModify
+  IF 2DUP -> fu -> fa LoadIcon ?DUP
+     IF
+       GCL_HICON obj b.BrowserWindow @ SetClassLongA DROP
+\       S" title" obj b.HtmlDoc2 @ CP@
+\       fa fu AgentIconID IconData hWnd @ TrayIconModify
+     THEN
   ELSE 2DROP THEN
+;
+: error ( sMsg,sUrl,sLine -- ) { e -- } \ см. BR_EVENT выше
+  ." Window.error= " TYPE CR ." at " TYPE CR ." line=" . CR
+  TRUE VT_BOOL 1 S" returnValue" e CP! \ не выводить в виде окна ошибки IE
 ;
 
 \EOF
@@ -453,10 +491,11 @@ WINAPI: URLDownloadToCacheFileA URLMON.DLL
 ' MinimizeOnClose TO vOnClose
 ' SetIconOnDocumentComplete TO vOnDocumentComplete
 
-: keypress { e -- } \ см. BR_EVENT выше
+: keypress { ev e -- } \ см. BR_EVENT выше
   S" keyCode" e CP@ ." keyCode=" .
   S" title" uOID @ b.HtmlDoc2 @ CP@ TYPE CR
 ;
+
 S" http://127.0.0.1:89/index.html" BrowserThread
 S" http://127.0.0.1:89/email/" BrowserThread
 
