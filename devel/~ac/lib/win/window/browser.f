@@ -74,6 +74,7 @@ VARIABLE BrCreateHidden \ если не ноль, то окно создается невидимым
   DUP IF DEBUG @ 
          IF mem CELL+ @ WM_SYSTIMER <>
             mem CELL+ @ WM_TIMER <> AND
+            mem CELL+ @ 0x8002 <> AND
             IF mem 16 DUMP CR THEN
          THEN
       THEN
@@ -85,11 +86,15 @@ VECT vPreprocessMessage ( msg -- flag )
 \ Если возвращает TRUE, то сообщение считается обработанным и далее не пускается.
 
 VECT vContextMenu ( msg -- ) ' DROP TO vContextMenu
+VECT vMenu ( msg -- )        ' DROP TO vMenu
 
 : PreprocessMessage1 ( msg -- flag )
   DUP CELL+ @ WM_RBUTTONUP =
   IF vContextMenu TRUE
-  ELSE DROP FALSE THEN
+  ELSE DUP CELL+ @ WM_COMMAND =
+       IF vMenu TRUE
+       ELSE DROP FALSE THEN
+  THEN
 ;
 ' PreprocessMessage1 TO vPreprocessMessage
 
@@ -288,6 +293,11 @@ VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
 VECT vOnDocumentComplete ( urla urlu obj -- )
 :NONAME DROP 2DROP ; TO vOnDocumentComplete
 
+\ вызывается после инициализации окна/документа, но до выполнения скриптов
+\ (и до OnDocumentComplete, который после скриптов)
+VECT vOnNavigateComplete ( urla urlu obj -- )
+:NONAME DROP 2DROP ; TO vOnNavigateComplete
+
 \ Переопределим некоторые обработчики событий от браузера:
 
 GET-CURRENT SPF.IWebBrowserEvents2 SpfClassWid SET-CURRENT
@@ -397,6 +407,7 @@ ID: DISPID_NAVIGATECOMPLETE2    252 { urla urlu bro \ obj tls doc doc2 doc3 win2
           \ вызывается при ошибках в скриптах
        THEN
 \    THEN
+       urla urlu obj vOnNavigateComplete
     tls TlsIndex!
 ;
 
