@@ -5,6 +5,7 @@
 # Compile SP-Forth for linux
 # Need src/compile.ini with correct options
 
+cd ${0%/*} # go to the itself file location
 rm spf4.o
 make -C posix # generate posix/config.auto.f
 cd ..
