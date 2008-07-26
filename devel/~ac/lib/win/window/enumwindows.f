@@ -1,4 +1,5 @@
 WINAPI: EnumWindows              USER32.DLL
+WINAPI: EnumChildWindows         USER32.DLL
 WINAPI: GetWindowTextA           USER32.DLL
 WINAPI: GetForegroundWindow      USER32.DLL
 WINAPI: GetWindowModuleFileNameA USER32.DLL \ NT4SP3, Win98
@@ -14,6 +15,17 @@ WINAPI: IsWindowVisible          USER32.DLL
 
 : ForEachWindow ( xt -- ior )
   ['] EnumWindow1 EnumWindows ERR
+;
+
+: (EnumChildWindow1) ( xt hwnd -- flag )
+\ flag=true - continue enumeration
+\ flag=false - stop enumeration
+  SWAP EXECUTE
+;
+' (EnumChildWindow1) 8 CALLBACK: EnumChildWindow1
+
+: ForEachChildWindow ( xt hwnd -- ior )
+  ['] EnumChildWindow1 SWAP EnumChildWindows ERR
 ;
 
 \EOF
