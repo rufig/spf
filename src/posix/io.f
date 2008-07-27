@@ -19,10 +19,7 @@
 \ Иначе ior - определенный реализацией код результата ввода/вывода,
 \ и fileid неопределен.
   NIP 
-  \ для совместимости с SPF/Win, если маска < 3 (т.е. на деле передано
-  \ W/O, R/O, R/W), устанавливаем маску u+rw
-  DUP 3 < IF DROP 0x180 THEN
-  2 <( )) creat64 ?ERR
+  O_CREAT OR O_TRUNC OR 2 <( 0x1A4 ( 0644 = rw-r--r-- ) )) open64 ?ERR
 ;
 
 : DELETE-FILE ( c-addr u -- ior ) \ 94 FILE
@@ -187,13 +184,13 @@ USER-CREATE API-BUFFER
 
 \ TRUE если существует путь addr u
 : FILE-EXIST ( addr u -- f )
-  DROP >R (( SYS__STAT_VER R> API-BUFFER )) __xstat 0=
+  DROP >R (( _STAT_VER R> API-BUFFER )) __xstat 0=
 ;
 
 \ TRUE если путь addr u существует и является каталогом
 : FILE-EXISTS ( addr u -- f )
   FILE-EXIST 0 = IF FALSE EXIT THEN
-  API-BUFFER SYS_STAT_ST_MODE + @ SYS_S_IFDIR AND 0 =
+  API-BUFFER STAT_ST_MODE + @ S_IFDIR AND 0 =
 ;
 
 : FILE-SIZE ( fileid -- ud ior ) \ 94 FILE
@@ -201,6 +198,6 @@ USER-CREATE API-BUFFER
 \ ior - определенный реализацией код результата ввода/вывода.
 \ Эта операция не влияет на значение, возвращаемое FILE-POSITION.
 \ ud неопределен, если ior не ноль.
-  >R (( SYS__STAT_VER R> API-BUFFER )) __fxstat64
-  -1 = IF 0. errno ELSE API-BUFFER SYS_STAT64_ST_SIZE + 2@ SWAP 0 THEN
+  >R (( _STAT_VER R> API-BUFFER )) __fxstat64
+  -1 = IF 0. errno ELSE API-BUFFER STAT64_ST_SIZE + 2@ SWAP 0 THEN
 ;

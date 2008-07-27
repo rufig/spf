@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 /* (glibc)
 #ifndef REG_EDI
@@ -81,6 +82,8 @@ int main()
   DEFINE( S_IFDIR)
   DEFINE( _STAT_VER)
   CONST( STAT64_ST_SIZE, offsetof(struct stat64,st_size))
+  DEFINE( O_CREAT)
+  DEFINE( O_TRUNC)
 
   return 0;
 }

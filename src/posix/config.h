@@ -19,7 +19,7 @@ void a_const(const char* name, int value, const char* comment)
 {
   printf("\\ %s\n", comment);
 #if defined(SPF_SRC)
-    printf(": SYS_%s 0x%X STATE @ IF LIT, THEN ; IMMEDIATE\n", name, value);
+    printf(": %s 0x%X STATE @ IF LIT, THEN ; IMMEDIATE\n", name, value);
 #else
     printf("0x%X CONSTANT %s\n", value, name);
 #endif
