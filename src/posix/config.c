@@ -84,6 +84,12 @@ int main()
   CONST( STAT64_ST_SIZE, offsetof(struct stat64,st_size))
   DEFINE( O_CREAT)
   DEFINE( O_TRUNC)
+  DEFINE( O_RDONLY)
+  DEFINE( O_WRONLY)
+  DEFINE( O_RDWR)
+  DEFINE( SEEK_SET)
+  DEFINE( SEEK_CUR)
+  DEFINE( SEEK_END)
 
   return 0;
 }
