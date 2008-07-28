@@ -113,8 +113,11 @@ WS_EX_WINDOWEDGE WS_EX_TOOLWINDOW OR WS_EX_TOPMOST OR CONSTANT  WS_EX_PALETTEWIN
 
 
 \ Сообщения Windows
+#define WM_SIZE                         0x0005
+#define WM_PAINT                        0x000F
 #define WM_CLOSE                        0x0010
 #define WM_QUIT                         0x0012
+#define WM_WINDOWPOSCHANGED             0x0047
 #define WM_USER                         0x0400
 #define WM_LBUTTONDOWN                  0x0201
 #define WM_LBUTTONUP                    0x0202
