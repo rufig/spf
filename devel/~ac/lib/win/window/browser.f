@@ -173,6 +173,7 @@ CELL -- b.HtmlWin2
 \ остальное можно спросить у браузера
 CONSTANT /BROWSER
 
+VECT vOnWindowPosChanged :NONAME 2DROP 2DROP FALSE ; TO vOnWindowPosChanged
 VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
 
 : MinimizeOnClose ( wnd -- )
@@ -180,11 +181,13 @@ VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
 \ к его сворачиванию (минимизации)
   >R 0 SC_MINIMIZE WM_SYSCOMMAND R> PostMessageA DROP
 ;
-
 : (BR-WND-PROC1) { lparam wparam msg wnd -- lresult }
+
   msg WM_NCDESTROY = IF 0 EXIT THEN \ упадет при закрытии, если не обработать
 
   msg WM_CLOSE = IF wnd vOnClose IF FALSE EXIT THEN THEN
+
+  msg WM_WINDOWPOSCHANGED = IF lparam wparam msg wnd vOnWindowPosChanged IF FALSE EXIT THEN THEN
 
   lparam wparam msg wnd   wnd WindowOrigProc
 ;
@@ -208,7 +211,6 @@ VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
   h uBrowserWindow !
   ['] BR-WND-PROC h WindowSubclass
 
-\ PAD bro ::get_AddressBar .
   h BrowserInterface ?DUP IF NIP THROW THEN -> bro
   bro uBrowserInterface !
 
@@ -224,7 +226,8 @@ VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
 
 : Browser { addr u \ h -- ior }
 
-  addr u WS_OVERLAPPEDWINDOW 0 BrowserWindow -> h
+  addr u WS_OVERLAPPEDWINDOW \ WS_VSCROLL OR WS_HSCROLL OR
+  0 BrowserWindow -> h
   h 0= IF 0x200B EXIT THEN
 
   BrCreateHidden @ 0= IF h WindowShow THEN
@@ -265,7 +268,8 @@ VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
 \ Cоздать браузерное окно c урлом addr u и вернуть его хэндл
 \ для дальнейшей обработки. 
 \ После создания всех окон можно запустить цикл AtlMainLoop.
-  addr u WS_OVERLAPPEDWINDOW 0 BrowserWindow
+  addr u WS_OVERLAPPEDWINDOW \ WS_VSCROLL OR WS_HSCROLL OR
+  0 BrowserWindow
   BrCreateHidden @ 0= IF DUP WindowShow THEN
 ;
 :NONAME ( url -- ior )
@@ -420,7 +424,9 @@ ID: DISPID_TITLECHANGE    113  ( addr u -- )
     uOID @ b.BrowserWindow @ ?DUP IF vBrowserSetTitle ELSE 2DROP THEN
 ;
 ID: BR_EVENT 0 ( ... -- ) { \ e el }
+    COM-DEBUG @ IF ." BR_EVENT:" uOID @ . uOID @ b.HtmlWin2 @ . CR THEN
     S" event" uOID @ b.HtmlWin2 @ CP@ -> e
+    e 0= IF DropXtParams EXIT THEN
     COM-DEBUG @ IF 
       S" type" e CP@ 
       ." EVENT=" TYPE SPACE
