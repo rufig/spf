@@ -13,3 +13,5 @@ if exist spf4wc.fres goto fres_done
 ..\..\..\devel\~yz\prog\fres\fres.exe spf4wc.res
 :fres_done
 ..\..\..\spf4.exe spf4wc.f
+
+@if exist spf4wc.exe move /Y spf4wc.exe ..\..\..\spf4wc.exe & echo (!) The spf4wc.exe is located near the spf4.exe & pause
