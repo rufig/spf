@@ -127,9 +127,9 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
     [HKEY_CLASSES_ROOT\spf\Shell\Open\Command])
 
     \ [HKEY_CLASSES_ROOT\spf\Shell\Open\Command]
-    \ @="c:\\spf\\spf4.exe S\" %*\" INCLUDED"
+    \ @="\"c:\\spf\\spf4.exe\" S\" %1\" INCLUDED"
 
-     path A" {s} S{''} %*{''} INCLUDED" STR@ S" " S" spf\Shell\Open\Command" StrValue!
+     path A" {''}{s}{''} S{''} %1{''} INCLUDED" STR@ S" " S" spf\Shell\Open\Command" StrValue!
  ELSE
     S" .spf" RG_DeleteKey DROP 
     S" .f"   RG_DeleteKey DROP
@@ -146,14 +146,14 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
  gui::scriptmap -state@ IF
  
    \ [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map]
-   \ ".spf"="c:\\spf\\spf4.exe %s"
+   \ ".spf"="\"c:\\spf\\spf4.exe\" S\" %s\" INCLUDED"
    path
-   A" {s} %s" STR@ S" .spf" S" SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map" StrValue!
+   A" {''}{s}{''} S{''} %s{''} INCLUDED" STR@ S" .spf" S" SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map" StrValue!
 
    \ [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map]
-   \ ".spf"="c:\\spf\\spf4.exe %s"
+   \ ".spf"="\"c:\\spf\\spf4.exe\" S\" %s\" INCLUDED"
    path 
-   A" {s} %s" STR@ S" .spf" S" SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map" StrValue!
+   A" {''}{s}{''} S{''} %s{''} INCLUDED" STR@ S" .spf" S" SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map" StrValue!
  ELSE
    S" " S" .spf" S" SYSTEM\CurrentControlSet\Services\W3SVC\Parameters\Script Map" StrValue!
    S" " S" .spf" S" SYSTEM\ControlSet001\Services\W3SVC\Parameters\Script Map" StrValue!
@@ -166,7 +166,7 @@ WINAPI: RegDeleteKeyA    ADVAPI32.DLL
 
   S" sp-forth files" S" Description" TypeN StrValue!
   S" " S" Edit" TypeN StrValue!
-  A" {path} {''}!.!{''}" STR@ S" Execute" TypeN StrValue!
+  A" {''}{path}{''} S{''} !.!{''} INCLUDED" STR@ S" Execute" TypeN StrValue!
   S" *.f,*.spf" S" Mask" TypeN StrValue!
   S" " S" View" TypeN StrValue!
  THEN
