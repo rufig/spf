@@ -85,12 +85,14 @@ VECT vPreprocessMessage ( msg -- flag )
 \ или обработать/транслировать по-своему, до основного обработчика.
 \ Если возвращает TRUE, то сообщение считается обработанным и далее не пускается.
 
-VECT vContextMenu ( msg -- ) ' DROP TO vContextMenu
+VECT vContextMenu ( msg -- ) \ ' DROP TO vContextMenu \ запретит конт.меню
 VECT vMenu ( msg -- )        ' DROP TO vMenu
 
 : PreprocessMessage1 ( msg -- flag )
   DUP CELL+ @ WM_RBUTTONUP =
-  IF vContextMenu TRUE
+  IF ['] vContextMenu BEHAVIOR ['] NOOP IF DROP FALSE EXIT THEN
+     \ по умолчанию разрешить собственное конт.меню браузера и javascript'ов
+     vContextMenu TRUE
   ELSE DUP CELL+ @ WM_COMMAND =
        IF vMenu TRUE
        ELSE DROP FALSE THEN
