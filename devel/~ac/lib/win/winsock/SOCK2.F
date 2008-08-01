@@ -8,14 +8,12 @@ REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
   BEGIN
     _len 0 >
   WHILE
-    0 _len _addr _p +  _sock
-    recv DUP SOCKET_ERROR =
-    IF WSAGetLastError ELSE 0 THEN THROW
+    _addr _p +  _len _sock
+    ReadSocket THROW
     DUP 0= IF DROP -1002 THROW THEN ( если принято 0, то обрыв соединения )
     DUP _p + -> _p
     _len SWAP - -> _len
   REPEAT
-\  ( ***) _addr _p dump1
 ;
 : upTo0 ( -- )
   >IN 0!
