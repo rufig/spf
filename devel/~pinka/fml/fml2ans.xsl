@@ -68,6 +68,7 @@
     <xsl:apply-templates />
     <xsl:value-of select="concat(' ', @name, ' !' )"/>
   </xsl:if>
+  <xsl:text> </xsl:text>
 </xsl:template>
 
 <xsl:template match="f:const">
