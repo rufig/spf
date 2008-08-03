@@ -2,7 +2,7 @@
 \ 
 \ see lib/posix/file.f
 
-REQUIRE CREATE-MAP-FILE ~ygrek/lib/linux/mapfile.f
+REQUIRE CREATE-FILE-MAP ~ygrek/lib/linux/mapfile.f
 REQUIRE { lib/ext/locals.f
 
 : COPY-FILE-OVER ( src-a src-u  dest-a dest-u -- ior )
