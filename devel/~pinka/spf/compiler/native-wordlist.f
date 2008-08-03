@@ -2,6 +2,8 @@
 \ Jan.2008 something extracted from xt.immutable.f
 \ Нативные списки форт-слов
 
+REQUIRE [DEFINED] lib/include/tools.f
+
 : FIND-WORDLIST ( c-addr u wid -- xt true | c-addr u false )
   @ CDR-BY-NAME DUP IF NIP NIP NAME> TRUE THEN
 ;
@@ -54,12 +56,20 @@ WARNING !                   [THEN]
 )
 
 
+[DEFINED] CODEGEN-WL [IF]
+
 : WORDLIST-NAMED ( addr u -- wid )
 \ И в текущий словарь добавляет слово с заданным именем,
 \ возвращающее wid
   WORDLIST DUP >R CODEGEN-WL::MAKE-CONST NAMING R> ( wid )
   LAST @ OVER VOC-NAME! ( ссылка на имя словаря, SPF4 )
 ;
+[ELSE]
+: WORDLIST-NAMED ( addr u -- wid )
+  WORDLIST DUP >R :NONAME ( new-xt ) >R LIT, R> POSTPONE ; NAMING R> ( wid )
+  LAST @ OVER VOC-NAME! ( ссылка на имя словаря, SPF4 )
+;
+[THEN]
 
 : &  ( c-addr u -- xt )  \ see also ' (tick)
   SFIND IF EXIT THEN -321 THROW
