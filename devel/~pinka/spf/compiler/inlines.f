@@ -50,8 +50,8 @@ VARIABLE h-compilers
 \ -- их и без того оптимизатор выкусывает,
 \ а immediate -- повод не пускать в forthml
 WARNING @ WARNING 0!
-`CHARS  SFIND 1 = [IF] DROP : CHARS  ; [ELSE] 2DROP [THEN]
-`>CHARS SFIND 1 = [IF] DROP : >CHARS ; [ELSE] 2DROP [THEN]
+`CHARS  SFIND DUP 0= THROW NIP 1 = [IF] : CHARS  ; [THEN]
+`>CHARS SFIND DUP 0= THROW NIP 1 = [IF] : >CHARS ; [THEN]
 WARNING !
 
 
