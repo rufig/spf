@@ -4,11 +4,15 @@
 
 #define _BSD_SOURCE 
 
+/* use config.h from SPF src */
 #include "../../../src/posix/config.h"
 
 #include <sys/types.h>
 #include <dirent.h>
 #include <termios.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 int test()
 {
@@ -46,6 +50,21 @@ void define_consts()
   DEFINE( ICRNL)
   DEFINE( VTIME)
   DEFINE( VMIN)
+
+  // mmap
+  DEFINE( PROT_READ)
+  DEFINE( PROT_WRITE)
+  DEFINE( MAP_SHARED)
+  CONST( MAP_FAILED, (int)MAP_FAILED)
+
+  // open
+  DEFINE( O_CREAT)
+  DEFINE( O_TRUNC)
+  DEFINE( O_RDONLY)
+  DEFINE( O_WRONLY)
+  DEFINE( O_RDWR)
+  DEFINE( O_SYNC)
+  DEFINE( O_NONBLOCK)
 }
 
 int main()
