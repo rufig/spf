@@ -46,6 +46,13 @@ VARIABLE h-compilers
 `>R      SFIND 0= THROW  DUP  ADVICE-COMPILER
 
 
+\ Заглушки-пустышки с флагом immediate
+\ -- их и без того оптимизатор выкусывает,
+\ а immediate -- повод не пускать в forthml
+WARNING @ WARNING 0!
+`CHARS  SFIND 1 = [IF] DROP : CHARS  ; [ELSE] 2DROP [THEN]
+`>CHARS SFIND 1 = [IF] DROP : >CHARS ; [ELSE] 2DROP [THEN]
+WARNING !
 
 
 \ Для слов, чувствительных к уровню стека возвратов, нельзя делать хвостовую оптимизацию.

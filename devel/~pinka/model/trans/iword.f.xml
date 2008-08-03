@@ -3,6 +3,10 @@
 <!-- Nov.2006, Jan.2007 ruvim@forth.org.ru -->
 <!-- see also ~pinka/samples/2006/syntax/readmy.txt  -->
 
+<comment> Interpreter of the words and numbers for spf4/forthml
+(see ~pinka/spf/forthml/ttext-index.f.xml)
+</comment>
+
 <def name="I-DLIT" ds=" a u -- x x true | a u false ">
   DUP 1 ULT <if> FALSE <exit/></if>
   2DUP
@@ -36,7 +40,10 @@
 </def>
 
 <def name="I-NATIVE" ds=" c-addr u -- xt true | c-addr u false ">
-  SFIND 0NEQ
+  2DUP >R >R
+  SFIND DUP 1 EQ <unless> RDROP RDROP <exit/></unless>
+  DROP DUP GET-COMPILER? NIP <if> TRUE RDROP RDROP <exit/></if>
+  DROP R> R> FALSE <!-- won't find immediate words -->
 </def>
 
 </forth>
