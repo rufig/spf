@@ -1,0 +1,47 @@
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 23.Jun.2008 rvm -->
+
+<!-- NORMALIZE-URI-PATHNAME -->
+
+<def name="CMOVE-CERTAIN" ds=" srd dst len -- ">
+  >R 2DUP EQ <if> RDROP 2DROP <exit/></if> R> CMOVE
+</def>
+
+<def name="(NORMALIZE-PATHNAME)" ds=" a1 u1 -- a2 u2 "><rem> not starts from '/' </rem>
+  0. 2>R
+  <repeat> `/ SPLIT- <while/>
+    <choose> 2DUP `.. EQUAL <when>
+     R> RDROP <unless> CHAR+ 2SWAP <recurse/> 2OVER + SWAP DUP >R CMOVE-CERTAIN R> + <exit/></unless>
+     2DROP
+    </when>
+    2DUP `.  EQUAL <when> 2DROP </when>
+    DUP            <when> 2>R   </when>
+    <otherwise> 2DROP </otherwise>
+    </choose>
+  </repeat>
+  <choose>
+  2DUP `.. EQUAL <when> R> RDROP <unless><exit/></unless> DROP 0 </when>
+  2DUP `.  EQUAL <when> DROP 0   </when>
+  </choose>
+  R@ <unless> RDROP RDROP <exit/></unless><!-- nothing to move -->
+  0. <until> 2R> DUP 0 EQ </until> 2DROP  OVER >R  <!-- save addr of the head -->
+  +  <repeat> CHAR+ SWAP DUP <while/> 2DUP + >R CMOVE-CERTAIN R> </repeat>
+  DROP NIP <!-- ( d-last-part  addr ) -->
+  2DUP + >R   SWAP CMOVE-CERTAIN   2R> OVER -
+</def>
+
+<def name="NORMALIZE-PATHNAME" ds=" a1 u1 -- a2 u2 ">
+  DUP <unless><exit/></unless>
+  2DUP <until> `/ MATCH-HEAD 0 EQ </until> 2>R R@ - 2R>
+  (NORMALIZE-PATHNAME) DUP >R 2OVER + SWAP CMOVE-CERTAIN R> +
+  2DUP + 0 SWAP C!
+</def>
+
+<comment>
+  see also: xmlNormalizeURIPath
+  http://xmlsoft.org/html/libxml-uri.html#xmlNormalizeURIPath
+
+  http://svn.gnome.org/viewvc/libxml2/trunk/uri.c?view=markup
+  http://www.google.com/codesearch?q=xmlNormalizeURIPath+show%3AKVfLOGrppdM%3A7F83IijnY70%3AdA6axRgF7kE#l602
+</comment>
+</forth>
