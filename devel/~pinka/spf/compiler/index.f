@@ -63,7 +63,7 @@ Require PUSH-DEVELOP native-context.f \ контекст поиска и именования форт-слов
 
 \ ---
 \ Лексикон кодогенератора, в список CODEGEN-WL
-WORDLIST DUP CONSTANT CODEGEN-WL  LAST @ SWAP CELL+ ! \ ссылка на имя словаря, SPF4 (!)
+WORDLIST DUP CONSTANT CODEGEN-WL  LAST @ SWAP VOC-NAME! \ ссылка на имя словаря, SPF4 (!)
 
 CODEGEN-WL PUSH-DEVELOP
 

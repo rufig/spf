@@ -58,7 +58,7 @@ WARNING !                   [THEN]
 \ И в текущий словарь добавляет слово с заданным именем,
 \ возвращающее wid
   WORDLIST DUP >R CODEGEN-WL::MAKE-CONST NAMING R> ( wid )
-  LAST @ OVER CELL+ ! ( ссылка на имя словаря, SPF4 )
+  LAST @ OVER VOC-NAME! ( ссылка на имя словаря, SPF4 )
 ;
 
 : &  ( c-addr u -- xt )  \ see also ' (tick)
