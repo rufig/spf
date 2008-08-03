@@ -4,9 +4,7 @@
 REQUIRE lexicon.basics-aligned ~pinka/lib/ext/basics.f
 REQUIRE /TEST ~profit/lib/testing.f
 
-MODULE: module-((-stack-fix
-
-MODULE: module-ffi-stack
+MODULE: module-((-fix
 
 256 CELLS CONSTANT /Z
 
@@ -27,9 +25,7 @@ USER Z9
 
 S" ~pinka/samples/2004/test/zstack/zstack.immutable.f" INCLUDED
 
-EXPORT
-
-: FFICLEAR ( -- ) Z0 @ IF Z0 @ ZP! EXIT THEN open ;
+\ : FFICLEAR ( -- ) Z0 @ IF Z0 @ ZP! EXIT THEN open ;
 
 : ?FFIP ( -- )
   Z0 @ 0= IF open EXIT THEN
@@ -39,33 +35,28 @@ EXPORT
 
 ..: AT-THREAD-STARTING ?FFIP ;.. ?FFIP
 
-: FFI@ Z@ ;
-: >FFI >Z ;
-: FFI> Z> ;
-
-;MODULE
+: ())) ( -- n ) SP@ Z> SWAP - >CELLS ;
+: restore__ret2 Z> (__ret2) ! ;
+: remember ( sp -- ) (__ret2) @ >Z ( SP ) >Z (__ret2) 0! ;
 
 EXPORT
 
 WARNING @
 WARNING 0!
 
-: (( ( -- ) (__ret2) @ >FFI SP@ >FFI (__ret2) 0! ;
-: <( ( n -- ) (__ret2) @ >FFI 1+ 2* 2* SP@ + >FFI (__ret2) 0! ;
-
-: ()))2 ( -- n ) SP@ FFI> SWAP - 4 U/ ;
-
-: restore__ret2 FFI> (__ret2) ! ;
+: (( ( -- ) SP@ remember ;
+: <( ( n -- ) 1+ 2* 2* SP@ + remember ;
 
 : )) ( ->bl; -- )
-  BL PARSE symbol-lookup
+  PARSE-NAME symbol-lookup
   STATE @ IF
-    ['] ()))2 COMPILE,
+    ['] ())) COMPILE,
     compile-call
+    ['] restore__ret2 COMPILE,
   ELSE
-    ()))2 1- SWAP symbol-call
+    ())) 1- SWAP symbol-call
+    restore__ret2
   THEN
-  [COMPILE] restore__ret2
 ; IMMEDIATE
 
 WARNING !
@@ -74,6 +65,32 @@ WARNING !
 
 /TEST
 
-(( H-STDOUT S" some text" (( H-STDOUT S" [[nested call!]]" )) write DROP )) write DROP CR
-H-STDOUT 1 <( S" some text" H-STDOUT 1 <( S" [[nested call!]]" )) write DROP )) write DROP CR
+H-STDOUT VALUE H
+
+: cr (( H EOLN )) write DROP ;
+
+: text1 S"   some text  " ;
+: text2 S" (nested call)" ;
+
+: ok? text1 NIP <> ABORT" failed" ; 
+
+(( H text1 (( H text2 )) write ok? )) write ok? cr
+: nest (( H text2 )) write ok? ;
+(( H text1 nest )) write ok? cr
+:NONAME (( H text1 nest )) write ok? cr ; EXECUTE
+H 1 <( text1 (( H text2 )) write ok? )) write ok? cr
+
+\ EOF
+
+S" /dev/null" W/O OPEN-FILE THROW TO H
+
+:NONAME ( x -- )
+  . 
+  100 0 DO (( H text1 nest )) write ok? cr LOOP
+; TASK: qqq
+
+:NONAME cr 100 0 DO I qqq START DROP LOOP ; EXECUTE
+
+H CLOSE-FILE THROW 
+H-STDOUT TO H
 
