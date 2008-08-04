@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 4.Aug.2008, rvm -->
+<!-- $Id$ -->
+
+<comment>
+  В диаграммах стека идентификаторы, начинающиеся с 'd-', означают
+  двойное значение (обычно addr u).
+</comment>
+
+<g xml:base="http://forth.org.ru/~pinka/model/">
+  <include href="trans/rules-slot.f.xml"/>
+  <include href="trans/obey.f.xml"/>
+</g>
+
+<comment> sugar for FFI </comment>
+<!-- experimental version -->
+
+<wordlist name="ffi-sugar-hidden">
+
+<def name="VOC-ATTR" ds=" wid -- a "> WID-EXTRA </def><!-- temporary -->
+
+<alias name="SWL-ORIGINAL"><xt-of name="SEARCH-WORDLIST"/> BEHAVIOR </alias>
+
+<def name="SWL-ATTR" ds="c-addr u wid -- 0 | xt 1 | xt -1">
+  DUP VOC-ATTR @ DUP <unless> DROP SWL-ORIGINAL <exit/></unless>
+  <rem>( c-addr u wid attr-wid )</rem>
+  `SWL ROT <recurse/><if><rem>( c-addr u wid xt )</rem> EXECUTE <exit/></if>
+  SWL-ORIGINAL
+</def>
+
+<xt-of name="SWL-ATTR"/><xt-of name="SEARCH-WORDLIST"/> BEHAVIOR!
+
+<def name="(SWL-DL)" ds=" c-addr u wid -- i*x true |  c-addr u wid-attr false ">
+  DUP 2OVER 2>R >R
+  SWL-ORIGINAL DUP <if> RDROP RDROP RDROP TRUE <exit/></if> DROP
+  R> VOC-ATTR @ DUP <unless> RDROP RDROP TRUE <exit/></unless>
+  <!-- wid-attr -->
+  2R> 2DUP + 0 SWAP C! <!-- not so good -->
+  ROT FALSE <!-- a u wid-attr  false -->
+</def>
+
+<def name="created-dl-function" ds=" d-name dlpoint-parent xt-dlpoint-executer -- xt ">
+  <rem> in the current </rem>
+  >R CREATED-DLPOINT DUP >R SET-DLPOINT-NAME
+  R@ <def name="{ DLPOINT-NAME }">
+    <lit> R> </lit><exec> R> </exec>
+  </def>
+  LATEST NAME>
+</def>
+
+<def name="SWL-DL-FUNC" ds=" c-addr u wid -- 0 | xt 1 | xt -1 ">
+  <rem> wid is wrapper for the lib </rem>
+  (SWL-DL) <if><exit/></if> >R
+  2DUP `dlpoint R@ OBEY-SURE DLPOINT-LIB <!-- a u  a u handle -->
+  HAS-DL-FUNC <unless> RDROP 2DROP FALSE <exit/></unless>
+  <!-- a u  -->
+  `parent R@ OBEY-SURE <develop><!-- separate storage(!) -->
+    `dlpoint  R@ OBEY-SURE
+    `executer R@ OBEY-SURE
+    created-dl-function
+  </develop>
+  RDROP TRUE
+</def>
+
+<def name="created-dl-voc" ds=" d-lib-pathname xt-dlpoint-executer -- xt-voc ">
+  <rem> in the current </rem>
+  -ROT
+  WORDLIST >R <!-- voc-wrapper for ext library -->
+  <def name="{}"><lit> R@ </lit> CONTEXT ! </def><!-- vocabulary -->
+  LATEST R@ VOC-NAME!
+  0 CREATED-DLPOINT  DUP LATEST COUNT ROT SET-DLPOINT-NAME <!-- dlpoint name need to be asciiz -->
+  <!-- ( xt-executer dlpoint ) -->
+  WORDLIST DUP R@ VOC-ATTR ! <develop><!-- attributes -->
+    <const name="parent"> R@ </const>
+    <const name="dlpoint"/>
+    <const name="executer"/>
+    <alias name="SWL" word="SWL-DL-FUNC"/>
+  </develop> RDROP
+  LATEST NAME> <!-- ( xt-voc ) -->
+</def>
+
+<def name="SWL-DL-LIB" ds=" c-addr u wid -- 0 | xt 1 | xt -1 ">
+  <rem> wid is wrapper for a "dl-view" of the file-system </rem>
+  (SWL-DL) <if><exit/></if> >R
+  2DUP 0 <!-- a u  a u x -->
+  HAS-DL-LIB <unless> RDROP 2DROP FALSE <exit/></unless>
+  <!-- a u -->
+  `parent R@ OBEY-SURE <develop><!-- separate storage(!) -->
+    `executer R@ OBEY-SURE
+    created-dl-voc
+  </develop>
+  RDROP TRUE
+</def>
+
+
+
+<slot> dl-storage block-size </slot>
+
+<def name="created-dl-set" ds=" d-name xt-dlpoint-executer -- xt-voc ">
+  >R
+  dl-storage PUSH-MOUNT
+    2DUP WORDLIST-NAMED
+  POP-MOUNT DROP  <!-- ( a u  wid   R: xt ) -->
+  <wid>
+    <const name="parent"> DUP </const>
+    <const name="executer"> R> </const>
+    <alias name="SWL" word="SWL-DL-LIB"/>
+  </wid> OVER VOC-ATTR ! -ROT
+  <!-- ( wid a u ) -->
+  <def name="{}"><lit/> CONTEXT ! </def> LATEST NAME>
+</def>
+
+<export>
+
+<def name="CREATE-DL-SET" ds=" d-name xt-dlpoint-executer -- ">
+  dl-storage <unless> `#FFI-not-init STHROW </unless>
+  created-dl-set DROP
+</def>
+<def name="INIT-FFI-STORAGE" ds=" u -- ">
+  block-size!
+  ALIGN HERE block-size DUP ALLOT  2DUP ERASE FORMAT dl-storage!
+</def>
+</export>
+
+</wordlist>
+</forth>
