@@ -68,6 +68,11 @@ REQUIRE STRHOW          ~pinka/spf/sthrow.f
 
 \ ;MODULE
 
+
+
+REQUIRE /TEST ~profit/lib/testing.f
+/TEST
+
 \ test
 \ определяем слово "WAPI:" на определенной выше базе.
 
