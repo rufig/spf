@@ -19,16 +19,17 @@ REQUIRE STHROW          ~pinka/spf/sthrow.f
   DROP CR TYPE CR `#func-not-found STHROW
 ; 
 : FIND-DL-LIB ( d-lib x -- d-lib FALSE | entry TRUE )
-  DROP \ parameter is reserved
+  DROP \ parameter is reserved, must be 0
   2DUP DLOPEN DUP IF  NIP NIP TRUE EXIT THEN ( a u false )
 ;
 : FIND-DL-FUNC ( d-func h -- d-func FALSE | entry TRUE )
   >R 2DUP R> DLSYM DUP IF NIP NIP TRUE EXIT THEN ( a u false )
 ;
 : HAS-DL-LIB ( d-lib x -- flag )
-  DROP DLOPEN 0<>
+  DROP \ parameter is reserved, must be 0
+  DLOPEN 0<>
 ;
-: HAS-DL-FUNC ( d-func x -- flag )
+: HAS-DL-FUNC ( d-func h -- flag )
   DLSYM 0<>
 ;
 
