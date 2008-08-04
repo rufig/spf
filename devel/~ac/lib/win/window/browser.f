@@ -90,7 +90,7 @@ VECT vMenu ( msg -- )        ' DROP TO vMenu
 
 : PreprocessMessage1 ( msg -- flag )
   DUP CELL+ @ WM_RBUTTONUP =
-  IF ['] vContextMenu BEHAVIOR ['] NOOP IF DROP FALSE EXIT THEN
+  IF ['] vContextMenu BEHAVIOR ['] NOOP = IF DROP FALSE EXIT THEN
      \ по умолчанию разрешить собственное конт.меню браузера и javascript'ов
      vContextMenu TRUE
   ELSE DUP CELL+ @ WM_COMMAND =
@@ -183,13 +183,21 @@ VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
 \ к его сворачиванию (минимизации)
   >R 0 SC_MINIMIZE WM_SYSCOMMAND R> PostMessageA DROP
 ;
-: (BR-WND-PROC1) { lparam wparam msg wnd -- lresult }
+: (BR-WND-PROC1) { lparam wparam msg wnd \ [ 4 CELLS ] rect -- lresult }
 
   msg WM_NCDESTROY = IF 0 EXIT THEN \ упадет при закрытии, если не обработать
 
   msg WM_CLOSE = IF wnd vOnClose IF FALSE EXIT THEN THEN
 
   msg WM_WINDOWPOSCHANGED = IF lparam wparam msg wnd vOnWindowPosChanged IF FALSE EXIT THEN THEN
+
+  msg WM_ERASEBKGND = IF
+\ отладка
+\    rect wnd GetClientRect DROP
+\    14 ( highlight brush)
+\    rect wparam FillRect DROP
+\    TRUE EXIT
+  THEN
 
   lparam wparam msg wnd   wnd WindowOrigProc
 ;

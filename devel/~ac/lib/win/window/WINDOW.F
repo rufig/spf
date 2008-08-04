@@ -29,6 +29,8 @@ WINAPI: EnableWindow         USER32.DLL
 WINAPI: GetParent            USER32.DLL \ owner
 WINAPI: GetAncestor          USER32.DLL
 WINAPI: SetClassLongA        USER32.DLL
+WINAPI: GetClientRect        USER32.DLL
+WINAPI: FillRect             USER32.DLL
 
 WINAPI: InitCommonControlsEx COMCTL32.DLL
 
@@ -38,7 +40,7 @@ VARIABLE DEBUG
 \ Внутренние дела библиотеки, не вызывать эти слова напрямую
 
 VARIABLE CC_INIT \ однократная инициализация CommonControls
-CREATE   CC_INITS 8 , BASE @ HEX 3FFF , BASE !
+CREATE   CC_INITS 8 , BASE @ HEX FFFF , BASE !
 
 : InitControls
   CC_INIT @ IF EXIT THEN
