@@ -3,7 +3,7 @@
 REQUIRE DLOPEN          ~ac/lib/ns/dlopen.f
 REQUIRE NAMING-         ~pinka/spf/compiler/native-wordlist.f
 REQUIRE AsQName         ~pinka/samples/2006/syntax/qname.f \ понятие однословных строк в виде `abc
-REQUIRE STRHOW          ~pinka/spf/sthrow.f
+REQUIRE STHROW          ~pinka/spf/sthrow.f
 
 \ MODULE: ffi-support
 
@@ -18,6 +18,20 @@ REQUIRE STRHOW          ~pinka/spf/sthrow.f
   >R 2DUP R> DLSYM DUP IF  NIP NIP EXIT THEN 
   DROP CR TYPE CR `#func-not-found STHROW
 ; 
+: FIND-DL-LIB ( d-lib x -- d-lib FALSE | entry TRUE )
+  DROP \ parameter is reserved
+  2DUP DLOPEN DUP IF  NIP NIP TRUE EXIT THEN ( a u false )
+;
+: FIND-DL-FUNC ( d-func h -- d-func FALSE | entry TRUE )
+  >R 2DUP R> DLSYM DUP IF NIP NIP TRUE EXIT THEN ( a u false )
+;
+: HAS-DL-LIB ( d-lib x -- flag )
+  DROP DLOPEN 0<>
+;
+: HAS-DL-FUNC ( d-func x -- flag )
+  DLSYM 0<>
+;
+
 
 : EXEC-FOREIGN-C1 ( i*x n-in entry-point -- x ) 
   SWAP DUP 2+ CELLS DRMOVE R> 0 R> EXECUTE (  [ n-in x ]  ) 
@@ -28,7 +42,7 @@ REQUIRE STRHOW          ~pinka/spf/sthrow.f
 ; 
 
 
-: CREATE-DLPOINT ( parent -- p )
+: CREATED-DLPOINT ( parent -- p )
   ALIGN HERE >R
   0 , \ handler (need to be erased on startup or before save)
     , \ parent
@@ -56,10 +70,11 @@ REQUIRE STRHOW          ~pinka/spf/sthrow.f
   DUP CACHE-DL-FUNC @
 ;
 
-: CALL-DLPOINT-C1 ( i*x i p -- x )
+
+: EXEC-DLPOINT-C1 ( i*x i p -- x )
   DLPOINT-FUNC EXEC-FOREIGN-C1
 ;
-: CALL-DLPOINT-P1 ( i*x i p -- x )
+: EXEC-DLPOINT-P1 ( i*x i p -- x )
   DLPOINT-FUNC EXEC-FOREIGN-P1
 ;
 \ Возможно, стоит зашить формат вызова прямо в DLPOINT?
@@ -77,9 +92,9 @@ REQUIRE /TEST ~profit/lib/testing.f
 \ определяем слово "WAPI:" на определенной выше базе.
 
 : CREATE-WAPI ( d-func d-lib -- )
-  0  CREATE-DLPOINT DUP >R SET-DLPOINT-NAME
-  R> CREATE-DLPOINT DUP >R SET-DLPOINT-NAME
-  :NONAME R@ LIT, ['] CALL-DLPOINT-P1 COMPILE, POSTPONE ;
+  0  CREATED-DLPOINT DUP >R SET-DLPOINT-NAME
+  R> CREATED-DLPOINT DUP >R SET-DLPOINT-NAME
+  :NONAME R@ LIT, ['] EXEC-DLPOINT-P1 COMPILE, POSTPONE ;
   R> DLPOINT-NAME NAMING-
 ;
 : WAPI:
