@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="OBEY" ds=" c-addr u wid -- true | a u false ">
+  FIND-WORDLIST <if> EXECUTE TRUE <exit/></if> FALSE
+</def>
+<def name="OBEY-" ds=" wid c-addr u -- true | a u false ">
+  ROT OBEY
+</def>
+
+<def name="OBEY-SURE" ds=" i*x a u wid -- j*x ">
+  OBEY <if><exit/></if> TYPE CR -321 THROW
+</def>
+
+<def name="OBEY-SURE-" ds=" i*x wid a u -- j*x ">
+  ROT OBEY-SURE
+</def>
+
+</forth>
