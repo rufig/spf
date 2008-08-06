@@ -10,6 +10,7 @@ NEEDS lib/include/core-ext.f
 NEEDS ~profit/lib/logic.f
 NEEDS lib/ext/debug/accert.f
 NEEDS ~pinka/samples/2006/syntax/qname.f
+REQUIRE +METHODS ~ygrek/lib/hype/ext.f
 
 0 VALUE indent
 
@@ -459,13 +460,14 @@ init: () _rows ! ;
 
 \ -----------------------------------------------------------------------
 
-CRect SUBCLASS CRect
+CRect +METHODS
 
-: rawCopyFrom ( ^RECT -- ) SUPER addr 4 CELLS CMOVE ;
-: rawCopyTo ( ^RECT -- ) SUPER addr SWAP 4 CELLS CMOVE ;
+: rawCopyFrom ( ^RECT -- ) addr 4 CELLS CMOVE ;
+: rawCopyTo ( ^RECT -- ) addr SWAP 4 CELLS CMOVE ;
 
-: height! ( u -- ) SUPER top @ + SUPER bottom ! ;
-: width! ( u -- ) SUPER left @ + SUPER right ! ;
+\ NB @ and ! are redefined in CRect
+: height! ( u -- ) top FORTH::@ + bottom FORTH::! ;
+: width! ( u -- ) left FORTH::@ + right FORTH::! ;
 
 ;CLASS
 
