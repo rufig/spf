@@ -1,0 +1,49 @@
+/*
+  $Id$
+
+  SPF resources
+*/
+
+#ifndef RT_MANIFEST
+#define RT_MANIFEST 24
+#endif
+
+1 ICON "spf.ico"
+1 RT_MANIFEST "spf.manifest" 
+
+//#include <windows.h>
+
+#define VS_FFI_FILEFLAGSMASK 0x3FL
+#define VOS_DOS_WINDOWS32 0x10004L
+#define VFT_APP 0x1L
+
+1 VERSIONINFO MOVEABLE IMPURE LOADONCALL DISCARDABLE 
+  FILEVERSION     4,19,0,0
+  PRODUCTVERSION  4,19,0,0 
+  FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+  FILEFLAGS       0
+  FILEOS          VOS_DOS_WINDOWS32
+  FILETYPE        VFT_APP
+  FILESUBTYPE     0
+BEGIN 
+  BLOCK "StringFileInfo" 
+  BEGIN 
+    BLOCK "040904E4" 
+    //language ID = U.S. English, char set = Windows, Multilingual 
+    BEGIN 
+      VALUE "FileDescription", "SP-Forth - ANS Forth compiler"
+      VALUE "CompanyName",    "RuFIG"
+      VALUE "ProductName",    "SP-Forth"
+      VALUE "FileVersion",    "4.19.0.0"
+      VALUE "ProductVersion",    "4.19.0.0"
+      VALUE "InternalName",    "SPF4"
+      VALUE "OriginalFilename",    "spf4.exe"
+      VALUE "Comments",    "Open source project http://spf.sf.net/.\r\nRuFIG http://forth.org.ru/"
+      VALUE "LegalCopyright", "(C) 1992-2008 RuFIG"
+    END 
+  END 
+  BLOCK "VarFileInfo" 
+  BEGIN 
+    VALUE "Translation", 0x0409, 1252 
+  END 
+END
