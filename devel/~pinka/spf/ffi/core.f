@@ -111,3 +111,20 @@ WAPI: MessageBoxA  user32.dll
 \ а так выглядит по старому
 WINAPI: MessageBoxA  user32.dll
 0 S" test" DROP S" test passed" DROP 0   MessageBoxA . CR
+
+
+\EOF
+todo: учесть следующее обстоятельство
+  Иногда библиотека экспортирует данные а не функцию, как например
+  memory management functions in the libxml2 (xmlFree & Co.)
+    -- http://mail.gnome.org/archives/xml/2002-August/msg00107.html
+  
+  или PcreFree из pcre.dll
+    -- см. ~ac/lib/string/regexp.f
+  
+  В случае xmlFree "точка входа" представляет из себя указатель на функцию,
+  которая может быть вызвана следующим образом:
+    ( addr-to-be-freed ) 1
+    `xmlFree `libxml2 DLOPEN-SURE DLSYM-SURE @
+    EXEC-FOREIGN-C1
+    1 <> THROW
