@@ -13,6 +13,7 @@ REQUIRE NAMING- ~pinka/spf/compiler/index.f
 `=   `EQ    aka
 `0<  `0LT   aka
 `0<> `0NEQ  aka
+`0<> `0NE   aka
 `0=  `0EQ   aka
 `U<  `ULT   aka
 `U>  `UGT   aka
