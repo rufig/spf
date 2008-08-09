@@ -9,4 +9,11 @@
   DUP @ CELL- DUP @ ROT ! HERE - ALLOT
 </def>
 
+<comment>
+  Альтернативный вариант именования:
+    ALLOT-MARKER
+    SWEEP-MARKER
+    
+  s.a. data-space.L3.f.xml  
+</comment>
 </forth>
