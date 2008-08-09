@@ -113,13 +113,6 @@ $Id$
   </m>
 </rule>
 
-<rule match="f:space"><m>
-  <get-name/> 2>CS
-  <yield/> ALIGN HERE SWAP ALLOT CONCEIVE LIT, BIRTH
-  2CS> NAMING-
-  </m>
-</rule>
-
 
 <rule match="f:wordlist"><m>
   <get-name/> WORDLIST-NAMED PUSH-DEVELOP <yield/> DROP-DEVELOP
