@@ -51,8 +51,10 @@
   include-model
 </r:rule>
 
-<r:rule match="f:forth"><!-- redefined, not so good (!!!) -->
-  _list @ _list <let><r:yield/></let>
+<r:rule match="f:forth">
+  _list @ _list <let>
+    <r:next-match/>
+  </let>
   <!-- need to free an alloted space -->
 </r:rule>
 
