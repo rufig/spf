@@ -18,9 +18,11 @@
 </def>
 
 <def name="perform-rules" ds=" i*x h-rules -- j*x flag ">
-  PERFORM-LIST-COND
+  perform-chain-explicit
 </def>
-
+<def name="perform-rules-next" ds=" i*x -- j*x flag ">
+  perform-chain-next
+</def>
 <def name="import-rules" ds=" h-rules -- ">
   <p><lit/> perform-rules </p> advice-rule-before
 </def>

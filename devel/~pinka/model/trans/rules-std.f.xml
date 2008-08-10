@@ -11,6 +11,12 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   <postpone><f:slit>`name GetAttribute</f:slit> GetAttribute T-PLAIN </postpone>
 </rule>
 
+<rule match="r:next-match" ds=" i*x -- j*x "><!-- not obey to M -->
+  <postpone>
+    perform-rules-next <f:unless><direct><yield/></direct></f:unless>
+  </postpone>
+</rule>
+
 
 <rule match="f:xt"><!-- only within f:def or f:p -->
   <m>

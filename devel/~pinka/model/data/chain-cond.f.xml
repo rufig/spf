@@ -8,6 +8,9 @@
 <cell name="chain-current"/>
 <cell name="chain-context"/>
 
+<cell name="chain-current-node"/>
+<cell name="chain-tree-stack"/>
+
 <def name="advice-before" ds=" xt -- ">
   0 , HERE SWAP , chain-current @ BIND-NODE
 </def>
@@ -15,11 +18,47 @@
   0 , HERE SWAP , chain-current @ BIND-NODE-TAIL
 </def>
 
+<def name="perform-node-cond" ds=" i*x node -- j*x flag ">
+<rem> see also: list-plain.f.xml/PERFORM-NODE-COND </rem>
+  chain-tree-stack   @ >R
+  chain-current-node @ >R
+  RP@ chain-tree-stack !
+  <repeat> DUP <while/> DUP chain-current-node ! @ EXECUTE  DUP 0EQ <while/> 
+    DROP chain-current-node @ CELL- @
+  </repeat><!-- ( true|false ) -->
+  R> chain-current-node !
+  R> chain-tree-stack   !
+</def>
+<def name="perform-chain-explicit" ds=" i*x h -- j*x flag ">
+  @ perform-node-cond
+</def>
+<comment>
+  Цепочки могут неформально сцеплятся через perform-chain-explicit в обработчике,
+  что ведет к образованию дерева узлов. Операция perform-chain-next должна
+  отработать все оставшиеся узлы в порядке обхода дерева, а не только
+  текущую цепочку. Для реализации такого обхода, все точки ветвления
+  сохраняются в список, размещаемый на стеке возвратов. Ячейка
+  chain-tree-stack ведет на голову этого списка. При вложенном поиске
+  следующего узла этот список рекурсивно разматывается, а после завершения
+  операции возвращается на место. Разматывать его необходимо для
+  избегания бесконечной косвенной рекурсии.
+</comment>
+<def name="perform-chain-next" ds=" i*x -- j*x flag ">
+  chain-current-node @ CDR DUP <unless><exit/></unless>
+  perform-node-cond DUP <if><exit/></if> DROP
+  chain-tree-stack @ 2@ DUP <unless> NIP <exit/></unless>
+  chain-tree-stack   @ >R
+  chain-current-node @ >R
+  chain-current-node !
+  chain-tree-stack   !
+  <recurse/>
+  R> chain-current-node !
+  R> chain-tree-stack   !
+</def>
 <def name="perform-chain" ds=" i*x -- j*x flag ">
   chain-context @ DUP <unless><exit/></unless>
-  PERFORM-LIST-COND
+  perform-chain-explicit
 </def>
-
 <def name="perform-chain-sure" ds=" i*x -- j*x ">
   perform-chain <if><exit/></if> ABORT
 </def>
