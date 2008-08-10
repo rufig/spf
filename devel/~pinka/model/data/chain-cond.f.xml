@@ -8,7 +8,7 @@
 <cell name="chain-current"/>
 <cell name="chain-context"/>
 
-<cell name="chain-current-node"/>
+<cell name="chain-context-node"/>
 <cell name="chain-tree-stack"/>
 
 <def name="advice-before" ds=" xt -- ">
@@ -21,12 +21,12 @@
 <def name="perform-node-cond" ds=" i*x node -- j*x flag ">
 <rem> see also: list-plain.f.xml/PERFORM-NODE-COND </rem>
   chain-tree-stack   @ >R
-  chain-current-node @ >R
+  chain-context-node @ >R
   RP@ chain-tree-stack !
-  <repeat> DUP <while/> DUP chain-current-node ! @ EXECUTE  DUP 0EQ <while/> 
-    DROP chain-current-node @ CELL- @
+  <repeat> DUP <while/> DUP chain-context-node ! @ EXECUTE  DUP 0EQ <while/> 
+    DROP chain-context-node @ CELL- @
   </repeat><!-- ( true|false ) -->
-  R> chain-current-node !
+  R> chain-context-node !
   R> chain-tree-stack   !
 </def>
 <def name="perform-chain-explicit" ds=" i*x h -- j*x flag ">
@@ -44,15 +44,15 @@
   избегания бесконечной косвенной рекурсии.
 </comment>
 <def name="perform-chain-next" ds=" i*x -- j*x flag ">
-  chain-current-node @ CDR DUP <unless><exit/></unless>
+  chain-context-node @ CDR DUP <unless><exit/></unless>
   perform-node-cond DUP <if><exit/></if> DROP
-  chain-tree-stack @ 2@ DUP <unless> NIP <exit/></unless>
+  chain-tree-stack @ 2@ DUP <unless><rem> context-node is null </rem> NIP <exit/></unless>
   chain-tree-stack   @ >R
-  chain-current-node @ >R
-  chain-current-node !
+  chain-context-node @ >R
+  chain-context-node !
   chain-tree-stack   !
   <recurse/>
-  R> chain-current-node !
+  R> chain-context-node !
   R> chain-tree-stack   !
 </def>
 <def name="perform-chain" ds=" i*x -- j*x flag ">

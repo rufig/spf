@@ -815,7 +815,7 @@ BIRTH 2CS> NAMING-
 
 `chain-current 2>CS SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH 2CS> NAMING- 
 `chain-context 2>CS SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH 2CS> NAMING- 
-`chain-current-node 2>CS SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH 2CS> NAMING- 
+`chain-context-node 2>CS SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH 2CS> NAMING- 
 `chain-tree-stack 2>CS SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH 2CS> NAMING- 
 `advice-before 2>CS CONCEIVE 0 LIT, 
 `, & EXEC, 
@@ -840,7 +840,7 @@ BIRTH 2CS> NAMING-
 `chain-tree-stack & EXEC, 
 `@ & EXEC, 
 `>R & EXEC, 
-`chain-current-node & EXEC, 
+`chain-context-node & EXEC, 
 `@ & EXEC, 
 `>R & EXEC, 
 `RP@ & EXEC, 
@@ -848,19 +848,19 @@ BIRTH 2CS> NAMING-
 `! & EXEC, MBW 
 `DUP & EXEC, ZBFW2, 
 `DUP & EXEC, 
-`chain-current-node & EXEC, 
+`chain-context-node & EXEC, 
 `! & EXEC, 
 `@ & EXEC, 
 `EXECUTE & EXEC, 
 `DUP & EXEC, 
 `0EQ & EXEC, ZBFW2, 
 `DROP & EXEC, 
-`chain-current-node & EXEC, 
+`chain-context-node & EXEC, 
 `@ & EXEC, 
 `CELL- & EXEC, 
 `@ & EXEC, BBW, RFW RFW 
 `R> & EXEC, 
-`chain-current-node & EXEC, 
+`chain-context-node & EXEC, 
 `! & EXEC, 
 `R> & EXEC, 
 `chain-tree-stack & EXEC, 
@@ -872,7 +872,7 @@ BIRTH 2CS> NAMING-
 BIRTH 2CS> NAMING- 
 
 `perform-chain-next 2>CS CONCEIVE 
-`chain-current-node & EXEC, 
+`chain-context-node & EXEC, 
 `@ & EXEC, 
 `CDR & EXEC, 
 `DUP & EXEC, 
@@ -889,15 +889,15 @@ BIRTH 2CS> NAMING-
 `chain-tree-stack & EXEC, 
 `@ & EXEC, 
 `>R & EXEC, 
-`chain-current-node & EXEC, 
+`chain-context-node & EXEC, 
 `@ & EXEC, 
 `>R & EXEC, 
-`chain-current-node & EXEC, 
+`chain-context-node & EXEC, 
 `! & EXEC, 
 `chain-tree-stack & EXEC, 
 `! & EXEC, GERM EXEC, 
 `R> & EXEC, 
-`chain-current-node & EXEC, 
+`chain-context-node & EXEC, 
 `! & EXEC, 
 `R> & EXEC, 
 `chain-tree-stack & EXEC, 
