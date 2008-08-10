@@ -36,5 +36,11 @@
 
 
 Слово NAMING не предупреждает при переопределении имен.
+  [пока идет как особенность]
+
+Сделать функцию resolve-uri
+  по подобию http://www.w3.org/TR/xquery-operators/#func-resolve-uri
+  Summary: The purpose of this function is to enable a relative URI to be resolved against an absolute URI.
+
 
 \ $Id$
