@@ -53,7 +53,7 @@
 
 <r:rule match="f:forth">
   _list @ _list <let>
-    <r:next-match/>
+    <r:next-match> -5321 THROW <rem> it is fallback </rem></r:next-match>
   </let>
   <!-- need to free an alloted space -->
 </r:rule>
