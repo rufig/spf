@@ -173,7 +173,11 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 <rule match="r:mode" ds=" -- ">
   STATE0? <f:unless> -5011 THROW </f:unless>
   <exec-attribute name="transform"/>
-  DUP chain-context <f:let> chain-current <f:let> <yield/> </f:let></f:let>
+  DUP chain-context <f:let> chain-current <f:let>
+  0 chain-context-node <f:let>
+    <yield/>
+  </f:let>
+  </f:let></f:let>
 </rule>
 
 <rule match="r:extend" ds=" -- ">
