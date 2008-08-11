@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="Windows-1251" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<!-- Jun.2008 -->
+<!-- $Id$ -->
+
+<comment>Extenstion to the spf4/forthml translator </comment>
+
+<wordlist name="sharedlex-hidden">
+  <include href="../data/scope.f.xml"/>
+
+<const name="/scope"> 50 CELLS </const>
+
+  <also wordlist="scope-hidden">
+
+<def name="NEST-SCOPE" ds=" -- ">
+  Z0 @ >CS Z9 @ >CS ZP @ >CS
+  /scope ALLOCATED OVER >CS ASSUME-SCOPE
+</def>
+<def name="UNNEST-SCOPE" ds=" -- ">
+  CS> FREE THROW
+  CS> ZP ! CS> Z9 ! CS> Z0 !
+</def>
+<def name="SCOPE-DEPTH" ds=" -- n ">
+  Z0 @ >CELLS  ZP @ >CELLS - 
+</def>
+
+  </also>
+
+<def name="SCOPE-ORDER." ds=" -- ">
+  0 <q> SWAP 1+ FALSE </q> SCAN-SCOPE-WITH DROP
+  0 >R <repeat> DUP <while/> SWAP >R 1- </repeat> DROP
+  <repeat> R> DUP <while/> SPACE SPACE VOC-NAME. CR </repeat> DROP
+</def>
+<def name="NDROP-SCOPE" ds=" u -- ">
+  DUP <unless> DROP <exit/></unless>
+  DUP SCOPE-DEPTH UGT <if> -5017 THROW </if>
+  <times> DROP-SCOPE </times>
+</def>
+
+<cell name="_buf"/>
+<export>
+<def name="init-sharedlex" ds=" -- ">
+  /scope CELLS ALLOCATED  OVER _buf !
+  ASSUME-SCOPE
+</def>
+</export>
+<rem>
+<handler event="startup">
+  init-sharedlex
+</handler>
+<handler event="shutdown">
+  _buf @ FREE-FORCE
+  _buf 0!
+  0. ASSUME-SCOPE
+</handler>
+<handler event="recovery">
+  _buf 0!
+  0 0 ASSUME-SCOPE
+</handler>
+</rem>
+
+<def name="I-NATIVE-EXT" ds=" c-addr u -- xt true | c-addr u false ">
+  <xt-of name="FIND-WORDLIST"/> SCAN-SCOPE-WITH
+</def>
+
+<export>
+<def name="SHAREDLEX-ORDER." ds=" -- ">
+  <emit>Shared lexicons:</emit> CR SCOPE-ORDER. CR
+</def>
+
+  `lexicon.basics-aligned FORTH-WORDLIST @ CDR-BY-NAME NIP NIP
+  `FORTH-KERNEL WORDLIST-NAMED !
+
+</export>
+
+<wordlist name="deployed"/>
+
+<def name="resolve-interface" ds=" d-interface-uri -- d-file-uri ">
+  2DUP `: CONTAINS <unless> -5018 THROW </unless>
+  <rem> on default it is the same </rem>
+</def>
+
+<def name="load-sharedlex" ds=" d-interface -- wid ">
+  NEST-SCOPE
+  GET-ORDER N>R ONLY  <!-- spf4 specific -->
+  <!--
+  FORTH-KERNEL CONTEXT ! -->
+  deployed PUSH-CURRENT
+  <wordlist name="{ 2DUP }">
+    resolve-interface EMBODY
+    GET-CURRENT
+  </wordlist>
+  DROP-CURRENT
+  NR> SET-ORDER
+  UNNEST-SCOPE
+</def>
+
+<def name="fetch-sharedlex" ds=" d-interface -- wid ">
+  deployed OBEY <unless> load-sharedlex </unless>
+</def>
+
+
+<f:g xmlns="http://forth.org.ru/ForthML/Rules/"
+  xmlns:f="http://forth.org.ru/ForthML/"
+>
+<rule match="f:using">
+  STATE? <f:if> ABORT </f:if>
+  `href GetAttribute expanded-url
+  fetch-sharedlex PUSH-SCOPE
+</rule>
+<rule match="f:forth">
+  SCOPE-DEPTH >R
+  <next-match> -5321 THROW </next-match>
+  SCOPE-DEPTH R> - NDROP-SCOPE
+</rule>
+</f:g>
+
+<init>
+ <xt-of name="I-NATIVE-EXT"/> chain-t-native::advice-after
+</init>
+
+</wordlist>
+
+</forth>
