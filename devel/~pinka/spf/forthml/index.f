@@ -82,8 +82,8 @@ GET-CURRENT GET-ORDER ( ..prev-context.. )
 FORTH-WORDLIST XMLDOM-WL CODEGEN-WL forthml-hidden  4 SET-ORDER  DEFINITIONS
 
 : T-WORD-TC ( i*x addr u -- j*x )
-  CODEGEN-WL     RESOLVE-NAME IF EXECUTE EXIT THEN
-  FORTH-WORDLIST RESOLVE-NAME IF EXECUTE EXIT THEN
+  CODEGEN-WL     FIND-WORDLIST IF EXECUTE EXIT THEN
+  FORTH-WORDLIST FIND-WORDLIST IF EXECUTE EXIT THEN
   NOTFOUND
 ;
 : (INCLUDED-PLAIN-TC) ( i*x -- j*x )
@@ -110,7 +110,7 @@ VECT T-PAT  ' T-SLIT TO T-PAT \ используется при <get-name/>
 
 \ ---
 \ set and restore CURFILE on EMBODY (spf4 specific)
-WARNING @  WARNING 0! 
+0 PUSH-WARNING
 
 : EMBODY ( i*x url-a url-u -- j*x )
   CURFILE @ >R   2DUP HEAP-COPY CURFILE !
@@ -118,33 +118,51 @@ WARNING @  WARNING 0!
   CURFILE @ FREE THROW   R> CURFILE !
     THROW
 ;
-WARNING !
+DROP-WARNING
 
+: _EMBODY FIND-FULLNAME EMBODY ;
 
 \ лексикон ForthML первого уровня:
-`~pinka/fml/src/rules-common.f.xml FIND-FULLNAME EMBODY
-`~pinka/fml/src/rules-forth.f.xml  FIND-FULLNAME EMBODY
+`~pinka/fml/src/rules-common.f.xml _EMBODY
+`~pinka/fml/src/rules-forth.f.xml  _EMBODY
 
 
 \ расширение лексикона ForthML до второго уровня:
-`~pinka/model/lib/string/match-white.f.xml  FIND-FULLNAME EMBODY
-`~pinka/model/trans/rules-std.f.xml         FIND-FULLNAME EMBODY
-`~pinka/model/trans/split-line.f.xml        FIND-FULLNAME EMBODY
-`~pinka/model/trans/rules-ext.f.xml         FIND-FULLNAME EMBODY
-`~pinka/model/trans/rules-string.f.xml      FIND-FULLNAME EMBODY
+`~pinka/model/lib/string/match-white.f.xml  _EMBODY
+`~pinka/model/trans/rules-std.f.xml         _EMBODY
+`~pinka/model/trans/split-line.f.xml        _EMBODY
+`~pinka/model/trans/rules-ext.f.xml         _EMBODY
+`~pinka/model/trans/rules-string.f.xml      _EMBODY
 
 
+
+\ поддержка конструирования имени через "{}" в значении атрибута name
 document-context-hidden PUSH-SCOPE `tpat-hidden WORDLIST-NAMED PUSH-DEVELOP
-
-`~pinka/model/trans/tpat.f.xml              FIND-FULLNAME EMBODY
-
-DROP-DEVELOP DROP-SCOPE   `T-PAT tpat-hidden RESOLVE-NAME 0EQ THROW TO T-PAT
-
-  
+`~pinka/model/trans/tpat.f.xml              _EMBODY
+DROP-DEVELOP DROP-SCOPE   `T-PAT tpat-hidden FIND-WORDLIST 0EQ THROW TO T-PAT
 
 
 \ отображение URI-баз (например, http://forth.org.ru/ на каталог локальной файловой системы)
-`~pinka/model/trans/xml-uri-map.f.xml       FIND-FULLNAME EMBODY
+`~pinka/model/trans/xml-uri-map.f.xml       _EMBODY
+
+
+FORTH-WORDLIST PUSH-CURRENT
+`~pinka/model/trans/obey.f.xml              _EMBODY
+DROP-CURRENT
+
+\ экспериментальная поддержка shared lexicons
+`~pinka/model/trans/sharedlex.f.xml         _EMBODY
+
+..: AT-PROCESS-STARTING init-sharedlex ;..
+                        init-sharedlex
+
+FORTH-WORDLIST PUSH-CURRENT  0 PUSH-WARNING
+: ORDER
+  ORDER
+  sharedlex-hidden::SCOPE-DEPTH IF SHAREDLEX-ORDER. THEN
+;
+DROP-WARNING  DROP-CURRENT
+
 
 
 SET-ORDER SET-CURRENT
