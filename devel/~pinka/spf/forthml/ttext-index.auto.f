@@ -696,7 +696,7 @@ BIRTH 2CS> NAMING-
 `SWAP & EXEC, 
 `TRUE & EXEC, 
 BIRTH 2CS> NAMING- 
-`I-NATIVE 2>CS CONCEIVE 
+`I-NATIVE-SPF4 2>CS CONCEIVE 
 `2DUP & EXEC, 
 `>R & EXEC, 
 `>R & EXEC, 
@@ -722,6 +722,128 @@ BIRTH 2CS> NAMING-
 
 
 
+`chain-t-native WORDLIST-NAMED PUSH-DEVELOP 
+
+
+
+
+`chain-current 2>CS SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH 2CS> NAMING- 
+`chain-context 2>CS SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH 2CS> NAMING- 
+`chain-context-node 2>CS SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH 2CS> NAMING- 
+`chain-tree-stack 2>CS SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH 2CS> NAMING- 
+`advice-before 2>CS CONCEIVE 0 LIT, 
+`, & EXEC, 
+`HERE & EXEC, 
+`SWAP & EXEC, 
+`, & EXEC, 
+`chain-current & EXEC, 
+`@ & EXEC, 
+`BIND-NODE & EXEC, 
+BIRTH 2CS> NAMING- 
+`advice-after 2>CS CONCEIVE 0 LIT, 
+`, & EXEC, 
+`HERE & EXEC, 
+`SWAP & EXEC, 
+`, & EXEC, 
+`chain-current & EXEC, 
+`@ & EXEC, 
+`BIND-NODE-TAIL & EXEC, 
+BIRTH 2CS> NAMING- 
+`perform-node-cond 2>CS CONCEIVE 
+
+`chain-tree-stack & EXEC, 
+`@ & EXEC, 
+`>R & EXEC, 
+`chain-context-node & EXEC, 
+`@ & EXEC, 
+`>R & EXEC, 
+`RP@ & EXEC, 
+`chain-tree-stack & EXEC, 
+`! & EXEC, MBW 
+`DUP & EXEC, ZBFW2, 
+`DUP & EXEC, 
+`chain-context-node & EXEC, 
+`! & EXEC, 
+`@ & EXEC, 
+`EXECUTE & EXEC, 
+`DUP & EXEC, 
+`0EQ & EXEC, ZBFW2, 
+`DROP & EXEC, 
+`chain-context-node & EXEC, 
+`@ & EXEC, 
+`CELL- & EXEC, 
+`@ & EXEC, BBW, RFW RFW 
+`R> & EXEC, 
+`chain-context-node & EXEC, 
+`! & EXEC, 
+`R> & EXEC, 
+`chain-tree-stack & EXEC, 
+`! & EXEC, 
+BIRTH 2CS> NAMING- 
+`perform-chain-explicit 2>CS CONCEIVE 
+`@ & EXEC, 
+`perform-node-cond & EXEC, 
+BIRTH 2CS> NAMING- 
+
+`perform-chain-next 2>CS CONCEIVE 
+`chain-context-node & EXEC, 
+`@ & EXEC, 
+`CDR & EXEC, 
+`DUP & EXEC, 
+`0EQ & EXEC, ZBFW, EXIT, RFW 
+`perform-node-cond & EXEC, 
+`DUP & EXEC, ZBFW, EXIT, RFW 
+`DROP & EXEC, 
+`chain-tree-stack & EXEC, 
+`@ & EXEC, 
+`2@ & EXEC, 
+`DUP & EXEC, 
+`0EQ & EXEC, ZBFW, 
+`NIP & EXEC, EXIT, RFW 
+`chain-tree-stack & EXEC, 
+`@ & EXEC, 
+`>R & EXEC, 
+`chain-context-node & EXEC, 
+`@ & EXEC, 
+`>R & EXEC, 
+`chain-context-node & EXEC, 
+`! & EXEC, 
+`chain-tree-stack & EXEC, 
+`! & EXEC, GERM EXEC, 
+`R> & EXEC, 
+`chain-context-node & EXEC, 
+`! & EXEC, 
+`R> & EXEC, 
+`chain-tree-stack & EXEC, 
+`! & EXEC, 
+BIRTH 2CS> NAMING- 
+`perform-chain 2>CS CONCEIVE 
+`chain-context & EXEC, 
+`@ & EXEC, 
+`DUP & EXEC, 
+`0EQ & EXEC, ZBFW, EXIT, RFW 
+`perform-chain-explicit & EXEC, 
+BIRTH 2CS> NAMING- 
+`perform-chain-sure 2>CS CONCEIVE 
+`perform-chain & EXEC, ZBFW, EXIT, RFW 
+`ABORT & EXEC, 
+BIRTH 2CS> NAMING- 
+
+`default 2>CS SP@ >CS SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH 2CS> NAMING- 
+`default & EXECUTE 
+`DUP & EXECUTE 
+`chain-current & EXECUTE 
+`! & EXECUTE 
+`chain-context & EXECUTE 
+`! & EXECUTE `I-NATIVE-SPF4 
+`& & EXECUTE 
+`advice-after & EXECUTE 
+BEGIN-EXPORT 
+`I-NATIVE 2>CS CONCEIVE 
+`perform-chain & EXEC, 
+BIRTH 2CS> NAMING- 
+END-EXPORT 
+DROP-DEVELOP 
 
 
 

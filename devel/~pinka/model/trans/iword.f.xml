@@ -39,7 +39,7 @@
   1- SWAP CHAR+ SWAP <!-- CARBON --> TRUE
 </def>
 
-<def name="I-NATIVE" ds=" c-addr u -- xt true | c-addr u false ">
+<def name="I-NATIVE-SPF4" ds=" c-addr u -- xt true | c-addr u false ">
   2DUP >R >R
   SFIND DUP 1 EQ <unless> RDROP RDROP <exit/></unless>
   DROP DUP GET-COMPILER? NIP <if> TRUE RDROP RDROP <exit/></if>

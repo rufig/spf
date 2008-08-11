@@ -2,6 +2,20 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- Jul.2006, Feb.2007 ruvim@forth.org.ru -->
 
+<wordlist name="chain-t-native">
+  <include href="../data/chain-cond.f.xml"/>
+
+<cell name="default"/><init>
+  default DUP chain-current ! chain-context !
+  `I-NATIVE-SPF4 &amp; advice-after
+</init>
+
+<export>
+<def name="I-NATIVE" ds="c-addr u -- xt true | c-addr u false">
+  perform-chain
+</def>
+</export>
+</wordlist>
 
 <include href="iword-qnative.f.xml"/>
 
