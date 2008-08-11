@@ -64,6 +64,19 @@ Require >CS control-stack.f \ управл€ющий стек
 ;
 
 
+: PUSH-WARNING ( u -- )
+  WARNING @ >CS WARNING !
+;
+: DROP-WARNING ( -- )
+  CS> WARNING !
+;
+: PUSH-BASE ( u -- )
+  BASE @ >CS BASE !
+;
+: DROP-BASE ( -- )
+  CS> BASE !
+;
+
 \EOF
 
 \ old ideas:
