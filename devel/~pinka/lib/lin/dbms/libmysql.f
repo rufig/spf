@@ -92,3 +92,9 @@ CREATE-CS _mysql_cs
 : mysql_field_name ( u-column res -- addr u )
   mysql_fetch_field_direct @ ASCIIZ>
 ;
+
+
+\ See also:
+\ http://dev.mysql.com/doc/refman/5.1/en/c-api-prepared-statements.html
+\   C API Prepared Statements
+\     "Prepared statements do not support multi-statements"
