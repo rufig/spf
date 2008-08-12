@@ -18,19 +18,41 @@
   0 , HERE SWAP , chain-current @ BIND-NODE-TAIL
 </def>
 
-<def name="perform-node-cond" ds=" i*x node -- j*x flag ">
+<def name="_perform-node-cond" ds=" i*x node -- j*x flag ">
 <rem> see also: list-plain.f.xml/PERFORM-NODE-COND </rem>
-  chain-tree-stack   @ >R
   chain-context-node @ >R
-  RP@ chain-tree-stack !
   <repeat> DUP <while/> DUP chain-context-node ! @ EXECUTE  DUP 0EQ <while/> 
     DROP chain-context-node @ CELL- @
   </repeat><!-- ( true|false ) -->
   R> chain-context-node !
-  R> chain-tree-stack   !
 </def>
 <def name="perform-chain-explicit" ds=" i*x h -- j*x flag ">
-  @ perform-node-cond
+  chain-tree-stack   @ >R
+  chain-context-node @ >R
+  RP@ chain-tree-stack !
+  @ _perform-node-cond
+  R> chain-context-node !
+  R> chain-tree-stack   !
+</def>
+<def name="perform-chain-next" ds=" i*x -- j*x flag ">
+  chain-tree-stack   @ >R
+  chain-context-node @
+  <repeat>
+    CDR _perform-node-cond DUP 0EQ <while/> DROP
+    chain-tree-stack @ DUP <while/>
+    2@ SWAP chain-tree-stack ! <rem> ( node ) </rem>
+  </repeat>
+  R> chain-tree-stack !
+</def>
+<def name="perform-chain" ds=" i*x -- j*x flag ">
+  chain-context @ DUP <unless><exit/></unless>
+  chain-tree-stack   @ >R
+  0  chain-tree-stack ! <rem> cutout </rem>
+  @ _perform-node-cond
+  R> chain-tree-stack !
+</def>
+<def name="perform-chain-sure" ds=" i*x -- j*x ">
+  perform-chain <if><exit/></if> ABORT
 </def>
 <comment>
   ÷епочки могут неформально сцепл€тс€ через perform-chain-explicit в обработчике,
@@ -39,7 +61,7 @@
   текущую цепочку. ƒл€ реализации такого обхода, все точки ветвлени€
   сохран€ютс€ в список, размещаемый на стеке возвратов. ячейка
   chain-tree-stack ведет на голову этого списка. ѕри вложенном поиске
-  следующего узла этот список рекурсивно разматываетс€, а после завершени€
+  следующего узла этот список последовательно разматываетс€, а после завершени€
   операции возвращаетс€ на место. –азматывать его необходимо дл€
   избегани€ бесконечной косвенной рекурсии.
 
@@ -47,24 +69,5 @@
   в этом случае использование стека возвратов будет пропорционально общему числу 
   узлов в дереве. ј в данном решение оно пропорционально числу ветвлений.
 </comment>
-<def name="perform-chain-next" ds=" i*x -- j*x flag ">
-  chain-context-node @ CDR DUP <unless><exit/></unless>
-  perform-node-cond DUP <if><exit/></if> DROP
-  chain-tree-stack @ 2@ DUP <unless><rem> context-node is null </rem> NIP <exit/></unless>
-  chain-tree-stack   @ >R
-  chain-context-node @ >R
-  chain-context-node !
-  chain-tree-stack   !
-  <recurse/>
-  R> chain-context-node !
-  R> chain-tree-stack   !
-</def>
-<def name="perform-chain" ds=" i*x -- j*x flag ">
-  chain-context @ DUP <unless><exit/></unless>
-  perform-chain-explicit
-</def>
-<def name="perform-chain-sure" ds=" i*x -- j*x ">
-  perform-chain <if><exit/></if> ABORT
-</def>
 
 </forth>
