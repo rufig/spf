@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Aug.2008 ruvim@forth.org.ru -->
+
+<wordlist name="chain-t-native">
+  <include href="../data/chain-cond.f.xml"/>
+
+<cell name="default"/><init>
+  default DUP chain-current ! chain-context !
+  _I-NATIVE @ advice-after
+  <xt-of name="perform-chain"/> _I-NATIVE !
+</init>
+
+</wordlist>
+
+</forth>

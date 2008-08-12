@@ -2,6 +2,11 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- Jul.2006, Feb.2007 ruvim@forth.org.ru -->
 
+<cell name="_I-NATIVE"><xt-of name="I-NATIVE"/></cell>
+
+<def name="I-NATIVE" ds="c-addr u -- xt true | c-addr u false">
+  _I-NATIVE @ EXECUTE
+</def>
 
 <include href="ttext.immutable.f.xml"/>
 

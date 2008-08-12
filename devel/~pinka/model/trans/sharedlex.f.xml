@@ -6,6 +6,8 @@
 
 <comment>Extenstion to the spf4/forthml translator </comment>
 
+<include href="chain-t-native.f.xml"/><rem> only once </rem>
+
 <wordlist name="sharedlex-hidden">
   <include href="../data/scope.f.xml"/>
 
@@ -64,6 +66,10 @@
   <xt-of name="FIND-WORDLIST"/> SCAN-SCOPE-WITH
 </def>
 
+<init>
+ <xt-of name="I-NATIVE-EXT"/> chain-t-native::advice-after
+</init>
+
 <export>
 <def name="SHAREDLEX-ORDER." ds=" -- ">
   <emit>Shared lexicons:</emit> CR SCOPE-ORDER. CR
@@ -115,10 +121,6 @@
   SCOPE-DEPTH R> - NDROP-SCOPE
 </rule>
 </f:g>
-
-<init>
- <xt-of name="I-NATIVE-EXT"/> chain-t-native::advice-after
-</init>
 
 </wordlist>
 

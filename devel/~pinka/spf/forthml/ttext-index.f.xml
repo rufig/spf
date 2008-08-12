@@ -13,7 +13,7 @@
 <cell name="STATE" />
 <include href="ttoken.f.xml" />
 <include href="iword.f.xml" />
-<include href="ttext.immutable.f.xml" />
+<include href="ttext.f.xml" />
 <include href="txml.f.xml" />
 
 </g></g>
