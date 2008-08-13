@@ -58,16 +58,16 @@ PREVIOUS
 
 
 \ -----
-\ Внутренности реализации в словарь forthml-support (список forthml-hidden)
+\ Внутренности реализации в список forthml-hidden
 
 CODEGEN-WL ALSO!  XMLDOM-WL  ALSO!
-MODULE: forthml-support  EXPORT  CONTEXT @ CONSTANT forthml-hidden  DEFINITIONS
+`forthml-hidden WORDLIST-NAMED PUSH-DEVELOP
 
 VARIABLE cnode-a \ текущий узел XML-документа
 
-Include cdomnode.immutable.f  \ DOM-доступ к текущегму узлу, обход XML-дерева
+Include cdomnode.immutable.f  \ DOM-доступ к текущему узлу, обход XML-дерева
 
-;MODULE PREVIOUS PREVIOUS
+DROP-DEVELOP PREVIOUS PREVIOUS
 
 
 ?C-JMP TRUE TO ?C-JMP  \ включение хвостовой оптимизации: [CALL XXX][RET] --> [JMP XXX]
@@ -91,7 +91,7 @@ FORTH-WORDLIST XMLDOM-WL CODEGEN-WL forthml-hidden  4 SET-ORDER  DEFINITIONS
 ;
 : INCLUDED-PLAIN-TC ( a u -- )
   FIND-FULLNAME2 FILE ['] (INCLUDED-PLAIN-TC) EVALUATE-WITH
-  \ - relative to current file
+  \ - relative to the current file
 ;
 
 `ttext-index.auto.f INCLUDED-PLAIN-TC \ в виде простейшего форт-текста
@@ -103,7 +103,8 @@ FORTH-WORDLIST XMLDOM-WL CODEGEN-WL forthml-hidden  4 SET-ORDER  DEFINITIONS
                         init-document-context \ входит в работу и здесь же
 
 
-VECT T-PAT  ' T-SLIT TO T-PAT \ используется при <get-name/>
+VARIABLE _T-PAT  ' T-SLIT _T-PAT !
+: T-PAT _T-PAT @ EXECUTE ; \ используется при <get-name/>
 
 `~pinka/fml/forthml-core.f Included \ базовый набор слов (правил) ForthML
 
@@ -120,39 +121,17 @@ VECT T-PAT  ' T-SLIT TO T-PAT \ используется при <get-name/>
 ;
 DROP-WARNING
 
-: _EMBODY FIND-FULLNAME EMBODY ;
+: _EMBODY FIND-FULLNAME2 EMBODY ; \ учитывает и путь текуще-подключаемого файла
 
 \ лексикон ForthML первого уровня:
 `~pinka/fml/src/rules-common.f.xml _EMBODY
 `~pinka/fml/src/rules-forth.f.xml  _EMBODY
 
-
-\ расширение лексикона ForthML до второго уровня:
-`~pinka/model/lib/string/match-white.f.xml  _EMBODY
-`~pinka/model/trans/rules-std.f.xml         _EMBODY
-`~pinka/model/trans/split-line.f.xml        _EMBODY
-`~pinka/model/trans/rules-ext.f.xml         _EMBODY
-`~pinka/model/trans/rules-string.f.xml      _EMBODY
+\ Остальное можно загрузить проще:
+`index.L2.f.xml _EMBODY
 
 
-
-\ поддержка конструирования имени через "{}" в значении атрибута name
-document-context-hidden PUSH-SCOPE `tpat-hidden WORDLIST-NAMED PUSH-DEVELOP
-`~pinka/model/trans/tpat.f.xml              _EMBODY
-DROP-DEVELOP DROP-SCOPE   `T-PAT tpat-hidden FIND-WORDLIST 0EQ THROW TO T-PAT
-
-
-\ отображение URI-баз (например, http://forth.org.ru/ на каталог локальной файловой системы)
-`~pinka/model/trans/xml-uri-map.f.xml       _EMBODY
-
-
-FORTH-WORDLIST PUSH-CURRENT
-`~pinka/model/trans/obey.f.xml              _EMBODY
-DROP-CURRENT
-
-\ экспериментальная поддержка shared lexicons
-`~pinka/model/trans/sharedlex.f.xml         _EMBODY
-
+\ инициализация для sharedlex
 ..: AT-PROCESS-STARTING init-sharedlex ;..
                         init-sharedlex
 
@@ -173,19 +152,6 @@ TO ?C-JMP  \ оставлять включенным нельзя, т.к. дает глюки для r-чувствительных с
 forthml-hidden PUSH-SCOPE
 
 `EMBODY             2DUP aka
-
-`CONTAINS           2DUP aka
-`STARTS-WITH        2DUP aka
-`ENDS-WITH          2DUP aka
-`SUBSTRING-AFTER    2DUP aka
-`SUBSTRING-BEFORE   2DUP aka
-
-`MATCH-HEAD         2DUP aka
-
-`IS-WHITE           2DUP aka
-`WORD|TAIL          2DUP aka
-
-`T-PLAIN            2DUP aka
 
 DROP-SCOPE
 
