@@ -5,6 +5,7 @@
    xmlns:r="http://forth.org.ru/ForthML/Rules/"
 >
 
+<using href="http://forth.org.ru/~pinka/model/data/list-plain.f.xml"/>
 <!-- require list-plain.f.xml -->
 
 <def name="ALLOT-EVENT" ds=" -- chain ">
