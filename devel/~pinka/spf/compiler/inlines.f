@@ -4,10 +4,15 @@
 \ NON-OPT-WL contains five words: EXECUTE  ?DUP  R>  >R  RDROP
 
 
-REQUIRE BIND-NODE ~pinka/samples/2006/lib/plain-list.f 
 REQUIRE AsQName   ~pinka/samples/2006/syntax/qname.f \ понятие однословных строк в виде `abc
 
+MODULE: fix-inlines-support
+
+REQUIRE BIND-NODE ~pinka/samples/2006/lib/plain-list.f 
+
 VARIABLE h-compilers
+
+EXPORT
 
 : ADVICE-COMPILER ( xt-compiler xt -- )
   0 , HERE SWAP , SWAP , h-compilers BIND-NODE
@@ -65,3 +70,5 @@ WARNING !
 ;
 
 ' COMPILE(2R>) ' 2R> ADVICE-COMPILER
+
+;MODULE
