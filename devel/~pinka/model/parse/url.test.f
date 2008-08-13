@@ -1,25 +1,8 @@
 REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
-\ temporary, need a better name(?):
-: StoN ( c-addr u -- x )
-  forthml-hidden::I-LIT IF EXIT THEN 2DROP 0
-;
 
-
-\ experimetal words:
-
-: CLEFT+ ( a u cn -- a2 u2 )
-  CHARS TUCK + >R - R>
-;
-: CRIGHT+ ( a u cn -- a2 u2 )
-  CHARS +
-;
-\ see also: ~pinka/model/lib/string/slice.f.xml
-
-
-\ load (from current directory):
-
-`url.f.xml  EMBODY
+\ load object to the current wordlist:
+`url.f.xml  EMBODY \ from the current directory
 
 \ test:
 

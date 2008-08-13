@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- Ported from whead, (c) 25.Dec.2006 me -->
+<!-- $Id$ -->
 
 <comment>
   See also: 
     http://www.w3.org/TR/Window/#location-attributes
     -- The Location Interface
 </comment>
+
+<using href="http://forth.org.ru/~pinka/model/lib/string/slice.f.xml"/>
 
 <rem> pieces of the URI, per the generic URI syntax </rem>
 <text>
