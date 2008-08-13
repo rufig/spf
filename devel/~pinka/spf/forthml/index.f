@@ -28,11 +28,7 @@ REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
 
 Require ULT             aliases.f \ набор синонимов
 
-REQUIRE EQUAL           ~pinka/spf/string-equal.f
-REQUIRE SPLIT-          ~pinka/samples/2005/lib/split.f
-REQUIRE FINE-HEAD       ~pinka/samples/2005/lib/split-white.f
-
-
+\ лексикон кодогенератора, управляющий стек, управление списки слов:
 REQUIRE CODEGEN-WL      ~pinka/spf/compiler/index.f
 
 
