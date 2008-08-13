@@ -91,7 +91,8 @@
 <def name="load-sharedlex" ds=" d-interface -- wid ">
   NEST-SCOPE
   GET-ORDER N>R ONLY  <!-- spf4 specific -->
-  <!--
+  <!-- как вариант, здесь FORTH-WORDLIST можно отправлять на дно стека sharedlex,
+  а стек ORDER оставлять пустым (при риске неверного перекрытия)
   FORTH-KERNEL CONTEXT ! -->
   deployed PUSH-CURRENT
   <wordlist name="{ 2DUP }">
