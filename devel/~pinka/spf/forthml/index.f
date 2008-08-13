@@ -28,7 +28,7 @@ REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
 
 Require ULT             aliases.f \ набор синонимов
 
-\ лексикон кодогенератора, управл€ющий стек, управление списки слов:
+\ лексикон кодогенератора, управл€ющий стек, управление списками слов:
 REQUIRE CODEGEN-WL      ~pinka/spf/compiler/index.f
 
 
@@ -136,20 +136,15 @@ FORTH-WORDLIST PUSH-CURRENT  0 PUSH-WARNING
   ORDER
   sharedlex-hidden::SCOPE-DEPTH IF SHAREDLEX-ORDER. THEN
 ;
-DROP-WARNING  DROP-CURRENT
-
-
-
-SET-ORDER SET-CURRENT
-
-TO ?C-JMP  \ оставл€ть включенным нельз€, т.к. дает глюки дл€ r-чувствительных слов.
-
-
-forthml-hidden PUSH-SCOPE
 
 `EMBODY             2DUP aka
 
-DROP-SCOPE
+DROP-WARNING  DROP-CURRENT
+
+
+SET-ORDER SET-CURRENT
+TO ?C-JMP  \ оставл€ть включенным нельз€, т.к. дает глюки дл€ r-чувствительных слов.
+
 
 \ »того, объектного кода:
 \   библиотеки, расширени€ и выравнивани€ -- 50  б
