@@ -84,6 +84,7 @@
 
 <def name="resolve-interface" ds=" d-interface-uri -- d-file-uri ">
   2DUP `: CONTAINS <unless> -5018 THROW </unless>
+  2DUP `file:// STARTS-WITH <if> -5018 THROW </if>
   <rem> on default it is the same </rem>
 </def>
 
