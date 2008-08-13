@@ -102,7 +102,7 @@ FORTH-WORDLIST XMLDOM-WL CODEGEN-WL forthml-hidden  4 SET-ORDER  DEFINITIONS
 VARIABLE _T-PAT  ' T-SLIT _T-PAT !
 : T-PAT _T-PAT @ EXECUTE ; \ используется при <get-name/>
 
-`~pinka/fml/forthml-core.f Included \ базовый набор слов (правил) ForthML
+`~pinka/fml/forthml-core.auto.f Included \ базовый набор слов (правил) ForthML
 
 
 \ ---

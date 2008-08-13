@@ -26,6 +26,6 @@
      %throw%
      %xtrans2%  tmp/rules-step2.xml        tmp/trules-step3.xsl   >tmp/rules-step3.f
      %throw%
-     @copy tmp\rules-step3.f forthml-core.f >nul
+     @copy tmp\rules-step3.f forthml-core.auto.f >nul
 
 @exit /B
