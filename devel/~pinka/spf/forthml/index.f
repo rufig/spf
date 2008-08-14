@@ -125,6 +125,7 @@ DROP-WARNING
 
 \ ќстальное можно загрузить проще:
 `index.L2.f.xml _EMBODY
+`index.L3.f.xml _EMBODY
 
 
 \ инициализаци€ дл€ sharedlex

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="Windows-1251" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Aug.2008 ruvim@forth.org.ru -->
+<!-- $Id$ -->
+
+<g xml:base="../../model/">
+
+<comment> Расширение лексикона ForthML до третьего уровня </comment>
+
+<comment> события как цепочки обработчиков </comment>
+<include href="data/event-plain.f.xml"/>
+<develop wordlist="FORTH-WORDLIST">
+  <alias name="FIRE-EVENT" word="FIRE-EVENT"/>
+</develop>
+
+<comment> экспериментальная поддержка shared lexicons </comment>
+<include href="trans/sharedlex.f.xml"/>
+
+</g>
+</forth>

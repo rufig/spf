@@ -5,8 +5,9 @@
    xmlns:r="http://forth.org.ru/ForthML/Rules/"
 >
 
+<rem> included to forthml.L3
 <using href="http://forth.org.ru/~pinka/model/data/list-plain.f.xml"/>
-<!-- require list-plain.f.xml -->
+</rem>
 
 <def name="ALLOT-EVENT" ds=" -- chain ">
   ALIGN HERE 0 , 0 ,
@@ -42,6 +43,10 @@
     <q><r:yield/></q><r:exec-attribute name="event"/>
     <r:get-attribute name="advice"/> ADVICE-EVENT-LIKE
   </r:m>
+</r:rule>
+
+<r:rule match="f:fire" ds=" -- ">
+  <r:m><r:exec-attribute name="event"/> FIRE-EVENT </r:m>
 </r:rule>
 
 

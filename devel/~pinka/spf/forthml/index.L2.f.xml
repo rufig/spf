@@ -27,8 +27,5 @@ FORTH-WORDLIST PUSH-CURRENT
 <include href="StoN.f.xml"/>
 DROP-CURRENT
 
-<comment> экспериментальная поддержка shared lexicons </comment>
-<include href="sharedlex.f.xml"/>
-
 </g></g>
 </forth>
