@@ -187,7 +187,7 @@ USER-CREATE API-BUFFER
   DROP >R (( _STAT_VER R> API-BUFFER )) __xstat 0=
 ;
 
-\ TRUE если путь addr u существует и является каталогом
+\ TRUE если путь addr u существует и не является каталогом
 : FILE-EXISTS ( addr u -- f )
   FILE-EXIST 0 = IF FALSE EXIT THEN
   API-BUFFER STAT_ST_MODE + @ S_IFDIR AND 0 =
