@@ -41,6 +41,13 @@ REQUIRE STHROW          ~pinka/spf/sthrow.f
 : EXEC-FOREIGN-P1 ( i*x n-in entry-point -- x ) 
   SWAP 1+ CELLS DRMOVE 0 R> EXECUTE (  [ x ]  ) 
 ; 
+( Ётимологи€:
+  'EXEC'        -- от фортова EXECUTE -- выполнить;
+  'FOREIGN'     -- чужой токен, не свой;
+  'P', 'C'      -- формат вызова и определение чужого;
+  '1'           -- на выходе одно значение [впрочем, форматы C и P иного и не подразумевают, 
+                   поэтому, может быть излишне].
+)
 
 
 : CREATED-DLPOINT ( parent -- p )
@@ -55,6 +62,10 @@ REQUIRE STHROW          ~pinka/spf/sthrow.f
 : DLPOINT-NAME ( p -- a u ) DLPOINT-NAME@ DUP IF COUNT EXIT THEN 0 ;
 : DLPOINT-PARENT ( p1 -- p2 ) CELL+ @ ;
 : SET-DLPOINT-NAME ( a u p -- ) ALIGN HERE SWAP DLPOINT-NAME! S", 0 C, ;
+( «десь, 
+  возможно, стоит сделать XCOUNT, со счетчиком в €чейку, вместо COUNT,
+  ограничинный 255 символов [ MAX_PATH имеет значение 256, а URL -- хоть 2 Kb ]
+)
 
 : CACHE-DL ( p -- )
   DUP DLPOINT-NAME DLOPEN-SURE SWAP !
