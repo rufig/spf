@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="StoD" ds=" a u -- xl xh | 0 0 ">
+  I-DLIT <if><exit/></if> 2DROP 0.
+</def>
+
+<def name="StoN" ds=" a u -- x|0 ">
+  I-LIT <if><exit/></if> 2DROP 0
+</def>
+
+</forth>
