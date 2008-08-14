@@ -100,6 +100,11 @@ ID: DISPID_PROPERTYCHANGE     112 ( addr u -- )
     \ sent when the PutProperty method is called
     COM-DEBUG @ IF ." PropertyChange:" TYPE CR ELSE 2DROP THEN
 ;
+
+ID: DISPID_PRIVACYIMPACTEDSTATECHANGE   272           \ Fired when the user's browsing experience is impacted
+    COM-DEBUG @ IF ." PrivacyImpactedStateChange." CR THEN DropXtParams
+;
+
 ID: DISPID_NEWWINDOW3           273 \ new window is to be created
 (      
     IDispatch **ppDisp,
@@ -120,6 +125,11 @@ ID: DISPID_NEWWINDOW2                   251
 )
    COM-DEBUG @ IF 
    ." NewWindow2: idisp=" . ." cancel=" . 
+   ELSE DropXtParams THEN
+;
+ID: DISPID_WINDOWSETHEIGHT              267           \ sent when the put_height method is called on the WebOC 
+   COM-DEBUG @ IF 
+   ." SetHeight:" .
    ELSE DropXtParams THEN
 ;
 Class;
