@@ -125,6 +125,7 @@ todo: учесть следующее обстоятельство
   В случае xmlFree "точка входа" представляет из себя указатель на функцию,
   которая может быть вызвана следующим образом:
     ( addr-to-be-freed ) 1
-    `xmlFree `libxml2 DLOPEN-SURE DLSYM-SURE @
+    `xmlFree `libxml2 DLOPEN-SURE DLSYM-SURE
+    @
     EXEC-FOREIGN-C1
     1 <> THROW
