@@ -1,7 +1,5 @@
 REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
-`../data/list-plain.f.xml EMBODY
-
 `stream-mem.L1.f.xml EMBODY
 
 ( Простой бинарый поток данных в динамически распределяемой памяти.

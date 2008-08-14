@@ -2,17 +2,6 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
 REQUIRE ReadSocket ~ac/lib/win/winsock/sockets.f
 
-[UNDEFINED] BIND-DNODE-TAIL [IF]
-
-`../data/list-plain.f.xml EMBODY    [THEN]
-
-`../data/event-plain.f.xml EMBODY
-
-`../data/events-common.f.xml EMBODY
-
-
-
-
 : READOUT-SOCK ( a u1 h -- a u2 ior )
   >R OVER SWAP R> 
   ( a a h1 h )
@@ -20,6 +9,7 @@ REQUIRE ReadSocket ~ac/lib/win/winsock/sockets.f
   DUP -1002 = IF 2DROP 0. THEN
 ;
 
+`../data/events-common.f.xml EMBODY
 
 `socket-line.f.xml   EMBODY
 

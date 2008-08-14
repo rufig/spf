@@ -1,12 +1,6 @@
 REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
 
-[UNDEFINED] BIND-DNODE-TAIL [IF]
-
-`../data/list-plain.f.xml EMBODY    [THEN]
-
-`../data/event-plain.f.xml EMBODY
-
 `../data/events-common.f.xml EMBODY
 
 
