@@ -9,8 +9,15 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 <f:also wordlist="forthml-hidden">
 
 <transform name="rules-ss-template">
+  <rule match="f:rem"/><!-- skip comments -->
+  <rule match="#comment"/>
   <rule match="#text">
-    NodeValue T-SLIT <m> R> XENCLOSED >R </m>
+    NodeValue 
+    <f:choose> 2DUP FINE-HEAD NIP <f:when>
+      T-SLIT <m> R> XENCLOSED >R </m>
+    </f:when><f:otherwise><!-- skip whitespace-node -->
+      2DROP 
+    </f:otherwise></f:choose>
   </rule>
   <rule match="f:ss">
     <yield transform="rules-default"/>
