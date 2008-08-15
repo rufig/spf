@@ -11,6 +11,7 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 <transform name="rules-ss-template">
   <rule match="f:rem"/><!-- skip comments -->
   <rule match="#comment"/>
+  <rule match="f:g"><yield/></rule>
   <rule match="#text">
     NodeValue 
     <f:choose> 2DUP FINE-HEAD NIP <f:when>
