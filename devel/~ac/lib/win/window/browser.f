@@ -128,7 +128,7 @@ VECT vMenu ( msg -- )        ' DROP TO vMenu
 : Navigate { addr u bro -- res }
   S" " NSTR   \ headers
   0 VT_ARRAY VT_UI1 OR NVAR \ post data
-  S" " NSTR    \ target frame name
+  S" _self" NSTR    \ target frame name
   0 VT_I4 NVAR \ flags
 
   addr u NSTR bro ::Navigate2
@@ -236,7 +236,10 @@ VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
 
 : Browser { addr u \ h -- ior }
 
-  addr u WS_OVERLAPPEDWINDOW \ WS_VSCROLL OR WS_HSCROLL OR
+  addr u WS_OVERLAPPEDWINDOW \ WS_VSCROLL OR \ WS_HSCROLL OR
+                             \ включение WS_VSCROLL приводит к игнорированию
+                             \ команды установки иконки окна через GCL_HICON h SetClassLongA
+                             \ почему?
   0 BrowserWindow -> h
   h 0= IF 0x200B EXIT THEN
 
@@ -278,7 +281,7 @@ VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
 \ Cоздать браузерное окно c урлом addr u и вернуть его хэндл
 \ для дальнейшей обработки. 
 \ После создания всех окон можно запустить цикл AtlMainLoop.
-  addr u WS_OVERLAPPEDWINDOW \ WS_VSCROLL OR WS_HSCROLL OR
+  addr u WS_OVERLAPPEDWINDOW \ WS_VSCROLL OR \ WS_HSCROLL OR
   0 BrowserWindow
   BrCreateHidden @ 0= IF DUP WindowShow THEN
 ;
@@ -477,7 +480,8 @@ SET-CURRENT
   S" http://" SEARCH 0=
   IF
     OVER C@ [CHAR] / =
-    IF S" domain" obj b.HtmlDoc2 @ CP@ " http://{s}{s}"
+    IF \ S" domain" obj b.HtmlDoc2 @ CP@ " http://{s}{s}"
+       S" URL" obj b.HtmlDoc2 @ CP@ CUT-PATH 1- " {s}{s}"
     ELSE \ относительный путь
       urla urlu CUT-PATH " {s}{s}"
     THEN STR@
