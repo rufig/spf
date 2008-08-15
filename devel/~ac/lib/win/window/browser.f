@@ -125,10 +125,13 @@ VECT vMenu ( msg -- )        ' DROP TO vMenu
   REPEAT
   mem FREE THROW
 ;
+VECT vNavigationFrame
+:NONAME S" _self" ; TO vNavigationFrame
+
 : Navigate { addr u bro -- res }
   S" " NSTR   \ headers
   0 VT_ARRAY VT_UI1 OR NVAR \ post data
-  S" _self" NSTR    \ target frame name
+  vNavigationFrame NSTR    \ target frame name
   0 VT_I4 NVAR \ flags
 
   addr u NSTR bro ::Navigate2
@@ -511,7 +514,7 @@ WINAPI: URLDownloadToCacheFileA URLMON.DLL
   ELSE 2DROP THEN
 ;
 : error ( sMsg,sUrl,sLine -- ) { e -- } \ см. BR_EVENT выше
-  ." Window.error= " TYPE CR ." at " TYPE CR ." line=" . CR
+  ." Window.error= " TYPE ."  at " TYPE ."  line=" . CR
   TRUE VT_BOOL 1 S" returnValue" e CP! \ не выводить в виде окна ошибки IE
 ;
 
