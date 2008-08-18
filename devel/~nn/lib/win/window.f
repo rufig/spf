@@ -1,4 +1,4 @@
-S" ~nn/lib/win/adapter.f" INCLUDED
+REQUIRE nn-adapter ~nn/lib/adapter.f
 REQUIRE { /lib/ext/locals.f
 REQUIRE CLASS:            ~nn/class/class.f
 REQUIRE S>ZALLOC ~nn/lib/az.f
