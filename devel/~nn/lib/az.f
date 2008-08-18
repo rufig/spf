@@ -1,9 +1,11 @@
-: _ZLITERAL-CODE R> COUNT OVER + 1+ >R ;
+REQUIRE XCOUNT ~nn/lib/longstr.f
+
+: _ZLITERAL-CODE R> XCOUNT OVER + 1+ >R ;
 
 : ZLITERAL ( a u -- )
   STATE @ IF
              ['] _ZLITERAL-CODE COMPILE,
-             DUP C,
+             DUP ,
              HERE SWAP DUP ALLOT MOVE 0 C,
           ELSE
              OVER + 0 SWAP C!
@@ -31,6 +33,6 @@
     R@ +ZPLACE R> ASCIIZ>    
 ;
 
-: @AZ @ ASCIIZ> ;
+: @AZ @ ?DUP IF ASCIIZ> ELSE S" " THEN ;
 
 : SZ", ( a u -- ) HERE SWAP DUP ALLOT CMOVE 0 C, ;
