@@ -11,6 +11,7 @@ WINAPI: PeekMessageA              USER32.DLL
         0x04FF CONSTANT QS_ALLINPUT
 
 USER uSocketEvent
+VARIABLE vSEvDebug
 
 VECT vProcessMessage
 
@@ -21,7 +22,14 @@ VECT vProcessMessage
 ;
 ' ProcessMessage1 TO vProcessMessage
 
+VECT vNoneventSocket?
+
+: NoneventSocket?1 ( socket -- flag )
+  DROP FALSE
+; ' NoneventSocket?1 TO vNoneventSocket?
+
 : ReadSocket ( addr u s -- rlen ior )
+  DUP vNoneventSocket? IF ReadSocket EXIT THEN
   uSocketEvent @ 0= IF
     0 0 0 0 CreateEventA DUP 0= IF 2DROP 2DROP 0 GetLastError EXIT THEN
     uSocketEvent !
@@ -30,7 +38,7 @@ VECT vProcessMessage
   BEGIN
     QS_ALLINPUT -1 0 uSocketEvent 1 MsgWaitForMultipleObjects
     DUP 2 U< 0=
-    IF ." MsgWFMO error " 2DROP 2DROP 0 -1003 TRUE
+    IF vSEvDebug @ IF ." MsgWFMO error " THEN 2DROP 2DROP 0 -1003 TRUE
     ELSE 0=
       IF \ 0=сокеты
          DUP ToRead2 ?DUP IF 2>R DROP 2DROP 2R> EXIT THEN
@@ -46,6 +54,16 @@ VECT vProcessMessage
       THEN
     THEN
   UNTIL
+;
+: WriteSocketB WriteSocket ;
+
+: WriteSocket { addr u s -- ior }
+  s vNoneventSocket? IF addr u s WriteSocket EXIT THEN
+  BEGIN
+    addr u s WriteSocket DUP 10035 = \ WSAEWOULDBLOCK
+  WHILE
+    DROP 200 PAUSE
+  REPEAT
 ;
 
 \EOF
