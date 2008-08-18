@@ -1,7 +1,7 @@
 REQUIRE ParseMime              ~ac/lib/lin/mime/mime.f 
 REQUIRE StripLwsp              ~ac/lib/string/mime-decode.f 
 \ REQUIRE UNICODE>UTF8           ~ac/lib/win/com/com.f
-REQUIRE UNICODE>UTF8           ~ac/lib/lin/iconv/iconv.f 
+REQUIRE iso-8859-5>UNICODE     ~ac/lib/lin/iconv/iconv.f 
 
 \ ================================= subject decoding ==================
 
