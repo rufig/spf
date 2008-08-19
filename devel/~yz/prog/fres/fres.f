@@ -348,6 +348,7 @@ VARIABLE last-leaf
  20 OF " Vxd         " ENDOF 
  21 OF " AniCursor   " ENDOF 
  22 OF " AniIcon     " ENDOF 
+ 24 OF " Manifest    " ENDOF
    1 <| " Type%-8d" |)
  END-CASE
  THEN
@@ -405,7 +406,7 @@ VARIABLE last-leaf
   unmap-output-file
 ;
 \ ------------------------------------------
-: align-dword ( a -- a') DUP CELL MOD IF 2+ THEN ;
+: align-dword ( a -- a' ) DUP CELL MOD DUP 0= IF DROP EXIT THEN CELL SWAP - + ;
 : ord/uni-beyond ( a -- a')
   DUP W@ 0xFFFF = IF
     CELL+
