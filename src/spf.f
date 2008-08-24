@@ -47,8 +47,6 @@ C" M_WL" FIND NIP 0=
   POSTPONE DROP   POSTPONE DUPENDCASE 
 ; IMMEDIATE
 
-C" LAST-HERE" FIND NIP 0= VALUE INLINEVAR
-
 : [>T]  ; IMMEDIATE
 :  >T   ; IMMEDIATE
 
@@ -164,9 +162,8 @@ S" src/compiler/spf_read_source.f"   INCLUDED
 
 S" src/compiler/spf_nonopt.f"        INCLUDED
 S" src/compiler/spf_compile0.f"      INCLUDED
-\  Макроподстановщик-оптимизатор
-TRUE TO INLINEVAR
 
+\  Макроподстановщик-оптимизатор
 BUILD-OPTIMIZER [IF]
 S" src/macroopt.f"                   INCLUDED
 [ELSE]
