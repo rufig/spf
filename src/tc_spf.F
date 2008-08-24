@@ -143,7 +143,7 @@ HEX
 : M\  POSTPONE \ ; IMMEDIATE
 : OS\ POSTPONE \ ; IMMEDIATE
 
-: [>T]  ; IMMEDIATE
+: [>T] POSTPONE >VIRT ; IMMEDIATE
 :  >T   ; IMMEDIATE
 
 TRUE VALUE J_OPT?
@@ -153,7 +153,6 @@ S" src/macroopt.f"                   INCLUDED
 [ELSE]
 S" src/noopt.f"                      INCLUDED
 [THEN]
-
 
 TRUE TO ?C-JMP
 0    TO ?C-JMP
@@ -170,18 +169,14 @@ M\ ' DROP TO DTST
   DP @ TO LAST-HERE
 ;
 
-TARGET-POSIX [IF]
-: MCOMPILE, TC-CALL, ; \ need Position Independent Code
-[ELSE]
 : MCOMPILE, ( CFA -- )
     CON>LIT 
-    IF  INLINE?
+    IF INLINE? 
       IF     INLINE,
       ELSE   TC-CALL,
       THEN
     THEN
 ;
-[THEN]
 
 : TC-LIT,
   S" DUP" TC-FINDOUT INLINE,

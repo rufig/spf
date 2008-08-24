@@ -29,8 +29,6 @@ USER-VALUE J_COD
 
 : DIS-OPT FALSE TO OPT? ;
 
-INLINEVAR
-[IF]
 0x20 VALUE MM_SIZE
 
 USER-VALUE OFF-EBP
@@ -79,8 +77,6 @@ DROP
 \ macroopt грузится дважды: вначале в инструментальную систему, а потом в целевую;
 \ и, из-за особенностей целевого компилятора, надо по разному делать USER-ALLOT.
 \ Слова "TC" присутствует лишь во втором случае.
-
-[THEN]
 
 : INIT-MACROOPT-LIGHT ( -- )
   084 TO J_COD

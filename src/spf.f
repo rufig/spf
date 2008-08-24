@@ -49,6 +49,8 @@ C" M_WL" FIND NIP 0=
 
 C" LAST-HERE" FIND NIP 0= VALUE INLINEVAR
 
+: [>T]  ; IMMEDIATE
+:  >T   ; IMMEDIATE
 
 : ," ( addr u -- )
     DUP C, CHARS HERE OVER ALLOT
