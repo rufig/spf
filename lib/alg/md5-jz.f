@@ -1,4 +1,5 @@
-REQUIRE [DEFINED]  lib\include\tools.f
+REQUIRE [DEFINED]  lib/include/tools.f
+REQUIRE ms@ lib/include/facil.f
 
 HERE 
 
@@ -331,19 +332,14 @@ ALSO MD5-MODULE
  
 100000 VALUE N#
 
-WINAPI: GetTickCount KERNEL32.DLL
-
-: UCOUNTER
-  GetTickCount
-;
 : UTIMER
-  GetTickCount SWAP - .
+  ms@ SWAP - .
 ;
 
 : [TEST]  S" ABCDEFGHIJKLMNOPQRSTUVWXYZ" MD5FULL ;
 : TEST  [ DECIMAL ]
   CR ." md5 test for " N# . ." loops in milliseconds is "
-  UCOUNTER  N# 0 DO [TEST] LOOP  UTIMER
+  ms@  N# 0 DO [TEST] LOOP  UTIMER
 ;
 
 PREVIOUS
