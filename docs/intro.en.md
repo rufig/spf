@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translation is in sync with intro.ru.md rev. 1.35 -->
+<!-- Translation is in sync with intro.ru.md rev. 1.39 -->
 
 ----
 
@@ -306,7 +306,15 @@ file.
 	word1 word2
 	\EOF
 	comment till eof
-
+Additionally `SPF/Linux` understands [`#!`][shebang] comment. Make your forth source file executable
+and put the following line at the top
+ 
+    #! absolute_path_to_spf_binary
+and you will be able to execute this file without specifying spf path at the command line.
+Shell interpeter will run spf and pass the location of source file as command-line parameter.
+SPF interpreter itself will treat the first line as a comment.
+ 
+[shebang]: http://en.wikipedia.org/wiki/Shebang_(Unix)
 
 ----
 <a id="string"/>
@@ -469,6 +477,8 @@ or
 <a id="dll"/>
 ###[Using external DLLs](#dll)
 
+*FIXME:* rewrite, more examples
+
 Import functions with stdcall calling convention (e.g. Win32 API) as follows :
 
 	WINAPI: SevenZip 7-zip32.dll
@@ -495,6 +505,28 @@ or:
 
 	REQUIRE SO ~ac/lib/ns/so-xt.f
 	SO NEW: "DLL name"
+
+**SPF/linux**
+
+Low-level words `DLOPEN` `DLSYM` `symbol-addr` `symbol-call`
+
+Usage. By default `libc` `libdl` and `libpthread` are loaded. Load other shared objects with:
+
+    USE so-file-name
+
+Invoking dynamic function
+
+    (( H-STDOUT S" hello world!" )) write DROP
+Nota bene, parameters are passed from left to right, `DROP` removes return value after the call.
+If there are some parameters on the stack already:
+
+    H-STDOUT 1 <( S" hello world!" )) write DROP
+i.e. the number before `<(` shows how much parameters are already on the stack ("out of brackets").
+
+Core implementation of `(( ))` doesn't allow nested invocations. Use `~ygrek/lib/linux/ffi.f` to
+overcome this limitation.
+
+`~ac/lib/ns/so-xt.f` works in `spf/linux` (identically to Windows version!).
 
 ----
 <a id="debug"/>
@@ -525,6 +557,7 @@ probably you dont need these options!)*
   some other words is performed by the spf kernel itself and thus is not affected with this option)  
 * `TRUE TO ?C-JMP` enables recursion tail-call optimization (experimental,
   disabled by default, may not work in some cases)
+* `FALSE TO VECT-INLINE?` disables direct compilation of vector calls
 
 **NB**: If your program starts behaving in a strange way, try to
 temporarily turn off the optimizer using `DIS-OPT`, probably (very unlikely!) you
