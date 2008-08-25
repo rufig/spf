@@ -5046,6 +5046,8 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
 : FORLIT, ( N -- )
   'DUP _INLINE, SetOP 0B8 C, , OPT ;
 
+TRUE VALUE VECT-INLINE?  
+
 : CON>LIT ( CFA -- CFA TRUE | FALSE )
                   OPT? 0= IF TRUE EXIT THEN ?SET
                MM_SIZE 0= IF TRUE EXIT THEN
@@ -5084,12 +5086,19 @@ OP2 @ 2+ C@   XOR OR  \  (FALG &( X1=X ))
                      'DROP _INLINE,
                      FALSE  OPT_CLOSE  EXIT
                  THEN
-                  TOVALUE-CODE =
-                 IF  OPT_INIT
+                 DUP TOVALUE-CODE =
+                 IF  DROP OPT_INIT
                      SetOP  A3 C,  CELL- [>T] ,   OPT
                      'DROP _INLINE,
                      FALSE  OPT_CLOSE  EXIT
                  THEN
+                 VECT-INLINE? IF
+                  DUP VECT-CODE  = 
+                  IF DROP 
+                    SetOP  0x15FF W, 5 + [>T] , OPT FALSE  OPT_CLOSE EXIT 
+                  THEN
+                 THEN
+  DROP
   TRUE
 ;
 
