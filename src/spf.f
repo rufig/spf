@@ -47,9 +47,6 @@ C" M_WL" FIND NIP 0=
   POSTPONE DROP   POSTPONE DUPENDCASE 
 ; IMMEDIATE
 
-: [>T]  ; IMMEDIATE
-:  >T   ; IMMEDIATE
-
 : ," ( addr u -- )
     DUP C, CHARS HERE OVER ALLOT
     SWAP CMOVE 0 C, ;
@@ -163,6 +160,8 @@ S" src/compiler/spf_read_source.f"   INCLUDED
 S" src/compiler/spf_nonopt.f"        INCLUDED
 S" src/compiler/spf_compile0.f"      INCLUDED
 
+: [>T]  ; IMMEDIATE
+:  >T   ; IMMEDIATE
 \  Макроподстановщик-оптимизатор
 BUILD-OPTIMIZER [IF]
 S" src/macroopt.f"                   INCLUDED
