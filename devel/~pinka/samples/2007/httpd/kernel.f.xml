@@ -28,6 +28,7 @@
 
 <def name="instantiate-worker" ds=" -- "><!-- up to 20 K on worker, as yet -->
   <wid>
+    GET-CURRENT <logN>worker wid</logN>
     <const name="my-wid">GET-CURRENT</const>
     <!-- local alias: -->
     <def name="get-client?"> get-client? </def>
@@ -35,7 +36,7 @@
   
     load-worker inc-workers
 
-  </wid> DUP <logN>worker wid</logN>
+  </wid> DUP
   DUP remember-worker `start OBEY-SURE-
 </def>
 
