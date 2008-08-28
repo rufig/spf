@@ -53,9 +53,18 @@
   1 xmlFreeParserCtxt DROP
   \ the parsed document in ctxt->myDoc is not freed.
 ;
-: XmlDocFromCtxt ( ctxt -- doc )
+: ParserCtxtDoc ( ctxt -- doc )
   2 CELLS + @ 
 ;
+: PerParseDoc ( xt -- doc )
+  DUP >R EXECUTE ( a u )
+  0. CreatePushParserCtxt
+  BEGIN R@ EXECUTE TUCK  3 PICK ParseChunk 0= UNTIL 
+  RDROP
+  DUP ParserCtxtDoc SWAP FreeParserCtxt
+;
+
+
 : DumpDoc ( doc -- )
   XML_SERIALIZE TYPE
 ;
