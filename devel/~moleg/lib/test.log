@@ -35,6 +35,7 @@ testing: devel\~moleg\lib\util\root.f                                  passed
 testing: devel\~moleg\lib\util\qif.f                                   passed
 testing: devel\~moleg\lib\util\c-style.f                               passed
 testing: devel\~moleg\lib\util\switch.f                                passed
+testing: devel\~moleg\lib\util\-if.f                                   passed
 testing: devel\~moleg\lib\mtask\mutex.f                                passed
 testing: devel\~moleg\lib\mtask\pmutex.f                               passed
 testing: devel\~moleg\lib\arrays\arrays.f                              passed
