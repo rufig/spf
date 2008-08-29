@@ -5,7 +5,8 @@
 : THROW
   DUP 0= IF THROW EXIT THEN
 
-  CR RP@
+  
+  CR OK RP@
   BEGIN DUP R0 @ U> 0= WHILE
     STACK-ADDR.
     CELL+
