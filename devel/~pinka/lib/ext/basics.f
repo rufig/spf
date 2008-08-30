@@ -16,6 +16,16 @@ REQUIRE [UNDEFINED] lib/include/tools.f
 
 [THEN]
 
+[UNDEFINED] L@ [IF] \ 'long' (double word) -- 4 bytes -- 32 bits
+: L@ @ ;
+: L! ! ;
+[THEN]
+
+[UNDEFINED] Q@ [IF] \ 'quadro' (quadruple word) -- 8 bytes -- 64 bits
+: Q@ 2@ SWAP ;      \ старшая часть по старшему адресу
+: Q! >R SWAP R> 2! ;
+[THEN] \ see also: http://en.wikipedia.org/wiki/Double_word#Dword_and_Qword
+
 
 REQUIRE NDROP   ~pinka/lib/ext/common.f
 
