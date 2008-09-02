@@ -36,7 +36,7 @@
 
 <export>
 
-<def name="connect" ds=" -- ">
+<def name="open" ds=" -- ">
   conn <unless> mysql_new_conn conn! set-conn-options </unless>
   (connect) <if><exit/></if>
   treat-err
@@ -47,6 +47,8 @@
   free-res-all
   conn mysql_close DROP 0 conn!
 </def>
+
+<alias name="connect" word="open" />
 
 
 <def name="assume-cred" ds=" d-db d-host d-user d-passw -- ">
