@@ -43,7 +43,9 @@
 <export>
 
 <def name="enqueueN" ds=" x -- ">
-  200 wait-worker <unless> log-overflow hire-worker </unless> TUCK !
+  100 wait-worker <unless> log-overflow hire-worker </unless>
+  TUCK !
+  DUP CELL- 0! <rem> clear link field (!!!)</rem>
   cs ENTER-CS
   _h BIND-DNODE-TAIL _len 1+!
   cs LEAVE-CS
@@ -53,7 +55,7 @@
 <def name="dequeueN" ds=" -- x ">
   sem -1 Wait <unless> `#dequeueN STHROW </unless>
   cs ENTER-CS
-  _len 1-! _h UNBIND-NODE 
+  _len 1-! _h UNBIND-NODE
   cs LEAVE-CS
   DUP <unless> `#queue-is-underflow STHROW </unless>
   DUP @ SWAP release-worker
