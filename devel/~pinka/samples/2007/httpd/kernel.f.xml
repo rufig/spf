@@ -37,7 +37,8 @@
     load-worker inc-workers
 
   </wid> DUP
-  DUP remember-worker `start OBEY-SURE-
+    remember-worker 
+    `start OBEY-SURE-
 </def>
 
 <def name="stop-workers" ds=" -- ">
