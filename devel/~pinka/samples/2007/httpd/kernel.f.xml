@@ -86,7 +86,11 @@
 
 <def name="restart" ds=" -- ">
   stop
-  500 PAUSE
+  25 <repeat> workers-quan <while/> DUP <while/> 1- 200 PAUSE </repeat>
+   0 EQ <if><emit>ERROR: can't stop the tcp-server, </emit>
+   workers-quan . idles-quan . queue-length . CR
+   <exit/>
+  </if>
   start
 </def>
 
