@@ -22,14 +22,14 @@ Require >CS control-stack.f \ управл€ющий стек
 ;
 
 : PUSH-CURRENT ( wid -- ) 
-  CURRENT @ >CS CURRENT !
-; 
+  GET-CURRENT >CS SET-CURRENT
+;
 : DROP-CURRENT ( -- ) 
-  CS> CURRENT !
-; 
+  CS> SET-CURRENT
+;
 : POP-CURRENT ( -- wid ) 
   CURRENT @ DROP-CURRENT
-; 
+;
 
 : PUSH-SCOPE ( wid -- )
   ALSO CONTEXT !
