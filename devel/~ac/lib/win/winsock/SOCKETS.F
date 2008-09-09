@@ -315,3 +315,16 @@ USER _GetHostIPs
     ELSE NIP NIP 0 UNLOOP EXIT THEN
   4 +LOOP CloseSocket THROW DROP 0 SWAP
 ;
+
+\ ~pinka/lib/sockets-ext.f 
+
+: READ-SOCK-EXACT ( a u socket -- ior )
+  >R BEGIN DUP WHILE
+    2DUP R@ ReadSocket ?DUP IF NIP NIP NIP RDROP EXIT THEN ( a1 u1 u2 )
+    TUCK - -ROT + SWAP
+  REPEAT ( a1 0 )
+  NIP RDROP
+;
+: ReadSocketExact ( a u socket -- ior ) \ см. также "read" в sock2.f
+  READ-SOCK-EXACT
+;
