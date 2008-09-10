@@ -59,6 +59,40 @@ USER StderrWH
 : ChildApp ( input-handle output-handle a u -- p-handle ior )
   2>R DUP 2R> ChildAppErr
 ;
+: ChildAppWaitDir ( input-handle output-handle err-handle S" application.exe" S" curr_directory" wait -- exit_code ior )
+\ то же, что и StartAppWaitDir, но с указанием хэндлов
+  { i o e a u da du w \ pi si c }
+  5 CELLS      ALLOCATE THROW -> pi   pi 5 CELLS ERASE
+  /STARTUPINFO ALLOCATE THROW -> si   si /STARTUPINFO ERASE
+  /STARTUPINFO si cb !
+  SW_HIDE si wShowWindow !
+  STARTF_USESTDHANDLES STARTF_USESHOWWINDOW OR si dwFlags !
+  i ( DUP-HANDLE-INHERITED THROW) si hStdInput !
+  o ( DUP-HANDLE-INHERITED THROW) si hStdOutput !
+  e ( DUP-HANDLE-INHERITED THROW) si hStdError !
+  pi
+  si
+  da   \ cur dir
+  0    \ envir
+  0    \ creation flags
+  TRUE \ inherit handles
+  0 0  \ process & thread security
+  a    \ command line
+  0    \ application
+  CreateProcessA DUP
+  IF SA_WAIT @ pi @ WaitForSingleObject DROP
+     ^ c pi @ GetExitCodeProcess DROP
+     pi @ CLOSE-FILE DROP \ process handle close
+     pi CELL+ @ CLOSE-FILE DROP \ thread handle close
+     c
+  ELSE 0 THEN
+  ( ior exit_code )
+  pi FREE DROP si FREE DROP
+  SWAP ERR
+
+  i CLOSE-FILE THROW
+  o CLOSE-FILE THROW
+;
 
 
 \EOF
