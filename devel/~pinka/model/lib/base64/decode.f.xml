@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem>
+see also: ~ac/lib/string/CONV.F
+
+http://en.wikipedia.org/wiki/Base64#Implementation
+
+  ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+
+</rem>
+
+<def name="DECODE-CHAR" ds=" char -- n flag ">
+  DUP 48 ULT <if>
+    DUP 43 EQ <if> DROP 62 TRUE <exit/></if>
+    DUP 47 EQ <if> DROP 63 TRUE <exit/></if>
+    FALSE <exit/>
+  </if>
+  DUP  58 ULT <if> 48 - 52 + TRUE <exit/></if><!-- [0-9] -->
+  DUP  65 ULT <if> FALSE <exit/></if>
+  DUP  91 ULT <if> 65 -      TRUE <exit/></if><!-- [A-Z] -->
+  DUP  97 ULT <if> FALSE <exit/></if>
+  DUP 123 ULT <if> 97 - 26 + TRUE <exit/></if><!-- [a-z] -->
+  FALSE
+</def>
+
+<def name="(DEBASE64-43)" ds=" a1 -- a2 c3 c2 c1 3 | a2 0 ">
+  DUP C@ DECODE-CHAR <unless> DROP CHAR+ 0 <exit/></unless>
+  18 LSHIFT >R CHAR+
+  DUP C@ DECODE-CHAR DROP
+  12 LSHIFT >R CHAR+
+  DUP C@ DECODE-CHAR DROP
+   6 LSHIFT >R CHAR+
+  DUP C@ DECODE-CHAR DROP
+            >R CHAR+ R>
+  R> OR R> OR R> OR
+
+  DUP 255 AND SWAP 8 RSHIFT
+  DUP 255 AND SWAP 8 RSHIFT
+      255 AND 3
+</def>
+
+<def name="(DEBASE64)" ds=" a1 u1 a2 -- a3 ">
+  >R OVER + SWAP
+  <repeat> 2DUP UGT <while/>
+    (DEBASE64-43) <if> R>
+      TUCK B! 1+
+      TUCK B! 1+
+      TUCK B! 1+
+      >R
+    </if>
+  </repeat> 2DROP R>
+</def>
+
+<def name="DEBASE64" ds=" a-src u-src a-buf u-buf -- a-buf u ">
+  SWAP >R  4 * 3 / MIN
+
+  DUP <unless> 2DROP R> 0 <exit/></unless>
+
+  2DUP + CHAR- DUP C@ <char>=</char> EQ 1 AND
+  SWAP   CHAR-     C@ <char>=</char> EQ 1 AND + <!-- ( 0|1|2 ) -->
+  R> 2>R R@
+
+  (DEBASE64) R> TUCK - R> - 0 MAX
+</def>
+
+</forth>
