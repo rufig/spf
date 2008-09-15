@@ -63,5 +63,11 @@ REQUIRE EQUAL   ~pinka/spf/string-equal.f
 : ALSO! ( wid -- ) ALSO CONTEXT ! ; [THEN]
 
 
+[UNDEFINED] DtoS [IF]
+: DtoS ( d -- addr1 u1 )  (D.) ;
+: NtoS ( n -- addr1 u1 )  S>D (D.) ;
+: UtoS ( u -- addr1 u1 )  U>D (D.) ;
+[THEN]
+
 [UNDEFINED] lexicon.basics-aligned [IF]
 TRUE CONSTANT lexicon.basics-aligned [THEN]
