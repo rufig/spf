@@ -76,7 +76,7 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
 ;
 
 : DUMP-TRACE-USING-REGS ( esp eax ebp -- )
-  ." STACK: "
+  ." STACK: (" S0 @ OVER - 4 / 1+ S>D (D.) TYPE ." ) "
   ( ebp ) DUP 5 CELLS + BEGIN DUP ['] @ CATCH IF DROP ELSE ADDR. THEN CELL- 2DUP U> UNTIL 2DROP
   ( eax ) ." [" 8 .0 ." ]" CR
   ( esp )
