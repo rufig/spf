@@ -27,14 +27,11 @@ REQUIRE UNBROKEN ~pinka/samples/2005/lib/split-white.f
 
 REQUIRE Included ~pinka/lib/ext/requ.f
 
+REQUIRE READOUT-FILE ~pinka/lib/files-ext.f
+
 : SPLIT-LINE ( a u -- a1 u1 a2 u2 true | a u false )
   LT LTL @ SPLIT DUP IF EXIT THEN DROP
   LT CHAR+ 1 SPLIT  \ support of 0x0A as line terminator
-;
-
-: READOUT-FILE ( a u1 h -- a u2 ior )
-  >R OVER SWAP R> READ-FILE ( a u2 ior )
-  DUP 109 = IF 2DROP 0. THEN
 ;
 
 WARNING @  WARNING 0!
