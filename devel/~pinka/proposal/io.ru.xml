@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<?xml-stylesheet type="text/xsl" href="../samples/2007/notion/xhtml.xsl"?>
+<book>
+
+<!--
+<toc/>
+-->
+
+<chapter id="readout"><title>Функция readout</title>
+
+<p><w ds=" a1 u1 h -- a1 u ior ">READOUT-FILE</w> — возвращает блок данных
+(в виде пары значений), прочитанных в заданный буфер.
+Стандартное слово <w ds="a1 u2 h -- u2 ior ">READ-FILE</w> дает
+на выходе объем прочитанных данных.
+</p>
+
+</chapter>
+
+<chapter id="read-exact"><title>Функция read-exact</title>
+<p><w ds=" a1 u1 h -- ior ">READ-FILE-EXACT</w> — вычитывает
+блок данных в точности целиком в заданный буфер.
+</p>
+
+</chapter>
+
+
+</book>
