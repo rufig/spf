@@ -733,8 +733,9 @@ CODE FM/MOD ( d1 n1 -- n2 n3 ) \ 94
 END-CODE
 
 
-CODE DIGIT \ [ C, N1 -> N2, TF / FF ] \ N2 - значение литеры C как
-           \ цифры в системе счисления по основанию N1
+CODE DIGIT ( char n1 -- n2 true | false )
+\ n2 - значение литеры char как
+\ цифры в системе счисления по основанию n1
        MOV ECX, EAX
        MOV EAX, [EBP]
        A;  2C C, 30 C,  \  SUB AL, # 30
@@ -1359,14 +1360,14 @@ CODE NRCOPY ( D: i*x i -- D: i*x i R: i*x i )
 END-CODE
 
 CODE RP+@ ( offs -- x )
-\ взять число со смещением offs байт от вершины стека возвратов (0 RP+@ == RP@)
-     8B C, 44 C, 04 C, 04 C, \ MOV EAX, 4 [EAX] [ESP]
+\ взять число со смещением offs байт от вершины стека возвратов (0 RP+@ == RP@ @)
+     8B C, 44 C, 04 C, 04 C, \ MOV EAX, 4 [ESP] [EAX]
      RET
 END-CODE
      
 CODE RP+ ( offs -- addr )
 \ взять адрес со смещением offs байт от вершины стека возвратов
-     8D C, 44 C, 04 C, 04 C, \  LEA EAX, 4 [EAX] [ESP]
+     8D C, 44 C, 04 C, 04 C, \  LEA EAX, 4 [ESP] [EAX]
      RET
 END-CODE
 
