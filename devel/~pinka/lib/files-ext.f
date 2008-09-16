@@ -4,3 +4,5 @@
   >R OVER SWAP R> READ-FILE ( a u2 ior )
   DUP 109 = IF 2DROP 0. THEN
 ;
+
+\ see also: ~pinka/lib/win/pipes.f -- READ-FILE-EXACT ( addr u h -- ior )
