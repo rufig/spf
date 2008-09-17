@@ -9,6 +9,9 @@ USER StdoutWH
 USER StderrRH
 USER StderrWH
 
+: DupHandle ( h1 -- h2 )
+  DUP DUP-HANDLE-INHERITED THROW SWAP CLOSE-FILE THROW
+;
 : CreateStdPipes ( -- i o e )
 \ Создать пайпы для передачи дочернему процессу в качестве stdin/out/err
 \ и вернуть их хэндлы.
@@ -20,12 +23,9 @@ USER StderrWH
   0 0 StdinWH StdinRH CreatePipe ERR THROW
   0 0 StdoutWH StdoutRH CreatePipe ERR THROW
   0 0 StderrWH StderrRH CreatePipe ERR THROW
-  StdinRH @ DUP-HANDLE-INHERITED THROW \ StdInput !
-  StdinRH @ CLOSE-FILE THROW
-  StdoutWH @ DUP-HANDLE-INHERITED THROW \ StdOutput !
-  StdoutWH @ CLOSE-FILE THROW
-  StderrWH @ DUP-HANDLE-INHERITED THROW \ StdErr !
-  StderrWH @ CLOSE-FILE THROW
+  StdinRH @ DupHandle \ StdInput !
+  StdoutWH @ DupHandle \ StdOutput !
+  StderrWH @ DupHandle \ StdErr !
 ;
 
 : ChildAppErr ( input-handle output-handle err-handle a u -- p-handle ior )
@@ -90,8 +90,9 @@ USER StderrWH
   pi FREE DROP si FREE DROP
   SWAP ERR
 
-  i CLOSE-FILE THROW
-  o CLOSE-FILE THROW
+  i CLOSE-FILE DROP
+  o CLOSE-FILE DROP
+  e CLOSE-FILE DROP \ не делаем throw, т.к. может быть один и тот же хэндл
 ;
 
 
