@@ -41,6 +41,22 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   </mm>
 </rule>
 
+<rule match="f:prop" ds=" i*x -- a u ">
+  M @ <f:if> `#f:prop-M-not-supported STHROW </f:if>
+  <mm>
+    ALIGN HERE 0 , <get-name/> <!-- ( addr  a u ) -->
+    3DUP
+    <def name="{}!" xmlns="http://forth.org.ru/ForthML/">
+      0. <lit> DUP </lit> DUP @ SWAP 0! XUPDATED >R
+      <r:yield transform="rules-ss-template"/>
+      R> <lit/> !
+    </def>
+    <def name="{}" xmlns="http://forth.org.ru/ForthML/">
+      <lit/> @ XCOUNT
+    </def>
+  </mm>
+</rule>
+
 </f:also>
 
 </f:forth>
