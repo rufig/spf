@@ -9,7 +9,7 @@ USER StdoutWH
 USER StderrRH
 USER StderrWH
 
-: DupHandle ( h1 -- h2 )
+: HERITABLE-HANDLE ( h1 -- h2 ) \ ~ruv
   DUP DUP-HANDLE-INHERITED THROW SWAP CLOSE-FILE THROW
 ;
 : CreateStdPipes ( -- i o e )
