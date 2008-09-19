@@ -23,9 +23,9 @@ USER StderrWH
   0 0 StdinWH StdinRH CreatePipe ERR THROW
   0 0 StdoutWH StdoutRH CreatePipe ERR THROW
   0 0 StderrWH StderrRH CreatePipe ERR THROW
-  StdinRH @ DupHandle \ StdInput !
-  StdoutWH @ DupHandle \ StdOutput !
-  StderrWH @ DupHandle \ StdErr !
+  StdinRH @ HERITABLE-HANDLE \ StdInput !
+  StdoutWH @ HERITABLE-HANDLE \ StdOutput !
+  StderrWH @ HERITABLE-HANDLE \ StdErr !
 ;
 
 : ChildAppErr ( input-handle output-handle err-handle a u -- p-handle ior )
