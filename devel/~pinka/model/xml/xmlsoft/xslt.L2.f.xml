@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 04.2008 rvm -->
+
+<wordlist name="xslt-L2-hidden">
+
+<include href="xslt.L1.f.xml"/>
+<include href="parser.f.xml"/>
+
+<g xml:base="http://forth.org.ru/~pinka/model/data/">
+
+<using href="list-plain.f.xml"/>
+
+<include href="events-common.f.xml"/>
+<include href="astack.f.xml"/>
+</g>
+
+<also wordlist="wordstack-hidden">
+<also wordlist="dataspace-L3-hidden">
+
+<def name="quoted-string" ds=" a1 u1 -- a2 u2 ">
+  ALIGN HERE >R `' S, S, `' S, R> HERE OVER -
+  0 C,
+</def>
+<def name="PrepareParams" ds=" -- addr|0 ">
+  ALIGN HERE
+  <q> DROP , DROP , </q> enum-pairs
+  DUP HERE EQ <if> DROP 0 <exit/></if>
+  0 , 0 ,
+</def>
+
+</also>
+</also>
+
+<cell name="_use-params"/>
+<!--
+<handler event="init"> _use-params 0! </handler>
+-->
+<handler event="startup"> _use-params 1+! </handler>
+<handler event="shutdown"> _use-params 0! </handler>
+
+<export>
+
+<def name="use-xslt-params" ds=" -- ">
+  _use-params @ <unless> startup FIRE-EVENT </unless>
+</def>
+<def name="set-xslt-param-" ds=" a-name u-name a-val u-val -- ">
+  use-xslt-params <rem> init once </rem>
+  quoted-string push-pair-
+</def>
+<def name="set-xslt-param" ds=" a-val u-val a-name u-name -- ">
+  2SWAP set-xslt-param-
+</def>
+<def name="xslt" ds=" D-xml D-xsl-file -- a2 u2 ">
+  _use-params @ <unless> xslt <exit/></unless>
+  PrepareParams _params !
+  xslt
+  cleanup FIRE-EVENT
+</def>
+
+</export>
+
+<def name="(xtrans)" ds=" -- a2 u2 ">
+  PrepareParams _params !
+  <q>(apply)</q> CATCH >R
+  _params 0!
+  cleanup FIRE-EVENT
+  R> THROW
+</def>
+
+<export>
+
+<def name="load-xml-chunk" ds=" a u -- ">
+  DUP <if> load-chunk <exit/></if>
+  load-chunk ctxt-doc assume-doc
+  free-ctxt
+</def>
+
+<def name="apply-xslt" ds=" d-xslt-file -- ">
+  load-xsl (xtrans) 
+</def>
+<def name="apply-xslt-result" ds=" d-xslt-file -- a2 u2 ">
+  apply-xslt result-xml
+</def>
+<def name="pipe-xml" ds=" -- "><rem> an output of the previous as input to the next </rem>
+  result::doc assume-doc   0 result::_doc !
+</def>
+
+</export>
+</wordlist>
+
+</forth>

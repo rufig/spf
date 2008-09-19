@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 03.2008 rvm -->
+
+<include href="../doc.f.xml"/>
+<include href="../docxsl.f.xml"/>
+
+<wordlist name="result">
+  <include href="../doc.f.xml"/>
+</wordlist>
+
+<cell name="_params"/>
+<cell name="_res-a"/>
+<cell name="_res-u"/>
+
+<def name="free-res-xml" ds=" -- ">
+  _res-a @ <unless><exit/></unless>
+  _res-a @ _res-u @ FreeXmlString
+  _res-a 0! _res-u 0!
+</def>
+
+<def name="(apply)" ds=" -- ">
+  _params @  doc docxsl ApplyStylesheet result::assume-doc free-res-xml
+</def>
+
+<def name="result-xml" ds=" -- a u ">
+  _res-a @ DUP <if> _res-u @ <exit/></if> DROP
+  result::doc docxsl XslResultToString
+  2DUP _res-u ! _res-a !
+</def>
+
+<def name="xslt" ds=" D-xml D-xsl-file -- a2 u2 ">
+  load-xsl loadXML (apply) result-xml
+  _params 0!
+</def>
+
+</forth>

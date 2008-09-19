@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<comment>
+  http://xmlsoft.org/
+</comment>
+
+<cell name="_ctxt"/>
+
+<def name="free-ctxt" ds=" -- "><rem> doc stay alive </rem>
+  _ctxt @ <unless><exit/></unless>
+  _ctxt @ FreeParserCtxt
+  _ctxt 0!
+</def>
+
+<def name="load-chunk" ds=" a u -- ">
+  _ctxt @ DUP <if> ParseChunk <exit/></if> DROP
+  0. CreatePushParserCtxt _ctxt !
+</def>
+
+<def name="ctxt-doc" ds=" -- doc|0 ">
+  _ctxt @ DUP <if> ParserCtxtDoc </if>
+</def>
+
+</forth>

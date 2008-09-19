@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 03.2008 rvm -->
+
+<cell name="_doc"/>
+<def name="doc" ds=" -- doc "> _doc @ </def>
+
+<def name="free-doc" ds=" -- ">
+  _doc @ <unless><exit/></unless>
+  _doc @ FreeDoc
+  _doc 0!
+</def>
+
+<def name="load" ds=" file-a file-u -- ">
+  free-doc  LoadDoc _doc !
+</def>
+
+<def name="loadXML" ds=" text-a text-u -- ">
+  free-doc  LoadXmlDoc _doc !
+</def>
+
+<def name="assume-doc" ds=" doc -- ">
+  free-doc _doc !
+</def>
+
+</forth>

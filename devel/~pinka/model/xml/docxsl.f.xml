@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 03.2008 rvm -->
+
+<cell name="_docxsl"/>
+<def name="docxsl" ds=" -- docxsl "> _docxsl @ </def>
+
+<def name="free-docxsl" ds=" -- ">
+  _docxsl @ <unless><exit/></unless>
+  _docxsl @ FreeDocXsl
+  _docxsl 0!
+</def>
+
+<def name="load-xsl" ds=" file-a file-u -- ">
+  free-docxsl  LoadDocXsl _docxsl !
+</def>
+
+<def name="loadXML-xsl" ds=" text-a text-u -- ">
+  free-docxsl  LoadXmlDocXsl _docxsl !
+</def>
+
+<def name="assume-docxsl" ds=" docxsl -- ">
+  free-docxsl _docxsl !
+</def>
+
+</forth>
