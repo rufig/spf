@@ -10,7 +10,11 @@
   AT-THREAD-STARTING 
 ;
 
+VARIABLE IN-EXCEPTION
+
 : DUMP-TRACE ( context siginfo signo -- )
+  IN-EXCEPTION @ IF DROP EXIT THEN
+  TRUE IN-EXCEPTION !
   BASE @ >R HEX
 
   ROT ( siginfo signo context )
@@ -27,7 +31,7 @@
   R> CONTEXT_EBP + @ ( ebp )
   DUMP-TRACE-USING-REGS
   ." END OF EXCEPTION REPORT" CR
-  R> BASE !
+  R> BASE ! FALSE IN-EXCEPTION !
 ; 
 
 \ see http://forth.sourceforge.net/standard/dpans/dpans9.htm#9.3.5
