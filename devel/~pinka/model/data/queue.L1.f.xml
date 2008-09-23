@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="Windows-1251"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
+<using href="http://forth.org.ru/~pinka/model/data/list-plain.f.xml"/>
+
 <wordlist name="queue-L1-hidden">
 
 <include href="pool.L1.f.xml"/><rem> pool of carts for messages </rem>
@@ -36,7 +38,7 @@
 <init> CS@ <rem>( wid )</rem></init>
 <def name="log-overflow" ds=" -- ">
   CR 
-  <emit>The queue defined in the wordlist #</emit><lit/> DUP . VOC-NAME.
+  <emit>WARNING: The queue defined in the wordlist #</emit><lit/> DUP . VOC-NAME.
   <emit> is overflow, wait for dequeue.</emit> CR
 </def>
 

@@ -6,15 +6,10 @@ REQUIRE CreateSem ~pinka/lib/multi/Semaphore.f
 REQUIRE CREATE-CS ~pinka/lib/multi/Critical.f
 
 
-\ paths is relatively to the current directory(!)
-
-`list-plain.f.xml EMBODY
-
-`event-plain.f.xml EMBODY
 
 `events-common.f.xml EMBODY
-
-`queue.L1.f.xml EMBODY
+`queue.L1.f.xml      EMBODY
+                     \ paths is relatively to the current directory(!)
 
 
  startup FIRE-EVENT
@@ -31,3 +26,8 @@ REQUIRE CREATE-CS ~pinka/lib/multi/Critical.f
 
   T 30 enqueueN queue-length .
   T dequeueN . queue-length .
+
+
+\EOF
+
+todo: величину limit (объем всех сообщений) сделать настраиваемой
