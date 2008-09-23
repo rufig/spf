@@ -25,17 +25,17 @@ CODE CDR-BY-NAME ( c-addr u nfa1|0 -- c-addr u nfa1|nfa2|0 )
       MOV ESI, EAX                  \ вход в список
       MOV EDI, 4 [EBP]              \ искомое слово
 
-      OR EDX, EDX 		    
-      JNZ SHORT @@4    \ особую маску вычисляем только если длина не ноль
+      CMP EDX, # 4    \ при длинах 0,1,2,3 лезет за пределы буфера --
+      JNB SHORT @@4    \ временный обход (до ввода лучшего решения)
       MOV EBX, # 0xFF
       JMP @@1
 
-@@4:
+@@4:  \ вычисление кода для сравнения
       A;  0xBB C, -1 W, 0 W, \    MOV EBX, # FFFF
       CMP EDX, # 3
       JB  SHORT @@8
       A;  0xBB C,  -1 DUP W, W, \   MOV  EBX, # FFFFFFFF
-@@8:   MOV EAX, [EDI]
+@@8:   MOV EAX, [EDI] \ -- в этом месте может произойти AV, если c-addr у края выделенной памяти
       SHL EAX, # 8
       OR  EDX, EAX
       AND EDX, EBX
