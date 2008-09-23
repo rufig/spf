@@ -33,8 +33,8 @@
   my-wid <logN>worker started</logN>
   <repeat> get-client? <while/> treat-client </repeat>
   my-wid <logN>worker finished</logN>
-  dec-workers
   shutdown FIRE-EVENT
+  dec-workers
 </def>
 
 <def name="start" ds=" -- ">
