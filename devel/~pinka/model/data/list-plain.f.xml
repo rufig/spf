@@ -100,6 +100,8 @@
 <def name="BIND-DNODE-TAIL" ds=" node dlist -- ">
 <comment> Don't use this word and the word BIND-NODE for the same list in mixed </comment>
 
+  OVER CELL- 0! <rem> clear link field </rem>
+
   DUP @ <unless> 2DUP ! CELL+ ! <exit/></unless>
   CELL+
   2DUP @ DUP <if> CELL- ! ! <exit/></if>

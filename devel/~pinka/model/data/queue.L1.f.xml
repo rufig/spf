@@ -45,7 +45,6 @@
 <def name="enqueueN" ds=" x -- ">
   100 wait-worker <unless> log-overflow hire-worker </unless>
   TUCK !
-  DUP CELL- 0! <rem> clear link field (!!!)</rem>
   cs ENTER-CS
   _h BIND-DNODE-TAIL _len 1+!
   cs LEAVE-CS
