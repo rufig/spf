@@ -41,6 +41,10 @@
     `start OBEY-SURE-
 </def>
 
+<def name="wait-workers-finished" ds=" -- 0|x ">
+  25 <repeat> workers-quan <while/> 1- DUP <while/> 200 PAUSE </repeat>
+</def>
+
 <def name="stop-workers" ds=" -- ">
   <q> `close-socketline OBEY-SURE- </q> _workers FOREACH-LIST-VALUE
   2 <times>
@@ -48,6 +52,10 @@
     <repeat> idles-quan <while/> queue-length <while/> 20 PAUSE </repeat>
     queue-length <if> 50 PAUSE </if>
   </times>
+
+  wait-workers-finished <if> 100 PAUSE <exit/></if>
+  <emit>ERROR: can't stop the tcp-server, </emit>
+  workers-quan . idles-quan . queue-length . CR
 </def>
 
 <def name="dispatch-client" ds=" sock -- ">
@@ -87,11 +95,10 @@
 
 <def name="restart" ds=" -- ">
   stop
-  25 <repeat> workers-quan <while/> DUP <while/> 1- 200 PAUSE </repeat>
-   0 EQ <if><emit>ERROR: can't stop the tcp-server, </emit>
-   workers-quan . idles-quan . queue-length . CR
-   <exit/>
-  </if>
+  wait-workers-finished <unless><emit>ERROR: the tcp-server is not stoped </emit>
+    workers-quan . idles-quan . queue-length . CR <exit/>
+  </unless>
+  200 PAUSE
   start
 </def>
 
