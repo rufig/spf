@@ -184,17 +184,44 @@ VARIABLE vSSL_INIT
 ;
 : SslObjConnect ( socket context -- conn_obj ) \ connection
   SSL_new DUP 0= THROW NIP
-  DUP >R SSL_set_fd 0= THROW 2DROP R>
-  SSL_connect DUP 1 <> IF SWAP SSL_get_error THROW ELSE DROP THEN
+  DUP >R SSL_set_fd 0= THROW 2DROP
+  BEGIN
+    R@ SSL_connect DUP 1 <>
+  WHILE
+    SWAP SSL_get_error DUP 3 <> IF THROW THEN
+    20 PAUSE
+  REPEAT
+  DROP RDROP
 ;
 : SslObjAccept ( socket context -- conn_obj ) \ connection
   SSL_new DUP 0= THROW NIP
-  DUP >R SSL_set_fd 0= THROW 2DROP R>
-  SSL_accept DUP 1 <> IF SWAP SSL_get_error THROW ELSE DROP THEN
+  DUP >R SSL_set_fd 0= THROW 2DROP
+  BEGIN
+    R@ SSL_accept DUP 1 <>
+  WHILE
+    SWAP SSL_get_error DUP 2 <> IF THROW THEN \ SSL_ERROR_WANT_READ=2
+    DROP 2DROP
+    20 PAUSE
+  REPEAT
+  DROP RDROP
 ;
-: SslWrite ( addr u conn_obj -- n )
-  >R SWAP R> SSL_write NIP NIP NIP
+: SslWrite { addr u conn_obj -- n }
+\  >R SWAP R> SSL_write NIP NIP NIP
+  BEGIN
+    u addr conn_obj SSL_write NIP NIP NIP DUP 1 <
+  WHILE
+    conn_obj SSL_get_error DUP 3 <> IF 2DROP EXIT THEN
+    DROP 2DROP
+    20 PAUSE
+  REPEAT
 ;
-: SslRead ( addr u conn_obj -- n )
-  >R SWAP R> SSL_read NIP NIP NIP
+: SslRead { addr u conn_obj -- n }
+\  >R SWAP R> SSL_read NIP NIP NIP
+  BEGIN
+    u addr conn_obj SSL_read NIP NIP NIP DUP 1 <
+  WHILE
+    conn_obj SSL_get_error DUP 2 <> IF 2DROP EXIT THEN
+    DROP 2DROP
+    20 PAUSE
+  REPEAT
 ;
