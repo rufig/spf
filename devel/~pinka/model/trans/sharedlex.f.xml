@@ -94,7 +94,7 @@
   <!-- как вариант, здесь FORTH-WORDLIST можно отправлять на дно стека sharedlex,
   а стек ORDER оставлять пустым (при риске неверного перекрытия)
   FORTH-KERNEL CONTEXT ! -->
-  deployed PUSH-CURRENT
+  deployed PUSH-CURRENT  <rem> Откладывание идет в базовое хранилище </rem>
   <wordlist name="{ 2DUP }">
     resolve-interface EMBODY
     GET-CURRENT
