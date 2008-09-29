@@ -1,7 +1,7 @@
 \ $Id$
 \ 
-\ interface compatible with ~ac/lib/win/file/findfile-r.f
-\ FIND-FILES ( a u xt -- )
+\ interface [will be] compatible with ~ac/lib/win/file/findfile-r.f
+\ READDIR ( a u xt -- )
 \ a u -- directory to enumerate files in
 \ xt ( a u data dir? -- )
 \ a u -- path
@@ -19,7 +19,7 @@ REQUIRE /TEST ~profit/lib/testing.f
 
 : IS-DIR? ( dirent -- ? ) OFFSETOF_D_TYPE + B@ DT_DIR = ;
 
-: FIND-FILES ( a u xt -- ) \ xt: ( a u data dir? -- )
+: READDIR ( a u xt -- ) \ xt: ( a u data dir? -- )
   >R
   ANSI-FILE::>ZFILENAME DROP 1 <( )) opendir
   DUP 0= IF RDROP EXIT THEN
@@ -33,12 +33,15 @@ REQUIRE /TEST ~profit/lib/testing.f
   RDROP
   1 <( )) closedir DROP ;
 
+: FIND-FILES ( a u xt -- )
+  TRUE ABORT" need full paths here" 
+  READDIR ;
+
 : FIND-FILES-R ( a u xt -- )
   TRUE ABORT" not implemented"
-  FIND-FILES
   ;
 
 /TEST
 
-S" ." :NONAME ( a u data dir? -- ) . DROP TYPE CR ; FIND-FILES
+S" ." :NONAME ( a u data dir? -- ) . DROP TYPE CR ; READDIR
 
