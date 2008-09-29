@@ -56,6 +56,7 @@ REQUIRE EQUAL   ~pinka/spf/string-equal.f
 
 [UNDEFINED] ALLOCATED [IF]
 : ALLOCATED ( u -- a u ) DUP ALLOCATE THROW SWAP ;
+: RESIZED ( addr1 u -- addr2 u ) DUP >R RESIZE THROW R> ;
 : FREE-FORCE ( a|0 -- ) DUP IF FREE THROW EXIT THEN DROP ;
 [THEN]
 
