@@ -1,18 +1,17 @@
 \ $Id$
 \ 
 \ interface compatible with ~ac/lib/win/file/findfile-r.f
-\ FIND-FILES-R ( a u xt -- )
+\ FIND-FILES ( a u xt -- )
 \ a u -- directory to enumerate files in
 \ xt ( a u data dir? -- )
 \ a u -- path
 \ data -- implementation defined information about entry
 \ dir? -- true if directory
 
-REQUIRE ADD-CONST-VOC lib/ext/const.f
 REQUIRE ANSI-FILE lib/include/ansi-file.f
 REQUIRE CEQUAL ~pinka/spf/string-equal.f
-
-S" lib/posix/const/linux.const" ADD-CONST-VOC
+REQUIRE LINUX-CONSTANTS lib/posix/const.f
+REQUIRE /TEST ~profit/lib/testing.f
 
 : IS..? ( a u -- ? )
   2DUP S" .." CEQUAL IF 2DROP TRUE EXIT THEN
@@ -35,8 +34,11 @@ S" lib/posix/const/linux.const" ADD-CONST-VOC
   1 <( )) closedir DROP ;
 
 : FIND-FILES-R ( a u xt -- )
+  TRUE ABORT" not implemented"
   FIND-FILES
   ;
 
-S" ." :NONAME ( a u data dir? -- ) . DROP TYPE CR ; FIND-FILES-R
+/TEST
+
+S" ." :NONAME ( a u data dir? -- ) . DROP TYPE CR ; FIND-FILES
 
