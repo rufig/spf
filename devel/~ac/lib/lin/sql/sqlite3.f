@@ -81,6 +81,7 @@ REQUIRE [IF]          lib/include/tools.f
 : db3_open { addr u \ sqh -- sqh }
   ^ sqh addr 2 sqlite3_open S" DB3_OPEN" sqh db3_error? sqh
   DB3_CONN_CNT 1+!
+\  TRUE OVER 2 sqlite3_extended_result_codes DROP
 ;
 : db3_close { sqh -- }
   sqh 1 sqlite3_close S" DB3_CLOSE" sqh db3_error?
@@ -151,9 +152,15 @@ REQUIRE [IF]          lib/include/tools.f
     THEN
   LOOP
 ;
+: db3_reset ( ppStmt -- )
+  1 sqlite3_reset THROW
+;
+: db3_ubind ( ppStmt -- )
+  1 sqlite3_clear_bindings THROW
+;
 : db3_fin ( ppStmt -- )
-  DUP 1 sqlite3_reset THROW
-  DUP 1 sqlite3_clear_bindings THROW
+  DUP db3_reset
+  DUP db3_ubind
       1 sqlite3_finalize THROW
   DB3_STMT_CNT @ 1- DB3_STMT_CNT !
 ;
@@ -205,7 +212,7 @@ REQUIRE [IF]          lib/include/tools.f
   \ если еще ничего не вставлялось, то 0
   1 sqlite3_last_insert_rowid
 ;
-: db3_cdr { ppStmt -- ppStmt | 0 }
+: (db3_cdr) { ppStmt -- ppStmt | 0 }
   BEGIN \ ждем освобождения доступа к БД
     ppStmt 1 sqlite3_step DUP SQLITE_BUSY =
   WHILE
@@ -215,7 +222,10 @@ REQUIRE [IF]          lib/include/tools.f
 
   DUP 1 SQLITE_ROW WITHIN ABORT" DB3_STEP error"
 
-  SQLITE_ROW = IF ppStmt ELSE ppStmt db3_fin 0 THEN
+  SQLITE_ROW = IF ppStmt ELSE ( ppStmt db3_fin) 0 THEN
+;
+: db3_cdr { ppStmt -- ppStmt | 0 }
+  (db3_cdr) DUP 0= IF ppStmt db3_fin THEN
 ;
 : db3_car ( addr u sqh -- ppStmt )
   db3_prepare NIP DUP db3_bind db3_cdr
