@@ -1,5 +1,6 @@
 \ ToRead2 - расширенный вариант ToRead, возвращающий ошибку -1002
 \ при обрыве или закрытии соединения (старый ToRead обрывов не замечает)
+\ ср. PAD 0x541B ( FIONREAD) s ioctlsocket ...
 
 REQUIRE {             lib/ext/locals.f
 REQUIRE CreateSocket  ~ac/lib/win/winsock/sockets.f
