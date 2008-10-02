@@ -321,6 +321,8 @@ USER _GetHostIPs
 : READ-SOCK-EXACT ( a u socket -- ior )
   >R BEGIN DUP WHILE
     2DUP R@ ReadSocket ?DUP IF NIP NIP NIP RDROP EXIT THEN ( a1 u1 u2 )
+    ( в случае, если принято 0, ReadSocket возвращает ior -1002,
+    в отличии от READ-FILE, который возвращет ior 0 и длину 0)
     TUCK - -ROT + SWAP
   REPEAT ( a1 0 )
   NIP RDROP
