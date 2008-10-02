@@ -322,7 +322,9 @@ USER _GetHostIPs
   >R BEGIN DUP WHILE
     2DUP R@ ReadSocket ?DUP IF NIP NIP NIP RDROP EXIT THEN ( a1 u1 u2 )
     ( в случае, если принято 0, ReadSocket возвращает ior -1002,
-    в отличии от READ-FILE, который возвращет ior 0 и длину 0)
+      в отличии от READ-FILE, который возвращет ior 0 и длину 0 при
+      достижении конца файла или ior 109 при достижении конца pipe
+    )
     TUCK - -ROT + SWAP
   REPEAT ( a1 0 )
   NIP RDROP
