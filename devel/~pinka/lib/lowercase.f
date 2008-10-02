@@ -1,6 +1,6 @@
 \ 27.Sep.2008
 
-\ see also: ~ac/lib/string/uppercase.f
+\ see also: ~ac/lib/string/uppercase.f è ~nn/lib/lower.f
 
 : CHAR-LOWERCASE ( c -- c1 )
   DUP [CHAR] A [CHAR] Z 1+ WITHIN IF 32 + EXIT THEN \ ASCII
