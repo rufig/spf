@@ -10,6 +10,11 @@
   RET, GERM  CS> GERM!
   ClearJpBuff \ for OPT
   \ AT-BIRTH ( xt -- xt ) \ is event
+  [DEFINED] UNUSED [IF] \ в ядре нет слова UNUSED
+  UNUSED 250 < IF -8 THROW  THEN \ dictionary overflow
+  \ сравнение с учетом знака,
+  \ т.к. "свободное место" может стать и отрицательной величиной.
+  [THEN]
 ;
 : MAKE-CONST ( x -- xt ) \ xt ( -- x )
   CONCEIVE LIT, BIRTH
