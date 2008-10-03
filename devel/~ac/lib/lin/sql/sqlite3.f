@@ -78,7 +78,11 @@ REQUIRE [IF]          lib/include/tools.f
 : db3_version_str ( -- addr u )
   0 sqlite3_libversion ASCIIZ>
 ;
+: db3_used_memory { \ cur hw -- cur hw }
+  0 ^ hw ^ cur 0 ( SQLITE_STATUS_MEMORY_USED) 4 sqlite3_status THROW cur hw
+;
 : db3_open { addr u \ sqh -- sqh }
+  TRUE 1 sqlite3_enable_shared_cache THROW
   ^ sqh addr 2 sqlite3_open S" DB3_OPEN" sqh db3_error? sqh
   DB3_CONN_CNT 1+!
 \  TRUE OVER 2 sqlite3_extended_result_codes DROP
