@@ -24,8 +24,9 @@ EXPORT
 : NEXT-LINE-STDIN ( -- a u true | false )
   NEXT-LINE
 ;
-: ACCEPT2 ( c-addr +n1 -- +n2 ) \ 94
-  NEXT-LINE IF SEATED- NIP EXIT THEN 0
+: ACCEPT2 ( c-addr +n1 -- n2 ) \ 94
+  NEXT-LINE IF SEATED- NIP EXIT THEN
+  ( c-addr +n1 ) -1002 THROW
 ;
 
 ..: AT-PROCESS-STARTING TURN-BUF ['] ACCEPT2 TO ACCEPT ;..
