@@ -13,6 +13,13 @@ VECT SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
 \ Если определение найдено, вернуть выполнимый токен xt и единицу (1), если 
 \ определение немедленного исполнения, иначе минус единицу (-1).
 
+
+1 [IF] \ optimized and refactored version
+
+S" src/compiler/spf_find_cdr.f" INCLUDED
+
+[ELSE]
+
 \ Оптимизировано by day (29.10.2000)
 \ Оптимизировано by mak July 26th, 2001 - 15:45
 
@@ -76,6 +83,8 @@ CODE CDR-BY-NAME ( c-addr u nfa1|0 -- c-addr u nfa1|nfa2|0 )
       POP EDI
       RET
 END-CODE
+
+[THEN]
 
 \ форт-реализация:
 \ : CDR-BY-NAME ( a u nfa1|0 -- a u nfa2|0 )
