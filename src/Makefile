@@ -5,7 +5,7 @@
 
 target: install
 
-spf4.o: *.f compiler/*.f posix/*.f
+spf4.o: *.f compiler/*.f posix/*.f compile.ini
 	make -C posix
 	cd .. && echo "Wait a bit while compiling..." && ./spf4orig src/spf.f
 
