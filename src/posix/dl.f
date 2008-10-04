@@ -202,9 +202,9 @@ USER ((-stack
 USER (__ret2) 
 
 : (( ( -- ) SP@ ((-stack !  (__ret2) 0! ;
-: <( ( n -- ) 1+ 2* 2* SP@ + ((-stack !  (__ret2) 0! ;
+: <( ( n -- ) 1+ CELLS SP@ + ((-stack !  (__ret2) 0! ;
 
-: ())) ( -- n ) SP@ ((-stack @ SWAP - 4 U/ ;
+: ())) ( -- n ) SP@ ((-stack @ SWAP - >CELLS ;
 : __ret2 ( -- ) TRUE (__ret2) ! ; IMMEDIATE
 
 ' ())) TO ()))-adr
