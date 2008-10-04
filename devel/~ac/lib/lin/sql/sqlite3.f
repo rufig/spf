@@ -72,8 +72,11 @@ REQUIRE [IF]          lib/include/tools.f
       THEN
 \  ior THROW ( ior почти всегда 1 в случае ошибки)
 ;
-: db3_version ( -- n )
+: (db3_version) ( -- n ) \ например 3006003
   0 sqlite3_libversion_number
+;
+: db3_version ( -- n ) \ возвратит номер версии или -2010, если dll нет
+  ['] (db3_version) CATCH DUP 0= IF DROP THEN
 ;
 : db3_version_str ( -- addr u )
   0 sqlite3_libversion ASCIIZ>
