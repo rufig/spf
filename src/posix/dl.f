@@ -192,6 +192,7 @@ VECT symbol-not-found-error
   0 0x09 (DLOPEN) TO global-symbol-object
   0 1000 dlrealloc TO dl-second-strtab
   4 dl-second-strtab !
+  0 TO dl-second
   0 TO dl-second#
   load-libraries
 ;
