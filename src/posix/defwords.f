@@ -34,15 +34,3 @@
 : TASK: ( xt "name" -- )
   TASK CONSTANT
 ;
-
-VARIABLE WINAPLINK
-
-: ERASE-IMPORTS
-  \ обнуление адресов импортируемых процедур
-  WINAPLINK
-  BEGIN
-    @ DUP
-  WHILE
-    DUP 4 CELLS - 0!
-  REPEAT DROP
-;
