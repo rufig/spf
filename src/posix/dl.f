@@ -25,7 +25,10 @@ VARIABLE write-adr
 : DLERROR ( -- z/0)
   0 dlerror-adr @ C-CALL
 ;
-: DLOPEN ( addr u -- h ) DROP 9 (DLOPEN) ;
+
+RTLD_GLOBAL RTLD_LAZY OR CONSTANT DLOPEN-FLAG
+
+: DLOPEN ( addr u -- h ) DROP DLOPEN-FLAG (DLOPEN) ;
 : DLSYM ( addr u h -- api-xt ) NIP SWAP (DLSYM) ;
 
 0 VALUE global-symbol-object
@@ -44,7 +47,7 @@ VECT symbol-not-found-error
     ' symbol-not-found-error  TC-VECT!
 
 : dlopen2 ( file -- )
-  DUP 0x9 ( rtld_lazy|rtld_global) (DLOPEN)
+  DUP DLOPEN-FLAG (DLOPEN)
   0= IF
     library-not-found-error
   ELSE
@@ -189,7 +192,7 @@ VECT symbol-not-found-error
 ;
 
 : dl-init
-  0 0x09 (DLOPEN) TO global-symbol-object
+  0 DLOPEN-FLAG (DLOPEN) TO global-symbol-object
   0 1000 dlrealloc TO dl-second-strtab
   4 dl-second-strtab !
   0 TO dl-second

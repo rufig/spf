@@ -15,6 +15,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+// dlopen
+#include <dlfcn.h>
+
 /* (glibc)
 #ifndef REG_EDI
 #define REG_EDI 4
@@ -90,6 +93,8 @@ int main()
   DEFINE( SEEK_SET)
   DEFINE( SEEK_CUR)
   DEFINE( SEEK_END)
+  DEFINE( RTLD_GLOBAL)
+  DEFINE( RTLD_LAZY)
 
   return 0;
 }
