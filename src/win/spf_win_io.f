@@ -186,7 +186,7 @@ USER _addr
 ;
 
 
-USER lpNumberOfBytesWritten
+USER lpNumberOfBytesWritten  \ not used by core more
 
 : WRITE-FILE ( c-addr u fileid -- ior ) \ 94 FILE
 \ Записать u символов из c-addr в файл, идентифицируемый fileid,
@@ -198,12 +198,18 @@ USER lpNumberOfBytesWritten
 \ возвращаемому FILE-POSITION.
   OVER >R
   >R 2>R
-  0 lpNumberOfBytesWritten R> R> R>
-  WriteFile ERR ( ior )
-  ?DUP IF RDROP EXIT THEN
-  lpNumberOfBytesWritten @ R> <>
+  0 SP@ 0 SWAP R> R> R>
+  WriteFile ERR ( u2 ior )
+  ?DUP IF RDROP NIP EXIT THEN
+  R> <>
   ( если записалось не столько, сколько требовалось, то тоже ошибка )
 ;
+\ Использована адресуемая ячейка на стеке данных вместо USER-переменной,
+\ чтобы вывод работал даже при неверном значении TlsIndex.
+\ Решение несколько ограничено в портабельности, но сама платформа
+\ Windows ограничивает сильней, чем такие трюки ;-)
+\ ~ruv, 11.2008
+
 
 : RESIZE-FILE ( ud fileid -- ior ) \ 94 FILE
 \ Установить размер файла, идентифицируемого fileid, равным ud.
