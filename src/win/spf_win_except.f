@@ -28,11 +28,18 @@ USER EXC-HANDLER  \ аппаратные исключения (преобразуемые в программные)
   DispatcherContext ContextRecord EstablisherFrame ExceptionRecord )
 VECT <EXC-DUMP> \ действия по обработке исключения
 
+: DROP-EXC-HANDLER
+  R> 0 FS! RDROP RDROP
+;
+
 : (EXC) ( DispatcherContext ContextRecord EstablisherFrame ExceptionRecord -- flag )
   (ENTER) \ фрейм для стека данных
-  0 FS@ @ \ адрес нашего фрейма обработки исключений под новым виндовым фреймом
-  DUP 0 FS! \ восстанавливаем его чтобы продолжать ловить exceptions в будущем
-  CELL+ CELL+ @ TlsIndex! \ указатель на USER-данные сбойнувшего потока
+  0 FS@ @ \ адрес некого (последнего?) фрейма обработки исключений
+  \ ищем в цепочке фреймов наш фрейм (по "метке", -- возможно, есть лучший способ?)
+  BEGIN DUP WHILE DUP CELL- @ ['] DROP-EXC-HANDLER <> WHILE ( ." alien " ) @ REPEAT THEN
+  DUP 0= IF ( ." ERROR: EXC-frame not found " ) -1 HALT THEN
+  DUP 0 FS! \ восстанавливаем наш фрейм, чтобы продолжать ловить exceptions в будущем
+  CELL+ CELL+ @ TlsIndex! \ ранее сохраненный указатель на USER-данные текущего потока
 
 \  2DROP 2DROP
 \  0 (LEAVE)               \ это если нужно передать обработку выше
@@ -54,9 +61,6 @@ VECT <EXC-DUMP> \ действия по обработке исключения
   R> DROP   \ если все же добрались, то грамотно выходим из callback
 ;
 
-: DROP-EXC-HANDLER
-  R> 0 FS! RDROP RDROP
-;
 : SET-EXC-HANDLER
   R> R>
   TlsIndex@ >R
