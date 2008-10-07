@@ -1,8 +1,9 @@
 \ $Id$
 \ 
-\ INTER - localized QUIT
+\ INTER - local QUIT - switches to interpreter in the context of the caller
 \ RETNI breaks interpreter loop and returns from currently active INTER (if any)
-\ alternatively use Ctrl-Z to break
+\ Alternatively input "End of stream" (Ctrl-Z on Windows, Ctrl-D on Linux) to return back
+\ 
 \ Useful for semi-interactive debugging
 
 : INTER-MAIN ( -- )
@@ -16,6 +17,7 @@
 USER-VALUE QUIT-INTER
 
 : INTER ( -- )
+  CR ." INTER" OK
   FALSE TO QUIT-INTER
   BEGIN
     QUIT-INTER FALSE = 
@@ -42,5 +44,6 @@ USER-VALUE QUIT-INTER
 
 \EOF
 
-: t 123 . 4 5 INTER ." qwert" CR . . CR ;
+REQUIRE .S lib/include/tools.f
+: t ." I will put 123 on the stack" 123 INTER ." Stack : " .S ;
 t
