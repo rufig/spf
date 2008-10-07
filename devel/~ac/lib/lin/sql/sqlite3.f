@@ -85,7 +85,7 @@ REQUIRE [IF]          lib/include/tools.f
   0 ^ hw ^ cur 0 ( SQLITE_STATUS_MEMORY_USED) 4 sqlite3_status THROW cur hw
 ;
 : db3_open { addr u \ sqh -- sqh }
-  TRUE 1 sqlite3_enable_shared_cache THROW
+\  TRUE 1 sqlite3_enable_shared_cache THROW \ Cannot use virtual tables in shared-cache mode
   ^ sqh addr 2 sqlite3_open S" DB3_OPEN" sqh db3_error? sqh
   DB3_CONN_CNT 1+!
 \  TRUE OVER 2 sqlite3_extended_result_codes DROP
@@ -142,6 +142,10 @@ REQUIRE [IF]          lib/include/tools.f
   REPEAT
 
   S" DB3_PREPARE" sqh db3_error?
+  ppStmt
+  0= IF 30112 THROW THEN \ при подаче пустой команды sqlite не возвращает
+                         \ код ошибки, но и ppStmt оставляет нулевым,
+                         \ что в дальнейшем приводит к exception
   pzTail ppStmt
   DB3_DEBUG @ IF CR ." DB3_PREP_OK====================" sqh . CR THEN
   DB3_STMT_CNT 1+!
