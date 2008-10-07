@@ -240,8 +240,12 @@ VECT LSTRFREE ' LSTRFREE1 TO LSTRFREE
   STRLAST 0!
   ['] INTERPRET CATCH
   ?DUP IF DUP -2003 = IF {NOTFOUND} THEN
-          S" (Error: " s STR+
-          ABS 0 <# [CHAR] ) HOLD #S #> s STR+
+          DUP -2 = ER-U @ 0<> AND
+          IF DROP ER-A @ ER-U @ s STR+
+          ELSE
+            S" (Error: " s STR+
+            ABS 0 <# [CHAR] ) HOLD #S #> s STR+
+          THEN
           base BASE !
           state STATE !
           s EXIT
