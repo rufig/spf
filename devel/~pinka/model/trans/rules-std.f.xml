@@ -152,6 +152,11 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   <mm><get-name/> 2>CS ALIGN HERE 2 CELLS ALLOT DUP >CS 2! CS> <f:p><f:lit/></f:p> 2CS> NAMING- </mm>
 </rule>
 
+<rule match="f:const2"><m>
+  <get-name/> 2>CS <yield/> CONCEIVE 2LIT, BIRTH 2CS> NAMING-
+  </m>
+</rule>
+
 <rule match="f:space"><m>
   <get-name/> 2>CS
   <yield/> ALIGN HERE SWAP ALLOT CONCEIVE LIT, BIRTH
