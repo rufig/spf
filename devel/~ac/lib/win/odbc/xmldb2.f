@@ -51,7 +51,11 @@ USER &escape_tmp
     ELSE 2DROP THEN
   REPEAT
 ;
+: Z>BL ( addr u -- )
+  0 ?DO DUP C@ 9 < IF BL OVER C! THEN 1+ LOOP DROP
+;
 : &escape
+  2DUP Z>BL \ mysql|odbc bug
   uDisableEscaping @ IF EXIT THEN
   2DUP S" &" SEARCH NIP NIP 0= IF EXIT THEN \ если нет &, то не трогаем
   2DUP S" &amp;" SEARCH NIP NIP IF EXIT THEN \ если уже &amp;, то не трогаем
