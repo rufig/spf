@@ -15,7 +15,6 @@ VARIABLE IN-EXCEPTION
 : DUMP-TRACE ( context siginfo signo -- )
   IN-EXCEPTION @ IF DROP EXIT THEN
   TRUE IN-EXCEPTION !
-  BASE @ >R HEX
 
   ROT ( siginfo signo context )
   OVER OVER CONTEXT_EIP + @ SWAP ( addr code ) DUMP-EXCEPTION-HEADER
@@ -31,7 +30,7 @@ VARIABLE IN-EXCEPTION
   R> CONTEXT_EBP + @ ( ebp )
   DUMP-TRACE-USING-REGS
   ." END OF EXCEPTION REPORT" CR
-  R> BASE ! FALSE IN-EXCEPTION !
+  FALSE IN-EXCEPTION !
 ; 
 
 \ see http://forth.sourceforge.net/standard/dpans/dpans9.htm#9.3.5

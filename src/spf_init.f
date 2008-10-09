@@ -38,7 +38,8 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
   \ 4 - если вложенная
 ;
 
-: ADDR. ( n -- ) 8 .0 SPACE ;
+: (ADDR.) BASE @ >R HEX 8 .0 R> BASE ! ;
+: ADDR. ( n -- ) (ADDR.) SPACE ;
 
 : STACK-ADDR. ( addr -- addr )
       DUP ADDR. ." :  "
@@ -76,9 +77,11 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
 ;
 
 : DUMP-TRACE-USING-REGS ( esp eax ebp -- )
-  ." STACK: (" S0 @ OVER - 4 / 1+ S>D (D.) TYPE ." ) "
+  BASE @ >R DECIMAL
+  ." STACK: (" S0 @ OVER - 1 CELLS / 1+ S>D (D.) TYPE ." ) "
+  R> BASE !
   ( ebp ) DUP 5 CELLS + BEGIN DUP ['] @ CATCH IF DROP ELSE ADDR. THEN CELL- 2DUP U> UNTIL 2DROP
-  ( eax ) ." [" 8 .0 ." ]" CR
+  ( eax ) ." [" (ADDR.) ." ]" CR
   ( esp )
 
   ." RETURN STACK:" CR
