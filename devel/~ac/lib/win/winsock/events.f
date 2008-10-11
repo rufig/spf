@@ -78,12 +78,14 @@ VECT vNoneventSocket?
 ;
 : WriteSocketB WriteSocket ;
 
+200 VALUE WriteSocketRetryDelay
+
 : WriteSocket { addr u s -- ior }
   s vNoneventSocket? IF addr u s WriteSocket EXIT THEN
   BEGIN
     addr u s WriteSocket DUP 10035 = \ WSAEWOULDBLOCK
   WHILE
-    DROP 200 PAUSE
+    DROP WriteSocketRetryDelay PAUSE
   REPEAT
 ;
 
