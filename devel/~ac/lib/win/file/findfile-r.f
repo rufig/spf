@@ -25,6 +25,9 @@ USER FIND-FILES-DEPTH \ ограничение вложенности, 0 - без ограничения,
 USER FIND-FILES..
 USER FIND-FILES-U
 
+USER FIND-FILES-USE-RET \ true, если надо вызывать xt также при выходе
+                        \ из каталога (c data=0)
+
 : IsNot..
   2DUP S" .." COMPARE 0<> ROT ROT S" ." COMPARE 0<> AND
 ;
@@ -52,6 +55,8 @@ USER FIND-FILES-U
          data cFileName ASCIIZ> IsNot.. AND
          IF f STR@ xt RECURSE THEN
          FIND-FILES-RL @ 1- FIND-FILES-RL !
+         FIND-FILES-USE-RET @
+         IF f STR@ 0 dir xt EXECUTE THEN
       THEN
       f STRFREE
     ELSE 2DROP THEN
