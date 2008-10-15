@@ -7,6 +7,13 @@ WINAPI: ReadDirectoryChangesW KERNEL32.DLL
 1 CONSTANT FILE_LIST_DIRECTORY \ = FILE_READ_DATA
 0x02000000 CONSTANT FILE_FLAG_BACKUP_SEMANTICS
 
+\ actions
+0x00000001 CONSTANT FILE_ACTION_ADDED \ The file was added to the directory.
+0x00000002 CONSTANT FILE_ACTION_REMOVED \ The file was removed from the directory.
+0x00000003 CONSTANT FILE_ACTION_MODIFIED \ The file was modified. This can be a change in the time stamp or attributes.
+0x00000004 CONSTANT FILE_ACTION_RENAMED_OLD_NAME \ The file was renamed and this is the old name.
+0x00000005 CONSTANT FILE_ACTION_RENAMED_NEW_NAME \ The file was renamed and this is the new name.
+
 : OPEN-DIR ( c-addr u fam -- fileid ior ) \ 94 FILE
 \ Открыть каталог с именем, заданным строкой c-addr u, с методом доступа fam.
 \ Смысл значения fam определен реализацией.
