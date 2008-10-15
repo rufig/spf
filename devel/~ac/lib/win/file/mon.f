@@ -30,6 +30,8 @@ WINAPI: ReadDirectoryChangesW KERNEL32.DLL
   CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
 ;
 
+\EOF
+
 USER lpBytesReturned
 : PrintDirChanges ( addr -- )
   CR lpBytesReturned @ DUP . 0= IF ." ==Overflow!!!!!!!!!!!!!!!==" THEN
