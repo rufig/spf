@@ -8,7 +8,7 @@ REQUIRE CREATE-MUTEX  lib/win/mutex.f
 VARIABLE SSL_LIB
 VARIABLE SSLE_LIB
 VARIABLE TLSLIB
-VECT vSslWaitIdle :NONAME 20 PAUSE ; TO vSslWaitIdle
+VECT dSslWaitIdle :NONAME 20 PAUSE ; TO dSslWaitIdle
 
 : LoadLibEx ( addr u -- h )
   DROP LOAD_WITH_ALTERED_SEARCH_PATH 0 ROT LoadLibraryExA
@@ -190,7 +190,7 @@ VARIABLE vSSL_INIT
     R@ SSL_connect DUP 1 <>
   WHILE
     SWAP SSL_get_error DUP 3 <> IF THROW THEN
-    vSslWaitIdle
+    dSslWaitIdle
   REPEAT
   DROP RDROP
 ;
@@ -202,7 +202,7 @@ VARIABLE vSSL_INIT
   WHILE
     SWAP SSL_get_error DUP 2 <> IF THROW THEN \ SSL_ERROR_WANT_READ=2
     DROP 2DROP
-    vSslWaitIdle
+    dSslWaitIdle
   REPEAT
   DROP RDROP
 ;
@@ -213,7 +213,7 @@ VARIABLE vSSL_INIT
   WHILE
     conn_obj SSL_get_error DUP 3 <> IF 2DROP EXIT THEN
     DROP 2DROP
-    vSslWaitIdle
+    dSslWaitIdle
   REPEAT
 ;
 : SslRead { addr u conn_obj -- n }
@@ -223,6 +223,6 @@ VARIABLE vSSL_INIT
   WHILE
     conn_obj SSL_get_error DUP 2 <> IF 2DROP EXIT THEN
     DROP 2DROP
-    vSslWaitIdle
+    dSslWaitIdle
   REPEAT
 ;

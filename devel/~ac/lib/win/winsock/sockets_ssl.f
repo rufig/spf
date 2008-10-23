@@ -10,6 +10,7 @@ USER uSSL_OBJECT
 USER uSSL_SOCKET
 USER uSSL_CONTEXT
 VECT dFailedSsl
+VECT dSslWaitInit ' NOOP TO dSslWaitInit
 
 : FailedSsl ( ior -- namea nameu cert )
   DUP 6 <>
@@ -25,6 +26,7 @@ VECT dFailedSsl
   SslInit
   -1 SSL-MUT @ WAIT THROW DROP
   s uSSL_SOCKET !
+  dSslWaitInit
   addr u X509_FILETYPE_PEM 
   SslNewServerContext uSSL_CONTEXT !
   addr u verify ( SSL_VERIFY_PEER) uSSL_CONTEXT @ SslSetVerify
@@ -40,6 +42,7 @@ VECT dFailedSsl
 \ addr u - имя файла с сертификатом и закрытым ключем в PEM-формате
   SslInit
   s uSSL_SOCKET !
+  dSslWaitInit
   addr u X509_FILETYPE_PEM 
   SslNewClientContext uSSL_CONTEXT !
   addr u verify ( SSL_VERIFY_PEER) uSSL_CONTEXT @ SslSetVerify
