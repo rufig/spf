@@ -7,7 +7,7 @@
   >R 2DUP EQ <if> RDROP 2DROP <exit/></if> R> CMOVE
 </def>
 
-<def name="(NORMALIZE-PATHNAME)" ds=" a1 u1 -- a2 u2 "><rem> not starts from '/' </rem>
+<def name="(NORMALIZE-PATHNAME-INPLACE)" ds=" a1 u1 -- a2 u2 "><rem> not starts from '/' </rem>
   0. 2>R
   <repeat> `/ SPLIT- <while/>
     <choose> 2DUP `.. EQUAL <when>
@@ -30,10 +30,10 @@
   2DUP + >R   SWAP CMOVE-CERTAIN   2R> OVER -
 </def>
 
-<def name="NORMALIZE-PATHNAME" ds=" a1 u1 -- a2 u2 ">
+<def name="NORMALIZE-PATHNAME-INPLACE" ds=" a1 u1 -- a2 u2 "><rem> work inplace </rem>
   DUP <unless><exit/></unless>
   2DUP <until> `/ MATCH-HEAD 0 EQ </until> 2>R R@ - 2R>
-  (NORMALIZE-PATHNAME) DUP >R 2OVER + SWAP CMOVE-CERTAIN R> +
+  (NORMALIZE-PATHNAME-INPLACE) DUP >R 2OVER + SWAP CMOVE-CERTAIN R> +
   2DUP + 0 SWAP C!
 </def>
 

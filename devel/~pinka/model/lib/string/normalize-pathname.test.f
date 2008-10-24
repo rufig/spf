@@ -19,7 +19,7 @@ ALSO SO NEW: libxml2.dll
 
 PREVIOUS
 
-: _NORMALIZE-PATHNAME  \ for test
+: _NORMALIZE-PATHNAME-INPLACE  \ for test
   `/../asdf SPLIT DROP
 \  2DUP OVER SWAP CMOVE
 \  2DUP OVER SWAP MOVE
@@ -27,7 +27,7 @@ PREVIOUS
 ;
 
   S" aaa/bbb/ccc/../../../ddd/eee/fff/../../ooo" normalizeURI TYPE CR
-  S" aaa/bbb/ccc/../../../ddd/eee/fff/../../ooo" NORMALIZE-PATHNAME TYPE CR
+  S" aaa/bbb/ccc/../../../ddd/eee/fff/../../ooo" NORMALIZE-PATHNAME-INPLACE TYPE CR
 
 ~pinka\lib\Tools\profiler.f
 
@@ -40,7 +40,7 @@ PREVIOUS
 : t-(native)
   100000 0 DO
   S" aaa/bbb/ccc/../../../ddd/eee/fff/../../ooo" PAD OVER SEATED
-  NORMALIZE-PATHNAME 2DROP
+  NORMALIZE-PATHNAME-INPLACE 2DROP
   LOOP
 ;
 profile off
