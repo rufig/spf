@@ -35,7 +35,7 @@
 
 <rule match="f:alias">
   <get-name/> `word GetAttribute 
-  <f:choose> DUP <f:when> &amp; T-LIT </f:when> 2DROP <yield/></f:choose>
+  <f:choose> DUP <f:when> I-NATIVE-FORCE T-LIT </f:when> 2DROP <yield/></f:choose>
   <m>NAMING</m>
 </rule>
 
