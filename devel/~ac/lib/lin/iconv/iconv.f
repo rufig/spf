@@ -18,15 +18,21 @@ REQUIRE [IF]          lib/include/tools.f
   : libiconv_open iconv_open ; : libiconv iconv ; : libiconv_close iconv_close ;
 [THEN]
 
-: ICONV { a u cpfa cpfu cpta cptu \ ico oa ou aa -- oa ou }
+: 0x98>BL ( addr u -- )
+  \ libiconv - борец за чистоту русского языка :)
+  \ в кодировке cp1251 на месте 0x98 - дырка
+  0 ?DO DUP C@ 0x98 = IF BL OVER C! THEN 1+ LOOP DROP
+;
+: ICONV { a u cpfa cpfu cpta cptu \ ico oa ou aa su sa -- oa ou }
 \ преобразовать строку a u из кодировки cpfa cpfu в cpta cptu,
 \ например: S" тест" S" CP1251" S" UTF-8" ICONV
 \ возвращает результат oa ou; oa освобождать вызывающему по FREE
-  u 3 * CELL+ DUP -> ou ALLOCATE THROW DUP -> oa -> aa
+  u -> su  a -> sa \ при невозможности конвертации libiconv портит a u
+  u 3 * CELL+ DUP -> ou ALLOCATE THROW DUP -> oa -> aa  
   cpfa cpta 2 libiconv_open -> ico
   ^ ou ^ oa ^ u ^ a ico 5 libiconv
   IF ( ошибка перекодирования, оставляем исходную строку )
-    a aa u 1+ MOVE aa u
+    sa aa su 1+ MOVE aa su
   ELSE
     aa oa OVER -
     2DUP + 0 SWAP W!
@@ -49,6 +55,7 @@ REQUIRE [IF]          lib/include/tools.f
   S" UTF-16LE" S" UTF-8" ICONV
 ;
 : >UTF8  ( addr u -- addr2 u2 )
+  2DUP 0x98>BL
   S" CP1251" S" UTF-8" ICONV
 ;
 : UTF8> ( addr u -- addr2 u2 )
