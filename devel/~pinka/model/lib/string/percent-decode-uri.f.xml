@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 05.2008 -->
+
+<comment>
+http://en.wikipedia.org/wiki/Percent-encoding
+
+  ! * ' ( ) ; : @ &amp; = + $ , / ? % # [ ]
+
+  JavaScript: decodeURI encodeURI encodeURIComponent
+
+see also:
+  ~ac/lib/string/get_params.f # CONVERT%
+  ~ac/lib/string/get_params2.f # CONVERT%
+  ~pinka/samples/2006/lib/parse-urn.f # DECODE-URN-INPLACE
+</comment>
+
+
+<def name="DECODE-URI-CHAR" ds=" a u -- a2 u2 c "><rem> u gt 0 </rem>
+  HEAD|TAIL- DROP C@
+  DUP <char>+</char> = <if> DROP 0x20 <exit/></if>
+  DUP <char>%</char> = <unless><exit/></unless>
+  DROP <!-- ( a1 u1 ) -->
+  DUP 2 CHARS ULT <if> DROP 0 -1 <exit/></if>
+                                        BASE @ >R HEX
+  OVER >R 2 CHARS /STRING
+  0. R> 2 CHARS >NUMBER 2DROP DROP <!-- ( c ) -->
+                                        R> BASE !
+</def>
+
+<def name="DECODE-URI" ds=" a1 u1  a-buf u-buf -- a-buf u3 "><!-- rfc2141 -->
+  SWAP DUP 2>R UMIN
+  <repeat> DUP <while/> DECODE-URN-CHAR R> DUP CHAR+ >R  C! </repeat> 2DROP
+  2R> OVER -
+</def>
+
+</forth>
