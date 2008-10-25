@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+     xmlns:r="http://forth.org.ru/ForthML/Rules/"
+>
+<!-- Aug.2008 ruv -->
+
+<comment>
+  Sedna Client/Server Protocol
+  http://www.modis.ispras.ru/sedna/serverprotocol/ClientServerProtocol.html
+</comment>  
+
+
+<using href="http://forth.org.ru/~pinka/model/dbms/sedna-common.f.xml"/>
+
+<wordlist name="sedna-hidden">
+
+<alias name="packet" word="packet"/>
+
+<slot> buf  sock port-number </slot>
+<slot2> database user password  hostname port </slot2>
+
+<slot2> request last-part </slot2>
+<slot> output-format consumer-xt </slot>
+<comment> format code is 0 - to get result in XML </comment>
+
+
+<def name="close-sock" ds=" -- ">
+  sock DUP <if> 0 sock! CloseSocket THROW <exit/></if> DROP
+</def>
+
+<handler event="startup"> max-packet-size ALLOCATE THROW buf!  0 output-format! </handler>
+<handler event="shutdown"> buf FREE-FORCE 0 buf!  close-sock </handler>
+<handler event="recovery"> 0 buf! 0 sock! 0 output-format! </handler>
+
+
+<def name="command" ds=" -- n "><rem> or 'instruction' or 'code' </rem>
+  buf L@
+</def>
+<def name="len" ds=" -- u ">
+  buf L+ L@
+</def>
+<def name="body" ds=" -- a u ">
+  buf L+ DUP L+ SWAP L@
+</def>
+<def name="read-exact" ds=" addr u -- ">
+  sock READ-SOCK-EXACT THROW
+</def>
+<def name="get-head" ds=" -- ">
+  buf 2 Ls read-exact
+  buf DUP localize  L+ localize
+</def>
+<def name="get-packet" ds=" -- ">
+  get-head  body read-exact
+</def>
+<def name="put" ds=" a u -- ">
+  DUP <if> sock WriteSocket THROW <exit/></if> 2DROP
+</def>
+
+<def name="body-code" ds=" -- x ">
+  body <if> sednaL@ <exit/></if> DROP 0
+</def>
+<def name="body-info" ds=" -- a u ">
+  body  1 Ls UGT <unless> 0 <exit/></unless>
+  L+ sednaS@
+</def>
+<def name="body-text" ds=" -- a u ">
+  body <unless> 0 <exit/></unless>
+  sednaS@
+</def>
+
+
+<wordlist name="commands-handler" />
+
+<def name="dispatch-command" ds=" -- ">
+  command
+    BASE @ >R NtoS R> BASE !
+  <rem> 2DUP TYPE CR </rem>
+  commands-handler OBEY <if><exit/></if>
+  `#sedna-command-not-found STHROW
+</def>
+<def name="next" ds=" -- "><rem> need a tail call optimization for this </rem>
+  get-packet dispatch-command
+</def>
+
+<def name="close-sedna" ds=" -- ">
+  packet::CloseConnection put next
+</def>
+
+<export>
+
+<def name="assume-cred" ds=" d-user d-password d-db d-host d-port -- ">
+  port! hostname! database! password! user!
+  port StoN port-number!
+</def>
+
+<def name="close" ds=" -- ">
+  sock <unless><exit/></unless>
+  <xt-of name="close-sedna"/> CATCH
+  close-sock                  THROW
+</def>
+
+<def name="open" ds=" -- ">
+  close
+  hostname port-number ConnectHost THROW sock!
+  packet::Start-Up put next
+</def>
+
+</export>
+
+<def name="init-default-cred">
+  `SYSTEM `MANAGER `auction `localhost `5050
+  assume-cred
+</def> init-default-cred
+
+
+<include href="sedna-messages.f.xml"/>
+
+<def name="put-query-parts" ds=" addr u -- "><!-- see:  sedna:write-query-out -->
+  DUP max-query-size UGT <unless> request! client-message::ExecuteLong put <exit/></unless>
+  SWAP max-query-size  2DUP request!  + SWAP max-query-size -
+  client-message::ExecuteLong put
+  <again/>
+</def>
+
+<def name="put-query" ds=" addr u -- "><!-- see:  sedna:write-query-out -->
+  DUP max-query-size UGT <unless> request! client-message::Execute put <exit/></unless>
+  put-query-parts
+  packet::LongQueryEnd put
+</def>
+
+<def name="per-put-query" ds=" emitter-xt -- ">
+  <repeat> DUP EXECUTE <rem>( xt a u )</rem>
+  DUP <while/> put-query-parts </repeat> 2DROP DROP
+  packet::LongQueryEnd put
+</def>
+
+<export>
+
+<def name="query-per" ds=" d-query xt -- "><!-- see: sedna-api.scm # sedna:execute-query-xml -->
+  consumer-xt!
+  packet::BeginTransaction  put next
+                      put-query next
+  packet::CommitTransaction put next
+</def>
+
+<def name="query-value" ds=" d-query -- d-value ">
+  <xt-of name="last-part!"/> query-per last-part
+</def>
+
+<def name="per-query-per" ds=" emitter-xt consumer-xt -- ">
+  consumer-xt!
+  packet::BeginTransaction  put next
+                  per-put-query next
+  packet::CommitTransaction put next
+</def>
+
+</export>
+</wordlist>
+
+</forth>

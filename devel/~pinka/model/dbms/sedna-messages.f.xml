@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+     xmlns:r="http://forth.org.ru/ForthML/Rules/"
+>
+<!-- Aug.2008 ruv -->
+
+<wordlist name="sedna-messages-hidden">
+
+<include href="http://forth.org.ru/~pinka/model/data/data-space.f.xml"/>
+
+<handler event="recovery"> 0. DATASPACE!  </handler>
+<handler event="startup">  max-packet-size ALLOCATED DATASPACE! </handler>
+<handler event="shutdown"> DATASPACE DROP FREE THROW 0. DATASPACE! </handler>
+
+<def name="sednaL," ds=" x -- ">   reorder-bytes L, </def>
+<def name="sednaS," ds=" a u -- "> 0 B, DUP sednaL, S, </def>
+
+<def name="message" ds=" xt-body command -- a1 a2 ">
+  CLEAR-DATASPACE HERE >R
+  sednaL,       <rem> command </rem>
+  HERE >R 0 L,  <rem> length </rem>
+  HERE >R       <rem> begin of the body </rem>
+  EXECUTE
+  HERE DUP R> - R> sednaL!  <rem> adjust length </rem>
+  R> TUCK -
+</def>
+
+<export><rem> the local dataspace lexicon is in scope here </rem>
+
+<wordlist name="client-message">
+
+<def name="SessionParameters" ds=" -- a u ">
+<q>
+  version-major B,
+  version-minor B,
+  user      sednaS,
+  database  sednaS,
+</q> 120 message
+</def>
+
+<def name="AuthenticationParameters" ds=" -- a u ">
+<q>
+  password sednaS,
+</q> 130 message
+</def>
+
+<def name="Execute" ds=" -- a u ">
+<q>
+  output-format B, 
+  request sednaS,
+</q> 300 message
+</def>
+
+<def name="ExecuteLong" ds=" -- a u ">
+<q>
+  output-format B, 
+  request sednaS,
+</q> 301 message
+</def>
+
+</wordlist>
+
+
+<def name="handle-error" ds=" -- ">
+  body-info STHROW
+</def>
+
+<develop wordlist="commands-handler">
+
+<text>
+  520
+  510   160 230 250 255     340
+</text><each-word><alias name="{}" word="NOOP"/></each-word>
+<text>
+  100   170 240 260 265 330 350
+</text><each-word><alias name="{}" word="handle-error"/></each-word>
+
+<def name="140" alias="SendSessionParameters">
+  client-message::SessionParameters put next
+</def>
+<def name="150" alias="SendAuthParameters">
+  client-message::AuthenticationParameters put next
+</def>
+
+<g><comment> see: sedna-api.scm # sedna:get-next-xml-item </comment>
+<def name="320" alias="QuerySucceeded"> next </def>
+<def name="360" alias="ItemPart"> body-text consumer-xt EXECUTE  next </def>
+<def name="370" alias="ItemEnd"> packet::GetNextItem put next </def>
+<def name="375" alias="ResultEnd"></def>
+</g>
+
+<def name="325" alias="DebugInfo"> body-info TYPE CR  next </def>
+
+</develop>
+
+</export><!-- from local dataspace -->
+</wordlist>
+
+</forth>

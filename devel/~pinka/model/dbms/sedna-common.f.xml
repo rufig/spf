@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+     xmlns:r="http://forth.org.ru/ForthML/Rules/"
+>
+
+<const name="/L"> 4 </const>
+<def name="L+" ds=" u1 -- u2 "> /L + </def>
+<def name="Ls" ds=" u1 -- u2 "> /L * </def>
+<def name="Ls+" ds=" a1 u1 -- a2 "> /L * + </def>
+
+<const name="version-major"> 3 </const>
+<const name="version-minor"> 0 </const>
+<const name="max-body-size"> 10240 <rem>
+  In the current version of Sedna the size of the message body must not exceed 10240 bytes.
+</rem></const>
+<const name="max-packet-size"> max-body-size 2 Ls+ </const>
+<const name="max-query-size"> max-body-size -2 Ls+ </const>
+
+
+<def name="reorder-bytes" ds=" x -- y ">
+  >R
+  R@ 8 LSHIFT  0x00FF0000 AND
+  R@ 8 RSHIFT  0x0000FF00 AND
+  OR
+  R@ 24 LSHIFT
+  R@ 24 RSHIFT
+  OR OR
+  RDROP
+</def>
+
+<def name="localize" ds=" addr -- ">
+<rem>
+  convert four bytes presented in the network byte order (most significant byte first)
+  to the local machine byte order.
+</rem>
+  DUP L@ reorder-bytes SWAP L!
+</def>
+
+<def name="sednaL!" ds=" x addr -- ">
+  >R reorder-bytes R> !
+</def>
+<def name="sednaL@" ds=" addr -- x ">
+  @ reorder-bytes
+</def>
+
+<def name="sednaS@" ds=" addr -- a u ">
+  DUP B@ 0 EQ <unless> `#unknown-string-format STHROW </unless>
+  1+ DUP 4 + SWAP sednaL@
+</def>
+
+<def name="cmd" ds=" code -- a u " >
+ ALIGN HERE >R reorder-bytes L, 0 L, R> HERE OVER -
+</def>
+
+<wordlist name="packet">
+
+<const2 name="Start-Up">            110 cmd </const2>
+<const2 name="BeginTransaction">    210 cmd </const2>
+<const2 name="CommitTransaction">   220 cmd </const2>
+<const2 name="RollbackTransaction"> 225 cmd </const2>
+<const2 name="CloseConnection">     500 cmd </const2>
+<const2 name="GetNextItem">         310 cmd </const2>
+<const2 name="LongQueryEnd">        302 cmd </const2>
+
+
+</wordlist>
+
+</forth>
