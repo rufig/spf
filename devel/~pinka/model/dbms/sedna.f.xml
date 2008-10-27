@@ -92,6 +92,8 @@
 <def name="assume-cred" ds=" d-user d-password d-db d-host d-port -- ">
   port! hostname! database! password! user!
   port StoN port-number!
+  
+  <rem>What if the current BASE will not a DECIMAL? (!!!)</rem>
 </def>
 
 <def name="close" ds=" -- ">
