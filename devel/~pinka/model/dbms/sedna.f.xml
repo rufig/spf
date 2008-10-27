@@ -136,11 +136,13 @@
 
 <export>
 
-<def name="query-per" ds=" d-query xt -- "><!-- see: sedna-api.scm # sedna:execute-query-xml -->
+<def name="transact" ds=" -- ">  packet::BeginTransaction    put next </def>
+<def name="commit" ds=" -- ">    packet::CommitTransaction   put next </def>
+<def name="rollback" ds=" -- ">  packet::RollbackTransaction put next </def>
+
+<def name="query-per" ds=" d-query consumer-xt -- "><!-- see: sedna-api.scm # sedna:execute-query-xml -->
   consumer-xt!
-  packet::BeginTransaction  put next
-                      put-query next
-  packet::CommitTransaction put next
+  transact   put-query next   commit
 </def>
 
 <def name="query-value" ds=" d-query -- d-value ">
@@ -149,9 +151,7 @@
 
 <def name="per-query-per" ds=" emitter-xt consumer-xt -- ">
   consumer-xt!
-  packet::BeginTransaction  put next
-                  per-put-query next
-  packet::CommitTransaction put next
+  transact   per-put-query next   commit
 </def>
 
 </export>
