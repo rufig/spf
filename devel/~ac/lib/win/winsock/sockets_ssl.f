@@ -59,6 +59,7 @@ VECT dSslWaitInit ' NOOP TO dSslWaitInit
   DUP uSSL_SOCKET @ =
   IF DROP uSSL_OBJECT @ SslWrite DUP 0 > IF DROP 0 EXIT THEN
      uSSL_OBJECT @ SSL_get_error NIP NIP
+     DUP 6 = ( SSL_ERROR_ZERO_RETURN) IF DROP -1002 THEN
   ELSE WriteSocket THEN
 ;
 : WriteSocketLine ( addr u s -- ior )
@@ -72,15 +73,16 @@ VECT dSslWaitInit ' NOOP TO dSslWaitInit
   DUP uSSL_SOCKET @ =
   IF DROP uSSL_OBJECT @ SslRead DUP 0 > IF 0 EXIT THEN
      uSSL_OBJECT @ SSL_get_error NIP NIP 0 SWAP
+     DUP 6 = ( SSL_ERROR_ZERO_RETURN) IF DROP -1002 THEN
   ELSE ReadSocket THEN
 ;
 : CloseSocket ( s -- ior )
   DUP uSSL_SOCKET @ =
   IF uSSL_OBJECT @ SSL_free 2DROP 
      uSSL_CONTEXT @ SSL_CTX_free 2DROP
+     CloseSocket DUP IF ." ssl_close_socket_err=" DUP . THEN
      uSSL_SOCKET 0!
-  THEN
-  CloseSocket
+  ELSE CloseSocket THEN
 ;
 : read ( addr len socket -- )
   \ прочесть ровно len байт из сокета socket и записать в addr
