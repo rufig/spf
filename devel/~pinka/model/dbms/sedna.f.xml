@@ -50,7 +50,8 @@
   buf DUP localize  L+ localize
 </def>
 <def name="get-packet" ds=" -- ">
-  get-head  body read-exact
+  get-head  body  DUP max-body-size UGT <unless> read-exact <exit/></unless>
+  `#sedna-body-size-too-long STHROW
 </def>
 <def name="put" ds=" a u -- ">
   DUP <if> sock WriteSocket THROW <exit/></if> 2DROP
