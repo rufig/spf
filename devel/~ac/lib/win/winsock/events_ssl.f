@@ -6,10 +6,11 @@ REQUIRE SslServerSocket ~ac/lib/win/winsock/sockets_ssl.f
   BEGIN
     1 0 0 0 PAD PeekMessageA
   WHILE
-    PAD ['] vProcessMessage CATCH
-    IF DROP EXIT THEN
+    PAD ['] vProcessMessage CATCH ?DUP
+    IF ." procmsg err=" . CR DROP EXIT THEN
   REPEAT
   100 PAUSE
+  100 uSslSinceSocketRead +!
 ;
 
 ' SslWaitIdle2 TO dSslWaitIdle
