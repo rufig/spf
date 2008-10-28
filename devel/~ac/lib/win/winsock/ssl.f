@@ -10,6 +10,11 @@ VARIABLE SSLE_LIB
 VARIABLE TLSLIB
 VECT dSslWaitIdle :NONAME 20 PAUSE ; TO dSslWaitIdle
 
+USER uSslSinceSocketRead \ Сколько времени прошло с момента запуска чтения.
+                         \ SslRead только обнуляет счетчик, а его использование
+                         \ предусмотрено в режиме неблокирующих сокетов, когда
+                         \ таймауты автоматически не работают.
+
 : LoadLibEx ( addr u -- h )
   DROP LOAD_WITH_ALTERED_SEARCH_PATH 0 ROT LoadLibraryExA
 ;
@@ -190,6 +195,7 @@ VARIABLE vSSL_INIT
     R@ SSL_connect DUP 1 <>
   WHILE
     SWAP SSL_get_error DUP 3 <> IF THROW THEN
+    DROP 2DROP
     dSslWaitIdle
   REPEAT
   DROP RDROP
@@ -213,16 +219,18 @@ VARIABLE vSSL_INIT
   WHILE
     conn_obj SSL_get_error DUP 3 <> IF 2DROP EXIT THEN
     DROP 2DROP
-    dSslWaitIdle
+\    dSslWaitIdle \ если внутри SslRead:dSslWaitIdle используется SslWrite, то может получиться бесконечная рекурсия dSslWaitIdle
   REPEAT
 ;
 : SslRead { addr u conn_obj -- n }
 \  >R SWAP R> SSL_read NIP NIP NIP
+  -1 uSslSinceSocketRead !
   BEGIN
     u addr conn_obj SSL_read NIP NIP NIP DUP 1 <
   WHILE
     conn_obj SSL_get_error DUP 2 <> IF 2DROP EXIT THEN
     DROP 2DROP
-    dSslWaitIdle
+    TIMEOUT @ uSslSinceSocketRead @ < IF 0 EXIT THEN
+    ['] dSslWaitIdle CATCH ?DUP IF ." SLL_R_WI_err=" . THEN
   REPEAT
 ;
