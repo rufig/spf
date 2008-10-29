@@ -74,7 +74,7 @@
 
 <def name="dispatch-command" ds=" -- ">
   command
-    BASE @ >R NtoS R> BASE !
+    BASE @ >R DECIMAL  NtoS  R> BASE !
   <rem> 2DUP TYPE CR </rem>
   commands-handler OBEY <if><exit/></if>
   `#sedna-command-not-found STHROW
