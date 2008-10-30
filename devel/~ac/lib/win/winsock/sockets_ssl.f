@@ -76,7 +76,7 @@ VECT dSslWaitInit ' NOOP TO dSslWaitInit
      TIMEOUT @ uSslSinceSocketRead @ < IF 10060 EXIT THEN
      uSSL_OBJECT @ SSL_get_error NIP NIP 0 SWAP
      DUP 6 = ( SSL_ERROR_ZERO_RETURN) IF DROP -1002 THEN
-     DUP 5 = IF DROP WSAGetLastError ." ssl_r5_err=" DUP . THEN
+     DUP 5 = IF DROP WSAGetLastError ." ssl_r5_err=" DUP . DUP 0= IF DROP -1002 THEN THEN
   ELSE ReadSocket THEN
 ;
 : CloseSocket ( s -- ior )
