@@ -63,7 +63,8 @@ VARIABLE IN-EXCEPTION
 : (errsignal) ( ctxt siginfo num -- x )
     2>R
     DUP CONTEXT_EDI + @ TlsIndex!
-    2R@ DUMP-TRACE
+    2R@ DUP SIGINT = IF SIGINT HALT THEN
+        DUMP-TRACE
     2R> SWAP SIGINFO_CODE + @ SWAP signum>ior THROW ;
 
 ' (errsignal) 3 TC-CALLBACK: errsignal
@@ -82,6 +83,7 @@ CR .( FIXME test return result of sigaction)
    (( SIGBUS  sigact 0 )) sigaction DROP
    (( SIGFPE  sigact 0 )) sigaction DROP
    (( SIGSEGV sigact 0 )) sigaction DROP
+   (( SIGINT sigact 0 )) sigaction DROP
 ;
 
 : PROCESS-INIT ( n -- )
