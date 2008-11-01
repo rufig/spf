@@ -4,10 +4,29 @@
 
 USE libreadline.so.5
 
-: start-readline-history (()) using_history DROP ;
+REQUIRE STR ~ac/lib/str5.f
+
+: /PAD 1024 1- ;
+: STR>PAD ( s -- a u )
+  DUP STR@ /PAD MIN >R PAD R@ CMOVE
+  STRFREE
+  PAD R> 2DUP + 0 SWAP C! ;
+
+: history-filename 
+  S" HOME" ENVIRONMENT? IF " {s}/.history.spf" STR>PAD ELSE S" .history.spf" THEN
+  DROP ;
+
+: start-readline-history 
+   (()) using_history DROP 
+   (( history-filename )) read_history DROP ;
+
+: save-readline-history
+   (( history-filename )) write_history DROP ;
 
 ..: AT-PROCESS-STARTING start-readline-history ;..
 start-readline-history
+
+..: AT-PROCESS-FINISHING save-readline-history ;..
 
 : ACCEPT-READLINE ( c-addr +n1 -- +n2 ) \ 94
   (( 0 )) readline >R
