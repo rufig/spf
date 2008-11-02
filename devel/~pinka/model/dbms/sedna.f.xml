@@ -7,6 +7,8 @@
 <comment>
   Sedna Client/Server Protocol
   http://www.modis.ispras.ru/sedna/serverprotocol/ClientServerProtocol.html
+
+  http://modis.ispras.ru/src/sedna/driver/scheme/sedna-api/sedna-api.scm
 </comment>  
 
 
