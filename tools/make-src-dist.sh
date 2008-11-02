@@ -8,7 +8,7 @@
 
 spf_cvs=/home/ygrek/work/forth/spf-pub
 spf4orig=/home/ygrek/work/forth/spf/spf4orig
-out=spf-4.19-1-cvs20080921
+out=spf-4.19-cvs20080928
 
 ################################
 
@@ -18,11 +18,14 @@ if [ -e $out ]; then
 fi
 
 mkdir -p $out
-for dir in src lib docs samples tools; do
-cp -R $spf_cvs/$dir $out/$dir
+for dir in src lib docs samples; do
+  cp -R $spf_cvs/$dir $out/$dir
 done
 cp $spf_cvs/spf4root/* $out
 cp $spf4orig $out/spf4orig
+
+mkdir $out/tools
+cp -R $spf_cvs/tools/doc $out/tools/doc
 
 # create compile.ini 
 echo "TRUE TO UNIX-ENVIRONMENT" > $out/src/compile.ini
