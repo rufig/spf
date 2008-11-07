@@ -9,10 +9,7 @@
 
 <text> workers idles </text><each-word> create-interlocked </each-word>
 
-<cell name="_max-workers"> 20 </cell>
-<def name="max-workers"  ds=" -- u "> _max-workers @ </def>
-<def name="max-workers!" ds=" u -- "> _max-workers ! </def>
-
+<slot> max-workers </slot><init> 20 max-workers! <rem> default value </rem></init>
 
 <def name="get-client?" ds=" -- x true | false ">
   inc-idles
@@ -20,13 +17,13 @@
   dec-idles
 </def>
 
-<cell name="_workers"/>
+<cell name="_workers"/><rem> the list of workers </rem>
 
 <def name="remember-worker" ds=" wid -- ">
   0 , HERE _workers BIND-NODE ,
 </def>
 
-<def name="instantiate-worker" ds=" -- "><!-- up to 20 K on worker, as yet -->
+<def name="instantiate-worker" ds=" -- ">
   <wid>
     GET-CURRENT <logN>worker wid</logN>
     <const name="my-wid">GET-CURRENT</const>
@@ -73,14 +70,16 @@
 
 </g>
 
+<slot> max-worker-size </slot><init> 30 1024 * max-worker-size! <rem> 30 K </rem></init>
 
-<cell name="_storage"/>
+<cell name="_storage"/><rem> a space to deployment of the workers </rem>
 
 <handler event="startup">
-  <log>tcp server started</log>
-  30 1024 * max-workers 10 + * NEW-STORAGE
+  <log>starting tcp server</log>
+  max-worker-size max-workers 10 + * NEW-STORAGE
   DUP _storage !  MOUNT
   instantiate-worker
+  <log>tcp server started</log>
 </handler>
 
 <handler event="shutdown" advice="before">
