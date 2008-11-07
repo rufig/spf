@@ -27,9 +27,11 @@ WINAPI: GetCurrentThreadId KERNEL32.DLL
 
  SocketsStartup THROW
 
-
+: run ( -- )
  `701 `localhost tcp-server::assume-listen
  tcp-server::start
- 
- 
+;
+
 \ : BYE  tcp-server::stop 200 PAUSE BYE ;
+
+DISMOUNT DROP \ for sharedlex
