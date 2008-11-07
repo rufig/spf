@@ -59,9 +59,13 @@
        xmlns="http://forth.org.ru/ForthML/Rules/"
 >
 
-<rule match="f:file-content" ds=" a u --">
-  <mm> FILE OVER >R <yield/> R> FILEFREE </mm>
+<rule match="f:file-content" ds=" D-filename -- " ds-y=" D-filecontent -- ">
+<mm>
+    FILE OVER >R  <f:q><yield/></f:q> CATCH
+    R> FILEFREE                       THROW
+</mm>
 </rule>
+<!-- example: `lib.f.xml <file-content> TYPE </file-content>  -->
 
 <rule match="f:stack-effect" ds=" i*x -- j*x n ">
   <mm> SP@ >R <yield/> SP@ NEGATE R> + /CELL / </mm>
