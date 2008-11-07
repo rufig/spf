@@ -4,7 +4,7 @@
 <!-- Jun.2008 -->
 <!-- $Id$ -->
 
-<comment>Extenstion to the spf4/forthml translator </comment>
+<comment> Sharedlex extension to the spf4/forthml translator </comment>
 
 <include href="chain-t-native.f.xml"/><rem> only once </rem>
 
@@ -40,7 +40,8 @@
   <times> DROP-SCOPE </times>
 </def>
 
-<cell name="_buf"/>
+<cell name="_buf"/><rem> sharedlex order stack </rem>
+
 <export>
 <def name="init-sharedlex" ds=" -- ">
   /scope CELLS ALLOCATED  OVER _buf !
