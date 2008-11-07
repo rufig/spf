@@ -36,7 +36,7 @@ Requirements :
 </section>
 
 
-<section id="graph">
+<section id="graphics">
 <name><en>Graphics</en><ru>Графика</ru></name>
 <lib><key>GLWindow</key><src>~ygrek/lib/joopengl/GLWindow.f</src><comment><en>OpenGL with joop</en><ru>OpenGL поверх joop</ru></comment></lib>
 <lib><key>CGLWindow</key><src>~ygrek/lib/wfl/opengl/GLWindow.f</src><comment><en>OpenGL via WFL/hype3</en><ru>OpenGL поверх WFL/hype3</ru></comment></lib>
