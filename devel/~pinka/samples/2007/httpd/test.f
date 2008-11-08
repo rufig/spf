@@ -32,6 +32,6 @@ WINAPI: GetCurrentThreadId KERNEL32.DLL
  tcp-server::start
 ;
 
-\ : BYE  tcp-server::stop 200 PAUSE BYE ;
+: BYE  tcp-server::stop 200 PAUSE BYE ;
 
 DISMOUNT DROP \ for sharedlex
