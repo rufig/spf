@@ -26,8 +26,11 @@ DECIMAL
 \ создает объект взаимного исключения
 \ addr u - имя
 \ flag=TRUE, если создаваемый объект нужно сразу занять
-  NIP 0 CreateMutexA DUP
+  NIP ( 1 AND ) 0 CreateMutexA DUP
   0= IF GetLastError ELSE 0 THEN
+;
+: CLOSE-MUTEX ( handle -- ior )
+  CloseHandle ERR
 ;
 : RELEASE-MUTEX ( handle -- ior )
 \ освобождает объект
