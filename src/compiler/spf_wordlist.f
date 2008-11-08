@@ -234,6 +234,15 @@ VECT (NEAREST-NFA) ( addr nfa1 -- addr nfa2 )
   ['] (WordByAddr) CATCH  ?DUP IF ."  EXC:" . DROP S" <?WordByAddr exception>" EXIT THEN
   255 UMIN
 ;
+: (WordByAddrSilent) ( addr -- c-addr u )
+  0 (NEAREST-NFA) DUP 0= IF NIP DUP ( 0 0 ) EXIT THEN
+  TUCK - ABS 4096 U< IF COUNT EXIT THEN
+  0 ( caddr 0 )
+;
+: WordByAddrSilent ( addr -- c-addr u )
+  ['] (WordByAddrSilent) CATCH  ?DUP IF ."  EXC:" . 0 ( x 0 ) THEN
+  255 UMIN
+;
 
 \ для обратной совместимости:
 : NEAR_NFA ( addr -- nfa|0 addr )

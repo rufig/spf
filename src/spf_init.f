@@ -45,7 +45,7 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
       DUP ADDR. ." :  "
       DUP ['] @ CATCH 
       IF DROP 
-      ELSE DUP ADDR. WordByAddr TYPE CR THEN
+      ELSE DUP ADDR. WordByAddrSilent TYPE CR THEN
 ;
 
 \ : AT-EXC-DUMP ( addr -- addr ) ... ;
