@@ -21,13 +21,24 @@
   cnode-based-url
 </def>
 
+<def name="(embody-doc)" ds=" i*x base-url-a base-url-u doc -- j*x ">
+  push-document
+  document-id trans-document
+  drop-document
+</def>
+
+<def name="embody-doc" ds=" i*x base-url-a base-url-u doc -- j*x ">
+  _cs_txml ENTER-CS
+  <xt-of name="(embody-doc)"/> CATCH
+  _cs_txml LEAVE-CS            THROW
+</def>
+
 <def name="EMBODY" ds=" i*x url-a url-u -- j*x ">
   2DUP
   DefaultLSParser parseURI DUP 0= <if> -5003 THROW </if>
-  DUP >R <!-- ( a u doc ) -->
-  push-document
-  R@ trans-document R> DefaultLSParser freeDoc
-  drop-document
+  DUP >R
+  embody-doc
+  R> DefaultLSParser freeDoc
 </def>
 
 <def name="Embody" ds=" i*x url-a url-u -- j*x "><!-- takes into account baseURI of current node -->

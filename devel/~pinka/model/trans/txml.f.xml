@@ -27,6 +27,8 @@
   <p><lit/> perform-rules </p> advice-rule-before
 </def>
 
+<const name="_cs_txml"> ALIGN HERE MAKE-CS, </const>
+
 <include href="document-context2.f.xml"/>
 
 <include href="txml.immutable.f.xml"/>

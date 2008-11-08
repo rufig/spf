@@ -20,6 +20,9 @@ REQUIRE AT-SAVING-BEFORE ~pinka/spf/storage.f
 
 REQUIRE lexicon.basics-aligned ~pinka/lib/ext/basics.f
 
+REQUIRE CREATE-CS       ~pinka/lib/multi/Critical.f 
+\ все, теперь без портирования синхронизации под линукс не пойдет
+
 
 REQUIRE GET-FILE      ~ac/lib/lin/curl/curl.f
 REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f

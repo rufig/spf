@@ -236,6 +236,7 @@ DROP-DEVELOP
 
 
 
+
 `CDR 2>CS CONCEIVE 
 `CELL- & EXEC, 
 `@ & EXEC, 
@@ -378,7 +379,8 @@ BIRTH 2CS> NAMING-
 BIRTH 2CS> NAMING- 
 `BIND-NODE-TAIL 2>CS CONCEIVE 
 `DUP & EXEC, 
-`@ & EXEC, NZBFW, 
+`@ & EXEC, 
+`0EQ & EXEC, ZBFW, 
 `! & EXEC, EXIT, RFW 
 `CALC-LIST-TAIL & EXEC, 
 `CELL- & EXEC, 
@@ -397,8 +399,12 @@ BIRTH 2CS> NAMING-
 BIRTH 2CS> NAMING- 
 `BIND-DNODE-TAIL 2>CS CONCEIVE 
 
+`OVER & EXEC, 
+`CELL- & EXEC, 
+`0! & EXEC, 
 `DUP & EXEC, 
-`@ & EXEC, NZBFW, 
+`@ & EXEC, 
+`0EQ & EXEC, ZBFW, 
 `2DUP & EXEC, 
 `! & EXEC, 
 `CELL+ & EXEC, 
@@ -414,7 +420,8 @@ BIRTH 2CS> NAMING-
 `SWAP & EXEC, 
 `CELL- & EXEC, 
 `DUP & EXEC, 
-`@ & EXEC, NZBFW, 
+`@ & EXEC, 
+`0EQ & EXEC, ZBFW, 
 `2! & EXEC, EXIT, RFW 
 `NIP & EXEC, 
 `DUP & EXEC, 
@@ -720,7 +727,8 @@ BIRTH 2CS> NAMING-
 `SWAP & EXEC, 
 `CHAR+ & EXEC, 
 `SWAP & EXEC, RFW 
-`DUP & EXEC, NZBFW, 
+`DUP & EXEC, 
+`0EQ & EXEC, ZBFW, 
 `NIP & EXEC, 
 `RDROP & EXEC, EXIT, RFW 0 LIT, 0 LIT, 
 `2SWAP & EXEC, 
@@ -804,7 +812,8 @@ BIRTH 2CS> NAMING-
 `>R & EXEC, 
 `SFIND & EXEC, 
 `DUP & EXEC, 1 LIT, 
-`EQ & EXEC, NZBFW, 
+`EQ & EXEC, 
+`0EQ & EXEC, ZBFW, 
 `RDROP & EXEC, 
 `RDROP & EXEC, EXIT, RFW 
 `DROP & EXEC, 
@@ -841,17 +850,20 @@ BIRTH 2CS> NAMING-
 `EXECUTE & EXEC, 
 `SP@ & EXEC, 
 `R> & EXEC, 
-`EQ & EXEC, NZBFW, -5010 LIT, 
+`EQ & EXEC, 
+`0EQ & EXEC, ZBFW, -5010 LIT, 
 `THROW & EXEC, RFW 
 
 BIRTH 2CS> NAMING- 
 `(I-QNATIVE) 2>CS CONCEIVE 
 `>R & EXEC, `:: SLIT, 
-`SPLIT- & EXEC, NZBFW, 
+`SPLIT- & EXEC, 
+`0EQ & EXEC, ZBFW, 
 `R> & EXEC, 
 `SEARCH-WORDLIST & EXEC, EXIT, RFW 
 `R> & EXEC, 
-`SEARCH-WORDLIST & EXEC, NZBFW, 
+`SEARCH-WORDLIST & EXEC, 
+`0EQ & EXEC, ZBFW, 
 `2DROP & EXEC, 
 `FALSE & EXEC, EXIT, RFW 
 `EXECUTE-BALANCED(+1) & EXEC, GERM >CS BBW, 
@@ -859,15 +871,18 @@ BIRTH 2CS> NAMING-
 BIRTH 2CS> NAMING- 
 `I-QNATIVE 2>CS CONCEIVE 
 `2DUP & EXEC, `:: SLIT, 
-`SPLIT- & EXEC, NZBFW, 
+`SPLIT- & EXEC, 
+`0EQ & EXEC, ZBFW, 
 `2DROP & EXEC, 
 `FALSE & EXEC, EXIT, RFW 
-`I-NATIVE & EXEC, NZBFW, 
+`I-NATIVE & EXEC, 
+`0EQ & EXEC, ZBFW, 
 `2DROP & EXEC, 
 `2DROP & EXEC, 
 `FALSE & EXEC, EXIT, RFW 
 `EXECUTE-BALANCED(+1) & EXEC, 
-`(I-QNATIVE) & EXEC, NZBFW, 
+`(I-QNATIVE) & EXEC, 
+`0EQ & EXEC, ZBFW, 
 `FALSE & EXEC, EXIT, RFW 
 `NIP & EXEC, 
 `NIP & EXEC, 
@@ -1006,7 +1021,8 @@ BIRTH 2CS> NAMING-
 `perform-chain 2>CS CONCEIVE 
 `chain-context & EXEC, 
 `@ & EXEC, 
-`DUP & EXEC, NZBFW, EXIT, RFW 
+`DUP & EXEC, 
+`0EQ & EXEC, ZBFW, EXIT, RFW 
 `chain-tree-stack & EXEC, 
 `@ & EXEC, 
 `>R & EXEC, 0 LIT, 
@@ -1056,6 +1072,7 @@ BIRTH 2CS> NAMING-
 `BIRTH & EXEC, 
 `advice-rule-before & EXEC, 
 BIRTH 2CS> NAMING- 
+`_cs_txml 2>CS  ALIGN HERE MAKE-CS,  CONCEIVE LIT, BIRTH 2CS> NAMING- 
 
 
 `document-context-hidden WORDLIST-NAMED PUSH-DEVELOP 
@@ -1122,6 +1139,16 @@ BIRTH 2CS> NAMING-
 `DUP & EXEC, 
 `ALLOT & EXEC, 
 `MOVE & EXEC, 
+BIRTH 2CS> NAMING- 
+`W, 2>CS CONCEIVE 
+`HERE & EXEC, 
+`W! & EXEC, 2 LIT, 
+`ALLOT & EXEC, 
+BIRTH 2CS> NAMING- 
+`L, 2>CS CONCEIVE 
+`HERE & EXEC, 
+`L! & EXEC, 4 LIT, 
+`ALLOT & EXEC, 
 BIRTH 2CS> NAMING- 
 `SXZ, 2>CS CONCEIVE 
 `DUP & EXEC, 
@@ -1250,6 +1277,11 @@ BIRTH 2CS> NAMING-
 `_doc & EXEC, 
 `DROP-MARKER & EXEC, 
 BIRTH 2CS> NAMING- 
+`document-id 2>CS CONCEIVE 
+`_doc & EXEC, 
+`@ & EXEC, 
+`@ & EXEC, 
+BIRTH 2CS> NAMING- 
 `document-url 2>CS CONCEIVE 
 `_doc-url & EXEC, 
 `@ & EXEC, 
@@ -1272,14 +1304,16 @@ BIRTH 2CS> NAMING-
 BIRTH 2CS> NAMING- 
 `document-based-url 2>CS CONCEIVE 
 `_doc-url & EXEC, 
-`@ & EXEC, NZBFW, EXIT, RFW 
+`@ & EXEC, 
+`0EQ & EXEC, ZBFW, EXIT, RFW 
 `document-base & EXEC, 
 `concat-in-document- & EXEC, 
 `normalizeURI & EXEC, 
 BIRTH 2CS> NAMING- 
 `cnode-based-url 2>CS CONCEIVE 
 `_doc-url & EXEC, 
-`@ & EXEC, NZBFW, EXIT, RFW 
+`@ & EXEC, 
+`0EQ & EXEC, ZBFW, EXIT, RFW 
 `BaseURI & EXEC, 
 `concat-in-document- & EXEC, 
 `normalizeURI & EXEC, 
@@ -1323,6 +1357,20 @@ BIRTH 2CS> NAMING-
 `2DROP & EXEC, 
 `cnode-based-url & EXEC, 
 BIRTH 2CS> NAMING- 
+`(embody-doc) 2>CS CONCEIVE 
+`push-document & EXEC, 
+`document-id & EXEC, 
+`trans-document & EXEC, 
+`drop-document & EXEC, 
+BIRTH 2CS> NAMING- 
+`embody-doc 2>CS CONCEIVE 
+`_cs_txml & EXEC, 
+`ENTER-CS & EXEC, `(embody-doc) & LIT, 
+`CATCH & EXEC, 
+`_cs_txml & EXEC, 
+`LEAVE-CS & EXEC, 
+`THROW & EXEC, 
+BIRTH 2CS> NAMING- 
 `EMBODY 2>CS CONCEIVE 
 `2DUP & EXEC, 
 `DefaultLSParser & EXEC, 
@@ -1332,13 +1380,10 @@ BIRTH 2CS> NAMING-
 `THROW & EXEC, RFW 
 `DUP & EXEC, 
 `>R & EXEC, 
-`push-document & EXEC, 
-`R@ & EXEC, 
-`trans-document & EXEC, 
+`embody-doc & EXEC, 
 `R> & EXEC, 
 `DefaultLSParser & EXEC, 
 `freeDoc & EXEC, 
-`drop-document & EXEC, 
 BIRTH 2CS> NAMING- 
 `Embody 2>CS CONCEIVE 
 `expanded-url & EXEC, 
