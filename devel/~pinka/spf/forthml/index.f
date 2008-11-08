@@ -17,6 +17,7 @@ REQUIRE AsQName         ~pinka/samples/2006/syntax/qname.f \ понятие однословных
 REQUIRE CORE_OF_REFILL  ~pinka/spf/fix-refill.f
 REQUIRE Require         ~pinka/lib/ext/requ.f
 REQUIRE AT-SAVING-BEFORE ~pinka/spf/storage.f
+REQUIRE WITHIN-FORTH-STORAGE-EXCLUSIVE  ~pinka/spf/storage-sync.f
 
 REQUIRE lexicon.basics-aligned ~pinka/lib/ext/basics.f
 

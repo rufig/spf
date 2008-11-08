@@ -89,7 +89,7 @@
   <rem> on default it is the same </rem>
 </def>
 
-<def name="load-sharedlex" ds=" d-interface -- wid ">
+<def name="(load-sharedlex)" ds=" d-interface -- wid ">
   NEST-SCOPE
   GET-ORDER N>R ONLY  <!-- spf4 specific -->
   <!-- как вариант, здесь FORTH-WORDLIST можно отправлять на дно стека sharedlex,
@@ -103,6 +103,9 @@
   DROP-CURRENT
   NR> SET-ORDER
   UNNEST-SCOPE
+</def>
+<def name="load-sharedlex" ds=" d-interface -- wid ">
+  <xt-of name="(load-sharedlex)"/> WITHIN-FORTH-STORAGE-EXCLUSIVE
 </def>
 
 <def name="fetch-sharedlex" ds=" d-interface -- wid ">
