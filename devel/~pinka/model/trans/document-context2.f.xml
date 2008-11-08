@@ -28,6 +28,9 @@
   _doc     DROP-MARKER
 </def>
 
+<def name="document-id" ds=" -- doc ">
+  _doc @ @
+</def>
 
 <def name="document-url" ds=" -- url-a url-u ">
   _doc-url @ COUNT
