@@ -13,6 +13,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <pthread.h>
 
 int test()
 {
@@ -65,6 +66,13 @@ void define_consts()
   DEFINE( O_RDWR)
   DEFINE( O_SYNC)
   DEFINE( O_NONBLOCK)
+
+  // pthread_mutex_t
+  CONST( SIZEOF_PTHREAD_MUTEX_T, sizeof(pthread_mutex_t))
+  CONST( SIZEOF_PTHREAD_MUTEXATTR_T, sizeof(pthread_mutexattr_t))
+  DEFINE( PTHREAD_MUTEX_TIMED_NP) // non-portable
+  DEFINE( PTHREAD_MUTEX_RECURSIVE_NP) // non-portable
+  DEFINE( PTHREAD_MUTEX_ERRORCHECK_NP) // non-portable
 }
 
 int main()
