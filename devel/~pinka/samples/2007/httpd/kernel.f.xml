@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ASCII"?>
+<?xml version="1.0" encoding="Windows-1251"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
 <g xml:base="http://forth.org.ru/~pinka/model/">
@@ -40,6 +40,10 @@
 
 <def name="wait-workers-finished" ds=" -- 0|x ">
   25 <repeat> workers-quan <while/> 1- DUP <while/> 200 PAUSE </repeat>
+
+  <rem>(!!!) По хорошему, здесь надо надо ожидать на хэндлах потоков,
+    а не за счетчиком  следить (во избежании гонок).
+  </rem>
 </def>
 
 <def name="stop-workers" ds=" -- ">
