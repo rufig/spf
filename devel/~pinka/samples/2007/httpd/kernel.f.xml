@@ -26,7 +26,6 @@
 <def name="instantiate-worker" ds=" -- ">
   <wid>
     GET-CURRENT <logN>worker wid</logN>
-    <const name="my-wid">GET-CURRENT</const>
     <!-- local alias: -->
     <def name="get-client?"> get-client? </def>
     <def name="dec-workers"> dec-workers </def>
@@ -104,6 +103,5 @@
   200 PAUSE
   start
 </def>
-
 
 </forth>
