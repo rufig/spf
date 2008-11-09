@@ -1,11 +1,10 @@
 \ $Id$
 
-( see ~pinka/lib/multi/Critical.f )
-
-\ CS == Critical Section
-\ no such thing in pthreads - need to define other lexicon
+\ interface compatible with ~pinka/lib/multi/Critical.f
+\ CS stands for Critical Section (lightweight private mutex in Windows)
 
 REQUIRE LINUX-CONSTANTS lib/posix/const.f
+REQUIRE /TEST ~profit/lib/testing.f
 
 MODULE: pthread_mutex
 
@@ -76,3 +75,35 @@ EXPORT
 ;
 
 ;MODULE
+
+/TEST
+
+VARIABLE var 
+CREATE-CS var-cs
+
+: ttt
+  0 ?DO
+   var-cs ENTER-CS
+   var-cs ENTER-CS \ this tests recursion
+   var @ 1+ 1 PAUSE var !
+   var-cs LEAVE-CS
+   var-cs LEAVE-CS
+  LOOP 
+;
+
+' ttt TASK: inc-var-task
+
+: test
+ var 0!
+ ." Start threads " CR
+ 10 0 DO
+   100 inc-var-task START
+ LOOP
+ ." Join threads " CR
+ 10 0 DO
+   1 <( 0 )) pthread_join DROP
+ LOOP
+ ." Result : " var @ . CR
+ ;
+
+test
