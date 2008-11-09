@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ASCII"?>
+<?xml version="1.0" encoding="Windows-1251"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
 <g xml:base="http://forth.org.ru/~pinka/model/">
@@ -32,6 +32,8 @@ location       http-method    is-http-method
 content-length-number
 
 </text><each-word><alias name="{2DUP}"> &amp; </alias></each-word></g>
+
+<rem> todo: read* должны мочь прочитать не более, чем content-lenght </rem>
 
 </export>
 
