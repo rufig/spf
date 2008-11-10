@@ -13,8 +13,12 @@
 
 <rem> pieces of the URI, per the generic URI syntax </rem>
 <text>
-  user pass  url   href protocol host hostname port pathname search hash
-</text>
+  user password
+  url href protocol host hostname port pathname search hash
+</text><!---
+  protocol ~= scheme
+  seach    ~= query
+-->
              2DUP
 <each-word>
   HERE 0 , 0 , DUP 2SWAP
@@ -42,11 +46,11 @@
   </choose> _port-number !  port!
 </def>
 
-<def name="auth!" ds=" a u -- "><!-- user@pass:port -->
-  `: SPLIT <unless> 0. </unless> pass! user!
+<def name="auth!" ds=" a u -- "><!-- user@password:port -->
+  `: SPLIT <unless> 0. </unless> password! user!
 </def>
 
-<def name="hostport!" ds=" a u -- "><!-- user:pass@hostname:port  -->
+<def name="hostport!" ds=" a u -- "><!-- user:password@hostname:port  -->
   `@ SPLIT- <unless> 0. </unless> auth!
   2DUP host!
   `: SPLIT  <unless> 0. </unless> port!  hostname!
