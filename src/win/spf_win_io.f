@@ -49,7 +49,7 @@ CREATE SA 12 , 0 , 1 ,
   0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
   OPEN_EXISTING
   SA ( secur )
-  3 ( share )  
+  7 ( share )  
   R> ( access=fam )
   R> ( filename )
   CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
