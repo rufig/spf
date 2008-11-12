@@ -3075,7 +3075,9 @@ M\ PPPP
                THEN
           DROP
       THEN
-      OP2 @ W@    45C7 XOR  \ MOV X1 [EBP], # 4444 \ $ 4444 5555 OR
+      OP2 @ 2+ C@
+      OP0 @ 2+ C@  XOR
+      OP2 @ W@    45C7 XOR OR \ MOV X1 [EBP], # 4444 \ $ 4444 5555 OR 
       OP1 @ C@      B8 XOR OR 0=   \ MOV     EAX , # 4
                           \  ADD|XOR|OR|AND=
       IF  M\ 124 DTST
