@@ -49,14 +49,9 @@
   <system-uri-map base="local://my1/" target="c:/work/2007/my1/" />
 -->
 
-<also wordlist="DefaultLSParser"><definitions>
-
-<def name="ParseURI" ds=" a u -- doc ">
-  resolve-uri-map ParseURI
-</def>
-
-</definitions>
-</also>
+<init>
+  <xt-of name="resolve-uri-map"/> _translate-uri !
+</init>
 
 </export></wordlist>
 

@@ -27,15 +27,14 @@
   drop-document
 </def>
 
-<def name="embody-doc" ds=" i*x base-url-a base-url-u doc -- j*x ">
+<def name="embody-doc" ds=" i*x basedoc-url-a basedoc-url-u doc -- j*x ">
   _cs_txml ENTER-CS
   <xt-of name="(embody-doc)"/> CATCH
   _cs_txml LEAVE-CS            THROW
 </def>
 
 <def name="EMBODY" ds=" i*x url-a url-u -- j*x ">
-  2DUP
-  DefaultLSParser parseURI DUP 0= <if> -5003 THROW </if>
+  2DUP translate-uri DefaultLSParser parseURI DUP 0= <if> -5003 THROW </if>
   DUP >R
   embody-doc
   R> DefaultLSParser freeDoc

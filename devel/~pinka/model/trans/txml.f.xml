@@ -29,6 +29,10 @@
 
 <const name="_cs_txml"> ALIGN HERE MAKE-CS, </const>
 
+<cell name="_translate-uri"><xt-of name="NOOP"/></cell>
+
+<def name="translate-uri" ds=" d-uri1 -- d-uri2 "> _translate-uri @ EXECUTE </def>
+
 <include href="document-context2.f.xml"/>
 
 <include href="txml.immutable.f.xml"/>

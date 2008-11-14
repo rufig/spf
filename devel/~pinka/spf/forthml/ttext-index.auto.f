@@ -1062,6 +1062,12 @@ BIRTH 2CS> NAMING-
 `advice-rule-before & EXEC, 
 BIRTH 2CS> NAMING- 
 `_cs_txml 2>CS  ALIGN HERE MAKE-CS,  CONCEIVE LIT, BIRTH 2CS> NAMING- 
+`_translate-uri 2>CS SP@ >CS `NOOP & SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH 2CS> NAMING- 
+`translate-uri 2>CS CONCEIVE 
+`_translate-uri & EXEC, 
+`@ & EXEC, 
+`EXECUTE & EXEC, 
+BIRTH 2CS> NAMING- 
 
 
 `document-context-hidden WORDLIST-NAMED PUSH-DEVELOP 
@@ -1360,6 +1366,7 @@ BIRTH 2CS> NAMING-
 BIRTH 2CS> NAMING- 
 `EMBODY 2>CS CONCEIVE 
 `2DUP & EXEC, 
+`translate-uri & EXEC, 
 `DefaultLSParser & EXEC, 
 `parseURI & EXEC, 
 `DUP & EXEC, 
