@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<include href="orig/model/data/queue.L1.f.xml" xml:base="http://forth.org.ru/~pinka/"/>
+<!-- orig(!) -->
+
+<using href="http://forth.org.ru/~pinka/model/data/list-plain.f.xml"/>
+
+<also wordlist="queue-L1-hidden">
+
+<def name="enqueueN" ds=" x -- ">
+DUP >R
+  100 wait-worker <unless> log-overflow hire-worker </unless>
+  TUCK !
+DUP <logN>enqueue, cart</logN>
+  cs ENTER-CS
+  _h BIND-DNODE-TAIL _len 1+!
+_len @
+  cs LEAVE-CS
+  sem ReleaseSem
+R> <logN>enqueueN</logN>
+   <logN>enqueue, length</logN>
+</def>
+
+<def name="dequeueN" ds=" -- x ">
+  sem -1 Wait <unless> `#dequeueN STHROW </unless>
+  cs ENTER-CS
+_len @ >R
+  _len 1-! _h UNBIND-NODE
+DUP >R
+  cs LEAVE-CS
+  DUP <unless> `#queue-is-underflow STHROW </unless>
+  DUP @ SWAP release-worker
+R>  <logN>dequeue, cart</logN>
+R>  <logN>dequeue, length</logN>
+DUP <logN>dequeueN</logN>
+</def>
+
+</also>
+
+</forth>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<comment>
+  После подключения данного модуля, далее везде вместо queue.L1.f.xml
+  будет подключатся его отладочная (trace) версия queue.L1-debug.f.xml
+  
+  Демонстрация возможности по переопределению отображения URI в файл
+  и некоторых недостатков в реализации xml-uri-map.f.xml
+</comment>
+
+<wordlist name="queue-debug-setup">
+
+<def name="src" ds=" -- a u ">
+  `http://forth.org.ru/~pinka/model/data/queue.L1.f.xml
+</def>
+<def name="src-orig" ds=" -- a u ">
+  `http://forth.org.ru/~pinka/orig/model/data/queue.L1.f.xml
+</def>
+<def name="dst" ds=" -- a u ">
+  `http://forth.org.ru/~pinka/model/data/queue.L1-debug.f.xml
+</def>
+
+<def name="map" ds=" d-uri1 -- d-uri2 flag ">
+  2DUP src       EQUAL <if> 2DROP dst FALSE <exit/></if>
+  2DUP src-orig  EQUAL <if> 2DROP src FALSE <exit/></if>
+  FALSE
+</def>
+
+<init>
+  <xt-of name="map"/>
+  forthml-hidden::urimap-hidden::advice-before
+</init>
+
+</wordlist>
+</forth>
