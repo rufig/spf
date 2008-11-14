@@ -10,7 +10,7 @@ Forth-system and ANS'94 standard.</i>
 
 <small>Last update: $Date$</small>
 
-<!-- Translation is in sync with intro.ru.md rev. 1.39 -->
+<!-- Translation is in sync with intro.ru.md rev. 1.40 -->
 
 ----
 
@@ -228,7 +228,7 @@ The words `flag`, `field` and `arr` will add their offset to the address on the
 stack when executed. And the `struct` constant contains the size of the whole
 record. Consider:
 
-    struct ALLOCATE THROW TO s \ requested memory from heap for the single struct instance
+	struct ALLOCATE THROW VALUE s \ requested memory from heap for the single struct instance
 	1 s flag C!  10 s field ! \ set the struct fields' values
 	s arr 10 CELLS DUMP \ output the contents of the array in struct
 	s FREE THROW \ free memory
