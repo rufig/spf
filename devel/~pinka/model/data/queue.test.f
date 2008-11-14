@@ -8,9 +8,9 @@ REQUIRE CREATE-CS ~pinka/lib/multi/Critical.f
 
 
 `events-common.f.xml EMBODY
-`queue.L1.f.xml      EMBODY
                      \ paths is relatively to the current directory(!)
 
+`http://forth.org.ru/~pinka/model/data/queue.L1.f.xml EMBODY
 
  startup FIRE-EVENT
 
@@ -27,6 +27,7 @@ REQUIRE CREATE-CS ~pinka/lib/multi/Critical.f
   T 30 enqueueN queue-length .
   T dequeueN . queue-length .
 
+OK
 
 \EOF
 
