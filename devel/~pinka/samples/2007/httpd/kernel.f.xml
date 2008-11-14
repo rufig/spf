@@ -79,6 +79,8 @@
 
 <handler event="startup">
   <log>starting tcp server</log>
+  interface-name <logS>interface-name</logS>
+  port-name      <logS>port-name</logS>
   max-worker-size max-workers 10 + * NEW-STORAGE
   DUP _storage !  MOUNT
   instantiate-worker
