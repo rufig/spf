@@ -1,0 +1,7 @@
+./libs.sh
+rm -rf source
+./libs2docbook.sh >& libs2docbook.log
+rm -rf chunked
+mkdir chunked
+xmllint --nonet --xinclude devel2.docbook > devel3.docbook
+xsltproc --nonet devel.html.chunked.xsl devel3.docbook

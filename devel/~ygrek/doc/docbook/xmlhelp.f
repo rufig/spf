@@ -7,7 +7,7 @@
 MODULE: xmlhelp-generator
 
 REQUIRE [IF] lib/include/tools.f
-REQUIRE STR@ ~ac/lib/str4.f
+REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAY-PATH ~pinka/samples/2005/lib/lay-path.f
 
 \ REQUIRE >UNICODE ~ac/lib/win/com/com.f
@@ -47,7 +47,8 @@ VARIABLE xmlIndent
                         \ дл€ того чтобы вз€ть только те комменты которые идут до слова
 "" VALUE comments-storage \ хранилище комментариев
 0 VALUE HERE-AT-MODULE-START
-0x1FFFFFFF VALUE TC-IMAGE-BASE
+\ 0x1FFFFFFF VALUE TC-IMAGE-BASE
+0 VALUE TC-IMAGE-BASE
 
 : XMLHELP-ON
     TRUE TO generateHelp?
@@ -257,6 +258,11 @@ EXPORT
    CURSTR @ TO str-of-comments
    0 PARSE HandleSpecialChars " <comment>{s}</comment>" comments-storage S+
 ; IMMEDIATE
+
+: INCLUDED
+  ['] INCLUDED CATCH IF 2DROP ." INCLUDED raised exception" CR BYE THEN ;
+: REQUIRE   
+  ['] REQUIRE CATCH IF ." REQUIRE raised exception" CR BYE THEN ;
 
 \ “аким образом мы знаем какой модуль в каком подключаетс€
 : INCLUDED ( addr u )

@@ -41,9 +41,7 @@
       </title>
 
       <para>
-        <emphasis>
         <xsl:value-of select="@params"/>  <!-- Стековая нотация-->
-        </emphasis>
       </para>
 
       <xsl:variable name="FirstComment">
@@ -51,15 +49,12 @@
       </xsl:variable>
 
       <xsl:choose>
-
         <xsl:when test="string-length($FirstComment)!=0">
-
-          <xsl:call-template name="print-comments"/>
-
+            <para>
+              <xsl:call-template name="print-comments"/>
+            </para>
         </xsl:when>
-
         <xsl:otherwise>
-
           <simpara><xsl:text> </xsl:text></simpara>
 
           <xsl:if test="$xmlhelp.allstack!=0">
@@ -69,9 +64,7 @@
             </xsl:with-param>
           </xsl:call-template>
           </xsl:if>
-
         </xsl:otherwise>
-
       </xsl:choose>
 
     </section>
@@ -85,17 +78,12 @@
   <!-- *********************************************************** -->
 
   <xsl:template name="print-comments">
-
-      <para>
       <xsl:for-each select="comment">          <!-- Описание (из либы)-->
         <xsl:value-of select="."/>
         <xsl:if test="position()!=last()">
           <sbr/>                             <!-- THIS BREAKS VALIDATION !!! -->
         </xsl:if>
       </xsl:for-each>
-      </para>
-
-
   </xsl:template>
 
 

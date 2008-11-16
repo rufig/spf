@@ -16,7 +16,7 @@
   <!--xsl:param name="admon.graphics" select="1"/-->
   <!--xsl:param name="admon.graphics.path">gfx/</xsl:param-->
 
-  <!--xsl:param name="html.stylesheet" select="'simple.css'"/-->
+  <xsl:param name="html.stylesheet" select="'simple.css'"/>
 
   <!-- язык (чтобы компил€тор chm выбрал правильную кодировку)-->
   <xsl:param name="l10n.gentext.default.language" select="'ru'"></xsl:param>
@@ -28,7 +28,7 @@
   <xsl:template name="user.header.navigation">
     <hr></hr>
     <p>
-    <a href="http://spf.sf.net">SP-Forth</a> documentation.
+    <a href="http://spf.sf.net">SP-Forth</a> devel.
     </p>
     <hr></hr>
   </xsl:template>
