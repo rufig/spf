@@ -21,7 +21,6 @@
   ExitProcess
 ;
 
-
 USER EXC-HANDLER  \ аппаратные исключения (преобразуемые в программные)
 
 ( DispatcherContext ContextRecord EstablisherFrame ExceptionRecord ExceptionRecord --
@@ -34,10 +33,11 @@ VECT <EXC-DUMP> \ действия по обработке исключения
 
 : (EXC) ( DispatcherContext ContextRecord EstablisherFrame ExceptionRecord -- flag )
   (ENTER) \ фрейм для стека данных
-  0 FS@ @ \ адрес некого (последнего?) фрейма обработки исключений
+  0 FS@ \ адрес последнего назначенного фрейма обработки исключений
   \ ищем в цепочке фреймов наш фрейм (по "метке", -- возможно, есть лучший способ?)
-  BEGIN DUP WHILE DUP CELL- @ ['] DROP-EXC-HANDLER <> WHILE ( ." alien " ) @ REPEAT THEN
-  DUP 0= IF ( ." ERROR: EXC-frame not found " ) -1 ExitThread THEN
+  BEGIN DUP WHILE DUP -1 <> WHILE DUP CELL- @ ['] DROP-EXC-HANDLER <> WHILE ( ." alien " ) @ REPEAT THEN THEN
+  \ Цепочка завершается ссылкой на -1
+  DUP 0= OVER -1 = OR IF 0 TlsIndex! S" ERROR: EXC-frame not found " TYPE -1 ExitThread THEN
   DUP 0 FS! \ восстанавливаем наш фрейм, чтобы продолжать ловить exceptions в будущем
   CELL+ CELL+ @ TlsIndex! \ ранее сохраненный указатель на USER-данные текущего потока
 
