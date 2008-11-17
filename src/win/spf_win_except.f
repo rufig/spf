@@ -38,6 +38,7 @@ VECT <EXC-DUMP> \ действия по обработке исключения
   BEGIN DUP WHILE DUP -1 <> WHILE DUP CELL- @ ['] DROP-EXC-HANDLER <> WHILE ( ." alien " ) @ REPEAT THEN THEN
   \ Цепочка завершается ссылкой на -1
   DUP 0= OVER -1 = OR IF 0 TlsIndex! S" ERROR: EXC-frame not found " TYPE -1 ExitThread THEN
+  \ Шанс, что свой фрейм не найдем, весьма мал -- т.к. управление в (EXC) попадает только через этот фрейм.
   DUP 0 FS! \ восстанавливаем наш фрейм, чтобы продолжать ловить exceptions в будущем
   CELL+ CELL+ @ TlsIndex! \ ранее сохраненный указатель на USER-данные текущего потока
 
