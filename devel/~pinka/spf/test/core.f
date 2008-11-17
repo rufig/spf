@@ -7,6 +7,7 @@ REQUIRE TESTCASES ~ygrek/lib/testcase.f
 TESTCASES EXC-NO-FRAME
 
 : demark-frame ( -- flag )
+\ повреждение "маркера" в своем фрейме, чтобы он был не найден в "(EXC)"
   0 FS@
   DUP CELL- @ ['] DROP-EXC-HANDLER <> IF DROP FALSE EXIT THEN
   CELL- 1+!
