@@ -29,6 +29,8 @@
 <init>
   <xt-of name="map"/>
   forthml-hidden::urimap-hidden::advice-before
+
+  <comment> Необходимость залезть в такие детали реализации — явный индикатор недостатка в интерфейсе </comment>
 </init>
 
 </wordlist>
