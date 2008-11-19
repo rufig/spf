@@ -237,32 +237,55 @@ SPECIAL > &gt;
 
 : :: : ;
 
-EXPORT
+: /PAD 1024 ;
+: /SYSTEM-PAD 4096 ;
 
-: (
-  BEGIN
-    [CHAR] ) >R
-    R@ PARSE 2DUP CHECK-AS-( + C@ R> = 0=
-  WHILE
-    REFILL 0= IF EXIT THEN
-  REPEAT
-; IMMEDIATE
+" NB: hardcode /PAD={/PAD} and /SYSTEM-PAD={/SYSTEM-PAD}" STYPE CR
 
+: SAVE-PAD ( -- a ) PAD /PAD HEAP-COPY ;
+: SAVE-SYSPAD SYSTEM-PAD /SYSTEM-PAD HEAP-COPY ;
 
-: \
+: RESTORE-PAD ( a -- ) DUP PAD /PAD MOVE FREE THROW ;
+: RESTORE-SYSPAD ( a -- ) DUP SYSTEM-PAD /SYSTEM-PAD MOVE FREE THROW ;
+
+: SEVALUATE >R R@ STR@ ( 2DUP TYPE CR ) EVALUATE R> STRFREE ;
+
+: PROTECT ( name u -- )
+   2DUP " : {s} SAVE-SYSPAD >R SAVE-PAD >R {s} R> RESTORE-PAD R> RESTORE-SYSPAD ; " SEVALUATE ;
+
+: save-\
    moduleComment? IF module-\ EXIT THEN
    comment? IF simple-\ EXIT THEN
 
    \ ELSE
    CURSTR @ str-of-comments 1+ <> IF comments-storage STRFREE "" TO comments-storage THEN
    CURSTR @ TO str-of-comments
-   0 PARSE HandleSpecialChars " <comment>{s}</comment>" comments-storage S+
+   0 PARSE HandleSpecialChars " <comment>{s}</comment>" comments-storage S+ ;
+
+: save-()
+  BEGIN
+    [CHAR] ) >R
+    R@ PARSE 2DUP CHECK-AS-( + C@ R> = 0=
+  WHILE
+    REFILL 0= IF EXIT THEN
+  REPEAT ;
+
+EXPORT
+
+\ WARNING @ 
+WARNING 0!
+
+: (
+  save-()
 ; IMMEDIATE
 
-: INCLUDED
-  ['] INCLUDED CATCH IF 2DROP ." INCLUDED raised exception" CR BYE THEN ;
-: REQUIRE   
-  ['] REQUIRE CATCH IF ." REQUIRE raised exception" CR BYE THEN ;
+
+: \
+   save-\
+; IMMEDIATE
+
+: INCLUDED ['] INCLUDED CATCH IF 2DROP ." INCLUDED raised exception" CR ERROR CR BYE THEN ;
+: REQUIRE ['] REQUIRE CATCH IF ." REQUIRE raised exception" CR ERROR CR BYE THEN ;
 
 \ Таким образом мы знаем какой модуль в каком подключается
 : INCLUDED ( addr u )
@@ -304,6 +327,8 @@ EXPORT
        S" </module>" HELP-OUT crh
     THEN
 ;
+
+DEFINITIONS
 
 : StartColonHelp ( primitive? )
 
@@ -368,11 +393,6 @@ EXPORT
   R> >IN !
 ;
 
-XMLHELP-OFF
-
-: : FALSE StartColonHelp : ;
-
-
 : EndColonHelp
    comment?
    IF
@@ -384,9 +404,25 @@ XMLHELP-OFF
    "" TO comments-storage
 ;
 
+S" StartColonHelp" PROTECT
+S" EndColonHelp" PROTECT
+S" save-()" PROTECT
+S" save-\" PROTECT
+
+EXPORT
+
+\ S" REQUIRE" PROTECT
+\ S" INCLUDED" PROTECT
+
+XMLHELP-OFF
+
+: : FALSE StartColonHelp : ;
+
 :: ; POSTPONE ;
   EndColonHelp
 ; IMMEDIATE
+
+TRUE WARNING !
 
 : START-XMLHELP ( a u -- )
     FORCE-PATH
