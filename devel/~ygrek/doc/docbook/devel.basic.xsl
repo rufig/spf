@@ -21,9 +21,6 @@
   <!-- язык (чтобы компил€тор chm выбрал правильную кодировку)-->
   <xsl:param name="l10n.gentext.default.language" select="'ru'"></xsl:param>
 
-  <!-- ¬роде как увеличивает скорость сборки немного -->
-  <xsl:param name="chunk.fast" select="1"></xsl:param>
-
   <!-- Ётот текст будет в шапке каждой страницы -->
   <xsl:template name="user.header.navigation">
     <hr></hr>
@@ -32,5 +29,15 @@
     </p>
     <hr></hr>
   </xsl:template>
+
+  <xsl:param name="toc.section.depth" select="1"/>
+  <xsl:param name="toc.max.depth">1</xsl:param>
+
+  <!-- —оздавать оглавление дл€ указанных разделов только -->
+  <xsl:param name="generate.toc">
+  book toc
+  chapter toc
+  section nop
+  </xsl:param>
 
 </xsl:stylesheet>

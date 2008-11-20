@@ -18,23 +18,14 @@
   <!--xsl:param name="htmlhelp.hhc.show.root" select="0"></xsl:param>
   <xsl:param name="htmlhelp.default.topic" select="'pr01.html'"/-->
 
-  <xsl:param name="toc.section.depth" select="1"/>
+  <!-- Каталог для сохранения html файлов -->
+  <xsl:param name="base.dir" select="'chm/'"></xsl:param>
+
   <xsl:param name="htmlhelp.hhc.section.depth" select="1"/>
 
   <xsl:param name="htmlhelp.chunk.first.sections" select="0"></xsl:param>
 
   <!-- Писать инфу в index.hhk чтобы ссылки из индекса переходили на соответствующее слово -->
   <xsl:param name="htmlhelp.use.hhk" select="1"></xsl:param>
-
-  <!-- Создавать индекс -->
-  <xsl:param name="generate.index" select="1"></xsl:param>
-
-  <!-- Создавать оглавление для указанных разделов только -->
-  <xsl:param name="generate.toc">
-  book toc
-  chapter toc
-  section nop
-  </xsl:param>
-
 
 </xsl:stylesheet>

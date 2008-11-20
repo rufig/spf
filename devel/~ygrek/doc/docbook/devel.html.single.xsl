@@ -4,13 +4,7 @@
 
   <xsl:include href="devel.basic.xsl"/>
 
-  <xsl:param name="toc.section.depth" select="4"/>
-
-  <!-- Создавать оглавление для указанных разделов только -->
-  <xsl:param name="generate.toc">
-  chapter nop
-  section nop
-  </xsl:param>
-
+  <!-- Создавать индекс -->
+  <xsl:param name="generate.index" select="0"></xsl:param>
 
 </xsl:stylesheet>

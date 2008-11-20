@@ -45,8 +45,9 @@ libxml2, iconv, libxslt <http://www.zlatkovic.com/pub/libxml/>
 docbook-xsl <http://sourceforge.net/project/showfiles.php?group_id=21935&package_id=16608>
 docbook-xml <http://www.oasis-open.org/docbook/xml/4.5/docbook-xml-4.5.zip>
 rm.exe который понимает список аргументов без запятых и с прямыми слешами - не помню где брал :(
+hhc <http://go.microsoft.com/fwlink/?LinkId=14188>
 
-xsltproc make и spf должны запускаться по имени (без указания пути).
+xsltproc make spf и hhc должны запускаться по имени (без указания пути).
 
 Процесс
 =======

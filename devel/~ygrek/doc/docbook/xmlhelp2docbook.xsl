@@ -6,8 +6,9 @@
   <xsl:for-each select="module">          <!-- Для каждого файла-->
   <section>                               <!-- Раздел-->
     <xsl:attribute name="id">
-      <xsl:value-of select="generate-id()"/>
+      <xsl:value-of select="@name"/>
     </xsl:attribute>
+
     <title>
       <xsl:value-of select="@name"/>      <!-- Имя файла-->
     </title>
@@ -24,7 +25,7 @@
 
     <section>
       <xsl:attribute name="id">
-        <xsl:value-of select="generate-id()"/>
+        <xsl:value-of select="concat(../@name,'/',@name)"/>
       </xsl:attribute>
 
       <indexterm type="word">
