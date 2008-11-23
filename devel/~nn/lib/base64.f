@@ -1,3 +1,6 @@
+\ Основано на ~ac/lib/string/conv.f, но другая стековая нотация -
+\ нет автовыделения буфера.
+
 USER abase
 USER lbase
 USER nbase
