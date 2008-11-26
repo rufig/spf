@@ -4,9 +4,10 @@
 
  <xsl:template match="/">
   <xsl:for-each select="spf_devel/section/lib">
-    <xsl:value-of select="concat('make source/',src,'.docbook')"/>
+    <xsl:value-of select="concat('xsltproc xmlhelp2words.xsl source/',src,'.xml')"/>
     <xsl:text>&#xA;</xsl:text>
   </xsl:for-each>
  </xsl:template>
 
 </xsl:stylesheet>
+
