@@ -1,6 +1,13 @@
+
+#rm -rf source
+#rm -rf chunked
+
 ./libs.sh
-rm -rf source
 ./libs2docbook.sh
-rm -rf chunked
+
 mkdir chunked
 xsltproc --nonet --xinclude devel.html.chunked.xsl devel.docbook
+cp simple.css chunked/
+xsltproc --nonet --xinclude devel.html.single.xsl devel.docbook > devel.html
+#xsltproc --nonet --xinclude devel.chm.xsl devel.docbook
+#hhc devel.hhp
