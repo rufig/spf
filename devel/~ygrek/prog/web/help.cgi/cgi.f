@@ -57,7 +57,8 @@ MODULE: HTML
   DUP " {EOLN}" "  " replace-str- ;
 
 \ todo interactive session when no environment present
-: get-params S" QUERY_STRING" ENVIRONMENT? 0= ABORT" Not a CGI" GetParamsFromString ;
+\ todo problems with ABORT here (TYPE>STR doesn't catch it)
+: get-params S" QUERY_STRING" ENVIRONMENT? 0= IF S" " THEN GetParamsFromString ;
 
 : revision $Revision$ SLITERAL ;
 : spf-version VERSION 1000 / 100 /MOD " {n}.{n}" ;
@@ -75,7 +76,9 @@ MODULE: HTML
     ." Search SP-Forth words (src,lib,devel) :"
    >>
    tag: form
-   " <input name={''}q{''} value={''}{s}{''} type={''}text{''} size={''}30{''}/>" STYPE SPACE SPACE
+   " <input name={''}q{''} value={''}" STYPE 
+   HTML::TYPE 
+   " {''} type={''}text{''} size={''}30{''}/>" STYPE SPACE SPACE
    " <input value={''}Search{''} type={''}submit{''}/>" STYPE CR
    HTML::CR
    tag: small
@@ -145,7 +148,8 @@ PREVIOUS
 \ chunked transfer-encoding (thx to ~pinka for pointing this out)
 : output LAMBDA{ output CR } TYPE>STR ;
 
-:NONAME text/html output DUP STRLEN length CR STYPE BYE ; MAINX !
-
+:NONAME text/html output DUP STRLEN length CR STYPE BYE ; 
+\ EXECUTE
+MAINX !
 S" help.cgi" SAVE BYE
 

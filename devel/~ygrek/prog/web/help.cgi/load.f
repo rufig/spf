@@ -1,6 +1,5 @@
 \ $Id$
 
-REQUIRE [IFDEF] ~nn/lib/ifdef.f \ for ~mak/A_IF.F
 REQUIRE as-list ~ygrek/lib/list/more.f
 REQUIRE FileLines=> ~ygrek/lib/filelines.f
 REQUIRE LIKE ~pinka/lib/like.f
