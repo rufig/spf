@@ -48,3 +48,9 @@ USER SQS
   " </tbody></table>" SQS @ S+
   SQS @ STR@
 ;
+: xquery_style ( addr u stylea styleu -- addr2 u2 )
+  " <table class='sortable {s}' id='sp_table' cellpadding='0' cellspacing='0'>" SQS !
+  0 ['] (xquery) SQH @ db3_exec
+  " </tbody></table>" SQS @ S+
+  SQS @ STR@
+;
