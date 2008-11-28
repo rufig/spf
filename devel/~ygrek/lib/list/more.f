@@ -23,6 +23,19 @@ REQUIRE axt=> ~profit/lib/bac4th-closures.f
     2DROP
    )lst ;
 
+\ xt: ( node -- ? )
+: partition-this ( xt node1 -- node2 node3 ) \ clean-stack
+  { xt l | l1 l2 }
+  () -> l1
+  () -> l2
+  BEGIN
+   l empty? 0=
+  WHILE
+   l xt EXECUTE l cdr l ROT IF l1 cons -> l1 ELSE l2 cons -> l2 THEN -> l
+  REPEAT
+  l1 reverse-list 
+  l2 reverse-list ;
+
 \ Поиск по списку
 \ В случае успеха (xt вернул -1) возвращается node1 на которой поиск был остановлен
 \ иначе - пустой список
@@ -299,6 +312,21 @@ l2 FREE-LIST
 %[ :NONAME + % ; l1 zipcar ]% TO l2
 l1 FREE-LIST
 %[ 3 % 5 % 6 % 7 % 9 % ]% TO l1
+(( l1 l2 equal? -> TRUE ))
+l1 FREE-LIST
+l2 FREE-LIST
+
+\
+\ partition-this
+%[ 1 % 2 % 3 % 4 % 5 % 6 % ]% 
+:NONAME car 2 MOD 0= ; SWAP partition-this ( la lb )
+TO l1
+%[ 1 % 3 % 5 % ]% TO l2
+(( l1 l2 equal? -> TRUE ))
+l1 FREE-LIST
+l2 FREE-LIST
+TO l1
+%[ 2 % 4 % 6 % ]% TO l2
 (( l1 l2 equal? -> TRUE ))
 l1 FREE-LIST
 l2 FREE-LIST

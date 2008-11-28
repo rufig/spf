@@ -82,11 +82,11 @@ REQUIRE TESTCASES ~ygrek/lib/testcase.f
 REQUIRE write-list ~ygrek/lib/list/write.f
 REQUIRE equal? ~ygrek/lib/list/more.f
 REQUIRE GENRANDMAX  ~ygrek/lib/neilbawd/mersenne.f
+REQUIRE ms@ lib/include/facil.f
 
 TESTCASES list-sort
 
-WINAPI: GetTickCount KERNEL32.DLL
-GetTickCount SGENRAND
+ms@ SGENRAND
 
 : generate ( n -- l )
    %[ 0 ?DO 1000 GENRANDMAX % LOOP ]% ;
