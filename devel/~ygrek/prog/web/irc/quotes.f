@@ -20,22 +20,16 @@ ms@ SGENRAND
 
 () VALUE quotes
 
-0 VALUE search_list
-0 0 2VALUE searched
+: quotes-file S" quotes.txt" ;
 
-" quotes.txt" VALUE s-quotes-file
-
-: quotes-file s-quotes-file STR@ ;
-
-: dump-quotes ( -- )
+\ : dump-quotes ( -- )
    \ очистить файл
-   quotes-file EMPTY
+\   quotes-file EMPTY
    \ записать весь список
-   LAMBDA{ STR@ quotes-file ATTACH-LINE-CATCH DROP } quotes mapcar ;
+\   LAMBDA{ STR@ quotes-file ATTACH-LINE-CATCH DROP } quotes mapcar ;
 
 EXPORT
 
-: quotes-file! s-quotes-file STR! ;
 : quotes-total quotes length ;
 
 \ ~ygrek/lib/debug/inter.f
