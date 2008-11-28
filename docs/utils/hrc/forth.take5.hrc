@@ -39,8 +39,10 @@ With Help of
    <regexp match='/(\s|^)(\"\")/' region2="forWord"/>
    <!-- generic strings -->
    <regexp match='/(\s|^)(\S+(\"\s))(.*?)(\")/' region2="forWord" region4="forString" region5="forWord"/>
-   <!-- single quote strigns -->
+   <!-- single quote strings -->
    <block start='/(\s|^)\"(\s|$)/' end='/\"/' scheme="Comment" region="forString" region00="forWord" region10="forWord"/>
+   <!-- AsQName strings -->
+   <regexp match='/(\s|^)(`)(.*?)\M(\s|$)/' region2="forResWord" region3="forString"/>
 
    <!-- Numbers -->
    <!-- hexadecimal -->
