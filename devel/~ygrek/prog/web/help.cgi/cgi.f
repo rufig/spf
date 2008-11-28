@@ -15,6 +15,7 @@ REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE CEQUAL ~pinka/spf/string-equal.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
+\ REQUIRE INTER ~ygrek/lib/debug/inter.f
 S" ~ygrek/lib/list/all.f" INCLUDED
 
 : STARTS-WITH? { a1 u1 a2 u2 -- ? }
@@ -24,7 +25,7 @@ S" ~ygrek/lib/list/all.f" INCLUDED
 S" ~ygrek/prog/web/help.cgi/load.f" INCLUDED
 
 : text/html S" Content-type: text/html" TYPE CR ;
-: length ( n -- ) " Content-Length: {n}" STYPE CR ;
+: content-length ( n -- ) " Content-Length: {n}" STYPE CR ;
 
 \ what is better?
 \ - introduce new words for HTML output, or
@@ -151,7 +152,9 @@ MODULE: HTML
 
 \ link to source
 : source-from-spf ( a u -- )
-  " http://spf.cvs.sourceforge.net/*checkout*/spf/" >R
+\  " http://spf.cvs.sourceforge.net/*checkout*/spf/" 
+  " http://forth.org.ru/"
+  >R
   2DUP S" ~" STARTS-WITH? IF S" devel/" R@ STR+ THEN
   2DUP R@ STR+
   R@ " \" " /" replace-str- \ "
@@ -169,17 +172,22 @@ ALSO HTML
   << `source span ."  \ " STR@ source-from-spf >>
   CR ;
 
+: block ( l a u -- )
+  hrule
+  << tag: h3 TYPE >>
+  DUP << words-each-> show-word >>
+  FREE-LIST ;
+
 : content
   get-params
-  S" q" GetParam start-page
-  S" q" GetParam EMPTY? IF EXIT THEN
-  hrule
-  wordsfile load { l }
-  << tag: h3 ." Exact matches : " >>
-  S" q" GetParam l find << each-> show-word >>
-  hrule
-  << tag: h3 ." Case-insensitive matches : " >>
-  ul << each-> show-word >> ;
+  `q GetParam start-page
+  `q GetParam EMPTY? IF EXIT THEN
+  wordsfile words-load { l }
+  `q GetParam l words-find ( l1 l2 ) 
+  S" Exact matches : " block
+  S" Case-insensitive matches : " block 
+  l FREE-LIST
+;
 
 : footer
   hrule
@@ -203,9 +211,9 @@ PREVIOUS
 
 \ buffer all output so that we can set Content-Length and server won't use
 \ chunked transfer-encoding (thx to ~pinka for pointing this out)
-: output LAMBDA{ output CR } TYPE>STR ;
+: output-s LAMBDA{ output CR } TYPE>STR ;
 
-: main text/html output DUP STRLEN length CR STYPE ; 
+: main text/html output-s DUP STRLEN content-length CR STYPE ; 
 
 : save
   LAMBDA{ main BYE } MAINX !
