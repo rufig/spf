@@ -15,6 +15,7 @@ REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE CEQUAL ~pinka/spf/string-equal.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
+S" ~ygrek/lib/list/all.f" INCLUDED
 
 : STARTS-WITH? { a1 u1 a2 u2 -- ? }
   u1 u2 < IF FALSE EXIT THEN
@@ -31,15 +32,13 @@ S" ~ygrek/prog/web/help.cgi/load.f" INCLUDED
 
 MODULE: HTML
 
-: CR ." <br/>" CR ;
-: SPACE ." &nbsp;" ;
-: SPACES 0 ?DO SPACE LOOP ;
 : EMIT
    DUP BL < IF DROP BL EMIT EXIT THEN
    DUP [CHAR] < = IF DROP ." &lt;" EXIT THEN
    DUP [CHAR] > = IF DROP ." &gt;" EXIT THEN
    DUP [CHAR] " = IF DROP ." &quot;" EXIT THEN
    DUP [CHAR] & = IF DROP ." &amp;" EXIT THEN
+   DUP [CHAR] ' = IF DROP ." &apos;" EXIT THEN
    EMIT ;
 : TYPE BOUNDS ?DO I C@ EMIT LOOP ;
 : STYPE DUP STR@ TYPE STRFREE ;
@@ -56,6 +55,25 @@ MODULE: HTML
   SWAP IF S" /proc/sys/kernel/version" cat OVER S+ THEN
   DUP " {EOLN}" "  " replace-str- ;
 
+[DEFINED] WINAPI: [IF]
+
+REQUIRE /OSVERSIONINFO lib/win/osver.f
+
+: OSVER_INFO ( -- build minor major )
+   /OSVERSIONINFO ALLOCATE THROW DUP >R
+   /OSVERSIONINFO R@ !
+   GetVersionExA DROP
+   R@ dwBuildNumber @
+   R@ dwMinorVersion @
+   R@ dwMajorVersion @
+   R> FREE THROW
+;
+
+: OS_NAME OSVER_INFO " Microsoft Windows {n}.{n}.{n}" ;
+[ELSE]
+: OS_NAME FALSE uname ;
+[THEN]
+
 \ todo interactive session when no environment present
 \ todo problems with ABORT here (TYPE>STR doesn't catch it)
 : get-params S" QUERY_STRING" ENVIRONMENT? 0= IF S" " THEN GetParamsFromString ;
@@ -66,8 +84,42 @@ MODULE: HTML
 : EMPTY? NIP 0= ;
 
 : tag: PARSE-NAME POSTPONE SLITERAL POSTPONE tag ; IMMEDIATE
+: quote [CHAR] " EMIT ;
+: enquote-> PRO quote BACK quote TRACKING CONT ;
 
-: span PRO ." <span class=" [CHAR] " EMIT TYPE [CHAR] " EMIT ." >" CONT ." </span>" ;
+: attributes ( l -- )
+  LAMBDA{ SPACE DUP car STR@ TYPE [CHAR] = EMIT enquote-> cdar STR@ HTML::TYPE } OVER mapcar
+  FREE-LIST ;
+
+: prepare-tag ( attr-l a u -- ) CR xmltag.indent# SPACES [CHAR] < EMIT TYPE attributes ;
+
+\ с отступами
+: atag ( attr-l a u -- )
+   PRO
+   BACK xmltag.indent# 1- TO xmltag.indent# " </{s}>" STYPE TRACKING
+   2RESTB
+   prepare-tag [CHAR] > EMIT
+   xmltag.indent# 1+ TO xmltag.indent#
+   CONT ;
+
+: /atag ( attr-l a u -- ) prepare-tag ." />" ;
+: /tag ( a u -- ) () -ROT /atag ;
+
+: PARSE-SLIT PARSE-NAME POSTPONE SLITERAL ;
+
+: atag: PARSE-SLIT POSTPONE atag ; IMMEDIATE
+: /atag: PARSE-SLIT POSTPONE /atag ; IMMEDIATE
+
+: $$ %[ >STR %s >STR %s ]% %l ;
+: $$: PARSE-SLIT PARSE-SLIT POSTPONE $$ ; IMMEDIATE
+
+MODULE: HTML
+: CR `br /tag ;
+: SPACE ." &nbsp;" ;
+: SPACES 0 ?DO SPACE LOOP ;
+;MODULE
+
+: span PRO %[ `class $$ ]% `span atag CONT ;
 : span: PARSE-NAME PRO span CONT ;
 
 : start-page ( a u -- )
@@ -75,23 +127,29 @@ MODULE: HTML
     tag: h2
     ." Search SP-Forth words (src,lib,devel) :"
    >>
+
    tag: form
-   " <input name={''}q{''} value={''}" STYPE 
-   HTML::TYPE 
-   " {''} type={''}text{''} size={''}30{''}/>" STYPE SPACE SPACE
-   " <input value={''}Search{''} type={''}submit{''}/>" STYPE CR
+
+   %[ 
+      `q `name $$
+      ( a u ) `value $$
+      `text `type $$
+      `30 `size $$
+   ]% 
+   /atag: input
+
+   %[ `submit `type $$ `Search `value $$ ]% `input /atag
    HTML::CR
-   tag: small
+   \ HTML::CR
+   `small tag
    ." Usual shell wildcards should work : <b>?</b> (any symbol) and <b>*</b> (any number of any symbols)" CR
 ;
 
-: link ( name u link u2 -- )
-  " <a href={''}{s}{''}>" STYPE
-  HTML::TYPE
-  ." </a>" ;
+: link ( name u link u2 -- ) %[ `href $$ ]% `a atag HTML::TYPE ;
 
 : spf-logo ."  Powered by " `SP-Forth `http://spf.sf.net link SPACE spf-version STYPE ;
 
+\ link to source
 : source-from-spf ( a u -- )
   " http://spf.cvs.sourceforge.net/*checkout*/spf/" >R
   2DUP S" ~" STARTS-WITH? IF S" devel/" R@ STR+ THEN
@@ -100,7 +158,7 @@ MODULE: HTML
   ( a u ) R@ STR@ link
   R> STRFREE ;
 
-: hrule ." <hr/>" CR ;
+: hrule `hr /tag ;
 
 ALSO HTML
 
@@ -111,7 +169,7 @@ ALSO HTML
   << `source span ."  \ " STR@ source-from-spf >>
   CR ;
 
-: main
+: content
   get-params
   S" q" GetParam start-page
   S" q" GetParam EMPTY? IF EXIT THEN
@@ -124,10 +182,9 @@ ALSO HTML
   ul << each-> show-word >> ;
 
 : footer
-  CR
-  ." <hr/>"
+  hrule
   tag: small
-  FALSE uname { os }
+  OS_NAME { os }
   os STR@ FINE-TAIL "  help.cgi r{revision} ({s})" STYPE CR
   os STRFREE
   spf-logo CR ;
@@ -138,18 +195,18 @@ PREVIOUS
   tag: html
   <<
    tag: head
-   " <link href={''}some.css{''} rel={''}stylesheet{''} type={''}text/css{''}/>" STYPE 
+   %[ `some.css `href $$ `stylesheet `rel $$ `text/css `type $$ ]% /atag: link
   >>
   tag: body
-  main
+  content
   footer ;
 
 \ buffer all output so that we can set Content-Length and server won't use
 \ chunked transfer-encoding (thx to ~pinka for pointing this out)
 : output LAMBDA{ output CR } TYPE>STR ;
 
-:NONAME text/html output DUP STRLEN length CR STYPE BYE ; 
-\ EXECUTE
-MAINX !
-S" help.cgi" SAVE BYE
+: main text/html output DUP STRLEN length CR STYPE ; 
 
+: save
+  LAMBDA{ main BYE } MAINX !
+  S" help.cgi" SAVE BYE ;
