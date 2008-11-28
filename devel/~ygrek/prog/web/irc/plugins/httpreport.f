@@ -43,7 +43,7 @@ DEFINITIONS
 :NONAME { pause }
   BEGIN
    pause PAUSE
-   current-channel " NAMES {s}" SCMD
+   current-channel " NAMES {s}" irc-str-send
   AGAIN
 ; TASK: reporter
 

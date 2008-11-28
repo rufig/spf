@@ -16,12 +16,12 @@ REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE ATTACH ~pinka/samples/2005/lib/append-file.f
 REQUIRE TIME&DATE lib/include/facil.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
-REQUIRE ltcreate ~ygrek/lib/multi/msg.f
+\ REQUIRE ltcreate ~ygrek/lib/multi/msg.f
 REQUIRE #N## ~ac/lib/win/date/date-int.f
 REQUIRE scan-list ~ygrek/lib/list/all.f
 REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
-REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
-REQUIRE CURLOPT! ~ac/lib/lin/curl/curlopt.f
+\ REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
+\ REQUIRE CURLOPT! ~ac/lib/lin/curl/curlopt.f
 
 ' ACCEPT1 TO ACCEPT \ disables autocompletion if present ;)
 
@@ -52,8 +52,9 @@ VOCABULARY BOT-COMMANDS
 VOCABULARY BOT-COMMANDS-HELP
 VOCABULARY BOT-COMMANDS-NOTFOUND
 
+: string-concat ( l -- s ) DUP "" LAMBDA{ OVER SWAP STR@ ROT STR+ } ROT mapcar SWAP FREE-LIST ;
 : HelpWords=> PRO [WID] BOT-COMMANDS-HELP NFA=> DUP COUNT CONT ;
-: AllHelpWords ( -- s ) LAMBDA{ HelpWords=> TYPE SPACE } TYPE>STR ;
+: AllHelpWords ( -- s ) %[ START{ HelpWords=> >STR %s "  " %s }EMERGE ]% string-concat ;
 
 MODULE: BOT-COMMANDS
 
@@ -76,7 +77,7 @@ MODULE: BOT-COMMANDS
     2DROP
 
     AllHelpWords >R
-    R@ STR@ " Available commands : {s} (Use '!info !<command>' for more info)." DUP STR@ S-REPLY STRFREE
+    R@ STR@ " Available commands : {s} (Use '!info !<command>' for more info)." STR-REPLY
     R> STRFREE
     THEN ;
 
@@ -85,14 +86,14 @@ MODULE: BOT-COMMANDS
 : !version
     CVS-DATE
     CVS-REVISION
-    " IRC bot in SP-Forth (http://spf.sf.net). Rev. {s} ({s})" DUP STR@ S-REPLY STRFREE
+    " IRC bot in SP-Forth (http://spf.sf.net). Rev. {s} ({s})" STR-REPLY
      ;
 
 ;MODULE
 
 MODULE: BOT-COMMANDS-HELP
 
-: !info S" If you want to understand recusion you should understand recursion first!" S-REPLY ;
+: !info S" If you want to understand recursion you should understand recursion first!" S-REPLY ;
 : !version S" It is self-descriptive, man!" S-REPLY ;
 
 ;MODULE
@@ -104,21 +105,18 @@ MODULE: BOT-COMMANDS-NOTFOUND
 ;MODULE
 
 : CHECK-MSG-ME ( -- ? )
-  message-text nickname STR@ SEARCH NIP NIP 0= IF FALSE EXIT THEN
+  current-msg-text nickname STR@ SEARCH NIP NIP 0= IF FALSE EXIT THEN
   S" Hello. I am a bot. Try !info. You can chat to me privately." S-REPLY
-  TRUE EXIT ;
+  TRUE ;
 
-: CHECK-MSG-IGNORE ( -- ? ) message-sender S" TiReX" COMPARE-U 0= ;
+: CHECK-MSG-IGNORE ( -- ? ) current-msg-sender S" TiReX" COMPARE-U 0= ;
 
 : CHECK-MSG-SPECIAL
-   message-text S" .." COMPARE 0= IF
-      message-sender " {s}, dont be so boring! Lets talk." DUP STR@ S-REPLY STRFREE
+   current-msg-text S" .." COMPARE 0= IF
+      current-msg-sender " {s}, dont be so boring! Lets talk." STR-REPLY
       TRUE EXIT
    THEN
    FALSE ;
-
-\ : cons: PARSE-NAME 2DUP " {s} cons TO {s}" DUP STR@ EVALUATE STRFREE ; IMMEDIATE
-\ : vcons: POSTPONE vnode POSTPONE cons: ; IMMEDIATE
 
 : CHECK-MSG ( -- ? )
    FALSE TO ?check
@@ -129,7 +127,7 @@ MODULE: BOT-COMMANDS-NOTFOUND
    ONLY BOT-COMMANDS
    ALSO BOT-COMMANDS-NOTFOUND
    \ ORDER
-   message-text ['] EVALUATE CATCH IF 2DROP THEN \ тут отваливание - нормальная ситуация
+   current-msg-text ['] EVALUATE CATCH IF 2DROP THEN \ тут отваливание - нормальная ситуация
    SET-ORDER
 
    ?check ;

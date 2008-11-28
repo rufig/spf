@@ -10,6 +10,9 @@ REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 REQUIRE DateTime>PAD ~ygrek/lib/spec/unixdate.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
+REQUIRE split-patch ~profit/lib/bac4th-str.f
+
+REQUIRE NAMES-UPDATED ~ygrek/prog/web/irc/plugins/names.f
 
 0 [IF]
 : message-sender S" sender" ;
@@ -54,17 +57,17 @@ MODULE: bot_plugin_msg
     DROP 
    THEN ;
    
-:NONAME ['] send-user-msgs names-list mapcar ; TO GOT-NAMES
+..: NAMES-UPDATED ( l -- l ) ['] send-user-msgs OVER mapcar ;..
 
 : make-msg ( "msg" -- s )
   -1 PARSE >STR >R 
-  TIME&DATE DateTime>PAD message-sender "  ({s} at {s})" R@ S+
+  TIME&DATE DateTime>PAD current-msg-sender "  ({s} at {s})" R@ S+
   R> ;
 
 MODULE: VOC-IRC-COMMAND
 : JOIN 
   -1 PARSE 2DROP
-  message-sender >STR DUP send-user-msgs STRFREE ;
+  current-msg-sender >STR DUP send-user-msgs STRFREE ;
 ;MODULE
 
 MODULE: BOT-COMMANDS
@@ -73,7 +76,7 @@ MODULE: BOT-COMMANDS
     find-current-user NIP NOT IF %[ current-user-name STR@ >STR %s () %l ]% vnode as-list all cons TO all THEN \ add empty entry
     find-current-user IF
       make-msg vnode as-str SWAP u-addmsg 
-      current-user-name STR@ message-sender " {s}: message for {s} was recorded." DUP STR@ S-REPLY STRFREE 
+      current-user-name STR@ current-msg-sender " {s}: message for {s} was recorded." DUP STR@ S-REPLY STRFREE 
      ELSE DROP CR ." STRANGE!!!" THEN
     save-all-msgs ;
 ;MODULE
@@ -86,7 +89,7 @@ MODULE: BOT-COMMANDS-HELP
 
 ;MODULE
 
-$Revision$ " -- Msg plugin {s} loaded (depends on httpreport, make sure it is loaded too!)" STYPE CR
+$Revision$ " -- Msg plugin {s} loaded" STYPE CR
 
 0 [IF]
 ALSO bot_plugin_msg
