@@ -52,9 +52,9 @@ CGLSimpleCanvas SUBCLASS MyScene
   scene this aa canvas!
 
   0 0 aa create DROP
-  SW_SHOW aa showWindow
-
   TRUE 400 400 200 200 aa moveWindow
+
+  SW_SHOW aa showWindow
 
   loop run
 ;
