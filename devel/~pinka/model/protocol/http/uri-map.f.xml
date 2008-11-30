@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+>
+
+<using href="http://forth.org.ru/~pinka/model/trans/rules-slot.f.xml"/>
+<!--
+<using href="http://forth.org.ru/~pinka/model/data/list-plain.f.xml"/>
+-->
+
+<include href="uri-map.L1a.f.xml"/>
+<include href="uri-map.L2.f.xml"/>
+
+</forth>

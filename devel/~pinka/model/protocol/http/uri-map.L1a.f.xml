@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="uri-map.hidden">
+
+<include href="../../data/chain-cond.f.xml"/>
+
+<cell name="default"/><init> default DUP  chain-current !  chain-context ! </init>
+<cell name="redirection-segment"/>
+<slot2> pathname </slot2>
+
+<export>
+
+<alias name="pathname" word="pathname"/><rem> current pathname </rem>
+
+<def name="dispatch-via" ds=" h -- flag ">
+  chain-context <let> perform-chain </let>
+</def>
+<def name="dispatch-pathname-via" ds=" a u h -- flag ">
+  -ROT pathname! dispatch-via
+</def>
+
+<def name="next-segment" ds=" -- a u ">
+  pathname `/ SPLIT <if> pathname! <exit/></if> DROP 0
+  <rem>The segment may be a 0 length </rem>
+</def>
+<def name="next-segment?" ds=" -- a u true | false ">
+  pathname `/ SPLIT <if> pathname! TRUE <exit/></if>
+  2DROP FALSE
+</def>
+<def name="match-head" ds=" a u -- true | false ">
+  pathname MATCH-HEAD <unless> 2DROP FALSE <exit/></unless>
+  pathname! TRUE
+</def>
+<def name="match-segment" ds=" a u -- true | false ">
+  pathname 2SWAP MATCH-HEAD <unless> 2DROP FALSE <exit/></unless>
+  `/ MATCH-HEAD <unless> NIP <if> FALSE <exit/></if>
+    <rem>and nothing following</rem> redirection-segment dispatch-via <exit/>
+  </unless>
+  pathname! TRUE
+</def>
+
+<def name="push-develop" ds=" h -- ">
+  DUP
+  chain-current @ >CS chain-current !
+  chain-context @ >CS chain-context !
+</def>
+<def name="drop-develop" ds=" -- ">
+  CS> chain-context !
+  CS> chain-current !
+</def>
+<def name="(make-handler)" ds=" xt1 -- xt2 "><rem> xt1 ( -- flag ) </rem>
+  <p> pathname 2>R <exec/> 2R> pathname! </p>
+</def>
+<def name="add-handler-before" ds=" xt -- ">
+  (make-handler) advice-before
+</def>
+<def name="add-handler-after" ds=" xt h -- ">
+  (make-handler) advice-after
+</def>
+<alias name="add-handler" word="add-handler-before"/>
+
+</export></wordlist>
+
+</forth>

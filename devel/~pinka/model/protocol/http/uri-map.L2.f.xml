@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+>
+
+<slot> root </slot><init> uri-map.hidden::default root! </init>
+
+<def name="dispatch-pathname" ds=" a u -- flag ">
+  root dispatch-pathname-via
+</def>
+
+<def name="add-segment-handler" ds=" xt a u -- "><rem> xt ( -- ) </rem>
+  <p><slit/> match-segment <unless> FALSE <exit/></unless>
+     <exec/> TRUE
+  </p> add-handler
+</def><!-- add as addEventListener -->
+
+</forth>
