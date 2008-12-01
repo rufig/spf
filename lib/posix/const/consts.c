@@ -14,6 +14,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <pthread.h>
+#include <sys/socket.h>
+#include <linux/in.h>
 
 int test()
 {
@@ -73,6 +75,17 @@ void define_consts()
   DEFINE( PTHREAD_MUTEX_TIMED_NP) // non-portable
   DEFINE( PTHREAD_MUTEX_RECURSIVE_NP) // non-portable
   DEFINE( PTHREAD_MUTEX_ERRORCHECK_NP) // non-portable
+
+  // socket
+  DEFINE( SOCK_STREAM)
+  DEFINE( PF_INET)
+  DEFINE( AF_INET)
+  DEFINE( IPPROTO_TCP)
+
+  CONST( SIZEOF_SOCKADDR_IN, sizeof(struct sockaddr_in))
+  CONST( OFFSETOF_SIN_PORT, offsetof(struct sockaddr_in, sin_port))
+  CONST( OFFSETOF_SIN_ADDR, offsetof(struct sockaddr_in, sin_addr))
+  CONST( OFFSETOF_SIN_FAMILY, offsetof(struct sockaddr_in, sin_family))
 }
 
 int main()
