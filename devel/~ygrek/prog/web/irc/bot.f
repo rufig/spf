@@ -8,7 +8,7 @@
 \ libeay32.dll libssl32.dll - http://www.slproweb.com/products/Win32OpenSSL.html
 
 REQUIRE ACCERT-LEVEL lib/ext/debug/accert.f
-0 ACCERT-LEVEL ! \ не компилировать ACCERT'ы
+1 ACCERT-LEVEL ! \ компилировать ACCERT'ы
 
 REQUIRE VOC-IRC-COMMAND ~ygrek/lib/net/irc/conn.f
 REQUIRE NFA=> ~ygrek/lib/wid.f
@@ -17,15 +17,17 @@ REQUIRE ATTACH ~pinka/samples/2005/lib/append-file.f
 REQUIRE TIME&DATE lib/include/facil.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 \ REQUIRE ltcreate ~ygrek/lib/multi/msg.f
-REQUIRE #N## ~ac/lib/win/date/date-int.f
 REQUIRE scan-list ~ygrek/lib/list/all.f
 REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
+REQUIRE #N## ~ac/lib/win/date/date-int.f
 \ REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
 \ REQUIRE CURLOPT! ~ac/lib/lin/curl/curlopt.f
 
 ' ACCEPT1 TO ACCEPT \ disables autocompletion if present ;)
 
+[DEFINED] WINAPI: [IF]
 ' ANSI>OEM TO ANSI><OEM \ cp1251 in console
+[THEN]
 
 : CVS-DATE $Date$ SLITERAL ;
 : CVS-REVISION $Revision$ SLITERAL ;
@@ -126,8 +128,9 @@ MODULE: BOT-COMMANDS-NOTFOUND
    GET-ORDER
    ONLY BOT-COMMANDS
    ALSO BOT-COMMANDS-NOTFOUND
-   \ ORDER
-   current-msg-text ['] EVALUATE CATCH IF 2DROP THEN \ тут отваливание - нормальная ситуация
+   ORDER
+   ." current msg : " current-msg-text TYPE CR
+   current-msg-text ['] EVALUATE CATCH IF ." current msg failed" CR 2DROP THEN \ тут отваливание - нормальная ситуация
    SET-ORDER
 
    ?check ;
@@ -135,13 +138,6 @@ MODULE: BOT-COMMANDS-NOTFOUND
 () VALUE xt-on-privmsg
 \ xt: ( -- ? )
 \ ? - xt обработал сообщение, остановить обработку
-
-%[
-' CHECK-MSG-IGNORE %
-' CHECK-MSG %
-\ ' CHECK-MSG-SPECIAL %
-' CHECK-MSG-ME %
-]% TO xt-on-privmsg
 
 : seconds 1000 * ;
 : minutes 60 * seconds ;
@@ -152,9 +148,15 @@ MODULE: VOC-IRC-COMMAND
 
 : PRIVMSG 
    ACCERT( ." PRIVMSG of bot" CR )
-   LAMBDA{ car EXECUTE } xt-on-privmsg scan-list 
+   ." PRIVMSG DEPTH " DEPTH . CR
+   LAMBDA{
+     CHECK-MSG-IGNORE IF EXIT THEN
+     CHECK-MSG IF EXIT THEN
+     CHECK-MSG-ME IF EXIT THEN
+   } EXECUTE
+   ." PRIVMSG EXIT DEPTH " DEPTH . CR
    ACCERT( ." PRIVMSG of bot almost done" CR )
-   2DROP ;
+;
 
 : 433 BYE ; \ nickname already in use
 : ERROR BYE ; \
@@ -168,6 +170,3 @@ MODULE: VOC-IRC-COMMAND
 
 \ -----------------------------------------------------------------------
 
-SocketsStartup THROW
-
-\EOF
