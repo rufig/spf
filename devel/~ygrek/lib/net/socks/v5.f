@@ -5,7 +5,7 @@
 \
 \ target: RFC-1928
 
-REQUIRE ConnectHost ~ac/lib/win/winsock/psocket.f
+REQUIRE ConnectHost ~ygrek/lib/net/sockets.f
 REQUIRE { lib/ext/locals.f
 REQUIRE CASE lib/ext/case.f
 REQUIRE /TEST ~profit/lib/testing.f
@@ -111,6 +111,8 @@ EXPORT
 ;MODULE
 
 /TEST
+
+REQUIRE fgets ~ac/lib/win/winsock/PSOCKET.F
 
 \ Попробуем добыть страничку через Tor
 : test { | s }
