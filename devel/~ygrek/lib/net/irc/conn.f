@@ -1,22 +1,32 @@
 REQUIRE PARSE-IRC-MSG ~ygrek/lib/net/irc/basic.f
 REQUIRE ANSI-FILE lib/include/ansi-file.f
-REQUIRE fsock ~ac/lib/win/winsock/psocket.f
-REQUIRE ToRead2 ~ac/lib/win/winsock/toread2.f
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE /STRING lib/include/string.f
 REQUIRE /GIVE ~ygrek/lib/parse.f
 REQUIRE ENUM ~ygrek/lib/enum.f
-REQUIRE split ~profit/lib/bac4th-str.f
 REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
-REQUIRE ConnectHostViaSocks5 ~ygrek/lib/net/socks/v5.f
 REQUIRE domain:port ~ygrek/lib/net/domain.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 REQUIRE RTRACE ~ygrek/lib/debug/rtrace.f
+
+[DEFINED] WINAPI: [IF]
 REQUIRE NEW-CS ~pinka/lib/multi/critical.f 
+[ELSE]
+REQUIRE NEW-CS ~ygrek/lib/linux/pthread_mutex.f
+[THEN]
+
 REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f 
+
+REQUIRE ConnectHost ~ygrek/lib/net/sockets.f
+REQUIRE fsock ~ac/lib/win/winsock/PSOCKET.F
+REQUIRE ConnectHostViaSocks5 ~ygrek/lib/net/socks/v5.f
+
+[UNDEFINED] WINAPI: [IF]
+REQUIRE TIMEZONE ~ygrek/lib/linux/timezone.f
+[THEN]
 
 \ MODULE: IRC-CONN
 
@@ -32,12 +42,12 @@ REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f
 0 VALUE proxy-port
 
 : server! ( a u -- )
-  server STRFREE
+  \ server STRFREE
   domain:port TO port
   >STR TO server ;
 
 : proxy! ( a u -- )
-  proxy STRFREE
+  \ proxy STRFREE
   domain:port TO proxy-port
   >STR TO proxy ;
 
@@ -159,14 +169,15 @@ COMMAND: QUIT
     S" Need hot code reload." S-QUIT
     IRC-CONN::socketline fclose
 
-    AT-CLOSE ;
+    AT-CLOSE 
+    ." CLOSE DONE" CR ;
 
 \ -----------------------------------------------------------------------
 
 MODULE: VOC-IRC-COMMAND
 
 : PRIVMSG SHOW-MSG ;
-: PING current-msg irc-msg-text ( servername ) PONG ;
+: PING current-msg-text ( servername ) PONG ;
 
 ;MODULE
 
@@ -180,23 +191,25 @@ MODULE: VOC-IRC-COMMAND-NOTFOUND
 
 \ -----------------------------------------------------------------------
 
+\ ..: AT-RECEIVE 2DUP TYPE ;..
+
 : DEFAULT-ON-RECEIVE ( a u -- )
-   \ ." DEFAULT-ON-RECEIVE" CR
+   ." DEFAULT-ON-RECEIVE" CR
    2DUP MAKE-IRC-MSG 0= IF FREE-IRC-MSG CR ." BAD MESSAGE : " TYPE EXIT THEN
    { msg }
 
+   msg TO current-msg
    GET-ORDER
    ONLY VOC-IRC-COMMAND
    ALSO VOC-IRC-COMMAND-NOTFOUND
-   \ ." EVALUATE goes" CR
-   msg TO current-msg
    msg irc-msg-cmd
+   ." EVALUATE goes : " 2DUP TYPE CR
    \ 2DUP ." evaluating : " 2DUP SWAP . . TYPE CR
    ['] EVALUATE CATCH IF 2DROP THEN
+   ." EVALUATE done" CR
+   SET-ORDER
    0 TO current-msg
-   msg FREE-IRC-MSG
-   \ ." EVALUATE done" CR
-   SET-ORDER ;
+   msg FREE-IRC-MSG ;
 
 ' DEFAULT-ON-RECEIVE TO ON-RECEIVE
 
@@ -212,10 +225,11 @@ SocketsStartup THROW
 \ StartTrace
   " spfirc" TO nickname
   S" irc.run.net:6669" server!
-  S" localhost:9050" proxy!
+\  S" localhost:9050" proxy!
+S" " proxy!
   CONNECT
   0 SimpleReceiveTask START DROP
   LOGIN
 
-  S" #ocaml" S-JOIN
+  S" #spf" S-JOIN
  ;
