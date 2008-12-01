@@ -57,7 +57,7 @@ EXPORT
 : ClientName>Nick ( a u -- a1 u1 ) LAMBDA{ [CHAR] ! PARSE } EVALUATE-WITH ;
 
 \ определить отправителя сообщения
-: irc-msg-sender ( -- a u ) :prefix ClientName>Nick ;
+: irc-msg-sender ( msg -- a u ) :prefix ClientName>Nick ;
 : irc-msg-text ( msg -- a u ) :trail ;
 : irc-msg-cmd ( nsg -- a u ) :cmd ;
 
@@ -71,7 +71,7 @@ EXPORT
    msg :params 1 MIN S" #" COMPARE 0= IF
     msg :params
    ELSE \ private message
-    irc-msg-sender
+    msg irc-msg-sender
    THEN ;
 
 ;MODULE
