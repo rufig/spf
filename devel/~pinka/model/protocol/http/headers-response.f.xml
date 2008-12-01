@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1251"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<def name="save-status-line" ds=" a u -- ">
+<def name="store-status-line" ds=" a u -- ">
   clear-headers
   2DUP            `http-status        h!
   WORD|TAIL 2SWAP `http-version       h!@ assume-http-version

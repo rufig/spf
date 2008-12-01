@@ -11,7 +11,7 @@
   next-line? <unless> FALSE <exit/></unless>
   TEST-EOLN <unless><logS>TEST-EOLN</logS> `#414 STHROW </unless><!-- Request-URI Too Large -->
   FINE-HEAD DUP <unless> 2DROP <again/></unless><!-- skip empty lines -->
-  save-request-line
+  store-request-line
   http-ver-d AND 1 EQ <unless> `#505 STHROW </unless><!-- HTTP/1.1 only -->
   TRUE
 </def>

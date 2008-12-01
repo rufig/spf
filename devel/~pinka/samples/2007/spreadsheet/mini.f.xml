@@ -13,7 +13,7 @@
 <cell name="_rows"/>
 <cell name="_cols"/>
 
-<def name="save-max" ds=" r c -- ">
+<def name="store-max" ds=" r c -- ">
   _cols @ UMAX _cols !
   _rows @ UMAX _rows !
 </def>
@@ -60,7 +60,7 @@
     
     HERE 0 ,
     
-    _row @ _col @  2DUP save-max
+    _row @ _col @  2DUP store-max
     calc-name
 
     <def name="{}" ds=" -- a u">

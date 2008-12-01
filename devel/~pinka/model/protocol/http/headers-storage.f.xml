@@ -31,12 +31,12 @@
 </wordlist>
 
 <rem><!-- to be removed -->
-<def name="save-header?" ds=" a u -- flag ">
+<def name="store-header?" ds=" a u -- flag ">
   `: SPLIT <unless> 2DROP FALSE <exit/></unless> FINE-HEAD 2SWAP h! TRUE
 </def>
 
-<def name="save-header" ds=" a u -- ">
-  save-header? DROP
+<def name="store-header" ds=" a u -- ">
+  store-header? DROP
 </def>
 </rem>
 
