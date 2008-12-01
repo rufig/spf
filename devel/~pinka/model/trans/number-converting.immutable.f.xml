@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="ASCII"?>
+<?xml version="1.0" encoding="Windows-1251"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
+<!-- Apr.2008 -->
+<!-- $Id$ -->
 
 <def name="HOLD" ds=" char -- ">
   ?HLD  HLD @ CHAR-  DUP HLD ! C! 
@@ -29,4 +31,11 @@
 <def name="NtoS" ds=" n -- addr1 u1 "> S>D (D.) </def>
 <def name="UtoS" ds=" u -- addr1 u1 "> U>D (D.) </def>
 
+<comment>
+  Возвращаемая строка располагается во внутреннем буфере и действительна
+  только до следующего вызова функций преобразования чисел.
+  
+  (аналогично тому, как строка, возвращаемая Windows API-функций inet_ntoa —
+  "The string returned is guaranteed to be valid only until the next Windows Sockets function call is made within the same thread" :)
+</comment>
 </forth>
