@@ -18,7 +18,7 @@ VECT SHEADER
   0 C,     ( flags )
   -ROT WARNING @
   IF 2DUP GET-CURRENT SEARCH-WORDLIST
-     IF DROP 2DUP TYPE ."  isn't unique" CR THEN
+     IF DROP 2DUP TYPE ."  isn't unique (" SOURCE-NAME TYPE ." )" CR THEN
   THEN
   CURRENT @ +SWORD
 
