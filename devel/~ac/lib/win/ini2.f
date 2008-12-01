@@ -11,6 +11,7 @@ REQUIRE STR@         ~ac/lib/str5.f
 REQUIRE SYNC-MUTEX   ~ac/lib/win/thread/mutex.f 
 
 VARIABLE INI-MUT		\ для хранения хэндла мутекса
+..: AT-PROCESS-STARTING INI-MUT 0! ;..
 
 VECT IniS@			\ векторы для встраивания кэширования
 VECT IniS!
