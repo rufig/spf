@@ -32,6 +32,7 @@ VARIABLE DescriptionLen
   ( S" RichEdit20A" SPF_STDEDIT 0 Window ) 0
   fodbc odbcConn @
   SQLDriverConnect
+\  DUP fodbc SQL_ConnError \ throwable
 \ mem sl2p TYPE CR
   mem FREE THROW
 ;
