@@ -99,7 +99,7 @@ VARIABLE MEM_DEBUG
 : FREE ( addr -- ior )
   MEM_DEBUG @
   IF
-   ." :(" R@ WordByAddr TYPE ." )"
+   ." :(" R@ WordByAddr TYPE ." <-" R> R@ WordByAddr TYPE >R ." )"
    SPACE DUP . ." m>" CR
   THEN
   >R
