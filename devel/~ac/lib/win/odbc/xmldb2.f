@@ -52,7 +52,7 @@ USER &escape_tmp
   REPEAT
 ;
 : Z>BL ( addr u -- )
-  0 ?DO DUP C@ 9 < IF BL OVER C! THEN 1+ LOOP DROP
+  0 ?DO DUP C@ BL < IF BL OVER C! THEN 1+ LOOP DROP
 ;
 : &escape
   2DUP Z>BL \ mysql|odbc bug
