@@ -184,7 +184,7 @@ AF_INET sock_addr2 sin_family W!
   R> FREE THROW
 ;
 : SocketsStartup ( -- ior )
-  HERE 257 WSAStartup
+  HERE 252 WSAStartup
 ;
 : SocketsCleanup ( -- ior )
   WSACleanup
