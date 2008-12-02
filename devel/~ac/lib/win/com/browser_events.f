@@ -1,5 +1,6 @@
 REQUIRE EnumConnectionPoints ~ac/lib/win/com/events.f
 
+VECT vNewWindow3 :NONAME 0 ; TO vNewWindow3
 \ COM-клиента браузер может извещать о событиях через IID_IWebBrowserEvents2
 \ Хотя, если не находит интерфейса с конкретно этим IID, то без проблем
 \ довольствуется обычным IID_IDispatch.
@@ -113,6 +114,8 @@ ID: DISPID_NEWWINDOW3           273 \ new window is to be created
     BSTR bstrUrlContext,
     BSTR bstrUrl
 )
+   vNewWindow3 ?DUP IF OVER ! THEN
+
    COM-DEBUG @ IF 
    ." NewWindow3: idisp=" . ." cancel=" . ." flags:" . CR
    ." referer=" TYPE ."  url=" TYPE CR
