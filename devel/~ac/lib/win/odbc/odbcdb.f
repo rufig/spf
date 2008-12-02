@@ -13,6 +13,12 @@ REQUIRE SqlInit   ~ac/lib/win/odbc/xmldb2.f
   0= IF RDROP 0 EXIT THEN
   R>
 ;
+: db_open2 ( S" sqldriver" -- fodbc )
+  StartSQL 0= IF DROP 0 EXIT THEN
+  DUP >R
+  ConnectFile R@ SQL_ConnError \ THROW с дампом ошибки
+  R>
+;
 : db_gets ( addr u sqh -- addr u ... )
   DUP 0= IF 70101 THROW THEN
   DUP >R
