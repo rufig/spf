@@ -34,10 +34,11 @@
 </def>
 <def name="match-segment" ds=" a u -- true | false ">
   pathname 2SWAP MATCH-HEAD <unless> 2DROP FALSE <exit/></unless>
-  `/ MATCH-HEAD <unless> NIP <if> FALSE <exit/></if>
-    <rem>and nothing following</rem> redirection-segment dispatch-via <exit/>
-  </unless>
-  pathname! TRUE
+  `/ MATCH-HEAD <if> pathname! TRUE <exit/></if>
+  2DROP FALSE
+</def>
+<def name="match-file" ds=" a u -- true | false ">
+  pathname EQUAL
 </def>
 
 <def name="push-develop" ds=" h -- ">
