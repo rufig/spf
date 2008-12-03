@@ -1,6 +1,7 @@
 REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
 `http://forth.org.ru/~pinka/model/data/list-plain.f.xml EMBODY
+`http://forth.org.ru/~pinka/model/trans/rules-slot.f.xml EMBODY
 
 `uri-map.f.xml EMBODY
 
