@@ -87,6 +87,8 @@ VECT ?SLITERAL
 \ обращение к словам в словар€х в виде  vocname1::wordname
 \ или vocname1::vocname2::wordname и т.п.
 \ или vocname1:: wordname
+\ —лово wordname транслируетс€ в модифицированном контексте (!)
+
   2DUP 2>R ['] ?SLITERAL CATCH ?DUP IF NIP NIP 2R>
   2DUP S" ::" SEARCH 0= IF 2DROP 2DROP THROW  THEN \ ¬ообще есть :: ?
   2DROP ROT DROP
