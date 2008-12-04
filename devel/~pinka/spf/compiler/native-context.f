@@ -2,9 +2,8 @@
 \ ”правление контекстом трансл€ции,
 \ постфиксный и прозрачный по стеку данных аналог MODULE: ... EXPORT ... ;MODULE
 
-REQUIRE Require   ~pinka/lib/ext/requ.f
 
-Require >CS control-stack.f \ управл€ющий стек
+REQUIRE >CS ~pinka/spf/compiler/control-stack.f \ управл€ющий стек
 
 
 : PARENT-NODE-FROM ( node1 node9 -- node2|0 ) \ node2-->node1
