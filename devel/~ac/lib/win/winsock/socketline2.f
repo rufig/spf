@@ -79,7 +79,7 @@ CONSTANT /sl
   LINE_BUFF_SIZE u -
   addr sl_socket @ ReadSocket
 \  DUP 10060 = IF a u DUMP CCR THEN
-  DUP IF NIP EXIT THEN SWAP ( 0 n )
+  DUP IF NIP 0 ELSE SWAP THEN ( ior 0|n )
   u + addr sl_point !
 ;
 : SocketContRead SocketContRead2 THROW ;
@@ -110,10 +110,8 @@ CONSTANT /sl
        pa1 pu1 EXIT
     THEN
     addr SocketContRead2
-    DUP -1002 = IF pu1 IF DROP
-       addr sl_point 0!
-       addr /sl + addr sl_last !
-       pa1 pu1 EXIT
+    DUP -1002 = IF pu1 IF ( ior ) DROP
+      LINE_BUFF_SIZE addr SocketReadFromPending EXIT
     THEN THEN THROW
   AGAIN
 ;
