@@ -102,7 +102,7 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
   THEN
 ;
 
-: FATAL-HANDLER1 ( ior -- )
+: (FATAL-HANDLER1) ( ior -- )
   HEX
   ." UNHANDLED EXCEPTION: " DUP U. CR
   ." RETURN STACK: " CR
@@ -110,6 +110,14 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
   ." SOURCE: " CR ERROR CR
   ." THREAD EXITING." CR
   TERMINATE
+;
+: FATAL-HANDLER1 ( ior -- )
+  ['] (FATAL-HANDLER1) CATCH 4 ['] HALT CATCH -1 PAUSE
+  \ ¬ывод сообщени€ об ошибке может вызвать исключение.
+  \ ≈сли поток не завершилс€, то завршаем процесс.
+  \ ≈сли не получилось -- поток засыпает.
+  \ FATAL-HANDLER не имеет права возвращать управление!
+  \ (в том числе, возвращать управление через THROW)
 ;
 ' FATAL-HANDLER1 ' FATAL-HANDLER TC-VECT!  \ see THROW
 
@@ -193,6 +201,8 @@ TARGET-POSIX [IF]
   THEN
   CGI? @ 0= POST? @ OR IF ['] <MAIN> ERR-EXIT THEN
   BYE
+  \ если где-то тут произойдет исключение (например, при исполнении ERROR),
+  \ то его обработает FATAL-HANDLER и процесс завершитс€.
 ;
 
 ' PROCESS-INIT TO TC-FORTH-INSTANCE>
