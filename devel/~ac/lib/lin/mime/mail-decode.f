@@ -34,7 +34,7 @@ REQUIRE { ~ac/lib/locals.f
   BL SKIP PeekChar [CHAR] < = IF >IN 1+! THEN
   [CHAR] > PARSE
 ;
-: Strip< ( addr u -- addr2 u2 )
+: Strip< ( addr u -- addr2 u2 ) \ см. также версию в conf.f
   DUP IF ['] (Strip<) EVALUATE-WITH THEN
 ;
 : FromNameEmail1 ( addr1 u1 addr2 u2 -- addr1 u1 addr2 u2 )
