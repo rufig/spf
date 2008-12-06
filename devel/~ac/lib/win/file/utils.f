@@ -15,6 +15,10 @@ WINAPI: GetCurrentDirectoryA KERNEL32.DLL
 
 WINAPI: CopyFileA KERNEL32.DLL
 WINAPI: MoveFileA KERNEL32.DLL
+WINAPI: MoveFileExA  KERNEL32.DLL
+
+1 CONSTANT MOVEFILE_REPLACE_EXISTING
+2 CONSTANT MOVEFILE_COPY_ALLOWED
 
 : IsDirectory ( addr u -- flag )
   DROP GetFileAttributesA DUP FILE_ATTRIBUTE_DIRECTORY AND
@@ -23,6 +27,18 @@ WINAPI: MoveFileA KERNEL32.DLL
 : DIRECTORY-EXISTS ( addr u -- flag ) IsDirectory ;
 : PATH-EXISTS      ( addr u -- flag ) FILE-EXIST ;
 
+: CREATE-DIRECTORY ( addr u -- ior )
+  DROP 0 SWAP
+  CreateDirectoryA ERR
+;
+: DELETE-DIRECTORY ( addr u -- ior )
+  DROP
+  RemoveDirectoryA ERR
+;
+: RENAME-FILE ( addr-old u-old adr-new u-new -- ior )
+  DROP NIP SWAP MOVEFILE_REPLACE_EXISTING MOVEFILE_COPY_ALLOWED OR
+  ROT ROT MoveFileExA ERR
+;
 : CREATE-FILE-PATH1
   BEGIN
     [CHAR] \ DUP SKIP PARSE 2DROP ( WORD DROP) >IN @ #TIB @ <
@@ -259,9 +275,6 @@ VARIABLE CurDir
   R> ( access=fam )
   R> ( filename )
   CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
-;
-: DELETE-DIRECTORY ( addr u -- ior )
-  DROP RemoveDirectoryA ERR
 ;
 : DELETE-FD ( addr u data flag -- )
   NIP
