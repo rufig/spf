@@ -42,16 +42,18 @@
 @st.exe .S" devel\~moleg\lib\util\queue.f"              TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\tricks.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\alias.f"              TESTED CR BYE
-@st.exe .S" devel\~moleg\lib\util\priority.f"           TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\avds.f"               TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\csp.f"                TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\case.f"               TESTED CR BYE
-@st.exe .S" devel\~moleg\lib\util\console.f"            TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\root.f"               TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\qif.f"                TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\c-style.f"            TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\switch.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\util\-if.f"                TESTED CR BYE
+
+@st.exe .S" devel\~moleg\lib\win\priority.f"            TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\win\console.f"             TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\win\file2heap.f"           TESTED CR BYE
 
 @st.exe .S" devel\~moleg\lib\mtask\mutex.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\mtask\pmutex.f"            TESTED CR BYE
