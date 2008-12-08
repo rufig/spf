@@ -35,7 +35,7 @@ WINAPI: MoveFileExA  KERNEL32.DLL
   DROP
   RemoveDirectoryA ERR
 ;
-: RENAME-FILE ( addr-old u-old adr-new u-new -- ior )
+: RENAME-FILE-OVER ( addr-old u-old adr-new u-new -- ior )
   DROP NIP SWAP MOVEFILE_REPLACE_EXISTING MOVEFILE_COPY_ALLOWED OR
   ROT ROT MoveFileExA ERR
 ;
