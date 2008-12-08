@@ -1,6 +1,6 @@
 \ $Id$
 \ 
-\ OS_NAME ( -- s )
+\ OSNAME-STR ( -- s )
 \ OS name and version as a single string
 
 REQUIRE [DEFINED] lib/include/tools.f
@@ -21,7 +21,7 @@ REQUIRE /OSVERSIONINFO lib/win/osver.f
    R> FREE THROW
 ;
 
-: OS_NAME ( -- s ) OSVER_INFO " Microsoft Windows {n}.{n}.{n}" ;
+: OSNAME-STR ( -- s ) OSVER_INFO " Microsoft Windows {n}.{n}.{n}" ;
 
 [ELSE]
 
@@ -31,7 +31,7 @@ REQUIRE /OSVERSIONINFO lib/win/osver.f
   SWAP IF S" /proc/sys/kernel/version" cat OVER S+ THEN
   DUP " {EOLN}" "  " replace-str- ;
 
-: OS_NAME FALSE uname ;
+: OSNAME-STR FALSE uname ;
 
 [THEN]
 
