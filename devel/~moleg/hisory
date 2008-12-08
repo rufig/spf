@@ -17,3 +17,5 @@
   + создан новый каталог .\lib\win\
   ~ перемещен console.f и priority.f в .\lib\win\
   + .\lib\win\file2heap.f копирование файла в память
+\ 2008-12-08
+  + новый метод работы с сообщениями .\lib\strings\msg.f

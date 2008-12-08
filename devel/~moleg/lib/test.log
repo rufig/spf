@@ -51,6 +51,7 @@ testing: devel\~moleg\lib\postscript\dsadd.f                           passed
 testing: devel\~moleg\lib\postscript\ps{}.f                            passed
 testing: devel\~moleg\lib\strings\stradd.f                             passed
 testing: devel\~moleg\lib\strings\messages.f                           passed
+testing: devel\~moleg\lib\strings\msg.f                                passed
 testing: devel\~moleg\lib\strings\sconst.f                             passed
 testing: devel\~moleg\lib\strings\string.f                             passed
 testing: devel\~moleg\lib\strings\subst.f                              passed

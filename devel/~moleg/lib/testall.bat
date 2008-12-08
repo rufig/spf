@@ -73,6 +73,7 @@
 
 @st.exe .S" devel\~moleg\lib\strings\stradd.f"          TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\strings\messages.f"        TESTED CR BYE
+@st.exe .S" devel\~moleg\lib\strings\msg.f"             TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\strings\sconst.f"          TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\strings\string.f"          TESTED CR BYE
 @st.exe .S" devel\~moleg\lib\strings\subst.f"           TESTED CR BYE
