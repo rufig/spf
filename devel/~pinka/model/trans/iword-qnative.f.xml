@@ -4,10 +4,11 @@
 <!-- 2007 -->
 <!-- $Id$ -->
 
+<def name="EXECUTE-EFFECT" ds=" i*x xt -- j*x n ">
+  SP@ >R EXECUTE R> SP@ - 1 CELLS /
+</def>
 <def name="EXECUTE-BALANCED(+1)" ds=" xt -- x ">
-  SP@ >R
-    EXECUTE <rem> xt ( -- x ) </rem>
-  SP@ R> EQ  <unless> -5010 THROW </unless>
+  EXECUTE-EFFECT 1 EQ <unless> -5010 THROW </unless>
 </def>
 
 <def name="(I-QNATIVE)" ds=" a u wid1 -- xt true | false ">
