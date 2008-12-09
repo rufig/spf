@@ -4,12 +4,15 @@
 
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE /TEST ~profit/lib/testing.f
-REQUIRE setcar ~ygrek/lib/list/core.f
+REQUIRE list ~ygrek/lib/list/core.f
 
 \ nth used! Dumb list iteration. 
 \ Thus sorting long lists (more than 1000 elements) is really SLOW 
 
-MODULE: list-quick-sort
+list ALSO!
+GET-CURRENT DEFINITIONS
+
+MODULE: detail
 
 VECT []>[]
 VECT []exch[]
@@ -17,15 +20,15 @@ VECT []<[]
 
 S" ~pinka/samples/2003/common/QSORT.F" INCLUDED
 
-0 VALUE list_
-0 VALUE list_compare_xt
+USER-VALUE list_
+USER-VALUE list_compare_xt
 
-: 2nodes-from-sort-list ( i j -- lsti lstj )
+: 2nodes ( i j -- lsti lstj )
    list_ nth SWAP 
    list_ nth SWAP ;
 
-: list_exchange ( i j -- )
-   2nodes-from-sort-list SWAP
+: exchange ( i j -- )
+   2nodes SWAP
    2DUP car SWAP car
    ( nodej nodei li lj )
    ROT setcar
@@ -33,17 +36,21 @@ S" ~pinka/samples/2003/common/QSORT.F" INCLUDED
 
 EXPORT
 
-: list-qsort ( xt node -- )
+: qsort ( node xt -- )
 \ xt: ( node[i]-car node[j]-car -- ? ) ? = -1 if node[i] < node[j]
-   DUP empty? IF 2DROP EXIT THEN
-   TO list_
+   OVER empty? IF 2DROP EXIT THEN
    TO list_compare_xt
-   LAMBDA{ 2nodes-from-sort-list car SWAP car SWAP list_compare_xt EXECUTE } TO []<[] 
-   LAMBDA{ 2nodes-from-sort-list car SWAP car SWAP list_compare_xt EXECUTE 0= } TO []>[]
-   ['] list_exchange TO []exch[] 
+   TO list_
+   LAMBDA{ 2nodes car SWAP car SWAP list_compare_xt EXECUTE } TO []<[] 
+   LAMBDA{ 2nodes car SWAP car SWAP list_compare_xt EXECUTE 0= } TO []>[]
+   ['] exchange TO []exch[] 
    0 list_ length 1- quick_sort ;
 
 ;MODULE
+
+SET-CURRENT PREVIOUS
+
+0 CONSTANT list-qsort
 
 \ -----------------------------------------------------------------------
 
@@ -51,21 +58,24 @@ EXPORT
 
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
 REQUIRE GENRANDMAX  ~ygrek/lib/neilbawd/mersenne.f
-REQUIRE write-list ~ygrek/lib/list/write.f
+\ REQUIRE list-write ~ygrek/lib/list/write.f
+REQUIRE ms@ lib/include/facil.f
+REQUIRE list-make ~ygrek/lib/list/make.f
+REQUIRE { lib/ext/locals.f
 
-TESTCASES list_sort
+TESTCASES list_qsort
 
-WINAPI: GetTickCount KERNEL32.DLL
+list ALSO!
 
 : generate
-   GetTickCount SGENRAND
+   ms@ SGENRAND
    lst( 
     100 0 DO
     100 GENRANDMAX %
     LOOP
    )lst ;
 
-: sort ['] < SWAP list-qsort ;
+: do-sort ['] < qsort ;
 
 : check { | u -- ? }
    -1 TO u
@@ -79,10 +89,12 @@ WINAPI: GetTickCount KERNEL32.DLL
 
 ((
 generate 
-DUP CR write-list
-DUP sort 
-DUP CR write-list
+\ DUP CR write
+DUP do-sort 
+\ DUP CR write
     check -> TRUE ))
+
+PREVIOUS
 
 END-TESTCASES
 

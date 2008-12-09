@@ -1,31 +1,28 @@
 \ $Id$
 \ Сортировка списка 
-\ list-sort ( xt node -- )
-\ list-sort- ( node xt -- ) 
-\ xt: ( node1-car node2-car -- ? ) \ задаёт порядок
+\ list::sort ( node xt -- )
+\ xt: ( v1 v2 -- ? ) \ задаёт порядок
 
 \ S" ~day/lib/memreport.f" INCLUDED
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE /TEST ~profit/lib/testing.f
-REQUIRE setcar ~ygrek/lib/list/core.f
+REQUIRE list ~ygrek/lib/list/core.f
 REQUIRE { lib/ext/locals.f
 
-\ write.f
-
-MODULE: voc_list_sort
+list ALSO!
+GET-CURRENT DEFINITIONS
 
 USER-VALUE list_compare
 
 : merge ( l1 l2 -- l )  
    { l1 l2 | head start -- }
-   \ l1 write-list l2 write-list CR
+   \ l1 write l2 write CR
    l1 car l2 car list_compare EXECUTE IF l1 DUP cdr -> l1 ELSE l2 DUP cdr -> l2 THEN DUP TO start TO head
    BEGIN
     l1 empty? IF head l2 LINK-NODE start EXIT THEN
     l2 empty? IF head l1 LINK-NODE start EXIT THEN
     l1 car l2 car list_compare EXECUTE IF l1 DUP cdr -> l1 ELSE l2 DUP cdr -> l2 THEN head OVER LINK-NODE -> head
-   AGAIN
-  ;
+   AGAIN ;
 
 : merge-sort ( node n -- node1 )
 \   OVER write-list CR
@@ -37,21 +34,22 @@ USER-VALUE list_compare
    l1 n1 RECURSE
    l2 n2 RECURSE
    merge 
-   \ DUP write-list CR 
+   \ DUP write CR 
    ;
-
-EXPORT
 
 : COPY-NODE ( n1 n2 -- ) /NODE MOVE ;
 
-: list-sort ( xt node -- )
+: sort1 ( l1 xt -- l2 )
 \ xt: ( node[i]-car node[j]-car -- ? )
-   { cmp orig | lst prev [ /NODE ] tmp }
+   { orig cmp }
    orig empty? IF EXIT THEN
    list_compare
    cmp TO list_compare
-   orig orig length merge-sort -> lst
-   ( list_compare ) TO list_compare
+   orig orig length merge-sort SWAP
+   ( list_compare ) TO list_compare ;
+
+: sort { orig xt | lst [ /NODE ] tmp prev -- }
+   orig xt sort1 -> lst
    lst orig = IF EXIT THEN
    \ Т.к. голова списка в результате сортировки переместилась, меняем содержимое
    \ ячеек так чтобы вернуть голову на место
@@ -67,24 +65,25 @@ EXPORT
    orig tmp COPY-NODE
    lst orig COPY-NODE
    tmp lst COPY-NODE
-   ( ? ) IF orig ELSE prev THEN lst LINK-NODE
-   ;
+   ( ? ) IF orig ELSE prev THEN lst LINK-NODE ;
 
-: list-sort- SWAP list-sort ;   
+SET-CURRENT PREVIOUS
 
-;MODULE
+0 CONSTANT list-sort
 
 \ -----------------------------------------------------------------------
 
 /TEST
 
 REQUIRE TESTCASES ~ygrek/lib/testcase.f
-REQUIRE write-list ~ygrek/lib/list/write.f
-REQUIRE equal? ~ygrek/lib/list/more.f
+REQUIRE list-make ~ygrek/lib/list/make.f
+REQUIRE list-ext ~ygrek/lib/list/ext.f
 REQUIRE GENRANDMAX  ~ygrek/lib/neilbawd/mersenne.f
 REQUIRE ms@ lib/include/facil.f
 
 TESTCASES list-sort
+
+list ALSO!
 
 ms@ SGENRAND
 
@@ -103,10 +102,10 @@ ms@ SGENRAND
 
 : (test) 1000 generate 
   ( DUP CR write-list) 
-  DUP ['] < list-sort- 
+  DUP ['] < sort 
   ( DUP CR write-list) 
   DUP check
-  SWAP FREE-LIST ;
+  SWAP free ;
 
 : test TRUE SWAP 0 DO (test) AND LOOP ;
 
@@ -114,31 +113,31 @@ ms@ SGENRAND
 (( 100 test -> TRUE ))
 
 \ corner cases
-(( %[ ]% ' ABORT list-sort- -> ))
-(( %[ 1 % ]% DUP ' ABORT list-sort- %[ 1 % ]%     2DUP equal? SWAP FREE-LIST SWAP FREE-LIST -> TRUE ))
-(( %[ 1 % 2 % ]% DUP ' < list-sort- %[ 1 % 2 % ]% 2DUP equal? SWAP FREE-LIST SWAP FREE-LIST -> TRUE ))
-(( %[ 1 % 2 % ]% DUP ' > list-sort- %[ 2 % 1 % ]% 2DUP equal? SWAP FREE-LIST SWAP FREE-LIST -> TRUE ))
+(( %[ ]% DUP ' ABORT sort -> ))
+(( %[ 1 % ]% DUP ' ABORT sort %[ 1 % ]%     2DUP equal0? SWAP free SWAP free -> TRUE ))
+(( %[ 1 % 2 % ]% DUP ' < sort %[ 1 % 2 % ]% 2DUP equal0? SWAP free SWAP free -> TRUE ))
+(( %[ 1 % 2 % ]% DUP ' > sort %[ 2 % 1 % ]% 2DUP equal0? SWAP free SWAP free -> TRUE ))
 
 \ test reenterability
 \ artificial example
-:NONAME %[ 10 0 DO 10 generate %l LOOP ]% ; EXECUTE VALUE l
+:NONAME %[ 10 0 DO 10 generate % LOOP ]% ; EXECUTE VALUE l
 
-: sum-list ( node -- n ) 0 ['] + ROT mapcar ;
+: sum-list ( node -- n ) 0 SWAP ['] + iter ;
 
 \ CR l write-list
 
 l :NONAME 
-   DUP ['] < list-sort- 
-   OVER ['] < list-sort- 
-   sum-list SWAP 
-   sum-list SWAP 
-   < ; list-sort-
+   DUP ['] < sort
+   OVER ['] < sort
+   sum-list SWAP
+   sum-list SWAP
+   < ; sort
 
 \ CR l write-list
 
-(( %[ :NONAME sum-list % ; l mapcar ]% 
-   \ DUP CR write-list 
-   DUP check SWAP FREE-LIST -> TRUE ))
+(( l %[ :NONAME sum-list % ; iter ]%
+\  CR DUP ' . iter
+   DUP check SWAP free -> TRUE ))
 
 \ negative tests
 \ l car end car l car setcar
@@ -146,11 +145,16 @@ l :NONAME
 
 \ CR l write-list
 
-(( TRUE :NONAME check AND ; l mapcar -> TRUE ))
+(( TRUE l :NONAME check AND ; iter -> TRUE ))
 
-l FREE-LIST
+\ l ' free iter
+\ l free
+
+l ' free free-with
 () TO l
 
 \ MemReport
+
+PREVIOUS
 
 END-TESTCASES

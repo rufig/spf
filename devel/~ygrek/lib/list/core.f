@@ -1,13 +1,19 @@
 \ $Id$
 \ Ещё одна либа для списков
-\ Основной элемент - cons pair, то бишь пара CELL'ов : car с данными и cdr со связью
+\ Основной элемент -- cons pair -- пара CELL'ов : car с данными и cdr со связью
+
+REQUIRE WORDLIST-NAMED ~pinka/spf/compiler/native-wordlist.f
+REQUIRE ALSO! ~pinka/lib/ext/basics.f
+
+S" list" WORDLIST-NAMED DROP
+
+list ALSO!
+GET-CURRENT DEFINITIONS
 
 \ элемент списка
 0
-CELL -- list.car \ ячейка-данные
-CELL -- list.cdr \ связь
-CELL -- list.x1  \ reserved
-CELL -- list.x2  \ reserved
+CELL -- node.car \ ячейка-данные
+CELL -- node.cdr \ связь
 CONSTANT /NODE
 
 \ создать новый элемент
@@ -20,14 +26,14 @@ CONSTANT /NODE
 : FREE-NODE ( node -- ) FREE THROW ;
 
 \ установить связь node1->node2
-: LINK-NODE ( node1 node2 -- ) SWAP list.cdr ! ;
+: LINK-NODE ( node1 node2 -- ) SWAP node.cdr ! ;
 
 \ создать новый элемент списка с данными val
-: vnode ( val -- node ) NEW-NODE TUCK list.car ! ;
+: node ( val -- node ) NEW-NODE TUCK node.car ! ;
 
-\ () - пустой элемент - указывает сам на себя - конец списка
-HERE /NODE ALLOT VALUE ()
-\ C" <NULL>" () !
+\ nil или () - пустой элемент - указывает сам на себя - конец списка
+HERE /NODE ALLOT CONSTANT nil
+nil CONSTANT ()
 () () LINK-NODE
 
 \ TRUE - элемент пуст, нет перехода
@@ -35,13 +41,13 @@ HERE /NODE ALLOT VALUE ()
 : empty? ( node -- ? ) () = ;
 
 \ перейти к следующему элементу в списке после элемента node1
-: cdr ( node1 -- node2 ) list.cdr @ ;
+: cdr ( node1 -- node2 ) node.cdr @ ;
 
 \ содержимое ячейки данных элемента node
-: car ( node -- val ) list.car @ ;
+: car ( node -- val ) node.car @ ;
 
 \ установить данные ячейки
-: setcar ( val node -- ) DUP empty? IF 2DROP EXIT THEN list.car ! ;
+: setcar ( val node -- ) DUP empty? IF 2DROP EXIT THEN node.car ! ;
 
 \ сокращения :)
 : cddr cdr cdr ;
@@ -58,35 +64,15 @@ HERE /NODE ALLOT VALUE ()
 
 \ Добавить элемент в начало списка и вернуть получившийся список
 \ node1->node2
-: cons ( node1 node2 -- node1 ) OVER SWAP LINK-NODE ;
+: cons-node ( node1 node2 -- node1 ) OVER SWAP LINK-NODE ;
 
 \ node1(value)->node
-: vcons ( value node -- node1 ) SWAP vnode SWAP cons ;
+: cons ( value node -- node1 ) SWAP node SWAP cons-node ;
 
 \ Присоединить весь список node1 в начало списка node2
-: concat-list ( node1 node2 -- node )
+: concat ( node1 node2 -- node )
    OVER empty? IF NIP EXIT THEN
    OVER end SWAP LINK-NODE ;
-
-\ Применить xt ко всем элементам списка node1
-\ xt: ( node -- ) \ xt получает параметром каждый элемент на нетронутом стеке
-: map ( xt node1 -- )
-   2>R
-   BEGIN
-    R@ empty? IF RDROP RDROP EXIT THEN
-    2R@ SWAP EXECUTE
-    R> cdr >R
-   AGAIN ;
-
-\ Применить xt к данным всех элементов списка node1
-\ xt: ( node.car -- ) \ xt получает параметром car ячейку каждого элемента на нетронутом стеке
-: mapcar ( xt node -- )
-   2>R
-   BEGIN
-    R@ empty? IF RDROP RDROP EXIT THEN
-    2R@ car SWAP EXECUTE
-    R> cdr >R
-   AGAIN ;
 
 \ Получить n-ый элемент списка, прямым проходом
 : nth ( n node -- node ) SWAP 0 ?DO cdr LOOP ;
@@ -101,7 +87,7 @@ HERE /NODE ALLOT VALUE ()
    AGAIN ;
 
 \ освободить память занятую списком
-: FREE-LIST ( node -- )
+: free ( node -- )
    BEGIN
     DUP empty? IF DROP EXIT THEN
     DUP cdr
@@ -118,26 +104,15 @@ HERE /NODE ALLOT VALUE ()
 : append ( node1 node2 -- node ) DUP empty? IF DROP DUP () LINK-NODE ELSE TUCK (append) THEN ;
 
 \ развернуть список в обратную сторону
-: reverse-list ( node -- node1 )
+: reverse ( node -- node1 )
    () >R
    BEGIN
     DUP empty? 0=
    WHILE
     DUP cdr
     SWAP
-    R> cons >R
+    R> cons-node >R
    REPEAT
    DROP R> ;
 
-\ Проверка на принадлежность
-: member? ( n node -- ? )
-   BEGIN
-    DUP empty? 0=
-   WHILE
-    2DUP car = IF 2DROP TRUE EXIT THEN
-    cdr
-   REPEAT
-   2DROP FALSE ;
-
-\ Элементы списка на стек
-: LIST> ( node -- x1 x2 ... xn ) ['] NOOP SWAP mapcar ;
+SET-CURRENT PREVIOUS
