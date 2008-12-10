@@ -7,8 +7,6 @@
 
 REQUIRE FINE-TAIL ~pinka/samples/2005/lib/split-white.f
 REQUIRE $Revision ~ygrek/lib/fun/kkv.f
-REQUIRE cat ~ygrek/lib/cat.f
-REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 REQUIRE DumpParams ~ac/lib/string/get_params.f
 REQUIRE tag ~ygrek/lib/xmltag.f
 REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f 
@@ -106,7 +104,10 @@ MODULE: HTML
     ." Search SP-Forth words (src,lib,devel) :"
    >>
 
-   tag: form
+   %[ S" " `action $$ ]%
+   atag: form
+   <<
+   tag: div
 
    %[ 
       `q `name $$
@@ -117,8 +118,8 @@ MODULE: HTML
    /atag: input
 
    %[ `submit `type $$ `Search `value $$ ]% `input /atag
-   HTML::CR
-   \ HTML::CR
+   >>
+   `div tag
    `small tag
    ." Usual shell wildcards should work : <b>?</b> (any symbol) and <b>*</b> (any number of any symbols)" CR
 ;
@@ -152,6 +153,7 @@ ALSO HTML
 : block ( l a u -- )
   hrule
   << tag: h3 TYPE >>
+  tag: div
   DUP << words-each-> show-word >>
   list::free ;
 
@@ -168,19 +170,40 @@ ALSO HTML
 
 : footer
   hrule
-  tag: small
-  OSNAME-STR { os }
-  os STR@ FINE-TAIL "  help.cgi r{revision} ({s})" STYPE CR
-  os STRFREE
-  spf-logo CR ;
+  tag: div
+  <<
+   %[ S" float:left;margin-right:1%" `style $$ ]%
+   atag: div
+   tag: small
+   OSNAME-STR { os }
+   os STR@ FINE-TAIL "  help.cgi r{revision} ({s})" STYPE CR
+   os STRFREE
+   spf-logo 
+  >>
+  %[ S" float:left" `style $$ ]%
+  atag: div
+   %[ `http://validator.w3.org/check?uri=referer `href $$ ]% atag: a
+   %[ 
+    S" Valid XHTML 1.0 Strict" `alt $$
+    `http://www.w3.org/Icons/valid-xhtml10 `src $$
+    `31 `height $$
+    `88 `width $$
+   ]% /atag: img
+  ;
 
 PREVIOUS
 
 : output
-  tag: html
+  " <?xml version={''}1.0{''}?>{EOLN}" STYPE
+  " <!DOCTYPE html PUBLIC {''}-//W3C//DTD XHTML 1.0 Strict//EN{''} 
+ {''}http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd{''}>{EOLN}" STYPE
+
+  %[ `http://www.w3.org/1999/xhtml `xmlns $$ ]%
+  atag: html
   <<
    tag: head
    %[ `some.css `href $$ `stylesheet `rel $$ `text/css `type $$ ]% /atag: link
+   tag: title S" SP-Forth words search" HTML::TYPE
   >>
   tag: body
   content
