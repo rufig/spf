@@ -203,6 +203,7 @@ PREVIOUS
   atag: html
   <<
    tag: head
+   %[ `content-type `http-equiv $$ `text/html;charset=cp1251 `content $$ ]% /atag: meta
    %[ `some.css `href $$ `stylesheet `rel $$ `text/css `type $$ ]% /atag: link
    tag: title S" SP-Forth words search" HTML::TYPE
   >>
