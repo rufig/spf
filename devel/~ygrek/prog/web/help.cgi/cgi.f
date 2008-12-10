@@ -7,6 +7,7 @@
 
 REQUIRE FINE-TAIL ~pinka/samples/2005/lib/split-white.f
 REQUIRE $Revision ~ygrek/lib/fun/kkv.f
+REQUIRE { lib/ext/locals.f
 REQUIRE DumpParams ~ac/lib/string/get_params.f
 REQUIRE tag ~ygrek/lib/xmltag.f
 REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f 
