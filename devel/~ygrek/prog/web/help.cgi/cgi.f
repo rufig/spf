@@ -15,6 +15,7 @@ REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE CEQUAL ~pinka/spf/string-equal.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
+REQUIRE OSNAME-STR ~ygrek/lib/sys/osname.f
 \ REQUIRE INTER ~ygrek/lib/debug/inter.f
 S" ~ygrek/lib/list/all.f" INCLUDED
 
@@ -49,32 +50,6 @@ MODULE: HTML
 : << POSTPONE START{ ; IMMEDIATE
 : >> POSTPONE }EMERGE ; IMMEDIATE
 
-\ todo windows
-: uname ( ? -- s )
-  S" /proc/sys/kernel/ostype" cat 
-  S" /proc/sys/kernel/osrelease" cat OVER S+
-  SWAP IF S" /proc/sys/kernel/version" cat OVER S+ THEN
-  DUP " {EOLN}" "  " replace-str- ;
-
-[DEFINED] WINAPI: [IF]
-
-REQUIRE /OSVERSIONINFO lib/win/osver.f
-
-: OSVER_INFO ( -- build minor major )
-   /OSVERSIONINFO ALLOCATE THROW DUP >R
-   /OSVERSIONINFO R@ !
-   GetVersionExA DROP
-   R@ dwBuildNumber @
-   R@ dwMinorVersion @
-   R@ dwMajorVersion @
-   R> FREE THROW
-;
-
-: OS_NAME OSVER_INFO " Microsoft Windows {n}.{n}.{n}" ;
-[ELSE]
-: OS_NAME FALSE uname ;
-[THEN]
-
 \ todo interactive session when no environment present
 \ todo problems with ABORT here (TYPE>STR doesn't catch it)
 : get-params S" QUERY_STRING" ENVIRONMENT? 0= IF S" " THEN GetParamsFromString ;
@@ -88,9 +63,11 @@ REQUIRE /OSVERSIONINFO lib/win/osver.f
 : quote [CHAR] " EMIT ;
 : enquote-> PRO quote BACK quote TRACKING CONT ;
 
+{{ list
 : attributes ( l -- )
-  LAMBDA{ SPACE DUP car STR@ TYPE [CHAR] = EMIT enquote-> cdar STR@ HTML::TYPE } OVER mapcar
-  FREE-LIST ;
+  DUP LAMBDA{ SPACE DUP car STR@ TYPE [CHAR] = EMIT enquote-> cdar STR@ HTML::TYPE } iter
+  LAMBDA{ ['] STRFREE free-with } free-with ;
+}}
 
 : prepare-tag ( attr-l a u -- ) CR xmltag.indent# SPACES [CHAR] < EMIT TYPE attributes ;
 
@@ -104,14 +81,14 @@ REQUIRE /OSVERSIONINFO lib/win/osver.f
    CONT ;
 
 : /atag ( attr-l a u -- ) prepare-tag ." />" ;
-: /tag ( a u -- ) () -ROT /atag ;
+: /tag ( a u -- ) list::nil -ROT /atag ;
 
 : PARSE-SLIT PARSE-NAME POSTPONE SLITERAL ;
 
 : atag: PARSE-SLIT POSTPONE atag ; IMMEDIATE
 : /atag: PARSE-SLIT POSTPONE /atag ; IMMEDIATE
 
-: $$ %[ >STR %s >STR %s ]% %l ;
+: $$ %[ >STR % >STR % ]% % ;
 : $$: PARSE-SLIT PARSE-SLIT POSTPONE $$ ; IMMEDIATE
 
 MODULE: HTML
@@ -176,7 +153,7 @@ ALSO HTML
   hrule
   << tag: h3 TYPE >>
   DUP << words-each-> show-word >>
-  FREE-LIST ;
+  list::free ;
 
 : content
   get-params
@@ -186,13 +163,13 @@ ALSO HTML
   `q GetParam l words-find ( l1 l2 ) 
   S" Exact matches : " block
   S" Case-insensitive matches : " block 
-  l FREE-LIST
+  l words-free
 ;
 
 : footer
   hrule
   tag: small
-  OS_NAME { os }
+  OSNAME-STR { os }
   os STR@ FINE-TAIL "  help.cgi r{revision} ({s})" STYPE CR
   os STRFREE
   spf-logo CR ;
