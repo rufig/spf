@@ -3,28 +3,28 @@
 
 REQUIRE CURL-SETOPT ~ac/lib/lin/curl/curl.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
-REQUIRE list? ~ygrek/lib/list/ext.f
+REQUIRE list-ext ~ygrek/lib/list/ext.f
 REQUIRE /TEST ~profit/lib/test.f
-
-: LIST> ['] NOOP SWAP mapcar ;
 
 MODULE: curlopt
 
 USER-VALUE CURLOPTLIST
 
 : CURLOPT-APPLY ( h -- h )
-   LAMBDA{ OVER >R LIST> R> CURL-SETOPT } CURLOPTLIST mapcar
-   CURLOPTLIST FREE-LIST
-   () TO CURLOPTLIST ;
+   CURLOPTLIST LAMBDA{ OVER >R list::all DROP R> CURL-SETOPT } list::iter
+   CURLOPTLIST list::['] free list::free-with
+   list::nil TO CURLOPTLIST ;
 
-..: AT-THREAD-STARTING () TO CURLOPTLIST ;..
-() TO CURLOPTLIST
+..: AT-THREAD-STARTING list::nil TO CURLOPTLIST ;..
+list::nil TO CURLOPTLIST
 
 ..: AT-CURL-PRE CURLOPT-APPLY ;..
 
 EXPORT
 
-: CURLOPT! ( val opt -- ) SWAP %[ % % ]% vnode as-list CURLOPTLIST cons TO CURLOPTLIST ;
+{{ list
+: CURLOPT! ( val opt -- ) nil cons cons CURLOPTLIST cons TO CURLOPTLIST ;
+}}
 
 ;MODULE
 
