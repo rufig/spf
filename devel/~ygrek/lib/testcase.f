@@ -12,16 +12,16 @@ MODULE: testcase
     SET-ORDER
 ;
 
-EXPORT
+MODULE: visible
 
 \ From original well-known tester.f
 
 VARIABLE VERBOSE
    TRUE VERBOSE !
-VARIABLE USE-TESTS
-   TRUE USE-TESTS !
+\ VARIABLE USE-TESTS
+\   TRUE USE-TESTS !
 
-DEFINITIONS
+;MODULE
 
 VARIABLE PREVIOUS-CURRENT
 
@@ -50,7 +50,7 @@ CREATE ACTUAL-RESULTS 20 CELLS ALLOT
    -1 ABORT" test failed"
 ;
 
-EXPORT
+MODULE: visible
 
 : ((             \ ( -- )
    DEPTH PRE-DEPTH !
@@ -95,22 +95,27 @@ EXPORT
    THEN
 ;
 
+;MODULE
+
+EXPORT
+
 : TESTCASES
     DEPTH TESTING-DEPTH !
-
+    ALSO visible
     GET-CURRENT PREVIOUS-CURRENT !
-    USE-TESTS @ INVERT
-    IF
-      [COMPILE] \EOF
-    ELSE
+    \ USE-TESTS @ INVERT
+    \ IF
+    \   [COMPILE] \EOF
+    \ ELSE
       WORDLIST TO-CONTEXT DEFINITIONS
       CR ." TESTING: "
       SOURCE >IN @ DUP >R - SWAP R> CHARS + SWAP TYPE
       SOURCE NIP >IN !
-    THEN
+    \ THEN
 ;
 
 : END-TESTCASES
+    PREVIOUS
     PREVIOUS
     PREVIOUS-CURRENT @ SET-CURRENT
     DEPTH TESTING-DEPTH @ = 0= ABORT" wrong depth after tests"
