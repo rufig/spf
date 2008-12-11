@@ -40,6 +40,7 @@ EXECUTE        EXIT           CATCH          THROW          ABORT
 
 B!             B@             ALIGNED
 CELL-!         CELL+!
+T!             T@
 
 (DIGIT)
 </tc:import>
