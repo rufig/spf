@@ -26,7 +26,7 @@ MODULE: regexp
    s1 STR@ s2 STR@ DOT-LINK
    s1 STRFREE s2 STRFREE
    nfa re_visited member? IF EXIT THEN
-   nfa re_visited vcons TO re_visited
+   nfa re_visited list::cons TO re_visited
    nfa .out1 @ ?DUP IF nfa SWAP RECURSE THEN
    nfa .out2 @ ?DUP IF nfa SWAP RECURSE THEN ;
 

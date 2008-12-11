@@ -89,11 +89,14 @@ REQUIRE A_AHEAD ~mak/LIB/A_IF.F
 REQUIRE NUMBER ~ygrek/lib/parse.f
 REQUIRE new-set ~pinka/lib/charset.f
 REQUIRE PRO ~profit/lib/bac4th.f
-REQUIRE as-list ~ygrek/lib/list/ext.f
+REQUIRE list-ext ~ygrek/lib/list/ext.f
+REQUIRE list-make ~ygrek/lib/list/make.f
 
 \ -----------------------------------------------------------------------
 
 MODULE: regexp
+
+list::() CONSTANT ()
 
 state in-branch-0
 state in-branch-1
@@ -128,8 +131,8 @@ USER-VALUE re_cur_set_state
 USER-VALUE re_visited \ посещённые во время обхода узлы (dottify, FREE-NFA-TREE)
 
 : RE_INIT
-  () TO re_brackets
-  () TO re_visited
+  list::() TO re_brackets
+  list::() TO re_visited
   new-set TO re_cur_set
   RESERVE-DYNAMIC ;
 
@@ -138,8 +141,10 @@ RE_INIT
 
 ..: AT-THREAD-FINISHING \ не обязательно
   re_cur_set FREE THROW
-  re_brackets FREE-LIST
-  re_visited FREE-LIST
+  {{ list
+  re_brackets ['] free free-with
+  re_visited list::free
+  }}
 ;..
 
 \ -----------------------------------------------------------------------
@@ -245,11 +250,11 @@ CONSTANT /arr
 [THEN]
 
 : save-subs ( -- subs )
-   re_brackets length 2 * reserve-array DUP
+   re_brackets list::length 2 * reserve-array DUP
    .a.data
-   LAMBDA{ >R R@ car !>> R> cdar !>> } re_brackets mapcar
+   re_brackets LAMBDA{ >R R@ list::car !>> R> list::cdar !>> } list::iter
    DROP
-   re_brackets length 2 * OVER .a.n ! ;
+   re_brackets list::length 2 * OVER .a.n ! ;
 
 : adjust-sub-state { val nfa subs -- }
    subs .a.data
@@ -259,10 +264,12 @@ CONSTANT /arr
    LOOP
    DROP ;
 
-: new-brackets-pair ( -- pair ) %[ 0 % 0 % ]% vnode as-list DUP re_brackets cons TO re_brackets ;
+{{ list
+: new-brackets-pair ( -- pair ) %[ 0 % 0 % ]% DUP re_brackets cons TO re_brackets ;
 
-: set-brackets-start ( start-nfa brackets-pair -- ) OVER .flags NFA_GROUP_START SWAP ! car setcar ;
-: set-brackets-end ( end-nfa brackets-pair -- ) OVER .flags NFA_GROUP_END SWAP ! car cdr setcar ;
+: set-brackets-start ( start-nfa brackets-pair -- ) OVER .flags NFA_GROUP_START SWAP ! setcar ;
+: set-brackets-end ( end-nfa brackets-pair -- ) OVER .flags NFA_GROUP_END SWAP ! cdr setcar ;
+}}
 
 : print-array { arr }
   CR arr a:n " [{n}] : " STYPE
@@ -306,8 +313,8 @@ VARIABLE process-continue
 \ -----------------------------------------------------------------------
 
 : FREE-FRAG ( frag -- )
-   DUP .b @ empty? NOT IF CR ." Fragment's bracket list not empty!" ABORT THEN
-   DUP .o @ FREE-LIST
+   DUP .b @ list::empty? NOT IF CR ." Fragment's bracket list not empty!" ABORT THEN
+   DUP .o @ list::free
    FREE THROW ;
 
 : FREE-NFA ( nfa -- )
@@ -318,7 +325,7 @@ VARIABLE process-continue
    /FRAG ALLOCATE THROW >R
    R@ .o !
    R@ .i !
-   () R@ .b !
+   list::() R@ .b !
    R> ;
 
 : nfa { c link1 link2 | nfa -- nfa }
@@ -340,12 +347,13 @@ VARIABLE process-continue
 \ привязать все выходы фрагмента frag1 к состоянию nfa
 : link { frag1 nfa -- }
    \ все незакрытые подвыражения в frag1 завершаются в nfa
-   nfa LAMBDA{ ( end-nfa pair ) OVER SWAP set-brackets-end } frag1 .b @ mapcar DROP
-   frag1 .b @ FREE-LIST   () frag1 .b !
-   nfa LAMBDA{ ( nfa frag1.o.addr ) OVER SWAP ! } frag1 .o @ mapcar DROP ;
+   nfa frag1 .b @ LAMBDA{ ( end-nfa pair ) OVER SWAP set-brackets-end } list::iter DROP
+   frag1 .b @ list::free
+   list::() frag1 .b !
+   nfa frag1 .o @ LAMBDA{ ( nfa frag1.o.addr ) OVER SWAP ! } list::iter DROP ;
 
 \ присоединить все выходы фрагмента frag в текущий список
-: outs% ( frag -- ) .o @ ['] % SWAP mapcar ;
+: outs% ( frag -- ) .o @ ['] % list::iter ;
 
 \ конечное состояние
 : finalstate ( -- nfa ) STATE_FINAL 0 0 nfa ;
@@ -357,8 +365,8 @@ VARIABLE process-continue
 : finalize ( frag -- frag ) DUP finalstate link ;
 
 : move-brackets { src dst -- }
-   src .b @ dst .b @ concat-list dst .b !
-   () src .b ! ;
+   src .b @ dst .b @ list::concat dst .b !
+   list::() src .b ! ;
 
 \ последовательное соединение двух фрагментов
 : concat { e1 e2 -- e }
@@ -553,7 +561,7 @@ left:
    new-brackets-pair -> pair
    get-branches -> frag
    frag .i @ pair set-brackets-start
-   pair frag .b @ vcons frag .b !
+   pair frag .b @ list::cons frag .b !
  ELSE 
    get-branches -> frag
  THEN
@@ -639,12 +647,14 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 
 \ -----------------------------------------------------------------------
 
-: clean-visited ( -- ) re_visited FREE-LIST () TO re_visited ;
+: clean-visited ( -- ) re_visited list::free () TO re_visited ;
+
+: member? LAMBDA{ OVER = } list::exist? NIP ;
 
 \ рекурсивное освобождение NFA
 : (FREE-NFA-TREE) ( nfa -- )
    DUP re_visited member? IF DROP EXIT THEN
-   DUP re_visited vcons TO re_visited
+   DUP re_visited list::cons TO re_visited
    DUP .out1 @ ?DUP IF RECURSE THEN
    DUP .out2 @ ?DUP IF RECURSE THEN
    FREE-NFA ;
@@ -669,10 +679,10 @@ all: CR ." ALREADY IN ERROR STATE!" ;
 
    /RE RESERVE -> re
 
-   re_brackets reverse-list TO re_brackets
+   re_brackets list::reverse TO re_brackets
    save-subs re .sub !
    \ re_brackets write-list
-   re_brackets FREE-LIST
+   re_brackets list::['] free list::free-with
    () TO re_brackets
 
    ( frag ) DUP .i @ re .nfa !

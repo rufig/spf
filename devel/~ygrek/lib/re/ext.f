@@ -62,9 +62,11 @@ REQUIRE str-replace- ~pinka/samples/2005/lib/replace-str.f
   a u CONT ;
 [THEN]
 
-: re_search_all ( a u re -- list ) %[ START{ re_search-> >STR %s }EMERGE ]% ;
+\ возвращает список строк
+\ освобождать так: ['] STRFREE list::free-with
+: re_search_all ( a u re -- list ) %[ START{ re_search-> >STR % }EMERGE ]% ;
 
-: re_split ( a u re -- list ) %[ START{ re_split-> >STR %s }EMERGE ]% ;
+: re_split ( a u re -- list ) %[ START{ re_split-> >STR % }EMERGE ]% ;
 
 
 : str-replace-matches ( s -- )
@@ -113,7 +115,7 @@ REQUIRE TESTCASES ~ygrek/lib/testcase.f
 TESTCASES re_search_all
 
 S" 12 34 56 78 90" RE" \d+" re_search_all VALUE l
-(( :NONAME STR@ NUMBER 0= ABORT" not a number" ; l mapcar -> 12 34 56 78 90 ))
-l FREE-LIST
+(( l :NONAME STR@ NUMBER 0= ABORT" not a number" ; list::iter -> 12 34 56 78 90 ))
+l ' STRFREE list::free-with
 
 END-TESTCASES
