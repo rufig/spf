@@ -13,10 +13,10 @@ REQUIRE WL-MODULES ~day/lib/includemodule.f
 
 NEEDS ~ygrek/lib/wfl/opengl/common.f
 NEEDS ~day/hype3/locals.f
-NEEDS ~ygrek/lib/list/write.f
 NEEDS ~pinka/lib/lambda.f
 NEEDS ~ygrek/lib/hype/timer.f
 NEEDS ~ygrek/lib/hype/point.f
+NEEDS ~ygrek/lib/list/ext.f
 NEEDS ~ygrek/lib/float.f
 
 \ -----------------------------------------------------------------------
@@ -109,26 +109,26 @@ CGLObject SUBCLASS CGLObjectList
 
 VAR _list
 
-init: () _list ! ;
+init: list::nil _list ! ;
 dispose:
-    LAMBDA{ => dispose } _list @ mapcar \ удалим все обьекты в списке
-    _list @ FREE-LIST \ удалим сам список
+    _list @ LAMBDA{ => dispose } list::free-with \ удалим все обьекты в списке и сам список
 ;
 
-: :add ( obj -- ) vnode _list @ cons _list ! ;
+: :add ( obj -- ) _list @ list::cons _list ! ;
 
 : :draw ( -- )
    SUPER :draw
+   _list @ 
    LAMBDA{
      glPushMatrix DROP
        => :draw
      glPopMatrix DROP
    }
-   _list @ mapcar ;
+   list::iter ;
 
-: :rotate ( -- ) SUPER :rotate LAMBDA{ => :rotate } _list @ mapcar ;
+: :rotate ( -- ) SUPER :rotate _list @ LAMBDA{ => :rotate } list::iter ;
 
-: :prepare SUPER :prepare LAMBDA{ => :prepare } _list @ mapcar ;
+: :prepare SUPER :prepare _list @ LAMBDA{ => :prepare } list::iter ;
 
 ;CLASS
 

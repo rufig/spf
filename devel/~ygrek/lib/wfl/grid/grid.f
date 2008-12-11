@@ -128,11 +128,11 @@ init:
 ;CLASS
 
 : FORLIST ( l -- )
-   S" >R BEGIN R@ empty? NOT WHILE R@ car" EVALUATE
+   S" >R BEGIN R@ list::empty? NOT WHILE R@ list::car" EVALUATE
 ; IMMEDIATE
 
 : ENDFOR 
-   S" R> cdr >R REPEAT RDROP" EVALUATE
+   S" R> list::cdr >R REPEAT RDROP" EVALUATE
 ; IMMEDIATE
 
 \ --------------------------
@@ -144,19 +144,19 @@ CLASS CGridRow
  VAR _w 
  VAR _h
 
-init: () _cells ! ;
+init: list::nil _cells ! ;
 
-: :add ( cell -- ) vnode _cells @ append _cells ! ;
+: :add ( cell -- ) list::node _cells @ list::append _cells ! ;
 
-: traverse-row ( xt -- ) _cells @ mapcar ;
+: traverse-row ( xt -- ) _cells @ SWAP list::iter ;
 
 \ минимальная ширина ряда как сумма минимальной ширины каждой ячейки
 : :xmin ( -- n ) 0 LAMBDA{ => :xmin + } traverse-row ;
 \ минимальная высота ряда как сумма минимальной высоты каждой ячейки
 : :ymin ( -- n ) 0 LAMBDA{ => :ymin MAX } traverse-row ;
 
-: :xspan? ( -- ? ) LAMBDA{ car => :xspan? } _cells @ scan-list NIP ;
-: :yspan? ( -- ? ) LAMBDA{ car => :yspan? } _cells @ scan-list NIP ;
+: :xspan? ( -- ? ) _cells @ LAMBDA{ => :xspan? } list::find NIP ;
+: :yspan? ( -- ? ) _cells @ LAMBDA{ => :yspan? } list::find NIP ;
 
 \ число ячеек которые можно растянуть по горизонтали
 : :xspan-count ( -- n ) 0 LAMBDA{ => :xspan? IF 1 + THEN } traverse-row ;
@@ -214,11 +214,11 @@ init: () _cells ! ;
    0 -> x
    _cells @
    BEGIN
-    DUP empty? 0=
+    DUP list::empty? 0=
    WHILE
     x 3 .R SPACE
-    DUP car => _w @ x + -> x
-    cdr
+    DUP list::car => _w @ x + -> x
+    list::cdr
    REPEAT
    DROP
    x 3 .R SPACE
@@ -245,15 +245,15 @@ CLASS CGrid
  VAR _w
  VAR _h
 
-init: () _rows ! ;
+init: list::nil _rows ! ;
 
-: traverse-grid ( xt -- ) _rows @ mapcar ;
+: traverse-grid ( xt -- ) _rows @ SWAP list::iter ;
 
 : :xmin ( -- n ) 0 LAMBDA{ => :xmin MAX } traverse-grid ;
 : :ymin ( -- n ) 0 LAMBDA{ => :ymin + } traverse-grid ;
 
-: :xspan? ( -- ? ) LAMBDA{ car => :xspan? } _rows @ scan-list NIP ;
-: :yspan? ( -- ? ) LAMBDA{ car => :yspan? } _rows @ scan-list NIP ;
+: :xspan? ( -- ? ) _rows @ LAMBDA{ => :xspan? } list::find NIP ;
+: :yspan? ( -- ? ) _rows @ LAMBDA{ => :yspan? } list::find NIP ;
 
 \ число рядов которые можно растянуть по вертикали
 : :yspan-count ( -- n ) 0 LAMBDA{ => :yspan? 1 AND + } traverse-grid ;
@@ -286,7 +286,7 @@ init: () _rows ! ;
 : :w _w @ ;
 : :h _h @ ;
 
-: :add ( row -- ) 0 OVER => :xformat 0 OVER => :yformat vnode _rows @ append _rows ! ;
+: :add ( row -- ) 0 OVER => :xformat 0 OVER => :yformat list::node _rows @ list::append _rows ! ;
 
 : :print ( -- )
 \   CR ." CGrid :print"
@@ -302,12 +302,12 @@ init: () _rows ! ;
    0 -> y
    _rows @
    BEGIN
-    DUP empty? 0=
+    DUP list::empty? 0=
    WHILE
     CR y 3 .R SPACE ." --->"
-    DUP car => :draw
-    DUP car => :h y + -> y
-    cdr
+    DUP list::car => :draw
+    DUP list::car => :h y + -> y
+    list::cdr
    REPEAT
    DROP
 ;
@@ -368,7 +368,7 @@ init: () _rows ! ;
   row grid => :add
 ;
 
-() VALUE grid-vars
+list::nil VALUE grid-vars
 
 : save-vars ( -- ) 
    %[ parent % grid % row % box % 
@@ -380,12 +380,12 @@ init: () _rows ! ;
       DefaultBox _ypad @ %
       DefaultBox _xfill @ %
       DefaultBox _yfill @ %
-   ]% vnode as-list grid-vars cons TO grid-vars ;
+   ]% grid-vars list::cons TO grid-vars ;
 
 : restore-vars 
-   grid-vars car >R
-   grid-vars cdr TO grid-vars
-   R@ LIST> ( ... )
+   grid-vars list::car >R
+   grid-vars list::cdr TO grid-vars
+   R@ list::all DROP ( ... )
    DefaultBox _yfill !
    DefaultBox _xfill !
    DefaultBox _ypad !
@@ -398,7 +398,7 @@ init: () _rows ! ;
    TO row
    TO grid
    TO parent
-   R> FREE-LIST ;
+   R> list::free ;
 
 : DEFAULTS DefaultBox this TO box ;
 
