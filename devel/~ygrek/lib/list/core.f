@@ -94,14 +94,16 @@ nil CONSTANT ()
     SWAP FREE-NODE
    AGAIN ;
 
-\ node2->...->node1->nil
-: (append) ( node1 node2 -- )
-    end OVER LINK-NODE
-    () LINK-NODE ;
+: append-node ( node1 node2 -- node ) 
+  DUP empty? IF 
+    DROP DUP () LINK-NODE 
+  ELSE 
+    TUCK end OVER LINK-NODE () LINK-NODE 
+  THEN ;
 
-\ добавить элемент node1 в конец списка node2 (перед пустым элементом)
-\ node2->...->node1->nil
-: append ( node1 node2 -- node ) DUP empty? IF DROP DUP () LINK-NODE ELSE TUCK (append) THEN ;
+\ добавить val в конец списка node2 (перед пустым элементом)
+\ node2->...->node(val)->nil
+: append ( val node2 -- node ) SWAP node SWAP append-node ;
 
 \ развернуть список в обратную сторону
 : reverse ( node -- node1 )

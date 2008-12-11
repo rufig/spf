@@ -146,7 +146,7 @@ CLASS CGridRow
 
 init: list::nil _cells ! ;
 
-: :add ( cell -- ) list::node _cells @ list::append _cells ! ;
+: :add ( cell -- ) _cells @ list::append _cells ! ;
 
 : traverse-row ( xt -- ) _cells @ SWAP list::iter ;
 
@@ -286,7 +286,7 @@ init: list::nil _rows ! ;
 : :w _w @ ;
 : :h _h @ ;
 
-: :add ( row -- ) 0 OVER => :xformat 0 OVER => :yformat list::node _rows @ list::append _rows ! ;
+: :add ( row -- ) 0 OVER => :xformat 0 OVER => :yformat _rows @ list::append _rows ! ;
 
 : :print ( -- )
 \   CR ." CGrid :print"
