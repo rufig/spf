@@ -3,17 +3,19 @@
 
 MODULE: bot_plugin_history
 
-() VALUE log-history
+list::nil VALUE log-history
 
 : n-get-history-> ( n --> logentry \ <-- )
-   log-history length TUCK MIN - log-history nth PRO list-> CONT ;
+   log-history list::length TUCK MIN - log-history list::nth PRO list::each-> CONT ;
 
-: log>string ( logentry -- a u ) car cdar STR@ ;
-: log>stamp ( logentry -- stamp ) car car ;
+{{ list
+: log>string ( logentry -- a u ) cdar STR@ ;
+: log>stamp ( logentry -- stamp ) car ;
+}}
 
 : secs-get-history-> ( n --> logentry \ <-- )
    TIME&DATE DateTime>Num SWAP - ( stamp )
-   PRO log-history START{ list-> ( stamp logentry ) 2DUP log>stamp < IF CONT ELSE DROP THEN }EMERGE DROP ;
+   PRO log-history START{ list::each-> ( stamp logentry ) 2DUP log>stamp < IF CONT ELSE DROP THEN }EMERGE DROP ;
 
 : Time>PAD { s m h -- a u } <# s #N## [CHAR] : HOLD m #N## [CHAR] : HOLD h #N## 0 0 #> ;
 
@@ -32,8 +34,8 @@ MODULE: VOC-IRC-COMMAND
      stamp %
      current-msg-text irc-action? >R
      current-msg-sender stamp Num>Time Time>PAD
-     R> IF " ({s}) {s} {s}" ELSE " ({s}) [{s}] {s}" THEN %s
-   ]% vnode as-list log-history append TO log-history
+     R> IF " ({s}) {s} {s}" ELSE " ({s}) [{s}] {s}" THEN %
+   ]% log-history list::append TO log-history
    ACCERT( ." PRIVMSG of history done" CR )
   ;
 ;MODULE

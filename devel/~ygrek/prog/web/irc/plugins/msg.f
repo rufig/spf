@@ -10,16 +10,15 @@ REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 REQUIRE DateTime>PAD ~ygrek/lib/spec/unixdate.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
-REQUIRE split-patch ~profit/lib/bac4th-str.f
+\ REQUIRE split-patch ~profit/lib/bac4th-str.f
 
-REQUIRE NAMES-UPDATED ~ygrek/prog/web/irc/plugins/names.f
+REQUIRE AT-NAMES-UPDATED ~ygrek/prog/web/irc/plugins/names.f
 
 0 [IF]
 : message-sender S" sender" ;
 : S-REPLY S" REPLY: " TYPE TYPE CR ;
 : S-NOTICE-TO TYPE SPACE TYPE CR ;
 () VALUE names-list
-VECT GOT-NAMES
 : AT-CONNECT ... ;
 [THEN]
 
@@ -57,7 +56,7 @@ MODULE: bot_plugin_msg
     DROP 
    THEN ;
    
-..: NAMES-UPDATED ( l -- l ) ['] send-user-msgs OVER mapcar ;..
+..: AT-NAMES-UPDATED ( l -- l ) ['] send-user-msgs OVER mapcar ;..
 
 : make-msg ( "msg" -- s )
   -1 PARSE >STR >R 

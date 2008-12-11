@@ -54,9 +54,9 @@ VOCABULARY BOT-COMMANDS
 VOCABULARY BOT-COMMANDS-HELP
 VOCABULARY BOT-COMMANDS-NOTFOUND
 
-: string-concat ( l -- s ) DUP "" LAMBDA{ OVER SWAP STR@ ROT STR+ } ROT mapcar SWAP FREE-LIST ;
+: string-concat ( l -- s ) "" OVER LAMBDA{ OVER SWAP STR@ ROT STR+ } list::iter SWAP ['] STRFREE list::free-with ;
 : HelpWords=> PRO [WID] BOT-COMMANDS-HELP NFA=> DUP COUNT CONT ;
-: AllHelpWords ( -- s ) %[ START{ HelpWords=> >STR %s "  " %s }EMERGE ]% string-concat ;
+: AllHelpWords ( -- s ) %[ START{ HelpWords=> >STR % "  " % }EMERGE ]% string-concat ;
 
 MODULE: BOT-COMMANDS
 
@@ -135,7 +135,7 @@ MODULE: BOT-COMMANDS-NOTFOUND
 
    ?check ;
 
-() VALUE xt-on-privmsg
+list::nil VALUE xt-on-privmsg
 \ xt: ( -- ? )
 \ ? - xt обработал сообщение, остановить обработку
 
