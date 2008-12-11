@@ -6,7 +6,7 @@ REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
 REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
 REQUIRE xml.children=> ~ygrek/lib/spec/rss.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
-REQUIRE mapcar ~ygrek/lib/list/all.f
+REQUIRE list-all ~ygrek/lib/list/all.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 
 : cl-path S" http://www.forth.org.ru/log/" ;
@@ -26,56 +26,64 @@ REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 
 : maybe-load { a u -- }
    a u FILE-EXIST IF EXIT THEN
-   a u " {CRLF}Downloading {s} ..." STYPE
+   a u " {EOLN}Downloading {s} ..." STYPE
    a u " {cl-path}{s}" STR@ GET-FILE STR@ a u OCCUPY ;
 
 : find-author ( a u list -- node ? )
-  LAMBDA{ car >R 2DUP R> car STR@ COMPARE 0= } SWAP scan-list 2SWAP 2DROP ;
+  LAMBDA{ >R 2DUP R> list::car STR@ COMPARE 0= } list::find 2SWAP 2DROP ;
 
+{{ list
 : inc-author ( node -- ) cdr DUP car 1+ SWAP setcar ;
+}}
 
-: add-author { a u list -- }
-   a u list find-author
-   IF car inc-author
-   ELSE DROP lst( a u " {s}" %s 1 % )lst vnode as-list list insert-after
+: add-author { a u l -- l }
+   a u l find-author
+   IF list::car inc-author l
+   ELSE DROP %[ a u >STR % 1 % ]% l list::cons
    THEN ;
 
-: author-sum ( node -- n ) >R 0 LAMBDA{ cdar + } R> mapcar ;
+: author-sum ( node -- n ) 0 SWAP LAMBDA{ list::cdar + } list::iter ;
 
 : BKSP 0x08 EMIT ;
 
+{{ list
 : print-authors ( node -- )
-   LAMBDA{ DUP cdar SWAP car STR@ " {s} : {n}, " STYPE } SWAP mapcar 
+   LAMBDA{ DUP cdar SWAP car STR@ " {s} : {n}, " STYPE } iter 
    BKSP BKSP SPACE ; \ hack - erase last comma :)
 
-: sort-by-num ( node -- ) LAMBDA{ cdar SWAP cdar U< } list-sort- ;
+: sort-by-num ( node -- ) LAMBDA{ cdar SWAP cdar U< } sort ;
+}}
 
 : go STATIC rl
-  lst( lst( "" %s 0 % )lst %l )lst rl ! \ "пустое" значение чтобы можно было делать insert
+  list::nil rl !
   2DUP maybe-load
-  START{ cl-items=> DUP rss.item.author 2DUP rl @ add-author 2DROP }EMERGE
+  START{ cl-items=> DUP rss.item.author 2DUP rl @ add-author rl ! 2DROP }EMERGE
   rl @
 ;
 
 lst(
- lst( " SpfDevChangeLog.xml" % " devel" % )lst %l
- lst( " SpfLibChangeLog.xml" % " lib" % )lst %l
- lst( " SpfSrcChangeLog.xml" % " src" % )lst %l
- lst( " SpfDocsChangeLog.xml" % " docs" % )lst %l
+ lst( " SpfDevChangeLog.xml" % " devel" % )lst %
+ lst( " SpfLibChangeLog.xml" % " lib" % )lst %
+ lst( " SpfSrcChangeLog.xml" % " src" % )lst %
+ lst( " SpfDocsChangeLog.xml" % " docs" % )lst %
 )lst VALUE l
 
 : commits. ( num -- )
    TO stamp
    stamp Num>DateTime DateTime>PAD CR CR ." --------- Data since " TYPE
+   l
    LAMBDA{
-    DUP cdar STR@ " {CRLF}{CRLF}::: New commits in {s}" STYPE
-        car STR@ go cdr \ забываем "пустое" значение
+    DUP list::cdar STR@ " {EOLN}{EOLN}::: New commits in {s}" STYPE
+        list::car STR@ go
           DUP author-sum DUP "  = {n}" STYPE
           ( n ) 0 = IF DROP EXIT THEN
           DUP sort-by-num
           CR print-authors
-   } l mapcar ;
+   } list::iter ;
 
-0 0 0 1 6 2007 DateTime>Num commits. \ Since spf-devel-20070601 snapshot
+: days 24 * 60 * 60 * ;
+
 0 0 0 17 9 2007 DateTime>Num commits. \ Since spf-devel-20070917 snapshot
+0 0 0 17 1 2008 DateTime>Num commits. \ Since SPF 4.19 snapshot
+TIME&DATE DateTime>Num 365 days - commits. \ Last year
 BYE
