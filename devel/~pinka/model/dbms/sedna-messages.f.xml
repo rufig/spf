@@ -12,16 +12,16 @@
 <handler event="startup">  max-packet-size ALLOCATED DATASPACE! </handler>
 <handler event="shutdown"> DATASPACE DROP FREE THROW 0. DATASPACE! </handler>
 
-<def name="sednaL," ds=" x -- ">   reorder-bytes L, </def>
-<def name="sednaS," ds=" a u -- "> 0 B, DUP sednaL, S, </def>
+<def name="sednaT," ds=" x -- ">   reorder-bytes T, </def>
+<def name="sednaS," ds=" a u -- "> 0 B, DUP sednaT, S, </def>
 
 <def name="message" ds=" xt-body command -- a1 a2 ">
   CLEAR-DATASPACE HERE >R
-  sednaL,       <rem> command </rem>
-  HERE >R 0 L,  <rem> length </rem>
+  sednaT,       <rem> command </rem>
+  HERE >R 0 T,  <rem> length </rem>
   HERE >R       <rem> begin of the body </rem>
   EXECUTE
-  HERE DUP R> - R> sednaL!  <rem> adjust length </rem>
+  HERE DUP R> - R> sednaT!  <rem> adjust length </rem>
   R> TUCK -
 </def>
 

@@ -16,7 +16,7 @@
 <def name="S,"      ds=" addr u -- "> UNUSED UMIN HERE SWAP DUP ALLOT MOVE <!-- it is safe for overflow --></def>
 
 <def name="W,"      ds=" x -- "     > HERE W! 2 ALLOT </def>
-<def name="L,"      ds=" x -- "     > HERE L! 4 ALLOT </def>
+<def name="T,"      ds=" x -- "     > HERE T! 4 ALLOT </def>
 
 <def name="SXZ,"    ds=" addr u -- "> DUP  , S, 0 C, </def>
 <def name="SCZ,"    ds=" addr u -- "> DUP C, S, 0 C, </def>

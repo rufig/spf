@@ -36,20 +36,20 @@
 
 
 <def name="command" ds=" -- n "><rem> or 'instruction' or 'code' </rem>
-  buf L@
+  buf T@
 </def>
 <def name="len" ds=" -- u ">
-  buf L+ L@
+  buf T+ T@
 </def>
 <def name="body" ds=" -- a u ">
-  buf L+ DUP L+ SWAP L@
+  buf T+ DUP T+ SWAP T@
 </def>
 <def name="read-exact" ds=" addr u -- ">
   sock READ-SOCK-EXACT THROW
 </def>
 <def name="get-head" ds=" -- ">
-  buf 2 Ls read-exact
-  buf DUP localize  L+ localize
+  buf 2 Ts read-exact
+  buf DUP localize  T+ localize
 </def>
 <def name="get-packet" ds=" -- ">
   get-head  body  DUP max-body-size UGT <unless> read-exact <exit/></unless>
@@ -60,11 +60,11 @@
 </def>
 
 <def name="body-code" ds=" -- x ">
-  body <if> sednaL@ <exit/></if> DROP 0
+  body <if> sednaT@ <exit/></if> DROP 0
 </def>
 <def name="body-info" ds=" -- a u ">
-  body  1 Ls UGT <unless> 0 <exit/></unless>
-  L+ sednaS@
+  body  1 Ts UGT <unless> 0 <exit/></unless>
+  T+ sednaS@
 </def>
 <def name="body-text" ds=" -- a u ">
   body <unless> 0 <exit/></unless>

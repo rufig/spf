@@ -12,22 +12,23 @@ REQUIRE [UNDEFINED] lib/include/tools.f
 \ Тогда для битов: BIT@ BIT! (?)
 
 \ Также, для байтовых операций было предложенно '8': 8@ 8!
-\ но, по моему, этот вариант хуже.
+\ но, по моему, этот вариант хуже (и конфликтует с 2@ и 2! )
 
 [THEN]
 
-[UNDEFINED] L@ [IF] \ 'long' (double word) -- 4 bytes -- 32 bits
-: L@ @ ;
-: L! ! ;
-: L, , ;
+[UNDEFINED] T@ [IF] \ 'twice word' (double word) -- 32 bits
+: T@ @ ;
+: T! ! ;
+: T, , ;
 [THEN]
 
-[UNDEFINED] Q@ [IF] \ 'quadro' (quadruple word) -- 8 bytes -- 64 bits
+[UNDEFINED] Q@ [IF] \ 'quadro' (quadruple word) -- 64 bits
 : Q@ 2@ SWAP ;      \ старшая часть по старшему адресу
 : Q! >R SWAP R> 2! ;
 : Q, SWAP , , ;
 [THEN] \ see also: http://en.wikipedia.org/wiki/Double_word#Dword_and_Qword
 
+\ O@ O! O, -- octuple word -- 128 bits
 
 REQUIRE NDROP   ~pinka/lib/ext/common.f
 

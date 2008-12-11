@@ -62,8 +62,8 @@
 <def name="W@"> DROP W@ 0   </def>
 <def name="W!"> DROP NIP W! </def>
 
-<def name="L@"> DROP @ 0   </def>
-<def name="L!"> DROP NIP ! </def>
+<def name="T@"> DROP @ 0   </def>
+<def name="T!"> DROP NIP ! </def>
 
 <def name="@"> DROP 2@ </def>
 <def name="!"> DROP 2! </def>

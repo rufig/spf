@@ -3,9 +3,9 @@
 <!-- Apr.2008 -->
 
 <wordlist name="trial64-codegen-hidden">
-  <def name="," ds=" x -- "> HERE 4 ALLOT L! </def>
-  <def name="!" ds=" x a -- "> L! </def>
-  <def name="@" ds=" x a -- "> L@ </def>
+  <def name="," ds=" x -- "> HERE 4 ALLOT T! </def>
+  <def name="!" ds=" x a -- "> T! </def>
+  <def name="@" ds=" x a -- "> T@ </def>
   <include href="spf4-prime.L1.f.xml" xml:base="http://forth.org.ru/~pinka/model/codegen/"/>
 
   <def name="_RDROP," ds=" -- ">
