@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<!-- <slot> dataspace-size </slot> -->
+<cell name="_dataspace-size"/>
+<def name="dataspace-size" ds=" -- u "> _dataspace-size @ </def>
+<def name="dataspace-size!" ds=" u -- "> _dataspace-size ! </def>
+<init> 50 1024 * dataspace-size! </init>
+
+<cell name="_stack"/>
+
+<handler event="recovery">
+  0. DATASPACE!  _stack 0!
+</handler>
+
+<handler event="startup" ds=" -- ">
+  dataspace-size ALLOCATED DATASPACE!  _stack 0!
+</handler>
+
+<handler event="shutdown" ds=" -- ">
+  DATASPACE DROP FREE THROW
+  0. DATASPACE!  _stack 0!
+</handler>
+
+<handler event="cleanup" ds=" -- ">
+  CLEAR-DATASPACE  _stack 0!
+</handler>
+
+</forth>

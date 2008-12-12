@@ -5,31 +5,12 @@
 
 <include href="data-space.f.xml" />
 <include href="marker.immutable.f.xml"/>
-
-<cell name="_stack"/>
-<cell name="_size"> 50 1024 * </cell>
-
-<handler event="recovery">
-  0. DATASPACE!  _stack 0!
-</handler>
-
-<handler event="startup" ds=" -- ">
-  _size @ ALLOCATED DATASPACE!  _stack 0!
-</handler>
-
-<handler event="shutdown" ds=" -- ">
-  DATASPACE DROP FREE THROW
-  0. DATASPACE!  _stack 0!
-</handler>
-
-<handler event="cleanup" ds=" -- ">
-  CLEAR-DATASPACE  _stack 0!
-</handler>
+<include href="data-space-auto.f.xml"/>
 
 <export>
 
 <def name="assume-dataspace-size" ds=" u -- ">
-  _size !
+  dataspace-size!
 </def>
 
 <def name="mark-dataspace" ds=" -- ">
