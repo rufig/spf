@@ -33,6 +33,16 @@
            REPEAT
           THEN ;
 
+\ распознать число одинарной длины в виде строки со счетчиком в текущей
+\ системе исчисления, либо в шестнадцатиричной, если есть префикс '0x'
+: VAL ( asc # --> n )
+      BASE @ >R
+       OVER C@ [CHAR] - = DUP >R IF SKIP1 THEN
+       OVER W@ [ S" 0x" DROP W@ ] LITERAL = IF SKIP1 SKIP1 HEX THEN
+       0 0 2SWAP >NUMBER IF -1 THROW THEN DROP D>S
+       R> IF NEGATE THEN
+      R> BASE ! ;
+
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
 test{  : CHAR" CHAR ;

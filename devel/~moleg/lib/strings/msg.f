@@ -5,6 +5,7 @@
  REQUIRE ?DEFINED     devel\~moleg\lib\util\ifdef.f
  REQUIRE FILE>HEAP    devel\~moleg\lib\win\file2heap.f
  REQUIRE ROUND        devel\~moleg\lib\util\stackadd.f
+ REQUIRE VAL          devel\~moleg\lib\parsing\number.f
 
 \ копировать строку asc # по указанному адресу addr
 ?DEFINED SCOPY : SCOPY   ( asc # addr --> ) 2DUP C! 1 + SWAP CMOVE ;
@@ -23,12 +24,12 @@ VOCABULARY Messages
 0 \ формат записи сообщения
   CELL -- off_msgPrev  \ адрес предыдущего сообщения
   CELL -- off_msgName  \ номер текущего сообщения
-     0 -- off_msgBody  \ строка сообщения вместе со счетчиком длины
+     1 -- off_msgBody  \ строка сообщения вместе со счетчиком длины
 CONSTANT /msgRecord
 
 \ добавить новое сообщение в список сообщений
 : new-msg ( asc # msg --> )
-          OVER /msgRecord + 0x100 ROUND ALLOCATE THROW
+          OVER /msgRecord + ALLOCATE THROW
           TUCK off_msgName !
           DUP >R off_msgBody SCOPY
           R@ msg-list change
@@ -102,29 +103,21 @@ ALSO FORTH DEFINITIONS
                     off_msgPrev
                 REPEAT DROP R> CLOSE-FILE THROW ;
 
-\ распознать число одинарной длины в виде: ddd -ddd 0xhhhh
-: val ( asc # --> n )
-      BASE @ >R
-       OVER C@ [CHAR] - = DUP >R IF SKIP1 THEN
-       OVER W@ [ S" 0x" DROP W@ ] LITERAL = IF SKIP1 SKIP1 HEX THEN
-       0 0 2SWAP >NUMBER IF -1 THROW THEN DROP D>S
-       R> IF NEGATE THEN
-      R> BASE ! ;
-
 \ загрузить список сообщений в память из файла Asc #
 : load-messages ( asc # --> flag ) FILE>HEAP
                 IF SAVE-SOURCE N>R SOURCE! 0 >IN !
                    BEGIN NextWord DUP WHILE
-                         val >R 13 PARSE R> new-msg
+                         VAL >R 13 PARSE R> new-msg
                          1 >IN +!
                    REPEAT 2DROP
                    NR> RESTORE-SOURCE
-                 ELSE FALSE
+                 ELSE FALSE EXIT
                 THEN TRUE ;
 
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
 test{ \ тестирование сборки
+      S" devel\~mOleg\lib\strings\spf.msg" load-messages 0 = THROW
       : test MESSAGE" passed" ;
     test
 }test

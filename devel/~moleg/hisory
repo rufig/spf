@@ -19,3 +19,7 @@
   + .\lib\win\file2heap.f копирование файла в память
 \ 2008-12-08
   + новый метод работы с сообщениями .\lib\strings\msg.f
+\ 12.12.2008
+  + VAL в lib\parsing\number.f
+  ~ lib\strings\msg.f исправлен размер поля /msgRecord
+  + lib\strings\spf.msg добавлено для тестирования msg.f
