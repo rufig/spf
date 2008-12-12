@@ -22,7 +22,7 @@
 <def name="SCZ,"    ds=" addr u -- "> DUP C, S, 0 C, </def>
 
 <def name="CARBON" ds=" a1 u -- a2 u ">
-  ALIGN HERE >R S, R> HERE OVER -
+  HERE >R S, R> HERE OVER -
 </def>
 
 <def name="SAVE-DATASPACE" ds=" -- i*x i ">
