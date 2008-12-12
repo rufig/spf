@@ -9,95 +9,36 @@ REQUIRE FINE-TAIL ~pinka/samples/2005/lib/split-white.f
 REQUIRE $Revision ~ygrek/lib/fun/kkv.f
 REQUIRE { lib/ext/locals.f
 REQUIRE DumpParams ~ac/lib/string/get_params.f
-REQUIRE tag ~ygrek/lib/xmltag.f
 REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f 
 REQUIRE BOUNDS ~ygrek/lib/string.f
 REQUIRE CEQUAL ~pinka/spf/string-equal.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE OSNAME-STR ~ygrek/lib/sys/osname.f
+REQUIRE xmltag ~ygrek/lib/xmltag.f
 \ REQUIRE INTER ~ygrek/lib/debug/inter.f
-S" ~ygrek/lib/list/all.f" INCLUDED
-
-: STARTS-WITH? { a1 u1 a2 u2 -- ? }
-  u1 u2 < IF FALSE EXIT THEN
-  a1 u2 a2 u2 CEQUAL ;
-
-S" ~ygrek/prog/web/help.cgi/load.f" INCLUDED
-
-: text/html S" Content-type: text/html" TYPE CR ;
-: content-length ( n -- ) " Content-Length: {n}" STYPE CR ;
-
-\ what is better?
-\ - introduce new words for HTML output, or
-\ - overload (as done below)
-
-MODULE: HTML
-
-: EMIT
-   DUP BL < IF DROP BL EMIT EXIT THEN
-   DUP [CHAR] < = IF DROP ." &lt;" EXIT THEN
-   DUP [CHAR] > = IF DROP ." &gt;" EXIT THEN
-   DUP [CHAR] " = IF DROP ." &quot;" EXIT THEN
-   DUP [CHAR] & = IF DROP ." &amp;" EXIT THEN
-   DUP [CHAR] ' = IF DROP ." &apos;" EXIT THEN
-   EMIT ;
-: TYPE BOUNDS ?DO I C@ EMIT LOOP ;
-: STYPE DUP STR@ TYPE STRFREE ;
-
-;MODULE 
-
-: << POSTPONE START{ ; IMMEDIATE
-: >> POSTPONE }EMERGE ; IMMEDIATE
-
-\ todo interactive session when no environment present
-\ todo problems with ABORT here (TYPE>STR doesn't catch it)
-: get-params S" QUERY_STRING" ENVIRONMENT? 0= IF S" " THEN GetParamsFromString ;
+REQUIRE list-all ~ygrek/lib/list/all.f
+REQUIRE words-load ~ygrek/prog/web/help.cgi/load.f
 
 : revision $Revision$ SLITERAL ;
 : spf-version VERSION 1000 / 100 /MOD " {n}.{n}" ;
 
+: text/html S" Content-type: text/html" TYPE CR ;
+: content-length ( n -- ) " Content-Length: {n}" STYPE CR ;
+
+\ local shortcuts to save typing
+: << POSTPONE START{ ; IMMEDIATE
+: >> POSTPONE }EMERGE ; IMMEDIATE
+
+: get-params S" QUERY_STRING" ENVIRONMENT? 0= IF S" " THEN GetParamsFromString ;
+
 : EMPTY? NIP 0= ;
-
-: tag: PARSE-NAME POSTPONE SLITERAL POSTPONE tag ; IMMEDIATE
-: quote [CHAR] " EMIT ;
-: enquote-> PRO quote BACK quote TRACKING CONT ;
-
-{{ list
-: attributes ( l -- )
-  DUP LAMBDA{ SPACE DUP car STR@ TYPE [CHAR] = EMIT enquote-> cdar STR@ HTML::TYPE } iter
-  LAMBDA{ ['] STRFREE free-with } free-with ;
-}}
-
-: prepare-tag ( attr-l a u -- ) CR xmltag.indent# SPACES [CHAR] < EMIT TYPE attributes ;
-
-\ с отступами
-: atag ( attr-l a u -- )
-   PRO
-   BACK xmltag.indent# 1- TO xmltag.indent# " </{s}>" STYPE TRACKING
-   2RESTB
-   prepare-tag [CHAR] > EMIT
-   xmltag.indent# 1+ TO xmltag.indent#
-   CONT ;
-
-: /atag ( attr-l a u -- ) prepare-tag ." />" ;
-: /tag ( a u -- ) list::nil -ROT /atag ;
-
-: PARSE-SLIT PARSE-NAME POSTPONE SLITERAL ;
-
-: atag: PARSE-SLIT POSTPONE atag ; IMMEDIATE
-: /atag: PARSE-SLIT POSTPONE /atag ; IMMEDIATE
-
-: $$ %[ >STR % >STR % ]% % ;
-: $$: PARSE-SLIT PARSE-SLIT POSTPONE $$ ; IMMEDIATE
-
-MODULE: HTML
-: CR `br /tag ;
-: SPACE ." &nbsp;" ;
-: SPACES 0 ?DO SPACE LOOP ;
-;MODULE
+: STARTS-WITH? { a1 u1 a2 u2 -- ? }
+  u1 u2 < IF FALSE EXIT THEN
+  a1 u2 a2 u2 CEQUAL ;
 
 : span PRO %[ `class $$ ]% `span atag CONT ;
 : span: PARSE-NAME PRO span CONT ;
+: hrule `hr /tag ;
 
 : start-page ( a u -- )
    <<
@@ -125,7 +66,7 @@ MODULE: HTML
    ." Usual shell wildcards should work : <b>?</b> (any symbol) and <b>*</b> (any number of any symbols)" CR
 ;
 
-: link ( name u link u2 -- ) %[ `href $$ ]% `a atag HTML::TYPE ;
+: link ( name u link u2 -- ) %[ `href $$ ]% `a atag XMLSAFE::TYPE ;
 
 : spf-logo ."  Powered by " `SP-Forth `http://spf.sf.net link SPACE spf-version STYPE ;
 
@@ -140,9 +81,7 @@ MODULE: HTML
   ( a u ) R@ STR@ link
   R> STRFREE ;
 
-: hrule `hr /tag ;
-
-ALSO HTML
+ALSO XMLSAFE
 
 : show-word ( s1 s2 s3 -- )
   << `word span STR@ TYPE >>
@@ -205,7 +144,7 @@ PREVIOUS
    tag: head
    %[ `content-type `http-equiv $$ `text/html;charset=cp1251 `content $$ ]% /atag: meta
    %[ `some.css `href $$ `stylesheet `rel $$ `text/css `type $$ ]% /atag: link
-   tag: title S" SP-Forth words search" HTML::TYPE
+   tag: title S" SP-Forth words search" XMLSAFE::TYPE
   >>
   tag: body
   content
