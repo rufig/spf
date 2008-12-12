@@ -236,7 +236,7 @@ REQUIRE [IF]          lib/include/tools.f
   SQLITE_ROW = IF ppStmt ELSE ( ppStmt db3_fin) 0 THEN
 ;
 : db3_cdr { ppStmt -- ppStmt | 0 }
-  (db3_cdr) DUP 0= IF ppStmt db3_fin THEN
+  ppStmt (db3_cdr) DUP 0= IF ppStmt db3_fin THEN
 ;
 : db3_car ( addr u sqh -- ppStmt )
   db3_prepare NIP DUP db3_bind db3_cdr
