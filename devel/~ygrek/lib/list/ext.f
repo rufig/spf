@@ -1,7 +1,7 @@
 \ $Id$
 \ Higher-order functions over lists
 \ Single style 
-\ - all words take xt as the last parameter
+\ - all words take xt as the topmost parameter
 \ - all xt's operate on node value
 
 REQUIRE list ~ygrek/lib/list/core.f
