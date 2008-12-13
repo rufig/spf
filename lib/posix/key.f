@@ -24,16 +24,16 @@ CREATE otios SIZEOF_TERMIOS ALLOT
   H-STDIN tios tcgetattr 0 <> ABORT" tcgetattr failed"
   tios otios SIZEOF_TERMIOS MOVE \ save
   tios c_lflag @ 
-    [ ICANON ECHO OR INVERT ] LITERAL AND 
+    [ TE_ICANON TE_ECHO OR INVERT ] LITERAL AND 
   tios c_lflag !
 
   \ not sure why it is needed
   \ copied from gforth-0.6.2/engine/io.c
   tios c_iflag @
-    [ IXON IXOFF OR IXANY OR ICRNL OR INLCR OR INVERT ] LITERAL AND
+    [ TE_IXON TE_IXOFF OR TE_IXANY OR TE_ICRNL OR TE_INLCR OR INVERT ] LITERAL AND
   tios c_iflag !
-  tios c_cc VMIN + 1 SWAP B!
-  tios c_cc VTIME + 0 SWAP B!
+  tios c_cc TE_VMIN + 1 SWAP B!
+  tios c_cc TE_VTIME + 0 SWAP B!
 
   H-STDIN 0 tios tcsetattr 0 <> ABORT" tcsetattr failed" ;
 
