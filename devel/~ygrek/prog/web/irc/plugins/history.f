@@ -26,9 +26,9 @@ EXPORT
 
 MODULE: VOC-IRC-COMMAND
 : PRIVMSG
-   ACCERT( ." PRIVMSG of history" CR )
+   S" PRIVMSG of history" log::trace
    TIME&DATE DateTime>Num { stamp -- }
-   ACCERT( ." try previous PRIVMSG" CR )
+   S" try previous PRIVMSG" log::trace
    PRIVMSG
    %[
      stamp %
@@ -36,7 +36,7 @@ MODULE: VOC-IRC-COMMAND
      current-msg-sender stamp Num>Time Time>PAD
      R> IF " ({s}) {s} {s}" ELSE " ({s}) [{s}] {s}" THEN %
    ]% log-history list::append TO log-history
-   ACCERT( ." PRIVMSG of history done" CR )
+   S" PRIVMSG of history done" log::trace
   ;
 ;MODULE
 
@@ -50,14 +50,15 @@ MODULE: BOT-COMMANDS
     0 TO counter
     0 PARSE FINE-HEAD FINE-TAIL
     RE" (\d+)\s*(min|sec)?" re_match? 0= IF BOT-COMMANDS-HELP::!last EXIT THEN
-    1 get-group NUMBER 0= IF BOT-COMMANDS-HELP::!last EXIT THEN
+    \1 NUMBER 0= IF BOT-COMMANDS-HELP::!last EXIT THEN
     ( num )
-    2 get-group NIP IF
-     2 get-group S" sec" COMPARE 0= IF 1
+    \2 NIP IF
+     \2 S" sec" COMPARE 0= IF 1
      ELSE
-     2 get-group S" min" COMPARE 0= IF 60
+     \2 S" min" COMPARE 0= IF 60
      ELSE
      DROP
+     S" history regexp failed" log::warn
      S" Strange error. Please file a bugreport" S-REPLY EXIT
      THEN THEN
      * START{ secs-get-history-> counter counter_max < IF log>string current-msg-sender S-NOTICE-TO counter 1+ TO counter ELSE DROP THEN }EMERGE

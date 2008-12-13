@@ -7,9 +7,6 @@
 \ zlibwapi.dll - http://www.winimage.com/zLibDll/
 \ libeay32.dll libssl32.dll - http://www.slproweb.com/products/Win32OpenSSL.html
 
-REQUIRE ACCERT-LEVEL lib/ext/debug/accert.f
-1 ACCERT-LEVEL ! \ компилировать ACCERT'ы
-
 REQUIRE VOC-IRC-COMMAND ~ygrek/lib/net/irc/conn.f
 REQUIRE NFA=> ~ygrek/lib/wid.f
 REQUIRE TYPE>STR ~ygrek/lib/typestr.f
@@ -22,6 +19,7 @@ REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
 REQUIRE #N## ~ac/lib/win/date/date-int.f
 \ REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
 \ REQUIRE CURLOPT! ~ac/lib/lin/curl/curlopt.f
+REQUIRE logger ~ygrek/lib/log.f
 
 ' ACCEPT1 TO ACCEPT \ disables autocompletion if present ;)
 
@@ -46,7 +44,7 @@ REQUIRE #N## ~ac/lib/win/date/date-int.f
    <# m #N## [CHAR] : HOLD h #N## 0 0 #>
    " {s}|{s}" ;
    
-: RAW-LOG AS-LOG-STR { s } s STR@ ECHO s STR@ (DO-LOG-TO-FILE) s STRFREE ;
+: RAW-LOG AS-LOG-STR { s } s STR@ (DO-LOG-TO-FILE) s STRFREE ;
 
 FALSE VALUE ?check
 
@@ -123,14 +121,14 @@ MODULE: BOT-COMMANDS-NOTFOUND
 : CHECK-MSG ( -- ? )
    FALSE TO ?check
 
-   ACCERT( ." CHECK-MSG" CR )
+   `CHECK-MSG log::trace
 
    GET-ORDER
    ONLY BOT-COMMANDS
    ALSO BOT-COMMANDS-NOTFOUND
    ORDER
-   ." current msg : " current-msg-text TYPE CR
-   current-msg-text ['] EVALUATE CATCH IF ." current msg failed" CR 2DROP THEN \ тут отваливание - нормальная ситуация
+   current-msg-text " current msg : {s}" slog::trace
+   current-msg-text ['] EVALUATE CATCH IF S" current msg failed (it is ok)" log::trace 2DROP THEN \ тут отваливание - нормальная ситуация
    SET-ORDER
 
    ?check ;
@@ -147,15 +145,13 @@ list::nil VALUE xt-on-privmsg
 MODULE: VOC-IRC-COMMAND
 
 : PRIVMSG 
-   ACCERT( ." PRIVMSG of bot" CR )
-   ." PRIVMSG DEPTH " DEPTH . CR
+   S" PRIVMSG of bot" log::trace
    LAMBDA{
      CHECK-MSG-IGNORE IF EXIT THEN
      CHECK-MSG IF EXIT THEN
      CHECK-MSG-ME IF EXIT THEN
    } EXECUTE
-   ." PRIVMSG EXIT DEPTH " DEPTH . CR
-   ACCERT( ." PRIVMSG of bot almost done" CR )
+   S" PRIVMSG of bot almost done" log::trace
 ;
 
 : 433 BYE ; \ nickname already in use

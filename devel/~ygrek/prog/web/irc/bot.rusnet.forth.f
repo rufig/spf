@@ -4,6 +4,15 @@
 \ lib/ext/disasm.f
 
 S" ~ygrek/prog/web/irc/bot.f" INCLUDED
+
+REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
+
+\ Global logger configuration
+MODULE: logger
+:NONAME ( -- ? ) TRUE ; TO FILTER
+:NONAME ( a u -- ) TIME&DATE DateTime>PAD TYPE DEPTH "  | DEPTH={n} " STYPE level lvl_name " [{s}] " STYPE TYPE CR ; TO LOG-WRITE
+;MODULE
+
 \ S" ~ygrek/prog/web/irc/plugins/rss.f" INCLUDED
 S" ~ygrek/prog/web/irc/plugins/quotes.f" INCLUDED
 \ S" ~ygrek/prog/web/irc/plugins/spf.f" INCLUDED
@@ -12,7 +21,7 @@ S" ~ygrek/prog/web/irc/plugins/bar.f" INCLUDED
 \ S" ~ygrek/prog/web/irc/plugins/httpreport.f" INCLUDED
 S" ~ygrek/prog/web/irc/plugins/history.f" INCLUDED
 \ S" ~ygrek/prog/web/irc/plugins/title.f" INCLUDED
-\ S" ~ygrek/prog/web/irc/plugins/msg.f" INCLUDED
+S" ~ygrek/prog/web/irc/plugins/msg.f" INCLUDED
 
 : start
 \ SocketsStartup THROW
@@ -30,3 +39,4 @@ S" #forth" S-JOIN ;
 start
 
 \ S" exsample.exe" SAVE BYE
+

@@ -35,7 +35,7 @@ EXPORT
 
 : load-quotes
   \ quotes FREE-LIST
-  CR ." REMINDER: BUG! MEMORY LEAK. Cant do FREE-LIST cause it is in another thread. Fix it (easy)"
+  S" REMINDER: BUG! MEMORY LEAK. Cant do FREE-LIST cause it is in another thread. Fix it (easy)" log::debug
   list::nil TO quotes
   %[
   START{
@@ -50,7 +50,7 @@ EXPORT
   }EMERGE
   ]%
   TO quotes
-  quotes-total quotes-file " Quotes reloaded from '{s}'. Total {n}" CR STYPE ;
+  quotes-total quotes-file " Quotes reloaded from '{s}'. Total {n}" log::info ;
 
 : type-quotes ( -- ) quotes list::each-> STR@ CR TYPE ;
 
