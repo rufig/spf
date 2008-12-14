@@ -110,3 +110,4 @@
 
 @rem удаляем тестирующую версию СПФа
 @del st.exe
+@del .\devel\~mOleg\lib\test.msg

@@ -72,6 +72,11 @@ CONSTANT /msgRecord
 
 ALSO FORTH DEFINITIONS
 
+\ компилировать код сообщения
+: NOTICE" ( / message" --> )
+          ?COMP [CHAR] " PARSE reffered
+          [COMPILE] LITERAL ; IMMEDIATE
+
 \ вывести сообщение о ошибке
 : ERROR" ( / message" --> )
          ?COMP [CHAR] " PARSE reffered
@@ -107,7 +112,10 @@ ALSO FORTH DEFINITIONS
 : load-messages ( asc # --> flag ) FILE>HEAP
                 IF SAVE-SOURCE N>R SOURCE! 0 >IN !
                    BEGIN NextWord DUP WHILE
-                         VAL >R 13 PARSE R> new-msg
+                         OVER C@ [CHAR] \ =
+                         IF 2DROP 13 PARSE 2DROP \ пропуск коментария
+                          ELSE VAL >R 13 PARSE R> new-msg
+                         THEN
                          1 >IN +!
                    REPEAT 2DROP
                    NR> RESTORE-SOURCE
@@ -118,6 +126,11 @@ ALSO FORTH DEFINITIONS
 
 test{ \ тестирование сборки
       S" devel\~mOleg\lib\strings\spf.msg" load-messages 0 = THROW
+      : ttt NOTICE" sample test" ;
+      : zzz NOTICE" sampled test" ;
+      : vvv NOTICE" sample test" ;
+      ttt vvv <> THROW \ ошибка, если сообщения дублируются
       : test MESSAGE" passed" ;
+      S" .\devel\~mOleg\lib\test.msg" save-messages
     test
 }test
