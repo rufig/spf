@@ -42,9 +42,9 @@ WINAPI: GetTickCount KERNEL32.DLL
 
 : NSYM: ( num "name" -- ) PARSE-NAME 2DUP CREATED symbol-lookup , , DOES> DUP CELL+ @ SWAP @ symbol-call ;
 
-1 NSYM: time
-2 NSYM: localtime_r
-1 NSYM: times \ 10 ms resolution (everywhere?)
+\ 1 NSYM: time
+\ 2 NSYM: localtime_r
+\ 1 NSYM: times \ 10 ms resolution (everywhere?)
 \ alternatives :
 \ clock_gettime CLOCK_MONOTONIC (librt)
 \ clock()
@@ -75,8 +75,8 @@ CONSTANT /TM
 USER-CREATE TM /TM USER-ALLOT
 
 : TIME&DATE ( -- sec min hr day mt year )
-  0 time 
-  SP@ TM localtime_r DROP 
+  (( 0 )) time 
+  (( SP@ TM )) localtime_r DROP 
   DROP
   TM tm_sec @
   TM tm_min @
@@ -87,7 +87,7 @@ USER-CREATE TM /TM USER-ALLOT
 ;
 
 \ ok to pass NULL?
-: ms@ 0 times 10 * ;
+: ms@ (( 0 )) times 10 * ;
 
 [THEN]
 
