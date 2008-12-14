@@ -1,7 +1,8 @@
 \ $Id$
 
-\ interface compatible with ~pinka/lib/multi/Critical.f
-\ CS stands for Critical Section (lightweight private mutex in Windows)
+\ interface compatible with ~pinka/lib/multi/critical.f
+\ CRIT stands for Critical Section (lightweight private mutex in Windows)
+\ CS conflicts in meaning with Control Stack so better use *-CRIT words
 
 REQUIRE LINUX-CONSTANTS lib/posix/const.f
 REQUIRE /TEST ~profit/lib/testing.f
@@ -74,20 +75,31 @@ EXPORT
   FREE THROW
 ;
 
+\ better names
+
+: MAKE-CRIT,    MAKE-CS,   ;
+: CREATED-CRIT  CREATED-CS ;
+: CREATE-CRIT   CREATE-CS  ;
+
+: ENTER-CRIT ENTER-CS ;
+: LEAVE-CRIT LEAVE-CS ;
+: NEW-CRIT   NEW-CS   ;
+: DEL-CRIT   DEL-CS   ;
+
 ;MODULE
 
 /TEST
 
 VARIABLE var 
-CREATE-CS var-cs
+CREATE-CRIT var-cs
 
 : ttt
   0 ?DO
-   var-cs ENTER-CS
-   var-cs ENTER-CS \ this tests recursion
+   var-cs ENTER-CRIT
+   var-cs ENTER-CRIT \ this tests recursion
    var @ 1+ 1 PAUSE var !
-   var-cs LEAVE-CS
-   var-cs LEAVE-CS
+   var-cs LEAVE-CRIT
+   var-cs LEAVE-CRIT
   LOOP 
 ;
 
