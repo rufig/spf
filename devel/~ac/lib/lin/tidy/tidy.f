@@ -15,7 +15,7 @@ WARNING !
 
 [DEFINED] WINAPI: [IF]
   REQUIRE DLL           ~ac/lib/ns/dll-xt.f
-  ALSO DLL NEW: libtidy.dll
+  ALSO DLL NEW: tidy.dll
 [ELSE]
   REQUIRE SO            ~ac/lib/ns/so-xt.f
   ALSO  SO NEW: libtidy.so
