@@ -17,7 +17,7 @@ WARNING !
 REQUIRE UNICODE>UTF8  ~ac/lib/lin/iconv/iconv.f
 
 ALSO SO NEW: libxml2.dll
-ALSO SO NEW: /usr/lib/libxml2.so.2
+ALSO SO NEW: libxml2.so.2
 
 \ struct _xmlNode {
 0

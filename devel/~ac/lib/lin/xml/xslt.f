@@ -6,7 +6,7 @@ REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
 WARNING !
 
 ALSO SO NEW: libxslt.dll
-ALSO SO NEW: /usr/lib/libxslt.so.1
+ALSO SO NEW: libxslt.so.1
 ALSO libxml2.dll
 
 : XmlMemFree ( ptr 1 -- res )

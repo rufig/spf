@@ -9,7 +9,7 @@ REQUIRE GET-FILE      ~ac/lib/lin/curl/curl.f
 10084 CONSTANT CURLOPT_HTTP_VERSION
 
 ALSO libcurl.dll
-ALSO /usr/lib/libcurl.so.3
+ALSO libcurl.so
 
 : POST-FILE-VIAPROXY { adata udata act uct addr u paddr pu \ h data slist -- str }
 \ если прокси paddr pu - непустая строка, то явно используется этот прокси

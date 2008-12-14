@@ -7,7 +7,6 @@
 )  
   
 WARNING @ WARNING 0!
-REQUIRE DLL           ~ac/lib/ns/dll-xt.f
 REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
 REQUIRE DelXmlDecl    ~ac/lib/lin/tidy/delxmldecl.f
@@ -15,9 +14,11 @@ REQUIRE [IF]          lib/include/tools.f
 WARNING !
 
 [DEFINED] WINAPI: [IF]
-  ALSO DLL NEW: tidy.dll
+  REQUIRE DLL           ~ac/lib/ns/dll-xt.f
+  ALSO DLL NEW: libtidy.dll
 [ELSE]
-  ALSO DLL NEW: /usr/lib/libtidy.so
+  REQUIRE SO            ~ac/lib/ns/so-xt.f
+  ALSO  SO NEW: libtidy.so
 [THEN]
 
 23 CONSTANT TidyXhtmlOut

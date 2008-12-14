@@ -12,11 +12,8 @@ WARNING !
 
 REQUIRE [IF]          lib/include/tools.f
 
-[DEFINED] WINAPI: [IF]
-  ALSO SO NEW: sqlite3.dll
-[ELSE]
-  ALSO SO NEW: /usr/lib/libsqlite3.so.0
-[THEN]
+ALSO SO NEW: sqlite3.dll
+ALSO SO NEW: libsqlite3.so.0
 
   0 CONSTANT SQLITE_STATIC
   5 CONSTANT SQLITE_BUSY
@@ -305,10 +302,13 @@ USER _db3_gets
 \  1 1 sqlite3_soft_heap_limit DROP \ недоступно
   0 sqlite3_thread_cleanup DROP     \ ничего не делает...
 ;
-: db3_enable_extensions ( sqh -- )
+: (db3_enable_extensions) ( sqh -- )
   TRUE SWAP 2 sqlite3_enable_load_extension DROP
 ;
-PREVIOUS
+: db3_enable_extensions ( sqh -- ) \ попадаются .so без расширений
+  ['] (db3_enable_extensions) CATCH IF ." can't enable sqlite extensions" CR DROP THEN
+;
+PREVIOUS PREVIOUS
 
 : '>` ( addr u -- )
   0 ?DO DUP C@ [CHAR] ' = IF [CHAR] ` OVER C! THEN 1+ LOOP DROP
