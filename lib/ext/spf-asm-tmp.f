@@ -1,13 +1,13 @@
 \ 03.Apr.2002 Wed 15:24  ruv
 \ Подключение ассемблера во временный словарь
 \ В текущий словарь идут
-\       lib\include\tools.f
+\       lib/include/tools.f
 \       ASM-TEMP-WL
 \       CODE
 \ После загрузки асма ORDER: ONLY FORTH DEFINITIONS
 \ ( т.е. ORDER будет сбит, если до загрузки он был другой )
 
-REQUIRE [UNDEFINED] lib\include\tools.f
+REQUIRE [UNDEFINED] lib/include/tools.f
 
 \ Если нет ассемблера, загруженного в постоянный словарь
 [UNDEFINED] ASSEMBLER [IF]
@@ -60,7 +60,7 @@ TO OPT?
 
 WARNING !
         
-ONLY S" lib\ext\spf-asm.f" INCLUDED
+ONLY S" lib/ext/spf-asm.f" INCLUDED
 ONLY O_FORTH DEFINITIONS
 [THEN]
 [THEN]
