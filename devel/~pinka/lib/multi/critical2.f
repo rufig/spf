@@ -22,3 +22,6 @@ VECT ENTER-CS?  ( cs -- flag )
 ;
 
 ..: AT-PROCESS-STARTING   0TRYENTERCS ;..
+
+
+: ENTER-CRIT? ENTER-CS? ;
