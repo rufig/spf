@@ -9,7 +9,7 @@ REQUIRE /TEST ~profit/lib/testing.f
 VARIABLE TZ
 
 : GET-TIME-ZONE ( -- )
-  0 time SP@ TM localtime_r DROP DROP 
+  (( 0 )) time (( SP@ TM )) localtime_r DROP DROP 
   TM tm_gmtoff @ 60 / NEGATE TZ ! ;
 
 ..: AT-PROCESS-STARTING GET-TIME-ZONE ;..
