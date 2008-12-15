@@ -6,12 +6,12 @@
 
 
 REQUIRE /STRING lib/include/string.f
+REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
 REQUIRE W-DATEA ~ac/lib/win/date/date-int.f
 REQUIRE { lib/ext/locals.f
 REQUIRE PARSE-NAME lib/include/common.f
 REQUIRE /GIVE ~ygrek/lib/parse.f
 REQUIRE /TEST ~profit/lib/testing.f
-REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
 
 MODULE: ~ygrek/lib/spec/sdate.f
 

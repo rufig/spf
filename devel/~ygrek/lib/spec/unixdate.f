@@ -10,6 +10,12 @@ MODULE: FSL
  CR
 ;MODULE
 
+REQUIRE [UNDEFINED] lib/include/tools.f
+[UNDEFINED] WINAPI: [IF]
+REQUIRE TZ ~ygrek/lib/linux/timezone.f
+REQUIRE { lib/ext/locals.f
+[THEN]
+
 REQUIRE DateTime#GMT ~ac/lib/win/date/date-int.f
 REQUIRE /TEST ~profit/lib/testing.f
 

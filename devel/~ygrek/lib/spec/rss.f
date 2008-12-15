@@ -128,7 +128,9 @@ PREVIOUS
 REQUIRE load-file ~profit/lib/bac4th-str.f
 
 \ для вывода Win кодировки в консоль
+[DEFINED] ANSI>OEM [IF]
 ' ANSI>OEM TO ANSI><OEM
+[THEN]
 
 : show ( node -- )
      >R
