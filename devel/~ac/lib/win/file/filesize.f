@@ -15,3 +15,6 @@ REQUIRE FIND-FILES       ~ac/lib/win/file/findfile.f
   id FindClose DROP
   data FREE DROP
 ;
+: FILENAME-SIZE ( addr u -- ud )
+  FILE-SIZEA THROW
+;
