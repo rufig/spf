@@ -3,6 +3,7 @@
 
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE /TEST ~profit/lib/testing.f
+REQUIRE WITH-CRIT ~ygrek/lib/sys/critical.f
 
 MODULE: logger
 
@@ -43,10 +44,12 @@ VECT LOG-WRITE ( a u -- )
 ' LOG-WRITE1 TO LOG-WRITE
 ' TRUE TO FILTER
 
+CREATE-CRIT LOGGER-LOCK
+
 : LOG ( `msg lvl `facil -- )
    TO f-u TO f-a
    TO level
-   FILTER IF ( a u ) LOG-WRITE ELSE 2DROP THEN ;
+   FILTER IF ( a u ) ['] LOG-WRITE LOGGER-LOCK WITH-CRIT ELSE 2DROP THEN ;
 
 ;MODULE
 
