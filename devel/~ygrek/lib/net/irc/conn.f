@@ -11,6 +11,7 @@ REQUIRE domain:port ~ygrek/lib/net/domain.f
 REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 REQUIRE RTRACE ~ygrek/lib/debug/rtrace.f
+REQUIRE logger ~ygrek/lib/log.f
 
 [DEFINED] WINAPI: [IF]
 REQUIRE NEW-CS ~pinka/lib/multi/critical.f 
@@ -61,8 +62,6 @@ TRUE VALUE ?LOGMSG
 : WITH-CS-CATCH ( xt cs -- ior ) >R R@ ENTER-CS CATCH R> LEAVE-CS ;
 : WITH-CS ( xt cs -- ) WITH-CS-CATCH THROW ;
 
-: ECHO ( a u -- ) TYPE CR ;
-
 : ?IOR ( ior -- ) ?DUP IF ." ior = " . CR RTRACE THEN ;
 
 \ --------------------------------------------------------
@@ -79,7 +78,7 @@ CREATE-CS lsock-cs
 EXPORT
 
 : irc-send ( a u -- )
-   ?LOGSEND IF 2DUP ." > " ECHO THEN
+   ?LOGSEND IF 2DUP " irc-send : {s}" slog::trace THEN
    LAMBDA{ socketline fsock WriteSocketLine THROW } lsock-cs WITH-CS-CATCH ?IOR ;
 
 : irc-str-send ( s -- ) DUP STR@ irc-send STRFREE ;
@@ -95,19 +94,20 @@ VECT ON-RECEIVE ( a u -- )
 
 \ FALSE - connection failed
 : (RECEIVE) ( -- ? )
+   S" (RECEIVE)" log::trace
    IRC-CONN::socketline fgets-catch 0= IF FALSE EXIT THEN 
    { s }
    s STR@ AT-RECEIVE 2DROP
-   \ CR ." RECEIVED : " s STR@ TYPE
-   s STR@ ['] ON-RECEIVE CATCH IF 2DROP S" Received data processing failed!" ECHO THEN
-   \  ." RECEIVED done" CR
+   s STR@ " (RECEIVE) : {s}" slog::trace
+   s STR@ ['] ON-RECEIVE CATCH IF 2DROP S" Received data processing failed!" log::warn THEN
+   S" (RECEIVE) done" log::trace
    s STRFREE 
    TRUE ;
 
 :NONAME ( x -- )
   DROP
   BEGIN
-   (RECEIVE) FALSE = IF CR ." CONNECTION FAILED. EXITING..." BYE THEN
+   (RECEIVE) FALSE = IF S" CONNECTION FAILED. EXITING..." log::info BYE THEN
   AGAIN
   ; TASK: SimpleReceiveTask
 
@@ -130,7 +130,7 @@ VECT ON-RECEIVE ( a u -- )
   AT-CONNECT ;
 
 : SAY-MSG ( a u a1 u1 a2 u2 -- )
-   ?LOGSAY IF 2>R 2OVER 2OVER nickname STR@ " {s} ({s}): {s}" DUP STR@ ECHO STRFREE 2R> THEN
+   ?LOGSAY IF 2>R 2OVER 2OVER nickname STR@ " {s} ({s}): {s}" slog::trace 2R> THEN
    " {s} {s} :{s}" irc-str-send ;
 
 0 VALUE current-msg
@@ -147,7 +147,9 @@ VECT ON-RECEIVE ( a u -- )
 \ ответить в контекст общения нотисом
 : S-NOTICE-REPLY ( a u -- ) current-msg-target S-NOTICE-TO ;
 
+: STR-SAY DUP STR@ S-SAY STRFREE ;
 : STR-REPLY DUP STR@ S-REPLY STRFREE ;
+: STR-SAY-TO { s a u -- } s STR@ a u S-SAY-TO s STRFREE ;
 
 : S-JOIN ( a u -- ) 2DUP >STR current! " JOIN {s}" irc-str-send ;
 : S-QUIT ( a u -- ) " QUIT :{s}" irc-str-send ;
@@ -161,16 +163,17 @@ COMMAND: QUIT
 
 : PONG ( a u -- ) " PONG {s}" irc-str-send ;
 
-: SHOW-MSG current-msg-text current-msg-sender " {s}: {s}" DUP STR@ ECHO STRFREE ;
+: SHOW-MSG current-msg-text current-msg-sender " {s}: {s}" STYPE CR ;
 
 : AT-CLOSE ... ;
 
 : CLOSE ( -- )
+    S" CLOSE" log::trace
     S" Need hot code reload." S-QUIT
     IRC-CONN::socketline fclose
 
-    AT-CLOSE 
-    ." CLOSE DONE" CR ;
+    AT-CLOSE
+    S" CLOSE DONE" log::trace ;
 
 \ -----------------------------------------------------------------------
 
@@ -183,9 +186,9 @@ MODULE: VOC-IRC-COMMAND
 
 MODULE: VOC-IRC-COMMAND-NOTFOUND
 
-: NOTFOUND 
-  \ ." VOC-IRC-COMM NOTFOUND" CR 2DUP TYPE CR
-  2DROP -1 THROW ;
+: NOTFOUND ( a u -- )
+  " VOC-IRC-COMMAND-NOTFOUND {s}" slog::trace
+  -1 THROW ;
 
 ;MODULE
 
@@ -194,8 +197,8 @@ MODULE: VOC-IRC-COMMAND-NOTFOUND
 \ ..: AT-RECEIVE 2DUP TYPE ;..
 
 : DEFAULT-ON-RECEIVE ( a u -- )
-   ." DEFAULT-ON-RECEIVE" CR
-   2DUP MAKE-IRC-MSG 0= IF FREE-IRC-MSG CR ." BAD MESSAGE : " TYPE EXIT THEN
+   S" DEFAULT-ON-RECEIVE" log::trace
+   MAKE-IRC-MSG 0= IF FREE-IRC-MSG " BAD MESSAGE : {s}" slog::warn EXIT THEN
    { msg }
 
    msg TO current-msg
@@ -203,13 +206,13 @@ MODULE: VOC-IRC-COMMAND-NOTFOUND
    ONLY VOC-IRC-COMMAND
    ALSO VOC-IRC-COMMAND-NOTFOUND
    msg irc-msg-cmd
-   ." EVALUATE goes : " 2DUP TYPE CR
-   \ 2DUP ." evaluating : " 2DUP SWAP . . TYPE CR
-   ['] EVALUATE CATCH IF 2DROP THEN
-   ." EVALUATE done" CR
+   2DUP " EVALUATE goes : {s}" slog::trace
+   ( a u ) ['] EVALUATE CATCH IF 2DROP THEN
+   S" EVALUATE done" log::trace
    SET-ORDER
    0 TO current-msg
-   msg FREE-IRC-MSG ;
+   msg FREE-IRC-MSG 
+   S" DEFAULT-ON-RECEIVE done" log::trace ;
 
 ' DEFAULT-ON-RECEIVE TO ON-RECEIVE
 
