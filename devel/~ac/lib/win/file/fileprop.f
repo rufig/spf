@@ -25,14 +25,23 @@ REQUIRE ftLastWriteTime ~ac/lib/win/file/findfile-r.f
   THEN RDROP
   /WIN32_FIND_DATA >CELLS 1+ RFREE
 ; 
-: (GET-FILETIME-WRITE-S) ( 0 0 addr u data -- filetime )
+: (FILENAME-FILETIME) ( 0 0 addr u data -- filetime )
+  ftCreationTime 2@ SWAP 2>R
+  2DROP 2DROP ( убрали addr u и 0 0 )
+  2R>
+;
+: FILENAME-FILETIME ( addr u -- filetime ) \ UTC
+  0 0 2SWAP ['] (FILENAME-FILETIME) FOR-FILE1-PROPS
+;
+: (FILENAME-FILETIME-WRITE) ( 0 0 addr u data -- filetime )
   ftLastWriteTime 2@ SWAP 2>R
   2DROP 2DROP ( убрали addr u и 0 0 )
   2R>
 ;
-: GET-FILETIME-WRITE-S  ( addr u -- filetime ) \ UTC
-  0 0 2SWAP ['] (GET-FILETIME-WRITE-S) FOR-FILE1-PROPS
+: FILENAME-FILETIME-WRITE ( addr u -- filetime ) \ UTC
+  0 0 2SWAP ['] (FILENAME-FILETIME-WRITE) FOR-FILE1-PROPS
 ;
+: GET-FILETIME-WRITE-S FILENAME-FILETIME-WRITE ;
 
 \EOF
 filetime.f
