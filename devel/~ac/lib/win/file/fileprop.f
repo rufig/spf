@@ -33,15 +33,15 @@ REQUIRE ftLastWriteTime ~ac/lib/win/file/findfile-r.f
 : FILENAME-FILETIME ( addr u -- filetime ) \ UTC
   0 0 2SWAP ['] (FILENAME-FILETIME) FOR-FILE1-PROPS
 ;
-: (FILENAME-FILETIME-WRITE) ( 0 0 addr u data -- filetime )
+: (FILENAME-FILETIME-W) ( 0 0 addr u data -- filetime )
   ftLastWriteTime 2@ SWAP 2>R
   2DROP 2DROP ( убрали addr u и 0 0 )
   2R>
 ;
-: FILENAME-FILETIME-WRITE ( addr u -- filetime ) \ UTC
-  0 0 2SWAP ['] (FILENAME-FILETIME-WRITE) FOR-FILE1-PROPS
+: FILENAME-FILETIME-W ( addr u -- filetime ) \ UTC
+  0 0 2SWAP ['] (FILENAME-FILETIME-W) FOR-FILE1-PROPS
 ;
-: GET-FILETIME-WRITE-S FILENAME-FILETIME-WRITE ;
+: GET-FILETIME-WRITE-S FILENAME-FILETIME-W ;
 
 \EOF
 filetime.f
