@@ -5,6 +5,7 @@
 REQUIRE ENTER-CRIT ~ygrek/lib/sys/critical.f
 REQUIRE { lib/ext/locals.f
 REQUIRE list ~ygrek/lib/list/core.f
+REQUIRE /TEST ~profit/lib/testing.f
 
 \ multi-threaded queue
 MODULE: mtq
@@ -15,19 +16,28 @@ MODULE: detail
 CELL -- lock
 CELL -- avail \ TODO: event
 CELL -- data
+CELL -- last \ last node in data
 CONSTANT /Q
 
-: (put) { x q -- }
-  x q data @ list::cons q data !
-  TRUE q avail ! ;
-
 {{ list
-: (get) { q -- x -1 | 0 }
-   q data @ list::empty? IF FALSE EXIT THEN
-   q data @ DUP car SWAP FREE-NODE
-   q data @ cdr q data !
+: (put) { x q -- }
+  x () cons ( l )
+  q data @ empty?
+  IF
+    DUP q data ! q last !
+  ELSE
+    q last @ OVER LINK-NODE ( l ) q last !
+  THEN
+  TRUE q avail ! 
+  ;
 
-   q data @ empty? 0= q avail ! 
+: (get) ( q -- x -1 | 0 ) 
+   { q | l }
+   q data @ -> l
+   l list::empty? IF FALSE EXIT THEN
+   l DUP car SWAP FREE-NODE
+   l cdr q data !
+   l empty? 0= q avail ! 
 
    TRUE ;
 }}
@@ -51,23 +61,39 @@ EXPORT
 
 : get { q -- x }
   BEGIN
-   BEGIN q avail @ 0 = WHILE 10 PAUSE REPEAT
+   BEGIN q avail @ 0 = WHILE 10 PAUSE REPEAT \ TODO: wait on event here
 
    q ['] (get) q lock @ WITH-CRIT
   UNTIL ;
 
 : get? { q -- x -1 | 0 } q ['] (get) q lock @ WITH-CRIT ;
 
+\ ~pinka/lib/lambda.f
+\ : size ( q -- n ) LAMBDA{ data @ list::length } OVER lock @ WITH-CRIT ;
+
 \ : clear ;
 
 ;MODULE
 ;MODULE
 
-\EOF
+/TEST
 
-new-q VALUE q
-100 q put
-200 q put
-300 q put
+REQUIRE HEAP-GLOBAL ~pinka/spf/mem.f
+THREAD-HEAP @
+HEAP-GLOBAL \ need global heap for this lib to work correctly
 
-q get?
+ALSO mtq
+
+new VALUE q
+
+:NONAME HEAP-GLOBAL 10 0 ?DO DUP I + q put 1 PAUSE LOOP DROP ; TASK: producer
+:NONAME HEAP-GLOBAL DROP BEGIN q get . AGAIN ; TASK: consumer
+
+100 producer START DROP
+200 producer START DROP
+300 producer START DROP
+\ q size .
+
+0 consumer START DROP
+
+HEAP-ID! \ restore THREAD-HEAP (or crash in RECEIVE-WITH-XT on SPF/Win32)
