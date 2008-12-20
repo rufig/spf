@@ -3,6 +3,9 @@
 : XT, ( xt -- )
   COMPILE,
 ;
+: T-LIT ( x -- | x )
+  POSTPONE LITERAL
+;
 : T-SLIT ( addr u -- | addr u )
   POSTPONE SLITERAL
 ;
@@ -10,3 +13,4 @@
   STATE @ IF XT, EXIT THEN
   EXECUTE
 ;
+: T-EXEC T-XT ;
