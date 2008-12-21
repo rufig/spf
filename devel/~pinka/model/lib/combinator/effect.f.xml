@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ASCII" ?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 2007-2008 -->
+<!-- $Id$ -->
+
+<def name="EXECUTE-EFFECT" ds=" i*x xt -- j*x n ">
+  SP@ >R EXECUTE R> SP@ - 1 CELLS /
+  <rem>hint: DEPTH </rem>
+</def>
+
+<def name="EXECUTE-BALANCED(+1)" ds=" xt -- x ">
+  EXECUTE-EFFECT 1 EQ <unless> -5010 THROW </unless>
+</def>
+
+</forth>

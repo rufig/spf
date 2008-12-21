@@ -7,6 +7,7 @@
 FORTH-WORDLIST PUSH-DEVELOP <rem> to the main system wordlist </rem>
 <include href="lib/string/match.f.xml" />
 <include href="lib/string/match-white.f.xml"/>
+<include href="lib/combinator/effect.f.xml"/>
 DROP-DEVELOP
 
 <include href="data/list-plain.f.xml" />

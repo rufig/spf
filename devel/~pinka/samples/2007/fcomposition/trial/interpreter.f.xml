@@ -3,6 +3,7 @@
 
 <g xml:base="http://forth.org.ru/~pinka/model/data/">
 
+  <include href="../lib/combinator/effect.f.xml"/>
   <include href="../trans/numbers.f.xml"/>
 
   <include href="list-plain.f.xml"/>
