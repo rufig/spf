@@ -3,16 +3,22 @@ REQUIRE rss.items-new=> ~ygrek/lib/spec/rss.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 REQUIRE [IF] lib/include/tools.f
-REQUIRE ltcreate ~ygrek/lib/multi/msg.f
-REQUIRE GET-TIME-ZONE ~ac/lib/win/date/timezone.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
-REQUIRE UTF>WIN ~ygrek/lib/iconv.f
+REQUIRE UTF8> ~ac/lib/lin/iconv/iconv.f
+\ REQUIRE UTF>WIN ~ygrek/lib/iconv.f
+REQUIRE mtq ~ygrek/lib/multi/queue.f
+REQUIRE logger ~ygrek/lib/log.f
+REQUIRE list-make ~ygrek/lib/list/make.f
+REQUIRE list-ext ~ygrek/lib/list/ext.f
 
-GET-TIME-ZONE
 ALSO libxml2.dll
-: nodeText-s node@ ?DUP IF 1 xmlNodeGetContent ASCIIZ> UTF>WIN ELSE "" THEN ;
+ALSO libxml2.so.2
+: nodeText-s node@ ?DUP IF 1 xmlNodeGetContent ASCIIZ> UTF8> 2DUP >STR NIP SWAP FREE THROW ELSE "" THEN ;
 PREVIOUS
+PREVIOUS
+
+\ : STR-SAY STYPE CR ;
 
 MODULE: bot_plugin_rss
 
@@ -25,10 +31,9 @@ MODULE: bot_plugin_rss
 
 : timestamp>pad Num>DateTime DateTime>PAD ;
 
-: write-number ( stamp a u -- )
-    2>R S>D <# #S #> 2R> OCCUPY ;
+: write-number ( stamp a u -- ) 2>R S>D <# #S #> 2R> OCCUPY ;
 
-\ remove double-slashes - bug in fforum
+\ remove double-slashes - (not a) bug in fforum rss
 : normalize-link ( s -- s )
    DUP " //" " /" replace-str-
    DUP " http:/" " http://" replace-str- ;
@@ -38,9 +43,9 @@ MODULE: bot_plugin_rss
 \ : S-SAY CR TYPE ; : ECHO S-SAY ; : ON-CONNECT ... ;
 \ [THEN]
 
-: +TZ ( stamp -- stamp+tz ) TZ Bias @ 60 * + ;
+: +TZ ( stamp -- stamp+tz ) TZ @ 60 * + ;
 
-\ sorry fr ugly code
+\ sorry for ugly code
 : my-date ( stamp -- a u )
     DUP TIME&DATE DateTime>Num +TZ - ABS 6 60 * <
     IF
@@ -74,13 +79,13 @@ MODULE: bot_plugin_rss
    S" title" node nodeText-s -> title
    S" creator" node nodeText-s hide-email -> author
    node rss.item.timestamp my-date
-   " [{s}] {$author} -- {$title}" DUP STR@ S-SAY STRFREE
+   " [{s}] {$author} -- {$title}" STR-SAY
    author STRFREE
    title STRFREE
-   S" link" node nodeText-s DUP STR@ S-SAY STRFREE ;
+   S" link" node nodeText-s STR-SAY ;
 
 : process-and-stamp-rss=> ( stamp-a stamp-u data-a data-u -- node )
-    \ S" Checking forum..." ECHO
+    S" Checking xml..." log::trace
     2SWAP 2DUP read-number >R
     2OVER rss.items-newest DUP IF -ROT write-number ELSE DROP 2DROP THEN
     R>
@@ -94,7 +99,7 @@ MODULE: bot_plugin_rss
       rss.items-new=> DUP rss.item.timestamp ONTRUE \ не обяз. т.к. если stamp=0 то new не пропустит!
        CONT
      }EMERGE
-    \ S" Forum checked" ECHO
+    S" xml checked" log::trace
     ;
 
 : print-rss { node -- }
@@ -116,29 +121,15 @@ DEFINITIONS
 : seconds 1000 * ;
 : minutes 60 * seconds ;
 
-0 VALUE rss-checker-lt
-0 VALUE rss-getter-lt
-
+0 [IF]
 : new-pack ( -- pack ) "" ;
 : pack-n ( n pack -- ) >R SP@ CELL " {s}" R> S+ DROP ;
 : pack-au ( a u pack -- ) >R SP@ CELL " {s}{s}" R> S+ ;
-
-: unpack-n ( addr -- addr' n )
-  DUP CELL+ SWAP @ ;
-
-: unpack-au ( addr -- addr' a u )
-   unpack-n 2DUP + -ROT ;
-
-: >msg-lt-rss ( a1 u1 a u -- s )
-   new-pack >R
-   R@ pack-au
-   R@ pack-au
-   R> ;
-
-: msg-lt-rss> ( a u -- a u a1 u1 )
-   DROP
-   unpack-au ROT
-   unpack-au ROT DROP ;
+: unpack-n ( addr -- addr' n ) DUP CELL+ SWAP @ ;
+: unpack-au ( addr -- addr' a u ) unpack-n 2DUP + -ROT ;
+: >msg-lt-rss ( a1 u1 a u -- s ) new-pack >R R@ pack-au R@ pack-au R> ;
+: msg-lt-rss> ( a u -- a u a1 u1 ) DROP unpack-au ROT unpack-au ROT DROP ;
+[THEN]
 
 : url-to-filename ( s -- s )
     DUP " /" " _" replace-str-
@@ -146,67 +137,53 @@ DEFINITIONS
     DUP " ?" " _" replace-str-
     DUP " &" " _" replace-str- ;
 
-: rss-getter-get { msg | pack typ filename }
-     \ S" rss get" ECHO
-     msg msg.data DROP TO pack
-     pack
-     unpack-au 2DUP ECHO 2DUP " {s}" url-to-filename TO filename
-     ROT unpack-n NIP TO typ
-     ( a u ) " {s}" >R R@ STR@ GET-FILE R> STRFREE \ DUP STR@ S" qua" TO-FILE
+0 VALUE rss-checker-q
+
+: rss-getter-get ( a u -- )
+     2DUP " rss get {s}" slog::trace
+     2DUP >STR url-to-filename { filename }
+     ( a u ) >STR >R R@ STR@ GET-FILE R> STRFREE \ DUP STR@ S" qua" TO-FILE
      \ 2DROP S" 3.xml" FILE " {s}"
-     DUP STR@ filename STR@ >msg-lt-rss STR@ typ rss-checker-lt ltsend
-         STRFREE
-     \ S" rss-getter done" ECHO
+     ( s ) %[ % filename % ]% rss-checker-q mtq::put
+     S" rss-getter done" log::trace
      ;
 
+0 VALUE getter-q
+
 :NONAME
+ S" rss-getter" log_thread
  DROP
  BEGIN
-   ltreceive
-   DUP ['] rss-getter-get CATCH ?DUP IF . S" rss-getter failed !" ECHO DROP THEN
-   FREE-MSG
- AGAIN
- ; VALUE rss-getter
+   getter-q mtq::get
+   DUP STR@ rss-getter-get
+       STRFREE
+ AGAIN ; TASK: rss-getter
 
-:NONAME { | url typ pause pack }
-  DROP
+:NONAME { x | url pause }
+  S" rss-submitter" log_thread
   1 minutes PAUSE
-  ltreceive
-  msg.data DROP
-  unpack-au " {s}" TO url
-  unpack-n TO typ
-  unpack-n TO pause
-  DROP
+  x list::car TO url
+  x list::cdar TO pause   
   BEGIN
-   new-pack TO pack
-   url STR@ pack pack-au
-   typ pack pack-n
-   pack STR@ 0 rss-getter-lt ltsend
-   pack STRFREE
+   url STR@ >STR getter-q mtq::put
    pause PAUSE
   AGAIN
-  ; VALUE submitter
+  ; TASK: submitter
 
 :NONAME
+  S" rss-checker" log_thread
   DROP
   BEGIN
-   LAMBDA{
-     \ my-msgbox-size CR ." My msgbox size : " .
-     ltreceive
+     rss-checker-q mtq::get
      >R
        \ R@ msg.type 1 = IF
-       R@ msg.data msg-lt-rss> process-rss-forum
+       S" rss-checker awaken" log::trace
+       R@ list::cdar STR@ R@ list::car STR@ process-rss-forum
        \ THEN
        \ R@ msg.type 0 = IF R@ msg.data msg-lt-rss> process-rss-general THEN
-     R>
-     FREE-MSG
-   }
-   CATCH ?DUP IF . S" rss-checker failed !" ECHO BYE THEN
+     R> ['] STRFREE list::free-with
   AGAIN
-; VALUE rss-checker
-
-0 VALUE lt
-0 VALUE pack
+; TASK: rss-checker
 
 : fforum-url S" http://fforum.winglion.ru/rss.php?c=10" ;
 
@@ -215,44 +192,25 @@ EXPORT
 \ -----------------------------------------------------------------------
 
 ..: AT-CONNECT
-  0 rss-checker ltcreate TO rss-checker-lt
-  0 rss-getter ltcreate TO rss-getter-lt
+  mtq::new TO rss-checker-q
+  mtq::new TO getter-q
+
+  0 rss-getter START DROP
+  0 rss-checker START DROP
 
 \ ограничим сообщения с форума только на время онлайна бота
-TIME&DATE DateTime>Num fforum-url " {s}" url-to-filename STR@ write-number
+TIME&DATE DateTime>Num fforum-url >STR url-to-filename STR@ write-number
 
-0 submitter ltcreate TO lt
-new-pack TO pack
-fforum-url pack pack-au
-1 pack pack-n
-5 minutes pack pack-n
-pack STR@ 0 lt ltsend
+%[ fforum-url >STR % 5 minutes % ]% submitter START DROP
+%[ " http://sourceforge.net/export/rss2_projnews.php?group_id=17919" % 6 60 * minutes % ]% submitter START DROP
+%[ " http://wiki.forth.org.ru/RecentChanges?format=rss" % 60 minutes % ]% submitter START DROP
+%[ " http://my.opera.com/forth/xml/rss/blog" % 30 minutes % ]% submitter START DROP
 
-0 submitter ltcreate TO lt
-new-pack TO pack
-S" http://sourceforge.net/export/rss2_projnews.php?group_id=17919" pack pack-au
-1 pack pack-n
-6 60 * minutes pack pack-n
-pack STR@ 0 lt ltsend
-
-0 submitter ltcreate TO lt
-new-pack TO pack
-S" http://wiki.forth.org.ru/RecentChanges?format=rss" pack pack-au
-1 pack pack-n
-45 minutes pack pack-n
-pack STR@ 0 lt ltsend
-
-0 submitter ltcreate TO lt
-new-pack TO pack
-S" http://my.opera.com/forth/xml/rss/blog" pack pack-au
-1 pack pack-n
-30 minutes pack pack-n
-pack STR@ 0 lt ltsend
-  ;..
+;..
 
 ;MODULE
 
-$Revision$ " -- RSS plugin {s} loaded." DUP STR@ ECHO STRFREE
+$Revision$ " -- RSS plugin {s} loaded." STYPE CR
 
 \ -----------------------------------------------------------------------
 

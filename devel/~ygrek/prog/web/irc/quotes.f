@@ -11,6 +11,7 @@ REQUIRE 2VALUE ~ygrek/lib/2value.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
 REQUIRE ATTACH ~pinka/samples/2005/lib/append-file.f
 REQUIRE ms@ lib/include/facil.f
+REQUIRE logger ~ygrek/lib/log.f
 
 MODULE: quotes
 
@@ -50,7 +51,7 @@ EXPORT
   }EMERGE
   ]%
   TO quotes
-  quotes-total quotes-file " Quotes reloaded from '{s}'. Total {n}" log::info ;
+  quotes-total quotes-file " Quotes reloaded from '{s}'. Total {n}" slog::info ;
 
 : type-quotes ( -- ) quotes list::each-> STR@ CR TYPE ;
 
@@ -63,6 +64,8 @@ DEFINITIONS
 
 EXPORT
 
+\ do not delete return strings, copy if necessary
+
 : random-quote ( -- s ) quotes list-random-quote node>s ;
 : quote[] ( n -- s ) quotes list::nth node>s ;
 
@@ -70,7 +73,7 @@ EXPORT
    \ " .*{s}.*" DUP STR@ BUILD-REGEX TO re STRFREE
    " *{s}*" TO re
    %[ quotes LAMBDA{ DUP STR@ re STR@ ULIKE IF % ELSE DROP THEN } list::iter ]%
-   DUP list-random-quote node>s SWAP ['] STRFREE list::free-with
+   DUP list-random-quote node>s SWAP list::free \ don't free strings, they belong to another list
    re STRFREE ;
 
 : register-quote ( quote-au author-au -- )

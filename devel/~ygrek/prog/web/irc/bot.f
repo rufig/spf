@@ -20,6 +20,7 @@ REQUIRE #N## ~ac/lib/win/date/date-int.f
 \ REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
 \ REQUIRE CURLOPT! ~ac/lib/lin/curl/curlopt.f
 REQUIRE logger ~ygrek/lib/log.f
+REQUIRE OSNAME-STR ~ygrek/lib/sys/osname.f
 
 ' ACCEPT1 TO ACCEPT \ disables autocompletion if present ;)
 
@@ -84,9 +85,12 @@ MODULE: BOT-COMMANDS
 : !info !help ;
 
 : !version
+    OSNAME-STR { s }
+    s STR@
     CVS-DATE
     CVS-REVISION
-    " IRC bot in SP-Forth (http://spf.sf.net). Rev. {s} ({s})" STR-REPLY
+    " IRC bot in SP-Forth (http://spf.sf.net). Rev. {s} ({s}). OS: {s}" STR-REPLY
+    s STRFREE
      ;
 
 ;MODULE

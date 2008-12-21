@@ -23,6 +23,7 @@ list::nil VALUE names-list
 : MEMORIZE-NAMES ( a u -- ) break-string-to-list names-list list::concat TO names-list ;
 
 :NONAME { pause }
+  S" names-request-sender" log_thread
   BEGIN
    pause PAUSE
    current-channel " NAMES {s}" irc-str-send

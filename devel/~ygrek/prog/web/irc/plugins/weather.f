@@ -1,6 +1,7 @@
 \ $Id$
 \ погода от http://www.gismeteo.ru
 
+REQUIRE HEAP-ID ~pinka/spf/mem.f
 REQUIRE XSLT ~ac/lib/lin/xml/xslt.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
 REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
@@ -12,18 +13,23 @@ REQUIRE FINE-HEAD ~pinka/samples/2005/lib/split-white.f
 REQUIRE UPPERCASE ~ac/lib/string/uppercase.f
 REQUIRE %[ ~ygrek/lib/list/all.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
+REQUIRE list-ext ~ygrek/lib/list/ext.f
+REQUIRE logger ~ygrek/lib/log.f
+REQUIRE mtq ~ygrek/lib/multi/queue.f
 
 ( testing
 0 VALUE ?check
-: S-REPLY DUMP ;
-: message-sender S" dsds" ;
-: ECHO CR TYPE ;
+: S-REPLY TYPE CR ;
+: STR-REPLY STYPE CR ;
+: STR-SAY STYPE CR ;
+: current-msg-sender S" dsds" ;
 : AT-CONNECT ... ;
 \ )
 
 MODULE: bot_plugin_gismeteo
 
 0 VALUE h
+0 VALUE q_
 
 : SKIP-NAME PARSE-NAME 2DROP ;
 
@@ -50,17 +56,33 @@ MODULE: bot_plugin_gismeteo
    THEN
    load-city-codes ;
 
-: find-city-code ( a u -- a u ) " {s}" DUP STR@ UPPERCASE DUP STR@ h HASH@ ROT STRFREE ;
+: find-city-code ( a u -- a u ) >STR DUP STR@ UPPERCASE DUP STR@ h HASH@ ROT STRFREE ;
 
 %[
-  %[ " мск" %s " Москва" %s ]%l
-  %[ " спб" %s " Санкт-Петербург" %s ]%l
-  %[ " нск" %s " Новосибирск" %s ]%l
+  %[ " мск" % " Москва" % ]% %
+  %[ " спб" % " Санкт-Петербург" % ]% %
+  %[ " нск" % " Новосибирск" % ]% %
 ]% VALUE short-cities
 
 : short-city ( a u -- a1 u1 )
-   LAMBDA{ car car STR@ 2OVER COMPARE 0= } short-cities scan-list
-   IF car cdar STR@ 2SWAP 2DROP ELSE DROP THEN ;
+   short-cities LAMBDA{ list::car STR@ 2OVER COMPARE 0= } list::find
+   IF list::cdar STR@ 2SWAP 2DROP ELSE DROP THEN ;
+
+:NONAME 
+  S" weather-getter" log_thread
+  HEAP-GLOBAL
+  DROP { | l }
+  BEGIN
+   q_ mtq::get -> l
+   l list::car STR@ " http://informer.gismeteo.ru/xml/{s}_1.xml" >R
+   R@ STR@ S" plugins/frc3.xsl" XSLT ( a u )
+   R> STRFREE
+   FINE-HEAD
+   l list::cdar STR@ l list::cddar STR@ " {s}: погода в городе {s} {s}" STR-SAY
+   S" BUG: MEMORY LEAK - NEED XSLT FREE" log::debug
+   l ['] STRFREE list::free-with
+  AGAIN
+ ; TASK: getter
 
 EXPORT
 
@@ -77,14 +99,8 @@ MODULE: BOT-COMMANDS
     DUP 0= IF 2DROP BOT-COMMANDS-HELP::!weather EXIT THEN
     short-city
     2DUP find-city-code
-    DUP 0= IF 2DROP 2DROP message-sender " {s}: Нет такого города!" DUP STR@ S-REPLY STRFREE EXIT THEN
-    " http://informer.gismeteo.ru/xml/{s}_1.xml" >R
-    R@ STR@ S" plugins/frc3.xsl" XSLT ( a u )
-    R> STRFREE
-    FINE-HEAD
-    2SWAP
-    message-sender " {s}: погода в городе {s} {s}" DUP STR@ S-REPLY STRFREE
-    S" BUG: MEMORY LEAK - NEED XSLT FREE" ECHO
+    DUP 0= IF 2DROP 2DROP current-msg-sender " {s}: Нет такого города!" STR-REPLY EXIT THEN
+    %[ >STR % >STR % current-msg-sender >STR % ]% q_ mtq::put
     TRUE TO ?check
 ;
 : !п !weather ;
@@ -93,11 +109,11 @@ MODULE: BOT-COMMANDS
 
 ;MODULE
 
-..: AT-CONNECT large-hash TO h load-gismeteo-city-codes ;..
+..: AT-CONNECT large-hash TO h mtq::new TO q_ 0 getter START DROP load-gismeteo-city-codes ;..
 
 ;MODULE
 
-$Revision$ " -- gismeteo weather plugin {s} loaded." DUP STR@ ECHO STRFREE
+$Revision$ " -- gismeteo weather plugin {s} loaded." STYPE CR
 
 \ -----------------------------------------------------------------------
 
