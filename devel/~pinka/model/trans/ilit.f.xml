@@ -5,7 +5,7 @@
 
 <def name="I-DLIT" ds=" a u -- x x true | a u false ">
   DUP <unless> FALSE <exit/></unless>
-  2DUP <text>-</text> MATCH-HEAD >R
+  2DUP `-  MATCH-HEAD >R
   DUP <unless> NIP RDROP <exit/></unless>
   0 0 2SWAP >NUMBER NIP <if> RDROP 2DROP FALSE <exit/></if>
   R> <if> DNEGATE </if> 2SWAP 2DROP TRUE
@@ -24,13 +24,13 @@
 <def name="I-HLIT-FORM" ds=" a u -- x true | a u false ">
   `0x MATCH-HEAD  <unless> FALSE <exit/></unless>
   BASE @ >R HEX I-LIT R> BASE !
-  <if> TRUE <exit/></if> 2 CLEFT+ FALSE
+  <if> TRUE <exit/></if> 2 CHARS TUCK + >R - R> FALSE
 </def>
 
 <def name="I-SLIT-FORM" ds=" a u -- a2 u2 true | a u false ">
-  DUP 2 CHARS ULT            <if> FALSE <exit/></if>
-  <text>`</text> MATCH-HEAD  <unless> FALSE <exit/></unless>
-  <!-- CARBON --> TRUE
+  DUP 2 CHARS ULT <if> FALSE <exit/></if>
+  ``  MATCH-HEAD  <unless> FALSE <exit/></unless>
+  TRUE <!-- the substring resides at the same location -->
 </def>
 
 </forth>
