@@ -35,9 +35,10 @@ CONSTANT /Q
    { q | l }
    q data @ -> l
    l list::empty? IF FALSE EXIT THEN
-   l DUP car SWAP FREE-NODE
-   l cdr q data !
-   l empty? 0= q avail ! 
+   l car
+   l cdr l FREE-NODE -> l
+   l q data !
+   l empty? 0= q avail !
 
    TRUE ;
 }}
@@ -79,7 +80,7 @@ EXPORT
 /TEST
 
 REQUIRE HEAP-GLOBAL ~pinka/spf/mem.f
-THREAD-HEAP @
+HEAP-ID
 HEAP-GLOBAL \ need global heap for this lib to work correctly
 
 ALSO mtq
