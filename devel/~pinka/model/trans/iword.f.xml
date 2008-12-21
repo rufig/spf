@@ -3,6 +3,8 @@
 <!-- Nov.2006, Jan.2007 ruvim@forth.org.ru -->
 <!-- see also ~pinka/samples/2006/syntax/readmy.txt  -->
 
+<rem> This file is no longer used! </rem>
+
 <comment> Interpreter of the words and numbers for spf4/forthml
 (see ~pinka/spf/forthml/ttext-index.f.xml)
 </comment>

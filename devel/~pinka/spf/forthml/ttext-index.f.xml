@@ -13,10 +13,16 @@ DROP-DEVELOP
 
 <g xml:base="trans/">
 
-<include href="tcode.f.xml"  />
-<cell name="STATE" />
+<def name="I-NATIVE" ds=" c-addr u -- xt true | c-addr u false ">
+  2DUP >R >R
+  SFIND DUP 1 EQ <unless> RDROP RDROP <exit/></unless>
+  DROP DUP GET-COMPILER? NIP <if> TRUE RDROP RDROP <exit/></if>
+  DROP R> R> FALSE <!-- won't find immediate words -->
+</def>
+
+<include href="ilit.f.xml" />
+<include href="tcode.f.xml" />
 <include href="ttoken.f.xml" />
-<include href="iword.f.xml" />
 <include href="ttext.f.xml" />
 <include href="txml.f.xml" />
 
