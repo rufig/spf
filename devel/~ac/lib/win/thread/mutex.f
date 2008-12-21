@@ -16,7 +16,7 @@ REQUIRE WinNT?        ~ac/lib/win/winver.f
   IF
     CreateEveryoneACL ?DUP			\ создать ACL для группы Everyone
     IF
-      NIP " ACL: {n}" TYPE CR			\ не получилось - поругаться в основной лог
+      NIP " ACL: {n}" STYPE CR			\ не получилось - поругаться в основной лог
     ELSE
       OVER @ SetObjectACL DROP			\ задать права доступа к мутексу
     THEN
