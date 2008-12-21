@@ -17,6 +17,8 @@
 
   <include href="core.L4.f.xml"/>
   <include href="core.L5.f.xml"/>
+  
+  <include href="char.L1.f.xml"/>
 
   <include href="ds.L2.f.xml"/>
 

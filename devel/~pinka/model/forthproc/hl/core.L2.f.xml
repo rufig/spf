@@ -6,9 +6,8 @@
 </comment>
 
 <!--
-  0< /CELL /CHAR  LSHIFT  RSHIFT
+  0< /CELL LSHIFT  RSHIFT
   /CELL-DEGREE
-  /CHAR-DEGREE
 -->
 
 <def name="ABS" ds=" n -- +n "> DUP 0LT <if> NEGATE </if></def>
@@ -35,9 +34,6 @@
 <def name="CELL+" ds=" n -- n "> /CELL + </def>
 <def name="CELL-" ds=" n -- n "> /CELL - </def>
 
-<def name="CHAR+" ds=" n -- n "> /CHAR + </def>
-<def name="CHAR-" ds=" n -- n "> /CHAR - </def>
-
 <def name="2!" ds=" d a -- "> SWAP OVER ! CELL+ ! </def>
 <def name="2@" ds=" a -- d "> DUP CELL+ @ SWAP @ </def>
 
@@ -52,14 +48,6 @@
 
 <def name=">CELLS" ds=" u1 -- u2 ">
   /CELL-DEGREE RSHIFT
-</def>
-
-<def name="CHARS" ds=" u1 -- u2 ">
-  /CHAR-DEGREE LSHIFT 
-</def>
-
-<def name=">CHARS" ds=" u1 -- u2 ">
-  /CHAR-DEGREE RSHIFT 
 </def>
 
 </forth>

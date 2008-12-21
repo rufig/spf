@@ -38,14 +38,4 @@
   >R SWAP R@ NEQ <if> RDROP 2DROP FALSE <exit/></if> R> (EQUAL)
 </def>
 
-<def name="SEARCH" ds=" a1 u1 a-key u-key -- a2 u3 true | a1 u1 false ">
-  2OVER ROT SWAP <rem> ( a1 u1  a-key a1 u-key u1 ) </rem>
-  <repeat>
-  2DUP UGT <if> 2DROP 2DROP FALSE <exit/></if>
-  >R >R 2DUP R@ (EQUAL) <if> >R DROP 2DROP R>  RDROP R> TRUE <exit/></if>
-  <rem> ( a1 u1  a-key a3 ) (R: u3 u-key ) </rem>
-  CHAR+ R> R> CHAR-
-  </repeat>
-</def>
-
 </forth>

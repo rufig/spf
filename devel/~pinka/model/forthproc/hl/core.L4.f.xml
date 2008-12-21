@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<!--
-  /CHAR C@
--->
 
 <def name="2+" ds=" addr -- ">  2 + </def>
 <def name="2-" ds=" addr -- "> -2 + </def>
@@ -14,7 +11,6 @@
 <def name="CELL+!" ds=" addr -- "> /CELL        SWAP +! </def>
 <def name="CELL-!" ds=" addr -- "> /CELL NEGATE SWAP +! </def>
 
-<def name="COUNT" ds=" b -- b +n "> DUP /CHAR + SWAP C@ </def>
 
 <def name="WITHIN" ds=" u ul uh -- t "><!-- ul <= u < uh -->
   OVER - >R - R> ULT
