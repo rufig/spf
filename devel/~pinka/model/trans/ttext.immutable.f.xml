@@ -11,6 +11,8 @@
   I-LIT       <if> T-LIT  <exit/></if>
   I-HLIT-FORM <if> T-LIT  <exit/></if>
   I-DLIT-FORM <if> T-2LIT <exit/></if>
+  I-QUOTED-FORM <if> T-LIT <exit/></if>
+  I-CLIT-FORM <if> T-LIT <exit/></if>
   CR TYPE CR -321 THROW
 </def>
 

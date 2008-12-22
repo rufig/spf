@@ -19,4 +19,13 @@
   NIP NIP TRUE
 </def>
 
+<def name="I-QUOTED-FORM" ds=" c-addr u -- xt true | c-addr u false ">
+<rem> 'DUP </rem>
+  DUP 2 CHARS ULT <if> FALSE <exit/></if>
+  `' MATCH-HEAD <unless> FALSE <exit/></unless>
+  I-NATIVE  <if> TRUE <exit/></if>
+  I-QNATIVE <if> TRUE <exit/></if>
+  1 CHARS TUCK + >R - R> FALSE
+</def>
+
 </forth>

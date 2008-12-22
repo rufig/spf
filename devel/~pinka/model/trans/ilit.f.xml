@@ -33,4 +33,12 @@
   TRUE <!-- the substring resides at the same location -->
 </def>
 
+<def name="I-CLIT-FORM" ds=" a u -- char true | a u false ">
+<rem> 'A' </rem>
+  DUP 3 CHARS EQ <unless> FALSE <exit/></unless>
+  OVER C@  <char>'</char> EQ <unless> FALSE <exit/></unless>
+  OVER 2 CHARS + C@ <char>'</char> EQ <unless> FALSE <exit/></unless>
+  DROP CHAR+ C@ TRUE
+</def>
+
 </forth>
