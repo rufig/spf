@@ -23,3 +23,5 @@
   + VAL в lib\parsing\number.f
   ~ lib\strings\msg.f исправлен размер поля /msgRecord
   + lib\strings\spf.msg добавлено для тестирования msg.f
+\ 22.12.2008
+  + ECATCH FROM в lib\util\useful.f

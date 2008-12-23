@@ -102,6 +102,21 @@
 \ исполнить код, адрес которого находится в ячейке памяти по addr
 : PERFORM ( addr --> ) @ EXECUTE ;
 
+\ получить значение VECT переменной
+: FROM ( / name --> cfa )
+       ' 0x05 +
+       STATE @ IF LIT, POSTPONE @
+                ELSE @
+               THEN ; IMMEDIATE
+
+\ поймать исключение без сообщения об ошибке
+: ECATCH ( xt --> err )
+         FROM <EXC-DUMP> >R
+         ['] NOOP TO <EXC-DUMP>
+         CATCH
+         R> TO <EXC-DUMP> ;
+
+
 \ то же что и : только имя приходит на вершине стека данных
 \ в виде строки со счетчиком. Пример:  S" name" S: код слова ;
 ?DEFINED S: : S: ( asc # --> ) SHEADER ] HIDE ;
@@ -115,5 +130,8 @@
 ?DEFINED test{ \EOF -- тестовая секция ---------------------------------------
 
 test{ \ тут просто проверка на собираемость.
+    VECT ZZZZ  ' DROP TO ZZZZ
+    : test1 FROM ZZZZ ['] DROP <> ; test1 THROW
+    : test2 ['] @ CATCH ;  12345 DUP HERE ! HERE test2 THROW <> THROW
   S" passed" TYPE
 }test
