@@ -34,3 +34,17 @@
 : TASK: ( xt "name" -- )
   TASK CONSTANT
 ;
+
+VARIABLE WINAPLINK 	 
+\ Хоть WINAPLINK и виндовое имя, но ERASE-IMPORTS портабельное слово,
+\ используется при dll-xt.f/so-xt.f-стиле подключения dll/so.
+	  	 
+: ERASE-IMPORTS 	 
+\ обнуление адресов импортируемых процедур 	 
+  WINAPLINK 	 
+  BEGIN 	 
+    @ DUP 	 
+  WHILE 	 
+    DUP 4 CELLS - 0! 	 
+  REPEAT DROP 	 
+;
