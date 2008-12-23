@@ -87,6 +87,7 @@ CR .( FIXME test return result of sigaction)
 ;
 
 : PROCESS-INIT ( n -- )
+  ERASE-IMPORTS
   dl-init
   ['] dl-no-symbol  TO symbol-not-found-error
   ['] dl-no-library TO library-not-found-error
