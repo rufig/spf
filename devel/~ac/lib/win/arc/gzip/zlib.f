@@ -55,7 +55,7 @@ WINAPI: zlibVersion zlib1.dll
   Z_OK = IF 2R> ELSE 2R> DROP FREE THROW S" " THEN
 ;
 : zlib_uncompress ( addr u -- addr2 u2 )
-  SWAP OVER 2000 100 */
+  SWAP OVER 10000 100 */
   DUP ALLOCATE THROW DUP >R SWAP >R
   RP@ SWAP
   uncompress >R 2DROP 2DROP R>
