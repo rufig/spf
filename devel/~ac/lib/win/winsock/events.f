@@ -39,6 +39,8 @@ VECT vNoneventSocket?
   DROP FALSE
 ; ' NoneventSocket?1 TO vNoneventSocket?
 
+: ReadSocketB ReadSocket ; \ старая (блокирующая) версия
+
 : ReadSocket ( addr u s -- rlen ior )
   DUP vNoneventSocket? IF ReadSocket GetTickCount uLastSocketRead ! EXIT THEN
   uSocketEvent @ 0= IF
