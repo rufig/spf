@@ -29,7 +29,7 @@ REQUIRE /OSVERSIONINFO lib/win/osver.f
   S" /proc/sys/kernel/ostype" cat 
   S" /proc/sys/kernel/osrelease" cat OVER S+
   SWAP IF S" /proc/sys/kernel/version" cat OVER S+ THEN
-  DUP " {EOLN}" "  " replace-str- ;
+  DUP EOLN >STR "  " replace-str- ;
 
 : OSNAME-STR FALSE uname ;
 
