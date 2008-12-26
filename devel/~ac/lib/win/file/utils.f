@@ -276,6 +276,17 @@ VARIABLE CurDir
   R> ( filename )
   CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
 ;
+: CREATE-FILE-RSHARED-DELETE-ON-CLOSE-NI ( c-addr u fam -- fileid ior )
+  SWAP DROP SWAP >R >R
+  0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
+    FILE_FLAG_DELETE_ON_CLOSE OR
+  CREATE_ALWAYS
+  0 ( secur )
+  1 ( share read )
+  R> ( access=fam )
+  R> ( filename )
+  CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
+;
 : DELETE-FD ( addr u data flag -- )
   NIP
   IF DELETE-DIRECTORY THROW
