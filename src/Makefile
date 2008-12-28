@@ -16,5 +16,5 @@ install: spf4
 	cp spf4 ..
 
 clean:
-	rm spf4.o
+	rm -f spf4.o
 	make -C posix clean
