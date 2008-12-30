@@ -22,6 +22,35 @@ Extends SPF.IDispatch
   Но базовая реализация в com_server2.f годится для применения по наследованию.
 )
 
+\ (30.12.08 fixme)
+\ перед вызовом WindowsClosing Windows запрашивает у IWebBrowserEvents2 интерфейс IDispatch
+\ (вместо того же IWebBrowserEvents2 во всех остальных событиях)
+\ поэтому придется переопределить здесь ::QueryInterface для этого случая - возвращать не IDispatch,
+\ а наследуемый от него IWebBrowserEvents2.
+: ::QueryInterface ( ppvObject iid oid - hresult )
+  SP@ 12 + S0 !
+  COM-DEBUG @ IF Class. SPACE THEN
+  OVER 0= IF 2DROP DROP E_NOINTERFACE EXIT THEN \ ну, мало ли...
+  DUP (AddRef) DROP
+  2DUP ComClassIID 16 SWAP 16 COMPARE 0= IF NIP SWAP ! 0 EXIT THEN \ и так этот интерфейс
+  OVER 16 IID_IUnknown 16 COMPARE 0= 
+          IF COM-DEBUG @ IF ." QI:Unknown," THEN 2DROP SPF.IUnknown SWAP ! 0 EXIT THEN
+  OVER 16 IID_IClassFactory 16 COMPARE 0= 
+          IF COM-DEBUG @ IF ." QI:IClassFactory," THEN 2DROP vSPF.Application SWAP ! 0 EXIT THEN
+  OVER 16 IID_IDispatch 16 COMPARE 0= 
+          IF COM-DEBUG @ IF ." QI:IDispatch," THEN 2DROP SPF.IWebBrowserEvents2 SWAP ! 0 EXIT \ !!!
+          THEN
+  OVER 16 vSPF.Application Class 16 COMPARE 0= 
+          IF COM-DEBUG @ IF ." QI:IForth," THEN 2DROP vSPF.Application SWAP ! 0 EXIT THEN
+  COM-DEBUG @ IF ." QI:EXT:" THEN
+  OVER CLSID>String THROW UNICODE>
+  SFIND IF ( ppvObject iid oid ) EXECUTE EXIT THEN \ для нереализованных здесь интерфейсов
+  COM-DEBUG @ IF TYPE ." ;" ELSE 2DROP THEN
+  (Release) DROP
+  DROP 0!
+  E_NOINTERFACE
+; METHOD
+
 \ Обработчики событий браузера (ниже) вызываются из IDispatch::Invoke по числовому ID
 \ Параметры заботливо переведены им из variant'ов к форт-виду :)
 
@@ -130,6 +159,13 @@ ID: DISPID_NEWWINDOW2                   251
    ." NewWindow2: idisp=" . ." cancel=" . 
    ELSE DropXtParams THEN
 ;
+ID: DISPID_WINDOWCLOSING                263           \ sent before script window.close closes the window 
+   COM-DEBUG @ IF 
+   ." WindowClosing: isChild=" . ." cancel=" .
+   ELSE DropXtParams THEN
+   BYE
+;
+
 ID: DISPID_WINDOWSETHEIGHT              267           \ sent when the put_height method is called on the WebOC 
    COM-DEBUG @ IF 
    ." SetHeight:" .
