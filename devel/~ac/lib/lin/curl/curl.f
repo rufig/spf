@@ -14,13 +14,16 @@ ALSO SO NEW: libcurl.dll
 ALSO SO NEW: libcurl.so.3
 
 \ Global libcurl initialization
+\ ~ac 01.01.2008: эта инициализация с каждой следующей версией curl
+\ тормошит всё больше дополнительных dll (на сегодняшний день уже пять),
+\ поэтому лучше оставить возможность отложить или отменить инициализацию,
+\ как было раньше, а для совместимости сделаем CURL-GLOBAL-INIT вектором.
 
 VARIABLE CURL-ERR
 
 : (CURL-GLOBAL-INIT) CURL_GLOBAL_ALL 1 curl_global_init THROW ;
-: CURL-GLOBAL-INIT ['] (CURL-GLOBAL-INIT) CATCH CURL-ERR !
-\  ?DUP IF DUP 126 = IF DROP ELSE THROW THEN THEN
-;
+: CURL-GLOBAL-INIT1 ['] (CURL-GLOBAL-INIT) CATCH CURL-ERR ! ;
+VECT CURL-GLOBAL-INIT ' CURL-GLOBAL-INIT1 TO CURL-GLOBAL-INIT
 ..: AT-PROCESS-STARTING CURL-GLOBAL-INIT ;..
 CURL-GLOBAL-INIT
 
@@ -29,6 +32,9 @@ USER-VALUE CURL-MAX-SIZE
 
 USER uCurlRes
 
+: CURL-VERSION ( -- addr u )
+  0 curl_version ASCIIZ>
+;
 :NONAME { stream nmemb size ptr \ asize ti -- stream nmemb size ptr size*nmemb }
   TlsIndex@ -> ti stream TlsIndex!
   size nmemb * -> asize
