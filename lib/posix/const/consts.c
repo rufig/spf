@@ -16,6 +16,7 @@
 #include <pthread.h>
 #include <sys/socket.h>
 #include <linux/in.h>
+#include <sys/syscall.h>
 
 int test()
 {
@@ -68,6 +69,7 @@ void define_consts()
   DEFINE( O_RDWR)
   DEFINE( O_SYNC)
   DEFINE( O_NONBLOCK)
+  DEFINE( O_EXCL)
 
   // pthread_mutex_t
   CONST( SIZEOF_PTHREAD_MUTEX_T, sizeof(pthread_mutex_t))
@@ -86,6 +88,15 @@ void define_consts()
   CONST( OFFSETOF_SIN_PORT, offsetof(struct sockaddr_in, sin_port))
   CONST( OFFSETOF_SIN_ADDR, offsetof(struct sockaddr_in, sin_addr))
   CONST( OFFSETOF_SIN_FAMILY, offsetof(struct sockaddr_in, sin_family))
+
+  // lockf
+  DEFINE( F_LOCK)
+  DEFINE( F_TLOCK)
+  DEFINE( F_TEST)
+  DEFINE( F_ULOCK)
+
+  // syscall numbers
+  DEFINE( SYS_gettid) // linux-specific
 }
 
 int main()
