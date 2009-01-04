@@ -16,6 +16,9 @@ DUP 8 1024 * - CONSTANT IMAGE-BASE \ адрес загрузки первой секции
 VARIABLE RESOURCES-RVA
 VARIABLE RESOURCES-SIZE
 
+VARIABLE EXPORTS-RVA
+VARIABLE EXPORTS-SIZE
+
 HEX
 
 : SAVE ( c-addr u -- ) \ например S" My Forth Program.exe" SAVE
@@ -37,6 +40,8 @@ HEX
   2 HERE 086 + W!
   RESOURCES-RVA @ HERE 108 + !
   RESOURCES-SIZE @ HERE 10C + !
+  EXPORTS-RVA @ HERE F8 + !
+  EXPORTS-SIZE @ HERE FC + !
   HERE 1C8 + 38 ERASE
 
   HERE 400 R@ WRITE-FILE THROW ( заголовок и таблица импорта )
