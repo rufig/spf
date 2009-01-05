@@ -19,6 +19,13 @@
 \ приложения по GetModuleHandle(NULL), и потом 
 \ ищет наш applink по GetProcAddress(h,"OPENSSL_Applink").
 
+: Linux? PLATFORM S" Linux" COMPARE 0= ;
+: SkipOnLinux Linux? IF \EOF THEN ;
+: OnLinux: Linux? 0= IF POSTPONE \ THEN ; IMMEDIATE
+: OnWindows: Linux?  IF POSTPONE \ THEN ; IMMEDIATE
+
+SkipOnLinux
+
 REQUIRE STR@                  ~ac/lib/str5.f
 REQUIRE /ExportDirectoryTable ~ac/lib/win/pe/pe_export.f 
  

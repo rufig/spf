@@ -7,7 +7,7 @@
 \ См. RFC2314, RFC2311
 
 \ Сработает только при запуске из exe, экспортирующих OPENSSL_Applink,
-\ см. applink.f
+\ см. applink.f. Под Linux applink не нужен, используются временные файлы.
 
 REQUIRE STR@            ~ac/lib/str5.f
 REQUIRE SO              ~ac/lib/ns/so-xt.f
@@ -17,6 +17,7 @@ REQUIRE OPENSSL_Applink ~ac/lib/lin/openssl/applink.f
 ALSO SO NEW: libssl32.dll
 ALSO SO NEW: libeay32.dll
 ALSO SO NEW: libssl.so.0.9.8
+ALSO SO NEW: libc.so.6
 
 :NONAME ( *arg n p -- ) { \ c }
 \ openssl использует эту функцию для визуализации процесса генерации ключа
@@ -61,7 +62,10 @@ ALSO SO NEW: libssl.so.0.9.8
 \ можно напрямую использовать h-stdout из ~ac/lib/win/file/crt.f 
 \ но более универсальным путем экспорта запроса сертификата будет сборка str5-строки, а не файла,
 \ виртуальный apilink-io в openssl дает нам возможность его "обмануть", подсунув tlsindex вместо хэндла
-  TlsIndex@ -> stdout
+\ На Linux applink не используется.
+
+  OnWindows: TlsIndex@ -> stdout
+  OnLinux:   S" w" DROP H-STDOUT 2 fdopen -> stdout
 
   "" ap_str ! 
   req stdout 2 PEM_write_X509_REQ DROP ap_str @
@@ -73,7 +77,7 @@ ALSO SO NEW: libssl.so.0.9.8
   req stdout 2 X509_REQ_print_fp DROP ap_str @
 ;
 
-PREVIOUS PREVIOUS PREVIOUS
+PREVIOUS PREVIOUS PREVIOUS PREVIOUS
 
 \EOF
 
