@@ -24,13 +24,13 @@
 : OnLinux: Linux? 0= IF POSTPONE \ THEN ; IMMEDIATE
 : OnWindows: Linux?  IF POSTPONE \ THEN ; IMMEDIATE
 
+USER ap_str \ вместо stdout-файла используем строку
+
 SkipOnLinux
 
 REQUIRE STR@                  ~ac/lib/str5.f
 REQUIRE /ExportDirectoryTable ~ac/lib/win/pe/pe_export.f 
  
-USER ap_str \ вместо stdout-файла используем строку
-
 :NONAME ." app_stdin," 0 ; 0 CELLS CALLBACK: al_app_stdin
 :NONAME ." app_stdout," 0 ; 0 CELLS CALLBACK: al_app_stdout
 :NONAME ." app_stderr," 0 ; 0 CELLS CALLBACK: al_app_stderr
