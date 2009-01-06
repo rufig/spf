@@ -30,6 +30,7 @@ SkipOnLinux
 
 REQUIRE STR@                  ~ac/lib/str5.f
 REQUIRE /ExportDirectoryTable ~ac/lib/win/pe/pe_export.f 
+REQUIRE CRT_WSTREAM           ~ac/lib/win/file/crt.f 
  
 :NONAME ." app_stdin," 0 ; 0 CELLS CALLBACK: al_app_stdin
 :NONAME ." app_stdout," 0 ; 0 CELLS CALLBACK: al_app_stdout

@@ -7,17 +7,18 @@
 \ См. RFC2314, RFC2311
 
 \ Сработает только при запуске из exe, экспортирующих OPENSSL_Applink,
-\ см. applink.f. Под Linux applink не нужен, используются временные файлы.
+\ см. applink.f, либо при использовании libeay.dll, скомпилированного без
+\ applink. Под Linux applink не нужен, используются временные файлы.
 
 REQUIRE STR@            ~ac/lib/str5.f
 REQUIRE SO              ~ac/lib/ns/so-xt.f
 REQUIRE RSA_F4          ~ac/lib/lin/openssl/x509h.f
 REQUIRE OPENSSL_Applink ~ac/lib/lin/openssl/applink.f
 
-ALSO SO NEW: libssl32.dll
 ALSO SO NEW: libeay32.dll
 ALSO SO NEW: libssl.so.0.9.8
 ALSO SO NEW: libc.so.6
+ALSO SO NEW: msvcrt.dll
 
 :NONAME ( *arg n p -- ) { \ c }
 \ openssl использует эту функцию для визуализации процесса генерации ключа
@@ -34,12 +35,8 @@ ALSO SO NEW: libc.so.6
 : X509AddNameEntry { va vu na nu name -- }
   0 -1 -1 va MBSTRING_ASC na name 7 X509_NAME_add_entry_by_txt DROP
 ;
-: X509MkReq { cna cnu ea eu oua ouu oa ou la lu ca cu \ pk req rsa name stdout -- str_req str_pkey str_print }
+: X509MkReq { cna cnu ea eu oua ouu oa ou la lu ca cu \ pk req rsa name -- req pk }
 \ Создать запрос X.509-сертификата в формате PKCS #10 с заданными параметрами субъекта
-\ и вернуть его строчное представление str_req " -----BEGIN CERTIFICATE REQUEST-----[...]" (в формате PEM)
-\ для передачи в подписывающий CA,
-\ а также str_pkey - закрытый ключ в формате PEM "-----BEGIN RSA PRIVATE KEY-----[...]" для подписей,
-\ и str_print
 
   0 EVP_PKEY_new -> pk
   0 X509_REQ_new -> req
@@ -58,6 +55,13 @@ ALSO SO NEW: libc.so.6
   cna cnu S" CN"           name X509AddNameEntry \ commonName
 
   0 EVP_md5 pk req 3 X509_REQ_sign DROP
+  req pk
+;
+: X509Req2PEM_al { req pk \ stdout -- str_req str_pkey str_print }
+\ Экспортировать строчное представление str_req " -----BEGIN CERTIFICATE REQUEST-----[...]" (в формате PEM)
+\ для передачи в подписывающий CA,
+\ а также str_pkey - закрытый ключ в формате PEM "-----BEGIN RSA PRIVATE KEY-----[...]" для подписей,
+\ и str_print
 
 \ можно напрямую использовать h-stdout из ~ac/lib/win/file/crt.f 
 \ но более универсальным путем экспорта запроса сертификата будет сборка str5-строки, а не файла,
@@ -65,7 +69,7 @@ ALSO SO NEW: libc.so.6
 \ На Linux applink не используется.
 
   OnWindows: TlsIndex@ -> stdout
-  OnLinux:   S" w" DROP H-STDOUT 2 fdopen -> stdout
+  OnLinux: S" w" DROP H-STDOUT 2 fdopen -> stdout
 
   "" ap_str ! 
   req stdout 2 PEM_write_X509_REQ DROP ap_str @
@@ -77,6 +81,27 @@ ALSO SO NEW: libc.so.6
   req stdout 2 X509_REQ_print_fp DROP ap_str @
 ;
 
+: X509Req2PEM { req f -- }
+  req f 2 PEM_write_X509_REQ DROP
+;
+: X509Pk2PEM { pk f -- }
+  0 0 0 0 0 pk f 7 PEM_write_PrivateKey DROP
+;
+: X509Peq2TXT { req f -- }
+  req f 2 X509_REQ_print_fp DROP
+;
+: X2PEMs { x addr u xt \ f -- a2 u2 }
+  S" w" DROP addr 2 fopen -> f
+  x f xt EXECUTE
+  f 1 fclose DROP
+  addr u FILE
+;
+: X509ExpReq { req pk addr u -- reqa requ pkeya pkeyu printa printu } \ без applink
+  req addr u " {s}.req"     STR@ ['] X509Req2PEM X2PEMs
+  pk  addr u " {s}.pk"      STR@ ['] X509Pk2PEM  X2PEMs
+  req addr u " {s}_req.txt" STR@ ['] X509Peq2TXT X2PEMs
+;
+
 PREVIOUS PREVIOUS PREVIOUS PREVIOUS
 
 \EOF
@@ -85,7 +110,10 @@ PREVIOUS PREVIOUS PREVIOUS PREVIOUS
 \  CRYPTO_MEM_CHECK_ON 1 CRYPTO_mem_ctrl DROP
 \  BIO_NOCLOSE h-stderr 2 BIO_new_fp -> bio_err
 
-  S" Eserv Admin" S" admin@firm.tld" S" IT" S" Company" S" City" S" RU" X509MkReq
-  STYPE CR STYPE CR STYPE CR
+\  S" Eserv Admin" S" admin@firm.tld" S" IT" S" Company" S" City" S" RU" X509MkReq X509Req2PEM_al
+\  STYPE CR STYPE CR STYPE CR
 
-; TEST
+  S" Eserv Admin" S" admin@firm.tld" S" IT" S" Company" S" City" S" RU" X509MkReq S" server" X509ExpReq
+  TYPE CR TYPE CR TYPE CR
+
+; \ TEST
