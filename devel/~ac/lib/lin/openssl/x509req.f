@@ -88,7 +88,7 @@ ALSO SO NEW: msvcrt.dll
 : X509Pk2PEM { pk f -- }
   0 0 0 0 0 pk f 7 PEM_write_PrivateKey DROP
 ;
-: X509Peq2TXT { req f -- }
+: X509Req2TXT { req f -- }
   req f 2 X509_REQ_print_fp DROP
 ;
 : X2PEMs { x addr u xt \ f -- a2 u2 }
@@ -100,7 +100,7 @@ ALSO SO NEW: msvcrt.dll
 : X509ExpReq { req pk addr u -- reqa requ pkeya pkeyu printa printu } \ без applink
   req addr u " {s}.req"     STR@ ['] X509Req2PEM X2PEMs
   pk  addr u " {s}.pk"      STR@ ['] X509Pk2PEM  X2PEMs
-  req addr u " {s}_req.txt" STR@ ['] X509Peq2TXT X2PEMs
+  req addr u " {s}_req.txt" STR@ ['] X509Req2TXT X2PEMs
 ;
 
 PREVIOUS PREVIOUS PREVIOUS PREVIOUS
