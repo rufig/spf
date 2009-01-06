@@ -33,10 +33,11 @@ ALSO SO NEW: msvcrt.dll
 ; 3 CELLS CALLBACK: _rsa_gk_cb
 
 : X509AddNameEntry { va vu na nu name -- }
-  0 -1 -1 va MBSTRING_ASC na name 7 X509_NAME_add_entry_by_txt DROP
+  0 -1 -1 va MBSTRING_UTF8 na name 7 X509_NAME_add_entry_by_txt DROP
 ;
 : X509MkReq { cna cnu ea eu oua ouu oa ou la lu ca cu \ pk req rsa name -- req pk }
 \ Создать запрос X.509-сертификата в формате PKCS #10 с заданными параметрами субъекта
+\ При использовании не-ascii-символов входные строки должны быть в UTF8.
 
   0 EVP_PKEY_new -> pk
   0 X509_REQ_new -> req
