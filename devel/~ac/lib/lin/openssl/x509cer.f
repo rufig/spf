@@ -58,7 +58,7 @@ ALSO libssl.so.0.9.8
 \  cna cnu " http://{s}/CaPolicy.html" STR@ NID_netscape_ca_policy_url x X509AddExt
 \  cna cnu " http://{s}/CaAuth.crl" STR@ NID_netscape_revocation_url x X509AddExt
 
-  0 EVP_md5 pk x 3 X509_sign DROP
+  0 EVP_sha1 pk x 3 X509_sign DROP
   x pk
 ;
 : X509Cert2PEM { x f -- }

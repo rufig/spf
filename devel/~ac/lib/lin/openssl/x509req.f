@@ -66,7 +66,7 @@ VARIABLE RSA_GK \ установить в true, если нужнен "progress bar" при создании клю
   ea eu   S" emailAddress" name X509AddNameEntry \ emailAddress
   cna cnu S" CN"           name X509AddNameEntry \ commonName
 
-  0 EVP_md5 pk req 3 X509_REQ_sign DROP
+  0 EVP_sha1 pk req 3 X509_REQ_sign DROP
   req pk
 ;
 : X509Req2PEM { req f -- }
