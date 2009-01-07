@@ -21,6 +21,7 @@ MBSTRING_FLAG 1 OR CONSTANT MBSTRING_ASC
  82 CONSTANT NID_subject_key_identifier
  83 CONSTANT NID_key_usage
  87 CONSTANT NID_basic_constraints       \ "basicConstraints" "X509v3 Basic Constraints"
+ 90 CONSTANT NID_authority_key_identifier
 103 CONSTANT NID_crl_distribution_points \ "crlDistributionPoints" "X509v3 CRL Distribution Points"
 126 CONSTANT NID_ext_key_usage		
 
