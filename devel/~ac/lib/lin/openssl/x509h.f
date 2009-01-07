@@ -13,6 +13,23 @@ MBSTRING_FLAG 1 OR CONSTANT MBSTRING_ASC
 
 20 CONSTANT /SHA_DIGEST_LENGTH
 
+87 CONSTANT NID_basic_constraints
+83 CONSTANT NID_key_usage
+126 CONSTANT NID_ext_key_usage		
+82 CONSTANT NID_subject_key_identifier
+71 CONSTANT NID_netscape_cert_type
+78 CONSTANT NID_netscape_comment
+
+(
+129 CONSTANT NID_server_auth   \ "serverAuth"
+130 CONSTANT NID_client_auth   \ "clientAuth"
+131 CONSTANT NID_code_sign     \ "codeSigning"
+132 CONSTANT NID_email_protect \ "emailProtection"
+133 CONSTANT NID_time_stamp    \ "timeStamping"
+134 CONSTANT NID_ms_code_ind   \ "msCodeInd" "Microsoft Individual Code Signing"
+135 CONSTANT NID_ms_code_com   \ "msCodeCom" "Microsoft Commercial Code Signing"
+)
+
 \ typedef struct ASN1_ENCODING_st
 0
 CELL -- ae.enc	\ DER encoding
@@ -97,3 +114,22 @@ CELL --	X509.*rfc3779_asid
 /SHA_DIGEST_LENGTH -- X509.sha1_hash
 CELL --	X509.*aux
 CONSTANT /X509
+
+\ typedef struct X509_extension_st
+0
+CELL -- X509e.*object
+CELL -- X509e.critical
+CELL -- X509e.*value
+CONSTANT /X509_EXTENSION
+
+\ struct v3_ext_ctx 
+0
+CELL -- X509c.flags
+CELL -- X509c.*issuer_cert
+CELL -- X509c.*subject_cert
+CELL -- X509c.*subject_req
+CELL -- X509c.*crl
+CELL -- X509c.*db_meth
+CELL -- X509c.*db
+\ * Maybe more here */
+CONSTANT /X509V3_CTX

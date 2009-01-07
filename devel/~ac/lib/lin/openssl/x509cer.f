@@ -3,6 +3,17 @@ REQUIRE X509Pk2PEM ~ac/lib/lin/openssl/x509req.f
 ALSO libeay32.dll
 ALSO libssl.so.0.9.8
 
+: X509AddExt { va vu nid x \ ex ctx -- }
+  /X509V3_CTX ALLOCATE THROW -> ctx
+  ctx X509c.*db 0! \ #define X509V3_set_ctx_nodb(ctx) (ctx)->db = NULL;
+	\ * Issuer and subject certs: both the target since it is self signed, no request and no CRL */
+  0 0 0 x x ctx 6 X509V3_set_ctx DROP
+  va nid ctx 0 4 X509V3_EXT_conf_nid DUP . -> ex
+  ex 0= IF EXIT THEN
+  -1 ex x 3 X509_add_ext DROP
+  ex 1 X509_EXTENSION_free DROP
+;
+
 : X509MkCert { cna cnu ea eu oua ouu oa ou la lu ca cu serial days \ pk x rsa name -- x pk }
 \ Создать запрос X.509-сертификата в формате PKCS #10 с заданными параметрами субъекта
 \ При использовании не-ascii-символов входные строки должны быть в UTF8.
@@ -31,6 +42,14 @@ ALSO libssl.so.0.9.8
   cna cnu S" CN"           name X509AddNameEntry \ commonName
 
   name x 2 X509_set_issuer_name DROP \ самоподпись
+
+  S" critical,CA:TRUE,pathlen:10" NID_basic_constraints x X509AddExt
+  S" critical,keyCertSign,cRLSign" NID_key_usage x X509AddExt
+  S" hash" NID_subject_key_identifier x X509AddExt
+  S" serverAuth,clientAuth" NID_ext_key_usage x X509AddExt
+  \ * Some Netscape specific extensions */
+  S" sslCA" NID_netscape_cert_type x X509AddExt
+  S" Self signed certificate for Eserv SSL/TLS" NID_netscape_comment x X509AddExt
 
   0 EVP_md5 pk x 3 X509_sign DROP
   x pk
