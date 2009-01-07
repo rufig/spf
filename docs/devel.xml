@@ -103,6 +103,8 @@ Requirements :
 <lib><key>memoize:</key><src>~ygrek/lib/fun/memoize.f</src><comment><en>Memoize for (CELL -> CELL) functions</en><ru>Сохранение (кэширование) промежуточных значение при вызове функции вида (CELL -> CELL)</ru></comment><link rel="example" href="~ygrek/prog/fun/memoize.f" /></lib>
 <lib><key>CONT</key><src>~profit/lib/bac4th.f</src><comment><en>backtracking</en><ru>перебор с возвратами</ru></comment>  <link rel="doc" href="~mlg/index.html#bacforth">~mlg/index.html#bacforth</link></lib>
 <lib><key>axt=></key><src>~profit/lib/bac4th-closures.f</src><comment><en>Dynamically generated patches of code (closures)</en><ru>Динамически генерируемые отрезки кода (замыкания)</ru></comment></lib>
+<lib><key>AsQName</key><src>~pinka/samples/2006/syntax/qname.f</src><comment><en>Syntax extension: treat `string as S" string"</en><ru>Расширение синтаксиса: распознавание `строка как S" строка"</ru></comment></lib>
+<lib><key>AsQWord</key><src>~pinka/spf/quoted-word.f</src><comment><en>Syntax extension: 'c' is char code of c, 'word is xt of word, `string is S" string"</en><ru>Расширение синтаксиса: 'c' -- код символа c, 'word -- xt слова word, `string -- строка S" string"</ru></comment></lib>
 
 </section>
 
