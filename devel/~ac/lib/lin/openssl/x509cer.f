@@ -43,12 +43,17 @@ ALSO libssl.so.0.9.8
 
   name x 2 X509_set_issuer_name DROP \ самоподпись
 
-  S" critical,CA:TRUE,pathlen:10" NID_basic_constraints x X509AddExt
-  S" critical,keyCertSign,cRLSign" NID_key_usage x X509AddExt
+\  S" critical,CA:TRUE,pathlen:10" NID_basic_constraints x X509AddExt \ CA
+  S" critical,CA:FALSE" NID_basic_constraints x X509AddExt \ EE
+  S" critical,keyCertSign,cRLSign,digitalSignature" NID_key_usage x X509AddExt
   S" hash" NID_subject_key_identifier x X509AddExt
   S" serverAuth,clientAuth" NID_ext_key_usage x X509AddExt
+  cna cnu " URI:http://{s}/CaAuth.crl" STR@ NID_crl_distribution_points x X509AddExt
   \ * Some Netscape specific extensions */
-  S" sslCA" NID_netscape_cert_type x X509AddExt
+\  S" sslCA" NID_netscape_cert_type x X509AddExt \ CA-сертификат обычно не ставят на сервер
+  cna cnu " http://{s}/CaPolicy.html" STR@ NID_netscape_ca_policy_url x X509AddExt
+  cna cnu " http://{s}/CaAuth.crl" STR@ NID_netscape_revocation_url x X509AddExt
+
   S" Self signed certificate for Eserv SSL/TLS" NID_netscape_comment x X509AddExt
 
   0 EVP_md5 pk x 3 X509_sign DROP

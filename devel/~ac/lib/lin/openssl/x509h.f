@@ -13,12 +13,16 @@ MBSTRING_FLAG 1 OR CONSTANT MBSTRING_ASC
 
 20 CONSTANT /SHA_DIGEST_LENGTH
 
-87 CONSTANT NID_basic_constraints
-83 CONSTANT NID_key_usage
+ 71 CONSTANT NID_netscape_cert_type
+ 73 CONSTANT NID_netscape_revocation_url \ "nsRevocationUrl" "Netscape Revocation Url"
+ 76 CONSTANT NID_netscape_ca_policy_url	 \ "nsCaPolicyUrl" "Netscape CA Policy Url"
+ 78 CONSTANT NID_netscape_comment
+
+ 82 CONSTANT NID_subject_key_identifier
+ 83 CONSTANT NID_key_usage
+ 87 CONSTANT NID_basic_constraints       \ "basicConstraints" "X509v3 Basic Constraints"
+103 CONSTANT NID_crl_distribution_points \ "crlDistributionPoints" "X509v3 CRL Distribution Points"
 126 CONSTANT NID_ext_key_usage		
-82 CONSTANT NID_subject_key_identifier
-71 CONSTANT NID_netscape_cert_type
-78 CONSTANT NID_netscape_comment
 
 (
 129 CONSTANT NID_server_auth   \ "serverAuth"
