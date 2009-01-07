@@ -76,14 +76,14 @@
     <xsl:choose>
         <xsl:when test="$lang='en'">
             <xsl:text>[</xsl:text>
-	        <a href="devel.ru.html">Russian</a>
+	        <a href="devel.ru.html">Русский</a>
     	    <xsl:text>] [</xsl:text>
     	    <a href="devel.en.html">English</a>
     	    <xsl:text>]</xsl:text>
         </xsl:when>
         <xsl:when test="$lang='ru'">
             <xsl:text>[</xsl:text>
-            <a href="devel.en.html">Английский</a>
+            <a href="devel.en.html">English</a>
             <xsl:text>] [</xsl:text>
             <a href="devel.ru.html">Русский</a>
             <xsl:text>]</xsl:text>
