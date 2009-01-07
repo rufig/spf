@@ -20,15 +20,26 @@ ALSO SO NEW: libssl.so.0.9.8
 ALSO SO NEW: libc.so.6
 ALSO SO NEW: msvcrt.dll
 
+: SSLeayUseApplink? ( -- flag )
+  2 1 SSLeay_version ASCIIZ> S" -DOPENSSL_USE_APPLINK" SEARCH NIP NIP
+;
+: SSLeayVersion ( -- addr u )
+  0 1 SSLeay_version ASCIIZ>
+;
+
+VARIABLE RSA_GK \ установить в true, если нужнен "progress bar" при создании ключа
+
 :NONAME ( *arg n p -- ) { \ c }
 \ openssl использует эту функцию для визуализации процесса генерации ключа
 \ можно этого не делать :)
-  [CHAR] B -> c
-  DUP 0 = IF [CHAR] . -> c THEN
-  DUP 1 = IF [CHAR] + -> c THEN
-  DUP 2 = IF [CHAR] * -> c THEN
-  DUP 3 = IF CR 0 -> c THEN
-  c IF c EMIT THEN
+  RSA_GK @ IF
+    [CHAR] B -> c
+    DUP 0 = IF [CHAR] . -> c THEN
+    DUP 1 = IF [CHAR] + -> c THEN
+    DUP 2 = IF [CHAR] * -> c THEN
+    DUP 3 = IF CR 0 -> c THEN
+    c IF c EMIT THEN
+  THEN
   0
 ; 3 CELLS CALLBACK: _rsa_gk_cb
 
@@ -58,30 +69,6 @@ ALSO SO NEW: msvcrt.dll
   0 EVP_md5 pk req 3 X509_REQ_sign DROP
   req pk
 ;
-: X509Req2PEM_al { req pk \ stdout -- str_req str_pkey str_print }
-\ Экспортировать строчное представление str_req " -----BEGIN CERTIFICATE REQUEST-----[...]" (в формате PEM)
-\ для передачи в подписывающий CA,
-\ а также str_pkey - закрытый ключ в формате PEM "-----BEGIN RSA PRIVATE KEY-----[...]" для подписей,
-\ и str_print
-
-\ можно напрямую использовать h-stdout из ~ac/lib/win/file/crt.f 
-\ но более универсальным путем экспорта запроса сертификата будет сборка str5-строки, а не файла,
-\ виртуальный apilink-io в openssl дает нам возможность его "обмануть", подсунув tlsindex вместо хэндла
-\ На Linux applink не используется.
-
-  OnWindows: TlsIndex@ -> stdout
-  OnLinux: S" w" DROP H-STDOUT 2 fdopen -> stdout
-
-  "" ap_str ! 
-  req stdout 2 PEM_write_X509_REQ DROP ap_str @
- 
-  "" ap_str !
-  0 0 0 0 0 pk stdout 7 PEM_write_PrivateKey DROP ap_str @
-
-  "" ap_str !
-  req stdout 2 X509_REQ_print_fp DROP ap_str @
-;
-
 : X509Req2PEM { req f -- }
   req f 2 PEM_write_X509_REQ DROP
 ;
@@ -102,6 +89,32 @@ ALSO SO NEW: msvcrt.dll
   pk  addr u " {s}.pk"      STR@ ['] X509Pk2PEM  X2PEMs
   req addr u " {s}_req.txt" STR@ ['] X509Req2TXT X2PEMs
 ;
+: X509Req2PEMstr { req pk \ stdout -- str_req str_pkey str_print }
+\ Экспортировать строчное представление str_req " -----BEGIN CERTIFICATE REQUEST-----[...]" (в формате PEM)
+\ для передачи в подписывающий CA,
+\ а также str_pkey - закрытый ключ в формате PEM "-----BEGIN RSA PRIVATE KEY-----[...]" для подписей,
+\ и str_print
+
+\ можно напрямую использовать h-stdout из ~ac/lib/win/file/crt.f 
+\ но более универсальным путем экспорта запроса сертификата будет сборка str5-строки, а не файла,
+\ виртуальный apilink-io в openssl дает нам возможность его "обмануть", подсунув tlsindex вместо хэндла
+\ На Linux applink не используется.
+
+\ на случай подключения dll без applink'а используем временные файлы:
+  SSLeayUseApplink? 0= IF req pk S" _noapplink_" X509ExpReq >STR >R >STR >R >STR R> R> EXIT THEN
+
+  OnWindows: TlsIndex@ -> stdout
+  OnLinux: S" w" DROP H-STDOUT 2 fdopen -> stdout
+
+  "" ap_str ! 
+  req stdout 2 PEM_write_X509_REQ DROP ap_str @
+ 
+  "" ap_str !
+  0 0 0 0 0 pk stdout 7 PEM_write_PrivateKey DROP ap_str @
+
+  "" ap_str !
+  req stdout 2 X509_REQ_print_fp DROP ap_str @
+;
 
 PREVIOUS PREVIOUS PREVIOUS PREVIOUS
 
@@ -111,7 +124,7 @@ PREVIOUS PREVIOUS PREVIOUS PREVIOUS
 \  CRYPTO_MEM_CHECK_ON 1 CRYPTO_mem_ctrl DROP
 \  BIO_NOCLOSE h-stderr 2 BIO_new_fp -> bio_err
 
-\  S" Eserv Admin" S" admin@firm.tld" S" IT" S" Company" S" City" S" RU" X509MkReq X509Req2PEM_al
+\  S" Eserv Admin" S" admin@firm.tld" S" IT" S" Company" S" City" S" RU" X509MkReq X509Req2PEMstr
 \  STYPE CR STYPE CR STYPE CR
 
   S" Eserv Admin" S" admin@firm.tld" S" IT" S" Company" S" City" S" RU" X509MkReq S" server" X509ExpReq

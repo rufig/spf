@@ -8,7 +8,7 @@ ALSO libssl.so.0.9.8
   ctx X509c.*db 0! \ #define X509V3_set_ctx_nodb(ctx) (ctx)->db = NULL;
 	\ * Issuer and subject certs: both the target since it is self signed, no request and no CRL */
   0 0 0 x x ctx 6 X509V3_set_ctx DROP
-  va nid ctx 0 4 X509V3_EXT_conf_nid DUP . -> ex
+  va nid ctx 0 4 X509V3_EXT_conf_nid -> ex
   ex 0= IF EXIT THEN
   -1 ex x 3 X509_add_ext DROP
   ex 1 X509_EXTENSION_free DROP
