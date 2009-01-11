@@ -54,6 +54,8 @@ REQUIRE EQUAL   ~pinka/spf/string-equal.f
 [UNDEFINED] 1-! [IF]
 : 1-! ( a -- ) -1 SWAP +! ; [THEN]
 
+[UNDEFINED] -! [IF]
+: -! ( x a -- ) >R NEGATE R> +! ; [THEN]
 
 [UNDEFINED] ALLOCATED [IF]
 : ALLOCATED ( u -- a u ) DUP ALLOCATE THROW SWAP ;
