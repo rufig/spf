@@ -15,9 +15,9 @@ VARIABLE DNS-COUNT
 : -s
   HERE DNS-SERVER ! BL WORD ", 0 ,
 ;
-: S, ( addr u -- )
-  HERE SWAP DUP ALLOT MOVE
-;
+\ : S, ( addr u -- )
+\   HERE SWAP DUP ALLOT MOVE
+\ ;
 : DNS,
   DNS-SERVERS @ 0= 
   IF HERE DNS-SERVERS ! 
