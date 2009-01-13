@@ -1,0 +1,2 @@
+?package(spforth4):needs="text" section="Applications/Programming"\
+  title="SP-Forth" command="spf4"

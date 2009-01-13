@@ -1,0 +1,10 @@
+spforth4 (4.19-1) unstable; urgency=low
+
+  * Initial release
+  * This is my first Debian package
+  * Adjusted the Makefile to install in $DESTDIR
+  * Use quilt
+  * +LibRootDirName 
+  * FIND-FULLNAME will correctly find installed spforth files
+
+ -- ygrek <ygrek@forth.org.ru>  Sun, 28 Dec 2008 16:43:18 +0200

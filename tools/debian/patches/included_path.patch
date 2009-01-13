@@ -1,0 +1,41 @@
+--- a/src/compiler/spf_translate.f
++++ b/src/compiler/spf_translate.f
+@@ -277,7 +277,7 @@
+ : FIND-FULLNAME1 ( a1 u1 -- a u )
+   2DUP FILE-EXIST IF EXIT THEN
+   2DUP +LibraryDirName  2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
+-  2DUP +ModuleDirName   2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
++  2DUP +LibRootDirName   2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
+   2 ( ERROR_FILE_NOT_FOUND ) THROW
+ ;
+ ' FIND-FULLNAME1 ' FIND-FULLNAME TC-VECT!
+--- a/src/spf_module.f
++++ b/src/spf_module.f
+@@ -34,12 +34,22 @@
+ ;
+ 
+ : +LibraryDirName ( addr u -- addr2 u2 )
+-\ Добавить addr u к "полный_путь_приложения/devel/"
++\ Add a u to the spf devel path
+   2>R
+-  ModuleDirName 2DUP +
+-  S" devel/" ROT SWAP CHARS MOVE
+-  6 + 2DUP +
+-  2R> DUP >R ROT SWAP CHAR+ CHARS MOVE 
++  S" /usr/lib/spforth4/devel/" >R PAD R@ CHARS MOVE
++  PAD R>
++  2DUP +
++  2R> DUP >R ROT SWAP CHAR+ CHARS MOVE
++  R> +
++;
++
++: +LibRootDirName ( addr u -- addr2 u2 )
++\ Add a u to the spf devel path
++  2>R
++  S" /usr/lib/spforth4/" >R PAD R@ CHARS MOVE
++  PAD R>
++  2DUP +
++  2R> DUP >R ROT SWAP CHAR+ CHARS MOVE
+   R> +
+ ;
+ 

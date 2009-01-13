@@ -1,0 +1,28 @@
+This package was debianized by ygrek <ygrek@forth.org.ru> on
+Sat, 20 Sep 2008 14:38:30 +0300.
+
+It was downloaded from http://spf.sourceforge.net
+
+Upstream Authors:
+
+    Russian Forth Interest Group with the help of many contributors.
+    Started by Andrey Cherezov <andrey@cherezov.koenig.su>
+
+Copyright:
+
+    Copyright (C) 1992 Andrey Cherezov
+
+License:
+
+    You can modify and/or redistribute the core SP-Forth system (i.e. all 
+    files in src) under the terms of GNU GPL as published by FSF.
+
+    This program is free software. This program is distributed in the hope that 
+    it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  
+On Debian systems, the complete text of the GNU General Public
+License, version 2, can be found in /usr/share/common-licenses/GPL-2.
+
+The Debian packaging is (C) 2008, ygrek <ygrek@forth.org.ru> and
+is licensed under the GPL, see `/usr/share/common-licenses/GPL'.

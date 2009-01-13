@@ -1,0 +1,16 @@
+Source: spforth4
+Section: devel
+Priority: extra
+Maintainer: ygrek <ygrek@forth.org.ru>
+Build-Depends: debhelper (>= 7), docbook-xsl, docbook-xml, xsltproc, quilt (>=0.40)
+Standards-Version: 3.7.3
+Homepage: http://spf.sourceforge.net
+Vcs-Cvs: :pserver:anonymous@spf.cvs.sourceforge.net:/cvsroot/spf
+Vcs-Browser: http://spf.cvs.sourceforge.net/spf
+
+Package: spforth4
+Architecture: i386
+Depends: ${shlibs:Depends}
+Description: ANS'94 Forth system
+ SP-Forth is an ANS'94 Forth system with native code generation and
+ macrooptimization. It is fast and reliable.

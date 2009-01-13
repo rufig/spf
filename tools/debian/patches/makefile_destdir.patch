@@ -1,0 +1,13 @@
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -13,8 +13,9 @@
+ 	gcc -o $@ $< -Wl,forth.ld -ldl -lpthread -v
+ 
+ install: spf4
+-	cp spf4 ..
++	install ./spf4 $(DESTDIR)/usr/bin
+ 
+ clean:
+ 	rm -f spf4.o
++	rm -f spf4
+ 	make -C posix clean
