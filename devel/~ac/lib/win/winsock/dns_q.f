@@ -133,10 +133,12 @@ VARIABLE DnsPort  53 DnsPort !
   >B< DDP @ W! DDP 1+! DDP 1+!
 ;
 
-: HOLDS ( addr u -- )
-  1024 MIN
-  SWAP OVER + SWAP 0 ?DO DUP I - 1- C@ HOLD LOOP DROP
-;
+\ HOLDS в ядре
+
+\ : HOLDS ( addr u -- )
+\   1024 MIN
+\   SWAP OVER + SWAP 0 ?DO DUP I - 1- C@ HOLD LOOP DROP
+\ ;
 
 0
 4 -- RLnext
@@ -272,7 +274,7 @@ CONSTANT /RL
 : BsStartup
   SocketsStartup DROP
   CreateUdpSocket THROW BS !
-  vDnsTimeout BS @ SetSocketTimeout THROW
+  vDnsTimeout BS @ SetUdpSocketTimeout THROW
   DNS-SERVER @ 0= IF DNS-SERVERS @ DNS-SERVER ! THEN
 ;
 : BsCloseSocket
@@ -281,7 +283,7 @@ CONSTANT /RL
 : BsReopen \ создать новый сокет, чтобы при переключении DNS или перепосылах
            \ уже точно не получить затерявшиеся ответы на старые запросы!
   CreateUdpSocket THROW
-  vDnsTimeout OVER SetSocketTimeout THROW
+  vDnsTimeout OVER SetUdpSocketTimeout THROW
   BsCloseSocket
   BS !
 ;
@@ -669,7 +671,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 : DnsValidateList ( addr u -- )
   SocketsStartup DROP
   CreateUdpSocket THROW BS !
-  8000 BS @ SetSocketTimeout THROW
+  vDnsTimeout BS @ SetUdpSocketTimeout THROW
   R/O OPEN-FILE THROW >R
   BEGIN
     TIB C/L R@ READ-LINE THROW

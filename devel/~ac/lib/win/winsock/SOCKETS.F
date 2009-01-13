@@ -73,6 +73,7 @@ CREATE REUSEADDR -1 ,
 ;
 
 USER TIMEOUT
+USER UDP_TIMEOUT
 
 : CreateSocketWithTimeout ( -- socket ior )
   IPPROTO_TCP SOCK_STREAM PF_INET
@@ -92,6 +93,13 @@ USER TIMEOUT
   DUP >R 4 TIMEOUT SO_SNDTIMEO SOL_SOCKET R>
   setsockopt
   SWAP >R 4 TIMEOUT SO_RCVTIMEO SOL_SOCKET R>
+  setsockopt OR
+;
+: SetUdpSocketTimeout ( timeout socket -- ior )
+  SWAP UDP_TIMEOUT !
+  DUP >R 4 UDP_TIMEOUT SO_SNDTIMEO SOL_SOCKET R>
+  setsockopt
+  SWAP >R 4 UDP_TIMEOUT SO_RCVTIMEO SOL_SOCKET R>
   setsockopt OR
 ;
 : CreateUdpSocket ( -- socket ior )
