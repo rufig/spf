@@ -36,6 +36,22 @@ manually (specify the correct path to your spf4.exe) and run it. Now you can
 write your code, save it as the *.f file and execute it by simply
 doubleclicking the source file.
 
+INSTALLATION (Linux)
+--------------------
+
+SP-Forth for Linux is distributed as a source tarball or packaged for specific Linux 
+distribution (currently Debian only). 
+
+After unpacking tarball put the symlink to spf4 binary somewhere in your path. So it will find 
+required lib/ and devel/ files. You will need gcc to compile src/posix/consts.c to generate
+platform-specific code.
+
+The packaged version will install the root tree in separate directories, namely /usr/bin, /usr/lib and
+/usr/share. Source code is patched to correctly find lib/ and devel/ directories.
+
+CONTENTS
+--------
+
 See the [docs/whatsnew.en.txt](whatsnew.en.txt) file for the short overview of recent changes.
 
 Directories:
