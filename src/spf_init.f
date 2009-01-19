@@ -112,7 +112,7 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
   TERMINATE
 ;
 : FATAL-HANDLER1 ( ior -- )
-  ['] (FATAL-HANDLER1) CATCH 4 ['] HALT CATCH -1 PAUSE
+  ['] (FATAL-HANDLER1) CATCH 5 ['] HALT CATCH -1 PAUSE
   \ Вывод сообщения об ошибке может вызвать исключение.
   \ Если поток не завершился, то завршаем процесс.
   \ Если не получилось -- поток засыпает.
