@@ -79,6 +79,7 @@ man(1), man(7), http://www.tldp.org/HOWTO/Man-Page/
       <year>2008</year>
       <holder>&dhusername;</holder>
     </copyright>
+    <date>2009-01-17</date>
     <legalnotice>
       <para>This manual page was written for the Debian system
         (but may be used by others).</para>
@@ -111,18 +112,21 @@ man(1), man(7), http://www.tldp.org/HOWTO/Man-Page/
       <command>&dhpackage;</command> command.</para>
     <para>This manual page was written for the Debian distribution
       because the original program does not have a manual page.
-      Instead, it has documentation in the html format; see below.</para>
-    <para><command>&dhpackage;</command> will interpret the command line as forth code. FIXME</para>
+      Instead, it has documentation in the html format; see <filename>/usr/share/doc/spforth4</filename>.</para>
   </refsect1>
   <refsect1 id="options">
     <title>OPTIONS</title>
-    <para>The program follows the usual GNU command line syntax,
-      with long options starting with two dashes (`-').  A summary of
-      options is included below.  For a complete description, see the
-      <citerefentry>
-        <refentrytitle>info</refentrytitle>
-        <manvolnum>1</manvolnum>
-      </citerefentry> files.</para>
+    <para><command>&dhpackage;</command> doesn't have any usual command line options, but instead evaluates
+    whole command line as forth code. One can define special words to imitate 
+    command line options if needed.</para>
+    <para>
+    When run without any arguments <command>&dhpackage;</command> will print informative title
+    and accept user input to evaluate.
+    </para>
+    <para>
+    No title is written when command-line is not empty. You can specify filename on command-line
+    and it will be interpreted as source file with forth code.
+    </para>
     <variablelist>
       <!-- Use the variablelist.term.separator and the
            variablelist.term.break.after parameters to
@@ -138,7 +142,7 @@ man(1), man(7), http://www.tldp.org/HOWTO/Man-Page/
   <refsect1 id="files">
     <title>FILES</title>
     <variablelist>
-      <varlistentry>
+      <!--varlistentry>
         <term><filename>/etc/foo.conf</filename></term>
         <listitem>
           <para>The system-wide configuration file to control the
@@ -148,23 +152,20 @@ man(1), man(7), http://www.tldp.org/HOWTO/Man-Page/
               <manvolnum>5</manvolnum>
             </citerefentry> for further details.</para>
         </listitem>
-      </varlistentry>
+      </varlistentry-->
       <varlistentry>
-        <term><filename>${HOME}/.spf4.conf</filename></term>
+        <term><filename>${HOME}/.spf4.ini</filename></term>
         <listitem>
-          <para>The per-user configuration file to control the
-             behaviour of <application>&dhpackage;</application>. See
-             <citerefentry>
-               <refentrytitle>spf4.conf</refentrytitle>
-               <manvolnum>5</manvolnum>
-             </citerefentry> for further details.</para>
+          <para>The per-user configuration file will be interpreted by <application>&dhpackage;</application>
+          at startup.</para>
         </listitem>
       </varlistentry>
     </variablelist>
   </refsect1>
   <refsect1 id="environment">
-    <title>ENVIONMENT</title>
-    <variablelist>
+    <title>ENVIRONMENT</title>
+    <para><command>&dhpackage;</command> doesn't make special use of environment variables.</para>
+    <!--variablelist>
       <varlistentry>
         <term><envar>FOO_CONF</envar></term>
         <listitem>
@@ -172,22 +173,14 @@ man(1), man(7), http://www.tldp.org/HOWTO/Man-Page/
             file (see also <xref linkend="files"/>).</para>
         </listitem>
       </varlistentry>
-    </variablelist>
+    </variablelist-->
   </refsect1>
   <refsect1 id="diagnostics">
     <title>DIAGNOSTICS</title>
-    <para>The following diagnostics may be issued
-      on <filename class="devicefile">stderr</filename>:</para>
-    <variablelist>
-      <varlistentry>
-        <term><errortext>Bad configuration file. Exiting.</errortext></term>
-        <listitem>
-          <para>The configuration file seems to contain a broken configuration
-            line. Use the <option>--verbose</option> option, to get more info.
-          </para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
+    <para>Any errors (during evaluating user input or file) will QUIT into interpreter awaiting user input.
+    Error number and the corresponding text (taken from <filename>/usr/lib/spforth4/lib/SPF.ERR</filename>) 
+    will be issued to <filename class="devicefile">stdout</filename>. When this behaviour is undesired (e.g. 
+    in scripts) &mdash; wrap the main word with CATCH and process errors programmatically.</para>
     <para><command>&dhpackage;</command> provides some return codes, that can
       be used in scripts:</para>
     <segmentedlist>
@@ -195,18 +188,26 @@ man(1), man(7), http://www.tldp.org/HOWTO/Man-Page/
       <segtitle>Diagnostic</segtitle>
       <seglistitem>
         <seg><errorcode>0</errorcode></seg>
-        <seg>Program exited successfully.</seg>
+        <seg>Program exited successfully (via BYE).</seg>
       </seglistitem>
       <seglistitem>
-        <seg><errorcode>not 0</errorcode></seg>
-        <seg>exception code.</seg>
+        <seg><errorcode>3</errorcode></seg>
+        <seg>Initialization error.</seg>
+      </seglistitem>
+      <seglistitem>
+        <seg><errorcode>4</errorcode></seg>
+        <seg>Error when processing initialization error.</seg>
+      </seglistitem>
+      <seglistitem>
+        <seg><errorcode>5</errorcode></seg>
+        <seg>Fatal exception handler.</seg>
       </seglistitem>
     </segmentedlist>
   </refsect1>
   <refsect1 id="bugs">
     <!-- Or use this section to tell about upstream BTS. -->
     <title>BUGS</title>
-    <para>The upstreams <acronym>BTS</acronym> can be found
+    <para>The upstream <acronym>BTS</acronym> can be found
       at <ulink url="http://spf.sf.net"/>.</para>
   </refsect1>
   <refsect1 id="see_also">
