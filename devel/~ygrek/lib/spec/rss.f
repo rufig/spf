@@ -66,7 +66,7 @@ REQUIRE STATIC ~profit/lib/static.f
 
 
 ALSO libxml2.dll
-ALSO /usr/lib/libxml2.so.2
+ALSO libxml2.so.2
 
   \ освободить память занимаемую xml документом
   : XML_FREE_DOC ( doc -- ) 1 xmlFreeDoc DROP ;
