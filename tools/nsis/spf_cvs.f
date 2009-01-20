@@ -6,7 +6,8 @@ REQUIRE ONFALSE ~profit/lib/bac4th.f
 REQUIRE LIKE ~pinka/lib/like.f
 REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 REQUIRE /STRING lib/include/string.f
-REQUIRE DateM>S ~ac/lib/win/date/date-int.f
+
+S" util.f" INCLUDED
 
 \ Путь к каталогу рабочей копии
 \ Определяется снаружи
@@ -15,12 +16,6 @@ REQUIRE DateM>S ~ac/lib/win/date/date-int.f
 : double-slashed  ( a u -- s )  " {s}" DUP " \" " \\" replace-str- ;
 SPF-PATH double-slashed VALUE path\\
 : SPF-PATH-\\ path\\ STR@ ;
-
-: MyDate# { d m y -- } y #N DROP [CHAR] . HOLD m DateM>S HOLDS DROP [CHAR] . HOLD d #N## DROP ;
-: DateRaw# { d m y -- } d #N## DROP m #N## DROP y #N DROP ;
-: MY_DATE ( -- a u ) <# TIME&DATE MyDate# 0 0 #> ;
-: DATE_RAW ( -- a u ) <# TIME&DATE DateRaw# 0 0 #> ;
-: NUM_RAW ( n -- ) S>D (D.) ;
 
 : PROD_NAME    S" {PROD_NAME}" ;
 : PROD_FILE    S" {PROD_FILE}" ;
