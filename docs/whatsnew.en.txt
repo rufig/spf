@@ -1,3 +1,32 @@
+?? January 2009   Version 4.20
+
++ linux port (by ~yz)
+* fix "silent crash on AV in api functions"
+* much more reliable exception handling
+* enhanced WordByAddr heuristics
+* "isn't unique" additionaly prints source file name
+* check length when compiling counted string
+* show BUILD-DATE in TITLE
+* custom compile options can be set in src/sompile.ini
+* linux: special handling for -1 PAUSE (win32 compatibility)
++ win32: Add manifest and VERSIONINFO
+* win32: exe exports section
++ VOC-NAME! VOC-NAME@
++ INCLUDED-EXISTING (to replace INCLUDE-PROBE)
++ FILE-EXISTS (path exists and is not a directory)
+* OK correctly prints underflown stack
+
+libs:
++ include/ansi-block.f - BLOCK wordset as required by ANS
++ lib/ext/disasmi.f - interactive part of disasm
++ lib/posix/const - const file generation for linux
+* many libs adapted for SPF/Linux
+
+other:
+* documentation largely updated
++ debian package
+
+
 18 January 2008   Version 4.19
 
 * enhancements and fixes in optimizer
