@@ -1,0 +1,26 @@
+--- a/src/spf_init.f
++++ b/src/spf_init.f
+@@ -158,9 +158,21 @@
+   COMMANDLINE-OPTIONS ['] (OPTIONS) EVALUATE-WITH
+ ;
+ 
++: +HomeDirName ( a u -- a2 u2 )
++   S" HOME" ENVIRONMENT? 0= IF EXIT THEN
++   2SWAP 2>R
++   ( a u ) >R PAD R@ CHARS MOVE
++   PAD R>
++   2DUP + [CHAR] / SWAP C!
++   1+ \ /CHAR +
++   2DUP +
++   2R> DUP >R ROT SWAP CHAR+ CHARS MOVE
++   R> +
++;
++
+ : SPF-INI
+-   S" spf4.ini" INCLUDED-EXISTING IF EXIT THEN
+-   +ModuleDirName INCLUDED-EXISTING IF EXIT THEN 
++   S" .spf4.ini" INCLUDED-EXISTING IF EXIT THEN
++   +HomeDirName INCLUDED-EXISTING IF EXIT THEN
+    2DROP ;
+ 
+ \ Scattering a Colon Definition

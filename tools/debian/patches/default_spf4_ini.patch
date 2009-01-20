@@ -1,0 +1,28 @@
+--- a/spf4.ini
++++ b/spf4.ini
+@@ -1,16 +1,20 @@
+-\ spf4.ini sample
++\ .spf4.ini sample
+ \
+-\ At startup SP-Forth automatically includes file spf4.ini from the root directory where it starts
++\ At startup SP-Forth will automatically include ~/.spf4.ini
+ \ This file is provided as an example
+ 
+-
+ \ useful exentions
+ \ uncomment to use
+ 
+ \ WARNING 0!
+ 
+-\ REQUIRE QuickSWL ~pinka\spf\quick-swl3.f
+-\ REQUIRE HELP lib\ext\help.f
++\ fast search in wordlists
++\ REQUIRE QuickSWL ~pinka/spf/quick-swl3.f
++
++\ edit input with readline
++\ REQUIRE ACCEPT-READLINE ~ygrek/lib/linux/readline.f
++
++\ REQUIRE HELP lib/ext/help.f
+ \ STARTLOG
+ 
+ \ -1 WARNING !

@@ -1,2 +1,4 @@
 included_path.patch
 makefile_destdir.patch
+user_spf4_ini.patch
+default_spf4_ini.patch
