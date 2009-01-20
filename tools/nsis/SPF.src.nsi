@@ -16,7 +16,7 @@
 !define VER_DATE "{MY_DATE}"
 !define PROD_NAME "SP-Forth"
 !define PROD_VENDOR "RUFIG"
-!define PROD_ICON "{SPF-PATH}\src\spf.ico"
+!define PROD_ICON "{SPF-PATH}\src\win\res\spf.ico"
 
 ;--------------------------------
 ; General
