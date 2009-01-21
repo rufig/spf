@@ -5,6 +5,7 @@ REQUIRE NEEDS ~day/lib/includemodule.f
 REQUIRE GRID ~ygrek/lib/wfl/grid/grid.f
 REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f
 REQUIRE +METHODS ~ygrek/lib/hype/ext.f
+REQUIRE axt ~profit/lib/bac4th-closures.f
 
 WINAPI: MapDialogRect USER32.DLL
 
