@@ -28,5 +28,7 @@ USER-CREATE TP 4 CELLS USER-ALLOT \ 1 , 0 , 0 , ( <-luid ) 0 , ( <-attr)
   1 TP ! 
   ( flag ) IF SE_PRIVILEGE_ENABLED ELSE 0 THEN TP 3 CELLS + !
 
-  0 0 0 TP 0 R> AdjustTokenPrivileges
+  0 0 0 TP 0 R> AdjustTokenPrivileges ERR
 ;
+
+\ TRUE S" SeShutdownPrivilege" GetProcessToken THROW SetPrivilege THROW
