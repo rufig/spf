@@ -4,7 +4,7 @@ SP-Forth
 
 <title>SP-Forth</title>
 
-<!-- Translation in sync with readme.ru.md r1.8 -->
+<!-- Translation in sync with readme.ru.md r1.10 -->
 
 ABOUT
 -----
@@ -39,15 +39,17 @@ doubleclicking the source file.
 INSTALLATION (Linux)
 --------------------
 
-SP-Forth for Linux is distributed as a source tarball or packaged for specific Linux 
-distribution (currently Debian only). 
+SP-Forth for Linux is distributed as a source tarball or packaged for specific Linux
+distribution (currently Debian only).
 
-After unpacking tarball put the symlink to spf4 binary somewhere in your path. So it will find 
-required lib/ and devel/ files. You will need gcc to compile src/posix/consts.c to generate
+After unpacking tarball put the symlink to spf4 binary somewhere in your path. So it will find
+required `lib` and `devel` files. You will need gcc to compile `src/posix/consts.c` to generate
 platform-specific code.
 
-The packaged version will install the root tree in separate directories, namely /usr/bin, /usr/lib and
-/usr/share. Source code is patched to correctly find lib/ and devel/ directories.
+The packaged version will  install  the  root  tree  in  separate  directories,
+according to the distro recommendation (`/usr/bin`, `/usr/lib`
+and `/usr/share`). Source code is patched to correctly find `lib`  and  `devel`
+directories. At startup spf will include `~/.spf4.ini`.
 
 CONTENTS
 --------
@@ -106,7 +108,7 @@ DEVELOPMENT
 
 *   The first place to contact the developers is the [spf-dev](http://lists.sourceforge.net/lists/listinfo/spf-dev) mailing list
 
-    Alternatively you can use mailing list web-mirror 
+    Alternatively you can use mailing list web-mirror
     [SP-Forth - DEV (rus)](http://www.nabble.com/SP-Forth---DEV-(rus%29-f26012.html) at
     [Nabble](http://www.nabble.com)
     (though title has 'rus' in it, you may write english)
@@ -115,9 +117,9 @@ DEVELOPMENT
 
     <http://sourceforge.net/tracker/?group_id=17919>
 
-    Please provide a comprehensive description of the bug behaviour and ways 
-    to reproduce. Dont hesitate to report errors or omissions in the 
-    documentation too. 
+    Please provide a comprehensive description of the bug behaviour and ways
+    to reproduce. Dont hesitate to report errors or omissions in the
+    documentation too.
 
     Notifications on bugtracker activity go to [spf-tickets](http://lists.sourceforge.net/lists/listinfo/spf-tickets) list
 
@@ -140,15 +142,15 @@ DEVELOPMENT
 *    Russian Forth Interest Group :
 
      <http://www.forth.org.ru>
-     
+
 
 <a id="license"/>
 LICENSE
 -------
 
-You can modify and/or redistribute the core SP-Forth system (i.e. all files in `src`) 
+You can modify and/or redistribute the core SP-Forth system (i.e. all files in `src`)
 under the terms of [GNU GPL](http://www.fsf.org/licensing/licenses/gpl.html) as published by
-[FSF](http://www.fsf.org). All other files, including contrubuted code in `devel`, are 
+[FSF](http://www.fsf.org). All other files, including contrubuted code in `devel`, are
 licensed under [GNU LGPL](http://www.fsf.org/licensing/licenses/gpl.html) by default (if not stated
 otherwise).
 
@@ -160,7 +162,7 @@ Shortly speaking it means that :
 
 *    You are allowed to use unmodified code from `devel` in combination with your own code in closed-source projects.
 
-*    You are obliged to contribute back your modifications to original code from `devel` if you modified and used it in closed-source project, 
+*    You are obliged to contribute back your modifications to original code from `devel` if you modified and used it in closed-source project,
      but you may leave your own code closed.
 
 
