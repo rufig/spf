@@ -1,6 +1,8 @@
 spforth4 for Debian
-------------------
+-------------------
 
-Only spf binary for now
+ devel will be packaged in separate package.
+
+ Startup file is ~/.spf4.ini -- example is included in /usr/lib/spforth4
 
  -- ygrek <ygrek@forth.org.ru>  Sat, 20 Sep 2008 14:38:30 +0300

@@ -1,4 +1,4 @@
-spforth4 (4.19-1) unstable; urgency=low
+spforth4 (4.20-1) unstable; urgency=low
 
   * Initial release
   * This is my first Debian package
@@ -6,5 +6,7 @@ spforth4 (4.19-1) unstable; urgency=low
   * Use quilt
   * +LibRootDirName 
   * FIND-FULLNAME will correctly find installed spforth files
+  * +HomeDirName
+  * patch for ~/.spf4.ini
 
  -- ygrek <ygrek@forth.org.ru>  Sun, 28 Dec 2008 16:43:18 +0200
