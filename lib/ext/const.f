@@ -59,7 +59,7 @@ WARNING @ FALSE WARNING !
 WARNING !
 
 : ADD-CONST-VOC ( addr u -- )
-  FIND-FULLNAME R/O OPEN-FILE 0= IF >R
+  FIND-FULLNAME R/O OPEN-FILE-SHARED 0= IF >R
     R@ FILE-SIZE THROW DROP \ size
     DUP ALLOCATE THROW DUP ROT \ addr addr size
     R@ READ-FILE THROW 0 = ABORT" Read zero bytes from const file"
