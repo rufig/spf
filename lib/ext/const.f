@@ -3,9 +3,6 @@
 
 \ Ветка от ~day/wincons/wc.f v1.5
 
-\ REQUIRE +LibraryDirName  src/win/spf_win_module.f
-REQUIRE TryOpenFile      lib/ext/util.f
-
 MODULE: WINCONST
 
 USER-VALUE CURRENT-VOC
@@ -62,7 +59,7 @@ WARNING @ FALSE WARNING !
 WARNING !
 
 : ADD-CONST-VOC ( addr u -- )
-  R/O TryOpenFile 0= IF >R
+  FIND-FULLNAME R/O OPEN-FILE 0= IF >R
     R@ FILE-SIZE THROW DROP \ size
     DUP ALLOCATE THROW DUP ROT \ addr addr size
     R@ READ-FILE THROW 0 = ABORT" Read zero bytes from const file"
