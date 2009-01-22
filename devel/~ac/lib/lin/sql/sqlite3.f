@@ -111,11 +111,20 @@ ALSO SO NEW: libsqlite3.so.0
 : db3_coli ( n ppStmt -- int )
   2 sqlite3_column_int
 ;
-: db3_field { addr1 u1 ppStmt -- addr u }
+: db3_field_num { addr1 u1 ppStmt -- n } \ номер поля с заданным именем
   ppStmt db3_cols 0 ?DO
     I ppStmt db3_colname addr1 u1 COMPARE-U 0=
-    IF I ppStmt db3_col UNLOOP EXIT THEN
-  LOOP S" "
+    IF I UNLOOP EXIT THEN
+  LOOP -1
+;
+: db3_field { addr1 u1 ppStmt -- addr u }
+  addr1 u1 ppStmt db3_field_num DUP 0< IF DROP S" " ELSE ppStmt db3_col THEN
+;
+: db3_fieldu { addr1 u1 ppStmt -- addr u }
+  addr1 u1 ppStmt db3_field_num DUP 0< IF DROP S" " ELSE ppStmt db3_colu THEN
+;
+: db3_fieldi { addr1 u1 ppStmt -- int }
+  addr1 u1 ppStmt db3_field_num DUP 0< IF DROP 0 ELSE ppStmt db3_coli THEN
 ;
 : db3_coltype ( n ppStmt -- n )
   2 sqlite3_column_type
@@ -251,7 +260,7 @@ ALSO SO NEW: libsqlite3.so.0
       DUP
       i 1+ -> i
       i par ROT xt EXECUTE \ возвращает флаг продолжения
-      IF db3_cdr ELSE 0 THEN
+      IF db3_cdr ELSE db3_fin 0 THEN
     REPEAT DROP
   THEN
 ;
@@ -308,6 +317,8 @@ USER _db3_gets
 : db3_enable_extensions ( sqh -- ) \ попадаются .so без расширений
   ['] (db3_enable_extensions) CATCH IF ." can't enable sqlite extensions" CR DROP THEN
 ;
+: db3_changes ( sqh -- n ) 1 sqlite3_changes ; \ for ~dandy
+
 PREVIOUS PREVIOUS
 
 : '>` ( addr u -- )
@@ -322,9 +333,16 @@ PREVIOUS PREVIOUS
 : kl \ можно подставлять в SQL-команду как :kl или $kl для авто-биндинга
   S" Kalinin%"
 ;
+: kldump { i par ppStmt -- flag }
+  S" Population" 2DUP TYPE ." =" ppStmt db3_fieldi .
+  FALSE
+;
 : TEST { \ sqh }
   S" \spf4\devel\~ac\lib\ns\world.db3" db3_open -> sqh
-  S" select id, 5 from City where name like :kl" sqh db3_get_id2 . .
+  S" select id, 5 from City where name like :kl" sqh db3_get_id2 2DUP . . DROP CR
+  DUP " select * from City where id={n}" STR@ 0 ['] db3_dump1 sqh db3_enum
+  DUP " select * from City where id={n}" STR@ 0 ['] kldump sqh db3_enum
+  " update City set Population=Population+1 where id={n}" STR@ sqh db3_exec_ sqh db3_changes ." +" .
   sqh db3_close
 ; TEST
 \EOF примеры:
