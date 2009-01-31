@@ -108,7 +108,12 @@ CONSTANT FORTH-STORAGE  \ базовое хранилище форт-системы
 : AT-SAVING-BEFORE ... ; 
 : AT-SAVING-AFTER ... ;
 
+: FLUSH-STORAGE ( -- )
+  STORAGE-ID FORTH-STORAGE = IF IMAGE-BASE IMAGE-SIZE +  STORAGE-ID 3 CELLS + ! THEN
+  FLUSH-STORAGE
+;
 : SAVE ( addr u -- )
+  STORAGE-ID FORTH-STORAGE <> ABORT" Current storage is not FORTH-STORAGE"
   AT-SAVING-BEFORE
   FLUSH-STORAGE STORAGE-EXTRA 3 CELLS + DUP >R 0! \ сохранить надо с флагом "незанято"
   SAVE
