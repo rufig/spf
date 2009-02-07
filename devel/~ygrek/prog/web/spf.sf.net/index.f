@@ -5,6 +5,8 @@
 REQUIRE tag ~ygrek/lib/xmltag.f
 REQUIRE AsQWord ~pinka/spf/quoted-word.f
 REQUIRE XHTML ~ygrek/lib/xhtml/core.f
+REQUIRE new-hash ~pinka/lib/hash-table.f
+REQUIRE KEEP! ~profit/lib/bac4th.f
 
 : css ( a u s -- ) -ROT TYPE ."  { " STYPE ." }" CR ;
 
@@ -16,70 +18,99 @@ ALSO XHTML
 \ link to download
 : link-dl ( `name -- ) 2DUP " http://downloads.sourceforge.net/spf/{s}" DUP STR@ link-tag STRFREE TYPE ;
 
-: notes-4.20
-   PRO `https://sourceforge.net/project/shownotes.php?group_id=17919&release_id=655371 link-tag CONT ;
+: notes-4.20 `https://sourceforge.net/project/shownotes.php?group_id=17919&release_id=655371 ;
+
+: bytes ( n -- s ) 
+  DUP 1024 < IF " {n} bytes" EXIT THEN
+  1024 /MOD DUP 1024 < IF NIP " {n} KB" EXIT THEN
+  NIP
+  1024 /MOD DUP 1024 < IF SWAP 100 / SWAP " {n}.{n} MB" EXIT THEN
+  NIP
+  1024 / " {n} GB" ;
+
+USER _h
+: h _h @ ;
+
+: h! h HASH! ;
+: h@ h HASH@ ;
+
+: [hash]
+  PRO
+  10 new-hash _h KEEP!
+  CONT
+  h del-hash ;
+
+( : inner
+  [hash]
+  `key `value h HASH!
+  `key2 `value2 h HASH!
+  h hash-count . ;
+
+: outer
+  [hash]
+  `q `v h HASH!
+  inner
+  h hash-count . ;
+
+outer h .)
+
+: release ( `dl size `notes `date `comment )
+  [hash]
+  `comment h! `date h! `notes h! `size h HASH!N `dl h! 
+  
+  << tr
+   << td `dl h@ link-dl >>
+   << td `size h HASH@N IF bytes STYPE THEN >>
+\   << td `notes h@ TYPE >>
+   << td `date h@ `notes h@ link-text >>
+   << td `comment h@ TYPE >>
+  >> ;
+
 
 : releases
  .block
 
  %[ `0 `cellpadding $$ `0 `cellspacing $$ ]% `table atag
- << tr *> `File th <*> `Size th <*> `Notes th <*> `Date th <*> `Comment th <* >>
+ << tr *> `File th <*> `Size th <*> ( `Notes th <*>) `Date th <*> `Comment th <* >>
 
-( << tr
-  %[ `5 `colspan $$ ]% `td atag `h3 tag S" SP-Forth 4.19" TYPE 
- >>)
+ `spf4-20-setup.exe 
+ 2257644
+ notes-4.20
+ S" 21 Jan 2009"
+ S" Win32 full installer"
+ release
 
- << tr
-  << td `spf4-20-setup.exe link-dl >>
-  << td ." 2.1 MB" >>
-  << td notes-4.20 ." Win32" >>
-  << td ." 21 Jan 2009" >>
-  << td ." full installer" >>
- >>
+ `spf4-20.rar
+ 2336781
+ notes-4.20
+ S" 21 Jan 2009"
+ S" Win32 full archive"
+ release
+
+ `spf-4.20.tar.gz
+ 761984
+ notes-4.20
+ S" 21 Jan 2009"
+ S" Linux sources+binary tarball, without devel"
+ release
+
+ `spf-devel-4.20.tar.gz
+ 2345649
+ notes-4.20
+ S" 21 Jan 2009"
+ S" Linux devel tarball"
+ release
  
- << tr
-  << td `spf4-20.rar link-dl >>
-  << td ." 2.2 MB" >>
-  << td notes-4.20 ." Win32" >>
-  << td ." 21 Jan 2009" >>
-  << td ." full" >>
- >>
-
-<< tr
-  << td `spf-4.20.tar.gz link-dl >>
-  << td ." 744 KB" >>
-  << td notes-4.20 ." Linux sources" >>
-  << td ." 21 Jan 2009" >>
-  << td ." sources+binary, no devel" >> 
- >>
-
- << tr
-  << td `spf-devel-4.20.tar.gz link-dl >>
-  << td ." 2.2 MB" >>
-  << td notes-4.20 ." Linux sources" >>
-  << td ." 21 Jan 2009" >>
-  << td ." devel" >> 
- >>
+ `spforth4_4.20-1_i386.deb
+ 545120
+ notes-4.20
+ S" 21 Jan 2009"
+ S" Debian GNU/Linux binary package, without devel"
+ release 
  
- << tr
-  << td `spforth4_4.20-1_i386.deb link-dl >>
-  << td ." 532 KB" >>
-  << td notes-4.20 ." Debian" >>
-  << td ." 21 Jan 2009" >>
-  << td ." binary package, no devel" >> 
- >>
+ ;
 
 ( 
-<tr>
-<td colspan="4"><h3>devel snapshot</h3></td>
-</tr>
-
-
- << tr
-  << td `spf-devel-20080619.rar link-dl >>
-  << td ." 1.8 MB" >>
-  << td
-
 <br/>
 <a href="http://downloads.sourceforge.net/spf/spf-devel-20080619.7z">7z</a>, 1.7 MB
 </td>
@@ -99,7 +130,6 @@ ALSO XHTML
 <td>for SPF/Linux</td>
 </tr>
 )
-;
 
 0 [IF] 
 <!--ul>
@@ -133,18 +163,31 @@ ALSO XHTML
    .block
    << `caps :span
  << `http://sourceforge.net/projects/spf/ link-tag 
-    %[ `icon `class $$ `spf.png `src $$ `32px `height $$ `32px `width $$ ]% `img /atag >>
-   ." SP-Forth" >> "  is an ANS forth system for Windows 9x/NT/Vista (and Linux). 
-Features optimized native code generation, high speed execution, full ANS'94 support, small yet highly-extensible kernel, 
+    %[ `spf.png `src $$ `32px `height $$ `32px `width $$ S" SP-Forth" `alt $$ ]% `img /atag >> SPACE
+   ." SP-Forth" >> "  is an ANS forth system for Windows and Linux.
+It features optimized native code generation, high speed execution, full ANS'94 support, small yet highly-extensible kernel,
 big number of additional libraries for developing sophisticated windows applications, active and helpful community." STYPE ;
 
 : download
-  .block
+\  .block
+  `span tag
    `Download `http://sourceforge.net/project/showfiles.php?group_id=17919 link-text ;
 
 : project-page
-  .block
+\  .block
+  `span tag
   S" Project page" `http://sourceforge.net/projects/spf/ link-text ;
+
+: cvs
+\ .block
+  `span tag
+  `CVS `http://sourceforge.net/cvs/?group_id=17919 link-text ( mdash ." get the latest sources.") ;
+
+: first
+   S" line block" :div
+   project-page
+   download
+   cvs ;
 
 : roadmap
   .block
@@ -155,8 +198,6 @@ big number of additional libraries for developing sophisticated windows applicat
    " http://sourceforge.net/tracker/?group_id=17919{s}" { s }
    s STR@ link-text 
    s STRFREE ;
-
-: mdash ."  &mdash; " ;
 
 : tracker
  .block
@@ -172,8 +213,6 @@ big number of additional libraries for developing sophisticated windows applicat
   2DUP " https://lists.sourceforge.net/lists/listinfo/{s}" { s }
   s STR@ link-text s STRFREE ;
 
-: li `li PRO tag CONT ;
-: ul `ul PRO tag CONT ;
 : lst ( `name `desc -- ) 2SWAP link-list mdash TYPE ;
 
 : lists
@@ -189,7 +228,7 @@ big number of additional libraries for developing sophisticated windows applicat
  ." Docs available online:"
  ul 
   << li 
-    `SPF_README `docs/readme.en.html" link-text
+    `SPF_README `docs/readme.en.html link-text
     ."  (" `ru `docs/readme.ru.html link-text ." )." >>
   << li `SPF_INTRO `docs/intro.en.html link-text
     ."  (" `ru `docs/intro.ru.html link-text ." )"
@@ -202,79 +241,50 @@ big number of additional libraries for developing sophisticated windows applicat
   << li `SPF_ANS `docs/ans.en.html link-text 
     mdash ." documentation as required by ANS." >> ;
 
-: cvs
- .block
-  `CVS `http://sourceforge.net/cvs/?group_id=17919 link-text mdash ." get the latest sources." ;
-
 : rufig
  .block
   `RuFIG `http://forth.org.ru link-text mdash ." Russian Forth Interest Group" ;
 
 : footer
-  `div tag
+   .block
+\  `div tag
   
   << `http://sourceforge.net link-tag
-   %[ `0 `border $$
-      `http://sourceforge.net/sflogo.php?group_id=17919 `src $$
+   %[ `http://sourceforge.net/sflogo.php?group_id=17919 `src $$
       S" SourceForge Logo" `alt $$ ]% `img /atag >>
-  `small tag
+
+  icon-valid
+
+  << `http://forth.org.ru link-tag
+  %[ `http://www.forth.org.ru/img/powered-by-spf-mono-2-ani.gif `src $$
+     S" Powered by SP-Forth" `alt $$ ]% `img /atag >>
+
+\  `small tag
 \   S" $Id$" TYPE 
 ;
 
 : index
- `html tag
- <<
-  `head tag
-   << `title tag S" SP-Forth" TYPE >>
-   << %[ `text/css `type $$ ]% `style atag
-`body " background-color: #FFFFFF; font-family: arial,helvetica,sans-serif;" css
-`a " text-decoration: none; color #3333FF; " css
-`a:visited " text-decoration: none; color: #6666AA; "  css
-`a:link " text-decoration: none; color: #3333AA; " css
-`a:active " text-decoration: none; color: #3333AA; " css
-`a:hover " text-decoration: none; color: #FF3333; " css
-\ `div " outline: 1px solid red; " css
-\ `table " cellpadding: 0; cellspacing: 0;" css
-S" td,th" " padding: 5 20 5 10; border: 1px solid black; " css
-`th " background-color: gold; " css
-`.block " padding: 10px; border-bottom: 1px dashed black;" css
-`img.icon " padding-right: 4px; /*outline: 1px solid green;*/ " css
-`.content " width: 70%; " css
-`.caps " font-size: 3em; line-height: 0.85; font-family: sans-serif; /* outline: 1px solid red;*/ " css
+   xml-declaration
+   doctype-strict
+   xhtml
+   << `head tag
+     << `title tag S" SP-Forth" TYPE >>
+     `index.css link-stylesheet
    >>
- >>
 
-
-\ <body bgcolor=#FFFFFF topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" marginheight="0" marginwidth="0">
 `body tag
-( 
-<!-- top title table -->
-<table width="100%" border=0 cellspacing=0 cellpadding=0 bgcolor="" valign="center">
-  <tr valign="top" bgcolor="#eeeef8">
-    <td valign=center align=left>
-     <a href="http://sourceforge.net">
-      <img src="http://sourceforge.net/sflogo.php?group_id=17919" border="0" alt="SourceForge Logo">
-     </a>
-    </td>
-  </tr>
-  <tr>
-   <td bgcolor="#543a48" colspan=2>
-    <img src="http://sourceforge.net/images/blank.gif" height=2 vspace=0>
-   </td>
-  </tr>
-</table>
-<!-- end top title table -->)
 
 << `content :div 
 intro
-download
+first
+\ download
 releases
-project-page
+\ project-page
 \ roadmap
 tracker
 lists
 docs
-cvs
+\ cvs
 rufig
 footer
 >>
