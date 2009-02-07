@@ -1,0 +1,35 @@
+body 
+{
+  background-color: #FFFFFF;
+  font-family: sans-serif,arial;
+}
+a 
+{
+  text-decoration: none; 
+  color: #33F; 
+}
+a:visited { color: #66A; }
+a:link { color: #33A; }
+a:active { color: #33A; }
+a:hover { color: #F33; }
+td,th 
+{ 
+  padding: 5px 10px; 
+  border: 1px solid black; 
+}
+th { background-color: gold; }
+.block 
+{
+  padding: 10px; 
+  border-bottom: 1px dashed black;
+}
+.line span { padding-right: 20px; }
+.content { width: 70%; }
+.caps 
+{
+  font-size: 3em; 
+  line-height: 0.85; 
+/*  font-family: sans-serif; */
+  /* outline: 1px solid red;*/
+}
+
