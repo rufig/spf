@@ -1,6 +1,6 @@
 ( RND DAY 04.05.2001 )
 
-WINAPI: GetTickCount KERNEL32.DLL
+REQUIRE ms@ lib/include/facil.f
 
 VARIABLE RND
 
@@ -18,6 +18,6 @@ VARIABLE RND
    RANDOM UM* NIP
 ;
 
-: RANDOMIZE GetTickCount SEED ;
+: RANDOMIZE ms@ SEED ;
 
 RANDOMIZE
