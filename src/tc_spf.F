@@ -54,10 +54,6 @@ TARGET-POSIX [IF]
   R> TO H-STDOUT 
 ;
 
-: HASH  ( c-addr u wid --  c-addr u HASHwid ) \ 94 SEARCH
-   @  OVER DUP 1 U> IF XOR 2 PICK C@ XOR 2 PICK 1+ XOR THEN +   
-;
-
 VOCABULARY TC-WL
 VARIABLE SAVED-CURRENT
 
