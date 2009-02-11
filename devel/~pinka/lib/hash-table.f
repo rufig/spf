@@ -3,6 +3,7 @@
 \ 18.Sep.2003 ruvim@forth.org.ru  верси€ оригинального ~yz\lib\hash.f 
 \     распредел€юща€ пам€ть стандартным образом ALLOCATE/FREE
 \     (по умолчанию, локальную пам€ть потока)
+\     ћаксимальна€ длина значени€ дл€ 'HASH!' -- 255 байт! (т.к. через CALLOC)
 \ 22.Sep.2003  ruv, 
 \     * HASH! и т.п. к виду ( avalue nvalue akey nkey h -- ) 
 \     + for-hash 
@@ -15,8 +16,7 @@
 \     * make-hash теперь new-hash - и вынесен в интерфейс.
 \ 22.Dec.2003 pig
 \     * итераторы all-hash, for-hash теперь позвол€ют вложенный вызов
-\ 31.Jan.2009 ruv
-\     * сн€то ограничение в 255 байт на ключи и значени€
+
 
 REQUIRE [UNDEFINED] lib/include/tools.f
 
@@ -32,9 +32,6 @@ REQUIRE HASH  ~pinka/lib/hash.f
 : ZALLOC ( az -- a1 )
   ASCIIZ> 1+ SALLOC
 ;                  [THEN]
-
-REQUIRE XALLOC ~pinka/lib/xalloc.f
-
 
 MODULE: HASH-TABLES-SUPPORT
 
@@ -68,7 +65,7 @@ DEFINITIONS
   BEGIN
     ( akey nkey prev rec)
     2>R ( akey nkey)
-    2DUP R@ :key @ XCOUNT COMPARE 0= IF ( нашли ключ) 2DROP 2R> ( ." found" s.) EXIT THEN
+    2DUP R@ :key @ COUNT COMPARE 0= IF ( нашли ключ) 2DROP 2R> ( ." found" s.) EXIT THEN
     R> RDROP  ( akey nkey rec)
     DUP :link @ ?DUP 0= IF ( не нашли ключ) NIP NIP 0 ( ." notfound" s.) EXIT THEN
   AGAIN ;
@@ -86,13 +83,13 @@ DEFINITIONS
   ELSE
      /rec ALLOCATE THROW ( last new)
      DUP ROT :link !
-     2R> XALLOC OVER :key !
+     2R> CALLOC OVER :key !
   THEN ;
 
 EXPORT
 
 : HASH! ( avalue nvalue akey nkey h -- )
-  (rec-in-hash) TRUE OVER :free C! >R XALLOC R> :value ! ;
+  (rec-in-hash) TRUE OVER :free C! >R CALLOC R> :value ! ;
 
 : HASH!Z ( zvalue akey nkey h -- )
   (rec-in-hash) TRUE OVER :free C! SWAP ZALLOC SWAP :value ! ;
@@ -110,7 +107,7 @@ EXPORT
   lookup NIP 0<> ;
 
 : HASH@ ( akey nkey h -- avalue nvalue / 0 0) 
-  lookup NIP DUP IF :value @ XCOUNT ELSE 0 THEN ;
+  lookup NIP DUP IF :value @ COUNT ELSE 0 THEN ;
 
 : HASH@R ( akey nkey h -- a/0) 
   lookup NIP DUP IF :value @ THEN ;
@@ -151,10 +148,10 @@ USER cnt
 USER-VALUE do-it
 
 : (all-hash) ( rec -- nextrec )
-  >R R@ :key @ XCOUNT R@ :value @  R> :link @ >R do-it EXECUTE R> 
+  >R R@ :key @ COUNT R@ :value @  R> :link @ >R do-it EXECUTE R> 
 ;
 : (for-hash) ( rec -- nextrec )
-  >R R@ :value @  R@ :key @ XCOUNT R> :link @ >R do-it EXECUTE R> 
+  >R R@ :value @  R@ :key @ COUNT R> :link @ >R do-it EXECUTE R> 
 ;
 
 : (hash-empty?) ( rec -- nextrec )  cnt 1+! DROP 0 ;
