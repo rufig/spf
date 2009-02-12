@@ -132,7 +132,7 @@ EXPORT
   do-it >R  TO do-it  ['] (for-hash) for-hash-rec   R> TO do-it
 ;
 : for-hash-txt ( h xt -- )  \ xt ( a-txt u-txt a-key u-key -- )
-  do-it >R  TO do-it  ['] (for-hash) for-hash-rec  R> TO do-it
+  do-it >R  TO do-it  ['] (for-hash-txt) for-hash-rec  R> TO do-it
 ;
 : hash-count ( h -- n )    \ подсчитывает число элементов в хэше
   0 SWAP ['] (hash-count) for-hash-rec

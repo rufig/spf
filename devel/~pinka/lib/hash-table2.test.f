@@ -16,6 +16,8 @@ TESTCASES hash-table
 `bbb `B h HASH!
 `ccc `C h HASH!
 
+CR h :NONAME TYPE SPACE TYPE CR ; for-hash-txt
+
 (( h hash-count -> 3 ))
 (( `B h HASH@ `bbb EQUAL -> -1 ))
 
