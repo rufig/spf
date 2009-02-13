@@ -4,11 +4,13 @@
 REQUIRE {              ~ac/lib/locals.f
 REQUIRE ForEachProcess ~ac/lib/win/process/enumproc.f
 REQUIRE WildCMP-U      ~pinka/lib/mask.f
+REQUIRE WinVer         ~ac/lib/win/winver.f 
 
 WINAPI: NtQuerySystemInformation NTDLL.DLL
 WINAPI: OpenProcess              KERNEL32.DLL
 WINAPI: GetProcessImageFileNameA PSAPI.DLL \ минимум WinXP, возвращает путь с device name
 WINAPI: GetModuleFileNameExA     PSAPI.DLL \ минимум Win2000, дает пути только для процессов текущего пользователя
+WINAPI: QueryFullProcessImageNameA KERNEL32.DLL \ минимум Vista/2008
 
  0
  4 -- nqsi.NextEntryOffset
@@ -26,7 +28,7 @@ CONSTANT /SYSTEM_PROCESS_INFORMATION
 
 5 CONSTANT SystemProcessInformation
 
-: ForEachProcess2 { par xt \ r pi pid a u hc mem fi it h n -- pid }
+: ForEachProcess2 { par xt \ r pi pid a u hc mem fi it h n fn -- pid }
 \ для каждого процесса выполнить xt со следующими параметрами:
 \ ( a u mem hc pid par -- flag ) a u - путь и имя файла процесса, mem - выделенная память,
 \ hc - к-во хэндлов, pid - ID процесса, par - пользовательский параметр (напр. аккумулятор),
@@ -46,8 +48,9 @@ CONSTANT /SYSTEM_PROCESS_INFORMATION
           pid 0 0x0410 OpenProcess DUP 0= IF DROP pid 0 0x1000 OpenProcess THEN
           DUP
           IF -> h
-             900 fi h GetProcessImageFileNameA DROP fi ASCIIZ> \ под WinXP баг: функция возвращает удвоенную (unicode?) длину строки
-\             900 fi 0 h GetModuleFileNameExA fi SWAP
+             WinVer 50 = ( Win2000) IF 900 fi 0 h GetModuleFileNameExA fi SWAP THEN \ только текущий пользователь
+             WinVer 51 60 WITHIN ( XP) IF 900 fi h GetProcessImageFileNameA DROP fi ASCIIZ> THEN \ под WinXP баг: функция возвращает удвоенную (unicode?) длину строки
+             WinVer 59 > ( Vista/2008/W7) IF 900 -> fn ^ fn fi 0 h QueryFullProcessImageNameA IF fi fn ELSE S" " THEN THEN
              h CLOSE-FILE THROW
           ELSE DROP ( GetLastError ." err=" .) S" " THEN -> u -> a
       DUP nqsi.HandleCount @ -> hc
@@ -80,7 +83,7 @@ CONSTANT /SYSTEM_PROCESS_INFORMATION
   DUP P32.th32ProcessID @ .
   DUP P32.szExeFile ASCIIZ> TYPE SPACE
   DUP P32.cntThreads @ .
-      P32.th32ProcessID @ GetProcessInfo . . TYPE SPACE CR
+      P32.th32ProcessID @ GetProcessInfo . . TYPE CR
 ;
 
 \EOF примеры:
@@ -93,3 +96,4 @@ S" *acWEB.exe" GetProcessInfoByName . . . TYPE CR CR
 
 \ распечатать информацию о всех процессах
 ' ProcessEx. ForEachProcess
+WinVer .
