@@ -46,7 +46,7 @@ CONSTANT /SYSTEM_PROCESS_INFORMATION
           pid 0 0x0410 OpenProcess DUP 0= IF DROP pid 0 0x1000 OpenProcess THEN
           DUP
           IF -> h
-             900 fi h GetProcessImageFileNameA fi SWAP
+             900 fi h GetProcessImageFileNameA DROP fi ASCIIZ> \ под WinXP баг: функция возвращает удвоенную (unicode?) длину строки
 \             900 fi 0 h GetModuleFileNameExA fi SWAP
              h CLOSE-FILE THROW
           ELSE DROP ( GetLastError ." err=" .) S" " THEN -> u -> a
