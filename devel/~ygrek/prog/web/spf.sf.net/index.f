@@ -5,10 +5,7 @@
 REQUIRE tag ~ygrek/lib/xmltag.f
 REQUIRE AsQWord ~pinka/spf/quoted-word.f
 REQUIRE XHTML ~ygrek/lib/xhtml/core.f
-REQUIRE new-hash ~pinka/lib/hash-table.f
-REQUIRE KEEP! ~profit/lib/bac4th.f
-
-: css ( a u s -- ) -ROT TYPE ."  { " STYPE ." }" CR ;
+REQUIRE env ~ygrek/lib/env.f
 
 ALSO XMLSAFE
 ALSO XHTML
@@ -28,42 +25,16 @@ ALSO XHTML
   NIP
   1024 / " {n} GB" ;
 
-USER _h
-: h _h @ ;
-
-: h! h HASH! ;
-: h@ h HASH@ ;
-
-: [hash]
-  PRO
-  10 new-hash _h KEEP!
-  CONT
-  h del-hash ;
-
-( : inner
-  [hash]
-  `key `value h HASH!
-  `key2 `value2 h HASH!
-  h hash-count . ;
-
-: outer
-  [hash]
-  `q `v h HASH!
-  inner
-  h hash-count . ;
-
-outer h .)
-
 : release ( `dl size `notes `date `comment )
-  [hash]
-  `comment h! `date h! `notes h! `size h HASH!N `dl h! 
+  [env]
+  `comment env! `date env! `notes env! `size env HASH!N `dl env! 
   
   << tr
-   << td `dl h@ link-dl >>
-   << td `size h HASH@N IF bytes STYPE THEN >>
-\   << td `notes h@ TYPE >>
-   << td `date h@ `notes h@ link-text >>
-   << td `comment h@ TYPE >>
+   << td `dl env@ link-dl >>
+   << td `size env HASH@N IF bytes STYPE THEN >>
+\   << td `notes env@ TYPE >>
+   << td `date env@ `notes env@ link-text >>
+   << td `comment env@ TYPE >>
   >> ;
 
 
@@ -109,55 +80,6 @@ outer h .)
  release 
  
  ;
-
-( 
-<br/>
-<a href="http://downloads.sourceforge.net/spf/spf-devel-20080619.7z">7z</a>, 1.7 MB
-</td>
-<td><a href="http://sourceforge.net/project/shownotes.php?release_id=608161&group_id=17919">spf-devel-20080619</a></td>
-<td>19 June 2008</td>
-<td>for SPF/Windows</td>
-</tr>
-
-<tr>
-<td>
-<a href="http://downloads.sourceforge.net/spf/spf-devel-20080619.tar.gz">gz</a>, 2.2 MB
-<br/>
-<a href="http://downloads.sourceforge.net/spf/spf-devel-20080619.tar.bz2">bz2</a>, 2.0 MB
-</td>
-<td><a href="http://sourceforge.net/project/shownotes.php?release_id=608161&group_id=17919">spf-devel-20080619</a></td>
-<td>19 June 2008</td>
-<td>for SPF/Linux</td>
-</tr>
-)
-
-0 [IF] 
-<!--ul>
-  <li>
-  <a href="http://sourceforge.net/project/shownotes.php?release_id=569286&group_id=17919">SPF 4.19 Win32</a>
-  full installer (17 Jan 2008) 
-  <ul><li><a href="http://downloads.sourceforge.net/spf/spf4-19-setup.exe">exe</a>, 2 MB</li></ul>
-  </li>
-  <li>
-  <a href="http://sourceforge.net/project/shownotes.php?release_id=597863&group_id=17919">SPF 4.19 Linux beta1</a>
-  (sources+binary, no devel, no docs) (7 May 2008) 
-  <ul><li><a href="http://downloads.sourceforge.net/spf/spf4-19-linux-beta1.tar.gz">tar.gz</a>, 355 KB</li></ul>
-  </li>
-  <li>
-  <a href="http://sourceforge.net/project/shownotes.php?release_id=608161&group_id=17919">spf-devel-20080619</a>  
-  &mdash; latest update of the contributed code
-  <ul>
-  <li><a href="http://downloads.sourceforge.net/spf/spf-devel-20080619.rar">rar</a></li>
-  <li><a href="http://downloads.sourceforge.net/spf/spf-devel-20080619.7z">7z</a></li>
-  <li><a href="http://downloads.sourceforge.net/spf/spf-devel-20080619.tar.gz">tar.gz</a></li>
-  <li><a href="http://downloads.sourceforge.net/spf/spf-devel-20080619.tar.bz2">tar.bz2</a></li>
-  </ul>
-  </li>
-</ul-->
-<!--h3--></td></tr>
-
-<tr><td><hr/></td></tr>
-[THEN]
 
 : intro
    .block
@@ -255,9 +177,9 @@ big number of additional libraries for developing sophisticated windows applicat
 
   icon-valid
 
-  << `http://forth.org.ru link-tag
+  << `http://forth.org.ru/~ygrek/prog/web/spf.sf.net/index.f link-tag
   %[ `http://www.forth.org.ru/img/powered-by-spf-mono-2-ani.gif `src $$
-     S" Powered by SP-Forth" `alt $$ ]% `img /atag >>
+     S" View source" `alt $$ ]% `img /atag >>
 
 \  `small tag
 \   S" $Id$" TYPE 
