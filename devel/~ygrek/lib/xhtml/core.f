@@ -4,7 +4,7 @@
 
 REQUIRE xmltag ~ygrek/lib/xmltag.f
 REQUIRE AsQWord ~pinka/spf/quoted-word.f
-REQUIRE XMLSAFE ~ygrek/lib/xmlsafe
+REQUIRE XMLSAFE ~ygrek/lib/xmlsafe.f
 
 MODULE: XHTML
 
