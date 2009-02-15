@@ -19,8 +19,9 @@ REQUIRE XMLSAFE ~ygrek/lib/xmlsafe.f
 MODULE: xmltag
 
 USER indent
+USER-VALUE plain?
 
-: indent_spaces indent @ SPACES ;
+: do_indent CR indent @ SPACES ;
 
 {{ list
 : attributes ( l -- )
@@ -28,7 +29,7 @@ USER indent
   free-with ;
 }}
 
-: prepare-tag ( attr-l a u -- ) CR indent_spaces ." <" TYPE attributes ;
+: prepare-tag ( attr-l a u -- ) plain? NOT IF do_indent THEN ." <" TYPE attributes ;
 
 EXPORT
 
@@ -50,6 +51,10 @@ EXPORT
 
 \ emit closed tag
 : /tag ( a u -- ) list::nil -ROT /atag ;
+
+\ disable indentation for all subsequent tags
+\ enable at backtracking
+: plaintags ( <--> )  PRO TRUE TO plain? CONT FALSE TO plain? ;
 
 ;MODULE
 
@@ -91,12 +96,15 @@ REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f
      S" hello world!" TYPE
    }EMERGE
    `body tag
+   %[ S" para" S" class" $$ ]% `div atag
    `p tag
    S" Test" TYPE ;
 
 test1
 CR
 test2
+CR
+plaintags CR test2
 
 \EOF
 
