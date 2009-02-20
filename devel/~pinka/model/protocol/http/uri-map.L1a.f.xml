@@ -56,7 +56,7 @@
 <def name="add-handler-before" ds=" xt -- ">
   (make-handler) advice-before
 </def>
-<def name="add-handler-after" ds=" xt h -- ">
+<def name="add-handler-after" ds=" xt -- ">
   (make-handler) advice-after
 </def>
 <alias name="add-handler" word="add-handler-before"/>
