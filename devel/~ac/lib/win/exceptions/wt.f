@@ -24,4 +24,10 @@ CONSTANT /WTS_SESSION_INFO
   THEN
 ;
 
-\ 0 :NONAME . . . TYPE CR TRUE ; ForEachWTSession
+\EOF
+0 :NONAME . . . TYPE CR TRUE ; ForEachWTSession
+\EOF пример вывода
+0 4 0
+0 0 1 RDP-Tcp#0 <- активно подключение через RDP
+0 1 3 Console
+0 6 65536 RDP-Tcp
