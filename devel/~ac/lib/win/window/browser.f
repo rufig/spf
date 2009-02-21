@@ -47,6 +47,12 @@ VARIABLE BrEventsHandler \ если не ноль, то при встраивании браузера подключаем
 SPF.IWebBrowserEvents2 BrEventsHandler !
 VARIABLE BrCreateHidden \ если не ноль, то окно создается невидимым
 
+
+\ Не очень понятная штука: внутри нашего окна не приходят события 'onkeyup'
+\ поэтому в js-скриптах, которые на них завязаны ("живой поиск", например),
+\ приходится подключать тот же js-обработчик и на 'onkeypress'.
+\ Это не зависит от того, перехватываем ли мы фортом 'onkeypress' (см. attachEvent'ы ниже).
+
 : TranslateBrowserAccelerator { mem iWebBrowser2 \ oleip -- flag }
   \ сначала проверим, не является ли клавиша браузерным акселератором
   mem CELL+ @ WM_KEYDOWN =
