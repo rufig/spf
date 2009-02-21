@@ -209,10 +209,15 @@ VECT vOnClose :NONAME DROP FALSE ; TO vOnClose
 ;
 ' (BR-WND-PROC) WNDPROC: BR-WND-PROC
 
+CW_USEDEFAULT VALUE bwX
+            0 VALUE bwY
+CW_USEDEFAULT VALUE bwWidth
+            0 VALUE bwHeight
+
 : BrowserWindow { addr u style parent_hwnd \ h bro b -- hwnd }
 \ создать окно браузера и загрузить URL addr u в него.
   AtlInitCnt @ 0= IF AtlAxWinInit 0= IF 0x200A EXIT THEN AtlInitCnt 1+! THEN
-  0 0 0 parent_hwnd 0 CW_USEDEFAULT 0 CW_USEDEFAULT style addr S" AtlAxWin" DROP 0
+  0 0 0 parent_hwnd bwHeight bwWidth bwY bwX style addr S" AtlAxWin" DROP 0
   CreateWindowExA -> h
   h 0= IF EXIT THEN
 
