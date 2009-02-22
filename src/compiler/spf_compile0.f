@@ -23,9 +23,13 @@
   CURRENT @
 ;
 
+: IS-TEMP-WORDLIST ( wid -- flag )
+\ проверяет, является ли словарь wid временным (внешним)
+  CELL- @ -1 =
+;
 : IS-TEMP-WL ( -- flag )
 \ проверяет, является ли текущий словарь компиляции временным (внешним)
-  GET-CURRENT CELL- @ -1 =
+  GET-CURRENT IS-TEMP-WORDLIST
 ;
 : DP ( -- addr ) \ переменная, содержащая HERE сегмента данных
   IS-TEMP-WL
