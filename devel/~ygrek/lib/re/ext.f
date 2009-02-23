@@ -1,8 +1,8 @@
 \ $Id$
-\ Дополнительные строковые операции с регекспами
+\ Дополнительные операции над строками с использованием регулярных выражений
 
 REQUIRE re_match? ~ygrek/lib/re/re.f
-REQUIRE str-replace- ~pinka/samples/2005/lib/replace-str.f
+REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 
 : re_search { a u re -- a1 u1 }
   a u
