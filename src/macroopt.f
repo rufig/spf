@@ -3990,8 +3990,8 @@ OP1 @ W@ 498D XOR OR \ 579CD4 8D4901            LEA     ECX , 1 [ECX]
 OP0 @ C@ 51 XOR OR \ 579CD7 51          PUSH    ECX
 0= IF  M\ 282 DTST
        OP0 OPexcise
-       80  OP1 @ C!
-       2404 OP1 @ 1+ W! \  ADD     [ESP] , # 1 
+       83  OP1 @ C!
+       2404 OP1 @ 1+ W! \  ADD  DWORD   [ESP] , # 1 
         OP1 ToOP0	
        FALSE   M\ 283 DTST
        EXIT
