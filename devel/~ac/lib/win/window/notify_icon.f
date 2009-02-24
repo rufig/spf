@@ -1,9 +1,11 @@
 \ 21.07.08: адаптация к изменениям API после 99го года
 \ fixme: изменения испытаны только на Vista...
+\ 24.02.09: на XP автодеградируем отрезанием hBalloonIcon, иначе не работает
 
 REQUIRE Window    ~ac/lib/win/window/window.f
 REQUIRE LoadIcon  ~ac/lib/win/window/image.f
 REQUIRE TrackMenu ~ac/lib/win/window/popupmenu.f
+REQUIRE WinVer    ~ac/lib/win/winver.f
 
 WINAPI: Shell_NotifyIcon SHELL32.DLL
 
@@ -39,12 +41,18 @@ CONSTANT /NOTIFYICONDATA
 
 HERE CONSTANT IconID
 
+
 CREATE IconData /NOTIFYICONDATA ALLOT
   /NOTIFYICONDATA IconData cbSize !
   IconID IconData uID !
   NIF_MESSAGE NIF_ICON OR NIF_TIP OR NIF_INFO OR IconData uFlags !
   10000 IconData uTimeout/Version !
   NIIF_INFO DROP NIIF_USER IconData dwInfoFlags !
+
+: IconDataSetSize
+  /NOTIFYICONDATA WinVer 60 < IF CELL- THEN
+  IconData cbSize !
+;
 
 : TrayIconSetTitle ( addr u -- )
 \ установить заголовок balloon tooltip'а (ПЕРЕД вызовом установки иконки)
@@ -57,7 +65,7 @@ S" SPF" TrayIconSetTitle
 ;
 : TrayIconCreate ( addr u icona iconu cmd hwnd -- )
   || a u ia iu cmd h mem || (( a u ia iu cmd h ))
-  IconData -> mem
+  IconData -> mem IconDataSetSize
   h mem hWnd !
   cmd mem uCallbackMessage !
   ia iu LoadIcon mem hIcon !
@@ -67,7 +75,7 @@ S" SPF" TrayIconSetTitle
 ;
 : TrayIconCreateFromResource ( addr u iconid cmd hwnd -- )
   || a u id cmd h mem || (( a u id cmd h ))
-  IconData -> mem
+  IconData -> mem IconDataSetSize
   h mem hWnd !
   cmd mem uCallbackMessage !
   id LoadIconResource16 DUP mem hIcon ! mem hBalloonIcon !
@@ -79,14 +87,14 @@ S" SPF" TrayIconSetTitle
 : TrayIconMessage ( addr u -- )
 \ изменить сообщение у последней выведенной в tray иконки
   || a u mem || (( a u ))
-  IconData -> mem
+  IconData -> mem IconDataSetSize
   mem szTip 128 ERASE a mem szTip u 127 MIN MOVE
   mem szInfo 256 ERASE a mem szInfo u 255 MIN MOVE
   mem NIM_MODIFY Shell_NotifyIcon DROP
 ;
 : TrayIconModify ( addr u icona iconu cmd hwnd -- )
   || a u ia iu cmd h mem || (( a u ia iu cmd h ))
-  IconData -> mem
+  IconData -> mem IconDataSetSize
   h mem hWnd !
   cmd mem uCallbackMessage !
   ia iu LoadIcon DUP mem hIcon ! mem hBalloonIcon !
@@ -96,7 +104,7 @@ S" SPF" TrayIconSetTitle
 ;
 : TrayIconModifyText ( addr u cmd hwnd -- )
   || a u cmd h mem || (( a u cmd h ))
-  IconData -> mem
+  IconData -> mem IconDataSetSize
   h mem hWnd !
   cmd mem uCallbackMessage !
   mem szTip 128 ERASE a mem szTip u 127 MIN MOVE
