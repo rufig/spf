@@ -5,7 +5,8 @@
 REQUIRE Window    ~ac/lib/win/window/window.f
 REQUIRE LoadIcon  ~ac/lib/win/window/image.f
 REQUIRE TrackMenu ~ac/lib/win/window/popupmenu.f
-REQUIRE WinVer    ~ac/lib/win/winver.f
+\ REQUIRE WinNT?    ~ac/lib/win/winver.f конфликтует с подключаемым позже quick-swl или storage (из-за AT-PROCESS...)
+\                                        поэтому ниже тупо определено GetWinVer
 
 WINAPI: Shell_NotifyIcon SHELL32.DLL
 
@@ -49,8 +50,15 @@ CREATE IconData /NOTIFYICONDATA ALLOT
   10000 IconData uTimeout/Version !
   NIIF_INFO DROP NIIF_USER IconData dwInfoFlags !
 
+WINAPI: GetVersionExA KERNEL32.DLL
+
+: GetWinVer ( -- ver )
+  148 PAD !
+  PAD GetVersionExA DROP
+  PAD CELL+ @ 10 * PAD CELL+ CELL+ @ +
+;
 : IconDataSetSize
-  /NOTIFYICONDATA WinVer 60 < IF CELL- THEN
+  /NOTIFYICONDATA GetWinVer 60 < IF CELL- THEN
   IconData cbSize !
 ;
 
