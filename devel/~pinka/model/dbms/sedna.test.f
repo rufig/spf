@@ -11,6 +11,11 @@ REQUIRE ReadSocketExact ~ac/lib/win/winsock/SOCKETS.F
   SocketsStartup THROW
   startup FIRE-EVENT
 
+: init-cred ( -- )
+  `SYSTEM `MANAGER `auction `localhost `5050
+  assume-cred
+; 
+    init-cred
     open
     S" count( document('auction')//* ) " query-value TYPE CR
 

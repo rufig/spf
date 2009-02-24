@@ -112,11 +112,6 @@
 
 </export>
 
-<def name="init-default-cred">
-  `SYSTEM `MANAGER `auction `localhost `5050
-  assume-cred
-</def> init-default-cred
-
 
 <include href="sedna-messages.f.xml"/>
 
