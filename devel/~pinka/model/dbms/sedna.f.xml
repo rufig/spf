@@ -100,8 +100,11 @@
 
 <def name="close" ds=" -- ">
   sock <unless><exit/></unless>
-  <xt-of name="close-sedna"/> CATCH
-  close-sock                  THROW
+  <xt-of name="close-sedna"/> CATCH <choose> 
+    DUP -1002 = <when> DROP 0 </when>
+  </choose><rem>( ior )</rem>
+    close-sock
+  THROW
 </def>
 
 <def name="open" ds=" -- ">
