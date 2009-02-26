@@ -38,18 +38,30 @@ MODULE: XHTML
     `88 `width $$
    ]% /atag: img ;
 
-: xml-declaration " <?xml version={''}1.0{''}?>" STYPE CR ;
+\ Compile-time: Extract string delimited by first non-delimiter symbol in the input stream
+\ Run-time: Put extracted string on the stack
+: S ( "<char>ccc<char>" -- )
+    ( -- a u )
+  SkipDelimiters 
+  GetChar NOT ABORT" no delimiter"
+  >IN 1+!
+  PARSE [COMPILE] SLITERAL ; IMMEDIATE
 
-: doctype-strict
-  " <!DOCTYPE html PUBLIC {''}-//W3C//DTD XHTML 1.0 Strict//EN{''} {''}http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd{''}>" STYPE CR ;
+: xml-declaration-enc ( a u -- ) S |<?xml version="1.0" encoding="| TYPE TYPE S |"?>| TYPE CR ;
+: xml-declaration ( -- ) `utf-8 xml-declaration-enc ;
 
-: xhtml 
+: doctype-strict ( -- )
+  S #<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"># TYPE CR ;
+
+: xhtml ( <--> )
   PRO
   %[ `http://www.w3.org/1999/xhtml `xmlns $$ ( `en `xml:lang $$ `en `lang $$ ) ]% atag: html 
   CONT ;
   
-\ : meta-content-type %[ `content-type `http-equiv $$ `text/html;charset=cp1251 `content $$ ]% /atag: meta ;
- 
+: meta ( `value `name -- ) %[ `name $$ `content $$ ]% /atag: meta ;
+: http-equiv ( `value `name -- ) %[ `http-equiv $$ `content $$ ]% /atag: meta ;
+
 : link-stylesheet ( `href -- ) %[ `href $$ `stylesheet `rel $$ `text/css `type $$ ]% /atag: link ;
 
 ;MODULE
+
