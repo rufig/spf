@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<wordlist name="headers.dataspace">
+
+<g xml:base="http://forth.org.ru/~pinka/model/data/">
+<include href="data-space.f.xml" />
+<include href="data-space-auto.f.xml"/>
+</g>
+
+<def name="space,"><text> </text> S, </def>
+  
+<export>
+
+<slot2> status-code </slot2>
+<slot2> status-version </slot2>
+  
+<def name="add-header-line" ds=" a u --"> S, CRLF S, </def>
+
+<def name="add-header" ds=" d-value d-name -- ">
+  S, <text>: </text> S, S, CRLF S,
+</def>
+
+<def name="set-status-full" ds=" d-code d-reason d-version -- ">
+  CLEAR-DATASPACE
+  `HTTP/ S, CARBON status-version!
+  space, 2SWAP CARBON status-code! space, S, CRLF S,
+</def>
+
+<def name="set-status" ds=" d-code d-reason -- ">
+  `1.1 set-status-full
+</def>
+
+<def name="set-request-full" ds=" d-pathname d-method d-version -- ">
+  CLEAR-DATASPACE
+  2>R
+  S, space, S, space, 
+  `HTTP/ S, 2R> S, CRLF S,
+</def>
+
+<def name="set-request" ds=" d-pathname d-method -- ">
+  `1.1 set-request-full
+</def>
+
+<def name="headers" ds=" -- a u ">
+  DATASPACE-CONTENT
+</def>
+
+</export>
+</wordlist>
+
+</forth>
