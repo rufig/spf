@@ -30,8 +30,7 @@
   <include href="quit.f.xml"/><!-- we need number's and string's literals as a double-cells -->
 
   <def name="_init">
-    300 1024 * ALLOCATED DATASPACE!
-    300 1024 * ALLOCATED CODESPACE!
+    600 1024 * ALLOCATED ASSUME-STORAGE
     500 CELLS  ALLOCATED ASSUME-CS
      32 CELLS  ALLOCATED ASSUME-SCOPE
       2 1024 * ALLOCATED ASSUME-PAD

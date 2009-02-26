@@ -24,8 +24,13 @@
   <def name="CODESPACE!" ds=" addr u -- ">
     CODESPACE-WL::DATASPACE!
   </def>
-</xi:model>
 
+  <def name="ASSUME-STORAGE" ds=" addr u -- ">
+    DUP 2 U/  TUCK - >R 2DUP + R> <rem>( addr u1  addr2 u2 )</rem>
+    CODESPACE! DATASPACE!
+  </def>
+
+</xi:model>
 
 
 <xi:model name="storage-co">
@@ -37,8 +42,8 @@
   <def name="RESTORE-STORAGE" ds=" i*x i -- ">
     RESTORE-DATASPACE
   </def>
-  <def name="CODESPACE!" ds=" addr u -- ">
-    2DROP
+  <def name="ASSUME-STORAGE" ds=" addr u -- ">
+    DATASPACE!
   </def>
 </xi:model>
 
