@@ -108,6 +108,7 @@ Requirements :
 <lib><key>axt=></key><src>~profit/lib/bac4th-closures.f</src><comment><en>Dynamically generated patches of code (closures)</en><ru>Динамически генерируемые отрезки кода (замыкания)</ru></comment></lib>
 <lib><key>AsQName</key><src>~pinka/samples/2006/syntax/qname.f</src><comment><en>Syntax extension: treat `string as S" string"</en><ru>Расширение синтаксиса: распознавание `строка как S" строка"</ru></comment></lib>
 <lib><key>AsQWord</key><src>~pinka/spf/quoted-word.f</src><comment><en>Syntax extension: 'c' is char code of c, 'word is xt of word, `string is S" string"</en><ru>Расширение синтаксиса: 'c' -- код символа c, 'word -- xt слова word, `string -- строка S" string"</ru></comment></lib>
+<lib><key>S$</key><src>~pinka/samples/2005/lib/s-dollar.f</src><comment><en>String with generic delimiters</en><ru>Строки с обобщёнными ограничителями</ru></comment><link rel="doc" href="http://forth.sourceforge.net/word/s-dollar/index.html"/></lib>
 
 </section>
 
