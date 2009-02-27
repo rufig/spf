@@ -11,11 +11,6 @@ REQUIRE list-ext ~ygrek/lib/list/ext.f
 REQUIRE list-make ~ygrek/lib/list/make.f
 REQUIRE XMLSAFE ~ygrek/lib/xmlsafe.f
 
-\ : << POSTPONE START{ ; IMMEDIATE
-\ : >> POSTPONE }EMERGE ; IMMEDIATE
-\ : quote [CHAR] " EMIT ;
-\ : enquote-> PRO quote CONT quote ;
-
 MODULE: xmltag
 
 USER indent
@@ -47,7 +42,7 @@ EXPORT
 : tag ( a u --> \ <-- ) PRO list::nil -ROT atag CONT ;
 
 \ emit closed tag with attributes
-: /atag ( attr-l a u -- ) prepare-tag ." />" ;
+: /atag ( attr-l a u -- ) prepare-tag ."  />" ;
 
 \ emit closed tag
 : /tag ( a u -- ) list::nil -ROT /atag ;
