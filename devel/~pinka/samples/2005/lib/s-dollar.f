@@ -3,7 +3,7 @@
 \    The following people contributed to the discussion:
 \    Tom Zegub, Jos v.d.Ven, Michael Gassanenko, Ruvim Pinka
 
-REQUIRE CASE lib\ext\case.f
+REQUIRE CASE lib/ext/case.f
 
 \ Match delimiters for string
 : (S-DELIM) ( c1 -- c2)
