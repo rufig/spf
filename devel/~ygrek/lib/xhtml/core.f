@@ -5,6 +5,7 @@
 REQUIRE xmltag ~ygrek/lib/xmltag.f
 REQUIRE AsQWord ~pinka/spf/quoted-word.f
 REQUIRE XMLSAFE ~ygrek/lib/xmlsafe.f
+REQUIRE S$ ~pinka/samples/2005/lib/s-dollar.f
 
 MODULE: XHTML
 
@@ -38,20 +39,11 @@ MODULE: XHTML
     `88 `width $$
    ]% /atag: img ;
 
-\ Compile-time: Extract string delimited by first non-delimiter symbol in the input stream
-\ Run-time: Put extracted string on the stack
-: S ( "<char>ccc<char>" -- )
-    ( -- a u )
-  SkipDelimiters 
-  GetChar NOT ABORT" no delimiter"
-  >IN 1+!
-  PARSE [COMPILE] SLITERAL ; IMMEDIATE
-
-: xml-declaration-enc ( a u -- ) S |<?xml version="1.0" encoding="| TYPE TYPE S |"?>| TYPE CR ;
+: xml-declaration-enc ( a u -- ) S$ |<?xml version="1.0" encoding="| TYPE TYPE S$ |"?>| TYPE CR ;
 : xml-declaration ( -- ) `utf-8 xml-declaration-enc ;
 
 : doctype-strict ( -- )
-  S #<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"># TYPE CR ;
+  S$ |<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">| TYPE CR ;
 
 : xhtml ( <--> )
   PRO
