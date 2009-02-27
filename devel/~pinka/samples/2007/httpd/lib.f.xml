@@ -69,6 +69,7 @@
 
 <rule match="f:stack-effect" ds=" i*x -- j*x n ">
   <mm> SP@ >R <yield/> SP@ NEGATE R> + /CELL / </mm>
+  <f:rem> see also: EXECUTE-EFFECT </f:rem>
 </rule>
 
 </f:g>
