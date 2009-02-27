@@ -13,4 +13,8 @@
   LOOP
 ;
 
+\ see also: http://forth.sourceforge.net/word/case-conversion/index.html
+\ CHAR>LOWER ( c1 -- c2 )
+\ CHAR>UPPER ( c1 -- c2 )
+
 \ kw: LCASE
