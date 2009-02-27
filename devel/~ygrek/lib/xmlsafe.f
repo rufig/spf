@@ -6,7 +6,7 @@ REQUIRE BOUNDS ~ygrek/lib/string.f
 MODULE: XMLSAFE
 
 : EMIT
-   DUP BL < IF DROP BL EMIT EXIT THEN
+   \ DUP BL < IF DROP BL EMIT EXIT THEN
    DUP [CHAR] < = IF DROP ." &lt;" EXIT THEN
    DUP [CHAR] > = IF DROP ." &gt;" EXIT THEN
    DUP [CHAR] " = IF DROP ." &quot;" EXIT THEN
