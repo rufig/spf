@@ -116,7 +116,11 @@ USER uNSpid
   " :{-} " STR@
 ;
 : NetStatAddProc ( addr u -- )
-  S" " 2SWAP " *{s}" STR@ GetProcessInfoByName NIP NIP NIP NIP >NetStatHtml<
+  S" " 2SWAP " *{s}" STR@ GetProcessInfoByName NIP NIP NIP NIP
+  ?DUP IF >NetStatHtml< ELSE 2DROP THEN
+;
+: NetStatAddPort ( port -- )
+  ?DUP IF NetStatPort TRUE >NetStatHtml< THEN
 ;
 
 \EOF
@@ -132,7 +136,7 @@ S" UDP" TRUE NetStatHtml TYPE CR
 \ по портам:
 NetStatHtml<   S" :25 " TRUE >NetStatHtml<  S" :110 " TRUE >NetStatHtml<  S" :143 " TRUE >NetStatHtml< >NetStatHtml TYPE CR
 \ или то же без кавычек:
-NetStatHtml<   25 NetStatPort TRUE >NetStatHtml<  110 NetStatPort TRUE >NetStatHtml<  143 NetStatPort TRUE >NetStatHtml< >NetStatHtml TYPE CR
+NetStatHtml<   25 NetStatAddPort  110 NetStatAddPort  143 NetStatAddPort  >NetStatHtml TYPE CR
 
 \ для заданного процесса:
 S" " S" *Eproxy.exe" GetProcessInfoByName NIP NIP NIP NIP NetStatHtml TYPE CR
