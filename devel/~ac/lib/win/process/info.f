@@ -49,7 +49,7 @@ CONSTANT /SYSTEM_PROCESS_INFORMATION
           DUP
           IF -> h
              WinVer 50 = ( Win2000) IF 900 fi 0 h GetModuleFileNameExA fi SWAP THEN \ только текущий пользователь
-             WinVer 51 60 WITHIN ( XP) IF 900 fi h GetProcessImageFileNameA DROP fi ASCIIZ> THEN \ под WinXP баг: функция возвращает удвоенную (unicode?) длину строки
+             WinVer 51 60 WITHIN ( XP) IF fi 900 fi h GetProcessImageFileNameA >R fi ASCIIZ> R> MIN THEN \ под WinXP баг: функция возвращает удвоенную (unicode?) длину строки
              WinVer 59 > ( Vista/2008/W7) IF 900 -> fn ^ fn fi 0 h QueryFullProcessImageNameA IF fi fn ELSE S" " THEN THEN
              h CLOSE-FILE THROW
           ELSE DROP ( GetLastError ." err=" .) S" " THEN -> u -> a
