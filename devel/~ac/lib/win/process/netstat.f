@@ -37,28 +37,34 @@ USER uNS
   " <tr class='sp_data'><td>UDP</td><td>{n}</td><td>{s}</td><td>{s}</td>{s}</tr>{CRLF}"
   uNS @ S+
 ;
+: NETSTAT
+  S" command line error" uNS @ STR+
+;
 
-: GetNetStatResults
+: GetNetStatResults { ta tu -- }
   SOURCE S" ::" SEARCH NIP NIP IF EXIT THEN
+  SOURCE S" NETSTAT" SEARCH NIP NIP IF SOURCE EVALUATE EXIT THEN
+  SOURCE ta tu SEARCH NIP NIP 0= IF EXIT THEN
+
   SOURCE S" TCP" SEARCH NIP NIP
-  SOURCE S" UDP" SEARCH NIP NIP OR 0=
+  SOURCE S" UDP" SEARCH NIP NIP OR
+  0=
   IF EXIT
   ELSE
      SOURCE EVALUATE
   THEN
 ;
 
-: ReadNetStatReply
-  >R
+: ReadNetStatReply { ta tu l -- }
   BEGIN
-    R@ PipeReadLine \ DUP IF ." =>" 2DUP TYPE ." <=" CR ELSE CR THEN
-    ['] GetNetStatResults ['] EVALUATE-WITH CATCH
-    ?DUP IF ." ns_err=" . 2DROP THEN
+    l PipeReadLine \ DUP IF ." =>" 2DUP TYPE ." <=" CR ELSE CR THEN
+    ta tu 2SWAP ['] GetNetStatResults ['] EVALUATE-WITH CATCH
+    ?DUP IF ." ns_err=" . 2DROP 2DROP THEN
   AGAIN
-  RDROP
 ;
-: (NetStatHtml)
-  CreateStdPipes S" netstat.exe -ona" ChildAppErr THROW
+: (NetStatHtml) { ta tu \ l -- }
+  CreateStdPipes
+  S" netstat.exe -ona" ChildAppErr THROW
 
   \  -1 OVER WaitForSingleObject DROP CLOSE-FILE THROW
   CLOSE-FILE DROP 
@@ -67,21 +73,44 @@ USER uNS
 
   StdinWH @ CLOSE-FILE THROW
 
-  StdoutRH @ PipeLine >R
-  R@ ['] ReadNetStatReply CATCH IF DROP THEN
-  R> FREE THROW
+  StdoutRH @ PipeLine -> l
+  ta tu l ['] ReadNetStatReply CATCH IF DROP 2DROP THEN
+  l FREE THROW
   StdoutRH @ CLOSE-FILE THROW
-;
 
-: NetStatHtml ( -- addr u )
+\  StderrRH @ PipeLine -> l
+\  ta tu l ['] ReadNetStatReply CATCH IF DROP 2DROP THEN
+\  l FREE THROW
+  StderrRH @ CLOSE-FILE THROW
+;
+: NetStatHtml<  ( -- )
   " <table class='sortable' id='sp_table' cellpadding='0' cellspacing='0'>
 <thead><tr class='sp_head'><th class='proto'>Прот</th><th class='pid'>pid</th><th class='process'>Процесс</th>
 <th class='state'>Состояние</th><th class='ip'>IP</th><th class='port'>П</th><th class='rip'>IP</th><th class='rport'>П</th></tr></thead>
 <tbody>"
   uNS !
-  ['] (NetStatHtml) CATCH DROP
+;
+: >NetStatHtml  ( -- addr u )
   " </tbody></table>" uNS @ S+
   uNS @ STR@
 ;
+: >NetStatHtml< ( ta tu -- )
+  ['] (NetStatHtml) CATCH ?DUP IF ." ns_err=" . 2DROP THEN
+;
+: NetStatHtml ( ta tu -- addr u )
+  NetStatHtml<
+  >NetStatHtml<
+  >NetStatHtml
+;
+: NetStatPort ( port -- addr u )
+  " :{-} " STR@
+;
+\ S" " NetStatHtml TYPE CR
+\ S" ESTABLISHED" NetStatHtml TYPE CR
+\ S" LISTENING" NetStatHtml TYPE CR
+\ S" TIME_WAIT" NetStatHtml TYPE CR
+\ S" CLOSE_WAIT" NetStatHtml TYPE CR
+\ S" UDP" NetStatHtml TYPE CR
 
-\ NetStatHtml TYPE CR
+\ NetStatHtml<   S" :25 " >NetStatHtml<  S" :110 " >NetStatHtml<  S" :143 " >NetStatHtml< >NetStatHtml TYPE CR
+\ NetStatHtml<   25 NetStatPort >NetStatHtml<  110 NetStatPort >NetStatHtml<  143 NetStatPort >NetStatHtml< >NetStatHtml TYPE CR
