@@ -6,6 +6,8 @@
 \ выдать "System" вместо реальных процессов.
 \ fixme: но наверное там и опции "-o" в netstat нет :)
 
+( примеры использования см. в конце файла )
+
 REQUIRE ChildAppErr ~ac/lib/win/process/child_app.f
 REQUIRE PipeLine    ~ac/lib/win/process/pipeline.f
 REQUIRE STR@        ~ac/lib/str5.f
@@ -13,6 +15,7 @@ REQUIRE GetProcessInfo ~ac/lib/win/process/info.f
 REQUIRE /STRING     lib/include/string.F
 
 USER uNS
+USER uNSpid
 
 : TCP
   SkipDelimiters [CHAR] : PARSE 2DUP S" 0.0.0.0" COMPARE 0= IF 2DROP S" " THEN 2>R
@@ -21,10 +24,13 @@ USER uNS
                  NextWord 2DUP S" 0" COMPARE 0= IF 2DROP S" " THEN
   2R> 2R> 2R> " <td>{s}</td><td>{s}</td><td>{s}</td><td>{s}</td>" STR@
   NextWord NextWord 0 0 2SWAP >NUMBER 2DROP D>S
-  DUP GetProcessInfo 2DROP 2DUP CUT-PATH NIP /STRING DUP 0= IF 2DROP S" System" THEN
-  ROT
-  " <tr class='sp_data'><td>TCP</td><td>{n}</td><td>{s}</td><td>{s}</td>{s}</tr>{CRLF}"
-  uNS @ S+
+  DUP uNSpid @ = uNSpid @ TRUE = OR
+  IF
+    DUP GetProcessInfo 2DROP 2DUP CUT-PATH NIP /STRING DUP 0= IF 2DROP S" System" THEN
+    ROT
+    " <tr class='sp_data'><td>TCP</td><td>{n}</td><td>{s}</td><td>{s}</td>{s}</tr>{CRLF}"
+    uNS @ S+
+  ELSE DROP 2DROP 2DROP THEN
 ;
 : UDP
   SkipDelimiters [CHAR] : PARSE 2DUP S" 0.0.0.0" COMPARE 0= IF 2DROP S" " THEN 2>R
@@ -32,10 +38,13 @@ USER uNS
                  NextWord 2DROP
   2R> 2R> " <td>{s}</td><td>{s}</td><td></td><td></td>" STR@
   S" " NextWord 0 0 2SWAP >NUMBER 2DROP D>S
-  DUP GetProcessInfo 2DROP 2DUP CUT-PATH NIP /STRING DUP 0= IF 2DROP S" System" THEN
-  ROT
-  " <tr class='sp_data'><td>UDP</td><td>{n}</td><td>{s}</td><td>{s}</td>{s}</tr>{CRLF}"
-  uNS @ S+
+  DUP uNSpid @ = uNSpid @ TRUE = OR
+  IF
+    DUP GetProcessInfo 2DROP 2DUP CUT-PATH NIP /STRING DUP 0= IF 2DROP S" System" THEN
+    ROT
+    " <tr class='sp_data'><td>UDP</td><td>{n}</td><td>{s}</td><td>{s}</td>{s}</tr>{CRLF}"
+    uNS @ S+
+  ELSE DROP 2DROP 2DROP THEN
 ;
 : NETSTAT
   S" command line error" uNS @ STR+
@@ -94,10 +103,11 @@ USER uNS
   " </tbody></table>" uNS @ S+
   uNS @ STR@
 ;
-: >NetStatHtml< ( ta tu -- )
+: >NetStatHtml< ( ta tu pid -- )
+  uNSpid !
   ['] (NetStatHtml) CATCH ?DUP IF ." ns_err=" . 2DROP THEN
 ;
-: NetStatHtml ( ta tu -- addr u )
+: NetStatHtml ( ta tu pid -- addr u ) \ при pid=-1 - все
   NetStatHtml<
   >NetStatHtml<
   >NetStatHtml
@@ -105,12 +115,33 @@ USER uNS
 : NetStatPort ( port -- addr u )
   " :{-} " STR@
 ;
-\ S" " NetStatHtml TYPE CR
-\ S" ESTABLISHED" NetStatHtml TYPE CR
-\ S" LISTENING" NetStatHtml TYPE CR
-\ S" TIME_WAIT" NetStatHtml TYPE CR
-\ S" CLOSE_WAIT" NetStatHtml TYPE CR
-\ S" UDP" NetStatHtml TYPE CR
+: NetStatAddProc ( addr u -- )
+  S" " 2SWAP " *{s}" STR@ GetProcessInfoByName NIP NIP NIP NIP >NetStatHtml<
+;
 
-\ NetStatHtml<   S" :25 " >NetStatHtml<  S" :110 " >NetStatHtml<  S" :143 " >NetStatHtml< >NetStatHtml TYPE CR
-\ NetStatHtml<   25 NetStatPort >NetStatHtml<  110 NetStatPort >NetStatHtml<  143 NetStatPort >NetStatHtml< >NetStatHtml TYPE CR
+\EOF
+
+\ фильтр по состоянию соединения
+S" " TRUE NetStatHtml TYPE CR
+S" ESTABLISHED" TRUE NetStatHtml TYPE CR
+S" LISTENING" TRUE NetStatHtml TYPE CR
+S" TIME_WAIT" TRUE NetStatHtml TYPE CR
+S" CLOSE_WAIT" TRUE NetStatHtml TYPE CR
+S" UDP" TRUE NetStatHtml TYPE CR
+
+\ по портам:
+NetStatHtml<   S" :25 " TRUE >NetStatHtml<  S" :110 " TRUE >NetStatHtml<  S" :143 " TRUE >NetStatHtml< >NetStatHtml TYPE CR
+\ или то же без кавычек:
+NetStatHtml<   25 NetStatPort TRUE >NetStatHtml<  110 NetStatPort TRUE >NetStatHtml<  143 NetStatPort TRUE >NetStatHtml< >NetStatHtml TYPE CR
+
+\ для заданного процесса:
+S" " S" *Eproxy.exe" GetProcessInfoByName NIP NIP NIP NIP NetStatHtml TYPE CR
+
+\ для набора процессов:
+NetStatHtml<
+  S" " S" *acSMTP.exe" GetProcessInfoByName NIP NIP NIP NIP >NetStatHtml<
+  S" " S" *smtpsend4.exe" GetProcessInfoByName NIP NIP NIP NIP >NetStatHtml<
+>NetStatHtml TYPE CR
+
+\ то же, короче:
+NetStatHtml< S" acSMTP.exe" NetStatAddProc S" smtpsend4.exe" NetStatAddProc >NetStatHtml TYPE CR
