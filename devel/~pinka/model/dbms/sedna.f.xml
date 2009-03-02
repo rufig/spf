@@ -100,8 +100,9 @@
 
 <def name="close" ds=" -- ">
   sock <unless><exit/></unless>
-  <xt-of name="close-sedna"/> CATCH <choose> 
+  'close-sedna CATCH <choose>
     DUP -1002 = <when> DROP 0 </when>
+    DUP 10053 = <when> DROP 0 </when>
   </choose><rem>( ior )</rem>
     close-sock
   THROW
@@ -137,9 +138,22 @@
   packet::LongQueryEnd put
 </def>
 
+<def name="(transact)" ds=" -- ">  packet::BeginTransaction    put next </def>
+
 <export>
 
-<def name="transact" ds=" -- ">  packet::BeginTransaction    put next </def>
+<def name="transact" ds=" -- ">
+  '(transact) CATCH <choose>
+  DUP -1002 NE <when/>
+  DUP 10053 NE <when/>
+  THROW <exit/></choose>
+  DROP 
+  <!--
+  <log>sedna, reopen connection</log>
+  -->
+  close-sock open (transact)
+</def>
+
 <def name="commit" ds=" -- ">    packet::CommitTransaction   put next </def>
 <def name="rollback" ds=" -- ">  packet::RollbackTransaction put next </def>
 
