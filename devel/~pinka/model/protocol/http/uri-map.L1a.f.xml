@@ -7,7 +7,7 @@
 
 <cell name="default"/><init> default DUP  chain-current !  chain-context ! </init>
 <cell name="redirection-segment"/>
-<slot2> pathname </slot2>
+<slot2> pathname orig </slot2>
 
 <export>
 
@@ -17,9 +17,13 @@
   chain-context <let> perform-chain </let>
 </def>
 <def name="dispatch-pathname-via" ds=" a u h -- flag ">
-  -ROT pathname! dispatch-via
+  orig 2>R
+  -ROT 2DUP pathname! orig! dispatch-via
+  2R> orig!
 </def>
-
+<def name="basepath" ds=" -- a u ">
+  orig DROP pathname DROP OVER -
+</def>
 <def name="next-segment" ds=" -- a u ">
   pathname `/ SPLIT <if> pathname! <exit/></if> DROP 0
   <rem>The segment may be a 0 length </rem>
