@@ -1382,6 +1382,7 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
   BEGIN
           ?OPlast    IF DROP EXIT THEN
      DUP @ W@ 6D8D = IF DROP EXIT THEN
+     DUP @ W@ 15FF = IF DROP EXIT THEN \ CALL [x]
      DUP @ C@ E8   = IF DROP EXIT THEN \ CALL
      DUP @ C@ E9   = IF DROP EXIT THEN \ JMP
      DUP @ C@ F0
