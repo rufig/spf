@@ -1,3 +1,6 @@
+\ retrieve RSS feeds and announce new items
+\ FIXME leaks memory
+
 REQUIRE ANSI-FILE lib/include/ansi-file.f
 REQUIRE rss.items-new=> ~ygrek/lib/spec/rss.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f
@@ -12,13 +15,13 @@ REQUIRE logger ~ygrek/lib/log.f
 REQUIRE list-make ~ygrek/lib/list/make.f
 REQUIRE list-ext ~ygrek/lib/list/ext.f
 
-ALSO libxml2.dll
-ALSO libxml2.so.2
-: nodeText-s node@ ?DUP IF 1 xmlNodeGetContent ASCIIZ> UTF8> 2DUP >STR NIP SWAP FREE THROW ELSE "" THEN ;
-PREVIOUS
-PREVIOUS
+\ local.f
 
-\ : STR-SAY STYPE CR ;
+\ ALSO libxml2.dll
+\ ALSO libxml2.so.2
+\ : nodeText-s ( a u node -- s ) node@ ?DUP IF 1 xmlNodeGetContent ASCIIZ> UTF8> 2DUP >STR NIP SWAP FREE THROW ELSE "" THEN ;
+\ PREVIOUS
+\ PREVIOUS
 
 MODULE: bot_plugin_rss
 
@@ -76,13 +79,13 @@ MODULE: bot_plugin_rss
 : hide-email DUP " @" "  at " replace-str- ;
 
 : reply-rss { node | title author -- }
-   S" title" node nodeText-s -> title
-   S" creator" node nodeText-s hide-email -> author
+   node rss.item.title >STR -> title
+   node rss.item.author >STR hide-email -> author
    node rss.item.timestamp my-date
    " [{s}] {$author} -- {$title}" STR-SAY
    author STRFREE
    title STRFREE
-   S" link" node nodeText-s STR-SAY ;
+   node rss.item.link >STR STR-SAY ;
 
 : process-and-stamp-rss=> ( stamp-a stamp-u data-a data-u -- node )
     S" Checking xml..." log::trace
@@ -106,8 +109,8 @@ MODULE: bot_plugin_rss
    CR ." title=" node rss.item.title TYPE
    CR ." author=" node rss.item.author TYPE
    CR ." date=" node rss.item.timestamp my-date TYPE
-   CR ." link=" S" link" node nodeText-s STYPE 
-   CR ." description=" S" description" node nodeText-s STYPE 
+   CR ." link=" S" link" node nodeText TYPE 
+   CR ." description=" S" description" node nodeText TYPE 
    ;
 
 EXPORT
@@ -120,16 +123,6 @@ DEFINITIONS
 
 : seconds 1000 * ;
 : minutes 60 * seconds ;
-
-0 [IF]
-: new-pack ( -- pack ) "" ;
-: pack-n ( n pack -- ) >R SP@ CELL " {s}" R> S+ DROP ;
-: pack-au ( a u pack -- ) >R SP@ CELL " {s}{s}" R> S+ ;
-: unpack-n ( addr -- addr' n ) DUP CELL+ SWAP @ ;
-: unpack-au ( addr -- addr' a u ) unpack-n 2DUP + -ROT ;
-: >msg-lt-rss ( a1 u1 a u -- s ) new-pack >R R@ pack-au R@ pack-au R> ;
-: msg-lt-rss> ( a u -- a u a1 u1 ) DROP unpack-au ROT unpack-au ROT DROP ;
-[THEN]
 
 : url-to-filename ( s -- s )
     DUP " /" " _" replace-str-
@@ -186,6 +179,9 @@ DEFINITIONS
 ; TASK: rss-checker
 
 : fforum-url S" http://fforum.winglion.ru/rss.php?c=10" ;
+: wiki-url S" http://wiki.forth.org.ru/RecentChanges?format=rss" ;
+: sf.net-url S" http://sourceforge.net/export/rss2_projnews.php?group_id=17919" ;
+: blog-url S" http://my.opera.com/forth/xml/rss/blog" ;
 
 EXPORT
 
@@ -198,13 +194,13 @@ EXPORT
   0 rss-getter START DROP
   0 rss-checker START DROP
 
-\ ограничим сообщения с форума только на время онлайна бота
-TIME&DATE DateTime>Num fforum-url >STR url-to-filename STR@ write-number
+  \ ограничим сообщения с форума только на время онлайна бота
+  TIME&DATE DateTime>Num fforum-url >STR url-to-filename STR@ write-number
 
-%[ fforum-url >STR % 5 minutes % ]% submitter START DROP
-%[ " http://sourceforge.net/export/rss2_projnews.php?group_id=17919" % 6 60 * minutes % ]% submitter START DROP
-%[ " http://wiki.forth.org.ru/RecentChanges?format=rss" % 60 minutes % ]% submitter START DROP
-%[ " http://my.opera.com/forth/xml/rss/blog" % 30 minutes % ]% submitter START DROP
+  %[ fforum-url >STR % 5 minutes % ]% submitter START DROP
+  %[ sf.net-url >STR % 6 60 * minutes % ]% submitter START DROP
+  %[ wiki-url >STR % 60 minutes % ]% submitter START DROP
+  %[ blog-url >STR % 30 minutes % ]% submitter START DROP
 
 ;..
 
@@ -213,6 +209,12 @@ TIME&DATE DateTime>Num fforum-url >STR url-to-filename STR@ write-number
 $Revision$ " -- RSS plugin {s} loaded." STYPE CR
 
 \ -----------------------------------------------------------------------
+
+/TEST
+
+ALSO bot_plugin_rss
+
+: q GET-FILE STR@ rss.items=> DUP reply-rss ;
 
 \EOF
 

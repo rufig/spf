@@ -64,9 +64,11 @@ MODULE: bot_plugin_gismeteo
   %[ " нск" % " Новосибирск" % ]% %
 ]% VALUE short-cities
 
+{{ list
 : short-city ( a u -- a1 u1 )
-   short-cities LAMBDA{ list::car STR@ 2OVER COMPARE 0= } list::find
-   IF list::cdar STR@ 2SWAP 2DROP ELSE DROP THEN ;
+  short-cities LAMBDA{ car STR@ 2OVER COMPARE 0= } find
+  IF car cdar STR@ 2SWAP 2DROP ELSE DROP THEN ;
+}}
 
 :NONAME 
   S" weather-getter" log_thread
@@ -74,6 +76,7 @@ MODULE: bot_plugin_gismeteo
   DROP { | l }
   BEGIN
    q_ mtq::get -> l
+   S" weather-getter awaken" log::trace
    l list::car STR@ " http://informer.gismeteo.ru/xml/{s}_1.xml" >R
    R@ STR@ S" plugins/frc3.xsl" XSLT ( a u )
    R> STRFREE
@@ -119,7 +122,9 @@ $Revision$ " -- gismeteo weather plugin {s} loaded." STYPE CR
 
 \EOF \ testing
 
+ALSO bot_plugin_gismeteo
+ALSO BOT-COMMANDS
 AT-CONNECT
 S" хельсинки" find-city-code CR TYPE
-BOT-COMMANDS::!weather киев
+!weather киев
 S" нск" short-city find-city-code CR TYPE
