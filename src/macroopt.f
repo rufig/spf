@@ -1376,6 +1376,8 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
     CELL+   DUP @  :-SET   U> 0=
   UNTIL ;
 1 [IF]
+\ удаляет лишние операторы записывающие на стек данных .
+\ (операторы индекс при  EBP которых равен значению OFF-EBP)
 :  -EBPCLR   ( FLAG OPX  -- FLAG' )
    DUP @  :-SET  U< IF DROP EXIT THEN
   OFF-EBP CELL- TO OFF-EBP
