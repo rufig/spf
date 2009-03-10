@@ -84,7 +84,7 @@ ALSO XHTML
 : intro
    .block
    << `caps :span
- << `http://sourceforge.net/projects/spf/ link-tag 
+ << `http://sourceforge.net/projects/spf link-tag 
     %[ `spf.png `src $$ `32px `height $$ `32px `width $$ S" SP-Forth" `alt $$ ]% `img /atag >> SPACE
    ." SP-Forth" >> "  is an ANS forth system for Windows and Linux.
 It features optimized native code generation, high speed execution, full ANS'94 support, small yet highly-extensible kernel,
@@ -98,7 +98,7 @@ big number of additional libraries for developing sophisticated windows applicat
 : project-page
 \  .block
   `span tag
-  S" Project page" `http://sourceforge.net/projects/spf/ link-text ;
+  S" Project page" `http://sourceforge.net/projects/spf link-text ;
 
 : cvs
 \ .block
@@ -148,7 +148,7 @@ big number of additional libraries for developing sophisticated windows applicat
 : docs
  .block
  ." Docs available online:"
- ul 
+ ul plaintags
   << li 
     `SPF_README `docs/readme.en.html link-text
     ."  (" `ru `docs/readme.ru.html link-text ." )." >>
@@ -170,10 +170,12 @@ big number of additional libraries for developing sophisticated windows applicat
 : footer
    .block
 \  `div tag
-  
-  << `http://sourceforge.net link-tag
-   %[ `http://sourceforge.net/sflogo.php?group_id=17919 `src $$
-      S" SourceForge Logo" `alt $$ ]% `img /atag >>
+  << `http://sourceforge.net/projects/spf link-tag
+   %[ `http://sflogo.sourceforge.net/sflogo.php?group_id=17919&type=12 `src $$
+      `120 `width $$
+      `30 `height $$
+      S" Get SP-Forth - ANS Forth compiler at SourceForge.net. Fast, secure and Free Open Source software downloads" `alt $$ ]% 
+      `img /atag >>
 
   icon-valid
 
@@ -191,7 +193,8 @@ big number of additional libraries for developing sophisticated windows applicat
    xhtml
    << `head tag
      << `title tag S" SP-Forth" TYPE >>
-     `index.css link-stylesheet
+     << `index.css link-stylesheet >>
+\     << S" application/xhtml+xml; encoding=utf-8" S" Content-Type" http-equiv >>
    >>
 
 `body tag
