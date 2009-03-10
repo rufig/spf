@@ -3,7 +3,7 @@
 
 <wordlist name="mysql-hidden">
 
-<slot2> charset database user pass  hostname port host </slot2>
+<slot2> charset database user pass  hostname port host  xml-stylesheet </slot2>
 <slot> nport conn errno res row col </slot>
 
 <def name="(connect)" ds=" -- ior ">
@@ -84,10 +84,26 @@ We can just save the consumer-xt and don't use the intermediate buffering.
 
 <include href="serialize-xml.f.xml"/>
 
+
+<def name="store-xml-stylesheet" ds=" -- ">
+  xml-stylesheet NIP <unless><exit/></unless>
+  <text><![CDATA[<?xml-stylesheet type="text/xsl" href="]]></text> store-chunk
+  xml-stylesheet store-chunk
+  <text><![CDATA["?>]]>&#xA;</text> store-chunk
+  0. xml-stylesheet!
+</def>
+
 <export>
+
+<def name="set-xml-stylesheet" ds=" d-url -- ">
+  <rem> setup it for each query </rem>
+  xml-stylesheet! 
+</def>
 
 <def name="query-xml-per" ds=" d-query xt -- ">
   buf::clear
+  <text><![CDATA[<?xml version="1.0"?>]]>&#xA;</text> store-chunk
+  store-xml-stylesheet
   >R query store-response
   <repeat> buf::next-chunk DUP <while/> R@ EXECUTE </repeat> R> EXECUTE
 </def>
