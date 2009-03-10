@@ -286,7 +286,8 @@ USER _LASTMSGHTML
            mp mpSubTypeAddr @ mp mpSubTypeLen @ S" plain" COMPARE-U 0=
            IF CR>BR " <pre class='plain'>{s}</pre>" DUP -> tf_pl STR@ THEN
            s STR+
-           tf_dq ?DUP IF FREE DROP THEN tf_db ?DUP IF FREE DROP THEN
+           ( tf_dq ?DUP IF FREE DROP THEN) tf_db ?DUP IF FREE DROP THEN
+           \ dequotep возвращает бывш.str5-строку, а не ALLOCATEd-буфер, поэтому тут нельзя делать FREE!
            tf_pl ?DUP IF STRFREE THEN
          ELSE mp mpTypeAddr @ mp mpTypeLen @ s STR+ THEN
     THEN
