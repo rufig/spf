@@ -28,7 +28,7 @@
 </def>
 
 <def name="store-response" ds=" -- ">
-  <text><![CDATA[<response xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">]]>&#xA;</text> store-chunk
+  <text><![CDATA[<response xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">]]></text> store-chunk
   <xt-of name="store-result"/> enum-results
   <text><![CDATA[</response>]]></text> store-chunk
 </def>
