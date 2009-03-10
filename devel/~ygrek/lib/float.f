@@ -11,7 +11,7 @@ REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
 REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 REQUIRE >FLOAT lib/include/float2.f
 
-:NONAME { a u | s -- }
+: AUTO-FLOAT-LITERAL { a u | s -- a u FALSE | TRUE }
   a u RE" [-+]?\d+(.?\d*)?([fFdD])([-+]?\d+)?" re_match? NOT IF a u FALSE EXIT THEN
   a u " {s}" -> s
   s \2 " {s}" " e" replace-str- 
@@ -22,7 +22,9 @@ REQUIRE >FLOAT lib/include/float2.f
   ELSE
    FLOAT>DATA SWAP POSTPONE 2LITERAL
   THEN
-  TRUE ; enqueueNOTFOUND
+  TRUE ;
+  
+' AUTO-FLOAT-LITERAL enqueueNOTFOUND
 
 \ -------------------------------------------------
 
