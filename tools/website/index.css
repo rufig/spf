@@ -24,7 +24,7 @@ th { background-color: gold; }
   border-bottom: 1px dashed black;
 }
 .line span { padding-right: 20px; }
-.content { width: 70%; }
+.content { max-width: 54em; /*margin: 0 auto;*/ }
 .caps 
 {
   font-size: 3em; 
@@ -32,4 +32,5 @@ th { background-color: gold; }
 /*  font-family: sans-serif; */
   /* outline: 1px solid red;*/
 }
+img { border: 0px; }
 
