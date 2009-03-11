@@ -68,7 +68,7 @@
 </def>
 
 <init>
- <xt-of name="I-NATIVE-EXT"/> chain-t-native::advice-after
+ <xt-of name="I-NATIVE-EXT"/> chain-t-native::advice-before
 </init>
 
 <export>
