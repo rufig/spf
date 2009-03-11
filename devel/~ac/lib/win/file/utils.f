@@ -189,6 +189,10 @@ VARIABLE CurDir
   IF 2SWAP 2DROP LoadInitLibrary R> STRFREE THROW EXIT THEN
   2DROP R> STRFREE 
 
+  2DUP ModuleDirName " {s}..\..\ext\{s}" DUP >R STR@ 2DUP FileExists
+  IF 2SWAP 2DROP LoadInitLibrary R> STRFREE THROW EXIT THEN
+  2DROP R> STRFREE 
+
 \  LoadInitLibrary THROW
   2DROP 0
 ;
