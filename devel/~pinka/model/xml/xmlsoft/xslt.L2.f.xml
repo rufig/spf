@@ -19,8 +19,10 @@
 <also wordlist="dataspace-L3-hidden">
 
 <def name="quoted-string" ds=" a1 u1 -- a2 u2 ">
+  2DUP `' CONTAINS <unless>
   ALIGN HERE >R `' S, S, `' S, R> HERE OVER -
-  0 C,
+  0 C, <exit/>
+  </unless> `#xmlsoft.escape-apos-in-param STHROW
 </def>
 <def name="PrepareParams" ds=" -- addr|0 ">
   ALIGN HERE
