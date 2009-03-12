@@ -10,11 +10,17 @@ WINAPI: localtime  MSVCRT.DLL
 
 USER-CREATE uLocalTime 21 USER-ALLOT
 
-: CurrentTimeSql ( -- addr u )
-  UnixTime >R RP@ localtime NIP 
+: UnixTimeSql ( unixtime -- addr u ) \ LOCAL
+  >R RP@ localtime NIP 
   S" %Y-%m-%d %H:%M:%S" DROP 21 uLocalTime strftime NIP NIP NIP NIP 
   uLocalTime SWAP
   RDROP
 ;
+: CurrentTimeSql ( -- addr u )
+  UnixTime UnixTimeSql
+;
 \ CurrentTimeSql TYPE
 
+: UNIXTIME>FILETIME ( unixtime -- filetime ) \ UTC
+  10000000 M* 116444736000000000. D+  \ см. http://support.microsoft.com/kb/167296
+;
