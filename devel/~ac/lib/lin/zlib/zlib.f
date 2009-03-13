@@ -60,7 +60,7 @@ ALSO SO NEW: libz.so.1
 ;
 : zlib_uncompress ( addr u -- addr2 u2 )
   SWAP OVER \ 10000 100 */
-  DUP 5000 U< IF 100 * ELSE 5 * THEN
+  DUP 5000 U< IF 100 * ELSE 15 * THEN
   DUP ALLOCATE THROW DUP >R SWAP >R
   RP@ SWAP
   4 uncompress
