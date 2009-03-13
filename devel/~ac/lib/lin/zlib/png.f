@@ -1,7 +1,7 @@
 \ $Id$
 \ «апись и извлечение данных в/из PNG-формата.
-\ ѕример дистрибутива SPF/4.20 в виде картинки:
-\ http://www.forth.org.ru/~ac/spf-builds/SPF4.20/spf4_pic.png
+\ ѕример дистрибутива SPF/4.20 в виде картинок:
+\ http://www.forth.org.ru/~ac/spf-builds/SPF4.20/
 
 \ ќсновные функции - CreatePng и ReadPng.
 \ ‘ормирование PNG-файла с произвольными данными addr u внутри:
@@ -22,6 +22,8 @@
   поэтому, если при извлечении данных точный размер важен, то дл€ бинарных 
   данных исходный размер нужно делать частью данных, а дл€ текстов можно
   при извлечении просто делать DROP ASCIIZ>.
+
+  — альфа-каналом 4 байта на пиксел, управл€етс€ uPngPP.
 
   ƒанные картинки всегда хран€тс€ в сжатом виде [zlib deflate], поэтому
   отдельна€ операци€ сжати€/распаковки данных не требуетс€ - это делаетс€
@@ -97,8 +99,17 @@ USER pngDA USER pngDU
   ^ crc BIGENDIAN@ mem png.ChunkData du + !
   mem du 12 + h WRITE-FILE THROW
 ;
+USER uPngWidth
+USER uPngHeight
+USER uPngPP
+: AlphaPng 6 uPngPP ! ;
+
+: PngPP ( -- n ) \ 3 или 4 - число байт на пиксел
+  uPngPP @ 4 AND
+  IF 4 ELSE 3 THEN
+;
 : RasterizeData { da du x \ xx lines mem u2 -- a2 u2 y x }
-  x 3 * -> xx
+  x PngPP * -> xx
   du xx 1- + xx / DUP -> lines \ строк по x точек
   xx 1+ * DUP -> u2 ALLOCATE THROW -> mem \ каждую строку начинает байт "filter-type" (0 или 1), см. 2.3. Image layout
   lines 0 DO
@@ -110,7 +121,7 @@ USER pngDA USER pngDU
   lines x
 ;
 : DerasterizeData { da du x \ xx lines mem u2 m -- a2 u2 y x }
-  x 3 * -> xx
+  x PngPP * -> xx
   du xx 1+ / DUP -> lines \ строк по x точек, столько же байт лишних в du ("filter-type" в каждой строке)
   du SWAP - DUP -> u2 ALLOCATE THROW -> mem
   lines 0 DO
@@ -129,9 +140,11 @@ USER pngDA USER pngDU
   fa fu R/W CREATE-FILE THROW -> h
   PNGSIG 8 h WRITE-FILE THROW
   tIHDR1 tIHDR 13 MOVE
+  uPngPP @ 0= IF 2 uPngPP ! THEN
   da du x RasterizeData
   tIHDR IHDR.Width BIGENDIAN!
   tIHDR IHDR.Height BIGENDIAN!
+  uPngPP @ tIHDR IHDR.ColorType C!
   tIHDR 13 S" IHDR" h WritePngChunk
 \  S" 123456" 2DUP ERASE S" tRNS" h WritePngChunk \ черный цвет будет прозрачным, чтоб не така€ мрачна€ картинка была :)
 \ pHYs 9
@@ -141,12 +154,11 @@ USER pngDA USER pngDU
   h CLOSE-FILE THROW
 ;
 
-USER uPngWidth
-USER uPngHeight
-
 : IHDR ( addr u -- ) \ 00 00 00 10  00 00 00 10  08 02 00 00  00
   OVER IHDR.Width BIGENDIAN@ DUP uPngWidth ! . ." x "
   OVER IHDR.Height BIGENDIAN@ DUP uPngHeight ! .
+  OVER IHDR.BitDepth C@ ." @ " .
+  OVER IHDR.ColorType C@ DUP uPngPP ! ." & " .
   2DROP
 ;
 : pHYs ( addr u -- ) \ 00 00 0E C3  00 00 0E C3  01  ...√...√. \  Physical pixel dimensions
@@ -167,10 +179,14 @@ USER uPngHeight
   2DROP
   uIDAT @ STR@
   CR ." comp=" DUP .
-  zlib_uncompress ." uncomp=" DUP .
-  uPngWidth @ DerasterizeData ." x*y=" . .
-  ." dr=" DUP .
-  2DUP 40 MIN DUMP
+  uPngWidth @ uPngHeight @ * PngPP *  uPngHeight @ + \ доп.байт на каждую скан-строку
+DUP .
+  zlib_uncompress_l ." uncomp=" DUP .
+  DUP IF
+    uPngWidth @ DerasterizeData ." x*y=" . .
+    ." dr=" DUP .
+    2DUP 40 MIN DUMP
+  THEN
   pngDU ! pngDA !
   uIDAT @ STRFREE uIDAT 0!
 ;
@@ -291,3 +307,10 @@ S" spf_forthproc.png" ReadPng S" spf4-forthproc-fromPNG.f" WFILE
 \ уменьшение размера png-файла (10-50% - за счет отключени€ "лишних" чанков и замены "серийного" IDAT одним большим)
 S" C:\Users\ac\Pictures\black.png" ReadPng S" black.bin" WFILE
 S" black.bin" FILE S" black.png" uPngWidth @ CreatePng
+
+\ уменьшение вертикального размера картинки на четверть за счет задействовани€ четвертого байта (альфа)
+\ размер png-файла тоже уменьшаетс€, но на ничтожные доли процента - за счет уменьшени€ к-ва filter-byte,
+\ которые per line.
+AlphaPng
+S" E:\dl\spf4-20-setup.exe" FILE zlib_compress S" spf4_pic2.png" 1024 CreatePng
+S" spf4_pic2.png" ReadPng zlib_uncompress S" spf4-fromPNG.exe" WFILE
