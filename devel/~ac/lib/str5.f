@@ -443,6 +443,12 @@ USER _LASTFILESIZE
 ;
 : FILEFREE ( a -- ) FREE THROW ;
 
+: WFILE ( da du fa fu -- )
+  R/W CREATE-FILE THROW DUP >R
+  WRITE-FILE THROW
+  R> CLOSE-FILE THROW
+;
+
 : S@ ( addr u -- addr2 u2 )
 \ вычислить {} в строке
 \ ValidateThreadHeap<
