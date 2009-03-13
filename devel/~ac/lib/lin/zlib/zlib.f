@@ -45,6 +45,7 @@ ALSO SO NEW: libz.so.1
 \ output buffer.
 
  0 CONSTANT Z_OK
+-3 CONSTANT Z_DATA_ERROR
 -4 CONSTANT Z_MEM_ERROR
 -5 CONSTANT Z_BUF_ERROR
 
@@ -58,22 +59,33 @@ ALSO SO NEW: libz.so.1
   4 compress
   Z_OK = IF 2R> ELSE 2R> DROP FREE THROW S" " THEN
 ;
-: zlib_uncompress ( addr u -- addr2 u2 )
-  SWAP OVER \ 10000 100 */
-  DUP 5000 U< IF 100 * ELSE 15 * THEN
-  DUP ALLOCATE THROW DUP >R SWAP >R
-  RP@ SWAP
-  4 uncompress
-  Z_OK = IF 2R> ELSE 2R> DROP FREE THROW S" " THEN
-;
-: zlib_uncompress_l ( addr u u2 -- addr2 u2 )
+: zlib_uncompress_l_ior ( addr u u2 -- addr2 u2 ior )
   >R SWAP R>
   DUP ALLOCATE THROW DUP >R SWAP >R
   RP@ SWAP
   4 uncompress
-  Z_OK = IF 2R> ELSE 2R> DROP FREE THROW S" " THEN
+  DUP Z_OK = IF 2R> ELSE 2R> DROP FREE THROW S" " THEN
+  ROT
 ;
+: zlib_uncompress_l ( addr u u2 -- addr2 u2 )
+  zlib_uncompress_l_ior DROP
+;
+: zlib_uncompress ( addr u -- addr2 u2 )
+\ zlib не хранит размер исходных данных, поэтому необходимый размер буфера 
+\ здесь пытаемся угадать методом последовательных приближений (~ruv)
+\ (максимум 9 лишних попыток при 1000-кратном сжатии)
 
+  DUP 3 * >R
+  BEGIN
+    2DUP R@ zlib_uncompress_l_ior DUP Z_DATA_ERROR =
+    IF DROP RDROP 2SWAP 2DROP EXIT THEN \ при Z_DATA_ERROR нет смысла пытаться дальше - ошибка в данных
+  WHILE
+    2DROP R> 2* >R
+    R@ OVER / 2000 > IF RDROP 2DROP S" " EXIT THEN \ больше 1000-кратного сжатия не встречал...
+  REPEAT
+  2SWAP 2DROP
+  RDROP
+;
 : CRC32 ( addr u -- crc32 )
   SWAP 0 3 crc32 \ crc32
 ;
@@ -136,6 +148,8 @@ bits 6 to 7: compression level 2, irrelevant for decompression
 ;
 PREVIOUS PREVIOUS
 
+\ S" test" zlib_compress zlib_uncompress TYPE CR
+\ 100000000 DUP ALLOCATE THROW SWAP 2DUP CHAR A FILL zlib_compress DUP . zlib_uncompress DUP . 10 MIN TYPE CR
 \EOF
 
 REQUIRE FILE ~ac/lib/str5.f
