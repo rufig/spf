@@ -133,7 +133,7 @@ USER pngDA USER pngDU
   tIHDR IHDR.Width BIGENDIAN!
   tIHDR IHDR.Height BIGENDIAN!
   tIHDR 13 S" IHDR" h WritePngChunk
-  S" 123456" 2DUP ERASE S" tRNS" h WritePngChunk \ черный цвет будет прозрачным, чтоб не такая мрачная картинка была :)
+\  S" 123456" 2DUP ERASE S" tRNS" h WritePngChunk \ черный цвет будет прозрачным, чтоб не такая мрачная картинка была :)
 \ pHYs 9
 \ gAMA 4
    zlib_compress S" IDAT" h WritePngChunk
@@ -272,3 +272,7 @@ S" spf4_pic.png" ReadPng zlib_uncompress S" spf4-fromPNG.exe" WFILE
 
 S" F:\spf4\src\spf_forthproc.f" FILE S" spf_forthproc.png" 100 CreatePng
 S" spf_forthproc.png" ReadPng S" spf4-forthproc-fromPNG.f" WFILE
+
+\ уменьшение размера png-файла (10-50% - за счет отключения "лишних" чанков и замены "серийного" IDAT одним большим)
+S" C:\Users\ac\Pictures\black.png" ReadPng S" black.bin" WFILE
+S" black.bin" FILE S" black.png" uPngWidth @ CreatePng
