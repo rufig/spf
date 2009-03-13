@@ -53,7 +53,7 @@ USER StderrWH
  \ pi CELL+ CELL+ @ \ process id
   pi FREE DROP
   i CLOSE-FILE THROW
-  o CLOSE-FILE THROW
+  o i <> IF o CLOSE-FILE THROW THEN
   res
 ;
 : ChildApp ( input-handle output-handle a u -- p-handle ior )
@@ -80,7 +80,7 @@ USER StderrWH
   a    \ command line
   0    \ application
   CreateProcessA DUP
-  IF SA_WAIT @ pi @ WaitForSingleObject DROP
+  IF w pi @ WaitForSingleObject DROP
      ^ c pi @ GetExitCodeProcess DROP
      pi @ CLOSE-FILE DROP \ process handle close
      pi CELL+ @ CLOSE-FILE DROP \ thread handle close
@@ -90,14 +90,15 @@ USER StderrWH
   pi FREE DROP si FREE DROP
   SWAP ERR
 
-  i CLOSE-FILE DROP
-  o CLOSE-FILE DROP
-  e CLOSE-FILE DROP \ не делаем throw, т.к. может быть один и тот же хэндл
+  i CLOSE-FILE THROW
+  o i <> IF o CLOSE-FILE THROW THEN
+  e i <> e o <> AND IF e CLOSE-FILE THROW THEN \ на входе может быть один и тот же хэндл, напр. NUL'а
 ;
 
 
 \EOF
 ~ac/lib/str5.f
+pipeline.f
 
 : TEST
   CreateStdPipes S" F:\spf4\spf4.exe" ChildAppErr THROW
