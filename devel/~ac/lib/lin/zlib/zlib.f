@@ -66,6 +66,14 @@ ALSO SO NEW: libz.so.1
   4 uncompress
   Z_OK = IF 2R> ELSE 2R> DROP FREE THROW S" " THEN
 ;
+: zlib_uncompress_l ( addr u u2 -- addr2 u2 )
+  >R SWAP R>
+  DUP ALLOCATE THROW DUP >R SWAP >R
+  RP@ SWAP
+  4 uncompress
+  Z_OK = IF 2R> ELSE 2R> DROP FREE THROW S" " THEN
+;
+
 : CRC32 ( addr u -- crc32 )
   SWAP 0 3 crc32 \ crc32
 ;
