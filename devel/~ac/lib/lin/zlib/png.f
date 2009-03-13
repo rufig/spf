@@ -78,7 +78,7 @@ USER pngDA USER pngDU
     DUP CELL+ ROT ( mem mem+ size)
     R@ READ-FILE THROW ( mem size )
     2DUP SWAP CELL+ SWAP
-    PNGCHUNK png.ChunkType 4 SFIND IF EXECUTE CR ELSE CR TYPE ."  -- unknown png chunk type" CR DUMP CR THEN
+    PNGCHUNK png.ChunkType 4 SFIND IF EXECUTE CR ELSE CR TYPE ."  -- unknown png chunk type" CR 32 MIN DUMP CR THEN
     2DUP CELL+ CRC32 >R
     DROP FREE THROW
     R>
@@ -262,6 +262,21 @@ The following keywords are predefined and should be used where appropriate:
   use the same private chunk name. If you use a private chunk type, it is prudent to store additional identifying 
  information at the beginning of the chunk data. 
 )
+
+\ нестандартный APNG (анимированный PNG, поддерживается FF3 и оперой9.5)
+\ https://wiki.mozilla.org/APNG_Specification
+\ http://en.wikipedia.org/wiki/APNG
+
+: acTL ( addr u -- ) \ The Animation Control Chunk
+  2DROP
+;
+: fcTL ( addr u -- ) \ The Frame Control Chunk
+  2DROP
+;
+: fdAT ( addr u -- ) \ The Frame Data Chunk
+\ The `fdAT` chunk has the same purpose as an `IDAT` chunk. It has the same structure as an `IDAT` chunk, except preceded by a sequence number. 
+  2DROP
+;
 
 \EOF
 \ в первом примере исходные данные сжимаются, чтобы картинка была красивее :)
