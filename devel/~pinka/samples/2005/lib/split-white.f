@@ -36,3 +36,6 @@
 \ то выкидывает последнее слово как сомнительное в целостности.
   -SPLIT-WHITE-FORCE 2 PICK IF 2DROP EXIT THEN 2SWAP 2DROP
 ;
+: WORD|TAIL ( a u -- a u1 a-rest u-rest ) 
+  FINE-HEAD SPLIT-WHITE-FORCE
+;
