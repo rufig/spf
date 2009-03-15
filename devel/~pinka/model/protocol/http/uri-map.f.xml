@@ -10,4 +10,9 @@
 <include href="uri-map.L1a.f.xml"/>
 <include href="uri-map.L2.f.xml"/>
 
+<comment>
+  see also: W3C URISpace 1.0  http://www.w3.org/TR/urispace
+    XML-based mechanism for assigning metadata to a group of resources, based on the namespace described by their URIs
+</comment>
+
 </forth>
