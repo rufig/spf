@@ -13,6 +13,9 @@ REQUIRE OPEN-LOGFILE    ~pinka/samples/2005/lib/append-file.f
 REQUIRE WORD|TAIL       ~pinka/samples/2005/lib/split-white.f
 REQUIRE OFF             lib/ext/onoff.f
 REQUIRE 2VARIABLE       lib/include/double.f
+REQUIRE NOWADAYS        src/spf_date.f
+
+CREATE build-date NOWADAYS S",
 
 2VARIABLE _databases
 
@@ -94,6 +97,13 @@ WARNING ON
 : -uninstall
   svc-name DeleteService ERR ERROR OK BYE
 ;
+: -version
+  build-date COUNT
+  " Windows service for Sedna XML DBMS -- se_svc version 1.0 ({s})
+(C) 2009 ruvim@forth.org.ru
+Sources available at http://spf.cvs.sourceforge.net/spf/devel/~pinka/prog/sedna/
+" STYPE ." Based on " (TITLE)  BYE
+;
 : help
 `} `{
 " Usage: se_svc {s} -db <list> -install | -uninstall {s}
@@ -101,6 +111,7 @@ options:
   -db 'db1 db2 dbN'  - the databases to start with service
   -install           - to install service 'sedna'
   -uninstall         - to remove service 'sedna'
+  -version           - display version
 " STR@ TYPE
 ;
 : -help help BYE ;
