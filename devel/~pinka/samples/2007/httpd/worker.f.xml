@@ -51,17 +51,15 @@ content-length-number
 
 <export>
 
-<def name="quit" ds=" -- ">
-  startup FIRE-EVENT  my-wid PUSH-SCOPE
+<def name="main" ds=" -- ">
+  startup 'FIRE-EVENT CATCH 
+  DUP  <if><logN>exception at startup</logN><exit/></if>
+  DROP
+  my-wid PUSH-SCOPE
   my-wid <logN>worker started</logN>
   <repeat> get-client? <while/> treat-client </repeat>
   my-wid <logN>worker finished</logN>
   shutdown FIRE-EVENT
-  dec-workers
-</def>
-
-<def name="start" ds=" -- ">
-  <xt-of name="quit"/> LAUNCH
 </def>
 
 </export>

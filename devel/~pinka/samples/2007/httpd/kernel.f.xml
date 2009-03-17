@@ -28,13 +28,19 @@
     GET-CURRENT <logN>worker wid</logN>
     <!-- local alias: -->
     <def name="get-client?"> get-client? </def>
-    <def name="dec-workers"> dec-workers </def>
   
-    load-worker inc-workers
+    load-worker
 
-  </wid> DUP
-    remember-worker 
-    `start OBEY-SURE-
+    <def name="start" ds=" -- ">
+      UNUSED <logN>unused</logN>
+      <q> inc-workers 
+          <lit> `main &amp;</lit> CATCH 
+          dec-workers
+      </q>
+      LAUNCH
+    </def>
+  </wid> DUP remember-worker 
+ `start OBEY-SURE-
 </def>
 
 <def name="wait-workers-finished" ds=" -- 0|x ">
