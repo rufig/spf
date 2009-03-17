@@ -207,10 +207,15 @@ USER uLastNodeSetStr
      ?DO
         res xpo.nodesetval @ xns.nodeTab @ I CELLS + @
         x.children @ ( listNodes)
-        1 xmlNodeGetContent ASCIIZ> UTF8>UNICODE OVER >R UNICODE> R> FREE THROW
-        OVER >R
-        s STR+ CRLF s STR+
-        R> FREE THROW
+        1 xmlNodeGetContent ?DUP
+        IF
+          ASCIIZ> UTF8>UNICODE OVER >R UNICODE> R> FREE THROW
+          OVER >R
+          s STR+ CRLF s STR+
+          R> FREE THROW
+        ELSE
+          CRLF s STR+
+        THEN
      LOOP
   THEN
   s uLastNodeSetStr !
