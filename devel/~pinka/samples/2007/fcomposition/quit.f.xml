@@ -13,9 +13,12 @@
 <def name="E-WORD" ds=" i*x  a u -- j*x true | i*x a u false ">
   I-SLIT-FORM   DUP <if><exit/></if> DROP
   E-NATIVE      DUP <if><exit/></if> DROP
+  I-QUOTED-FORM DUP <if><exit/></if> DROP
   I-LIT         DUP <if><exit/></if> DROP
   I-HLIT-FORM   DUP <if><exit/></if> DROP
-  I-DLIT-FORM
+  I-DLIT-FORM   DUP <if><exit/></if> DROP
+  FALSE
+  <rem> see also: ~/model/trans/ttext.immutable.f.xml </rem>
 </def>
 
 
