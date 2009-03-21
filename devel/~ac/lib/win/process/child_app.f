@@ -54,6 +54,7 @@ USER StderrWH
   pi FREE DROP
   i CLOSE-FILE THROW
   o i <> IF o CLOSE-FILE THROW THEN
+  e i <> e o <> AND IF e CLOSE-FILE THROW THEN \ на входе может быть один и тот же хэндл, напр. NUL'а
   res
 ;
 : ChildApp ( input-handle output-handle a u -- p-handle ior )
