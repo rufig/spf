@@ -48,6 +48,9 @@ REQUIRE [IF]          lib/include/tools.f
 : BUNICODE> ( addr u -- addr2 u2 )
   S" UTF-16BE" S" CP1251" ICONV
 ;
+: >BUNICODE ( addr u -- addr2 u2 )
+  S" CP1251" S" UTF-16BE" ICONV
+;
 : UTF8>UNICODE ( addr u -- addr2 u2 )
   S" UTF-8" S" UTF-16LE" ICONV
 ;
