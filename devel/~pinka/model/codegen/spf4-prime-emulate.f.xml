@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="as-const" ds=" xt -- xt false | x true ">
+<rem> const:
+1702B98 8D6DFC          LEA     EBP , FC [EBP]
+1702B9B 894500          MOV     0 [EBP] , EAX
+1702B9E B823010000      MOV     EAX , # 123
+1702BA3 C3              RET     NEAR
+</rem>
+
+  DUP >R
+  <choose>
+      DUP     T@  0x89FC6D8D NE             <when/>
+  4 + DUP     T@  0xFFFFFF AND 0xB80045 NE  <when/>
+  3 + DUP 4 + B@  0xC3 NE                   <when/>
+  T@ RDROP TRUE <exit/>
+  </choose>
+  DROP R> FALSE
+</def>
+
+<def name="emulate" ds=" i*x xt -- xt false | j*x  true ">
+  as-const DUP <if><exit/></if>
+</def>
+
+</forth>
