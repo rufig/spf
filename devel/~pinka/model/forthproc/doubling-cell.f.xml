@@ -37,18 +37,18 @@
   (DRSHIFT) 
 </def>
 
-<def name="LOG2" ds=" x -- u ">
+<def name="LOGARITHM2" ds=" x -- u ">
   0 >R <repeat> 1 RSHIFT DUP <while/> RP@ 1+! </repeat> DROP R>
 </def>
 
 <export>
 
 <def name="/CELL-DEGREE">
-  <lit> 2 CELLS  LOG2 </lit> 0
+  <lit> 2 CELLS  LOGARITHM2 </lit> 0
 </def>
   
 <def name="/CHAR-DEGREE">
-  <lit> 1 CHARS  LOG2 </lit> 0
+  <lit> 1 CHARS  LOGARITHM2 </lit> 0
 </def>
 
 <def name="ALIGNED"> >R DUP 0x3F AND <if> 0x40 + 0xFFFFFFC0 AND </if> R> </def>
