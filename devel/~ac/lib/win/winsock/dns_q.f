@@ -390,13 +390,13 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 
 : PrintType
   ." Type=" REP @ W@ >B<
-  DUP 16 ( TXT) > ABORT" DNS reply format error (type)"
+  DUP 16 ( TXT) > OVER QTYPE-AAAA <> AND ABORT" DNS reply format error (type)"
   . 2 REP +!
 ;
 
 : ParseType
   REP @ W@ >B<
-  DUP 16 ( TXT) > ABORT" DNS reply format error (type)"
+  DUP 16 ( TXT) > OVER QTYPE-AAAA <> AND ABORT" DNS reply format error (type)"
   2 REP +!
   CURRENT-R @ ?DUP IF RLtype ! ELSE DROP THEN
 ;
@@ -443,6 +443,13 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   REP @ 8 - W@ >B< TYPE-NS =
   IF ." NS Host="
      REP @ DUP >R 2 + REP ! PrintName R> REP ! CR
+     NextRD EXIT
+  THEN
+
+  REP @ 8 - W@ >B< QTYPE-AAAA =
+  IF ." AAAA IPv6="
+     REP @ W@ >B<
+     REP @ 2 + SWAP DUMP CR
      NextRD EXIT
   THEN
 
