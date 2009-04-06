@@ -307,6 +307,17 @@ USER _db3_gets
   >R 0 ['] db3_gets_ R> db3_exec
   _db3_gets @ ?DUP IF STR@ ELSE S" " THEN
 ;
+: db3_gets_id_ { i par ppStmt -- flag }
+  0 ppStmt db3_colu _db3_gets S! 
+  1 ppStmt db3_coli _db3_get_1 ! 
+  FALSE
+;
+: db3_gets_id ( addr u sqh -- addr u id )
+  _db3_gets 0! _db3_get_1 0!
+  >R 0 ['] db3_gets_id_ R> db3_exec
+  _db3_gets @ ?DUP IF STR@ ELSE S" " THEN
+  _db3_get_1 @
+;
 : db3_thread_cleanup ( -- )
 \  1 1 sqlite3_soft_heap_limit DROP \ недоступно
   0 sqlite3_thread_cleanup DROP     \ ничего не делает...
