@@ -3,6 +3,9 @@
   $Id$
 )
 \ Кроме libgcrypt.dll требуется libintl-2.dll
+\ Испытано с 1.2.1 под Windows (http://www.forth.org.ru/ext/libgcrypt121.rar)
+\ и 1.2.4 под Linux.
+
 \ Многопоточность см. http://www.gnupg.org/documentation/manuals/gcrypt/Multi_002dThreading.html
 
 REQUIRE SO            ~ac/lib/ns/so-xt.f
@@ -28,6 +31,12 @@ ALSO SO NEW: libgcrypt.so.11
   0 hd 2 gcry_md_read -> p
   p mdlen HEAP-COPY mdlen
   hd 1 gcry_md_close DROP
+;
+: HMAC-MD5 ( addr u keya keyu  -- ha hu )
+  GCRY_MD_MD5 HMAC
+;
+: HMAC-SHA1 ( addr u keya keyu  -- ha hu )
+  GCRY_MD_SHA1 HMAC
 ;
 : MD5B ( addr u -- ha hu )
   16 ALLOCATE THROW >R
@@ -61,8 +70,8 @@ PREVIOUS
     S" test" SHA1B DUMP \ аналогично
     CR
     \ тесты из RFC2202:
-    S" what do ya want for nothing?" S" Jefe" GCRY_MD_MD5 HMAC DUMP CR \ 0x750c783e6ab0b503eaa86e310a5db738
-    S" what do ya want for nothing?" S" Jefe" GCRY_MD_SHA1 HMAC DUMP CR \ 0xeffcdf6ae5eb2fa2d27416d5f184df9c259a7c79
+    S" what do ya want for nothing?" S" Jefe" HMAC-MD5 DUMP CR \ 0x750c783e6ab0b503eaa86e310a5db738
+    S" what do ya want for nothing?" S" Jefe" HMAC-SHA1 DUMP CR \ 0xeffcdf6ae5eb2fa2d27416d5f184df9c259a7c79
   THEN
 ;
 TEST
