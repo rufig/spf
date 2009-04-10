@@ -22,6 +22,7 @@ ALSO libcurl.so.3
   "" uCurlRes !
   0 curl_easy_init -> h
   addr CURLOPT_URL h 3 curl_easy_setopt DROP
+  uCurlVerifySsl @ CURLOPT_SSL_VERIFYPEER h CURL-SETOPT
 
 \  S" name:passw" DROP CURLOPT_USERPWD  h 3 curl_easy_setopt DROP
 

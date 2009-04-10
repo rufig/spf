@@ -31,6 +31,7 @@ CURL-GLOBAL-INIT
 USER-VALUE CURL-MAX-SIZE
 
 USER uCurlRes
+USER uCurlVerifySsl
 
 : CURL-VERSION ( -- addr u )
   0 curl_version ASCIIZ>
@@ -58,6 +59,7 @@ USER uCurlRes
   "" uCurlRes !
   0 curl_easy_init -> h
   addr u >STR DUP -> url STRA CURLOPT_URL h CURL-SETOPT
+  uCurlVerifySsl @ CURLOPT_SSL_VERIFYPEER h CURL-SETOPT
 
 \  S" name:passw" DROP CURLOPT_USERPWD  h 3 curl_easy_setopt DROP
 
