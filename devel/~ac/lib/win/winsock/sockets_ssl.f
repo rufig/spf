@@ -24,7 +24,7 @@ VECT dSslWaitInit ' NOOP TO dSslWaitInit
 : SslServerSocket { addr u verify s -- namea nameu cert }
 \ addr u - имя файла с сертификатом и закрытым ключем в PEM-формате
   SslInit
-  -1 SSL-MUT @ WAIT THROW DROP
+  5000 SSL-MUT @ WAIT THROW DROP
   s uSSL_SOCKET !
   dSslWaitInit
   addr u X509_FILETYPE_PEM 
@@ -81,7 +81,8 @@ VECT dSslWaitInit ' NOOP TO dSslWaitInit
 ;
 : CloseSocket ( s -- ior )
   DUP uSSL_SOCKET @ =
-  IF uSSL_OBJECT @ SSL_free 2DROP 
+  IF uSSL_OBJECT @ SSL_shutdown 2DROP
+     uSSL_OBJECT @ SSL_free 2DROP 
      uSSL_CONTEXT @ SSL_CTX_free 2DROP
      CloseSocket DUP IF ." ssl_close_socket_err=" DUP . THEN
      uSSL_SOCKET 0!

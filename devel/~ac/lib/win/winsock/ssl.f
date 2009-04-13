@@ -85,6 +85,7 @@ SSLAPI: SSL_connect
 SSLAPI: SSL_accept
 SSLAPI: SSL_write
 SSLAPI: SSL_read
+SSLAPI: SSL_shutdown
 SSLAPI: SSL_get_error
 SSLAPI: SSL_CTX_use_certificate_file
 SSLAPI: SSL_load_client_CA_file
@@ -126,7 +127,7 @@ VARIABLE vSSL_INIT
   CREATE-SSL-MUT
   vSSL_INIT @ 0=
   IF
-    -1 SSL-MUT @ WAIT THROW DROP
+    10000 SSL-MUT @ WAIT THROW DROP
     SSL_load_error_strings DROP
     SSL_library_init vSSL_INIT !
     SSL-MUT @ RELEASE-MUTEX DROP
