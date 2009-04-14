@@ -53,6 +53,12 @@ VECT dSslWaitInit ' NOOP TO dSslWaitInit
   ?DUP IF SslGetVerifyResults THROW ROT \ ." verify:" . ." (" TYPE ." )" .
        ELSE S" " 0 THEN
 ;
+: SslConnectHost ( addr u port -- s ior )
+  2>R DUP SetSslHost 2R>
+  ConnectHost ?DUP IF EXIT THEN >R
+  S" " 0 R@ SslClientSocket ( namea nameu cert) DROP 2DROP
+  R> 0
+;
 : WriteSocket ( addr u s -- ior )
    DUP 0= IF DROP 2DROP 12005 EXIT THEN
   OVER 0= IF DROP 2DROP 0 EXIT THEN
