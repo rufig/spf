@@ -25,9 +25,10 @@ USER uSslSinceSocketRead \ Сколько времени прошло с момента запуска чтения.
     S" libgnutls-openssl-13.dll " LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
   ELSE
     S" ..\ext\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
-    S" libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+    S" .\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
     S" conf\plugins\ssl\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
     S" ..\CommonPlugins\plugins\ssl\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+    S" libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
   THEN
   -2009 THROW
 ;
@@ -38,9 +39,10 @@ USER uSslSinceSocketRead \ Сколько времени прошло с момента запуска чтения.
     S" libgnutls-openssl-13.dll " LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
   ELSE
     S" ..\ext\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
-    S" libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+    S" .\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
     S" conf\plugins\ssl\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
     S" ..\CommonPlugins\plugins\ssl\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+    S" libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
   THEN
   -2009 THROW
 ;
@@ -104,10 +106,25 @@ SSLAPI: SSL_CTX_set_verify
 SSLAPI: SSL_get_verify_result
 SSLAPI: SSL_get_peer_certificate
 SSLAPI: SSL_CTX_set_verify_depth
+SSLAPI: SSL_ctrl
+
+\ SSLAPI: SSL_CTX_sess_accept_renegotiate
+\ SSLAPI: SSL_renegotiate
+
+\ с 0.9.8j: SNI
+\  SSL_set_tlsext_host_name = SSL_ctrl(s,SSL_CTRL_SET_TLSEXT_HOSTNAME,TLSEXT_NAMETYPE_host_name,(char *)name)
+
+SSLAPI: SSL_get_servername \ (const SSL *s, const int type) ;
+\ SSLAPI: SSL_get_servername_type \ (const SSL *s) ;
+
+\ на практике компрессию в SSL/TLS никто не использует
+\ SSLAPI: SSL_COMP_add_compression_method
+\ SSLEAPI: COMP_zlib
 
 SSLEAPI: X509_get_subject_name
 SSLEAPI: X509_NAME_oneline
 SSLEAPI: X509_verify_cert_error_string
+SSLEAPI: SSLeay_version
 
 \ SSLAPI: ERR_error_string       libssl32.dll
 \ SSLAPI: SSL_CTX_set_client_cert_cb libssl32.dll
@@ -120,6 +137,11 @@ SSLEAPI: X509_verify_cert_error_string
 1 CONSTANT SSL_VERIFY_PEER
 2 CONSTANT SSL_VERIFY_FAIL_IF_NO_PEER_CERT
 4 CONSTANT SSL_VERIFY_CLIENT_ONCE
+
+55 CONSTANT SSL_CTRL_SET_TLSEXT_HOSTNAME
+
+\ NameType value from RFC 3546
+0 CONSTANT TLSEXT_NAMETYPE_host_name 
 
 VARIABLE vSSL_INIT
 
@@ -147,8 +169,8 @@ VARIABLE vSSL_INIT
   c
 ;
 : SslNewClientContext { pema pemu type \ c -- context }
-  SSLv23_client_method 
-\  TLSv1_client_method
+\  SSLv23_client_method 
+  TLSv1_client_method
   SSL_CTX_new DUP 0= THROW NIP
   -> c
 
@@ -189,9 +211,17 @@ VARIABLE vSSL_INIT
   ELSE 0 S" " THEN
   conn SSL_get_verify_result NIP
 ;
+USER uSslHost   \ здесь задается имя хоста, передаваемое в tlsext ClientHello при исходящих соединениях
+USER uSslServer \ сервер получает здесь имя хоста, указанное в tlsext в ClientHello
+
+: SetSslHost ( addr -- )
+  uSslHost !
+;
 : SslObjConnect ( socket context -- conn_obj ) \ connection
   SSL_new DUP 0= THROW NIP
-  DUP >R SSL_set_fd 0= THROW 2DROP
+  >R
+  uSslHost @ ?DUP IF TLSEXT_NAMETYPE_host_name SSL_CTRL_SET_TLSEXT_HOSTNAME R@ SSL_ctrl ( 1, если поддерживается) DROP 2DROP 2DROP THEN
+  R@ SSL_set_fd 0= THROW 2DROP
   BEGIN
     R@ SSL_connect DUP 1 <>
   WHILE
@@ -211,7 +241,9 @@ VARIABLE vSSL_INIT
     DROP 2DROP
     dSslWaitIdle
   REPEAT
-  DROP RDROP
+  DROP \ RDROP
+  TLSEXT_NAMETYPE_host_name R> SSL_get_servername NIP NIP
+  ?DUP IF ( ." SSL host name=" DUP ASCIIZ> TYPE CR) uSslServer ! THEN
 ;
 : SslWrite { addr u conn_obj -- n }
 \  >R SWAP R> SSL_write NIP NIP NIP
