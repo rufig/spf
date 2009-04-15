@@ -8,7 +8,7 @@ REQUIRE SslInit       ~ac/lib/win/winsock/ssl.f
 WARNING @ WARNING 0!
 USER uSSL_OBJECT
 USER uSSL_SOCKET
-USER uSSL_CONTEXT
+
 VECT dFailedSsl
 VECT dSslWaitInit ' NOOP TO dSslWaitInit
 
@@ -82,7 +82,9 @@ VECT dSslWaitInit ' NOOP TO dSslWaitInit
      TIMEOUT @ uSslSinceSocketRead @ < IF 10060 EXIT THEN
      uSSL_OBJECT @ SSL_get_error NIP NIP 0 SWAP
      DUP 6 = ( SSL_ERROR_ZERO_RETURN) IF DROP -1002 THEN
-     DUP 5 = IF DROP WSAGetLastError ." ssl_r5_err=" DUP . DUP 0= IF DROP -1002 THEN THEN
+     DUP 5 = IF DROP WSAGetLastError DUP 0= IF DROP -1002
+                                            ELSE ." ssl_r5_err=" DUP . THEN
+             THEN
   ELSE ReadSocket THEN
 ;
 : CloseSocket ( s -- ior )

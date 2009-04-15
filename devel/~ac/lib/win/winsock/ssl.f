@@ -79,6 +79,7 @@ SSLAPI: SSL_library_init
 SSLAPI: SSL_CTX_new
 SSLAPI: TLSv1_method
 SSLAPI: TLSv1_client_method
+SSLAPI: TLSv1_server_method
 SSLAPI: SSLv3_method
 SSLAPI: SSLv23_method
 SSLAPI: SSL_new
@@ -107,6 +108,13 @@ SSLAPI: SSL_get_verify_result
 SSLAPI: SSL_get_peer_certificate
 SSLAPI: SSL_CTX_set_verify_depth
 SSLAPI: SSL_ctrl
+
+SSLAPI: SSL_set_ex_data
+SSLAPI: SSL_get_ex_data
+SSLAPI: SSL_CTX_callback_ctrl
+\ SSLAPI: SSL_CTX_set_tlsext_servername_arg
+SSLAPI: SSL_set_SSL_CTX
+SSLAPI: SSL_CTX_Free
 
 \ SSLAPI: SSL_CTX_sess_accept_renegotiate
 \ SSLAPI: SSL_renegotiate
@@ -138,6 +146,7 @@ SSLEAPI: SSLeay_version
 2 CONSTANT SSL_VERIFY_FAIL_IF_NO_PEER_CERT
 4 CONSTANT SSL_VERIFY_CLIENT_ONCE
 
+53 CONSTANT SSL_CTRL_SET_TLSEXT_SERVERNAME_CB
 55 CONSTANT SSL_CTRL_SET_TLSEXT_HOSTNAME
 
 \ NameType value from RFC 3546
@@ -155,10 +164,41 @@ VARIABLE vSSL_INIT
     SSL-MUT @ RELEASE-MUTEX DROP
   THEN
 ;
+USER uSSL_CONTEXT
+USER uCertType
+USER uSslServer \ сервер получает здесь имя хоста, указанное в tlsext в ClientHello
+VECT vSslServer ' NOOP TO vSslServer
+
+:NONAME { srv al ssl \ ti sna snu pema ctx -- done }
+  ." SNI_CB:" ssl . al . srv .
+  TlsIndex@ -> ti
+  0 ssl SSL_get_ex_data NIP NIP TlsIndex!
+
+  TLSEXT_NAMETYPE_host_name ssl SSL_get_servername NIP NIP
+  ?DUP IF ASCIIZ> -> snu -> sna
+          ." CB SSL host name=" sna snu TYPE CR
+          sna uSslServer !
+          sna snu vSslServer 2DUP sna snu COMPARE IF DROP -> pema
+          TLSv1_server_method SSL_CTX_new NIP -> ctx
+          uCertType @ pema ctx SSL_CTX_use_certificate_file NIP NIP NIP 1 <> THROW
+          uCertType @ pema ctx SSL_CTX_use_RSAPrivateKey_file NIP NIP NIP 1 <> THROW
+          ctx ssl SSL_set_SSL_CTX . 2DROP
+\          uSSL_CONTEXT @ SSL_CTX_Free 2DROP
+          ctx uSSL_CONTEXT !
+          ELSE 2DROP THEN
+       THEN
+  ti TlsIndex!
+  srv al ssl
+  0 \ SSL_TLSEXT_ERR_OK
+
+; 12 CALLBACK: SSL_SNI_CALLBACK
+
 : SslNewServerContext { pema pemu type \ c -- context }
   SSLv23_server_method SSL_CTX_new DUP 0= THROW NIP
 \ http://www.openssl.org/docs/ssl/SSL_CTX_new.html#
   -> c
+  type uCertType !
+  c uSSL_CONTEXT !
 
 \ сертификаты и ключи, используемые в соединении
   pemu
@@ -166,6 +206,10 @@ VARIABLE vSSL_INIT
     type pema c SSL_CTX_use_certificate_file NIP NIP NIP 1 <> THROW
     type pema c SSL_CTX_use_RSAPrivateKey_file NIP NIP NIP 1 <> THROW
   THEN
+
+  ['] SSL_SNI_CALLBACK SSL_CTRL_SET_TLSEXT_SERVERNAME_CB c SSL_CTX_callback_ctrl 2DROP 2DROP
+\  TlsIndex@ c SSL_CTX_set_tlsext_servername_arg DROP 2DROP
+
   c
 ;
 : SslNewClientContext { pema pemu type \ c -- context }
@@ -212,7 +256,6 @@ VARIABLE vSSL_INIT
   conn SSL_get_verify_result NIP
 ;
 USER uSslHost   \ здесь задается имя хоста, передаваемое в tlsext ClientHello при исходящих соединениях
-USER uSslServer \ сервер получает здесь имя хоста, указанное в tlsext в ClientHello
 
 : SetSslHost ( addr -- )
   uSslHost !
@@ -234,6 +277,8 @@ USER uSslServer \ сервер получает здесь имя хоста, указанное в tlsext в ClientHe
 : SslObjAccept ( socket context -- conn_obj ) \ connection
   SSL_new DUP 0= THROW NIP
   DUP >R SSL_set_fd 0= THROW 2DROP
+  TlsIndex@ 0 R@ SSL_set_ex_data 2DROP 2DROP
+
   BEGIN
     R@ SSL_accept DUP 1 <>
   WHILE
@@ -241,9 +286,7 @@ USER uSslServer \ сервер получает здесь имя хоста, указанное в tlsext в ClientHe
     DROP 2DROP
     dSslWaitIdle
   REPEAT
-  DROP \ RDROP
-  TLSEXT_NAMETYPE_host_name R> SSL_get_servername NIP NIP
-  ?DUP IF ( ." SSL host name=" DUP ASCIIZ> TYPE CR) uSslServer ! THEN
+  DROP RDROP
 ;
 : SslWrite { addr u conn_obj -- n }
 \  >R SWAP R> SSL_write NIP NIP NIP
