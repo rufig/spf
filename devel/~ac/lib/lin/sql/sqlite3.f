@@ -11,6 +11,7 @@ REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
 WARNING !
 
 REQUIRE [IF]          lib/include/tools.f
+REQUIRE ms@           lib/include/facil.f
 
 ALSO SO NEW: sqlite3.dll
 ALSO SO NEW: libsqlite3.so.0
@@ -181,18 +182,21 @@ ALSO SO NEW: libsqlite3.so.0
       1 sqlite3_finalize THROW
   DB3_STMT_CNT @ 1- DB3_STMT_CNT !
 ;
-: db3_exec { addr u par xt sqh \ pzTail ppStmt i -- }
+USER db3_exec_CNT
+USER db3_exec_TICKS
+
+: db3_exec { addr u par xt sqh \ pzTail ppStmt i tick -- }
 \ âûïîëíèòü SQL-çàïğîñ(û) èç addr u,
 \ âûçûâàÿ äëÿ êàæäîãî ğåçóëüòàòà ôóíêöèş xt ñ ïàğàìåòğàìè i par ppStmt
 \ â çàïğîñàõ áèíäÿòñÿ ìàêğîïîäñòàíîâêè :name è $name
   u 0= IF EXIT THEN
+  db3_exec_CNT 1+! ms@ -> tick
   BEGIN
     addr u sqh db3_prepare -> ppStmt -> pzTail
     ppStmt db3_bind
 
     TRUE 0 -> i
     BEGIN
-
       IF
         BEGIN \ æäåì îñâîáîæäåíèÿ äîñòóïà ê ÁÄ
           ppStmt 1 sqlite3_step DUP SQLITE_BUSY =
@@ -217,6 +221,7 @@ ALSO SO NEW: libsqlite3.so.0
     ppStmt db3_fin
     pzTail ?DUP IF ASCIIZ> ELSE S" " THEN  -> u -> addr
   u 3 < UNTIL
+  ms@ tick - db3_exec_TICKS +!
 ;
 : 3DROP0 2DROP DROP 0 ;
 
