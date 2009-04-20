@@ -26,6 +26,7 @@
 <def name="add-header" ds=" d-value d-name -- ">
   S, <text>: </text> S, S, CRLF S,
 </def>
+
 <def name="set-status-full" ds=" d-code d-reason d-version -- ">
   clear
   `HTTP/ S, CARBON status-version!
@@ -50,6 +51,13 @@
 <def name="headers" ds=" -- a u ">
   finalized <unless> 0. add-header-line  TRUE finalized! </unless>
   DATASPACE-CONTENT
+</def>
+
+<def name="add-header-authbasic" ds=" d-realm -- ">
+  <text>WWW-Authenticate: Basic realm="</text> S, S, <text>"</text> S, CRLF S,
+</def>
+<def name="add-header-attachment" ds=" d-filename -- ">
+  <text>Content-disposition: attachment; filename=</text> S, S, CRLF S,
 </def>
 
 </export>
