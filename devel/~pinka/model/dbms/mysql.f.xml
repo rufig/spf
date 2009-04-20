@@ -5,6 +5,7 @@
 
 <slot2> charset database user pass  hostname port host  xml-stylesheet </slot2>
 <slot> nport conn errno res row col </slot>
+<prop name="last-err-txt"><ss/></prop>
 
 <def name="(connect)" ds=" -- ior ">
   CLIENT_MULTI_STATEMENTS
@@ -18,10 +19,27 @@
   mysql_real_connect
 </def>
 
+<def name="?conn" ds=" -- ">
+  <choose>
+    conn     0 EQ <when/>
+    errno 2003 EQ <when/>
+    <exit/>
+  </choose>
+  `#mysql-no-conn STHROW
+</def>
+
+<def name="(close-conn)" ds=" -- ">
+  conn <if> conn mysql_close DROP 0 conn! </if>
+</def>
+
 <def name="treat-err" ds=" -- ">
   conn mysql_errno DUP errno! <unless><exit/></unless>
   errno 2006 = <if><rem> MySQL server has gone away </rem> (connect) DROP `#mysql-gone-away STHROW </if>
-  conn mysql_error ASCIIZ> STHROW
+  conn mysql_error ASCIIZ> set-last-err-txt
+  errno 2003 = <if><rem>Can't connect to MySQL server</rem>
+    (close-conn) <rem> it can't reuse the connection object in this case </rem>
+  </if>
+  last-err-txt STHROW
 </def>
 
 <def name="set-conn-options" ds=" -- ">
@@ -43,10 +61,12 @@
 </def>
 
 <def name="close" ds=" -- ">
+  0  errno!  0. last-err-txt
   conn <unless><exit/></unless>
-  free-res-all
-  conn mysql_close DROP 0 conn!
+  free-res-all (close-conn)
 </def>
+
+<handler event="shutdown"> close </handler>
 
 <alias name="connect" word="open" />
 
@@ -74,7 +94,7 @@
 <wordlist name="buf">
   <include href="http://forth.org.ru/~pinka/model/io/stream-mem.L1.f.xml"/>
 <comment> Generally speaking, it is not necessary.
-We can just save the consumer-xt and don't use the intermediate buffering.
+          We can just save the consumer-xt and don't use the intermediate buffering.
 </comment>
 </wordlist>
 
@@ -96,7 +116,7 @@ We can just save the consumer-xt and don't use the intermediate buffering.
 <export>
 
 <def name="set-xml-stylesheet" ds=" d-url -- ">
-  <rem> setup it for each query </rem>
+  <comment> It should be set on each query </comment>
   xml-stylesheet! 
 </def>
 
