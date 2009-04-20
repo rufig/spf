@@ -30,7 +30,7 @@ see also:
 
 <def name="DECODE-URI" ds=" a1 u1  a-buf u-buf -- a-buf u3 "><!-- rfc2141 -->
   SWAP DUP 2>R UMIN
-  <repeat> DUP <while/> DECODE-URN-CHAR R> DUP CHAR+ >R  C! </repeat> 2DROP
+  <repeat> DUP <while/> DECODE-URI-CHAR R> DUP CHAR+ >R  C! </repeat> 2DROP
   2R> OVER -
 </def>
 
