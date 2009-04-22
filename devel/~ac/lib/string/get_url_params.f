@@ -60,37 +60,34 @@ VECT vCONVERT%post ' NOOP TO vCONVERT%post
   "" -> s 1 PARSE CONVERT% s STR! s
 ;
 : STRING:
-\  CREATE 
-\  NextWord CONVERT% CREATED
-  [CHAR] = PARSE CONVERT% CREATED
+  [CHAR] = PARSE CONVERT% 255 MIN CREATED
   STR-LIT ,
   'STR@DOES  ( кавычка поставлена 01.01.2002 ~ac :)
 ;
 : Name:Value
-\  2DUP [CHAR] = BL CONVERT
   ['] STRING: EVALUATE-WITH
 ;
 : AllocParams
-\  GET-CURRENT ALSO PARAMS DEFINITIONS
-\  уже установлено на входе
   BEGIN
-    1 PARSE DUP
+    [CHAR] & PARSE DUP
   WHILE
     Name:Value
   REPEAT 2DROP
-\  PREVIOUS SET-CURRENT
+;
+: Alloc;Params
+  BEGIN
+    [CHAR] ; PARSE DUP
+  WHILE
+    Name:Value
+  REPEAT 2DROP
 ;
 : GetParamsFromString ( addr u -- )
-  2DUP [CHAR] & 1  CONVERT
-  ( CONVERT%) ['] AllocParams EVALUATE-WITH
-;
-: Get;ParamsFromString ( addr u -- )
-  2DUP [CHAR] ; 1 CONVERT
   ['] AllocParams EVALUATE-WITH
 ;
+: Get;ParamsFromString ( addr u -- )
+  ['] Alloc;Params EVALUATE-WITH
+;
 : ForEachParam { xt -- }
-\  ALSO PARAMS 
-\  уже установлено на входе
   CONTEXT @ @
   BEGIN
     DUP
@@ -99,7 +96,6 @@ VECT vCONVERT%post ' NOOP TO vCONVERT%post
         NAME> EXECUTE xt EXECUTE
     CDR
   REPEAT DROP
-\  PREVIOUS
 ;
 : DumpParam { na nu va vu -- }
   na nu TYPE ." =="
