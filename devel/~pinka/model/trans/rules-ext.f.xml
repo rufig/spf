@@ -31,5 +31,8 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   </mm>
 </rule>
 
+<rule match="f:fn" ds=" -- a u ">
+  FirstChildValue expanded-url translate-uri `file:/// MATCH-HEAD DROP  T-SLIT
+</rule>
 
 </f:forth>
