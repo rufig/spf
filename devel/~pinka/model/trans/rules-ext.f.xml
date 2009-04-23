@@ -34,5 +34,9 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 <rule match="f:fn" ds=" -- a u ">
   FirstChildValue expanded-url translate-uri `file:/// MATCH-HEAD DROP  T-SLIT
 </rule>
+<!-- element vs attribute ;) -->
+<rule match="f:filename" ds=" -- a u ">
+  `href GetAttribute expanded-url translate-uri `file:/// MATCH-HEAD DROP  T-SLIT
+</rule>
 
 </f:forth>
