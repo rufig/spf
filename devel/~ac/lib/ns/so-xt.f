@@ -19,6 +19,8 @@ VARIABLE vSOdebug
 WARNING @ WARNING 0!
 REQUIRE NEW: ~ac/lib/ns/ns.f
 
+USER uLastSoFunc \ аналогично ~ac/lib/tools/api_trace.f, но здесь asciiZ-строка
+
 : SO-INIT ( addr -- ) \ = DLL-INIT
   DUP >R 6 CELLS + ASCIIZ> R@ CELL+ CELL+ @
   [ ALSO DL ] SEARCH-WORDLIST [ PREVIOUS ]
@@ -27,6 +29,7 @@ REQUIRE NEW: ~ac/lib/ns/ns.f
 : SO-CALL ( на стеке возвратов адрес структуры импорта вызываемой функции )
   \ C-EXEC вместо API-CALL
   \ на стеке данных параметры _и_ число параметров
+  R@ CELL+ CELL+ CELL+ @ uLastSoFunc !
   vSOdebug @ IF R@ 6 CELLS + ASCIIZ> TYPE ." :" DUP . THEN
   R@ CELL+ @ vSOdebug @ IF DUP . CR THEN
   DUP 0= IF DROP R@ SO-INIT R@ CELL+ @ THEN

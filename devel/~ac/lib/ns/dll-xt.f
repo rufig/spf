@@ -55,6 +55,8 @@
 WARNING @ WARNING 0!
 REQUIRE NEW: ~ac/lib/ns/ns.f
 
+USER uLastDllFunc \ аналогично ~ac/lib/tools/api_trace.f, но здесь asciiZ-строка
+
 : DLL-INIT ( addr -- )
   DUP >R 6 CELLS + ASCIIZ> R@ CELL+ CELL+ @
   [ ALSO DL ] SEARCH-WORDLIST [ PREVIOUS ]
@@ -62,6 +64,7 @@ REQUIRE NEW: ~ac/lib/ns/ns.f
   0= IF -2010 THROW THEN R> CELL+ !
 ;
 : DLL-CALL ( на стеке возвратов адрес структуры импорта вызываемой функции )
+  R@ CELL+ CELL+ CELL+ @ uLastDllFunc !
   R@ CELL+ @
   DUP 0= IF DROP R@ DLL-INIT R@ CELL+ @ THEN
   R@ @ R> + >R API-CALL
