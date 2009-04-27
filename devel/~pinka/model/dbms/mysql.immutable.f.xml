@@ -9,13 +9,15 @@
 </def>
 <def name="store-res" ds=" -- ">
   res <if> res mysql_free_res </if> conn mysql_store_result res!
+  treat-err <rem> throws on error </rem>
 </def>
 <def name="next-res" ds=" -- ">
   res <unless> store-res res <if><exit/></if></unless>
   free-res <repeat>
   conn mysql_next_result 0EQ  <while/>
   conn mysql_store_result DUP <if> res! <exit/><rem> statement has a result set </rem></if>
-  DROP <rem> null pointer if the statement didn't return a result set </rem>
+  DROP <rem> null pointer if the statement didn't return a result set  or error occurred </rem>
+    treat-err <rem> throws on error </rem>
   </repeat>
   <rem> see http://dev.mysql.com/doc/refman/5.1/en/c-api-multiple-queries.html </rem>
 </def>
