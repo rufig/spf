@@ -26,10 +26,11 @@
 </def>
 <def name="free-res-all" ds=" -- ">
   <until> next-res res 0EQ </until>
+  0 row! 0 col!
 </def>
 <def name="query" ds=" a u -- ">
   conn <unless> `#mysql-no-conn STHROW </unless>
-  free-res-all 0 row! 0 col!
+  free-res-all
   SWAP conn mysql_real_query 0EQ <if><exit/></if>
   <rem> Zero if the statement was successful </rem>
   treat-err
