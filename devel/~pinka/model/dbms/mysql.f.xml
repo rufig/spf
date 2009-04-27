@@ -61,7 +61,7 @@
 </def>
 
 <def name="close" ds=" -- ">
-  0  errno!  0. last-err-txt
+  0  errno!  0. set-last-err-txt
   conn <unless><exit/></unless>
   free-res-all (close-conn)
 </def>
