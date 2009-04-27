@@ -10,24 +10,26 @@
 <def name="store-res" ds=" -- ">
   res <if> res mysql_free_res </if> conn mysql_store_result res!
   treat-err <rem> throws on error </rem>
+  <rem> must be called "for every statement that successfully produces a result set"</rem>
 </def>
 <def name="next-res" ds=" -- ">
   res <unless> store-res res <if><exit/></if></unless>
   free-res <repeat>
-  conn mysql_next_result 0EQ  <while/>
+  conn mysql_next_result DUP 0EQ <while/> DROP
   conn mysql_store_result DUP <if> res! <exit/><rem> statement has a result set </rem></if>
   DROP <rem> null pointer if the statement didn't return a result set  or error occurred </rem>
     treat-err <rem> throws on error </rem>
   </repeat>
+  -1 EQ <if><rem>Successful and there are no more results</rem><exit/></if>
+  treat-err
   <rem> see http://dev.mysql.com/doc/refman/5.1/en/c-api-multiple-queries.html </rem>
 </def>
 <def name="free-res-all" ds=" -- ">
-  free-res conn mysql_next_result 0EQ <if> store-res <again/></if>
-  0 row! 0 col!
+  <until> next-res res 0EQ </until>
 </def>
 <def name="query" ds=" a u -- ">
   conn <unless> `#mysql-no-conn STHROW </unless>
-  free-res-all
+  free-res-all 0 row! 0 col!
   SWAP conn mysql_real_query 0EQ <if><exit/></if>
   <rem> Zero if the statement was successful </rem>
   treat-err
