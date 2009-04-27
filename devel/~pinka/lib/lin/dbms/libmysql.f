@@ -79,8 +79,7 @@ CREATE-CS _mysql_cs
 
 : mysql_free_res ( res -- )
   DUP 0= IF DROP EXIT THEN
-  mysql_free_result 1 = IF EXIT THEN
-  ABORT" #error(mysql_free_result)"
+  mysql_free_result DROP \  Return Values: None. Errors: None. 
 ;
 
 : mysql_get_value ( u-column row res -- addr u )
