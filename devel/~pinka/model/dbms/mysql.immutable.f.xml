@@ -13,7 +13,7 @@
   <rem> must be called "for every statement that successfully produces a result set"</rem>
 </def>
 <def name="next-res" ds=" -- ">
-  res <unless> store-res res <if><exit/></if></unless>
+  res <unless> errno <unless> store-res res <if><exit/></if></unless></unless>
   free-res <repeat>
   conn mysql_next_result DUP 0EQ <while/> DROP
   conn mysql_store_result DUP <if> res! <exit/><rem> statement has a result set </rem></if>
@@ -25,8 +25,8 @@
   <rem> see http://dev.mysql.com/doc/refman/5.1/en/c-api-multiple-queries.html </rem>
 </def>
 <def name="free-res-all" ds=" -- ">
-  <until> next-res res 0EQ </until>
   0 row! 0 col!
+  <until> next-res res 0EQ </until>
 </def>
 <def name="query" ds=" a u -- ">
   conn <unless> `#mysql-no-conn STHROW </unless>
