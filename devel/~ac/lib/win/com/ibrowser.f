@@ -80,5 +80,5 @@ Interface: IID_IOleInPlaceActiveObject {00000117-0000-0000-C000-000000000046}
   Method: ::OnFrameWindowActivate ( This,fActivate)
   Method: ::OnDocWindowActivate ( This,fActivate)
   Method: ::ResizeBorder ( This,prcBorder,pUIWindow,fFrameWindow)
-  Method: ::EnableModeless ( This,fEnable);
+  Method: ::EnableModeless ( This,fEnable)
 Interface;
