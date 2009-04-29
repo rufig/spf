@@ -18,7 +18,7 @@ Interface: IID_IHTMLDocument3 {3050f485-98b5-11cf-bb82-00aa00bdce0b}
   Method: ::put_onrowsinserted ( [in] VARIANT v)
   Method: ::get_onrowsinserted ( [retval, out] VARIANT *p)
   Method: ::put_oncellchange ( [in] VARIANT v)
-  Method: ::get_oncellchange ( [retval, out] VARIANT *p);
+  Method: ::get_oncellchange ( [retval, out] VARIANT *p)
   Method: ::put_ondatasetchanged ( [in] VARIANT v)
   Method: ::get_ondatasetchanged ( [retval, out] VARIANT *p)
   Method: ::put_ondataavailable ( [in] VARIANT v)
