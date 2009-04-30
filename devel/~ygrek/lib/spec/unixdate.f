@@ -5,9 +5,11 @@
 \ URL в тему - http://vsg.cape.com/~pbaum/date/date0.htm
 
 MODULE: FSL
+ H-STDOUT
+ 0 TO H-STDOUT \ disable load-time output from FSL
  REQUIRE fsl-util ~diver/fsl-util.f
  REQUIRE JDAY ~clf/fsl/dates.seq
- CR
+ TO H-STDOUT
 ;MODULE
 
 REQUIRE [UNDEFINED] lib/include/tools.f
