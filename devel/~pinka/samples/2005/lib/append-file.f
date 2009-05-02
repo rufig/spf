@@ -27,7 +27,12 @@ REQUIRE [DEFINED] lib/include/tools.f
   DUP 9REPOSITION-FILE DUP 0= IF EXIT THEN ( h ior )
   SWAP CLOSE-FILE DROP ( ior ) 0 SWAP ( 0 ior )
 ;
+
+\ ¬ариант:
+\ OPEN-FILE-LOG ( a u fam -- h ior )
+\ -- хорошо согласуетс€ по сигнатуре с другими OPEN-FILE-* 
 [THEN]
+
 
 : ATTACH-CATCH ( a u a-file u-file -- ior )
   OPEN-LOGFILE DUP IF NIP NIP EXIT THEN DROP
