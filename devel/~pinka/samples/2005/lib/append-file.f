@@ -1,6 +1,8 @@
 \ 09.Dec.2004
 \ $Id$
 
+REQUIRE [DEFINED] lib/include/tools.f
+
 : 9REPOSITION-FILE ( fileid -- ior )
 \ Reposition the file identified by fileid to end of file.
 \ see also  ~pinka\lib\FileExt.f # TOEND-FILE
@@ -8,12 +10,25 @@
   ?DUP IF R> DROP NIP NIP EXIT THEN
   R> REPOSITION-FILE  ( ud fileid -- ior ) 
 ;
+
+[DEFINED] OPEN-FILE-SHARED-DELETE [IF] \ see ~ac/lib/win/file/share-delete.f
+
+: OPEN-LOGFILE ( a u -- h ior )
+  2DUP FILE-EXIST 0= IF W/O CREATE-FILE-SHARED-DELETE EXIT THEN
+  W/O OPEN-FILE-SHARED-DELETE DUP IF EXIT THEN DROP ( h )
+  DUP 9REPOSITION-FILE DUP 0= IF EXIT THEN ( h ior )
+  SWAP CLOSE-FILE DROP ( ior ) 0 SWAP ( 0 ior )
+;
+[ELSE]
+
 : OPEN-LOGFILE ( a u -- h ior )
   2DUP FILE-EXIST 0= IF W/O CREATE-FILE-SHARED EXIT THEN
   W/O OPEN-FILE-SHARED DUP IF EXIT THEN DROP ( h )
   DUP 9REPOSITION-FILE DUP 0= IF EXIT THEN ( h ior )
   SWAP CLOSE-FILE DROP ( ior ) 0 SWAP ( 0 ior )
 ;
+[THEN]
+
 : ATTACH-CATCH ( a u a-file u-file -- ior )
   OPEN-LOGFILE DUP IF NIP NIP EXIT THEN DROP
   DUP >R WRITE-FILE ( ior )
