@@ -21,8 +21,8 @@
 
 <def name="read-headers" ds=" -- ">
   next-line? <unless><exit/></unless><!-- no more data -->
-  <text>&#xD;</text> MATCH-HEAD DROP <!-- workaround for "UNIX-LINES" -->
-  DUP <unless> 2DROP <exit/></unless><!-- end of header reached -->
+  <text>&#xD;</text> MATCH-TAIL DROP <!-- workaround for "UNIX-LINES" mode vs { 0xD 0xA } -->
+  DUP <unless> 2DROP <exit/></unless><!-- end of headers reached -->
   TEST-EOLN <unless><logS>TEST-EOLN</logS> `#413 STHROW </unless><!-- line is too long -->
   TEST-HEAD-WHITE <if><logS>TEST-HEAD-WHITE</logS> `#400 STHROW </if><!-- don't support a multiple lines value (see 4.2 Message Headers) -->
   parse-header <unless><logS>parse-header</logS> `#400 STHROW </unless><!-- header name is not found, bad request -->
