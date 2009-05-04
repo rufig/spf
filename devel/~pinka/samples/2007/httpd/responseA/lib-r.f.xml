@@ -2,7 +2,7 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 
 <also wordlist="XMLDOM-WL">
-<also wordlist="forthml-hidden"><definitions>
+<develop wordlist="forthml-hidden">
 
 
 <def name="treat-text-element" ds=" -- | a u ">
@@ -53,6 +53,5 @@
 </f:g>
 
 
-</definitions>
-</also></also>
+</develop></also>
 </forth>
