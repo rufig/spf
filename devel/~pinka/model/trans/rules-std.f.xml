@@ -140,10 +140,10 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   </mm>
 </rule>
 
-<rule match="f:definitions"><mm>
-  GET-CURRENT >CS  CONTEXT @ SET-CURRENT
-  <yield/>
-  CS> SET-CURRENT
+<rule match="f:definitions">
+  `wordlist HasAttribute <f:unless><f:emit>f:definitions expects @wordlist</f:emit> -5321 THROW </f:unless>
+  <mm>
+    <exec-attribute name="wordlist"/> PUSH-CURRENT <yield/> DROP-CURRENT
   </mm>
 </rule>
 
