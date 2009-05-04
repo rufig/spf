@@ -66,6 +66,12 @@
    как результат применени€ функции SUBSTRING-AFTER к (a u a-key u-key); иначе возвращаетс€ (a u).
    </p>
 </def>
+<def name="MATCH-TAIL" ds=" a u a-key u-key -- a-left u-left true | a u false">
+   <p>≈сли строка (a u) заканчиваетс€ подстрокой (a-key u-key), то возвращаетс€ подстрока
+   (a-left u-left), непосредственно состо€ща€ из всех тех символов строки (a u),
+   которые предшествуют последнему по€влению подстроки (a-key u-key) в этой строке (a u).
+   </p>
+</def>
 
 
 <def name="FINE-HEAD" ds=" a u -- a1 u1 ">
