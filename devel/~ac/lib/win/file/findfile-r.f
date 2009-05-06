@@ -48,7 +48,11 @@ USER FIND-FILES-USE-RET \ true, если надо вызывать xt также при выходе
     data cFileName ASCIIZ> 2DUP IsNot.. FIND-FILES.. @ OR
     IF
       data dwFileAttributes @ FILE_ATTRIBUTE_DIRECTORY AND 0<> -> dir
-      addr u " {s}/{s}" DUP -> f STR@ data dir xt EXECUTE
+      addr u 2DUP + 1- C@ [CHAR] * =
+      IF 1-
+         BEGIN 2DUP + 1- C@ DUP [CHAR] \ <> SWAP [CHAR] / <> AND WHILE 1- REPEAT 1-
+      THEN
+      " {s}/{s}" DUP -> f STR@ data dir xt EXECUTE
       dir
       IF FIND-FILES-RL 1+!
          FIND-FILES-RL @ FIND-FILES-DEPTH @ < FIND-FILES-DEPTH @ 0= OR
