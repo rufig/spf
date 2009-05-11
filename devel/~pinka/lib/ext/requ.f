@@ -15,7 +15,7 @@
   во время их выполнения и, значит, какой получится путь.
 )
 
-REQUIRE [DEFINED] lib\include\tools.f
+REQUIRE [DEFINED] lib/include/tools.f
 
 \ WARNING @ WARNING 0!
 
