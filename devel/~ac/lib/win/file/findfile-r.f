@@ -15,7 +15,7 @@
 \ ѕосле вызова xt строка addr и структура data освобождаютс€,
 \ поэтому, если xt требуетс€ сохран€ть эти данные, надо копировать.
 
-REQUIRE FIND-FILES       ~ac/lib/win/file/findfile.f
+REQUIRE FIND-FILES       ~ac/lib/win/file/FINDFILE.F
 REQUIRE {                ~ac/lib/locals.f
 REQUIRE STR@             ~ac/lib/str5.f
 

@@ -1,4 +1,4 @@
-REQUIRE StartSQL ~ac/lib/win/odbc/odbc.f
+REQUIRE StartSQL ~ac/lib/win/odbc/ODBC.F
 REQUIRE { ~ac/lib/locals.f
 \ REQUIRE Window ~ac/lib/win/window/window.f
 
