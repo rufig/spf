@@ -1,32 +1,31 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<rem><bind-up> conn res row col </bind-up></rem>
+<rem><bind-up> conn res resn row col </bind-up></rem>
 
 <def name="free-res" ds=" -- ">
-  res mysql_free_res  0 res!
+  res DUP <if> mysql_free_res 0 </if> res!
   <rem> It is ok when res is 0 </rem>
 </def>
-<def name="store-res" ds=" -- ">
-  res <if> res mysql_free_res </if> conn mysql_store_result res!
-  treat-err <rem> throws on error </rem>
+<def name="(store-res)" ds=" -- ">
   <rem> must be called "for every statement that successfully produces a result set"</rem>
+  conn mysql_store_result DUP res! <if><exit/></if>
+  <rem> null pointer if the statement didn't return a result set  or error occurred </rem>
+  treat-err <rem> throws on error </rem>
 </def>
 <def name="next-res" ds=" -- ">
-  res <unless> errno <unless> store-res res <if><exit/></if></unless></unless>
-  free-res <repeat>
-  conn mysql_next_result DUP 0EQ <while/> DROP
-  conn mysql_store_result DUP <if> res! <exit/><rem> statement has a result set </rem></if>
-  DROP <rem> null pointer if the statement didn't return a result set  or error occurred </rem>
-    treat-err <rem> throws on error </rem>
-  </repeat>
-  -1 EQ <if><rem>Successful and there are no more results</rem><exit/></if>
-  treat-err
+  free-res  resn DUP 1+ resn! <if><rem> not first </rem>
+    conn mysql_next_result DUP -1 EQ <if> DROP <exit/><rem>Successful and there are no more results</rem></if>
+    0 NE <if> treat-err <exit/><rem> throws on error </rem></if>
+  </if>
+  (store-res) res <if><exit/></if>
+  <again/>
   <rem> see http://dev.mysql.com/doc/refman/5.1/en/c-api-multiple-queries.html </rem>
 </def>
 <def name="free-res-all" ds=" -- ">
   0 row! 0 col!
   <until> next-res res 0EQ </until>
+  0 resn!
 </def>
 <def name="query" ds=" a u -- ">
   conn <unless> `#mysql-no-conn STHROW </unless>

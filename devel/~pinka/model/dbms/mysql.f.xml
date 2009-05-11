@@ -4,7 +4,7 @@
 <wordlist name="mysql-hidden">
 
 <slot2> charset database user pass  hostname port host  xml-stylesheet </slot2>
-<slot> nport conn errno res row col </slot>
+<slot> nport conn errno res resn  row col </slot>
 <prop name="last-err-txt"><ss/></prop>
 
 <def name="(connect)" ds=" -- ior ">
