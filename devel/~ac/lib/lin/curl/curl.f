@@ -11,7 +11,7 @@ REQUIRE ADD-CONST-VOC lib/ext/const.f
 S" ~ygrek/lib/data/curl.const" ADD-CONST-VOC
 
 ALSO SO NEW: libcurl.dll
-ALSO SO NEW: libcurl.so.3
+ALSO SO NEW: libcurl.so
 
 \ Global libcurl initialization
 \ ~ac 01.01.2008: эта инициализация с каждой следующей версией curl
