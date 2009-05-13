@@ -23,8 +23,9 @@ MODULE: XHTML
 
 : :div ( `class -- ) PRO %[ `class $$ ]% `div atag CONT ;
 
-: link-tag ( `link --> \ <-- ) PRO %[ `href $$ ]% `a atag CONT ;
-: link-text ( name u link u2 -- ) link-tag XMLSAFE::TYPE ;
+: link-tag ( `url --> \ <-- ) PRO %[ `href $$ ]% `a atag CONT ;
+: link-s ( strurl --> \ <-- ) PRO DUP STR@ link-tag STRFREE CONT ;
+: link-text ( `text `url -- ) link-tag XMLSAFE::TYPE ;
 
 : li `li PRO tag CONT ;
 : ul `ul PRO tag CONT ;
