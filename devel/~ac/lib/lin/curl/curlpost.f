@@ -12,6 +12,8 @@ USER uCurlRespCode
 
 ALSO libcurl.dll
 ALSO libcurl.so
+ALSO libcurl.so.3
+ALSO libcurl.so.4
 
 : POST-FILE-VIAPROXY { adata udata act uct addr u paddr pu \ h data slist -- str }
 \ если прокси paddr pu - непустая строка, то явно используется этот прокси
@@ -93,7 +95,7 @@ ALSO libcurl.so
 \  data
   uCurlRes @
 ;
-PREVIOUS PREVIOUS
+PREVIOUS PREVIOUS PREVIOUS PREVIOUS
 
 : POST-FILE ( adata udata act uct addr u -- str )
   \ без прокси или с заданным в переменной окружения http_proxy

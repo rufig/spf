@@ -12,6 +12,8 @@ S" ~ygrek/lib/data/curl.const" ADD-CONST-VOC
 
 ALSO SO NEW: libcurl.dll
 ALSO SO NEW: libcurl.so
+ALSO SO NEW: libcurl.so.3
+ALSO SO NEW: libcurl.so.4
 
 \ Global libcurl initialization
 \ ~ac 01.01.2008: эта инициализация с каждой следующей версией curl
@@ -84,7 +86,7 @@ USER uCurlVerifySsl
   S" " GET-FILE-VIAPROXY
 ;
 
-PREVIOUS PREVIOUS
+PREVIOUS PREVIOUS PREVIOUS PREVIOUS
 
 \EOF
 \ регистрация IP для xml-запросов к яндексу: http://xml.yandex.ru/ip.xml
