@@ -1,6 +1,7 @@
 \ $Id$
-\ Сортировка списка 
+\ Сортировка списка (список не копируется)
 \ list::sort ( node xt -- )
+\ list::sorted ( node xt -- node2 )
 \ xt: ( v1 v2 -- ? ) \ задаёт порядок
 
 \ S" ~day/lib/memreport.f" INCLUDED
@@ -14,7 +15,7 @@ GET-CURRENT DEFINITIONS
 
 USER-VALUE list_compare
 
-: merge ( l1 l2 -- l )  
+: merge ( l1 l2 -- l )
    { l1 l2 | head start -- }
    \ l1 write l2 write CR
    l1 car l2 car list_compare EXECUTE IF l1 DUP cdr -> l1 ELSE l2 DUP cdr -> l2 THEN DUP TO start TO head
@@ -33,13 +34,13 @@ USER-VALUE list_compare
    l1 n1 0 ?DO cdr LOOP -> l2
    l1 n1 RECURSE
    l2 n2 RECURSE
-   merge 
-   \ DUP write CR 
+   merge
+   \ DUP write CR
    ;
 
 : COPY-NODE ( n1 n2 -- ) /NODE MOVE ;
 
-: sort1 ( l1 xt -- l2 )
+: sorted ( l1 xt -- l2 )
 \ xt: ( node[i]-car node[j]-car -- ? )
    { orig cmp }
    orig empty? IF orig EXIT THEN
@@ -49,7 +50,7 @@ USER-VALUE list_compare
    ( list_compare ) TO list_compare ;
 
 : sort { orig xt | lst [ /NODE ] tmp prev -- }
-   orig xt sort1 -> lst
+   orig xt sorted -> lst
    lst orig = IF EXIT THEN
    \ Т.к. голова списка в результате сортировки переместилась, меняем содержимое
    \ ячеек так чтобы вернуть голову на место
