@@ -42,7 +42,7 @@ USER-VALUE list_compare
 : sort1 ( l1 xt -- l2 )
 \ xt: ( node[i]-car node[j]-car -- ? )
    { orig cmp }
-   orig empty? IF EXIT THEN
+   orig empty? IF orig EXIT THEN
    list_compare
    cmp TO list_compare
    orig orig length merge-sort SWAP
@@ -113,7 +113,7 @@ ms@ SGENRAND
 (( 100 test -> TRUE ))
 
 \ corner cases
-(( %[ ]% DUP ' ABORT sort -> ))
+(( %[ ]% ' ABORT sort -> ))
 (( %[ 1 % ]% DUP ' ABORT sort %[ 1 % ]%     2DUP equal0? SWAP free SWAP free -> TRUE ))
 (( %[ 1 % 2 % ]% DUP ' < sort %[ 1 % 2 % ]% 2DUP equal0? SWAP free SWAP free -> TRUE ))
 (( %[ 1 % 2 % ]% DUP ' > sort %[ 2 % 1 % ]% 2DUP equal0? SWAP free SWAP free -> TRUE ))
