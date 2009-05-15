@@ -24,7 +24,9 @@
   `Content-Length h@
 </def>
 <def name="has-content?" ds=" -- flag">
-  content-length StoN 0NEQ
+  content-length StoN <if> TRUE <exit/></if>
+  `Transfer-Encoding h@ NIP <if> TRUE <exit/></if><rem> may be 'chunked' </rem>
+  FALSE
 </def>
 <def name="connection-close?" ds=" -- flag ">
   `Connection h@ `lose CONTAINS
