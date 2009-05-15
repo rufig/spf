@@ -213,12 +213,20 @@ VECT vDLOPEN ' DLOPEN TO vDLOPEN
 ;
 : SEARCH-WORDLIST ( c-addr u oid -- 0 | xt 1 | xt -1 )
   DUP OBJ-DATA@ ?DUP
-  IF NIP ROT ROT HEAP-COPY-U OVER >R ROT DLSYM R> FREE THROW
-     DUP IF 1 THEN
+  IF DUP -1 =
+     IF \ по результатам прошлых DLOPEN-попыток DLL признана отсутствующей, больше не ворошим
+        2DROP 2DROP 0 EXIT
+     ELSE
+       NIP ROT ROT HEAP-COPY-U OVER >R ROT DLSYM R> FREE THROW
+       DUP IF 1 THEN
+     THEN
   ELSE
      DUP OBJ-NAME@ HEAP-COPY-U OVER >R vDLOPEN R> FREE THROW
      ?DUP IF ( addr u oid h ) OVER OBJ-DATA! RECURSE
-          ELSE DROP 2DROP 0 THEN \ не удалось загрузить DLL/SO
+          ELSE
+             -1 SWAP OBJ-DATA! \ не удалось загрузить DLL/SO, пометим на будущее, чтоб больше не ворошить
+             2DROP 0
+          THEN
   THEN
 ;
 :>>
