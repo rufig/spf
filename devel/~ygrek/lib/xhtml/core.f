@@ -31,15 +31,6 @@ MODULE: XHTML
 : ul `ul PRO tag CONT ;
 : mdash ."  &mdash; " ;
 
-: icon-valid ( -- )
-  `http://validator.w3.org/check?uri=referer link-tag
-   %[ 
-    S" Valid XHTML 1.0 Strict" `alt $$
-    `http://www.w3.org/Icons/valid-xhtml10 `src $$
-    `31 `height $$
-    `88 `width $$
-   ]% /atag: img ;
-
 : xml-declaration-enc ( a u -- ) S$ |<?xml version="1.0" encoding="| TYPE TYPE S$ |"?>| TYPE CR ;
 : xml-declaration ( -- ) `utf-8 xml-declaration-enc ;
 
