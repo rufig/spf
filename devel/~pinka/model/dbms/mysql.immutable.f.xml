@@ -25,11 +25,13 @@
 <def name="free-res-all" ds=" -- ">
   0 row! 0 col!
   <until> next-res res 0EQ </until>
-  0 resn!
 </def>
 <def name="query" ds=" a u -- ">
   conn <unless> `#mysql-no-conn STHROW </unless>
   free-res-all
+  FINE-HEAD DUP <unless> 2DROP <text>SELECT NULL LIMIT 0;</text></unless>
+  <rem> workaround for Error 1065 (ER_EMPTY_QUERY) "Query was empty" </rem>
+  0 resn!
   SWAP conn mysql_real_query 0EQ <if><exit/></if>
   <rem> Zero if the statement was successful </rem>
   resn 1+ resn! <rem> workaround to skip (store-res) on error here </rem>
