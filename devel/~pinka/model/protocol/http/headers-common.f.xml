@@ -21,15 +21,24 @@
 </def>
 
 <def name="content-length" ds=" -- a u ">
-  `Content-Length h@
+  `Content-Length h@ OVER <if><exit/></if> 2DROP
+  `Content-length h@ <rem> Adobe Flash Player 10 </rem>
+  <rem>
+    TO-DO: "Field names are case-insensitive"
+    http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
+  </rem>
 </def>
 <def name="has-content?" ds=" -- flag">
-  content-length StoN <if> TRUE <exit/></if>
+  content-length StoD OR <if> TRUE <exit/></if>
   `Transfer-Encoding h@ NIP <if> TRUE <exit/></if><rem> may be 'chunked' </rem>
   FALSE
 </def>
 <def name="connection-close?" ds=" -- flag ">
   `Connection h@ `lose CONTAINS
+</def>
+<def name="content-type" ds=" -- a u ">
+  `Content-Type h@ OVER <if><exit/></if> 2DROP
+  `Content-type h@  <rem> Adobe Flash Player 10 </rem>
 </def>
 
 </forth>
