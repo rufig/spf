@@ -324,6 +324,9 @@ CW_USEDEFAULT VALUE bwWidth
 VECT vOnDocumentComplete ( urla urlu obj -- )
 :NONAME DROP 2DROP ; TO vOnDocumentComplete
 
+VECT vOnFrameDocumentComplete ( urla urlu obj -- )
+:NONAME DROP 2DROP ; TO vOnFrameDocumentComplete
+
 \ вызывается после инициализации окна/документа, но до выполнения скриптов
 \ (и до OnDocumentComplete, который после скриптов)
 VECT vOnNavigateComplete ( urla urlu obj -- )
@@ -409,7 +412,7 @@ ID: DISPID_DOCUMENTCOMPLETE 259 { urla urlu bro \ obj tls doc doc2 doc3 win2 elc
 \          " {s} (документ doc={n})" STR@ >BSTR doc2 ::put_title THROW
        THEN
        urla urlu obj vOnDocumentComplete
-    THEN
+    ELSE urla urlu obj vOnFrameDocumentComplete THEN
     COM-DEBUG @ IF urla urlu TYPE CR THEN
     tls TlsIndex!
 ;
