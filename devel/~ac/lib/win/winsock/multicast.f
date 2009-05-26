@@ -68,11 +68,13 @@ USER uMC_CNT
   ( mc_ip ) uMC_IP ! \ итератор ForEachIP держит на стеке список IP, поэтому передать в xt доп.параметры нельзя
   R@ uMC_SOCK !
   uMC_CNT 0!
-  ['] (CreateMcListener) ForEachIP \ подключаем сокет к указанной multicast-группе на всех интерфейсах
+  ['] (CreateMcListener) ForEachIP THROW \ подключаем сокет к указанной multicast-группе на всех интерфейсах
   R> uMC_CNT @
 ;
-: SsdpGroup S" 239.255.255.250" ; \ multicast-группа для Simple Service Discovery Protocol
+: SsdpGroup S" 239.255.255.250" ; \ multicast-группа для Simple Service Discovery Protocol и WS-Discovery
+SsdpGroup GetHostIP THROW CONSTANT SsdpGroupIP4
 1900 CONSTANT SsdpPort
+3702 CONSTANT WsdpPort \ См. http://specs.xmlsoap.org/ws/2005/04/discovery/ws-discovery.pdf , Vista использует
 
 \EOF
 
