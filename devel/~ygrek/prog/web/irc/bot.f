@@ -13,16 +13,12 @@ REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE ATTACH ~pinka/samples/2005/lib/append-file.f
 REQUIRE TIME&DATE lib/include/facil.f
 REQUIRE $Revision: ~ygrek/lib/fun/kkv.f
-\ REQUIRE ltcreate ~ygrek/lib/multi/msg.f
 REQUIRE scan-list ~ygrek/lib/list/all.f
 REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
 REQUIRE #N## ~ac/lib/win/date/date-int.f
-\ REQUIRE GET-FILE ~ac/lib/lin/curl/curl.f
-\ REQUIRE CURLOPT! ~ac/lib/lin/curl/curlopt.f
 REQUIRE logger ~ygrek/lib/log.f
 REQUIRE OSNAME-STR ~ygrek/lib/sys/osname.f
-
-' ACCEPT1 TO ACCEPT \ disables autocompletion if present ;)
+REQUIRE str-concat-with ~ygrek/lib/str.f
 
 [DEFINED] WINAPI: [IF]
 ' ANSI>OEM TO ANSI><OEM \ cp1251 in console
@@ -32,17 +28,17 @@ REQUIRE OSNAME-STR ~ygrek/lib/sys/osname.f
 : CVS-REVISION $Revision$ SLITERAL ;
 
 : CURRENT-DATE ( -- d m y ) TIME&DATE 2>R NIP NIP NIP 2R> ;
-: CURRENT-TIME ( -- m h ) TIME&DATE DROP DROP DROP ROT DROP ;
+: CURRENT-TIME ( -- s m h ) TIME&DATE DROP DROP DROP ;
 
 : CURRENT-LOG-FILE
     CURRENT-DATE { d m y }
-    <# S" .log" HOLDS d #N## m #N## y #N [CHAR] . HOLD current-channel HOLDS 0 0 #> ;
+    <# S" .log" HOLDS d #N## m #N## y #N [CHAR] 0 0 #> ;
 
 : (DO-LOG-TO-FILE) ( a u -- ) CURRENT-LOG-FILE ATTACH-LINE-CATCH DROP ;
 
 : AS-LOG-STR ( a u -- s )
-   CURRENT-TIME { m h }
-   <# m #N## [CHAR] : HOLD h #N## 0 0 #>
+   CURRENT-TIME { s m h }
+   <# s #N## [CHAR] : HOLD m #N## [CHAR] : HOLD h #N## 0 0 #>
    " {s}|{s}" ;
    
 : RAW-LOG AS-LOG-STR { s } s STR@ (DO-LOG-TO-FILE) s STRFREE ;
@@ -53,9 +49,8 @@ VOCABULARY BOT-COMMANDS
 VOCABULARY BOT-COMMANDS-HELP
 VOCABULARY BOT-COMMANDS-NOTFOUND
 
-: string-concat ( l -- s ) "" OVER LAMBDA{ OVER SWAP STR@ ROT STR+ } list::iter SWAP ['] STRFREE list::free-with ;
 : HelpWords=> PRO [WID] BOT-COMMANDS-HELP NFA=> DUP COUNT CONT ;
-: AllHelpWords ( -- s ) %[ START{ HelpWords=> >STR % "  " % }EMERGE ]% string-concat ;
+: AllHelpWords ( -- s ) %[ START{ HelpWords=> >STR % }EMERGE ]% S"  " str-concat-with ;
 
 MODULE: BOT-COMMANDS
 
