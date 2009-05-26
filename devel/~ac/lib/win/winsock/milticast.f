@@ -1,4 +1,9 @@
-SOCKNAME.f
+\ Поддержка IP-multicast (начиная с Windows XP)
+
+REQUIRE ReadFrom  ~ac/lib/win/winsock/sockname.f
+REQUIRE ForEachIP ~ac/lib/win/winsock/foreach_ip.f 
+
+WINAPI: getsockopt      WSOCK32.DLL
 
 \ struct ip_mreq {
 \         struct in_addr  imr_multiaddr;  /* IP multicast address of group */
@@ -7,32 +12,32 @@ SOCKNAME.f
 
 \ 5 CONSTANT IP_ADD_MEMBERSHIP
 \ 6 CONSTANT IP_DROP_MEMBERSHIP
-\ вот и верь после этого winsock.h
+\ вот и верь после этого winsock.h, правильные значения в ws2ipdef
+
+ 9 CONSTANT IP_MULTICAST_IF
 12 CONSTANT IP_ADD_MEMBERSHIP
 13 CONSTANT IP_DROP_MEMBERSHIP
 
-
-: SocketAddMembership ( port ip s -- ior )
-  >R /sockaddr_in 2* ALLOCATE ?DUP IF NIP R> DROP EXIT THEN
-  SWAP >R >R
-  256 /MOD SWAP 256 * +
-  R@ sin_port W!
-  AF_INET R@ sin_family W!
-  AF_INET R@ /sockaddr_in + sin_family W!
-\  0 ( INADDR_ANY) R@ /sockaddr_in + sin_addr !
-  R@
-  R> R> SWAP >R R@ sin_addr !
-  /sockaddr_in 2* R> IP_ADD_MEMBERSHIP 0 ( IPPROTO_IP) R> setsockopt SWAP FREE DROP SOCKET_ERROR =
-  IF WSAGetLastError ELSE 0 THEN
-;
-: SocketAddMembership ( ip s -- ior )
+: SocketAddMembership ( ip_if ip_mc s -- ior )
+\ интерфейс указывать обязательно!
   >R 8 ALLOCATE ?DUP IF NIP RDROP EXIT THEN
   >R
   R@ !
-\ интерфейс указывать обязательно!
- S" 10.1.1.1" ( S" 224.0.0.251") GetHostIP THROW R@ CELL+ !
+  R@ CELL+ !
   8 R> IP_ADD_MEMBERSHIP 0 ( IPPROTO_IP) R> setsockopt SOCKET_ERROR =
   IF WSAGetLastError ELSE 0 THEN
+;
+: SocketSetMcInterface ( ip s -- ior )
+  >R
+  SP@ 4 SWAP IP_MULTICAST_IF 0 ( IPPROTO_IP) R> setsockopt NIP SOCKET_ERROR =
+  IF WSAGetLastError ELSE 0 THEN
+;
+: SocketGetMcInterface ( s -- ip ior )
+  4 >R RP@ 0 >R RP@
+  ROT >R
+  IP_MULTICAST_IF 0 ( IPPROTO_IP) R> getsockopt SOCKET_ERROR =
+  IF WSAGetLastError ELSE 0 THEN
+  R> RDROP SWAP
 ;
 : CreateMcSocket ( -- socket ior )
   0 SOCK_DGRAM PF_INET
@@ -43,25 +48,54 @@ SOCKNAME.f
      0
   THEN
 ;
+USER uMC_IP
+USER uMC_SOCK
+USER uMC_CNT
 
-0 VALUE MC
-: TEST
-SocketsStartup THROW
-CreateMcSocket THROW TO MC
-
-\ порт для bind указывать обязательно!
-
-\ 5353 = mDNS
-5353 ( S" 10.1.1.1" GetHostIP THROW DROP) 0 MC BindSocketInterface .
-
-\ 5355 = LLMNR
- S" 224.0.0.252" GetHostIP THROW MC SocketAddMembership THROW
-
-\ Web Services Dynamic Discovery, port 3702
-  S" 239.255.255.250" GetHostIP THROW MC SocketAddMembership THROW
-
-\ 5353 = mDNS
- S" 224.0.0.251" GetHostIP THROW MC SocketAddMembership THROW
- PAD 1500 MC ReadFrom ." A"
+: (CreateMcListener) ( ip -- ) \ throwable
+\ ." cml:" DUP NtoA TYPE SPACE
+  uMC_IP @ uMC_SOCK @ SocketAddMembership ?DUP
+  IF \ ошибки 10022 здесь могут означать уже подключенный интерфейс (если несколько IP на интерфейсе)
+    DROP \ . CR
+  ELSE uMC_CNT 1+!
+    \ ." ok" CR
+  THEN
 ;
-TEST
+: CreateMcListener ( mc_ip_a mc_ip_u mc_port -- socket cnt ) \ throwable
+  >R GetHostIP THROW R>
+  CreateMcSocket THROW >R
+  0 R@ BindSocketInterface THROW \ слушаем указанный порт на всех интерфейсах
+  ( mc_ip ) uMC_IP ! \ итератор ForEachIP держит на стеке список IP, поэтому передать в xt доп.параметры нельзя
+  R@ uMC_SOCK !
+  uMC_CNT 0!
+  ['] (CreateMcListener) ForEachIP \ подключаем сокет к указанной multicast-группе на всех интерфейсах
+  R> uMC_CNT @
+;
+: SsdpGroup S" 239.255.255.250" ; \ multicast-группа для Simple Service Discovery Protocol
+1900 CONSTANT SsdpPort
+
+\EOF
+
+\ Пример подключения к SSDP-извещениям.
+\ Никаких запросов не посылается, просто прослушивается фон.
+\ Если UPnP-устройств (маршрутизаторов, медиасерверов, медиаплейеров,...)
+\ в сети нет, то ждать придется долго ;)
+
+REQUIRE STR@         ~ac/lib/str5.f
+
+: MC-DUMP
+  SocketsStartup THROW
+
+  SsdpGroup SsdpPort CreateMcListener ?DUP
+  IF
+   ." Поключен к " . ." интерфейсам. Слушаю..." CR
+   >R
+   BEGIN
+     PAD 1500 R@ ReadFrom ." A:"
+     . NtoA TYPE CR 
+     PAD SWAP TYPE CR ." -----------------------------" CR
+   AGAIN
+   RDROP
+  ELSE ." Не могу подключиться к multicast-группе" CR THEN
+;
+MC-DUMP
