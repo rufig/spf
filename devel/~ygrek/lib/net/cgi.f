@@ -11,9 +11,11 @@ REQUIRE AsQWord ~pinka/spf/quoted-word.f
 
 MODULE: CGI
 
-: content:html S" Content-type: text/html" TYPE CR ;
-: content:xhtml S" Content-type: application/xhtml+xml" TYPE CR ;
+: content:html S" Content-Type: text/html" TYPE CR ;
+: content:text S" Content-Type: text/plain" TYPE CR ;
+: content:xhtml S" Content-Type: application/xhtml+xml" TYPE CR ;
 : content-length ( n -- ) " Content-Length: {n}" STYPE CR ;
+: status ( n -- ) " Status: {n}" STYPE CR ;
 
 : get-post-params
   S" CONTENT_LENGTH" ENVIRONMENT? NOT IF EXIT THEN
