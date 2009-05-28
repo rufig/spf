@@ -144,10 +144,10 @@
 
 <def name="transact" ds=" -- ">
   '(transact) CATCH <choose>
-  DUP -1002 NE <when/>
-  DUP 10053 NE <when/>
+  DUP -1002 EQ <when/>
+  DUP 10053 EQ <when/>
   THROW <exit/></choose>
-  DROP 
+  DROP
   <!--
   <log>sedna, reopen connection</log>
   -->
