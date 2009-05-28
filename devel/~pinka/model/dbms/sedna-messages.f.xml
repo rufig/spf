@@ -15,7 +15,7 @@
 <def name="sednaT," ds=" x -- ">   reorder-bytes T, </def>
 <def name="sednaS," ds=" a u -- "> 0 B, DUP sednaT, S, </def>
 
-<def name="message" ds=" xt-body command -- a1 a2 ">
+<def name="message" ds=" xt-body command -- a u ">
   CLEAR-DATASPACE HERE >R
   sednaT,       <rem> command </rem>
   HERE >R 0 T,  <rem> length </rem>
