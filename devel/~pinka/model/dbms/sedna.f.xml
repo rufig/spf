@@ -133,8 +133,8 @@
 </def>
 
 <def name="per-put-query" ds=" emitter-xt -- ">
-  <repeat> DUP EXECUTE <rem>( xt a u )</rem>
-  DUP <while/> put-query-parts </repeat> 2DROP DROP
+  >R <repeat> R@ EXECUTE <rem>( a u )</rem>
+  DUP <while/> put-query-parts </repeat> 2DROP RDROP
   packet::LongQueryEnd put
 </def>
 
