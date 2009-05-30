@@ -13,10 +13,12 @@ REQUIRE XMLSAFE ~ygrek/lib/xmlsafe.f
 
 MODULE: xmltag
 
-USER indent
+USER indent-depth
 USER-VALUE plain?
+USER count
 
-: do_indent CR indent @ SPACES ;
+: (indent) CR indent-depth @ SPACES ;
+: indent plain? NOT IF (indent) THEN ;
 
 {{ list
 : attributes ( l -- )
@@ -24,18 +26,25 @@ USER-VALUE plain?
   free-with ;
 }}
 
-: prepare-tag ( attr-l a u -- ) plain? NOT IF do_indent THEN ." <" TYPE attributes ;
+: prepare-tag ( attr-l a u -- ) indent ." <" TYPE attributes ;
 
 EXPORT
 
 \ open tag with attributes, close tag when backtracking
+\ attributes is a list of pairs of strings
 : atag ( attr-l a u --> \ <-- )
    PRO
-   BACK " </{s}>" STYPE TRACKING
-   2RESTB
+   count 1+! \ increase tag count
+   BACK 
+    indent-depth 1-!
+    count @ <> IF indent THEN \ test for inner tags
+    " </{s}>" STYPE
+   TRACKING
+   count @ RESTB DROP \ remember current tags count
+   2RESTB \ remember tag name
    prepare-tag [CHAR] > EMIT
-   indent KEEP
-   indent 1+!
+   \ indent-depth KEEP
+   indent-depth 1+!
    CONT ;
 
 \ open tag, close on backtracking
@@ -60,7 +69,7 @@ EXPORT
 : /atag: PARSE-SLITERAL POSTPONE /atag ; IMMEDIATE
 : /tag: PARSE-SLITERAL POSTPONE /tag ; IMMEDIATE
 
-\ handy shortcut for name value pair
+\ handy shortcut for name value pair (for attributes)
 \ `value `name $$
 : $$ %[ >STR % >STR % ]% % ;
 
@@ -105,11 +114,15 @@ plaintags CR test2
 
 Запись S" a" tag S" b" tag S" c" tag сгенерирует вложенные тэги 
  <a><b><c></c></b></a>
-Чтобы получить тэги на одном уровне их надо перебирать с помощью *> <*> <* или PRO CONT 
- S" a" tag PRO S" b" tag CONT S" c" CONT
+Чтобы получить тэги на одном уровне надо ограничить область действия вложенных тэгов
+ S" a" tag *> S" b" tag <*> S" c" tag <*
 или
- S" a" tag *> S" b" tag <*> S" c" <*
+ `a tag START{ `b tag }EMERGE START{ `c tag }EMERGE
 даст
  <a><b></b><c></c></a> 
 
-Для того чтобы ограничить область захвата тегом можно использовать START{ }EMERGE
+Для того чтобы ограничить область захвата тэгом можно использовать START{ }EMERGE
+
+Реализация аттрибутов возможно не очень удобная, но чаще всего при использовании
+выфакторизовывается. Возможно стоит сделать спец. синтаксис.
+
