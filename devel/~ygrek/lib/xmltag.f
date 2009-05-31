@@ -22,7 +22,7 @@ USER count
 
 {{ list
 : attributes ( l -- )
-  LAMBDA{ SPACE DUP car STYPE ." =" [CHAR] " EMIT DUP cdar XMLSAFE::STYPE [CHAR] " EMIT free } 
+  LAMBDA{ SPACE DUP car STYPE ." =" [CHAR] " EMIT DUP cdar XMLSAFE::STYPE [CHAR] " EMIT free }
   free-with ;
 }}
 
@@ -35,7 +35,7 @@ EXPORT
 : atag ( attr-l a u --> \ <-- )
    PRO
    count 1+! \ increase tag count
-   BACK 
+   BACK
     indent-depth 1-!
     count @ <> IF indent THEN \ test for inner tags
     " </{s}>" STYPE
@@ -77,10 +77,10 @@ EXPORT
 
 0 VALUE counter
 
-: inner=> PRO 
+: inner=> PRO
    3 0 DO
    counter " inner{n}" DUP STR@ CONT STRFREE
-   counter 1+ TO counter 
+   counter 1+ TO counter
    LOOP
 ;
 
@@ -101,8 +101,10 @@ REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f
    }EMERGE
    `body tag
    %[ S" para" S" class" $$ ]% `div atag
-   `p tag
-   S" Test" TYPE ;
+   START{ `p tag
+   S" Test" TYPE `br /tag `i tag S" dsds" TYPE }EMERGE
+   `p tag S" other" TYPE
+   ;
 
 test1
 CR
@@ -112,14 +114,14 @@ plaintags CR test2
 
 \EOF
 
-Запись S" a" tag S" b" tag S" c" tag сгенерирует вложенные тэги 
+Запись S" a" tag S" b" tag S" c" tag сгенерирует вложенные тэги
  <a><b><c></c></b></a>
 Чтобы получить тэги на одном уровне надо ограничить область действия вложенных тэгов
  S" a" tag *> S" b" tag <*> S" c" tag <*
 или
  `a tag START{ `b tag }EMERGE START{ `c tag }EMERGE
 даст
- <a><b></b><c></c></a> 
+ <a><b></b><c></c></a>
 
 Для того чтобы ограничить область захвата тэгом можно использовать START{ }EMERGE
 
