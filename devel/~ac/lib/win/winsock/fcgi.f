@@ -64,9 +64,11 @@ USER-VALUE FCGI_Params
   FCGI_Header fh.contentLengthB0 C@ OR TO FCGI_BodyLen
 ;
 : FcgiReadBody ( -- )
+  FCGI_Body ?DUP IF FREE THROW THEN
   FCGI_BodyLen DUP ALLOCATE THROW DUP TO FCGI_Body
   SWAP FCGI_Socket ReadSocketExact THROW
   PAD FCGI_Header fh.paddingLength C@ FCGI_Socket ReadSocketExact THROW
+\  FCGI_Body FCGI_BodyLen DUMP CR CR
 ;
 : FcgiWrite { addr u type -- } \ u < 0xFFFF
   type FCGI_Header fh.type C!
@@ -105,7 +107,7 @@ USER-VALUE FCGI_Params
     addr FCGI_Body FCGI_BodyLen + <
   WHILE
     addr FcgiNameValue -> addr
-\    2SWAP TYPE ." =" TYPE CR
+    2OVER TYPE ." =" 2DUP TYPE CR
     2SWAP FCGI_Params HASH!
   REPEAT
 ;
@@ -147,4 +149,5 @@ USER-VALUE FCGI_Params
   REPEAT DROP
   AGAIN
 ;
+
 \ 9000 FcgiServer
