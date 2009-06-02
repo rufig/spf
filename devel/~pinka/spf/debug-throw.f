@@ -2,8 +2,11 @@
 
 \ Подключать, когда непонятно, в каком месте исключение происходит:
 
+: THROW_ORIG THROW ;
 : THROW
-  DUP 0= IF THROW EXIT THEN
+  DUP 0=     IF THROW EXIT THEN
+  DUP 10054  IF THROW EXIT THEN
+  DUP 10053  IF THROW EXIT THEN
 
   \ R@ OVER DUMP-EXCEPTION-HEADER
   CR ." THREAD-ID: " THREAD-ID . ." STACK: " OK
