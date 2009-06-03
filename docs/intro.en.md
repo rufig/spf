@@ -53,19 +53,21 @@ Forth-system and ANS'94 standard.</i>
 ###[Installed SPF4. And what's next?](#devel)
 
 The first and the most important - placement of your working files. There is a
-subdir `DEVEL` in the SPF directory where all the the developers' code is located
-(including yours). Create a subdir there, for example ~john. Now you can refer to 
+subdir `devel` in the SPF directory where all the the developers' code is located. 
+Create a subdir there, for example ~john. Now you can refer to 
 your files in short form, `~john/prog/myprog.f`. It simplifies mutual access to 
 contributed code. The general convention is to place libraries in the subdirectory 
-named `lib`, and example programs in `prog`.
+named `lib`, and example programs in `prog`. Alternatively you can place your code 
+wherever you want and use relative paths when including. Or better yet add your 
+working directory to the [search path](#included-path) for INCLUDED.
 
 The `devel` directory contains the contributed code of other SP-Forth'ers, the
 short (very short) list with descriptions is available: 
 [SPF_DEVEL](devel.en.html), or you can scan the directory yourself.
 
-There is also a fancy GUI frontend for SPF. It is located in
-`samples/win/spfwc`. Just run the compile.bat script and copy the resulting
-binary `spf4wc.exe` to the root installation folder (near to `spf4.exe`).
+There is also a fancy GUI frontend for SPF on Windows. It is located in
+`samples/win/spfwc`. Just run the `compile.bat` script and use the resulting
+binary `spf4wc.exe` in the root installation folder.
 
 ----
 <a id="include"/>
@@ -74,7 +76,7 @@ binary `spf4wc.exe` to the root installation folder (near to `spf4.exe`).
 * Running the file from the command line is fairly simple, just start SPF with 
 the file path as a command line parameter, 
 
-		spf.exe ~john/prog/myprog.f
+		spf4.exe ~john/prog/myprog.f
 
 	Note, that include path can be either absolute or relative to the
 [devel](#devel) directory. 
@@ -84,9 +86,9 @@ the file path as a command line parameter,
 		~john/prog/myprog.f
 * For compatibility reasons, it is better to include it in a standard way:
 
-		S" ~vasya/prog/myprog.f" INCLUDED
+		S" ~john/prog/myprog.f" INCLUDED
 
-* But the recommended approach is to use `REQUIRE` word.
+* But the recommended approach is to use [`REQUIRE`](#require) word.
 
 
 ----
@@ -131,7 +133,7 @@ spf4.ini
 
 and all the files will be searched in `my_path` in addition to the
 earlier described algorithm (`my_path` can be either absolute or relative
-spf.exe). 
+spf4.exe). 
 
 
 ----
