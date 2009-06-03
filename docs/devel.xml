@@ -38,7 +38,7 @@ Requirements :
 
 <section id="graphics">
 <name><en>Graphics</en><ru>Графика</ru></name>
-<lib><key>GLWindow</key><src>~ygrek/lib/joopengl/GLWindow.f</src><comment><en>OpenGL with joop</en><ru>OpenGL поверх joop</ru></comment></lib>
+<!--lib><key>GLWindow</key><src>~ygrek/lib/joopengl/GLWindow.f</src><comment><en>OpenGL with joop</en><ru>OpenGL поверх joop</ru></comment></lib-->
 <lib><key>CGLWindow</key><src>~ygrek/lib/wfl/opengl/GLWindow.f</src><comment><en>OpenGL via WFL/hype3</en><ru>OpenGL поверх WFL/hype3</ru></comment></lib>
 <lib><key>START-DRAW</key><src>~profit/misc/basicdraw.f</src><comment><en>Small framework for simple interactive drawing</en><ru>Небольшая обёртка для простой интерактивной графики</ru></comment></lib>
 </section>
@@ -68,11 +68,11 @@ Requirements :
 <lib><key>LINK,</key><src>~day/common/link.f</src><comment><en>static list (compiles in code area)</en><ru>статический список (компилируется в кодофай)</ru></comment></lib>
 <lib><key>firstNode</key><src>~day/lib/staticlist.f</src><comment><en>double-linked list, pretty much words</en><ru>двухсвязный список, много слов</ru></comment></lib>
 <lib><key>list+s</key><src>~pinka/lib/list_ext.f</src><comment><en>linked list </en><ru>односвязный список</ru></comment></lib>
-<lib><key>cons</key><src>~ygrek/lib/list/core.f</src><comment><en>list of cons pairs, core words</en><ru>cons список, базовые слова</ru></comment></lib>
-<lib><key>lst(</key><src>~ygrek/lib/list/ext.f</src><comment><en>constructing list with %[ 1 % 2 % 3 % ]%</en><ru>создание списков в виде %[ 1 % 2 % 3 % ]%</ru></comment></lib>
-<lib><key>reduce-this</key><src>~ygrek/lib/list/more.f</src><comment><en>additional list operations</en><ru>дополнительный операции над списком</ru></comment></lib>
-<lib><key>write-list</key><src>~ygrek/lib/list/write.f</src><comment><en>print list, also serialization suitable for EVALUATE</en><ru>распечатка, сериализация пригодная для EVALUATE</ru></comment></lib>
-<lib><key>write-list</key><src>~ygrek/lib/list/all.f</src><comment><en>all words for cons pair lists</en><ru>все слова для cons списков</ru></comment></lib>
+<lib><key>list</key><src>~ygrek/lib/list/core.f</src><comment><en>list of cons pairs, core words</en><ru>список cons-пар, базовые слова</ru></comment></lib>
+<lib><key>list-ext</key><src>~ygrek/lib/list/ext.f</src><comment><en>higher-order functions on lists (iter,map,zip,find,etc)</en><ru>функциональные операции над списками (iter,map,zip,find,etc)</ru></comment></lib>
+<lib><key>list-make</key><src>~ygrek/lib/list/make.f</src><comment><en>construct lists as %[ 1 % 2 % 3 % ]%</en><ru>задание списка в виде %[ 1 % 2 % 3 % ]%</ru></comment></lib>
+<lib><key>list-sort</key><src>~ygrek/lib/list/sort.f</src><comment><en>sort list (MergeSort)</en><ru>сортировка списка (MergeSort)</ru></comment></lib>
+<lib><key>list-all</key><src>~ygrek/lib/list/all.f</src><comment><en>all words for cons pair lists</en><ru>все слова для cons списков</ru></comment></lib>
 </section>
 
 <section id="record">
@@ -122,6 +122,7 @@ Requirements :
 <lib><key>.AllStatistic</key><src>~pinka/lib/tools/profiler.f</src><comment><en>word profiling (generates statistics for words and their run times)</en><ru>профилирование слов (выводит статистику о временах работы)</ru></comment></lib>
 <lib><key>TESTCASES</key><src>~ygrek/lib/testcase.f</src><comment><en>TESTCASES by ~day</en></comment></lib>
 <lib><key>/TEST</key><src>~profit/lib/testing.f</src><comment><en>marking tests in code</en><ru>отметка тестов в коде</ru></comment></lib>
+<lib><key>THROW_ORIG</key><src>~pinka/spf/debug-throw.f</src><comment><en>detect THROW origin for exception</en><ru>определение места вызова THROW для исключения</ru></comment></lib>
 </section>
 
 <section id="math">
@@ -293,6 +294,8 @@ Requirements :
 <lib><key>Tidy</key><src>~ac/lib/lin/tidy/tidy.f</src><comment><en>Wrapper for tidy.dll</en></comment>
  <link rel="wrap" href="http://dev.int64.org/tidy.html">tidy.dll</link>
 </lib>
+<lib><key>XMLSAFE</key><src>~ygrek/lib/xmlsafe.f</src><comment><en>quoting XML output</en><ru>quoting XML output</ru></comment></lib>
+<lib><key>tag</key><src>~ygrek/lib/xmltag.f</src><comment><en>bac4th XML tags output</en><ru>вывод XML тегов бэкфортом</ru></comment></lib>
 </section>
 
 <section id="oop">
@@ -332,13 +335,14 @@ Requirements :
 <name><en>Miscellaneous</en><ru>Разное</ru></name>
 <lib><key>CONST</key><src>~micro/lib/const/CONST.F</src><comment><en>constants enumeration</en><ru>перечисление констант</ru></comment></lib>
 <lib><key>ENUM</key><src>~ygrek/lib/enum.f</src><comment><en>enumerate groups of similar words</en><ru>перечисление групп подобных слов</ru></comment></lib>
-<lib><key>enqueueNOTFOUND</key><src>~pinka/samples/2006/core/trans/nf-ext.f</src><comment><en>extending translators (NOTFOUND)</en><ru>расширение транслятора (NOTFOUND)</ru></comment></lib>
+<lib><key>enqueueNOTFOUND</key><src>~pinka/spf/notfound-ext.f</src><comment><en>extending translators (NOTFOUND)</en><ru>расширение транслятора (NOTFOUND)</ru></comment></lib>
 <lib><key>StringToCB</key><src>~day/lib/clipboard.f</src><comment><en>read/write strings from Windows-Clipboard</en><ru>Чтение/запись строковых значений из буфера обмена Windows</ru></comment></lib>
 <!-- <lib><key>JsInit</key><src>~ac/lib/lin/lang/js_binding.f</src><comment><en>Wrapper for Mozilla's js-engine</en><ru>Обёртка для js-движка от Mozilla</ru></comment>
 <link rel="wrap" href="http://www.mozilla.org/download.html">nspr4.dll</link>
 <link rel="wrap" href="http://www.mozilla.org/download.html">js3250.dll</link>
 </lib>
 https://sourceforge.net/tracker/?func=detail&atid=117919&aid=1815133&group_id=17919 -->
+<lib><key>lexicon.basics-aligned</key><src>~pinka/lib/ext/basics.f</src><comment><en>some basic words</en><ru>некоторые базовые слова</ru></comment></lib>
 </section>
 
 
@@ -352,7 +356,7 @@ https://sourceforge.net/tracker/?func=detail&atid=117919&aid=1815133&group_id=17
  <link rel="wrap" href="http://www.zlatkovic.com/pub/libxml/">libiconv.dll</link>
 </lib>
 <lib><key>ICONV</key><src>~ac/lib/lin/iconv/iconv.f</src><comment><en>libiconv wrapper</en><ru>обёртка для libiconv</ru></comment></lib>
-<!--limk rel="wrap">iconv</link-->
+<!--link rel="wrap">iconv</link-->
 </section>
 
 </spf_devel>
