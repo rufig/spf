@@ -86,7 +86,7 @@
 <def name="320" alias="QuerySucceeded"> next </def>
 <def name="360" alias="ItemPart"> body-text consumer-xt EXECUTE  next </def>
 <def name="370" alias="ItemEnd"> packet::GetNextItem put next </def>
-<def name="375" alias="ResultEnd"></def>
+<def name="375" alias="ResultEnd"> 0. consumer-xt EXECUTE </def>
 </g>
 
 <def name="325" alias="DebugInfo"> body-info TYPE CR  next </def>
