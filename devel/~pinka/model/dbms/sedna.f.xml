@@ -163,7 +163,8 @@
 </def>
 
 <def name="query-value" ds=" d-query -- d-value ">
-  <xt-of name="last-part!"/> query-per last-part
+  <q> OVER <if> last-part! <exit/></if> 2DROP </q>
+  query-per last-part
 </def>
 
 <def name="per-query-per" ds=" emitter-xt consumer-xt -- ">
