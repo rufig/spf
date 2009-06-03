@@ -178,7 +178,7 @@
       <xsl:attribute name="href">
         <xsl:call-template name="addr-resolution"><xsl:with-param name='adr' select='@href'/></xsl:call-template>
       </xsl:attribute>
-      <img src="images/{@rel}.png" class="icon"/>
+      <img src="images/{@rel}.png" class="icon" alt="icon"/>
       <xsl:apply-templates />
       <xsl:if test="normalize-space()=''">
         <xsl:choose>
