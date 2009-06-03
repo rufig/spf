@@ -4,8 +4,12 @@
 
 # build system
 # win - windows
-# lin - linux (SF server)
+# nix - linux (SF server)
+ifeq ($(WINDIR),)
+host=nix
+else
 host=win
+endif
 # what kind of doc to generate
 # local - local documentation
 # web - online help
@@ -42,7 +46,7 @@ clean_mark:
 
 %.md: %.mdt
 	echo perform: $< $@ > mdt2md.f
-	spf ../tools/doc/std.f mdt2md.f BYE
+	spf4 ../tools/doc/std.f mdt2md.f BYE
 	$(delete) mdt2md.f
 
 devel.en.html: $(tools_path)devel.xsl devel.xml
