@@ -3,13 +3,13 @@
 S" bubble.f" INCLUDED
 S" queens.f" INCLUDED
 
-WINAPI: GetTickCount KERNEL32.DLL
+REQUIRE ms@ lib/include/facil.f
 
 : (bench) ( -- n )
-   GetTickCount
+   ms@
     MAIN
     test
-   GetTickCount SWAP -
+   ms@ SWAP -
 ;
 
 
