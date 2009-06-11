@@ -1,9 +1,12 @@
 \ отображение файлов на выбираемые системой адреса
 \ с возможностью разделения файла несколькими процессами
 
+REQUIRE base64 ~ac/lib/string/conv.f 
+
 WINAPI: CreateFileMappingA KERNEL32.DLL
 WINAPI: MapViewOfFile      KERNEL32.DLL
 WINAPI: UnmapViewOfFile    KERNEL32.DLL
+WINAPI: FlushViewOfFile    KERNEL32.DLL \ Win2000
 
 DECIMAL
 4 CONSTANT PAGE_READWRITE
@@ -26,6 +29,7 @@ DECIMAL
   ?DUP IF NIP R> SWAP 0 SWAP EXIT THEN \ не удалось открыть/создать файл
                      ( size fileid )
   R> SWAP >R
+  ASCIIZ> base64 DROP
   OVER               ( size name size )
   0                  ( size name sizelow sizehigh=0 )
   PAGE_READWRITE     \ protection
@@ -49,6 +53,9 @@ DECIMAL
   0= IF 2DROP GetLastError EXIT THEN
   CLOSE-FILE ?DUP IF NIP EXIT THEN
   CLOSE-FILE
+;
+: FLUSH-MAP ( -- )
+  0 MAP-BASE FlushViewOfFile DROP
 ;
 ( Пример:
   40000 S" TEST.MAP" MAP-FILE THROW
