@@ -35,13 +35,13 @@ VECT IniS!
   OVER >R S@			\ раскрыть макросы в строке
   R> FREE THROW			\ освободить буфер
 ;
+: (IniFile!) ( fa va ka sa -- ) WritePrivateProfileStringA ERR THROW ;
 : IniFile! ( S" value" S" key" S" section" S" file" -- ) \ throwable
 \ записать значение ключа в ini-файл
   { va vu ka ku sa su fa fu \ mem }
   InitIniFileMutex		\ инициализировать мутекс
   fa va ka sa			\ параметры для записи строки
-  ['] WritePrivateProfileStringA INI-MUT SYNC-MUTEX	\ выполнить запись синхронно
-  ERR THROW			\ обработать ошибку
+  ['] (IniFile!) INI-MUT SYNC-MUTEX	\ выполнить запись синхронно
 ;
 USER IniEnumXt
 
