@@ -4,6 +4,7 @@ REQUIRE {             ~ac/lib/locals.f
 REQUIRE CreateSocket  ~ac/lib/win/winsock/sockets.f
 REQUIRE FreeLibrary   ~ac/lib/win/dll/load_lib.f
 REQUIRE CREATE-MUTEX  lib/win/mutex.f
+REQUIRE [DEFINED]     lib/include/tools.f 
 
 VARIABLE SSL_LIB
 VARIABLE SSLE_LIB
@@ -62,7 +63,9 @@ VARIABLE SSLAPLINK
   BL WORD ", 0 C,
   DOES> CELL+ DUP @ ?DUP IF NIP API-CALL EXIT THEN
   SSL_LIB @ 0= IF LoadSslLibrary THEN
-  DUP CELL+ COUNT DROP SSL_LIB @ GetProcAddress DUP ROT ! API-CALL
+  DUP CELL+
+  [DEFINED] _WINAPI-TRACE [IF] DUP _WINAPI-TRACE [THEN]
+  COUNT DROP SSL_LIB @ GetProcAddress DUP ROT ! API-CALL
 ;
 : SSLEAPI:
   >IN @ CREATE >IN ! 
@@ -71,7 +74,9 @@ VARIABLE SSLAPLINK
   BL WORD ", 0 C,
   DOES> CELL+ DUP @ ?DUP IF NIP API-CALL EXIT THEN
   SSLE_LIB @ 0= IF LoadSsleLibrary THEN
-  DUP CELL+ COUNT DROP SSLE_LIB @ GetProcAddress DUP ROT ! API-CALL
+  DUP CELL+
+  [DEFINED] _WINAPI-TRACE [IF] DUP _WINAPI-TRACE [THEN]
+  COUNT DROP SSLE_LIB @ GetProcAddress DUP ROT ! API-CALL
 ;
 
 SSLAPI: SSL_load_error_strings
