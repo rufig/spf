@@ -11,6 +11,7 @@
   <text>&lt;</text> store-chunk
   2DUP 2>R store-chunk
   OVER <unless> 2DROP <text> xsi:nil="true"/&gt;</text> store-chunk RDROP RDROP <exit/></unless>
+  DUP  <unless> 2DROP <text>/&gt;</text> store-chunk RDROP RDROP <exit/></unless>
   <text>&gt;</text> store-chunk store-value
   <text>&lt;/</text> store-chunk 2R> store-chunk <text>&gt;</text> store-chunk
 </def>
