@@ -27,6 +27,7 @@
 
 <def name="XENCLOSED" ds=" a u xaddr -- xaddr2 ">
   DUP <unless> DROP XALLOC <exit/></unless>
+  OVER <unless> NIP NIP <exit/></unless>
   2DUP @ + <!-- ( a u xaddr u+u1 ) -->
   CELL+ CELL+ RESIZE THROW <!-- ( a u xaddr2 ) -->
   DUP XCOUNT + -ROT <!-- ( a a2 u xaddr2 ) -->
