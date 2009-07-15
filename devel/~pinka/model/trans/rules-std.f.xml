@@ -163,7 +163,7 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   2CS> NAMING-
   </m>
 </rule>
-
+<f:comment> What about "f:here" ? </f:comment>
 
 
 <!-- r: -->
