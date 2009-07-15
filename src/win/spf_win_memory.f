@@ -12,7 +12,7 @@ USER THREAD-HEAP   \ хэндл хипа текущего потока
 VARIABLE USER-OFFS \ смещение в области данных потока, 
                    \ где создаются новые переменные
 
-: ERR
+: ERR ( 0 -- ior | x -- 0 )
   IF 0 ELSE GetLastError THEN
 ;
 : USER-ALLOT ( n -- )
