@@ -32,6 +32,8 @@ HEX
 VARIABLE EXTRA-MEM
 4000 ' EXTRA-MEM EXECUTE !
 
+DECIMAL
+
 : SET-HEAP ( heap-id -- )
   >R
   USER-OFFS @ EXTRA-MEM @ CELL+ + 8 R@ 
@@ -44,6 +46,8 @@ VARIABLE EXTRA-MEM
      -300 THROW
   THEN
 ;
+
+HEX
 
 : CREATE-HEAP ( -- )
 \ Создать хип текущего потока.
