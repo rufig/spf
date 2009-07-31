@@ -6,6 +6,7 @@ REQUIRE SO            ~ac/lib/ns/so-xt.f
 REQUIRE STR@          ~ac/lib/str5.f
 
 ALSO SO NEW: libglib-2.0-0.dll
+ALSO SO NEW: libglib-2.0.so
 
 :NONAME ( data1 data2 -- res )
   2DUP
