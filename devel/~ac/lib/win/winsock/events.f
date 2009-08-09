@@ -41,13 +41,20 @@ VECT vNoneventSocket?
 
 : ReadSocketB ReadSocket ; \ старая (блокирующая) версия
 
+WARNING @ WARNING 0!
+
 : ReadSocket ( addr u s -- rlen ior )
   DUP vNoneventSocket? IF ReadSocket GetTickCount uLastSocketRead ! EXIT THEN
+
   uSocketEvent @ 0= IF
     0 0 0 0 CreateEventA DUP 0= IF 2DROP 2DROP 0 GetLastError EXIT THEN
     uSocketEvent !
     DUP FD_ALL_EVENTS uSocketEvent @ ROT WSAEventSelect IF DROP 2DROP 0 GetLastError EXIT THEN
   THEN
+
+  DUP ToRead2 ?DUP IF 2>R DROP 2DROP 2R> EXIT THEN
+  IF ReadSocket GetTickCount uLastSocketRead ! EXIT THEN \ если сокет уже готов, то сразу читаем порцию (без событий) и выходим
+
   BEGIN
     QS_ALLINPUT
     TIMEOUT @ DUP 0= IF DROP -1 THEN
@@ -90,7 +97,13 @@ VECT vNoneventSocket?
     DROP WriteSocketRetryDelay PAUSE
   REPEAT
 ;
+WARNING !
 
+: InitEventsQueue
+  0 ( PM_NOREMOVE)
+  0x0400 DUP ( PM_NOREMOVE WM_USER WM_USER)
+  0 PAD PeekMessageA DROP
+;
 \EOF
 
 WINAPI: GetCurrentThreadId        KERNEL32.DLL
