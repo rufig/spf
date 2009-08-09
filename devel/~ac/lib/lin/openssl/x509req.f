@@ -17,7 +17,7 @@ REQUIRE OPENSSL_Applink ~ac/lib/lin/openssl/applink.f
 
 ALSO SO NEW: libeay32.dll
 ALSO SO NEW: libssl.so.0.9.8
-ALSO SO NEW: libc.so.6
+ALSO SO NEW?: libc.so.6
 ALSO SO NEW: msvcrt.dll
 
 : SSLeayUseApplink? ( -- flag )
