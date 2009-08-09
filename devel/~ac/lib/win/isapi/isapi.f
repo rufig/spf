@@ -26,15 +26,15 @@ USER uIsapiDebug
 ;
 ' IsapiTYPE TO dIsapiWriteClient
 
-: IsapiSetStatus
+: IsapiSetStatus1
   ." <status=" TYPE ." >" CR
 ;
-' IsapiSetStatus TO dIsapiSetStatus
+' IsapiSetStatus1 TO dIsapiSetStatus
 
-: IsapiSetHeader
+: IsapiSetHeader1
   ." <header=" TYPE ." >" CR
 ;
-' IsapiSetHeader TO dIsapiSetHeader
+' IsapiSetHeader1 TO dIsapiSetHeader
 
 :NONAME S" GET" ; TO dREQUEST_METHOD
 :NONAME S" qqq=sss" ; TO dQUERY_STRING
@@ -100,13 +100,13 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
 : SERVER_PROTOCOL S" HTTP/1.0" ; 
 : SERVER_SOFTWARE S" acWEB/3" ; 
 
-: IsapiMapPath ( addr u -- addr2 u2 )
+: IsapiMapPath1 ( addr u -- addr2 u2 )
   0 MAX \ PHP может передавать отрицательную длину! :-)
 \  ." Map logical path:<" 2DUP TYPE ." >" CR
   2DROP
   SCRIPT_FILENAME
 ;
-' IsapiMapPath TO dIsapiMapPath
+' IsapiMapPath1 TO dIsapiMapPath
 
 (
 : HTTP_COOKIE S" _HTTP_COOKIE_" ; 
@@ -222,7 +222,7 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
   TlsIndex@ >R
   TlsIndex! S0 @ >R SP@ 12 + S0 !
   SWAP @
-\  uIsapiDebug @ IF ." (W=" 2DUP TYPE ." )" CR THEN
+  uIsapiDebug @ 7 = IF ." (W=" 2DUP TYPE ." )" CR THEN
   dIsapiWriteClient ( flag )
   NIP \ 1=sync, 2=async
   R> S0 !
