@@ -1,7 +1,9 @@
 ( Конвертация строк между разными кодовыми таблицами
 
   Для компиляции нужны следующие dll:
-  iconv.dll
+  iconv.dll - либо GNU libiconv [800Kb],
+              либо win_iconv [32Kb] by Yukihiro Nakadaira
+  См. http://www.gtk.org/download-windows.html
 )  
   
 WARNING @ WARNING 0!
@@ -28,7 +30,7 @@ REQUIRE [IF]          lib/include/tools.f
 \ например: S" тест" S" CP1251" S" UTF-8" ICONV
 \ возвращает результат oa ou; oa освобождать вызывающему по FREE
   u -> su  a -> sa \ при невозможности конвертации libiconv портит a u
-  u 3 * CELL+ DUP -> ou ALLOCATE THROW DUP -> oa -> aa  
+  u 4 * CELL+ DUP -> ou ALLOCATE THROW DUP -> oa -> aa  
   cpfa cpta 2 libiconv_open -> ico
   ^ ou ^ oa ^ u ^ a ico 5 libiconv
   IF ( ошибка перекодирования, оставляем исходную строку )
@@ -39,17 +41,20 @@ REQUIRE [IF]          lib/include/tools.f
   THEN
   ico 1 libiconv_close THROW
 ;
-: >UNICODE ( addr u -- addr2 u2 )
-  S" CP1251" S" UTF-16LE" ICONV
-;
-: UNICODE> ( addr u -- addr2 u2 )
-  S" UTF-16LE" S" CP1251" ICONV
-;
 : BUNICODE> ( addr u -- addr2 u2 )
   S" UTF-16BE" S" CP1251" ICONV
 ;
 : >BUNICODE ( addr u -- addr2 u2 )
   S" CP1251" S" UTF-16BE" ICONV
+;
+
+[UNDEFINED] >UNICODE [IF]
+
+: >UNICODE ( addr u -- addr2 u2 )
+  S" CP1251" S" UTF-16LE" ICONV
+;
+: UNICODE> ( addr u -- addr2 u2 )
+  S" UTF-16LE" S" CP1251" ICONV
 ;
 : UTF8>UNICODE ( addr u -- addr2 u2 )
   S" UTF-8" S" UTF-16LE" ICONV
@@ -64,13 +69,21 @@ REQUIRE [IF]          lib/include/tools.f
 : UTF8> ( addr u -- addr2 u2 )
   S" UTF-8" S" CP1251" ICONV
 ;
+[THEN]
+
 : iso-8859-5>UNICODE ( addr u -- addr2 u2 )
 \ специально для чтения писем ~yz :)
   S" ISO-8859-5" S" UTF-16LE" ICONV
 ;
-
+: UCS4> ( addr u -- addr2 u2 ) \ используется в IDNA
+  S" UTF-32LE" S" CP1251" ICONV
+;
+: >UCS4 ( addr u -- addr2 u2 )
+  S" CP1251" S" UTF-32LE" ICONV
+;
 PREVIOUS
 
+[UNDEFINED] UASCIIZ> [IF]
 : UASCIIZ> ( addr -- addr u ) \ вариант ASCIIZ> для Unicode
   0 OVER
   BEGIN
@@ -78,6 +91,16 @@ PREVIOUS
   WHILE
     2+ SWAP 1+ SWAP
   REPEAT DROP 2*
+;
+[THEN]
+
+: 4ASCIIZ> ( addr -- addr u ) \ вариант ASCIIZ> для UCS-4
+  0 OVER
+  BEGIN
+    DUP @ 0<>
+  WHILE
+    4 + SWAP 1+ SWAP
+  REPEAT DROP 4 *
 ;
 
 \EOF
