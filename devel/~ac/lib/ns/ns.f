@@ -124,6 +124,13 @@ USER _C-EXEC
   >IN @ VOCABULARY >IN !
   CONTEXT @ ( ALSO) ' EXECUTE CONTEXT @ CLASS!
 ;
+: NEW?:
+\ то же, с проверкой на дублирование словаря
+  >IN @ NextWord SFIND IF EXECUTE DROP EXIT ELSE 2DROP >IN ! THEN
+  >IN @ VOCABULARY >IN !
+  CONTEXT @ ( ALSO) ' EXECUTE CONTEXT @ CLASS!
+;
+
 \ NEW: KERNEL32.DLL соответствует такому коду:
 \ VOCABULARY KERNEL32.DLL
 \ ( ALSO) KERNEL32.DLL
