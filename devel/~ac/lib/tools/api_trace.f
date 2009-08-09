@@ -7,6 +7,12 @@ USER uLastApiFunc
   uLastApiFunc !
 ;
 : WINAPI: ( "»м€ѕроцедуры" "»м€Ѕиблиотеки" -- )
+
+  >IN @ NextWord SFIND
+  IF DROP
+     DROP NextWord 2DROP EXIT
+  ELSE 2DROP >IN ! THEN
+
   NEW-WINAPI?
   IF HEADER
   ELSE -1 >IN @ HEADER >IN ! THEN
