@@ -193,8 +193,8 @@ VARIABLE CurDir
   IF 2SWAP 2DROP LoadInitLibrary R> STRFREE THROW EXIT THEN
   2DROP R> STRFREE 
 
-\  LoadInitLibrary THROW
-  2DROP 0
+  LoadInitLibrary THROW
+\  2DROP 0
 ;
 : DLOPEN_ext
   ['] (DLOPEN_ext) CATCH IF 2DROP 0 THEN \ DLOPEN םו גûחûגאוע THROW
