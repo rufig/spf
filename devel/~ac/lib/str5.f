@@ -166,12 +166,14 @@ REQUIRE { lib/ext/locals.f
 
 USER STRLAST
 
+WARNING @ WARNING 0!
 : XCOUNT ( xs -- addr1 u1 )
 \ получить строку addr1 u1 из строки со счетчиком xs
 \ счетчик - €чейчка, а не байт, в отличие от обычного COUNT
   DUP @ SWAP CELL+ SWAP
-\ DEBUG @ IF 2DUP TYPE CR THEN
 ;
+WARNING !
+
 : S'
   [CHAR] ' PARSE [COMPILE] SLITERAL
 ; IMMEDIATE
@@ -264,6 +266,7 @@ VECT LSTRFREE ' LSTRFREE1 TO LSTRFREE
 : {sn} ( ... s -- s ) { s }
   TIB C@ [CHAR] s = IF s STR+ s EXIT THEN
   TIB C@ [CHAR] n = IF 0 <# #S #> s STR+ s EXIT THEN
+  TIB C@ [CHAR] d = IF <# #S #> s STR+ s EXIT THEN
   TIB C@ [CHAR] - = IF S>D DUP >R DABS <# #S R> SIGN #> s STR+ s EXIT THEN
   TIB C@ [CHAR] c = IF SP@ 1 s STR+ DROP s EXIT THEN
   s {eval}
