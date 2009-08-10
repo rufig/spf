@@ -124,7 +124,7 @@ USER _C-EXEC
   >IN @ VOCABULARY >IN !
   CONTEXT @ ( ALSO) ' EXECUTE CONTEXT @ CLASS!
 ;
-: NEW?:
+: ?NEW:
 \ то же, с проверкой на дублирование словаря
   >IN @ NextWord SFIND IF EXECUTE DROP EXIT ELSE 2DROP >IN ! THEN
   >IN @ VOCABULARY >IN !
