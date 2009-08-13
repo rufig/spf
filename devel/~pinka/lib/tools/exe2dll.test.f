@@ -4,17 +4,15 @@ FALSE TO OPT?
 
 REQUIRE {       ~ac\lib\locals.f
 
-: (INIT1)
+: (INIT1)  \ part1. -- see /spf/src/spf_init.f#(INIT)
   0 TO H-STDLOG
   0 TO H-STDIN
   CONSOLE-HANDLES
   ['] CGI-OPTIONS ERR-EXIT
-  ['] AT-PROCESS-STARTING ERR-EXIT
-  MAINX @ ?DUP IF ERR-EXIT THEN
+  MAINX @ ?DUP IF ERR-EXIT THEN   \ (?)
 ;
 
-: (INIT2)
-  (INIT1)
+: (INIT2)  \ part2. (not used here)
   SPF-INIT?  IF
     ['] SPF-INI ERR-EXIT
   THEN OPTIONS
@@ -32,9 +30,24 @@ REQUIRE {       ~ac\lib\locals.f
   2DROP DROP
   1  \ 0 to fail
 ;
-\ ' (dllinit) WNDPROC: DllMain 
 
-' (dllinit) 3 CELLS CALLBACK: DllMain
+
+
+VARIABLE _CNT 
+
+: PROCESS-INIT-ONCE ( n -- )
+  _CNT @ 0= IF PROCESS-INIT ELSE DROP THEN _CNT 1+!
+;
+
+ALIGN HERE  \ see spf_win_defwords.f#EXTERN and tc_spf.F#PROCESSPROC:
+  3 CELLS LIT,
+  ' PROCESS-INIT-ONCE COMPILE,
+  ' (dllinit) COMPILE,
+  RET,
+  ( xt )
+HEADER DllMain  ' _WNDPROC-CODE COMPILE, ,  \ see spf_win_defwords.f#CALLBACK:
+
+
 
 
 : _sfind  ( a u -- 0|xt )
