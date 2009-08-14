@@ -34,6 +34,10 @@
   2DUP +! >R 2DUP + 0! MOVE R>
 </def>
 
+<def name="XENCLOSED-" ds=" xaddr1 a u -- xaddr2 "> ROT XENCLOSED </def>
+<def name="XUPDATED-"  ds=" xaddr1 a u -- xaddr2 "> ROT XUPDATED  </def>
+<def name="XRELEASE"   ds=" xaddr -- "> DUP <if> FREE THROW <exit/></if> DROP </def>
+
 
 <def name="ASSET@" ds=" addr -- a u ">
   @ XCOUNT
