@@ -18,7 +18,7 @@
 
 <alias name="packet" word="packet"/>
 
-<slot> buf  sock port-number </slot>
+<slot> buf  sock port-number t </slot>
 <slot2> database user password  hostname port </slot2>
 
 <slot2> request last-part </slot2>
@@ -110,6 +110,7 @@
 
 <def name="open" ds=" -- ">
   close
+  0 t! <rem> reset in-transaction flag </rem>
   hostname port-number ConnectHost THROW sock!
   packet::Start-Up put next
 </def>
@@ -138,7 +139,12 @@
   packet::LongQueryEnd put
 </def>
 
-<def name="(transact)" ds=" -- ">  packet::BeginTransaction    put next </def>
+<def name="(transact)" ds=" -- "> t DUP 1+ t! <if><exit/></if> packet::BeginTransaction    put next </def>
+<comment>
+  The transactions within a session are strictly serial, that is one transaction ends 
+  before next one starts, there is only one active transaction per session. 
+  -- http://www.modis.ispras.ru/sedna/adminguide/AdminGuidese1.html
+</comment>
 
 <export>
 
@@ -154,8 +160,8 @@
   close-sock open (transact)
 </def>
 
-<def name="commit" ds=" -- ">    packet::CommitTransaction   put next </def>
-<def name="rollback" ds=" -- ">  packet::RollbackTransaction put next </def>
+<def name="commit"   ds=" -- ">  t 1- DUP t! <if><exit/></if> packet::CommitTransaction   put next </def>
+<def name="rollback" ds=" -- ">  t 1- DUP t! <if><exit/></if> packet::RollbackTransaction put next </def>
 
 <def name="query-per" ds=" d-query consumer-xt -- "><!-- see: sedna-api.scm # sedna:execute-query-xml -->
   consumer-xt!
