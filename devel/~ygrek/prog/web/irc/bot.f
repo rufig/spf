@@ -125,7 +125,6 @@ MODULE: BOT-COMMANDS-NOTFOUND
    GET-ORDER
    ONLY BOT-COMMANDS
    ALSO BOT-COMMANDS-NOTFOUND
-   ORDER
    current-msg-text " current msg : {s}" slog::trace
    current-msg-text ['] EVALUATE CATCH IF S" current msg failed (it is ok)" log::trace 2DROP THEN \ тут отваливание - нормальная ситуация
    SET-ORDER

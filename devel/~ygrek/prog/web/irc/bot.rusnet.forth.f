@@ -2,8 +2,12 @@
 REQUIRE LINUX-CONSTANTS lib/posix/const.f
 REQUIRE module-((-fix ~ygrek/lib/linux/ffi.f
 
-S" bot.rusnet.forth.lock" W/O CREATE-FILE DROP VALUE lock
-:NONAME (( lock F_TLOCK 0 )) lockf IF BYE THEN ; EXECUTE
+: lock
+  S" bot.rusnet.forth.lock" W/O CREATE-FILE DROP ( f )
+  1 <( F_TLOCK 0 )) lockf IF BYE THEN 
+;
+
+lock
 
 \ REQUIRE RTRACE ~ygrek/lib/debug/rtrace.f
 \ : THROW DUP 0 <> IF RTRACE THEN THROW ;
@@ -36,7 +40,7 @@ S" ~ygrek/prog/web/irc/plugins/msg.f" INCLUDED
 
 : start
 \ SocketsStartup THROW
-S" spf.runet.forth.log" W/O CREATE-FILE-SHARED THROW TO H-STDLOG
+\ S" spf.runet.forth.log" W/O CREATE-FILE-SHARED THROW TO H-STDLOG
 " exsample" TO nickname
 "" TO password
 " spf" TO username
