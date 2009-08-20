@@ -14,6 +14,10 @@ lock
 \ lib/ext/disasm.f
 S" ~ygrek/prog/web/irc/bot.f" INCLUDED
 
+\ linux-specific
+: gettid ( -- tid ) (( SYS_gettid )) syscall ;
+: log_thread ( a u -- ) gettid -ROT " {''}{s}{''} thread started ({n})" slog::debug ;
+
 REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
 
 \ Global logger configuration
@@ -26,6 +30,9 @@ REQUIRE DateTime>Num ~ygrek/lib/spec/unixdate.f
   gettid " {n} " STYPE
   ." | "
   TYPE CR ; TO LOG-TYPE
+
+..: AT-FILTER only: *.info ;..
+
 }}
 
 S" ~ygrek/prog/web/irc/plugins/rss.f" INCLUDED

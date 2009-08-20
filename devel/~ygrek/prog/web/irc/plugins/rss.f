@@ -180,7 +180,7 @@ DEFINITIONS
 
 : fforum-url S" http://fforum.winglion.ru/rss.php?c=10" ;
 : wiki-url S" http://wiki.forth.org.ru/RecentChanges?format=rss" ;
-: sf.net-url S" http://sourceforge.net/export/rss2_projnews.php?group_id=17919" ;
+: sf.net-url S" http://sourceforge.net/export/rss2_keepsake.php?group_id=17919" ;
 : blog-url S" http://my.opera.com/forth/xml/rss/blog" ;
 
 EXPORT
