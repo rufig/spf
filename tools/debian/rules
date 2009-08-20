@@ -80,7 +80,7 @@ binary-arch: build install
 	dh_install spf4.ini $(LIBDIR)
 #	dh_install help.fhlp $(LIBDIR) # fixme
 #	dh_install
-#	dh_installmenu
+	dh_installmenu
 #	dh_installdebconf	
 #	dh_installlogrotate
 #	dh_installemacsen

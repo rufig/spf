@@ -11,6 +11,7 @@ Vcs-Browser: http://spf.cvs.sourceforge.net/spf
 Package: spforth4
 Architecture: i386
 Depends: ${shlibs:Depends}
+Recommends: binutils, gcc
 Description: ANS'94 Forth system
  SP-Forth is an ANS'94 Forth system with native code generation and
  macrooptimization. It is fast and reliable.
