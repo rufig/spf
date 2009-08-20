@@ -13,10 +13,11 @@ REQUIRE parse-unixdate ~ygrek/lib/spec/sdate.f
 REQUIRE parse-num-unixdate ~ygrek/lib/spec/sdate2.f
 REQUIRE PRO ~profit/lib/bac4th.f
 REQUIRE STATIC ~profit/lib/static.f
+REQUIRE ALLOCATED ~pinka/lib/ext/basics.f
 
-\ BUG Memory leak in text@
 \ текст узла
-: xml.text ( node -- a u ) DUP IF text@ ELSE DROP S" " THEN ;
+\ освободить память: a FREE THROW
+: xml.text ( node -- a u ) DUP IF text@ ELSE DROP 0 ALLOCATED THEN ;
 
 \ Генерируются вызовы для каждого потомка элемента node
 : xml.children=> ( node --> node2 \ <-- node2 )
@@ -42,18 +43,18 @@ REQUIRE STATIC ~profit/lib/static.f
 \ timestamp RSS-записи
 \ проверяются элементы pubDate и в случае неудачм - date
 : rss.item.timestamp { node -- timestamp|0 }
-   S" pubDate" node nodeText DUP IF parse-unixdate EXIT THEN 
+   S" pubDate" node nodeText DUP IF OVER SWAP parse-unixdate SWAP FREE THROW EXIT THEN 
    2DROP
-   S" date" node nodeText DUP IF parse-num-unixdate EXIT THEN
+   S" date" node nodeText DUP IF OVER SWAP parse-num-unixdate SWAP FREE THROW EXIT THEN
    2DROP
    0 ;
 
-\ Заголовок rss-записи
+\ Заголовок rss-записи (a FREE THROW)
 : rss.item.title ( node -- a u ) S" title" ROT node@ xml.text ;
-\ Ссылка rss-записи
+\ Ссылка rss-записи (a FREE THROW)
 : rss.item.link  ( node -- a u ) S" link"  ROT node@ xml.text ;
 
-\ Автор rss-записи
+\ Автор rss-записи (a FREE THROW)
 : rss.item.author ( node -- a u )
    >R
    S" creator" R@ nodeText DUP IF RDROP EXIT THEN
@@ -62,7 +63,7 @@ REQUIRE STATIC ~profit/lib/static.f
    2DROP
    S" author" R@ nodeText DUP IF RDROP EXIT THEN
    2DROP
-   RDROP S" " ;
+   RDROP 0 ALLOCATED ;
 
 
 ALSO libxml2.dll

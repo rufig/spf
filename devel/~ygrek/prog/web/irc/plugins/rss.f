@@ -78,14 +78,16 @@ MODULE: bot_plugin_rss
 \ lame :)
 : hide-email DUP " @" "  at " replace-str- ;
 
+: TOSTR OVER SWAP >STR SWAP FREE THROW ;
+
 : reply-rss { node | title author -- }
-   node rss.item.title >STR -> title
-   node rss.item.author >STR hide-email -> author
+   node rss.item.title TOSTR -> title
+   node rss.item.author TOSTR hide-email -> author
    node rss.item.timestamp my-date
    " [{s}] {$author} -- {$title}" STR-SAY
    author STRFREE
    title STRFREE
-   node rss.item.link >STR STR-SAY ;
+   node rss.item.link TOSTR STR-SAY ;
 
 : process-and-stamp-rss=> ( stamp-a stamp-u data-a data-u -- node )
     S" Checking xml..." log::trace
@@ -123,6 +125,7 @@ DEFINITIONS
 
 : seconds 1000 * ;
 : minutes 60 * seconds ;
+: hours 60 * minutes ;
 
 : url-to-filename ( s -- s )
     DUP " /" " _" replace-str-
@@ -198,9 +201,9 @@ EXPORT
   TIME&DATE DateTime>Num fforum-url >STR url-to-filename STR@ write-number
 
   %[ fforum-url >STR % 5 minutes % ]% submitter START DROP
-  %[ sf.net-url >STR % 6 60 * minutes % ]% submitter START DROP
-  %[ wiki-url >STR % 60 minutes % ]% submitter START DROP
-  %[ blog-url >STR % 30 minutes % ]% submitter START DROP
+  %[ sf.net-url >STR % 2 hours % ]% submitter START DROP
+  %[ wiki-url >STR % 2 hours % ]% submitter START DROP
+  %[ blog-url >STR % 2 hours % ]% submitter START DROP
 
 ;..
 
