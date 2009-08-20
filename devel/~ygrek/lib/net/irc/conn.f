@@ -12,15 +12,8 @@ REQUIRE /TEST ~profit/lib/testing.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 REQUIRE RTRACE ~ygrek/lib/debug/rtrace.f
 REQUIRE logger ~ygrek/lib/log.f
-
-[DEFINED] WINAPI: [IF]
-REQUIRE NEW-CS ~pinka/lib/multi/critical.f 
-[ELSE]
-REQUIRE NEW-CS ~ygrek/lib/linux/pthread_mutex.f
-[THEN]
-
+REQUIRE WITH-CRIT ~ygrek/lib/sys/critical.f
 REQUIRE AsQName ~pinka/samples/2006/syntax/qname.f 
-
 REQUIRE ConnectHost ~ygrek/lib/net/sockets.f
 REQUIRE fsock ~ac/lib/win/winsock/PSOCKET.F
 REQUIRE ConnectHostViaSocks5 ~ygrek/lib/net/socks/v5.f
@@ -59,9 +52,6 @@ TRUE VALUE ?LOGSEND
 FALSE VALUE ?LOGSAY
 TRUE VALUE ?LOGMSG
 
-: WITH-CS-CATCH ( xt cs -- ior ) >R R@ ENTER-CS CATCH R> LEAVE-CS ;
-: WITH-CS ( xt cs -- ) WITH-CS-CATCH THROW ;
-
 : ?IOR ( ior -- ) ?DUP IF ." ior = " . CR RTRACE THEN ;
 
 \ --------------------------------------------------------
@@ -69,7 +59,7 @@ TRUE VALUE ?LOGMSG
 MODULE: IRC-CONN
 
 0 VALUE socketline \ соединение с IRC сервером
-CREATE-CS lsock-cs
+CREATE-CRIT lock
 
 \ : BAD CR TYPE RTRACE ABORT ;
 \ : (BAD) ROT IF BAD ELSE 2DROP THEN ;
@@ -79,7 +69,7 @@ EXPORT
 
 : irc-send ( a u -- )
    ?LOGSEND IF 2DUP " irc-send : {s}" slog::trace THEN
-   LAMBDA{ socketline fsock WriteSocketLine THROW } lsock-cs WITH-CS-CATCH ?IOR ;
+   LAMBDA{ socketline fsock WriteSocketLine THROW } lock WITH-CRIT-CATCH ?IOR ;
 
 : irc-str-send ( s -- ) DUP STR@ irc-send STRFREE ;
 
