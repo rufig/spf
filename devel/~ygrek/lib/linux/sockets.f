@@ -1,5 +1,5 @@
 \ $Id$
-\ see ~ac/lib/win/winsock/sockets.f
+\ see ~ac/lib/win/winsock/SOCKETS.F
 
 REQUIRE LINUX-CONSTANTS lib/posix/const.f
 REQUIRE /TEST ~profit/lib/testing.f
@@ -57,7 +57,7 @@ USER TIMEOUT
 : BindSocket TRUE ABORT" BindSocket not implemented" ;
 : ListenSocket TRUE ABORT" ListenSocket not implemented" ;
 : SetSocketTimeout TRUE ABORT" SetSocketTimeout not implemented" ;
-: FastCloseSocket TRUE ABORT" FastCloseSocket not implemented" ;
+: FastCloseSocket CloseSocket ; \ FIXME
 
 /TEST
 
