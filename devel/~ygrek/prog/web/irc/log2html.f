@@ -12,6 +12,9 @@ REQUIRE TYPE>STR ~ygrek/lib/typestr.f
 REQUIRE AsQName ~pinka/spf/quoted-word.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 REQUIRE RAW-LOG-FILE ~ygrek/prog/web/irc/common.f
+REQUIRE XHTML ~ygrek/lib/xhtml/core.f
+
+: curly S" {" ;
 
 : put-header ( a u -- )
 " <!DOCTYPE HTML PUBLIC {''}-//W3C//DTD HTML 4.0 Transitional//EN{''}>
@@ -24,9 +27,10 @@ REQUIRE RAW-LOG-FILE ~ygrek/prog/web/irc/common.f
 <META NAME={''}robots{''} CONTENT= {''}index,all{''}>
 <style type={''}text/css{''}>
 <!--
-.time {S' {'}color: #AAAAAA; text-decoration: none;}
-.else {S' {'}color: #009900; font-style: italic;}
-.nick {S' {'}color: #0000AA;}
+.time {curly}color: #AAAAAA; text-decoration: none;}
+.else {curly}color: #009900; font-style: italic;}
+.nick {curly}color: #0000AA;}
+.self {curly}color: #AA0099;}
 //-->
 </style>
 <TITLE>Log of #forth. {s}</TITLE>
@@ -44,18 +48,28 @@ STYPE ;
 0 VALUE time
 0 VALUE msg
 
-: put-time ( a u -- ) time STR@ 2DUP 2DUP " <a id={''}{s}{''} href={''}#{s}{''} class={''}time{''}>[{s}]</a>" STYPE ;
-: put-nick ( a u -- ) " <font class={''}nick{''}>[{s}]</font>" STYPE ;
+ALSO XHTML
+ALSO XMLSAFE
+
+: font PRO %[ `class $$ ]% `font atag CONT ;
+
+: put-time ( a u -- ) 
+  time STR@ 2DUP 2DUP " <a id={''}{s}{''} href={''}#{s}{''} class={''}time{''}>[{s}]</a>" FORTH::STYPE ;
+: put-nick ( a u -- ) `nick font `< TYPE TYPE `> TYPE ;
 : put-text ( a u -- ) SPACE TYPE ;
-: sput-text DUP STR@ TYPE STRFREE ;
-: sput-else ( s -- ) DUP STR@ " <font class={''}else{''}> {s}</font>" STYPE STRFREE ;
-: put-break ( -- ) S" <br/>" TYPE CR ;
+: sput-text SPACE STYPE ;
+: sput-self `self font STYPE ;
+: sput-else ( s -- ) `else font STYPE ;
+: put-break ( -- ) `br /tag ;
+
+PREVIOUS
+PREVIOUS
 
 : line=> PRO put-time CONT put-break ;
 
 : put-message-text
    msg irc-msg-text irc-action?
-   IF msg irc-msg-sender " <b>{s}</b> {s}" sput-text
+   IF msg irc-msg-sender " {s} {s}" sput-self
    ELSE msg irc-msg-sender put-nick ( a u ) put-text
    THEN ;
 
@@ -74,24 +88,26 @@ MODULE: BOT-LOG-TALK
 ;MODULE
 
 : each-line ( a u -- )
-   S" |" SPLIT- ENSURE " {s}" TO time
+   S" |" SPLIT- ENSURE >STR TO time
    MAKE-IRC-MSG 0= IF FREE-IRC-MSG EXIT THEN TO msg
    GET-ORDER
    ONLY BOT-LOG-TALK
    msg irc-msg-cmd ['] EVALUATE CATCH IF 2DROP THEN
    SET-ORDER
    msg FREE-IRC-MSG
+   time STRFREE
 ;
 
 : (log2html) { d m y -- }
-   d m y RAW-LOG-FILE
-   2DUP FILE-EXISTS NOT IF 2DROP EXIT THEN
+   d m y RAW-LOG-FILE FILE-EXISTS NOT IF EXIT THEN
    " {#d}/{#m}/{#y}" DUP STR@ put-header STRFREE
+   d m y RAW-LOG-FILE
    START{ FileLines=> DUP STR@ each-line }EMERGE
    put-footer ;
 
 : log2html { d m y | s -- }
-   d m y ['] (log2html) TYPE>STR -> s
+   d m y ['] (log2html) TYPE>STR-CATCH IF STRFREE DROP DROP DROP EXIT THEN
+   -> s
    s STRLEN 0 <> IF
      s STR@
      d m y HTML-LOG-FILE
