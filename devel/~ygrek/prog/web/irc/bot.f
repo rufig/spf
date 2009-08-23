@@ -48,7 +48,7 @@ REQUIRE log2html ~ygrek/prog/web/irc/log2html.f
 : CONVERT-LOGS { d m y -- }
     0 0 0 d m y DateTime>Num
     DUP last-convert - 2 hours < IF DROP EXIT THEN \ every two hours
-    -> last-convert
+    TO last-convert
     d m y log2html
     30 1 DO
       last-convert I days - Num>Date -> y -> m -> d
@@ -59,7 +59,7 @@ REQUIRE log2html ~ygrek/prog/web/irc/log2html.f
       THEN
     LOOP ;
 
-: RAW-LOG CONVERT-LOGS AS-LOG-STR { s } s STR@ (DO-LOG-TO-FILE) s STRFREE ;
+: RAW-LOG CURRENT-DATE CONVERT-LOGS AS-LOG-STR { s } s STR@ (DO-LOG-TO-FILE) s STRFREE ;
 
 FALSE VALUE ?check
 
