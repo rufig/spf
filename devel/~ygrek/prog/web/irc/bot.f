@@ -49,11 +49,13 @@ REQUIRE log2html ~ygrek/prog/web/irc/log2html.f
     0 0 0 d m y DateTime>Num
     DUP last-convert - 2 hours < IF DROP EXIT THEN \ every two hours
     TO last-convert
+    S" CONVERT-LOGS" log::info
     d m y log2html
     30 1 DO
       last-convert I days - Num>Date -> y -> m -> d
       d m y RAW-LOG-FILE FILE-EXISTS IF
       d m y HTML-LOG-FILE FILE-EXISTS NOT IF
+      y m d " will convert {n}/{n}/{n}" slog::info
       d m y log2html
       THEN
       THEN

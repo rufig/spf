@@ -13,6 +13,7 @@ REQUIRE AsQName ~pinka/spf/quoted-word.f
 REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 REQUIRE RAW-LOG-FILE ~ygrek/prog/web/irc/common.f
 REQUIRE XHTML ~ygrek/lib/xhtml/core.f
+REQUIRE logger ~ygrek/lib/log.f
 
 : curly S" {" ;
 
@@ -106,7 +107,7 @@ MODULE: BOT-LOG-TALK
    put-footer ;
 
 : log2html { d m y | s -- }
-   d m y ['] (log2html) TYPE>STR-CATCH IF STRFREE DROP DROP DROP EXIT THEN
+   d m y ['] (log2html) TYPE>STR-CATCH IF S" log2html failed" log::error STRFREE DROP DROP DROP EXIT THEN
    -> s
    s STRLEN 0 <> IF
      s STR@
