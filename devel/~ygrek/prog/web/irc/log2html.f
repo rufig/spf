@@ -14,6 +14,7 @@ REQUIRE OCCUPY ~pinka/samples/2005/lib/append-file.f
 REQUIRE RAW-LOG-FILE ~ygrek/prog/web/irc/common.f
 REQUIRE XHTML ~ygrek/lib/xhtml/core.f
 REQUIRE logger ~ygrek/lib/log.f
+REQUIRE >UTF8 ~ac/lib/lin/iconv/iconv.f
 
 : curly S" {" ;
 
@@ -21,7 +22,7 @@ REQUIRE logger ~ygrek/lib/log.f
 " <!DOCTYPE HTML PUBLIC {''}-//W3C//DTD HTML 4.0 Transitional//EN{''}>
 <HTML>
 <HEAD>
-<META HTTP-EQUIV={''}Content-Type{''} CONTENT={''}text/html; charset=windows-1251{''}>
+<META HTTP-EQUIV={''}Content-Type{''} CONTENT={''}text/html; charset=utf-8{''}>
 <META NAME={''}title{''} CONTENT={''}Log of #forth{''}>
 <META NAME={''}Author{''} CONTENT={''}exsample{''}>
 <META NAME={''}Keywords{''} CONTENT={''}logs, logging, channel, irc, bot, exsample, log2html{''}>
@@ -90,6 +91,7 @@ MODULE: BOT-LOG-TALK
 
 : each-line ( a u -- )
    S" |" SPLIT- ENSURE >STR TO time
+   >UTF8 OVER { addr }
    MAKE-IRC-MSG 0= IF FREE-IRC-MSG EXIT THEN TO msg
    GET-ORDER
    ONLY BOT-LOG-TALK
@@ -97,6 +99,7 @@ MODULE: BOT-LOG-TALK
    SET-ORDER
    msg FREE-IRC-MSG
    time STRFREE
+   addr FREE THROW
 ;
 
 : (log2html) { d m y -- }
