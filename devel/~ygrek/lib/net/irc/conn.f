@@ -1,4 +1,4 @@
-REQUIRE PARSE-IRC-MSG ~ygrek/lib/net/irc/basic.f
+REQUIRE MAKE-IRC-MSG ~ygrek/lib/net/irc/basic.f
 REQUIRE ANSI-FILE lib/include/ansi-file.f
 REQUIRE STR@ ~ac/lib/str5.f
 REQUIRE LAMBDA{ ~pinka/lib/lambda.f

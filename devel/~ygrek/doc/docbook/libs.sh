@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 SPF_ROOT=$(spf ModuleDirName TYPE BYE)
 xsltproc devel_libs.xsl $SPF_ROOT/docs/devel.xml > devel.docbook

@@ -27,6 +27,9 @@ EXPORT
   a u l ['] umatches% %[ list::iter 2DROP ]% -> l
   a u l LAMBDA{ list::car STR@ 2OVER LIKE 0= } list::partition 2SWAP 2DROP ;
 
+: exact% { ll } ll list::car STR@ 2OVER CEQUAL IF ll % THEN ;
+: words-exact ( a u l -- l' ) ['] exact% %[ list::iter 2DROP ]% ;
+
 {{ list
 : words-each-> ( l --> s1 s2 s3 \ <-- )
   PRO

@@ -4,7 +4,7 @@
 
 USE libreadline.so.5
 
-REQUIRE STR ~ac/lib/str5.f
+REQUIRE STR@ ~ac/lib/str5.f
 
 : /PAD 1024 1- ;
 : STR>PAD ( s -- a u )
@@ -13,7 +13,8 @@ REQUIRE STR ~ac/lib/str5.f
   PAD R> 2DUP + 0 SWAP C! ;
 
 : history-filename 
-  S" HOME" ENVIRONMENT? IF " {s}/.history.spf" STR>PAD ELSE S" .history.spf" THEN
+\  S" HOME" ENVIRONMENT? IF " {s}/.history.spf" STR>PAD ELSE S" .history.spf" THEN
+  S" .history.spf"
   DROP ;
 
 : start-readline-history 
@@ -26,7 +27,7 @@ REQUIRE STR ~ac/lib/str5.f
 ..: AT-PROCESS-STARTING start-readline-history ;..
 start-readline-history
 
-..: AT-PROCESS-FINISHING save-readline-history ;..
+\ ..: AT-PROCESS-FINISHING save-readline-history ;..
 
 : ACCEPT-READLINE ( c-addr +n1 -- +n2 ) \ 94
   (( 0 )) readline >R
