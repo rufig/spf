@@ -20,6 +20,9 @@ REQUIRE logger ~ygrek/lib/log.f
 REQUIRE OSNAME-STR ~ygrek/lib/sys/osname.f
 REQUIRE str-concat-with ~ygrek/lib/str.f
 
+REQUIRE RAW-LOG-FILE ~ygrek/prog/web/irc/common.f
+REQUIRE log2html ~ygrek/prog/web/irc/log2html.f
+
 [DEFINED] WINAPI: [IF]
 ' ANSI>OEM TO ANSI><OEM \ cp1251 in console
 [THEN]
@@ -30,18 +33,33 @@ REQUIRE str-concat-with ~ygrek/lib/str.f
 : CURRENT-DATE ( -- d m y ) TIME&DATE 2>R NIP NIP NIP 2R> ;
 : CURRENT-TIME ( -- s m h ) TIME&DATE DROP DROP DROP ;
 
-: CURRENT-LOG-FILE
-    CURRENT-DATE { d m y }
-    <# S" .log" HOLDS d #N## m #N## y #N [CHAR] 0 0 #> ;
-
-: (DO-LOG-TO-FILE) ( a u -- ) CURRENT-LOG-FILE ATTACH-LINE-CATCH DROP ;
+: (DO-LOG-TO-FILE) ( a u -- ) CURRENT-DATE RAW-LOG-FILE FORCE-PATH ATTACH-LINE-CATCH DROP ;
 
 : AS-LOG-STR ( a u -- s )
    CURRENT-TIME { s m h }
    <# s #N## [CHAR] : HOLD m #N## [CHAR] : HOLD h #N## 0 0 #>
    " {s}|{s}" ;
-   
-: RAW-LOG AS-LOG-STR { s } s STR@ (DO-LOG-TO-FILE) s STRFREE ;
+
+0 VALUE last-convert
+: minutes ( n -- secs ) 60 * ;
+: hours ( n -- secs ) 60 minutes * ;
+: days ( n -- secs ) 24 hours * ;
+
+: CONVERT-LOGS { d m y -- }
+    0 0 0 d m y DateTime>Num
+    DUP last-convert - 2 hours < IF DROP EXIT THEN \ every two hours
+    -> last-convert
+    d m y log2html
+    30 1 DO
+      last-convert I days - Num>Date -> y -> m -> d
+      d m y RAW-LOG-FILE FILE-EXISTS IF
+      d m y HTML-LOG-FILE FILE-EXISTS NOT IF
+      d m y log2html
+      THEN
+      THEN
+    LOOP ;
+
+: RAW-LOG CONVERT-LOGS AS-LOG-STR { s } s STR@ (DO-LOG-TO-FILE) s STRFREE ;
 
 FALSE VALUE ?check
 
