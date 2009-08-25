@@ -1,0 +1,1 @@
+REQUIRE JsInit ~ac/lib/lin/lang/js_binding.f
