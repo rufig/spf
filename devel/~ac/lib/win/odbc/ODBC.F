@@ -299,6 +299,7 @@ VECT vSQLLastQuery ' SQLLastQuery TO vSQLLastQuery
 : StopSQL ( fodbc -- )
   { fodbc }
 \  fodbc odbcConn @ SQLDisconnect DROP
+  fodbc 0= IF EXIT THEN \ уже закрыто или не было открыто...
   fodbc FreeStmt
   fodbc odbcConn @ ?DUP IF DUP SQLDisconnect DROP SQLFreeConnect DROP THEN
   fodbc odbcEnv  @ SQLFreeEnv DROP

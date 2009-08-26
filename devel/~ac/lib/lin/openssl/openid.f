@@ -8,7 +8,13 @@ REQUIRE bUrlencode ~ac/lib/string/burlencode.f
 ALSO libeay32.dll
 ALSO libssl.so.0.9.8
 
-: default_p S" defp" FILE ;
+CREATE default_p_ \ Appendix A.1. Diffie-Hellman P default value
+S" 155172898181473697471232257763715539915724801966915404479707795314057" S,
+S" 629378541917580651227423698188993727816152646631438561595825688188889" S,
+S" 951272158842675419950341258706556549803580104870537681476726513255747" S,
+S" 040765857479291291572334510643245094715007229621094194349783925984760" S,
+S" 375594985848253359305585439638443" S, 0 C,
+: default_p default_p_ ASCIIZ> ;
 : default_g S" 2" ;
 
 0
@@ -28,8 +34,14 @@ USER enc_mac_key
 USER expires_in
 USER session_type
 
+\ rambler:
+USER expiry
+USER issued
+\ ms
+\ USER error
+
 : (assoc_reply)
-  [CHAR] : PARSE SFIND IF EXECUTE ELSE TYPE ." unknown reply" EXIT THEN
+  [CHAR] : PARSE SFIND IF EXECUTE ELSE TYPE ."  - unknown OpenID field." EXIT THEN
   10 PARSE ROT S!
 ;
 : assoc_reply
@@ -40,17 +52,32 @@ USER session_type
     ['] (assoc_reply) EVALUATE-WITH
   REPEAT 2DROP
 ;
+VECT vIsSet :NONAME 2DROP FALSE ; TO vIsSet
+
 : DhFree ( dh -- )
   1 DH_free DROP
+;
+: DhCustomKeys ( p1 g1 -- p2 g2 )
+  S" openid.dh_modulus" vIsSet 0= IF EXIT THEN
+  S" openid.dh_gen" vIsSet 0= IF EXIT THEN
+
+  2DROP
+  S" openid.dh_modulus" EVALUATE debase64 SWAP
+  0 ROT ROT 3 BN_bin2bn ( p )
+
+  S" openid.dh_gen" EVALUATE debase64 SWAP
+  0 ROT ROT 3 BN_bin2bn ( g )
 ;
 : DhGenKeys { \ dh p g pk pklen -- pk pklen dh }
 \ первый шаг согласования ключей Diffie-Hellman
 \ генерирует пару ключей, возвращает открытый ключ, конвертированный в big endian,
 \ и структуру dh с закрытым ключем, внутренности которой не важны, т.к. никуда не передаются
+
   0 DH_new -> dh
-\  dh DH.pub_key @ .
   default_p DROP ^ p 2 BN_dec2bn DROP
   default_g DROP ^ g 2 BN_dec2bn DROP
+
+  p g DhCustomKeys -> g -> p
 
   p dh DH.p !
   g dh DH.g !
@@ -103,8 +130,6 @@ USER session_type
   20 0 DO mac_key I + C@ key_sha1 I + C@ XOR mac_key I + C! LOOP
   mac_key 20 \ DUMP CR
 ;
-VECT vIsSet ' DROP TO vIsSet
-
 : LF_
   CRLF DROP 1+ 1
 ;
@@ -127,7 +152,7 @@ VECT vIsSet ' DROP TO vIsSet
   key_sha1 cklen ck 3 SHA1 DROP \ адрес тот же key_sha1
 
   20 ALLOCATE THROW -> mac_key
-  mac_key 20 0xA5 FILL
+  mac_key 20 0xA5 FILL          \ fixme: ключ и assoc_handle должны быть уникальны и храниться в БД на сервере
   20 ALLOCATE THROW -> enc_mac_key1
   20 0 DO mac_key I + C@ key_sha1 I + C@ XOR enc_mac_key1 I + C! LOOP
   enc_mac_key1 20 base64 enc_mac_key S!
@@ -145,6 +170,10 @@ PREVIOUS
 PREVIOUS
 
 \EOF
+\ S" https://openid.live-int.com/OpenIDAuth.srf" OpenIdGetSharedKey DUMP CR
+\ S" http://openid.yandex.ru/server/" OpenIdGetSharedKey DUMP CR
+\ S" http://moikrug.ru/openid/" OpenIdGetSharedKey DUMP CR
+\ S" http://id.rambler.ru/script/openid.cgi" OpenIdGetSharedKey DUMP CR
 \ S" http://www.livejournal.com/openid/server.bml" OpenIdGetSharedKey DUMP CR
 \ S" http://authn.freexri.com/authentication/" OpenIdGetSharedKey DUMP CR
 \ S" http://www.blogger.com/openid-server.g" OpenIdGetSharedKey DUMP CR
@@ -152,4 +181,5 @@ PREVIOUS
 \ S" http://api.screenname.aol.com/auth/openidServer" OpenIdGetSharedKey DUMP CR
 \ S" http://rainbow.koenig.ru/openid.e" OpenIdGetSharedKey DUMP CR
 \ S" http://www.postbin.org/1b5k0vn" OpenIdGetSharedKey DUMP CR \ отладчик :)
+\ S" http://certifi.ca/_serve" OpenIdGetSharedKey DUMP CR
 \EOF

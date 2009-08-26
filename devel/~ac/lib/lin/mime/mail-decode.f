@@ -297,6 +297,52 @@ USER _LASTMSGHTML
   " </table>" s S+
   s DUP _LASTMSGHTML ! STR@
 ;
+: MessageHtml2 { mp s \ tf_dq tf_db tf_pl -- addr u }
+
+\ Внимание! При не-windows-1251 кодировках сообщение перекодируется на
+\ месте (но кодировка в заголовке не меняется), поэтому дважды для одного mp
+\ вызывать MessageHtml нельзя, надо использовать LastMsgHtml (см. ниже).
+
+\  mp GetFrom DUP IF 2DUP S" unknown@email" COMPARE
+\                    IF 2SWAP " <span class='msg_from_name'>{s}</span><span class='msg_from_email'>{s}</span>" s S+ ELSE 2DROP 2DROP THEN
+\                 ELSE 2DROP 2DROP THEN
+\  mp GetSubject ?DUP IF MimeValueDecode " <h4>{s}</h4>" s S+ ELSE DROP THEN
+\  S" Date" mp FindMimeHeader ?DUP IF  MimeValueDecode " <span class='msg_date'>{s}</span>{CRLF}" s S+ ELSE DROP THEN
+\  " <table border='1'>" s S+
+  BEGIN
+\    " <tr><td>" s S+
+    mp mpIsMultipart @ mp mpIsMessage OR mp mpParts @ AND
+    IF mp mpParts @ s RECURSE 2DROP
+    ELSE mp mpTypeAddr @ mp mpTypeLen @ 2DUP
+         S" text" COMPARE-U 0= ROT ROT S" message" COMPARE-U 0= OR
+         IF
+           mp mpBodyAddr @ mp mpBodyLen @
+
+           0 -> tf_dq 0 -> tf_db
+           S" Content-Transfer-Encoding" mp FindMimeHeader S" quoted-printable"
+           COMPARE-U 0= IF dequotep OVER -> tf_dq THEN
+           S" Content-Transfer-Encoding" mp FindMimeHeader S" base64"
+           COMPARE-U 0= IF debase64 OVER -> tf_db THEN
+\           2DUP _>BL ( отключено: портит unicode-букву "К" )
+           mp mpCharsetAddr @ mp mpCharsetLen @ ?DUP
+           IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN ELSE DROP THEN
+
+           0 -> tf_pl
+\           mp mpSubTypeAddr @ mp mpSubTypeLen @ S" plain" COMPARE-U 0=
+\           IF CR>BR " <pre class='plain'>{s}</pre>" DUP -> tf_pl STR@ THEN
+           s STR+
+           ( tf_dq ?DUP IF FREE DROP THEN) tf_db ?DUP IF FREE DROP THEN
+           \ dequotep возвращает бывш.str5-строку, а не ALLOCATEd-буфер, поэтому тут нельзя делать FREE!
+           tf_pl ?DUP IF STRFREE THEN
+         ELSE mp mpTypeAddr @ mp mpTypeLen @ s STR+ THEN
+    THEN
+    mp mpNextPart @ DUP -> mp 0=
+\    " </td></tr>" s S+
+  UNTIL
+\  " </table>" s S+
+  s DUP _LASTMSGHTML ! STR@
+;
+
 : LastMsgHtml
   _LASTMSGHTML @ ?DUP IF STR@ ELSE S" " THEN
 ;

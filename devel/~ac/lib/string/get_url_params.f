@@ -92,6 +92,28 @@ VECT vCONVERT%post ' NOOP TO vCONVERT%post
   BEGIN
     DUP
   WHILE
+    DUP DUP COUNT 2DUP 7 MIN S" cookie_" COMPARE
+        IF ROT NAME> EXECUTE xt EXECUTE
+        ELSE 2DROP DROP THEN
+    CDR
+  REPEAT DROP
+;
+: ForEachCookie { xt -- }
+  CONTEXT @ @
+  BEGIN
+    DUP
+  WHILE
+    DUP DUP COUNT 2DUP 7 MIN S" cookie_" COMPARE 0=
+        IF ROT NAME> EXECUTE xt EXECUTE
+        ELSE 2DROP DROP THEN
+    CDR
+  REPEAT DROP
+;
+: ForEachParam&Cookie { xt -- }
+  CONTEXT @ @
+  BEGIN
+    DUP
+  WHILE
     DUP DUP COUNT ROT
         NAME> EXECUTE xt EXECUTE
     CDR
@@ -103,6 +125,9 @@ VECT vCONVERT%post ' NOOP TO vCONVERT%post
 ;
 : DumpParams
   ['] DumpParam ForEachParam
+;
+: DumpCookies
+  ['] DumpParam ForEachCookie
 ;
 USER uSParams
 

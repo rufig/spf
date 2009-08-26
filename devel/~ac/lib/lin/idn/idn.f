@@ -6,7 +6,7 @@
 \ Буфер, возвращаемый >PUNYCODE, PUNYCODE>, >IDN и IDN> надо освобождать по FREE, как для всех ICONV-функций.
 
 REQUIRE SO            ~ac/lib/ns/so-xt.f
-REQUIRE >UNICODE      ~ac/lib/lin/iconv/iconv.f 
+REQUIRE >UCS4         ~ac/lib/lin/iconv/iconv.f 
 
 ALSO SO NEW: libidn-11.dll
 ALSO SO NEW: libc.so.6 \ не во всех

@@ -52,6 +52,7 @@ REQUIRE {                     lib/ext/locals.f
     I 2* + W@ 1+ ( номер) DUP ." #" . HERE ED.OrdinalBase @ - CELLS \ смещение
     HERE ED.ExportAddressTableRVA @ exp - HERE + + @ \ rva - либо экспортируемый символ, либо указатель на форвардер
     DUP exp DUP exp_size + WITHIN IF exp - HERE + ASCIIZ> ." ->" TYPE SPACE ELSE . THEN
+CR
   LOOP
   h CLOSE-FILE THROW
   bas BASE !
@@ -59,3 +60,5 @@ REQUIRE {                     lib/ext/locals.f
 \ S" c:\windows\system32\kernel32.dll" DUMP-EXP
 \ S" F:\openssl\openssl.exe" DUMP-EXP
 \ S" test.exe" DUMP-EXP
+\ S" F:\PRO\e4-installer\Eserv400a4-setup.exe" DUMP-EXP
+\ S" F:\spf4\devel\~ac\lib\lin\openssl\libeay32.dll" DUMP-EXP

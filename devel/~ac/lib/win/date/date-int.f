@@ -79,3 +79,6 @@ M-DATE Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
 : CurrentDateTime#Z
   TIME&DATE DateTime#Z
 ;
+: CurrentDateTime#GMT
+  TIME&DATE DateTime#GMT
+;

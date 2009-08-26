@@ -18,8 +18,11 @@ VARIABLE SqlQ
 : SqlInit ( S" sqldriver" -- )
   StartSQL 0= IF S" sql_init_error.html" ( FILE) TYPE BYE THEN
   SqlQ !
-  SqlQ @ ConnectFile SQL_OK?
-  0= IF S" sql_connect_error.html" ( FILE) TYPE BYE THEN
+  SqlQ @ ConnectFile DUP SQL_OK?
+  0= IF CR CR ['] SQLDumpError TO vSQLDumpError
+        SqlQ @ ['] SQL_ConnError CATCH
+        " sql ConnectFile err: {-}" STR@ ( FILE) TYPE BYE
+     ELSE DROP THEN
 ;
 
 : SqlStruc { \ s }

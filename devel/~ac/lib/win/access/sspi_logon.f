@@ -81,3 +81,7 @@ USER serverCtxHandleOut2
   SspiFreeContext
 ;
 \ S" тест11" S" test11" LocalLogon .
+
+: IsGuest ( -- flag ) \ http://support.microsoft.com/kb/180548
+  FALSE \ todo
+;

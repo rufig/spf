@@ -4,6 +4,7 @@ WINAPI: ferror  MSVCRT.DLL
 WINAPI: fclose  MSVCRT.DLL
 WINAPI: _fdopen MSVCRT.DLL
 WINAPI: gets    MSVCRT.DLL
+WINAPI: _open_osfhandle MSVCRT.DLL \ использовать перед AsStream при работе с ОС-хэндлами
 
 : R/O S" r" DROP ;
 

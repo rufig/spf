@@ -101,3 +101,16 @@ USER SQS
   0 ['] (tquery) SQH @ db3_exec
   SQS @ STR@
 ;
+: (nlquery) { i par ppStmt \ n -- flag }
+  ppStmt db3_cols DUP -> n
+  0 ?DO
+    I ppStmt db3_colu SQS @ STR+
+    S" ," SQS @ STR+
+  LOOP
+  TRUE
+;
+: nlquery ( addr u -- addr2 u2 ) \ простейший вариант с csv результатом
+  "" SQS !
+  0 ['] (nlquery) SQH @ db3_exec
+  SQS @ STR@ 1- 0 MAX
+;

@@ -20,7 +20,7 @@ CREATE  AB64 C" ghijklmnopqrstuvwxyz0123456789+/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 : base64 ( addr u -- addr1 u1 )
   DUP 0= IF 2DROP 4 ALLOCATE THROW abase ! abase @ 0 EXIT THEN
   2DUP + nbase !
-  DUP 3 /MOD SWAP DUP >R IF 1+ THEN 4 * DUP >R ALLOCATE THROW abase ! lbase 0!
+  DUP 3 /MOD SWAP DUP >R IF 1+ THEN 4 * DUP >R CELL+ ALLOCATE THROW abase ! lbase 0!
   0 ?DO
    DUP I + AL@ 65536 *
    OVER I + CHAR+ AL@ 256 * +

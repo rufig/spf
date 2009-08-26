@@ -17,6 +17,7 @@ REQUIRE {             lib/ext/locals.f
 
 1 CONSTANT GCRY_MD_MD5
 2 CONSTANT GCRY_MD_SHA1
+8 CONSTANT GCRY_MD_SHA256
 
 2 CONSTANT GCRY_MD_FLAG_HMAC
 
@@ -37,6 +38,9 @@ ALSO SO NEW: libgcrypt.so.11
 ;
 : HMAC-SHA1 ( addr u keya keyu  -- ha hu )
   GCRY_MD_SHA1 HMAC
+;
+: HMAC-SHA256 ( addr u keya keyu  -- ha hu )
+  GCRY_MD_SHA256 HMAC
 ;
 : MD5B ( addr u -- ha hu )
   16 ALLOCATE THROW >R
@@ -60,6 +64,8 @@ PREVIOUS
 
 \EOF
 
+REQUIRE base64 ~ac/lib/string/conv.f
+
 : TEST
   GCryptInit
   IF
@@ -72,6 +78,8 @@ PREVIOUS
     \ тесты из RFC2202:
     S" what do ya want for nothing?" S" Jefe" HMAC-MD5 DUMP CR \ 0x750c783e6ab0b503eaa86e310a5db738
     S" what do ya want for nothing?" S" Jefe" HMAC-SHA1 DUMP CR \ 0xeffcdf6ae5eb2fa2d27416d5f184df9c259a7c79
+    \ пример из OAuth (http://www.hueniverse.com/hueniverse/2008/10/beginners-guide.html):
+    S" Type someting here to see how the hash value changes..." S" Shhhh!" HMAC-SHA1 base64 TYPE
   THEN
 ;
 TEST
