@@ -29,6 +29,13 @@
   Добавление 28.02.2008:
   -8 - ошибка в формате DNS-ответа
 
+  Добавление 28.08.2009:
+  DnsGetHostName - аналог GetHostName, но не через Windows, а с гарантированной
+  проверкой в in-addr.arpa.
+  Ошибки -5 и -7 не приводят к прекращению перебора, т.к.
+  следующие DNS-серверы в списке могут оказаться "добрыми" [для -5]
+  или закэшировавшими ответ недоступного сервера [для -7].
+
   GetRRn отличается от GetRRs тем, что не разбирает список
   полученных записей, а только выясняет их число, т.е. экономит
   время и память, если не нужен собственно список записей. 
@@ -610,7 +617,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   IF COUNT TYPE
   ELSE NextDNS IF RECURSE THEN THEN
 ;
-: GetRRs { hosta hostu type \ attempts -- n }
+: GetRRs { hosta hostu type \ attempts dencnt failcnt -- n }
   DnsDebug @ IF ." GetRRs: " hosta hostu TYPE CR THEN
   1 -> attempts
   type hosta hostu PrepareDnsQuery
@@ -623,8 +630,8 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
     IF 
       DNSREPLY @ HeaderBits W@ >B< 15 AND
       DUP ( RCODE) 3 = IF DROP -3 EXIT THEN \ domain not exist (authoritative!)
-      DUP ( RCODE) 5 = IF DROP -5 EXIT THEN \ refused operation
-      DUP ( RCODE) 2 = IF DROP -7 EXIT THEN \ name server failure
+      DUP ( RCODE) 5 = IF ^ dencnt 1+! ( DROP -5 EXIT) THEN \ refused operation
+      DUP ( RCODE) 2 = IF ^ failcnt 1+! ( DROP -7 EXIT) THEN \ name server failure
       0=
       DNSREPLY @ HeaderID W@ >B< QID W@ = AND
       IF
@@ -649,11 +656,13 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   UNTIL
   NextDNS 0=
   UNTIL
+  failcnt IF -7 EXIT THEN \ name server failure
+  dencnt  IF -5 EXIT THEN \ refused operation
   -2 \ timeouts or DNS-server failure
 ;
 \ HeaderANCOUNT W@ >B<
 
-: GetRRn { hosta hostu type \ attempts -- n }
+: GetRRn { hosta hostu type \ attempts dencnt failcnt -- n }
   DnsDebug @ IF ." GetRRn: " hosta hostu TYPE CR THEN
   1 -> attempts
   type hosta hostu PrepareDnsQuery
@@ -666,8 +675,8 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
     IF 
       DNSREPLY @ HeaderBits W@ >B< 15 AND
       DUP ( RCODE) 3 = IF DROP -3 EXIT THEN \ domain not exist (authoritative!)
-      DUP ( RCODE) 5 = IF DROP -5 EXIT THEN \ refused operation
-      DUP ( RCODE) 2 = IF DROP -7 EXIT THEN \ name server failure
+      DUP ( RCODE) 5 = IF ^ dencnt 1+! ( DROP -5 EXIT) THEN \ refused operation
+      DUP ( RCODE) 2 = IF ^ failcnt 1+! ( DROP -7 EXIT) THEN \ name server failure
       0=
       DNSREPLY @ HeaderID W@ >B< QID W@ = AND
       IF
@@ -690,6 +699,8 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   UNTIL
   NextDNS 0=
   UNTIL
+  failcnt IF -7 EXIT THEN \ name server failure
+  dencnt  IF -5 EXIT THEN \ refused operation
   -2 \ timeouts or DNS-server failure
 ;
 
@@ -890,3 +901,22 @@ S" non_existent_domain.com" DnsDomainExists . \ нет такого
   THEN
   FALSE						\ несравнение или ошибка
 ;
+
+USER-CREATE DGHNbuf 30 USER-ALLOT \ 123.456.789.012.in-addr.arpa
+
+: DnsGetHostName { ip \ ip1 u -- hosta hostu }
+  ip -> ip1
+  ^ ip 3 + C@ ^ ip C@ ^ ip 3 + C! ^ ip C!
+  ^ ip 1+ C@ ^ ip 2+ C@ ^ ip 1+ C! ^ ip 2+ C! \ reverse
+  ip NtoA DUP -> u
+  DGHNbuf SWAP MOVE
+  S" .in-addr.arpa" DGHNbuf u + SWAP 1+ MOVE
+  DGHNbuf u 13 + TYPE-PTR GetRRs
+  IF TYPE-PTR NextRR 0=
+     IF ip1 NtoA THEN
+  ELSE ip1 NtoA THEN
+;
+
+\ TRUE DnsDebug !
+\ S" microsoft.com" TYPE-A GetRRn .
+\ SocketsStartup THROW S" google.com" GetHostIP THROW DnsGetHostName TYPE CR
