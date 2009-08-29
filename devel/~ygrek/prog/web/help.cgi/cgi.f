@@ -1,7 +1,7 @@
 \ $Id$
 \ 
-\ sample CGI
-\ see it in action at http://ygrek.org.ua/p/spf/words?q=swap
+\ Simple CGI
+\ See it in action at http://ygrek.org.ua/p/spf/words?q=swap
 
 : wordsfile S" words.txt" ;
 
@@ -40,8 +40,7 @@ ALSO XMLSAFE
     ." Search SP-Forth words (src,lib,devel) :"
    >>
 
-   %[ S" " `action $$ ]%
-   atag: form
+   S" " form
    <<
    tag: div
 
@@ -61,6 +60,7 @@ ALSO XMLSAFE
       `checkbox `type $$
    ]%
    /atag: input
+
    << %[ `exact `for $$ ]% `label atag S" whole word" TYPE >>
 
    %[ `submit `type $$ `Search `value $$ ]% `input /atag
@@ -120,19 +120,12 @@ ALSO XMLSAFE
    atag: div
    tag: small
    OSNAME-STR { os }
-   os STR@ FINE-TAIL "  help.cgi r{revision} ({s})" STYPE CR
+   `help.cgi `http://forth.org.ru/~ygrek/prog/web/help.cgi/cgi.f link-text
+   os STR@ FINE-TAIL "  r{revision} ({s})" STYPE CR
    os STRFREE
    spf-logo 
   >>
-  %[ S" float:left" `style $$ ]%
-  atag: div
-   %[ `http://validator.w3.org/check?uri=referer `href $$ ]% atag: a
-   %[ 
-    S" Valid XHTML 1.0 Strict" `alt $$
-    `http://www.w3.org/Icons/valid-xhtml10 `src $$
-    `31 `height $$
-    `88 `width $$
-   ]% /atag: img
+  icon-valid
   ;
 
 : output
@@ -142,9 +135,9 @@ ALSO XMLSAFE
   xhtml
   <<
    tag: head
-   %[ `content-type `http-equiv $$ `text/html;charset=cp1251 `content $$ ]% /atag: meta
+   %[ `content-type `http-equiv $$ `text/html;charset=utf-8 `content $$ ]% /atag: meta
    `some.css link-stylesheet
-   tag: title S" SP-Forth words search" XMLSAFE::TYPE
+   tag: title S" SP-Forth words search" TYPE
   >>
   tag: body
   content
