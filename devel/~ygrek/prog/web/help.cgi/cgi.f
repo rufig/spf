@@ -1,9 +1,9 @@
 \ $Id$
 \ 
 \ sample CGI
-\ see it in action at http://ygrek.org.ua/exec/help.cgi?q=*SWAP*
+\ see it in action at http://ygrek.org.ua/p/spf/words?q=swap
 
-: wordsfile S" words" ;
+: wordsfile S" words.txt" ;
 
 REQUIRE FINE-TAIL ~pinka/samples/2005/lib/split-white.f
 REQUIRE $Revision ~ygrek/lib/fun/kkv.f
@@ -16,7 +16,7 @@ REQUIRE OSNAME-STR ~ygrek/lib/sys/osname.f
 \ REQUIRE INTER ~ygrek/lib/debug/inter.f
 REQUIRE list-all ~ygrek/lib/list/all.f
 REQUIRE words-load ~ygrek/prog/web/help.cgi/load.f
-REQUIRE XHTML ~ygrek/lib/xhtml/core.f
+REQUIRE XHTML-EXTRA ~ygrek/lib/xhtml/extra.f
 
 : revision $Revision$ SLITERAL ;
 : spf-version VERSION 1000 / 100 /MOD " {n}.{n}" ;
@@ -32,8 +32,9 @@ REQUIRE XHTML ~ygrek/lib/xhtml/core.f
   a1 u2 a2 u2 CEQUAL ;
 
 ALSO XHTML
+ALSO XMLSAFE
 
-: start-page ( a u -- )
+: start-page ( -- )
    <<
     tag: h2
     ." Search SP-Forth words (src,lib,devel) :"
@@ -46,17 +47,28 @@ ALSO XHTML
 
    %[ 
       `q `name $$
-      ( a u ) `value $$
+      `q GetParam `value $$
       `text `type $$
       `30 `size $$
    ]% 
    /atag: input
+
+   %[
+      `exact `name $$
+      `1 `value $$
+      `exact GetParam EMPTY? NOT IF `checked 2DUP $$ THEN
+      `exact `id $$
+      `checkbox `type $$
+   ]%
+   /atag: input
+   << %[ `exact `for $$ ]% `label atag S" whole word" TYPE >>
 
    %[ `submit `type $$ `Search `value $$ ]% `input /atag
    >>
    `div tag
    `small tag
    ." Usual shell wildcards should work : <b>?</b> (any symbol) and <b>*</b> (any number of any symbols)" CR
+   S" All words" wordsfile link-text
 ;
 
 \ link to source
@@ -69,8 +81,6 @@ ALSO XHTML
   R@ " \" " /" replace-str- \ "
   ( a u ) R@ STR@ link-text
   R> STRFREE ;
-
-ALSO XMLSAFE
 
 : spf-logo ."  Powered by " `SP-Forth `http://spf.sf.net link-text SPACE spf-version STYPE ;
 
@@ -90,13 +100,16 @@ ALSO XMLSAFE
 
 : content
   get-params
-  `q GetParam start-page
+  start-page
   `q GetParam EMPTY? IF EXIT THEN
-  wordsfile words-load { l }
-  `q GetParam l words-find ( l1 l2 ) 
+  { | l s }
+  wordsfile words-load -> l
+  `q GetParam `exact GetParam EMPTY? IF " *{s}*" ELSE >STR THEN -> s
+  s STR@ l words-find ( l1 l2 ) 
   S" Exact matches : " block
   S" Case-insensitive matches : " block 
   l words-free
+  s STRFREE
 ;
 
 : footer
@@ -148,4 +161,5 @@ PREVIOUS
 
 : save
   LAMBDA{ main BYE } MAINX !
-  S" help.cgi" SAVE BYE ;
+  `help.cgi SAVE BYE ;
+
