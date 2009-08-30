@@ -12,7 +12,6 @@ REQUIRE NUMBER ~ygrek/lib/parse.f
 REQUIRE parse-unixdate ~ygrek/lib/spec/sdate.f
 REQUIRE parse-num-unixdate ~ygrek/lib/spec/sdate2.f
 REQUIRE PRO ~profit/lib/bac4th.f
-REQUIRE STATIC ~profit/lib/static.f
 REQUIRE ALLOCATED ~pinka/lib/ext/basics.f
 
 \ текст узла
@@ -102,25 +101,27 @@ PREVIOUS
    }EMERGE
    ;
 
+USER-VALUE stamp
+
 \ выдать все записи RSS документа a u которые новее чем отметка времени stamp
 : rss.items-new=> ( doc stamp --> node \ <-- node )
-    STATIC stamp
-    stamp !
+    TO stamp
     PRO
     START{
     rss.items=> 
-     DUP rss.item.timestamp stamp @ > ONTRUE CONT 
+     DUP rss.item.timestamp stamp > ONTRUE CONT 
    }EMERGE ;
+
+USER-VALUE stamp-newest
 
 \ определить отметку времени самой свежей записи RSS документа a u
 : rss.items-newest ( a u -- max-timestamp )
-    STATIC newest
-    0 newest !
+    0 TO stamp-newest
     START{
     rss.items=>
-     DUP rss.item.timestamp DUP newest @ > IF newest ! ELSE DROP THEN 
+     DUP rss.item.timestamp DUP stamp-newest > IF TO stamp-newest ELSE DROP THEN 
     }EMERGE
-    newest @ ;
+    stamp-newest ;
 
 \ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
