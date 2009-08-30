@@ -44,7 +44,14 @@ REQUIRE /TEST ~profit/lib/testing.f
 : DateTime>Days ( s m h d m1 y -- days ) FSL::JDAY D>S NIP NIP NIP ;
 
 \ Представить дату как строку в буфере PAD
+\ подразумевается GMT время
 : DateTime>PAD ( s m h d m1 y -- a u ) <# DateTime#GMT 0 0 #> ;
+
+\ convert timestamp with local time to timestamp with GMT time
+: +TZ ( localtime -- gmtime ) TZ @ 60 * + ;
+
+\ current date and time as unix timestamp (GMT)
+: gmtime ( -- n ) TIME&DATE DateTime>Num +TZ ;
 
 /TEST
 

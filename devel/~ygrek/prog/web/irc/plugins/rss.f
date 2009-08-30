@@ -46,11 +46,9 @@ MODULE: bot_plugin_rss
 \ : S-SAY CR TYPE ; : ECHO S-SAY ; : ON-CONNECT ... ;
 \ [THEN]
 
-: +TZ ( stamp -- stamp+tz ) TZ @ 60 * + ;
-
 \ sorry for ugly code
 : my-date ( stamp -- a u )
-    DUP TIME&DATE DateTime>Num +TZ - ABS 6 60 * <
+    DUP gmtime - ABS 6 60 * <
     IF
      DROP
      S" “олько что"
@@ -94,17 +92,16 @@ MODULE: bot_plugin_rss
 : process-and-stamp-rss=> ( stamp-a stamp-u data-a data-u -- node )
     S" Checking xml..." log::trace
     2SWAP 2DUP read-number
-    DUP Num>PAD " timestamp in file : {s}" slog::info
+    \ DUP Num>PAD " timestamp in file : {s}" slog::info
     >R
     2OVER rss.items-newest 
-      DUP Num>PAD " rss.items-newest : {s}" slog::info
+      \ DUP Num>PAD " rss.items-newest : {s}" slog::info
       DUP IF -ROT write-number ELSE DROP 2DROP THEN
     R>
 
     PRO
      START{
       rss.items-new=> DUP rss.item.timestamp ONTRUE \ не об€з. т.к. если stamp=0 то new не пропустит
-       DUP Num>PAD " rss.items-new=> {s}" slog::info
        CONT
      }EMERGE
     S" xml checked" log::trace
@@ -162,7 +159,7 @@ DEFINITIONS
   S" rss-submitter" log_thread
   1 minutes PAUSE
   x list::car TO url
-  x list::cdar TO pause   
+  x list::cdar TO pause
   BEGIN
    url STR@ >STR getter-q mtq::put
    pause PAUSE
@@ -201,7 +198,7 @@ EXPORT
   0 rss-checker START DROP
 
   \ ограничим сообщени€ с форума только на врем€ онлайна бота
-  TIME&DATE DateTime>Num fforum-url >STR url-to-filename STR@ write-number
+  gmtime fforum-url >STR url-to-filename STR@ write-number
 
   %[ fforum-url >STR % 5 minutes % ]% submitter START DROP
   %[ sf.net-url >STR % 2 hours % ]% submitter START DROP
