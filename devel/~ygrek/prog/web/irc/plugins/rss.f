@@ -89,19 +89,22 @@ MODULE: bot_plugin_rss
    title STRFREE
    node rss.item.link TOSTR STR-SAY ;
 
+: Num>PAD Num>DateTime DateTime>PAD ;
+
 : process-and-stamp-rss=> ( stamp-a stamp-u data-a data-u -- node )
     S" Checking xml..." log::trace
-    2SWAP 2DUP read-number >R
-    2OVER rss.items-newest DUP IF -ROT write-number ELSE DROP 2DROP THEN
+    2SWAP 2DUP read-number
+    DUP Num>PAD " timestamp in file : {s}" slog::info
+    >R
+    2OVER rss.items-newest 
+      DUP Num>PAD " rss.items-newest : {s}" slog::info
+      DUP IF -ROT write-number ELSE DROP 2DROP THEN
     R>
-    \ CR ." Newest : "
-    \ 2DUP rss.items-newest Num>DateTime DateTime>PAD TYPE
-    \ 2SWAP read-number
-    \ CR ." Stamp : "
-    \ DUP Num>DateTime DateTime>PAD TYPE
+
     PRO
      START{
-      rss.items-new=> DUP rss.item.timestamp ONTRUE \ не обяз. т.к. если stamp=0 то new не пропустит!
+      rss.items-new=> DUP rss.item.timestamp ONTRUE \ не обяз. т.к. если stamp=0 то new не пропустит
+       DUP Num>PAD " rss.items-new=> {s}" slog::info
        CONT
      }EMERGE
     S" xml checked" log::trace
@@ -118,7 +121,7 @@ MODULE: bot_plugin_rss
 EXPORT
 : debug-rss ( a u -- ) 
    rss.items=> DUP print-rss ;
-DEFINITIONS   
+DEFINITIONS
 
 : process-rss-forum
    process-and-stamp-rss=> DUP reply-rss ;
