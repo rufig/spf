@@ -34,9 +34,13 @@ REQUIRE { ~ac/lib/locals.f
   BL SKIP PeekChar [CHAR] < = IF >IN 1+! THEN
   [CHAR] > PARSE
 ;
+
+WARNING @ WARNING 0!
 : Strip< ( addr u -- addr2 u2 ) \ см. также версию в conv.f
   DUP IF ['] (Strip<) EVALUATE-WITH THEN
 ;
+WARNING !
+
 : FromNameEmail1 ( addr1 u1 addr2 u2 -- addr1 u1 addr2 u2 )
   -TRAILING 2SWAP -TRAILING Strip< ?DupEmail
 ;
@@ -151,7 +155,7 @@ USER uStripCRLFtemp
      S" -8" SEARCH NIP NIP
      IF base64 OVER >R " =?UTF-8?B?{s}?=" STR@ R> FREE DROP
      ELSE ( addr u ) \ если в заголовке кодировка не указана, попробуем найти её в первой mime-части
-        mp S" 1" ROT GetMimePartMp S" Content-Type" ROT FindMimeHeader  2DUP
+        S" 1" mp GetMimePartMp S" Content-Type" ROT FindMimeHeader  2DUP
         S" indows-1251" SEARCH NIP NIP
         IF 2DROP base64 OVER >R " =?windows-1251?B?{s}?=" STR@ R> FREE DROP
         ELSE
