@@ -229,15 +229,16 @@ USER uPhParamNum
     2- SWAP 2+ SWAP
   REPEAT 2DROP R>
 ;
-: GetMimePartMp { addr u mp \ n -- mp }
+: GetMimePartMp { addr u mp \ n mp1 -- mp }
+  mp -> mp1
   mp mpIsMultipart @ IF addr u " 1.{s}" STR@ -> u -> addr THEN
   BEGIN
-    mp 0= IF S" " EXIT THEN
+    mp 0= IF mp1 EXIT THEN
     u 0 >
   WHILE
     0 0 addr u >NUMBER -> u -> addr D>S -> n
     BEGIN
-      mp 0= IF S" " EXIT THEN
+      mp 0= IF mp1 EXIT THEN
       mp mpIndex @ n <>
     WHILE
       mp mpNextPart @ -> mp
