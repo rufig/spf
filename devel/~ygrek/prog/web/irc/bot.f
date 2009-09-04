@@ -27,6 +27,8 @@ REQUIRE log2html ~ygrek/prog/web/irc/log2html.f
 ' ANSI>OEM TO ANSI><OEM \ cp1251 in console
 [THEN]
 
+gmtime CONSTANT start-time
+
 : CVS-DATE $Date$ SLITERAL ;
 : CVS-REVISION $Revision$ SLITERAL ;
 
@@ -48,11 +50,12 @@ REQUIRE log2html ~ygrek/prog/web/irc/log2html.f
 : CONVERT-LOGS ( -- )
     TIME&DATE DateTime>Num
     DUP last-convert - 2 hours < IF DROP EXIT THEN \ every two hours
-    DUP TO last-convert
-    Num>Date { d m y }
+    TO last-convert
+    { | d m y }
     S" CONVERT-LOGS" log::info
-    d m y log2html
-    30 1 DO
+    last-convert 1 days - Num>Date log2html
+    last-convert Num>Date log2html
+    30 2 DO
       last-convert I days - Num>Date -> y -> m -> d
       d m y RAW-LOG-FILE FILE-EXISTS IF
       d m y HTML-LOG-FILE FILE-EXISTS NOT IF
@@ -100,6 +103,8 @@ MODULE: BOT-COMMANDS
 
 : !info !help ;
 
+: !uptime gmtime start-time - Num>Time 24 /MOD " {n} days {n} hours {n} minutes {n} seconds" STR-REPLY ;
+
 : !version
     OSNAME-STR { s }
     s STR@
@@ -115,6 +120,7 @@ MODULE: BOT-COMMANDS-HELP
 
 : !info S" If you want to understand recursion you should understand recursion first!" S-REPLY ;
 : !version S" It is self-descriptive, man!" S-REPLY ;
+: !uptime S" Bot uptime" S-REPLY ;
 
 ;MODULE
 
