@@ -402,23 +402,43 @@ CREATE _S""" CHAR " C,
 USER _PARSED"
 USER _STR_LOCAL
 
-: PARSE" { \ s c -- addr u }
-  "" -> s
+: _XSLITERAL-CODE ( -- addr u ) R> XCOUNT 2DUP + CHAR+ >R ;
+
+: XSLITERAL ( addr u -- )
+  STATE @ IF
+             ['] _XSLITERAL-CODE COMPILE,
+             DUP , S, 0 C,
+          ELSE
+             2DUP + 0 SWAP C!
+          THEN
+; IMMEDIATE
+
+: XPARSE" ( -- addr u )
+  "" >R
   BEGIN
     [CHAR] " PARSE
     2DUP + C@ [CHAR] " <>
   WHILE
-    s STR+
-    CRLF s STR+
+    R@ STR+
+    CRLF R@ STR+
     REFILL 0= THROW
   REPEAT
-  s STR+
-  s STR@
-  s _PARSED" !
-  [CHAR]{ -> c
-  2DUP ^ c 1 SEARCH NIP NIP
+  R@ STR+
+  R> DUP _PARSED" !
+  STR@
+;
+
+: PARSE" ( -- addr u )
+  XPARSE"
+  [CHAR]{ >R
+  2DUP RP@ 1 SEARCH NIP NIP RDROP
   IF STR@LOCALs DUP _STR_LOCAL ! STR@ THEN
 ;
+
+: XS" ( "ccc" -- )
+  XPARSE" POSTPONE XSLITERAL
+  _PARSED" @ ?DUP IF STRFREE _PARSED" 0! THEN
+; IMMEDIATE
 
 : " ( "ccc" -- )
   PARSE" POSTPONE STRLITERAL
