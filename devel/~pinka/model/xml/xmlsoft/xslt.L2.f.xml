@@ -77,6 +77,7 @@
   load-chunk ctxt-doc assume-doc
   free-ctxt
 </def>
+<def name="current-doc" ds=" -- doc|0 "> doc </def>
 
 <def name="apply-xslt" ds=" d-xslt-file -- ">
   load-xsl (xtrans) 

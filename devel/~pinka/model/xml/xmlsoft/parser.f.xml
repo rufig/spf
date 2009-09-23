@@ -15,6 +15,7 @@
 
 <def name="load-chunk" ds=" a u -- ">
   _ctxt @ DUP <if> ParseChunk <exit/></if> DROP
+  DUP <unless> 2DROP <exit/></unless><rem> don't create ctx if u is 0 </rem>
   0. CreatePushParserCtxt _ctxt !
 </def>
 
