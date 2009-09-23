@@ -28,7 +28,7 @@
 \ m.b.
 
 : CreatePushParserCtxt ( d-first-chunk d-filename -- ctxt|0 )
-\ To allow content encoding detection, size of first shunk should be >= 4
+\ To allow content encoding detection, size of the first chunk should be >= 4
   DROP -ROT SWAP 0 0
   5 xmlCreatePushParserCtxt
   DUP IF EXIT THEN
@@ -37,7 +37,7 @@
 : ParseChunk ( d-chunk ctxt -- )
 \ zero size chunk indicates the end of a document
   >R
-  DUP 0= -ROT SWAP R> \ ( terminate size chunk ctxt )
+  DUP 0= -ROT SWAP R> \ ( flag-terminate size chunk ctxt )
   4 xmlParseChunk 0= IF EXIT THEN
   ABORT" error on xmlParseChunk"
 ;
