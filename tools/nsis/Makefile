@@ -17,6 +17,7 @@
 
 makensis := "C:\Program Files\NSIS\makensis.exe"
 winrar := "C:\Program Files\WinRAR\rar.exe"
+7z := "C:\Program Files\7-Zip\7z.exe"
 
 #########################################
 
@@ -33,10 +34,11 @@ spf_ver_major = $(shell $(spf_script) SPF-VER-MAJOR NUM_RAW TYPE BYE)
 spf_ver_minor = $(shell $(spf_script) SPF-VER-MINOR NUM_RAW TYPE BYE)
 dist-exe = spf$(spf_ver_major)-$(spf_ver_minor)-setup.exe
 dist-rar = spf$(spf_ver_major)-$(spf_ver_minor).rar
+dist-7z = spf$(spf_ver_major)-$(spf_ver_minor).7z
 
 #########################################
 
-default: $(dist-exe) $(dist-rar)
+default: $(dist-exe) $(dist-7z)
 
 devel-snap-rar: $(devel-snapshot).rar
 devel-snap-gz: $(devel-snapshot).tar.gz
@@ -52,11 +54,17 @@ spf.nsi: $(run_spf) spf.src.nsi spf_cvs.nsi spf_cvs.f
 spf.lst: $(run_spf) spf_cvs.f
 	$(spf_script) RAR-LIST > $@ BYE
 
+spf.7z.lst: $(run_spf) spf_cvs.f
+	$(spf_script) 7Z-LIST > $@ BYE
+
 docs:
 	$(MAKE) -C $(spf_path)/docs
 
 $(dist-exe): docs $(run_spf) spf.nsi
 	$(makensis) spf.nsi
+
+$(dist-7z): docs $(run_spf) spf.7z.lst
+	cd ..\\.. && $(7z) a tools/nsis/$@ @tools/nsis/spf.7z.lst
 
 $(dist-rar): docs $(run_spf) spf.lst
 	$(winrar) a -m5 -s $(dist-rar) @spf.lst
@@ -65,14 +73,14 @@ $(devel-snapshot).rar:
 	$(winrar) a -x*\CVS -x*\CVS\* -m5 -s $@ ..\..\devel
 
 $(devel-snapshot).7z:
-	7z a -x!*\CVS -x!*\CVS\* $@ ..\..\devel
+	$(7z) a -x!*\CVS -x!*\CVS\* $@ ..\..\devel
 
 $(devel-snapshot).tar.gz:
 	gzip -cvzf $@ --exclude=CVS ../../devel
 
 clean:
 	$(MAKE) -C $(spf_path)/docs clean
-	-del spf.nsi spf.lst spf_cvs.nsi
+	-del spf.nsi spf.lst spf.7z.lst spf_cvs.nsi
 
 cleanall: clean
 	-del $(dist-exe) $(dist-rar)

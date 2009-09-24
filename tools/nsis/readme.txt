@@ -8,15 +8,17 @@
 * свежую чистую рабочую копию CVS репозитория. Без лишних файлов.
 * jpf375c.exe
 * GNU make <http://mingw.org/download.shtml> <http://www.gnu.org/software/make/>
+* 7-zip <http://7-zip.org>
 * WinRAR <http://www.rarlabs.com>
+* xsltproc (libxslt) <http://zlatkovic.com/libxml.en.html>
 
 Для сборки полного дистра также :
 
 * NSIS <http://nsis.sourceforge.net>
 * upx (не обязательно) <http://upx.sourceforge.net>
-* perl
+* perl <http://www.activestate.com/activeperl>
 
-## Для чего нужен perl?
+## Для чего нужен perl и xsltproc?
 
 Для того чтобы конвертнуть доку из markdown в html.
 Markdown это простая разметка(подобно Wiki) текстовых файлов.
@@ -24,6 +26,8 @@ Markdown это простая разметка(подобно Wiki) текстовых файлов.
 используется perl-скрипт.
 
 Официальный сайт markdown - <http://daringfireball.net/projects/markdown>
+
+XSLT процессор нужен для конвертации списка библиотек docs/devel.xml в html.
 
 ## Для сборки снапшота devel
 
@@ -48,8 +52,8 @@ Markdown это простая разметка(подобно Wiki) текстовых файлов.
    и удалить src/VERSION.SPF если есть (не должно быть!)
 5. В каталоге src выполнить compile.bat
 6. Перейти в каталог tools/nsis.
-7. Проверить(отредактировать) пути к makensis и winrar в Makefile
-8. Дать команду make
+7. Проверить(отредактировать) пути к makensis и 7z в Makefile
+8. Дать команду make > make.log
 9. Изменённые файлы в src закоммитить на CVS
 
 Всё.
