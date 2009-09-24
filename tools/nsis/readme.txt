@@ -41,11 +41,15 @@ Markdown это простая разметка(подобно Wiki) текстовых файлов.
 2. Скопировать содержимое spf4root в корневой каталог рабочей копии.
 3. Скопировать html и сопутствующие файлы с http://www.forth.org.ru/~yz
    (например wget'ом) и положить в devel/~yz
-4. Увеличить SPF-KERNEL-VERSION в src/spf.f, удалить src/VERSION.SPF если есть (не должно быть!)
+4. Увеличить (если требуется) SPF-KERNEL-VERSION в 
+   src/spf.f
+   src/win/res/spf.manifest
+   src/win/res/spf.rc
+   и удалить src/VERSION.SPF если есть (не должно быть!)
 5. В каталоге src выполнить compile.bat
 6. Перейти в каталог tools/nsis.
 7. Проверить(отредактировать) пути к makensis и winrar в Makefile
 8. Дать команду make
-9. Изменённый src/spf.f закоммитить на CVS
+9. Изменённые файлы в src закоммитить на CVS
 
 Всё.
