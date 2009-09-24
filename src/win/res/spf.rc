@@ -18,8 +18,8 @@
 #define VFT_APP 0x1L
 
 1 VERSIONINFO MOVEABLE IMPURE LOADONCALL DISCARDABLE 
-  FILEVERSION     4,20,0,0
-  PRODUCTVERSION  4,20,0,0 
+  FILEVERSION     4,21,0,0
+  PRODUCTVERSION  4,21,0,0 
   FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
   FILEFLAGS       0
   FILEOS          VOS_DOS_WINDOWS32
@@ -34,8 +34,8 @@ BEGIN
       VALUE "FileDescription", "SP-Forth - ANS Forth compiler"
       VALUE "CompanyName",    "RuFIG"
       VALUE "ProductName",    "SP-Forth"
-      VALUE "FileVersion",    "4.20.0.0"
-      VALUE "ProductVersion",    "4.20.0.0"
+      VALUE "FileVersion",    "4.21.0.0"
+      VALUE "ProductVersion",    "4.21.0.0"
       VALUE "InternalName",    "SPF4"
       VALUE "OriginalFilename",    "spf4.exe"
       VALUE "Comments",    "Open source project http://spf.sf.net/.\r\nRuFIG http://forth.org.ru/"
