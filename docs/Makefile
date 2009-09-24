@@ -5,7 +5,7 @@
 # build system
 # win - windows
 # nix - linux (SF server)
-ifeq ($(WINDIR),)
+ifeq ($(WINDIR)$(windir),)
 host=nix
 else
 host=win
@@ -16,11 +16,13 @@ endif
 usage=local
 
 ifeq ($(host),win)
+spf=..\\spf4
 output=type
 delete=del
 tools_path=..\\tools\\doc\\
 parts_path=$(tools_path)parts\\
 else
+spf=spf4
 output=cat
 delete=rm -f
 tools_path=../tools/doc/
@@ -46,7 +48,7 @@ clean_mark:
 
 %.md: %.mdt
 	echo perform: $< $@ > mdt2md.f
-	spf4 ../tools/doc/std.f mdt2md.f BYE
+	$(spf) ../tools/doc/std.f mdt2md.f BYE
 	$(delete) mdt2md.f
 
 devel.en.html: $(tools_path)devel.xsl devel.xml
