@@ -3,7 +3,7 @@
 \ Behaviour for values above 128 is implementation-defined.
 : CHAR-UPPERCASE ( c -- c1 )
   DUP [CHAR] a [CHAR] z 1+ WITHIN IF 32 - EXIT THEN
-  DUP [CHAR] –∞ [CHAR] —è 1+ WITHIN IF 32 - THEN
+  DUP [CHAR] ‡ [CHAR] ˇ 1+ WITHIN IF 32 - THEN
 ;
 
 \ Convert (addr u) to uppercase
