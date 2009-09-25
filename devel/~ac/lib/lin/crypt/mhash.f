@@ -5,6 +5,8 @@
 \ http://mhash.sourceforge.net/mhash.3.html
 
 \ Под Linux не тестировалось.
+\ Под Windows вызывает утечки памяти, не смотря на mhash_deinit,
+\ поэтому для долгоиграющих приложений gcrypt предпочтительней.
 
 REQUIRE SO            ~ac/lib/ns/so-xt.f
 REQUIRE {             lib/ext/locals.f
