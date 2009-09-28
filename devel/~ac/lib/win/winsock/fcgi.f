@@ -81,6 +81,7 @@ USER-VALUE FCGI_Params
   FCGI_Socket WriteSocket THROW
 ;
 : FcgiWrite { addr u type \ l -- }
+  u 0x10000 < IF addr u type FcgiWrite1 EXIT THEN
   BEGIN
     u 0 >
   WHILE
