@@ -70,7 +70,7 @@ USER-VALUE FCGI_Params
   PAD FCGI_Header fh.paddingLength C@ FCGI_Socket ReadSocketExact THROW
 \  FCGI_Body FCGI_BodyLen DUMP CR CR
 ;
-: FcgiWrite { addr u type -- } \ u < 0xFFFF
+: FcgiWrite1 { addr u type -- } \ u < 0xFFFF
   type FCGI_Header fh.type C!
   u 8 RSHIFT FCGI_Header fh.contentLengthB1 C!
   u 0xFF AND FCGI_Header fh.contentLengthB0 C!
@@ -79,6 +79,15 @@ USER-VALUE FCGI_Params
   FCGI_Socket WriteSocket THROW
   addr u
   FCGI_Socket WriteSocket THROW
+;
+: FcgiWrite { addr u type \ l -- }
+  BEGIN
+    u 0 >
+  WHILE
+    addr u 0xFFFF MIN DUP -> l type FcgiWrite1
+    addr l + -> addr
+    u l - -> u
+  REPEAT
 ;
 : FcgiEndRequest
   FCGI_EndRequestBody /FCGI_EndRequestBody FCGI_END_REQUEST FcgiWrite
