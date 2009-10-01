@@ -63,5 +63,5 @@ VARIABLE IN-EXCEPTION
 ;
 ' EXC-DUMP1 ' <EXC-DUMP> TC-VECT!
 
-: PLATFORM ( -- a u ) S" Win95/98/Me/NT/2k/XP/Vista" ;
+: PLATFORM ( -- a u ) S" Win95/98/Me/NT/2k/XP/Vista/7" ;
 
