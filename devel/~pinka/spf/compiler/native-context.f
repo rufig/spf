@@ -76,6 +76,15 @@ REQUIRE >CS ~pinka/spf/compiler/control-stack.f \ управл€ющий стек
   CS> BASE !
 ;
 
+
+: &  ( c-addr u -- xt )  \ see also ' (tick)
+  SFIND IF EXIT THEN -321 THROW
+;
+: DEFINED ( c-addr u -- xt|0 )
+  SFIND IF EXIT THEN 2DROP 0
+;
+
+
 \EOF
 
 \ old ideas:

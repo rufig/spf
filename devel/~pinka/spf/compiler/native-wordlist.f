@@ -71,10 +71,6 @@ WARNING !                   [THEN]
 ;
 [THEN]
 
-: &  ( c-addr u -- xt )  \ see also ' (tick)
-  SFIND IF EXIT THEN -321 THROW
-;
-
 
 
 \EOF
