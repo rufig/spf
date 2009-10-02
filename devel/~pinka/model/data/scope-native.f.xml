@@ -8,6 +8,14 @@
 </def>
 
 
+<def name="DEFINED" ds=" a u -- xt|0 ">
+  I-NATIVE <if><exit/></if> 2DROP 0
+</def>
+
+<def name="&amp;" ds=" addr u -- xt ">
+  I-NATIVE <if><exit/></if> -321 THROW
+</def>
+
 <rem><!-- example of the ORDER impl. -->
 <also wordlist="scope-hidden">
 

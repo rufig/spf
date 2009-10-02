@@ -3,10 +3,6 @@
 
 <!-- 2006-2007 ruvim@forth.org.ru -->
 
-<def name="&amp;" ds=" addr u -- xt ">
-  I-NATIVE <if><exit/></if> -321 THROW
-</def>
-
 <def name="SEARCH-WORDLIST" ds=" addr u wid -- xt true | false ">
   FIND-WORDLIST DUP <if><exit/></if> NIP NIP
 </def>
