@@ -312,6 +312,15 @@ USER _db3_gets
   >R 0 ['] db3_gets_ R> db3_exec
   _db3_gets @ ?DUP IF STR@ ELSE S" " THEN
 ;
+: db3_getsu_ { i par ppStmt -- flag }
+  0 ppStmt db3_colu _db3_gets S! 
+  FALSE
+;
+: db3_getsu ( addr u sqh -- addr u )
+  _db3_gets 0!
+  >R 0 ['] db3_getsu_ R> db3_exec
+  _db3_gets @ ?DUP IF STR@ ELSE S" " THEN
+;
 : db3_gets_id_ { i par ppStmt -- flag }
   0 ppStmt db3_colu _db3_gets S! 
   1 ppStmt db3_coli _db3_get_1 ! 
@@ -334,6 +343,12 @@ USER _db3_gets
   ['] (db3_enable_extensions) CATCH IF ." can't enable sqlite extensions" CR DROP THEN
 ;
 : db3_changes ( sqh -- n ) 1 sqlite3_changes ; \ for ~dandy
+
+: db3_table_col_type { cnamea cnameu tnamea tnameu sqh \ ai pk nn cs dt -- typea typeu }
+\ возвращает тип заданного поля заданной таблицы (не view!) в открытой БД
+  ^ ai ^ pk ^ nn ^ cs ^ dt cnamea tnamea 0 sqh 9 sqlite3_table_column_metadata DROP
+  dt ?DUP IF ASCIIZ> ELSE S" " THEN
+;
 
 PREVIOUS PREVIOUS
 
