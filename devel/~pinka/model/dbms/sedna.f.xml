@@ -149,9 +149,12 @@
 <export>
 
 <def name="transact" ds=" -- ">
+  sock <unless> open </unless>
   '(transact) CATCH <choose>
+  DUP 0 EQ     <when> DROP <exit/></when>
   DUP -1002 EQ <when/>
   DUP 10053 EQ <when/>
+  <rem> what about 10038? </rem>
   THROW <exit/></choose>
   DROP
   <!--
@@ -165,7 +168,10 @@
 
 <def name="query-per" ds=" d-query consumer-xt -- "><!-- see: sedna-api.scm # sedna:execute-query-xml -->
   consumer-xt!
-  transact   put-query next   commit
+  transact
+    <q> put-query next </q> CATCH DUP <if> 0 t! close-sock  THROW </if> DROP
+    <rem> 't' state should be balanced </rem>
+  commit
 </def>
 
 <def name="query-value" ds=" d-query -- d-value ">
@@ -175,7 +181,9 @@
 
 <def name="per-query-per" ds=" emitter-xt consumer-xt -- ">
   consumer-xt!
-  transact   per-put-query next   commit
+  transact
+    <q> per-put-query next </q> CATCH DUP <if> 0 t! close-sock  THROW </if> DROP
+  commit
 </def>
 
 </export>
