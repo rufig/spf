@@ -27,6 +27,10 @@ WARNING !
   SC_MANAGER_ALL_ACCESS 0 0 OpenSCManagerA
   CreateServiceA
 ;
+: SetServiceDescription ( addr u handle -- )
+  >R DROP SERVICE_DESCRIPTION !
+  SERVICE_DESCRIPTION SERVICE_CONFIG_DESCRIPTION R> ChangeServiceConfig2A DROP
+;
 
 \ ***********************
 VARIABLE CtrlHandler
