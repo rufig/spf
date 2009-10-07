@@ -35,3 +35,6 @@ USER-CREATE uLocalTime 30 USER-ALLOT
 : UNIXTIME>FILETIME ( unixtime -- filetime ) \ UTC
   10000000 M* 116444736000000000. D+  \ см. http://support.microsoft.com/kb/167296
 ;
+: FILETIME>UNIXTIME ( filetime -- unixtime ) \ UTC
+  116444736000000000. D- 10000000 UM/MOD NIP
+;
