@@ -37,6 +37,7 @@ VECT vCONVERT%post ' NOOP TO vCONVERT%post
   WHILE
     a i + C@ DUP [CHAR] % =
     IF DROP 0 0 a i + CHAR+ 2 >NUMBER 2DROP D>S i 2+ -> i THEN
+    DUP 0= IF DROP [CHAR] _ THEN
     a2 u2 + C!
     i 1+ -> i
     u2 1+ -> u2

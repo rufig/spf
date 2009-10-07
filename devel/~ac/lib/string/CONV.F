@@ -68,7 +68,8 @@ VECT debase64 ' debase64_1 TO debase64
   WHILE
     DUP C@ [CHAR] % =
     IF R> 3 - >R
-       3 + DUP 2 - 2 0 0 2SWAP >NUMBER 2DROP D>S tC,
+       3 + DUP 2 - 2 0 0 2SWAP >NUMBER 2DROP D>S
+       DUP 0= IF DROP [CHAR] _ THEN tC,
     ELSE R> 1- >R
        DUP C@ tC, 1+
     THEN
