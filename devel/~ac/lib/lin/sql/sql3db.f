@@ -68,13 +68,12 @@ USER SQS
   i 1 AND 0= IF S"  even" ELSE S" " THEN
   i " <tr N='{n}' class='sp_data{s} sp_tag_{s}'>" SQS @ S+
   ppStmt db3_cols 0 ?DO
-    I ppStmt db3_colu DUP 0= 
-             IF 2DROP S" &#160;"
-             ELSE
-                I ppStmt db3_colname S" __" SEARCH
-                IF SFIND IF ppStmt SWAP EXECUTE ELSE 2DROP THEN
-                ELSE 2DROP THEN
-             THEN
+    I ppStmt db3_colu 
+    I ppStmt db3_colname S" __" SEARCH
+    IF SFIND IF ppStmt SWAP EXECUTE ELSE 2DROP THEN
+    ELSE 2DROP THEN
+    DUP 0= 
+    IF 2DROP S" &#160;" THEN
     I ppStmt db3_coltype 3 < IF S"  numb" ELSE S" " THEN
     I ppStmt db3_colname
     2DUP S" __" SEARCH IF NIP - ELSE 2DROP THEN
