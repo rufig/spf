@@ -3,6 +3,7 @@
 
 REQUIRE FILE-INTERNALDATE    ~ac/lib/win/file/internaldate.f 
 REQUIRE GET-FILETIME-WRITE-S ~ac/lib/win/file/fileprop.f 
+REQUIRE FILETIME>UNIXTIME    ~ac/lib/win/date/unixtime.f
 
 : FILETIME-INTERNALDATE ( filetime -- addr u ) \ filetime в utc
   2>R <<# Zone# BL HOLD
@@ -29,6 +30,9 @@ REQUIRE GET-FILETIME-WRITE-S ~ac/lib/win/file/fileprop.f
 \ 2008-10-09 01:37:21
 \ используется в частности в SQL
   GET-FILETIME-WRITE-S FILETIME-UDATE
+;
+: FILENAME-UNIXTIME ( filea fileu -- unixtime )
+  GET-FILETIME-WRITE-S FILETIME>UNIXTIME
 ;
 
 \EOF
