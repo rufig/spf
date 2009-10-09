@@ -18,6 +18,12 @@ USER-CREATE uLocalTime 30 USER-ALLOT
   uLocalTime SWAP
   RDROP
 ;
+: UnixTimeRus ( unixtime -- addr u ) \ LOCAL
+  >R RP@ localtime NIP 
+  S" %d.%m.%Y %H:%M" DROP 18 uLocalTime strftime NIP NIP NIP NIP 
+  uLocalTime SWAP
+  RDROP
+;
 : UnixTimeRss ( unixtime -- addr u ) \ UTC
   >R RP@ gmtime NIP 
   S" %a, %d %b %Y %H:%M:%S GMT" DROP 30 uLocalTime strftime NIP NIP NIP NIP 
@@ -27,7 +33,10 @@ USER-CREATE uLocalTime 30 USER-ALLOT
 : CurrentTimeSql ( -- addr u )
   UnixTime UnixTimeSql
 ;
-\ CurrentTimeSql TYPE
+: CurrentTimeRus ( -- addr u )
+  UnixTime UnixTimeRus
+;
+\ CurrentTimeRus TYPE
 
 : CurrentTimeRss ( -- addr u )
   UnixTime UnixTimeRss
