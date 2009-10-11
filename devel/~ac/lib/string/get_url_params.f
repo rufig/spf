@@ -12,6 +12,7 @@ REQUIRE {             ~ac/lib/locals.f
 REQUIRE "             ~ac/lib/str5.f
 
 USER SkipConvert%
+USER SkipConvert+
 VECT vCONVERT%pre  ' NOOP TO vCONVERT%pre
 VECT vCONVERT%post ' NOOP TO vCONVERT%post
 
@@ -27,7 +28,7 @@ VECT vCONVERT%post ' NOOP TO vCONVERT%post
   SkipConvert% @ IF EXIT THEN
   { a u \ a2 u2 i -- a2 u2 }
 
-  a u [CHAR] + BL CONVERT
+  SkipConvert+ @ 0= IF a u [CHAR] + BL CONVERT THEN
 \  a u [CHAR] & 1  CONVERT
 \  a u [CHAR] = BL CONVERT
   u ALLOCATE THROW -> a2

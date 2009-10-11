@@ -19,6 +19,7 @@ REQUIRE >UTF8 ~ac/lib/lin/iconv/iconv.f
   DUP [CHAR] _ = IF DROP TRUE EXIT THEN
   DUP [CHAR] . = IF DROP TRUE EXIT THEN
   DUP [CHAR] ~ = IF DROP TRUE EXIT THEN
+  DUP [CHAR] / = IF DROP TRUE EXIT THEN \ js не кодирует
   DROP FALSE
 ;
 : UTF8URLENCODE { a u \ mem o b -- a2 u2 } \ исходная строка предполагается в UTF-8-кодировке
