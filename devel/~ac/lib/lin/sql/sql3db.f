@@ -65,7 +65,7 @@ USER SQS
     LOOP " </tr></thead>{CRLF}<tbody>" SQS @ S+
   THEN
   S" __tagsField" ppStmt db3_field
-  i 1 AND 0= IF S"  even" ELSE S" " THEN
+  i 1 AND 0= IF S"  even" ELSE S"  odd" THEN
   i " <tr N='{n}' class='sp_data{s} sp_tag_{s}'>" SQS @ S+
   ppStmt db3_cols 0 ?DO
     I ppStmt db3_colu 
