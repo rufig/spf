@@ -38,7 +38,7 @@ USER-CREATE uLocalTime 30 USER-ALLOT
 ;
 \ CurrentTimeRus TYPE
 
-: CurrentTimeRss ( -- addr u )
+: CurrentTimeRss ( -- addr u ) \ тоже, что и DATETIME-UTC в file/filetime.f
   UnixTime UnixTimeRss
 ;
 : UNIXTIME>FILETIME ( unixtime -- filetime ) \ UTC
