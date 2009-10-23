@@ -55,7 +55,11 @@ USER SQS
   SQS @ STR@
 ;
 
+USER uMqueryI \ для опционального использования в обработчиках __*
+USER uMqueryS \ при поиске счетчик выдаваемых строк не совпадает с обработанными
+
 : (mquery) { i par ppStmt -- flag }
+  i uMqueryI !
   i 1 =
   IF " <thead><tr class='sp_head'>" SQS @ S+
     ppStmt db3_cols 0 ?DO
@@ -64,8 +68,12 @@ USER SQS
       DUP IF 2DUP " <th class='{s}'>{s}</th>" SQS @ S+ ELSE 2DROP THEN
     LOOP " </tr></thead>{CRLF}<tbody>" SQS @ S+
   THEN
+  S" __includeFlag" ppStmt db3_fieldu
+  ?DUP IF ppStmt ROT ROT EVALUATE ELSE DROP TRUE THEN
+  IF
+  uMqueryS 1+!
   S" __tagsField" ppStmt db3_field
-  i 1 AND 0= IF S"  even" ELSE S"  odd" THEN
+  uMqueryS @ 1 AND 0= IF S"  even" ELSE S"  odd" THEN
   i " <tr N='{n}' class='sp_data{s} sp_tag_{s}'>" SQS @ S+
   ppStmt db3_cols 0 ?DO
     I ppStmt db3_colu 
@@ -79,9 +87,11 @@ USER SQS
     2DUP S" __" SEARCH IF NIP - ELSE 2DROP THEN
     DUP IF " <td class='{s}{s}'>{s}</td>" SQS @ S+ ELSE 2DROP 2DROP 2DROP THEN
   LOOP  " </tr>{CRLF}" SQS @ S+
+  THEN
   TRUE
 ;
 : mquery ( addr u -- addr2 u2 ) \ вариант с модификаторами полей и тегами/стилями TR
+  uMqueryS 0!
   " <table class='sortable' id='sp_table' cellpadding='0' cellspacing='0'>" SQS !
   0 ['] (mquery) SQH @ db3_exec
   " </tbody></table>" SQS @ S+
