@@ -34,7 +34,7 @@ MODULE: bot_plugin_rss
 
 : timestamp>pad Num>DateTime DateTime>PAD ;
 
-: write-number ( stamp a u -- ) 2>R S>D <# #S #> 2R> OCCUPY ;
+: write-number ( stamp a u -- ) 2>R S>D <# #S #> 2R> OCCUPY-CATCH DROP ;
 
 \ remove double-slashes - (not a) bug in fforum rss
 : normalize-link ( s -- s )
