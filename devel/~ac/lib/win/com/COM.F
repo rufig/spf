@@ -32,15 +32,21 @@ VARIABLE COM-DEBUG \ TRUE COM-DEBUG !
 
 : >UNICODE ( addr u -- addr2 u2 )
   DUP 2* CELL+ ALLOCATE DROP UnicodeBuf !
+  DUP 0= IF 2DROP UnicodeBuf @ 0 EXIT THEN
+  2DUP 2>R
   SWAP >R
   DUP 2* CELL+ UnicodeBuf @ ROT R> 0 ( flags) 0 ( CP_ACP)
   MultiByteToWideChar
+  DUP 0= IF DROP 2R> >R UnicodeBuf @ R@ MOVE UnicodeBuf @ R> EXIT
+         ELSE 2R> 2DROP THEN
   UnicodeBuf @ 
   SWAP 2* 
   2DUP + 0 SWAP W!
 ;
 : UNICODE> ( addr u -- addr2 u2 )
 \ на входе - длина в байтах, а WideCharToMultiByte хочет к-во символов
+  DUP 0= IF 2DROP CELL ALLOCATE THROW DUP UnicodeBuf ! 0 EXIT THEN
+  2DUP 2>R
   2 /
   1+ \ 0 в конце тоже считаем, т.к. он есть в результ.строке
   >R >R 0 0 R> R>
@@ -51,20 +57,28 @@ VARIABLE COM-DEBUG \ TRUE COM-DEBUG !
   R>                             \ 0 0 len+4 mem len addr
   0 ( flags) 0 ( CP_ACP)
   WideCharToMultiByte
+  DUP 0= IF DROP 2R> >R UnicodeBuf @ R@ MOVE UnicodeBuf @ R> EXIT
+         ELSE 2R> 2DROP THEN
   UnicodeBuf @ 
   SWAP 1-
 ;
 : UTF8>UNICODE ( addr u -- addr2 u2 )
   DUP 2* CELL+ ALLOCATE DROP UnicodeBuf !
+  DUP 0= IF 2DROP UnicodeBuf @ 0 EXIT THEN
+  2DUP 2>R
   SWAP >R
   DUP 2* CELL+ UnicodeBuf @ ROT R> 0 ( flags) CP_UTF8
   MultiByteToWideChar
+  DUP 0= IF DROP 2R> >R UnicodeBuf @ R@ MOVE UnicodeBuf @ R> EXIT
+         ELSE 2R> 2DROP THEN
   UnicodeBuf @ 
   SWAP 2* 
   2DUP + 0 SWAP W!
 ;
 : UNICODE>UTF8 ( addr u -- addr2 u2 )
 \ на входе - длина в байтах, а WideCharToMultiByte хочет к-во символов
+  DUP 0= IF 2DROP CELL ALLOCATE THROW DUP UnicodeBuf ! 0 EXIT THEN
+  2DUP 2>R
   2 /
   1+ \ 0 в конце тоже считаем, т.к. он есть в результ.строке
   >R >R 0 0 R> R>
@@ -75,6 +89,8 @@ VARIABLE COM-DEBUG \ TRUE COM-DEBUG !
   R>                             \ 0 0 len+4 mem len addr
   0 ( flags) CP_UTF8
   WideCharToMultiByte
+  DUP 0= IF DROP 2R> >R UnicodeBuf @ R@ MOVE UnicodeBuf @ R> EXIT
+         ELSE 2R> 2DROP THEN
   UnicodeBuf @ 
   SWAP 1-
 ;
