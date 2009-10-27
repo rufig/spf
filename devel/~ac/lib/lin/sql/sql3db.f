@@ -57,6 +57,7 @@ USER SQS
 
 USER uMqueryI \ для опционального использования в обработчиках __*
 USER uMqueryS \ при поиске счетчик выдаваемых строк не совпадает с обработанными
+USER uMqueryExTags
 
 : (mquery) { i par ppStmt -- flag }
   i uMqueryI !
@@ -73,6 +74,7 @@ USER uMqueryS \ при поиске счетчик выдаваемых строк не совпадает с обработанными
   IF
   uMqueryS 1+!
   S" __tagsField" ppStmt db3_field
+  uMqueryExTags @ ?DUP IF STR@ 2SWAP " {s} {s}" STR@ THEN
   uMqueryS @ 1 AND 0= IF S"  even" ELSE S"  odd" THEN
   i " <tr N='{n}' class='sp_data{s} sp_tag_{s}'>" SQS @ S+
   ppStmt db3_cols 0 ?DO
