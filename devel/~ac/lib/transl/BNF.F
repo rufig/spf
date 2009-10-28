@@ -149,6 +149,7 @@ USER Look \ будем заглядывать вперед на один символ
 
 : SkipString ( addr u -- flag )
 \ пропустить строку addr u если она есть в текущей позиции парсинга
+  DUP >IN @ 1- + SOURCE NIP > IF 2DROP FALSE EXIT THEN \ остаток строки короче
   2DUP LookString
   IF NIP 1- >IN +! GetNextChar TRUE ELSE 2DROP FALSE THEN
 ;
