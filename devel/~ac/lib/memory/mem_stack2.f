@@ -139,6 +139,29 @@ VARIABLE MEM_DEBUG
   REPEAT DROP R> RDROP
   301 \ элемент, который просят освободить, не был выделен
 ;
+: UNSTACK ( addr -- ior ) \ убрать элемент addr из-под контроля MEM_STACK
+  MEM_DEBUG @
+  IF
+   ." :u(" R@ WordByAddr TYPE ." <-" R> R@ WordByAddr TYPE >R ." )u"
+   SPACE DUP . ." m>" CR
+  THEN
+  >R
+  MEM_STACK_PTR
+  BEGIN
+    DUP @ \ пераметром цикла будет не адрес элемента, а указатель на адрес
+  WHILE
+    DUP @ CELL+ @ R@ =
+    IF \ R> FREE >R \ освобождать addr не нужно, только исключаем из списка
+       RDROP 0 >R
+
+       DUP @ DUP >R @ SWAP ! \ исключили из списка записью след.элемента
+       R> FREE THROW
+       R> EXIT
+    THEN
+    @
+  REPEAT DROP RDROP
+  304 \ элемент, который просят исключить, не был выделен
+;
 : HEAP-COPY ( addr u -- addr1 ) \ опеределим заново, т.к. может использоваться
 \ скопировать строку в хип и вернуть её адрес в хипе
   DUP 0< IF 8 THROW THEN
