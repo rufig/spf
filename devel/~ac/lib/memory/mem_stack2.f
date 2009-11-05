@@ -45,7 +45,7 @@ WARNING @ WARNING 0!
 \ ”казатель пространства данных не измен€етс€ данной операцией.
 \ ≈сли операци€ успешна, ior ноль. ≈сли операци€ не прошла, ior - завис€щий от 
 \ реализации код ввода-вывода.
-  CELL- DUP @ 557 <> IF ." страшный баг" DROP 302 EXIT THEN
+  CELL- DUP @ DUP 557 <> SWAP 558 <> AND IF ." страшный баг" DROP 302 EXIT THEN
   DUP 0!
   0 THREAD-HEAP @ HeapFree ERR
 ;
@@ -103,6 +103,7 @@ VARIABLE MEM_DEBUG
    ." :(" R@ WordByAddr TYPE ." <-" R> R@ WordByAddr TYPE >R ." )"
    SPACE DUP . ." m>" CR
   THEN
+  DUP CELL- @ 558 = IF FREE EXIT THEN \ было обработано UNSTACK'ом
   >R
   MEM_STACK_PTR
   BEGIN
@@ -152,10 +153,10 @@ VARIABLE MEM_DEBUG
   WHILE
     DUP @ CELL+ @ R@ =
     IF \ R> FREE >R \ освобождать addr не нужно, только исключаем из списка
-       RDROP 0 >R
+       558 R> CELL- ! 0 >R
 
        DUP @ DUP >R @ SWAP ! \ исключили из списка записью след.элемента
-       R> FREE THROW
+       R> MS_FREE THROW
        R> EXIT
     THEN
     @
