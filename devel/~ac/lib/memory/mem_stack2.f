@@ -18,7 +18,38 @@
 
   При MEM_DEBUG ON выводится трассировка использования памяти.
 
+  Вариант использования:
+
+  : РаботаСХипом
+    работа с хипом
+  ;
+  ...
+  ['] РаботаСХипом DROP_MEM
+
+
+  Внутри скобок MARK_MEM - FREE_MEM можно определить участок кода,
+  выделяемая которым память не будет автоматически освобождена.
+  Эта возможность применяется для манипуляции с долгоживущими структурами
+  типа хэшей, которые сами следят за своей целостностью.
+
+  DISABLE_MEM_LAYOFF
+  создание долгоживущих блоков памяти
+  DISABLE_MEM_LAYOFF
+
+  Вариант использования:
+
+  : РаботаСДолгоживущейПамятью
+    работа с долгоживущей памятью
+  ;
+  ...
+  ['] РаботаСДолгоживущейПамятью SAVE_MEM
+
 )
+
+USER _NO_STACK_MEM
+
+\ код пометки для блока памяти
+: _MEM_MARKER ( -- u ) _NO_STACK_MEM @ IF 558 ELSE 557 THEN ;
 
 WARNING @ WARNING 0!
 : ALLOCATE ( u -- a-addr ior ) \ 94 MEMORY
@@ -35,7 +66,8 @@ WARNING @ WARNING 0!
 \ по умолчанию заполняется адресом тела процедуры, вызвавшей ALLOCATE
 
   CELL+ 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
-  DUP IF 557 OVER ! CELL+ 0 ELSE -310 THEN
+\  DUP IF 557 OVER ! CELL+ 0 ELSE -310 THEN
+  DUP IF _MEM_MARKER OVER ! CELL+ 0 ELSE -310 THEN
 ;
 
 : FREE ( a-addr -- ior ) \ 94 MEMORY
@@ -64,10 +96,12 @@ WARNING @ WARNING 0!
 \ согласно операции FREE.
 \ Если операция не прошла, a-addr2 равен a-addr1, область памяти a-addr1 не 
 \ изменяется, и ior - зависящий от реализации код ввода-вывода.
-  CELL+ SWAP CELL- DUP @ 557 <> IF ." страшный баг" DROP 303 EXIT THEN
+\  CELL+ SWAP CELL- DUP @ 557 <> IF ." страшный баг" DROP 303 EXIT THEN
+  CELL+ SWAP CELL- DUP @ DUP 557 <> SWAP 558 <> AND IF ." страшный баг" DROP 303 EXIT THEN
   DUP 0!
   8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapReAlloc
-  DUP IF 557 OVER ! CELL+ 0 ELSE -320 THEN
+\  DUP IF 557 OVER ! CELL+ 0 ELSE -320 THEN
+  DUP IF _MEM_MARKER OVER ! CELL+ 0 ELSE -320 THEN
 ;
 
 USER MEM_STACK_PTR
@@ -103,11 +137,11 @@ VARIABLE MEM_DEBUG
    ." :(" R@ WordByAddr TYPE ." <-" R> R@ WordByAddr TYPE >R ." )"
    SPACE DUP . ." m>" CR
   THEN
-  DUP CELL- @ 558 = IF FREE EXIT THEN \ было обработано UNSTACK'ом
+\  DUP CELL- @ 558 = IF FREE EXIT THEN \ было обработано UNSTACK'ом
   >R
   MEM_STACK_PTR
   BEGIN
-    DUP @ \ пераметром цикла будет не адрес элемента, а указатель на адрес
+    DUP @ \ параметром цикла будет не адрес элемента, а указатель на адрес
   WHILE
     DUP @ CELL+ @ R@ =
     IF R> FREE >R
@@ -128,7 +162,7 @@ VARIABLE MEM_DEBUG
   >R >R
   MEM_STACK_PTR
   BEGIN
-    DUP @ \ пераметром цикла будет не адрес элемента, а указатель на адрес
+    DUP @ \ параметром цикла будет не адрес элемента, а указатель на адрес
   WHILE
     DUP @ CELL+ @ R@ =
     IF R> R> RESIZE 2>R
@@ -141,6 +175,7 @@ VARIABLE MEM_DEBUG
   301 \ элемент, который просят освободить, не был выделен
 ;
 : UNSTACK ( addr -- ior ) \ убрать элемент addr из-под контроля MEM_STACK
+\ в текущей реализации элемент остаётся под контролем, но не удаляется при массовой очистке
   MEM_DEBUG @
   IF
    ." :u(" R@ WordByAddr TYPE ." <-" R> R@ WordByAddr TYPE >R ." )u"
@@ -149,9 +184,10 @@ VARIABLE MEM_DEBUG
   >R
   MEM_STACK_PTR
   BEGIN
-    DUP @ \ пераметром цикла будет не адрес элемента, а указатель на адрес
+    DUP @ \ параметром цикла будет не адрес элемента, а указатель на адрес
   WHILE
     DUP @ CELL+ @ R@ =
+    (	из списка тоже не исключаем, только меняем признак
     IF \ R> FREE >R \ освобождать addr не нужно, только исключаем из списка
        558 R> CELL- ! 0 >R
 
@@ -159,6 +195,8 @@ VARIABLE MEM_DEBUG
        R> MS_FREE THROW
        R> EXIT
     THEN
+    )
+    IF 558 R> CELL- ! 0 EXIT THEN	\ поставить код исключения
     @
   REPEAT DROP RDROP
   304 \ элемент, который просят исключить, не был выделен
@@ -173,6 +211,7 @@ VARIABLE MEM_DEBUG
 : MARK_MEM ( -- )
   73 STACK_MEM
 ;
+( переделано с учётом наличия неудаляемых элементов стека
 : FREE_MEM ( -- )
   MEM_STACK_PTR @
   BEGIN
@@ -186,6 +225,50 @@ VARIABLE MEM_DEBUG
   REPEAT \ освободили весь список, но не нашли отметку!
   MEM_STACK_PTR !
 ;
+)
+: FREE_MEM ( -- )
+  BEGIN
+    DUP @ \ параметром цикла будет не адрес элемента, а указатель на адрес
+  WHILE
+    DUP @ CELL+ @ DUP 73 =		\ достигли отметки?
+    IF
+      DROP DUP @ DUP >R @ SWAP !	\ исключили из списка записью след.элемента
+      R> MS_FREE THROW			\ освободить контрольный блок
+      EXIT				\ и завершить
+    THEN
+    DUP CELL- @ 557 =			\ этот блок удаляется?
+    IF
+      MS_FREE THROW			\ да - удалить
+      DUP @ DUP >R @ SWAP !		\ исключили из списка записью след.элемента
+      R> MS_FREE THROW			\ освободить контрольный блок
+    ELSE
+      DROP @				\ нет - просто перейти к следующему блоку
+    THEN
+  REPEAT DROP
+;
 
 \ TRUE MEM_DEBUG !
 WARNING !
+
+\ управление разрешением на массовую очистку памяти
+: ENABLE_MEM_LAYOFF _NO_STACK_MEM 0! ;
+: DISABLE_MEM_LAYOFF TRUE _NO_STACK_MEM ! ;
+
+\ слова-обёртки для более прозрачного переключения режимов зачистки
+\ DROP_MEM - выполняет указанное xt с разрешением массовой очистки памяти и подчищает за ним выделенную динамическую память
+: DROP_MEM ( xt -- )
+  MARK_MEM				\ поставить маркер
+  _NO_STACK_MEM DUP @ >R 0!		\ разрешить зачистку памяти
+  CATCH					\ выполнить с перехватом ошибки
+  R> _NO_STACK_MEM !			\ прежнее состояние флага
+  FREE_MEM				\ зачистить выделенную память
+  THROW					\ и вернуть ошибку
+;
+
+\ SAVE_MEM - выполняет указанное xt с запретом массовой очистки памяти
+: SAVE_MEM ( xt -- )
+  TRUE _NO_STACK_MEM DUP @ >R !		\ запретить зачистку памяти
+  CATCH					\ выполнить с перехватом ошибки
+  R> _NO_STACK_MEM !			\ прежнее состояние флага
+  THROW					\ и вернуть ошибку
+;
