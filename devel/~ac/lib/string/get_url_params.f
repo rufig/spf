@@ -61,10 +61,16 @@ VECT vCONVERT%post ' NOOP TO vCONVERT%post
 : STR-LIT { \ s }
   "" -> s 1 PARSE CONVERT% s STR! s
 ;
+USER uCheckParam \ здесь xt ( addr u -- addr u true | false )
+
 : STRING:
-  [CHAR] = PARSE CONVERT% 255 MIN CREATED
-  STR-LIT ,
-  'STR@DOES  ( кавычка поставлена 01.01.2002 ~ac :)
+  [CHAR] = PARSE CONVERT% 255 MIN
+  uCheckParam @ ?DUP IF EXECUTE ELSE TRUE THEN
+  IF
+    CREATED
+    STR-LIT ,
+    'STR@DOES  ( кавычка поставлена 01.01.2002 ~ac :)
+  THEN
 ;
 : Name:Value
   ['] STRING: EVALUATE-WITH
