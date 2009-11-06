@@ -211,8 +211,8 @@ VARIABLE MEM_DEBUG
 : MARK_MEM ( -- )
   73 STACK_MEM
 ;
-( переделано с учётом наличия неудаляемых элементов стека
-: FREE_MEM ( -- )
+( переделано ниже - с учётом наличия неудаляемых элементов стека
+: FREE_MEM 
   MEM_STACK_PTR @
   BEGIN
     DUP
