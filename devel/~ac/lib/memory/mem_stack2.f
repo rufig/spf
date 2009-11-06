@@ -227,6 +227,7 @@ VARIABLE MEM_DEBUG
 ;
 )
 : FREE_MEM ( -- )
+  MEM_STACK_PTR
   BEGIN
     DUP @ \ параметром цикла будет не адрес элемента, а указатель на адрес
   WHILE
