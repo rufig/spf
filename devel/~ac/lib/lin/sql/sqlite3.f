@@ -291,8 +291,18 @@ USER db3_exec_TICKS
 
 USER _db3_get_1
 USER _db3_get_2
+USER _db3_get_3
 USER _db3_gets
 
+: db3_get_id1_ { i par ppStmt -- flag }
+  0 ppStmt db3_coli _db3_get_1 ! 
+  FALSE
+;
+: db3_get_id1 ( addr u sqh -- id1 )
+  _db3_get_1 0!
+  >R 0 ['] db3_get_id1_ R> db3_exec
+  _db3_get_1 @
+;
 : db3_get_id2_ { i par ppStmt -- flag }
   0 ppStmt db3_coli _db3_get_1 ! 
   1 ppStmt db3_coli _db3_get_2 ! 
@@ -302,6 +312,17 @@ USER _db3_gets
   _db3_get_1 0! _db3_get_2 0!
   >R 0 ['] db3_get_id2_ R> db3_exec
   _db3_get_1 @ _db3_get_2 @
+;
+: db3_get_id3_ { i par ppStmt -- flag }
+  0 ppStmt db3_coli _db3_get_1 ! 
+  1 ppStmt db3_coli _db3_get_2 ! 
+  2 ppStmt db3_coli _db3_get_3 ! 
+  FALSE
+;
+: db3_get_id3 ( addr u sqh -- id1 id2 id3 )
+  _db3_get_1 0! _db3_get_2 0! _db3_get_3 0!
+  >R 0 ['] db3_get_id3_ R> db3_exec
+  _db3_get_1 @ _db3_get_2 @ _db3_get_3 @
 ;
 : db3_gets_ { i par ppStmt -- flag }
   0 ppStmt db3_col _db3_gets S! 
