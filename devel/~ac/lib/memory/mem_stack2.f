@@ -173,11 +173,10 @@ VARIABLE MEM_DEBUG
     IF R>
        OVER @ CELL+ CELL+ @ \ старый размер
          R@ SWAP - MEM_STACK_SIZE +!
-       R@ RESIZE 2>R
-       DUP @ DUP >R @ SWAP ! \ исключили из списка записью след.элемента
-       R> MS_FREE THROW
-       2R> OVER STACK_MEM
-       R> MEM_STACK_PTR @ CELL+ CELL+ !
+       R@ RESIZE
+       ROT @ >R
+       OVER R@ CELL+ !          \ новый адрес
+       R> CELL+ CELL+ R> SWAP ! \ новый размер
        EXIT
     THEN
     @
