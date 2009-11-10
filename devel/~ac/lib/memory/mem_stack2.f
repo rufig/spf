@@ -105,17 +105,21 @@ WARNING @ WARNING 0!
 ;
 
 USER MEM_STACK_PTR
+USER MEM_STACK_SIZE
 VARIABLE MEM_DEBUG
 
 : STACK_MEM ( addr -- )
-  2 CELLS ALLOCATE THROW >R
+  3 CELLS ALLOCATE THROW >R
   ( addr ) R@ CELL+ !
   MEM_STACK_PTR @ R@ !
   R> MEM_STACK_PTR !
 ;
 : ALLOCATE ( size -- addr ior )
-  ALLOCATE DUP IF EXIT THEN
+  DUP MEM_STACK_SIZE +!
+  DUP >R
+  ALLOCATE DUP IF RDROP EXIT THEN
   OVER STACK_MEM
+  R> MEM_STACK_PTR @ CELL+ CELL+ !
   MEM_DEBUG @
   IF
    ." <m"  OVER .
@@ -145,6 +149,7 @@ VARIABLE MEM_DEBUG
   WHILE
     DUP @ CELL+ @ R@ =
     IF R> FREE >R
+       DUP @ CELL+ CELL+ @ MEM_STACK_SIZE @ SWAP - MEM_STACK_SIZE !
        DUP @ DUP >R @ SWAP ! \ исключили из списка записью след.элемента
        R> FREE THROW
        R> EXIT
@@ -165,10 +170,15 @@ VARIABLE MEM_DEBUG
     DUP @ \ параметром цикла будет не адрес элемента, а указатель на адрес
   WHILE
     DUP @ CELL+ @ R@ =
-    IF R> R> RESIZE 2>R
+    IF R>
+       OVER @ CELL+ CELL+ @ \ старый размер
+         R@ SWAP - MEM_STACK_SIZE +!
+       R@ RESIZE 2>R
        DUP @ DUP >R @ SWAP ! \ исключили из списка записью след.элемента
        R> MS_FREE THROW
-       2R> OVER STACK_MEM EXIT
+       2R> OVER STACK_MEM
+       R> MEM_STACK_PTR @ CELL+ CELL+ !
+       EXIT
     THEN
     @
   REPEAT DROP R> RDROP
