@@ -181,7 +181,7 @@ VARIABLE MEM_DEBUG
     THEN
     @
   REPEAT DROP R> RDROP
-  301 \ элемент, который просят освободить, не был выделен
+  301 \ элемент, размер которого просят изменить, не был выделен
 ;
 : UNSTACK ( addr -- ior ) \ убрать элемент addr из-под контроля MEM_STACK
 \ в текущей реализации элемент остаётся под контролем, но не удаляется при массовой очистке
@@ -254,7 +254,49 @@ VARIABLE MEM_DEBUG
     ELSE
       DROP @				\ нет - просто перейти к следующему блоку
     THEN
-  REPEAT DROP
+  REPEAT \ освободили весь список, но не нашли отметку!
+  @ MEM_STACK_PTR !
+;
+: FREE_MEM_EXCEPT ( addr -- ) \ освободить всё кроме элемента, содержащего указанный адрес
+  >R MEM_STACK_PTR
+  BEGIN
+    DUP @ \ параметром цикла будет не адрес элемента, а указатель на адрес
+  WHILE
+    DUP @ CELL+ @ DUP 73 =		\ достигли отметки?
+    IF
+      DROP DUP @ DUP >R @ SWAP !	\ исключили из списка записью след.элемента
+      R> MS_FREE THROW			\ освободить контрольный блок
+      RDROP
+      EXIT				\ и завершить
+    THEN
+    DUP CELL- @ 557 =			\ этот блок удаляется?
+    IF
+      OVER @ DUP CELL+ @ SWAP CELL+ CELL+ @ ( 2DUP TYPE CR) OVER + R@ ROT ROT WITHIN
+      IF DROP @
+      ELSE
+      MS_FREE THROW			\ да - удалить
+      DUP DUP @ DUP >R @ SWAP !		\ исключили из списка записью след.элемента
+      R> MS_FREE THROW			\ освободить контрольный блок
+      THEN
+    ELSE
+      DROP @				\ нет - просто перейти к следующему блоку
+    THEN
+  REPEAT \ освободили весь список, но не нашли отметку!
+  @ MEM_STACK_PTR !
+  RDROP
+;
+: DUMP_MEM ( -- )
+  MEM_STACK_PTR
+  BEGIN
+    DUP @ \ параметром цикла будет не адрес элемента, а указатель на адрес
+  WHILE
+    DUP @
+        DUP CELL+ ." a=" @ .
+            CELL+ CELL+ @ ." s=" . CR
+    @
+  REPEAT
+  DROP
+." DUMP_MEM_OK" CR
 ;
 
 \ TRUE MEM_DEBUG !
@@ -282,3 +324,26 @@ WARNING !
   R> _NO_STACK_MEM !			\ прежнее состояние флага
   THROW					\ и вернуть ошибку
 ;
+
+\EOF
+1000 ALLOCATE THROW
+MEM_STACK_PTR @ .
+MARK_MEM MEM_STACK_PTR @ .
+1000 ALLOCATE THROW DROP
+1000 ALLOCATE THROW DROP
+1000 ALLOCATE THROW  2000 RESIZE THROW
+1000 ALLOCATE THROW DROP
+1000 ALLOCATE THROW DROP
+DUMP_MEM
+MEM_STACK_PTR @ .
+DUP 1000 + FREE_MEM_EXCEPT
+
+DUMP_MEM
+MEM_STACK_PTR @ .
+1000 ALLOCATE THROW FREE THROW
+MEM_STACK_PTR @ .
+FREE THROW
+MEM_STACK_PTR @ .
+FREE THROW
+MEM_STACK_PTR @ .
+DUMP_MEM
