@@ -7,6 +7,14 @@ REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE base64        ~ac/lib/string/conv.f
 REQUIRE BUNICODE>     ~ac/lib/lin/iconv/iconv.f
 
+: />, ( addr u -- ) \ в IMAP-base64-кодировании используется "," вместо "/"
+  0 ?DO DUP C@ [CHAR] / =
+  IF [CHAR] , OVER C! THEN 1+ LOOP DROP
+;
+: ,>/ ( addr u -- )
+  0 ?DO DUP C@ [CHAR] , =
+  IF [CHAR] / OVER C! THEN 1+ LOOP DROP
+;
 : (UTF7-IMAP>) { \ s -- addr u }
   "" -> s
   BEGIN
@@ -15,7 +23,7 @@ REQUIRE BUNICODE>     ~ac/lib/lin/iconv/iconv.f
     [CHAR] & PARSE ?DUP
     IF s STR+ ELSE DROP THEN
     [CHAR] - PARSE ?DUP
-    IF " {s}==" STR@ debase64
+    IF 2DUP ,>/ " {s}==" STR@ debase64
        1+ DUP 2 MOD IF 1+ THEN
        BUNICODE> DROP ASCIIZ> s STR+
     ELSE DROP THEN
@@ -33,11 +41,15 @@ REQUIRE BUNICODE>     ~ac/lib/lin/iconv/iconv.f
 : -CTRAILING ( a u c -- a u1 )
   >R OVER + BEGIN 2DUP <> WHILE /CHAR - DUP C@ R@ <> UNTIL /CHAR + THEN OVER - RDROP
 ;
+: IsImapNP ( char -- flag )
+  DUP 0x7E > IF DROP TRUE EXIT THEN
+  0 32 WITHIN
+;
 : >UTF7-IMAP { a u \ s mode buf -- a2 u2 }
   a u _Is8Bit 0= IF a u EXIT THEN
   "" -> s
   u 0 ?DO
-    a I + C@ DUP 127 >
+    a I + C@ DUP IsImapNP
     IF mode 0= IF S" &" s STR+ TRUE -> mode "" -> buf THEN
        SP@ 1 buf STR+
        DROP
@@ -46,7 +58,7 @@ REQUIRE BUNICODE>     ~ac/lib/lin/iconv/iconv.f
        IF DROP S" &-" s STR+
        ELSE
           mode
-          IF buf STR@ >BUNICODE base64 [CHAR] = -CTRAILING s STR+
+          IF buf STR@ >BUNICODE base64 [CHAR] = -CTRAILING 2DUP />, s STR+
              S" -" s STR+ FALSE -> mode buf STRFREE
           THEN
           SP@ 1 s STR+ DROP
@@ -54,9 +66,10 @@ REQUIRE BUNICODE>     ~ac/lib/lin/iconv/iconv.f
     THEN
   LOOP
   mode
-  IF buf STR@ >BUNICODE base64 [CHAR] = -CTRAILING s STR+
+  IF buf STR@ >BUNICODE base64 [CHAR] = -CTRAILING 2DUP />, s STR+
      S" -" s STR+ buf STRFREE
   THEN
   s STR@
 ;
 \ S" я вчера видел rack'ов по 3 рубля/а сегодня по 5, но очень большие" >UTF7-IMAP TYPE CR
+\ S" Отправленные"  >UTF7-IMAP 2DUP TYPE CR UTF7-IMAP> ANSI>OEM TYPE CR
