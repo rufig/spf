@@ -24,4 +24,39 @@ REQUIRE BUNICODE>     ~ac/lib/lin/iconv/iconv.f
 ;
 : UTF7-IMAP> ( a1 u1 -- a2 u2 ) ['] (UTF7-IMAP>) EVALUATE-WITH ;
 
-\ S" &BE8- &BDIERwQ1BEAEMA- &BDIEOAQ0BDUEOw- rack'&BD4EMg- &BD8EPg- 3 &BEAEQwQxBDsETw-/&BDA- &BEEENQQzBD4ENAQ9BE8- &BD8EPg- 5, &BD0EPg- &BD4ERwQ1BD0ETA- &BDEEPgQ7BEwESAQ4BDU-" UTF7-IMAP> ANSI>OEM TYPE CR
+\ S" &BE8- &BDIERwQ1BEAEMA- &BDIEOAQ0BDUEOw- rack'&BD4EMg- &BD8EPg- 3 &BEAEQwQxBDsETw-/&BDA- &BEEENQQzBD4ENAQ9BE8- &BD8EPg- 5, &BD0EPg- &BD4ERwQ1BD0ETA- &BDEEPgQ7BEwESAQ4BDU-" 2DUP TYPE CR UTF7-IMAP> ANSI>OEM TYPE CR
+
+: _Is8Bit ( addr u -- flag ) \ отличается от того, что в mime-decode.f
+  0 ?DO DUP I + C@ 127 > IF DROP TRUE UNLOOP EXIT THEN LOOP
+  DROP FALSE
+;
+: -CTRAILING ( a u c -- a u1 )
+  >R OVER + BEGIN 2DUP <> WHILE /CHAR - DUP C@ R@ <> UNTIL /CHAR + THEN OVER - RDROP
+;
+: >UTF7-IMAP { a u \ s mode buf -- a2 u2 }
+  a u _Is8Bit 0= IF a u EXIT THEN
+  "" -> s
+  u 0 ?DO
+    a I + C@ DUP 127 >
+    IF mode 0= IF S" &" s STR+ TRUE -> mode "" -> buf THEN
+       SP@ 1 buf STR+
+       DROP
+    ELSE
+       DUP [CHAR] & =
+       IF DROP S" &-" s STR+
+       ELSE
+          mode
+          IF buf STR@ >BUNICODE base64 [CHAR] = -CTRAILING s STR+
+             S" -" s STR+ FALSE -> mode buf STRFREE
+          THEN
+          SP@ 1 s STR+ DROP
+       THEN
+    THEN
+  LOOP
+  mode
+  IF buf STR@ >BUNICODE base64 [CHAR] = -CTRAILING s STR+
+     S" -" s STR+ buf STRFREE
+  THEN
+  s STR@
+;
+\ S" я вчера видел rack'ов по 3 рубля/а сегодня по 5, но очень большие" >UTF7-IMAP TYPE CR
