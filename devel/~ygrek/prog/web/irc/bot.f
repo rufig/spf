@@ -103,7 +103,7 @@ MODULE: BOT-COMMANDS
 
 : !info !help ;
 
-: !uptime gmtime start-time - Num>Time 24 /MOD " {n} days {n} hours {n} minutes {n} seconds" STR-REPLY ;
+: !uptime gmtime start-time - 60 /MOD 60 /MOD 24 /MOD " {n} days {n} hours {n} minutes {n} seconds" STR-REPLY ;
 
 : !version
     OSNAME-STR { s }
