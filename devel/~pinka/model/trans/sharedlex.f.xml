@@ -79,6 +79,9 @@
   `lexicon.basics-aligned FORTH-WORDLIST @ CDR-BY-NAME NIP NIP
   `FORTH-KERNEL WORDLIST-NAMED !
 
+<def name="SHAREDLEX-TOP" ds=" -- wid">
+  SCOPE-TOP 
+</def>
 </export>
 
 <wordlist name="deployed"/>
