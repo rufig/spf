@@ -43,7 +43,7 @@
 </def>
 
 <def name="sednaS@" ds=" addr -- a u ">
-  DUP B@ 0 EQ <unless> `#unknown-string-format STHROW </unless>
+  DUP B@ 0 EQ <unless> `#sedna-unknown-string-format STHROW </unless>
   1+ DUP 4 + SWAP sednaT@
 </def>
 
