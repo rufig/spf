@@ -30,7 +30,7 @@ REQUIRE BUNICODE>     ~ac/lib/lin/iconv/iconv.f
   REPEAT
   s STR@
 ;
-: UTF7-IMAP> ( a1 u1 -- a2 u2 ) ['] (UTF7-IMAP>) EVALUATE-WITH ;
+: UTF7-IMAP> ( a1 u1 -- a2 u2 ) >STR STR@ ['] (UTF7-IMAP>) EVALUATE-WITH ;
 
 \ S" &BE8- &BDIERwQ1BEAEMA- &BDIEOAQ0BDUEOw- rack'&BD4EMg- &BD8EPg- 3 &BEAEQwQxBDsETw-/&BDA- &BEEENQQzBD4ENAQ9BE8- &BD8EPg- 5, &BD0EPg- &BD4ERwQ1BD0ETA- &BDEEPgQ7BEwESAQ4BDU-" 2DUP TYPE CR UTF7-IMAP> ANSI>OEM TYPE CR
 
@@ -73,3 +73,5 @@ REQUIRE BUNICODE>     ~ac/lib/lin/iconv/iconv.f
 ;
 \ S" я вчера видел rack'ов по 3 рубля/а сегодня по 5, но очень большие" >UTF7-IMAP TYPE CR
 \ S" Отправленные"  >UTF7-IMAP 2DUP TYPE CR UTF7-IMAP> ANSI>OEM TYPE CR
+\ S" ..\DATA\domains\www.mdaemon.org.ru\web\forum/&BBAENARABDUEQQQ9BDAETw- &BDoEPQQ4BDMEMA- &BDg- &BD8EPgQ7" UTF7-IMAP> ANSI>OEM TYPE CR
+\ S" Адресная книга и пользователи"  >UTF7-IMAP 2DUP TYPE CR UTF7-IMAP> ANSI>OEM TYPE CR
