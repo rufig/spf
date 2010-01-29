@@ -71,7 +71,3 @@ REQUIRE BUNICODE>     ~ac/lib/lin/iconv/iconv.f
   THEN
   s STR@
 ;
-\ S" я вчера видел rack'ов по 3 рубля/а сегодня по 5, но очень большие" >UTF7-IMAP TYPE CR
-\ S" Отправленные"  >UTF7-IMAP 2DUP TYPE CR UTF7-IMAP> ANSI>OEM TYPE CR
-\ S" ..\DATA\domains\www.mdaemon.org.ru\web\forum/&BBAENARABDUEQQQ9BDAETw- &BDoEPQQ4BDMEMA- &BDg- &BD8EPgQ7" UTF7-IMAP> ANSI>OEM TYPE CR
-\ S" Адресная книга и пользователи"  >UTF7-IMAP 2DUP TYPE CR UTF7-IMAP> ANSI>OEM TYPE CR
