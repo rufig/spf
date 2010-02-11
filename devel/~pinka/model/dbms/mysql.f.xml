@@ -34,7 +34,9 @@
 
 <def name="treat-err" ds=" -- ">
   conn mysql_errno DUP errno! <unless><exit/></unless>
-  errno 2006 = <if><rem> MySQL server has gone away </rem> (connect) DROP `#mysql-gone-away STHROW </if>
+  errno 2006 = <if><rem> MySQL server has gone away (check max_allowed_packet size in my.ini/[mysqld] )</rem> 
+    (connect) DROP `#mysql-gone-away STHROW 
+  </if>
   conn mysql_error ASCIIZ> set-last-err-txt
   errno 2003 = <if><rem>Can't connect to MySQL server</rem>
     (close-conn) <rem> it can't reuse the connection object in this case </rem>
