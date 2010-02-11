@@ -29,7 +29,7 @@
   2DUP + 0 pathname!
 </def>
 <def name="next-segment" ds=" -- a u ">
-  pathname `/ SPLIT <if> pathname! <exit/></if> DROP 0
+  pathname `/ SPLIT <if> pathname! <exit/></if> 2DROP 0 0
   <rem>The segment may be a 0 length </rem>
 </def>
 <def name="next-segment?" ds=" -- a u true | false ">
