@@ -37,6 +37,9 @@ VARIABLE ExternIPs
     COUNT EIP,
   REPEAT DROP 0 ,
 ;
+: ExternIPlist ( addr u -- ) \ список IP или хостов, разделенных пробелами
+  ?DUP IF ['] ExternIPs: EVALUATE-WITH ELSE DROP THEN
+;
 
 : ForEachIP { xt \ addr -- ior }
 \ xt - процедура ( IP -- ), запускаемая для каждого IP
