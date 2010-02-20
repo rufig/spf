@@ -124,7 +124,7 @@ Interface: IID_IMediaEvent {56a868b6-0ad4-11ce-b03a-0020af0ba770}
 Interface;
 
 : DsInit { \ pGraph -- pGraph }
-  ComInit THROW
+  \ ComInit THROW
   \ S" Filter Graph" CreateObject \ или FilgraphManager
   ^ pGraph IID_IGraphBuilder CLSCTX_INPROC_SERVER 0
   S" {e436ebb3-524f-11ce-9f53-0020af0ba770}" >UNICODE String>CLSID THROW \ CLSID_FilterGraph
