@@ -1,7 +1,7 @@
 REQUIRE EnumConnectionPoints ~ac/lib/win/com/events.f
 
 IID_IUnknown
-Interface: IID_IGraphBuilder {56a868a9-0ad4-11ce-b03a-0020af0ba770}
+Interface: IID_IFilterGraph {56a8689f-0ad4-11ce-b03a-0020af0ba770}
         
   Method: ::AddFilter ( 
             IGraphBuilder * This,
@@ -38,6 +38,11 @@ Interface: IID_IGraphBuilder {56a868a9-0ad4-11ce-b03a-0020af0ba770}
   Method: ::SetDefaultSyncSource ( 
             IGraphBuilder * This)
         
+Interface;
+
+IID_IFilterGraph
+Interface: IID_IGraphBuilder {56a868a9-0ad4-11ce-b03a-0020af0ba770}
+
   Method: ::Connect ( 
             IGraphBuilder * This,
             /* [in] */ IPin *ppinOut,
@@ -120,9 +125,9 @@ Interface;
 
 : DsInit { \ pGraph -- pGraph }
   ComInit THROW
-  \ S" Filter Graph" CreateObject
+  \ S" Filter Graph" CreateObject \ или FilgraphManager
   ^ pGraph IID_IGraphBuilder CLSCTX_INPROC_SERVER 0
-  S" {e436ebb3-524f-11ce-9f53-0020af0ba770}" >UNICODE String>CLSID THROW
+  S" {e436ebb3-524f-11ce-9f53-0020af0ba770}" >UNICODE String>CLSID THROW \ CLSID_FilterGraph
   CoCreateInstance THROW
   pGraph
 ;
