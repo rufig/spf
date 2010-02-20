@@ -10,10 +10,19 @@ REQUIRE CreatePng ~ac/lib/lin/zlib/png.f
   pBuffer lBufferSize S" test.png" this @ CB.width @ CreatePng
 ;
 : TEST { \ cap -- }
+  ComInit THROW
   ['] SaveSamplePNG CapOpen -> cap
   cap CapStart
   2000 PAUSE \ колбэки получают кадры
   cap CapStop
+  cap CapClose
+
+  CR CR
+  ['] SaveSamplePNG CapOpen -> cap
+  cap CapStart
+  2000 PAUSE \ колбэки получают кадры
+  cap CapStop
+  cap CapClose
 ;
 \ S" vtest.exe" SAVE BYE
 TEST
