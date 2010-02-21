@@ -16,6 +16,7 @@ CELL -- CB.xt
 CELL -- CB.param    \ дополнительные параметры для внутреннего колбэка
 CELL -- CB.result   \ дополнительная возможность вернуть результат
 CELL -- CB.n
+CELL -- CB.lost
 CELL -- CB.stat_in
 CELL -- CB.stat_out
 CONSTANT /CB
@@ -145,7 +146,7 @@ CONSTANT /Cap
   pCaptureBuilder ::RenderStream DROP \ ( 4027E) HEX . DECIMAL CR
 
   /CB ALLOCATE THROW -> cb
-  mt pSampleGrabber ::GetConnectedMediaType ?DUP IF HEX U. ." Камера занята?" 0 EXIT THEN \ VFW_E_NOT_CONNECTED=0x80040209
+  mt pSampleGrabber ::GetConnectedMediaType ?DUP IF HEX U. DECIMAL ." Камера занята?" 0 EXIT THEN \ VFW_E_NOT_CONNECTED=0x80040209
   mt AMT.pbFormat @ VIH.bmiHeader BMI.biWidth @ DUP cb CB.width ! . ." x "
   mt AMT.pbFormat @ VIH.bmiHeader BMI.biHeight @ DUP cb CB.height ! . ." @"
   mt AMT.pbFormat @ VIH.bmiHeader BMI.biBitCount W@ . CR
