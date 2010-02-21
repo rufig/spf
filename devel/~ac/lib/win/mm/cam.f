@@ -1,6 +1,25 @@
 REQUIRE CapInit          ~ac/lib/win/mm/capture.f 
 REQUIRE GetDesktopWindow ~ac/lib/win/window/enumwindows.f 
 
+\ ISampleGrabberCB callback'и
+0
+CELL -- CB.QueryInterface ( REFIID riid, void ** ppv)
+CELL -- CB.AddRef
+CELL -- CB.Release
+
+CELL -- CB.SampleCB ( double SampleTime, IMediaSample *pSample)
+CELL -- CB.BufferCB ( double dblSampleTime, BYTE *pBuffer, long lBufferSize)
+
+CELL -- CB.width    \ наша самодеятельность, доп.параметры для callback'ов
+CELL -- CB.height   \ передаются через "this"
+CELL -- CB.xt
+CELL -- CB.param    \ дополнительные параметры для внутреннего колбэка
+CELL -- CB.result   \ дополнительная возможность вернуть результат
+CELL -- CB.n
+CELL -- CB.stat_in
+CELL -- CB.stat_out
+CONSTANT /CB
+
 :NONAME 
   \ ." QueryInterface " на практике не вызывается, поэтому не проверено
   { ppv riid this -- x }
@@ -49,6 +68,13 @@ CELL -- Cap.pWindowssCtrl
 CELL -- Cap.pCB
 CONSTANT /Cap
 
+: CamBufStretch { pBuffer lBufferSize -- } \ разворот bottom-up-ориентации и цвета
+  lBufferSize 100000 < IF EXIT THEN
+  lBufferSize 2 / 0 DO
+    pBuffer I + DUP C@
+    pBuffer lBufferSize + I - 1- DUP C@ ROT ROT C! SWAP C!
+  LOOP
+;
 : CapOpen { xt \ pGraph pCaptureBuilder pControl pDevEnum pEnumMoniker moniker fetched n property vax1 vav vax2 var pSrcFilter pSampleGrabberFilter pSampleGrabber mt pMediaControl pVMR9 pFilterConfig pWindowssCtrl cb sr dr cap -- cap }
 
   \ инициализация процесса получения кадров, подключение к камере.

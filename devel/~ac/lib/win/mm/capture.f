@@ -323,22 +323,6 @@ Interface: IID_IVMRWindowlessControl {0eb1088c-4dcd-46f0-878f-39dae86a51b7}
             /* [out] */ COLORREF *lpClr)
 Interface;
 
-
-\ ISampleGrabberCB callback'и
-0
-CELL -- CB.QueryInterface ( REFIID riid, void ** ppv)
-CELL -- CB.AddRef
-CELL -- CB.Release
-
-CELL -- CB.SampleCB ( double SampleTime, IMediaSample *pSample)
-CELL -- CB.BufferCB ( double dblSampleTime, BYTE *pBuffer, long lBufferSize)
-
-CELL -- CB.width    \ наша самодеятельность, доп.параметры для callback'ов
-CELL -- CB.height   \ передаются через "this"
-CELL -- CB.xt
-CONSTANT /CB
-
-
 IID_IUnknown
 Interface: IID_ISampleGrabberCB {0579154A-2B53-4994-B0D0-E773148EFF85}
 \ CALLBACK !
