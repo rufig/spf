@@ -110,6 +110,13 @@ USER _C-EXEC
   DEPTH 1- N>R RDROP _C-EXEC @ 0 ROT EXECUTE
   SWAP BEGIN DUP WHILE RDROP 1- REPEAT DROP
 ;
+: EXECUTE-WITH-TLS ( tls xt -- ) \ ~pig
+  TlsIndex@ >R            \ сохранить текущий TLS
+  SWAP TlsIndex!          \ установить заданный
+  CATCH                   \ выполнить с перехватом ошибки
+  R> TlsIndex!            \ восстановить исходный TLS
+  THROW                   \ передать возможную ошибку дальше
+; 
 
 : VOC-CLONE
   TEMP-WORDLIST >R
