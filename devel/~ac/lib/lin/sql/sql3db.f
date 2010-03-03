@@ -44,14 +44,18 @@ USER SQS
 ;
 : xquery ( addr u -- addr2 u2 )
   " <table class='sortable' id='sp_table' cellpadding='0' cellspacing='0'>" SQS !
+  SQS @ STR@ >R DROP
   0 ['] (xquery) SQH @ db3_exec
-  " </tbody></table>" SQS @ S+
+  SQS @ STR@ NIP R> <> IF " </tbody>" SQS @ S+ THEN
+  " </table>" SQS @ S+
   SQS @ STR@
 ;
 : xquery_style ( addr u stylea styleu -- addr2 u2 )
   " <table class='sortable {s}' id='sp_table' cellpadding='0' cellspacing='0'>" SQS !
+  SQS @ STR@ >R DROP
   0 ['] (xquery) SQH @ db3_exec
-  " </tbody></table>" SQS @ S+
+  SQS @ STR@ NIP R> <> IF " </tbody>" SQS @ S+ THEN
+  " </table>" SQS @ S+
   SQS @ STR@
 ;
 
@@ -95,8 +99,10 @@ USER uMqueryExTags
 : mquery ( addr u -- addr2 u2 ) \ вариант с модификаторами полей и тегами/стил€ми TR
   uMqueryS 0!
   " <table class='sortable' id='sp_table' cellpadding='0' cellspacing='0'>" SQS !
+  SQS @ STR@ >R DROP
   0 ['] (mquery) SQH @ db3_exec
-  " </tbody></table>" SQS @ S+
+  SQS @ STR@ NIP R> <> IF " </tbody>" SQS @ S+ THEN
+  " </table>" SQS @ S+
   SQS @ STR@
 ;
 : (tquery) { i par ppStmt \ n -- flag }
