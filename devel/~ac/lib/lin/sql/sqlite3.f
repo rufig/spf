@@ -87,10 +87,12 @@ ALSO SO NEW: libsqlite3.so.0
   ^ sqh addr 2 sqlite3_open S" DB3_OPEN" sqh db3_error? sqh
   DB3_CONN_CNT 1+!
 \  TRUE OVER 2 sqlite3_extended_result_codes DROP
+  DB3_DEBUG @ IF CR ." DB3_OPEN====================" sqh . CR addr u TYPE CR THEN
 ;
 : db3_close { sqh -- }
   sqh 1 sqlite3_close S" DB3_CLOSE" sqh db3_error?
   DB3_CONN_CNT @ 1- DB3_CONN_CNT !
+  DB3_DEBUG @ IF CR ." DB3_CLOSE====================" sqh . CR CR THEN
 ;
 : db3_cols ( ppStmt -- n )
   1 sqlite3_column_count
