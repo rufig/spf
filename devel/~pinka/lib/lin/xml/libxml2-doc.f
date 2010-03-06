@@ -58,12 +58,17 @@
 : ParserCtxtDoc ( ctxt -- doc )
   2 CELLS + @ 
 ;
-: PerParseDoc ( xt -- doc )
-  DUP >R EXECUTE ( a u )
-  0. CreatePushParserCtxt
-  BEGIN R@ EXECUTE TUCK  3 PICK ParseChunk 0= UNTIL 
-  RDROP
-  DUP ParserCtxtDoc SWAP FreeParserCtxt
+: (PerParseDoc) ( ctxt xt -- )
+\ for safing throws from xt or ParseChunk
+  SWAP 2>R BEGIN 2R@ >R EXECUTE TUCK R> ( u  addr u ctxt ) ParseChunk 0= UNTIL
+  RDROP RDROP
+;
+: PerParseDoc ( xt -- doc|0 )  \ xt ( -- addr u|0 ) \ transparent stack
+  DUP >R EXECUTE ( a u ) DUP 0= IF NIP RDROP EXIT THEN
+  0. CreatePushParserCtxt R> OVER >R ['] (PerParseDoc) CATCH
+  ( 0 | i*x ior ) R> SWAP >R ( i*x ctxt )
+  DUP ParserCtxtDoc SWAP FreeParserCtxt ( doc )
+  R@ IF FreeDoc THEN R> THROW
 ;
 
 
