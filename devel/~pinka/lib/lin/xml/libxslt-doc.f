@@ -1,4 +1,6 @@
 
+\ ior codes are compatiable with ~ac/lib/lin/xml/xslt.f
+
 : FreeDocXsl ( docXsl -- ) 
   DUP 0= IF  DROP EXIT THEN 
   1 xsltFreeStylesheet DROP
@@ -14,11 +16,9 @@
   3 xsltApplyStylesheet DUP 0= IF  60004 THROW THEN 
 ; 
 : XslResultToString ( doc2 docxsl -- addr u )
-\ "It's up to the caller to free the memory with xmlFree()"
+\ Serialize the result doc2 obtained by applying the docxsl stylesheet 
+\ "It's up to the caller to free the memory with xmlFree()" -- FreeXmlString
   SWAP  0 >R RP@  0 >R RP@ ( docxsl doc2 a-len a-addr )
-  4 xsltSaveResultToString IF  60005 THROW THEN
+  4 xsltSaveResultToString IF  60007 THROW THEN
   R> R>
-;
-: FreeXmlString ( addr u -- )
-  DROP 1 XmlMemFree DROP
 ;

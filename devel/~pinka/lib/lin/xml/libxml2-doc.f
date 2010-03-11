@@ -15,7 +15,7 @@
   DROP
   xmlParserOption 0 ROT
   3 xmlReadFile
-  DUP 0= IF  60002 THROW THEN 
+  DUP 0= IF  60001 THROW THEN 
 ; 
 : LoadXmlDoc ( a u -- doc ) 
   2>R xmlParserOption 0 0 R> R>
@@ -72,8 +72,17 @@
 ;
 
 
-: DumpDoc ( doc -- )
-  XML_SERIALIZE TYPE
+S" ~pinka/lib/lin/xml/libxml2-so-workaround.f" INCLUDED
+
+: FreeXmlString ( addr u -- )
+  DROP 1 real_xmlFree 1 = IF EXIT THEN
+  60008 THROW
+;
+: SerializeDoc ( doc -- addr u )
+\ "It's up to the caller to free the memory with xmlFree()" -- FreeXmlString
+  0 >R RP@  0 >R RP@ ROT ( a-size a-addr doc )
+  3 xmlDocDumpMemory DROP R> R>
+  \ see also: XML_SERIALIZE
 ;
 
 \EOF
