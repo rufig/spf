@@ -73,6 +73,10 @@ REQUIRE EQUAL   ~pinka/spf/string-equal.f
 : UtoS ( u -- addr1 u1 )  U>D (D.) ;
 [THEN]
 
+[UNDEFINED] 2NIP [IF]
+: 2NIP ( d-x2 d-x1 -- d-x1 ) 2SWAP 2DROP ;
+[THEN]
+
 [UNDEFINED] 3DUP [IF]
 : 3DUP ( x1 x2 x3 -- x1 x2 x3  x1 x2 x3 ) 2 PICK 2 PICK 2 PICK ;
 [THEN]
