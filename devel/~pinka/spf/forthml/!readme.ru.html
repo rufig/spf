@@ -1,7 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head><title>ForthML / Limitations in the implementation</title>
+<head>
 <meta http-equiv="Content-Type" content="text/html; charset=Windows-1251" />
+<title>ForthML / Limitations in the implementation</title>
 <style type="text/css">
 body { font-size: 110%; max-width: 33em; padding-left: 1em;}
 li { margin: 1em;}
@@ -32,8 +33,10 @@ li:before { content: counter(item) ") "; counter-increment: item; }
 реализуется через обычные форт-слова.
 
 </li><li>
-Для работы необходимы библиотеки libxml2, iconv, zlib1, libcurl
-(см. <a href="../../../~ac/lib/lin/xml/xml.f">~ac/lib/lin/xml/xml.f</a>).
+Для работы необходимы библиотеки libxml2, iconv, zlib1
+( — win-версии доступны на <a href="http://www.zlatkovic.com/libxml.en.html">zlatkovic.com</a>),
+и <a href="http://curl.haxx.se/download.html#Win32">libcurl</a>
+(см. также <a href="../../../~ac/lib/lin/xml/xml.f">~ac/lib/lin/xml/xml.f</a>).
 Вообще же, базой выступает DOM-интрерфейс (см. <a href="../../lib/lin/xml/libxml2-dom.f">libxml2-dom.f</a>), 
 поэтому будет легко перейти и на нативную реализацию XML-парсера.
 
