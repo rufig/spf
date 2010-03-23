@@ -244,7 +244,6 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
      x.next @
   REPEAT DROP
 ;
-
 : XML_READ_DOC_MEM { addr u -- doc }
   97 ( noerror|nowarning|recover) 0 0 u addr 5 xmlReadMemory
 ;
@@ -263,9 +262,28 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
 : XML_READ_DOC_ROOT ( addr u -- node )
   XML_READ_DOC XML_DOC_ROOT
 ;
+: GetRootNodeNamespace ( doc -- nsa nsu nodea nodeu )
+  x.children @
+  BEGIN
+    DUP
+  WHILE
+    DUP x.type @ XML_ELEMENT_NODE =
+    IF 
+       DUP x.ns @ ?DUP
+       IF CELL+ CELL+ @ ASCIIZ> ELSE S" " THEN
+       ROT x.name @ ASCIIZ>
+       EXIT
+    ELSE
+       S" " ROT x.name @ ASCIIZ> EXIT
+    THEN
+    x.next @
+  REPEAT DROP S" "
+;
 : XML_XPATH_MEM_XT { addr u xpaddr xpu xt \ doc ctx res -- }
   addr u XML_READ_DOC_MEM -> doc
   doc 1 xmlXPathNewContext -> ctx
+  doc GetRootNodeNamespace DROP SWAP
+  IF ctx 3 xmlXPathRegisterNs DROP ELSE 2DROP THEN
   ctx xpaddr 2 xmlXPathEvalExpression -> res
   ctx 1 xmlXPathFreeContext DROP
   res IF res xpo.type @ 1- 0 MAX CELLS xt + @ res SWAP EXECUTE THEN
