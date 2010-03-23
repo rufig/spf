@@ -288,6 +288,7 @@ ALSO libxml2.dll
 : documentURI ( doc -- a u )
   DUP ownerDocument  ( node doc )
   2 xmlNodeGetBase ?ASCIIZ> \ there no "xmlDocumentGetBase" exactly
+  \ see also: http://mail.gnome.org/archives/xml/2010-March/msg00004.html
 ;
 : documentURI! ( addrz u doc -- )
   baseURI!
