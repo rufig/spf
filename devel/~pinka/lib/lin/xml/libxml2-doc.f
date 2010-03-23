@@ -75,8 +75,9 @@
 S" ~pinka/lib/lin/xml/libxml2-so-workaround.f" INCLUDED
 
 : FreeXmlString ( addr u -- )
-  DROP 1 real_xmlFree 1 = IF EXIT THEN
-  60008 THROW
+  DROP 1 real_xmlFree
+  \ 1 = IF EXIT THEN 60008 THROW
+  DROP \ see also: libxml2::xmlMemFree
 ;
 : SerializeDoc ( doc -- addr u )
 \ "It's up to the caller to free the memory with xmlFree()" -- FreeXmlString
