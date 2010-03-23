@@ -57,15 +57,22 @@ USER uCurlVerifySsl
 \ если прокси paddr pu - непустая строка, то явно используется этот прокси
 \ curl умеет использовать переменные окружения http_proxy, ftp_proxy
 \ поэтому можно не задавать прокси явно.
-: GET-FILE-VIAPROXY-COOK { addr u ca cu paddr pu \ h url pr -- str }
+: GET-FILE-VIAPROXY-COOK { addr u ca cu paddr pu \ h url pr de slist -- str }
   "" uCurlRes !
   0 curl_easy_init -> h
   addr u >STR DUP -> url STRA CURLOPT_URL h CURL-SETOPT
   uCurlVerifySsl @ CURLOPT_SSL_VERIFYPEER h CURL-SETOPT
 
 \  S" name:passw" DROP CURLOPT_USERPWD  h 3 curl_easy_setopt DROP
+  1 -> de
+  S" gzip,deflate" DROP CURLOPT_ENCODING h CURL-SETOPT
+  ^ de CURLOPT_HTTP_CONTENT_DECODING   h CURL-SETOPT
 
   cu IF ca CURLOPT_COOKIE h CURL-SETOPT THEN
+
+  S" Accept: */*" DROP 0 2 curl_slist_append -> slist
+\  S" User-Agent: SP-Forth/4" DROP slist 2 curl_slist_append -> slist
+  slist CURLOPT_HTTPHEADER h 3 curl_easy_setopt DROP
 
   pu IF paddr pu >STR DUP -> pr STRA CURLOPT_PROXY h CURL-SETOPT THEN
 
