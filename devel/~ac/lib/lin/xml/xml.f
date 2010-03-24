@@ -273,11 +273,10 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
        IF CELL+ CELL+ @ ASCIIZ> ELSE S" " THEN
        ROT x.name @ ASCIIZ>
        EXIT
-    ELSE
-       S" " ROT x.name @ ASCIIZ> EXIT
     THEN
     x.next @
-  REPEAT DROP S" "
+  REPEAT DROP
+  S" " S" "
 ;
 : XML_XPATH_MEM_XT { addr u xpaddr xpu xt \ doc ctx res -- }
   addr u XML_READ_DOC_MEM -> doc
