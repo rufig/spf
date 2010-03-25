@@ -53,17 +53,17 @@ REQUIRE libxml2.dll ~ac/lib/lin/xml/xml.f
 
 [UNDEFINED] /xmlNs [IF]
 0 \ struct _xmlNs {
-\    struct _xmlNs *	next	: next Ns link for this node
+\    struct _xmlNs *    next    : next Ns link for this node
 CELL -- xns.next
-\    xmlNsType	type	: global or local
+\    xmlNsType  type    : global or local
 CELL -- xns.type
-\    const xmlChar *	href	: URL for the namespace
+\    const xmlChar *    href    : URL for the namespace
 CELL -- xns.href
-\    const xmlChar *	prefix	: prefix for the namespace
+\    const xmlChar *    prefix  : prefix for the namespace
 CELL -- xns.prefix
-\    void *	_private	: application data
+\    void * _private    : application data
 CELL -- xns._private
-\    struct _xmlDoc *	context	: normally an xmlDoc
+\    struct _xmlDoc *   context : normally an xmlDoc
 CELL -- xns.context
 CONSTANT /xmlNs
 [THEN]
@@ -258,7 +258,14 @@ CONSTANT /xmlNs
 : firstChildValue ( element -- c-addr u )
   firstChild DUP IF nodeValue EXIT THEN 0
 ;
-
+: nodeLineNumber ( node -- line_in_source_file|0 )
+  \ Номер строки узла в исходном файле xml-документа.
+  \ Именованно по аналогии с nodeName.
+  \ libxml2: 
+  \  для текстовых узлов всегда дает 0
+  \  для узлов-комментариев номер строки, где комментарий заканчивается
+  x.line W@
+;
 
 \ =====
 \ DOM3
@@ -367,13 +374,13 @@ PREVIOUS \ libxml2.dll
 
 see also:
 
-  xmlChar *	xmlBuildURI		(const xmlChar * URI, const xmlChar * base)
+  xmlChar * xmlBuildURI     (const xmlChar * URI, const xmlChar * base)
   -- http://xmlsoft.org/html/libxml-uri.html#xmlBuildURI
 
-  int	xmlNormalizeURIPath		(char * path)
+  int   xmlNormalizeURIPath     (char * path)
   -- http://xmlsoft.org/html/libxml-uri.html#xmlNormalizeURIPath
 
-  xmlChar *	xmlURIEscape		(const xmlChar * str)
+  xmlChar * xmlURIEscape        (const xmlChar * str)
   -- http://xmlsoft.org/html/libxml-uri.html#xmlURIEscape
 
   
