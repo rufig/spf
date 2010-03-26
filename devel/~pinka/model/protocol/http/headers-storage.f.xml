@@ -27,6 +27,11 @@
   dump-alist-text
 </def>
 
+<def name="enum-headers" ds=" xt -- "><rem> xt ( a1 u1 a-name u-name -- ) </rem>
+  enum-alist
+</def>
+
+
 </export>
 </wordlist>
 
