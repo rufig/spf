@@ -51,9 +51,9 @@ CELL -- x.nsDef
 \    void            *psvi;	/* for type/PSVI informations */
 CELL -- x.psvi
 \    unsigned short   line;	/* line number */
-CELL -- x.line
+   2 -- x.line
 \    unsigned short   extra;	/* extra data for XPath/XSLT */
-CELL -- x.extra
+   2 -- x.extra
 \ };
 CONSTANT /xmlNode
 
