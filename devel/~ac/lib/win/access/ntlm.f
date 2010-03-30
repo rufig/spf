@@ -64,6 +64,7 @@ CREATE NTLM_mes2 CHAR N C, CHAR T C, CHAR L C, CHAR M C, CHAR S C, CHAR S C, CHA
 3 -- ntlm3_zero8    \ нули
 2 -- ntlm3_resplen1 \ длина ответа LanManager (0x18)
 2 -- ntlm3_resplen2 \ то же
+
 4 -- ntlm3_respoffs \ смещение ответа LanManager
 2 -- ntlm3_ntrespl1 \ длина ответа NT (0x38 или 0x18)
 2 -- ntlm3_ntrespl2 \ то же
@@ -71,25 +72,29 @@ CREATE NTLM_mes2 CHAR N C, CHAR T C, CHAR L C, CHAR M C, CHAR S C, CHAR S C, CHA
 2 -- ntlm3_domlen1  \ длина домена в байтах,
                     \ сам домен в виде unicode (вместо рабочей группы имя хоста строчными)
 2 -- ntlm3_domlen2  \ то же
+
 4 -- ntlm3_domoffs  \ смешение имени домена
 2 -- ntlm3_userlen1 \ длина логина в байтах (сам логин в unicode = UTF-16LE)
 2 -- ntlm3_userlen2 \ то же
 4 -- ntlm3_useroffs \ смещение логина
 2 -- ntlm3_hostlen1 \ длина хоста в байтах (сам в unicode прописными)
 2 -- ntlm3_hostlen2 \ то же
+
 4 -- ntlm3_hostoffs \ смещение имени хоста
 2 -- ntlm3_seskeyl1 \ длина сессионного ключа (на практике 0)
 2 -- ntlm3_seskeyl2 \ то же
 4 -- ntlm3_keyoffs  \ смещение ключа (на практике здесь длина всей структуры!)
-2 -- ntlm3_flags1   \ 0x8205 или 0x8201
-2 -- ntlm3_flags2   \ 0x0200
+2 -- ntlm3_flags1   \ 0x8205 или 0x8201 или 0xC205
+2 -- ntlm3_flags2   \ 0x0200 или 0xA288
+
 1 -- ntlm3_wprodmaj \ ProductMajorVersion (Windows - 6 или 5)
 1 -- ntlm3_wprodmin \ ProductMinorVersion (Windows - 0..2)
 2 -- ntlm3_wbuild   \ ProductBuild
 3 -- ntlm3_reserved \ нули
 1 -- ntlm3_revision \ NTLMSSP_REVISION_W2K3=0x0F, NTLMSSP_REVISION_W2K3_RC1=0x0A
-\ далее неизвестные числа (16 байт во всех браузерах)
-\ далее домен, логин, хост, LM-ответ, NT-ответ
+\ далее неизвестные числа (16 байт во всех браузерах), скорее всего user GUID
+\ далее домен, логин, хост, LM-ответ, NT-ответ 
+\ (все эти "далее" могут отсутствовать, если соответствующие длины =0)
 CONSTANT /NTLM_mes3
 
 1 CONSTANT NtLmNegotiate
