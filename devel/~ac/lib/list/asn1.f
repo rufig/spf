@@ -1,4 +1,5 @@
 \ Справочник OIDs: http://www.alvestrand.no/objectid/1.2.840.113549.1.9.1.html
+\ http://www.oid-info.com/cgi-bin/display?tree=1.2.840.113549.1.1.4&see=all
 
 REQUIRE >UTF8  ~ac/lib/lin/iconv/iconv.f 
 
@@ -50,18 +51,36 @@ REQUIRE >UTF8  ~ac/lib/lin/iconv/iconv.f
 \ #define ASN_RFC2578_UNSIGNED32      ASN_GAUGE32
 
 
-: AsnStr> { a u \ u2 l -- a2 u2 }
-\ преобразует строку с asn1-счетчиком (a) в форт-строку a2 u2
-\ см. ту же функцию asn_str> в ~ac/lib/lin/asn1/tasn1.f 
-
+: AsnStrDer> { a u \ u2 l z lz -- a2 u2 }
+  a C@ 128 = IF a 1+ -1 EXIT THEN \ indefinite form - до end-of-contents octets
   a C@ DUP 128 < IF a 1+ SWAP EXIT THEN
   \ а для 128 и более байтов в asn.1 требуется 2 или более байтов на длину
   \ 0x81 0x80 - представление длины 128
   127 AND DUP -> u2 \ длина длины
-  0 ?DO \ если u2=0, то это ошибка
+  0 ?DO
     a 1+ I + C@ l 8 LSHIFT + -> l
   LOOP
   a 1+ u2 + l
+;
+: AsnStr> { a u \ u2 l i -- a2 u2 }
+\ преобразует строку с asn1-счетчиком (a) в форт-строку a2 u2
+\ см. ту же функцию asn_str> в ~ac/lib/lin/asn1/tasn1.f 
+  a C@ 128 <> IF a u AsnStrDer> EXIT THEN
+  a 1+ -> a u 1- -> u
+  BEGIN
+    a l + W@ 0= IF 
+                  l 2+ -> l i 1- -> i
+                  i 0 > 0= IF a l EXIT THEN
+                THEN
+    l 1+ -> l \ пропуск тега
+    a l + u l - AsnStrDer> DUP -1 =
+    IF 2DROP l 1+ -> l i 1+ -> i
+    ELSE
+       DUP 0=
+       IF 2DROP l 1- -> l
+       ELSE + a - -> l THEN
+    THEN
+  AGAIN
 ;
 
 USER uAsnLevel
