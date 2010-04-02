@@ -21,6 +21,10 @@ REQUIRE >UTF8  ~ac/lib/lin/iconv/iconv.f
 
 \ constructed types
 
+\ fixme: константы ASN_* частично пересекаются с ~ac/lib/win/snmp/snmp.f,
+\        но не являются ни windows-, ни snmp- специфичными, поэтому надо 
+\        перенести всё сюда
+
 0x00 CONSTANT ASN_UNIVERSAL
 0x40 CONSTANT ASN_APPLICATION
 0x80 CONSTANT ASN_CONTEXT
@@ -116,11 +120,11 @@ USER uAsnLevel
     OVER I + C@ SWAP 8 LSHIFT +
   LOOP . DROP
 ;
-VECT vAsn1Read
+VECT vAsn1Parse
 
 : BITS. ( a u -- )
   BASE @ >R 2 BASE ! INT. R> BASE !
-EXIT
+EXIT \ слишком длинные бывают :)
   DUP 0= IF 2DROP EXIT THEN
   10 MIN DUMP
 ;
@@ -128,9 +132,9 @@ EXIT
 \  BASE @ >R 2 BASE ! INT. R> BASE !
   DUP 0= IF 2DROP EXIT THEN
   OVER C@ ASN_SEQUENCE =
-  IF ." [embed seq]" CR CR vAsn1Read
+  IF ." [embed seq]" CR CR vAsn1Parse DROP
   ELSE OVER C@ IA5_STRING =
-    IF ." [embed ia5]" CR CR vAsn1Read
+    IF ." [embed ia5]" CR CR vAsn1Parse DROP
     ELSE 30 MIN TYPE ( DUMP) THEN
   THEN
 ;
@@ -145,20 +149,125 @@ EXIT
   IF UTF8> THEN TYPE
 ;
 
-: Asn1Read { a u \ a2 u2 t -- }
+VARIABLE AsnDebug \ TRUE AsnDebug !
+
+0
+CELL -- asNextPart \ связь элементов того же уровня
+CELL -- asTag
+CELL -- asAddr     \ весь целиком
+CELL -- asLen
+CELL -- asPartAddr \ без учета заголовка
+CELL -- asPartLen
+CELL -- asLevel    \ уровень вложенности
+CELL -- asIndex    \ номер на уровне
+CELL -- asIsMultipart \ является ли составным
+CELL -- asParts    \ голова списка вложенных элементов
+CELL -- asChilds#  \ к-во вложенных элементов (на одном уровне)
+CELL -- asPar      \ верхний уровень
+CELL -- asOID      \ символьное представление OID при tag=ASN_OBJECTIDENTIFIER
+CELL -- asName     \ символическое имя, составленное из порядковых номеров
+                   \ на каждом уровне иерархии (подобно нумерации MIME-частей в IMAP)
+                   \ - для поиска по именам вида "ASN.1.3.2"
+CONSTANT /AsnPart
+
+
+: Asn1ParseR { a u par prev \ a2 u2 t n as -- }
+
   uAsnLevel 1+!
   TRUE -> t
   BEGIN
     u 1 >
     t AND \ страховка от неправильного формата
   WHILE
-    uAsnLevel @ 1- 0 MAX 0 ?DO ."  |" LOOP
-    a C@ DUP -> t ." 0x" HEX . DECIMAL
+    n 1+ -> n
+    par asChilds# 1+!
+    /AsnPart ALLOCATE THROW -> as
+    prev IF
+      as prev asNextPart ! \ связываем в прямом порядке, а не в фортовом обратном
+    ELSE
+      as par asParts !
+    THEN
+    par as asPar !
+    uAsnLevel @ 1- as asLevel !
+    a as asAddr !
+    u as asLen !
+    a C@ DUP -> t
+      as asTag !
+    n as asIndex !
+    n par asName @ STR@ " {s}.{n}" as asName !
+    AsnDebug @ IF uAsnLevel @ 1- 0 MAX 0 ?DO ."  |" LOOP THEN
+    AsnDebug @ IF t ." 0x" HEX . DECIMAL THEN
     a 1+ u 1- AsnStr> -> u2 -> a2
-    ." (" u2 . ." ) "
-    t ASN_CONSTRUCTOR AND IF CR a2 u2 RECURSE ELSE a2 u2 t ASN. CR THEN
+    AsnDebug @ IF ." (" u2 . ." ) " THEN
+    a2 as asPartAddr !
+    u2 as asPartLen !
+    t ASN_CONSTRUCTOR AND 
+    IF AsnDebug @ IF CR THEN
+       TRUE as asIsMultipart !
+       a2 u2 as 0 RECURSE
+    ELSE
+       AsnDebug @ IF a2 u2 t ASN. CR THEN
+    THEN
     a2 u2 + a u + OVER - -> u -> a
+    as -> prev
   REPEAT
   uAsnLevel @ 1- uAsnLevel !
 ;
-' Asn1Read TO vAsn1Read
+: Asn1Parse { a u \ as -- as }
+  \ в "a u" на уровне корня может быть несколько
+  \ элементов, поэтому надо создать псевдокорень со счетчиком asChilds#.
+  \ Возвращается корень списка.
+  \ Если вызвавшей функции нужны свойства псевдокорня,
+  \ можно получить его через asPar @.
+  /AsnPart ALLOCATE THROW -> as
+  uAsnLevel @ as asLevel !
+  a as asAddr !
+  u as asLen !
+  a C@ as asTag !
+  " ASN" as asName !
+
+  a u as 0 Asn1ParseR
+  as asParts @
+;
+' Asn1Parse TO vAsn1Parse
+
+: Asn1Dump { as -- }
+  BEGIN
+    as asLevel @ 0 ?DO ."  |" LOOP
+    as asIndex @ . ." |"
+    as asTag @ ." 0x" HEX . DECIMAL
+    as asPartLen @ ." (" . as asName @ STR@ TYPE ." ) "
+    as asIsMultipart @
+    IF CR as asParts @ RECURSE
+    ELSE
+       as asPartAddr @ as asPartLen @ as asTag @ ASN. CR
+    THEN
+    as asNextPart @ DUP 0=
+    SWAP -> as
+  UNTIL
+;
+: Asn1GetPart { pna pnu as -- as2 }
+  \ найти элемент по ASN.n.n-имени
+  \ если такого нет, возвращается 0
+  BEGIN
+    as asName @ STR@ pna pnu COMPARE 0=
+    IF as EXIT THEN
+    as asIsMultipart @
+    IF pna pnu as asParts @ RECURSE
+       ?DUP IF EXIT THEN
+    THEN
+    as asNextPart @ DUP 0=
+    SWAP -> as
+  UNTIL
+  0
+;
+: Asn1GetPartContent { pna pnu as -- a u tag }
+  pna pnu as Asn1GetPart ?DUP
+  IF -> as
+     as asPartAddr @
+     as asPartLen @
+     as asTag @
+  ELSE S" " 0 THEN
+;
+
+\ fixme: добавить поиск по OID
