@@ -1,3 +1,14 @@
+\ Парсер для двоичного представления ASN.1-структур.
+\ X.690 Information technology - ASN.1 encoding rules:
+\ Specification of Basic Encoding Rules (BER),
+\ Canonical Encoding Rules (CER) and
+\ Distinguished Encoding Rules (DER)
+
+\ Нумерация тегов указана в тексте самого ASN.1, стр.22
+\ X.680 Information technology - Abstract Syntax
+\ Notation One (ASN.1): Specification of basic
+\ notation
+
 \ Справочник OIDs: http://www.alvestrand.no/objectid/1.2.840.113549.1.9.1.html
 \ http://www.oid-info.com/cgi-bin/display?tree=1.2.840.113549.1.1.4&see=all
 
@@ -12,12 +23,23 @@ REQUIRE >UTF8  ~ac/lib/lin/iconv/iconv.f
 6 CONSTANT ASN_OBJECTIDENTIFIER
 
 \ string types
-0x0C CONSTANT UTF8_STRING
-0x13 CONSTANT PRINTABLE_STRING
-0x14 CONSTANT TELETEX_STRING \ openssl записывает так utf8-строки...
-0x16 CONSTANT IA5_STRING     \ например email
-0x17 CONSTANT UTCTime        \ например 100329134908Z
-0x1E CONSTANT UNICODE_STRING \ BMPString
+0x0C CONSTANT ASN_UTF8_STRING
+0x13 CONSTANT ASN_PRINTABLE_STRING
+0x14 CONSTANT ASN_TELETEX_STRING \ openssl записывает так utf8-строки...
+0x16 CONSTANT ASN_IA5_STRING     \ например email
+0x17 CONSTANT ASN_UTCTime        \ например 100329134908Z
+0x1E CONSTANT ASN_UNICODE_STRING \ BMPString
+
+
+\ другие, из которых в поле встречается только enum
+   7 CONSTANT ASN_OBJECTDESCRIPTOR
+   8 CONSTANT ASN_EXTERNAL
+   9 CONSTANT ASN_REAL
+0x0A CONSTANT ASN_ENUM
+0x0B CONSTANT ASN_EMBED
+0x0D CONSTANT ASB_REL_OID
+\ 0x0E, 0x0F reserved
+\ 0x10 - см. sequence
 
 \ constructed types
 
@@ -114,11 +136,14 @@ USER uAsnLevel
   REPEAT 2DROP
 ;
 
-: INT. ( a u -- )
+: AsnInt@ ( a u -- x ) \ переполнение отбрасывается
   0 SWAP
   0 ?DO
     OVER I + C@ SWAP 8 LSHIFT +
-  LOOP . DROP
+  LOOP NIP
+;
+: INT. ( a u -- )
+  AsnInt@ .
 ;
 VECT vAsn1Parse
 
@@ -133,7 +158,7 @@ EXIT \ слишком длинные бывают :)
   DUP 0= IF 2DROP EXIT THEN
   OVER C@ ASN_SEQUENCE =
   IF ." [embed seq]" CR CR vAsn1Parse DROP
-  ELSE OVER C@ IA5_STRING =
+  ELSE OVER C@ ASN_IA5_STRING =
     IF ." [embed ia5]" CR CR vAsn1Parse DROP
     ELSE 30 MIN TYPE ( DUMP) THEN
   THEN
@@ -142,10 +167,11 @@ EXIT \ слишком длинные бывают :)
   t 0x3F AND -> t
   t ASN_OBJECTIDENTIFIER = IF a u OID. EXIT THEN
   t ASN_INTEGER = IF a u INT. EXIT THEN
+  t ASN_ENUM = IF a u INT. EXIT THEN
   t ASN_BITS = IF a u BITS. EXIT THEN
   t ASN_OCTETSTRING = IF a u OCT. EXIT THEN
   a u
-  t TELETEX_STRING =
+  t ASN_TELETEX_STRING =
   IF UTF8> THEN TYPE
 ;
 
@@ -232,6 +258,7 @@ CONSTANT /AsnPart
 ' Asn1Parse TO vAsn1Parse
 
 : Asn1Dump { as -- }
+  as 0= IF EXIT THEN
   BEGIN
     as asLevel @ 0 ?DO ."  |" LOOP
     as asIndex @ . ." |"
@@ -249,6 +276,7 @@ CONSTANT /AsnPart
 : Asn1GetPart { pna pnu as -- as2 }
   \ найти элемент по ASN.n.n-имени
   \ если такого нет, возвращается 0
+  as 0= IF 0 EXIT THEN
   BEGIN
     as asName @ STR@ pna pnu COMPARE 0=
     IF as EXIT THEN
