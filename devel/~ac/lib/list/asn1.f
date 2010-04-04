@@ -160,7 +160,7 @@ EXIT \ слишком длинные бывают :)
   IF ." [embed seq]" CR CR vAsn1Parse DROP
   ELSE OVER C@ ASN_IA5_STRING =
     IF ." [embed ia5]" CR CR vAsn1Parse DROP
-    ELSE 30 MIN TYPE ( DUMP) THEN
+    ELSE 70 MIN TYPE ( DUMP) THEN
   THEN
 ;
 : ASN. { a u t -- }
@@ -194,6 +194,9 @@ CELL -- asOID      \ символьное представление OID при tag=ASN_OBJECTIDENTIFIER
 CELL -- asName     \ символическое имя, составленное из порядковых номеров
                    \ на каждом уровне иерархии (подобно нумерации MIME-частей в IMAP)
                    \ - для поиска по именам вида "ASN.1.3.2"
+CELL -- asEvalRes  \ фильтры в LDAP представлены в виде ASN.1-деревьев,
+                   \ это поле используем для "подъема" результов вычисления
+                   \ фильтров от листьев к корню
 CONSTANT /AsnPart
 
 
