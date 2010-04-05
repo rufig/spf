@@ -156,6 +156,10 @@ EXIT \ слишком длинные бывают :)
 : OCT. ( a u -- )
 \  BASE @ >R 2 BASE ! INT. R> BASE !
   DUP 0= IF 2DROP EXIT THEN
+
+  70 MIN TYPE  EXIT
+  \ наличие вложенных в octet_string объектов зависит от схемы
+  \ и парсить их по умолчанию не требуется
   OVER C@ ASN_SEQUENCE =
   IF ." [embed seq]" CR CR vAsn1Parse DROP
   ELSE OVER C@ ASN_IA5_STRING =
