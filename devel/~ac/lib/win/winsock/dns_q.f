@@ -456,6 +456,12 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
      NextRD EXIT
   THEN
 
+  REP @ 8 - W@ >B< TYPE-CNAME =
+  IF ." CNAME Host="
+     REP @ DUP >R 2 + REP ! PrintName R> REP ! CR
+     NextRD EXIT
+  THEN
+
   REP @ 8 - W@ >B< QTYPE-AAAA =
   IF ." AAAA IPv6="
      REP @ W@ >B<
