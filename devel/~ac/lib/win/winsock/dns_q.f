@@ -190,6 +190,7 @@ VARIABLE DnsPort  53 DnsPort !
 4 -- RLtype
 4 -- RLhost
 4 -- RLparam1
+4 -- RLip \ парсер записывает сюда исходный результат A-запроса
 CONSTANT /RL
 
 : XCOUNT
@@ -225,7 +226,7 @@ CONSTANT /RL
   BEGIN
     DUP
   WHILE
-    DUP RLnext @ SWAP FREE DROP
+    DUP RLnext @ SWAP FREE THROW
   REPEAT RLIST !
 ;
 : PrintRL ( addr -- )
@@ -397,13 +398,15 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 
 : PrintType
   ." Type=" REP @ W@ >B<
-  DUP 16 ( TXT) > OVER QTYPE-AAAA <> AND ABORT" DNS reply format error (type)"
+  DUP 16 ( TXT) > OVER QTYPE-AAAA <> AND OVER QTYPE-SRV <> AND
+  ABORT" DNS reply format error (type)"
   . 2 REP +!
 ;
 
 : ParseType
   REP @ W@ >B<
-  DUP 16 ( TXT) > OVER QTYPE-AAAA <> AND ABORT" DNS reply format error (type)"
+  DUP 16 ( TXT) > OVER QTYPE-AAAA <> AND OVER QTYPE-SRV <> AND
+  ABORT" DNS reply format error (type)"
   2 REP +!
   CURRENT-R @ ?DUP IF RLtype ! ELSE DROP THEN
 ;
@@ -479,7 +482,8 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 
   REP @ 8 - W@ >B< TYPE-A =
   IF 
-     REP @ 2 + @ NtoA CURRENT-R @ RLhost SetFieldData
+     REP @ 2 + @ DUP NtoA CURRENT-R @ RLhost SetFieldData
+                     CURRENT-R @ RLip !
      NextRD EXIT
   THEN
 
@@ -491,6 +495,13 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   THEN
 
   REP @ 8 - W@ >B< TYPE-PTR =
+  IF
+     REP @ DUP >R 2 + REP ! ParseName CURRENT-R @ RLhost SetFieldData
+     R> REP !
+     NextRD EXIT
+  THEN
+
+  REP @ 8 - W@ >B< TYPE-CNAME =
   IF
      REP @ DUP >R 2 + REP ! ParseName CURRENT-R @ RLhost SetFieldData
      R> REP !
@@ -582,6 +593,18 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   THEN
 ;
 : RecvDnsReply
+
+\ todo: если при очередном чтении сокета там обнаруживается ответ
+\ на один из старых запросов, отличный от уже обработанного ответа на тот
+\ же вопрос, то возможно имеет место атака cache poisoning, т.е. можно
+\ её автоматически детектировать. Может быть имеет смысл отправлять запрос
+\ сразу на все DNS-серверы в списке (а не по очереди при ошибках)
+\ и сравнивать ответы... Но это требует переработки всего механизма.
+
+\ Текущая защита - это UDP SPR, которая реально работает, т.к. BS
+\ у нас инициализируется per thread, а в Windows SPR теперь тоже включен,
+\ т.е. атакующему сложнее предсказать порт (если нет доступа к прослушке линии).
+
   DNSREPLY @ 0=
   IF /DNSREPLY ALLOCATE THROW DNSREPLY ! THEN
   BEGIN
@@ -838,7 +861,7 @@ S" non_existent_domain.com" DnsDomainExists . \ нет такого
 \ выборка следующей записи заданного типа (если MX, то с учётом приоритета)
 \ (на самом деле приоритет смотрится всегда, просто записи не-MX все одного наивысшего приоритета)
 
-: NextRR ( type -- hosta hostu true | false )
+: NextRRp ( type -- rr true | false )
   { type \ pref rr }
   70000 -> pref					\ наименьший приоритет
   RLIST @					\ начало списка
@@ -861,7 +884,10 @@ S" non_existent_domain.com" DnsDomainExists . \ нет такого
   pref 70000 =					\ если приоритет не изменился
   IF FALSE EXIT THEN				\ ничего не найдено
   70001 rr RLparam1 !				\ эта запись обработана - больше не возвращать
-  rr RLhost GetFieldData TRUE			\ вернуть имя хоста и признак наличия данных
+  rr TRUE					\ вернуть указатель на запись и признак наличия данных
+;
+: NextRR ( type -- hosta hostu true | false )
+  NextRRp IF RLhost GetFieldData TRUE ELSE FALSE THEN
 ;
 
 \ выборка следующего хоста
