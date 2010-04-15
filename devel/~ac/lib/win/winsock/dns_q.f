@@ -190,7 +190,8 @@ VARIABLE DnsPort  53 DnsPort !
 4 -- RLtype
 4 -- RLhost
 4 -- RLparam1
-4 -- RLip \ парсер записывает сюда исходный результат A-запроса
+4 -- RLparam \ immutable
+4 -- RLip    \ парсер записывает сюда исходный результат A-запроса
 CONSTANT /RL
 
 : XCOUNT
@@ -332,6 +333,11 @@ CONSTANT /RL
   BsCloseSocket
   BS !
 ;
+: SendDnsQueryTo ( ip -- )
+  uDnsPort @ 0= IF DnsPort @ uDnsPort ! THEN uDnsPort @
+  DNSQUERY @ DDP @ OVER - \ 2DUP DUMP
+  BS @ WriteTo
+;
 : SendDnsQuery
   DNS-SERVERS @ 0= DNS-SERVER @ 0= AND
   IF GetDNS ?DUP 
@@ -344,9 +350,7 @@ CONSTANT /RL
   DnsDebug @ IF ."  SendQuery(" DNS-SERVER @ COUNT TYPE ." ):" CR THEN
 
   DNS-SERVER @ COUNT GetHostIP THROW
-  uDnsPort @ 0= IF DnsPort @ uDnsPort ! THEN uDnsPort @
-  DNSQUERY @ DDP @ OVER - \ 2DUP DUMP
-  BS @ WriteTo
+  SendDnsQueryTo
 ;
 
 USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
@@ -354,7 +358,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 : PrintName1
   uDnsPNRL 1+!
   BEGIN
-     REP @ C@ DUP 0 > DEPTH 30 < AND uDnsPNRL @ 10 < AND
+     REP @ C@ DUP 0 > DEPTH 100 < AND uDnsPNRL @ 10 < AND
   WHILE
     64 > 
     IF REP @ DUP >R W@ >B< 255 AND DNSREPLY @ + REP ! RECURSE R> REP ! 2 REP +!
@@ -370,7 +374,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 : ParseName1 ( -- ... )
   uDnsPNRL 1+!
   BEGIN
-     REP @ C@ DUP 0 > DEPTH 30 < AND uDnsPNRL @ 10 < AND
+     REP @ C@ DUP 0 > DEPTH 100 < AND uDnsPNRL @ 10 < AND
   WHILE
     64 > 
     IF REP @ DUP >R W@ >B< 255 AND DNSREPLY @ + REP ! RECURSE R> REP ! 2 REP +!
@@ -479,7 +483,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 
   REP @ 8 - W@ >B< TYPE-MX =
   IF 
-     REP @ 2 + W@ >B< CURRENT-R @ RLparam1 ! 
+     REP @ 2 + W@ >B< CURRENT-R @ 2DUP RLparam1 !  RLparam !
      REP @ DUP >R 4 + REP ! ParseName CURRENT-R @ RLhost SetFieldData
      R> REP !
      NextRD EXIT
@@ -730,6 +734,45 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   UNTIL
   failcnt IF -7 EXIT THEN \ name server failure
   dencnt  IF -5 EXIT THEN \ refused operation
+  -2 \ timeouts or DNS-server failure
+;
+: GetRRsFrom { hosta hostu type ip \ attempts -- n }
+\ выполнить GetRRs для явно заданного (ip) DNS-сервера
+  DnsDebug @ IF ." GetRRsFrom: " hosta hostu TYPE CR THEN
+  1 -> attempts
+  type hosta hostu PrepareDnsQuery
+  BEGIN
+    DnsDebug @ IF attempts type hosta hostu ." DNS-QUERY(" ip NtoA TYPE ." ): " TYPE ." , type=" . ." , attempt=" . CR THEN
+    ip ['] SendDnsQueryTo CATCH IF -1 EXIT THEN  \ network problem
+    ['] RecvDnsReply CATCH 
+    ?DUP IF 10060 <> IF -1 EXIT THEN FALSE ELSE TRUE THEN
+    IF 
+      DNSREPLY @ HeaderBits W@ >B< 15 AND
+      DUP ( RCODE) 3 = IF DROP -3 EXIT THEN \ domain not exist (authoritative!)
+      DUP ( RCODE) 5 = IF DROP -5 EXIT THEN \ refused operation
+      DUP ( RCODE) 2 = IF DROP -7 EXIT THEN \ name server failure
+      0=
+      DNSREPLY @ HeaderID W@ >B< QID W@ = AND
+      IF
+        ['] ParseAnswer CATCH IF -8 EXIT THEN \ format error
+        DnsDebug @ IF PrintRLIST THEN
+        type EnumReceivedRDs
+        DUP 0=
+        IF
+          DNSREPLY @ HeaderBits W@ >B< 128 AND \ RA - recurse available
+          0= IF 
+               DROP -5 \ сервер не дал ответ, т.к. не содержит этого домена
+                       \ а рекурсивный запрос делать не хочет,
+                       \ т.е. скорее всего задан чужой DNS-сервер
+             THEN
+        THEN
+        EXIT
+      THEN
+    THEN
+    attempts 1+ DUP -> attempts
+    vDnsAttempts >
+    BsReopen
+  UNTIL
   -2 \ timeouts or DNS-server failure
 ;
 
