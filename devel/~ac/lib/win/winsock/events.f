@@ -87,7 +87,7 @@ WARNING @ WARNING 0!
 ;
 : WriteSocketB WriteSocket ;
 
-200 VALUE WriteSocketRetryDelay
+4 VALUE WriteSocketRetryDelay
 
 : WriteSocket { addr u s -- ior }
   s vNoneventSocket? IF addr u s WriteSocket EXIT THEN

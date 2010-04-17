@@ -192,6 +192,8 @@ VARIABLE DnsPort  53 DnsPort !
 4 -- RLparam1
 4 -- RLparam \ immutable
 4 -- RLip    \ парсер записывает сюда исходный результат A-запроса
+4 -- RLttl
+16 -- RLip6
 CONSTANT /RL
 
 : XCOUNT
@@ -432,6 +434,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 ;
 
 : ParseTTL
+  REP @ @ CURRENT-R @ ?DUP IF RLttl ! ELSE DROP THEN
   4 REP +!
 ;
 
@@ -494,6 +497,12 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   IF 
      REP @ 2 + @ DUP NtoA CURRENT-R @ RLhost SetFieldData
                      CURRENT-R @ RLip !
+     NextRD EXIT
+  THEN
+
+  REP @ 8 - W@ >B< QTYPE-AAAA =
+  IF 
+     REP @ 2 + CURRENT-R @ RLip6 16 MOVE
      NextRD EXIT
   THEN
 
