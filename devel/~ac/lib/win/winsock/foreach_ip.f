@@ -64,6 +64,29 @@ VARIABLE ExternIPs
          ELSE DROP WSAGetLastError THEN
   ELSE WSAGetLastError THEN
 ;
+: ForEachLocalIP { xt \ addr -- ior }
+\ в некоторых случаях требуется все-таки обязательно исключить ExternIP
+\ при переборе, т.к. они "не настоящие" и поэтому, например, не биндятся
+\ xt - процедура ( IP -- ), запускаемая для каждого IP
+  255 PAD gethostname 0=
+  IF \ PAD ASCIIZ> TYPE ."  - localhost name" CR
+     PAD gethostbyname
+     DUP IF -> addr
+            \ addr @ ASCIIZ> TYPE ."  - domain name" CR
+            0
+            addr @
+            addr CELL+ CELL+ CELL+ @ @
+            DO I @ 4 +LOOP
+            0x0100007F xt EXECUTE \ localhost
+            BEGIN
+              DUP
+            WHILE
+              \ HostName. CR
+              xt EXECUTE
+            REPEAT
+         ELSE DROP WSAGetLastError THEN
+  ELSE WSAGetLastError THEN
+;
 : IsLocalhost ( ip -- flag )
   0xFF AND 0x7F =
 ;
