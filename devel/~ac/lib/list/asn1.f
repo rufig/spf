@@ -135,6 +135,31 @@ USER uAsnLevel
     THEN
   REPEAT 2DROP
 ;
+: >ASN_OID { a u \ s -- a2 u2 }
+  a u OVER C@ 40 /MOD 0 
+  "" -> s <# #S #> s STR+ S" ." s STR+ 0 <# #S #> s STR+ S" ." s STR+
+  1- 0 MAX SWAP 1+ SWAP
+  BEGIN
+    DUP 0 >
+  WHILE
+    OVER C@ DUP 128 <
+    IF
+      0 <# #S #> s STR+ S" ." s STR+
+      1- SWAP 1+ SWAP
+    ELSE
+      127 AND 7 LSHIFT >R
+      BEGIN
+        OVER 1+ C@ DUP 127 >
+      WHILE
+        127 AND R> + 7 LSHIFT >R
+        1- SWAP 1+ SWAP
+      REPEAT
+      127 AND R> + 0 <# #S #> s STR+ S" ." s STR+
+      2- SWAP 2+ SWAP
+    THEN
+  REPEAT 2DROP
+  s STR@ 1- 0 MAX
+;
 
 : AsnInt@ ( a u -- x ) \ переполнение отбрасывается
   0 SWAP
@@ -241,6 +266,7 @@ CONSTANT /AsnPart
     ELSE
        AsnDebug @ IF a2 u2 t ASN. CR THEN
     THEN
+    t ASN_OBJECTIDENTIFIER = IF a2 u2 >ASN_OID as asOID S! THEN
     a2 u2 + a u + OVER - -> u -> a
     as -> prev
   REPEAT
@@ -296,13 +322,65 @@ CONSTANT /AsnPart
   UNTIL
   0
 ;
+: Asn1GetContent { as -- a u }
+  as asPartAddr @
+  as asPartLen @
+;
 : Asn1GetPartContent { pna pnu as -- a u tag }
   pna pnu as Asn1GetPart ?DUP
   IF -> as
-     as asPartAddr @
-     as asPartLen @
+     as Asn1GetContent
      as asTag @
   ELSE S" " 0 THEN
 ;
+: Asn1GetPartByOID { oida oidu as -- as2 }
+  \ найти элемент по OID
+  \ если такого нет, возвращается 0
+  as 0= IF 0 EXIT THEN
+  BEGIN
+    as asOID @ ?DUP IF STR@ oida oidu COMPARE 0= ELSE FALSE THEN
+    IF as EXIT THEN
+    as asIsMultipart @
+    IF oida oidu as asParts @ RECURSE
+       ?DUP IF EXIT THEN
+    THEN
+    as asNextPart @ DUP 0=
+    SWAP -> as
+  UNTIL
+  0
+;
 
-\ fixme: добавить поиск по OID
+\ Asn1GetValueByOID ищет в ASN1-дереве значение (RU) по OID (2.5.4.6) такой пары
+\ | | | |1 |0x30 (9 ASN.1.1.2.1.1) 
+\ | | | | |1 |0x6 (3 ASN.1.1.2.1.1.1) OID=2.5.4.6.
+\ | | | | |2 |0x13 (2 ASN.1.1.2.1.1.2) RU
+\ результат в кодировке windows-1251
+
+: Asn1GetValueByOID ( oida oidu as -- a u )
+  DUP 0= IF DROP 2DROP S" " EXIT THEN
+  Asn1GetPartByOID ?DUP
+  IF asNextPart @ ?DUP
+     IF DUP Asn1GetContent ROT
+        asTag @ ASN_UNICODE_STRING = IF BUNICODE> THEN
+     ELSE S" " THEN
+  ELSE S" " THEN
+;
+
+\ Asn1GetPairValueByOID ищет в ASN1-дереве значение (bits) по OID (1.2.840.113549.1.1.1) такой пары
+\ | |3 |0x30 (290 ASN.1.1.3) 
+\ | | |1 |0x30 (13 ASN.1.1.3.1) 
+\ | | | |1 |0x6 (9 ASN.1.1.3.1.1) OID=1.2.840.113549.1.1.1.
+\ | | | |2 |0x5 (0 ASN.1.1.3.1.2) 
+\ | | |2 |0x3 (271 ASN.1.1.3.2) 11000000010000000000000001...
+
+: Asn1GetPairValueByOID ( oida oidu as -- a u )
+  DUP 0= IF DROP 2DROP S" " EXIT THEN
+  Asn1GetPartByOID ?DUP
+  IF asPar @ ?DUP
+     IF asNextPart @ ?DUP
+        IF DUP Asn1GetContent ROT
+           asTag @ ASN_UNICODE_STRING = IF BUNICODE> THEN
+        ELSE S" " THEN
+     ELSE S" " THEN
+  ELSE S" " THEN
+;
