@@ -110,16 +110,9 @@ VARIABLE _T-PAT  ' T-SLIT _T-PAT !
 
 
 \ ---
-\ set and restore CURFILE on EMBODY (spf4 specific)
-0 PUSH-WARNING
 
-: EMBODY ( i*x url-a url-u -- j*x )
-  CURFILE @ >R   2DUP translate-uri HEAP-COPY CURFILE !
-    0 ['] EMBODY RECEIVE-WITH \ делает SAVE-ERR
-  CURFILE @ FREE THROW   R> CURFILE !
-    THROW
-;
-DROP-WARNING
+`diagnose-error.f Included \ redefine EMBODY to save error location (spf4 specific)
+
 
 : _EMBODY FIND-FULLNAME2 EMBODY ; \ учитывает и путь текуще-подключаемого файла
 
