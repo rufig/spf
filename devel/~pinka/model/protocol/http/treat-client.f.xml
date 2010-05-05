@@ -44,11 +44,12 @@
 </def>
 
 <def name="log-error" ds=" code -- ">
-  DUP -2 EQ <if> DROP LAST-ERROR-MSG <logS>error -2</logS><exit/></if>
+  DUP -2 EQ <if> DROP LAST-ERROR-MSG <logS>error, -2</logS><exit/></if>
   <logN>error, ior</logN>
 </def>
 
-<def name="treat-error" ds=" code -- ">
+<def name="treat-error" ds=" ior|0 -- ">
+  DUP <unless> DROP <exit/></unless>
   <choose>
     DUP 10058 EQ <when>
       <logN>WSAESHUTDOWN</logN> 0 sock! 0
@@ -59,11 +60,11 @@
     </when>
      
   </choose>
+  DUP 
+  <xt-of name="treat-error-lite" ds=" ior -- "/> CATCH <rem>( ior 0 | ior x ior2 )</rem>
+    DUP <if> NIP DUP <logS>error, treat-error-lite</logS></if> DROP
   DUP <unless> DROP <exit/></unless>
-  DUP log-error
-  <xt-of name="treat-error-lite"/> CATCH
-  DUP <logN>result, ior</logN>
-  ERROR <rem> if any </rem>
+  log-error
 </def>
    
 <def name="treat-request-async" ds=" -- ">
