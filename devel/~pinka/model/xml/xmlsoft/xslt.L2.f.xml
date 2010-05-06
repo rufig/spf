@@ -41,11 +41,12 @@
 <handler event="startup"> _use-params 1+! </handler>
 <handler event="shutdown"> _use-params 0! </handler>
 
-<export>
-
 <def name="use-xslt-params" ds=" -- ">
   _use-params @ <unless> startup FIRE-EVENT </unless>
 </def>
+
+<export>
+
 <def name="set-xslt-param-" ds=" a-name u-name a-val u-val -- ">
   use-xslt-params <rem> init once </rem>
   quoted-string push-pair-
@@ -56,8 +57,9 @@
 <def name="xslt" ds=" D-xml D-xsl-file -- a2 u2 ">
   _use-params @ <unless> xslt <exit/></unless>
   PrepareParams _params !
-  xslt
-  cleanup FIRE-EVENT
+  'xslt CATCH
+    cleanup FIRE-EVENT <rem> clear xslt params </rem>
+  THROW
 </def>
 
 </export>

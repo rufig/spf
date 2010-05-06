@@ -20,7 +20,9 @@
 </def>
 
 <def name="(apply)" ds=" -- ">
-  _params @  doc docxsl ApplyStylesheet result::assume-doc free-res-xml
+  free-res-xml
+  _params @  _params 0!
+  doc docxsl ApplyStylesheet result::assume-doc
 </def>
 
 <def name="result-xml" ds=" -- a u ">
@@ -31,7 +33,6 @@
 
 <def name="xslt" ds=" D-xml D-xsl-file -- a2 u2 ">
   load-xsl loadXML (apply) result-xml
-  _params 0!
 </def>
 
 </forth>

@@ -34,12 +34,16 @@
   DUP IF EXIT THEN
   ABORT" error on CreatePushParserCtxt"
 ;
-: ParseChunk ( d-chunk ctxt -- )
+: WRITE-XMLPARSER ( d-chunk h-parser -- ior )
 \ zero size chunk indicates the end of a document
   >R
-  DUP 0= -ROT SWAP R> \ ( flag-terminate size chunk ctxt )
-  4 xmlParseChunk 0= IF EXIT THEN
-  ABORT" error on xmlParseChunk"
+   DUP 0= -ROT SWAP \ ( flag-of-terminate chunk-size chunk-addr )
+  R>
+  4 xmlParseChunk 0= IF 0 EXIT THEN 60025
+;
+: ParseChunk ( d-chunk ctxt -- )
+\ zero size chunk indicates the end of a document
+  WRITE-XMLPARSER THROW
 ;
 : ClearPushParserCtxt ( ctxt -- )
   >R 

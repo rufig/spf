@@ -17,10 +17,12 @@ p FreeParserCtxt 0 TO p
 doc DumpDoc CR
 doc FreeDoc 0 TO doc
 
-: stream-in ( -- addr u ) HERE DUP 100 ACCEPT ;
+: stream-in ( -- addr u ) HERE DUP 100 ACCEPT 
+  DUP 1 = IF OVER C@ 0x0D = IF DROP 0 THEN THEN \ workaround for UNIX-LINES on Win
+;
 
 : test ( -- )
- ." please, input xml document: " CR
+ ." please, input xml document (ends with empty line): " CR
  ['] stream-in PerParseDoc DUP DumpDoc FreeDoc
 ;
 
