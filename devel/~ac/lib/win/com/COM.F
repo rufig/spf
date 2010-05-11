@@ -118,6 +118,9 @@ VARIABLE COM-DEBUG \ TRUE COM-DEBUG !
 : ComInit ( -- ior )
   0 0 CoInitializeEx
 ;
+: ComInitAp ( -- ior ) \ COINIT_APARTMENTTHREADED
+  2 0 CoInitializeEx
+;
 : ComExit ( -- )
   CoUninitialize DROP \ void
 ;
