@@ -1,6 +1,12 @@
-\ Тест антивирусного API Windows.
+\ Тест "офисного" антивирусного API Windows.
 \ Лучше всего работает с Microsoft Security Essentials.
+\ Под Windows 7 также работает со штатным Windows Defender.
 \ Почтовые файлы проверять НЕ умеет.
+
+\ Имена обнаруженных вирусов этот API не возвращает.
+\ Файлы, в которых обнаружен вирус, через несколько минут после
+\ проверки помещаются антивирусом в карантин (а в момент проверки
+\ выскакивает окошко с сообщением о вирусе).
 
 REQUIRE CLSID,  ~ac/lib/win/com/com.f
 REQUIRE {       lib/ext/locals.f
@@ -165,6 +171,7 @@ Interface;
     THEN
     CR
   REPEAT
+  info FREE THROW
 
 \  S" {2781761E-28E0-4109-99FE-B9D127C57AFE}" CreateObject THROW -> wdefender
 \  {2781761E-28E1-4109-99FE-B9D127C57AFE} MSE
