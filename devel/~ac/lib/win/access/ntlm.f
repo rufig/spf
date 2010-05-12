@@ -56,6 +56,7 @@ CREATE NTLM_mes2 CHAR N C, CHAR T C, CHAR L C, CHAR M C, CHAR S C, CHAR S C, CHA
 \ challenge-сообщение сервера в случае, если на сервере не работает SSPI
 \ или клиент и сервер в разных доменах, в разных сетях, или не-windows-сети
 : BNTLM_mes2 NTLM_mes2 0x28 ( /NTLM_mes2 ) base64 ;
+: (BNTLM_mes2) NTLM_mes2 0x28 ( /NTLM_mes2 ) ;
 
 \ NTLM_mes3 AUTHENTICATE_MESSAGE от клиента серверу
 0
