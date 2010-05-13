@@ -29,6 +29,8 @@ CELL -- mpBoundaryAddr
 CELL -- mpBoundaryLen
 CELL -- mpCharsetAddr
 CELL -- mpCharsetLen
+CELL -- mpNameAddr
+CELL -- mpNameLen
 CELL -- mpLevel
 CELL -- mpIndex
 CELL -- mpIsMultipart
@@ -37,6 +39,12 @@ CELL -- mpTypeAddr
 CELL -- mpTypeLen
 CELL -- mpSubTypeAddr
 CELL -- mpSubTypeLen
+CELL -- mpCdispAddr
+CELL -- mpCdispLen
+CELL -- mpFnameAddr
+CELL -- mpFnameLen
+CELL -- mpCidAddr
+CELL -- mpCidLen
 CELL -- mpParts
 CELL -- mpChilds#
 CONSTANT /MimePart
@@ -85,10 +93,16 @@ WORDLIST CONSTANT CP-PARAMS
 GET-CURRENT CP-PARAMS SET-CURRENT
 : charset MimePart @ mpCharsetLen ! MimePart @ mpCharsetAddr ! ;
 : boundary MimePart @ mpBoundaryLen ! MimePart @ mpBoundaryAddr ! ;
+: name MimePart @ mpNameLen ! MimePart @ mpNameAddr ! ;
+: filename MimePart @ mpFnameLen ! MimePart @ mpFnameAddr ! ;
 : Charset CP-PARAMS::charset ;
 : Boundary CP-PARAMS::boundary ;
+: Name CP-PARAMS::name ;
+: Filename CP-PARAMS::filename ;
 : CHARSET CP-PARAMS::charset ;
 : BOUNDARY CP-PARAMS::boundary ;
+: NAME CP-PARAMS::name ;
+: FILENAME CP-PARAMS::filename ;
 SET-CURRENT
 
 : EvalParams ( valuea valueu namea nameu -- )
@@ -108,6 +122,14 @@ SET-CURRENT
 
   MimePart @ mpSubTypeAddr @ MimePart @ mpSubTypeLen @
   S" rfc822" COMPARE-U IF MimePart @ mpIsMessage 0! THEN
+;
+: SetContentDisposition ( addr u -- )
+  MimePart @ mpCdispLen ! MimePart @ mpCdispAddr !
+;
+: SetContentID ( addr u -- )
+  DUP 0= IF 2DROP EXIT THEN
+  OVER C@ [CHAR] < = IF 2- 0 MAX SWAP 1+ SWAP THEN
+  MimePart @ mpCidLen ! MimePart @ mpCidAddr !
 ;
 : ParseParamsWith { xtp -- }
   [CHAR] = PARSE -TRAILING
@@ -138,6 +160,14 @@ USER uPhParamNum
   MimePart @ mpTypeLen @ 0=
   IF S" text/plain" SetContentType THEN
 ;
+: ParseContentDisposition
+  S" Content-Disposition" ['] SetContentDisposition ['] EvalParams MimePart @
+  ParseHeaderWith
+;
+: ParseContentID
+  S" Content-ID" ['] SetContentID ['] EvalParams MimePart @
+  ParseHeaderWith
+;
 : ParseHeader
   /MimePart ALLOCATE THROW 
   DUP MimePart !
@@ -156,6 +186,8 @@ USER uPhParamNum
   REPEAT 2DROP
   >IN @ MimePart @ mpHeaderLen !
   ParseContentType
+  ParseContentDisposition
+  ParseContentID
 ;
 : PartBoundary ( -- addr flag )
   SOURCE SWAP >IN @ + SWAP >IN @ - 0 MAX
@@ -289,6 +321,26 @@ USER uPhParamNum
   " From: message_parser
 To: you
 Subject: {s} - not a valid message file
+Message-Id: <error.stub@localhost>
+
+not a valid message file
+" STR@
+  THEN
+
+  ParseMessageText
+;
+: ParseMessageHandle { f -- mp }
+
+  0 0 f REPOSITION-FILE THROW
+  f FFILEO
+  0 0 f REPOSITION-FILE THROW
+
+  2DUP 4096 MIN S" rom:" SEARCH NIP NIP 0=
+  IF 2DROP LastFileFree \ DROP FREE THROW _LASTFILE 0!
+  " From: message_parser
+To: you
+Subject: not a valid message file
+Message-Id: <error.stub@localhost>
 
 not a valid message file
 " STR@

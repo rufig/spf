@@ -255,7 +255,51 @@ CREATE dbCRLFCRLF 13 C, 10 C, 13 C, 10 C,
 ' debase64_3 TO debase64
 
 USER _LASTMSGHTML
+USER uMessageBaseUrl \ устанавливаетс€ вызывающим кодом, если нужно переместить ссылки
 
+: MessagePartName { mp -- a u }
+  mp mpNameLen  @ ?DUP IF mp mpNameAddr  @ SWAP MimeValueDecode EXIT THEN
+  mp mpFnameLen @ ?DUP IF mp mpFnameAddr @ SWAP MimeValueDecode EXIT THEN
+  mp mpCidLen   @ ?DUP IF mp mpCidAddr   @ SWAP EXIT THEN
+  S" "
+;
+: GetMimePartByNameMp { na nu mp -- mp }
+  BEGIN
+    mp
+  WHILE
+    mp MessagePartName na nu COMPARE 0=
+    IF mp EXIT THEN
+    mp mpParts @ ?DUP
+    IF na nu ROT RECURSE ?DUP IF EXIT THEN THEN
+    mp mpNextPart @ -> mp
+  REPEAT
+  mp
+;
+: GetMimePartByName { na nu mp -- addr u }
+  na nu mp GetMimePartByNameMp
+  ?DUP
+  IF -> mp
+    uBodySectionHeader @
+    IF mp mpHeaderAddr @ mp mpHeaderLen @
+    ELSE mp mpBodyAddr @ mp mpBodyLen @ THEN
+  ELSE S" " THEN
+;
+: GetMimePartByNameDecoded { na nu mp -- addr u }
+  na nu mp GetMimePartByNameMp
+  ?DUP
+  IF -> mp
+    uBodySectionHeader @
+    IF mp mpHeaderAddr @ mp mpHeaderLen @
+    ELSE mp mpBodyAddr @ mp mpBodyLen @
+       S" Content-Transfer-Encoding" mp FindMimeHeader S" quoted-printable"
+       COMPARE-U 0= IF dequotep THEN
+       S" Content-Transfer-Encoding" mp FindMimeHeader S" base64"
+       COMPARE-U 0= IF debase64 THEN
+       mp mpCharsetAddr @ mp mpCharsetLen @ ?DUP
+       IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN ELSE DROP THEN
+    THEN
+  ELSE S" " THEN
+;
 : MessageHtml { mp s \ tf_dq tf_db tf_pl -- addr u }
 
 \ ¬нимание! ѕри не-windows-1251 кодировках сообщение перекодируетс€ на
@@ -267,7 +311,7 @@ USER _LASTMSGHTML
 \                 ELSE 2DROP 2DROP THEN
 \  mp GetSubject ?DUP IF MimeValueDecode " <h4>{s}</h4>" s S+ ELSE DROP THEN
 \  S" Date" mp FindMimeHeader ?DUP IF  MimeValueDecode " <h4>{s}</h4>" s S+ ELSE DROP THEN
-  " <table border='1'>" s S+
+  " <table border='1' class='message'>" s S+
   BEGIN
     " <tr><td>" s S+
     mp mpIsMultipart @ mp mpIsMessage OR mp mpParts @ AND
@@ -293,7 +337,16 @@ USER _LASTMSGHTML
            ( tf_dq ?DUP IF FREE DROP THEN) tf_db ?DUP IF FREE DROP THEN
            \ dequotep возвращает бывш.str5-строку, а не ALLOCATEd-буфер, поэтому тут нельз€ делать FREE!
            tf_pl ?DUP IF STRFREE THEN
-         ELSE mp mpTypeAddr @ mp mpTypeLen @ s STR+ THEN
+         ELSE mp mpCdispAddr @ mp mpCdispLen @ S" attachment" COMPARE-U 0=
+              IF
+                " <img src='/e4a/icons/attach.png' width='16' height='16'/> " s S+
+                mp mpSubTypeAddr @ mp mpSubTypeLen @
+                mp mpTypeAddr @ mp mpTypeLen @
+                " <img src='/e4a/icons/{s}_{s}.png' width='16' height='16'/> " s S+
+              THEN
+              mp MessagePartName 2DUP uMessageBaseUrl @ ?DUP IF STR@ ELSE S" " THEN
+              " <a href='{s}{s}'>{s}</a>" s S+
+         THEN
     THEN
     mp mpNextPart @ DUP -> mp 0=
     " </td></tr>" s S+
