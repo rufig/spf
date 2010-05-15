@@ -2,6 +2,7 @@ REQUIRE ParseMime              ~ac/lib/lin/mime/mime.f
 REQUIRE StripLwsp              ~ac/lib/string/mime-decode.f 
 \ REQUIRE UNICODE>UTF8           ~ac/lib/win/com/com.f
 REQUIRE iso-8859-5>UNICODE     ~ac/lib/lin/iconv/iconv.f 
+REQUIRE replace-str            ~pinka/samples/2005/lib/replace-str.f 
 
 \ ================================= subject decoding ==================
 
@@ -222,6 +223,9 @@ CREATE CRLF.CRLF 13 C, 10 C, CHAR . C, 13 C, 10 C,
 \    " {s}" STR@ BregexpFree
 \  THEN
 ;
+: <<escape ( a1 u1 -- a2 u2 )
+  2DUP S" <" SEARCH NIP NIP IF >STR DUP " <" " &lt;" replace-str- STR@ THEN
+;
 CREATE dbCRLFCRLF 13 C, 10 C, 13 C, 10 C,
 
 : debase64_3 ( addr u -- addr1 u1 ) { \ i }
@@ -311,7 +315,7 @@ USER uMessageBaseUrl \ устанавливается вызывающим кодом, если нужно переместить 
 \                 ELSE 2DROP 2DROP THEN
 \  mp GetSubject ?DUP IF MimeValueDecode " <h4>{s}</h4>" s S+ ELSE DROP THEN
 \  S" Date" mp FindMimeHeader ?DUP IF  MimeValueDecode " <h4>{s}</h4>" s S+ ELSE DROP THEN
-  " <table border='1' class='message'>" s S+
+  " <table class='message' border='1'>" s S+
   BEGIN
     " <tr><td>" s S+
     mp mpIsMultipart @ mp mpIsMessage OR mp mpParts @ AND
@@ -332,7 +336,7 @@ USER uMessageBaseUrl \ устанавливается вызывающим кодом, если нужно переместить 
 
            0 -> tf_pl
            mp mpSubTypeAddr @ mp mpSubTypeLen @ S" plain" COMPARE-U 0=
-           IF CR>BR " <pre class='plain'>{s}</pre>" DUP -> tf_pl STR@ THEN
+           IF <<escape CR>BR mp MessagePartName " <pre class='plain' title='{s}'>{s}</pre>" DUP -> tf_pl STR@ THEN
            s STR+
            ( tf_dq ?DUP IF FREE DROP THEN) tf_db ?DUP IF FREE DROP THEN
            \ dequotep возвращает бывш.str5-строку, а не ALLOCATEd-буфер, поэтому тут нельзя делать FREE!
@@ -344,8 +348,10 @@ USER uMessageBaseUrl \ устанавливается вызывающим кодом, если нужно переместить 
                 mp mpTypeAddr @ mp mpTypeLen @
                 " <img src='/e4a/icons/{s}_{s}.png' width='16' height='16'/> " s S+
               THEN
-              mp MessagePartName 2DUP uMessageBaseUrl @ ?DUP IF STR@ ELSE S" " THEN
-              " <a href='{s}{s}'>{s}</a>" s S+
+              mp MessagePartName 2DUP
+              uMessageBaseUrl @ ?DUP IF STR@ ELSE S" " THEN
+              mp mpCidAddr @ mp mpCidLen @ DUP 0= IF 2DROP mp MessagePartName THEN
+              " <a id='cid:{s}' href='{s}{s}' class='inline_att'>{s}</a>" s S+
          THEN
     THEN
     mp mpNextPart @ DUP -> mp 0=
