@@ -22,9 +22,11 @@
 
 <def name="content-length-number" ds=" -- u ">
   content-length FINE-TAIL
-  DUP <unless> `#501 STHROW <!-- Not Implemented --></unless>
+  DUP <unless> 
+    `#501.content-length-unknown STHROW <!-- Not Implemented -->
+  </unless>
   StoD 0EQ <if><exit/></if>
-  `#413 STHROW <!-- Request Entity Too Large -->
+  `#413.content-length-overdraw STHROW <!-- Request Entity Too Large -->
 </def>
 
 </forth>
