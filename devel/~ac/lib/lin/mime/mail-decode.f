@@ -212,6 +212,10 @@ CREATE CRLF.CRLF 13 C, 10 C, CHAR . C, 13 C, 10 C,
 : _>BL ( addr u -- )
   0 ?DO DUP I + C@ 154 = ( OVER I + 1+ C@ 13 = AND) IF BL OVER I + C! THEN LOOP DROP
 ;
+: CRCR>BLCR ( addr u -- )
+\ исправление 1—-ного форматировани€ xml-файлов
+  0 ?DO DUP I + W@ 0x0D0D = IF 0x0D20 OVER I + W! THEN LOOP DROP
+;
 : CR>BR
   StripLeadingEmptyLines
   StripTrailingEmptyLines
@@ -336,7 +340,20 @@ USER uMessageBaseUrl \ устанавливаетс€ вызывающим кодом, если нужно переместить 
 
            0 -> tf_pl
            mp mpSubTypeAddr @ mp mpSubTypeLen @ S" plain" COMPARE-U 0=
-           IF <<escape CR>BR mp MessagePartName " <pre class='plain' title='{s}'>{s}</pre>" DUP -> tf_pl STR@ THEN
+           IF <<escape CR>BR mp MessagePartName
+              " <pre class='plain' title='{s}'>{s}</pre>" DUP -> tf_pl STR@
+           THEN
+           mp mpSubTypeAddr @ mp mpSubTypeLen @ S" xml" COMPARE-U 0=
+           IF 2DUP CRCR>BLCR <<escape mp MessagePartName
+              " <pre class='plain' title='{s}'>{s}</pre>" DUP -> tf_pl STR@
+
+              mp MessagePartName 2DUP
+              uMessageBaseUrl @ ?DUP IF STR@ ELSE S" " THEN
+              mp mpCidAddr @ mp mpCidLen @ DUP 0= IF 2DROP mp MessagePartName THEN
+              " <img src='/e4a/icons/attach.png' width='16' height='16'/>
+<a id='cid:{s}' href='{s}{s}' class='inline_att'>{s}</a><br/>{s}" STR@
+
+           THEN
            s STR+
            ( tf_dq ?DUP IF FREE DROP THEN) tf_db ?DUP IF FREE DROP THEN
            \ dequotep возвращает бывш.str5-строку, а не ALLOCATEd-буфер, поэтому тут нельз€ делать FREE!
@@ -355,9 +372,9 @@ USER uMessageBaseUrl \ устанавливаетс€ вызывающим кодом, если нужно переместить 
          THEN
     THEN
     mp mpNextPart @ DUP -> mp 0=
-    " </td></tr>" s S+
+    " </td></tr>{CRLF}" s S+
   UNTIL
-  " </table>" s S+
+  " </table>{CRLF}" s S+
   s DUP _LASTMSGHTML ! STR@
 ;
 : MessageHtml2 { mp s \ tf_dq tf_db tf_pl -- addr u }
@@ -411,6 +428,41 @@ USER uMessageBaseUrl \ устанавливаетс€ вызывающим кодом, если нужно переместить 
 ;
 : LastMsgHtmlFree
   _LASTMSGHTML @ ?DUP IF STRFREE _LASTMSGHTML 0! THEN
+;
+
+: SaveMsgAtt1 ( da du na nu mp1 -- )
+  DROP WFILE
+;
+: ForEachAtt { mp xt \ tf_dq tf_db -- }
+\ ¬ыполнить xt ( da du na nu mp1 -- ) дл€ всех вложений сообщени€ mp
+
+  BEGIN
+    mp mpIsMultipart @ mp mpIsMessage OR mp mpParts @ AND
+    IF mp mpParts @ xt RECURSE
+    ELSE 
+       mp mpCdispAddr @ mp mpCdispLen @ S" attachment" COMPARE-U 0=
+       mp mpTypeAddr @ mp mpTypeLen @ S" text" COMPARE-U OR
+       \ если Content-Disposition="attachment" или Content-Type не текст
+       \ то обрабатываем как вложение - выполн€ем дл€ него xt
+       IF
+         mp mpBodyAddr @ mp mpBodyLen @
+
+         0 -> tf_dq 0 -> tf_db
+         S" Content-Transfer-Encoding" mp FindMimeHeader S" quoted-printable"
+         COMPARE-U 0= IF dequotep OVER -> tf_dq THEN
+         S" Content-Transfer-Encoding" mp FindMimeHeader S" base64"
+         COMPARE-U 0= IF debase64 OVER -> tf_db THEN
+         mp mpCharsetAddr @ mp mpCharsetLen @ ?DUP
+         IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN ELSE DROP THEN
+
+         ( da du ) mp MessagePartName mp  xt EXECUTE
+
+         ( tf_dq ?DUP IF FREE DROP THEN) tf_db ?DUP IF FREE DROP THEN
+         \ dequotep возвращает бывш.str5-строку, а не ALLOCATEd-буфер, поэтому тут нельз€ делать FREE!
+       THEN
+    THEN
+    mp mpNextPart @ DUP -> mp 0=
+  UNTIL
 ;
 
 \ ================================= message decoding ================
