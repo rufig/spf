@@ -1,0 +1,8 @@
+60001 xmlReadFile
+60002 xsltParseStylesheetFile or xsltParseStylesheetDoc
+60003 xmlReadMemory, XML_READ_DOC (from file)
+60004 xsltApplyStylesheet
+60005 xmlReadMemory, XML_READ_DOC_MEM (xml)
+60006 xmlReadMemory, XML_READ_DOC_MEM (xsl)
+60007 xsltSaveResultToString
+60025 xmlParseChunk
