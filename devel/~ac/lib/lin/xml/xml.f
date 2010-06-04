@@ -263,6 +263,7 @@ CREATE xpathTypes@ ' dumpNodeSet@ , ' dumpBool@ , ' dumpFloat@ , ' dumpString@ ,
   XML_READ_DOC XML_DOC_ROOT
 ;
 : GetRootNodeNamespace ( doc -- nsa nsu nodea nodeu )
+  DUP 0= IF DROP S" " S" " EXIT THEN
   x.children @
   BEGIN
     DUP
