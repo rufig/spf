@@ -20,6 +20,7 @@ ALSO SO NEW: libsqlite3.so.0
   5 CONSTANT SQLITE_BUSY
 100 CONSTANT SQLITE_ROW
     VARIABLE DB3_DEBUG
+    VARIABLE DB3_MAX_WAIT       1000 DB3_MAX_WAIT !
     USER     DB3_CONN_CNT
     USER     DB3_STMT_CNT
 
@@ -90,6 +91,7 @@ ALSO SO NEW: libsqlite3.so.0
   DB3_DEBUG @ IF CR ." DB3_OPEN====================" sqh . CR addr u TYPE CR THEN
 ;
 : db3_close { sqh -- }
+  sqh 0= IF DB3_DEBUG @ IF CR ." DB3_CLOSE_0============" CR CR THEN EXIT THEN
   sqh 1 sqlite3_close S" DB3_CLOSE" sqh db3_error?
   DB3_CONN_CNT @ 1- DB3_CONN_CNT !
   DB3_DEBUG @ IF CR ." DB3_CLOSE====================" sqh . CR CR THEN
@@ -140,15 +142,16 @@ ALSO SO NEW: libsqlite3.so.0
   ['] sqlite3_prepare1 CATCH
   ?DUP IF NIP NIP NIP NIP NIP NIP THEN \ добавим аппаратные exceptions в коды возврата
 ;
-: db3_prepare { addr u sqh \ pzTail ppStmt -- pzTail ppStmt }
+: db3_prepare { addr u sqh \ pzTail ppStmt waitcnt -- pzTail ppStmt }
   DB3_DEBUG @ IF CR ." DB3_PREP====================" sqh . CR addr u TYPE CR THEN
 
   BEGIN \ ждем освобождения доступа к БД
-    ^ pzTail ^ ppStmt u addr sqh 5 sqlite3_prepare2 DUP SQLITE_BUSY =
+    ^ pzTail ^ ppStmt u addr sqh 5 sqlite3_prepare2 DUP SQLITE_BUSY = \ waitcnt DB3_MAX_WAIT @ < AND
   WHILE
     DB3_DEBUG @ IF ." DB3_PREP_WAIT" ppStmt . THEN
-    DROP 1000 PAUSE
+    DROP 100 PAUSE \ ^ waitcnt 1+!
   REPEAT
+  \ waitcnt DB3_MAX_WAIT @ = IF ." db3_prepare:maxwait:" addr u TYPE CR 30114 THROW THEN
 
   S" DB3_PREPARE" sqh db3_error?
   ppStmt
@@ -187,11 +190,12 @@ ALSO SO NEW: libsqlite3.so.0
 USER db3_exec_CNT
 USER db3_exec_TICKS
 
-: db3_exec { addr u par xt sqh \ pzTail ppStmt i tick -- }
+: db3_exec { addr u par xt sqh \ pzTail ppStmt i tick waitcnt -- }
 \ выполнить SQL-запрос(ы) из addr u,
 \ вызывая для каждого результата функцию xt с параметрами i par ppStmt
 \ в запросах биндятся макроподстановки :name и $name
   u 0= IF EXIT THEN
+  sqh 0= IF ." Sqh=0; db3_exec=" addr u TYPE CR EXIT THEN
   db3_exec_CNT 1+! ms@ -> tick
   BEGIN
     addr u sqh db3_prepare -> ppStmt -> pzTail
@@ -201,11 +205,12 @@ USER db3_exec_TICKS
     BEGIN
       IF
         BEGIN \ ждем освобождения доступа к БД
-          ppStmt 1 sqlite3_step DUP SQLITE_BUSY =
+          ppStmt 1 sqlite3_step DUP SQLITE_BUSY = \ waitcnt DB3_MAX_WAIT @ < AND
         WHILE
           DB3_DEBUG @ IF CR ." DB3_STEP_WAIT(" sqh . ppStmt . addr u TYPE ." )" CR THEN
-          DROP 1000 PAUSE
+          DROP 100 PAUSE \ ^ waitcnt 1+!
         REPEAT
+        \ waitcnt DB3_MAX_WAIT @ = IF ." db3_exec:maxwait:" addr u TYPE CR 30114 THROW THEN
 
         DUP 1 SQLITE_ROW WITHIN 
         IF ppStmt ['] db3_fin CATCH ?DUP IF NIP NIP DB3_DEBUG @ IF ." DB3_FIN_failed" DUP . THEN THEN 
@@ -236,13 +241,14 @@ USER db3_exec_TICKS
   \ если еще ничего не вставлялось, то 0
   1 sqlite3_last_insert_rowid
 ;
-: (db3_cdr) { ppStmt -- ppStmt | 0 }
+: (db3_cdr) { ppStmt \ waitcnt -- ppStmt | 0 }
   BEGIN \ ждем освобождения доступа к БД
-    ppStmt 1 sqlite3_step DUP SQLITE_BUSY =
+    ppStmt 1 sqlite3_step DUP SQLITE_BUSY = \ waitcnt DB3_MAX_WAIT @ < AND
   WHILE
     DB3_DEBUG @ IF ." DB3_CDR_WAIT" ppStmt . THEN
-    DROP 1000 PAUSE
+    DROP 100 PAUSE \ ^ waitcnt 1+!
   REPEAT
+  \ waitcnt DB3_MAX_WAIT @ = IF ." db3_cdr:maxwait" CR 30114 THROW THEN
 
   DUP 1 SQLITE_ROW WITHIN ABORT" DB3_STEP error"
 
@@ -258,6 +264,7 @@ USER db3_exec_TICKS
 \ выполнить SQL-запрос из addr u,
 \ вызывая для каждого результата функцию xt с параметрами i par ppStmt
 \ в запросах биндятся макроподстановки :name и $name
+  sqh 0= IF ." Sqh=0; db3_enum=" addr u TYPE CR EXIT THEN
   addr u sqh db3_car ?DUP
   IF
     0 -> i
@@ -372,7 +379,9 @@ USER _db3_gets
   ^ ai ^ pk ^ nn ^ cs ^ dt cnamea tnamea 0 sqh 9 sqlite3_table_column_metadata DROP
   dt ?DUP IF ASCIIZ> ELSE S" " THEN
 ;
-
+: db3_checkpoint ( sqh -- )
+  0 SWAP 2 sqlite3_wal_checkpoint DROP
+;
 PREVIOUS PREVIOUS
 
 : '>` ( addr u -- )
