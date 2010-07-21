@@ -58,6 +58,7 @@
 XMLDOM-WL PUSH-SCOPE
 
 : hint-node ( -- a u )
+  cnode 0= IF 0. EXIT THEN
   cnode localName DUP IF cnode prefix NIP 0= IF EXIT THEN
     <# HOLDS `: HOLDS cnode prefix HOLDS 0. #>
     EXIT
@@ -70,6 +71,7 @@ XMLDOM-WL PUSH-SCOPE
   ROT FREE THROW
 ;
 : line-number ( -- n )
+  cnode 0= IF 0 EXIT THEN
   cnode nodeLineNumber DUP IF EXIT THEN DROP
   cnode parentNode nodeLineNumber
 ;
