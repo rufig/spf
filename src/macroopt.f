@@ -4380,6 +4380,8 @@ OS\ DUP CD    = M_WL DROP 2+  REPEAT  \ INTX
   0x40 + 0xFFFFFF80 AND
   IF EVEN-EBP THEN ;
 
+: 2?EBP  OVER 2+  X?EBP ;
+: 3?EBP  OVER 3 +  X?EBP ;
 
 : 1_,_STEP SetOP DROP DUP C@ C,    1+ ;
 
