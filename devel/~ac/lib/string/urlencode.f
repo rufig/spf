@@ -40,3 +40,29 @@ REQUIRE >UTF8 ~ac/lib/lin/iconv/iconv.f
   >UTF8
   UTF8URLENCODE
 ;
+: IsUrlUnreservedChar2 ( char -- flag )
+  \ в отличие от IsUrlUnreservedChar кодирует и "/"
+  DUP 97 123 WITHIN IF DROP TRUE EXIT THEN \ a-z
+  DUP 65  91 WITHIN IF DROP TRUE EXIT THEN \ A-Z
+  DUP 48  58 WITHIN IF DROP TRUE EXIT THEN \ 0-9
+  DUP [CHAR] - = IF DROP TRUE EXIT THEN
+  DUP [CHAR] _ = IF DROP TRUE EXIT THEN
+  DUP [CHAR] . = IF DROP TRUE EXIT THEN
+  DUP [CHAR] ~ = IF DROP TRUE EXIT THEN
+\  DUP [CHAR] / = IF DROP TRUE EXIT THEN \ js не кодирует
+  DROP FALSE
+;
+: URLENCODE2 { a u \ mem o b -- a2 u2 } \ исходная строка предполагается в UTF-8-кодировке
+  \ результат в allocated-буфере; портится область <# #>
+
+  u 3 * 1 + ALLOCATE THROW -> mem
+  BASE @ -> b HEX
+  u 0 ?DO a I + C@
+          DUP IsUrlUnreservedChar2
+          IF mem o + C! o 1+ -> o
+          ELSE 0 <# # # [CHAR] % HOLD #> mem o + SWAP MOVE o 3 + -> o
+          THEN
+  LOOP
+  b BASE !
+  mem o
+;
