@@ -90,13 +90,18 @@ USER _PAS-EXEC \ без локальных переменных неудобно ;)
   ?DUP IF N>R RDROP THEN
   0 _PAS-EXEC @ EXECUTE
 ;
+: EXECUTE2 STATE @ IF
+                  ['] C-EXECUTE2 INLINE,
+                  ELSE C-EXECUTE2
+                  THEN ; IMMEDIATE
 USER _C-EXEC
+USER _C-EXEC-HW
 : C-EXEC ( ... n dll-xt -- x )
 \ n - число параметров на стеке для dll/so-функции
 \ Параметры снимает вызывающий.
   _PAS-EXEC ! DUP _C-EXEC !
   ?DUP IF N>R RDROP THEN
-  _C-EXEC @ 0 _PAS-EXEC @ EXECUTE
+  _C-EXEC @ 0 _PAS-EXEC @ EXECUTE2 _C-EXEC-HW !
   SWAP BEGIN DUP WHILE RDROP 1- REPEAT DROP
 ;
 \ если на стеке только адрес функции и параметры,
