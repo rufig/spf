@@ -116,6 +116,9 @@ ALSO SO NEW: libsqlite3.so.0
 : db3_coli ( n ppStmt -- int )
   2 sqlite3_column_int
 ;
+: db3_coli64 ( n ppStmt -- d ) \ результат в формате для "D."
+  2 sqlite3_column_int64 _C-EXEC-HW @
+;
 : db3_field_num { addr1 u1 ppStmt -- n } \ номер поля с заданным именем
   ppStmt db3_cols 0 ?DO
     I ppStmt db3_colname addr1 u1 COMPARE-U 0=
