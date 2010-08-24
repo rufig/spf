@@ -266,8 +266,8 @@ USER _LASTMSGHTML
 USER uMessageBaseUrl \ устанавливаетс€ вызывающим кодом, если нужно переместить ссылки
 
 : MessagePartName { mp -- a u }
-  mp mpNameLen  @ ?DUP IF mp mpNameAddr  @ SWAP MimeValueDecode EXIT THEN
-  mp mpFnameLen @ ?DUP IF mp mpFnameAddr @ SWAP MimeValueDecode EXIT THEN
+  mp mpNameLen  @ ?DUP IF mp mpNameAddr  @ SWAP StripLwsp MimeValueDecode EXIT THEN
+  mp mpFnameLen @ ?DUP IF mp mpFnameAddr @ SWAP StripLwsp MimeValueDecode EXIT THEN
   mp mpCidLen   @ ?DUP IF mp mpCidAddr   @ SWAP EXIT THEN
   S" "
 ;
@@ -300,7 +300,7 @@ USER uMessageBaseUrl \ устанавливаетс€ вызывающим кодом, если нужно переместить 
     IF mp mpHeaderAddr @ mp mpHeaderLen @
     ELSE mp mpBodyAddr @ mp mpBodyLen @
        S" Content-Transfer-Encoding" mp FindMimeHeader S" quoted-printable"
-       COMPARE-U 0= IF dequotep THEN
+       COMPARE-U 0= IF dequotep_ns THEN
        S" Content-Transfer-Encoding" mp FindMimeHeader S" base64"
        COMPARE-U 0= IF debase64 THEN
        mp mpCharsetAddr @ mp mpCharsetLen @ ?DUP
@@ -331,7 +331,7 @@ USER uMessageBaseUrl \ устанавливаетс€ вызывающим кодом, если нужно переместить 
 
            0 -> tf_dq 0 -> tf_db
            S" Content-Transfer-Encoding" mp FindMimeHeader S" quoted-printable"
-           COMPARE-U 0= IF dequotep OVER -> tf_dq THEN
+           COMPARE-U 0= IF dequotep_ns OVER -> tf_dq THEN
            S" Content-Transfer-Encoding" mp FindMimeHeader S" base64"
            COMPARE-U 0= IF debase64 OVER -> tf_db THEN
 \           2DUP _>BL ( отключено: портит unicode-букву " " )
@@ -400,7 +400,7 @@ USER uMessageBaseUrl \ устанавливаетс€ вызывающим кодом, если нужно переместить 
 
            0 -> tf_dq 0 -> tf_db
            S" Content-Transfer-Encoding" mp FindMimeHeader S" quoted-printable"
-           COMPARE-U 0= IF dequotep OVER -> tf_dq THEN
+           COMPARE-U 0= IF dequotep_ns OVER -> tf_dq THEN
            S" Content-Transfer-Encoding" mp FindMimeHeader S" base64"
            COMPARE-U 0= IF debase64 OVER -> tf_db THEN
 \           2DUP _>BL ( отключено: портит unicode-букву " " )
@@ -449,7 +449,7 @@ USER uMessageBaseUrl \ устанавливаетс€ вызывающим кодом, если нужно переместить 
 
          0 -> tf_dq 0 -> tf_db
          S" Content-Transfer-Encoding" mp FindMimeHeader S" quoted-printable"
-         COMPARE-U 0= IF dequotep OVER -> tf_dq THEN
+         COMPARE-U 0= IF dequotep_ns OVER -> tf_dq THEN
          S" Content-Transfer-Encoding" mp FindMimeHeader S" base64"
          COMPARE-U 0= IF debase64 OVER -> tf_db THEN
          mp mpCharsetAddr @ mp mpCharsetLen @ ?DUP
