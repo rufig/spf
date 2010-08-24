@@ -5,6 +5,12 @@
 \ %d.%m.%Y %H:%M
 \ %a, %d %b %Y %H:%M:%S GMT
 
+\ FIXME: S" 19.01.2038" >UnixTime -> 2147461200
+\        S" 20.01.2038" >UnixTime -> -1 (см. mktime)
+\ http://ru.wikipedia.org/wiki/ѕроблема_2038_года
+\ ≈сли пенсионный возраст к тому времени сделают больше 67 лет, 
+\ то € не буду исправл€ть :-)
+
 : _IsDigit ( char -- flag )
   DUP [CHAR] 9 > IF DROP FALSE EXIT THEN
   [CHAR] 0 < 0=
