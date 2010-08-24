@@ -47,11 +47,30 @@ PREVIOUS SWAP SET-CURRENT CONSTANT CHARSET-DECODERS-WL
   REPEAT DROP R> DROP
   R> BASE ! s STR@
 ;
+: dequotep_ns ( addr u -- addr2 u2 ) { \ s c }
+  \ если QP не в Subject, а в теле сообщения, то "_" заменять на BL не нужно
+  "" -> s
+  BASE @ >R HEX
+  2DUP + >R DROP
+  BEGIN
+    DUP R@ <
+  WHILE
+    DUP C@ DUP [CHAR] = = 
+        IF DROP 1+ DUP 2+ SWAP 2 0 0 2SWAP 2DUP UPPERCASE >NUMBER 2DROP D>S
+           ?DUP IF -> c ^ c 1 s STR+ THEN
+        ELSE -> c 
+             ^ c 1 s STR+ 1+
+        THEN
+  REPEAT DROP R> DROP
+  R> BASE ! s STR@
+;
 USER uMimeValueDecodeCnt
 VECT vDefaultMimeCharset \ кодировка входящей строки по умолчанию,
                          \ если она не указана в самой строке =?...?
 
-: DefaultMimeCharset1 S" koi8-r" ; ' DefaultMimeCharset1 TO vDefaultMimeCharset
+: Set-vDefaultMimeCharset ( xt -- ) TO vDefaultMimeCharset ;
+
+: DefaultMimeCharset1 S" koi8-r" ; ' DefaultMimeCharset1 Set-vDefaultMimeCharset
 
 : MimeValueDecode1 ( encoding-a encoding-u text-a text-u flag -- addr u )
 \ flag=true, если text закодирован base64
@@ -80,9 +99,11 @@ VECT vDefaultMimeCharset \ кодировка входящей строки по умолчанию,
       ta 3 + SWAP OVER - \ text
     THEN
     b MimeValueDecode1 s STR+
+(
     BEGIN addr C@ IsDelimiter u 0 > AND    \ пропускаем lwsp после '?=', по последней моде...
     WHILE addr 1+ -> addr u 1- -> u
     REPEAT
+)
   REPEAT                                   \ остаток текста не кодирован
   s STR+ s STR@
   uMimeValueDecodeCnt @ 0=
