@@ -113,6 +113,14 @@ VALUE AgentIconFilename
   0 TO AgentWindowVisible
   TrayIconDelete
 ;
+: RestoreIcon
+  1 LoadIconResource16
+  IF
+    1 TrayIconUpdateFromResource
+  ELSE
+    AgentIconFilename COUNT TrayIconModifyIcon
+  THEN
+;
 : ToListbox1 ( addr u -- )
   vaEnableWindow @ 0= IF 2DROP EXIT THEN
   || i ||

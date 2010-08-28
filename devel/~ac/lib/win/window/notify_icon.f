@@ -92,6 +92,14 @@ S" SPF" TrayIconSetTitle
   TrayIconDelete
   mem NIM_ADD Shell_NotifyIcon DROP
 ;
+: TrayIconUpdateFromResource ( iconid -- )
+  || id mem || (( id ))
+  IconData -> mem IconDataSetSize
+  id LoadIconResource16 DUP mem hIcon ! mem hBalloonIcon !
+  NIF_TIP NIF_INFO OR INVERT IconData uFlags @ AND IconData uFlags !
+  mem NIM_MODIFY Shell_NotifyIcon DROP
+  NIF_TIP NIF_INFO OR IconData uFlags @ OR IconData uFlags !
+;
 : TrayIconMessage ( addr u -- )
 \ изменить сообщение у последней выведенной в tray иконки
   || a u mem || (( a u ))
@@ -109,6 +117,14 @@ S" SPF" TrayIconSetTitle
   mem szTip 128 ERASE a mem szTip u 127 MIN MOVE
   mem szInfo 256 ERASE a mem szInfo u 255 MIN MOVE
   mem NIM_MODIFY Shell_NotifyIcon DROP
+;
+: TrayIconModifyIcon ( icona iconu -- )
+  || ia iu mem || (( ia iu ))
+  IconData -> mem IconDataSetSize
+  ia iu LoadIcon DUP mem hIcon ! mem hBalloonIcon !
+  NIF_TIP NIF_INFO OR INVERT IconData uFlags @ AND IconData uFlags !
+  mem NIM_MODIFY Shell_NotifyIcon DROP
+  NIF_TIP NIF_INFO OR IconData uFlags @ OR IconData uFlags !
 ;
 : TrayIconModifyText ( addr u cmd hwnd -- )
   || a u cmd h mem || (( a u cmd h ))
