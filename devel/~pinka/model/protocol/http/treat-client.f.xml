@@ -59,10 +59,11 @@
       <logN>WSAECONNRESET</logN> 0
     </when>
      
-  </choose>
-  DUP 
+  </choose><rem>( ior|0 )</rem>
+  DUP
   <xt-of name="treat-error-lite" ds=" ior -- "/> CATCH <rem>( ior 0 | ior x ior2 )</rem>
-    DUP <if> NIP DUP <logS>error, treat-error-lite</logS></if> DROP
+    DUP <if> NIP   DUP <logN>error, treat-error-lite</logN></if> DROP
+    <rem>( ior|0 )</rem>
   DUP <unless> DROP <exit/></unless>
   log-error
 </def>
