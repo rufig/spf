@@ -2,11 +2,12 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 
 <def name="TEST-EOLN" ds=" a u -- a u flag ">
-  2DUP + C@ DUP 0x0D EQ <if> 0NEQ <exit/></if> 0x0A EQ
+  2DUP + C@ DUP 0x0D EQ <if> 0NE <rem> i.e. TRUE </rem><exit/></if> 0x0A EQ
 </def>
 
 <def name="TEST-HEAD-WHITE" ds=" a u -- a u flag ">
-  DUP <if> OVER C@ IS-WHITE <exit/></if> TRUE
+  DUP <if> OVER C@ IS-WHITE <exit/></if>
+  FALSE <rem> on empty string </rem>
 </def>
 
 <def name="TEST-FILE-EXIST" ds=" a u -- a u flag ">
