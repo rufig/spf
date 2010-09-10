@@ -59,6 +59,24 @@ ALSO SO NEW: libgcrypt.so.11
   0 GCRYCTL_INITIALIZATION_FINISHED 2 gcry_control THROW
   0 GCRYCTL_INITIALIZATION_FINISHED_P 2 gcry_control
 ;
+: #_ ( ud1 -- ud2 ) \ то же, что и "#", но lowercase
+  0 BASE @ UM/MOD >R BASE @ UM/MOD R>
+  ROT DUP 10 < 0= IF 39 + THEN 48 + 
+  HOLD
+;
+: B>S ( a u -- a2 u2 )
+  \ Преобразовать двоичный буфер в текстовый путем простой замены
+  \ каждого байта двумя hex-цифрами (так принято представлять хэши).
+  \ Работает только с короткими строками (для MD5/SHA-1 достаточно),
+  \ портит PAD.
+  BASE @ >R HEX
+  2>R 0 0 <# 2R>
+  SWAP OVER + SWAP
+  0 ?DO
+    DUP I - 1- C@ S>D #_ #_ 2DROP
+  LOOP DROP #>
+  R> BASE !
+;
 PREVIOUS
 PREVIOUS
 
@@ -76,8 +94,8 @@ REQUIRE base64 ~ac/lib/string/conv.f
     S" test" SHA1B DUMP \ аналогично
     CR
     \ тесты из RFC2202:
-    S" what do ya want for nothing?" S" Jefe" HMAC-MD5 DUMP CR \ 0x750c783e6ab0b503eaa86e310a5db738
-    S" what do ya want for nothing?" S" Jefe" HMAC-SHA1 DUMP CR \ 0xeffcdf6ae5eb2fa2d27416d5f184df9c259a7c79
+    S" what do ya want for nothing?" S" Jefe" HMAC-MD5 B>S TYPE CR \ 0x750c783e6ab0b503eaa86e310a5db738
+    S" what do ya want for nothing?" S" Jefe" HMAC-SHA1 B>S TYPE CR \ 0xeffcdf6ae5eb2fa2d27416d5f184df9c259a7c79
     \ пример из OAuth (http://www.hueniverse.com/hueniverse/2008/10/beginners-guide.html):
     S" Type someting here to see how the hash value changes..." S" Shhhh!" HMAC-SHA1 base64 TYPE
   THEN
