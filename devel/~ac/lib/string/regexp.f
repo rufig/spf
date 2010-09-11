@@ -52,12 +52,25 @@
 WINAPI: FreeLibrary  KERNEL32.DLL
 WINAPI: pcre_compile pcre.dll
 WINAPI: pcre_exec    pcre.dll
+WINAPI: pcre_free_substring_list pcre.dll \ (pcre_free)((void *)pointer);
+
+VARIABLE PcreFreeAddr
 
 : PcreFree ( re -- ior )
-\ обратите внимание на извращение :)
+
+  DROP 0 EXIT \ что-то эта функция портит в памяти (в многопоточном режиме)
+
+  pcre_free_substring_list 2DROP 0 EXIT
+
+\ Выше используется особенность реализации функции pcre_free_substring_list,
+\ которая есть просто вызов (pcre_free), и даже рекомендуется в комментариях
+\ к использованию вместо pcre_free. Соответственно код ниже уже не нужен.
+
 \ GetProcAddress здесь возвращает не адрес функции, а адрес переменной,
 \ содержащей адрес функции
+  PcreFreeAddr @ ?DUP IF API-CALL NIP 1 = IF 0 ELSE -3012 THEN EXIT THEN
   S" pcre_free" DROP S" pcre.dll" DROP LoadLibraryA DUP >R GetProcAddress @
+  DUP PcreFreeAddr !
   API-CALL NIP 1 = IF 0 ELSE -3012 THEN
   R> FreeLibrary DROP
 ;
@@ -65,6 +78,8 @@ USER _pcre_erroffset
 USER _pcre_error
 USER _pcre_vector
 60 VALUE _pcre_vector_len
+
+2 CONSTANT PCRE_MULTILINE \ чтобы работали ^ и $ в шаблоне
 
 \ -3010 - incorrect pattern
 \ -3011 - vector too small
@@ -75,7 +90,7 @@ USER _pcre_vector
 ;
 : PcreCompile ( addr u -- re ior )
   DROP >R
-  0 _pcre_erroffset _pcre_error 0 R>
+  0 _pcre_erroffset _pcre_error PCRE_MULTILINE R>
   pcre_compile >R 2DROP 2DROP DROP R>
   DUP 0= IF -3010 ELSE 0 THEN
 ;
