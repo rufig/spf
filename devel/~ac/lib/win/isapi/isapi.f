@@ -291,7 +291,7 @@ USER-CREATE ecb ecb /EXTENSION_CONTROL_BLOCK DUP USER-ALLOT ERASE
   DUP @ IF DROP EXIT THEN
   DUP CELL+ CELL+
   ( LOAD_WITH_ALTERED_SEARCH_PATH) 0x00000008 0 ROT
-  LoadLibraryExA DUP 0= IF DROP ." ISAPI LoadLibrary failed" CR GetLastError THROW THEN
+  LoadLibraryExA DUP 0= IF DROP GetLastError ." ISAPI LoadLibrary failed:" DUP . CR THROW THEN
   SWAP !
 ;
 : IsapiCallExtension ( ecb addr -- res )
