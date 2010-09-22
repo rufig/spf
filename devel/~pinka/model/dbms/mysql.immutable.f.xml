@@ -25,6 +25,7 @@
 <def name="free-res-all" ds=" -- ">
   0 row! 0 col!
   <until> next-res res 0EQ </until>
+  <rem> may throw exceptions </rem>
 </def>
 <def name="query" ds=" a u -- ">
   conn <unless> `#mysql-no-conn STHROW </unless>

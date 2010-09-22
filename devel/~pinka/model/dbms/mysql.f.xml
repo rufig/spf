@@ -4,7 +4,7 @@
 <wordlist name="mysql-hidden">
 
 <slot2> charset database user pass  hostname port host  xml-stylesheet </slot2>
-<slot> nport conn errno res resn  row col </slot>
+<slot> nport conn errno res resn  row col  omit-xml-declaration </slot>
 <prop name="last-err-txt"><ss/></prop>
 
 <def name="(connect)" ds=" -- ior ">
@@ -70,7 +70,10 @@
 
 <handler event="shutdown"> close </handler>
 
+<handler event="cleanup"> free-res-all </handler>
+
 <alias name="connect" word="open" />
+<alias name="clear" word="free-res-all" />
 
 
 <def name="assume-cred" ds=" d-db d-host d-user d-passw -- ">
@@ -117,6 +120,12 @@
 
 <export>
 
+<alias name="disable-output-escaping.xml!" ds=" flag -- " word="disable-output-escaping.xml!"/>
+
+<def name="allow-output.xml" ds=" -- "> TRUE disable-output-escaping.xml! </def>
+
+<alias name="omit-xml-declaration!" ds=" flag -- " word="omit-xml-declaration!"/>
+
 <def name="set-xml-stylesheet" ds=" d-url -- ">
   <comment> It should be set on each query </comment>
   xml-stylesheet! 
@@ -124,7 +133,9 @@
 
 <def name="query-xml-per" ds=" d-query xt -- ">
   buf::clear
-  <text><![CDATA[<?xml version="1.0"?>]]>&#xA;</text> store-chunk
+  omit-xml-declaration <unless>
+    <text><![CDATA[<?xml version="1.0"?>]]>&#xA;</text> store-chunk
+  </unless>
   store-xml-stylesheet
   >R query store-response
   <repeat> buf::next-chunk DUP <while/> R@ EXECUTE </repeat> R> EXECUTE
