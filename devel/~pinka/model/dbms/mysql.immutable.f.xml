@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<rem><bind-up> conn res resn row col </bind-up></rem>
+<rem><bind-up> conn res resn row col cols </bind-up></rem>
 
 <def name="free-res" ds=" -- ">
   res DUP <if> mysql_free_res 0 </if> res!
@@ -23,7 +23,7 @@
   <rem> see http://dev.mysql.com/doc/refman/5.1/en/c-api-multiple-queries.html </rem>
 </def>
 <def name="free-res-all" ds=" -- ">
-  0 row! 0 col!
+  0 row! 0 col! 0 cols!
   <until> next-res res 0EQ </until>
   <rem> may throw exceptions </rem>
 </def>
@@ -41,18 +41,28 @@
 
 <def name="next-result?" ds=" -- 0|res ">
   next-res res   0 row!
+  DUP <if> res mysql_num_fields cols! </if>
 </def>
-<def name="next-row?" ds=" -- flag ">
+<def name="next-row?" ds=" -- 0|row ">
   res DUP <if> mysql_fetch_row </if> DUP row!  -1 col!
 </def>
 <def name="next-col?" ds=" -- flag ">
-  col 1+ DUP col! res mysql_num_fields ULT 
+  col 1+ DUP col! cols ULT 
 </def>
 <def name="get-value" ds=" -- a u ">
+  col cols ULT <unless> 0. <exit/></unless>
   col row res mysql_get_value 
 </def>
 <def name="get-name" ds=" -- a u ">
+  col cols ULT <unless> 0. <exit/></unless>
   col res mysql_field_name 
+</def>
+
+<def name="fetch-value" ds=" d-name -- d-value ">
+  col >R -1 col!
+  <until> next-col? <while/> 2DUP get-name EQUAL </until>
+  2DROP get-value
+  R> col!
 </def>
 
 </forth>
