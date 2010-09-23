@@ -1,3 +1,10 @@
+\ Простая библиотека для создания CAB-файлов (Microsoft Cabinet)
+\ - обёртка над CABINET.DLL
+\ Примеры см. в конце файла.
+
+\ Удивительно, но факт: при сжатии форт-текстов CAB превзошел все
+\ популярные архиваторы кроме 7-Zip (тесты см. в конце файла).
+
 \ http://msdn.microsoft.com/en-us/library/ff797925%28v=VS.85%29.aspx
 
 REQUIRE {      lib\ext\locals.f
@@ -31,20 +38,37 @@ CONSTANT /ERF
 WINAPI: GetCurrentDirectoryA KERNEL32.DLL
 \ WINAPI: GetTempFileNameA     KERNEL32.DLL
 \ WINAPI: GetTempPathA         KERNEL32.DLL
+WINAPI: GetFileInformationByHandle KERNEL32.DLL
+WINAPI: FileTimeToLocalFileTime    KERNEL32.DLL \ file/filetime.f
+WINAPI: FileTimeToDosDateTime      KERNEL32.DLL
 
 WINAPI: FCICreate       CABINET.DLL
 WINAPI: FCIAddFile      CABINET.DLL
 WINAPI: FCIFlushCabinet CABINET.DLL
 WINAPI: FCIDestroy      CABINET.DLL
 
-WINAPI: _open MSVCRT.DLL
+WINAPI: _open          MSVCRT.DLL
+WINAPI: _get_osfhandle MSVCRT.DLL
 
 \ 0x0000 CONSTANT _O_RDONLY
 0x8000 CONSTANT _O_BINARY
 
+0
+4 -- bh.dwFileAttributes
+8 -- bh.ftCreationTime
+8 -- bh.ftLastAccessTime
+8 -- bh.ftLastWriteTime
+4 -- bh.dwVolumeSerialNumber
+4 -- bh.nFileSizeHigh
+4 -- bh.nFileSizeLow
+4 -- bh.nNumberOfLinks
+4 -- bh.nFileIndexHigh
+4 -- bh.nFileIndexLow
+CONSTANT /BY_HANDLE_FILE_INFORMATION
 
 1 CONSTANT tcompTYPE_MSZIP
 VARIABLE _TMPN
+VARIABLE CABSIZE
 
 :NONAME { pv cbTempName pszTempName -- void }
   
@@ -70,10 +94,17 @@ VARIABLE _TMPN
   0
 ; 5 CELLS CALLBACK: fnFilePlaced
 
-:NONAME { pv err pattr ptime pdate pszName -- void }
+:NONAME { pv err pattr ptime pdate pszName \ bh ft1 ft2 -- void }
   pv err pattr ptime pdate pszName
   _O_BINARY pszName ( S" _open" MSVCRT API-CALL) _open NIP NIP
-  pattr 0! ptime 0! pdate 0! \ 1617 год :)
+  pattr 0! ptime 0! pdate 0!
+  /BY_HANDLE_FILE_INFORMATION ALLOCATE THROW -> bh
+  bh OVER _get_osfhandle NIP GetFileInformationByHandle 
+  IF ^ ft2 bh bh.ftLastWriteTime FileTimeToLocalFileTime DROP
+     ptime pdate ^ ft2 FileTimeToDosDateTime DROP
+     bh bh.nFileSizeLow @ CABSIZE +!
+  THEN
+  bh FREE THROW
 ; 6 CELLS CALLBACK: fnGetOpenInfo
 
 :NONAME ( pv cb1 cb2 typeStatus -- void )
@@ -104,6 +135,7 @@ VARIABLE _TMPN
   a u c cab.szCab SWAP 1+ MOVE
 
   /ERF ALLOCATE THROW -> er
+  CABSIZE 0!
 
   0 c
   ['] fnGetTempFileName
@@ -157,7 +189,8 @@ VARIABLE _TMPN
 ;
 TEST CR
 
-~ac/lib/win/file/findfile-r.f 
+REQUIRE FIND-FILES-R  ~ac/lib/win/file/findfile-r.f 
+REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
 
 USER FCI
 USER CNT
@@ -165,17 +198,20 @@ USER CNT
 : (CabAdd) ( addr u data flag -- )
   CNT @ 10000 > OR IF DROP 2DROP EXIT THEN
   DROP
-  2DUP + 2 - 2 S" .f" COMPARE IF 2DROP EXIT THEN
+  2DUP + 2 - 2 S" .f" COMPARE-U IF 2DROP EXIT THEN
   2DUP TYPE CR
-  2DUP 19 - SWAP 19 + SWAP FCI @ CabAddFile CNT +!
-  DEPTH .
+  2DUP 20 - SWAP 20 + SWAP FCI @ CabAddFile CNT +!
 ;
 
 : TEST2 { \  fci }
-
   S" spf_test2.cab" CabCreate -> fci
   fci FCI !
   S" /spf4/devel/~ac/lib" ['] (CabAdd) FIND-FILES-R
   fci CabClose
+  CNT @ . CABSIZE @ . 
+  \ форт-тексты CAB сжимает примерно вчетверо - остаётся 26%
+  \ для сравнения RAR 3.71 сжимает те же тексты до 37% (def),
+  \ либо до 32% (при -m5) т.е. значительно хуже в любом варианте.
+  ( 7-Zip до 18%, pkzip25 до 36%, tar+gzip до 27% )
 ;
 TEST2
