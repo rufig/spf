@@ -39,6 +39,10 @@ WINAPI: FCIDestroy      CABINET.DLL
 
 WINAPI: _open MSVCRT.DLL
 
+\ 0x0000 CONSTANT _O_RDONLY
+0x8000 CONSTANT _O_BINARY
+
+
 1 CONSTANT tcompTYPE_MSZIP
 VARIABLE _TMPN
 
@@ -68,7 +72,7 @@ VARIABLE _TMPN
 
 :NONAME { pv err pattr ptime pdate pszName -- void }
   pv err pattr ptime pdate pszName
-  0 pszName ( S" _open" MSVCRT API-CALL) _open NIP NIP
+  _O_BINARY pszName ( S" _open" MSVCRT API-CALL) _open NIP NIP
   pattr 0! ptime 0! pdate 0! \ 1617 год :)
 ; 6 CELLS CALLBACK: fnGetOpenInfo
 
@@ -136,6 +140,9 @@ VARIABLE _TMPN
 
   \ а /CCAB и /ERF утекают до конца потока
 ;
+
+\EOF
+
 : TEST { \  fci }
 
   S" spf_test.cab" CabCreate -> fci
@@ -156,9 +163,11 @@ USER FCI
 USER CNT
 
 : (CabAdd) ( addr u data flag -- )
-  CNT @ 250 > OR IF DROP 2DROP EXIT THEN
-  DROP 2DUP TYPE CR
-  2DUP 1- SWAP 1+ SWAP FCI @ CabAddFile CNT +!
+  CNT @ 10000 > OR IF DROP 2DROP EXIT THEN
+  DROP
+  2DUP + 2 - 2 S" .f" COMPARE IF 2DROP EXIT THEN
+  2DUP TYPE CR
+  2DUP 19 - SWAP 19 + SWAP FCI @ CabAddFile CNT +!
   DEPTH .
 ;
 
@@ -166,7 +175,7 @@ USER CNT
 
   S" spf_test2.cab" CabCreate -> fci
   fci FCI !
-  S" /spf4/devel/~ac/lib/win/file" ['] (CabAdd) FIND-FILES-R
+  S" /spf4/devel/~ac/lib" ['] (CabAdd) FIND-FILES-R
   fci CabClose
 ;
 TEST2
