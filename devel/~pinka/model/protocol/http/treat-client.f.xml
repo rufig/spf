@@ -59,7 +59,11 @@
     DUP 10054 EQ <when>
       <logN>WSAECONNRESET</logN> 0
     </when>
-     
+
+    DUP 10060 EQ <when>
+      <logN>WSAETIMEDOUT</logN> 0
+    </when>
+    
   </choose><rem>( ior|0 )</rem>
   DUP
   <xt-of name="treat-error-lite" ds=" ior -- "/> CATCH <rem>( ior 0 | ior x ior2 )</rem>
