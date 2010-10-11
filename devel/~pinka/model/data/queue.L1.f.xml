@@ -9,7 +9,7 @@
 
 
 <const name="limit">1000</const><rem> max messages in the queue </rem>
-<const name="cs"> ALIGN HERE MAKE-CS, </const>
+<const name="cs"> ALIGN HERE MAKE-CRIT, </const>
 
 <cell name="_sem"/>     <def name="sem" ds=" -- sem " > _sem @ </def>
 <cell name="_buf"/>
@@ -47,17 +47,17 @@
 <def name="enqueueN" ds=" x -- ">
   100 wait-worker <unless> log-overflow hire-worker </unless>
   TUCK !
-  cs ENTER-CS
+  cs ENTER-CRIT
   _h BIND-DNODE-TAIL _len 1+!
-  cs LEAVE-CS
+  cs LEAVE-CRIT
   sem ReleaseSem
 </def>
 
 <def name="dequeueN" ds=" -- x ">
   sem -1 Wait <unless> `#dequeueN STHROW </unless>
-  cs ENTER-CS
+  cs ENTER-CRIT
   _len 1-! _h UNBIND-NODE
-  cs LEAVE-CS
+  cs LEAVE-CRIT
   DUP <unless> `#queue-is-underflow STHROW </unless>
   DUP @ SWAP release-worker
 </def>

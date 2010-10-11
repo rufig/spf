@@ -28,9 +28,9 @@
 </def>
 
 <def name="embody-doc" ds=" i*x basedoc-url-a basedoc-url-u doc -- j*x ">
-  _cs_txml ENTER-CS
+  _cs_txml ENTER-CRIT
   <xt-of name="(embody-doc)"/> CATCH
-  _cs_txml LEAVE-CS            THROW
+  _cs_txml LEAVE-CRIT          THROW
 </def>
 
 <def name="EMBODY" ds=" i*x url-a url-u -- j*x ">

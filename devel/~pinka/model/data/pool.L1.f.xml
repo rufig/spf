@@ -9,7 +9,7 @@
 <wordlist name="pool-L1-hidden">
 
 <const name="limit">5000</const>
-<const name="cs"> ALIGN HERE MAKE-CS, </const>
+<const name="cs"> ALIGN HERE MAKE-CRIT, </const>
 
 <cell name="_sem"/>     <def name="sem" ds=" -- sem " > _sem @ </def>
 <cell name="_zbuf"/>
@@ -43,15 +43,15 @@
 
 <def name="wait-worker" ds=" timeout -- x true | false ">
   sem SWAP Wait <unless> FALSE <exit/></unless>
-  cs ENTER-CS
+  cs ENTER-CRIT
     Z>
-  cs LEAVE-CS TRUE
+  cs LEAVE-CRIT TRUE
 </def>
 
 <def name="release-worker" ds=" x -- ">
-  cs ENTER-CS
+  cs ENTER-CRIT
     >Z
-  cs LEAVE-CS
+  cs LEAVE-CRIT
   sem ReleaseSem
 </def>
 

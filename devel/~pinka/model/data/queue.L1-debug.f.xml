@@ -16,10 +16,10 @@ DUP >R
   100 wait-worker <unless> log-overflow hire-worker </unless>
   TUCK !
 DUP <logN>enqueue, cart</logN>
-  cs ENTER-CS
+  cs ENTER-CRIT
   _h BIND-DNODE-TAIL _len 1+!
 _len @
-  cs LEAVE-CS
+  cs LEAVE-CRIT
   sem ReleaseSem
 R> <logN>enqueueN</logN>
    <logN>enqueue, length</logN>
@@ -27,11 +27,11 @@ R> <logN>enqueueN</logN>
 
 <def name="dequeueN" ds=" -- x ">
   sem -1 Wait <unless> `#dequeueN STHROW </unless>
-  cs ENTER-CS
+  cs ENTER-CRIT
 _len @ >R
   _len 1-! _h UNBIND-NODE
 DUP >R
-  cs LEAVE-CS
+  cs LEAVE-CRIT
   DUP <unless> `#queue-is-underflow STHROW </unless>
   DUP @ SWAP release-worker
 R>  <logN>dequeue, cart</logN>
