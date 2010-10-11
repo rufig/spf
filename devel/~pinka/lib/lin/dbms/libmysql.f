@@ -36,6 +36,14 @@ WINAPI: mysql_thread_init         libmySQL \ Zero if successful.
 \ This function must be called early within each created thread 
 \ to initialize thread-specific variables.
 
+\  http://dev.mysql.com/doc/refman/5.1/en/mysql-thread-end.html
+\    According to dll.c:
+\    Within win32, LibMain calls mysql_thread_init() and mysql_thread_end() automatically
+\    for each newly created thread after the lib has been loaded.
+\    Therefor it shouldn't be necessary to call these functions again. As I said,
+\    only for win32 and only if we use the dynamic library.
+\    -- by Armin Schoffmann on March 6 2005
+
 
 7 CONSTANT MYSQL_SET_CHARSET_NAME
 0 CONSTANT MYSQL_OPTION_MULTI_STATEMENTS_ON
@@ -53,12 +61,12 @@ WINAPI: mysql_thread_init         libmySQL \ Zero if successful.
 CREATE-CS _mysql_cs
 
 : mysql_new_conn ( -- h )
-  _mysql_cs ENTER-CS
+  _mysql_cs ENTER-CRIT
   0 mysql_init
   \ You must either call mysql_library_init() prior to spawning any threads, 
   \ or else use a mutex to protect the call, whether you invoke mysql_library_init()
   \ or indirectly via mysql_init() -- http://dev.mysql.com/doc/refman/5.0/en/mysql-library-init.html
-  _mysql_cs LEAVE-CS
+  _mysql_cs LEAVE-CRIT
  
   DUP IF EXIT THEN
 
