@@ -21,6 +21,8 @@ USER-VALUE  TIB ( -- c-addr ) \ 94 CORE EXT
 USER-CREATE ATIB
 \ исходное значение TIB
 2048 TC-USER-ALLOT
+\ C/L +2 должно быть не более размера данного буфера, 
+\ т.к. REFILL-STDIN (и QUIT) по умолчанию принимает именно в него
 
 : SOURCE ( -- c-addr u ) \ 94
 \ c-addr - адрес входного буфера. u - количество символов в нем.

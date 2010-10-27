@@ -199,6 +199,7 @@ VARIABLE   &INTERPRET
     CONSOLE-HANDLES
     0 TO SOURCE-ID
     0 TO SOURCE-ID-XT
+    ATIB TO TIB \ на случай, если QUIT вызыван из EVALUATE
     [COMPILE] [
     ['] MAIN1 CATCH
     ['] ERROR CATCH DROP
