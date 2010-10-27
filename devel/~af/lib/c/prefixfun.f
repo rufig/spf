@@ -57,7 +57,10 @@ SET-CURRENT
 \ откладывает выполнение слова до достижения конца списка аргументов
 : (( ( "func" -- )
   NextWord
-  DUP 9 + ALLOCATE THROW
+  DUP 9 + CELL+ ALLOCATE THROW
+  \ некоторые обработчики NOTFOUND пишут 0x0 за пределом обрабатываемого буфера
+  \ поэтому, берем лишний CELL -- для исправления bug#1828051 и во избежании 
+  \ ( ~ruv 2010.Oct.27 )
   curfunc @ OVER ! DUP curfunc !
   CELL+ DUP 0!
   CELL+ 2DUP C!
