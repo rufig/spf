@@ -49,7 +49,7 @@ WINAPI: mysql_fetch_field_direct  LIBMYSQL
     R@
     mysql_real_connect
     DUP 0= IF R@ mysql_errno
-              R> FREE THROW EXIT
+              R> mysql_close DROP EXIT
            THEN
     RDROP 0
 ;
