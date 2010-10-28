@@ -47,8 +47,9 @@ WINAPI: GlobalUnlock    KERNEL32.DLL
 : CBString ( -- c-addr u)
    0 OpenClipboard DROP
    CF_TEXT
-   GetClipboardData DUP
-   GlobalLock ASCIIZ> DUP >R HEAP-COPY
+   GetClipboardData ( h )
+   ?DUP 0= IF 0 ALLOCATE THROW 0 ( addr 0 ) EXIT THEN
+   DUP GlobalLock ASCIIZ> DUP >R HEAP-COPY
    SWAP GlobalUnlock DROP
    R>
 ;
