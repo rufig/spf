@@ -45,16 +45,27 @@ CREATE SA 12 , 0 , 1 ,
   CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
 ;
 : OPEN-FILE-SHARED ( c-addr u fam -- fileid ior )
-  NIP SWAP >R >R
+  NIP SWAP 2>R
   0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
   OPEN_EXISTING
   SA ( secur )
-  7 ( share )  
-  R> ( access=fam )
-  R> ( filename )
-  CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
+  7 ( FILE_SHARE_READ FILE_SHARE_WRITE OR FILE_SHARE_DELETE OR )
+  2R@ ( access=fam , filename )
+  CreateFileA DUP -1 = 
+  IF GetLastError DUP 87 =
+     IF
+       2DROP
+       0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
+       OPEN_EXISTING
+       SA ( secur )
+       3 ( FILE_SHARE_READ FILE_SHARE_WRITE OR ) \ Win9x, Bug #3104038
+       2R@ ( access=fam , filename )
+       CreateFileA DUP -1 =
+       IF GetLastError ELSE 0 THEN
+     THEN
+  ELSE 0 THEN
+  RDROP RDROP
 ;
-
 : DELETE-FILE ( c-addr u -- ior ) \ 94 FILE
 \ Удалить файл с именем, заданным строкой c-addr u.
 \ ior - определенный реализацией код результата ввода/вывода.
