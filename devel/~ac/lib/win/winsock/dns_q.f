@@ -405,6 +405,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 : PrintType
   ." Type=" REP @ W@ >B<
   DUP 16 ( TXT) > OVER QTYPE-AAAA <> AND OVER QTYPE-SRV <> AND
+  OVER 255 <> AND
   ABORT" DNS reply format error (type)"
   . 2 REP +!
 ;
@@ -412,6 +413,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 : ParseType
   REP @ W@ >B<
   DUP 16 ( TXT) > OVER QTYPE-AAAA <> AND OVER QTYPE-SRV <> AND
+  OVER 255 <> AND
   ABORT" DNS reply format error (type)"
   2 REP +!
   CURRENT-R @ ?DUP IF RLtype ! ELSE DROP THEN
@@ -660,6 +662,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   ELSE NextDNS IF RECURSE THEN THEN
 ;
 : GetRRs { hosta hostu type \ attempts dencnt failcnt -- n }
+  hosta hostu v>IDN -> hostu -> hosta
   DnsDebug @ IF ." GetRRs: " hosta hostu TYPE CR THEN
   1 -> attempts
   type hosta hostu PrepareDnsQuery
@@ -705,6 +708,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 \ HeaderANCOUNT W@ >B<
 
 : GetRRn { hosta hostu type \ attempts dencnt failcnt -- n }
+  hosta hostu v>IDN -> hostu -> hosta
   DnsDebug @ IF ." GetRRn: " hosta hostu TYPE CR THEN
   1 -> attempts
   type hosta hostu PrepareDnsQuery
@@ -747,6 +751,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
 ;
 : GetRRsFrom { hosta hostu type ip \ attempts -- n }
 \ выполнить GetRRs для явно заданного (ip) DNS-сервера
+  hosta hostu v>IDN -> hostu -> hosta
   DnsDebug @ IF ." GetRRsFrom: " hosta hostu TYPE CR THEN
   1 -> attempts
   type hosta hostu PrepareDnsQuery

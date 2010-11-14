@@ -62,6 +62,8 @@ CREATE LINGER 1 W, 3 W,
 CREATE BROADCAST -1 ,
 CREATE REUSEADDR -1 ,
 
+VECT v>IDN ' NOOP TO v>IDN
+
 : CreateSocket ( -- socket ior )
   IPPROTO_TCP SOCK_STREAM PF_INET
   socket DUP INVALID_SOCKET =
@@ -201,6 +203,7 @@ USER CONNECT-INTERFACE
   DROP inet_addr GetHostName
 ;
 : GetHostIP ( addr u -- IP ior )
+  v>IDN
   DUP 0= IF NIP 11004 EXIT THEN \ иначе пустой хост S" " дает 0 0
   OVER inet_addr DUP -1 <> IF NIP NIP 0 EXIT ELSE DROP THEN
   DROP gethostbyname DUP IF 3 CELLS + @ @ @ 0
@@ -298,6 +301,7 @@ USER _GetHostIPs
   OVER inet_addr DUP -1 <> IF NIP NIP _GetHostIPs ! _GetHostIPs DUP CELL+ SWAP 
                               0 EXIT
                            ELSE DROP THEN
+  v>IDN
   DROP gethostbyname DUP IF DUP @ SWAP 3 CELLS + @ @ 0
                          ELSE 0 WSAGetLastError THEN
 ;
