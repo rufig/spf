@@ -82,6 +82,8 @@ VARIABLE SSLAPLINK
 SSLAPI: SSL_load_error_strings
 SSLAPI: SSL_library_init
 SSLAPI: SSL_CTX_new
+\ SSLAPI: SSL_CTX_set_options \ #define SSL_CTX_set_options(ctx,op) SSL_CTX_ctrl((ctx),SSL_CTRL_OPTIONS,(op),NULL)
+SSLAPI: SSL_CTX_ctrl
 SSLAPI: TLSv1_method
 SSLAPI: TLSv1_client_method
 SSLAPI: TLSv1_server_method
@@ -109,10 +111,14 @@ SSLAPI: SSL_free
 SSLAPI: SSL_CTX_free
 
 SSLAPI: SSL_CTX_set_verify
+SSLAPI: SSL_set_verify
+SSLAPI: SSL_renegotiate
+SSLAPI: SSL_do_handshake
 SSLAPI: SSL_get_verify_result
 SSLAPI: SSL_get_peer_certificate
 SSLAPI: SSL_CTX_set_verify_depth
 SSLAPI: SSL_ctrl
+SSLAPI: SSL_set_session_id_context
 
 SSLAPI: SSL_set_ex_data
 SSLAPI: SSL_get_ex_data
@@ -122,7 +128,6 @@ SSLAPI: SSL_set_SSL_CTX
 SSLAPI: SSL_CTX_Free
 
 \ SSLAPI: SSL_CTX_sess_accept_renegotiate
-\ SSLAPI: SSL_renegotiate
 
 \ с 0.9.8j: SNI
 \  SSL_set_tlsext_host_name = SSL_ctrl(s,SSL_CTRL_SET_TLSEXT_HOSTNAME,TLSEXT_NAMETYPE_host_name,(char *)name)
@@ -151,11 +156,14 @@ SSLEAPI: SSLeay_version
 2 CONSTANT SSL_VERIFY_FAIL_IF_NO_PEER_CERT
 4 CONSTANT SSL_VERIFY_CLIENT_ONCE
 
+32 CONSTANT SSL_CTRL_OPTIONS
 53 CONSTANT SSL_CTRL_SET_TLSEXT_SERVERNAME_CB
 55 CONSTANT SSL_CTRL_SET_TLSEXT_HOSTNAME
 
 \ NameType value from RFC 3546
 0 CONSTANT TLSEXT_NAMETYPE_host_name 
+
+0x01000000 CONSTANT SSL_OP_NO_SSLv2
 
 VARIABLE vSSL_INIT
 
@@ -173,21 +181,22 @@ USER uSSL_CONTEXT
 USER uCertType
 USER uSslServer \ сервер получает здесь имя хоста, указанное в tlsext в ClientHello
 VECT vSslServer ' NOOP TO vSslServer
+VECT vSslSniHostName ' 2DROP TO vSslSniHostName
 
 :NONAME { srv al ssl \ ti sna snu pema ctx -- done }
-  ." SNI_CB:" ssl . al . srv .
+  \ ." SNI_CB:" ssl . al . srv .
   TlsIndex@ -> ti
   0 ssl SSL_get_ex_data NIP NIP TlsIndex!
 
   TLSEXT_NAMETYPE_host_name ssl SSL_get_servername NIP NIP
   ?DUP IF ASCIIZ> -> snu -> sna
-          ." CB SSL host name=" sna snu TYPE CR
+          ( ." CB SSL host name=") sna snu vSslSniHostName
           sna uSslServer !
           sna snu vSslServer 2DUP sna snu COMPARE IF DROP -> pema
           TLSv1_server_method SSL_CTX_new NIP -> ctx
           uCertType @ pema ctx SSL_CTX_use_certificate_file NIP NIP NIP 1 <> THROW
           uCertType @ pema ctx SSL_CTX_use_RSAPrivateKey_file NIP NIP NIP 1 <> THROW
-          ctx ssl SSL_set_SSL_CTX . 2DROP
+          ctx ssl SSL_set_SSL_CTX DROP 2DROP
 \          uSSL_CONTEXT @ SSL_CTX_Free 2DROP
           ctx uSSL_CONTEXT !
           ELSE 2DROP THEN
@@ -204,6 +213,10 @@ VECT vSslServer ' NOOP TO vSslServer
   -> c
   type uCertType !
   c uSSL_CONTEXT !
+
+\  SSL_OP_NO_SSLv2 c SSL_CTX_set_options NIP NIP DROP
+
+  0 SSL_OP_NO_SSLv2 SSL_CTRL_OPTIONS c SSL_CTX_ctrl DROP 2DROP 2DROP
 
 \ сертификаты и ключи, используемые в соединении
   pemu
@@ -245,6 +258,28 @@ VECT vSslServer ' NOOP TO vSslServer
 \ автоматически выдавать нужный сертификат, без выдачи окошка со списком юзеру
 \  pema SSL_load_client_CA_file NIP
 \  ?DUP IF context SSL_CTX_set_client_CA_list NIP NIP . THEN
+;
+
+\ fixme:
+: SslRenegotiate { ssl \ s_server_auth_session_id_context -- }
+  \ запросить клиентский сертификат во время уже установленной сессии
+  \ (когда уже известен клиентский запрос, например)
+
+  0 SSL_VERIFY_FAIL_IF_NO_PEER_CERT ( SSL_VERIFY_PEER OR)
+  ssl SSL_set_verify 2DROP 2DROP
+
+  \ Stop the client from just resuming the un-authenticated session
+  \      SSL_set_session_id_context(ssl,
+  \        (void *)&s_server_auth_session_id_context,
+  \        sizeof(s_server_auth_session_id_context));
+  2 -> s_server_auth_session_id_context
+  4 ^ s_server_auth_session_id_context ssl SSL_set_session_id_context . DROP 2DROP
+
+  ssl SSL_renegotiate ." reneg=" DUP . NIP 1 <> ABORT" SSL renegotiation error1"
+  ssl SSL_do_handshake ." handsh=" DUP . NIP 1 <> ABORT" SSL renegotiation error2"
+  \      ssl->state=SSL_ST_ACCEPT;
+  \      if(SSL_do_handshake(ssl)<=0)
+  \        berr_exit("SSL renegotiation error");
 ;
 : SslGetVerifyResults { conn \ cert name mem -- cert addr u ior } \ ior=X509_V_OK=0
 \ addr нужно после использования освобождать
