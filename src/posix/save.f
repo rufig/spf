@@ -451,7 +451,7 @@ CREATE sections
   ( a u ) DROP >R
   (( 
     HERE
-    S" gcc %s.o -Wl,%s.ld -ldl -lpthread -v -o %s" DROP
+    S" gcc %s.o -Wl,%s.ld -ldl -lpthread -v -o -m32 %s" DROP
     R@ R@ R>
   )) sprintf DROP 
   HERE system

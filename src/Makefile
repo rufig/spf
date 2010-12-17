@@ -10,7 +10,7 @@ spf4.o: *.f compiler/*.f posix/*.f compile.ini
 	cd .. && echo "Wait a bit while compiling..." && ./spf4orig src/spf.f
 
 spf4: spf4.o forth.ld
-	gcc -o $@ $< -Wl,forth.ld -ldl -lpthread -v
+	gcc -o $@ $< -Wl,forth.ld -ldl -lpthread -v -m32
 
 install: spf4
 	cp spf4 ..

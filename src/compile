@@ -12,5 +12,5 @@ cd ..
 echo Wait a bit while compiling...
 ./spf4orig src/spf.f
 cd src
-gcc -o spf4 spf4.o -Wl,forth.ld -ldl -lpthread -v
+gcc -o spf4 spf4.o -Wl,forth.ld -ldl -lpthread -v -m32
 mv spf4 ..
