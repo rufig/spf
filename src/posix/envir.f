@@ -115,13 +115,14 @@
   SYSTEM-PAD dlopen2 TRUE name-lookup DROP
 ;
 
-: extern ( ->bl )
-  BL PARSE 2DUP [T] SHEADER [I]
-  CREATE-CODE COMPILE,
-  symbol-lookup ,
-  (DOES1) (DOES2)
-  @ symbol-address
-;
+\ see lib/include/facil.f
+\ : extern ( ->bl )
+\   BL PARSE 2DUP [T] SHEADER [I]
+\   CREATE-CODE COMPILE,
+\   symbol-lookup ,
+\   (DOES1) (DOES2)
+\   @ symbol-address
+\ ;
 
 : compile-call ( n -- )
   [COMPILE] LITERAL
