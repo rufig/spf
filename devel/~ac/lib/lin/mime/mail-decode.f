@@ -166,6 +166,24 @@ USER uStripCRLFtemp
      THEN
   THEN
 ;
+: Add1251Encoding { a u \ s buf -- a2 u2 }
+  \ входная строка в Windows-1251, закодировать в ней кириллицу для почтовых заголовков
+  u 0= IF a u EXIT THEN
+  a u Is8Bit 0= IF a u EXIT THEN
+  "" -> s "" -> buf
+  u 0 DO
+    a I + DUP C@ 127 >
+    IF 1 buf STR+
+    ELSE
+      buf STRLEN
+      IF buf STR@ base64 " =?windows-1251?B?{s}?=" s S+ buf STRFREE "" -> buf THEN
+      1 s STR+
+    THEN
+  LOOP
+  buf STRLEN
+  IF buf STR@ base64 " =?windows-1251?B?{s}?=" s S+ buf STRFREE THEN
+  s STR@
+;
 : GetSubject { mp -- addr u }
   S" Subject" mp FindMimeHeader mp AddDefEncoding
 ;
@@ -264,6 +282,7 @@ CREATE dbCRLFCRLF 13 C, 10 C, 13 C, 10 C,
 
 USER _LASTMSGHTML
 USER uMessageBaseUrl \ устанавливается вызывающим кодом, если нужно переместить ссылки
+USER uMessageMID
 
 : MessagePartName { mp -- a u }
   mp mpNameLen  @ ?DUP IF mp mpNameAddr  @ SWAP StripLwsp MimeValueDecode EXIT THEN
