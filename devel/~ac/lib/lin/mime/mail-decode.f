@@ -327,6 +327,9 @@ USER uMessageMID
     THEN
   ELSE S" " THEN
 ;
+USER uMpAltCnt
+USER uSkipAttach
+
 : MessageHtml { mp s \ tf_dq tf_db tf_pl -- addr u }
 
 \ Внимание! При не-windows-1251 кодировках сообщение перекодируется на
@@ -342,7 +345,9 @@ USER uMessageMID
   BEGIN
     " <tr><td>" s S+
     mp mpIsMultipart @ mp mpIsMessage OR mp mpParts @ AND
-    IF mp mpParts @ s RECURSE 2DROP
+    IF mp mpSubTypeAddr @ mp mpSubTypeLen @ S" alternative" COMPARE-U 0= IF uMpAltCnt 1+! THEN
+       mp mpParts @ s RECURSE 2DROP
+       uMpAltCnt 0!
     ELSE mp mpTypeAddr @ mp mpTypeLen @ 2DUP
          S" text" COMPARE-U 0= ROT ROT S" message" COMPARE-U 0= OR
          IF
@@ -358,10 +363,21 @@ USER uMessageMID
            IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN ELSE DROP THEN
 
            0 -> tf_pl
+
            mp mpSubTypeAddr @ mp mpSubTypeLen @ S" plain" COMPARE-U 0=
+           IF uMpAltCnt @
+              IF 2DROP S" <!-- text/plain alternative was here -->"
+              ELSE
+                <<escape CR>BR mp MessagePartName
+                " <pre class='plain' title='{s}'>{s}</pre>" DUP -> tf_pl STR@
+              THEN
+           THEN
+
+           mp mpSubTypeAddr @ mp mpSubTypeLen @ S" rfc822" COMPARE-U 0=
            IF <<escape CR>BR mp MessagePartName
               " <pre class='plain' title='{s}'>{s}</pre>" DUP -> tf_pl STR@
            THEN
+
            mp mpSubTypeAddr @ mp mpSubTypeLen @ S" xml" COMPARE-U 0=
            IF 2DUP CRCR>BLCR <<escape mp MessagePartName
               " <pre class='plain' title='{s}'>{s}</pre>" DUP -> tf_pl STR@
@@ -377,7 +393,9 @@ USER uMessageMID
            ( tf_dq ?DUP IF FREE DROP THEN) tf_db ?DUP IF FREE DROP THEN
            \ dequotep возвращает бывш.str5-строку, а не ALLOCATEd-буфер, поэтому тут нельзя делать FREE!
            tf_pl ?DUP IF STRFREE THEN
-         ELSE mp mpCdispAddr @ mp mpCdispLen @ S" attachment" COMPARE-U 0=
+         ELSE uSkipAttach @ 0=
+            IF
+              mp mpCdispAddr @ mp mpCdispLen @ S" attachment" COMPARE-U 0=
               IF
                 " <img src='/e4a/icons/attach.png' width='16' height='16'/> " s S+
                 mp mpSubTypeAddr @ mp mpSubTypeLen @
@@ -388,6 +406,7 @@ USER uMessageMID
               uMessageBaseUrl @ ?DUP IF STR@ ELSE S" " THEN
               mp mpCidAddr @ mp mpCidLen @ DUP 0= IF 2DROP mp MessagePartName THEN
               " <a id='cid:{s}' href='{s}{s}' class='inline_att'>{s}</a>" s S+
+            THEN
          THEN
     THEN
     mp mpNextPart @ DUP -> mp 0=
@@ -427,7 +446,7 @@ USER uMessageMID
            IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN ELSE DROP THEN
 
            0 -> tf_pl
-\           mp mpSubTypeAddr @ mp mpSubTypeLen @ S" plain" COMPARE-U 0=
+\           mp mpSubTypeAddr @ mp mpSubTypeLen @ S" rfc822" COMPARE-U 0=
 \           IF CR>BR " <pre class='plain'>{s}</pre>" DUP -> tf_pl STR@ THEN
            s STR+
            ( tf_dq ?DUP IF FREE DROP THEN) tf_db ?DUP IF FREE DROP THEN
