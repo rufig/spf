@@ -98,13 +98,23 @@ DROP-SCOPE
 \ see also: spf/src/compiler/spf_error.f # SAVE-ERR
 
 
+: SAVED-ERR-FML-SURE ( ior -- ior )
+   DUP IF SEEN-ERR? IF DUP SAVE-ERR-FML THEN THEN
+;
+
 0 PUSH-WARNING
 
 : EMBODY ( i*x url-a url-u -- j*x )
   CURFILE @ >R   2DUP translate-uri HEAP-COPY CURFILE ! \ for SOURCE-NAME
     ['] EMBODY CATCH
-    DUP IF SEEN-ERR? IF DUP SAVE-ERR-FML THEN THEN
+    DUP -5003 <> IF SAVED-ERR-FML-SURE THEN
+
   CURFILE @ FREE THROW   R> CURFILE !
+
+    DUP -5003 =  IF SAVED-ERR-FML-SURE THEN
+    \ в этом случае сохраняем место ошибки уже после отката CURFILE
+    \ -- чтобы был правильный SOURCE-NAME в диагностике
+
     THROW
 ;
 \ see also: spf/src/compiler/spf_translate.f # PROCESS-ERR
