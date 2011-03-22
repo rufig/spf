@@ -29,28 +29,13 @@
   DUP -1002 EQ <if> 2DROP 0. </if>
 </def>
 
+
 <def name="(LAUNCHER)"> CATCH  ERROR </def>
 
 <const name="LAUNCHER"><xt-of name="(LAUNCHER)"/> TASK </const>
 
 <def name="LAUNCH" ds=" xt -- "><rem> xt ( -- ) </rem>
   LAUNCHER START  CloseHandle ERR THROW
-</def>
-
-<def name="OBEY" ds=" c-addr u wid -- true | a u false ">
-  >R 2DUP R> SEARCH-WORDLIST <if> NIP NIP EXECUTE TRUE <exit/></if> FALSE
-</def>
-<def name="OBEY-" ds=" wid c-addr u -- true | a u false ">
-  ROT OBEY
-</def>
-
-<def name="OBEY-SURE" ds=" i*x a u wid -- j*x ">
-  FIND-WORDLIST <if> EXECUTE <exit/></if>
-  TYPE CR -321 THROW
-</def>
-
-<def name="OBEY-SURE-" ds=" i*x wid a u -- j*x ">
-  ROT OBEY-SURE
 </def>
 
 

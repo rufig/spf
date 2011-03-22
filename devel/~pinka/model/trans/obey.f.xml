@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<def name="OBEY" ds=" c-addr u wid -- true | a u false ">
+<def name="OBEY-ONLY" ds=" i*x c-addr u wid -- j*x true | i*x false ">
+  SEARCH-WORDLIST <if> EXECUTE TRUE <exit/></if> FALSE
+</def>
+
+<def name="OBEY" ds=" i*x c-addr u wid -- j*x true | i*x c-addr u false ">
   FIND-WORDLIST <if> EXECUTE TRUE <exit/></if> FALSE
 </def>
-<def name="OBEY-" ds=" wid c-addr u -- true | a u false ">
+
+<def name="OBEY-" ds=" i*x wid c-addr u -- j*x true | i*x c-addr u false ">
   ROT OBEY
 </def>
 
