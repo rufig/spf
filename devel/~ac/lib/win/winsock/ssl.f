@@ -292,8 +292,8 @@ VECT vSslSniHostName ' 2DROP TO vSslSniHostName
       500 DUP ALLOCATE THROW DUP -> mem name X509_NAME_oneline 2DROP 2DROP
       cert mem ASCIIZ>
     ELSE cert S" " THEN
-  ELSE 0 S" " THEN
-  conn SSL_get_verify_result NIP
+    conn SSL_get_verify_result NIP
+  ELSE 0 S" " 1 THEN
 ;
 USER uSslHost   \ здесь задается имя хоста, передаваемое в tlsext ClientHello при исходящих соединениях
 
@@ -330,6 +330,7 @@ USER uSslHost   \ здесь задается имя хоста, передаваемое в tlsext ClientHello пр
 ;
 : SslWrite { addr u conn_obj -- n }
 \  >R SWAP R> SSL_write NIP NIP NIP
+  conn_obj 0= IF 5 THROW THEN
   BEGIN
     u addr conn_obj SSL_write NIP NIP NIP DUP 1 <
   WHILE
@@ -340,6 +341,7 @@ USER uSslHost   \ здесь задается имя хоста, передаваемое в tlsext ClientHello пр
 ;
 : SslRead { addr u conn_obj -- n }
 \  >R SWAP R> SSL_read NIP NIP NIP
+  conn_obj 0= IF 5 THROW THEN
   -1 uSslSinceSocketRead !
   BEGIN
     u addr conn_obj SSL_read NIP NIP NIP DUP 1 <
