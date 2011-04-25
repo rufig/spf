@@ -22,7 +22,7 @@ REQUIRE [UNDEFINED] lib\include\tools.f
   R> OVER - 0 MAX  ( a u n-u )
   SWAP OVER + >R   ( a n-u )
   SWAP OVER - DUP >R SWAP ( a+u-n n-u )
-  [CHAR] 0  FILL
+  BL FILL
   R> R>
 ;
 
