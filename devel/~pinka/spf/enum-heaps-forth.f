@@ -43,7 +43,7 @@ REQUIRE ENUM-HEAPS ~pinka/lib/win/enum-heaps.f
   SWAP DUP >R EXECUTE R>
 ;
 : ENUM-HEAPS-OTHER ( xt -- ) \ xt ( heap -- )
-  \ only forth heaps
+  \ only other heaps
   ['] (ENUM-HEAPS-OTHER) ENUM-HEAPS  ( xt ) DROP
 ;
 

@@ -19,15 +19,20 @@ storage-support-wl PUSH-DEVELOP
   ['] (ENUM-STORAGELISTS) ENUM-USERAREAS
   DROP
 ;
-: (ENUM-STORAGES-ALL) ( xt list -- xt ) \ xt ( h -- )
+: (ENUM-STORAGES-DYN) ( xt list -- xt ) \ xt ( h -- )
   OVER >R FOREACH-LIST-VALUE R>
 ;
 
 BEGIN-EXPORT
 
+: ENUM-STORAGES-DYN ( xt -- ) \ xt ( h -- )
+\ enum dynamic storages
+\ except static FORTH-STORAGE
+  ['] (ENUM-STORAGES-DYN) ENUM-STORAGELISTS DROP
+;
 : ENUM-STORAGES-ALL ( xt -- ) \ xt ( h -- )
-\ except basic FORTH-STORAGE
-  ['] (ENUM-STORAGES-ALL) ENUM-STORAGELISTS DROP
+  >R FORTH-STORAGE R@ EXECUTE R>
+  ENUM-STORAGES-DYN
 ;
 
 END-EXPORT
@@ -50,7 +55,6 @@ BEGIN-EXPORT
 
 : (NEAREST_STOR_ALL) ( addr nfa1|0 -- addr nfa2|0 )
   [ ' (NEAREST3) LIT, ]  ENUM-STORAGES-ALL-WITHIN
-  [ ' (NEAREST3) LIT, ]  FORTH-STORAGE (WITHIN-STORAGE) DROP
 ;
 
 ' (NEAREST_STOR_ALL) TO (NEAREST-NFA)
