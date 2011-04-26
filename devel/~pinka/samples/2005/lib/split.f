@@ -1,6 +1,8 @@
 \ Dec.2004
 \ $Id$
 
+REQUIRE [UNDEFINED] lib/include/tools.f
+
 : SPLIT- ( a u a-key u-key -- a-right u-right  a-left u-left  true  |  a u false )
 \ разделить строку a u на часть слева от подстроки a-key u-key
 \ и на часть справа от этой подстроки.
@@ -68,12 +70,14 @@
 ;
 \ S" How are you?" ( placeholder )  S" How" S" Where, where" REPLACE- TYPE CR SOURCE TYPE CR
 
+[UNDEFINED] CROP- [IF]
 : CROP ( a1 u1 a-dst u-dst-max -- a-rest u-rest )
   DUP >R ROT UMIN DUP >R 2DUP + >R  MOVE R> 2R> -
 ;
 : CROP- ( a-dst u-dst-max a1 u1 -- a-rest u-rest )
   ROT DUP >R UMIN >R SWAP R@ 2DUP + >R MOVE R> 2R> -
 ;
+[THEN]
 
 : REPLACE-TO ( a u a-k u-k a-new u-new a-dst u-dst-max -- a-dst u )
 \ делает замену в указанный буфер  с проверкой границ.

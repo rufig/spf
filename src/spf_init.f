@@ -158,10 +158,26 @@ TARGET-POSIX [IF]
   COMMANDLINE-OPTIONS TUCK HEAP-COPY SWAP ['] (OPTIONS) EVALUATE-WITH
 ;
 
+: +HomeDirName ( a u -- a2 u2 )
+\ Добавить addr u к "значение_окружения_HOME/"
+\ Возможен неопределенный побочный эффект, если в контексте поиска 
+\ окажется слово HOME -- см. реализацию ENVIRONMENT
+  S" HOME" ENVIRONMENT? 0= IF EXIT THEN
+  SYSTEM-PAD DUP >R /SYSTEM-PAD CROP S" /" CROP- CROP ( a2-rest u2-rest )
+  DROP 0 OVER C! R> TUCK -
+  
+  \ Данное определение нельзя поместить в spf_module.f
+  \ т.к. должно быть после определения "ENVIRONMENT?"
+;
+
+
 : SPF-INI
-   S" spf4.ini" INCLUDED-EXISTING IF EXIT THEN
-   +ModuleDirName INCLUDED-EXISTING IF EXIT THEN 
-   2DROP ;
+  S" spf4.ini" INCLUDED-EXISTING IF EXIT THEN
+  +ModuleDirName INCLUDED-EXISTING IF EXIT THEN 2DROP
+  S" .spf4.ini" +HomeDirName INCLUDED-EXISTING IF EXIT THEN 2DROP
+  \ надо ли искать ".spf4.ini" в других местах?
+  \ сделать ли имя ini-файла платформенно-зависимым?
+;
 
 \ Scattering a Colon Definition
 : ... 0 BRANCH, >MARK DUP , 1 >RESOLVE ; IMMEDIATE 

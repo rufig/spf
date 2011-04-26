@@ -13,8 +13,9 @@ USER     BASE ( -- a-addr ) \ 94
 4096 DUP CONSTANT NUMERIC-OUTPUT-LENGTH
 
 USER-CREATE SYSTEM-PAD
-CHARS
+CHARS DUP
 TC-USER-ALLOT \ Область форматного преобразования - обязательно перед PAD
+CONSTANT /SYSTEM-PAD
 
 USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ c-addr - адрес области для промежуточной обработки данных.

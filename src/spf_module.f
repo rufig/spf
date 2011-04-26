@@ -9,6 +9,13 @@ S" src/win/spf_win_module.f" INCLUDED
 
 USER CURFILE
 
+: CROP ( a1 u1 a-dst u-dst-max -- a-rest u-rest )
+  DUP >R ROT UMIN DUP >R 2DUP + >R  MOVE R> 2R> -
+;
+: CROP- ( a-dst u-dst-max a1 u1 -- a-rest u-rest )
+  ROT DUP >R UMIN >R SWAP R@ 2DUP + >R MOVE R> 2R> -
+;
+
 : CUT-PATH ( a u -- a u1 )
 \ Из строки a u выделить часть от начала до последнего 
 \ символа разделителя каталогов (включительно)
@@ -46,4 +53,3 @@ USER CURFILE
 : SOURCE-NAME ( -- a u )
   CURFILE @ DUP IF ASCIIZ> ELSE 0 THEN
 ;
-
