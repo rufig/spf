@@ -61,6 +61,11 @@ VARIABLE EXTRA-MEM
   (( THREAD-MEMORY @ )) free DROP
 ;
 
+
+: (FIX-MEMTAG) ( addr -- addr ) 2R@ DROP OVER CELL- ! ;
+
+: FIX-MEMTAG ( addr-allocated -- ) (FIX-MEMTAG) DROP ;
+
 : ALLOCATE ( u -- a-addr ior ) \ 94 MEMORY
 \ Распределить u байт непрерывного пространства данных. Указатель пространства 
 \ данных не изменяется этой операцией. Первоначальное содержимое выделенного 
@@ -75,7 +80,7 @@ VARIABLE EXTRA-MEM
 \ по умолчанию заполняется адресом тела процедуры, вызвавшей ALLOCATE
 
   CELL+ 1 SWAP 2 calloc-adr @ C-CALL
-  DUP IF R@ OVER ! CELL+ 0 ELSE -300 THEN
+  DUP IF R@ OVER ! CELL+ ( ~~ FIX-MEMTAG ) 0 ELSE -300 THEN
 ;
 
 : FREE ( a-addr -- ior ) \ 94 MEMORY

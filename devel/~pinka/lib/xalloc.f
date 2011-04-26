@@ -1,4 +1,5 @@
 REQUIRE [UNDEFINED] lib/include/tools.f
+REQUIRE FIX-MEMTAG  ~pinka/lib/ext/basics.f
 
 \ 31.01.2009
 \ from: model/data/asset.f.xml
@@ -14,13 +15,13 @@ REQUIRE [UNDEFINED] lib/include/tools.f
   2DUP ! CELL+ SWAP 2DUP + 0! MOVE
 ;
 : XALLOC ( a u -- xaddr ) 
-  DUP CELL+ CELL+ ALLOCATE THROW (  [ a u addr ]  ) 
+  DUP CELL+ CELL+ ALLOCATE THROW (FIX-MEMTAG) (  [ a u addr ]  ) 
   DUP >R (XUPDATE) R>
 ;
 
 
 : XUPDATED ( a u xaddr -- xaddr2 ) 
-  DUP 0= IF  DROP XALLOC EXIT THEN 
+  DUP 0= IF  DROP XALLOC (FIX-MEMTAG) EXIT THEN 
   OVER CELL+ CELL+ RESIZE THROW (  [ a u addr-x2 ]  ) 
   DUP >R (XUPDATE) R>
 ;

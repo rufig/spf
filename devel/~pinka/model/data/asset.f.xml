@@ -15,12 +15,12 @@
 </def>
 
 <def name="XALLOC" ds=" a u -- xaddr ">
-  DUP CELL+ CELL+ ALLOCATE THROW <!-- ( a u addr ) -->
+  DUP CELL+ CELL+ ALLOCATE THROW (FIX-MEMTAG) <!-- ( a u addr ) -->
   DUP >R (XUPDATE) R>
 </def>
 
 <def name="XUPDATED" ds=" a u xaddr --  xaddr2 ">
-  DUP <unless> DROP XALLOC <exit/></unless>
+  DUP <unless> DROP XALLOC (FIX-MEMTAG) <exit/></unless>
   OVER CELL+ CELL+ RESIZE THROW <!-- ( a u addr-x2 ) -->
   DUP >R (XUPDATE) R>
 </def>

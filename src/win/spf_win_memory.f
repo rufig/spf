@@ -86,6 +86,16 @@ DECIMAL
   DUP IF R@ OVER ! CELL+ 0 ELSE -300 THEN
 ;
 
+: (FIX-MEMTAG) ( addr -- addr ) 2R@ DROP OVER CELL- ! ;
+
+: FIX-MEMTAG ( addr-allocated -- ) (FIX-MEMTAG) DROP ;
+
+: ALLOCATE ( u -- a-addr ior )
+  CELL+ 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
+  DUP IF R@ OVER ! CELL+ ( ~~ FIX-MEMTAG ) 0 ELSE -300 THEN
+;
+
+
 : FREE ( a-addr -- ior ) \ 94 MEMORY
 \ Вернуть непрерывную область пространства данных, индицируемую a-addr, системе 
 \ для дальнейшего распределения. a-addr должен индицировать область 
