@@ -17,22 +17,22 @@ REQUIRE U.RS             ~pinka/lib/print.f
 : DUMP-HEAP-SUM ( heap -- )
   DUP IS-HEAP-FORTH IF S" heap.forth " ELSE S" heap.other " THEN TYPE
   DUP
-  8 U.R SPACE
+  10 U.R SPACE
 
   ." sum   " HEAP-SIZE-BUSY
-  0 8 U.R SPACE 
+  0 10 U.R SPACE 
   12 U.RS CR
 ;
 : DUMP-BLOCK-FORTH ( addr u -- )
   ." entry " OVER
-  8 U.R SPACE 
+  10 U.R SPACE 
   12 U.RS SPACE
-  @ DUP 8 U.R SPACE WordByAddr TYPE CR
+  @ DUP 10 U.R SPACE WordByAddr TYPE CR
 ;
 : (DUMP-HEAP-FORTH) ( heap addr u -- heap )
   ."  blk.forth "
   2 PICK
-  8 U.R SPACE
+  10 U.R SPACE
 
   DUMP-BLOCK-FORTH
 ;
@@ -55,3 +55,7 @@ REQUIRE U.RS             ~pinka/lib/print.f
 : DUMP-MEM-FORTH ( -- )
   ['] DUMP-HEAP ENUM-HEAPS-FORTH
 ;
+
+\EOF
+
+ ' DUMP-HEAP-SUM ENUM-HEAPS-FORTH
