@@ -2,6 +2,7 @@
 \ Версия 1.10
 \ Ю. Жиловец, http://www.forth.org.ru/~yz
 
+REQUIRE [UNDEFINED] lib/include/tools.f
 REQUIRE =OF ~yz/lib/mycase.f
 
 CREATE "" 0 ,
@@ -19,9 +20,15 @@ CREATE "" 0 ,
 : CELL" ( ->") [CHAR] " PARSE DROP @ STATE @ IF [COMPILE] LITERAL THEN ; IMMEDIATE
 : LOWORD  [ 0x0F C, 0xBF C, 0xC0 C, ] ; \ movsx eax,ax
 : HIWORD ( n--n)  16 RSHIFT LOWORD ;
-: ON  ( a--) TRUE SWAP ! ;
-: OFF ( a--) 0! ;
+
+\ : ON  ( a--) TRUE SWAP ! ;
+\ : OFF ( a--) 0! ;
+REQUIRE OFF lib/ext/onoff.f
+
+[UNDEFINED] ? [IF]
 : ?  @ . ;
+[THEN]
+
 : 1-!  -1 SWAP +! ;
 : c: POSTPONE [CHAR] ; IMMEDIATE
 
@@ -29,7 +36,9 @@ CREATE "" 0 ,
   BEGIN DUP C@ WHILE 1+ REPEAT 
   SWAP - ;
 
+[UNDEFINED] CZMOVE [IF]
 : CZMOVE ( a # z --) 2DUP + >R SWAP CMOVE R> 0 SWAP C! ;
+[THEN]
 : ZMOVE ( z a --) OVER ZLEN 1+ CMOVE ;
 
 : s.  SP@ S0 @ CELL - 2DUP - 
