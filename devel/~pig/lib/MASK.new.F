@@ -22,7 +22,8 @@
 
 
 \ REQUIRE ||  ~pinka/lib/temps.txt 
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
+REQUIRE [UNDEFINED] lib/include/tools.f
 
 \ ƒополнительные переменные
 100000000 VALUE vWCMPLimit			\ ограничитель цикла поиска совпадений (default)
@@ -30,9 +31,11 @@ USER-VALUE uWCMPLimit				\ ограничитель цикла поиска совпадений (на текущий вызо
 USER uWCMPCount					\ счетчик цикла
 CHAR \ VALUE quote-char				\ префикс квотировани€
 
+[UNDEFINED] WITHIN [IF]
 : WITHIN ( n1|u1 n2|u2 n3|u3 -- flag ) \ 93 CORE EXT
   OVER - >R - R> U<
 ;
+[THEN]
 
 \ возвращает верхний регистр символа ( только дл€ основного набора)
 : UpCase ( c1 -- c2 )

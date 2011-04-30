@@ -1,5 +1,5 @@
 REQUIRE /STRING lib/include/string.f 
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 REQUIRE AF_INET ~nn/lib/sock2.f
 REQUIRE GLOBAL ~nn/lib/globalloc.f 
 \ REQUIRE DEBUG? ~nn/lib/qdebug.f

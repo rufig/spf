@@ -2,7 +2,7 @@
 
 REQUIRE FOR ~profit/lib/for-next.f
 REQUIRE ENUM ~nn/lib/enum.f
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 REQUIRE CONT ~profit/lib/bac4th.f
 REQUIRE iterateByCellValues ~profit/lib/bac4th-iterators.f
 REQUIRE fetchCell ~profit/lib/fetchWrite.f

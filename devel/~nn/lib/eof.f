@@ -1,8 +1,12 @@
+REQUIRE [UNDEFINED] lib/include/tools.f
+
+[UNDEFINED] \EOF [IF]
 : \EOF  ( -- )
   POSTPONE \
   BEGIN REFILL 0= UNTIL
   POSTPONE \
 ;
+[THEN]
 
 : <EOF> \EOF ;
 

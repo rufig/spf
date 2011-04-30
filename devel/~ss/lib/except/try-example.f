@@ -1,4 +1,4 @@
-REQUIRE {                  ~ac/lib/locals.f 
+REQUIRE {                  lib/ext/locals.f
 REQUIRE try                ~ss/lib/except/try.f 
 REQUIRE WORDDEPTH          ~ss/lib/except/locals.f
 

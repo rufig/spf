@@ -1,4 +1,4 @@
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 REQUIRE ZPLACE ~nn/lib/az.f
 
 WINAPI: SetEnvironmentVariableA KERNEL32.DLL

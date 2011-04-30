@@ -1,5 +1,5 @@
 REQUIRE CLASS: ~micro/lib/oop/oop23.f
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 
 CLASS: RECT
 CELL -- left

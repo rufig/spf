@@ -10,7 +10,7 @@ REQUIRE FREEB ~profit/lib/bac4th-mem.f
 REQUIRE iterateByBytes ~profit/lib/bac4th-iterators.f
 REQUIRE compiledCode ~profit/lib/bac4th-closures.f
 REQUIRE STR@ ~ac/lib/str4.f
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 REQUIRE LOCAL ~profit/lib/static.f
 MODULE: bac4th-str
 

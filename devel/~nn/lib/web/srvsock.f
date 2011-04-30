@@ -1,5 +1,5 @@
 REQUIRE   CreateSocket ~nn/lib/sock2.f
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 
 : CreateServerSocket ( port -- socket )
   { port \ s }

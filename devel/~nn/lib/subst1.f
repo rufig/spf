@@ -1,5 +1,5 @@
 REQUIRE /STRING lib/include/string.f 
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 REQUIRE PLACE ~nn/lib/string.f
 REQUIRE <TIB  ~nn/lib/tib.f
 REQUIRE ZPLACE ~nn/lib/az.f

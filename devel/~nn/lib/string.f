@@ -1,6 +1,6 @@
 REQUIRE /STRING lib/include/string.f
 REQUIRE PLACE ~mak/place.f
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 
 
 CREATE str1 256 ALLOT   S" First line" str1 PLACE
