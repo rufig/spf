@@ -1,0 +1,6 @@
+Nicholas Nemtsev
+
+All libs available in the archive[1] at the page[2].
+
+[1] http://nncron.ru/download/nnlib.zip
+[2] http://nncron.ru/download_ru.shtml
