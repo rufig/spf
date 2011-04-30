@@ -15,9 +15,13 @@ REQUIRE [IF] lib/include/tools.f
   ALIGN
   HERE SWAP ! ( заполнили cfa )
 ;
-[THEN]
 : SCREATE ( S" name" -- )
   SHEADER
   HERE DOES>A ! ( для DOES )
   ['] _CREATE-CODE COMPILE,
+;
+[THEN]
+
+: SCREATE ( S" name" -- )
+  CREATED
 ;
