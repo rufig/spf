@@ -15,7 +15,7 @@ REQUIRE /STRING      lib/include/string.f
 REQUIRE [IF]         lib/include/tools.f
 REQUIRE SAVE-INPUT   lib/include/core-ext.f
 [DEFINED] WINAPI: [IF]
-REQUIRE RENAME-FILE  ~pinka/lib/FileExt.f
+REQUIRE RENAME-FILE  lib/win/file.f
 [ELSE]
 REQUIRE RENAME-FILE  lib/posix/file.f
 [THEN]
