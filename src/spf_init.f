@@ -160,8 +160,6 @@ TARGET-POSIX [IF]
 
 : +HomeDirName ( a u -- a2 u2 )
 \ Добавить addr u к "значение_окружения_HOME/"
-\ Возможен неопределенный побочный эффект, если в контексте поиска 
-\ окажется слово HOME -- см. реализацию ENVIRONMENT
   S" HOME" ENVIRONMENT? 0= IF EXIT THEN
   SYSTEM-PAD DUP >R /SYSTEM-PAD CROP S" /" CROP- CROP ( a2-rest u2-rest )
   DROP 0 OVER C! R> TUCK -
@@ -177,6 +175,7 @@ TARGET-POSIX [IF]
   S" .spf4.ini" +HomeDirName INCLUDED-EXISTING IF EXIT THEN 2DROP
   \ надо ли искать ".spf4.ini" в других местах?
   \ сделать ли имя ini-файла платформенно-зависимым?
+  \ см. Bug#3274947
 ;
 
 \ Scattering a Colon Definition

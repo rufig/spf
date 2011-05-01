@@ -1,5 +1,10 @@
 \ $Id$
 
+WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
+  ( wid ) \ запишем адрес имени словаря
+  CELL+ LAST @ SWAP !
+  \ имя слова аналогично FORTH-WORDLIST
+
 : (ENVIR?) ( addr u -- false | i*x true )
    BEGIN
      REFILL
@@ -20,7 +25,9 @@
   \ расширение spf370: если в windows environment есть
   \ запрашиваемая строка, то возвращаем её - c-addr u true
 
-  SFIND IF EXECUTE TRUE EXIT THEN
+  2DUP ENVIRONMENT-WORDLIST 
+  SEARCH-WORDLIST IF NIP NIP EXECUTE TRUE EXIT THEN
+
 
   S" lib/ENVIR.SPF" +ModuleDirName 2DUP FILE-EXIST 0= 
   IF
