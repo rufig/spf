@@ -2,7 +2,7 @@
 ( там используется модифицированный вариант UTF-7, см. rfc2060 )
 \ а то уж очень неудобно логи читать :)
 
-REQUIRE {             ~ac/lib/locals.f
+REQUIRE {             lib/ext/locals.f
 REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE base64        ~ac/lib/string/conv.f
 REQUIRE BUNICODE>     ~ac/lib/lin/iconv/iconv.f

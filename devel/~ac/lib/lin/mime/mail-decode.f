@@ -13,7 +13,7 @@ GET-CURRENT ALSO CHARSET-DECODERS DEFINITIONS
 : iso-8859-5 iso-8859-5>UNICODE " {s}" STR@ UNICODE> ;
 PREVIOUS SET-CURRENT
 
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 
 : ">BL ( addr u -- )
   0 ?DO DUP C@ DUP [CHAR] " = SWAP [CHAR] ' = OR 
