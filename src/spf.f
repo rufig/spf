@@ -246,25 +246,21 @@ CR .( Done. Saving the system.)
 CR .( =============================================================)
 CR
 
-TC-LATEST-> FORTH-WORDLIST
-HERE ' (DP) TC-ADDR!
+TC-LATEST-> FORTH-WORDLIST  \ запись созданной цепочки слов в словарь (реальный адрес)
+
+HERE          ' (DP)      TC-ADDR! \ запись указател€ пространства кода/данных
+_VOC-LIST @   ' _VOC-LIST TC-ADDR! \ запись созданной цепочки словарей
+
 
 TARGET-POSIX [IF]
 
 .( VIRT offset is ) 0 >VIRT . CR
 
-\ ѕеремещаем в виртуальные адреса словарь NON-OPT-WL
-' NON-OPT-WL EXECUTE DUP >VIRT! CELL+ >VIRT!
-' NON-OPT-WL EXECUTE ' NON-OPT-WL TC-VECT!
+\ ѕеремещаем в виртуальные адреса VALUE NON-OPT-WL
+' NON-OPT-WL EXECUTE      ' NON-OPT-WL      TC-VECT!
 
-\ ѕеремещаем в виртуральные адреса словарь FORTH-WORDLIST
-' FORTH-WORDLIST EXECUTE DUP >VIRT! 
-( wid )
-\ CELL - >VIRT! \ очевидно патчинг св€зи VOC-LIST -- но не работает почему-то
-CELL - 0! \ просто занул€ем - останетс€ только один словарь в VOC-LIST целевой системы
-' FORTH-WORDLIST EXECUTE ' FORTH-WORDLIST TC-VECT!
-
-' FORTH-WORDLIST EXECUTE CELL - VOC-LIST ! \ записываем VOC-LIST
+\ ѕеремещаем в виртуальные адреса VALUE FORTH-WORDLIST
+' FORTH-WORDLIST EXECUTE  ' FORTH-WORDLIST  TC-VECT!
 
 HERE .forth - TO .forth#
 

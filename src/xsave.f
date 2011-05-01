@@ -33,24 +33,49 @@ S" src/elf.f" INCLUDED
 \  segment-size +LOOP
 \ ;
 
-: reloc-wordlist ( wl-last -- )
+
+: ?VIRT! ( addr -- )
+  DUP @ 0= IF DROP EXIT THEN >VIRT!
+;
+
+: ENUM-VOCS ( xt -- )  \ will works with target chain
+\ xt ( wid -- )
+  >R VOC-LIST @ BEGIN DUP WHILE
+    DUP CELL+ ( a wid ) R@ ROT @ >R  \ allow change link
+    EXECUTE R>
+  REPEAT DROP RDROP
+;
+: reloc-wordlist-chain ( wl-last -- )
   BEGIN
     ?DUP
   WHILE
     DUP NAME>C >VIRT!
     DUP CDR SWAP
-    NAME>L DUP @ IF >VIRT! ELSE DROP THEN 
+    NAME>L ?VIRT!
   REPEAT
 ;
+: reloc-wordlist ( wid -- )
+  DUP @ reloc-wordlist-chain
+  DUP       ?VIRT! \ words chain
+  DUP CELL+ ?VIRT! \ wordlist's name
+\ DUP CELL- ?VIRT! \ link to the next voc
+  DROP
+;
+: reloc-wordlists-all ( -- )
+  ['] reloc-wordlist ENUM-VOCS
+;
+: reloc-voclist ( -- )
+  VOC-LIST @
+  BEGIN DUP WHILE
+    DUP @ SWAP ?VIRT!
+  REPEAT DROP
+;
+
 
 : >elf ( a n -- )
   h WRITE-FILE THROW
 ;
 
-
-0 VALUE NON-OPT-WL-adr
-
-'' NON-OPT-WL EXECUTE TO NON-OPT-WL-adr
 
 : XSAVE ( c-addr u -- )
   ( сохранение наработанной форт-системы в объектном файле ELF )
@@ -59,8 +84,8 @@ S" src/elf.f" INCLUDED
 
   reloc-sections-offsets
 
-  ALSO TC-WL CONTEXT @ PREVIOUS @ reloc-wordlist
-  NON-OPT-WL-adr VIRT> @ VIRT> reloc-wordlist
+  reloc-wordlists-all
+  reloc-voclist
 
   sections total-sections-size >elf
   segments total-segments-size >elf

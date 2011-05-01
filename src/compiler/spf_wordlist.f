@@ -7,15 +7,12 @@
   Ревизия - сентябрь 1999, март 2000
 )
 
-_VOC-LIST @ \ готовая цепочка
 
 VARIABLE _VOC-LIST \ список словарей
 
-' _VOC-LIST TC-ADDR! \ запись уже созданной цепочки
-' _VOC-LIST TO VOC-LIST  \ исправление в tc
-
 VECT VOC-LIST \ точка для модификаций
-' _VOC-LIST ' VOC-LIST TC-VECT!  \ начальное значение
+
+' _VOC-LIST ' VOC-LIST TC-VECT!  \ начальное значение (задан вирт. xt)
 
 
 USER LAST     \ указывает на поле имени последней
@@ -30,6 +27,7 @@ WORDLIST VALUE FORTH-WORDLIST  ( -- wid ) \ 94 SEARCH
 \ Возвратить wid - идентификатор списка слов, включающего все стандартные 
 \ слова, обеспечиваемые реализацией. Этот список слов изначально список 
 \ компиляции и часть начального порядка поиска.
+
 
 : >BODY ( xt -- a-addr ) \ 94
 \ a-addr - адрес поля данных, соответствующий xt.
@@ -187,8 +185,8 @@ END-CODE
 : ENUM-VOCS ( xt -- )
 \ xt ( wid -- )
   >R VOC-LIST @ BEGIN DUP WHILE
-    DUP CELL+ ( a wid ) R@ ROT >R
-    EXECUTE R> @
+    DUP CELL+ ( a wid ) R@ ROT @ >R
+    EXECUTE R>
   REPEAT DROP RDROP
 ;
 : (ENUM-VOCS-FORTH) ( xt wid -- xt )

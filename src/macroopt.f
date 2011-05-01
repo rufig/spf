@@ -136,6 +136,8 @@ M\ VECT DTST
 GET-CURRENT
 
 WORDLIST CONSTANT MACROOPT-WL
+\   -- адрес не виртуальный (!)
+
 
 \ запишем адрес имени словаря
 ' MACROOPT-WL EXECUTE CELL+ ( name_addr )

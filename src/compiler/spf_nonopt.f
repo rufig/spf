@@ -1,10 +1,6 @@
 ( Слова, к-е нельзя инлайнить  ) 
 ( Используются словом '        )
 
-VARIABLE VOC-LIST \ список словарей
-
-' VOC-LIST EXECUTE 0!
-
 GET-CURRENT
 
 WORDLIST VALUE NON-OPT-WL
