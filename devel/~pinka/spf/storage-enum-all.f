@@ -1,3 +1,17 @@
+\ Apr.2011
+\ $Id$
+( Модуль предоставляет слово ENUM-STORAGES-ALL -- перебор всех хранилищ, 
+  включая хранилища, созданные другими потоками [и соответствующую поддержку 
+  в WordByAddr]. Слово ENUM-STORAGES из storage-enum.f переберает только 
+  базовое и локальные для потока.
+  Более общий перебор необходим для WordByAddr и дампов исключений 
+  в многопоточных приложениях, когда в некоторых потоках может исполняется
+  код из хранилищ, созданных в других потоках.
+
+  Подключать отдельно после storage.f
+)
+
+REQUIRE STORAGE-ID     ~pinka/spf/storage.f
 REQUIRE PUSH-DEVELOP   ~pinka/spf/compiler/native-context.f
 REQUIRE ENUM-USERAREAS ~pinka/spf/enum-userareas2.f
 
@@ -54,7 +68,7 @@ END-EXPORT
 BEGIN-EXPORT
 
 : (NEAREST_STOR_ALL) ( addr nfa1|0 -- addr nfa2|0 )
-  [ ' (NEAREST3) LIT, ]  ENUM-STORAGES-ALL-WITHIN
+  ['] (NEAREST4)  ENUM-STORAGES-ALL-WITHIN
 ;
 
 ' (NEAREST_STOR_ALL) TO (NEAREST-NFA)
