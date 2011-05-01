@@ -68,8 +68,14 @@
 : UNUSED ( -- u ) \ 94 CORE EXT
   STORAGE-ID DUP IF 3 CELLS + @   DP @ - THEN
 ;
-: STORAGE-REST ( -- a u )
+: STORAGE-REST ( -- a u ) \ free space
   DP @ UNUSED
+;
+: STORAGE-CONTENT ( -- a u ) \ busy space
+  STORAGE-ID DP @ OVER -
+;
+: CODESPACE-CONTENT ( -- a u )
+  STORAGE-CONTENT
 ;
 : FLUSH-STORAGE ( -- )
   DISMOUNT MOUNT
