@@ -225,7 +225,10 @@ VECT (NEAREST-NFA) ( addr nfa1 -- addr nfa2 )
 : (WordByAddr) ( addr -- c-addr u )
   0 (NEAREST-NFA)
   DUP 0= IF 2DROP S" <?not in the image>" EXIT THEN
-  TUCK - ABS 4096 U< IF COUNT EXIT THEN
+  ( addr nfa )
+  TUCK NAME> - ABS 4096 U< IF COUNT EXIT THEN
+  \ расстояние следует проверять от xt, а не от nfa
+  \ ( -- очень актуально в случае алиасов)
   DROP S" <?not found>"
 ;
 : WordByAddr ( addr -- c-addr u )
