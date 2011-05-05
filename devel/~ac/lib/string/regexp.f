@@ -97,7 +97,7 @@ USER _pcre_vector
 : PcreExec ( addr u re -- matched ior )
   >R 2>R
   _pcre_vector_len _pcre_vector @ 
-  DUP 0= IF DROP _pcre_vector_len ALLOCATE THROW DUP _pcre_vector ! THEN
+  DUP 0= IF DROP _pcre_vector_len CELLS ALLOCATE THROW DUP _pcre_vector ! THEN
   0 0 2R> SWAP 0 R> 
   pcre_exec >R 2DROP 2DROP 2DROP 2DROP R>
   DUP   0= IF -3011 EXIT THEN
