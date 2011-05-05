@@ -148,7 +148,7 @@
   и не из EVALUATE, а со стека - то что там лежало до ". n - просто число,
   s - строка addr u.
 )
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 0
 4 -- sType
 4 -- sAsize

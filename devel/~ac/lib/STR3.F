@@ -153,7 +153,7 @@
 
   Скомпилированный размер библиотеки - около 7Кб.
 )
-REQUIRE { ~ac/lib/locals.f
+REQUIRE { lib/ext/locals.f
 0
 4 -- sType
 4 -- sAsize
