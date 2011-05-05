@@ -1,6 +1,6 @@
 ( Разбор файлов-почтовых ящиков. А.Черезов 1998-2000 )
 
-REQUIRE {          ~ac/lib/locals.f
+REQUIRE {          lib/ext/locals.f
 REQUIRE COMPARE-U  ~ac/lib/string/compare-u.f
 REQUIRE UPPERCASE  ~ac/lib/string/uppercase.f
 REQUIRE TIB>BL     ~ac/lib/string/conv.f

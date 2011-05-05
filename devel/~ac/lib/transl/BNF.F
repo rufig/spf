@@ -4,7 +4,7 @@
   Andrey Cherezov, 26.Mar.2000
 )
 
-REQUIRE {         ~ac/lib/locals.f
+REQUIRE {         lib/ext/locals.f
 REQUIRE COMPARE-U ~ac/lib/string/compare-u.f
 REQUIRE STR@      ~ac/lib/str5.f
 

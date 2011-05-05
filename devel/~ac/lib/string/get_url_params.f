@@ -8,7 +8,7 @@
 
 \ ֱûגרטי acWEB\conf\http\plugins\fs\get_url_params.f 
 
-REQUIRE {             ~ac/lib/locals.f
+REQUIRE {             lib/ext/locals.f
 REQUIRE "             ~ac/lib/str5.f
 
 USER SkipConvert%

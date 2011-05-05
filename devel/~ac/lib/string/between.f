@@ -2,7 +2,7 @@
 \ без EVALUATE-WITH
 \ см. примеры
 
-REQUIRE {             ~ac/lib/locals.f
+REQUIRE {             lib/ext/locals.f
 
 : StringBefore { a u sa su -- fa fu flag }
   a u sa su SEARCH

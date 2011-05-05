@@ -6,7 +6,7 @@
   error_code и from, с которыми связаны значения-строки addr u
   Основные слова - GetParam, SetParam, IsSet, примеры см. в конце.
 )
-REQUIRE {             ~ac/lib/locals.f
+REQUIRE {             lib/ext/locals.f
 REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f
 

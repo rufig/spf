@@ -14,7 +14,7 @@
   rfc2045: base64, quotted printable
 )
 
-REQUIRE {             ~ac/lib/locals.f
+REQUIRE {             lib/ext/locals.f
 REQUIRE STR@          ~ac/lib/str5.f
 REQUIRE base64        ~ac/lib/string/conv.f
 REQUIRE COMPARE-U     ~ac/lib/string/compare-u.f

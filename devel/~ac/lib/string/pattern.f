@@ -1,4 +1,4 @@
-REQUIRE {             ~ac/lib/locals.f
+REQUIRE {             lib/ext/locals.f
 
 : EvalPattern ( addr u h -- )
   { a u hd \ t tl i o h }
