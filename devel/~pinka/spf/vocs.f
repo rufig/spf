@@ -1,4 +1,4 @@
-: (VOCS) ( wid -- )
+: (VOCS) ( n1 wid -- n2 )
   VOC-NAME. SPACE 1+
 ;
 : VOCS ( -- )
