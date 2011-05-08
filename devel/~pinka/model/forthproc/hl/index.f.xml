@@ -21,5 +21,6 @@
   <include href="char.L1.f.xml"/>
 
   <include href="ds.L2.f.xml"/>
+  <include href="ds.L3.f.xml"/>
 
 </forth>

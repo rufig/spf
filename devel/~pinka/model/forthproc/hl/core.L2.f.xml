@@ -37,10 +37,11 @@
 <def name="2!" ds=" d a -- "> SWAP OVER ! CELL+ ! </def>
 <def name="2@" ds=" a -- d "> DUP CELL+ @ SWAP @ </def>
 
+<rem> moved to ds.L2.f.xml
 <def name="PICK" ds=" x1 i*x i -- x1 i*x x1 ">
   DUP <if> SWAP >R 1- <recurse/> R> SWAP <exit/></if> DROP DUP
 </def>
-
+</rem>
 
 <def name="CELLS" ds=" u1 -- u2 ">
   /CELL-DEGREE LSHIFT

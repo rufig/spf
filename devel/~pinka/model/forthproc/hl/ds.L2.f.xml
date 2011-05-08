@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
+<comment>
+  It is supposed that stacks space is addresable in memory.
+</comment>
+
+<def name="PICK" ds=" y i*x i -- y i*x y ">
+  1+ CELLS SP@ + @
+</def>
+
 <def name="NDROP" ds=" n -- ">
+<rem> synonym of DISCARD </rem>
   1+ CELLS SP@ + SP!
 </def>
 

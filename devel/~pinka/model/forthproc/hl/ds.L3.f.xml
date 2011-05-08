@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<comment>
+  It is supposed that stacks space is addresable in memory.
+</comment>
+
+<def name="ROLL" ds=" y i*x i -- i*x y ">
+  DUP <unless> DROP      <exit/></unless>
+  DUP 1 = <if> DROP SWAP <exit/></if>
+  DUP 2 = <if> DROP ROT  <exit/></if>
+  SWAP >R 1- <recurse/> R> SWAP
+</def>
+
+</forth>
