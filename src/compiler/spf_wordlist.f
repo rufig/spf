@@ -222,26 +222,25 @@ VECT (NEAREST-NFA) ( addr nfa1 -- addr nfa2 )
 
 ' (NEAREST3) ' (NEAREST-NFA) TC-VECT!
 
-: (WordByAddr) ( addr -- c-addr u )
-  0 (NEAREST-NFA)
-  DUP 0= IF 2DROP S" <?not in the image>" EXIT THEN
-  ( addr nfa )
+: (WordByAddrSilent) ( addr -- c-addr u )
+  0 (NEAREST-NFA) DUP 0= IF NIP DUP ( 0 0 ) EXIT THEN
   TUCK NAME> - ABS 4096 U< IF COUNT EXIT THEN
   \ расстояние следует проверять от xt, а не от nfa
   \ ( -- очень актуально в случае алиасов)
-  DROP S" <?not found>"
-;
-: WordByAddr ( addr -- c-addr u )
-  ['] (WordByAddr) CATCH  ?DUP IF ."  EXC:" . DROP S" <?WordByAddr exception>" EXIT THEN
-  255 UMIN
-;
-: (WordByAddrSilent) ( addr -- c-addr u )
-  0 (NEAREST-NFA) DUP 0= IF NIP DUP ( 0 0 ) EXIT THEN
-  TUCK - ABS 4096 U< IF COUNT EXIT THEN
   0 ( caddr 0 )
 ;
 : WordByAddrSilent ( addr -- c-addr u )
   ['] (WordByAddrSilent) CATCH  ?DUP IF ."  EXC:" . 0 ( x 0 ) THEN
+  255 UMIN
+;
+
+: (WordByAddr) ( addr -- c-addr u )
+  (WordByAddrSilent) DUP IF EXIT THEN
+  DROP 0= IF S" <?not in the image>" EXIT THEN
+  S" <?not found>"
+;
+: WordByAddr ( addr -- c-addr u )
+  ['] (WordByAddr) CATCH  ?DUP IF ."  EXC:" . DROP S" <?WordByAddr exception>" EXIT THEN
   255 UMIN
 ;
 
