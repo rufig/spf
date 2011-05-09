@@ -12,28 +12,38 @@
 
 <wordlist name="doubling-hidden">
 
+<const name="BIC"><rem> Bits In Cell </rem>
+  8 /CELL *
+</const>
+<const name="BIC1">
+  BIC 1-
+</const>
+<const name="BIC2">
+  BIC 2* 1-
+</const>
+
 <def name="(DLSHIFT)" ds=" d1 u -- d2 ">
   <rem> ( lo hi  u ) </rem>
   TUCK LSHIFT >R 
-  2DUP NEGATE 32 + RSHIFT >R
+  2DUP NEGATE BIC + RSHIFT >R
   LSHIFT 2R> OR
 </def>
 <def name="DLSHIFT" ds=" d1 u -- d2 ">
   DUP <unless> DROP <exit/></unless>
-  DUP 63 UGT <if> DROP 2DROP 0. <exit/></if>
-  DUP 31 UGT <if> NIP 32 - LSHIFT 0 SWAP <exit/></if>
+  DUP BIC2 UGT <if> DROP 2DROP 0. <exit/></if>
+  DUP BIC1 UGT <if> NIP BIC - LSHIFT 0 SWAP <exit/></if>
   (DLSHIFT) 
 </def>
 <def name="(DRSHIFT)" ds=" d1 u -- d2 ">
   <rem> ( lo hi  u ) </rem>
   2DUP RSHIFT >R
-  TUCK NEGATE 32 + LSHIFT >R
+  TUCK NEGATE BIC + LSHIFT >R
   RSHIFT R> OR R>
 </def>
 <def name="DRSHIFT" ds=" d1 u -- d2 ">
   DUP <unless> DROP <exit/></unless>
-  DUP 63 UGT <if> DROP 2DROP 0. <exit/></if>
-  DUP 31 UGT <if> >R NIP R> 32 - RSHIFT 0 <exit/></if>
+  DUP BIC2 UGT <if> DROP 2DROP 0. <exit/></if>
+  DUP BIC1 UGT <if> >R NIP R> BIC - RSHIFT 0 <exit/></if>
   (DRSHIFT) 
 </def>
 
@@ -51,12 +61,30 @@
   <lit> 1 CHARS  LOGARITHM2 </lit> 0
 </def>
 
-<def name="ALIGNED"> >R DUP 0x3F AND <if> 0x40 + 0xFFFFFFC0 AND </if> R> </def>
+<comment>
+<def name="UM+" ds=" u1 u2 -- d3 ">
+  OVER + TUCK UGT NEGATE
+</def>
+<def name="UM+" ds=" u1 u2 -- u3 c3 ">
+  0 SWAP 0 D+
+</def>
+</comment>
+
+<def name="UM+" ds=" lo1 hi1 lo2 hi2 -- lo3 hi3  lo-cy hi-cy">
+  >R SWAP >R UM+ R> R> UM+ <rem>( l1 r1 h2 r2 )</rem>
+  >R UM+ R> + 0
+</def>
+
+<def name="ALIGNED"> >R ALIGNED R> </def>
+<comment>
+  Align for 64 bytes: 
+  DUP 0x3F AND <if> 0x40 + 0xFFFFFFC0 AND </if>
+</comment>
 
 <def name="LSHIFT"> DROP DLSHIFT </def>
 <def name="RSHIFT"> DROP DRSHIFT </def>
 
-<def name="/CHAR"> 1. </def>
+<def name="/CHAR"> 1 CHARS 0 </def>
 <def name="/CELL"> 2 CELLS 0 </def>
 
 <def name="W@"> DROP W@ 0   </def>
@@ -71,8 +99,8 @@
 <def name="B@"> DROP  B@ 0 </def>
 <def name="B!"> DROP NIP B! </def>
 
-<def name="C@"> B@ </def>
-<def name="C!"> B! </def>
+<def name="C@"> DROP C@ 0 </def>
+<def name="C!"> DROP NIP C! </def>
 
 <!-- It is involve an endianness-sensitive solution!
  For example, 65 SP@ C@ does't give 65 but 0.
@@ -98,39 +126,6 @@
 
 <def name=">R"> 2R> 2SWAP 2>R 2>R </def>
 <def name="R>"> 2R> 2R> 2SWAP 2>R </def>
-
-
-<def name="UM+" ds=" lo1 hi1 lo2 hi2 -- lo3 hi3  lo-cy hi-cy">
-  <r:direct xmlns:r="http://forth.org.ru/ForthML/Rules/">
-    HEX
-    <text>
-     8B 55 00 01  55 08 13 45  04 8D 6D 08  8D 6D FC 89
-     45 00 C7 C0  00 00 00 00  83 D0 00 8D  6D FC 89 45
-     00 C7 C0 00  00 00 00 C3
-    </text><each-word> forthml-hidden::I-LIT <unless> ABORT </unless> B, </each-word>
-    DECIMAL
-  </r:direct>
-<rem>
-  <code name="UDM+" ds=" d1 d2 -- d3 d-cy ">
-     MOV EDX, [EBP]
-     ADD 8 [EBP], EDX
-     ADC EAX, 4 [EBP]
-     LEA EBP, 8 [EBP]
-
-     LEA EBP, -4 [EBP]
-     MOV [EBP], EAX
-     MOV EAX, # 0
-     ADC EAX, # 0
-
-     LEA EBP, -4 [EBP]
-     MOV [EBP], EAX
-     MOV EAX, # 0
-
-     RET
-     <rem>not so perfect but good enough ;) </rem>
-  </code>
-</rem>
-</def>
 
 </export></wordlist>
 

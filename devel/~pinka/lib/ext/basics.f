@@ -57,6 +57,9 @@ REQUIRE EQUAL   ~pinka/spf/string-equal.f
 [UNDEFINED] -! [IF]
 : -! ( x a -- ) >R NEGATE R> +! ; [THEN]
 
+[UNDEFINED] UM+ [IF]
+: UM+ ( u1 u2 -- u3 c3 ) 0 SWAP 0 D+ ; [THEN]
+
 
 [UNDEFINED] ALLOCATED [IF]
 : ALLOCATED ( u -- a u ) DUP ALLOCATE THROW (FIX-MEMTAG) SWAP ;
