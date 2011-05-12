@@ -253,6 +253,7 @@ CREATE dbCRLFCRLF 13 C, 10 C, 13 C, 10 C,
 : debase64_3 ( addr u -- addr1 u1 ) { \ i }
 \ версия, игнорирующая пробельные символы внутри исходной строки
 \ и игнорирующая баг энкодера google
+\ и игнорирующая невозможные в base64 символы (баг OE6 или MDaemon)
 
 \ отрезаем левые приписки после base64-блока, которые иногда добавляются форвардерами почты
   2DUP dbCRLFCRLF 4 SEARCH IF NIP - ELSE 2DROP THEN
@@ -263,11 +264,14 @@ CREATE dbCRLFCRLF 13 C, 10 C, 13 C, 10 C,
     OVER I + C@ 32 >
     IF
       OVER I + C@ DUP [CHAR] = =
-      IF DROP 0 nbase 1+! ELSE -AL64 DROP THEN 3 i 4 MOD - 0 ?DO 64 * LOOP +
-      i 4 MOD 3 = IF abase @ lbase @ + DUP >R !
-      R@ C@ R@ 2 CHARS + C@ R@ C! R> 2 CHARS + C!
-      3 lbase +! 0 THEN
-      i 1+ -> i
+      IF DROP 0 nbase 1+! TRUE ELSE -AL64 THEN
+      IF
+        3 i 4 MOD - 0 ?DO 64 * LOOP +
+        i 4 MOD 3 = IF abase @ lbase @ + DUP >R !
+        R@ C@ R@ 2 CHARS + C@ R@ C! R> 2 CHARS + C!
+        3 lbase +! 0 THEN
+        i 1+ -> i
+      ELSE DROP THEN
     THEN
   LOOP
   NIP ?DUP

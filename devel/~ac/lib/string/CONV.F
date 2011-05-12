@@ -36,15 +36,23 @@ CREATE  AB64 C" ghijklmnopqrstuvwxyz0123456789+/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
   R@ 1 = IF 2DUP + 2 - 2 [CHAR] = FILL THEN
   R> 2 = IF 2DUP + 1 - [CHAR] = SWAP C! THEN
 ;
+USER _db64b \ поправка на баги энкодера Outlook
+
 : debase64_1 ( addr u -- addr1 u1 )
   DUP 0= IF 2DROP 4 ALLOCATE THROW abase ! abase @ 0 EXIT THEN
+  _db64b 0!
   0 SWAP DUP 4 / 3 * CELL+ ALLOCATE THROW abase ! lbase 0! nbase 0!
   0 ?DO
     OVER I + C@ DUP [CHAR] = =
-    IF DROP 0 nbase 1+! ELSE -AL64 DROP THEN 3 I 4 MOD - 0 ?DO 64 * LOOP +
-    I 4 MOD 3 = IF abase @ lbase @ + DUP >R !
-    R@ C@ R@ 2 CHARS + C@ R@ C! R> 2 CHARS + C!
-    3 lbase +! 0 THEN
+    IF DROP 0 nbase 1+! TRUE ELSE -AL64 THEN
+    IF
+      3 I _db64b @ - 4 MOD - 0 ?DO 64 * LOOP +
+      I _db64b @ - 4 MOD 3 =
+      IF abase @ lbase @ + DUP >R !
+         R@ C@ R@ 2 CHARS + C@ R@ C! R> 2 CHARS + C!
+         3 lbase +! 0
+      THEN
+    ELSE DROP _db64b 1+! THEN
   LOOP 2DROP abase @ lbase @ nbase @ - 0 MAX
 ;
 VECT debase64 ' debase64_1 TO debase64
