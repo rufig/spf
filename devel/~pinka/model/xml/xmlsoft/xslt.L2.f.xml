@@ -74,6 +74,10 @@
 
 <export>
 
+<alias name="load" word="load"/>
+
+<alias name="loadXML" word="loadXML"/>
+
 <def name="load-xml-chunk" ds=" a u -- ">
   DUP <if> load-chunk <exit/></if>
   load-chunk ctxt-doc assume-doc
