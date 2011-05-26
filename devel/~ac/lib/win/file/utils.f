@@ -173,23 +173,34 @@ VARIABLE CurDir
     IF + I - I UNLOOP EXIT THEN
   LOOP
 ;
-\ : FileExists 2DUP TYPE SPACE FileExists DUP . CR ;
-
+VARIABLE DLOPEN_DEBUG
+: DLL?
+  DLOPEN_DEBUG @ 0= IF FALSE EXIT THEN
+  2DUP S" dll" SEARCH NIP NIP IF TRUE EXIT THEN
+  2DUP S" DLL" SEARCH NIP NIP IF TRUE EXIT THEN
+  FALSE
+;
+: FileExists1
+  DLL? >R
+  R@ IF 2DUP TYPE SPACE THEN
+  FileExists
+  R> IF DUP . CR THEN
+;
 : (DLOPEN_ext)
-  2DUP FileExists IF DLOPEN EXIT THEN
+  2DUP FileExists1 IF DLOPEN EXIT THEN
 
-  2DUP ModuleDirName " {s}{s}" DUP >R STR@ FileExists R> STRFREE 
+  2DUP ModuleDirName " {s}{s}" DUP >R STR@ FileExists1 R> STRFREE 
   IF DLOPEN EXIT THEN
 
-  2DUP ModuleDirName " {s}ext\{s}" DUP >R STR@ 2DUP FileExists
+  2DUP ModuleDirName " {s}ext\{s}" DUP >R STR@ 2DUP FileExists1
   IF 2SWAP 2DROP LoadInitLibrary R> STRFREE THROW EXIT THEN
   2DROP R> STRFREE 
 
-  2DUP ModuleDirName " {s}..\ext\{s}" DUP >R STR@ 2DUP FileExists
+  2DUP ModuleDirName " {s}..\ext\{s}" DUP >R STR@ 2DUP FileExists1
   IF 2SWAP 2DROP LoadInitLibrary R> STRFREE THROW EXIT THEN
   2DROP R> STRFREE 
 
-  2DUP ModuleDirName " {s}..\..\ext\{s}" DUP >R STR@ 2DUP FileExists
+  2DUP ModuleDirName " {s}..\..\ext\{s}" DUP >R STR@ 2DUP FileExists1
   IF 2SWAP 2DROP LoadInitLibrary R> STRFREE THROW EXIT THEN
   2DROP R> STRFREE 
 
