@@ -66,10 +66,12 @@ CONSTANT /IP_ADAPTER_ADDRESSES
 
 \EOF
 
+REQUIRE CreateSocket6 ~ac/lib/win/winsock/sockets6.f 
+REQUIRE UASCIIZ>      ~ac/lib/win/com/com.f 
 VARIABLE gaa_len
 
 : TEST1
-  ." st," SocketsStartup6 . CR
+  SocketsStartup THROW
   15000 gaa_len !
   BEGIN
     gaa_len @ ALLOCATE THROW >R
@@ -80,8 +82,8 @@ VARIABLE gaa_len
   BEGIN
     DUP
   WHILE
-    DUP aa.OperStatus C@ 1 =
-    IF
+\    DUP aa.OperStatus C@ 1 =
+\    IF
       DUP aa.Length @ 144 >
       IF
         DUP aa.TransmitLinkSpeed 2@ SWAP D.
@@ -91,7 +93,8 @@ VARIABLE gaa_len
       THEN
 \      DUP aa.NetworkGuid 16 DUMP
       DUP aa.IfIndex @ >R
-\      DUP aa.AdapterName @ ASCIIZ> TYPE CR
+      DUP aa.AdapterName @ ASCIIZ> TYPE CR
+      DUP aa.FriendlyName @ UASCIIZ> UNICODE> ANSI>OEM TYPE CR
       DUP aa.FirstUnicastAddress @
         BEGIN
           DUP
@@ -99,10 +102,18 @@ VARIABLE gaa_len
           DUP ua.Address DUP @ SWAP CELL+ @ IPtoStr ." [ " R@ . ." ] " TYPE CR
           ua.Next @
         REPEAT DROP
+      DUP aa.FirstDnsServerAddress @
+        BEGIN
+          DUP
+        WHILE
+          DUP ua.Address DUP @ SWAP CELL+ @ IPtoStr ." Dns[ " R@ . ." ] " TYPE CR
+          ua.Next @
+        REPEAT DROP
       RDROP
-    THEN
+\    THEN
     aa.Next @
   REPEAT DROP
   R> FREE THROW
 ;
 
+TEST1

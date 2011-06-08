@@ -52,6 +52,22 @@ CREATE IPV6_LOCALHOST 0 , 0 , 0 , 0x01000000 ,
   IF IP6_BUFFS @ + 16 IPV6_LOCALHOST 16 COMPARE 0=
   ELSE 0xFF AND 0x7F = THEN
 ;
+: IsSiteLocal ( ip -- flag )
+  DUP IsIPv6
+  IF IP6_BUFFS @ + W@ RV16 0xFEC0 0xFF00 WITHIN
+  ELSE IsLanIP THEN
+;
+: IsLinkLocal ( ip -- flag )
+  DUP IsIPv6
+  IF IP6_BUFFS @ + W@ RV16 0xFE80 0xFEC0 WITHIN
+  ELSE IsLanIP THEN
+;
+: IsLanIP ( ip -- flag )
+  DUP IsLocalhost IF DROP TRUE EXIT THEN
+  DUP IsIPv6
+  IF IP6_BUFFS @ + C@ 0xFE =
+  ELSE IsLanIP THEN
+;
 : (IsMyIP) { flag ip1 ip -- flag ip1 }
   ip1 IsIPv6 ip IsIPv6 AND
   IF ip1 IP6_BUFFS @ + 16 ip IP6_BUFFS @ + 16 COMPARE 0= 

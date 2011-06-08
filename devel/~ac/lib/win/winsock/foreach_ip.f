@@ -120,6 +120,16 @@ VARIABLE ExternIPs
   DUP 0xFF AND 0x7F = IF DROP FALSE EXIT THEN
   IsMyIP
 ;
+: IsLanIP ( ip -- flag ) \ вынесено из acWEB
+\ flag-истина, если клиент из локальной сети 10/8, 192.168/16, 172.16/12
+\ в соответствии с RFC 1918
+\ или localhost
+  DUP 0x100007F = IF DROP TRUE EXIT THEN
+  DUP 0xFF AND 10 = IF DROP TRUE EXIT THEN
+  DUP 0xFFFF AND 0xA8C0 = IF DROP TRUE EXIT THEN
+  DUP 0xF0FF AND 0x10AC = IF DROP TRUE EXIT THEN
+  DROP FALSE
+;
 
 \EOF
 SocketsStartup . CR 

@@ -15,17 +15,19 @@ CONSTANT /sockaddr_in6
 
 USER IP6_BUFFS
 USER IP6_BUFFS_HERE
+960 CONSTANT /IP6_BUFFS
+
 : Ip6Buf ( -- addr )
-  \ кольцевой буфер из 10 сегментов по 48 байт - достаточно для sockaddr_in6,
+  \ кольцевой буфер из 20 сегментов по 48 байт - достаточно для sockaddr_in6,
   \ addrinfo или для строчного представления IPv6-адреса (46 симв. max)
-  IP6_BUFFS @ 0= IF 480 ALLOCATE THROW DUP IP6_BUFFS ! 48 + IP6_BUFFS_HERE ! THEN
-  IP6_BUFFS_HERE @ IP6_BUFFS @ - 480 < 0= IF IP6_BUFFS @ 48 + IP6_BUFFS_HERE ! THEN
+  IP6_BUFFS @ 0= IF /IP6_BUFFS ALLOCATE THROW DUP IP6_BUFFS ! 48 + IP6_BUFFS_HERE ! THEN
+  IP6_BUFFS_HERE @ IP6_BUFFS @ - /IP6_BUFFS < 0= IF IP6_BUFFS @ 48 + IP6_BUFFS_HERE ! THEN
   IP6_BUFFS_HERE @ DUP 48 + IP6_BUFFS_HERE !
   DUP 48 ERASE
 ;
 : IsIPv6 ( ip -- flag )
   DUP 0= IF DROP FALSE EXIT THEN
-  480 U<
+  /IP6_BUFFS U<
 ;
 
 \ В WinXP не поддерживаются "двухрежимные" сокеты, поэтому не будем
@@ -113,10 +115,15 @@ CONSTANT /addrinfo
 WINAPI: WSAAddressToStringA WS2_32.DLL
 
 : IPtoStr ( sockaddr len -- addr u )
+  DUP >R
   46 >R RP@
   ROT ROT 2>R
-  Ip6Buf DUP ROT SWAP 0 2R> SWAP WSAAddressToStringA 0=
+  Ip6Buf 1+ DUP ROT SWAP 0 2R> SWAP WSAAddressToStringA 0=
   IF ( Ip6Buf) R> 1- ELSE RDROP S" error" WSAGetLastError . THEN
+  R> /sockaddr_in6 =
+  IF 1+ SWAP 1- SWAP OVER [CHAR] [ SWAP C!
+     2DUP + S" ]" DROP SWAP 2 MOVE 1+
+  THEN
 ;
 : NtoA ( IP -- addr u )
   DUP IsIPv6
@@ -130,6 +137,7 @@ WINAPI: WSAAddressToStringA WS2_32.DLL
 : GetHostIP ( addr u -- IP ior )
   v>IDN
   DUP 0= IF NIP 11004 EXIT THEN \ иначе пустой хост S" " дает 0 0
+\  OVER inet_addr DUP -1 <> IF NIP NIP 0 EXIT ELSE DROP THEN
 
   DROP
   Ip6Buf DUP >R
@@ -151,7 +159,12 @@ WINAPI: WSAAddressToStringA WS2_32.DLL
   THEN
   R> freeaddrinfo DROP \ *** fixme Win2000
 ;
-
+: GetHostName ( IP -- addr u ior )
+  DUP IsIPv6 0= IF GetHostName EXIT THEN
+  IP6_BUFFS @ + AF_INET6 16 ROT gethostbyaddr
+  ?DUP IF @ ?DUP IF ASCIIZ> 0 ELSE S" ?" 11004 THEN
+       ELSE PAD 0 WSAGetLastError THEN
+;
 : ConnectSocket6 ( ip6_addr port socket -- ior )
   CONNECT-INTERFACE @ ?DUP 
   IF OVER 0 ROT ROT BindSocketInterface ?DUP IF NIP NIP NIP EXIT THEN THEN
