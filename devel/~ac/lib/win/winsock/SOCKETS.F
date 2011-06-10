@@ -306,6 +306,8 @@ USER _GetHostIPs
                          ELSE 0 WSAGetLastError THEN
 ;
 
+USER uLastCH_IP
+
 \ todo: в Vista и Win2008 можно переключиться на WSAConnectByName
 
 : ConnectHost ( addr u port -- sock ior )
@@ -314,6 +316,7 @@ USER _GetHostIPs
 \ Если коннект не удался, то ior - код ошибки (на последнем хосте из списка)
 \ и socks=0.
 \ Если удался, то sock - новый соединенный сокет, ior=0.
+  uLastCH_IP 0!
   >R
   GetHostIPs ?DUP IF ROT DROP RDROP EXIT THEN
   ( IPab IPae )
@@ -321,6 +324,7 @@ USER _GetHostIPs
   CreateSocketWithTimeout ?DUP IF 2SWAP 2DROP ROT DROP RDROP EXIT THEN
   R> SWAP 2SWAP DO ( ior port socket )
     2DUP I @       ( ior port socket port socket ip )
+    DUP uLastCH_IP !
     ROT ROT ConnectSocket ?DUP 
     IF ( ior1 port socket ior )
        >R ROT DROP R> ROT ROT
