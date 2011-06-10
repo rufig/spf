@@ -340,19 +340,41 @@ CONSTANT /RL
   DNSQUERY @ DDP @ OVER - \ 2DUP DUMP
   BS @ WriteTo
 ;
-: SendDnsQuery
+USER _sdq
+
+: (SendDnsQuery)
+1 _sdq !
   DNS-SERVERS @ 0= DNS-SERVER @ 0= AND
+2 _sdq !
+  DnsDebug @ IF ."  SendDnsQuery1(" DUP . ." ):" CR THEN
   IF GetDNS ?DUP 
+3 _sdq !
             IF DNS-SERVER !
+4 _sdq !
                \ DNS-COUNT @ 1 > IF COUNT + 1+ THEN DNS-SERVER !
             ELSE -11001 THROW THEN \ не найден DNS-сервер
+5 _sdq !
+  ELSE
+    DNS-SERVER @ 0= IF DNS-SERVERS @ DNS-SERVER ! THEN
   THEN
+6 _sdq !
+  DnsDebug @ IF ."  SendDnsQuery2(" BS @ . ." ):" CR THEN
   BS @ 0= IF BsStartup THEN
 
+7 _sdq !
   DnsDebug @ IF ."  SendQuery(" DNS-SERVER @ COUNT TYPE ." ):" CR THEN
 
+8 _sdq !
   DNS-SERVER @ COUNT GetHostIP THROW
+9 _sdq !
   SendDnsQueryTo
+10 _sdq !
+;
+: SendDnsQuery
+  ['] (SendDnsQuery) CATCH ?DUP
+  IF ." SendDnsQuery ERR=" DUP U. _sdq @ .
+     DNS-SERVER @ DUP . COUNT TYPE CR THROW
+  THEN
 ;
 
 USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов

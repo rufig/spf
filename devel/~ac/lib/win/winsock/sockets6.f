@@ -68,11 +68,15 @@ CREATE IPV6_ALL 0 , 0 , 0 , 0 ,
 : RV16
   DUP 8 RSHIFT SWAP 0xFF AND 8 LSHIFT +
 ;
+USER FE_IfIndex
+USER FE_IfIndex6
+
 : BindSocketInterface6 ( port ip6_addr s -- ior )
   >R /sockaddr_in6 ALLOCATE ?DUP IF NIP R> DROP EXIT THEN
   SWAP >R >R
   RV16 R@ sin6_port W!
   AF_INET6 R@ sin6_family W!
+  FE_IfIndex6 @ R@ sin6_scope_id !
   R@
   R> R> SWAP >R R@ sin6_addr 16 MOVE
   /sockaddr_in6 R> R> bind SWAP FREE DROP SOCKET_ERROR =

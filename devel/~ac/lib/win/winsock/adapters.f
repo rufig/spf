@@ -93,6 +93,7 @@ VARIABLE gaa_len
       THEN
 \      DUP aa.NetworkGuid 16 DUMP
       DUP aa.IfIndex @ >R
+      DUP aa.Ipv6IfIndex @ ." Ipv6IfIndex:" .
       DUP aa.AdapterName @ ASCIIZ> TYPE CR
       DUP aa.FriendlyName @ UASCIIZ> UNICODE> ANSI>OEM TYPE CR
       DUP aa.FirstUnicastAddress @
