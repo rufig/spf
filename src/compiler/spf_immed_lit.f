@@ -69,7 +69,14 @@
 \ Время выполнения: ( -- c-addr )
 \ Возвратить c-addr, строку со счетчиком, состоящую из символов ccc.
 \ Программа не должна менять возвращенную строку.
-  [CHAR] " WORD [COMPILE] CLITERAL
+  [CHAR] "
+  PeekChar OVER = IF \ empty counted string C" "
+    DROP >IN 1+!
+    SYSTEM-PAD DUP 0!
+  ELSE
+    WORD \ it doesn't understand a token with 0-length.
+  THEN 
+  [COMPILE] CLITERAL
 ; IMMEDIATE
 
 : ."  \ 94
