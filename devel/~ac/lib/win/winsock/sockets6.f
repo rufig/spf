@@ -45,6 +45,17 @@ USER IP6_BUFFS_HERE
 \     setsockopt OR
   THEN
 ;
+: CreateSocket6WithTimeout ( -- socket ior )
+  0 SOCK_STREAM AF_INET6
+  socket DUP INVALID_SOCKET =
+  IF WSAGetLastError
+  ELSE 0
+       OVER >R 4 TIMEOUT SO_SNDTIMEO SOL_SOCKET R>
+       setsockopt OR
+       OVER >R 4 TIMEOUT SO_RCVTIMEO SOL_SOCKET R>
+       setsockopt OR
+  THEN
+;
 : CreateUdpSocket6 ( -- socket ior )
   IPPROTO_UDP SOCK_DGRAM AF_INET6
   socket DUP INVALID_SOCKET =
@@ -210,11 +221,11 @@ USER _ch_lerr
       @ DUP
     WHILE
       DUP ai_family @ 2 =
-      IF _ch_s4 @ 0= IF CreateSocket ?DUP IF NIP EXIT THEN _ch_s4 ! THEN
+      IF _ch_s4 @ 0= IF CreateSocketWithTimeout ?DUP IF NIP EXIT THEN _ch_s4 ! THEN
          DUP ai_addr @ sin_addr @
          DUP uLastCH_IP !
          _ch_port @ _ch_s4 @ DUP >R ConnectSocket
-      ELSE _ch_s6 @ 0= IF CreateSocket6 ?DUP IF NIP EXIT THEN _ch_s6 ! THEN
+      ELSE _ch_s6 @ 0= IF CreateSocket6WithTimeout ?DUP IF NIP EXIT THEN _ch_s6 ! THEN
          DUP ai_addr @ sin6_addr
          _ch_port @ _ch_s6 @ DUP >R ConnectSocket6
       THEN
