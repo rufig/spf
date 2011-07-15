@@ -17,6 +17,8 @@ REQUIRE OPENSSL_Applink ~ac/lib/lin/openssl/applink.f
 
 ALSO SO NEW: libeay32.dll
 ALSO SO NEW: libssl.so.0.9.8
+ALSO SO NEW: libssl.so.10
+ALSO SO NEW: libcrypto.so.10
 ALSO SO ?NEW: libc.so.6
 ALSO SO NEW: msvcrt.dll
 
@@ -116,7 +118,7 @@ VARIABLE RSA_GK \ установить в true, если нужнен "progress bar" при создании клю
   req stdout 2 X509_REQ_print_fp DROP ap_str @
 ;
 
-PREVIOUS PREVIOUS PREVIOUS PREVIOUS
+PREVIOUS PREVIOUS PREVIOUS PREVIOUS PREVIOUS PREVIOUS
 
 \EOF
 
