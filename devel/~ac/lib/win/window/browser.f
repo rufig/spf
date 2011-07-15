@@ -317,11 +317,16 @@ VARIABLE BSTEP
   1 BSTEP !
   >STR (BrowserThread) START DROP
 ;
-VECT vBrowserMainThreadError ' NOOP TO vBrowserMainThreadError
+VECT vBrowserMainThreadError
+
+:NONAME { ior -- ior }
+  ." BrowserMainThread ERR=" ior . ior
+; TO vBrowserMainThreadError
 
 :NONAME ( url -- ior )
   2 BSTEP !
   STR@ ['] Browser CATCH ?DUP IF vBrowserMainThreadError NIP NIP THEN
+  ?DUP IF vBrowserMainThreadError THEN
   BYE
 ; TASK: (BrowserMainThread)
 
