@@ -225,7 +225,7 @@ CW_USEDEFAULT VALUE bwWidth
   AtlInitCnt @ 0= IF AtlAxWinInit 0= IF 0x200A EXIT THEN AtlInitCnt 1+! THEN
   0 0 0 parent_hwnd bwHeight bwWidth bwY bwX style addr S" AtlAxWin" DROP 0
   CreateWindowExA -> h
-  h 0= IF EXIT THEN
+  h 0= IF 0 EXIT THEN
 
   addr u h vBrowserSetTitle
   addr u h vBrowserSetIcon
@@ -248,18 +248,26 @@ CW_USEDEFAULT VALUE bwWidth
   h
 ;
 
+VARIABLE BSTEP
+
 : Browser { addr u \ h -- ior }
 
+  3 BSTEP !
   addr u WS_OVERLAPPEDWINDOW \ WS_VSCROLL OR \ WS_HSCROLL OR
                              \ включение WS_VSCROLL приводит к игнорированию
                              \ команды установки иконки окна через GCL_HICON h SetClassLongA
                              \ почему?
   0 BrowserWindow -> h
+  4 BSTEP !
   h 0= IF 0x200B EXIT THEN
 
+  5 BSTEP !
   BrCreateHidden @ 0= IF h WindowShow THEN
+  6 BSTEP !
   h uBrowserInterface @ AtlMessageLoop 0
+  7 BSTEP !
   h WindowDelete
+  8 BSTEP !
   0
 ;
 : AtlMainLoop  { hwnd \ mem -- }
@@ -300,21 +308,27 @@ CW_USEDEFAULT VALUE bwWidth
   BrCreateHidden @ 0= IF DUP WindowShow THEN
 ;
 :NONAME ( url -- ior )
+  2 BSTEP !
   STR@ ['] Browser CATCH ?DUP IF NIP NIP THEN
 ; TASK: (BrowserThread)
 
 : BrowserThread ( addr u -- )
 \ Запуск браузера в отдельном потоке.
+  1 BSTEP !
   >STR (BrowserThread) START DROP
 ;
+VECT vBrowserMainThreadError ' NOOP TO vBrowserMainThreadError
+
 :NONAME ( url -- ior )
-  STR@ ['] Browser CATCH ?DUP IF NIP NIP THEN
+  2 BSTEP !
+  STR@ ['] Browser CATCH ?DUP IF vBrowserMainThreadError NIP NIP THEN
   BYE
 ; TASK: (BrowserMainThread)
 
 : BrowserMainThread ( addr u -- )
 \ Запуск браузера в отдельном потоке.
 \ При закрытии его окна программа завершится.
+  1 BSTEP !
   >STR (BrowserMainThread) START DROP
 ;
 
@@ -422,11 +436,14 @@ ID: DISPID_NAVIGATECOMPLETE2    252 { urla urlu bro \ obj tls doc doc2 doc3 win2
     COM-DEBUG @ IF ." @NavigateComplete2! win/frame=" bro . urla urlu TYPE CR THEN
     uOID @ -> obj
     TlsIndex@ -> tls
-    obj b.BrowserThread @ TlsIndex!
+    obj b.BrowserThread @
+    COM-DEBUG @ IF ." @NavigateComplete2! b.BrowserThread=" DUP . CR THEN
+    TlsIndex!
 \ будем ставить обработчик для всех фреймов
 \    bro uBrowserInterface @ = 
 \    IF 
        ^ doc bro ::get_Document DROP
+    COM-DEBUG @ IF ." @NavigateComplete2! Document=" doc . CR THEN
        ^ doc3 IID_IHTMLDocument3 doc ::QueryInterface 0= doc3 0 <> AND
        IF doc3 obj b.HtmlDoc3 !
           ^ boo obj S" onerror" >BSTR doc3 ::attachEvent THROW

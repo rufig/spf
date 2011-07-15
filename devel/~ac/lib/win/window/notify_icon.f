@@ -126,6 +126,14 @@ S" SPF" TrayIconSetTitle
   mem NIM_MODIFY Shell_NotifyIcon DROP
   NIF_TIP NIF_INFO OR IconData uFlags @ OR IconData uFlags !
 ;
+: TrayIconModifyIconRes ( res_id -- )
+  || id mem || (( id ))
+  IconData -> mem IconDataSetSize
+  id LoadIconResource16 DUP mem hIcon ! mem hBalloonIcon !
+  NIF_TIP NIF_INFO OR INVERT IconData uFlags @ AND IconData uFlags !
+  mem NIM_MODIFY Shell_NotifyIcon DROP
+  NIF_TIP NIF_INFO OR IconData uFlags @ OR IconData uFlags !
+;
 : TrayIconModifyText ( addr u cmd hwnd -- )
   || a u cmd h mem || (( a u cmd h ))
   IconData -> mem IconDataSetSize
