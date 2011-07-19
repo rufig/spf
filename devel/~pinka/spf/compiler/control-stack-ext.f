@@ -4,11 +4,11 @@ REQUIRE ControlStackSupport ~pinka/spf/compiler/control-stack.f
 
 ALSO ControlStackSupport
 
-: CS-PICK ( CS: y i*x DS: i -- CS: y i*x y )
+: CS-PICK ( CS: y i*x -- y i*x y ) ( DS: i -- )
   CELLS ZP @ + @ >CS
 ;
 
-: CS-ROLL ( CS: y i*x DS: i -- CS: i*x y )
+: CS-ROLL ( CS: y i*x -- i*x y ) ( DS: i -- )
   DUP 0 = IF DROP EXIT THEN
   DUP 1 = IF DROP ZP @ DUP >R 2@ SWAP R> 2! EXIT THEN
   CELLS DUP ZP @ + @ >R
