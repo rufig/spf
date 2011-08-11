@@ -212,6 +212,10 @@ USER _ch_lerr
   IPV6_MODE @ 0= IF ConnectHost EXIT THEN
   uLastCH_IP 0! _ch_port 0! _ch_s4 0! _ch_s6 0! _ch_lerr 0!
 
+  >R OVER inet_addr -1 <> IF R> ConnectHost EXIT THEN
+
+  v>IDN R>
+
   _ch_port ! DROP
   Ip6Buf DUP >R SWAP
   0 0 ROT getaddrinfo DUP 0=
