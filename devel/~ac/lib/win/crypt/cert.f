@@ -58,6 +58,9 @@ WINAPI: CertGetEnhancedKeyUsage             CRYPT32.DLL
 : GetCertIssuerName ( cert -- addr u )
   1 CERT_NAME_RDN_TYPE CERT_SIMPLE_NAME_STR GetCertificateString
 ;
+: GetCertSubjectEmail ( cert -- addr u )
+  0 CERT_NAME_EMAIL_TYPE CERT_SIMPLE_NAME_STR GetCertificateString
+;
 
 : S, ( addr u -- )
   HERE OVER ALLOT SWAP MOVE
