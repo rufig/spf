@@ -1,4 +1,4 @@
-
+if exist spf4wc.fres goto fres_done
 if exist spf4wc.res goto res_done
 REM Скомпилировать файл ресурсов. Подойдёт любой стандартный компилятор RC файлов.
 REM Например rc.exe из поставки MS Visual Studio, brcc32.exe из поставки Borland продуктов, etc
