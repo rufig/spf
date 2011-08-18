@@ -6,6 +6,10 @@
 \ Особенно полезна при вызове API-функций.
 \ Имеет встроеный счетчик аргументов.
 
+REQUIRE [DEFINED]  lib/include/tools.f
+
+[DEFINED] CASE-INS [IF] CASE-INS @ CASE-INS OFF [THEN]
+
 VOCABULARY PFSupport
 GET-CURRENT ALSO PFSupport DEFINITIONS
 
@@ -68,6 +72,8 @@ SET-CURRENT
   ALSO PFSupport
 ; IMMEDIATE
 PREVIOUS
+
+[DEFINED] CASE-INS [IF] CASE-INS ! [THEN]
 
 \EOF
 : foo1  . . ;
