@@ -5,8 +5,11 @@ REQUIRE #N            ~ac/lib/win/date/date-int.f
 
 86400 CONSTANT SecsPerDay
 
+: SecsSince1970To ( date -- n )
+  d01011970 - SecsPerDay *
+;
 : SecsSince1970 ( -- n )
-  ТекущаяДата d01011970 - SecsPerDay *
+  ТекущаяДата SecsSince1970To
 ;
 : UnixDate ( -- n )
   TIME&DATE 2DROP DROP
@@ -24,4 +27,3 @@ REQUIRE #N            ~ac/lib/win/date/date-int.f
 : UNIXDATE
   0 0 <# UnixDate.# #>
 ;
-
