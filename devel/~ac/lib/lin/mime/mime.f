@@ -315,7 +315,7 @@ USER uPhParamNum
 : ParseMessageFile { addr u -- mp }
   addr u FILE 
 
-  2DUP 4096 MIN S" rom:" SEARCH NIP NIP 0=
+  2DUP 8192 MIN S" rom:" SEARCH NIP NIP 0=
   IF 2DROP LastFileFree \ DROP FREE THROW _LASTFILE 0!
     addr u
   " From: message_parser
@@ -335,7 +335,7 @@ not a valid message file
   f FFILEO
   0 0 f REPOSITION-FILE THROW
 
-  2DUP 4096 MIN S" rom:" SEARCH NIP NIP 0=
+  2DUP 8192 MIN S" rom:" SEARCH NIP NIP 0=
   IF 2DROP LastFileFree \ DROP FREE THROW _LASTFILE 0!
   " From: message_parser
 To: you
