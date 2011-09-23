@@ -17,11 +17,18 @@ REQUIRE /STRING     lib/include/string.F
 USER uNS
 USER uNSpid
 
+: NS_ParseIP ( -- addr u )
+  PeekChar [CHAR] [ = IF [CHAR] ] PARSE 1+ >IN 1+! ELSE [CHAR] : PARSE THEN
+  2DUP S" 0.0.0.0" COMPARE 0= IF 2DROP S" " THEN
+\  2DUP S" [::]" COMPARE 0= IF 2DROP S" " THEN
+;
+: NS_ParsePort ( -- addr u )
+  PeekChar [CHAR] : = IF >IN 1+! THEN
+  NextWord 2DUP S" 0" COMPARE 0= IF 2DROP S" " THEN
+;
 : TCP
-  SkipDelimiters [CHAR] : PARSE 2DUP S" 0.0.0.0" COMPARE 0= IF 2DROP S" " THEN 2>R
-                 NextWord 2DUP S" 0" COMPARE 0= IF 2DROP S" " THEN 2>R
-  SkipDelimiters [CHAR] : PARSE 2DUP S" 0.0.0.0" COMPARE 0= IF 2DROP S" " THEN 2>R
-                 NextWord 2DUP S" 0" COMPARE 0= IF 2DROP S" " THEN
+  SkipDelimiters NS_ParseIP 2>R NS_ParsePort 2>R
+  SkipDelimiters NS_ParseIP 2>R NS_ParsePort
   2R> 2R> 2R> " <td>{s}</td><td>{s}</td><td>{s}</td><td>{s}</td>" STR@
   NextWord NextWord 0 0 2SWAP >NUMBER 2DROP D>S
   DUP uNSpid @ = uNSpid @ TRUE = OR
@@ -33,8 +40,8 @@ USER uNSpid
   ELSE DROP 2DROP 2DROP THEN
 ;
 : UDP
-  SkipDelimiters [CHAR] : PARSE 2DUP S" 0.0.0.0" COMPARE 0= IF 2DROP S" " THEN 2>R
-                 NextWord 2DUP S" 0" COMPARE 0= IF 2DROP S" " THEN 2>R
+  SkipDelimiters NS_ParseIP 2>R
+                 NS_ParsePort 2>R
                  NextWord 2DROP
   2R> 2R> " <td>{s}</td><td>{s}</td><td></td><td></td>" STR@
   S" " NextWord 0 0 2SWAP >NUMBER 2DROP D>S
@@ -51,7 +58,7 @@ USER uNSpid
 ;
 
 : GetNetStatResults { ta tu -- }
-  SOURCE S" ::" SEARCH NIP NIP IF EXIT THEN
+\  SOURCE S" ::" SEARCH NIP NIP IF EXIT THEN
   SOURCE S" NETSTAT" SEARCH NIP NIP IF SOURCE EVALUATE EXIT THEN
   SOURCE ta tu SEARCH NIP NIP 0= IF EXIT THEN
 
@@ -64,9 +71,12 @@ USER uNSpid
   THEN
 ;
 
+USER uNetStatDebug
+
 : ReadNetStatReply { ta tu l -- }
   BEGIN
-    l PipeReadLine \ DUP IF ." =>" 2DUP TYPE ." <=" CR ELSE CR THEN
+    l PipeReadLine
+    uNetStatDebug @ IF ." =>" 2DUP TYPE ." <=" CR THEN
     ta tu 2SWAP ['] GetNetStatResults ['] EVALUATE-WITH CATCH
     ?DUP IF ." ns_err=" . 2DROP 2DROP THEN
   AGAIN
