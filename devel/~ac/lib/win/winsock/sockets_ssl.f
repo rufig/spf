@@ -88,10 +88,11 @@ VECT dSslWaitInit ' NOOP TO dSslWaitInit
   ELSE ReadSocket THEN
 ;
 : CloseSocket ( s -- ior )
+  DUP 0= IF EXIT THEN
   DUP uSSL_SOCKET @ =
-  IF uSSL_OBJECT @ SSL_shutdown 2DROP
-     uSSL_OBJECT @ SSL_free 2DROP 
-     uSSL_CONTEXT @ SSL_CTX_free 2DROP
+  IF uSSL_OBJECT @ ?DUP IF SSL_shutdown 2DROP THEN
+     uSSL_OBJECT @ ?DUP IF SSL_free 2DROP THEN
+     uSSL_CONTEXT @ ?DUP IF SSL_CTX_free 2DROP THEN
      CloseSocket DUP IF ." ssl_close_socket_err=" DUP . THEN
      uSSL_SOCKET 0!
   ELSE CloseSocket THEN
