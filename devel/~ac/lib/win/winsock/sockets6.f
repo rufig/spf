@@ -1,4 +1,5 @@
 REQUIRE CreateSocket  ~ac/lib/win/winsock/sockets.f
+REQUIRE WinVer        ~ac/lib/win/winver.f 
 
 VARIABLE IPV6_MODE \ при FALSE будет работать в режиме IPv4, не пытаясь
                    \ получать из DNS IPv6-адреса и пытаться и соединяться с ними
@@ -150,6 +151,7 @@ WINAPI: WSAAddressToStringA WS2_32.DLL
 ;
 
 : GetHostIP ( addr u -- IP ior )
+  WinVer 50 = IF GetHostIP EXIT THEN
   v>IDN
   DUP 0= IF NIP 11004 EXIT THEN \ иначе пустой хост S" " дает 0 0
 \  OVER inet_addr DUP -1 <> IF NIP NIP 0 EXIT ELSE DROP THEN

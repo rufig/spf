@@ -41,6 +41,8 @@ CREATE IPV6_LLLOCALHOST 0xFE C, 0x80 C, 0 C, 0 C, 0 , 0 , 0x01000000 , \ XP [fe8
 \ под "LocalIP" здесь имеется в виду "IP этой машины", а не "интерфейсы
 \ локальной сети" (для их опознания есть слова Is*Local и т.п. и IsLanIP).
 
+  WinVer 50 = IF xt ForEachIP EXIT THEN
+
   15000 -> gaa
   BEGIN
     gaa ALLOCATE THROW -> addr
@@ -64,11 +66,14 @@ CREATE IPV6_LLLOCALHOST 0xFE C, 0x80 C, 0 C, 0 C, 0 , 0 , 0x01000000 , \ XP [fe8
           FALSE -> ll
           ua ua.Address DUP @ SWAP CELL+ @
           /sockaddr_in6 =
-          IF DUP sin6_addr 16 IPV6_LLLOCALHOST 16 COMPARE 0= -> ll
-             sin6_addr buf 16 MOVE buf IP6_BUFFS @ -
-             DUP IsLinkLocal IF aa aa.Ipv6IfIndex @ FE_IfIndex6 ! THEN
-                                \ иначе "Ambiguous Scoped Addresses",
-                                \ http://msdn.microsoft.com/en-us/library/ms739166(v=vs.85).aspx
+          IF IPV6_MODE @
+             IF
+               DUP sin6_addr 16 IPV6_LLLOCALHOST 16 COMPARE 0= -> ll
+               sin6_addr buf 16 MOVE buf IP6_BUFFS @ -
+               DUP IsLinkLocal IF aa aa.Ipv6IfIndex @ FE_IfIndex6 ! THEN
+                                  \ иначе "Ambiguous Scoped Addresses",
+                                  \ http://msdn.microsoft.com/en-us/library/ms739166(v=vs.85).aspx
+             ELSE TRUE -> ll THEN
           ELSE sin_addr @ THEN
           ll 0=
           IF 
@@ -87,6 +92,7 @@ CREATE IPV6_LLLOCALHOST 0xFE C, 0x80 C, 0 C, 0 C, 0 , 0 , 0x01000000 , \ XP [fe8
   0
 ;
 : ForEachIP { xt -- ior }
+  WinVer 50 = IF xt ForEachIP EXIT THEN
   xt ForEachLocalIP
   ExternIP @ ?DUP IF xt EXECUTE THEN
   ExternIPs @ ?DUP IF BEGIN DUP @ WHILE DUP @ xt EXECUTE CELL+ REPEAT DROP THEN
@@ -109,6 +115,7 @@ CREATE IPV6_LLLOCALHOST 0xFE C, 0x80 C, 0 C, 0 C, 0 , 0 , 0x01000000 , \ XP [fe8
   IF TRUE ip1 ELSE flag ip1 THEN
 ;
 : IsMyIP { ip -- flag }
+  WinVer 50 = IF ip IsMyIP EXIT THEN
   ip ( 0x0100007F =) IsLocalhost IF TRUE EXIT THEN
   ExternIP @ ?DUP IF ip = IF TRUE EXIT THEN THEN
   ExternIPs @ ?DUP IF BEGIN DUP @ WHILE DUP @ ip = IF DROP TRUE EXIT THEN CELL+ REPEAT DROP THEN
@@ -127,7 +134,7 @@ CREATE IPV6_LLLOCALHOST 0xFE C, 0x80 C, 0 C, 0 C, 0 , 0 , 0x01000000 , \ XP [fe8
 \EOF
 
 SocketsStartup THROW 
-0 :NONAME NtoA TYPE CR 1+ ; ForEachIP . .
 TRUE IPV6_MODE !
+0 :NONAME NtoA TYPE CR 1+ ; ForEachIP . .
 S" ra6" IsMyHostname .
 S" ::1" IsMyHostnameAndNotLocalhost .

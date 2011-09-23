@@ -3,6 +3,8 @@
 \ поэтому приходится использовать более сложный способ для получения полного
 \ списка локальных адресов, включая IPv6.
 
+\ В Win2000 getaddrinfo и GetAdaptersAddresses отсутствуют.
+
 \ Пример см. в foreach_ip6.f 
 
 WINAPI: GetAdaptersAddresses iphlpapi.dll
