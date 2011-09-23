@@ -428,6 +428,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   ." Type=" REP @ W@ >B<
   DUP 16 ( TXT) > OVER QTYPE-AAAA <> AND OVER QTYPE-SRV <> AND
   OVER 255 <> AND
+  OVER 99 ( SPF) <> AND
   ABORT" DNS reply format error (type)"
   . 2 REP +!
 ;
@@ -436,6 +437,7 @@ USER uDnsPNRL \ контроль глубины рекурсии - защита от неверных входных форматов
   REP @ W@ >B<
   DUP 16 ( TXT) > OVER QTYPE-AAAA <> AND OVER QTYPE-SRV <> AND
   OVER 255 <> AND
+  OVER 99 ( SPF) <> AND
   ABORT" DNS reply format error (type)"
   2 REP +!
   CURRENT-R @ ?DUP IF RLtype ! ELSE DROP THEN
