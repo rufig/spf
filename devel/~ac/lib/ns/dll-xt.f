@@ -56,9 +56,10 @@ WARNING @ WARNING 0!
 REQUIRE NEW: ~ac/lib/ns/ns.f
 
 USER uLastDllFunc \ аналогично ~ac/lib/tools/api_trace.f, но здесь asciiZ-строка
+USER uLastDll
 
 : DLL-INIT ( addr -- )
-  DUP >R 6 CELLS + ASCIIZ> R@ CELL+ CELL+ @
+  DUP >R 6 CELLS + DUP uLastDll ! ASCIIZ> R@ CELL+ CELL+ @
   [ ALSO DL ] SEARCH-WORDLIST [ PREVIOUS ]
 \  S" SEARCH-WORDLIST-I" INVOKE ( то же самое, но медленнее :)
   0= IF -2010 THROW THEN R> CELL+ !

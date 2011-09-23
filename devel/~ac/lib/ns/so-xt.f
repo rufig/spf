@@ -20,9 +20,10 @@ WARNING @ WARNING 0!
 REQUIRE NEW: ~ac/lib/ns/ns.f
 
 USER uLastSoFunc \ аналогично ~ac/lib/tools/api_trace.f, но здесь asciiZ-строка
+USER uLastSo
 
 : SO-INIT ( addr -- ) \ = DLL-INIT
-  DUP >R 6 CELLS + ASCIIZ> R@ CELL+ CELL+ @
+  DUP >R 6 CELLS + DUP uLastSo ! ASCIIZ> R@ CELL+ CELL+ @
   [ ALSO DL ] SEARCH-WORDLIST [ PREVIOUS ]
   0= IF -2010 THROW THEN R> CELL+ !
 ;
