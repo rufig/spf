@@ -4,15 +4,17 @@ REQUIRE [IF]          lib/include/tools.f
 
 REQUIRE ForEachWTSession ~ac/lib/win/exceptions/wt.f
 
-WINAPI: MessageBoxA USER32.DLL
          6 CONSTANT IDYES
 0x00000004 CONSTANT MB_YESNO
 0x00000030 CONSTANT MB_ICONEXCLAMATION
 0x00000040 CONSTANT MB_ICONASTERISK
 0x00200000 CONSTANT MB_SERVICE_NOTIFICATION
+0x00000020 CONSTANT MB_ICONQUESTION
 
 
 WINAPI: FormatMessageA KERNEL32.DLL
+WINAPI: GetDesktopWindow         USER32.DLL
+WINAPI: MessageBoxA    USER32.DLL
 
 HEX
 
@@ -46,7 +48,9 @@ VARIABLE DenyGuiMessages
 VARIABLE MAIN-WINDOW \ запишите сюда хэндл главного окна, если сообщения должны быть подчиненными
 
 : MsgBox
-  MAIN-WINDOW @ MessageBoxA
+  MAIN-WINDOW @
+  DUP 0= IF DROP GetDesktopWindow THEN
+  MessageBoxA
 ;
 : Message { s -- }
   DenyGuiMessages @ IF s STR@ TYPE CR EXIT THEN
@@ -68,19 +72,18 @@ VARIABLE MAIN-WINDOW \ запишите сюда хэндл главного окна, если сообщения должны 
 ;
 : MessageY/N { s -- flag }
   DenyGuiMessages @ IF s STR@ TYPE ."  - No" CR FALSE EXIT THEN
-  MB_YESNO PROG-NAME DROP
+  MB_YESNO MB_ICONQUESTION OR PROG-NAME DROP
   s STR@ DROP 
   MsgBox IDYES =
 ;
 : ServiceMessageY/N { s -- flag }
   DenyGuiMessages @ IF s STR@ TYPE ."  - No" CR FALSE EXIT THEN
-  MB_YESNO MB_SERVICE_NOTIFICATION OR PROG-NAME DROP
+  MB_YESNO MB_ICONQUESTION OR MB_SERVICE_NOTIFICATION OR PROG-NAME DROP
   s STR@ DROP 
   MsgBox IDYES =
 ;
 
 WINAPI: WTSSendMessageA       WTSAPI32.DLL
-0x00000020 CONSTANT MB_ICONQUESTION
 
 : (MsgBoxWT) { a u sid state par \ style s out -- flag }
   u 0= IF TRUE EXIT THEN
