@@ -4,6 +4,7 @@
 \ %Y-%m-%d %H:%M:%S
 \ %d.%m.%Y %H:%M
 \ %a, %d %b %Y %H:%M:%S GMT
+\ %d-%b-%Y %H:%M:%S TZ
 
 \ FIXME: S" 19.01.2038" >UnixTime -> 2147461200
 \        S" 20.01.2038" >UnixTime -> -1 (см. mktime)
@@ -54,7 +55,7 @@ WINAPI: mktime    MSVCRT.DLL
   [CHAR] : PARSE _>NUM R@ tm_hour !
   [CHAR] : PARSE _>NUM R@ tm_min !
   BL PARSE _>NUM R@ tm_sec !
-  1 R@ tm_isdst !
+  -1 R@ tm_isdst !
   R@ mktime NIP R> FREE THROW
 ;
 : (Sql>UnixTime) ( -- n )
@@ -66,7 +67,7 @@ WINAPI: mktime    MSVCRT.DLL
   [CHAR] : PARSE _>NUM R@ tm_hour !
   [CHAR] : PARSE _>NUM R@ tm_min !
   BL PARSE _>NUM R@ tm_sec !
-  1 R@ tm_isdst !
+  -1 R@ tm_isdst !
   R@ mktime NIP R> FREE THROW
 ;
 
@@ -80,11 +81,25 @@ WINAPI: mktime    MSVCRT.DLL
   [CHAR] : PARSE _>NUM R@ tm_hour !
   [CHAR] : PARSE _>NUM R@ tm_min !
   BL PARSE _>NUM R@ tm_sec !
-  1 R@ tm_isdst !
+  -1 R@ tm_isdst !
+  R@ mktime NIP R> FREE THROW
+;
+: (InternalDate>UnixTime) ( -- n )
+  \ 16-Jun-2011 01:44:54 +0400 \ IMAP
+  /tm ALLOCATE THROW >R
+  [CHAR] - PARSE _>NUM R@ tm_mday !
+  [CHAR] - PARSE DateS>M 1- R@ tm_mon !
+  BL PARSE _>NUM >tm_year R@ tm_year !
+  [CHAR] : PARSE _>NUM R@ tm_hour !
+  [CHAR] : PARSE _>NUM R@ tm_min !
+  BL PARSE _>NUM R@ tm_sec !
+  -1 R@ tm_isdst !
   R@ mktime NIP R> FREE THROW
 ;
 
 : >UnixTime ( a u -- n )
+  DUP 0= IF 2DROP 0 EXIT THEN
+  OVER 2+ C@ [CHAR] - = IF ['] (InternalDate>UnixTime) EVALUATE-WITH EXIT THEN
   OVER C@ _IsDigit
   IF 2DUP S" ." SEARCH NIP NIP
      IF ['] (Rus>UnixTime) ELSE ['] (Sql>UnixTime) THEN
@@ -98,3 +113,4 @@ REQUIRE UnixTimeSql ~ac/lib/win/date/unixtime.f
 S" Wed, 18 Aug 2010 03:15:25 +0400" >UnixTime UnixTimeSql TYPE CR
 S" 23.06.71 02:03" >UnixTime UnixTimeSql TYPE CR
 S" 1988-06-01 12:01:02" >UnixTime UnixTimeSql TYPE CR
+S" 16-Jun-2011 01:44:54 +0400" >UnixTime UnixTimeSql TYPE CR
