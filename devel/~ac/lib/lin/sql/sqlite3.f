@@ -228,6 +228,13 @@ USER db3_exec_TICKS
       i par ppStmt xt EXECUTE \ возвращает флаг продолжения
     REPEAT
 
+    DB3_DEBUG @
+    IF ." DB3_STATS:" ppStmt . ms@ tick - .
+       1 1 ppStmt 3 sqlite3_stmt_status .    \ SQLITE_STMTSTATUS_FULLSCAN_STEP
+       1 2 ppStmt 3 sqlite3_stmt_status .    \ SQLITE_STMTSTATUS_SORT
+       1 3 ppStmt 3 sqlite3_stmt_status . CR \ SQLITE_STMTSTATUS_AUTOINDEX
+    THEN
+
     ppStmt db3_fin
     pzTail ?DUP IF ASCIIZ> ELSE S" " THEN  -> u -> addr
   u 3 < UNTIL
@@ -305,6 +312,7 @@ USER _db3_get_1
 USER _db3_get_2
 USER _db3_get_3
 USER _db3_gets
+USER _db3_get_64 4 USER-ALLOT
 
 : db3_get_id1_ { i par ppStmt -- flag }
   0 ppStmt db3_coli _db3_get_1 ! 
@@ -365,6 +373,15 @@ USER _db3_gets
   _db3_gets @ ?DUP IF STR@ ELSE S" " THEN
   _db3_get_1 @
 ;
+: db3_get_id64_ { i par ppStmt -- flag }
+  0 ppStmt db3_coli64 _db3_get_64 2! 
+  FALSE
+;
+: db3_get_id64 ( addr u sqh -- d )
+  0 0 _db3_get_64 2!
+  >R 0 ['] db3_get_id64_ R> db3_exec
+  _db3_get_64 2@
+;
 : db3_thread_cleanup ( -- )
 \  1 1 sqlite3_soft_heap_limit DROP \ недоступно
   0 sqlite3_thread_cleanup DROP     \ ничего не делает...
@@ -384,6 +401,32 @@ USER _db3_gets
 ;
 : db3_checkpoint ( sqh -- )
   0 SWAP 2 sqlite3_wal_checkpoint DROP
+;
+: db3_checkpoint_all ( sqh -- )
+  >R
+  0 0 2 \ restart
+  0 R>
+  5 sqlite3_wal_checkpoint_v2 DROP
+;
+: db3_shared_cache ( -- )
+  1 1 sqlite3_enable_shared_cache DROP
+;
+: db3_backup_to { addr u sqh \ sd b -- }
+\ записать копию БД из хэндла sqh в db3-файл с именем addr u
+  addr u db3_open -> sd
+  S" main" DROP sqh S" main" DROP sd 4 sqlite3_backup_init -> b
+  b 0= IF 5 S" sqlite3_backup_init" sd db3_error? THEN
+
+  BEGIN \ ждем освобождения доступа к БД
+    -1 b 2 sqlite3_backup_step DUP SQLITE_BUSY =
+  WHILE
+    DB3_DEBUG @ IF ." DB3_BACKUP_WAIT" b . THEN
+    DROP 100 PAUSE \ ^ waitcnt 1+!
+  REPEAT
+  101 ( SQLITE_DONE ) <> IF 5 S" sqlite3_backup_step" sd db3_error? THEN
+  b 1 sqlite3_backup_finish
+  ?DUP IF S" sqlite3_backup_finish" sd db3_error? THEN
+  sd db3_close
 ;
 PREVIOUS PREVIOUS
 

@@ -43,10 +43,18 @@ USER MEM-SPF
 ;
 
 : MemDump1 ( entry -- )
+  DUP CELL+ @ 33 < IF CELL+ @ MEM-TOTAL +! EXIT THEN \ deleteme
   SPACE SPACE
   DUP @ 6 .0
   CELL+ @ DUP MEM-TOTAL +!
   DECIMAL 0 <# #S #> 8 OVER - 0 MAX SPACES TYPE HEX
+;
+: MemDump2 ( entry -- )
+  DUP CELL+ @ 33 < IF CELL+ @ MEM-SPF +! EXIT THEN \ deleteme
+  SPACE SPACE
+  DUP @ 6 .0
+  CELL+ @ DUP MEM-SPF +!
+  DECIMAL 0 <# #S #> 8 OVER - 0 MAX SPACES TYPE HEX CR
 ;
 : MemDump ( entry -- )
   DUP DUP MemDump1 SPACE SPACE  
@@ -75,12 +83,20 @@ USER MEM-SPF
   GetHeaps 0 ?DO CR
     DUP @ DUP 4 .0 GetProcessHeap = 
     IF ."  - Process heap (not used by SPF)" CR ['] MemDump1
-    ELSE CR ['] MemDump THEN
+    ELSE CR ['] MemDump2 THEN
     OVER @ HeapEnum CELL+
   LOOP DROP
   BASE !
   CR ." Total: " MEM-TOTAL @ U. ."  Forth: " MEM-SPF @ U.
 ;
+WINAPI: HeapSetInformation KERNEL32.DLL
+
+: HeapSetLFH ( -- )
+  2 >R
+  4 RP@ 0 THREAD-HEAP @ HeapSetInformation DROP
+  RDROP
+;
+
 \EOF
 
 : MEMSELF_TEST ( false  | entry true -- )
