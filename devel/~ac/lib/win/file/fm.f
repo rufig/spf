@@ -55,7 +55,8 @@ DECIMAL
   CLOSE-FILE
 ;
 : FLUSH-MAP ( -- )
-  0 MAP-BASE FlushViewOfFile DROP
+  0 MAP-BASE FlushViewOfFile
+  0= IF GetLastError ." FLUSH-MAP ERR=" . CR THEN
 ;
 ( Пример:
   40000 S" TEST.MAP" MAP-FILE THROW
