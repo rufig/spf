@@ -105,7 +105,7 @@ CONSTANT /pl
         acr 1+ addr pl_last !
         pa1 acr OVER - 
         BEGIN
-          2DUP + 1- C@ 13 = 
+          2DUP + 1- C@ 13 = OVER 0 > AND
         WHILE 1- 0 MAX REPEAT
         EXIT
     THEN  2DROP
