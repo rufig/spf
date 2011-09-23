@@ -50,3 +50,32 @@ VARIABLE ADDC_DEBUG
   THEN
   RDROP S" "
 ;
+: GetDcDomain ( -- addr u )
+  0 >R
+  RP@
+  0 \ Flags
+  0 \ SiteName
+  0 \ DomainGuid
+  0 \ DomainName
+  0 \ ComputerName
+  DsGetDcNameA
+  IF RDROP S" "
+  ELSE
+     R> dci.DomainName @ ASCIIZ>
+  THEN
+;
+: GetDcOfDomain ( doma domu -- addr u )
+  0 >R
+  RP@
+  NIP SWAP >R
+  0 \ Flags
+  0 \ SiteName
+  0 \ DomainGuid
+  R> \ DomainName
+  0 \ ComputerName
+  DsGetDcNameA
+  IF RDROP S" "
+  ELSE                  
+     R> dci.DomainControllerName @ ASCIIZ>
+  THEN
+;
