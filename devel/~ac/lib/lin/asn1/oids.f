@@ -5,6 +5,10 @@
 : OID_localityName                 S" 2.5.4.7"  ;
 : OID_organizationName             S" 2.5.4.10" ;
 : OID_organizationalUnitName       S" 2.5.4.11" ;
+: OID_userCertificate              S" 2.5.4.36" ;
+: OID_cACertificate                S" 2.5.4.37" ;
+: OID_authorityRevocationList      S" 2.5.4.38" ;
+: OID_certificateRevocationList    S" 2.5.4.39" ;
 
 : OID_Certificate-policies         S" 2.5.29.32" ;
 : OID_Extended-key-usage           S" 2.5.29.37" ;

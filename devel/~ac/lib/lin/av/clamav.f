@@ -18,21 +18,37 @@ REQUIRE {   lib/ext/locals.f
 
 CL_DB_PHISHING CL_DB_PHISHING_URLS OR CL_DB_BYTECODE OR CONSTANT CL_DB_STDOPT
 
+
+\ scan options
+0x0     CONSTANT CL_SCAN_RAW			
+0x1     CONSTANT CL_SCAN_ARCHIVE			
+0x2     CONSTANT CL_SCAN_MAIL			
+0x4     CONSTANT CL_SCAN_OLE2			
+0x8     CONSTANT CL_SCAN_BLOCKENCRYPTED		
+0x10    CONSTANT CL_SCAN_HTML			
+0x20    CONSTANT CL_SCAN_PE			
+0x40    CONSTANT CL_SCAN_BLOCKBROKEN		
+0x80    CONSTANT CL_SCAN_MAILURL       \ ignored
+0x100   CONSTANT CL_SCAN_BLOCKMAX      \ ignored
+0x200   CONSTANT CL_SCAN_ALGORITHMIC		
+0x800   CONSTANT CL_SCAN_PHISHING_BLOCKSSL \ ssl mismatches, not ssl by itself
+0x1000  CONSTANT CL_SCAN_PHISHING_BLOCKCLOAK	
+0x2000  CONSTANT CL_SCAN_ELF			
+0x4000  CONSTANT CL_SCAN_PDF			
+0x8000  CONSTANT CL_SCAN_STRUCTURED		
+0x10000 CONSTANT CL_SCAN_STRUCTURED_SSN_NORMAL	
+0x20000 CONSTANT CL_SCAN_STRUCTURED_SSN_STRIPPED	
+0x40000 CONSTANT CL_SCAN_PARTIAL_MESSAGE         
+0x80000 CONSTANT CL_SCAN_HEURISTIC_PRECEDENCE    
+
+CL_SCAN_ARCHIVE CL_SCAN_MAIL OR CL_SCAN_OLE2 OR CL_SCAN_PDF OR
+CL_SCAN_HTML OR CL_SCAN_PE OR CL_SCAN_ALGORITHMIC OR CL_SCAN_ELF OR
+CONSTANT CL_SCAN_STDOPT
+
 ALSO SO NEW: libclamav.dll
 ALSO SO NEW: libclamav.so
 
-
-: TEST { \ eng sig scanned virname -- }
-  0 1 cl_init THROW
-  0 cl_debug .
-  0 cl_engine_new -> eng
-  ( CL_DB_STDOPT DROP)
-  0x7FFF ^ sig eng S" C:\ProgramData\.clamwin\db" DROP 4 cl_load THROW
-  ." sigs=" sig . CR
-  eng 1 cl_engine_compile THROW
-  0 eng ^ scanned ^ virname S" I:\dl\eicar.com" DROP 5 cl_scanfile IF virname ASCIIZ> TYPE CR THEN
-  eng 1 cl_engine_free THROW
-
-  \ 0 cl_retdbdir ASCIIZ> TYPE CR
+: CL_ScanFile { fa fu eng \ scanned virname -- va vu flag }
+  CL_SCAN_STDOPT eng ^ scanned ^ virname fa 5 cl_scanfile
+  IF virname ASCIIZ> TRUE ELSE S" " FALSE THEN
 ;
-TEST .( OK)

@@ -10,6 +10,8 @@ REQUIRE [IF]          lib/include/tools.f
 REQUIRE ADD-CONST-VOC lib/ext/const.f
 S" ~ygrek/lib/data/curl.const" ADD-CONST-VOC
 
+USER uCurlRespCode
+
 ALSO SO NEW: libcurl.dll
 ALSO SO NEW: libcurl.so
 ALSO SO NEW: libcurl.so.3
@@ -83,6 +85,7 @@ USER uCurlVerifySsl
 
   h 1 curl_easy_perform
   ?DUP IF 1 curl_easy_strerror ASCIIZ> TYPE CR THEN
+  uCurlRespCode CURLINFO_RESPONSE_CODE h 3 curl_easy_getinfo DROP
   h 1 curl_easy_cleanup DROP
   url STRFREE pr ?DUP IF STRFREE THEN
   0 TO CURL-MAX-SIZE
