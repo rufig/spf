@@ -12,8 +12,13 @@
   <include href="buffer-rw.L1.f.xml"/>
 </wordlist>
 
+<cell name="_size0">
+<rem> initial first block size </rem>
+  3400
+</cell>
+
 <cell2 name="_hlist"/>
-<cell name="_size"> 3400 </cell>
+<cell name="_size"> _size0 @ </cell>
 <cell name="_cnt"/>
 
 <def name="(alloc-block)" ds=" u-min -- a1 u1 ">
@@ -68,6 +73,7 @@
 </also>
 
 <def name="clear" ds=" -- ">
+  _size0 @ _size !
   _cnt @ 1 UGT <if> free-last-block <again/></if>
   block-w::clear
 </def>
