@@ -27,7 +27,13 @@ REQUIRE U.RS             ~pinka/lib/print.f
   ." entry " OVER
   10 U.R SPACE 
   12 U.RS SPACE
-  @ DUP 10 U.R SPACE WordByAddr TYPE CR
+  @ DUP 10 U.R SPACE WordByAddr ( d-name )
+  FOUND-VOC @ ?DUP IF 
+      VOC-NAME. 
+      ."  / "
+  THEN
+  ( d-name ) TYPE
+  CR
 ;
 : (DUMP-HEAP-FORTH) ( heap addr u -- heap )
   ."  blk.forth "
