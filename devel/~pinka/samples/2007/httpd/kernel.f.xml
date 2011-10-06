@@ -24,7 +24,7 @@
 </def>
 
 <def name="instantiate-worker" ds=" -- ">
-  <wid>
+  <wordlist name="worker-http">
     GET-CURRENT <logN>worker wid</logN>
     <!-- local alias: -->
     <def name="get-client?"> get-client? </def>
@@ -39,7 +39,8 @@
       </q>
       LAUNCH
     </def>
-  </wid> DUP remember-worker 
+    GET-CURRENT
+  </wordlist> DUP remember-worker 
  `start OBEY-SURE-
 </def>
 
