@@ -30,6 +30,7 @@
   sock DUP <if> 0 sock! CloseSocket THROW <exit/></if> DROP
 </def>
 
+<const name="sedna-events">1</const><rem> boundary for WordByAddr </rem>
 <handler event="startup"> max-packet-size ALLOCATE THROW buf!  0 output-format! </handler>
 <handler event="shutdown"> buf FREE-FORCE 0 buf!  close-sock </handler>
 <handler event="recovery"> 0 buf! 0 sock! 0 output-format! </handler>

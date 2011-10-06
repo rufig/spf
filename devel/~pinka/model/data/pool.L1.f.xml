@@ -19,6 +19,8 @@
 
 <include href="zstack.L1.immutable.f.xml" />
 
+<const name="pool-events">1</const><rem> boundary for WordByAddr </rem>
+
 <handler event="recovery">
   _sem 0!  0 0 ZASSUME _zbuf 0!
 </handler>

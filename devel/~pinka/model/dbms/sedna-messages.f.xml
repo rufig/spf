@@ -8,6 +8,7 @@
 
 <include href="http://forth.org.ru/~pinka/model/data/data-space.f.xml"/>
 
+<const name="sedna-messages-events">1</const><rem> boundary for WordByAddr </rem>
 <handler event="recovery"> 0. DATASPACE!  </handler>
 <handler event="startup">  max-packet-size ALLOCATED DATASPACE! </handler>
 <handler event="shutdown"> DATASPACE DROP FREE THROW 0. DATASPACE! </handler>
