@@ -20,10 +20,12 @@
 <cell2 name="_hlist"/>
 <cell name="_size"> _size0 @ </cell>
 <cell name="_cnt"/>
+<cell name="_cnt2"/>
 
 <def name="(alloc-block)" ds=" u-min -- a1 u1 ">
   500 + _size @ UMAX ALIGNED ALLOCATED 
   _cnt @ 1 UGT <if> DUP _size +! </if>
+  _cnt2 1+!
 </def>
 <def name="alloc-block" ds=" u-min -- a u ">
   (alloc-block) >R
@@ -32,6 +34,7 @@
 </def>
 <def name="free-last-block" ds=" -- ">
   _hlist UNBIND-NODE CELL- FREE THROW _cnt 1-!
+  _cnt @ 0 EQ <if> 0. block-w::assume <exit/></if><rem> to allow free all blocks </rem>
   _cnt @ 1 EQ <if> 0. block-r::assume <exit/></if>
   _hlist @ XCOUNT 2DUP block-r::assume block-r::confirm <rem> the block is fullness (!)</rem>
 </def>
@@ -73,9 +76,22 @@
 </also>
 
 <def name="clear" ds=" -- ">
-  _size0 @ _size !
-  _cnt @ 1 UGT <if> free-last-block <again/></if>
+  _cnt @ <unless><exit/></unless>
+  _cnt2 @ 1 EQ <if>
+    <rem> adjust size </rem>
+    block-w::unused _size0 @ UGT <if> 
+    block-w::unused _size  @ 2/ UGT <if>
+      _size @ 2/ DUP 2/ + _size0 @ UMAX _size !
+      free-last-block
+      _cnt2 0!
+      <exit/>
+    </if></if>
+    block-w::clear
+    <exit/>
+  </if>
+  <repeat> _cnt @ 1 UGT <while/> free-last-block </repeat>
   block-w::clear
+  _cnt @ _cnt2 !
 </def>
 
 
