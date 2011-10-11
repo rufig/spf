@@ -10,6 +10,8 @@
   ѕристыковка делаетс€ командой MOUNT [ h -- ],
   отстыковка -- командой DISMOUNT  [ -- h ], /или, лучше UNMOUNT ?/
   приведение сырого блока пам€ти к виду хранилища -- командой FORMAT [ addr u -- h ].
+  —лово MOUNT перед пристыковкой само освобождает станок отстыковкой,
+  если он был зан€т.
 
   –еализованный ниже вариант поддерживает доопределение и расширение
   через механизм разбросанного [прерывистого] определени€
@@ -51,12 +53,20 @@
   2R> (MOUNT)
 ;
 : DISMOUNT ( -- h )
-  STORAGE @ DUP IF AT-DISMOUNTING  (DISMOUNT) SWAP !   DP 0! STORAGE 0! THEN
+  STORAGE @ DUP IF
+    DP @ 255 U> IF AT-DISMOUNTING  (DISMOUNT) SWAP ! THEN
+    DP 0! STORAGE 0!
+  THEN
 ;
 : MOUNT ( h -- )
   DUP STORAGE-ID = IF DROP EXIT THEN
   DISMOUNT DROP
   DUP IF DUP @  (MOUNT)  AT-MOUNTING  EXIT THEN DROP
+;
+: MOUNT-RO ( h -- ) \ mounts for read-only
+\ it skips AT-MOUNTING and then AT-DISMOUNTING for given storage
+  DISMOUNT DROP
+  DUP IF 0 (MOUNT) EXIT THEN DROP
 ;
 : PUSH-MOUNT ( h -- ) \ примен€ть к одному хранилищу не более чем единыжды
   DISMOUNT OVER CELL+ CELL+ !
