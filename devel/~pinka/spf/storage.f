@@ -194,7 +194,7 @@ EXPORT
 : AT-STORAGE-DELETING ( -- ) ... ;
 
 : NEW-STORAGE ( size -- h )
-  DUP ALLOCATE THROW SWAP 
+  DUP ALLOCATE THROW (FIX-MEMTAG) SWAP 
   2DUP ERASE FORMAT
 ;
 : DEL-STORAGE ( h -- )
@@ -204,7 +204,7 @@ EXPORT
 : TEMP-WORDLIST ( -- wid )
 \ создаст временное хранилище в текущей куче (хипе)
 \ и в нем словарь
-  WL_SIZE NEW-STORAGE PUSH-MOUNT
+  WL_SIZE NEW-STORAGE (FIX-MEMTAG) PUSH-MOUNT
   DEFAULT-WORDLIST  POP-MOUNT DROP
 ;
 : FREE-WORDLIST ( wid -- )
