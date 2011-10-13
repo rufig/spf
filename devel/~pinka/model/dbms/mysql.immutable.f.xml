@@ -30,6 +30,7 @@
 <def name="query" ds=" a u -- ">
   conn <unless> `#mysql-no-conn STHROW </unless>
   free-res-all
+  before-query FIRE-EVENT
   FINE-HEAD DUP <unless> 2DROP <text>SELECT NULL LIMIT 0;</text></unless>
   <rem> workaround for Error 1065 (ER_EMPTY_QUERY) "Query was empty" </rem>
   0 resn!

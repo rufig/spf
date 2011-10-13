@@ -52,6 +52,11 @@
   DROP  <!-- does't work before 5.1.6 -->
 </def>
 
+
+<export>
+  <event name="before-query"/>
+</export>
+
 <include href="mysql.immutable.f.xml"/>
 
 <export>
@@ -75,6 +80,9 @@
 <alias name="connect" word="open" />
 <alias name="clear" word="free-res-all" />
 
+<def name="use-database" ds=" d-db -- ">
+  DROP conn mysql_select_db <if> treat-err </if><rem> Zero for success </rem> 
+</def>
 
 <def name="assume-cred" ds=" d-db d-host d-user d-passw -- ">
   pass! user! hostname! database!
