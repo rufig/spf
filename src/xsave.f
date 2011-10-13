@@ -58,7 +58,10 @@ S" src/elf.f" INCLUDED
   DUP @ reloc-wordlist-chain
   DUP       ?VIRT! \ words chain
   DUP CELL+ ?VIRT! \ wordlist's name
+  DUP 2 CELLS ?VIRT! \ parent  (see PAR@   )
+  DUP 3 CELLS ?VIRT! \ class   (see CLASS@ )
 \ DUP CELL- ?VIRT! \ link to the next voc
+\ (the link will be fixed by reloc-voclist)
   DROP
 ;
 : reloc-wordlists-all ( -- )

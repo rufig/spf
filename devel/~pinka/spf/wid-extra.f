@@ -20,6 +20,9 @@ REQUIRE Included ~pinka/lib/ext/requ.f
 
 [DEFINED] WID-EXTRA [IF] Include wid-extra2.f \EOF [THEN]
 
+\ Note the below implementation is no more used in the new builds.
+
+
 REQUIRE REPLACE-WORD lib/ext/patch.f
 
 WARNING @  WARNING 0!
@@ -88,7 +91,8 @@ WARNING !
   HERE VOC-LIST @ , VOC-LIST !
   HERE 0 , \ здесь будет указатель на имя последнего слова списка
        0 , \ здесь будет указатель на имя списка для именованых
-       0 , \ wid словаря-предка
+  GET-CURRENT
+         , \ wid словаря-предка
        0 , \ класс словаря = wid словаря, определяющего свойства данного
 
   DUP MAKE-EXTR AT-WORDLIST-CREATING ( wid )
