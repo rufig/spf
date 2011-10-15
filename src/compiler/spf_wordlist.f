@@ -7,8 +7,10 @@
   Ревизия - сентябрь 1999, март 2000
 )
 
-USER FOUND-VOC  \ словарь, в котором найдено слово при SFIND или WordByAddr
-\ в режиме интерпретации , а только в отложенном коде
+USER VOC-FOUND  \ словарь, в котором найдено слово при SFIND или WordByAddr
+\ Фраза VOC-FOUND @ в режиме интерпретации бесполезна
+\ (т.к. всегда даст словарь, в котором лежит слово "@").
+\ Имеет смысл использовать только в отложенном коде.
 
 
 VARIABLE _VOC-LIST \ список словарей
@@ -219,7 +221,7 @@ END-CODE
   2DUP >R >R
   ['] (NEAREST1) FOR-WORDLIST
   DUP R> = IF RDROP EXIT THEN
-  R> FOUND-VOC !
+  R> VOC-FOUND !
 ;
 : (NEAREST3) ( addr nfa1 -- addr nfa2 )
   ['] (NEAREST2) ENUM-VOCS-FORTH
@@ -230,7 +232,7 @@ VECT (NEAREST-NFA) ( addr nfa1 -- addr nfa2 )
 ' (NEAREST3) ' (NEAREST-NFA) TC-VECT!
 
 : (WordByAddrSilent) ( addr -- c-addr u )
-  FOUND-VOC 0!
+  VOC-FOUND 0!
   0 (NEAREST-NFA) DUP 0= IF NIP DUP ( 0 0 ) EXIT THEN
   TUCK NAME> - ABS 4096 U< IF COUNT EXIT THEN
   \ расстояние следует проверять от xt, а не от nfa

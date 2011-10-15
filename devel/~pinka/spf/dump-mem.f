@@ -44,7 +44,7 @@ REQUIRE U.RS             ~pinka/lib/print.f
   10 U.R SPACE 
   12 U.RS SPACE
   @ DUP 10 U.R SPACE WordByAddr ( d-name )
-  FOUND-VOC @ ?DUP IF 
+  VOC-FOUND @ ?DUP IF 
       VOC-NAME. 
       ."  / "
   THEN

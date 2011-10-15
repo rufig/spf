@@ -122,12 +122,12 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 \ иначе также вернуть минус единицу (-1). ƒл€ данной строки, значени€,
 \ возвращаемые FIND во врем€ компил€ции, могут отличатьс€ от значений,
 \ возвращаемых не в режиме компил€ции.
-  FOUND-VOC 0!
+  VOC-FOUND 0!
   S-O 1- CONTEXT
   DO
     2DUP I @ SEARCH-WORDLIST
     DUP IF
-      I @ FOUND-VOC ! 
+      I @ VOC-FOUND ! 
       2SWAP 2DROP UNLOOP EXIT 
     THEN DROP
    I S-O = IF LEAVE THEN
