@@ -167,12 +167,17 @@
 <def name="commit"   ds=" -- ">  t 1- DUP t! <if><exit/></if> packet::CommitTransaction   put next </def>
 <def name="rollback" ds=" -- ">  t 1- DUP t! <if><exit/></if> packet::RollbackTransaction put next </def>
 
-<def name="query-per" ds=" d-query consumer-xt -- "><!-- see: sedna-api.scm # sedna:execute-query-xml -->
+<def name="(per-query-per)" ds=" i*x putter-xt consumer-xt -- j*x ">
+  <!-- see: sedna-api.scm # sedna:execute-query-xml -->
   consumer-xt!
   transact
-    <q> put-query next </q> CATCH DUP <if> 0 t! close-sock  THROW </if> DROP
+    CATCH DUP <if> 0 t! close-sock  THROW </if> DROP
     <rem> 't' state should be balanced </rem>
   commit
+</def>
+
+<def name="query-per" ds=" d-query consumer-xt -- "><!-- see: sedna-api.scm # sedna:execute-query-xml -->
+  <q> put-query next </q> SWAP (per-query-per)
 </def>
 
 <def name="query-value" ds=" d-query -- d-value ">
@@ -181,13 +186,11 @@
 </def>
 
 <def name="per-query-per" ds=" emitter-xt consumer-xt -- ">
-  consumer-xt!
-  transact
-    <q> per-put-query next </q> CATCH DUP <if> 0 t! close-sock  THROW </if> DROP
-  commit
+  <q> per-put-query next </q> SWAP (per-query-per)
 </def>
 
 </export>
 </wordlist>
 
 </forth>
+ 
