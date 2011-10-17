@@ -212,6 +212,8 @@ USER _ch_lerr
 \ ≈сли удалс€, то sock - новый соединенный сокет, ior=0.
 
   IPV6_MODE @ 0= IF ConnectHost EXIT THEN
+  WinVer 50 = IF ConnectHost EXIT THEN \ в win2000 нет getaddrinfo
+
   uLastCH_IP 0! _ch_port 0! _ch_s4 0! _ch_s6 0! _ch_lerr 0!
 
   >R OVER inet_addr -1 <> IF R> ConnectHost EXIT THEN
