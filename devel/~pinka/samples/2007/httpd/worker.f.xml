@@ -11,8 +11,9 @@
 <include href="io/socket-line.f.xml" />
 
 <g xml:base="protocol/http/">
-<include href="headers-storage.f.xml" />
-<include href="headers-main.f.xml" />
+  <include href="headers-parse/storage.f.xml" />
+  <include href="headers-parse/common.f.xml" />
+  <include href="headers-parse/request.f.xml" />
 </g>
 
 <export>

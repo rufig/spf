@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<also wordlist="headers.dataspace">
+
+<def name="add-header-authbasic" ds=" d-realm -- ">
+  <text>WWW-Authenticate: Basic realm="</text> S, S, <text>"</text> S, CRLF S,
+</def>
+<def name="add-header-attachment" ds=" d-filename -- ">
+  <text>Content-Disposition: attachment; filename="</text> S, S, `" S, CRLF S, 
+  <rem> filename-parm = "filename" "=" quoted-string -- rfc2616 #sec19.5.1 </rem>
+</def>
+
+</also>
+
+</forth>

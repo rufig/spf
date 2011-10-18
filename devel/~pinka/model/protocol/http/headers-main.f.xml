@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="Windows-1251"?>
-<forth xmlns="http://forth.org.ru/ForthML/">
-
-<include href="headers-common.f.xml"/>
-<include href="headers-request.f.xml"/>
-
-</forth>

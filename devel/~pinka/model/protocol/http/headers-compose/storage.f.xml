@@ -11,14 +11,19 @@
 <def name="space,"><text> </text> S, </def>
   
 <slot> finalized </slot>
-
+<slot2> body </slot2>
 <export>
 
 <slot2> status-code    </slot2>
 <slot2> status-version </slot2>
 
 <def name="clear" ds=" -- ">
+  0. body!
   CLEAR-DATASPACE FALSE finalized!
+</def>
+
+<def name="assume-bodyprefix" ds=" d-data -- ">
+  body!
 </def>
 
 <def name="add-header-line" ds=" a u --"> S, CRLF S, </def>
@@ -49,16 +54,11 @@
 </def>
 
 <def name="headers" ds=" -- a u ">
-  finalized <unless> 0. add-header-line  TRUE finalized! </unless>
-  DATASPACE-CONTENT
-</def>
-
-<def name="add-header-authbasic" ds=" d-realm -- ">
-  <text>WWW-Authenticate: Basic realm="</text> S, S, <text>"</text> S, CRLF S,
-</def>
-<def name="add-header-attachment" ds=" d-filename -- ">
-  <text>Content-Disposition: attachment; filename="</text> S, S, `" S, CRLF S, 
-  <rem> filename-parm = "filename" "=" quoted-string -- rfc2616 #sec19.5.1 </rem>
+  finalized <if> DATASPACE-CONTENT <exit/></if>
+  0. add-header-line  TRUE finalized!
+  body NIP <if> body S, </if>
+  UNUSED <if> DATASPACE-CONTENT <exit/></if>
+  `#headers-overflow STHROW
 </def>
 
 </export>
