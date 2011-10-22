@@ -19,6 +19,7 @@
 
 <def name="clear" ds=" -- ">
   0. body!
+  0. status-code!
   CLEAR-DATASPACE FALSE finalized!
 </def>
 
