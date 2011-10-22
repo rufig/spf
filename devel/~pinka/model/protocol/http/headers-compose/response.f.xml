@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1251"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<also wordlist="headers.dataspace">
+<also wordlist="headers-dataspace">
 
 <def name="add-header-authbasic" ds=" d-realm -- ">
   <text>WWW-Authenticate: Basic realm="</text> S, S, <text>"</text> S, CRLF S,

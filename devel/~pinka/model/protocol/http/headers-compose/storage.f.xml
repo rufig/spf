@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1251"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<wordlist name="headers.dataspace">
+<wordlist name="headers-dataspace">
 
 <g xml:base="http://forth.org.ru/~pinka/model/data/">
 <include href="data-space.f.xml" />
@@ -33,13 +33,14 @@
   S, <text>: </text> S, S, CRLF S,
 </def>
 
-<def name="set-status-full" ds=" d-code d-reason d-version -- ">
+<def name="set-status-full" ds=" d-reason d-code d-version -- ">
   clear
   `HTTP/ S, CARBON status-version!
-  space, 2SWAP CARBON status-code! space, S, CRLF S,
+  space, CARBON status-code! space, S, CRLF S,
 </def>
 
-<def name="set-status" ds=" d-code d-reason -- ">
+<def name="set-status" ds=" d-reason d-code -- ">
+  <rem> stack as ( value name ), name is on top </rem>
   `1.1 set-status-full
 </def>
 
