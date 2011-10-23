@@ -28,7 +28,7 @@ next-line?     readout        read-exact     readout-exact
 close-socketline              assume-sock    sock
 h@             dump-headers   has-header
 http-ver-d     http-ver-major
-content-length has-content?   connection-close?
+content-length has-content    connection-close?
 location       http-method    is-http-method
 content-length-number
 

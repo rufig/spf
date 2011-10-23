@@ -5,7 +5,7 @@
   <include href="http://forth.org.ru/~pinka/model/parse/url.f.xml"/>
 </wordlist>
 
-<def name="store-request-line" ds=" a u -- "><!-- Request-Line -->
+<def name="parse-request-line" ds=" a u -- "><!-- Request-Line -->
   clear-headers
   2DUP            `http-request h!
   WORD|TAIL 2SWAP `http-method  h!

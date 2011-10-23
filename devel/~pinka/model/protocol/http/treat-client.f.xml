@@ -12,7 +12,7 @@
   <text>&#xD;</text> MATCH-TAIL DROP <!-- workaround for "UNIX-LINES" mode vs { 0xD 0xA } -->
   TEST-EOLN <unless><logS>TEST-EOLN</logS> `#414 STHROW </unless><!-- Request-URI Too Large -->
   FINE-HEAD DUP <unless> 2DROP <again/></unless><!-- skip empty lines -->
-  store-request-line
+  parse-request-line
   http-ver-major 1 EQ <unless>
     `http-request h@ <logS>request line</logS>
     `#505 STHROW 
@@ -26,7 +26,7 @@
   DUP <unless> 2DROP <exit/></unless><!-- end of headers reached -->
   TEST-EOLN <unless><logS>TEST-EOLN</logS> `#413 STHROW </unless><!-- line is too long -->
   TEST-HEAD-WHITE <if><logS>TEST-HEAD-WHITE</logS> `#400 STHROW </if><!-- don't support a multiple lines value (see 4.2 Message Headers) -->
-  parse-header <unless><logS>parse-header</logS> `#400 STHROW </unless><!-- header name is not found, bad request -->
+  parse-header? <unless><logS>parse-header</logS> `#400 STHROW </unless><!-- header name is not recognize, bad request -->
   <again/>
 </def>
 
@@ -78,7 +78,7 @@
 </def>
 
 <def name="dispatch-request" ds=" -- ">
-  allow-pipelining?    <if> connection-close? <unless> has-content? <unless>
+  allow-pipelining?    <if> connection-close? <unless> has-content <unless>
   treat-request-async  <exit/></unless></unless></if>
   treat-request
 

@@ -35,17 +35,12 @@
 </export>
 </wordlist>
 
-<rem><!-- to be removed -->
-<def name="store-header?" ds=" a u -- flag ">
-  `: SPLIT <unless> 2DROP FALSE <exit/></unless> FINE-HEAD 2SWAP h! TRUE
-</def>
-
-<def name="store-header" ds=" a u -- ">
-  store-header? DROP
-</def>
+<rem>
+  The name 'parse-header' is preferable to 'store-header'.
+  The 'store' is used for only store.
 </rem>
 
-<def name="parse-header" ds=" a u -- a u false | true ">
+<def name="parse-header?" ds=" a u -- a u false | true ">
   `: SPLIT DUP <unless><exit/></unless> DROP FINE-HEAD 2SWAP h! TRUE
 </def>
 
