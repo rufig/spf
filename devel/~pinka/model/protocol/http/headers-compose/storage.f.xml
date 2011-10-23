@@ -11,20 +11,14 @@
 <def name="space,"><text> </text> S, </def>
   
 <slot> finalized </slot>
-<slot2> body </slot2>
 <export>
 
 <slot2> status-code    </slot2>
 <slot2> status-version </slot2>
 
 <def name="clear" ds=" -- ">
-  0. body!
   0. status-code!
   CLEAR-DATASPACE FALSE finalized!
-</def>
-
-<def name="assume-bodyprefix" ds=" d-data -- ">
-  body!
 </def>
 
 <def name="add-header-line" ds=" a u --"> S, CRLF S, </def>
@@ -44,21 +38,20 @@
   `1.1 set-status-full
 </def>
 
-<def name="set-request-full" ds=" d-pathname d-method d-version -- ">
+<def name="set-request-full" ds=" d-uri d-method d-version -- ">
   clear
   2>R
   S, space, S, space, 
   `HTTP/ S, 2R> S, CRLF S,
 </def>
 
-<def name="set-request" ds=" d-pathname d-method -- ">
+<def name="set-request" ds=" d-uri d-method -- ">
   `1.1 set-request-full
 </def>
 
 <def name="headers" ds=" -- a u ">
   finalized <if> DATASPACE-CONTENT <exit/></if>
   0. add-header-line  TRUE finalized!
-  body NIP <if> body S, </if>
   UNUSED <if> DATASPACE-CONTENT <exit/></if>
   `#headers-overflow STHROW
 </def>
