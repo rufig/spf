@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<comment> This module extends write-basic </comment>
+<rem> uses SYSTEM-PAD (!) </rem>
+
+<slot> chunked </slot>
+
+<handler event="cleanup"> 0 chunked! </handler>
+
+<def name="add-header-chunked" ds=" -- ">
+  `chunked `Transfer-Encoding add-header
+</def>
+
+<def name="use-chunked" ds=" -- ">
+  <rem>It doesn't allowed for HTTP/1.0 </rem>
+  TRUE chunked!
+</def>
+
+<def name="chunk-prefix" ds=" a u -- a u a2 u2 ">
+  16 BASE <let>
+    SYSTEM-PAD /SYSTEM-PAD
+    cnt-put <if> CRLF CROP- <rem> tail for previous chunk </rem></if>
+    2 PICK UtoS <rem> unsigned number </rem> CROP- CRLF CROP-
+    DROP SYSTEM-PAD TUCK -
+  </let>
+  <rem> see also: http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.6.1 </rem>
+</def>
+
+<def name="put" ds=" a u -- ">
+  chunked <unless> put <exit/></unless>
+  cnt-put 0= <if> add-header-chunked </if>
+  TUCK
+  chunk-prefix put put
+  0NEQ <if><rem> not empty</rem>
+    <exit/>
+  </if>
+  <rem> after last chunk </rem>
+  0 chunked! <rem> don't use chunked further </rem>
+  <rem> trailer is not supported yet </rem>
+  CRLF put
+</def>
+
+
+<def name="put-file" ds=" h -- ">
+  chunked <unless> put-file <exit/></unless>
+  `#chunked-not-supported STHROW
+</def>
+
+<def name="put-filename" ds=" addr u -- ">
+  chunked <unless> put-filename <exit/></unless>
+  `#chunked-not-supported STHROW
+</def>
+
+</forth>
