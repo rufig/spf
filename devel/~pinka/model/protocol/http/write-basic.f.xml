@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<slot> cnt-put </slot>
+
+<slot2> stat-w </slot2> 
+
+<handler event="cleanup"> 0 cnt-put! 0. stat-w! </handler>
+
+<def name="stat-w+!" ds=" d -- "> stat-w D+ stat-w! </def>
+
+<def name="put-raw" ds=" a u -- ">
+  DUP <if> TUCK write 0 stat-w+! _cnt-put 1+! <exit/></if>
+  2DROP
+</def>
+
+<def name="put" ds=" a u -- ">
+  sock <if>
+    cnt-put 0= <if> headers put-raw </if> put-raw
+    <exit/>
+  </if>
+  cnt-put 0= <if> headers TYPE _cnt-put 1+! </if> TYPE _cnt-put 1+!
+  <rem> -- for tests without sock </rem>
+</def>
+
+
+<def name="(put-file-raw)" ds=" h d -- ">
+  ROT
+  sock WRITE-SOCKET-FILE THROW
+  stat-w+! _cnt-put 1+!
+</def>
+<def name="(put-filename-raw)" ds=" a u d -- ">
+  2SWAP sock WRITE-SOCKET-FILENAME THROW
+  stat-w+!  _cnt-put 1+!
+</def>
+<def name="put-file-raw" ds=" h -- ">
+  DUP FILE-SIZE THROW (put-file-raw)
+</def>
+<def name="put-filename-raw" ds=" a u -- ">
+  2DUP FILENAME-SIZE (put-filename-raw)
+</def>
+
+<def name="put-file" ds=" h -- ">
+  DUP FILE-SIZE THROW 
+  2DUP add-header-length-number
+  0. put <rem> for headers </rem>
+  (put-file-raw)
+</def>
+
+<def name="put-filename" ds=" a u -- ">
+  2DUP FILENAME-SIZE
+  2DUP add-header-length-number
+  0. put <rem> for headers </rem>
+  (put-filename-raw)
+</def>
+
+
+</forth>
