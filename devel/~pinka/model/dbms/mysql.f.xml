@@ -144,7 +144,7 @@
   omit-xml-declaration <unless>
     <text><![CDATA[<?xml version="1.0"?>]]>&#xA;</text> store-chunk
   </unless>
-  store-xml-stylesheet
+  store-xml-stylesheet   0. xml-stylesheet!
   >R query store-response
   <repeat> buf::next-chunk DUP <while/> R@ EXECUTE </repeat> R> EXECUTE
 </def>
