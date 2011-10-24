@@ -64,4 +64,13 @@
 
 </wordlist>
 
+
+<def name="composed-stylesheet-declaration" ds=" d-url d-buf -- d-text ">
+  OVER >R
+  <text><![CDATA[<?xml-stylesheet type="text/xsl" href="]]></text> CROP-
+  <rem>( d-href d-buf-rest )</rem> CROP
+  <text><![CDATA["?>]]>&#xA;</text> CROP-
+  DROP R> TUCK -
+</def>
+
 </forth>

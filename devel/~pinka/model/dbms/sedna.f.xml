@@ -3,6 +3,7 @@
      xmlns:r="http://forth.org.ru/ForthML/Rules/"
 >
 <!-- Aug.2008 ruv -->
+<!-- $Id$ -->
 
 <comment>
   Sedna Client/Server Protocol
@@ -11,6 +12,10 @@
   http://modis.ispras.ru/src/sedna/driver/scheme/sedna-api/sedna-api.scm
 </comment>  
 
+
+<comment>
+ Now it requires CROP  (see ~pinka/samples/2005/lib/split.f)
+</comment>
 
 <using href="http://forth.org.ru/~pinka/model/dbms/sedna-common.f.xml"/>
 
@@ -21,8 +26,8 @@
 <slot> buf  sock port-number t </slot>
 <slot2> database user password  hostname port </slot2>
 
-<slot2> request last-part </slot2>
-<slot> output-format consumer-xt </slot>
+<slot2> request last-part xml-stylesheet </slot2>
+<slot> output-format consumer-xt consumer-orig-xt </slot>
 <comment> format code is 0 - to get result in XML </comment>
 
 
@@ -140,6 +145,29 @@
   packet::LongQueryEnd put
 </def>
 
+<def name="consumer1" ds=" a u -- ">
+  consumer-orig-xt consumer-xt!
+  xml-stylesheet DROP <if>
+    xml-stylesheet
+    sedna-messages-hidden::DATASPACE <rem> using as buf; it is safe since data already sent </rem>
+    composed-stylesheet-declaration
+    consumer-xt EXECUTE
+  </if>
+  consumer-xt EXECUTE
+</def>
+
+<export>
+
+<def name="set-xml-stylesheet" ds=" d-url -- ">
+  <comment> It should be set on each query. 
+    Note d-url is passing by ref (without a copy of data). 
+  </comment>
+  xml-stylesheet! 
+</def>
+
+</export>
+
+
 <def name="(transact)" ds=" -- "> t DUP 1+ t! <if><exit/></if> packet::BeginTransaction    put next </def>
 <comment>
   The transactions within a session are strictly serial, that is one transaction ends 
@@ -169,9 +197,12 @@
 
 <def name="(per-query-per)" ds=" i*x putter-xt consumer-xt -- j*x ">
   <!-- see: sedna-api.scm # sedna:execute-query-xml -->
-  consumer-xt!
+  consumer-orig-xt! 'consumer1 consumer-xt!
   transact
-    CATCH DUP <if> 0 t! close-sock  THROW </if> DROP
+    <rem>( putter )</rem>
+    CATCH
+      0. xml-stylesheet!
+    DUP <if> 0 t! close-sock  THROW </if> DROP
     <rem> 't' state should be balanced </rem>
   commit
 </def>
