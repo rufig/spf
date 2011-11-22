@@ -124,6 +124,8 @@ VARIABLE _T-PAT  ' T-SLIT _T-PAT !
 `index.L3.f.xml _EMBODY
 
 
+
+
 \ инициализация для sharedlex
 ..: AT-PROCESS-STARTING init-sharedlex ;..
                         init-sharedlex
@@ -143,6 +145,17 @@ SET-ORDER SET-CURRENT
 TO ?C-JMP  \ оставлять включенным нельзя, т.к. дает глюки для r-чувствительных слов.
 
 
+REQUIRE enqueueNOTFOUND  ~pinka/spf/notfound-ext.f
+
+: AsForthmlSourceFile ( a u -- a u false | i*x true )
+  2DUP S" .f.xml" MATCH-TAIL NIP NIP 0= IF FALSE EXIT THEN
+  2DUP + 0 SWAP B!
+  2DUP FILE-EXISTS 0= IF FALSE EXIT THEN
+  EMBODY TRUE
+;
+' AsForthmlSourceFile preemptNOTFOUND
+
+
 \ Итого, объектного кода:
-\   библиотеки, расширения и выравнивания -- 50 Кб
-\   транслятор ForthML с навесками -- 43 Кб
+\   библиотеки, расширения и выравнивания -- 32 Кб
+\   транслятор ForthML с навесками -- 47 Кб
