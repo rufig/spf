@@ -13,3 +13,26 @@
   REPEAT ( a1 0 )
   NIP RDROP
 ;
+
+
+: FILE-CONTENT ( h-file -- addr u ior )
+  \ addr shoud be freed via FREE
+  >R 
+  R@ FILE-SIZE DUP IF RDROP EXIT THEN DROP
+  ( d-size )  IF 0 -1 RDROP EXIT THEN \ too big
+  DUP ALLOCATE DUP IF RDROP EXIT THEN DROP SWAP ( addr u )
+  2DUP R@ READ-FILE-EXACT DUP IF
+    ( addr u ior )
+    2 PICK FREE DROP RDROP EXIT
+  THEN ( addr u 0 )
+  RDROP
+;
+: FILENAME-CONTENT ( d-txt-filename -- addr u )
+  R/O OPEN-FILE-SHARED THROW >R
+  R@ FILE-CONTENT
+  R> CLOSE-FILE SWAP THROW THROW
+;
+: FOR-FILENAME-CONTENT ( d-txt-filename xt -- ) \ xt ( addr u -- )
+  >R FILENAME-CONTENT OVER R> SWAP >R CATCH R> FREE SWAP THROW THROW
+;
+\ m.b. WITH-FILENAME-CONTENT ( xt d-txt-filename -- ) \ xt ( addr u -- )
