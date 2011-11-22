@@ -89,9 +89,13 @@ FORTH-WORDLIST XMLDOM-WL CODEGEN-WL forthml-hidden  4 SET-ORDER  DEFINITIONS
 : (INCLUDED-PLAIN-TC) ( i*x -- j*x )
   BEGIN PARSE-NAME DUP WHILE T-WORD-TC REPEAT 2DROP
 ;
-: INCLUDED-PLAIN-TC ( a u -- )
-  FIND-FULLNAME2 FILE ['] (INCLUDED-PLAIN-TC) EVALUATE-WITH
+: EVALUATE-PLAIN-TC ( a u -- )
+  ['] (INCLUDED-PLAIN-TC) EVALUATE-WITH
   \ - relative to the current file
+;
+: INCLUDED-PLAIN-TC ( a u -- )
+  FIND-FULLNAME2 \ - relative to the current file
+  ['] EVALUATE-PLAIN-TC FOR-FILENAME-CONTENT
 ;
 
 `ttext-index.auto.f INCLUDED-PLAIN-TC \ в виде простейшего форт-текста
