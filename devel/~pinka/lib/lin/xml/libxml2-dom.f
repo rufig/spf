@@ -6,6 +6,8 @@
   Пример использования:
   `http://www.forth.org.ru/~ruvim/samples/ForthML/forthml.xml DefaultLSParser parseURI VALUE doc
   doc documentElement nodeName TYPE
+
+  Убрана зависимость от libcurl.dll
 )
 
 
@@ -95,7 +97,7 @@ lib.libxml2 PUSH-SCOPE
   2>R DROP xmlParserOption SWAP 0 R> R>
   5 xmlReadMemory
 ;
-\ : LOAD-XMLDOC-VIA-WGET ( addrz u -- doc|0 )
+\ : LOAD-XMLDOC-VIA-CURL ( addrz u -- doc|0 )
 \   2DUP
 \   GET-FILE DUP >R STR@ LOAD-XMLMEM R> STRFREE
 \   ( a u doc|0 )
