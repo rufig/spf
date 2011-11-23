@@ -19,7 +19,7 @@ OS-WINDOWS? [IF]
 [THEN]
 OS-LINUX? [IF]
 
-  [UNDEFINED] libxml2.dll [IF]
+  [UNDEFINED] libxml2.so.2 [IF]
     ALSO SO NEW: libxml2.so.2 PREVIOUS
   [THEN]
 
