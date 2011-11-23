@@ -148,7 +148,7 @@ TO ?C-JMP  \ оставлять включенным нельзя, т.к. дает глюки для r-чувствительных с
 REQUIRE enqueueNOTFOUND  ~pinka/spf/notfound-ext.f
 
 : AsForthmlSourceFile ( a u -- a u false | i*x true )
-  2DUP S" .f.xml" MATCH-TAIL NIP NIP 0= IF FALSE EXIT THEN
+  2DUP S" .f.xml" ENDS-WITH 0= IF FALSE EXIT THEN
   2DUP + 0 SWAP C!
   2DUP FILE-EXISTS 0= IF FALSE EXIT THEN
   EMBODY TRUE
