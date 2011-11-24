@@ -5,12 +5,20 @@
   <include href="http://forth.org.ru/~pinka/model/parse/url.f.xml"/>
 </wordlist>
 
+<def name="_BL" ds=" -- d-txt"><rem> SP </rem>
+  <text> </text>
+</def>
+
+<def name="TOKEN|TAIL" ds=" d-txt -- d-txt-token d-txt-tail ">
+  _BL MATCH-HEAD DROP
+  _BL SPLIT <unless> 0 0 </unless>
+</def>
 <def name="parse-request-line" ds=" a u -- "><!-- Request-Line -->
   clear-headers
-  2DUP            `http-request h!
-  WORD|TAIL 2SWAP `http-method  h!
-  WORD|TAIL 2SWAP `http-url     h!@ location::assume-url
-  WORD|TAIL 2DROP `http-version h!@ assume-http-version
+  2DUP             `http-request h!
+  TOKEN|TAIL 2SWAP `http-method  h!
+  TOKEN|TAIL 2SWAP `http-url     h!@ location::assume-url
+  TOKEN|TAIL 2DROP `http-version h!@ assume-http-version
 </def>
 
 <def name="http-method" ds=" -- a u ">
