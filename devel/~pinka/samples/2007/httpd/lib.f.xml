@@ -47,8 +47,7 @@
 
 <rule match="f:file-content" ds=" D-filename -- " ds-y=" D-filecontent -- ">
 <mm>
-    FILE OVER >R  <f:q><yield/></f:q> CATCH
-    R> FILEFREE                       THROW
+    <f:q><yield/></f:q> FOR-FILENAME-CONTENT
 </mm>
 </rule>
 <!-- example: `lib.f.xml <file-content> TYPE </file-content>  -->
