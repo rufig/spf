@@ -2,7 +2,7 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 
 <def name="next-line?" ds=" -- a u true | false ">
-  <repeat> rest SPLIT-LINE <if> rest! TRUE <exit/></if>
+  <repeat> rest lineterm SPLIT <if> rest! TRUE <exit/></if>
   clear enclose <!-- move to begin -->
   vacant DUP <while/> _readout? <while/> confirm
   </repeat> 2DROP

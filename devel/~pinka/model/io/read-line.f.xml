@@ -24,7 +24,21 @@
 
 <include href="buffer-rw.f.xml" />
 
+
+<cell name="_lta"/>
+<cell name="_ltl"/>
+
+<def name="lineterm" ds=" -- a u "> _lta @ _ltl @ </def>
+
 <export>
+
+<def name="assume-lineterm" ds=" addr u -- "> _ltl ! _lta ! </def>
+<init>
+  LT LTL @
+  <rem> TODO: LINE-TERM in the core </rem>
+  assume-lineterm
+  <rem> see also: ~pinka/model/trans/split-line.f.xml </rem>
+</init>
 
 <include href="read-line.immutable.f.xml" />
 
