@@ -38,6 +38,9 @@
   LAUNCHER START  CloseHandle ERR THROW
 </def>
 
+<def name="LAUNCHED" ds=" xt -- handle "><rem> xt ( -- ) </rem>
+  LAUNCHER START
+</def>
 
 
 <f:g xmlns:f="http://forth.org.ru/ForthML/"
