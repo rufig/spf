@@ -21,6 +21,16 @@
   vacant _readout? DUP <if><exit/></if> NIP NIP
 </def>
 
+<def name="next-chunk-counted?" ds=" u1 -- u2 a u true | u1 false ">
+  rest DUP <if> SWAP >R OVER UMIN DUP >R - 2R> DUP elapse TRUE <exit/></if> 2DROP
+  clear vacant _readout? <unless> 2DROP FALSE <exit/></unless> confirm
+  <again/>
+</def>
+
+<def name="read-counted-per" ds=" u1 xt -- u2 "><rem> xt ( a u -- ) </rem>
+  >R <repeat> DUP <while/> next-chunk-counted? <while/> R@ EXECUTE </repeat> RDROP
+</def>
+
 <def name="readout" ds=" addr u -- addr u2 ">
   rest DUP <if> SEATED- DUP elapse <exit/></if> 2DROP
   _readout? DROP
