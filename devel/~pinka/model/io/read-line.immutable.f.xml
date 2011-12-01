@@ -11,6 +11,16 @@
   DUP elapse TRUE  <!-- the line is more than a buffer -->
 </def>
 
+<def name="next-chunk" ds=" -- a u ">
+  rest DUP <if> clear <exit/></if> 2DROP
+  vacant _readout? DROP
+</def>
+
+<def name="next-chunk?" ds=" -- a u true | false ">
+  rest DUP <if> clear TRUE <exit/></if> 2DROP
+  vacant _readout? DUP <if><exit/></if> NIP NIP
+</def>
+
 <def name="readout" ds=" addr u -- addr u2 ">
   rest DUP <if> SEATED- DUP elapse <exit/></if> 2DROP
   _readout? DROP
