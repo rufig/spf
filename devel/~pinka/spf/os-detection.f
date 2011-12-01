@@ -52,7 +52,9 @@ BEGIN-EXPORT
 : OS-VERSION  ( -- d-txt-version )
   \ returns varsion as major.minor.build in the PAD
   \ example: 6.0.6002
-  /OSVERSIONINFO DUP >CELLS RALLOT DUP >R T!
+  /OSVERSIONINFO DUP
+    >CELLS 1+ DUP RALLOT SWAP >R ( size  addr ) ( R: cells-cnt )
+  DUP >R T!
   R@ GetVersionExA ERR THROW
   <# 
     R@ dwBuildNumber  T@ 0 #S 2DROP
@@ -62,7 +64,16 @@ BEGIN-EXPORT
     R@ dwMajorVersion T@ 0 #S 2DROP
     0.
   #>
-  R> T@ >CELLS RFREE
+  RDROP R> RFREE
+;
+: OS-VERSION-NUMBER  ( -- u-minor u-major )
+  /OSVERSIONINFO DUP
+    >CELLS 1+ DUP RALLOT SWAP >R ( size  addr ) ( R: cells-cnt )
+  DUP >R T!
+  R@ GetVersionExA ERR THROW
+  R@ dwMinorVersion T@
+  R@ dwMajorVersion T@
+  RDROP R> RFREE
 ;
 : OS-NAME  ( -- d-txt-name    )
   `OS ENVIRONMENT? IF EXIT THEN 0.
@@ -79,6 +90,7 @@ BEGIN-EXPORT
 : OS-BRANCH   ( -- d-txt-root   ) `nix   ;
 : OS-FAMILY   ( -- d-txt-family ) `linux ;
 : OS-VERSION  ( -- d-version    ) 0 0    ; \ not implemented yet
+: OS-VERSION-NUMBER  ( -- u-minor u-major ) 0 0 ;
 : OS-NAME  ( -- d-txt-name    )
   `OSTYPE ENVIRONMENT? IF EXIT THEN 0.
 ;
