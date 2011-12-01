@@ -13,7 +13,6 @@
 <include href="buffer-rw.immutable.f.xml"/>
 
 </export>
-</wordlist>
 
 <cell name="_buf-size"> 20 1024 * </cell>
 
@@ -23,5 +22,22 @@
 <rem> m.b.
 <handler event="cleanup"> clear </handler>
 </rem>
+
+<export>
+<def name="set-buffer-size" ds=" u -- ">
+  D0 @ 0EQ <if> _buf-size ! <exit/></if>
+  D0 @ OVER CELL+ RESIZE THROW <rem>( u2 a2 )</rem>
+  SWAP DUP _buf-size ! assume
+<comment><rem>
+  m.b. save pointers if the size has been increased?
+  ( u2 a2 )</rem>
+  DUP D0 @ - 
+  DUP DPR +! DPW +!
+  DUP D0 ! + D9 !
+</comment>
+</def>
+</export>
+
+</wordlist>
 
 </forth>
