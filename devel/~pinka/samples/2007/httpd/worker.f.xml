@@ -9,11 +9,14 @@
 <wordlist name="http-worker-hidden"><const name="my-wid"/>
 
 <include href="io/socket-line.f.xml" />
+  <def name="CRLF" ds=" -- a u "><text>&#x0D;&#x0A;</text></def>
+  <init> CRLF assume-lineterm </init>
 
 <g xml:base="protocol/http/">
   <include href="headers-parse/storage.f.xml" />
   <include href="headers-parse/common.f.xml" />
   <include href="headers-parse/request.f.xml" />
+  <include href="read-basic.f.xml"/>
 </g>
 
 <export>

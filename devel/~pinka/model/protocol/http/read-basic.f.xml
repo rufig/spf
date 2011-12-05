@@ -1,6 +1,45 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
+<rem><bind-up>
+  read-line.f.xml
+</bind-up></rem>
+
+<g><comment> read headers </comment>
+
+<def name="read-request-line?" ds=" -- flag ">
+  next-line? <unless> FALSE <exit/></unless>
+  <text>&#xD;</text> MATCH-TAIL DROP <!-- workaround for "UNIX-LINES" mode vs { 0xD 0xA } -->
+  TEST-EOLN <unless><logS>TEST-EOLN</logS> `#414 STHROW </unless><!-- Request-URI Too Large -->
+  FINE-HEAD DUP <unless> 2DROP <again/></unless><!-- skip empty lines -->
+  parse-request-line
+  http-ver-major 1 EQ <unless>
+    `http-request h@ <logS>request line</logS>
+    `#505 STHROW 
+  </unless><!-- HTTP/1.1 only -->
+  TRUE
+</def>
+
+<def name="read-headers" ds=" -- ">
+  next-line? <unless><exit/></unless><!-- no more data -->
+  <text>&#xD;</text> MATCH-TAIL DROP <!-- workaround for "UNIX-LINES" mode vs { 0xD 0xA } -->
+  DUP <unless> 2DROP <exit/></unless><!-- end of headers reached -->
+  TEST-EOLN <unless><logS>TEST-EOLN</logS> `#413 STHROW </unless><!-- line is too long -->
+  TEST-HEAD-WHITE <if><logS>TEST-HEAD-WHITE</logS> `#400 STHROW </if><!-- don't support a multiple lines value (see 4.2 Message Headers) -->
+  parse-header? <unless><logS>parse-header</logS> `#400 STHROW </unless><!-- header name is not recognize, bad request -->
+  <again/>
+</def>
+
+<def name="accept-request?" ds=" -- flag ">
+  read-request-line? <unless> FALSE <exit/></unless>
+  read-headers  TRUE
+</def>
+
+</g>
+
+
+<g><comment> read body </comment>
+
 <slot> content-rest </slot>
 <comment>
   content-rest should be set from the outside
@@ -27,5 +66,7 @@
   </q> CATCH
   R> FREE SWAP THROW THROW
 </def>
+
+</g>
 
 </forth>
