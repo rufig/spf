@@ -17,6 +17,7 @@
   <include href="headers-parse/common.f.xml" />
   <include href="headers-parse/request.f.xml" />
   <include href="read-basic.f.xml"/>
+  <include href="read-request.f.xml"/>
 </g>
 
 <export>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+  <include href="headers-parse/storage.f.xml" />
+  <include href="headers-parse/common.f.xml"/>
+  <include href="headers-parse/request.f.xml"/>
+
+  <include href="headers-compose/storage.f.xml"/>
+  <include href="headers-compose/general.f.xml"/>
+  <include href="headers-compose/response.f.xml"/>
+
+  <include href="read-basic.f.xml"/>
+  <include href="read-request.f.xml"/>
+  <include href="write-basic.f.xml"/>
+
+</forth>
