@@ -9,7 +9,6 @@
 
 <def name="read-request-line?" ds=" -- flag ">
   next-line? <unless> FALSE <exit/></unless>
-  <text>&#xD;</text> MATCH-TAIL DROP <!-- workaround for "UNIX-LINES" mode vs { 0xD 0xA } -->
   TEST-EOLN <unless><logS>TEST-EOLN</logS> `#414 STHROW </unless><!-- Request-URI Too Large -->
   FINE-HEAD DUP <unless> 2DROP <again/></unless><!-- skip empty lines -->
   parse-request-line
@@ -22,7 +21,6 @@
 
 <def name="read-headers" ds=" -- ">
   next-line? <unless><exit/></unless><!-- no more data -->
-  <text>&#xD;</text> MATCH-TAIL DROP <!-- workaround for "UNIX-LINES" mode vs { 0xD 0xA } -->
   DUP <unless> 2DROP <exit/></unless><!-- end of headers reached -->
   TEST-EOLN <unless><logS>TEST-EOLN</logS> `#413 STHROW </unless><!-- line is too long -->
   TEST-HEAD-WHITE <if><logS>TEST-HEAD-WHITE</logS> `#400 STHROW </if><!-- don't support a multiple lines value (see 4.2 Message Headers) -->
