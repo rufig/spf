@@ -49,8 +49,11 @@
   `1.1 set-request-full
 </def>
 
+<event name="in-headers"/>
+
 <def name="headers" ds=" -- a u ">
   finalized <if> DATASPACE-CONTENT <exit/></if>
+  <fire event="in-headers"/>
   0. add-header-line  TRUE finalized!
   UNUSED <if> DATASPACE-CONTENT <exit/></if>
   `#headers-overflow STHROW
