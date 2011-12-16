@@ -1,3 +1,4 @@
+REQUIRE lexicon.basics-aligned  ~pinka/lib/ext/basics.f  \ to access fields via Q@ and T@
 
 WINAPI: GetFileInformationByHandle KERNEL32.DLL ( lpFileInformation hFile -- bool )
 
@@ -17,3 +18,4 @@ CONSTANT /BY_HANDLE_FILE_INFORMATION
 \ http://msdn.microsoft.com/en-us/library/windows/desktop/aa363788.aspx
 
 /BY_HANDLE_FILE_INFORMATION >CELLS 1+ CONSTANT BY_HANDLE_FILE_INFORMATION_CELLS
+

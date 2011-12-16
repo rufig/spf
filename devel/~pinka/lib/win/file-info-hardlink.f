@@ -3,8 +3,6 @@
 
 REQUIRE BY_HANDLE_FILE_INFORMATION_CELLS ~pinka/lib/win/file-information.f
 
-REQUIRE lexicon.basics-aligned  ~pinka/lib/ext/basics.f  \ for T@
-
 : FILE-HARDLINK ( h -- u ior )
   \ Hardlinks count (at least 1)
   BY_HANDLE_FILE_INFORMATION_CELLS DUP RALLOT SWAP >R
