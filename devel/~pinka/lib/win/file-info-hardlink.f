@@ -1,10 +1,9 @@
-\ filetime via GetFileInformationByHandle
-\ see also: ~ac/lib/win/file/filetime.f  (filetime via GetFileTime)
+\ Determining whether a file has another hard links
 
 REQUIRE BHFI ~pinka/lib/win/file-information.f
 
 : FILE-HARDLINK ( h -- u ior )
-  \ Hardlinks count (at least 1)
+\ returns hardlinks count (at least 1)
   BHFI::SIZE-CELLS DUP RALLOT SWAP >R
   ( h addr-buf ) DUP ROT
   GetFileInformationByHandle IF ( addr-buf )
