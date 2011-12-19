@@ -16,6 +16,7 @@ REQUIRE ftLastWriteTime ~ac/lib/win/file/findfile-r.f
 \ xt ( addr u data -- ) - процедура вызываемая для 
 \                         обработки данных файла/каталога
 \ Обрабатывается только один файл, явно заданный по addr u.
+\ Если файл не найден, то xt не выполняется.
 
   NIP SWAP
   /WIN32_FIND_DATA >CELLS 1+ RALLOT >R
@@ -32,6 +33,7 @@ REQUIRE ftLastWriteTime ~ac/lib/win/file/findfile-r.f
 ;
 : FILENAME-FILETIME ( addr u -- filetime ) \ UTC
   0 0 2SWAP ['] (FILENAME-FILETIME) FOR-FILE1-PROPS
+  \ если файл не найден, то будет возвращено ( 0 0 )
 ;
 : (FILENAME-FILETIME-W) ( 0 0 addr u data -- filetime )
   ftLastWriteTime 2@ SWAP 2>R
