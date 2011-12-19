@@ -13,11 +13,12 @@ REQUIRE LAMBDA{         ~pinka/lib/lambda.f
 0xA000000C CONSTANT IO_REPARSE_TAG_SYMLINK
 \ http://msdn.microsoft.com/en-us/library/dd541667.aspx
 
-
 : FILENAME-SYMLINK ( d-txt-filename -- flag )
-  LAMBDA{ ( addr u data -- )
-    >R 2DROP
+  0 -ROT \ FALSE if the file is not exists
+  LAMBDA{ ( 0 addr u data -- flag )
+    >R 2DROP DROP
     R@ dwFileAttributes T@ FILE_ATTRIBUTE_REPARSE_POINT AND 0= IF RDROP FALSE EXIT THEN
     R> dwReserved0      T@ IO_REPARSE_TAG_SYMLINK =
   } FOR-FILE1-PROPS
+  \ may be throw 3 ERROR_PATH_NOT_FOUND ?
 ;
