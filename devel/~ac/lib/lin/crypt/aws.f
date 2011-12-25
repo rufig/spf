@@ -4,7 +4,6 @@ REQUIRE STR@        ~ac/lib/str5.f
 REQUIRE HMAC-SHA1   ~ac/lib/lin/crypt/gcrypt.f
 REQUIRE base64      ~ac/lib/string/conv.f 
 REQUIRE UnixTimeRss ~ac/lib/win/date/unixtime.f 
-REQUIRE fsockopen   ~ac/lib/win/winsock/psocket.f 
 REQUIRE POST-FILE   ~ac/lib/lin/curl/curlpost.f 
 
 : \n
