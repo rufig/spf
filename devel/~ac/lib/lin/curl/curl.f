@@ -33,9 +33,12 @@ CURL-GLOBAL-INIT
 
 \ Maximum number of bytes to download. 0 - unlimited
 USER-VALUE CURL-MAX-SIZE
+161 CONSTANT CURLOPT_POSTREDIR
 
 USER uCurlRes
 USER uCurlVerifySsl
+USER uCurlConnectTimeout
+USER uCurlTimeout
 
 : CURL-VERSION ( -- addr u )
   0 curl_version ASCIIZ>
@@ -64,6 +67,8 @@ USER uCurlVerifySsl
   0 curl_easy_init -> h
   addr u >STR DUP -> url STRA CURLOPT_URL h CURL-SETOPT
   uCurlVerifySsl @ CURLOPT_SSL_VERIFYPEER h CURL-SETOPT
+  uCurlConnectTimeout @ ?DUP IF CURLOPT_CONNECTTIMEOUT h CURL-SETOPT THEN
+  uCurlTimeout @ ?DUP IF CURLOPT_TIMEOUT h CURL-SETOPT THEN
 
 \  S" name:passw" DROP CURLOPT_USERPWD  h 3 curl_easy_setopt DROP
   1 -> de
@@ -78,13 +83,20 @@ USER uCurlVerifySsl
 
   pu IF paddr pu >STR DUP -> pr STRA CURLOPT_PROXY h CURL-SETOPT THEN
 
+  1 CURLOPT_FOLLOWLOCATION h CURL-SETOPT
+  5 CURLOPT_MAXREDIRS      h CURL-SETOPT
+  3 CURLOPT_POSTREDIR      h CURL-SETOPT
+
   ['] CURL_CALLBACK CURLOPT_WRITEFUNCTION h CURL-SETOPT
   TlsIndex@ CURLOPT_WRITEDATA h CURL-SETOPT
 
   h AT-CURL-PRE DROP
 
   h 1 curl_easy_perform
-  ?DUP IF 1 curl_easy_strerror ASCIIZ> TYPE CR THEN
+  ?DUP IF 1 curl_easy_strerror ASCIIZ> ." cURL: " TYPE
+\          ."  (" url STR@ TYPE ." )"
+          CR
+       THEN
   uCurlRespCode CURLINFO_RESPONSE_CODE h 3 curl_easy_getinfo DROP
   h 1 curl_easy_cleanup DROP
   url STRFREE pr ?DUP IF STRFREE THEN
