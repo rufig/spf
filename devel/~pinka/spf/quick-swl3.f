@@ -29,7 +29,7 @@
 
 REQUIRE HEAP-ID     ~pinka/spf/mem.f
 REQUIRE [UNDEFINED] lib/include/tools.f
-REQUIRE HASH!       ~pinka/lib/hash-table.f 
+REQUIRE HASH!       ~pinka/lib/hash-table2.f 
 
 REQUIRE WidExtraSupport ~pinka/spf/wid-extra.f
 
