@@ -18,7 +18,7 @@ WINAPI: FindClose            KERNEL32.DLL
   4 -- nFileSizeLow
   4 -- dwReserved0
   4 -- dwReserved1
-256 -- cFileName          \ [ MAX_PATH ]
+260 -- cFileName          \ [ MAX_PATH ]
  14 -- cAlternateFileName \ [ 14 ]
 100 + CONSTANT /WIN32_FIND_DATA
 
