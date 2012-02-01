@@ -1,5 +1,6 @@
 ( основано на FIND-FILES-R - ~ac/lib/win/file/findfile-r.f, 26.01.03 А.Ч. )
 ( 20.09.09 ~pig )
+( 30.01.12 ~pig )
 
 \ Рекурсивный обход каталогов и выполнение 
 \ групповых действий над файлами и каталогами.
@@ -60,11 +61,7 @@ REQUIRE WildCMP-U        ~pinka/lib/mask.f
         IF FIND-FILES-RL 1+!
            FIND-FILES-RL @ FIND-FILES-DEPTH @ < FIND-FILES-DEPTH @ 0= OR
            data cFileName ASCIIZ> IsNot.. AND
-           IF
-             tmpla tmplu f STR@ " {s}/{s}" DUP >R
-             STR@ tmpla tmplu xt RECURSE
-             R> STRFREE
-           THEN
+           IF f STR@ tmpla tmplu xt RECURSE THEN
            -1 FIND-FILES-RL +!
            FIND-FILES-USE-RET @
            IF f STR@ 0 dir xt EXECUTE THEN
