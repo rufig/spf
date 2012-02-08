@@ -678,6 +678,7 @@ HEX
 : LOOP   \ 94
   ?COMP
   24 04FF W, C, \ inc dword [esp]
+  042444FF , \ inc dword 4 [esp]
   HERE 2+ - DUP SHORT?   SetOP SetJP
   IF
     71 C, C, \ jno short 
@@ -690,17 +691,16 @@ HEX
 
 : +LOOP    \ 94
   ?COMP
-    0x810FFC45
-    0x8B240401
-\ ADD     [ESP] , EAX
-\ MOV     EAX , FC [EBP]
-\ JNO 
-  OP0 @ :-SET  UMAX TO :-SET
-  POSTPONE [ S" ' NIP" EVALUATE ]  INLINE, SetOP , , 
-  -5 ALLOT SetOP 
-   3 ALLOT SetOP
-   2 ALLOT
-  DP @ CELL+ -  ,
+  1 C, 4 C, 24 C, SetOP \ ADD     [ESP], EAX
+  04244401 , \ ADD     4 [ESP] , EAX 
+  'DROP INLINE,
+  HERE 2+ - DUP SHORT?   SetOP SetJP
+  IF
+    71 C, C, \ jno short 
+  ELSE
+    4 - 0F C, 81 C, , \ jno near
+  THEN    SetOP
+
   SetOP 0x0C24648D , \ lea esp, 0xC [esp]
   *DP@ SWAP !
 ; IMMEDIATE

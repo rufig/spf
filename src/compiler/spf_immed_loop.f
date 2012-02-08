@@ -69,6 +69,7 @@ HEX
 \ продолжить выполнение с начала цикла.
   ?COMP 
   24 04FF W, C, \ inc dword [esp]
+   042444FF , \ inc dword 4 [esp]
   HERE 2+ - DUP SHORT?   SetOP SetJP
   IF
     71 C, C, \ jno short 
@@ -92,6 +93,7 @@ HEX
 \ за циклом.
   ?COMP  
   ['] ADD[ESP],EAX  INLINE,
+  04244401 , \ ADD     4 [ESP] , EAX 
   ['] DROP INLINE,
   HERE 2+ - DUP SHORT?   SetOP SetJP
   IF

@@ -1198,21 +1198,22 @@ CODE J   \ 94
       LEA EBP, -4 [EBP]
       MOV [EBP], EAX
       MOV EAX, 10 [ESP]
-      SUB EAX, 14 [ESP]
       RET
 END-CODE
 
 ( inline'ы дл€ компил€ции циклов )
 
 CODE C-DO
-      LEA EBP, 8 [EBP]
-      A;  BA C, 0000 W, 8000 W,   \   MOV     EDX , # 80000000
-      SUB  EDX, -8 [EBP]
-      LEA  EBX,  [EDX] [EAX]
-      MOV  EAX, -4 [EBP]
-      MOV  EDX, EDX  \ FOR OPT
-\      PUSH EDX
-\      PUSH EBX
+   LEA EBP, 8 [EBP]
+   MOV  EBX, EAX
+\   A; 908D W,  0000 W, 8000 W,   \   LEA  EDX,  80000000 [EAX] 
+   ADD  EAX, # 80000000
+   SUB  EAX, -8 [EBP]
+   MOV  EDX, EAX
+   MOV  EAX, -4 [EBP]
+   MOV  EDX, EDX  \ FOR OPT
+\   PUSH EDX
+\   PUSH EBX
       RET
 END-CODE
 
@@ -1224,12 +1225,15 @@ CODE C-?DO
         JMP  EBX
 \      STHEN
 @@1:  PUSH EBX
-      A; BB C, 0000 W, 8000 W,   \   MOV     EBX , # 80000000
-      SUB  EBX, -8 [EBP]
-      PUSH EBX  \ 80000000h-to
-      ADD  EBX, EAX
-      PUSH EBX  \ 80000000H-to+from
-      MOV  EAX, -4 [EBP]
+   MOV  EBX, EAX
+\   A; 908D W,  0000 W, 8000 W,   \   LEA  EDX,  80000000 [EAX] 
+   ADD  EAX, # 80000000
+   SUB  EAX, -8 [EBP]
+   MOV  EDX, EAX
+   MOV  EAX, -4 [EBP]
+   MOV  EDX, EDX  \ FOR OPT
+   PUSH EDX
+   PUSH EBX
       RET
 END-CODE
 
@@ -1242,7 +1246,6 @@ CODE C-I
       LEA EBP, -4 [EBP]
       MOV [EBP], EAX
       MOV EAX, [ESP]
-      SUB EAX, 4 [ESP]
       RET
 END-CODE
 
