@@ -206,12 +206,12 @@ TC-WL ALSO TC-IMM
 : DUP3B?      ( W -- W FLAG )
    CASE
 \  11XX.X000 1000.0011
-   DUP C7FF AND C083 <> IF \ ADD|OR|ADC|SBB|AND|SUB|XOR|CMP  EAX, # X
+   DUP C7FF AND  C083 <> IF \ ADD|OR|ADC|SBB|AND|SUB|XOR|CMP  EAX, # X
 
    DUP E4FD AND 4089 <> IF \ MOV  E<ACDB>X, X [E<ACDB>X] | MOV  X [E<ACDB>X] ,  E<ACDB>X
    DUP E4FF AND 408D <> IF \ LEA  E<ACDB>X, X [E<ACDB>X]
 
-   DUP E4FF AND E0C1 <> IF \ SHL|SHR|SHL|SAR  E<ACDB>X, # X
+   DUP  E4FF AND E0C1 <> IF \ SHL|SHR|SHL|SAR  E<ACDB>X, # X
 
    DUP          478B <> IF \ MOV  EAX, X [EDI]
    DUP          788B <> IF \ MOV  EDI, X [EAX]
@@ -285,14 +285,14 @@ TC-WL ALSO TC-IMM
 : DUP6B?      ( W -- W FLAG )
    CASE
 \ X00X.X101 1000.10X1
-  DUP 67FD AND 0589 <> IF  \ MOV X {[EBP]}, E(ACDB)X | E(ACDB)X , X {[EBP]}
+  DUP   67FD AND 0589 <> IF  \ MOV X {[EBP]}, E(ACDB)X | E(ACDB)X , X {[EBP]}
   DUP C4FF AND C081 <> IF \ ADD|OR|ADC|SBB|AND|SUB|XOR|CMP  E(ABCD)X, # X
   DUP E4F7 AND 8085 <> IF \ LEA|TEST  E(ABCD)X , [E(ABCD)X+80000000H]
   DUP FFC4 AND 0500 <> IF \ ADD|OR|ADC|SBB|AND|SUB|XOR|CMP  X , EAX
 
   DUP            808B <> IF \ MOV EAX, X [EAX]
   DUP            878B <> IF \ MOV EAX, X [EDI]
-  DUP            873B <> IF \ CMP EAX, X [EDI]
+  DUP            873B <> IF \ CMP  EAX,  X [EDI]
   DUP            878D <> IF \ LEA EAX, X [EDI]
   DUP            8703 <> IF \ ADD EAX, X [EDI]
   DUP            00C7 <> IF \ MOV [EAX], # X
@@ -320,7 +320,7 @@ TC-WL ALSO TC-IMM
   OVER 45048D = OR \ LEA  EAX, X [EAX*2]
 ;
 
-\ 0 VALUE TTTT \ not used (22.Sep.2007)
+ 0 VALUE TTTT \ not used (22.Sep.2007)
 
 \ 0 VALUE ZZZZ \ VECT VVV
 
@@ -388,6 +388,22 @@ TC-WL ALSO TC-IMM
 : ?OPlast  ( OPX -- OPX flag )
      DUP OP0 OpBuffSize + CELL- CELL- U> ;
 
+: OPresize ( OPX n -- )
+  DUP >R
+  OVER OP0 ?DO DUP I +! CELL +LOOP
+  ALLOT
+  @ DUP  R> +  DUP DP @ - NEGATE MOVE
+;
+
+: OPinsert ( OPX n -- )
+  DUP >R
+  2DUP OPresize DROP
+  DUP
+  DUP CELL + OVER OP0 -  OpBuffSize CELL- - NEGATE MOVE
+  R> SWAP +!
+;
+
+
 : XX_STEP ( OPX -- OPX+CELL FALSE | { OPX | FALSE } TRUE )
 \ Проверка на не изменение  EAX
      ?OPlast
@@ -437,10 +453,13 @@ TC-WL ALSO TC-IMM
 
 : ?EDX_[EBP]   ( OPX -  FLAG )
   DUP @   @ FFFFFF AND
-  DUP  24048B =  \  8B0424              MOV     EAX , [ESP]
+  DUP  FFF7FF
+  AND  24048B =  \  8B0424              MOV     E(AC)X , [ESP]
         IF 2DROP FALSE EXIT THEN
-  FFFF AND
+  DUP  88048D =  \  8D0488		LEA     EAX , [EAX] [ECX*4]
+        IF 2DROP FALSE EXIT THEN
 
+  FFFF AND
   DUP  458B XOR     \  8B4500         MOV     EAX , 0 [EBP]
   OVER 4589 XOR OR  \ OPX N F MOV     FC [EBP] , EAX
 0=      IF DROP
@@ -513,21 +532,26 @@ TC-WL ALSO TC-IMM
   2DROP FALSE  TRUE
 ;
 
-: OPresize ( OPX n -- )
-  DUP >R
-  OVER OP0 ?DO DUP I +! CELL +LOOP
-  ALLOT
-  @ DUP  R> +  DUP DP @ - NEGATE MOVE
+: ?EDXEAX  ( -- FLAG )
+  OP0 @ W@ 558B <> IF FALSE EXIT THEN \  MOV     EDX , X [EBP]
+  OP1
+ BEGIN  DUP  ?EDX_[EBP] 0=
+ WHILE  CELL+
+        ?OPlast  IF DROP FALSE EXIT THEN
+     DUP @ W@
+     FFFD AND
+     4589 =                      \  MOV     EAX , X [EBP]
+       IF   DUP @ 2+ C@ OP0 @  2+ C@ =
+         IF   DUP 2 OPinsert
+	     D08B SWAP CELL+  @ W! \  MOV     EDX , EAX
+		TRUE
+             EXIT
+         THEN
+       THEN
+ REPEAT  DROP FALSE
 ;
 
-: OPinsert ( OPX n -- )
-  DUP >R
-  2DUP OPresize DROP
-  DUP
-  DUP CELL + OVER OP0 -  OpBuffSize CELL- - NEGATE MOVE
-  R> SWAP +!
-;
-
+  
 USER ?~EAX
 USER SAVE-?~EAX
 : ?~EAX{ ( FLAG -- )
@@ -2156,6 +2180,17 @@ OP0 @ W@ 458B XOR OR \ 8B45FC            MOV     EAX , FC [EBP]
             EXIT
     THEN
 
+OP2 @ @ FFFFFF AND 88048D XOR  \  8D0488                LEA     EAX , [EAX] [ECX*4]
+OP1 @ W@ 1089 XOR OR \  8910              MOV     [EAX] , EDX
+OP0 @ W@ 458B XOR OR \  8B45FC            MOV     EAX , FC [EBP]
+0=  IF   M\ 310 DTST
+	1489  OP2 @ W! \ MOV     [EAX] [ECX*4] , EDX
+	OP1 OPexcise
+            FALSE M\ 311 DTST
+            EXIT
+    THEN
+
+
 M\ PPPP
 OP3 @ :-SET U< IF TRUE EXIT THEN
 
@@ -3432,7 +3467,6 @@ OP1 @ @ FFFFFF AND 00B60F <>  AND \ MOVZX   EAX , BYTE PTR [EAX]
 OR 
 OP0 @ W@ 558B XOR OR \ 579DE8 8B55FC            MOV     EDX , FC [EBP]
 0= IF   M\ C32 DTST
-        OP2 OPexcise
         OP1 02 OPinsert
         D08B OP2 @ W!    \ MOV     EDX , EAX
        OP1 ToOP0
@@ -4156,16 +4190,19 @@ OP0 @ W@ 552B XOR OR \ 596919 2B55F0            SUB     EDX , F0 [EBP]
        FALSE   M\ A5 DTST
        EXIT
    THEN
-
+(
 OP3 @ 2+ C@
 OP0 @ 2+ C@ XOR
 OP3 @ W@ 4589 XOR  OR  \  8945F8            MOV     F8 [EBP] , EAX
 OP2 ?EDX_[EBP] OR
 OP1 ?EDX_[EBP] OR
 OP0 @ W@ 558B XOR OR \  8B55F8            MOV     EDX , F8 [EBP]
-0= IF   M\ EC DTST
-       OP2 2 OPinsert
-       D08B  OP3 @ W! \  MOV     EDX , EAX
+)
+
+?EDXEAX
+   IF   M\ EC DTST
+\       OP2 2 OPinsert
+\       D08B  OP3 @ W! \  MOV     EDX , EAX
        OP0 OPexcise
        FALSE   M\ ED DTST
        EXIT
@@ -4537,6 +4574,7 @@ OS\ DUP CD = M_WL   2_,_STEP  REPEAT  \ INTX
   DUP FFF8FF
   AND 00B00F = M_WL 3_,_STEP      REPEAT
   DUP 244403 = M_WL 4_,_STEP      REPEAT \ ADD  EAX, X [ESP]
+  DUP 244401 = M_WL 4_,_STEP      REPEAT \ ADD  X [ESP], EAX
   DUP 24442B = M_WL 4_,_STEP      REPEAT \ SUB  EAX, X [ESP]
   DUP 24448B = M_WL 4_,_STEP      REPEAT \ MOV  EAX, X [ESP]
   DUP 2444FF = M_WL 4_,_STEP      REPEAT \ INC  X [ESP]
@@ -5240,4 +5278,6 @@ TRUE VALUE VECT-INLINE?
 \  0 TO J_OPT?
 
 BASE !
+
+
 
