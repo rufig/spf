@@ -168,7 +168,10 @@
 </export>
 
 
-<def name="(transact)" ds=" -- "> t DUP 1+ t! <if><exit/></if> packet::BeginTransaction    put next </def>
+<def name="(transact)" ds=" -- ">
+  packet::BeginTransaction    put next
+  t 1+ t!
+</def>
 <comment>
   The transactions within a session are strictly serial, that is one transaction ends 
   before next one starts, there is only one active transaction per session. 
@@ -178,6 +181,8 @@
 <export>
 
 <def name="transact" ds=" -- ">
+  t <if> t 1+ t! <exit/></if>
+  <rem> don't try reopen-session logic if transaction had been already open </rem>
   sock <unless> open </unless>
   '(transact) CATCH <choose>
   DUP 0 EQ     <when> DROP <exit/></when>
@@ -189,6 +194,7 @@
   <!--
   <log>sedna, reopen connection</log>
   -->
+  0 t!
   close-sock open (transact)
 </def>
 
