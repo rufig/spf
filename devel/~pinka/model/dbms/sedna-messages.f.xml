@@ -59,6 +59,21 @@
 </q> 301 message
 </def>
 
+<def name="BulkLoadError" ds=" -- a u ">
+<q>
+  error-code sednaT,
+  error-info sednaS,
+</q> 400 message
+</def>
+
+<def name="BulkLoadPortion" ds=" -- a u ">
+<rem> xt ( addr u1 -- addr u2 ) </rem>
+<q>
+  0 0 sednaS, HERE 1 Ts - >R
+  HERE max-query-size data-emitter EXECUTE 2DUP data-chunk! NIP
+  DUP ALLOT R> sednaT! <rem> fix length </rem>
+</q> 410 message
+</def>
 
   <rem> client-message </rem>
 </wordlist>
@@ -68,6 +83,46 @@
   <rem> sedna-messages-hidden </rem>
 </wordlist>
 
+<slot> hfile </slot>
+<slot2> data-content </slot2>
+
+<def name="set-bulk-data" ds=" addr u -- ">
+  data-content!
+  <q ds="a1 u1 -- a1 u2">
+    data-content SEATED-
+    DUP >R data-content
+    SWAP R@ + SWAP R> - data-content!
+  </q> data-emitter!
+</def>
+
+<def name="send-stream-content" ds=" -- ">
+  <q>
+    <repeat>
+      client-message::BulkLoadPortion
+      data-chunk NIP 0EQ <while/> put
+    </repeat> 2DROP
+  </q> CATCH DUP error-code! 0EQ <if>
+    packet::BulkLoadEnd put
+    <exit/>
+  </if>
+  0. error-info!
+  client-message::BulkLoadError put
+</def>
+
+<def name="send-filename-content" ds=" d-txt-filename -- ">
+  2DUP + 0 SWAP C! <rem> it is safely here </rem>
+  R/O OPEN-FILE-SHARED DUP error-code! <if> DROP
+    0. error-info!
+    client-message::BulkLoadError put
+    <exit/>
+  </if>
+  hfile!
+  <q ds="a1 u1 -- a1 u2">
+    hfile READOUT-FILE THROW 
+  </q> data-emitter!
+  'send-stream-content CATCH
+  hfile 0 hfile! CLOSE-FILE SWAP THROW THROW
+</def>
 
 
 
@@ -82,10 +137,10 @@
 </comment>
 
 <text>
-  510   160 230 250 255     340
+  510   160 230 250 255     340 440
 </text><each-word><alias name="{}" word="NOOP"/></each-word>
 <text>
-        170 240 260 265 330 350
+        170 240 260 265 330 350 450
 </text><each-word><alias name="{}" word="handle-error"/></each-word>
 <rem> -- Many of this error-messages are not used by server in real. </rem>
 
@@ -126,6 +181,15 @@
 </g>
 
 <def name="325" alias="DebugInfo"> body-info TYPE CR  next </def>
+
+<def name="430" alias="BulkLoadFileName">
+  body-text <rem> filename </rem>
+  send-filename-content next
+</def>
+
+<def name="431" alias="BulkLoadFromStream">
+  send-stream-content next
+</def>
 
 </develop>
 

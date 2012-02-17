@@ -60,6 +60,7 @@
 <const2 name="CloseConnection">     500 cmd </const2>
 <const2 name="GetNextItem">         310 cmd </const2>
 <const2 name="LongQueryEnd">        302 cmd </const2>
+<const2 name="BulkLoadEnd">         420 cmd </const2>
 
 
 </wordlist>

@@ -32,6 +32,10 @@
 <comment> format code is 0 - to get result in XML </comment>
 
 
+<slot>  data-emitter error-code </slot>
+<slot2> data-chunk   error-info </slot2>
+
+
 <def name="close-sock" ds=" -- ">
   sock DUP <if> 0 sock! CloseSocket THROW <exit/></if> DROP
 </def>
@@ -228,6 +232,10 @@
   0. last-part! <rem> result may be empty </rem>
   <q> OVER <if> last-part! <exit/></if> 2DROP </q>
   query-per last-part
+</def>
+
+<def name="query" ds=" d-query -- ">
+  '2DROP query-per
 </def>
 
 <def name="per-query-per" ds=" emitter-xt consumer-xt -- ">
