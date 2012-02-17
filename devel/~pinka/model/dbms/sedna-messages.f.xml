@@ -106,7 +106,7 @@
   <q>
     <repeat>
       client-message::BulkLoadPortion
-      data-chunk NIP 0EQ <while/> put
+      data-chunk NIP <while/> put
     </repeat> 2DROP
   </q> CATCH DUP error-code! 0EQ <if>
     packet::BulkLoadEnd put
