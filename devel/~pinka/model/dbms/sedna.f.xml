@@ -209,19 +209,23 @@
 <def name="commit"   ds=" -- ">  t 1- DUP 0 MAX t! <if><exit/></if> packet::CommitTransaction   put next </def>
 <def name="rollback" ds=" -- ">  t 1- DUP 0 MAX t! <if><exit/></if> packet::RollbackTransaction put next </def>
 
-<def name="(per-query-per)" ds=" i*x putter-xt consumer-xt -- j*x ">
-  <!-- see: sedna-api.scm # sedna:execute-query-xml -->
-  consumer-orig-xt! 'consumer1 consumer-xt!
+<def name="within-transaction" ds=" i*x xt -- j*x ">
   transact
-    <rem>( putter )</rem>
     CATCH
       0. xml-stylesheet!
     DUP <if>
-  'rollback CATCH DROP
+      'rollback CATCH DROP
       THROW 
     </if> DROP
     <rem> 't' state should be balanced </rem>
   commit
+</def>
+
+<def name="(per-query-per)" ds=" i*x putter-xt consumer-xt -- j*x ">
+  <!-- see: sedna-api.scm # sedna:execute-query-xml -->
+  consumer-orig-xt! 'consumer1 consumer-xt!
+    <rem>( putter )</rem>
+  within-transaction
 </def>
 
 <def name="query-per" ds=" d-query consumer-xt -- "><!-- see: sedna-api.scm # sedna:execute-query-xml -->
