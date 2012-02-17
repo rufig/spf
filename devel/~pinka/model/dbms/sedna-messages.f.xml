@@ -32,6 +32,12 @@
   EXECUTE     HERE R@ - R> 1 Ts - sednaT! <rem> fix length </rem>
 </def>
 
+<def name="message-exec" ds=" xt-content-composer -- a u ">
+<q>
+  output-format B, 
+  string,
+</q> 300 message <rem> see Execute </rem>
+</def>
 
 <export><rem> the local dataspace lexicon is in scope here </rem>
 
@@ -81,6 +87,23 @@
   </q> string,
 </q> 410 message
 </def>
+
+
+<def name="cmd-load-doc," ds=" d-docname -- ">
+  <text>LOAD STDIN "</text> S, S, `" S,
+</def>
+<def name="cmd-load-doc-coll," ds=" d-docname d-collname -- ">
+  2SWAP cmd-load-doc,
+  <text> "</text> S, S, `" S,
+</def>
+
+<def name="LOAD-DOC-STREAM" ds=" d-docname -- ">
+  <q> cmd-load-doc, </q> message-exec
+</def>
+<def name="LOAD-DOC-COLL-STREAM" ds=" d-docname d-collname -- ">
+  <q> cmd-load-doc-coll, </q> message-exec
+</def>
+
 
   <rem> client-message </rem>
 </wordlist>
