@@ -59,7 +59,16 @@
 </q> 301 message
 </def>
 
+
+  <rem> client-message </rem>
 </wordlist>
+
+</export><rem> local dataspace from sedna-messages-hidden </rem>
+
+  <rem> sedna-messages-hidden </rem>
+</wordlist>
+
+
 
 
 <def name="handle-error" ds=" -- ">
@@ -120,7 +129,5 @@
 
 </develop>
 
-</export><!-- from local dataspace -->
-</wordlist>
 
 </forth>
