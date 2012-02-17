@@ -16,7 +16,7 @@
 <def name="sednaT," ds=" x -- ">   reorder-bytes T, </def>
 <def name="sednaS," ds=" a u -- "> 0 B, DUP sednaT, S, </def>
 
-<def name="message" ds=" xt-body command -- a u ">
+<def name="message" ds=" xt-body-composer command -- a u ">
   CLEAR-DATASPACE HERE >R
   sednaT,       <rem> command </rem>
   HERE >R 0 T,  <rem> length </rem>
@@ -25,6 +25,13 @@
   HERE DUP R> - R> sednaT!  <rem> adjust length </rem>
   R> TUCK -
 </def>
+
+<def name="string," ds=" xt-content-composer -- ">
+  <rem> xt ( -- ) </rem>
+  0 0 sednaS, HERE >R
+  EXECUTE     HERE R@ - R> 1 Ts - sednaT! <rem> fix length </rem>
+</def>
+
 
 <export><rem> the local dataspace lexicon is in scope here </rem>
 
@@ -69,9 +76,9 @@
 <def name="BulkLoadPortion" ds=" -- a u ">
 <rem> xt ( addr u1 -- addr u2 ) </rem>
 <q>
-  0 0 sednaS, HERE 1 Ts - >R
-  HERE max-query-size data-emitter EXECUTE 2DUP data-chunk! NIP
-  DUP ALLOT R> sednaT! <rem> fix length </rem>
+  <q> HERE max-query-size data-emitter EXECUTE 
+    DUP ALLOT data-chunk!
+  </q> string,
 </q> 410 message
 </def>
 
