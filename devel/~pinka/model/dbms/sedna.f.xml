@@ -187,12 +187,14 @@
   <rem> don't try reopen-session logic if transaction had been already open </rem>
   sock <unless> open </unless>
   '(transact) CATCH <choose>
-  DUP 0 EQ     <when> DROP <exit/></when>
-  DUP -1002 EQ <when/>
-  DUP 10053 EQ <when/>
-  <rem> what about 10038? </rem>
-  THROW <exit/></choose>
-  DROP
+    DUP 0 EQ     <when> DROP <exit/></when>
+    DUP -1002 <rem> end of stream     </rem> EQ <when/>
+    DUP 10053 <rem> WSAECONNABORTED   </rem> EQ <when/>
+    DUP 10054 <rem> WSAECONNRESET     </rem> EQ <when/>
+              <rem> what about 10038 WSAENOTSOCK?</rem>
+    THROW <exit/>
+  </choose> DROP
+  300 PAUSE <rem> before next following reconnection </rem>
   <!--
   <log>sedna, reopen connection</log>
   -->
