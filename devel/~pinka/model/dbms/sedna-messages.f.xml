@@ -68,13 +68,39 @@
 
 <develop wordlist="commands-handler">
 
+<comment>
+  http://www.sedna.org/serverprotocol/ClientServerProtocolse4.html#x13-150004
+</comment>
+
 <text>
-  520
   510   160 230 250 255     340
 </text><each-word><alias name="{}" word="NOOP"/></each-word>
 <text>
-  100   170 240 260 265 330 350
+        170 240 260 265 330 350
 </text><each-word><alias name="{}" word="handle-error"/></each-word>
+<rem> -- Many of this error-messages are not used by server in real. </rem>
+
+
+<def name="520" alias="TransactionRollbackBeforeClose">
+  <text>SEDNA TransactionRollbackBeforeClose</text> STHROW
+  <rem> An exception is just for info.
+    Situation occurs "if the client sends the se_CloseConnection message
+    before committing the on-going transaction". 
+    Connection is closed by server.
+  </rem>
+</def>
+
+<def name="100" alias="ErrorResponse">
+  <rem>
+    Transaction is rolled back.
+    Connection must be closed by server after following errors:
+      SE3053 SE3006 SE3007 SE3009 SE3012
+    -- tr.cpp # client->error 
+  </rem>
+  0 t! <rem> no transaction </rem>
+  handle-error
+</def>
+
 
 <def name="140" alias="SendSessionParameters">
   client-message::SessionParameters put next

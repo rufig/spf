@@ -85,6 +85,7 @@
     BASE @ >R DECIMAL  NtoS  R> BASE !
   <rem> 2DUP TYPE CR </rem>
   commands-handler OBEY <if><exit/></if>
+  close-sock
   `#sedna-command-not-found STHROW
 </def>
 <def name="next" ds=" -- "><rem> need a tail call optimization for this </rem>
@@ -198,8 +199,8 @@
   close-sock open (transact)
 </def>
 
-<def name="commit"   ds=" -- ">  t 1- DUP t! <if><exit/></if> packet::CommitTransaction   put next </def>
-<def name="rollback" ds=" -- ">  t 1- DUP t! <if><exit/></if> packet::RollbackTransaction put next </def>
+<def name="commit"   ds=" -- ">  t 1- DUP 0 MAX t! <if><exit/></if> packet::CommitTransaction   put next </def>
+<def name="rollback" ds=" -- ">  t 1- DUP 0 MAX t! <if><exit/></if> packet::RollbackTransaction put next </def>
 
 <def name="(per-query-per)" ds=" i*x putter-xt consumer-xt -- j*x ">
   <!-- see: sedna-api.scm # sedna:execute-query-xml -->
@@ -208,7 +209,10 @@
     <rem>( putter )</rem>
     CATCH
       0. xml-stylesheet!
-    DUP <if> 0 t! close-sock  THROW </if> DROP
+    DUP <if>
+  'rollback CATCH DROP
+      THROW 
+    </if> DROP
     <rem> 't' state should be balanced </rem>
   commit
 </def>
