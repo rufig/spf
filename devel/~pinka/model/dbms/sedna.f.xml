@@ -246,25 +246,26 @@
   <q> per-put-query next </q> SWAP (per-query-per)
 </def>
 
+<def name="(load-doc)" ds=" d-docname emitter-xt -- ">
+  <q> client-message::load-doc-stream put next </q> within-transaction
+</def>
+<def name="(load-doc-coll)" ds=" d-docname emitter-xt -- ">
+  <q> client-message::load-doc-coll-stream put next </q> within-transaction
+</def>
 
 <def name="per-load-doc" ds=" d-docname emitter-xt -- ">
-  data-emitter!
-  <q> client-message::LOAD-DOC-STREAM put next </q> within-transaction
+  data-emitter! (load-doc)
 </def>
-
 <def name="per-load-doc-coll" ds=" d-docname d-coll emitter-xt -- ">
-  data-emitter!
-  <q> client-message::LOAD-DOC-COLL-STREAM put next </q> within-transaction
+  data-emitter! (load-doc-coll)
 </def>
-
 <def name="load-doc" ds=" emitter-xt d-docname -- ">
   2SWAP set-bulk-data
-  <q> client-message::LOAD-DOC-STREAM put next </q> within-transaction
+  (load-doc)
 </def>
-
 <def name="load-doc-coll" ds=" d-content d-docname d-coll -- ">
   2>R 2SWAP set-bulk-data 2R>
-  <q> client-message::LOAD-DOC-COLL-STREAM put next </q> within-transaction
+  (load-doc-coll)
 </def>
 
 </export>

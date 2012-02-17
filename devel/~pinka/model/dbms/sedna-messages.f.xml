@@ -97,10 +97,10 @@
   <text> "</text> S, S, `" S,
 </def>
 
-<def name="LOAD-DOC-STREAM" ds=" d-docname -- ">
+<def name="load-doc-stream" ds=" d-docname -- a u ">
   <q> cmd-load-doc, </q> message-exec
 </def>
-<def name="LOAD-DOC-COLL-STREAM" ds=" d-docname d-collname -- ">
+<def name="load-doc-coll-stream" ds=" d-docname d-collname -- a u ">
   <q> cmd-load-doc-coll, </q> message-exec
 </def>
 
