@@ -7,9 +7,10 @@
 
 <comment>
   Sedna Client/Server Protocol
-  http://www.modis.ispras.ru/sedna/serverprotocol/ClientServerProtocol.html
+  http://www.sedna.org/serverprotocol/ClientServerProtocol.html
 
   http://modis.ispras.ru/src/sedna/driver/scheme/sedna-api/sedna-api.scm
+  http://sedna.org/gitweb/sedna.git/blob/HEAD:/driver/scheme/sedna-api/sedna-api.scm
 </comment>  
 
 
@@ -222,6 +223,7 @@
 </def>
 
 <def name="query-value" ds=" d-query -- d-value ">
+  0. last-part! <rem> result may be empty </rem>
   <q> OVER <if> last-part! <exit/></if> 2DROP </q>
   query-per last-part
 </def>
