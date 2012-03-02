@@ -34,7 +34,9 @@
   FALSE
 </def>
 <def name="connection-close?" ds=" -- flag ">
-  `Connection h@ `lose CONTAINS
+  `Connection h@ DUP <if> `lose CONTAINS <exit/></if> 2DROP
+  http-ver-d 1 NEQ SWAP 1 ULT OR
+  <rem> closed by default for HTTP/1.0 </rem>
 </def>
 <def name="content-type" ds=" -- a u ">
   `Content-Type h@ OVER <if><exit/></if> 2DROP

@@ -32,6 +32,13 @@
       <logN>WSAECONNRESET</logN> 0
     </when>
 
+    DUP 10053 EQ <when>
+      <logN>WSAECONNABORTED</logN> 0
+      <rem> WinSock aborts an established connection after data retransmission fails
+           (receiver never acknowledges data sent on a datastream socket).
+      </rem>
+    </when>
+
     DUP 10060 EQ <when>
       <logN>WSAETIMEDOUT</logN> 0
     </when>
@@ -65,12 +72,14 @@
     accept-request?
   <while/>
     dispatch-request
-    connection-close?
+    <rem> here  after the cleanup </rem>
+    sock 0EQ
   </until>
 </def>
 
 <def name="perform-dialog" ds=" -- ">
   <xt-of name="(perform-dialog)"/> CATCH treat-error
+  <rem>TODO: refactoring </rem>
 </def>
 
 <def name="treat-client" ds=" sock -- ">
@@ -78,7 +87,9 @@
   assume-sock
   perform-dialog
   <log>end dialog</log>
-  close-socketline
+  sock <if><rem> may be after exception </rem>
+    close-socketline
+  </if>
 </def>
 
 </forth>
