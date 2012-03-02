@@ -20,13 +20,13 @@
 все управление потоком исполени€ (этака€ инверси€). ѕример дл€ f:times
   <def name="EXECUTE-TIMES" ds=" i*x u xt -- j*x ">
     <rem> повторить u раз выполнение xt </rem> 
-    SWAP >R <repeat> R@ <while/> DUP >R EXECUTE R> RP@ 1-! </repeat> RDROP DROP
+    >R <repeat> DUP <while/> R@ SWAP >R EXECUTE R> 1- </repeat> RDROP DROP
   </def>
   <r:rule match="f:times"><r:m><q><r:yield/></q> EXECUTE-TIMES </r:m></r:rule>
   <rem> тест:
     0 5 <times> 1 + DUP . </times> DROP
   </rem>
-Ќо, тут в немедлеленной форме возникает побочный эффект -- на каждой итерации
+Ќо, тут в немедлеленной форме возникает побочный эффект -- 
 запись цитаты в пространстве кода (считай, утечка ;)  “ак что, такой подход
 более применим при автоматическом управлении пам€тью.
 
