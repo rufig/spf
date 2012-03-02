@@ -7,7 +7,7 @@
   ALIGN HERE GERM!
 ;
 : BIRTH ( -- xt )
-  RET, GERM  CS> GERM!
+  RET, GERM  CS> GERM! DUP IT-A !
   ClearJpBuff \ for OPT
   \ AT-BIRTH ( xt -- xt ) \ is event
   [DEFINED] UNUSED [IF] \ в ядре нет слова UNUSED

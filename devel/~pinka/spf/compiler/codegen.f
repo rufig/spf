@@ -61,9 +61,11 @@ S" ALLOT" GET-CURRENT SEARCH-WORDLIST [IF] DROP [ELSE]
 
 
 USER GERM-A
+USER IT-A
 
 : GERM  GERM-A @ ;
 : GERM! GERM-A ! ;
+: IT    IT-A   @ ;
 
 S" xt.immutable.f" Included
 

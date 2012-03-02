@@ -97,6 +97,9 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   q-prol <r:yield/> q-epil
 </r:rule>
 
+<rule match="f:it" ds=" -- xt "><!-- last created xt -->
+  <m>IT</m><f:rem> CODEGEN-WL::IT </f:rem>
+</rule>
 
 <rule match="f:times"><mm>
   <f:repeat> DUP <f:while/> >R <yield/> R> 1- </f:repeat> DROP

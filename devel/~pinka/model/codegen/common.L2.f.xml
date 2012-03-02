@@ -46,16 +46,18 @@
 
 
 <cell name="GERM-A" />
+<cell name="IT-A" />
 
 <def name="GERM"  ds=" -- xt " > GERM-A @ </def>
 <def name="GERM!" ds=" xt -- " > GERM-A ! </def>
+<def name="IT"    ds=" -- xt " > IT-A @   </def>
 
 <def name="CONCEIVE" ds=" -- ">
   (CONCEIVE) ?CSP GERM >CS GERM!
 </def>
 
 <def name="BIRTH" ds=" -- xt ">
-  GERM  CS> GERM! (BIRTH)
+  GERM  CS> GERM! (BIRTH) DUP IT-A !
 </def>
 
 <def name="MAKE-CONST" ds=" x -- xt "><rem> xt ( -- x ) </rem>
