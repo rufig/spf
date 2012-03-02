@@ -39,4 +39,25 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   `href GetAttribute expanded-url translate-uri `file:/// MATCH-HEAD DROP  T-SLIT
 </rule>
 
+<f:g>
+  <f:rem> Shortcuts. Ideas. 
+    <if-exit/><unless-exit/>
+    <return-true/><return-false/>
+  </f:rem>
+
+<rule match="f:return-true" ds=" true -- true | false -- ">
+  <m> DUP <f:if><f:exit/></f:if> DROP </m>
+</rule>
+<rule match="f:return-false" ds=" false -- false | true -- ">
+  <m> DUP <f:unless><f:exit/></f:unless> DROP </m>
+</rule>
+<rule match="f:if-exit" ds=" flag -- ">
+  <m><f:if><f:exit/></f:if></m>
+</rule>
+<rule match="f:unless-exit" ds=" flag -- ">
+  <m><f:unless><f:exit/></f:unless></m>
+</rule>
+
+</f:g>
+
 </f:forth>
