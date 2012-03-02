@@ -21,6 +21,13 @@ REQUIRE WITHIN-FORTH-STORAGE-EXCLUSIVE  ~pinka/spf/storage-sync.f
 
 REQUIRE lexicon.basics-aligned ~pinka/lib/ext/basics.f
 
+[UNDEFINED] XCOUNT [IF] \ for backward compatibility
+: XCOUNT ( xaddr -- a u ) 
+  DUP 0= IF  0 EXIT THEN 
+  DUP CELL+ SWAP @
+;
+[THEN]
+
 REQUIRE CREATE-CS       ~pinka/lib/multi/Critical.f 
 \ все, теперь без портирования синхронизации под линукс не пойдет
 
