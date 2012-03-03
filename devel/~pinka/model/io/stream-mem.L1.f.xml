@@ -12,6 +12,11 @@
   <include href="buffer-rw.L1.f.xml"/>
 </wordlist>
 
+<cell name="_available-size"/><rem> number of octets available to read </rem>
+<def name="(inc)" ds=" u -- u "> DUP _available-size +! </def>
+<def name="(dec)" ds=" u -- u "> DUP _available-size -! </def>
+
+
 <cell name="_size0">
 <rem> initial first block size </rem>
   3400
@@ -45,17 +50,19 @@
 
 <export>
 
+<def name="available" ds=" -- u "> _available-size @ </def>
+
 <def name="readout" ds=" a1 u1 -- a1 u2 ">
   _cnt @ DUP <unless>NIP <exit/></unless>
-  1 EQ <if> block-w::readout <exit/></if>
-  block-r::rest NIP <if> block-r::readout <exit/></if>
+  1 EQ <if> block-w::readout (dec) <exit/></if>
+  block-r::rest NIP <if> block-r::readout (dec) <exit/></if>
   free-last-block <again/>
 </def>
 
 <def name="next-chunk" ds=" -- a u ">
   _cnt @ DUP <unless>0 <exit/></unless>
-  1 EQ <if> block-w::rest DUP block-w::elapse <exit/></if>
-  block-r::rest DUP <if>DUP block-r::elapse <exit/></if>
+  1 EQ <if> block-w::rest DUP block-w::elapse (dec) <exit/></if>
+  block-r::rest DUP <if>DUP block-r::elapse (dec) <exit/></if>
   2DROP
   free-last-block <again/>
 </def>
@@ -63,6 +70,7 @@
 <also wordlist="block-w">
 
 <def name="write" ds=" a1 u1 -- ">
+  (inc)
   DUP unused ULT <if> enclose <exit/></if>
   rest NIP 0EQ <if> clear DUP unused ULT <if>enclose <exit/></if></if>
   unused
@@ -76,6 +84,7 @@
 </also>
 
 <def name="clear" ds=" -- ">
+  _available-size 0!
   _cnt @ <unless><exit/></unless>
   _cnt2 @ 1 EQ <if>
     <rem> adjust size </rem>

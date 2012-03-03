@@ -18,16 +18,22 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
  HERE 10000 write
  HERE 10000 write
+ .( available: ) available . CR
+ HERE 50000 readout SWAP . . CR
+ .( available: ) available . CR
+ HERE 50000 readout SWAP . . CR
+ .( available: ) available . CR
  HERE 50000 readout SWAP . . CR
  HERE 50000 readout SWAP . . CR
- HERE 50000 readout SWAP . . CR
- HERE 50000 readout SWAP . . CR
+ .( available: ) available . CR
  CR
  HERE 10000 write
  HERE 10000 write
+ .( available: ) available . CR
  next-chunk SWAP . . CR
  next-chunk SWAP . . CR
  next-chunk SWAP . . CR
+ .( available: ) available . CR
 
 
 
