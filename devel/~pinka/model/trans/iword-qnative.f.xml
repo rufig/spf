@@ -11,6 +11,10 @@
   <again/>
 </def>
 
+<rem> TODO:
+  FIND-WORDLIST-QUALIFIED ( a u wid -- a u false | xt true )
+</rem>
+
 <def name="I-QNATIVE" ds=" c-addr u -- xt true | c-addr u false ">
   2DUP `:: SPLIT- <unless> 2DROP FALSE <exit/></unless>
   I-NATIVE   <unless> 2DROP 2DROP FALSE <exit/></unless>
