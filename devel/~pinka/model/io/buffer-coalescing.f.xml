@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<include href="buffer-rw.f.xml"/>
+
+<cell name="consumer"/>
+
+<def name="set-consumer" ds=" xt -- "> consumer ! </def>
+
+<def name="write" ds=" addr u -- ">
+  DUP buf::unused ULT <if> buf::enclose <exit/></if>
+  buf::rest DUP <unless> 2SWAP </unless> consumer @ EXECUTE buf::clear
+  DUP <if><again/></if> 2DROP
+</def>
+
+<def name="transmit-content" ds=" -- ">
+  buf::rest DUP <if> consumer @ EXECUTE buf::clear <exit/></if> 2DROP
+</def>
+
+<def name="transmit" ds=" addr u -- ">
+  transmit-content consumer @ EXECUTE
+</def>
+
+</forth>
