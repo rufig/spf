@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="ASCII"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
 <wordlist name="mysql-hidden">
 
 <slot2> charset database user pass  hostname port host  xml-stylesheet </slot2>
-<slot> nport conn errno res resn  row col cols  omit-xml-declaration consumer-xt </slot>
+<slot> nport conn errno res resn  row col cols  omit-xml-declaration </slot>
 <prop name="last-err-txt"><ss/></prop>
 
 <def name="(connect)" ds=" -- ior ">
@@ -105,20 +105,19 @@
 
 
 <wordlist name="buf">
-  <include href="http://forth.org.ru/~pinka/model/io/stream-mem.L1.f.xml"/>
-<comment> Generally speaking, it is not necessary.
-          We can just save the consumer-xt and don't use the intermediate buffering.
-</comment>
+  <include href="model/io/buffer-coalescing.f.xml" xml:base="../../"/>
 </wordlist>
 
-<def name="recoil-per" ds=" xt -- ">
-  >R <repeat> buf::next-chunk DUP <while/> R@ EXECUTE </repeat> 2DROP RDROP
-</def>
+<init> 40 1024 * buf::set-buffer-size </init>
+<comment>
+  При сериализации 'таблиц' в XML-форму происходит конкатенация
+  большого числа мелких фрагментов текста. Для уменьшения числа
+  передач, данные вначале объединяются в буфере, а потом, уже
+  большими кусками передаются дальше.
+</comment>
 
 <def name="store-chunk" ds=" addr u -- ">
   buf::write
-  buf::available 50000 ULT <if><exit/></if>
-  consumer-xt recoil-per <rem> memory savings </rem>
 </def>
 
 <include href="serialize-xml.f.xml"/>
@@ -146,16 +145,14 @@
 </def>
 
 <def name="query-xml-per" ds=" d-query xt -- ">
-  consumer-xt!
+  buf::set-consumer
   buf::clear
   omit-xml-declaration <unless>
     <text><![CDATA[<?xml version="1.0"?>]]>&#xA;</text> store-chunk
   </unless>
   store-xml-stylesheet   0. xml-stylesheet!
   query store-response
-  consumer-xt recoil-per
-  0. consumer-xt EXECUTE <rem> end-of-data mark </rem>
-  buf::clear <rem> may be not reached if exception occurs </rem>
+  0. buf::transmit <rem> end-of-data mark </rem>
 </def>
 
 </export>
