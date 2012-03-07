@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<f:forth
+  xmlns:f="http://forth.org.ru/ForthML/"
+    xmlns="http://forth.org.ru/ForthML/Rules/"
+>
+<!-- Mar.2012 -->
+<!-- $Id$ -->
+
+<comment xmlns="http://forth.org.ru/ForthML/">
+  Надо бы записать пример реализации классического CREATE DOES> 
+  в отражении на ForthML
+
+
+  Use cases -- варианты использования (попарно)
+
+1. Немедленно
+
+  CREATE abc 123 ,
+  <create name="abc"> 123 , </create>
+
+  :NONAME DOES> @ . ; EXECUTE
+  <does> @ . </does>
+
+2. Отложенно
+
+  : create-x ( x d-name -- )
+    CREATED , 0 , DOES> DUP @ . CELL+ @ .
+  ;
+  
+  <def name="create-x" ds=" x d-name -- ">
+    <create name="{}"> , 0 , <does> DUP @ . CELL+ @ . </does></create>
+  </def>
+  (*)
+
+
+3. Достижение эффекта (*) в лоб, без 'does' —
+  <def name="create-x" ds=" x d-name -- ">
+    HERE >R ROT , 0 ,
+    <def name="{}"><lit> R> </lit> DUP @ . CELL+ @ . </def>
+  </def>
+  Но, при таком определении эта does-часть будет напрямую присутствовать
+  в каждом слове, созданном через create-x, в отличии от варианта (*),
+  где в порожденных словах будет только ссылка на does-часть (как
+  и в классическом форте).
+  Впрочем, и это легко исправить:
+  <def name="create-x" ds=" x d-name -- ">
+    <q> DUP @ . CELL+ @ . </q> >R
+    HERE >R ROT , 0 ,
+    <def name="{}"><lit> R> </lit><exec> R> </exec></def>
+  </def>
+  Таким образом, элементы create и does лишь добавляют сахара
+  к штатным возможностям МетаФорта.
+
+4. Далее ниже сама реализация 
+
+</comment>
+
+
+
+
+<f:cell name="last-create"/>
+
+<rule match="f:does"><m>
+  <f:q><yield/></f:q> last-create @ ! 
+  </m>
+</rule>
+
+<rule match="f:create"><mm>
+  <get-name ds=" d-part -- d-name "/> 2>R
+  ALIGN HERE DUP last-create ! 'NOOP , HERE 2>R <yield/> 2R> 
+  2R> <f:def name="{}"><f:lit/><f:lit/> @ EXECUTE </f:def>
+</mm>
+</rule>
+
+
+
+
+<f:rem>
+<f:comment>
+  Если наложить ограничение, что родителем does должен быть только create,
+  то можно обойтись и без ячейки last-create, передавая xt 
+  через управляющий стек.
+  Часть does необязательна, как и в реализации выше.
+</f:comment>
+
+<rule match="f:does"><m>
+  <f:q><yield/></f:q> CSDROP >CS
+  </m>
+</rule>
+
+<rule match="f:create"><mm>
+  <get-name/> 2>R
+  ALIGN HERE 'NOOP 2>CS <yield/> 2CS> SWAP
+  2R> <f:def name="{}"><f:lit/><f:exec/></f:def>
+</mm>
+</rule>
+
+</f:rem>
+
+</f:forth>
