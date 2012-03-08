@@ -890,6 +890,7 @@ BIRTH 2CS> NAMING-
 `EXECUTE-BALANCED(+1) & EXEC, GERM >CS BBW, 
 
 BIRTH 2CS> NAMING- 
+
 `I-QNATIVE 2>CS CONCEIVE 
 `2DUP & EXEC, `:: SLIT, 
 `SPLIT- & EXEC, NZBFW, 
@@ -1114,7 +1115,7 @@ BIRTH 2CS> NAMING-
 `BIRTH & EXEC, 
 `advice-rule-before & EXEC, 
 BIRTH 2CS> NAMING- 
-`_cs_txml 2>CS  ALIGN HERE MAKE-CS,  CONCEIVE LIT, BIRTH 2CS> NAMING- 
+`_cs_txml 2>CS  ALIGN HERE MAKE-CRIT,  CONCEIVE LIT, BIRTH 2CS> NAMING- 
 `_translate-uri 2>CS SP@ >CS `NOOP & SP@ CS> EQ ?DUP XOR ALIGN HERE SWAP , CONCEIVE LIT, BIRTH 2CS> NAMING- 
 `translate-uri 2>CS CONCEIVE 
 `_translate-uri & EXEC, 
@@ -1327,7 +1328,9 @@ BIRTH 2CS> NAMING-
 `document-id 2>CS CONCEIVE 
 `_doc & EXEC, 
 `@ & EXEC, 
-`@ & EXEC, 
+`DUP & EXEC, ZBFW, 
+`@ & EXEC, RFW 
+
 BIRTH 2CS> NAMING- 
 `document-url 2>CS CONCEIVE 
 `_doc-url & EXEC, 
@@ -1410,10 +1413,10 @@ BIRTH 2CS> NAMING-
 BIRTH 2CS> NAMING- 
 `embody-doc 2>CS CONCEIVE 
 `_cs_txml & EXEC, 
-`ENTER-CS & EXEC, `(embody-doc) & LIT, 
+`ENTER-CRIT & EXEC, `(embody-doc) & LIT, 
 `CATCH & EXEC, 
 `_cs_txml & EXEC, 
-`LEAVE-CS & EXEC, 
+`LEAVE-CRIT & EXEC, 
 `THROW & EXEC, 
 BIRTH 2CS> NAMING- 
 `EMBODY 2>CS CONCEIVE 
