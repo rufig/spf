@@ -1,4 +1,4 @@
-\ перенаправление вывода 
+
 
 : FLC>
  H-STDOUT >R
@@ -11,7 +11,7 @@
 
 : FL>
  H-STDOUT >R
- 0 \ 2DUP FILE-EXIST
+ 2DUP FILE-EXIST
  IF    W/O OPEN-FILE
  ELSE  W/O CREATE-FILE
  THEN THROW  TO H-STDOUT
