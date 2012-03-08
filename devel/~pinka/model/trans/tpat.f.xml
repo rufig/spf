@@ -1,11 +1,15 @@
-<?xml version="1.0" encoding="ASCII" ?>
+<?xml version="1.0" encoding="Windows-1251" ?>
 <forth xmlns="http://forth.org.ru/ForthML/"
      xmlns:r="http://forth.org.ru/ForthML/Rules/"
 >
 <!-- 2007, Feb.2008 ruvim@forth.org.ru -->
 
+<comment> Support of "attribute value templates" </comment>
+
 <def name="(T-PAT)" ds=" i*x addr u -- j*x ">
-  <r:mm> HERE >R </r:mm>
+  <r:mm> document-id <unless> -5021 THROW </unless>
+    HERE >R
+  </r:mm>
   <repeat>
     `{ SPLIT-
   <while/>
@@ -21,7 +25,27 @@
 </def>
 
 <def name="T-PAT" ds=" i*x addr u -- j*x ">
-  2DUP `{ CONTAINS <if> (T-PAT) <exit/></if> T-SLIT
+  2DUP `{} EQUAL    <if> 2DROP <exit/><rem> name from stack </rem></if>
+  2DUP `{ CONTAINS  <if> (T-PAT) <exit/><rem> some pattern </rem></if>
+  T-SLIT <rem> static string literal </rem>
 </def>
+
+<comment>
+  ƒл€ сборки строки из частей ("template instantiation")
+  используетс€ то хранилище, которое было св€занно лексически
+  (т.е., было ближайщим в контексте на момент трансл€ции).
+
+  ѕредполагаетс€, что это 'document-context' Ч приватное хранилище,
+  принадлежащее forthml-трансл€тору (см. подключение tpat.f.xml 
+  в spf/forthml/index.L2.f.xml); оно используемое им дл€ внутренних нужд
+  и автоматически очищаетс€ после трансл€ции документа.
+
+  “аким образом, если вычисление шаблона будет идти вне процесса
+  трансл€ции документа, то возможен конфликт при многопоточности.
+  ƒл€ предупреждени€ такой ситуации делаетс€ проверка document-id
+  (хот€, такой способ и не дает полной гарантии ввиду шанса на гонки).
+
+  TODO: использовать специальный локальный буфер дл€ развертывани€ шаблона.
+</comment>
 
 </forth>

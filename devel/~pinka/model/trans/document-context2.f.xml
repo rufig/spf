@@ -28,8 +28,8 @@
   _doc     DROP-MARKER
 </def>
 
-<def name="document-id" ds=" -- doc ">
-  _doc @ @
+<def name="document-id" ds=" -- doc|0 ">
+  _doc @ DUP <if> @ </if>
 </def>
 
 <def name="document-url" ds=" -- url-a url-u ">

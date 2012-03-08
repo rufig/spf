@@ -4,4 +4,5 @@
 -5005 INC-M
 -5006 'yield,' on STATE0
 -5010 Unexpected stack effect
+-5021 T-PAT The given mode of a template instantiation is unsupported
 -5321 Semantics is not found for given element in it's context
