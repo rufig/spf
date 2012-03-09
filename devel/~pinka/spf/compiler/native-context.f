@@ -29,9 +29,13 @@ REQUIRE >CS ~pinka/spf/compiler/control-stack.f \ управляющий стек
 : POP-CURRENT ( -- wid ) 
   CURRENT @ DROP-CURRENT
 ;
-
+: SCOPE-DEPTH ( -- u )
+  CONTEXT S-O - >CELLS
+  \ не может быть отрицательным (by design),
+  \ поэтому допустимо использовать >CELLS напрямую
+;
 : PUSH-SCOPE ( wid -- )
-  ALSO CONTEXT !
+  ALSO! \ == ALSO CONTEXT !
 ;
 : POP-SCOPE ( -- wid )
   CONTEXT @ PREVIOUS
