@@ -92,13 +92,12 @@ CODE CDR-BY-NAME ( c-addr u nfa1|0 -- c-addr u nfa1|nfa2|0 )
 
     MOV EDX, [EBP]                \ длина (счетчик)
     CMP EDX, # 3
-    JG   @@1 \  u > 3
+    JG   @@1 \  u > 3  (performs signed comparison)
     JE   ' CDR-BY-NAME3 \ u = 3
-    CMP EDX, # 2
-    JE   ' CDR-BY-NAME2 \ u = 2
     CMP EDX, # 1
+    JG   ' CDR-BY-NAME2 \ u = 2
     JE   ' CDR-BY-NAME1 \ u = 1 
-    JMP  ' CDR-BY-NAME0 \ u = 0
+    JMP  ' CDR-BY-NAME0 \ u = 0 or u < 0
 @@1: \ u > 3
     CALL ' CDR-BY-NAME3
     OR EAX, EAX
