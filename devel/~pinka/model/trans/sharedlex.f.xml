@@ -9,63 +9,13 @@
 <include href="chain-t-native.f.xml"/><rem> only once </rem>
 
 <wordlist name="sharedlex-hidden">
-  <include href="../data/scope.f.xml"/>
-
-<const name="/scope"> 50 CELLS </const>
-
-  <also wordlist="scope-hidden">
-
-<def name="NEST-SCOPE" ds=" -- ">
-  Z0 @ >CS Z9 @ >CS ZP @ >CS
-  /scope ALLOCATED OVER >CS ASSUME-SCOPE
-</def>
-<def name="UNNEST-SCOPE" ds=" -- ">
-  CS> FREE THROW
-  CS> ZP ! CS> Z9 ! CS> Z0 !
-</def>
-<def name="SCOPE-DEPTH" ds=" -- n ">
-  Z0 @ >CELLS  ZP @ >CELLS - 
-</def>
-
-  </also>
-
-<def name="SCOPE-ORDER." ds=" -- ">
-  0 <q> SWAP 1+ FALSE </q> SCAN-SCOPE-WITH DROP
-  0 >R <repeat> DUP <while/> SWAP >R 1- </repeat> DROP
-  <repeat> R> DUP <while/> SPACE SPACE VOC-NAME. CR </repeat> DROP
-</def>
-<def name="NDROP-SCOPE" ds=" u -- ">
-  DUP <unless> DROP <exit/></unless>
-  DUP SCOPE-DEPTH UGT <if> -5017 THROW </if>
-  <times> DROP-SCOPE </times>
-</def>
-
-<cell name="_buf"/><rem> sharedlex order stack </rem>
+  <include href="search-order.f.xml"/>
 
 <export>
-<def name="init-sharedlex" ds=" -- ">
-  /scope CELLS ALLOCATED  OVER _buf !
-  ASSUME-SCOPE
-</def>
+  <alias name="init-sharedlex" word="init-scope"/>
 </export>
-<rem>
-<handler event="startup">
-  init-sharedlex
-</handler>
-<handler event="shutdown">
-  _buf @ FREE-FORCE
-  _buf 0!
-  0. ASSUME-SCOPE
-</handler>
-<handler event="recovery">
-  _buf 0!
-  0 0 ASSUME-SCOPE
-</handler>
-</rem>
 
-<def name="I-NATIVE-EXT" ds=" c-addr u -- xt true | c-addr u false ">
-  <xt-of name="FIND-WORDLIST"/> SCAN-SCOPE-WITH
-</def>
+<alias name="I-NATIVE-EXT" ds=" c-addr u -- xt true | c-addr u false "  word="I-NATIVE"/>
 
 <init>
  <xt-of name="I-NATIVE-EXT"/> chain-t-native::advice-before
