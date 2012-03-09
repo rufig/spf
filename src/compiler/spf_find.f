@@ -3,6 +3,10 @@
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org
   Преобразование из 16-разрядного в 32-разрядный код - 1995-96гг
   Ревизия - сентябрь 1999
+
+  Mar.2012 - рефакторинг и исправление в search-order: GET-ORDER и SFIND
+  работали неверное при пустом контексте поиска; добавлено исключение
+  при исчерпании и переполнении. ~pinka
 )
 
 VECT FIND
@@ -111,7 +115,10 @@ END-CODE
 
 
 USER-CREATE S-O 16 CELLS TC-USER-ALLOT \ порядок поиска
+USER-CREATE S-O| \ верхняя граница области S-O
 USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
+\ CONTEXT выполняет роль указателя вершины стека контекста
+\ (данный стек растет в сторону увеличения адресов)
 
 : SFIND ( addr u -- addr u 0 | xt 1 | xt -1 ) \ 94 SEARCH
 \ Расширить семантику CORE FIND следующим:
@@ -122,18 +129,14 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 \ иначе также вернуть минус единицу (-1). Для данной строки, значения,
 \ возвращаемые FIND во время компиляции, могут отличаться от значений,
 \ возвращаемых не в режиме компиляции.
-  VOC-FOUND 0!
-  S-O 1- CONTEXT
-  DO
-    2DUP I @ SEARCH-WORDLIST
-    DUP IF
-      I @ VOC-FOUND ! 
-      2SWAP 2DROP UNLOOP EXIT 
-    THEN DROP
-   I S-O = IF LEAVE THEN
-   1 CELLS NEGATE
-  +LOOP
-  0
+  CONTEXT
+  BEGIN
+    DUP S-O U> WHILE >R 2DUP R@ @ SEARCH-WORDLIST DUP 0= WHILE DROP R> CELL-
+  REPEAT
+    R> VOC-FOUND !
+    2SWAP 2DROP EXIT
+  THEN
+  DROP VOC-FOUND 0! 0
 ;
 
 : FIND1 ( c-addr -- c-addr 0 | xt 1 | xt -1 ) \ 94 SEARCH
@@ -161,8 +164,41 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 \ widn ... wid1, идентифицирующие эти списки слов. wid1 - идентифицирует список 
 \ слов, который просматривается первым, и widn - список слов, просматриваемый 
 \ последним. Порядок поиска не изменяется.
-  CONTEXT 1+ S-O DO I @ 1 CELLS +LOOP
-  CONTEXT S-O - 1 CELLS / 1+
+  S-O BEGIN DUP CONTEXT U< WHILE CELL+ DUP @ SWAP REPEAT
+  S-O - >CELLS
+;
+
+: SET-ORDER ( widn ... wid1 n -- ) \ 94 SEARCH
+\ Установить порядок поиска на списки, идентифицируемые widn ... wid1.
+\ Далее список слов wid1 будет просматриваться первым, и список слов widn
+\ - последним. Если n ноль - очистить порядок поиска. Если минус единица,
+\ установить порядок поиска на зависящий от реализации минимальный список
+\ поиска.
+\ Минимальный список поиска должен включать слова FORTH-WORDLIST и SET-ORDER.
+\ Система должна допускать значения n как минимум 8.
+  DUP -1 = IF DROP ONLY EXIT THEN
+  DUP CELLS S-O + DUP S-O| U< IF ( n*x n sp )
+    DUP TO CONTEXT SWAP
+    0 ?DO TUCK ! CELL- LOOP DROP EXIT
+  THEN -49 THROW
+;
+
+: ALSO! ( wid -- )
+  CONTEXT CELL+ DUP S-O| U< IF DUP TO CONTEXT ! EXIT THEN
+  -49 THROW
+;
+: ALSO ( -- ) \ 94 SEARCH EXT
+\ Преобразовать порядок поиска, состоящий из widn, ...wid2, wid1 (где wid1 
+\ просматривается первым) в widn,... wid2, wid1, wid1. Неопределенная ситуация 
+\ возникает, если в порядке поиска слишком много списков.
+  CONTEXT @ ALSO!
+;
+: PREVIOUS ( -- ) \ 94 SEARCH EXT
+\ Преобразовать порядок поиска, состоящий из widn, ...wid2, wid1 (где wid1 
+\ просматривается первым) в widn,... wid2. Неопределенная ситуация возникает,
+\ если порядок поиска был пуст перед выполнением PREVIOUS.
+  CONTEXT DUP S-O U> IF CELL- TO CONTEXT EXIT THEN
+  -50 THROW
 ;
 
 : FORTH ( -- ) \ 94 SEARCH EXT
@@ -175,36 +211,9 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 \ Установить список поиска на зависящий от реализации минимальный список поиска.
 \ Минимальный список поиска должен включать слова FORTH-WORDLIST и SET-ORDER.
   S-O TO CONTEXT
-  FORTH
+  FORTH-WORDLIST ALSO!
 ;
 
-: SET-ORDER ( widn ... wid1 n -- ) \ 94 SEARCH
-\ Установить порядок поиска на списки, идентифицируемые widn ... wid1.
-\ Далее список слов wid1 будет просматриваться первым, и список слов widn
-\ - последним. Если n ноль - очистить порядок поиска. Если минус единица,
-\ установить порядок поиска на зависящий от реализации минимальный список
-\ поиска.
-\ Минимальный список поиска должен включать слова FORTH-WORDLIST и SET-ORDER.
-\ Система должна допускать значения n как минимум 8.
-   DUP IF DUP -1 = IF DROP ONLY EXIT THEN
-          DUP 1- CELLS S-O + TO CONTEXT
-          0 DO CONTEXT I CELLS - ! LOOP
-       ELSE DROP S-O TO CONTEXT  CONTEXT 0! THEN
-;
-
-
-: ALSO ( -- ) \ 94 SEARCH EXT
-\ Преобразовать порядок поиска, состоящий из widn, ...wid2, wid1 (где wid1 
-\ просматривается первым) в widn,... wid2, wid1, wid1. Неопределенная ситуация 
-\ возникает, если в порядке поиска слишком много списков.
-  GET-ORDER 1+ OVER SWAP SET-ORDER
-;
-: PREVIOUS ( -- ) \ 94 SEARCH EXT
-\ Преобразовать порядок поиска, состоящий из widn, ...wid2, wid1 (где wid1 
-\ просматривается первым) в widn,... wid2. Неопределенная ситуация возникает,
-\ если порядок поиска был пуст перед выполнением PREVIOUS.
-  CONTEXT 1 CELLS - S-O MAX TO CONTEXT
-;
 
 : VOC-NAME. ( wid -- ) \ напечатать имя списка слов, если он именован
   DUP FORTH-WORDLIST = IF DROP ." FORTH" EXIT THEN
