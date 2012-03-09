@@ -5,13 +5,22 @@
 \ -----
 \ Расширение (и исправление) штатного декодирования ошибок
 
+\ Mar.2012 Убрана ненужная зависимость от STATE
+\ (в spf/forthml биндилось не к тому STATE ;)
+
+: I-NLIT ( addr u -- x true -- addr u false )
+  I-LIT       IF TRUE EXIT THEN
+  I-HLIT-FORM IF TRUE EXIT THEN
+  FALSE
+;
+
 : /SYSTEM-PAD NUMERIC-OUTPUT-LENGTH ;
 
 : (DECODE-ERROR?) ( n -- c-addr u true | n false )
   BEGIN
     REFILL
   WHILE ( n )
-    PARSE-NAME ['] ?SLITERAL CATCH  IF 2DROP FALSE EXIT THEN
+    PARSE-NAME I-NLIT 0= IF 2DROP FALSE EXIT ( bad file ) THEN
     OVER = IF ( n )
       DROP >IN 0! [CHAR] \ PARSE
       SYSTEM-PAD /SYSTEM-PAD SEATED
@@ -26,10 +35,8 @@
   R/O OPEN-FILE-SHARED IF DROP FALSE EXIT THEN
   OVER >R 
     DUP >R
-      STATE @ >R STATE 0!
         ( n )
         ['] (DECODE-ERROR?) RECEIVE-WITH ( x ior | d-txt true 0 | n false 0 )
-      R> STATE !
     R> CLOSE-FILE THROW
     IF DROP R> FALSE EXIT THEN
   RDROP
