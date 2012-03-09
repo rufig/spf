@@ -6,42 +6,40 @@
 
 <comment> Sharedlex extension to the spf4/forthml translator </comment>
 
-<include href="chain-t-native.f.xml"/><rem> only once </rem>
-
 <wordlist name="sharedlex-hidden">
-  <include href="search-order.f.xml"/>
+
+<comment>
+  “еперь по 'using' словари раздел€емых лексиконов подключаютс€
+  на вершину штатного контекста.
+  –одителем f:using должен быть только f:forth (дл€ баланса
+  управл€ющего стека).
+
+  ќтдельный стек поиска дл€ раздел€емых лексиконов более
+  не используетс€.
+  ќтдельный стек порождает риск неверного перекрыти€ имен
+  в силу того, что он может просматриватьс€ либо целиком
+  до штатного стека поиска, либо целиком после.
+</comment>
 
 <export>
-  <alias name="init-sharedlex" word="init-scope"/>
-</export>
-
-<alias name="I-NATIVE-EXT" ds=" c-addr u -- xt true | c-addr u false "  word="I-NATIVE"/>
-
-<init>
- <xt-of name="I-NATIVE-EXT"/> chain-t-native::advice-before
- <comment>
-   ѕоиск по контексту sharedlex включаетс€ в фазу 'I-NATIVE',
-   в которой идет итерпретаци€ обычных форт-слов (поиск по
-   текущему контексту). “аким образом получаетс€, что распознавание 
-   квалифицированных слов (имен, уточненных словарем, типа voc::word)
-   автоматически работает и дл€ слов из контекста sharedlex.
-
-   ¬ключение сделано через advice-before Ч вначале идет поиск
-   по sharedlex, а потом по обычном контексту. —м. TODO ниже.
- </comment>
-</init>
-
-<export>
-<def name="SHAREDLEX-ORDER." ds=" -- ">
-  <emit>Shared lexicons:</emit> CR SCOPE-ORDER. CR
-</def>
 
   `lexicon.basics-aligned FORTH-WORDLIST @ CDR-BY-NAME NIP NIP
   `FORTH-KERNEL WORDLIST-NAMED !
 
 <def name="SHAREDLEX-TOP" ds=" -- wid">
-  SCOPE-TOP 
+  <rem> SCOPE-TOP </rem>
+  CONTEXT @ 
+  <comment> временно, дл€ обратной совместимости </comment>
 </def>
+
+`NDROP-SCOPE DEFINED <unless>
+<def name="NDROP-SCOPE" ds=" u -- ">
+  DUP <unless> DROP <exit/></unless>
+  DUP SCOPE-DEPTH UGT <if> -5017 THROW </if>
+  <times> DROP-SCOPE </times>
+</def>
+</unless>
+
 </export>
 
 <wordlist name="deployed"><comment>
@@ -63,10 +61,8 @@
 </def>
 
 <def name="(load-sharedlex)" ds=" d-interface -- wid ">
-  NEST-SCOPE
   GET-ORDER N>R ONLY  <!-- spf4 specific -->
-  <!-- как вариант, здесь FORTH-WORDLIST можно отправл€ть на дно стека sharedlex,
-  а стек ORDER оставл€ть пустым (при риске неверного перекрыти€)
+  <!--
   FORTH-KERNEL CONTEXT ! -->
   deployed PUSH-CURRENT  <rem> ќткладывание идет в базовое хранилище </rem>
   <wordlist name="{ 2DUP }">
@@ -75,7 +71,6 @@
   </wordlist>
   DROP-CURRENT
   NR> SET-ORDER
-  UNNEST-SCOPE
 </def>
 <def name="load-sharedlex" ds=" d-interface -- wid ">
   <xt-of name="(load-sharedlex)"/> WITHIN-FORTH-STORAGE-EXCLUSIVE

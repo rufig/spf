@@ -133,15 +133,7 @@ VARIABLE _T-PAT  ' T-SLIT _T-PAT !
 
 
 
-\ инициализация для sharedlex
-..: AT-PROCESS-STARTING init-sharedlex ;..
-                        init-sharedlex
-
 FORTH-WORDLIST PUSH-CURRENT  0 PUSH-WARNING
-: ORDER
-  ORDER
-  sharedlex-hidden::SCOPE-DEPTH IF SHAREDLEX-ORDER. THEN
-;
 
 `EMBODY             2DUP aka
 
