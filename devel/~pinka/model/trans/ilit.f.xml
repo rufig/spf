@@ -22,9 +22,11 @@
 </def>
 
 <def name="I-HLIT-FORM" ds=" a u -- x true | a u false ">
-  `0x MATCH-HEAD  <unless> FALSE <exit/></unless>
-  BASE @ >R HEX I-LIT R> BASE !
-  <if> TRUE <exit/></if> 2 CHARS TUCK + >R - R> FALSE
+  2DUP `0x MATCH-HEAD  <unless> 2DROP FALSE <exit/></unless>
+  `L MATCH-TAIL DROP
+  BASE @ >R HEX   0 0 2SWAP >NUMBER   R> BASE ! <rem>( a u l h a2 u2 )</rem>
+  NIP <if> 2DROP FALSE <exit/></if>
+  DROP NIP NIP TRUE
 </def>
 
 <def name="I-SLIT-FORM" ds=" a u -- a2 u2 true | a u false ">
