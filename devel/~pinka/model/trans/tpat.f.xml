@@ -20,8 +20,8 @@
     T-PLAIN <r:m> S, </r:m>
     2R>
   </repeat>
-  T-SLIT <r:m> S, 0 C, </r:m>
-  <r:mm> R> HERE OVER - </r:mm>
+  T-SLIT <r:m> S, </r:m>
+  <r:mm> R> HERE OVER -   0 C, </r:mm>
 </def>
 
 <def name="T-PAT" ds=" i*x addr u -- j*x ">
