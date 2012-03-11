@@ -44,7 +44,7 @@
 </rule>
 
 <rule match="f:xt-of">
-  `name GetAttribute I-NATIVE-FORCE T-LIT
+  GetName I-NATIVE-FORCE T-LIT
 </rule>
 
 <rule match="f:char">

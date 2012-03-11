@@ -70,6 +70,12 @@ SET-CURRENT
 : cnode  ( -- node ) cnode-a @ ;
 : cnode! ( node -- ) cnode-a ! ;
 
+: GetAttribute? ( -- a u true | false )
+  2DUP HasAttribute IF GetAttribute TRUE EXIT THEN
+  2DROP FALSE
+;
+
 : GetName ( -- a u ) `name GetAttribute ;
+: GetName? ( -- a u true | false ) `name GetAttribute? ;
 
 PREVIOUS FREE-WORDLIST
