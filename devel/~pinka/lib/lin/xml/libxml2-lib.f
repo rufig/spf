@@ -2,8 +2,13 @@
 
 )
 
+GET-ORDER GET-CURRENT ONLY FORTH DEFINITIONS
+
 REQUIRE OS-FAMILY ~pinka/spf/os-detection.f
 REQUIRE SO        ~ac/lib/ns/so-xt.f
+
+  \ SP-Forth/4 extensions should be in the root vocabulary.
+SET-CURRENT SET-ORDER
 
 OS-WINDOWS? [IF]
 
