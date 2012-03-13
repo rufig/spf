@@ -10,26 +10,12 @@ REQUIRE SO        ~ac/lib/ns/so-xt.f
   \ SP-Forth/4 extensions should be in the root vocabulary.
 SET-CURRENT SET-ORDER
 
-OS-WINDOWS? [IF]
+ALSO SO
+  1
+  DUP OS-WINDOWS? AND [IF] ?NEW: libxml2.dll    DROP 0  [THEN]
+  DUP OS-LINUX?   AND [IF] ?NEW: libxml2.so.2   DROP 0  [THEN]
+  [IF] .( libxml2-lib.f -- unsupported OS ) CR ABORT    [THEN]
 
-  [UNDEFINED] libxml2.dll [IF]
-    ALSO SO NEW: libxml2.dll PREVIOUS
-  [THEN]
-
-  ALSO libxml2.dll CONTEXT @ PREVIOUS
+CONTEXT @ PREVIOUS
 
   CONSTANT lib.libxml2
-
-\EOF
-[THEN]
-OS-LINUX? [IF]
-
-  [UNDEFINED] libxml2.so.2 [IF]
-    ALSO SO NEW: libxml2.so.2 PREVIOUS
-  [THEN]
-
-  ALSO libxml2.so.2 CONTEXT @ PREVIOUS
-  CONSTANT lib.libxml2
-
-\EOF
-[THEN]
