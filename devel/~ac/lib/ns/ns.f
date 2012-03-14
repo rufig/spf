@@ -250,6 +250,13 @@ VECT vDLOPEN ' DLOPEN TO vDLOPEN
 ;
 :>>
 
+WARNING @  WARNING 0!
+: NLIST ( wid -- )
+  DUP IS-CLASS-FORTH IF NLIST EXIT THEN ABORT" Listing unsupported for given wordlist" ;
+;
+: WORDS ( -- ) CONTEXT @ NLIST ;
+WARNING !
+
 \EOF примеры:
 
 : NOTFOUND \ просто для сокращения asciiz литералов "zzz" = S" zzz" DROP
