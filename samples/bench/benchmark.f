@@ -383,7 +383,7 @@ WINAPI: GetTickCount	kernel32.dll
   SWAP 2SWAP SWAP   \ SPF uses reverse order
   SendMessageA
 ;
-: [o/n] ; IMMEDIATE
+: [o/n] HERE DROP ; IMMEDIATE
 : buffer: \ n -- ; -- addr
   CREATE
   HERE  OVER ALLOT  SWAP ERASE
