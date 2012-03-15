@@ -31,7 +31,7 @@ EXPORT
 : ?CSP ( -- )
   Z0 @ 0= IF open EXIT THEN
   ZP@ Z0 @ U> ABORT" Control stack undeflow"
-  ZP@ Z9 @ U< ABORT" Control stack overflow"
+  ZP@ Z9 @ U< IF -52 THROW THEN \ Control stack overflow
 ;
 
 ..: AT-THREAD-STARTING ?CSP ;.. ?CSP
@@ -47,6 +47,7 @@ EXPORT
 : >CS   >Z ;
 : CS>   Z> ;
 : CSDROP ZDROP ;
+\ no control for overflow (!)
 
 : 2>CS SWAP >CS >CS ;
 : 2CS> CS> CS> SWAP ;
