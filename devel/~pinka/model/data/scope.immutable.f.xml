@@ -10,8 +10,6 @@
 <def name="SCOPE-TOP"     ds=" -- wid|0" > Z0 @ ZP@ NEQ <if> Z@ <exit/></if> 0 </def>
 <!-- also see ZDEPTH -->
 
-<def name="SCAN-SCOPE-WITH" ds=" c-addr u -- xt true | c-addr u false ">
-  SCAN-Z-WITH
-</def>
+<alias name="SCAN-SCOPE-WITH" ds=" i*x xt -- j*x flag " word="SCAN-Z-WITH"/>
 
 </forth>
