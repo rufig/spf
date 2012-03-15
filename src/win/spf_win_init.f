@@ -64,4 +64,4 @@ VARIABLE IN-EXCEPTION
 ' EXC-DUMP1 ' <EXC-DUMP> TC-VECT!
 
 : PLATFORM ( -- a u ) S" Win9x/Me/NT/2k/XP/Vista/7" ;
-
+: OS-API   ( -- a u ) S" windows" ;

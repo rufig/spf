@@ -103,6 +103,7 @@ CR .( FIXME test return result of sigaction)
 ;
 
 : PLATFORM ( -- a u ) S" Linux" ;
+: OS-API   ( -- a u ) S" posix" ;
 
 0 VALUE CMDLINE
 0 VALUE #CMDLINE

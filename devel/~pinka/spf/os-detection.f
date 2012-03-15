@@ -27,7 +27,7 @@ REQUIRE AsQName         ~pinka/samples/2006/syntax/qname.f
 `SUPPORT-OS-DETECTION WORDLIST-NAMED PUSH-DEVELOP
 
 
-[DEFINED] WINAPI: [IF]
+OS-API `windows EQUAL [IF]
 
 \ WINAPI: GetVersionExA KERNEL32.DLL
 REQUIRE WinNT? ~ac/lib/win/winver.f
@@ -44,7 +44,7 @@ CONSTANT /OSVERSIONINFO
 
 BEGIN-EXPORT
 
-: OS-API      ( -- d-txt-api    ) `windows ; \ built-in info
+\ : OS-API      ( -- d-txt-api    ) `windows ; \ built-in info \ in the kernel now
 : OS-BRANCH   ( -- d-txt-root   ) `win ;
 : OS-FAMILY   ( -- d-txt-family ) \ runtime info
   WinNT? IF `winnt ELSE `win9x THEN
@@ -82,15 +82,15 @@ BEGIN-EXPORT
 END-EXPORT
 
 [THEN]
-PLATFORM `Linux EQUAL [IF]
+OS-API `posix EQUAL [IF]
 
 BEGIN-EXPORT
 
-: OS-API      ( -- d-txt-api    ) `posix ;
+\ : OS-API      ( -- d-txt-api    ) `posix ; \ in the kernel now
 : OS-BRANCH   ( -- d-txt-root   ) `nix   ;
-: OS-FAMILY   ( -- d-txt-family ) `linux ;
+: OS-FAMILY   ( -- d-txt-family ) `linux ; \ not sure
 : OS-VERSION  ( -- d-version    ) 0 0    ; \ not implemented yet
-: OS-VERSION-NUMBER  ( -- u-minor u-major ) 0 0 ;
+: OS-VERSION-NUMBER  ( -- u-minor u-major ) 0 2 ; \ implemented yet 
 : OS-NAME  ( -- d-txt-name    )
   `OSTYPE ENVIRONMENT? IF EXIT THEN 0.
 ;
