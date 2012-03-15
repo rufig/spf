@@ -3,10 +3,21 @@
 
 <include href="scope.f.xml"/>
 
+<def name="(I-NATIVE-WID)" ds=" c-addr u wid -- xt wid true | c-addr u false ">
+  DUP >R FIND-WORDLIST <if> R> TRUE <exit/></if> RDROP FALSE
+</def>
+
+<def name="I-NATIVE-WID" ds=" c-addr u -- xt wid true | c-addr u false ">
+  <xt-of name="(I-NATIVE-WID)"/> SCAN-SCOPE-WITH
+</def>
+
+<rem>
+  <def name="I-NATIVE"> WID-FOUND 0! I-NATIVE-WID DUP <if> SWAP WID-FOUND ! </if></def>
+</rem>
+
 <def name="I-NATIVE" ds=" c-addr u -- xt true | c-addr u false ">
   <xt-of name="FIND-WORDLIST"/> SCAN-SCOPE-WITH
 </def>
-
 
 <def name="DEFINED" ds=" a u -- xt|0 ">
   I-NATIVE <if><exit/></if> 2DROP 0
