@@ -67,6 +67,12 @@
   free-last-block <again/>
 </def>
 
+<comment><rem> may be </rem>
+<def name="stream-chunks-per" ds=" xt -- "><rem> xt ( addr u -- ) </rem>
+  >R <repeat> next-chunk DUP <while/> R@ EXECUTE </repeat> RDROP 2DROP
+</def>
+</comment>
+
 <also wordlist="block-w">
 
 <def name="write" ds=" a1 u1 -- ">
