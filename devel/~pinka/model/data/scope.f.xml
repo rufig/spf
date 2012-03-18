@@ -20,6 +20,9 @@
 <export>
 
   <def name="ASSUME-SCOPE" ds=" addr u -- "> OVER CELL+ Z9 ! ZASSUME </def>
+  <def name="SAVE-SCOPE"    ds=" -- i*x i "> Z0 @ Z9 @ ZP @ 3     </def>
+  <def name="RESTORE-SCOPE" ds=" i*x i -- "> DROP ZP ! Z9 ! Z0 !  </def>
+
   <include href="scope.immutable.f.xml"/>
 
 </export></wordlist>

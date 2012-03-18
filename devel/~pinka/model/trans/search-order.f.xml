@@ -14,11 +14,13 @@
   <also wordlist="scope-hidden">
 
 <def name="NEST-SCOPE" ds=" -- ">
+  <rem> SAVE-SCOPE </rem>
   Z0 @ >CS Z9 @ >CS ZP @ >CS
   /scope ALLOCATED OVER >CS ASSUME-SCOPE
 </def>
 <def name="UNNEST-SCOPE" ds=" -- ">
   CS> FREE THROW
+  <rem> RESTORE-SCOPE </rem>
   CS> ZP ! CS> Z9 ! CS> Z0 !
 </def>
 <def name="SCOPE-DEPTH" ds=" -- n ">
