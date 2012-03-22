@@ -3315,7 +3315,35 @@ OP0 @ W@ 4D89 XOR OR		\  894D08            MOV     8 [EBP] , ECX
        EXIT
    THEN
 
+DUP C@ C3 XOR	 
+OP1 @ W@ 4D8B XOR OR \ 57A63A 8B4D00            MOV     ECX , 0 [EBP]
+OP0 @ W@ C12B XOR OR \ 57A63D 2BC1              SUB     EAX , ECX
+0= IF  M\ 1A2 DTST
+        452B OP1 @ W!
+        OP0 OPexcise
+        FALSE  M\ 1A3 DTST
+        EXIT
+    THEN
 
+OP1 @ 2+ C@
+OP0 @ 2+ C@    XOR
+OP1 @ W@ 4589 XOR OR \  8945F8            MOV     F8 [EBP] , EAX
+OP0 @ W@ 4503 XOR OR \  0345F8            ADD     EAX , F8 [EBP]
+0= IF  M\ 1A6 DTST
+        00048D OP0 @  !   \   LEA     EAX , [EAX] [EAX]
+        FALSE  M\ 1A7 DTST
+        EXIT
+    THEN
+
+OP1 @ @ FFFFFF AND 82448D XOR  \ LEA     EAX , 0 [EDX] [EAX*4]
+OP0 @ W@ 0889             XOR OR  \ MOV     [EAX] , ECX
+0=
+IF  M\ 132 DTST
+    4C89  OP1 @ W!
+    OP1 ToOP0
+    FALSE -2 ALLOT M\ 133 DTST
+    EXIT
+THEN
 
 M\ PPPP
 OP2 @ :-SET U< IF TRUE EXIT THEN
@@ -3659,7 +3687,7 @@ OP0 @ W@ 6DF7 XOR OR \  F76DFC            IMUL    FC [EBP]
 0=      IF  M\ 1A4 DTST
                2CF6 OP1 @ W! \ IMUL    [ESP]
                OP1 ToOP0
-               FALSE -3 ALLOT M\ 1A6 DTST
+               FALSE -3 ALLOT M\ 1A5 DTST
                EXIT
         THEN
 
@@ -3728,12 +3756,10 @@ OP0 @ W@ 558B XOR OR \ 579DE8 8B55FC            MOV     EDX , FC [EBP]
 M\ PPPP
 OP0 @  W@ ADD|XOR|OR|AND=
    IF
-      ?~EAX 0!
+      -1 ?~EAX !
       OP1
       BEGIN ?EAX>ECX
       UNTIL
-\ DUP IF  ?~EAX @ IF 2DROP FALSE THEN
-\                THEN
       IF   M\ AE DTST
          ?~EAX @
          IF    ECX:=EAX
@@ -4510,51 +4536,6 @@ OP0 @ W@ 4589 XOR OR \  894500            MOV     0 [EBP] , EAX
 
 OP4 @ :-SET U< IF TRUE EXIT THEN
 
-\ $ 10 LSHIFT
-    OP4 @ W@ 4589     XOR      \ MOV X0 [EBP] , EAX
-    OP3 @ C@ B8       XOR OR   \ MOV EAX, # 10
-    OP2 @  @ 458BC88B XOR OR   \ MOV ECX, EAX \ !? MOV EAX, X2 [EBP]
-    OP0 @ W@ F7FF AND E0D3  XOR OR  \  SHL|SHR    EAX , CL
-    OP4 @ 2+ C@ OP1 @ 2+ C@ XOR OR  \  X0=X2
-    0=
-    IF  M\ 32 DTST
-        OP0 @ W@ 0012 - OP4 @ W!
-        OP3 @ 1+ @ OP4 @ 2+ C!
-        OP4 ToOP0
-        FALSE -C ALLOT M\ 33 DTST
-        EXIT
-    THEN
-
-    OP1 @ @ FFFFFF AND 82448D XOR  \ LEA     EAX , 0 [EDX] [EAX*4]
-    OP0 @ W@ 0889             XOR OR  \ MOV     [EAX] , ECX
-    0=
-    IF  M\ 132 DTST
-        4C89  OP1 @ W!
-        OP1 ToOP0
-        FALSE -2 ALLOT M\ 133 DTST
-        EXIT
-    THEN
-
-
-OP4 @ 2+ C@
-OP3 @ 2+ C@ XOR
-OP3 @ 2+ C@
-OP0 @ 2+ C@ XOR OR
-OP4 @ W@ 558B XOR OR \ 8B5500      MOV     EDX , 0 [EBP]
-OP3 @ W@ 4589 XOR OR \  894500     MOV     0 [EBP] , EAX
-OP2 @ @ C203D8F7 XOR OR \  F7D8    NEG     EAX
-                        \  03C2    ADD     EAX , EDX
-OP0 @ W@ 558B XOR OR \ 8B5500      MOV     EDX , 0 [EBP]
-0=  IF  M\ C8 DTST
-        4D   OP4 @ 1+ C!         \  MOV     ECX , 0 [EBP]
-                                 \  MOV     0 [EBP] , EAX
-        D08B OP2 @    W!         \  MOV     EDX , EAX
-    C103D8F7 OP1 @     !         \  NEG     EAX
-                                 \  ADD     EAX , ECX
-        FALSE -1 ALLOT M\ C9 DTST
-        EXIT
-    THEN
-
 OP4 @ W@ 5589 XOR    \  895500            MOV     0 [EBP] , EDX
 OP3 @ W@ 558B XOR OR \  8B55FC            MOV     EDX , FC [EBP]
 OP2 @ W@ 4D8B XOR OR \  8B4D00            MOV     ECX , 0 [EBP]
@@ -4565,35 +4546,7 @@ OP2 @ W@ 4D8B XOR OR \  8B4D00            MOV     ECX , 0 [EBP]
         FALSE M\ C9 DTST
         EXIT
     THEN
-
-DUP C@ C3 XOR
-OP3 @ 2+ C@
-OP0 @ 2+ C@  XOR OR
-OP3 @ W@ 4589 XOR OR \ 571FEA 894500            MOV     0 [EBP] , EAX
-OP2 @ W@ C28B XOR OR \ 571FED 8BC2              MOV     EAX , EDX
-OP1 @ W@ EAF7 XOR OR \ 571FEF F7EA              IMUL    EDX
-OP0 @ W@ 4503 XOR OR \ 571FF1 034500            ADD     EAX , 0 [EBP]
-0=  IF M\ 1C8 DTST
-
-       OP2 OPexcise
-       OP1 OPexcise
-
-       OP0 3 OPinsert
-        AF0F OP1 @ W! 
-       D2    OP1 @ 2+ C!  \     IMUL    EDX , EDX
-
-       C203  OP0 @ W! \  ADD    EAX , EDX 
-        FALSE
- -1 ALLOT
-  M\ 1C9 DTST
-        EXIT
-    THEN
-
-
-OP5 @ :-SET U< IF TRUE EXIT THEN
-
-M\ PPPP
-
+				
  TRUE
 ;
 
