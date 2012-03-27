@@ -32,7 +32,7 @@
 
 <def name="content-per-catch" ds=" xt -- ior "><rem> xt ( a u -- ) </rem>
   <rem> reads what the rest by content-rest value </rem>
-  content-rest SWAP 'read-counted-per CATCH DUP <if> NIP NIP <exit/></if> DROP
+  content-rest SWAP 'read-limited-per CATCH DUP <if> NIP NIP <exit/></if> DROP
   content-rest OVER - content-rest!
   0EQ <if> 0 <exit/></if> -1002 
 </def>

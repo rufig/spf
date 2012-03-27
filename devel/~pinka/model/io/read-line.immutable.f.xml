@@ -21,14 +21,16 @@
   vacant _readout? DUP <if><exit/></if> NIP NIP
 </def>
 
-<def name="next-chunk-counted?" ds=" u1 -- u2 a u true | u1 false ">
+<def name="next-chunk-limited?" ds=" u1 -- u2 a u true | u1 false ">
+  <comment> Reads not more than u1 bytes; u2 = u1 - u </comment>
   rest DUP <if> SWAP >R OVER UMIN DUP >R - 2R> DUP elapse TRUE <exit/></if> 2DROP
   clear vacant _readout? <unless> 2DROP FALSE <exit/></unless> confirm
   <again/>
 </def>
 
-<def name="read-counted-per" ds=" u1 xt -- u2 "><rem> xt ( a u -- ) </rem>
-  >R <repeat> DUP <while/> next-chunk-counted? <while/> R@ EXECUTE </repeat> RDROP
+<def name="read-limited-per" ds=" u1 xt -- u2 "><rem> xt ( a u -- ) </rem>
+  <comment> Reads not more than u1 bytes; u2 = u1 - sum(u) </comment>
+  >R <repeat> DUP <while/> next-chunk-limited? <while/> R@ EXECUTE </repeat> RDROP
 </def>
 
 <def name="readout" ds=" addr u -- addr u2 ">
