@@ -66,4 +66,18 @@
   R> col!
 </def>
 
+<def name="next-value" ds=" -- d-val | 0 0 ">
+  res <if>
+    row <if>
+      next-col? <if>
+        get-value
+        <exit/>
+      </if>
+    </if>
+    next-row? <if><again/></if>
+  </if>
+  next-result? <if><again/></if>
+  0.
+</def>
+
 </forth>

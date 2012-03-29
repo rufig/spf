@@ -99,6 +99,9 @@
   0.
 </def>
 
+<alias name="query"      ds=" d-txt-query -- "   word="query"/>
+<alias name="next-value" ds=" -- d-value | 0 0 " word="next-value"/>
+
 </export>
 
 <include href="enum-response.f.xml"/>
