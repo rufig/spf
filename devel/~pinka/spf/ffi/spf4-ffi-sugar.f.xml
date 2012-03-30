@@ -43,7 +43,7 @@
 <def name="created-dl-function" ds=" d-name dlpoint-parent xt-dlpoint-executer -- xt ">
   <rem> in the current </rem>
   >R CREATED-DLPOINT DUP >R SET-DLPOINT-NAME
-  R@ <def name="{ DLPOINT-NAME }">
+  R@ DLPOINT-NAME <def name="{}">
     <lit> R> </lit><exec> R> </exec>
   </def>
   LATEST NAME>
