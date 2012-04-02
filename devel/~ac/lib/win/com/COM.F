@@ -1,6 +1,8 @@
 ( работа с COM/DCOM, OLE, ActiveX )
 ( А.Черезов 4.02.2000 )
 
+REQUIRE >UNICODE ~ac/lib/win/utf8.f 
+
 WINAPI: CoInitializeEx        OLE32.DLL
 WINAPI: CoUninitialize        OLE32.DLL
 WINAPI: CoCreateGuid          OLE32.DLL
@@ -10,8 +12,6 @@ WINAPI: CLSIDFromProgID       OLE32.DLL
 WINAPI: CoRegisterClassObject OLE32.DLL
 WINAPI: CoCreateInstance      OLE32.DLL
 WINAPI: CoGetClassObject      OLE32.DLL
-WINAPI: MultiByteToWideChar   KERNEL32.DLL
-WINAPI: WideCharToMultiByte   KERNEL32.DLL
 WINAPI: SysAllocString        OLEAUT32.DLL
 WINAPI: SysFreeString         OLEAUT32.DLL
 
@@ -22,84 +22,10 @@ DECIMAL
        4 CONSTANT CLSCTX_LOCAL_SERVER
        1 CONSTANT CLSCTX_INPROC_SERVER 
       16 CONSTANT CLSCTX_REMOTE_SERVER
-   65001 CONSTANT CP_UTF8
 
  CLSCTX_LOCAL_SERVER CLSCTX_INPROC_SERVER OR CLSCTX_REMOTE_SERVER OR
          CONSTANT CLSCTX_SERVER
 
-USER UnicodeBuf
-VARIABLE COM-DEBUG \ TRUE COM-DEBUG !
-
-: >UNICODE ( addr u -- addr2 u2 )
-  DUP 2* CELL+ ALLOCATE DROP UnicodeBuf !
-  DUP 0= IF 2DROP UnicodeBuf @ 0 EXIT THEN
-  2DUP 2>R
-  SWAP >R
-  DUP 2* CELL+ UnicodeBuf @ ROT R> 0 ( flags) 0 ( CP_ACP)
-  MultiByteToWideChar
-  DUP 0= IF DROP 2R> >R UnicodeBuf @ R@ MOVE UnicodeBuf @ R> EXIT
-         ELSE 2R> 2DROP THEN
-  UnicodeBuf @ 
-  SWAP 2* 
-  2DUP + 0 SWAP W!
-;
-: UNICODE> ( addr u -- addr2 u2 )
-\ на входе - длина в байтах, а WideCharToMultiByte хочет к-во символов
-  DUP 0= IF 2DROP CELL ALLOCATE THROW DUP UnicodeBuf ! 0 EXIT THEN
-  2DUP 2>R
-  2 /
-  1+ \ 0 в конце тоже считаем, т.к. он есть в результ.строке
-  >R >R 0 0 R> R>
-  DUP CELL+ ALLOCATE DROP UnicodeBuf ! \ 0 0 addr len
-  SWAP >R                        \ 0 0 len
-  DUP CELL+ UnicodeBuf @         \ 0 0 len len+4 mem
-  ROT ( можно поствить DROP -1 для авторасчета длины) 
-  R>                             \ 0 0 len+4 mem len addr
-  0 ( flags) 0 ( CP_ACP)
-  WideCharToMultiByte
-  DUP 0= IF DROP 2R> >R UnicodeBuf @ R@ MOVE UnicodeBuf @ R> EXIT
-         ELSE 2R> 2DROP THEN
-  UnicodeBuf @ 
-  SWAP 1-
-;
-: UTF8>UNICODE ( addr u -- addr2 u2 )
-  DUP 2* CELL+ ALLOCATE DROP UnicodeBuf !
-  DUP 0= IF 2DROP UnicodeBuf @ 0 EXIT THEN
-  2DUP 2>R
-  SWAP >R
-  DUP 2* CELL+ UnicodeBuf @ ROT R> 0 ( flags) CP_UTF8
-  MultiByteToWideChar
-  DUP 0= IF DROP 2R> >R UnicodeBuf @ R@ MOVE UnicodeBuf @ R> EXIT
-         ELSE 2R> 2DROP THEN
-  UnicodeBuf @ 
-  SWAP 2* 
-  2DUP + 0 SWAP W!
-;
-: UNICODE>UTF8 ( addr u -- addr2 u2 )
-\ на входе - длина в байтах, а WideCharToMultiByte хочет к-во символов
-  DUP 0= IF 2DROP CELL ALLOCATE THROW DUP UnicodeBuf ! 0 EXIT THEN
-  2DUP 2>R
-  2 /
-  1+ \ 0 в конце тоже считаем, т.к. он есть в результ.строке
-  >R >R 0 0 R> R>
-  2* DUP CELL+ ALLOCATE DROP UnicodeBuf ! \ 0 0 addr len
-  SWAP >R                        \ 0 0 len
-  DUP CELL+ UnicodeBuf @         \ 0 0 len len+4 mem
-  ROT 2 / ( можно поствить DROP -1 для авторасчета длины) 
-  R>                             \ 0 0 len+4 mem len addr
-  0 ( flags) CP_UTF8
-  WideCharToMultiByte
-  DUP 0= IF DROP 2R> >R UnicodeBuf @ R@ MOVE UnicodeBuf @ R> EXIT
-         ELSE 2R> 2DROP THEN
-  UnicodeBuf @ 
-  SWAP 1-
-;
-: >UTF8  ( addr u -- addr2 u2 )
-  >UNICODE OVER >R UNICODE>UTF8 R> FREE THROW
-;
-: UTF8> ( addr u -- addr2 u2 )
-  UTF8>UNICODE UNICODE>
-;
 : UASCIIZ> ( addr -- addr u ) \ вариант ASCIIZ> для Unicode
   0 OVER
   BEGIN
