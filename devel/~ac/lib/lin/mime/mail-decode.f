@@ -2,6 +2,7 @@ REQUIRE ParseMime              ~ac/lib/lin/mime/mime.f
 REQUIRE StripLwsp              ~ac/lib/string/mime-decode.f 
 \ REQUIRE UNICODE>UTF8           ~ac/lib/win/com/com.f
 REQUIRE iso-8859-5>UNICODE     ~ac/lib/lin/iconv/iconv.f 
+WARNING @ WARNING 0! S" ~ac/lib/win/utf8.f" INCLUDED WARNING ! \ в Windows более всеядный декодер UTF8, чем в ICONV !
 REQUIRE replace-str            ~pinka/samples/2005/lib/replace-str.f 
 
 \ ================================= subject decoding ==================
@@ -315,6 +316,20 @@ USER uMessageMID
     ELSE mp mpBodyAddr @ mp mpBodyLen @ THEN
   ELSE S" " THEN
 ;
+: __IsUtf8 ( addr u -- flag )
+  \ Хак, но как-то надо читать нечитабельные письма...
+
+  0 ?DO DUP I + C@ DUP 0x80 0xC0 WITHIN
+        OVER 0xA8 <> AND OVER 0xB8 <> AND \ Ёё
+        OVER 0xAB <> AND OVER 0xBB <> AND \ <<>>
+        OVER 0x93 <> AND OVER 0x94 <> AND \ ""
+        OVER 0x96 <> AND OVER 0x97 <> AND \ --
+        OVER 0xB3 <> AND OVER 0xBA <> AND \ .ua
+        SWAP 0xA0 <> AND
+        IF DROP TRUE UNLOOP EXIT THEN
+    LOOP
+  DROP FALSE
+;
 : GetMimePartByNameDecoded { na nu mp -- addr u }
   na nu mp GetMimePartByNameMp
   ?DUP
@@ -327,7 +342,10 @@ USER uMessageMID
        S" Content-Transfer-Encoding" mp FindMimeHeader S" base64"
        COMPARE-U 0= IF debase64 THEN
        mp mpCharsetAddr @ mp mpCharsetLen @ ?DUP
-       IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN ELSE DROP THEN
+           IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN
+           ELSE DROP
+              2DUP __IsUtf8 IF UTF8> THEN
+           THEN
     THEN
   ELSE S" " THEN
 ;
@@ -364,7 +382,10 @@ USER uSkipAttach
            COMPARE-U 0= IF debase64 OVER -> tf_db THEN
 \           2DUP _>BL ( отключено: портит unicode-букву "К" )
            mp mpCharsetAddr @ mp mpCharsetLen @ ?DUP
-           IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN ELSE DROP THEN
+           IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN
+           ELSE DROP
+              2DUP __IsUtf8 IF UTF8> THEN
+           THEN
 
            0 -> tf_pl
 
@@ -447,7 +468,10 @@ USER uSkipAttach
            COMPARE-U 0= IF debase64 OVER -> tf_db THEN
 \           2DUP _>BL ( отключено: портит unicode-букву "К" )
            mp mpCharsetAddr @ mp mpCharsetLen @ ?DUP
-           IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN ELSE DROP THEN
+           IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN
+           ELSE DROP
+              2DUP __IsUtf8 IF UTF8> THEN
+           THEN
 
            0 -> tf_pl
 \           mp mpSubTypeAddr @ mp mpSubTypeLen @ S" rfc822" COMPARE-U 0=
@@ -495,7 +519,10 @@ USER uSkipAttach
          S" Content-Transfer-Encoding" mp FindMimeHeader S" base64"
          COMPARE-U 0= IF debase64 OVER -> tf_db THEN
          mp mpCharsetAddr @ mp mpCharsetLen @ ?DUP
-         IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN ELSE DROP THEN
+           IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN
+           ELSE DROP
+              2DUP __IsUtf8 IF UTF8> THEN
+           THEN
 
          ( da du ) mp MessagePartName mp  xt EXECUTE
 
