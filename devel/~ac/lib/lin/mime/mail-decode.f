@@ -344,7 +344,7 @@ USER uMessageMID
        mp mpCharsetAddr @ mp mpCharsetLen @ ?DUP
            IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN
            ELSE DROP
-              2DUP __IsUtf8 IF UTF8> THEN
+\              2DUP __IsUtf8 IF UTF8> THEN
            THEN
     THEN
   ELSE S" " THEN
@@ -521,7 +521,7 @@ USER uSkipAttach
          mp mpCharsetAddr @ mp mpCharsetLen @ ?DUP
            IF CHARSET-DECODERS-WL SEARCH-WORDLIST IF EXECUTE THEN
            ELSE DROP
-              2DUP __IsUtf8 IF UTF8> THEN
+\              2DUP __IsUtf8 IF UTF8> THEN
            THEN
 
          ( da du ) mp MessagePartName mp  xt EXECUTE
