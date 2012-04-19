@@ -96,10 +96,22 @@ WINAPI: mktime    MSVCRT.DLL
   -1 R@ tm_isdst !
   R@ mktime NIP R> FREE THROW
 ;
-
+: (VcalTime) ( -- n )
+  \ 2012-04-20T06:00:00.000Z
+  /tm ALLOCATE THROW >R
+  [CHAR] - PARSE _>NUM >tm_year R@ tm_year !
+  [CHAR] - PARSE _>NUM 1- R@ tm_mon !
+  [CHAR] T PARSE _>NUM R@ tm_mday !
+  [CHAR] : PARSE _>NUM R@ tm_hour !
+  [CHAR] : PARSE _>NUM R@ tm_min !
+  [CHAR] . PARSE _>NUM R@ tm_sec !
+  -1 R@ tm_isdst !
+  R@ mktime NIP R> FREE THROW
+;
 : >UnixTime ( a u -- n )
   DUP 0= IF 2DROP 0 EXIT THEN
   OVER 2+ C@ [CHAR] - = IF ['] (InternalDate>UnixTime) EVALUATE-WITH EXIT THEN
+  OVER DUP 10 + C@ [CHAR] T = SWAP 23 + C@ [CHAR] Z = AND IF ['] (VcalTime) EVALUATE-WITH EXIT THEN
   OVER C@ _IsDigit
   IF 2DUP S" ." SEARCH NIP NIP
      IF ['] (Rus>UnixTime) ELSE ['] (Sql>UnixTime) THEN
