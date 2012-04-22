@@ -5,6 +5,7 @@
 \ %d.%m.%Y %H:%M
 \ %a, %d %b %Y %H:%M:%S GMT
 \ %d-%b-%Y %H:%M:%S TZ
+\ и др.
 
 \ FIXME: S" 19.01.2038" >UnixTime -> 2147461200
 \        S" 20.01.2038" >UnixTime -> -1 (см. mktime)
@@ -108,9 +109,23 @@ WINAPI: mktime    MSVCRT.DLL
   -1 R@ tm_isdst !
   R@ mktime NIP R> FREE THROW
 ;
+: (EvtTime) ( -- n )
+  \ 20120419T221123Z
+  /tm ALLOCATE THROW >R
+  CharAddr 4 _>NUM >tm_year R@ tm_year !
+  CharAddr 4 + 2 _>NUM 1- R@ tm_mon !
+  CharAddr 6 + 2 _>NUM R@ tm_mday !
+  [CHAR] T PARSE 2DROP
+  CharAddr 2 _>NUM R@ tm_hour !
+  CharAddr 2+ 2 _>NUM R@ tm_min !
+  CharAddr 4 + 2 _>NUM R@ tm_sec !
+  -1 R@ tm_isdst !
+  R@ mktime NIP R> FREE THROW
+;
 : >UnixTime ( a u -- n )
   DUP 0= IF 2DROP 0 EXIT THEN
   OVER 2+ C@ [CHAR] - = IF ['] (InternalDate>UnixTime) EVALUATE-WITH EXIT THEN
+  OVER DUP 8 + C@ [CHAR] T = SWAP 15 + C@ [CHAR] Z = AND IF ['] (EvtTime) EVALUATE-WITH EXIT THEN
   OVER DUP 10 + C@ [CHAR] T = SWAP 23 + C@ [CHAR] Z = AND IF ['] (VcalTime) EVALUATE-WITH EXIT THEN
   OVER C@ _IsDigit
   IF 2DUP S" ." SEARCH NIP NIP
