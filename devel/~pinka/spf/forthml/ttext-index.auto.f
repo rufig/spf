@@ -1423,9 +1423,21 @@ BIRTH 2CS> NAMING-
 `LEAVE-CRIT & EXEC, 
 `THROW & EXEC, 
 BIRTH 2CS> NAMING- 
+`?warning 2>CS CONCEIVE 
+`2DUP & EXEC, `file:// SLIT, 
+`STARTS-WITH & EXEC, ZBFW, EXIT, RFW 
+`2DUP & EXEC, `:// SLIT, 
+`CONTAINS & EXEC, NZBFW, EXIT, RFW `#WARNING-loading-remote-resource: SLIT, 
+`TYPE & EXEC, 
+`SPACE & EXEC, 
+`2DUP & EXEC, 
+`TYPE & EXEC, 
+`CR & EXEC, 
+BIRTH 2CS> NAMING- 
 `EMBODY 2>CS CONCEIVE 
 `2DUP & EXEC, 
 `translate-uri & EXEC, 
+`?warning & EXEC, 
 `DefaultLSParser & EXEC, 
 `parseURI & EXEC, 
 `DUP & EXEC, 
