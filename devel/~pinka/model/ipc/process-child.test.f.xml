@@ -4,7 +4,7 @@
   usage: forthml process-child.test.f.xml
 </comment>
 
-<g xml:base="http://forth.org.ru/devel/~pinka/">
+<g xml:base="http://forth.org.ru/~pinka/">
 
 <include href="model/trans/rules-slot.f.xml"/>
 
