@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<slot>
+  own-handles
+</slot>
+
+<def name="open-filename"  ds=" d-txt-filename mode -- h ">
+  OVER <unless> >R 2DROP `NUL R> </unless>
+  CREATE-FILE-SHARED THROW HERITABLE-HANDLE
+</def>
+
+<def name="close-file"  ds=" h|0 -- ">
+  DUP <if> CLOSE-FILE THROW <exit/></if> DROP
+</def>
+
+<def name="assume-filenames"  ds=" d-txt-in d-txt-out d-txt-err -- ">
+  <rem> if filename is 0 length, "NUL" assumed </rem>
+  TRUE own-handles!
+  W/O open-filename     startup-info hStdError  T!
+  W/O open-filename     startup-info hStdOutput T!
+  W/O open-filename     startup-info hStdInput  T!
+  STARTF_USESTDHANDLES startup-flags+!
+</def>
+
+<handler event="cleanup" advice="before">
+  own-handles <if>
+    startup-info hStdError  T@ close-file
+    startup-info hStdOutput T@ close-file
+    startup-info hStdInput  T@ close-file
+    FALSE own-handles!
+  </if>
+</handler>
+
+</forth>

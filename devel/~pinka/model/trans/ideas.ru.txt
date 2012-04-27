@@ -85,3 +85,13 @@ f:space (как путь дл€  nnn HERE SWAP ALLOT CONSTANT NNN )
 
 ¬озможно, стоит ввести более короткий f:voc как синоним (и замена) f:wordlist
 “огда и в атрибуте, как например <develop voc="abc"> -- (?)
+
+
+\ 04.2012
+
+inline шаблоны строк, example:
+  `--- `=== <s template="aaa{}bbb{}ccc"><rem>( addr u )</rem> TYPE  </s>
+
+
+ xt1 xt2 advice-first --> xt3
+ 'put-partial 'put-header <advice-first> dbx::query-per </advice-first>

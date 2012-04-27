@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<g xml:base="http://forth.org.ru/devel/~pinka/">
+
+<include href="model/trans/rules-slot.f.xml"/>
+
+<text>
+REQUIRE /PROCESS_INFORMATION   ~pinka/lib/win/process-child.f
+REQUIRE Wait                   ~pinka/lib/multi/Synchr.f
+</text> EVALUATE
+
+<include href="model/data/events-common.f.xml"/>
+
+</g>
+
+<wordlist name="p">
+  <include href="process-child.f.xml"/>
+</wordlist>
+
+startup FIRE-EVENT
+
+<rem>
+  `cmd.exe p::commandline! p::create-process THROW 
+  -1 p::wait . CR  cleanup FIRE-EVENT
+</rem>
+
+</forth>

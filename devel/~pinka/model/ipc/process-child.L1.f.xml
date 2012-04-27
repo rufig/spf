@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<slot>
+  process-info
+  startup-info
+  flags 
+</slot>
+
+<slot2>
+  application
+  commandline
+  directory
+  environment
+</slot2>
+
+<comment>
+  The 'application' should be full or partial pathname (or NULL).
+  The function will not use the search path. This parameter must
+  include the file name extension; no default extension is assumed.
+</comment>
+
+
+<def name="p-handle"  ds=" -- h ">  process-info hProcess     T@ </def>
+<def name="t-handle"  ds=" -- h ">  process-info hThread      T@ </def>
+<def name="p-id"      ds=" -- id "> process-info dwProcessId  T@ </def>
+<def name="t-id"      ds=" -- id "> process-info dwThreadId   T@ </def>
+
+<def name="exitcode" ds=" -- ior ">
+  p-handle PROCESS-EXITCODE THROW
+</def>
+
+<def name="create-process" ds=" -- ior ">
+  process-info
+  startup-info
+  directory     DROP
+  environment   DROP
+  flags <rem> The flags that control the priority class and the creation of the process </rem>
+  TRUE  <rem> inherit handles </rem>
+  0 0   <rem> ProcessAttributes ThreadAttributes </rem>
+  commandline   DROP
+  application   DROP
+  CreateProcessA ERR
+</def>
+
+
+<def name="flags+!" ds=" flag -- ">
+  flags OR flags!
+</def>
+
+<def name="startup-flags+!" ds=" flag -- ">
+  startup-info dwFlags DUP >R T@ OR R> T!
+</def>
+
+<def name="winshow!" ds=" flag -- ">
+  <rem> 0 for hide, 1 for normal </rem>
+  startup-info wShowWindow T!
+  STARTF_USESHOWWINDOW startup-flags+!
+</def>
+
+<def name="precept-window-hidden"   ds=" -- "> 0 winshow! </def>
+<def name="precept-console-new"     ds=" -- "> CREATE_NEW_CONSOLE flags+! </def>
+<def name="precept-console-no"      ds=" -- "> CREATE_NO_WINDOW   flags+! </def>
+<def name="precept-suspended"       ds=" -- "> CREATE_SUSPENDED   flags+! </def>
+
+<def name="handles!" ds=" in out err -- ">
+  startup-info hStdError  T!
+  startup-info hStdOutput T!
+  startup-info hStdInput  T!
+  STARTF_USESTDHANDLES startup-flags+!
+</def>
+
+
+
+<def name="wait" ds=" -1|u -- flag ">
+  p-handle SWAP Wait
+</def>
+
+
+<def name="_clear" ds=" -- ">
+  startup-info <if>
+    startup-info /STARTUPINFO
+    2DUP ERASE SWAP T!
+  </if>
+
+  process-info <if>
+    p-handle ?DUP <if> CLOSE-FILE THROW </if>
+    t-handle ?DUP <if> CLOSE-FILE THROW </if>
+    process-info /PROCESS_INFORMATION ERASE
+  </if>
+
+  0 flags!
+  0. application!
+  0. commandline!
+  0. directory!
+  0. environment!
+</def>
+
+<handler event="cleanup"> _clear </handler>
+
+<handler event="shutdown">
+  _clear
+  startup-info <if> startup-info FREE THROW 0 startup-info! </if>
+  process-info <if> process-info FREE THROW 0 process-info! </if>
+</handler>
+
+<handler event="startup">
+  /STARTUPINFO          ALLOCATE THROW startup-info!
+  /PROCESS_INFORMATION  ALLOCATE THROW process-info!
+  _clear
+</handler>
+
+</forth>
