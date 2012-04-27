@@ -63,6 +63,12 @@
 <def name="precept-console-no"      ds=" -- "> CREATE_NO_WINDOW   flags+! </def>
 <def name="precept-suspended"       ds=" -- "> CREATE_SUSPENDED   flags+! </def>
 
+<def name="handles" ds=" -- in out err ">
+  startup-info hStdInput  T@
+  startup-info hStdOutput T@
+  startup-info hStdError  T@
+</def>
+
 <def name="handles!" ds=" in out err -- ">
   startup-info hStdError  T!
   startup-info hStdOutput T!
@@ -76,6 +82,10 @@
   p-handle SWAP Wait
 </def>
 
+<def name="exitcode-sure" ds=" -- ior ">
+  10000 wait DROP <rem> prevent STILL_ACTIVE (259)  "exit code" </rem>
+  exitcode
+</def>
 
 <def name="_clear" ds=" -- ">
   startup-info <if>

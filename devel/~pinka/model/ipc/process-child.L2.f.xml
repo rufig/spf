@@ -3,6 +3,9 @@
 
 <slot>
   own-handles
+  child-in
+  child-out
+  consumer-out
 </slot>
 
 <def name="open-filename"  ds=" d-txt-filename mode -- h ">
@@ -23,13 +26,46 @@
   STARTF_USESTDHANDLES startup-flags+!
 </def>
 
-<handler event="cleanup" advice="before">
+<def name="use-pipes-simple"  ds=" -- ">
+  TRUE own-handles!
+  <rem> h-read h-write </rem>
+  CREATE-PIPE-ANON THROW >R HERITABLE-HANDLE        <rem> in  </rem>
+  CREATE-PIPE-ANON THROW SWAP >R HERITABLE-HANDLE   <rem> out </rem>
+  0. W/O open-filename                              <rem> err </rem>
+  handles!
+  R> child-out!
+  R> child-in!
+</def>
+
+<def name="clear-handles-own" ds=" -- ">
   own-handles <if>
-    startup-info hStdError  T@ close-file
-    startup-info hStdOutput T@ close-file
-    startup-info hStdInput  T@ close-file
+    child-out close-file 0 child-out!
+    child-in  close-file 0 child-in!
     FALSE own-handles!
   </if>
+</def>
+
+<handler event="cleanup" advice="before">
+  clear-handles-own
+  0 consumer-out!
 </handler>
+
+
+
+<def name="perform-per" ds=" a-in u-in a-shell u-shell consumer-xt -- ">
+  consumer-out! commandline! use-pipes-simple create-process
+    handles close-file close-file close-file <rem> (!!!) </rem>
+  DUP <if> clear-handles-own THROW </if> DROP
+  <rem>( d-data )</rem>
+  child-in WRITE-FILE THROW
+  child-in CLOSE-FILE THROW 0 child-in!
+
+  4050 ALLOCATED OVER >R <q ds=" a-buf u-buf -- ">
+    <repeat> 2DUP child-out READOUT-FILE THROW DUP <while/> consumer-out EXECUTE </repeat>
+    2DROP 2DROP
+  </q> CATCH
+  R> FREE SWAP THROW THROW
+</def>
+
 
 </forth>
