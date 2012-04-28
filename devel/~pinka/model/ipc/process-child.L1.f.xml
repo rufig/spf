@@ -79,6 +79,7 @@
 
 
 <def name="wait" ds=" -1|u -- flag ">
+  <rem> flag is 0 if the timeout exceeded </rem>
   p-handle SWAP Wait
 </def>
 
@@ -119,5 +120,17 @@
   /PROCESS_INFORMATION  ALLOCATE THROW process-info!
   clear
 </handler>
+
+
+<def name="execute-dir-timeout" ds=" d-txt-commandline d-txt-directory timeout-ms -- result ior ">
+  >R directory! commandline! R>
+  create-process DUP <if><exit/></if> DROP
+  wait <if> exitcode 0 clear <exit/></if>
+  0 259 <rem> STILL_ACTIVE </rem> clear
+</def>
+
+<def name="execute" ds=" d-txt-commandline -- result ior ">
+  0 0 -1 execute-dir-timeout
+</def>
 
 </forth>
