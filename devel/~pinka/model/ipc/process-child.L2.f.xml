@@ -55,7 +55,7 @@
   clear
 </def>
 
-<def name="perform-per" ds=" a-in u-in a-shell u-shell consumer-xt -- ">
+<def name="perform-simple-per" ds=" a-in u-in a-shell u-shell consumer-xt -- result ">
   consumer-out! commandline! use-pipes-simple create-process
     handles close-file close-file close-file <rem> (!!!) </rem>
   DUP <if> clear-handles-own THROW </if> DROP
@@ -68,6 +68,8 @@
     2DROP 2DROP
   </q> CATCH
   R> FREE SWAP THROW THROW
+
+  exitcode-sure
 </def>
 
 

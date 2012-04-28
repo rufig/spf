@@ -27,8 +27,7 @@ startup FIRE-EVENT
   `cmd.exe p::commandline! p::create-process THROW 
   -1 p::wait . CR  cleanup FIRE-EVENT
 
-  `dir `cmd.exe ' TYPE p::perform-per
-  p::exitcode-sure . CR
+  `process-child.f.xml FILENAME-CONTENT `sort ' TYPE p::perform-simple-per  CR . CR
   p::clear
 </rem>
 

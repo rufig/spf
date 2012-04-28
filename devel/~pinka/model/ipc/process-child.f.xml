@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="ASCII"?>
-<forth xmlns="http://forth.org.ru/ForthML/">
-
-<include href="process-child.L1.f.xml"/>
-<include href="process-child.L2.f.xml"/>
-
-</forth>
