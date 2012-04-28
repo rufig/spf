@@ -28,7 +28,8 @@ startup FIRE-EVENT
   -1 p::wait . CR  cleanup FIRE-EVENT
 
   `dir `cmd.exe ' TYPE p::perform-per
-  cleanup FIRE-EVENT
+  p::exitcode-sure . CR
+  p::clear
 </rem>
 
 </forth>

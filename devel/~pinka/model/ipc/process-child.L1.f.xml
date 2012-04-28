@@ -87,7 +87,7 @@
   exitcode
 </def>
 
-<def name="_clear" ds=" -- ">
+<def name="clear" ds=" -- ">
   startup-info <if>
     startup-info /STARTUPINFO
     2DUP ERASE SWAP T!
@@ -106,10 +106,10 @@
   0. environment!
 </def>
 
-<handler event="cleanup"> _clear </handler>
+<handler event="cleanup"> clear </handler>
 
 <handler event="shutdown">
-  _clear
+  clear
   startup-info <if> startup-info FREE THROW 0 startup-info! </if>
   process-info <if> process-info FREE THROW 0 process-info! </if>
 </handler>
@@ -117,7 +117,7 @@
 <handler event="startup">
   /STARTUPINFO          ALLOCATE THROW startup-info!
   /PROCESS_INFORMATION  ALLOCATE THROW process-info!
-  _clear
+  clear
 </handler>
 
 </forth>

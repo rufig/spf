@@ -50,7 +50,10 @@
   0 consumer-out!
 </handler>
 
-
+<def name="clear" ds=" -- "><rem> redefinition </rem>
+  clear-handles-own
+  clear
+</def>
 
 <def name="perform-per" ds=" a-in u-in a-shell u-shell consumer-xt -- ">
   consumer-out! commandline! use-pipes-simple create-process
