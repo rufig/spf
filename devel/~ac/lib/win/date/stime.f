@@ -111,6 +111,7 @@ WINAPI: mktime    MSVCRT.DLL
 ;
 : (EvtTime) ( -- n )
   \ 20120419T221123Z
+  \ 20120427T120000
   /tm ALLOCATE THROW >R
   CharAddr 4 _>NUM >tm_year R@ tm_year !
   CharAddr 4 + 2 _>NUM 1- R@ tm_mon !
@@ -126,6 +127,7 @@ WINAPI: mktime    MSVCRT.DLL
   DUP 0= IF 2DROP 0 EXIT THEN
   OVER 2+ C@ [CHAR] - = IF ['] (InternalDate>UnixTime) EVALUATE-WITH EXIT THEN
   OVER DUP 8 + C@ [CHAR] T = SWAP 15 + C@ [CHAR] Z = AND IF ['] (EvtTime) EVALUATE-WITH EXIT THEN
+  OVER     8 + C@ [CHAR] T = OVER 15               = AND IF ['] (EvtTime) EVALUATE-WITH EXIT THEN
   OVER DUP 10 + C@ [CHAR] T = SWAP 23 + C@ [CHAR] Z = AND IF ['] (VcalTime) EVALUATE-WITH EXIT THEN
   OVER C@ _IsDigit
   IF 2DUP S" ." SEARCH NIP NIP
