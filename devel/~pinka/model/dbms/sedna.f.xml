@@ -246,10 +246,10 @@
   <q> per-put-query next </q> SWAP (per-query-per)
 </def>
 
-<def name="(load-doc)" ds=" d-docname emitter-xt -- ">
+<def name="(load-doc)" ds=" d-docname -- ">
   <q> client-message::load-doc-stream put next </q> within-transaction
 </def>
-<def name="(load-doc-coll)" ds=" d-docname emitter-xt -- ">
+<def name="(load-doc-coll)" ds=" d-docname -- ">
   <q> client-message::load-doc-coll-stream put next </q> within-transaction
 </def>
 
@@ -259,7 +259,7 @@
 <def name="per-load-doc-coll" ds=" d-docname d-coll emitter-xt -- ">
   data-emitter! (load-doc-coll)
 </def>
-<def name="load-doc" ds=" emitter-xt d-docname -- ">
+<def name="load-doc" ds=" d-content d-docname -- ">
   2SWAP set-bulk-data
   (load-doc)
 </def>
@@ -272,4 +272,3 @@
 </wordlist>
 
 </forth>
- 
