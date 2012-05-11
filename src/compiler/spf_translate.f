@@ -284,7 +284,22 @@ VECT FIND-FULLNAME \ найти указанный файл и вернуть его с полным путем
 ' FIND-FULLNAME1 ' FIND-FULLNAME TC-VECT!
 
 
+: SkipBomUtf8 ( -- )
+  \ Если по текущему месту разбора есть UTF-8 BOM, то пропустить его,
+  \ сдвинув >IN на 3 байта; иначе ничего не изменять.
+  SOURCE  OVER >IN @ + >R  +  R> ( addr9 addr1 )
+  TUCK 3 ( CHARS ) + U< IF DROP EXIT THEN
+  ( addr1 )
+  DUP C@ 0xEF = IF 1+ ( CHAR+ )
+  DUP C@ 0xBB = IF 1+ ( CHAR+ )
+  DUP C@ 0xBF = IF
+    3 ( CHARS ) >IN +!
+  THEN THEN THEN DROP
+  \ CHARS не используется, т.к. в UTF-8 размер символа 8 бит = address unit
+;
+
 : TranslateFlow ( -- )
+  REFILL 0= IF EXIT THEN SkipBomUtf8 INTERPRET
   BEGIN REFILL WHILE INTERPRET REPEAT
 ;
 
