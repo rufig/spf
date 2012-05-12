@@ -8,16 +8,6 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 
 <f:also wordlist="forthml-hidden">
 
-<rule match="r:yield">
-  `transform GetAttribute? <f:unless><exit-fail/></f:unless>
-  &amp; <f:rem> resolves name ( xt ) </f:rem>
-  <postpone><f:exec/>
-    chain-context @ >R chain-context !
-    <direct> yield, </direct>
-    R> chain-context !
-  </postpone>
-</rule>
-
 <f:comment> String constructing (to the current storage) </f:comment>
 
 <transform name="rules-string-constructing">

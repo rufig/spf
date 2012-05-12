@@ -198,4 +198,15 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   import-rules
 </rule>
 
+<rule match="r:yield">
+  <f:comment> for the form <r:yield transform="xxx"/> </f:comment>
+  `transform GetAttribute? <f:unless><exit-fail/></f:unless>
+  &amp; <f:rem> resolves name ( xt ) </f:rem>
+  <postpone><f:exec/>
+    chain-context @ >R chain-context !
+    <direct> yield, </direct>
+    R> chain-context !
+  </postpone>
+</rule>
+
 </f:forth>
