@@ -39,6 +39,14 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   `href GetAttribute expanded-url translate-uri `file:/// MATCH-HEAD DROP  T-SLIT
 </rule>
 
+
+<rule match="f:orthodoxy" ds=" i*x -- j*x ">
+  <rem> Evaluates the body text as classic forth source </rem>
+  ENSURE-DIRECTING
+  t-child-slit <f:each-textline> EVALUATE </f:each-textline>
+</rule>
+
+
 <f:g>
   <f:rem> Shortcuts. Ideas. 
     <if-exit/><unless-exit/>

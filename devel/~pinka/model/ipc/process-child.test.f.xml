@@ -8,10 +8,10 @@
 
 <include href="model/trans/rules-slot.f.xml"/>
 
-<text>
+<orthodoxy>
 REQUIRE /PROCESS_INFORMATION   ~pinka/lib/win/process-child.f
 REQUIRE Wait                   ~pinka/lib/multi/Synchr.f
-</text> EVALUATE
+</orthodoxy>
 
 <include href="model/data/events-common.f.xml"/>
 
