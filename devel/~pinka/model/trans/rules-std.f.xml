@@ -7,6 +7,30 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 <!-- $Id$ -->
 
 
+<f:g xmlns="http://forth.org.ru/ForthML/">
+
+<def name="ENSURE-DIRECTING" ds=" -- ">
+  <rem> throws exception if the STATE is not 0 </rem>
+  STATE0? <unless> -5011 THROW </unless>
+</def>
+
+<def name="ENSURE-POSTPONING" ds=" -- ">
+  <rem> throws exception if the STATE is 0 </rem>
+  STATE0? <if> -5012 THROW </if>
+</def>
+
+<def name="M-ENSURE-DIRECTING" ds=" -- ">
+  'ENSURE-DIRECTING M-EXEC
+</def>
+
+<def name="M-ENSURE-POSTPONING" ds=" -- ">
+  'ENSURE-POSTPONING M-EXEC
+</def>
+
+</f:g>
+
+
+
 <rule match="r:exec-attribute" ds=" i*x -- j*x ">
   <postpone><f:slit>GetName</f:slit> GetAttribute T-PLAIN </postpone>
 </rule>
@@ -172,14 +196,14 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 <!-- r: -->
 
 <rule match="r:transform" ds=" -- ">
-  STATE0? <f:unless> -5011 THROW </f:unless>
+  ENSURE-DIRECTING
   <get-name/> 2>R
   HERE 0 , DUP <f:p><f:lit/></f:p> 2R> NAMING-
   chain-current <f:let> <yield/> </f:let>
 </rule>
 
 <rule match="r:mode" ds=" -- ">
-  STATE0? <f:unless> -5011 THROW </f:unless>
+  ENSURE-DIRECTING
   <exec-attribute name="transform"/>
   DUP chain-context <f:let> chain-current <f:let>
     <yield/>
@@ -187,13 +211,13 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 </rule>
 
 <rule match="r:extend" ds=" -- ">
-  STATE0? <f:unless> -5011 THROW </f:unless>
+  ENSURE-DIRECTING
   <exec-attribute name="transform"/><f:rem>( id )</f:rem>
   chain-current <f:let> <yield/> </f:let>
 </rule>
 
 <rule match="r:import" ds=" -- ">
-  STATE0? <f:unless> -5011 THROW </f:unless>
+  ENSURE-DIRECTING
   <exec-attribute name="transform"/><f:rem>( id )</f:rem>
   import-rules
 </rule>
