@@ -64,6 +64,10 @@ SET-CURRENT
 
 `namespace-uri-for-prefix wrap
 
+: ElementText ( -- addr u )
+  cnode-a @ firstChild DUP IF nodeValue EXIT THEN 0 ( -- 0 0 )
+;
+
 \ : mount ( node -- ) cnode-a ! ;
 \ : dismount ( -- node ) cnode-a @ cnode-a 0! ;
 

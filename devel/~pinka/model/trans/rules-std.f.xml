@@ -140,7 +140,7 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 </rule>
 
 <f:def name="t-child-slit">
-  cnode firstChild <f:choose> DUP <f:when> nodeValue T-SLIT </f:when> 0 T-2LIT </f:choose>
+  ElementText <f:choose> DUP <f:when> T-SLIT </f:when> T-2LIT </f:choose>
 </f:def>
 
 <rule match="f:emit">

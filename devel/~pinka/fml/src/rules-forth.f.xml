@@ -48,11 +48,11 @@
 </rule>
 
 <rule match="f:char">
-  cnode firstChild DUP <f:if> nodeValue DUP <f:if> SWAP C@ </f:if> NIP </f:if> T-LIT
+  ElementText DUP <f:if> SWAP C@ </f:if> NIP T-LIT
 </rule>
 
 <rule match="f:text">
-  cnode firstChild <f:choose> DUP <f:when> nodeValue T-SLIT </f:when> 0 T-2LIT </f:choose>
+  ElementText <f:choose> DUP <f:when> T-SLIT </f:when> T-2LIT </f:choose>
 </rule>
 
 <rule match="f:init">
