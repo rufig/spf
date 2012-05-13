@@ -28,6 +28,9 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
     <m> R> XENCLOSED >R </m>
   </rule>
 </transform>
+<f:comment>
+  TODO: There is a leak if exception occurs on a template instantiation.
+</f:comment>
 
 <rule match="f:template" ds=" i*x -- a u ">
   M @ <f:if> `#f:template-M-not-supported STHROW </f:if>
