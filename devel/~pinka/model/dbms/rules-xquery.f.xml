@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth
+    xmlns="http://forth.org.ru/ForthML/"
+  xmlns:f="http://forth.org.ru/ForthML/"
+  xmlns:s="http://forth.org.ru/ForthML/xquery-plain/"
+>
+
+<wordlist name="support-rules-xquery">
+
+<alias name="fml" word="forthml-hidden"/>
+
+<def name="value-to-flag" ds=" d-txt-value -- flag ">
+  `true EQUAL
+</def>
+
+
+<slot> object </slot>
+
+
+<def name="method" ds=" d-txt-name -- xt ">
+  object SEARCH-WORDLIST <if><exit/></if>
+  `#method-not-found STHROW
+</def>
+
+<def name="t-method" ds=" d-txt-name -- ">
+  method fml::T-EXEC
+</def>
+
+
+<f:g xmlns="http://forth.org.ru/ForthML/Rules/">
+
+<f:def name="for-string" ds=" xt -- ">
+  fml::M-ENSURE-POSTPONING
+  <m>
+    0 >R
+      <yield transform="rules-ss-template"/>
+    R@ XCOUNT <m0> fml::T-LIT </m0> CATCH R> XRELEASE THROW 
+  </m>
+  <f:rem> TODO: There is a leak if exception occurs on a template instantiation </f:rem>
+</f:def>
+
+<rule match="s:atomic">
+  <m><f:q><yield/></f:q></m>
+  `within-transaction t-method
+</rule>
+
+<rule match="s:query">
+  `query method for-string
+</rule>
+
+<rule match="s:query-value">
+  `query-value method for-string
+</rule>
+
+<rule match="s:query-flag">
+  `query-value method for-string
+  <m> value-to-flag </m>
+</rule>
+
+<rule match="s:bind">
+  fml::ENSURE-DIRECTING
+  <exec-attribute name="object"/> _object <f:let><yield/></f:let>
+</rule>
+
+</f:g>
+
+<comment>
+  <rem> Example of using </rem>
+
+  <s:bind object="dbx">
+    <def name="item-exists" ds=" d-txt-name -- flag ">
+      <s:query-flag> exists( doc("test")/root/item[ @name = "<ss/>" ] ) </s:query-flag>
+    </def>
+    `abc item-exists .
+  </s:bind>
+</comment>
+
+</wordlist>
+
+</forth>

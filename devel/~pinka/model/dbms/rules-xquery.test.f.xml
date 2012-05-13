@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/"
+     xmlns:s="http://forth.org.ru/ForthML/xquery-plain/"
+>
+
+
+<g xml:base="http://forth.org.ru/~pinka/model/">
+
+  <comment> the environment </comment>
+
+  <orthodoxy>
+    REQUIRE STHROW          ~pinka/spf/sthrow.f
+    REQUIRE ReadSocketExact ~ac/lib/win/winsock/SOCKETS.F
+  </orthodoxy>
+
+  <include href="data/asset.f.xml" />
+  <include href="trans/rules-slot.f.xml"/>
+  <include href="trans/rules-ss-template.f.xml"/>
+
+  <include href="dbms/rules-xquery.f.xml"/>
+</g>
+
+
+
+
+<g xml:base="http://forth.org.ru/~pinka/model/">
+
+  <comment> the object </comment>
+
+  <include href="data/events-common.f.xml" />
+
+  <wordlist name="dbx">
+    <include href="dbms/sedna.f.xml" />
+  </wordlist>
+
+  <handler event="shutdown">
+    dbx::close
+  </handler>
+  <handler event="startup">
+    `SYSTEM `MANAGER `auction `localhost `5050 dbx::assume-cred
+    dbx::open
+  </handler>
+</g>
+
+
+
+<g>
+  <comment> the test </comment>
+
+  SocketsStartup THROW
+
+  <def name="init"> startup FIRE-EVENT </def>
+
+
+  <s:bind object="dbx">
+    <def name="item-exists" ds=" d-txt-name -- flag ">
+      <s:query-flag> exists( doc("auction")/site/regions/*[ name() = "<ss/>"] ) </s:query-flag>
+    </def>
+  </s:bind>
+
+  <rem>
+    init
+    `africa item-exists .
+  </rem>
+
+</g>
+</forth>
