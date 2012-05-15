@@ -25,12 +25,35 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   </rule>
   <rule match="f:ss">
     <yield transform="rules-default"/>
+    <f:rem> TODO: we should accurately restore the previous 'transform' here </f:rem>
     <m> R> XENCLOSED >R </m>
   </rule>
 </transform>
 <f:comment>
   TODO: There is a leak if exception occurs on a template instantiation.
 </f:comment>
+
+
+<rule match="f:for-string" ds=" i*x xt k*x -- j*x ">
+  M-ENSURE-POSTPONING
+  <m>
+    0 >R
+      <yield transform="rules-ss-template"/>
+    R@ XCOUNT ROT CATCH R> XRELEASE THROW
+  </m>
+  <f:rem> see also: ../dbms/rules-xquery.f.xml </f:rem>
+</rule>
+
+<rule match="f:with-string" ds=" i*x xt -- j*x ">
+  M-ENSURE-POSTPONING
+  <m>
+    >R 0 >R
+      <yield transform="rules-ss-template"/>
+    2R@ XCOUNT ROT CATCH R> XRELEASE THROW RDROP
+  </m>
+</rule>
+
+
 
 <rule match="f:template" ds=" i*x -- a u ">
   M @ <f:if> `#f:template-M-not-supported STHROW </f:if>
