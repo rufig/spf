@@ -18,6 +18,7 @@
 
 
 <def name="method" ds=" d-txt-name -- xt ">
+  object <unless>`#xquery-object-undefined STHROW </unless>
   object SEARCH-WORDLIST <if><exit/></if>
   `#method-not-found STHROW
 </def>
