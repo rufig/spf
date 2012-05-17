@@ -44,3 +44,30 @@ Authorization: AWS {s}:{s}" STR@
   " http://{s}.{s}{s}" STR@ S" " POST-CUSTOM-VIAPROXY
   uCurlRespCode @ DUP 200 <> IF SWAP STYPE CR ELSE SWAP DROP THEN
 ;
+
+: AwsGET { ra ru na nu bucketa bucketu hosta hostu la lu pwa pwu \ da du s ma mu cta ctu -- va vu result }
+  \ va vu - полученное значение
+  \ na nu - имя объекта (URL без хоста и корзины и параметров запроса)
+  \ ra ru - параметры запроса, например "?prefix=TEST"
+  \ la lu - логин (AWS Access Key Id)
+  \ pwa pwu - AWS Secret Access Key
+  \ result - HTTP-код ответа (200=ОК)
+
+  GCryptInit 0= IF 599 EXIT THEN
+  S" text/plain" -> ctu -> cta
+  na nu bucketa bucketu
+  CurrentTimeZ 2DUP -> du -> da 
+  cta ctu
+  " GET{\n}{\n}{s}{\n}{s}{\n}/{s}{s}" STR@ \ 2DUP TYPE CR
+  pwa pwu HMAC-SHA1 base64 \ 2DUP TYPE CR
+  la lu da du
+" Date: {s}
+Authorization: AWS {s}:{s}" STR@
+
+  S" GET" 2SWAP S" " cta ctu " Content-Type: {s}" STR@ 
+  ra ru na nu 
+  hosta hostu bucketa bucketu
+  " http://{s}.{s}{s}{s}" STR@ S" " POST-CUSTOM-VIAPROXY
+  uCurlRespCode @ 200 <> IF STYPE CR S" " ELSE STR@ THEN
+  uCurlRespCode @
+;
