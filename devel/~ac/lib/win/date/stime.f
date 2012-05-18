@@ -78,7 +78,7 @@ WINAPI: mktime    MSVCRT.DLL
   BL PARSE 2DROP
   BL PARSE _>NUM R@ tm_mday !
   BL PARSE DateS>M 1- R@ tm_mon !
-  BL PARSE _>NUM >tm_year R@ tm_year !
+  BL PARSE _>NUM DUP 100 < IF 2000 + THEN >tm_year R@ tm_year !
   [CHAR] : PARSE _>NUM R@ tm_hour !
   [CHAR] : PARSE _>NUM R@ tm_min !
   BL PARSE _>NUM R@ tm_sec !
