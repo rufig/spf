@@ -134,7 +134,7 @@ WINAPI: mktime    MSVCRT.DLL
   OVER C@ _IsDigit
   IF 2DUP S" ." SEARCH NIP NIP
      IF ['] (Rus>UnixTime)
-     ELSE 2DUP S" -" SEARCH NIP NIP
+     ELSE OVER 4 + C@ [CHAR] - =
         IF ['] (Sql>UnixTime) ELSE ['] (Date>UnixTime) THEN
      THEN
   ELSE ['] (Date>UnixTime) THEN
