@@ -74,8 +74,10 @@ WINAPI: mktime    MSVCRT.DLL
 
 : (Date>UnixTime) ( -- n )
   \ Wed, 18 Aug 2010 03:15:25 +0400
+  \ Thu, 9 Feb 12 22:15:49 GMT-0700
+  \ 10 Feb 2012 20:27:50 +0400
   /tm ALLOCATE THROW >R
-  BL PARSE 2DROP
+  CharAddr 3 + C@ [CHAR] , = IF BL PARSE 2DROP THEN
   BL PARSE _>NUM R@ tm_mday !
   BL PARSE DateS>M 1- R@ tm_mon !
   BL PARSE _>NUM DUP 100 < IF 2000 + THEN >tm_year R@ tm_year !
@@ -131,7 +133,10 @@ WINAPI: mktime    MSVCRT.DLL
   OVER DUP 10 + C@ [CHAR] T = SWAP 23 + C@ [CHAR] Z = AND IF ['] (VcalTime) EVALUATE-WITH EXIT THEN
   OVER C@ _IsDigit
   IF 2DUP S" ." SEARCH NIP NIP
-     IF ['] (Rus>UnixTime) ELSE ['] (Sql>UnixTime) THEN
+     IF ['] (Rus>UnixTime)
+     ELSE 2DUP S" -" SEARCH NIP NIP
+        IF ['] (Sql>UnixTime) ELSE ['] (Date>UnixTime) THEN
+     THEN
   ELSE ['] (Date>UnixTime) THEN
   EVALUATE-WITH
 ;
