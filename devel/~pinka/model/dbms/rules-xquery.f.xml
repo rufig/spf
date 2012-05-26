@@ -74,6 +74,11 @@
     </def>
     `abc item-exists .
   </s:bind>
+
+  <rem> 
+    Some similar draft on JavaScript 
+      https://sites.google.com/a/monkeyscript.org/api-draft/sedna 
+  </rem>
 </comment>
 
 </wordlist>
