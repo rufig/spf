@@ -20,12 +20,14 @@
 </def>
 
 <def name="XUPDATED" ds=" a u xaddr --  xaddr2 ">
+  <comment> (a u) must not be located within [ xaddr XCOUNT ] </comment>
   DUP <unless> DROP XALLOC (FIX-MEMTAG) <exit/></unless>
   OVER CELL+ CELL+ RESIZE THROW <!-- ( a u addr-x2 ) -->
   DUP >R (XUPDATE) R>
 </def>
 
 <def name="XENCLOSED" ds=" a u xaddr -- xaddr2 ">
+  <comment> (a u) must not be located within [ xaddr XCOUNT ] </comment>
   DUP <unless> DROP XALLOC <exit/></unless>
   OVER <unless> NIP NIP <exit/></unless>
   2DUP @ + <!-- ( a u xaddr u+u1 ) -->
