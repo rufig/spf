@@ -28,6 +28,9 @@ VARIABLE vaWND
 
 VOCABULARY CONT-MENU
 
+VECT vtiOpen ' NOOP TO vtiOpen
+VECT vtiSite ' NOOP TO vtiSite
+
 ALSO CONT-MENU DEFINITIONS
 : Выход
   TRUE ImmExit !
@@ -36,6 +39,12 @@ ALSO CONT-MENU DEFINITIONS
   IF
     BYE
   THEN
+;
+: Сайт
+  vtiSite
+;
+: Открыть
+  vtiOpen
 ;
 GET-CURRENT
 PREVIOUS DEFINITIONS
@@ -62,17 +71,25 @@ VARIABLE vaEnableWindow TRUE vaEnableWindow !
 
 \ собственно обработка событий мыши:
 
+VECT vAgentWindowToggle
+
+: AgentWindowToggle
+  vaWND 0= IF vtiOpen EXIT THEN
+  AgentWindowVisible
+  IF vaWND @ WindowDisable vaWND @ WindowMinimize vaWND @ WindowHide
+  ELSE vaWND @ WindowShow  vaWND @ WindowRestore 
+       vaWND @ WindowEnable vaWND @ WindowToForeground
+  THEN
+  AgentWindowVisible 0= TO AgentWindowVisible
+;
+' AgentWindowToggle TO vAgentWindowToggle
+
 : (AGENT-WND-PROC1) ( lparam wparam msg wnd -- lresult )
   || lparam wparam msg wnd || (( lparam wparam msg wnd ))
   msg AgentIconID =
   IF
     lparam WM_LBUTTONDOWN =
-    IF AgentWindowVisible
-       IF vaWND @ WindowDisable vaWND @ WindowMinimize vaWND @ WindowHide
-       ELSE vaWND @ WindowShow  vaWND @ WindowRestore 
-            vaWND @ WindowEnable vaWND @ WindowToForeground
-       THEN
-       AgentWindowVisible 0= TO AgentWindowVisible
+    IF vAgentWindowToggle
     THEN
     lparam WM_RBUTTONUP =
     IF wnd ContextMenu THEN
