@@ -47,6 +47,10 @@
 )
 
 USER _NO_STACK_MEM
+USER _HEAP_SIZE
+: HEAP_SIZE _HEAP_SIZE @ S>D DUP >R DABS <# #S R> SIGN #> ;
+
+WINAPI: HeapSize KERNEL32.DLL
 
 \ код пометки для блока памяти
 : _MEM_MARKER ( -- u ) _NO_STACK_MEM @ IF 558 ELSE 557 THEN ;
@@ -65,7 +69,7 @@ WARNING @ WARNING 0!
 \ для "служебных целей" (например, хранения класса созданного объекта)
 \ по умолчанию заполняется адресом тела процедуры, вызвавшей ALLOCATE
 
-  CELL+ 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
+  CELL+ DUP _HEAP_SIZE +! 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
 \  DUP IF 557 OVER ! CELL+ 0 ELSE -310 THEN
   DUP IF _MEM_MARKER OVER ! CELL+ 0 ELSE -310 THEN
 ;
@@ -79,6 +83,7 @@ WARNING @ WARNING 0!
 \ реализации код ввода-вывода.
   CELL- DUP @ DUP 557 <> SWAP 558 <> AND IF ." страшный баг" DROP 302 EXIT THEN
   DUP 0!
+  DUP 0 THREAD-HEAP @ HeapSize _HEAP_SIZE @ SWAP - _HEAP_SIZE !
   0 THREAD-HEAP @ HeapFree ERR
 ;
 : RESIZE ( a-addr1 u -- a-addr2 ior ) \ 94 MEMORY
@@ -97,8 +102,10 @@ WARNING @ WARNING 0!
 \ Если операция не прошла, a-addr2 равен a-addr1, область памяти a-addr1 не 
 \ изменяется, и ior - зависящий от реализации код ввода-вывода.
 \  CELL+ SWAP CELL- DUP @ 557 <> IF ." страшный баг" DROP 303 EXIT THEN
-  CELL+ SWAP CELL- DUP @ DUP 557 <> SWAP 558 <> AND IF ." страшный баг" DROP 303 EXIT THEN
+  CELL+ DUP >R SWAP CELL- DUP @ DUP 557 <> SWAP 558 <> AND IF ." страшный баг" DROP 303 RDROP EXIT THEN
   DUP 0!
+  DUP 0 THREAD-HEAP @ HeapSize R> - _HEAP_SIZE +!
+
   8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapReAlloc
 \  DUP IF 557 OVER ! CELL+ 0 ELSE -320 THEN
   DUP IF _MEM_MARKER OVER ! CELL+ 0 ELSE -320 THEN
