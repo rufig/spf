@@ -28,8 +28,9 @@ VARIABLE vaWND
 
 VOCABULARY CONT-MENU
 
-VECT vtiOpen ' NOOP TO vtiOpen
-VECT vtiSite ' NOOP TO vtiSite
+VECT vtiOpen   ' NOOP TO vtiOpen
+VECT vtiSite   ' NOOP TO vtiSite
+VECT vtiOnStop ' NOOP TO vtiOnStop
 
 ALSO CONT-MENU DEFINITIONS
 : Выход
@@ -84,8 +85,14 @@ VECT vAgentWindowToggle
 ;
 ' AgentWindowToggle TO vAgentWindowToggle
 
+VARIABLE MSG_AGENT_exit
+VARIABLE AGENT_TRACE
+
 : (AGENT-WND-PROC1) ( lparam wparam msg wnd -- lresult )
   || lparam wparam msg wnd || (( lparam wparam msg wnd ))
+
+  AGENT_TRACE @ IF ." MSG:" wnd . msg . wparam . lparam . CR THEN
+
   msg AgentIconID =
   IF
     lparam WM_LBUTTONDOWN =
@@ -97,6 +104,9 @@ VECT vAgentWindowToggle
 
   msg WM_RBUTTONUP =
   IF wnd ContextMenu THEN
+
+  msg MSG_AGENT_exit @ =
+  IF vtiOnStop CONT-MENU::Выход THEN
 
   lparam wparam msg wnd   wnd WindowOrigProc
 ;
@@ -126,6 +136,9 @@ VALUE AgentIconFilename
   ELSE
     AgentTipText COUNT AgentIconFilename COUNT AgentIconID w TrayIconCreate
   THEN
+
+  32 32 w WindowSize \ странно: окно с неуказанным размером не получает сообщения от BroadcastSystemMessage
+
   w MessageLoop
   0 TO AgentWindowVisible
   TrayIconDelete
