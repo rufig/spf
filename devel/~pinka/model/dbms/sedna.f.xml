@@ -129,6 +129,11 @@
 
 </export>
 
+<def name="reopen" ds=" -- ">
+  close-sock 'open CATCH  sock <if> THROW </if>
+  <rem>( ior )</rem>
+  `#sedna-connection-refused STHROW
+</def>
 
 <include href="sedna-messages.f.xml"/>
 
@@ -189,7 +194,7 @@
 <def name="transact" ds=" -- ">
   t <if> t 1+ t! <exit/></if>
   <rem> don't try reopen-session logic if transaction had been already open </rem>
-  sock <unless> open </unless>
+  sock <unless> reopen </unless>
   '(transact) CATCH <choose>
     DUP 0 EQ     <when> DROP <exit/></when>
     DUP -1002 <rem> end of stream     </rem> EQ <when/>
@@ -202,8 +207,7 @@
   <!--
   <log>sedna, reopen connection</log>
   -->
-  0 t!
-  close-sock open (transact)
+  reopen (transact)
 </def>
 
 <def name="commit"   ds=" -- ">  t 1- DUP 0 MAX t! <if><exit/></if> packet::CommitTransaction   put next </def>
