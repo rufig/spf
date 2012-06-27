@@ -13,17 +13,13 @@
   CREATE-FILE-SHARED THROW HERITABLE-HANDLE
 </def>
 
-<def name="close-file"  ds=" h|0 -- ">
-  DUP <if> CLOSE-FILE THROW <exit/></if> DROP
-</def>
-
 <def name="assume-filenames"  ds=" d-txt-in d-txt-out d-txt-err -- ">
   <rem> if filename is 0 length, "NUL" assumed </rem>
   TRUE own-handles!
-  W/O open-filename     startup-info hStdError  T!
-  W/O open-filename     startup-info hStdOutput T!
-  W/O open-filename     startup-info hStdInput  T!
-  STARTF_USESTDHANDLES startup-flags+!
+  W/O open-filename  >R
+  W/O open-filename  >R
+  W/O open-filename  R> R>
+    assume-handles-std
 </def>
 
 <def name="use-pipes-simple"  ds=" -- ">
@@ -32,33 +28,33 @@
   CREATE-PIPE-ANON THROW >R HERITABLE-HANDLE        <rem> in  </rem>
   CREATE-PIPE-ANON THROW SWAP >R HERITABLE-HANDLE   <rem> out </rem>
   0. W/O open-filename                              <rem> err </rem>
-  handles!
+    assume-handles-std
   R> child-out!
   R> child-in!
 </def>
 
-<def name="clear-handles-own" ds=" -- ">
+<def name="close-handles-own" ds=" -- ">
   own-handles <if>
-    child-out close-file 0 child-out!
-    child-in  close-file 0 child-in!
+    child-out close-handle 0 child-out!
+    child-in  close-handle 0 child-in!
     FALSE own-handles!
   </if>
 </def>
 
 <handler event="cleanup" advice="before">
-  clear-handles-own
+  close-handles-own
   0 consumer-out!
 </handler>
 
 <def name="clear" ds=" -- "><rem> redefinition </rem>
-  clear-handles-own
+  close-handles-own
   clear
 </def>
 
 <def name="perform-simple-per" ds=" a-in u-in a-shell u-shell consumer-xt -- result ">
   consumer-out! commandline! use-pipes-simple create-process
-    handles close-file close-file close-file <rem> (!!!) </rem>
-  DUP <if> clear-handles-own THROW </if> DROP
+    close-handles-std <rem> (!!!) </rem>
+  DUP <if> close-handles-own THROW </if> DROP
   <rem>( d-data )</rem>
   child-in WRITE-FILE THROW
   child-in CLOSE-FILE THROW 0 child-in!

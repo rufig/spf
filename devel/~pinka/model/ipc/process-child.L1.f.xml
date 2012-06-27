@@ -73,10 +73,33 @@
   startup-info hStdError  T!
   startup-info hStdOutput T!
   startup-info hStdInput  T!
+</def>
+
+<def name="assume-handles-std" ds=" in out err -- ">
+  handles!
   STARTF_USESTDHANDLES startup-flags+!
 </def>
 
+<g><rem> TODO: move to a library #maybe </rem>
 
+<def name="close-handle"  ds=" h|0 -- ">
+  DUP <if> CLOSE-FILE THROW <exit/></if> DROP
+</def>
+
+<def name="3DISTINCTZ" ds=" x3 x2 x1 -- x3|0 x2|0 x1|0 ">
+  3DUP TUCK <rem> 321 31 21 </rem>
+  = <if> = <if> 2DROP 0 0 <exit/></if>
+                 DROP 0   <exit/></if>
+         = <if>  DROP 0   <exit/></if>
+  >R 2DUP = <if> DROP 0          </if> R>
+</def>
+</g>
+
+<def name="close-handles-std" ds=" -- ">
+  handles 3DISTINCTZ
+  close-handle close-handle close-handle
+  0 0 0 handles!
+</def>
 
 <def name="wait" ds=" -1|u -- flag ">
   <rem> flag is 0 if the timeout exceeded </rem>
@@ -95,8 +118,8 @@
   </if>
 
   process-info <if>
-    p-handle ?DUP <if> CLOSE-FILE THROW </if>
-    t-handle ?DUP <if> CLOSE-FILE THROW </if>
+    p-handle close-handle
+    t-handle close-handle
     process-info /PROCESS_INFORMATION ERASE
   </if>
 
