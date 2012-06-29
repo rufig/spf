@@ -22,12 +22,24 @@
     assume-handles-std
 </def>
 
+<def name="stderr" ds=" -- h ">
+  H-STDERR ?DUP <if>
+    <rem>
+      This handle may not coincide with the inherited (or default) STDERR handle.
+      Default handle may be 0 (for example, in service process).
+    </rem>
+    DUP-HANDLE-INHERITED THROW
+    <exit/>
+  </if>
+  0. W/O open-filename <rem> NUL pseudo file</rem>
+</def>     
+
 <def name="use-pipes-simple"  ds=" -- ">
   TRUE own-handles!
   <rem> h-read h-write </rem>
   CREATE-PIPE-ANON THROW >R HERITABLE-HANDLE        <rem> in  </rem>
   CREATE-PIPE-ANON THROW SWAP >R HERITABLE-HANDLE   <rem> out </rem>
-  0. W/O open-filename                              <rem> err </rem>
+  stderr                                            <rem> err </rem>
     assume-handles-std
   R> child-out!
   R> child-in!
