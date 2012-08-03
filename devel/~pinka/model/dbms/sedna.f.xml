@@ -212,13 +212,17 @@
 
 <def name="commit"   ds=" -- ">  t 1- DUP 0 MAX t! <if><exit/></if> packet::CommitTransaction   put next </def>
 <def name="rollback" ds=" -- ">  t 1- DUP 0 MAX t! <if><exit/></if> packet::RollbackTransaction put next </def>
+<rem> see also: '0 t!' in sedna-messages.f.xml # ErrorResponse </rem>
+
 
 <def name="within-transaction" ds=" i*x xt -- j*x ">
   transact
     CATCH
       0. xml-stylesheet!
     DUP <if>
+      '2DROP consumer-xt! <rem> suppress output </rem>
       'rollback CATCH DROP
+      <rem>(!!!) -2 error message may be rewriten </rem>
       THROW 
     </if> DROP
     <rem> 't' state should be balanced </rem>
