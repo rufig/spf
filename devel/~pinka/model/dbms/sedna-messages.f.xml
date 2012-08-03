@@ -186,12 +186,13 @@
 
 <def name="100" alias="ErrorResponse">
   <rem>
-    Transaction is rolled back.
+    Sometimes transaction may be rolled back
+    -- tr.cpp # catch(SednaUserException &amp; e)
+
     Connection must be closed by server after following errors:
       SE3053 SE3006 SE3007 SE3009 SE3012
     -- tr.cpp # client->error 
   </rem>
-  0 t! <rem> no transaction </rem>
   throw-error <rem> propagate exception </rem>
 </def>
 

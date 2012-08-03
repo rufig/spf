@@ -212,7 +212,7 @@
 
 <def name="commit"   ds=" -- ">  t 1- DUP 0 MAX t! <if><exit/></if> packet::CommitTransaction   put next </def>
 <def name="rollback" ds=" -- ">  t 1- DUP 0 MAX t! <if><exit/></if> packet::RollbackTransaction put next </def>
-<rem> see also: '0 t!' in sedna-messages.f.xml # ErrorResponse </rem>
+<rem> '0 MAX' for out-of-band rollback </rem>
 
 
 <def name="within-transaction" ds=" i*x xt -- j*x ">
@@ -220,9 +220,10 @@
     CATCH
       0. xml-stylesheet!
     DUP <if>
-      '2DROP consumer-xt! <rem> suppress output </rem>
-      'rollback CATCH DROP
-      <rem>(!!!) -2 error message may be rewriten </rem>
+      <rem> state of dialog is unknown here, so ... </rem>
+      close-sock
+      <rem> server will make rollback automatically </rem>
+      t 1- t!
       THROW 
     </if> DROP
     <rem> 't' state should be balanced </rem>
