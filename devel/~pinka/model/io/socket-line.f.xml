@@ -5,16 +5,18 @@
 
 <cell name="_sock" />
 
-<p> _sock @ READOUT-SOCK THROW </p><include href="read-line.f.xml"/>
+<slot> sock-err </slot>
+
+<p> _sock @ READOUT-SOCK DUP sock-err! THROW </p><include href="read-line.f.xml"/>
 <rem> This READOUT-SOCK translate ior -1002 to 0 </rem>
 
 <def name="write" ds=" addr u -- ">
-  _sock @ WriteSocket THROW
+  _sock @ WriteSocket DUP sock-err! THROW
 </def>
 
 <def name="(close-socketline)" ds=" -- ">
   readline-hidden::clear
-  _sock @  _sock 0!  CloseSocket THROW
+  _sock @  _sock 0!  CloseSocket DUP sock-err! THROW
 </def>
 
 <def name="close-socketline" ds=" -- ">

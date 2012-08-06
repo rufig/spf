@@ -23,27 +23,34 @@
 
 <def name="treat-error" ds=" ior|0 -- ">
   DUP <unless> DROP <exit/></unless>
+  DUP sock-err EQ <if>
   <choose>
     DUP 10058 EQ <when>
-      <logN>WSAESHUTDOWN</logN> 0 sock! 0
+      <logN>client, WSAESHUTDOWN</logN>
+      0
+      0 sock!
     </when>
 
     DUP 10054 EQ <when>
-      <logN>WSAECONNRESET</logN> 0
+      <logN>client, WSAECONNRESET</logN>
+      0
     </when>
 
     DUP 10053 EQ <when>
-      <logN>WSAECONNABORTED</logN> 0
+      <logN>client, WSAECONNABORTED</logN>
+      0
       <rem> WinSock aborts an established connection after data retransmission fails
            (receiver never acknowledges data sent on a datastream socket).
       </rem>
     </when>
 
     DUP 10060 EQ <when>
-      <logN>WSAETIMEDOUT</logN> 0
+      <logN>client, WSAETIMEDOUT</logN>
+      0
     </when>
     
   </choose><rem>( ior|0 )</rem>
+  </if>
   DUP
   <xt-of name="treat-error-lite" ds=" ior -- "/> CATCH <rem>( ior 0 | ior x ior2 )</rem>
     DUP <if> NIP   DUP <logN>error, treat-error-lite</logN></if> DROP
