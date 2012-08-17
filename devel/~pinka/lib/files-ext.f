@@ -25,14 +25,14 @@
 ;
 
 : FILE-CONTENT ( h-file -- addr u ior )
-  \ addr shoud be freed via FREE
+  \ addr should be freed via FREE on success
   >R 
   R@ FILE-SIZE DUP IF RDROP EXIT THEN DROP
   ( d-size )  IF 0 -1 RDROP EXIT THEN \ too big
   DUP ALLOCATE DUP IF RDROP EXIT THEN DROP SWAP ( addr u )
   2DUP R@ READ-FILE-EXACT DUP IF
     ( addr u ior )
-    2 PICK FREE DROP RDROP EXIT
+    2>R FREE DROP 0 2R>
   THEN ( addr u 0 )
   RDROP
 ;
