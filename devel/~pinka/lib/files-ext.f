@@ -14,6 +14,15 @@
   NIP RDROP
 ;
 
+: READOUT-FILE-CONTENT ( a-buf u-buf h -- a-buf u-data ior )
+  DUP >R FILE-SIZE DUP IF RDROP EXIT THEN DROP
+  ( d-buf lo hi )
+  IF 2DROP -1 -1005 RDROP EXIT THEN
+  ( a-buf u-buf u-data )
+  TUCK U<  IF -1005 RDROP EXIT THEN
+  ( a-buf u-data )
+  2DUP R> READ-FILE-EXACT
+;
 
 : FILE-CONTENT ( h-file -- addr u ior )
   \ addr shoud be freed via FREE
