@@ -66,6 +66,7 @@
 <def name="perform-simple-per" ds=" a-in u-in a-shell u-shell consumer-xt -- result ">
   consumer-out! commandline! use-pipes-simple create-process
     close-handles-std <rem> (!!!) </rem>
+  <rem>( d-data ior )</rem>
   DUP <if> close-handles-own THROW </if> DROP
   <rem>( d-data )</rem>
   child-in WRITE-FILE THROW
@@ -75,9 +76,11 @@
     <repeat> 2DUP child-out READOUT-FILE THROW DUP <while/> consumer-out EXECUTE </repeat>
     2DROP 2DROP
   </q> CATCH
+  child-out CLOSE-FILE OVER <if> DROP 0 </if> 0 child-out! THROW
   R> FREE SWAP THROW THROW
 
   exitcode-sure
+  <rem> the object is stayed without clear (!!!) </rem>
 </def>
 
 

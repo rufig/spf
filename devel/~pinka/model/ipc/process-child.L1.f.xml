@@ -26,7 +26,7 @@
 <def name="p-id"      ds=" -- id "> process-info dwProcessId  T@ </def>
 <def name="t-id"      ds=" -- id "> process-info dwThreadId   T@ </def>
 
-<def name="exitcode" ds=" -- ior ">
+<def name="exitcode" ds=" -- code ">
   p-handle PROCESS-EXITCODE THROW
 </def>
 
