@@ -14,6 +14,7 @@
   DUP 1 > IF
     2DUP CHARS + CHAR- C@ [CHAR] . = DUP >R IF 1- THEN
   ELSE 0 >R THEN
+  DUP 0= IF -2001 THROW THEN \ нулевая длина строки цифр
   >NUMBER NIP IF -2001 THROW THEN \ ABORT" -?"
   R> IF
        R> IF DNEGATE THEN
