@@ -79,6 +79,7 @@
     instantiate-worker
   </if></if>
   idles-quan <logN>idles</logN>
+  workers-quan <logN>workers</logN>
 </def>
 
 
