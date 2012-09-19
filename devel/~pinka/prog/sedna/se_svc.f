@@ -67,7 +67,8 @@ WARNING ON
   sedna-running? IF se_stop exec-se THEN
   se_gov  TYPE CR
   se_gov  exec-se  \ -background-mode off
-  100 PAUSE BYE
+  ( exit-status )
+  100 PAUSE HALT \ return exit-status from Sedna
 ;
 : start-databases ( -- )
   3000 PAUSE \ wait for gov started
@@ -99,8 +100,10 @@ WARNING ON
 ;
 : -version
   build-date COUNT
-  " Windows service for Sedna XML DBMS -- se_svc version 1.0 ({s})
-(C) 2009 ruvim@forth.org.ru
+  " Windows service for Sedna XML DBMS -- se_svc, version 1.1 ({s})
+(C) 2009, 2012 ruvim@forth.org.ru
+se_svc comes with ABSOLUTELY NO WARRANTY.
+This program is free software (under the terms of the GPLv2).
 Sources available at http://spf.cvs.sourceforge.net/spf/devel/~pinka/prog/sedna/
 " STYPE ." Based on " (TITLE)  BYE
 ;
