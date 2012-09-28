@@ -130,7 +130,7 @@
 </export>
 
 <def name="reopen" ds=" -- ">
-  close-sock 'open CATCH  sock <if> THROW </if>
+  close-sock 'open CATCH  sock <if> THROW <exit/></if>
   <rem>( ior )</rem>
   `#sedna-connection-refused STHROW
 </def>
