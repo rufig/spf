@@ -52,6 +52,11 @@ ALSO SO NEW: libgcrypt.so.11
   SWAP R@ GCRY_MD_SHA1 4 gcry_md_hash_buffer DROP
   R> 20
 ;
+: SHA256B ( addr u -- ha hu )
+  32 ALLOCATE THROW >R
+  SWAP R@ GCRY_MD_SHA256 4 gcry_md_hash_buffer DROP
+  R> 32
+;
 : GCryptInit ( -- flag )
   S" 1.2.1" DROP 1 gcry_check_version ?DUP
   IF ( ASCIIZ> TYPE) DROP ELSE ( ." unknown libgcrypt version") FALSE EXIT THEN
