@@ -184,9 +184,13 @@ DROP
   SP@ DUP uSPInvoke ! S0 !
   R> params@
   R> ['] EXECUTE-COM CATCH ?DUP 
-     IF ( DUP .) uExcep @ W! S" FORTH" >BSTR uExcep @ CELL+ !
+     IF ( DUP .) 
+        COM-DEBUG @ IF ." EXECUTE-COM excep=" DUP . THEN
+        uExcep @ W! S" FORTH" >BSTR uExcep @ CELL+ !
         uSPInvoke @ SP! RDROP
         DISP_E_EXCEPTION EXIT
+     ELSE
+        COM-DEBUG @ IF ." EXECUTE-COM OK" CR THEN
      THEN
   SP@ uSPInvoke @ -   COM-DEBUG @ IF ." DD=" DUP . THEN
   DUP -4 = IF DROP
