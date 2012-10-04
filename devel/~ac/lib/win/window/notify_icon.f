@@ -88,7 +88,7 @@ S" SPF" TrayIconSetTitle
   cmd mem uCallbackMessage !
   id LoadIconResource16 DUP mem hIcon ! mem hBalloonIcon !
   mem szTip 128 ERASE a mem szTip u 127 MIN MOVE
-  mem szInfo 256 ERASE a mem szInfo u 255 MIN MOVE
+  mem szInfo 256 ERASE \ a mem szInfo u 255 MIN MOVE
   TrayIconDelete
   mem NIM_ADD Shell_NotifyIcon DROP
 ;

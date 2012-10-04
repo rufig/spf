@@ -28,9 +28,10 @@ VARIABLE vaWND
 
 VOCABULARY CONT-MENU
 
-VECT vtiOpen   ' NOOP TO vtiOpen
-VECT vtiSite   ' NOOP TO vtiSite
-VECT vtiOnStop ' NOOP TO vtiOnStop
+VECT vtiOpen    ' NOOP TO vtiOpen
+VECT vtiSite    ' NOOP TO vtiSite
+VECT vtiOnStop  ' NOOP TO vtiOnStop
+VECT vtiOnStart ' NOOP TO vtiOnStart
 
 ALSO CONT-MENU DEFINITIONS
 : Выход
@@ -138,6 +139,7 @@ VALUE AgentIconFilename
   THEN
 
   32 32 w WindowSize \ странно: окно с неуказанным размером не получает сообщения от BroadcastSystemMessage
+  vtiOnStart
 
   w MessageLoop
   0 TO AgentWindowVisible

@@ -6,6 +6,8 @@ VARIABLE IPV6_MODE \ при FALSE будет работать в режиме IPv4, не пытаясь
 
 23 CONSTANT AF_INET6     \ Internetwork Version 6
 
+CREATE IPV6_ALL 0 , 0 , 0 , 0 ,
+
  0
  2 -- sin6_family
  2 -- sin6_port \ в сетевом порядке байтов
@@ -28,6 +30,7 @@ USER IP6_BUFFS_HERE
 ;
 : IsIPv6 ( ip -- flag )
   DUP 0= IF DROP FALSE EXIT THEN
+  DUP IPV6_ALL = IF TRUE EXIT THEN
   /IP6_BUFFS U<
 ;
 
@@ -73,9 +76,6 @@ USER IP6_BUFFS_HERE
        setsockopt OR
   THEN
 ;
-
-
-CREATE IPV6_ALL 0 , 0 , 0 , 0 ,
 
 : RV16
   DUP 8 RSHIFT SWAP 0xFF AND 8 LSHIFT +

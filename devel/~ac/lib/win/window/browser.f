@@ -106,6 +106,10 @@ VECT vMenu ( msg -- )        ' DROP TO vMenu
 ;
 ' PreprocessMessage1 TO vPreprocessMessage
 
+: AtlMessageDispatch { mem -- }
+  mem TranslateMessage DROP
+  mem DispatchMessageA DROP
+;
 : AtlMessageLoop  { wnd iWebBrowser2 \ mem -- }
 
 \ Этот обработчик рассчитан на ОДНО браузерное окно,
@@ -124,8 +128,7 @@ VECT vMenu ( msg -- )        ' DROP TO vMenu
       mem iWebBrowser2 TranslateBrowserAccelerator 0=
       IF
         \ тут можно проверить своим TranslateAccelerator, если есть свои окна
-        mem TranslateMessage DROP
-        mem DispatchMessageA DROP
+        mem ['] AtlMessageDispatch CATCH ?DUP IF ." AtlMessageDispatch ERR=" . CR DROP THEN
       THEN
     THEN
   REPEAT
@@ -249,25 +252,27 @@ CW_USEDEFAULT VALUE bwWidth
 ;
 
 VARIABLE BSTEP
+VARIABLE BSTEP-DEBUG
+: BS. BSTEP-DEBUG @ IF ." BS: " BSTEP @ . CR THEN ;
 
 : Browser { addr u \ h -- ior }
 
-  3 BSTEP !
+  3 BSTEP ! BS.
   addr u WS_OVERLAPPEDWINDOW \ WS_VSCROLL OR \ WS_HSCROLL OR
                              \ включение WS_VSCROLL приводит к игнорированию
                              \ команды установки иконки окна через GCL_HICON h SetClassLongA
                              \ почему?
   0 BrowserWindow -> h
-  4 BSTEP !
+  4 BSTEP ! BS.
   h 0= IF 0x200B EXIT THEN
 
-  5 BSTEP !
+  5 BSTEP ! BS.
   BrCreateHidden @ 0= IF h WindowShow THEN
-  6 BSTEP !
+  6 BSTEP ! BS.
   h uBrowserInterface @ AtlMessageLoop 0
-  7 BSTEP !
+  7 BSTEP ! BS.
   h WindowDelete
-  8 BSTEP !
+  8 BSTEP ! BS.
   0
 ;
 : AtlMainLoop  { hwnd \ mem -- }
@@ -308,7 +313,7 @@ VARIABLE BSTEP
   BrCreateHidden @ 0= IF DUP WindowShow THEN
 ;
 :NONAME ( url -- ior )
-  2 BSTEP !
+  2 BSTEP ! BS.
   STR@ ['] Browser CATCH ?DUP IF NIP NIP THEN
 ; TASK: (BrowserThread)
 
@@ -324,7 +329,7 @@ VECT vBrowserMainThreadError
 ; TO vBrowserMainThreadError
 
 :NONAME ( url -- ior )
-  2 BSTEP !
+  2 BSTEP ! BS.
   STR@ ['] Browser CATCH ?DUP IF vBrowserMainThreadError NIP NIP THEN
   ?DUP IF vBrowserMainThreadError THEN
   BYE
@@ -333,7 +338,7 @@ VECT vBrowserMainThreadError
 : BrowserMainThread ( addr u -- )
 \ Запуск браузера в отдельном потоке.
 \ При закрытии его окна программа завершится.
-  1 BSTEP !
+  1 BSTEP ! BS.
   >STR (BrowserMainThread) START DROP
 ;
 

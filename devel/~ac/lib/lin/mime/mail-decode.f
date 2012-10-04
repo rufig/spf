@@ -351,6 +351,8 @@ USER uMessageMID
 ;
 USER uMpAltCnt
 USER uSkipAttach
+USER uAllowMpAlt
+VARIABLE vCalendarRenderer
 
 : MessageHtml { mp s \ tf_dq tf_db tf_pl -- addr u }
 
@@ -390,7 +392,7 @@ USER uSkipAttach
            0 -> tf_pl
 
            mp mpSubTypeAddr @ mp mpSubTypeLen @ S" plain" COMPARE-U 0=
-           IF uMpAltCnt @
+           IF uMpAltCnt @ uAllowMpAlt @ 0= AND
               IF 2DROP S" <!-- text/plain alternative was here -->"
               ELSE
                 <<escape CR>BR mp MessagePartName
@@ -401,6 +403,17 @@ USER uSkipAttach
            mp mpSubTypeAddr @ mp mpSubTypeLen @ S" rfc822" COMPARE-U 0=
            IF <<escape CR>BR mp MessagePartName
               " <pre class='plain' title='{s}'>{s}</pre>" DUP -> tf_pl STR@
+           THEN
+
+
+           mp mpSubTypeAddr @ mp mpSubTypeLen @ S" calendar" COMPARE-U 0=
+           IF vCalendarRenderer @
+              IF mp MessagePartName vCalendarRenderer @ EXECUTE
+              ELSE
+                <<escape CR>BR mp MessagePartName
+                " <pre class='plain' title='{s}'>{s}</pre>"
+              THEN
+              DUP -> tf_pl STR@
            THEN
 
            mp mpSubTypeAddr @ mp mpSubTypeLen @ S" xml" COMPARE-U 0=

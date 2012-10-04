@@ -61,12 +61,15 @@ ALSO libcurl.so.4
 \  data
   uCurlRes @
 ;
+0x100000 31 + CONSTANT  CURLINFO_REDIRECT_URL \    = CURLINFO_STRING + 31,
+
 : POST-CUSTOM-VIAPROXY { amethod umethod aheader uheader adata udata act uct addr u paddr pu \ h data slist coo -- str }
 \ если прокси paddr pu - непустая строка, то явно используется этот прокси
 \ curl умеет использовать переменные окружения http_proxy, ftp_proxy
 \ поэтому можно не задавать прокси явно.
 \ adata udata - передаваемые через POST (или иной метот с телом) данные.
 \ act uct - content-type; если uct=0, то остается default application/x-www-form-urlencoded
+\ если данные POST'а не текстовые, а двоичные, то CURL отправит всё, благодаря CURLOPT_POSTFIELDSIZE_LARGE
 
 \  "" -> data
   "" uCurlRes !
@@ -84,19 +87,22 @@ ALSO libcurl.so.4
 \  ^ data CURLOPT_WRITEDATA h 3 curl_easy_setopt DROP
   TlsIndex@ CURLOPT_WRITEDATA h CURL-SETOPT
 
+  umethod IF amethod CURLOPT_CUSTOMREQUEST h 3 curl_easy_setopt DROP THEN
+
+\  TRUE CURLOPT_HEADER h 3 curl_easy_setopt DROP
+
   udata IF
-    udata CURLOPT_POSTFIELDSIZE h 3 curl_easy_setopt DROP
+    0 udata CURLOPT_POSTFIELDSIZE_LARGE h 4 curl_easy_setopt DROP
     adata CURLOPT_POSTFIELDS    h 3 curl_easy_setopt DROP
   THEN
 
   1 CURLOPT_HTTP_VERSION h 3 curl_easy_setopt DROP
 
-  S" User-Agent: SP-Forth" DROP 0 2 curl_slist_append -> slist
+\  S" User-Agent: Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Win64; x64; Trident/6.0)" DROP 0 2 curl_slist_append -> slist
   uct IF act slist 2 curl_slist_append -> slist  THEN
   uheader IF aheader slist 2 curl_slist_append -> slist  THEN
   slist CURLOPT_HTTPHEADER h 3 curl_easy_setopt DROP
 
-  umethod IF amethod CURLOPT_CUSTOMREQUEST h 3 curl_easy_setopt DROP THEN
 
 \  S" " DROP CURLOPT_COOKIEFILE h 3 curl_easy_setopt DROP
 
@@ -104,6 +110,8 @@ ALSO libcurl.so.4
   ?DUP IF 1 curl_easy_strerror ASCIIZ> TYPE CR THEN
   uCurlRespCode CURLINFO_RESPONSE_CODE h 3 curl_easy_getinfo DROP
   slist 1 curl_slist_free_all DROP
+
+\  ^ coo CURLINFO_REDIRECT_URL h 3 curl_easy_getinfo DROP ." REDIR=" coo . CR
 
 \  ^ coo CURLINFO_COOKIELIST h 3 curl_easy_getinfo DROP ." COOK=" coo . CR
 
