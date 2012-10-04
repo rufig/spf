@@ -110,6 +110,13 @@ VECT vMenu ( msg -- )        ' DROP TO vMenu
   mem TranslateMessage DROP
   mem DispatchMessageA DROP
 ;
+VECT vOnAtlMessageDispatchErr
+
+: OnAtlMessageDispatchErr { ior mem -- }
+  ." AtlMessageDispatch ERR=" ior . CR mem /MSG DUMP CR DROP
+;
+' OnAtlMessageDispatchErr TO vOnAtlMessageDispatchErr
+
 : AtlMessageLoop  { wnd iWebBrowser2 \ mem -- }
 
 \ Этот обработчик рассчитан на ОДНО браузерное окно,
@@ -128,7 +135,7 @@ VECT vMenu ( msg -- )        ' DROP TO vMenu
       mem iWebBrowser2 TranslateBrowserAccelerator 0=
       IF
         \ тут можно проверить своим TranslateAccelerator, если есть свои окна
-        mem ['] AtlMessageDispatch CATCH ?DUP IF ." AtlMessageDispatch ERR=" . CR DROP THEN
+        mem ['] AtlMessageDispatch CATCH ?DUP IF mem vOnAtlMessageDispatchErr THEN
       THEN
     THEN
   REPEAT
@@ -297,8 +304,9 @@ VARIABLE BSTEP-DEBUG
     ELSE TRUE THEN
 
     IF
-      mem TranslateMessage DROP
-      mem DispatchMessageA DROP
+\      mem TranslateMessage DROP
+\      mem DispatchMessageA DROP
+      mem ['] AtlMessageDispatch CATCH ?DUP IF mem vOnAtlMessageDispatchErr THEN
     THEN
   REPEAT
   mem FREE THROW
