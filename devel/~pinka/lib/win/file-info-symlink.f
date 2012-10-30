@@ -11,6 +11,7 @@ REQUIRE LAMBDA{         ~pinka/lib/lambda.f
 \ http://msdn.microsoft.com/en-us/library/gg258117.aspx
 
 0xA000000C CONSTANT IO_REPARSE_TAG_SYMLINK
+0xA0000003 CONSTANT IO_REPARSE_TAG_MOUNT_POINT
 \ http://msdn.microsoft.com/en-us/library/dd541667.aspx
 
 : FILENAME-REPARSE-TAG ( d-txt-filename -- 0|u )
@@ -25,4 +26,9 @@ REQUIRE LAMBDA{         ~pinka/lib/lambda.f
 : FILENAME-SYMLINK ( d-txt-filename -- flag )
   FILENAME-REPARSE-TAG
     IO_REPARSE_TAG_SYMLINK =
+;
+: FILENAME-JUNCTION ( d-txt-filename -- flag )
+\ true if the filename is directory junction or volume mount point
+  FILENAME-REPARSE-TAG
+    IO_REPARSE_TAG_MOUNT_POINT =
 ;
