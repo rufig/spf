@@ -28,7 +28,8 @@
   \ addr should be freed via FREE on success
   >R 
   R@ FILE-SIZE DUP IF RDROP EXIT THEN DROP
-  ( d-size )  IF 0 -1 RDROP EXIT THEN \ too big
+  ( d-size ) IF 0
+                -1005 RDROP EXIT THEN \ too big
   DUP ALLOCATE DUP IF RDROP EXIT THEN DROP SWAP ( addr u )
   2DUP R@ READ-FILE-EXACT DUP IF
     ( addr u ior )
