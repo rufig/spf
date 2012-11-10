@@ -5085,8 +5085,10 @@ OP0 @ W@ C83B XOR OR \ 57B528 3BC8              CMP     ECX , EAX
        EXIT
    THEN
 
+      \ testcase: DUP 2@ 2DUP < IF THEN
+      DUP 'DROP =
 OP1 @  @ C23B008B = \   MOV     EAX , [EAX]           CMP     EAX , EDX
-    IF   M\ 78 DTST
+AND IF   M\ 78 DTST
             103B  OP1 @ W! \ CMP     EDX , [EAX]
             XC_J
             OP1 ToOP0 -2 ALLOT
