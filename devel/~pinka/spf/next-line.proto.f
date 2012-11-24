@@ -16,7 +16,8 @@ VARIABLE W   \ указатель записи
 VARIABLE B9  \ конец буфера, граница
 \ в локальном пространстве и короткие имена хороши :)
 
-: BUF! ( a u -- ) OVER DUP B0 ! DUP R ! W !  + B9 ! ;
+: ASSUME ( a u -- ) OVER DUP B0 ! DUP R ! W !  + B9 ! ; \ see also model/io/buffer-rw.immutable.f.xml
+: BUF! ( a u -- ) ASSUME ; \ just alias for backward compatibility 
 : BUF ( -- a u ) B0 @ B9 @ OVER - ;
 : REST ( -- a u ) R @ W @ OVER - ;
 : VACANT ( -- a u ) W @ B9 @ OVER - ;

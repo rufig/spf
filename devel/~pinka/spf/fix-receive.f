@@ -14,6 +14,11 @@ MODULE: CORE_OF_REFILL
 
 EXPORT
 
+: NEXT-LINE ( -- a u true | false )
+  SOURCE-ID 0 > IF NEXT-LINE EXIT THEN
+  SOURCE-ID 0=  IF NEXT-LINE-STDIN EXIT THEN
+  FALSE
+;
 : READOUT-SOURCE ( addr u1 -- addr u2 )
 \ Чтение бинарных данных из входного потока 
 \ То, что уже взял REFILL, тут недоступно.
@@ -36,7 +41,7 @@ EXPORT
 : RECEIVE-WITH  ( i*x source xt -- j*x ior )
   SAVE-SOURCE N>R
   SWAP TO SOURCE-ID
-  /BUF DUP ALLOCATE THROW DUP >R SWAP BUF!
+  /BUF DUP ALLOCATE THROW DUP >R SWAP ASSUME
   REST SOURCE! CURSTR 0!  0 TO SOURCE-ID-XT
   CATCH  DUP IF PROCESS-ERR ( err -- err ) THEN
   R> FREE THROW
@@ -73,3 +78,7 @@ EXPORT
 
 ' INCLUDE-FILE_new ' INCLUDE-FILE REPLACE-WORD
 ' REFILL_new TO REFILL
+
+\ test:
+\   S" CON" R/O OPEN-FILE THROW INCLUDE-FILE
+\ ( F6 for ^Z -- 'end of file')
