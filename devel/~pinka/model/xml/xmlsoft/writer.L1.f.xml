@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<comment>
+  http://xmlsoft.org/
+</comment>
+
+<slot> writer </slot>
+
+<def name="wrap" ds=" d-txt-name -- ">
+  2DUP &amp; -ROT
+  OVER DUP C@ 32 - SWAP C! <rem> upper-case </rem>
+  <def name="{}"> writer <exec/></def>
+</def>
+
+<def name="FreeWriter" ds=" -- ">
+  writer <if> writer freeWriter 0 writer! </if>
+</def>
+
+<def name="CreateWriterFilename" ds=" d-txt-filename -- ">
+  FreeWriter
+  createWriterFilename writer!
+</def>
+
+<text>
+  setWriterIndentNumber
+  setWriterIndentText
+  writeRaw
+  writeStartDocument
+  writeEndDocument
+  writeStartElement
+  writeEndElement
+  writeElement
+  writeStartAttribute
+  writeEndAttribute
+  writeAttribute
+  writeText
+</text><each-word> wrap </each-word>
+
+
+<def name="write-filename-with" ds=" xt d-filename -- ">
+  CreateWriterFilename EXECUTE FreeWriter
+</def>
+<def name="write-document-with" ds=" xt -- ">
+  `UTF-8 WriteStartDocument EXECUTE WriteEndDocument
+</def>
+<def name="write-element-with" ds=" xt d-name -- ">
+  WriteStartElement EXECUTE WriteEndElement
+</def>
+<def name="write-attribute-with" ds=" xt d-name -- ">
+  WriteStartAttribute EXECUTE WriteEndAttribute
+</def>
+
+<alias name="write-element"   ds=" d-text d-name -- " word="WriteElement"/>
+<alias name="write-attribute" ds=" d-text d-name -- " word="WriteAttribute"/>
+<alias name="write-text"      ds="        d-text -- " word="WriteText"/>
+
+<rem> shortcuts </rem>
+
+<alias name="element"         ds=" d-text d-name -- " word="WriteElement"/>
+<alias name="attribute"       ds=" d-text d-name -- " word="WriteAttribute"/>
+<alias name="text"            ds="        d-text -- " word="WriteText"/>
+
+<alias name="element{"   ds=" d-name -- " word="WriteStartElement"/>
+<alias name="attribute{" ds=" d-name -- " word="WriteStartAttribute"/>
+<alias name="}element"   ds=" -- "        word="WriteEndElement"/>
+<alias name="}attribute" ds=" -- "        word="WriteEndAttribute"/>
+
+</forth>
