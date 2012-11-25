@@ -89,6 +89,9 @@ helpful for using non-SPF libraries.
   SPF converts digits according to the ASCII character table, so `50 BASE ! a 0[ DECIMAL . .` 
   will produce `36 42`.
 
+  An ambiguous condition exists if current number-conversion radix is more then 255.
+
+
 * display after input terminates in {std 6.1.0695} ACCEPT and {std 6.2.1390} EXPECT; 
 
   Depends on the shell, by default the input is echoed while typing and
