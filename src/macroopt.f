@@ -1618,6 +1618,7 @@ HEX  U. DUP @ @ U.  U. ." EAX2EDX0" ABORT
   BEGIN
           ?OPlast     IF EXIT THEN
      DUP @ W@ 6D8D =  IF EXIT THEN \ LEA     EBP , X [EBP]
+     DUP @ W@ 15FF =  IF EXIT THEN \ CALL
      DUP @ C@ E8   =  IF EXIT THEN \ CALL
      DUP @ C@ E9   =  IF EXIT THEN \ JMP
      DUP @ C@ F0
