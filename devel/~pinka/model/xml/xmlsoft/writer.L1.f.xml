@@ -51,19 +51,36 @@
   WriteStartAttribute EXECUTE WriteEndAttribute
 </def>
 
-<alias name="write-element"   ds=" d-text d-name -- " word="WriteElement"/>
-<alias name="write-attribute" ds=" d-text d-name -- " word="WriteAttribute"/>
-<alias name="write-text"      ds="        d-text -- " word="WriteText"/>
+<def name="write-element"   ds=" d-text d-name -- ">
+  2SWAP ENSURE-ASCIIZ-R
+  2SWAP ENSURE-ASCIIZ-R
+  WriteElement
+</def>
+
+<def name="write-attribute" ds=" d-text d-name -- ">
+  2SWAP ENSURE-ASCIIZ-R
+  2SWAP ENSURE-ASCIIZ-R
+  WriteAttribute
+</def>
+
+<def name="write-text"      ds=" d-text -- ">
+  ENSURE-ASCIIZ-R WriteText
+</def>
+
+
+<def name="begin-element"    ds=" d-name -- ">
+  ENSURE-ASCIIZ-R WriteStartElement
+</def>
+<def name="begin-attribute"  ds=" d-name -- ">
+  ENSURE-ASCIIZ-R WriteStartAttribute
+</def>
+<alias name="end-element"   ds=" -- " word="WriteEndElement"/>
+<alias name="end-attribute" ds=" -- " word="WriteStartAttribute"/>
 
 <rem> shortcuts </rem>
 
-<alias name="element"         ds=" d-text d-name -- " word="WriteElement"/>
-<alias name="attribute"       ds=" d-text d-name -- " word="WriteAttribute"/>
-<alias name="text"            ds="        d-text -- " word="WriteText"/>
-
-<alias name="element{"   ds=" d-name -- " word="WriteStartElement"/>
-<alias name="attribute{" ds=" d-name -- " word="WriteStartAttribute"/>
-<alias name="}element"   ds=" -- "        word="WriteEndElement"/>
-<alias name="}attribute" ds=" -- "        word="WriteEndAttribute"/>
+<alias name="element"         ds=" d-text d-name -- " word="write-element"/>
+<alias name="attribute"       ds=" d-text d-name -- " word="write-attribute"/>
+<alias name="text"            ds="        d-text -- " word="write-text"/>
 
 </forth>
