@@ -29,10 +29,7 @@
 </text>
              2DUP
 <each-word>
-  HERE 0 , 0 , DUP 2SWAP
-  <def name="{2DUP}" ><lit>ROT</lit>2@</def>
-  <def name="{2DUP}!"><lit>ROT</lit>2!</def>
-  2DROP
+  create-slot2
 </each-word>
 
 <def name="dump-location" ds=" -- " xmlns:r="http://forth.org.ru/ForthML/Rules/">

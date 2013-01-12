@@ -1,5 +1,8 @@
 REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
+\ extension
+`http://forth.org.ru/~pinka/model/trans/rules-slot.f.xml EMBODY
+
 
 \ load object to the current wordlist:
 `url.f.xml  EMBODY \ from the current directory
