@@ -45,16 +45,13 @@
 </def>
 
 
-<cell name="_port-number"/>
-<cell name="_port-number-default"> 80 </cell>
-
-<def name="port-number" ds=" -- n "> _port-number @ </def>
+<slot> port-number </slot>
 
 <def name="port!" ds=" a u -- ">
   <choose>
     DUP <when> 2DUP StoN </when>
-    <otherwise> _port-number-default @ </otherwise>
-  </choose> _port-number !  port!
+    <otherwise> 0 </otherwise>
+  </choose> port-number!  port!
 </def>
 
 <def name="userinfo!" ds=" a u -- "><!-- user:password -->
