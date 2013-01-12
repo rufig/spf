@@ -7,18 +7,26 @@
   See also: 
     http://www.w3.org/TR/Window/#location-attributes
     -- The Location Interface
+    http://tools.ietf.org/html/rfc3986
+    -- Uniform Resource Identifier (URI): Generic Syntax
 </comment>
 
 <using href="http://forth.org.ru/~pinka/model/lib/string/slice.f.xml"/>
 
 <rem> pieces of the URI, per the generic URI syntax </rem>
 <text>
-  user password
-  url href protocol host hostname port pathname search hash
-</text><!---
-  protocol ~= scheme
-  seach    ~= query
--->
+  url href
+    protocol
+      scheme
+    authority
+      user password host
+        hostname port
+    pathname
+    search
+      query
+    hash
+      fragment
+</text>
              2DUP
 <each-word>
   HERE 0 , 0 , DUP 2SWAP
@@ -31,6 +39,12 @@
   <r:direct><each-word>
     2DUP <r:postpone><slit/> TYPE <emit> -- </emit><exec>&amp;</exec> TYPE CR </r:postpone>
   </each-word></r:direct>
+</def>
+
+<def name="local-ref"  ds=" -- a u ">
+  <rem> URI reference at given network location (i.e. within a host) </rem>
+  authority + url + OVER - DUP <if><exit/></if>
+  2DROP `/
 </def>
 
 
@@ -46,12 +60,13 @@
   </choose> _port-number !  port!
 </def>
 
-<def name="auth!" ds=" a u -- "><!-- user@password:port -->
+<def name="userinfo!" ds=" a u -- "><!-- user:password -->
   `: SPLIT <unless> 0. </unless> password! user!
 </def>
 
-<def name="hostport!" ds=" a u -- "><!-- user:password@hostname:port  -->
-  `@ SPLIT- <unless> 0. </unless> auth!
+<def name="authority!" ds=" a u -- "><!-- user:password@hostname:port  -->
+  2DUP authority!
+  `@ SPLIT- <unless> 0. </unless> userinfo!
   2DUP host!
   `: SPLIT  <unless> 0. </unless> port!  hostname!
 </def>
@@ -61,10 +76,10 @@
 <def name="(parse-url)" ds=" -- ">
   url
   `? SPLIT >R
-  `# SPLIT <choose><when> 1 CLEFT+ </when> 0. </choose> hash!
-        R> <choose><when> 1 CLEFT+ </when> 0. </choose> search!
-  `:// SPLIT- <choose><when> 1 CRIGHT+ </when> `http: </choose>  protocol!
-  `/   SPLIT  <choose><when> 1 CLEFT+  </when> 0.     </choose>  pathname! hostport!
+  `# SPLIT      <choose><when> 2DUP 1 CLEFT+  </when> 0. 0. </choose> hash!     fragment!
+           R>   <choose><when> 2DUP 1 CLEFT+  </when> 0. 0. </choose> search!   query!
+  `:// SPLIT-   <choose><when> 2DUP 1 CRIGHT+ </when> 0. 0. </choose> protocol! scheme!
+  `/   SPLIT    <choose><when> 1 CLEFT+       </when> 0.    </choose> pathname! authority!
 </def>
 
 <def name="assume-url" ds=" a u -- ">
