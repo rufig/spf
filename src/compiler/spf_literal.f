@@ -45,17 +45,23 @@
     IF 2DUP 2>R HEX-SLITERAL IF RDROP RDROP EXIT ELSE 2R> THEN THEN
   THEN
   2DUP 2>R ['] ?SLITERAL1 CATCH
-  IF   2DROP 2R>
+  0= IF RDROP RDROP EXIT THEN
+  2DROP 2R>
+
+  DUP 0 U> IF ( не пустое )
        OVER C@ [CHAR] " = OVER 2 > AND
        IF 2 - SWAP 1+ SWAP THEN ( убрал кавычки, если есть)
+       2DUP CUT-PATH NIP OVER <>
+       ( TODO: лучше бы CUT-NAME и еще проверять на "." )
+  IF ( имя файла, а не путь )
        2DUP + 0 SWAP C!
        ['] INCLUDED CATCH
-       DUP 2 = OVER 3 = OR OVER 161 = OR ( файл не найден или путь не найден,
+       DUP 2 <> OVER 3 <> AND OVER 161 <> AND
+       ( файл не найден или путь не найден,
        или неразрешенное имя файла)
-       IF  -2003 THROW \ ABORT"  -???"
-       ELSE  THROW THEN
-  ELSE RDROP RDROP
-  THEN
+       IF THROW EXIT THEN
+  THEN THEN ( c-addr u | ior )
+  -2003 THROW \ ABORT"  -???"
 ;
 : ?LITERAL2 ( c-addr -- ... )
   ( расширенный вариант ?LITERAL1:
