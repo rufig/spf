@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem><bind-up>
+  read-line.f.xml
+  read-headers
+  parse-status-line
+</bind-up></rem>
+
+<def name="content-all-per" ds=" xt -- "><rem> xt ( a u -- ) </rem>
+  <rem> reads up to EOF </rem>
+  >R <repeat> next-chunk? <while/> R@ EXECUTE </repeat> 0. R> EXECUTE
+</def>
+<def name="content-all-per-catch" ds=" xt -- ior "><rem> xt ( a u -- ) </rem>
+  'content-all-per CATCH
+</def>
+
+<def name="read-status-line?" ds=" -- flag ">
+  next-textline? <unless> FALSE <exit/></unless>
+  parse-status-line
+  http-ver-major 1 EQ <unless>
+    `http-status h@ <logS>status-line</logS>
+    `#505 STHROW 
+  </unless><!-- HTTP/1.x only -->
+  TRUE
+</def>
+
+<def name="accept-response?" ds=" -- flag ">
+  read-status-line? <unless> FALSE <exit/></unless>
+  read-headers  TRUE
+</def>
+
+</forth>
