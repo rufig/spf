@@ -5,13 +5,27 @@
   read-line.f.xml
 </bind-up></rem>
 
+<def name="next-line?" ds=" -- a u true | false ">
+  <rem> Redefenition. It ensures that line is not broken </rem>
+  next-line? <unless> FALSE <exit/></unless>
+  TEST-EOLN <unless><logS>TEST-EOLN</logS> `#413 STHROW </unless><!-- line is too long, Request-URI Too Large -->
+  TRUE
+</def>
+
+<def name="next-textline?" ds=" -- a u true | false ">
+  <rem> next non-empty line (see also f:each-textline )</rem>
+  next-line? <unless> FALSE <exit/></unless>
+  DUP <unless> 2DROP <again/></unless><!-- skip empty lines -->
+  TRUE
+</def>
+
 <g><comment> read headers </comment>
 
 <def name="read-headers" ds=" -- ">
   next-line? <unless><exit/></unless><!-- no more data -->
   DUP <unless> 2DROP <exit/></unless><!-- end of headers reached -->
-  TEST-EOLN <unless><logS>TEST-EOLN</logS> `#413 STHROW </unless><!-- line is too long -->
   TEST-HEAD-WHITE <if><logS>TEST-HEAD-WHITE</logS> `#400 STHROW </if><!-- don't support a multiple lines value (see 4.2 Message Headers) -->
+  <rem> TODO: static buffer for the whole HTTP header </rem>
   parse-header? <unless><logS>parse-header</logS> `#400 STHROW </unless><!-- header name is not recognize, bad request -->
   <again/>
 </def>
@@ -35,6 +49,9 @@
   content-rest SWAP 'read-limited-per CATCH DUP <if> NIP NIP <exit/></if> DROP
   content-rest OVER - content-rest!
   0EQ <if> 0 <exit/></if> -1002 
+</def>
+<def name="content-per" ds=" xt -- "><rem> xt ( a u -- ) </rem>
+  content-per-catch THROW
 </def>
 
 <def name="with-content" ds=" xt -- "><rem> xt ( a u -- ) </rem>

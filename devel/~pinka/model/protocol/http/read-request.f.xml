@@ -8,9 +8,7 @@
 </bind-up></rem>
 
 <def name="read-request-line?" ds=" -- flag ">
-  next-line? <unless> FALSE <exit/></unless>
-  TEST-EOLN <unless><logS>TEST-EOLN</logS> `#414 STHROW </unless><!-- Request-URI Too Large -->
-  FINE-HEAD DUP <unless> 2DROP <again/></unless><!-- skip empty lines -->
+  next-textline? <unless> FALSE <exit/></unless>
   parse-request-line
   http-ver-major 1 EQ <unless>
     `http-request h@ <logS>request line</logS>

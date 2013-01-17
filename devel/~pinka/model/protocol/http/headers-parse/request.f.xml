@@ -19,6 +19,9 @@
   TOKEN|TAIL 2SWAP `http-method  h!
   TOKEN|TAIL 2SWAP `http-url     h!@ location::assume-url
   TOKEN|TAIL 2DROP `http-version h!@ assume-http-version
+  <rem> "all HTTP/1.1 servers MUST accept the absoluteURI form in requests"
+    (rfc2616, "absolute-URI" in rfc3986)
+  </rem>
 </def>
 
 <def name="http-method" ds=" -- a u ">
