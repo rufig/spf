@@ -51,9 +51,9 @@
   DUP 0 U> IF ( не пустое )
        OVER C@ [CHAR] " = OVER 2 > AND
        IF 2 - SWAP 1+ SWAP THEN ( убрал кавычки, если есть)
+       DUP 0 U>
+  IF
        2DUP + 0 SWAP C!
-       2DUP FILE-EXISTS
-  IF ( имя файла, а не путь )
        ['] INCLUDED CATCH
        DUP 2 <> OVER 3 <> AND OVER 161 <> AND
        ( файл не найден или путь не найден,
