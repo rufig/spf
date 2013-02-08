@@ -413,13 +413,13 @@ VECT FEMIT
 : FS. ( r -- )
    PrintFInf IF EXIT THEN
    (F.) IF [CHAR] - FEMIT THEN
-   1 FDISPLAY 1- .EXP SPACE
+   1 FDISPLAY 1- .EXP BL FEMIT
 ;
 
 : F. ( r -- )
    PrintFInf IF EXIT THEN
    (F.) IF  [CHAR] - FEMIT THEN
-   FDISPLAY SPACE
+   FDISPLAY BL FEMIT
 ;
 
 : G. ( r)
@@ -430,7 +430,7 @@ VECT FEMIT
       1 FDISPLAY 1- .EXP
    ELSE FDISPLAY
    THEN
-   SPACE
+   BL FEMIT
 ;
    
 : Adjust ( n - n' 1|2|3 )
@@ -439,7 +439,7 @@ VECT FEMIT
 : FE. ( r)
    PrintFInf IF EXIT THEN
    (F.) IF  [CHAR] - FEMIT  THEN
-   1- Adjust FDISPLAY .EXP SPACE
+   1- Adjust FDISPLAY .EXP BL FEMIT
 ;
 
 USER PAD-COUNT
