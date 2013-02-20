@@ -61,6 +61,8 @@
 
 <export>
 
+<alias name="clear" word="free-res-all" />
+
 <def name="open" ds=" -- ">
   conn <unless> mysql_new_conn conn! set-conn-options </unless>
   (connect) <if><exit/></if>
@@ -70,15 +72,14 @@
 <def name="close" ds=" -- ">
   0  errno!  0. set-last-err-txt
   conn <unless><exit/></unless>
-  free-res-all (close-conn)
+  clear (close-conn)
 </def>
 
 <handler event="shutdown"> close </handler>
 
-<handler event="cleanup"> free-res-all </handler>
+<handler event="cleanup"> clear </handler>
 
 <alias name="connect" word="open" />
-<alias name="clear" word="free-res-all" />
 
 <def name="use-database" ds=" d-db -- ">
   DROP conn mysql_select_db <if> treat-err </if><rem> Zero for success </rem> 
