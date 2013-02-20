@@ -102,9 +102,16 @@
 <alias name="query"      ds=" d-txt-query -- "   word="query"/>
 <alias name="next-value" ds=" -- d-value | 0 0 " word="next-value"/>
 
-</export>
+<alias name="next-result?"  ds=" -- 0|res  "        word="next-result?" />
+<alias name="next-row?"     ds=" -- 0|row  "        word="next-row?"    />
+<alias name="next-col?"     ds=" -- flag   "        word="next-col?"    />
+<alias name="get-value"     ds=" -- d-val  "        word="get-value"    />
+<alias name="get-name"      ds=" -- d-name "        word="get-name"     />
+<alias name="fetch-value"   ds=" d-name -- d-val "  word="fetch-value"  />
 
 <include href="enum-response.f.xml"/>
+
+</export>
 
 
 <wordlist name="buf">
