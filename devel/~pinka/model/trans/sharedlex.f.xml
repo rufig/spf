@@ -157,6 +157,8 @@
     lib::function 
   Атрибут 'name' опционален; если его нет, то словарь добавляется в контекст
   и убирается оттуда при достижении /forth
+
+  TODO: public alias for 'fetch-sharedlex'
 </comment>
 
 </wordlist>
