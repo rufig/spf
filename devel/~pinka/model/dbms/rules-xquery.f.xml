@@ -45,6 +45,10 @@
   `within-transaction t-method
 </rule>
 
+<rule match="s:query-per">
+  `query-per- method for-string
+</rule>
+
 <rule match="s:query">
   `query method for-string
 </rule>

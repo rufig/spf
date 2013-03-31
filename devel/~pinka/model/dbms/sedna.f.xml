@@ -241,6 +241,10 @@
   <q> put-query next </q> SWAP (per-query-per)
 </def>
 
+<def name="query-per-" ds=" consumer-xt d-query -- ">
+  ROT query-per
+</def>
+
 <def name="query-value" ds=" d-query -- d-value ">
   0. last-part! <rem> result may be empty </rem>
   <q> OVER <if> last-part! <exit/></if> 2DROP </q>
