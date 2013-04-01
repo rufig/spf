@@ -154,7 +154,8 @@ REQUIRE enqueueNOTFOUND  ~pinka/spf/notfound-ext.f
 ;
 ' AsForthmlSourceFile preemptNOTFOUND
 
+REQUIRE --workdir  ~pinka/lib/options-stdio.f
 
 \ Итого, объектного кода:
-\   библиотеки, расширения и выравнивания -- 32 Кб
+\   библиотеки, расширения и выравнивания -- 36 Кб
 \   транслятор ForthML с навесками -- 47 Кб
