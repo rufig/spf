@@ -34,6 +34,9 @@ REQUIRE [DEFINED] lib/include/tools.f
 [THEN]
 
 
+: OPEN-LOG ( a u -- h )
+  OPEN-LOGFILE THROW
+;
 : ATTACH-CATCH ( a u a-file u-file -- ior )
   OPEN-LOGFILE DUP IF NIP NIP EXIT THEN DROP
   DUP >R WRITE-FILE ( ior )
