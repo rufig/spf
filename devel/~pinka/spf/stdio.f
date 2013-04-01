@@ -1,0 +1,14 @@
+REQUIRE SET-STDOUT-SYS ~pinka/lib/win/stdio.f
+
+: SET-STDIN ( h -- )
+  DUP SET-STDIN-SYS
+  TO H-STDIN
+;
+: SET-STDOUT ( h -- )
+  DUP SET-STDOUT-SYS
+  TO H-STDOUT
+;
+: SET-STDERR ( h -- )
+  DUP SET-STDERR-SYS
+  TO H-STDERR
+;
