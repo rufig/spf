@@ -5,7 +5,7 @@
 \ имя может быть в кавычках ( "filename").
 
     BL SKIP
-    SOURCE DROP >IN @ + C@   [CHAR] " = IF [CHAR] " DUP SKIP ELSE BL THEN
+    SOURCE DROP >IN @ + C@  DUP [CHAR] " = IF >IN 1+! ELSE DROP BL THEN
     PARSE  2DUP + 0 SWAP C!
 ;
 
