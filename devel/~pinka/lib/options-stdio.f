@@ -7,13 +7,15 @@ REQUIRE FORCE-PATH                  devel/~pinka/samples/2005/lib/lay-path.f
 REQUIRE WORDLIST-NAMED              devel/~pinka/spf/compiler/native-wordlist.f
 REQUIRE PUSH-DEVELOP                devel/~pinka/spf/compiler/native-context.f
 REQUIRE SET-STDOUT                  devel/~pinka/spf/stdio.f
-REQUIRE ParseFileName               devel/~pinka/lib/parse.f
+REQUIRE PARSE-STRING                devel/~pinka/lib/parse-string.f
 REQUIRE SetCurrentDir               devel/~pinka/lib/win/directory.f
 REQUIRE AsQName                     devel/~pinka/samples/2006/syntax/qname.f
 
 : OPEN-LOG-SURE ( d-txt-filename -- ) FORCE-PATH OPEN-LOG ;
 
 `SUPPORT-OPTIONS-STDIO WORDLIST-NAMED PUSH-DEVELOP
+
+: ParseFileName ( -- a u ) PARSE-STRING 2DUP + 0 SWAP C! ;
 
 CREATE stdpath 0. , ,
   ..: AT-PROCESS-STARTING 0. stdpath 2! ;..
