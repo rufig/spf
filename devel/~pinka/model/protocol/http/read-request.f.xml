@@ -10,10 +10,6 @@
 <def name="read-request-line?" ds=" -- flag ">
   next-textline? <unless> FALSE <exit/></unless>
   parse-request-line
-  http-ver-major 1 EQ <unless>
-    `http-request h@ <logS>request line</logS>
-    `#505 STHROW 
-  </unless><!-- HTTP/1.1 only -->
   TRUE
 </def>
 

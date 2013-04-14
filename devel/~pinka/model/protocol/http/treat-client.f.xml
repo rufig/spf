@@ -6,6 +6,15 @@
   treat-request
 </bind-up></rem>
 
+<def name="check-request" ds=" -- ">
+  `http-excess h@ NIP <if>
+    `#400 STHROW <rem> bad request </rem>
+  </if>
+  http-ver-major 1 EQ <unless>
+    `http-request h@ <logS>request line</logS>
+    `#505 STHROW 
+  </unless><!-- HTTP/1.1 only -->
+</def>
 
 <def name="allow-pipelining?" ds=" -- flag ">
   FALSE <!-- not supported yet -->
@@ -78,6 +87,7 @@
   <until> sock <while/>
     accept-request?
   <while/>
+    check-request
     dispatch-request
     <rem> here  after the cleanup </rem>
     sock 0EQ
