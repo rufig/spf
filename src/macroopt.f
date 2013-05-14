@@ -3686,7 +3686,7 @@ OP2 @ W@ 4589 XOR OR \  8945FC            MOV     FC [EBP] , EAX
 OP1 @ @ FFFFFF AND 24048B XOR OR \  8B0424                MOV     EAX , [ESP]
 OP0 @ W@ 6DF7 XOR OR \  F76DFC            IMUL    FC [EBP]
 0=      IF  M\ 1A4 DTST
-               2CF6 OP1 @ W! \ IMUL    [ESP]
+               2CF7 OP1 @ W! \ IMUL    [ESP]
                OP1 ToOP0
                FALSE -3 ALLOT M\ 1A5 DTST
                EXIT
