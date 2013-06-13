@@ -26,11 +26,11 @@
 
 <def name="(put-file-raw)" ds=" h d -- ">
   ROT
-  sock WRITE-SOCKET-FILE THROW
+  sock WRITE-SOCKET-FILE DUP sock-err! THROW
   stat-w+! _cnt-put 1+!
 </def>
 <def name="(put-filename-raw)" ds=" a u d -- ">
-  2SWAP sock WRITE-SOCKET-FILENAME THROW
+  2SWAP sock WRITE-SOCKET-FILENAME DUP sock-err! THROW
   stat-w+!  _cnt-put 1+!
 </def>
 <def name="put-file-raw" ds=" h -- ">
