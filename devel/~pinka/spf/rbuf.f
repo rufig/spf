@@ -18,6 +18,9 @@
   SWAP >R
   SWAP
 ;
+: RDROP-BUF ( -- ) ( R: i*x -- )
+  R> RDROP R> RFREE >R
+;
 
 : RCARBON ( addr u -- addr2 u )
   R>
