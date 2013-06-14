@@ -24,10 +24,14 @@ REQUIRE PutFileTr   ~ac/lib/win/winsock/transmit.f
 
 : WRITE-SOCK-FILENAME ( d-filename sock -- ior )
   >R
-  R/O OPEN-FILE-SHARED DUP IF NIP RDROP EXIT THEN ( 0 ) DROP
+  R/O OPEN-FILE-SHARED-DELETE DUP IF NIP RDROP EXIT THEN ( 0 ) DROP
   R> OVER >R
   WRITE-SOCK-FILE
   R> CLOSE-FILE OVER IF DROP EXIT THEN NIP
+  ( Файл, который находится в процессе отправки, лучше не менять. Если его размер уменьшиться,
+    то TransmitFile так и повиснет [в ожидании данных для отправки?].
+    Вариант предупреждения ситуации: открывать здесь файл в эксклюзивном режиме, вместо shared.
+  )
 ;
 
 \ just aliases:
