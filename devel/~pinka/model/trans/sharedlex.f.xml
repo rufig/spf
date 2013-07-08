@@ -139,7 +139,7 @@
 </rule>
 <rule match="f:forth">
   SCOPE-DEPTH >R
-  <next-match> -5321 THROW </next-match>
+  <next-match-sure/>
   SCOPE-DEPTH R> - NDROP-SCOPE
 </rule>
 </f:g>

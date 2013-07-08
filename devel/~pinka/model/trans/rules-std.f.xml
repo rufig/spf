@@ -41,6 +41,12 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   </postpone>
 </rule>
 
+<rule match="r:next-match-sure" ds=" i*x -- j*x "><!-- not obey to M -->
+  <postpone>
+    perform-rules-next <f:unless> -5321 THROW </f:unless>
+  </postpone>
+</rule>
+
 
 <rule match="f:xt"><!-- only within f:def or f:p -->
   <m>
