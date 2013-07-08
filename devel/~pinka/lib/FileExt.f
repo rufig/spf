@@ -38,6 +38,7 @@ WINAPI: CopyFileA              KERNEL32.DLL
   -ROT CopyFileA ERR
 ;
 : COPY-FILE-OVER ( src-a src-u  dst-a dst-u -- ior )
+\ This operation doesn't change the hardlinks number of the dst file.
   DROP NIP
   SWAP FALSE -ROT CopyFileA ERR
 ;
