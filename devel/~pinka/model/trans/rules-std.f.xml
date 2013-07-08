@@ -198,6 +198,26 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 </rule>
 <f:comment> What about "f:here" ? </f:comment>
 
+<rule match="f:include">
+  <f:comment>
+    Shortcut
+      <include name="xxx" href="..."/>
+    for the common use case
+      <wordlist name="xxx"><include href="..."/></wordlist>
+  </f:comment>
+  <f:choose> `name HasAttribute <f:when>
+  <m>
+    <get-name/> WORDLIST-NAMED
+    PUSH-DEVELOP
+      <next-match-sure/>
+    DROP-DEVELOP
+    <f:rem> we can't use here the 'wordlist' element with namepat name="{}" because of the namepat is not defined on this moment</f:rem>
+  </m>
+  </f:when><f:otherwise>
+    <next-match-sure/>
+  </f:otherwise></f:choose>
+</rule>
+<f:comment> What about "@test" for 'rule' ? </f:comment>
 
 <!-- r: -->
 
