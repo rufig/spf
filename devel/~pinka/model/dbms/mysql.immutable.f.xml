@@ -60,7 +60,7 @@
 </def>
 
 <def name="fetch-value" ds=" d-name -- d-value ">
-  row <unless> 0. <exit/></unless>
+  row <unless> 2DROP 0. <exit/></unless>
   col >R -1 col!
   <until> next-col? <while/> 2DUP get-name EQUAL </until>
   2DROP get-value
