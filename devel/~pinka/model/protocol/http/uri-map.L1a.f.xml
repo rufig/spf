@@ -17,9 +17,9 @@
   chain-context <let> perform-chain </let>
 </def>
 <def name="dispatch-pathname-via" ds=" a u h -- flag ">
-  orig 2>R
+  orig 2>R pathname 2>R
   -ROT 2DUP pathname! orig! dispatch-via
-  2R> orig!
+  2R> pathname! 2R> orig!
 </def>
 <def name="basepath" ds=" -- a u ">
   orig DROP pathname DROP OVER -
