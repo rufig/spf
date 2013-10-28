@@ -47,6 +47,11 @@
 
 <export>
 
+<def name="clear-xslt-params" ds=" -- ">
+  use-xslt-params <rem> check for startup </rem>
+  <fire event="cleanup"/>
+</def>
+
 <def name="set-xslt-param-" ds=" a-name u-name a-val u-val -- ">
   use-xslt-params <rem> init once </rem>
   quoted-string push-pair-
@@ -67,7 +72,7 @@
 <def name="(xtrans)" ds=" -- a2 u2 ">
   PrepareParams _params !
   <q>(apply)</q> CATCH >R
-  _params 0!
+  _params 0! <rem> it has, by and large, no any effect </rem>
   cleanup FIRE-EVENT
   R> THROW
 </def>
