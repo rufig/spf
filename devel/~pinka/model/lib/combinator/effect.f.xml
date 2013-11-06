@@ -7,6 +7,9 @@
   SP@ >R EXECUTE R> SP@ - 1 CELLS /
   <rem>hint: DEPTH </rem>
 </def>
+<comment>
+  BTW, it clashes semantically with 'execute-effect' word in Factor language.
+</comment>
 
 <def name="EXECUTE-BALANCED(+1)" ds=" xt -- x ">
   EXECUTE-EFFECT 1 EQ <unless> -5010 THROW </unless>
