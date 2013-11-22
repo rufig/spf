@@ -16,7 +16,7 @@ CREATE table  /table ALLOT  table /table ERASE
 
 VARIABLE ccc
 
-: (transl-chank)
+: (transl-chunk)
   BEGIN NextWord DUP WHILE
     hash-mod HASH
       DUP hash-mod U< 0= ABORT" Out of range!"
@@ -27,7 +27,7 @@ VARIABLE ccc
 
 : rcv ( "ccc" -- )
   &INTERPRET @ >R
-  ['] (transl-chank) &INTERPRET !
+  ['] (transl-chunk) &INTERPRET !
   ['] INCLUDED CATCH
   R> &INTERPRET !
                         THROW
