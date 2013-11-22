@@ -176,6 +176,10 @@
   xml-stylesheet! 
 </def>
 
+<alias name="assume-xml-stylesheet" word="set-xml-stylesheet" />
+
+<alias name="xml-stylesheet" word="xml-stylesheet" ds=" -- d-url | 0 0 "/>
+
 </export>
 
 
