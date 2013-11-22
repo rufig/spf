@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<def name="CONTAINS-ACCEPT-TYPE" ds=" d-headervalue d-type -- flag ">
+  <rem> text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 </rem>
+  2>R <until>
+    `, SPLIT- <rem> flag for until </rem> -ROT
+    `; SPLIT  <if> 2DROP </if>
+    <rem> TODO:
+      If a parameter has a quality value of 0, then content with this parameter is `not acceptable' for the client.
+      http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.9
+      http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1
+    </rem>
+    FINE-HEAD FINE-TAIL 2R@ EQUAL <if><if>2DROP</if> RDROP RDROP TRUE <exit/></if>
+    0 EQ
+  </until> RDROP RDROP FALSE
+</def>
+
+<def name="is-accept-type" ds=" d-type -- flag ">
+  `Accept http::h@ 2SWAP CONTAINS-ACCEPT-TYPE
+</def>
+
+
+<def name="accept-language-first" ds=" -- d-lang ">
+  <rem> en-us,en;q=0.5 </rem>
+  <rem> en,ru;q=0.5    </rem>
+
+  `Accept-Language http::h@ 
+  `, SPLIT <if> 2DROP </if>
+  `; SPLIT <if> 2DROP </if>
+
+</def>
+
+
+</forth>

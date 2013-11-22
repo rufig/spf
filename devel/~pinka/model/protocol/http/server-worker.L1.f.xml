@@ -4,6 +4,7 @@
   <include href="headers-parse/storage.f.xml" />
   <include href="headers-parse/common.f.xml"/>
   <include href="headers-parse/request.f.xml"/>
+  <include href="headers-parse/request-accept.f.xml"/>
 
   <include href="headers-compose/storage.f.xml"/>
   <include href="headers-compose/general.f.xml"/>
