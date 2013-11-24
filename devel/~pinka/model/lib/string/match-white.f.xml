@@ -18,6 +18,9 @@
   <comment>Returns the substring with whitespace normalized by stripping trailing whitespace</comment>
   OVER + <until> 2DUP EQ <if> DROP 0 <exit/></if> CHAR- DUP C@ IS-WHITE 0EQ </until> CHAR+ OVER -
 </def>
+<def name="TRIM" ds=" c-addr u -- c-addr2 u2 ">
+  FINE-HEAD FINE-TAIL
+</def>
 
 <def name="SPLIT-WHITE-FORCE" ds=" c-addr u -- c-addr-left u-left  c-addr-right u-right ">
   2DUP OVER + SWAP
