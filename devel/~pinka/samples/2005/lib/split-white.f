@@ -13,6 +13,9 @@
 \ "очистить хвост" - дать строку за вычетом пробельных символов в конце
   CHARS OVER + BEGIN 2DUP U< WHILE CHAR- DUP C@ IS-WHITE 0= UNTIL CHAR+ THEN OVER - >CHARS
 ;
+: TRIM ( c-addr u -- c-addr2 u2 )
+  FINE-HEAD FINE-TAIL
+;
 : SPLIT-WHITE-FORCE ( c-addr u -- c-addr-left u-left  c-addr-right u-right )
 \ 'FORCE' значит, что без флага
 \ если разделитель не найден, то правая часть имеет длину 0.
