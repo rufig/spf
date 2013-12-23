@@ -47,7 +47,8 @@
 <def name="content-per-catch" ds=" xt -- ior "><rem> xt ( a u -- ) </rem>
   <rem> reads what the rest by content-rest value </rem>
   content-rest SWAP 'read-limited-per CATCH DUP <if> NIP NIP <exit/></if> DROP
-  content-rest OVER - content-rest!
+  <rem> m.b. the stack of read-limited-per is counterintuitive (?)</rem>
+  DUP content-rest!
   0EQ <if> 0 <exit/></if> -1002 
 </def>
 <def name="content-per" ds=" xt -- "><rem> xt ( a u -- ) </rem>
