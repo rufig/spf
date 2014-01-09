@@ -1,0 +1,47 @@
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- $Id$ -->
+
+`SEARCH-LAST DEFINED <unless>
+
+<def name="SEARCH-LAST" ds=" a u a-key u-key -- a2 u2 flag ">
+  DUP 0EQ <if> 2DROP + 0 TRUE <exit/></if>
+  2>R
+  2R@ SEARCH <unless> RDROP RDROP FALSE <exit/></unless>
+  <until> SWAP CHAR+ SWAP CHAR- 2R@ SEARCH 0EQ </until>
+  RDROP RDROP
+  SWAP CHAR- SWAP CHAR+
+  TRUE
+</def>
+
+</unless>
+
+
+<def name="SUBSTRING-AFTER-LAST" ds=" a u a-key u-key -- a2 u2 ">
+  DUP >R SEARCH-LAST <if> SWAP R@ + SWAP R> - <exit/></if> RDROP 2DROP 0 0
+</def>
+
+<def name="SUBSTRING-BEFORE-LAST" ds=" a u a-key u-key -- a2 u2 ">
+  3 PICK >R  SEARCH-LAST  <if> DROP R> TUCK - <exit/></if>  RDROP 2DROP 0 0
+</def>
+
+<def name="SPLIT-LAST-" ds=" a u a-key u-key -- a-right u-right  a-left u-left  true  |  a u false ">
+  3 PICK >R DUP >R <!-- ( R: a u1 ) -->
+  SEARCH-LAST   <if><!-- ( aa uu ) -->
+  OVER R@ + SWAP R> - <!-- aa+u1 uu-u1  - right part  -->
+  ROT R@ - R> SWAP    <!-- a aa-a       - left part   -->
+  TRUE <exit/></if>
+
+  2R> 2DROP FALSE
+</def>
+
+<def name="SPLIT-LAST" ds=" a u a-key u-key -- a-left u-left  a-right u-right  true  |  a u false ">
+  DUP >R 3 PICK >R <!-- ( R: u1 a ) -->
+  SEARCH-LAST   <if><!-- ( aa uu ) -->
+  SWAP R@ OVER R> -     <!-- a aa-a       - left part  -->
+  2SWAP R@ + SWAP R> -  <!-- aa+u1 uu-u1  - right part -->
+  TRUE <exit/></if>
+
+  2R> 2DROP FALSE
+</def>
+
+</forth>
