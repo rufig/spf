@@ -10,6 +10,9 @@
   <text>Content-Disposition: attachment; filename="</text> S, S, `" S, CRLF S, 
   <rem> filename-parm = "filename" "=" quoted-string -- rfc2616 #sec19.5.1 </rem>
 </def>
+<def name="add-header-cache-maxage" ds=" d-txt-maxage -- ">
+  <text>Cache-Control: max-age=</text> S, add-header-line
+</def>
 
 </also>
 

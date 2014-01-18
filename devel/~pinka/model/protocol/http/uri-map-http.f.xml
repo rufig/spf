@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ASCII"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<comment>
+  Extension for uri-map module (with bind to http Reply40* )
+  rvm, 2009
+</comment>
+
+<comment>
+  This module is not used any more in favor of the new 'urimap'.
+  It is commited just for history and reference.
+</comment>
+
+<slot> h-nlist </slot>
+<def name="nlist-txt" ds=" wid -- a u "><rem> NLIST to string </rem>
+  0. h-nlist XUPDATED h-nlist!
+  <q ds=" nfa -- ">
+    COUNT <rem> spf4 specific </rem>
+    h-nlist XENCLOSED h-nlist!
+    <text> </text> h-nlist XENCLOSED h-nlist!
+  </q> FOR-WORDLIST
+  h-nlist XCOUNT
+</def>
+
+<def name="reply-by-method-wl" ds=" wid -- ">
+  DUP >R http-method OBEY- <if> RDROP <exit/></if> 2DROP 
+  R> nlist-txt Reply405Methods
+</def>
+<def name="reply-method-by-voc" ds=" wid -- ">
+  reply-by-method-wl
+</def>
+
+
+<develop wordlist="uri-map">
+
+<def name="add-segment-methods" ds=" wid d-segment -- ">
+  <rem> wid is vocabulary with http-methods handlers for given url segment (word's name matches to http-method)</rem>
+  2>R
+  <p><lit/> reply-method-by-voc</p>
+  2R> add-segment-handler
+</def>
+
+<def name="dispatch-segment-by-voc" ds=" wid -- flag ">
+  next-segment OBEY- DUP <unless> NIP NIP </unless>
+</def>
+
+<def name="add-segments" ds=" wid -- ">
+  <rem> wid is vocabulary with segments handlers (word's name matches to url segment)</rem>
+  <p><lit/> dispatch-segment-by-voc </p> add-handler
+</def>
+
+</develop>
+
+
+<def name="reply-segment-by-voc" ds=" wid -- ">
+  uri-map::next-segment OBEY- <if><exit/></if>
+  <rem>( a u )</rem> Reply404txt
+</def>
+
+
+</forth>
