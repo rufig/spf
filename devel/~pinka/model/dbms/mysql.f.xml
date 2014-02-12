@@ -135,10 +135,7 @@
 
 
 <def name="store-xml-stylesheet" ds=" -- ">
-  xml-stylesheet NIP <unless><exit/></unless>
-  <text><![CDATA[<?xml-stylesheet type="text/xsl" href="]]></text> store-chunk
-  xml-stylesheet store-chunk
-  <text><![CDATA["?>]]>&#xA;</text> store-chunk
+  xml-stylesheet store-instruction-stylesheet
   0. xml-stylesheet!
 </def>
 
@@ -163,9 +160,9 @@
   buf::set-consumer
   buf::clear
   omit-xml-declaration <unless>
-    <text><![CDATA[<?xml version="1.0"?>]]>&#xA;</text> store-chunk
+    store-xml-declaration
   </unless>
-  store-xml-stylesheet   0. xml-stylesheet!
+  store-xml-stylesheet
   query store-response
   0. buf::transmit <rem> end-of-data mark </rem>
 </def>

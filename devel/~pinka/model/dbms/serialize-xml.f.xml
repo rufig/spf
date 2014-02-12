@@ -39,6 +39,21 @@
   <text><![CDATA[</response>]]></text> store-chunk
 </def>
 
+
+<def name="store-instruction-stylesheet" ds=" d-txt-uri -- ">
+  DUP <unless> 2DROP <exit/></unless>
+  <text><![CDATA[<?xml-stylesheet type="text/xsl" href="]]></text> store-chunk
+  store-chunk
+  <text><![CDATA["?>]]>&#xA;</text> store-chunk
+</def>
+
+<def name="store-instruction-xml" ds=" -- ">
+    <text><![CDATA[<?xml version="1.0"?>]]>&#xA;</text> store-chunk
+</def>
+
+<alias name="store-xml-declaration" word="store-instruction-xml" ds=" -- "/>
+
+
 <comment>
   Another approach:
     http://www.mysqludf.org/
