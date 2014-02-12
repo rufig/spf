@@ -41,7 +41,11 @@
 
 <comment>
   Another approach:
-    http://www.mysqludf.org/lib_mysqludf_xql/
+    http://www.mysqludf.org/
+    https://github.com/mysqludf/lib_mysqludf_xml
       The library for create XML output directly from MySQL
+
+  In PostgreSQL there are built in:
+    http://www.postgresql.org/docs/devel/static/functions-xml.html#FUNCTIONS-XML-MAPPING
 </comment>
 </forth>
