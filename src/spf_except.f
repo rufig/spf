@@ -31,7 +31,7 @@ VECT FATAL-HANDLER      ' NOOP ' FATAL-HANDLER TC-VECT!
 \   сообщение об условии, соответствующем THROW с кодом n. Затем 
 \   система выполнит функцию ABORT (версию ABORT из CORE).
   DUP 0= IF DROP EXIT THEN
-  DUP 109 = IF DROP EXIT THEN \ broken pipe - обычно не ошибка, а конец входного потока в CGI
+  \ DUP 109 = IF DROP EXIT THEN \ broken pipe - обычно не ошибка, а конец входного потока в CGI
   
   HANDLER @  DUP IF  RP!
   R> HANDLER !
@@ -40,7 +40,14 @@ VECT FATAL-HANDLER      ' NOOP ' FATAL-HANDLER TC-VECT!
   EXIT         THEN
   DROP FATAL-HANDLER
 ;
-
+( THROW обязанно выполнять исключение при любом коде исключения, отличном от 0.
+  Пропуск кода 109 был ошибкой, унаследованной откуда-то очень давно.
+  Во первых, полно кода который абсолютно корректно делает DUP IF ... THROW THEN ...
+  Во вторых, 109 можно получить не только на READ-FILE, но на WRITE-FILE.
+  Поэтому, анализ кода 109 и замена его на 0 допустимо только внутри READ-FILE и др,
+  но никак не в THROW
+  2014-03-11 ~ruv
+)
 ' THROW TO THROW-CODE \ вектор в инструментальной системе, в рамках TC
 
 VECT <SET-EXC-HANDLER> \ установить обработчик аппаратных исключений

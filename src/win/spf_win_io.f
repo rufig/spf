@@ -136,6 +136,7 @@ USER lpNumberOfBytesRead
   0 lpNumberOfBytesRead R> R> R>
   ReadFile ERR
   lpNumberOfBytesRead @ SWAP
+  DUP 109 = IF DROP 0 THEN \ broken pipe - обычно не ошибка, а конец входного потока данных
 ;
 
 : REPOSITION-FILE ( ud fileid -- ior ) \ 94 FILE
