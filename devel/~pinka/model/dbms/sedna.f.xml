@@ -24,7 +24,7 @@
 
 <alias name="packet" word="packet"/>
 
-<slot> buf  sock port-number t </slot>
+<slot> buf  sock port-number t in-query </slot>
 <slot2> database user password  hostname port </slot2>
 
 <slot2> request last-part xml-stylesheet </slot2>
@@ -123,6 +123,7 @@
 <def name="open" ds=" -- ">
   close
   0 t! <rem> reset in-transaction flag </rem>
+  FALSE in-query! <rem> reset in-query flag </rem>
   hostname port-number ConnectHost THROW sock!
   packet::Start-Up put next
 </def>
@@ -240,9 +241,12 @@
 
 <def name="(per-query-per)" ds=" i*x putter-xt consumer-xt -- j*x ">
   <!-- see: sedna-api.scm # sedna:execute-query-xml -->
+  in-query <if> `#sedna-query-recursion LAST-ERROR-MSG! -2 THROW-DUMP </if>
+  TRUE in-query! <rem> protection against indirect recursion </rem>
   consumer-orig-xt! 'consumer1 consumer-xt!
     <rem>( putter )</rem>
   within-transaction
+  FALSE in-query!
 </def>
 
 <def name="query-per" ds=" d-query consumer-xt -- "><!-- see: sedna-api.scm # sedna:execute-query-xml -->
