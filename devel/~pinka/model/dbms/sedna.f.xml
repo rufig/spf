@@ -144,16 +144,20 @@
   <again/>
 </def>
 
+<def name="end-query-parts" ds=" -- ">
+  packet::LongQueryEnd put
+</def>
+
 <def name="put-query" ds=" addr u -- "><!-- see:  sedna:write-query-out -->
   DUP max-query-size UGT <unless> request! client-message::Execute put <exit/></unless>
   put-query-parts
-  packet::LongQueryEnd put
+  end-query-parts
 </def>
 
 <def name="per-put-query" ds=" emitter-xt -- ">
   >R <repeat> R@ EXECUTE <rem>( a u )</rem>
   DUP <while/> put-query-parts </repeat> 2DROP RDROP
-  packet::LongQueryEnd put
+  end-query-parts
 </def>
 
 <def name="consumer1" ds=" a u -- ">
@@ -197,7 +201,7 @@
 
 <def name="transact" ds=" -- ">
   t <if> t 1+ t! <exit/></if>
-  <rem> don't try reopen-session logic if transaction had been already open </rem>
+  <rem> don't try reopen-session logic if transaction has been already opened </rem>
   sock <unless> reopen </unless>
   '(transact) CATCH <choose>
     DUP 0 EQ     <when> DROP <exit/></when>
