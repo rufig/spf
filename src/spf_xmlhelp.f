@@ -213,7 +213,7 @@ SPECIAL > &gt;
 : REQUIRE
     generateHelp? 0=
     IF
-       INCLUDED EXIT
+       REQUIRE EXIT
     THEN
 
     >IN @ PARSE-NAME SFIND
