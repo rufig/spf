@@ -6,19 +6,23 @@
 REQUIRE >CS ~pinka/spf/compiler/control-stack.f \ управл€ющий стек
 
 
-: PARENT-NODE-FROM ( node1 node9 -- node2|0 ) \ node2-->node1
+: (NODE-PRECEDING-FROM) ( node1 node9 -- node2|0 ) \ node9--> ... -->node2-->node1
   SWAP >R
   BEGIN DUP WHILE \ ( node4 )
   DUP CDR DUP R@ = IF ( node4 node3 ) DROP RDROP EXIT THEN
   NIP REPEAT RDROP
 ;
-: FIND-PARENT-NODE ( node1 node9 -- node2 true | node1 falst ) \ node2-->node1
-  OVER >R PARENT-NODE-FROM DUP IF RDROP TRUE EXIT THEN
-  DROP R> FALSE
-;
 : (CONCAT-WORDLIST) ( node1 node9 wid -- )
   DUP @ >R ! NAME>L R> SWAP !
 ;
+: DISPLACE-SUBWORDLIST ( wid-src node-boundary wid-dst -- )
+  >R SWAP
+  2DUP @ (NODE-PRECEDING-FROM) DUP 0= IF DROP 2DROP RDROP EXIT THEN
+  ( node-boundary wid-src pnode )
+  >R DUP @ >R ! \ node-boundary wid-src !  ( R: wid-dst pnode last-node )
+  2R> R> (CONCAT-WORDLIST)
+;
+\ see also: model/data/list-plain.f.xml # DISPLACE-SUBLIST
 
 : PUSH-CURRENT ( wid -- ) 
   GET-CURRENT >CS SET-CURRENT
@@ -56,10 +60,7 @@ REQUIRE >CS ~pinka/spf/compiler/control-stack.f \ управл€ющий стек
   GET-CURRENT @ >CS
 ;
 : END-EXPORT ( -- )
-  CS> GET-CURRENT 2DUP @ FIND-PARENT-NODE 0= IF DROP 2DROP EXIT THEN
-  ( node wid-current  pnode )
-  GET-CURRENT @ CS@ (CONCAT-WORDLIST)
-  ( node wid-current ) !
+  GET-CURRENT CS> CS@  DISPLACE-SUBWORDLIST
   [DEFINED] QuickSWL-Support    [IF]
     GET-CURRENT REFRESH-WLCACHE
     CS@         REFRESH-WLCACHE
