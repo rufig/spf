@@ -14,7 +14,8 @@
  [branch]/[family]/[short-name]
 
  Factor approach:
-   http://docs.factorcode.org/content/vocab-317f1e761f2faa8da781a4762b9dcc2c5cad209a.html
+   http://docs.factorcode.org/content/article-os.html
+   "Operating system detection"
 )
 
 REQUIRE EQUAL ~pinka/lib/ext/basics.f
