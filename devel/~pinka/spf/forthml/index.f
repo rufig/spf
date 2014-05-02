@@ -13,7 +13,7 @@
 
 
 REQUIRE [UNDEFINED]     lib/include/tools.f
-REQUIRE AsQName         ~pinka/samples/2006/syntax/qname.f \ понятие однословных строк в виде `abc
+REQUIRE AsQWord         ~pinka/spf/quoted-word.f \ понятие однословных строк в виде `abc и слов в виде 'abc
 REQUIRE CORE_OF_REFILL  ~pinka/spf/fix-refill.f
 REQUIRE Require         ~pinka/lib/ext/requ.f
 REQUIRE AT-SAVING-BEFORE ~pinka/spf/storage.f
