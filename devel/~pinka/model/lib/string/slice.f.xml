@@ -18,6 +18,24 @@
 
 
 
+<def name="DISSECT" ds=" addr u n -- addr n  addr2 u2 ">
+  <rem> split string at offset n, i.e. addr2=addr+n,  u2=u-n </rem>
+  OVER UMIN  TUCK - >R  2DUP +  R>
+</def>
+<def name="DISSECT-" ds=" d-txt n -- d-dxt2 d-txt1 ">
+  DISSECT 2SWAP
+</def>
+
+<def name="CDISSECT-" ds=" d-txt n -- d-dxt2 d-txt1 ">
+  CHARS DISSECT-
+</def>
+
+<def name="GAP" ds=" -- d-txt"><rem> SP, gap character (string of)</rem>
+  <text> </text>
+</def>
+
+
+
 <!-- experimental words -->
 
 <def name="CLEFT+" ds=" a u cn -- a2 u2 ">
