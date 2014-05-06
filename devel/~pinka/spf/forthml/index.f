@@ -13,7 +13,7 @@
 
 
 REQUIRE [UNDEFINED]     lib/include/tools.f
-REQUIRE AsQWord         ~pinka/spf/quoted-word.f \ понятие однословных строк в виде `abc и слов в виде 'abc
+REQUIRE AsQName         ~pinka/samples/2006/syntax/qname.f \ понятие однословных строк в виде `abc
 REQUIRE CORE_OF_REFILL  ~pinka/spf/fix-refill.f
 REQUIRE SET-STDOUT      ~pinka/spf/stdio.f
 REQUIRE Require         ~pinka/lib/ext/requ.f
@@ -146,6 +146,13 @@ TO ?C-JMP  \ оставлять включенным нельзя, т.к. дает глюки для r-чувствительных с
 
 
 REQUIRE enqueueNOTFOUND  ~pinka/spf/notfound-ext.f
+
+: AsQWord ( a-text u-text -- i*x true | a u false )  \ T-QWord
+  forthml-hidden::I-QUOTED-FORM IF T-LIT TRUE EXIT THEN FALSE
+  \ Prefer fml implementation over ~pinka/spf/quoted-word.f
+  \ It supports the form: 'wlA::wlB::specificword
+;
+' AsQWord preemptNOTFOUND
 
 : AsForthmlSourceFile ( a u -- a u false | i*x true )
   2DUP S" .f.xml" ENDS-WITH 0= IF FALSE EXIT THEN
