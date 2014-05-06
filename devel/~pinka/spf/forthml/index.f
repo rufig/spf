@@ -15,6 +15,7 @@
 REQUIRE [UNDEFINED]     lib/include/tools.f
 REQUIRE AsQWord         ~pinka/spf/quoted-word.f \ понятие однословных строк в виде `abc и слов в виде 'abc
 REQUIRE CORE_OF_REFILL  ~pinka/spf/fix-refill.f
+REQUIRE SET-STDOUT      ~pinka/spf/stdio.f
 REQUIRE Require         ~pinka/lib/ext/requ.f
 REQUIRE AT-SAVING-BEFORE ~pinka/spf/storage.f
 REQUIRE WITHIN-FORTH-STORAGE-EXCLUSIVE  ~pinka/spf/storage-sync.f

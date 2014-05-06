@@ -25,6 +25,8 @@
 FORTH-WORDLIST PUSH-CURRENT
 <include href="obey.f.xml"/>
 <include href="StoN.f.xml"/>
+<include href="../lib/combinator/conditional.f.xml"/>
+<include href="../io/accept-ext.spf4.f.xml"/>
 DROP-CURRENT
 
 </g></g>
