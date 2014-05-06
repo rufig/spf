@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<rem>
+  2009, 2014-05 ruv
+</rem>
+
+<comment>
+  Requires:
+    TRIM        model/lib/string/match-white.f.xml
+    IF-ELSE     model/lib/combinator/conditional.f.xml
+    SET-STDOUT  spf/stdio.f
+</comment>
+
+<rem> see also: ~/samples/2007/fcomposition/quit.f.xml # ENUM-STDIN-LINES </rem>
+
+<def name="ENUM-LINES-STDIN" ds=" xt -- ">
+  >R <repeat> NEXT-LINE-STDIN <while/> R@ EXECUTE </repeat> RDROP
+</def>
+
+<def name="ENUM-LINES-STDIN-ROBUST" ds=" i*x xt -- j*x ">
+  <rem> halts on error, to use in batch </rem>
+  SAVE-SOURCE N>R
+  <q ds="xt d-txt -- xt"><rem> filter: trim and skip empty lines (!!!) </rem>
+    2DUP SOURCE! <rem> for error indication, if any </rem>
+    ROT >R
+      TRIM DUP R@ '2DROP IF-ELSE
+    R>
+  </q> 'ENUM-LINES-STDIN CATCH
+  DUP 0EQ <if ds=" xt 0 ">
+    <rem> EOF is successfully reached </rem>
+    2DROP
+    NR> RESTORE-SOURCE
+    <exit/>
+  </if>
+  H-STDERR SET-STDOUT <rem> print error message to stderr </rem>
+  DUP ERROR <rem><emit>ERROR #</emit> . CR </rem>
+  NR> RESTORE-SOURCE
+  HALT <rem> return ior as process exit-code </rem>
+</def>
+
+</forth>
