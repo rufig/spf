@@ -124,6 +124,10 @@
   close
   0 t! <rem> reset in-transaction flag </rem>
   FALSE in-query! <rem> reset in-query flag </rem>
+  <rem>
+    Note that check for in-query in the "(per-query-per)" word
+    can be made before this reset in case of reopen.
+  </rem>
   hostname port-number ConnectHost THROW sock!
   packet::Start-Up put next
 </def>
@@ -245,8 +249,9 @@
   TRUE in-query! <rem> protection against indirect recursion </rem>
   consumer-orig-xt! 'consumer1 consumer-xt!
     <rem>( putter )</rem>
-  within-transaction
+  'within-transaction   CATCH <rem> no other way to reliably reset the flag </rem>
   FALSE in-query!
+                        THROW
 </def>
 
 <def name="query-per" ds=" d-query consumer-xt -- "><!-- see: sedna-api.scm # sedna:execute-query-xml -->
