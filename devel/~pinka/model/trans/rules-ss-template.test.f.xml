@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<forth xmlns="http://forth.org.ru/ForthML/" >
+
+
+<g xml:base="http://forth.org.ru/~pinka/model/">
+
+  <comment> The environment </comment>
+
+  <orthodoxy>
+    REQUIRE STHROW          ~pinka/spf/sthrow.f
+  </orthodoxy>
+
+  <include href="data/asset.f.xml" />
+  <include href="trans/rules-ss-template.f.xml"/>
+</g>
+
+
+
+<g><comment> The test </comment>
+
+
+<prop name="s1">Hello, <ss/>!</prop>
+
+  `World set-s1
+  s1 TYPE CR
+
+
+<template name="report-message" ds-in=" x u ">
+  <g>Anonymous word #<ss> SWAP NtoS </ss> takes <ss> NtoS </ss> bytes</g>
+</template>
+
+<def name="test2">
+  <rem> create and run the anonymous definition that creates prop named 's2' </rem>
+  HERE >R
+  <p>
+    <prop name="s2">Hello, <ss/>!</prop>
+  </p>
+  DUP HERE R> - report-message TYPE CR
+  EXECUTE
+</def>
+
+  test2
+  `T2 set-s2
+  s2 TYPE CR
+
+
+<prop name="s3"></prop><rem> no child nodes, so simple text </rem>
+
+  <text>T3 passed</text> set-s3
+  s3 TYPE CR
+
+
+<def name="test4">
+  <p>
+    <prop name="s4"/>
+  </p> DUP . CR EXECUTE
+</def>
+
+  test4
+  <text>T4 passed</text> set-s4
+  s4 TYPE CR
+
+
+</g>
+
+</forth>
