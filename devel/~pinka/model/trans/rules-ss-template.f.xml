@@ -67,26 +67,43 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
   </mm>
 </rule>
 
-<rule match="f:prop" ds=" i*x -- a u ">
-  M @ <f:if> `#f:prop-M-not-supported STHROW </f:if>
-  <mm>
-    ALIGN HERE 0 , <get-name/> <!-- ( addr  a u ) -->
-    <g xmlns="http://forth.org.ru/ForthML/">
-    3DUP <def name="join-{}"><lit> DUP </lit> @ XENCLOSED <lit/> ! </def>
-    3DUP ROT
+
+
+<g xmlns="http://forth.org.ru/ForthML/">
+
+<def name="m-prop-setter" ds=" addr -- xt "><rem> stack spec is given at M0 </rem>
+  <r:m>
     <p>
       0. <lit> DUP </lit> DUP @ SWAP 0! XUPDATED >R
       <r:yield transform="rules-ss-template"/>
       R> <lit/> !
-    </p> >R 2DUP
+    </p>
+  </r:m>
+</def>
+
+<def name="create-prop" ds=" d-txt-name --  addr ">
+  ALIGN HERE 0 , >R
+  2DUP
+    <def name="join-{}" ds=" d-txt -- "><lit> R@ </lit> @ XENCLOSED <lit> R@ </lit> ! </def>
+    <def name="{}"      ds=" -- d-txt "><lit> R@ </lit> @ XCOUNT </def>
+  R>
+</def>
+
+<def name="create-prop-setter" ds=" d-txt-name xt --  ">
+  >R 2DUP  
     <alias name="{}!"   > R@ </alias>
     <alias name="set-{}"> R@ </alias>
     RDROP
-    <def name="{}">
-      <lit/> @ XCOUNT
-    </def>
-    </g>
-  </mm>
+</def>
+
+</g>
+
+<rule match="f:prop" ds=" i*x -- a u ">
+  M @ <f:if> `#f:prop-M-not-supported STHROW </f:if>
+  <m>
+    <get-name/> 2DUP create-prop
+    <m0> m-prop-setter </m0> create-prop-setter
+  </m>
 </rule>
 
 </f:also>
