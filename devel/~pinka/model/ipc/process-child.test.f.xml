@@ -21,31 +21,14 @@ REQUIRE Wait                   ~pinka/lib/multi/Synchr.f
   <include href="process-child.f.xml"/>
 </wordlist>
 
-startup FIRE-EVENT
+<fire event="startup"/>
 
 <rem>
   `cmd.exe p::commandline! p::create-process THROW 
   -1 p::wait . CR  cleanup FIRE-EVENT
 
-  `process-child.f.xml FILENAME-CONTENT `sort ' TYPE p::perform-simple-per  CR . CR
+  `process-child.f.xml FILENAME-CONTENT `sort 'TYPE p::perform-simple-per  CR . CR
   p::clear
 </rem>
-<rem>
 
-
-: T ." > " TYPE ;
-: put child-in WRITE-FILE THROW ;
-: cmd `spf4 ;
-
-cmd commandline!
-'T consumer-out!
-
-start-simple
-
-S" 2 3 + . CR " put
-S" H-STDIN CLOSE-FILE . CR " put
-S" 100 . CR " put
-  -- Error 232
-
-</rem>
 </forth>

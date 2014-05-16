@@ -8,6 +8,10 @@
   consumer-out
 </slot>
 
+<alias name="assume-consumer"     ds=" consumer-xt -- " word="consumer-out!"    />
+<alias name="assume-commandline"  ds=" d-txt -- "       word="commandline!"     />
+
+
 <def name="open-filename"  ds=" d-txt-filename mode -- h ">
   OVER <unless> >R 2DROP `NUL R> </unless>
   OPEN-FILE-SHARED THROW HERITABLE-HANDLE
@@ -46,10 +50,18 @@
   R> child-in!
 </def>
 
+<def name="close-child-out" ds=" -- ">
+    child-out close-handle 0 child-out!
+</def>
+
+<def name="close-child-in"  ds=" -- ">
+    child-in  close-handle 0 child-in!
+</def>
+
 <def name="close-handles-own" ds=" -- ">
   own-handles <if>
-    child-out close-handle 0 child-out!
-    child-in  close-handle 0 child-in!
+    close-child-out
+    close-child-in
     FALSE own-handles!
   </if>
 </def>
@@ -71,14 +83,23 @@
   DUP <if> close-handles-own THROW </if> DROP
 </def>
 
+<def name="put" ds=" a u -- ">
+  DUP <if>
+    child-in WRITE-FILE THROW
+    <exit/>
+  </if>
+  2DROP
+</def>
+
 <def name="transmit-stdout" ds=" -- ">
   child-out <unless> 0 0 consumer-out EXECUTE <exit/></unless>
   4050 ALLOCATED OVER >R <q ds=" a-buf u-buf -- ">
     <repeat> 2DUP child-out READOUT-FILE THROW DUP <while/> consumer-out EXECUTE </repeat>
     2DROP 2DROP
   </q> CATCH
-  child-out CLOSE-FILE OVER <if> DROP 0 </if> 0 child-out! THROW
-  R> FREE SWAP THROW THROW
+    R> FREE THROW
+    close-child-out
+  THROW
 </def>
 
 
@@ -86,8 +107,7 @@
   consumer-out! commandline!
   start-simple
   <rem>( d-data )</rem>
-  child-in WRITE-FILE THROW
-  child-in CLOSE-FILE THROW 0 child-in!
+  put close-child-in
 
   transmit-stdout
 
