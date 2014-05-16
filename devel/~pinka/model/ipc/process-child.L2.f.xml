@@ -64,21 +64,32 @@
   clear
 </def>
 
-<def name="perform-simple-per" ds=" a-in u-in a-shell u-shell consumer-xt -- result ">
-  consumer-out! commandline! use-pipes-simple create-process
+<def name="start-simple" ds=" -- ">
+  use-pipes-simple create-process
     close-handles-std <rem> (!!!) </rem>
-  <rem>( d-data ior )</rem>
+  <rem>( ior )</rem>
   DUP <if> close-handles-own THROW </if> DROP
-  <rem>( d-data )</rem>
-  child-in WRITE-FILE THROW
-  child-in CLOSE-FILE THROW 0 child-in!
+</def>
 
+<def name="transmit-stdout" ds=" -- ">
+  child-out <unless> 0 0 consumer-out EXECUTE <exit/></unless>
   4050 ALLOCATED OVER >R <q ds=" a-buf u-buf -- ">
     <repeat> 2DUP child-out READOUT-FILE THROW DUP <while/> consumer-out EXECUTE </repeat>
     2DROP 2DROP
   </q> CATCH
   child-out CLOSE-FILE OVER <if> DROP 0 </if> 0 child-out! THROW
   R> FREE SWAP THROW THROW
+</def>
+
+
+<def name="perform-simple-per" ds=" a-in u-in a-shell u-shell consumer-xt -- result ">
+  consumer-out! commandline!
+  start-simple
+  <rem>( d-data )</rem>
+  child-in WRITE-FILE THROW
+  child-in CLOSE-FILE THROW 0 child-in!
+
+  transmit-stdout
 
   exitcode-sure
   <rem> the object is stayed without clear (!!!) </rem>
