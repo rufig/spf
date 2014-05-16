@@ -89,6 +89,7 @@
     <exit/>
   </if>
   2DROP
+  close-child-in <rem> zero-length data is EOF flag </rem>
 </def>
 
 <def name="transmit-stdout" ds=" -- ">
