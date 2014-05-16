@@ -146,10 +146,12 @@
 
 
 <def name="execute-dir-timeout" ds=" d-txt-commandline d-txt-directory timeout-ms -- result ior ">
+  commandline NIP <if> clear </if>
   >R directory! commandline! R>
   create-process DUP <if><exit/></if> DROP
   wait <if> exitcode 0 clear <exit/></if>
-  0 259 <rem> STILL_ACTIVE </rem> clear
+  0 259 <rem> STILL_ACTIVE </rem>
+  <rem> leave p-handle open </rem>
 </def>
 
 <def name="execute" ds=" d-txt-commandline -- result ior ">
