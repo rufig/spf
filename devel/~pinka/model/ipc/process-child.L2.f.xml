@@ -94,8 +94,9 @@
 <def name="transmit-stdout" ds=" -- ">
   child-out <unless> 0 0 consumer-out EXECUTE <exit/></unless>
   4050 ALLOCATED OVER >R <q ds=" a-buf u-buf -- ">
-    <repeat> 2DUP child-out READOUT-FILE THROW DUP <while/> consumer-out EXECUTE </repeat>
-    2DROP 2DROP
+    2>R
+      <until> 2R@ child-out READOUT-FILE THROW DUP >R consumer-out EXECUTE R> 0EQ </until>
+    RDROP RDROP
   </q> CATCH
     R> FREE THROW
     close-child-out
