@@ -10,7 +10,7 @@
 
 <def name="open-filename"  ds=" d-txt-filename mode -- h ">
   OVER <unless> >R 2DROP `NUL R> </unless>
-  CREATE-FILE-SHARED THROW HERITABLE-HANDLE
+  OPEN-FILE-SHARED THROW HERITABLE-HANDLE
 </def>
 
 <def name="assume-filenames"  ds=" d-txt-in d-txt-out d-txt-err -- ">
@@ -18,7 +18,8 @@
   TRUE own-handles!
   W/O open-filename  >R
   W/O open-filename  >R
-  W/O open-filename  R> R>
+  R/O open-filename
+                     R> R>
     assume-handles-std
 </def>
 
