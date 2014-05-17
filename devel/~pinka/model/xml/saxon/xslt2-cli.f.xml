@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<comment>
+  bind-up: process
+</comment>
+
+
+<def name="cmd-prefix">
+  <slit>
+    <choose> OS-WINDOWS? <when><text>cmd /c </text></when> 0. </choose>
+  </slit>
+</def>
+
+<template name="compose-commandline" in=" d-txt-transform ">
+  <g><ss> cmd-prefix </ss>saxon -s:- -xsl:<ss/></g>
+</template>
+
+
+
+<alias name="put" word="process::put"/>
+
+<def name="assume-transform" ds=" d-txt-filename -- ">
+  process::clear
+  compose-commandline process::assume-commandline
+  process::start-simple
+</def>
+
+<def name="transmit-result-per" ds=" consumer-xt -- ">
+  process::assume-consumer
+  process::transmit-stdout
+</def>
+
+<def name="close" ds=" -- ">
+  process::p-handle <unless-exit/>
+  process::exitcode-sure
+  process::clear
+  DUP <unless> DROP <exit/></unless>
+  <logN>error, xslt2-saxon-result</logN>
+</def>
+
+</forth>
