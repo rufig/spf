@@ -106,7 +106,8 @@
 Такая общая схема является естественной и ожидаемой.
 </p>
 
-<p>Теперь посмотрим на следующие пары стандартных слов (пример того, как делать не надо):
+<p>Теперь посмотрим на следующие пары <a title="ANSI/IEEE X3.215-1994" href="http://forth.sourceforge.net/std/dpans/dpansf.htm">стандартных</a> слов
+(пример того, как делать не надо):
 <ul>
 <li><w ds=" n -- n*size1 ">CELLS</w>, <w ds=" -- size1 ">CELL</w>,</li> 
 <li><w ds=" n -- n*size2 ">CHARS</w>, <w ds=" 'ccc' -- c ">CHAR</w>.</li>
@@ -140,7 +141,7 @@
 
 </chapter>
 
-<chapter id="pieces"><title>Мера грануляции</title>
+<chapter id="granularity"><title>Мера грануляции</title>
 <p>Мера разбиения фрагментов кода по словам
 определяется удобством <i>повторного использования</i> (в него входит и модификация,
 и отладка).
@@ -154,7 +155,7 @@
 но он требует значительной инфраструктуры;
 примером может служить <a href="http://www.google.com/search?hl=en&amp;q=define%3AXPointer">XPointer</a>)</small>.
 Неудачная же грануляция ведет к 
-<a href="../../2004/spf/FStream/readme.txt">дублированию кода</a>,
+<a href="../../2004/spf/FStream/readme.txt" title="пример">дублированию кода</a>,
 когда нужно «точно такой же, но только с перламутровыми пуговицами».
 </p>
 
@@ -202,8 +203,8 @@ w3c (при разработке этих стандартов народ
 
 <chapter id="links"><title>Ссылки по теме</title>
 <p><ul>
-<li><a href="http://my.opera.com/forth/blog/ethymology">Этимология (проФорт)</a></li>
-<li><a href="http://www.nabble.com/Iterator-t4336038.html">Именования итераторов (spf-dev)</a></li>
+<li><a title="ссылка на archive.org, т.к. My Opera закрыт в марте 2014" href="https://web.archive.org/web/20140225085518/http://my.opera.com/forth/blog/ethymology">Этимология (проФорт)</a></li>
+<li><a href="http://comments.gmane.org/gmane.comp.lang.forth.spf/1530">Именования итераторов (spf-dev)</a></li>
 </ul></p>
 </chapter>
 
