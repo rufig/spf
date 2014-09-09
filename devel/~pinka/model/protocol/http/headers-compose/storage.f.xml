@@ -55,7 +55,8 @@
   finalized <if> DATASPACE-CONTENT <exit/></if>
   <fire event="in-headers"/>
   0. add-header-line  TRUE finalized!
-  UNUSED <if> DATASPACE-CONTENT <exit/></if>
+  UNUSED 200 > <if> DATASPACE-CONTENT <exit/></if>
+  <rem> UNUSED can be negative </rem>
   `#headers-overflow STHROW
 </def>
 
