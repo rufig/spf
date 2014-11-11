@@ -11,7 +11,7 @@
   DUP <if>
     interface-name  <logS>interface-name</logS>
     port-name       <logS>port-name</logS>
-    <logN>tcp-server is not started</logN>
+    <logN>error, tcp-server is not started</logN>
     <exit/>
   </if> DROP
   
