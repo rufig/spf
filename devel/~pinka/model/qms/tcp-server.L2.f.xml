@@ -8,7 +8,12 @@
 
 <def name="quit" ds=" -- ">
   <xt-of name="open-listen"/> CATCH
-  DUP <if> DUP <logN>tcp-server is not started</logN> ERROR <exit/></if>
+  DUP <if>
+    interface-name  <logS>interface-name</logS>
+    port-name       <logS>port-name</logS>
+    <logN>tcp-server is not started</logN>
+    <exit/>
+  </if> DROP
   
   startup FIRE-EVENT
   <xt-of name="(quit)"/> CATCH
