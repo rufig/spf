@@ -41,6 +41,8 @@ BEGIN-EXPORT
 : --stdout  parse-namelog SET-STDOUT ;
 : --stderr  parse-namelog SET-STDERR ;
 
+: --chdir   --workdir ; \ alias
+
 END-EXPORT
 
 DROP-DEVELOP
