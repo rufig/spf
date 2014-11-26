@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ASCII"?>
 <forth xmlns="http://forth.org.ru/ForthML/">
 
-<slot> cnt-put </slot>
+<slot> cnt-put mode-head </slot>
 
 <slot2> stat-w </slot2> 
 
-<handler event="cleanup"> 0 cnt-put! 0. stat-w! </handler>
+<handler event="cleanup"> 0 cnt-put! 0. stat-w!  0 mode-head! </handler>
 
 <def name="stat-w+!" ds=" d -- "> stat-w D+ stat-w! </def>
 
@@ -16,20 +16,26 @@
 
 <def name="put" ds=" a u -- ">
   sock <if>
-    cnt-put 0= <if> headers put-raw </if> put-raw
+    cnt-put 0= <if> headers put-raw </if>
+    mode-head <if> 2DROP <exit/></if>
+    put-raw
     <exit/>
   </if>
-  cnt-put 0= <if> headers TYPE _cnt-put 1+! </if> TYPE _cnt-put 1+!
+  cnt-put 0= <if> headers TYPE _cnt-put 1+! </if>
+  mode-head <if> 2DROP <exit/></if>
+  TYPE _cnt-put 1+!
   <rem> -- for tests without sock </rem>
 </def>
 
 
 <def name="(put-file-raw)" ds=" h d -- ">
+  mode-head <if> 2DROP DROP <exit/></if>
   ROT
   sock WRITE-SOCKET-FILE DUP sock-err! THROW
   stat-w+! _cnt-put 1+!
 </def>
 <def name="(put-filename-raw)" ds=" a u d -- ">
+  mode-head <if> 2DROP 2DROP <exit/></if>
   2SWAP sock WRITE-SOCKET-FILENAME DUP sock-err! THROW
   stat-w+!  _cnt-put 1+!
 </def>
