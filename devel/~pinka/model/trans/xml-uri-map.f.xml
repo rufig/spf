@@ -27,7 +27,9 @@
 </def>
 
 <def name="resolve-uri-map" ds=" a u -- a1 u1 ">
-  perform-chain DROP
+  <rem> It should allow sequence of mappings </rem>
+  perform-chain <unless-exit/><again/>
+  <rem> TODO: involve limit to avoid infinite circular mapping </rem>
 </def>
 
 <def name="reset-uri-map" ds=" -- ">
