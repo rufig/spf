@@ -5,6 +5,8 @@
   <include href="http://forth.org.ru/~pinka/model/parse/url.f.xml"/>
 </wordlist>
 
+<slot2> http-method </slot2>
+
 <def name="GAP" ds=" -- d-txt"><rem> SP, gap character</rem>
   <text> </text>
 </def>
@@ -16,7 +18,7 @@
 <def name="parse-request-line" ds=" a u -- "><!-- Request-Line -->
   clear-headers
   2DUP             `http-request h!
-  TOKEN|TAIL 2SWAP `http-method  h!
+  TOKEN|TAIL 2SWAP `http-method  h!@ http-method!
   TOKEN|TAIL 2SWAP `http-url     h!@ location::assume-url
   TOKEN|TAIL 2SWAP `http-version h!@ assume-http-version
                    `http-excess  h! <rem> should be zero-length </rem>
@@ -25,9 +27,6 @@
   </rem>
 </def>
 
-<def name="http-method" ds=" -- a u ">
-  `http-method h@
-</def>
 <def name="is-http-method" ds=" a u -- flag ">
   http-method EQUAL
 </def>
