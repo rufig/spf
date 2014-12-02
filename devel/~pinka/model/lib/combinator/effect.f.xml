@@ -9,10 +9,16 @@
 </def>
 <comment>
   BTW, it clashes semantically with 'execute-effect' word in Factor language.
+  EXECUTE-BALANCED is similar to those 'execute-effect'
 </comment>
 
+<def name="EXECUTE-BALANCED" ds=" i*x xt n -- j*x "><rem> j = i + n </rem>
+  <rem> the arguments order is the same as ( add u ) </rem>
+  >R EXECUTE-EFFECT R> EQ <unless> -5010 THROW </unless>
+</def>
+
 <def name="EXECUTE-BALANCED(+1)" ds=" xt -- x ">
-  EXECUTE-EFFECT 1 EQ <unless> -5010 THROW </unless>
+  1 EXECUTE-BALANCED
 </def>
 
 </forth>
