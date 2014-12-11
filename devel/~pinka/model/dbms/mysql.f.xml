@@ -61,7 +61,14 @@
 
 <export>
 
-<alias name="clear" word="free-res-all" />
+<def name="clear">
+  conn <unless-exit/>
+  free-res-all
+  <rem>
+    Note that if 'conn' is null then 'res' is also null.
+    Hint: 'res' is always null in place where 'treat-err' is called.
+  </rem>
+</def>
 
 <def name="open" ds=" -- ">
   conn <unless> mysql_new_conn conn! set-conn-options </unless>
