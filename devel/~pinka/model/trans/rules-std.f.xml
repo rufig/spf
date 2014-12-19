@@ -132,8 +132,9 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 </rule>
 
 <rule match="f:times"><mm>
-  <f:repeat> DUP <f:while/> >R <yield/> R> 1- </f:repeat> DROP
+  <f:repeat> DUP <f:while/> 1- >R <yield/> R> </f:repeat> DROP
   </mm>
+  <f:rem>So, index runs from u-1 to 0 </f:rem>
 </rule>
 
 <rule match="f:d"><!-- dynamic binding (for native words only) -->
