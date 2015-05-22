@@ -6,7 +6,7 @@
 <wordlist name="sscells-wl"/>
 
 <def name="i-sscell" ds=" a-name u-name -- xt true | a u false ">
-  sscells-wl RESOLVE-NAME
+  sscells-wl FIND-WORDLIST
 </def>
 
 

@@ -7,11 +7,8 @@ REQUIRE [DEFINED] lib/include/tools.f
 : FIND-WORDLIST ( c-addr u wid -- xt true | c-addr u false )
   @ CDR-BY-NAME DUP IF NIP NIP NAME> TRUE THEN
 ;
-: RESOLVE-NAME ( c-addr u wid -- xt true | c-addr u false )
-  FIND-WORDLIST
-;
 
-: RELATE-NAME ( xt  c-addr u  wid -- )
+: RELATE-WORDLIST ( xt  c-addr u  wid -- )
 \ поставить имя (заданное c-addr u) в отношение к xt в списке wid
   >R
   HERE LAST-CFA ! ROT , \ ссылка на xt
@@ -25,7 +22,7 @@ REQUIRE [DEFINED] lib/include/tools.f
 
 [DEFINED] QuickSWL-Support  [IF] WARNING @  WARNING 0!
 
-: RELATE-NAME DUP >R RELATE-NAME LAST @ R> QuickSWL-Support::update1-wlhash ;
+: RELATE-WORDLIST DUP >R RELATE-WORDLIST LAST @ R> QuickSWL-Support::update1-wlhash ;
 
 WARNING !                   [THEN]
 
@@ -38,7 +35,7 @@ WARNING !                   [THEN]
 \ Добавить слово, заданное семантикой xt, 
 \ под именем, заданным строкой c-addr u, в текущий список.
   \ CHECK-UNIQUENESS
-  GET-CURRENT RELATE-NAME
+  GET-CURRENT RELATE-WORDLIST
 ;
 : NAMING ( c-addr u xt -- ) \ NAMED or GIVE-NAME or ?
 \ дает слову имя и зачисляет его в текущую книгу имен :)
