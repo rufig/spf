@@ -75,3 +75,6 @@ DROP-DEVELOP \ see:  CODEGEN-WL NLIST
 
 
 Require NAMING- native-wordlist.f \ простые списки форт-слов
+
+' CODEGEN-WL `CODEGEN NAMING- \ alias
+CODEGEN ALSO! ' IT `IT NAMING- PREVIOUS \ export
