@@ -61,7 +61,7 @@ WARNING !                   [THEN]
 : WORDLIST-NAMED ( addr u -- wid )
 \ И в текущий словарь добавляет слово с заданным именем,
 \ возвращающее wid
-  WORDLIST DUP >R CODEGEN-WL::MAKE-CONST NAMING R> ( wid )
+  WORDLIST DUP >R CODEGEN-WL::BEGET-CONST NAMING R> ( wid )
   LAST @ OVER VOC-NAME! ( ссылка на имя словаря, SPF4 )
 ;
 [ELSE]

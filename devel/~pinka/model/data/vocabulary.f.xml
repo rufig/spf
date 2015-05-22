@@ -46,7 +46,7 @@
 
 <def name="WORDLIST-NAMED" ds=" addr u -- wid ">
   2DUP WORDLIST  DUP >R  
-  MAKE-CONST NAMING  R@ NAMING-WORDLIST  R>
+  BEGET-CONST NAMING  R@ NAMING-WORDLIST  R>
 </def>
 
 <def name="VOC-NAME." ds=" wid -- ">

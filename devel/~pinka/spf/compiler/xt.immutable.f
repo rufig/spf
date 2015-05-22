@@ -16,7 +16,7 @@
   \ т.к. "свободное место" может стать и отрицательной величиной.
   [THEN]
 ;
-: MAKE-CONST ( x -- xt ) \ xt ( -- x )
+: BEGET-CONST ( x -- xt ) \ xt ( -- x )
   CONCEIVE LIT, BIRTH
 ;
 

@@ -36,7 +36,7 @@
       2 1024 * ALLOCATED ASSUME-PAD
     DECIMAL  DOS-LINES
     WORDLIST DUP `FORTH-WL NAMING-WORDLIST- DUP PUSH-SCOPE  DUP SET-CURRENT
-    DUP MAKE-CONST `FORTH-WL NAMING-
+    DUP BEGET-CONST `FORTH-WL NAMING-
     <rem>( wid )</rem>
     FORTH-WORDLIST::DROP <!-- hack, since wid is double-cell -->
     <const name="target-root"/>

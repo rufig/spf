@@ -46,7 +46,7 @@ FOREACH-WORD   E-WORD-SURE    E-WORD         E-NATIVE
 </td></tr><tr><td style="width: 20%;">
 
 <div><h2>codegen</h2><div>
-MAKE-CONST     BIRTH
+BEGET-CONST    BIRTH
 CONCEIVE       GERM!          GERM           GERM-A         EXIT,
 EXEC,          ZBBW,          BBW,           MBW            RFW
 ZBFW2,         NZBFW,         ZBFW,          BFW2,          BFW,

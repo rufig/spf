@@ -60,7 +60,7 @@
   GERM  CS> GERM! (BIRTH) DUP IT-A !
 </def>
 
-<def name="MAKE-CONST" ds=" x -- xt "><rem> xt ( -- x ) </rem>
+<def name="BEGET-CONST" ds=" x -- xt "><rem> xt ( -- x ) </rem>
   CONCEIVE LIT, BIRTH
 </def>
 
