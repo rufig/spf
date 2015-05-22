@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<comment> 2015-05 rvm </comment>
+
+<rem>
+  see also: "DISTANCE," and "BRANCH,"
+</rem>
+
+<def name="DISTANCE!" ds=" addr-trg addr -- ">
+  OVER <if> DUP >R CELL+ - R> </if> !
+</def>
+
+<def name="BRANCH!" ds=" addr-tcode-trg addr-tcode-branch -- ">
+  1+ DISTANCE!
+</def>
+
+<def name="BRANCH@" ds=" addr-tcode-branch -- addr-tcode-trg ">
+  1+ DUP @ + CELL+
+</def>
+
+</forth>
