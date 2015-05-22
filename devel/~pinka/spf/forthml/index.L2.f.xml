@@ -29,5 +29,9 @@ FORTH-WORDLIST PUSH-CURRENT
 <include href="../io/accept-ext.spf4.f.xml"/>
 DROP-CURRENT
 
+CODEGEN PUSH-CURRENT
+<include href="../codegen/spf4-prime.L2.f.xml"/>
+DROP-CURRENT
+
 </g></g>
 </forth>

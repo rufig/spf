@@ -23,12 +23,9 @@
 \EOF
 \ дополнительные (в процессе поиска формы), пока не используются:
 
-: MAKE-LIT ( x -- xt ) \ xt ( -- x )
-  CONCEIVE LIT, BIRTH
-;
-: MAKE-SLIT ( c-addr u -- xt ) \ xt ( -- c-addr2 u )
+: BEGET-TEXT ( c-addr u -- xt ) \ xt ( -- c-addr2 u )
   CONCEIVE SLIT, BIRTH
 ;
-: MAKE-SLOT ( -- xt )  \ xt ( -- addr )
-  ALIGN HERE 0 , MAKE-LIT
+: BEGET-VAR ( -- xt )  \ xt ( -- addr )
+  ALIGN HERE 0 , MAKE-CONST
 ;
