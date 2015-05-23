@@ -40,9 +40,11 @@ REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f
 \ interface of Document
 
 : documentElement ( document -- root_element_node )
+  DUP IF
   x.children @   \ firstChild
-  \ XML_DOC_ROOT 
-  \   it is xmlDocGetRootElement(1-1)
+  BEGIN DUP WHILE DUP x.type @ ( nodeType ) ELEMENT_NODE <> WHILE x.next @ ( nextSibling ) REPEAT THEN
+  THEN
+  \ function xmlDocGetRootElement(1-1)
 ;
 
 \ =====
