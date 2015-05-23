@@ -31,6 +31,8 @@ REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f
   DUP DOCUMENT_NODE          = IF DROP `#document           EXIT THEN
   DUP CDATA_SECTION_NODE     = IF DROP `#cdata-section      EXIT THEN
   DUP DOCUMENT_FRAGMENT_NODE = IF DROP `#document-fragment  EXIT THEN
+
+  DUP PROCESSING_INSTRUCTION_NODE   = IF DROP `#processing-instruction      EXIT THEN
   DROP 0.
 ;
 
