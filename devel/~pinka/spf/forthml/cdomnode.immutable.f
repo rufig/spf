@@ -68,6 +68,13 @@ SET-CURRENT
   cnode-a @ firstChild DUP IF nodeValue EXIT THEN 0 ( -- 0 0 )
 ;
 
+: NodeName ( -- d-txt )
+  NodeType PROCESSING_INSTRUCTION_NODE <> IF
+    NodeName EXIT
+  THEN
+  `#processing-instruction
+;
+
 \ : mount ( node -- ) cnode-a ! ;
 \ : dismount ( -- node ) cnode-a @ cnode-a 0! ;
 
