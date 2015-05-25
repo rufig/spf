@@ -70,6 +70,15 @@ WARNING !                   [THEN]
 
 
 
+: (FOREACH-WORDLIST-PAIR) ( i*x xt nfa -- j*x xt ) 
+  SWAP >R DUP NAME> ( xt ) SWAP COUNT R@ EXECUTE R>
+; 
+
+: FOREACH-WORDLIST-PAIR ( i*x xt wid -- j*x ) \ xt ( i*x  xt1 d-txt-name1 -- j*x )
+  ['] (FOREACH-WORDLIST-PAIR) FOR-WORDLIST DROP
+; 
+
+
 \EOF
 \ old ideas:
 

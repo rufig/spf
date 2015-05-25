@@ -28,13 +28,16 @@
 </def>
 
 
-<comment><!-- m.b. -->
-<def name="(FOREACH-WORDLIST)" ds=" xt node -- xt " >
+<def name="(FOREACH-WORDLIST-PAIR)" ds=" i*x xt node -- j*x xt " >
   SWAP >R DUP @ SWAP NODE-NAME R@ EXECUTE R>
 </def>
-<def name="FOREACH-WORDLIST" ds=" xt wid -- "><rem> xt ( xt1 a1 u1 -- ) </rem>
-  <xt-of name="(FOREACH-WORDLIST)"/> SWAP FOREACH-LIST-NODE DROP
+
+<def name="FOREACH-WORDLIST-PAIR" ds=" i*x xt wid -- j*x "><rem> xt ( i*x xt1 d-txt-name1 -- j*x ) </rem>
+  <comment> The idea of callback signature is ( value key ) and it is the same as for RELATE-WORDLIST </comment>
+  '(FOREACH-WORDLIST-PAIR) SWAP FOREACH-LIST-NODE DROP
 </def>
+
+<comment><!-- m.b. -->
 <def name="FOREACH-WORDLIST-REV" ds=" xt wid -- "><rem> xt ( xt1 a1 u1 -- ) </rem>
   ABORT <!-- will be provided -->
 </def>
