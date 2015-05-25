@@ -59,7 +59,11 @@ REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f
   R> nodeNameOrig
   \ it should return target for processing instruction node
 ;
-: nodeValue  ( node -- c-addr u | 0 0 ) x.content @ ?ASCIIZ> ;
+: nodeValue  ( node -- c-addr u | 0 0 )
+  DUP nodeType DOCUMENT_NODE ( 9 ) < IF x.content @ ?ASCIIZ> EXIT THEN
+  \ libxml2: DOCUMENT_NODE is not xmlNode (below common part)
+  DROP 0.
+;
 : ownerDocument ( node -- document|0 ) x.doc @ ;
 : prefix ( node -- c-addr u | 0 0 ) x.ns @ DUP IF xns.prefix @ ?ASCIIZ> EXIT THEN 0 ;
 : namespaceURI ( node -- c-addr u | 0 0 ) x.ns @ DUP IF xns.href  @ ?ASCIIZ> EXIT THEN 0 ;
@@ -218,5 +222,6 @@ REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f
   \ libxml2: 
   \  для текстовых узлов всегда дает 0
   \  для узлов-комментариев номер строки, где комментарий заканчивается
-  x.line W@
+  DUP nodeType DOCUMENT_NODE <> IF x.line W@ EXIT THEN
+  DROP 0
 ;
