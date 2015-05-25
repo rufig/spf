@@ -26,13 +26,13 @@ REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f
 : nodeNameOrig ( node -- c-addr u | 0 0 ) x.name @ ?ASCIIZ> ;
 
 : name-by-typecode ( type -- c-addr u )
+  \ for special names only
+  \ http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-1841493061
   DUP TEXT_NODE              = IF DROP `#text               EXIT THEN
   DUP COMMENT_NODE           = IF DROP `#comment            EXIT THEN
   DUP DOCUMENT_NODE          = IF DROP `#document           EXIT THEN
   DUP CDATA_SECTION_NODE     = IF DROP `#cdata-section      EXIT THEN
   DUP DOCUMENT_FRAGMENT_NODE = IF DROP `#document-fragment  EXIT THEN
-
-  DUP PROCESSING_INSTRUCTION_NODE   = IF DROP `#processing-instruction      EXIT THEN
   DROP 0.
 ;
 
@@ -54,8 +54,10 @@ REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f
 
 : nodeName ( node -- c-addr u | 0 0 ) \ libxml2: name without prefix (!)
   DUP nodeType 3 U< IF nodeNameOrig EXIT THEN
+  \ i.e. return the name as is for ELEMENT_NODE or ATTRIBUTE_NODE
   DUP >R nodeType name-by-typecode DUP IF RDROP EXIT THEN 2DROP
   R> nodeNameOrig
+  \ it should return target for processing instruction node
 ;
 : nodeValue  ( node -- c-addr u | 0 0 ) x.content @ ?ASCIIZ> ;
 : ownerDocument ( node -- document|0 ) x.doc @ ;
