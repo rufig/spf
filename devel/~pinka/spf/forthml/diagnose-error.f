@@ -70,12 +70,12 @@ XMLDOM-WL PUSH-SCOPE
     <# HOLDS `: HOLDS cnode prefix HOLDS 0. #>
     EXIT
   THEN 2DROP
+  cnode nodeType TEXT_NODE <> IF cnode nodeName EXIT THEN
   cnode DUP >R parentNode cnode!
-    RECURSE HEAP-COPY
-  R> cnode! ( addr )
-  <# cnode nodeValue 100 UMIN HOLDS S"  -- " HOLDS DUP ASCIIZ> HOLDS S"   " HOLDS 0. #>
-  ( addr a u )
-  ROT FREE THROW
+    RECURSE
+  R> cnode!
+  RCARBON
+  <# cnode nodeValue 100 UMIN HOLDS S"  -- " HOLDS HOLDS S"   " HOLDS 0. #>
 ;
 : line-number ( -- n )
   cnode 0= IF 0 EXIT THEN

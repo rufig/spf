@@ -19,6 +19,7 @@ REQUIRE SET-STDOUT      ~pinka/spf/stdio.f
 REQUIRE Require         ~pinka/lib/ext/requ.f
 REQUIRE AT-SAVING-BEFORE ~pinka/spf/storage.f
 REQUIRE WITHIN-FORTH-STORAGE-EXCLUSIVE  ~pinka/spf/storage-sync.f
+REQUIRE RCARBON         ~pinka/spf/rbuf.f
 
 REQUIRE lexicon.basics-aligned ~pinka/lib/ext/basics.f
 
