@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 2015-05 -->
+
+<def name="CREATED-PROXY" ds=" d-txt-name -- wid-proxy ">
+  2DUP WORDLIST-NAMED DUP >R CODEGEN::BEGET-CONST NAMING R>
+</def>
+
+<def name="CREATE-PROXY" ds=" d-txt-name -- ">
+  CREATED-PROXY DROP
+</def>
+
+<def name="RESET-PROXY" ds=" wid-proxy -- " >
+  <q> 2DROP RESET-VECT </q> SWAP FOREACH-WORDLIST-PAIR
+</def>
+
+<def name="BIND-PROXY" ds=" wid-target wid-proxy -- " >
+  <q ds=" wid-target xt addr u -- wid-target " >
+    3 PICK FIND-WORDLIST <if> SWAP SET-VECT-BEHAVIOR <exit/></if>
+    2DROP RESET-VECT
+  </q> SWAP FOREACH-WORDLIST-PAIR DROP
+</def>
+
+<def name="POPULATE-PROXY-BY-NAMES" ds=" d-txt-list wid-proxy -- ">
+  PUSH-DEVELOP
+    <each-word> CREATE-VECT </each-word>
+  DROP-DEVELOP
+</def>
+
+<def name="POPULATE-PROXY-BY-WORDLIST" ds=" wid-target wid-proxy -- ">
+  PUSH-DEVELOP
+    <q ds=" xt d-txt-name -- "> CREATE-VECT IT SET-VECT-BEHAVIOR </q> SWAP FOREACH-WORDLIST-PAIR
+  DROP-DEVELOP
+</def>
+
+<def name="POPULATE-PROXY-BY-MODEL" ds=" d-txt-filename wid-proxy -- " >
+  >R
+  TEMP-WORDLIST PUSH-DEVELOP
+    EMBODY
+  POP-DEVELOP
+    DUP R@ POPULATE-PROXY-BY-WORDLIST
+  FREE-WORDLIST
+  R> RESET-PROXY
+</def>
+
+</forth>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 2015-05 -->
+
+<also wordlist="forthml-hidden"
+  xmlns:r="http://forth.org.ru/ForthML/Rules/"
+  xmlns:f="http://forth.org.ru/ForthML/"
+>
+
+<r:rule match="f:proxy-by-names">
+  <r:get-text/>
+  <r:get-attribute name="name"/>
+  <r:m> CREATED-PROXY POPULATE-PROXY-BY-NAMES </r:m>
+</r:rule>
+
+<r:rule match="f:proxy-by-wordlist">
+  <r:exec-attribute name="wordlist"/>
+  <r:get-attribute name="name"/>
+  <r:m> CREATED-PROXY POPULATE-PROXY-BY-WORDLIST </r:m>
+</r:rule>
+
+<r:rule match="f:proxy-by-model">
+  <r:get-attribute name="href"/>
+  <r:get-attribute name="name"/>
+  <r:m> CREATED-PROXY POPULATE-PROXY-BY-MODEL </r:m>
+</r:rule>
+
+</also>
+
+
+<comment title="Usage example">
+  <proxy-by-model name="example" href="example.f.xml"/>
+  <proxy-by-names name="FP"> DUP DROP . </proxy-by-names>
+  <def name="test">
+     FORTH-WORDLIST FP BIND-PROXY
+     123 FP::DUP FP::. FP::DROP
+     FP RESET-PROXY
+  </def>
+</comment>
+
+</forth>
