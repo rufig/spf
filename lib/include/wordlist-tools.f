@@ -4,7 +4,7 @@
 \ TRAVERSE-WORDLIST
 \ http://www.forth200x.org/traverse-wordlist.html
 
-: NAME>STRING ( nfa -- addr count ) \ "name-to-string"    TOOLS-EXT
+: NAME>STRING ( nt -- addr count ) \ "name-to-string" TOOLS-EXT
   COUNT
 ;
 
@@ -12,7 +12,7 @@
   NAME>
 ;
 
-: NAME>COMPILE   ( nt -- w xt ) \ "name-to-compile"   TOOLS-EXT
+: NAME>COMPILE   ( nt -- w xt ) \ "name-to-compile" TOOLS-EXT
   DUP NAME> SWAP IS-IMMEDIATE IF ['] EXECUTE ELSE ['] COMPILE, THEN
 ;
 
@@ -22,5 +22,7 @@
 ;
 
 \ see also:
-\ ~pinka/spf/compiler/native-wordlist.f
-\ FOREACH-WORDLIST-PAIR ( i*x xt wid -- j*x ) \ xt ( i*x  xt1 d-txt-name1 -- j*x )
+\   FOR-WORDLIST  ( wid xt -- ) \ xt ( nfa -- )
+\     -- src/compiler/spf_wordlist.f (since 2007)
+\   FOREACH-WORDLIST-PAIR ( i*x xt wid -- j*x ) \ xt ( i*x  xt1 d-txt-name1 -- j*x )
+\     -- ~pinka/spf/compiler/native-wordlist.f
