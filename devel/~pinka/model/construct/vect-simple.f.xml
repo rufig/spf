@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<!-- 2015-05 rvm -->
+
+<comment>
+  Simple and naive implementation of VECT-words.
+</comment>
+
+  <def name="ABORT-NO-VECT" ds= " i*x -- j*x ">
+    <rem> It is used for default vect behavior </rem>
+    -2013 THROW
+    <rem> Note that -13 code is for "Undefined word" exception </rem>
+  </def>
+
+<also wordlist="CODEGEN">
+
+  <def name="BEGET-VECT" ds=" -- xt ">
+    CONCEIVE 'ABORT-NO-VECT BRANCH, BIRTH
+  </def>
+
+  <def name="CREATE-VECT" ds=" name-a name-u -- ">
+    BEGET-VECT NAMING
+  </def>
+
+  <alias name="SET-VECT-BEHAVIOR"   ds=" xt-trg xt-vect -- " word="BRANCH!"/>
+  <alias     name="VECT-BEHAVIOR"   ds=" xt-vect -- xt-trg " word="BRANCH@"/>
+
+</also>
+
+  <def name="RESET-VECT" ds=" xt-vect -- ">
+    'ABORT-NO-VECT SWAP SET-VECT-BEHAVIOR
+  </def>
+
+
+
+<comment title="rationale">
+  VECT is abbr. from 'vector' -- as a memory address containing the address of a code entry point.
+  See also https://en.wiktionary.org/wiki/vector
+
+  Parsing words are not used in ForthML at all.
+  Hence, verb CREATE is not used anymore in such sense too.
+  I.e. we don't need 'CREATED' variant, we just use 'CREATE'.
+</comment>
+
+</forth>
