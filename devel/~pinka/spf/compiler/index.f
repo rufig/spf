@@ -5,6 +5,7 @@
     -- запись данных /в область данных/
     HERE ALLOT , C, S, 
     SXZ, SCZ,
+    CARBON
 
     -- запись кода /в область кода и в область данных при необходимости/
     EXEC, LIT, 2LIT, SLIT,
@@ -40,6 +41,10 @@ REQUIRE Require   ~pinka/lib/ext/requ.f
 
 : SXZ, ( a u -- ) DUP  , S, 0 C, ;
 : SCZ, ( a u -- ) DUP C, S, 0 C, ;
+
+: CARBON ( a1 u -- a2 u )
+  HERE OVER 2SWAP S,
+;
 
 \ Некоторые слова в SPF4 имеют специальную процедуру 
 \ для откладывания их исполнения (компиляции), -- как например inlines.
