@@ -29,9 +29,14 @@ REQUIRE Included ~pinka/lib/ext/requ.f
 
 REQUIRE READOUT-FILE ~pinka/lib/files-ext.f
 
+: LINE-TERM ( -- addr u )
+  LT LTL @
+;
+
 : SPLIT-LINE ( a u -- a1 u1 a2 u2 true | a u false )
-  LT LTL @ SPLIT DUP IF EXIT THEN DROP
-  LT CHAR+ 1 SPLIT  \ support of 0x0A as line terminator
+  LINE-TERM SPLIT DUP IF EXIT THEN DROP
+  LINE-TERM 2 CHARS <> IF DROP FALSE EXIT THEN
+  CHAR+ 1 CHARS SPLIT \ support of 0x0A as line terminator
 ;
 
 WARNING @  WARNING 0!
