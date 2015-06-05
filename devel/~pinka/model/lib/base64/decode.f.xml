@@ -14,32 +14,25 @@
   Other (and shorter) variants:
     ~ac/lib/string/CONV.F
     ~nn/lib/base64.f
-  (although, about 10 times slower)
-
-  TODO: For further optimization it is need to use inverse mapping table in CHAR-CODE
+  (although, about 20 times slower)
 </comment>
 
 
 
 <wordlist name="BASE64-DECODER">
 
-<def name="CHAR-CODE" ds=" char -- code flag ">
-  DUP 48 ULT <if>
-    DUP 43 EQ <if> DROP 62 TRUE <exit/></if><rem> [+] </rem>
-    DUP 47 EQ <if> DROP 63 TRUE <exit/></if><rem> [/] </rem>
-    FALSE <exit/>
-  </if>
-  DUP  58 ULT <if> 48 - 52 + TRUE <exit/></if><rem> [0-9] </rem>
-  DUP  65 ULT <if>
-    DUP 61 EQ <if> DROP 0 TRUE <exit/></if><rem> [=] for pad </rem>
-    FALSE <exit/>
-  </if>
-  DUP  91 ULT <if> 65 -      TRUE <exit/></if><rem> [A-Z] </rem>
-  DUP  97 ULT <if> FALSE <exit/></if>
-  DUP 123 ULT <if> 97 - 26 + TRUE <exit/></if><rem> [a-z] </rem>
+<const name="/CHARMAP"> 128 </const>
 
-  FALSE
-  <rem> object code length of this word is 228 bytes </rem>
+<const name="CHARMAP">
+  ALIGN HERE /CHARMAP ALLOT 0 C, DUP /CHARMAP -1 FILL
+</const><init>
+  `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+  0 -ROT <times ds=" code addr "> 2DUP B@ CHARMAP + B! SWAP 1+ SWAP 1+ </times> 2DROP
+  0 <char>=</char> CHARMAP + B!
+</init>
+
+<def name="CHAR-CODE" ds=" char -- code flag ">
+  DUP /CHARMAP ULT <if> CHARMAP + B@ DUP 0xC0 AND 0EQ <exit/></if> FALSE
 </def>
 
 <def name="CONVERT-CODE-4-3" ds=" bs1 bs2 bs3 bs4 -- bt3 bt2 bt1 ">
@@ -59,7 +52,7 @@
   DUP B@ CHAR-CODE <if> >R 1+
   R> R> R> R>
   <rem ds=" a-src2  bs4 bs3 bs2 bs1 " rs=" a-dst1 "/>
-  CONVERT-CODE-4-3 <rem> inlining here gives about +5% in performance </rem>
+  CONVERT-CODE-4-3 <rem> inlining here gives about +6% in performance </rem>
   R>
   TUCK B! 1+
   TUCK B! 1+
