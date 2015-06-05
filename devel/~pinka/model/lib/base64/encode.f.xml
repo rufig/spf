@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<comment>
+  Implementation of BASE64 encoder for MIME
+</comment>
+
+<comment title="API">
+  Own variants of the words BASE64-BLOCKS-IN-LINE and LINE-TERM
+  could be provided in context to achieve special needs.
+
+  TODO: #maybe allow the same approach for BASE64-ALPHABET
+</comment>
+
+
+
+<wordlist name="BASE64-ENCODER">
+
+
+`BASE64-BLOCKS-IN-LINE DEFINED <unless>
+  <const name="BASE64-BLOCKS-IN-LINE"> 19 </const>
+</unless>
+
+<const name="ALPHABET"> ALIGN HERE `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/ S, 0 C, </const>
+
+<def name="CODE-CHAR" ds=" code -- char "> ALPHABET + B@ <rem> without any check </rem></def>
+
+<def name="CONVERT-3-4" ds=" b3 b2 b1 -- c4 c3 c2 c1 ">
+  8 LSHIFT OR
+  8 LSHIFT OR
+  <rem ds=" x " />
+           DUP 0x3F AND CODE-CHAR SWAP
+  6 RSHIFT DUP 0x3F AND CODE-CHAR SWAP
+  6 RSHIFT DUP 0x3F AND CODE-CHAR SWAP
+  6 RSHIFT              CODE-CHAR
+</def>
+
+<def name="ENCODE-BLOCK" ds=" a-src1 a-dst1 -- a-src2 a-dst2 ">
+  >R
+  3 + DUP
+  1- DUP B@ SWAP
+  1- DUP B@ SWAP
+  1-     B@
+  <rem ds=" a-src2 b3 b2 b1 " rs=" a-dst1 "/>
+  CONVERT-3-4 <rem> inlining this word gives +15% in performance </rem>
+  R>
+  TUCK B! 1+
+  TUCK B! 1+
+  TUCK B! 1+
+  TUCK B! 1+  
+</def>
+
+<def name="ENCODE-TAIL-1" ds=" a-src1 a-dst1 -- a-dst2 ">
+  >R B@ SP@ R> ENCODE-BLOCK NIP NIP
+  `== DROP W@ OVER 2- W!
+</def>
+
+<def name="ENCODE-TAIL-2" ds=" a-src1 a-dst1 -- a-dst2 ">
+  >R W@ SP@ R> ENCODE-BLOCK NIP NIP
+  <char>=</char> OVER 1- B!
+</def>
+
+<def name="ENCODE-TAIL" ds=" a-src1 a-dst1 u -- a-dst2 "><rem> u belongs to [0,2] </rem>
+  DUP <unless> DROP NIP <exit/></unless>
+  1- <if> ENCODE-TAIL-2 <exit/></if> ENCODE-TAIL-1
+</def>
+
+<def name="ENCODE-LINE-FULL" ds=" a-src1 a-dst1 -- a-src3 a-dst2 ">
+  BASE64-BLOCKS-IN-LINE <times> ENCODE-BLOCK </times>
+  LINE-TERM 2 PICK SWAP DUP >R CMOVE R> +
+</def>
+
+<export>
+
+<def name="BID-BASE64-ENCODING" ds=" u1 -- u2 ">
+  2+ 3 U/  DUP 4 *  SWAP BASE64-BLOCKS-IN-LINE U/ 1+ LINE-TERM NIP * +
+</def>
+
+<def name="ENCODE-BASE64" ds=" a-src u-src a-buf u-buf -- a-buf u ">
+  <rem> u-src should be signed positive integer </rem>
+  2 PICK BID-BASE64-ENCODING ULT <if> -6011 THROW <rem> too small buffer</rem></if>
+  DUP >R SWAP
+  <rem ds=" a-src a-dst u-src " rs=" a-buf "/>
+  DUP <unless> ROT DROP RDROP <exit/><rem> no data </rem></unless>
+  BASE64-BLOCKS-IN-LINE <if>
+    BASE64-BLOCKS-IN-LINE 3 * /MOD  SWAP
+    <rem ds=" a-src a-dst cnt-lines cnt-bytes-rest " rs=" a-buf "/>
+    >R <times> ENCODE-LINE-FULL </times> R>
+  </if>
+  <rem ds=" a-src1 a-dst1 u " rs=" a-buf "/>
+  3 /MOD SWAP >R <times> ENCODE-BLOCK </times>
+  R> ENCODE-TAIL
+  <rem ds=" a-dst2 " rs=" a-buf "/>
+  R> TUCK -
+</def>
+
+</export>
+</wordlist>
+
+</forth>
