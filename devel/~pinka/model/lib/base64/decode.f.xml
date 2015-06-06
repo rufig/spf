@@ -35,7 +35,7 @@
   DUP /CHARMAP ULT <if> CHARMAP + B@ DUP 0xC0 AND 0EQ <exit/></if> FALSE
 </def>
 
-<def name="CONVERT-CODE-4-3" ds=" bs1 bs2 bs3 bs4 -- bt3 bt2 bt1 ">
+<def name="CONVERT-CODE-4-3" ds=" bs4 bs3 bs2 bs1 -- bt3 bt2 bt1 ">
   6 LSHIFT OR
   6 LSHIFT OR
   6 LSHIFT OR
