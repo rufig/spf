@@ -6,10 +6,11 @@
 
   Limitations:
     Characters outside alphabet (including line separators) are discarded at block boundaries only.
-    Padding is mandatory (and is allowed in the last block only), pad char is '='
+
   Alphabet:
     ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
-
+  Pad char: '='
+    Padding is optional (and is allowed in any block).
 
   Other (and shorter) variants:
     ~ac/lib/string/CONV.F
@@ -17,6 +18,9 @@
   (although, about 20 times slower)
 </comment>
 
+<comment title="API">
+  TODO: allow to use predefined BASE64-ALPHABET and BASE64-PAD-CHAR
+</comment>
 
 
 <wordlist name="BASE64-DECODER">
@@ -28,11 +32,25 @@
 </const><init>
   `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
   0 -ROT <times ds=" code addr "> 2DUP B@ CHARMAP + B! SWAP 1+ SWAP 1+ </times> 2DROP
-  0 <char>=</char> CHARMAP + B!
+  <rem> padding chars, use code 0b01000000 </rem>
+  0x40 <char>=</char> CHARMAP + B!
+  0x40 0              CHARMAP + B!
 </init>
 
-<def name="CHAR-CODE" ds=" char -- code flag ">
-  DUP /CHARMAP ULT <if> CHARMAP + B@ DUP 0xC0 AND 0EQ <exit/></if> FALSE
+<def name="CHAR-CODE" ds=" char -- code true | ispad false ">
+  DUP /CHARMAP ULT <if> CHARMAP + B@ DUP 0xC0 AND <unless> TRUE <exit/></unless> 0x40 EQ FALSE <exit/></if> DROP FALSE DUP
+</def>
+
+<def name="CONVERT-CODE-2-1" ds=" bs1 bs2 -- bt1 ">
+  6 LSHIFT OR
+  4 RSHIFT
+</def>
+
+<def name="CONVERT-CODE-3-2" ds=" bs3 bs2 bs1 -- bt2 bt1 ">
+  6 LSHIFT OR
+  6 LSHIFT OR
+  2 RSHIFT
+  DUP 0xFF AND SWAP 8 RSHIFT
 </def>
 
 <def name="CONVERT-CODE-4-3" ds=" bs4 bs3 bs2 bs1 -- bt3 bt2 bt1 ">
@@ -46,19 +64,29 @@
 <def name="DECODE-BLOCK" ds=" a-src1 a-dst1 -- a-src2 a-dst2 ">
   >R
   <rem> if the first char is outside of alphabet then outgoing block is empty </rem>
-  DUP B@ CHAR-CODE <unless> DROP 1+ R> <exit/></unless> >R 1+
+  DUP B@ CHAR-CODE <if> >R 1+
   DUP B@ CHAR-CODE <if> >R 1+
   DUP B@ CHAR-CODE <if> >R 1+
   DUP B@ CHAR-CODE <if> >R 1+
   R> R> R> R>
   <rem ds=" a-src2  bs4 bs3 bs2 bs1 " rs=" a-dst1 "/>
-  CONVERT-CODE-4-3 <rem> inlining here gives about +6% in performance </rem>
+  CONVERT-CODE-4-3 <rem> inlining here gives about +10% in performance </rem>
   R>
   TUCK B! 1+
   TUCK B! 1+
   TUCK B! 1+
   <exit/>
-  </if></if></if> -6021 THROW <rem> unsupported or bad format </rem>
+  </if><rem>  char 4 is outside </rem>
+    <if><rem> char 4 is pad </rem> 1+ R> R> R> CONVERT-CODE-3-2 R> TUCK B! 1+ TUCK B! 1+ <exit/></if>
+    FALSE
+  </if><rem>  char 3|4 is outside </rem>
+    <if><rem> char 3 is pad </rem> 2+    R> R> CONVERT-CODE-2-1 R> TUCK B! 1+            <exit/></if>
+    FALSE
+  </if><rem>  char 2|3|4 is outside </rem>
+    -6021 THROW <rem> unsupported or bad format </rem>
+  </if>
+    <rem>     char 1 is outside </rem>
+    DROP 1+ R>
 </def>
 
 <def name="DECODE-BLOCKS-FENCED" ds=" a-src-fence a-src1 a-dst1 -- a-src-fence a-src2 a-dst2 ">
@@ -66,8 +94,17 @@
   <repeat> >R 2DUP UGT <while/> R> DECODE-BLOCK </repeat> R>
 </def>
 
-<def name="(TRIM-TAIL)" ds=" addr addr9 -- addr addr8 ">
-  <until> 2DUP EQ <if-exit/> 1- DUP B@ 0x21 ULT 0EQ </until> 1+
+<def name="DECODE-BLOCK-LAST" ds=" a-src1 a-dst1 u -- a-dst2 ">
+  DUP <unless> DROP NIP <exit/></unless>
+  DUP 4 ULT <if>
+    SWAP >R
+    >R >R 0 SP@ R> SWAP R> CMOVE SP@ DUP 4 + SWAP
+    <rem ds=" data a-fence a-src "  rs=" a-dst1 "/>
+    R> DECODE-BLOCKS-FENCED NIP NIP NIP
+    <exit/>
+  </if>
+  QUIT
+  -6021 THROW <rem> unsupported or bad format </rem>
 </def>
 
 
@@ -79,16 +116,14 @@
 </def>
 
 <def name="DECODE-BASE64" ds=" a-src u-src a-buf u-buf -- a-buf u ">
+  3 PICK <unless><rem> no data </rem> DROP NIP NIP 0 <exit/></unless>
   2 PICK BID-BASE64-DECODING ULT <if> -6011 THROW <rem> too small buffer</rem></if>
-  >R OVER + (TRIM-TAIL) 2DUP EQ <if> 2DROP R> 0 <exit/></if><rem> no data </rem>
+  >R OVER +
   <rem ds=" a-src a-src9 " rs=" a-buf "/>
   3 - SWAP R@ DECODE-BLOCKS-FENCED
   <rem ds=" a-src-fence a-src2 a-dst2 " rs=" a-buf "/>
-  NIP R> TUCK - ROT
-  <rem ds=" a-buf u2 a-src-fence "/>
-  1+ DUP B@ <char>=</char> NE <if> DROP <exit/></if>
-  1+     B@ <char>=</char> NE <if> 1-   <exit/></if>
-                                   2-
+  >R TUCK - 3 + R> SWAP DECODE-BLOCK-LAST
+  R> TUCK -
 </def>
 
 </export>
