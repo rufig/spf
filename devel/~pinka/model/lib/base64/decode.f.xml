@@ -103,7 +103,6 @@
     R> DECODE-BLOCKS-FENCED NIP NIP NIP
     <exit/>
   </if>
-  QUIT
   -6021 THROW <rem> unsupported or bad format </rem>
 </def>
 
