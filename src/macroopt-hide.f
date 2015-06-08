@@ -37,7 +37,7 @@ GET-CURRENT ALSO MACROOPT-HIDING-SUPPORT DEFINITIONS
 
 
 \ src: ~pinka/spf/compiler/native-wordlist.f
-: RELATE-NAME ( xt  c-addr u  wid -- )
+: RELATE-WORDLIST ( xt  c-addr u  wid -- )
 \ поставить имя (заданное c-addr u) в отношение к xt в списке wid
   >R
   \ HERE LAST-CFA !
@@ -109,7 +109,7 @@ DEFINITIONS
   TC-MACROOPT-WL SEARCH-WORDLIST
   DUP 0= IF DROP 2R> TYPE SPACE -321 THROW THEN
   ( xt flag )
-  2R> ROT >R TC-FORTH-WL RELATE-NAME
+  2R> ROT >R TC-FORTH-WL RELATE-WORDLIST
   R> 1 = IF IMMEDIATE THEN
 ;
 : E: ( -- )
