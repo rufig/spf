@@ -136,6 +136,7 @@
     .elem.r { color: Purple; }
 
     .elem:active , .elem:active + .a { background-color: yellow; }
+    /* Note: E:active + F selector doesn't work up to IE10 at least */
     </style>
   </head><body>
     <div style="color: gray; float: right; width: 15em; text-align: right;"><p>Best viewed with CSS2 compatible browsers :)</p></div>

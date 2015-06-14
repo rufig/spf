@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="Windows-1251"?>
 <?xml-stylesheet type="text/xsl" href="default.xsl"?>
 <forth xmlns="http://forth.org.ru/ForthML/" 
+  xmlns:i="http://forth.org.ru/ForthML/Struct/"
   xmlns:r="http://forth.org.ru/ForthML/Rules/"
   xmlns:h="http://www.w3.org/1999/xhtml"
   xmlns:l="urn:local:pinka/algo/horses/half-dozen/"
@@ -103,7 +104,7 @@
   BASE-BIT ROT RSHIFT OR
 </def>
 
-<model name="one-side"><rem> Модель одной стороны. Воплощается для каждой из сторон. </rem>
+<i:model name="one-side"><rem> Модель одной стороны. Воплощается для каждой из сторон. </rem>
 
 <include href="data/zstack.f.xml" xml:base="../../../../model/" />
 
@@ -133,7 +134,7 @@
   </let>
 </def>
 
-</model>
+</i:model>
 
 
 <def name="(.bw-field)" ds=" ab aw i -- ab aw i "><rem> Вывод поля i из заданной композиции </rem>
@@ -166,8 +167,8 @@
   2DROP 2DROP
 </def>
 
-<wordlist name="white"><include href="#one-side"/></wordlist>
-<wordlist name="black"><include href="#one-side"/></wordlist>
+<wordlist name="white"><i:include href="#one-side"/></wordlist>
+<wordlist name="black"><i:include href="#one-side"/></wordlist>
 
 <const name="A">  `*********XXX bit-mask </const>
 <const name="B">  `XXX********* bit-mask </const>

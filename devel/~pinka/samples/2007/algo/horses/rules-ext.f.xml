@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="Windows-1251"?>
 <forth xmlns="http://forth.org.ru/ForthML/" xmlns:r="http://forth.org.ru/ForthML/Rules/">
 
+<include href="../../../../model/trans/xml-struct.f.xml"/><init> xml-struct-hidden::start </init>
+
+
 <also wordlist="forthml-hidden">
 
 <!-- мета-слово <test/> - для испытаний фрагментов кода BacFORTH -->
@@ -10,21 +13,7 @@
   </r:mm>
 </r:rule>
 
-
-<!-- исследовательский вариант реализации f:model -->
-
-<r:rule match="model">
-  <p><lit>cnode</lit></p> `name GetAttribute NAMING-
-</r:rule>
-
-<r:rule match="include">
-  `href GetAttribute 2DUP `# STARTS-WITH 0EQ <if> 2DROP <r:exit-fail/></if>
-  cnode >R
-  `# SUBSTRING-AFTER &amp; EXECUTE
-  cnode! trans-childs
-  R> cnode!
-</r:rule>
-
 </also>
+
 
 </forth>
