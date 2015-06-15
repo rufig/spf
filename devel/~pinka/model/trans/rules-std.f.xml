@@ -52,7 +52,7 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 </rule>
 
 
-<rule match="f:myself"><f:rem> only within definition (including quotation)</f:rem>
+<rule match="f:itself"><f:rem> only within definition (including quotation)</f:rem>
   <f:comment> run-time: ( -- xt ) </f:comment>
   <m><f:lit> GERM <f:rem> CODEGEN-WL::GERM </f:rem></f:lit></m>
 </rule>
