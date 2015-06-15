@@ -89,7 +89,7 @@
   Доступные для хода поля вычисляются через побитовый AND 
   всех возможных для хода со свободными от боя противника и свободными от любых фигур.
 </rem>
-  OVER INVERT OVER INVERT AND -ROT <rem ds=" empty-fileds enemy-position position "/>
+  2DUP OR INVERT -ROT  <rem ds=" empty-fileds enemy-position position "/>
   beaten SWAP beaten INVERT AND AND
 </def>
 
