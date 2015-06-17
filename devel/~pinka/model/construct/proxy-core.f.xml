@@ -14,6 +14,13 @@
   <q> 2DROP RESET-VECT </q> SWAP FOREACH-WORDLIST-PAIR
 </def>
 
+<def name="BIND-PROXY-PARTIAL" ds=" wid-target wid-proxy -- " >
+  <q ds=" wid-target xt addr u -- wid-target " >
+    3 PICK FIND-WORDLIST <if> SWAP SET-VECT-BEHAVIOR <exit/></if>
+    2DROP DROP <rem> do not reset missed items </rem>
+  </q> SWAP FOREACH-WORDLIST-PAIR DROP
+</def>
+
 <def name="BIND-PROXY" ds=" wid-target wid-proxy -- " >
   <q ds=" wid-target xt addr u -- wid-target " >
     3 PICK FIND-WORDLIST <if> SWAP SET-VECT-BEHAVIOR <exit/></if>
