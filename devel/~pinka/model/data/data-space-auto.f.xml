@@ -14,7 +14,10 @@
 </handler>
 
 <handler event="startup" ds=" -- ">
-  dataspace-size ALLOCATED DATASPACE!  _stack 0!
+  dataspace-size
+    DUP 20 CELLS + <rem> for linking and zeros without checks, to be on the safe side </rem>
+    ALLOCATE THROW SWAP
+  DATASPACE!  _stack 0!
 </handler>
 
 <handler event="shutdown" ds=" -- ">
