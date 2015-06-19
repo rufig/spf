@@ -25,4 +25,5 @@ REQUIRE [UNDEFINED] lib\include\tools.f
 : OBEY-SURE- ( wid c-addr u -- )
   ROT OBEY-SURE
 ;
+\ see also: model/trans/obey.f.xml
 [THEN]
