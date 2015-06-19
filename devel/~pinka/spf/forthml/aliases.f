@@ -2,7 +2,8 @@
 
 \ набор синонимов для избегания маскировки в xml
 
-REQUIRE NAMING- ~pinka/spf/compiler/index.f
+REQUIRE NAMING- ~pinka/spf/compiler/native-wordlist.f
+REQUIRE &       ~pinka/spf/compiler/native-context.f
 
 \ & ( c-addr u -- xt )
 
