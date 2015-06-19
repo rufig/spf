@@ -13,3 +13,16 @@ REQUIRE [UNDEFINED] lib\include\tools.f
 : DISCARD  ( x1 .. xu u -- ) NDROP ; \ Implementation factor DROP u+1 stack items
 
 [THEN]
+
+
+\ 2007
+
+[UNDEFINED] OBEY-SURE- [IF]
+: OBEY-SURE ( c-addr u wid -- )
+  SEARCH-WORDLIST IF EXECUTE EXIT THEN
+  -321 THROW
+;
+: OBEY-SURE- ( wid c-addr u -- )
+  ROT OBEY-SURE
+;
+[THEN]

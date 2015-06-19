@@ -12,19 +12,11 @@
 
 
 REQUIRE [UNDEFINED]         lib/include/tools.f
+REQUIRE OBEY-SURE-          ~pinka/lib/ext/common.f
 REQUIRE documentElement     ~pinka/lib/lin/xml/libxml2-dom1.f
 
 REQUIRE lib.libxml2         ~pinka/lib/lin/xml/libxml2-lib.f
 
-[UNDEFINED] OBEY-SURE- [IF]
-: OBEY-SURE ( c-addr u wid -- )
-  SEARCH-WORDLIST IF EXECUTE EXIT THEN
-  -321 THROW
-;
-: OBEY-SURE- ( wid c-addr u -- )
-  ROT OBEY-SURE
-;
-[THEN]
 
 
 \ =====
