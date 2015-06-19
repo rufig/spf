@@ -2,7 +2,7 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 
 <comment>
-  Implementation of BASE64 decoder for MIME.
+  Implementation of BASE64 decoder for MIME
 
   Limitations:
     Characters outside alphabet (including line separators) are discarded at block boundaries only.
@@ -11,6 +11,11 @@
     ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
   Pad char: '='
     Padding is optional (and is allowed in any block).
+
+  Environmental dependencies:
+    - one address-unit size is 8 bits (1 octet).
+    - one cell size is not less than 4 address units.
+
 
   Other (and shorter) variants:
     ~ac/lib/string/CONV.F
@@ -98,7 +103,7 @@
   DUP <unless> DROP NIP <exit/></unless>
   DUP 4 ULT <if>
     SWAP >R
-    >R >R 0 SP@ R> SWAP R> CMOVE SP@ DUP 4 + SWAP
+    >R >R 0 SP@ R> SWAP R> BMOVE SP@ DUP 4 + SWAP
     <rem ds=" data a-fence a-src "  rs=" a-dst1 "/>
     R> DECODE-BLOCKS-FENCED NIP NIP NIP
     <exit/>

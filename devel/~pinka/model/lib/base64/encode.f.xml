@@ -3,6 +3,10 @@
 
 <comment>
   Implementation of BASE64 encoder for MIME
+
+  Environmental dependencies:
+    - one address-unit size is 8 bits (1 octet).
+    - one cell size is not less than 4 address units.
 </comment>
 
 <comment title="API">
@@ -67,7 +71,7 @@
 
 <def name="ENCODE-LINE-FULL" ds=" a-src1 a-dst1 -- a-src3 a-dst2 ">
   BASE64-BLOCKS-IN-LINE <times> ENCODE-BLOCK </times>
-  LINE-TERM 2 PICK SWAP DUP >R CMOVE R> +
+  LINE-TERM 2 PICK SWAP DUP >R BMOVE R> +
 </def>
 
 <export>
