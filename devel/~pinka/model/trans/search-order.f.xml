@@ -52,7 +52,7 @@
   init-sharedlex
 </handler>
 <handler event="shutdown">
-  _buf @ FREE-FORCE
+  _buf @ FREE-SURE
   _buf 0!
   0. ASSUME-SCOPE
 </handler>
