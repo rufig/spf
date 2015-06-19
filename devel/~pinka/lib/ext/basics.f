@@ -1,6 +1,7 @@
 \ $Id$
 
 REQUIRE [UNDEFINED] lib/include/tools.f
+REQUIRE NAMING      ~pinka/spf/compiler/native-wordlist.f
 
 [UNDEFINED] B@ [IF]
 
@@ -14,6 +15,12 @@ REQUIRE [UNDEFINED] lib/include/tools.f
 \ Также, для байтовых операций было предложенно '8': 8@ 8!
 \ но, по моему, этот вариант хуже (и конфликтует с 2@ и 2! )
 
+[THEN]
+
+[UNDEFINED] BMOVE [IF]
+\ create aliases
+S" BMOVE"   ' CMOVE   NAMING
+S" BMOVE>"  ' CMOVE>  NAMING
 [THEN]
 
 [UNDEFINED] T@ [IF] \ 'twice word' (double word) -- 32 bits
