@@ -25,11 +25,41 @@
   RDROP 2DROP
 </def>
 
+<rem>
+  TODO: #maybe factor out and utilize 'multi-cfa' concept
+    The certain API should be postfix and xt-based
+      see for example model/construct/vect-simple.f.xml
+      (it is postix and xt-based but isn't multi-cfa)
+</rem>
 
-<also wordlist="forthml-hidden"
+<develop wordlist="forthml-hidden"
   xmlns:r="http://forth.org.ru/ForthML/Rules/"
   xmlns:f="http://forth.org.ru/ForthML/"
 >
+
+<r:rule match="f:slot-enum">
+  FirstChildValue T-SLIT
+  <r:mm><each-word> create-slot </each-word></r:mm>
+</r:rule>
+
+<r:rule match="f:slot2-enum">
+  FirstChildValue T-SLIT
+  <r:mm><each-word> create-slot2 </each-word></r:mm>
+</r:rule>
+
+<r:rule match="f:vect-enum">
+  FirstChildValue T-SLIT
+  <r:mm><each-word> create-vect </each-word></r:mm>
+</r:rule>
+
+<comment title="the idea">
+  <cell name="a"/><cell name="b"/><cell name="c"/>
+  <cell-enum> a b c </cell-enum>
+  <cell enum="a b c"/>
+</comment>
+
+
+<g title="The old variants are deprecated now">
 
 <r:rule match="f:slot">
   FirstChildValue T-SLIT
@@ -41,11 +71,8 @@
   <r:mm><each-word> create-slot2 </each-word></r:mm>
 </r:rule>
 
-<r:rule match="f:vect">
-  FirstChildValue T-SLIT
-  <r:mm><each-word> create-vect </each-word></r:mm>
-</r:rule>
+</g>
 
-</also>
+</develop>
 
 </forth>
