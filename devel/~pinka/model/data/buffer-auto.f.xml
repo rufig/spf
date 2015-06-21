@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+  <comment> just buffer with memory allocation on startup event </comment>
+
+  <slot> d0 size </slot><init> 1024 size! </init>
+
+  <def name="set-size" ds=" size -- ">
+    d0 <if> d0 OVER RESIZE THROW d0! </if> size!
+  </def>
+  
+  <def name="buf" ds=" -- addr u "> d0 size </def>
+
+  <def name="_close" ds=" -- ">
+    d0 <if> d0 FREE THROW  0 d0! <exit/></if>
+  </def>
+  <def name="_open" ds=" -- ">
+    _close   size <if> size ALLOCATE THROW d0! </if>
+  </def>
+
+  <handler event="startup">   _open  </handler>
+  <handler event="shutdown">  _close </handler>
+
+</forth>

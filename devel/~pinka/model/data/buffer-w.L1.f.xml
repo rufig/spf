@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+
+<rem>
+  <bind-up> d0 size </bind-up>
+</rem>
+
+  <slot> dp </slot><rem> data pointer </rem>
+  
+  <def name="clear"     ds=" -- "> d0 dp! </def>
+  <def name="unused"    ds=" -- u "> size dp d0 - - </def>
+  <def name="enclose"   ds=" addr u -- "> dp unused CROP DROP dp! </def>
+  <def name="content"   ds=" -- addr u "> d0 dp OVER - </def>
+  <def name="vacant"    ds=" -- addr u "> dp unused </def>
+  
+  <rem> see also: model/io/buffer-rw.f.xml </rem>
+
+</forth>
