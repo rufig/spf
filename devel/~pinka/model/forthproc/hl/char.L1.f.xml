@@ -17,7 +17,7 @@
   2OVER ROT SWAP <rem> ( a1 u1  a-key a1 u-key u1 ) </rem>
   <repeat>
   2DUP UGT <if> 2DROP 2DROP FALSE <exit/></if>
-  >R >R 2DUP R@ (EQUAL) <if> >R DROP 2DROP R>  RDROP R> TRUE <exit/></if>
+  >R >R 2DUP R@ (EQUALS) <if> >R DROP 2DROP R>  RDROP R> TRUE <exit/></if>
   <rem> ( a1 u1  a-key a3 ) (R: u3 u-key ) </rem>
   CHAR+ R> R> CHAR-
   </repeat>

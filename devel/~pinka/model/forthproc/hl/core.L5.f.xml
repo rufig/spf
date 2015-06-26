@@ -30,12 +30,14 @@
   0 BFILL
 </def>
 
-<def name="(EQUAL)" ds=" a1 a2 u -- flag ">
+<def name="(EQUALS)" ds=" a1 a2 u -- flag ">
   >R <repeat> R@ <while/> OVER B@ OVER B@ EQ <while/> SWAP 1+ SWAP 1+ R> 1- >R </repeat> 2DROP R> 0EQ
 </def>
 
-<def name="EQUAL" ds=" a1 u1 a2 u2 -- flag ">
-  >R SWAP R@ NEQ <if> RDROP 2DROP FALSE <exit/></if> R> (EQUAL)
+<def name="EQUALS" ds=" a1 u1 a2 u2 -- flag ">
+  >R SWAP R@ NEQ <if> RDROP 2DROP FALSE <exit/></if> R> (EQUALS)
 </def>
+
+<alias name="EQUAL" word="EQUALS"/><rem> for back compatibility </rem>
 
 </forth>
