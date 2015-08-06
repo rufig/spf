@@ -1,4 +1,6 @@
+REQUIRE [UNDEFINED] lib/include/tools.f
 REQUIRE ReadSocket ~ac/lib/win/winsock/SOCKETS.F
+REQUIRE OPEN-FILE-SHARED-DELETE ~ac/lib/win/file/share-delete.f
 
 : READOUT-SOCK ( a u1 h -- a u2 ior ) \ on likeness READOUT-FILE
   >R OVER SWAP R>   ( a a h1 h )
@@ -14,9 +16,22 @@ REQUIRE ReadSocket ~ac/lib/win/winsock/SOCKETS.F
 \ -- в базовом ~ac/lib/win/winsock/SOCKETS.F
 
 
-REQUIRE PutFileTr   ~ac/lib/win/winsock/transmit.f
+[UNDEFINED] TransmitFile [IF]
+  WINAPI: TransmitFile mswsock.dll
+[THEN]
+\ see also: ~ac/lib/win/winsock/transmit.f
 
-: WRITE-SOCK-FILE ( h sock -- ior ) PutFileTr ;
+: WRITE-SOCKET-FILE ( h sock -- ior )         \ m.b. WRITE-SOCKET-FILE-ENTIRELY
+  2>R 0 0 0 0 0 2R> TransmitFile
+  IF 0 EXIT THEN WSAGetLastError
+;
+: WRITE-SOCKET-FILE-PART ( u h sock -- ior )  \ m.b. WRITE-SOCKET-FILE-PARTIALLY
+  2>R >R 0 0 0 0 R> 2R> TransmitFile
+  IF 0 EXIT THEN WSAGetLastError
+  \ the file position is changed only in case it was not repositioned yet after open
+;
+
+: WRITE-SOCK-FILE ( h sock -- ior ) WRITE-SOCKET-FILE ;
 \   file (data to send) should not be larger than 2,147,483,646 bytes
 \ TODO:
 \   Workstation and client versions of Windows [...] limiting the number of concurrent TransmitFile operations 
@@ -35,7 +50,6 @@ REQUIRE PutFileTr   ~ac/lib/win/winsock/transmit.f
 ;
 
 \ just aliases:
-: WRITE-SOCKET-FILE     (          h sock -- ior ) WRITE-SOCK-FILE ;
 : WRITE-SOCKET-FILENAME ( d-filename sock -- ior ) WRITE-SOCK-FILENAME ;
 
 ( -- discussion
