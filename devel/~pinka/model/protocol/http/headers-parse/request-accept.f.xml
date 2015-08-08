@@ -21,7 +21,7 @@
 </def>
 
 
-<def name="accept-language-first" ds=" -- d-lang ">
+<def name="get-accept-language-first" ds=" -- d-lang ">
   <rem> en-us,en;q=0.5 </rem>
   <rem> en,ru;q=0.5    </rem>
 
