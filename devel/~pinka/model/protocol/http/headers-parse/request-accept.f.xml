@@ -17,7 +17,7 @@
 </def>
 
 <def name="is-accept-type" ds=" d-type -- flag ">
-  `Accept http::h@ 2SWAP CONTAINS-ACCEPT-TYPE
+  `Accept h@ 2SWAP CONTAINS-ACCEPT-TYPE
 </def>
 
 
@@ -25,7 +25,7 @@
   <rem> en-us,en;q=0.5 </rem>
   <rem> en,ru;q=0.5    </rem>
 
-  `Accept-Language http::h@ 
+  `Accept-Language h@
   `, SPLIT <if> 2DROP </if>
   `; SPLIT <if> 2DROP </if>
 
