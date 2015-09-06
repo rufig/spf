@@ -2,6 +2,8 @@
 
 \ Подключать, когда непонятно, в каком месте исключение происходит:
 
+\ see also: throw-dump.f
+
 : THROW_ORIG THROW ;
 : THROW
   DUP 0=      IF THROW EXIT THEN
@@ -19,4 +21,8 @@
   DROP
 
   THROW
+;
+
+: ABORT
+  -1 THROW
 ;
