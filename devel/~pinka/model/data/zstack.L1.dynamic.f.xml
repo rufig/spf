@@ -22,8 +22,8 @@
 <cell name="Z9"/>
 
 <def name="?ZP" ds=" -- ">
-  Z0 @ ZP@ ULT <if> ABORT </if>
-  ZP@ Z9 @ ULT <if> ABORT </if>
+  Z0 @ ZP@ ULT <if> -6004 THROW <rem> Z stack underflow </rem></if>
+  ZP@ Z9 @ ULT <if> -6003 THROW <rem> Z stack overflow </rem></if>
 </def>
 
 <slot> limit zbuf </slot>
