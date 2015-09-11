@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forth xmlns="http://forth.org.ru/ForthML/">
+<rem> 2010, 2015 </rem>
+
+<rem>
+  <bind-up> ZP Z0 Z9 </bind-up>
+</rem>
+
+<def name="2Z@" ds=" -- x x ">
+  ZP @ CELL+ @
+  ZP @ @
+</def>
+<def name="2>Z" ds=" x x -- ">
+  -2 CELLS ZP +!  ZP@ 2!
+</def>
+<def name="2Z>" ds=" -- x x ">
+  ZP@ 2@   2 CELLS ZP +!
+</def>
+
+<def name="?ZP" ds=" -- ">
+  Z0 @ ZP@ ULT <if> -6004 THROW <rem> Z stack underflow </rem></if>
+  ZP@ Z9 @ ULT <if> -6003 THROW <rem> Z stack overflow </rem></if>
+</def>
+
+</forth>

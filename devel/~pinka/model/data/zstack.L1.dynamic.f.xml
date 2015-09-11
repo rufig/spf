@@ -2,44 +2,6 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- 2010 -->
 
-<cell name="ZP"/>
-<cell name="Z0"/>
-
-<include href="zstack.L1.immutable.f.xml"/>
-
-<def name="2Z@" ds=" -- x x ">
-  ZP @ CELL+ @
-  ZP @ @
-</def>
-<def name="2>Z" ds=" x x -- ">
-  -2 CELLS ZP +!  ZP@ 2!
-</def>
-<def name="2Z>" ds=" -- x x ">
-  ZP@ 2@   2 CELLS ZP +!
-</def>
-
-
-<cell name="Z9"/>
-
-<def name="?ZP" ds=" -- ">
-  Z0 @ ZP@ ULT <if> -6004 THROW <rem> Z stack underflow </rem></if>
-  ZP@ Z9 @ ULT <if> -6003 THROW <rem> Z stack overflow </rem></if>
-</def>
-
-<slot> limit zbuf </slot>
-  
-<handler event="shutdown">
-  zbuf ?DUP <if> FREE THROW     0 zbuf! </if>
-  Z9 0! 
-  0 0 ZASSUME
-</handler>
-
-<handler event="startup">
-  limit 3 + CELLS ALLOCATE THROW zbuf!
-  zbuf CELL+ Z9 !
-  Z9 @ limit CELLS  ZASSUME
-</handler>
-
-<init> 120 limit! </init>
+<include href="zstack.L2.dynamic.f.xml"/>
 
 </forth>

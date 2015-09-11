@@ -5,18 +5,7 @@
 -->
 
 <include href="zstack.L1.immutable.f.xml"/>
-
-<def name="2Z@" ds=" — x x ">
-  ZP @ CELL+ @
-  ZP @ @
-</def>
-
-<def name="2>Z" ds=" x x — ">
-  -2 CELLS ZP +!  ZP@ 2!
-</def>
-<def name="2Z>" ds=" — x x ">
-  ZP@ 2@   2 CELLS ZP +!
-</def>
+<include href="zstack.L2.immutable.f.xml"/>
 
 <def name="NZDROP" ds=" n — ">
   CELLS ZP +!
