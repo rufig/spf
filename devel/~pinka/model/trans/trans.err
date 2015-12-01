@@ -7,4 +7,4 @@
 -5011 The element can not be postponed
 -5012 The element can only be postponed
 -5021 T-PAT The given mode of a template instantiation is unsupported
--5321 Semantics is not found for given element in it's context
+-5321 Semantics is not found for given element in its context
