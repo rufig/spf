@@ -354,7 +354,7 @@ USER uSkipAttach
 USER uAllowMpAlt
 VARIABLE vCalendarRenderer
 
-: MessageHtml { mp s \ tf_dq tf_db tf_pl -- addr u }
+: MessageHtml { mp s \ tf_dq tf_db tf_pl istext -- addr u }
 
 \ ¬нимание! ѕри не-windows-1251 кодировках сообщение перекодируетс€ на
 \ месте (но кодировка в заголовке не мен€етс€), поэтому дважды дл€ одного mp
@@ -372,8 +372,13 @@ VARIABLE vCalendarRenderer
     IF mp mpSubTypeAddr @ mp mpSubTypeLen @ S" alternative" COMPARE-U 0= IF uMpAltCnt 1+! THEN
        mp mpParts @ s RECURSE 2DROP
        uMpAltCnt 0!
-    ELSE mp mpTypeAddr @ mp mpTypeLen @ 2DUP
-         S" text" COMPARE-U 0= ROT ROT S" message" COMPARE-U 0= OR
+    ELSE mp mpTypeAddr @ mp mpTypeLen @ 
+         2DUP
+         S" text" COMPARE-U 0= ROT ROT
+         S" message" COMPARE-U 0=
+         OR DUP -> istext
+         mp mpCdispLen @ 0= AND
+         mp mpCdispAddr @ mp mpCdispLen @ S" inline" SEARCH NIP NIP istext AND OR
          IF
            mp mpBodyAddr @ mp mpBodyLen @
 
@@ -453,7 +458,7 @@ VARIABLE vCalendarRenderer
   " </table>{CRLF}" s S+
   s DUP _LASTMSGHTML ! STR@
 ;
-: MessageHtml2 { mp s \ tf_dq tf_db tf_pl -- addr u }
+: MessageHtml2 { mp s \ tf_dq tf_db tf_pl istext -- addr u }
 
 \ ¬нимание! ѕри не-windows-1251 кодировках сообщение перекодируетс€ на
 \ месте (но кодировка в заголовке не мен€етс€), поэтому дважды дл€ одного mp
@@ -469,8 +474,13 @@ VARIABLE vCalendarRenderer
 \    " <tr><td>" s S+
     mp mpIsMultipart @ mp mpIsMessage OR mp mpParts @ AND
     IF mp mpParts @ s RECURSE 2DROP
-    ELSE mp mpTypeAddr @ mp mpTypeLen @ 2DUP
-         S" text" COMPARE-U 0= ROT ROT S" message" COMPARE-U 0= OR
+    ELSE mp mpTypeAddr @ mp mpTypeLen @
+         2DUP
+         S" text" COMPARE-U 0= ROT ROT
+         S" message" COMPARE-U 0=
+         OR DUP -> istext
+         mp mpCdispLen @ 0= AND
+         mp mpCdispAddr @ mp mpCdispLen @ S" inline" SEARCH NIP NIP istext AND OR
          IF
            mp mpBodyAddr @ mp mpBodyLen @
 
