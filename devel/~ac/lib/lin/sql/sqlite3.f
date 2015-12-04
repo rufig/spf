@@ -202,6 +202,7 @@ USER db3_exec_TICKS
   db3_exec_CNT 1+! ms@ -> tick
   BEGIN
     addr u sqh db3_prepare -> ppStmt -> pzTail
+    addr u + C@ 0<> IF ." DB3 command corrupted (prepare). [" addr u TYPE ." ]" CR THEN
     ppStmt db3_bind
 
     TRUE 0 -> i
@@ -214,6 +215,7 @@ USER db3_exec_TICKS
           DROP 100 PAUSE \ ^ waitcnt 1+!
         REPEAT
         \ waitcnt DB3_MAX_WAIT @ = IF ." db3_exec:maxwait:" addr u TYPE CR 30114 THROW THEN
+        addr u + C@ 0<> IF ." DB3 command corrupted (step)." CR THEN
 
         DUP 1 SQLITE_ROW WITHIN 
         IF ppStmt ['] db3_fin CATCH ?DUP IF NIP NIP DB3_DEBUG @ IF ." DB3_FIN_failed" DUP . THEN THEN 
@@ -226,6 +228,7 @@ USER db3_exec_TICKS
     WHILE
       i 1+ -> i
       i par ppStmt xt EXECUTE \ возвращает флаг продолжения
+      addr u + C@ 0<> IF ." DB3 command corrupted (execute)." CR THEN
     REPEAT
 
     DB3_DEBUG @
@@ -236,7 +239,17 @@ USER db3_exec_TICKS
     THEN
 
     ppStmt db3_fin
-    pzTail ?DUP IF ASCIIZ> ELSE S" " THEN  -> u -> addr
+    addr u + C@ 0<> IF ." DB3 command corrupted (fin)." CR THEN
+    pzTail ?DUP IF 
+                   addr u + C@ 0<> 
+                   IF . DROP " DB3 command corrupted (tail)." CR S" "
+                   ELSE
+                     DUP addr u OVER + 1+ WITHIN 0=
+                     IF DROP ." DB3 comand tail isn't in range." CR S" "
+                     ELSE ASCIIZ> THEN
+                   THEN
+                ELSE S" " THEN
+                -> u -> addr
   u 3 < UNTIL
   ms@ tick - db3_exec_TICKS +!
 ;
