@@ -700,8 +700,7 @@ HEX
   ELSE
     4 - 0F C, 81 C, , \ jno near
   THEN    SetOP
-
-  SetOP 0x0C24648D , \ lea esp, 0xC [esp]
+  0C24648D , \ lea esp, 0xC [esp]
   *DP@ SWAP !
 ; IMMEDIATE
 
