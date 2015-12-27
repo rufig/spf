@@ -161,7 +161,7 @@
 -2009 Library not found
 -2010 Procedure not found
 -2011 Unknown vocabulary
--2301 macroopt: неприемлимый OP0 перед выполнением SetOP
+-2301 macroopt: неприемлемый OP0 перед выполнением SetOP
 0xC0000001L UNSUCCESSFUL              
 0x00000000L WAIT_0                    
 0x00000080L ABANDONED_WAIT_0          
