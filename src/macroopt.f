@@ -59,9 +59,23 @@ CELL+ DUP : OP8 OP0 LITERAL + ;
 DROP
 
 : SetOP ( -- )
+ DP @ OP0 @ = IF -8FD THROW THEN \ -2301 THROW \ do not alow OP1 be the same as OP0
  OP0 OP1 OpBuffSize CELL- CMOVE>
  DP @ OP0 !
 ;
+( Многие правила оптимизатора работают неверно если OP0 указывает на тот же адрес что и OP1
+  Такое может произойти если между вызовыми SetOP значение HERE не меняется,
+  или OP0 указывает на HERE перед вызовом SetOP [в том числе как следствие].
+
+  Поэтому, в SetOP добавлена защита от такой ситуации.
+
+  До введения защиты ошибку демонстрировал код:
+    SetOP 1 2 :NONAME SWAP ; EXECUTE . . \ -> 5687064 1
+  В этом случае неверно срабатывает правило "M\ 15A"  т.к.  OP1 ... MOV_EDX_[EBP] ... дает TRUE
+  в силу того, что выражение  [ OP1 ] "@ 2+ C@  OP0 @ 2+ C@ ="  тождественно TRUE.
+
+  2015-12-26 ~ruv
+)
 
 : ToOP0 ( OPn -- )
      OP0 OpBuffSize CELL- CMOVE ;
