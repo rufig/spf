@@ -101,7 +101,7 @@ S" lib\include\tools.f" INCLUDED
        THEN
        R> BASE !
     ELSE
-       THROW
+       2DROP THROW
     THEN
   ELSE RDROP RDROP
   THEN
