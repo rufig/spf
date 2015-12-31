@@ -104,6 +104,11 @@ DROP-DEVELOP
 
 \ what about OS-ABI or OS-KERNEL ?
 
+: OS-TYPE ( -- d-txt-name ) OS-NAME ; \ alias
+  \ What variant should be preferred?
+  \ Cons: the phrase OS-TYPE TYPE sounds ambiguous ;)
+  \ In any case, this name should be mentioned here for search.
+
 
 : IS-OS-BRANCH  ( d-txt-family -- flag )  OS-BRANCH EQUAL   ;
 : IS-OS-FAMILY  ( d-txt-family -- flag )  OS-FAMILY EQUAL   ;
