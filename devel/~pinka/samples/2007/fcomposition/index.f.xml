@@ -54,7 +54,7 @@
   <include href="quit.f.xml"/>
 
   <init><rem> initiate the target system </rem>
-    <rem> The host system and the target system are has a same code form! So we can execute a words from the target system.</rem>
+    <rem> The host system and the target system both have the same code form! So we can execute the words from the target system as is.</rem>
     
     `TC-WL::VOC-LIST       hcall    @ VOC-LIST !
     `TC-WL::SAVE-STORAGE   hcall    RESTORE-STORAGE
