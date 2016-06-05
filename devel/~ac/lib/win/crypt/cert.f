@@ -62,9 +62,9 @@ WINAPI: CertGetEnhancedKeyUsage             CRYPT32.DLL
   0 CERT_NAME_EMAIL_TYPE CERT_SIMPLE_NAME_STR GetCertificateString
 ;
 
-: S, ( addr u -- )
-  HERE OVER ALLOT SWAP MOVE
-;
+\ : S, ( addr u -- )
+\   HERE OVER ALLOT SWAP MOVE
+\ ;
 : L",
   0 ?DO DUP I + C@ W, LOOP DROP 0 W,
 ;
