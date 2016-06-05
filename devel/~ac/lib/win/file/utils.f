@@ -137,6 +137,8 @@ VARIABLE $ModuleDirLevel
 : ModuleDirLevel ( -- addr u ) $ModuleDirLevel @ STR@ ;
 : SetModuleDirLevel ( addr u -- ) $ModuleDirLevel S! ;
 
+USER MFNR_str
+
 : MakeFullNameRaw ( a u -- a1 u1 )
 \ Если [a u] - относительное имя файла(каталога),
 \ то, считая его расположение относительно exe-файлов серверов,
@@ -145,13 +147,14 @@ VARIABLE $ModuleDirLevel
 \ где расположены exe-файлы серверов.
 \ Иначе вернуть [a u].
 
+  MFNR_str 0!
   DUP 2 < IF EXIT THEN				\ слишком короткий путь - вернуть как есть
   OVER DUP C@ is_path_delimiter SWAP CHAR+ C@ is_path_delimiter AND	\ это UNC-путь (\\server\share)?
   IF EXIT THEN					\ да - вернуть как есть
   OVER CHAR+ C@ [CHAR] : = IF EXIT THEN		\ присутствует буква диска - полный путь
   ModuleDirName					\ путь к нашему EXE
   2OVER DROP C@ is_path_delimiter		\ путь начинается с разделителя?
-  IF DROP 2 " {s}{s}" STR@ EXIT THEN		\ да - оставить от пути к EXE только букву диска
+  IF DROP 2 " {s}{s}" DUP MFNR_str ! STR@ EXIT THEN		\ да - оставить от пути к EXE только букву диска
   " {s}{ModuleDirLevel}{s}" STR@		\ собрать путь
 ;
 : MakeFullName ( a u -- a1 u1 ) >STR STR@ MakeFullNameRaw NormalizePath ;
