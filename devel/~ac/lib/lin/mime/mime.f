@@ -205,7 +205,7 @@ USER uPhParamNum
     IF >IN 1+! THEN
     TRUE
   ELSE
-    DUP 3 < IF DROP FALSE EXIT THEN
+    DUP 5 < IF DROP FALSE EXIT THEN
     \ не найден разделитель частей, неверный формат письма, обработаем его хвост
     DUP >IN +!
     + TRUE
