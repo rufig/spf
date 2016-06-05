@@ -47,6 +47,8 @@ USER IP6_BUFFS_HERE
   ELSE 0
 \     OVER >R 4 NOT_IPV6_V6ONLY IPV6_V6ONLY IPPROTO_IPV6 R>
 \     setsockopt OR
+       OVER >R 4 KEEPALIVE SO_KEEPALIVE SOL_SOCKET R>
+       setsockopt OR
   THEN
 ;
 : CreateSocket6WithTimeout ( -- socket ior )
@@ -57,6 +59,8 @@ USER IP6_BUFFS_HERE
        OVER >R 4 TIMEOUT SO_SNDTIMEO SOL_SOCKET R>
        setsockopt OR
        OVER >R 4 TIMEOUT SO_RCVTIMEO SOL_SOCKET R>
+       setsockopt OR
+       OVER >R 4 KEEPALIVE SO_KEEPALIVE SOL_SOCKET R>
        setsockopt OR
   THEN
 ;
