@@ -67,6 +67,7 @@ ALSO SO NEW: libsqlite3.so.0
          sqh 1 sqlite3_errmsg ASCIIZ> DB3_DEBUG @ IF 2DUP TYPE CR THEN
          " {s}" STR@ ER-U ! ER-A !
          sqh 1 sqlite3_errcode DUP 1 = IF DROP -2 ELSE 30000 + THEN ( ior )
+	 DUP 30000 = IF DROP EXIT THEN \ и sqlite3_errmsg говорит "not an error"
          THROW
       THEN
 \  ior THROW ( ior почти всегда 1 в случае ошибки)
@@ -424,22 +425,40 @@ USER _db3_get_64 4 USER-ALLOT
 : db3_shared_cache ( -- )
   1 1 sqlite3_enable_shared_cache DROP
 ;
-: db3_backup_to { addr u sqh \ sd b -- }
+: (db3_backup_to) { addr u sqh \ sd b -- }
 \ записать копию БД из хэндла sqh в db3-файл с именем addr u
   addr u db3_open -> sd
   S" main" DROP sqh S" main" DROP sd 4 sqlite3_backup_init -> b
   b 0= IF 5 S" sqlite3_backup_init" sd db3_error? THEN
 
   BEGIN \ ждем освобождения доступа к БД
-    -1 b 2 sqlite3_backup_step DUP SQLITE_BUSY =
+    -1 b 2 sqlite3_backup_step 
+    DUP SQLITE_BUSY =
   WHILE
     DB3_DEBUG @ IF ." DB3_BACKUP_WAIT" b . THEN
     DROP 100 PAUSE \ ^ waitcnt 1+!
   REPEAT
-  101 ( SQLITE_DONE ) <> IF 5 S" sqlite3_backup_step" sd db3_error? THEN
+  101 ( SQLITE_DONE ) <> 
+  IF
+    b 1 sqlite3_backup_finish DROP
+    5 S" sqlite3_backup_step" sd ['] db3_error? CATCH
+    sd db3_close
+    THROW
+  THEN
   b 1 sqlite3_backup_finish
   ?DUP IF S" sqlite3_backup_finish" sd db3_error? THEN
   sd db3_close
+;
+: db3_backup_to { addr u sqh \ sd b -- }
+  addr u sqh ['] (db3_backup_to) CATCH ?DUP
+  IF NIP NIP NIP
+     ." db3_backup failed: " DUP . addr u TYPE CR
+     30008 = \ запись в read-only БД или несоответствие page_size (в новых sqlite изменили с 1К на 4К)
+     IF addr u DELETE-FILE ." deleted: " . CR
+	addr u sqh ['] (db3_backup_to) CATCH ?DUP
+        IF ." second attempt failed too: " . CR DROP 2DROP THEN
+     THEN
+  THEN
 ;
 PREVIOUS PREVIOUS
 
