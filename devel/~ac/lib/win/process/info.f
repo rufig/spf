@@ -27,6 +27,7 @@ WINAPI: QueryFullProcessImageNameA KERNEL32.DLL \ минимум Vista/2008
 CONSTANT /SYSTEM_PROCESS_INFORMATION
 
 5 CONSTANT SystemProcessInformation
+USER NQSI_ERR
 
 : ForEachProcess2 { par xt \ r pi pid a u hc mem fi it h n fn -- pid }
 \ для каждого процесса выполнить xt со следующими параметрами:
@@ -36,7 +37,8 @@ CONSTANT /SYSTEM_PROCESS_INFORMATION
 \ a u на момент вызова находятся в PAD ! ( для упрощения работы с GetProcessInfo :)
 \ возврат: pid - процесс, на котором завершился перебор (pid=0 возможен), или -1, если пройдены все
   -1 -> n
-  ^ r 300 1024 * DUP ALLOCATE THROW DUP -> pi SystemProcessInformation NtQuerySystemInformation 0= r 0 > AND
+  ^ r 512 1024 * DUP ALLOCATE THROW DUP -> pi SystemProcessInformation NtQuerySystemInformation DUP NQSI_ERR !
+  0= r 0 > AND
   IF
     \ 1024 ALLOCATE THROW -> fi
     PAD 100 + -> fi
