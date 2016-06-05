@@ -87,6 +87,7 @@ SSLAPI: SSL_CTX_ctrl
 SSLAPI: TLSv1_method
 SSLAPI: TLSv1_client_method
 SSLAPI: TLSv1_server_method
+SSLAPI: TLSv1_1_server_method
 SSLAPI: SSLv3_method
 SSLAPI: SSLv23_method
 SSLAPI: SSL_new
@@ -98,6 +99,7 @@ SSLAPI: SSL_read
 SSLAPI: SSL_shutdown
 SSLAPI: SSL_get_error
 SSLAPI: SSL_CTX_use_certificate_file
+SSLAPI: SSL_CTX_use_certificate_chain_file
 SSLAPI: SSL_load_client_CA_file
 SSLAPI: SSL_CTX_set_client_CA_list
 SSLAPI: SSL_CTX_load_verify_locations
@@ -125,6 +127,7 @@ SSLAPI: SSL_get_ex_data
 SSLAPI: SSL_CTX_callback_ctrl
 \ SSLAPI: SSL_CTX_set_tlsext_servername_arg
 SSLAPI: SSL_set_SSL_CTX
+SSLAPI: SSL_CTX_set_cipher_list
 SSLAPI: SSL_CTX_Free
 
 \ SSLAPI: SSL_CTX_sess_accept_renegotiate
@@ -164,6 +167,8 @@ SSLEAPI: SSLeay_version
 0 CONSTANT TLSEXT_NAMETYPE_host_name 
 
 0x01000000 CONSTANT SSL_OP_NO_SSLv2
+0x02000000 CONSTANT SSL_OP_NO_SSLv3
+0x04000000 CONSTANT SSL_OP_NO_TLSv1
 
 VARIABLE vSSL_INIT
 
@@ -193,8 +198,10 @@ VECT vSslSniHostName ' 2DROP TO vSslSniHostName
           ( ." CB SSL host name=") sna snu vSslSniHostName
           sna uSslServer !
           sna snu vSslServer 2DUP sna snu COMPARE IF DROP -> pema
-          TLSv1_server_method SSL_CTX_new NIP -> ctx
+          TLSv1_1_server_method SSL_CTX_new NIP -> ctx
+	  S" HIGH:!aNULL:!MD5:!RC4" DROP ctx SSL_CTX_set_cipher_list NIP NIP 1 <> THROW
           uCertType @ pema ctx SSL_CTX_use_certificate_file NIP NIP NIP 1 <> THROW
+          uCertType @ pema ctx SSL_CTX_use_certificate_chain_file NIP NIP NIP 1 <> THROW
           uCertType @ pema ctx SSL_CTX_use_RSAPrivateKey_file NIP NIP NIP 1 <> THROW
           ctx ssl SSL_set_SSL_CTX DROP 2DROP
 \          uSSL_CONTEXT @ SSL_CTX_Free 2DROP
@@ -209,6 +216,7 @@ VECT vSslSniHostName ' 2DROP TO vSslSniHostName
 
 : SslNewServerContext { pema pemu type \ c -- context }
   SSLv23_server_method SSL_CTX_new DUP 0= THROW NIP
+\  TLSv1_1_server_method SSL_CTX_new DUP 0= THROW NIP
 \ http://www.openssl.org/docs/ssl/SSL_CTX_new.html#
   -> c
   type uCertType !
@@ -216,12 +224,14 @@ VECT vSslSniHostName ' 2DROP TO vSslSniHostName
 
 \  SSL_OP_NO_SSLv2 c SSL_CTX_set_options NIP NIP DROP
 
-  0 SSL_OP_NO_SSLv2 SSL_CTRL_OPTIONS c SSL_CTX_ctrl DROP 2DROP 2DROP
+  0 SSL_OP_NO_SSLv2 SSL_OP_NO_SSLv3 OR  SSL_CTRL_OPTIONS c SSL_CTX_ctrl DROP 2DROP 2DROP
+  S" HIGH:!aNULL:!MD5:!RC4" DROP c SSL_CTX_set_cipher_list NIP NIP DROP
 
 \ сертификаты и ключи, используемые в соединении
   pemu
   IF
     type pema c SSL_CTX_use_certificate_file NIP NIP NIP 1 <> THROW
+    type pema c SSL_CTX_use_certificate_chain_file NIP NIP NIP 1 <> THROW
     type pema c SSL_CTX_use_RSAPrivateKey_file NIP NIP NIP 1 <> THROW
   THEN
 
