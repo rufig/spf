@@ -61,6 +61,8 @@ WARNING 0!
 : FILE-EXIST ( c-addr u -- ? ) >ZFILENAME FILE-EXIST ;
 : FILE-EXISTS ( c-addr u -- ? ) >ZFILENAME FILE-EXISTS ;
 
+: INCLUDED ( c-addr u -- ? ) >ZFILENAME INCLUDED ;
+
 WARNING !
 
 ;MODULE
