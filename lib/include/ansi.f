@@ -22,6 +22,12 @@ REQUIRE RENAME-FILE  lib/posix/file.f
 REQUIRE D0<          lib/include/double.f
 REQUIRE ANSI-FILE    lib/include/ansi-file.f
 
+[UNDEFINED] INCLUDE [IF]
+: INCLUDE ( i*x "name" -- j*x )
+  PARSE-NAME INCLUDED
+;
+[THEN]
+
 WARNING @  0 WARNING !
 
 DECIMAL
