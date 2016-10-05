@@ -174,11 +174,11 @@ EXPORT
 	GetBackground GetColor SetBackground SetColor ;
 
 \ Вывод строки без смещения курсора и без изменения цвета
-: PrintС ( n addr x y -> )
+: PrintC ( n addr x y -> )
 	XY->N 0 SWAP 2SWAP SWAP H-STDOUT WriteConsoleOutputCharacterA DROP ;
 
 \ Вывод символа без смещения курсора и без изменения цвета
-: EmitС ( x y char -> )
+: EmitC ( x y char -> )
 	>R XY->N 0 SWAP 1 RP@ H-STDOUT WriteConsoleOutputCharacterA
 	R> 2DROP ;
 
@@ -247,9 +247,9 @@ Color->N	( цвет фон -> n ) - упаковать цвет и фон в число
 N->Color	( n -> цвет фон ) - распаковать цвет и фон из числа
 
 ---Вывод на консоль---
-CharС		( x y char -> ) - вывод символа без смещения курсора и изменения
+CharC		( x y char -> ) - вывод символа без смещения курсора и изменения
 		цвета
-PrintС		( n addr x y -> ) - вывод строки без смещения курсора и
+PrintC		( n addr x y -> ) - вывод строки без смещения курсора и
 		изменения цвета
 LineH 		( n -> ) - одинарная горизонтальная линия
 DLineH		( n -> ) -  двойная горизонтальная линия
