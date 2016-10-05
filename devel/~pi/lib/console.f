@@ -31,7 +31,7 @@ WINAPI: WriteConsoleOutputCharacterA	KERNEL32.DLL
 EXPORT
 
 \ Дублирует указанное количество чисел в стеке
-: DUPS ( n -> )
+: DUPS ( i*x i -> i*x i*x )
 	DUP 0 ?DO DUP PICK SWAP LOOP DROP
  ;
 
@@ -174,7 +174,7 @@ EXPORT
 	GetBackground GetColor SetBackground SetColor ;
 
 \ Вывод строки без смещения курсора и без изменения цвета
-: PrintC ( n addr x y -> )
+: PrintC ( addr n x y -> )
 	XY->N 0 SWAP 2SWAP SWAP H-STDOUT WriteConsoleOutputCharacterA DROP ;
 
 \ Вывод символа без смещения курсора и без изменения цвета
@@ -240,16 +240,16 @@ GetBackground	TO BWin
 \EOF
 
 ---Общие слова---
-DUPS		( n -> ) - дублирует указанное количество чисел в стеке
+DUPS		( i*x i -> i*x i*x ) - дублирует указанное количество чисел в стеке
 XY->N		( x y -> n ) - упаковать координаты в число
 N->XY		( n -> x y ) - распаковать координаты из числа
 Color->N	( цвет фон -> n ) - упаковать цвет и фон в число
 N->Color	( n -> цвет фон ) - распаковать цвет и фон из числа
 
 ---Вывод на консоль---
-CharC		( x y char -> ) - вывод символа без смещения курсора и изменения
+EmitC		( x y char -> ) - вывод символа без смещения курсора и изменения
 		цвета
-PrintC		( n addr x y -> ) - вывод строки без смещения курсора и
+PrintC		( addr n x y -> ) - вывод строки без смещения курсора и
 		изменения цвета
 LineH 		( n -> ) - одинарная горизонтальная линия
 DLineH		( n -> ) -  двойная горизонтальная линия
