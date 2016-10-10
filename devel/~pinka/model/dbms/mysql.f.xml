@@ -37,6 +37,9 @@
   errno 2006 = <if><rem> MySQL server has gone away (check max_allowed_packet size in my.ini/[mysqld] )</rem> 
     (connect) DROP `#mysql-gone-away STHROW 
   </if>
+  errno 2013 = <if><rem>Lost connection to MySQL server during query</rem>
+    (connect) DROP `#mysql-lost-connection STHROW
+  </if>
   conn mysql_error ASCIIZ> set-last-err-txt
   errno 2003 = <if><rem>Can't connect to MySQL server</rem>
     (close-conn) <rem> it can't reuse the connection object in this case </rem>
