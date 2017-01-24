@@ -69,6 +69,10 @@ DECIMAL
   THREAD-HEAP @ HeapDestroy DROP
 ;
 
+: (FIX-MEMTAG) ( addr -- addr ) 2R@ DROP OVER CELL- ! ;
+
+: FIX-MEMTAG ( addr-allocated -- ) (FIX-MEMTAG) DROP ;
+
 : ALLOCATE ( u -- a-addr ior ) \ 94 MEMORY
 \ Распределить u байт непрерывного пространства данных. Указатель пространства 
 \ данных не изменяется этой операцией. Первоначальное содержимое выделенного 
@@ -82,15 +86,6 @@ DECIMAL
 \ для "служебных целей" (например, хранения класса созданного объекта)
 \ по умолчанию заполняется адресом тела процедуры, вызвавшей ALLOCATE
 
-  CELL+ 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
-  DUP IF R@ OVER ! CELL+ 0 ELSE -300 THEN
-;
-
-: (FIX-MEMTAG) ( addr -- addr ) 2R@ DROP OVER CELL- ! ;
-
-: FIX-MEMTAG ( addr-allocated -- ) (FIX-MEMTAG) DROP ;
-
-: ALLOCATE ( u -- a-addr ior )
   CELL+ 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
   DUP IF R@ OVER ! CELL+ ( ~~ FIX-MEMTAG ) 0 ELSE -300 THEN
 ;
