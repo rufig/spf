@@ -86,6 +86,9 @@ DECIMAL
 \ дл€ "служебных целей" (например, хранени€ класса созданного объекта)
 \ по умолчанию заполн€етс€ адресом тела процедуры, вызвавшей ALLOCATE
 
+  \ —разу возвратить ошибку, если добавление служебной €чейки даст переполнение
+  DUP [ 1 CELLS 1+ NEGATE ] LITERAL U> IF DROP 0 -300 EXIT THEN
+
   CELL+ 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
   DUP IF R@ OVER ! CELL+ ( ~~ FIX-MEMTAG ) 0 ELSE -300 THEN
 ;
