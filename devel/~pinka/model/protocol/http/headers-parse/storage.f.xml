@@ -41,7 +41,8 @@
 </rem>
 
 <def name="parse-header?" ds=" a u -- a u false | true ">
-  `: SPLIT <return-false/> FINE-HEAD 2SWAP OVER >R h! R> B@ 0x20 UGT
+  DUP <return-false/> OVER B@ 0x20 UGT <return-false/>
+  `: SPLIT <return-false/> FINE-HEAD 2SWAP h! TRUE
   <rem>
     Header line must not start with whitespace (namely 0x20 or 0x09 by the spec).
     Note that multiple lines value (line folding) is deprecated by rfc7230 # 3.2.4
