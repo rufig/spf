@@ -332,6 +332,12 @@ WARNING !
   THROW					\ и вернуть ошибку
 ;
 
+\ FIX-MEMTAG, добавленный в ядро в 2011м, конфликтует с этой библиотекой, и зависящие от FIX-MEMTAG библиотеки,
+\ включенные после mem_stack, вызовут исключения, поэтому надо "обезвредить" это изменение:
+: (FIX-MEMTAG) ( addr -- addr )  ;
+: FIX-MEMTAG ( addr-allocated -- ) (FIX-MEMTAG) DROP ;
+
+
 \EOF
 1000 ALLOCATE THROW
 MEM_STACK_PTR @ .
