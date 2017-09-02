@@ -182,7 +182,7 @@ EXIT \ слишком длинные бывают :)
 \  BASE @ >R 2 BASE ! INT. R> BASE !
   DUP 0= IF 2DROP EXIT THEN
 
-  70 MIN TYPE  EXIT
+  70 MIN PTYPE  EXIT
   \ наличие вложенных в octet_string объектов зависит от схемы
   \ и парсить их по умолчанию не требуется
   OVER C@ ASN_SEQUENCE =
