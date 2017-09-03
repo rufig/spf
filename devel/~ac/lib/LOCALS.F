@@ -1,4 +1,4 @@
-lib\ext\locals.f \EOF
+lib/ext/locals.f \EOF
 
 ( 28.Mar.2000 Andrey Cherezov  Copyright [C] RU FIG
   Использованы идеи следующих авторов:

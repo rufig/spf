@@ -13,7 +13,7 @@ WARNING !
 
 REQUIRE [IF]          lib/include/tools.f
 
-[DEFINED] WINAPI: [IF]
+OS_WINDOWS [IF]
   ALSO SO NEW: iconv.dll
 [ELSE]
   ALSO SO NEW: libc.so.6

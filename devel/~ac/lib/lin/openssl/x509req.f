@@ -19,15 +19,17 @@ ALSO SO NEW: libeay32.dll
 ALSO SO NEW: libssl.so.0.9.8
 ALSO SO NEW: libssl.so.10
 ALSO SO NEW: libcrypto.so.10
+ALSO SO NEW: /usr/local/lib/libssl.so.1.1
+ALSO SO NEW: /usr/local/lib/libcrypto.so.1.1
 ALSO SO ?NEW: libc.so.6
 ALSO SO NEW: msvcrt.dll
 
-: SSLeayUseApplink? ( -- flag )
-  2 1 SSLeay_version ASCIIZ> S" -DOPENSSL_USE_APPLINK" SEARCH NIP NIP
-;
-: SSLeayVersion ( -- addr u )
-  0 1 SSLeay_version ASCIIZ>
-;
+\ : SSLeayUseApplink? ( -- flag )
+\   2 1 SSLeay_version ASCIIZ> S" -DOPENSSL_USE_APPLINK" SEARCH NIP NIP
+\ ;
+\ : SSLeayVersion ( -- addr u )
+\   0 1 SSLeay_version ASCIIZ>
+\ ;
 
 VARIABLE RSA_GK \ установить в true, если нужнен "progress bar" при создании ключа
 
@@ -103,7 +105,7 @@ VARIABLE RSA_GK \ установить в true, если нужнен "progress bar" при создании клю
 \ На Linux applink не используется.
 
 \ на случай подключения dll без applink'а используем временные файлы:
-  SSLeayUseApplink? 0= IF req pk S" _noapplink_" X509ExpReq >STR >R >STR >R >STR R> R> EXIT THEN
+\  SSLeayUseApplink? 0= IF req pk S" _noapplink_" X509ExpReq >STR >R >STR >R >STR R> R> EXIT THEN
 
   OnWindows: TlsIndex@ -> stdout
   OnLinux: S" w" DROP H-STDOUT 2 fdopen -> stdout
@@ -118,7 +120,7 @@ VARIABLE RSA_GK \ установить в true, если нужнен "progress bar" при создании клю
   req stdout 2 X509_REQ_print_fp DROP ap_str @
 ;
 
-PREVIOUS PREVIOUS PREVIOUS PREVIOUS PREVIOUS PREVIOUS
+PREVIOUS PREVIOUS PREVIOUS PREVIOUS PREVIOUS PREVIOUS PREVIOUS PREVIOUS
 
 \EOF
 

@@ -88,6 +88,12 @@
   PARSE-NAME PARSE-NAME 2SWAP ENROLL-SYNONYM
 ;
 
+: OS_LINUX ( -- flag )
+  PLATFORM S" Linux" COMPARE 0=
+;
+: OS_WINDOWS ( -- flag )
+  OS_LINUX 0=
+;
 
 \ Ruvim Pinka additions:
 

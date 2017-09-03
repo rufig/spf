@@ -15,6 +15,7 @@ REQUIRE ms@           lib/include/facil.f
 
 ALSO SO NEW: sqlite3.dll
 ALSO SO NEW: libsqlite3.so.0
+ALSO SO NEW: /usr/local/lib/libsqlite3.so
 
   0 CONSTANT SQLITE_STATIC
   5 CONSTANT SQLITE_BUSY
@@ -460,7 +461,7 @@ USER _db3_get_64 4 USER-ALLOT
      THEN
   THEN
 ;
-PREVIOUS PREVIOUS
+PREVIOUS PREVIOUS PREVIOUS
 
 : '>` ( addr u -- )
   0 ?DO DUP C@ [CHAR] ' = IF [CHAR] ` OVER C! THEN 1+ LOOP DROP

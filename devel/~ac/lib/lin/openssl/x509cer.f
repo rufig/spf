@@ -2,6 +2,8 @@ REQUIRE X509Pk2PEM ~ac/lib/lin/openssl/x509req.f
 
 ALSO libeay32.dll
 ALSO libssl.so.0.9.8
+ALSO /usr/local/lib/libcrypto.so.1.1
+ALSO /usr/local/lib/libssl.so.1.1
 
 : X509AddExt { va vu nid x \ ex ctx -- }
   /X509V3_CTX ALLOCATE THROW -> ctx
@@ -83,7 +85,7 @@ ALSO libssl.so.0.9.8
   f CLOSE-FILE THROW
 ;
 
-PREVIOUS PREVIOUS
+PREVIOUS PREVIOUS PREVIOUS PREVIOUS
 
 \ RSA_print_fp(stdout,pkey->pkey.rsa,0);
 

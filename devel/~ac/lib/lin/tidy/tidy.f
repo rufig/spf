@@ -8,17 +8,18 @@
   
 WARNING @ WARNING 0!
 REQUIRE STR@          ~ac/lib/str5.f
-REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
+\ REQUIRE UNICODE>UTF8  ~ac/lib/win/com/com.f
 REQUIRE DelXmlDecl    ~ac/lib/lin/tidy/delxmldecl.f
 REQUIRE [IF]          lib/include/tools.f
 WARNING !
 
-[DEFINED] WINAPI: [IF]
+OS_WINDOWS [IF]
   REQUIRE DLL           ~ac/lib/ns/dll-xt.f
   ALSO DLL NEW: tidy.dll
 [ELSE]
   REQUIRE SO            ~ac/lib/ns/so-xt.f
   ALSO  SO NEW: libtidy.so
+  ALSO  SO NEW: /usr/local/lib/libtidy.so
 [THEN]
 
 23 CONSTANT TidyXhtmlOut
@@ -97,6 +98,11 @@ WARNING !
 \ S" D:\Eserv3\CommonPlugins\plugins\groups_e2\ru\docs.html" FILE S" test4.html" TIDY_CYR_HTML_SAVE
 \ S" D:\ac\05cs2.html" FILE S" cs2.html" TIDY_CYR_HTML_SAVE
 
+OS_WINDOWS [IF]
 PREVIOUS
+[ELSE]
+PREVIOUS
+PREVIOUS
+[THEN]
 
 \ ALSO tidy.dll DEFINITIONS : TEST ; \ должно вызвать 5 THROW

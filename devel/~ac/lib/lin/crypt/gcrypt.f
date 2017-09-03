@@ -23,6 +23,7 @@ REQUIRE {             lib/ext/locals.f
 
 ALSO SO NEW: libgcrypt.dll
 ALSO SO NEW: libgcrypt.so.11
+ALSO SO NEW: libgcrypt.so
 
 : HMAC { addr u keya keyu algo \ hd mdlen p -- ha hu }
   GCRY_MD_FLAG_HMAC algo ^ hd 3 gcry_md_open THROW
@@ -82,6 +83,7 @@ ALSO SO NEW: libgcrypt.so.11
   LOOP DROP #>
   R> BASE !
 ;
+PREVIOUS
 PREVIOUS
 PREVIOUS
 
