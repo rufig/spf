@@ -6,6 +6,8 @@
 
 <const name="_cs_log"> ALIGN HERE MAKE-CS, </const>
 
+<cell name="_max_log_msg_len">4096</cell>
+
 <def name="log" ds=" a u -- ">
   _cs_log ENTER-CS
     THREAD-ID . TYPE CR
@@ -17,9 +19,15 @@
   _cs_log LEAVE-CS
 </def>
 <def name="logS" ds=" a2 u2  a u -- ">
+  2 PICK _max_log_msg_len @ UGT DUP >R <if> 2NIP `#error-logS-argument-too-long 2SWAP </if>
+  <rem> Protection against wrong second argument possibly because it's missing.
+    Rationale: TYPE with too long argument can cause exception
+    and this critical section will remain busy forever in such case.
+  </rem>
   _cs_log ENTER-CS
     THREAD-ID . TYPE `: TYPE SPACE TYPE CR
   _cs_log LEAVE-CS
+  R> <unless-exit/> -6013 THROW <rem> arguments is too long </rem>
 </def>
  
 <also wordlist="forthml-hidden">
