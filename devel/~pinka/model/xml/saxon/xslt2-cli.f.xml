@@ -17,13 +17,26 @@
 </template>
 
 
+<comment>
+  When Saxon is called from WineHQ under Linux, it doesn't wait for the input more than 50 ms.
+  Saxon shows error SXXP0003 "Premature end of file".
+  It seems that Wine prematurely closes Saxon's input pipe end.
 
-<alias name="put" word="process::put"/>
+  As temporary workaround, now we start the process when the data are ready only,
+  i.e. on the first put.
+</comment>
+
+<vect-enum> put </vect-enum>
+
+<def name="first-put" ds=" addr u -- ">
+  process::start-simple
+  'process::put put! process::put
+</def>
 
 <def name="assume-transform" ds=" d-txt-filename -- ">
   process::clear
   compose-commandline process::assume-commandline
-  process::start-simple
+  'first-put put!
 </def>
 
 <def name="transmit-result-per" ds=" consumer-xt -- ">
