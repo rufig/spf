@@ -21,6 +21,10 @@
   CLEAR-DATASPACE FALSE finalized!
 </def>
 
+<handler event="cleanup"> clear </handler>
+<handler event="shutdown"> clear </handler>
+
+
 <def name="add-header-line" ds=" a u --"> S, CRLF S, </def>
 
 <def name="add-header" ds=" d-value d-name -- ">
