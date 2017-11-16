@@ -201,8 +201,12 @@ VARIABLE   &INTERPRET
     0 TO SOURCE-ID-XT
     ATIB TO TIB \ на случай, если QUIT вызыван из EVALUATE
     [COMPILE] [
-    ['] MAIN1 CATCH
-    ['] ERROR CATCH DROP
+    ['] MAIN1 CATCH         DUP SOURCE NIP 2>R
+    ['] ERROR CATCH DROP    2R> 0= IF HALT THEN DROP
+    \ Пустой входной буфер здесь говорит о том, что исключение произошло
+    \ при выполении REFILL (а не INTERPRET). Чтобы избежать бесконечного цикла,
+    \ в этой ситуации делается завершение процесса с кодом исключения.
+    \ testcase: H-STDIN CLOSE-FILE . CR
  (  R0 @ RP! \ стек не сбрасываем, т.к. это за нас делает CATCH :)
     S0 @ SP! \ стек    сбрасываем, т.к. OPTIONS может оставить значения :(
   AGAIN
