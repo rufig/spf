@@ -199,7 +199,9 @@ VARIABLE   &INTERPRET
     CONSOLE-HANDLES
     0 TO SOURCE-ID
     0 TO SOURCE-ID-XT
-    ATIB TO TIB \ на случай, если QUIT вызыван из EVALUATE
+    ATIB 0 SOURCE! \ на случай, если QUIT вызыван из EVALUATE
+    \ SOURCE! устанавливает так же #TIB и >IN 
+    \ ј иначе, при неуспешном чтении они останутс€ без изменений и будут указывать на мусор
     [COMPILE] [
     ['] MAIN1 CATCH         DUP SOURCE NIP 2>R
     ['] ERROR CATCH DROP    2R> 0= IF HALT THEN DROP
