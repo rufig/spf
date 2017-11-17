@@ -5,6 +5,26 @@
   bind-up: process
 </comment>
 
+<comment>
+  NB: In WineHQ environment a program can start a Linux process,
+  but cannot wait it or properly interact with it via pipes.
+
+  For example,
+
+  https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
+  Creating a Child Process with Redirected Input and Output
+
+  <citation title="CreateProcess doesn't set hProcess correctly when starting a Linux program"
+    href="https://bugs.winehq.org/show_bug.cgi?id=18335">
+
+    This is because Wine doesn't create a real process for non-wine programs.
+    They are executed 100% outside of Wine. This will be a won't fix - Wine can't create
+    a handle for something that exists outside of Wine. Especially for something like process.
+  </citation>
+
+  So, it is need to use Java for Windows to run Saxon in Wine evironemnt.
+</comment>
+
 
 <def name="cmd-prefix">
   <slit>
@@ -17,26 +37,13 @@
 </template>
 
 
-<comment>
-  When Saxon is called from WineHQ under Linux, it doesn't wait for the input more than 50 ms.
-  Saxon shows error SXXP0003 "Premature end of file".
-  It seems that Wine prematurely closes Saxon's input pipe end.
 
-  As temporary workaround, now we start the process when the data are ready only,
-  i.e. on the first put.
-</comment>
-
-<vect-enum> put </vect-enum>
-
-<def name="first-put" ds=" addr u -- ">
-  process::start-simple
-  'process::put put! process::put
-</def>
+<alias name="put" word="process::put"/>
 
 <def name="assume-transform" ds=" d-txt-filename -- ">
   process::clear
   compose-commandline process::assume-commandline
-  'first-put put!
+  process::start-simple
 </def>
 
 <def name="transmit-result-per" ds=" consumer-xt -- ">
