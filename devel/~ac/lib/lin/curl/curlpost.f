@@ -62,6 +62,16 @@ ALSO libcurl.so.4
   uCurlRes @
 ;
 0x100000 31 + CONSTANT  CURLINFO_REDIRECT_URL \    = CURLINFO_STRING + 31,
+USER HEADER_CB
+
+:NONAME { h nmemb size buffer \ asize ti -- h nmemb size buffer size*nmemb }
+  TlsIndex@ -> ti h TlsIndex!
+  size nmemb * -> asize
+  \ buffer ASCIIZ> TYPE CR \ Replay-Nonce: 4FF6C_XWWvr8QkVUcgSb7dI2BiDy85KZhDJWm5na15w
+  HEADER_CB @ IF buffer ASCIIZ> HEADER_CB @ EXECUTE THEN
+  h nmemb size buffer asize
+  ti TlsIndex!
+; 16 CALLBACK: CURL_HEADER_CALLBACK
 
 : POST-CUSTOM-VIAPROXY { amethod umethod aheader uheader adata udata act uct addr u paddr pu \ h data slist coo -- str }
 \ если прокси paddr pu - непустая строка, то явно используется этот прокси
@@ -86,6 +96,8 @@ ALSO libcurl.so.4
   ['] CURL_CALLBACK CURLOPT_WRITEFUNCTION h 3 curl_easy_setopt DROP
 \  ^ data CURLOPT_WRITEDATA h 3 curl_easy_setopt DROP
   TlsIndex@ CURLOPT_WRITEDATA h CURL-SETOPT
+  ['] CURL_HEADER_CALLBACK CURLOPT_HEADERFUNCTION h 3 curl_easy_setopt DROP
+  TlsIndex@ CURLOPT_HEADERDATA h CURL-SETOPT
 
   umethod IF amethod CURLOPT_CUSTOMREQUEST h 3 curl_easy_setopt DROP THEN
 
