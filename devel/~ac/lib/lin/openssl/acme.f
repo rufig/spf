@@ -1,8 +1,11 @@
 \ min openssl 1.1.0
 
 REQUIRE X509ServerPEM        ~ac/lib/lin/openssl/x509cer.f
+REQUIRE X509MkReq2           ~ac/lib/lin/openssl/x509req2.f
 REQUIRE base64               ~ac/lib/string/conv.f 
 REQUIRE POST-CUSTOM-VIAPROXY ~ac/lib/lin/curl/curlpost.f 
+REQUIRE JsonParse            ~ac/lib/transl/json.f 
+REQUIRE CREATE-FILE-PATH     ~ac/lib/win/file/utils.f
 
 ALSO libeay32.dll
 ALSO libssl.so.0.9.8
@@ -68,6 +71,7 @@ ALSO /usr/local/lib/libssl.so.1.1
 ;
 
 USER nonce
+USER link
 
 : sendRequest { url_a url_u payload_a payload_u privateKey_ suffix_a suffix_u \ nonce_a nonce_u protectd_a protectd_u payld_a payld_u signature_a signature_u body_a body_u -- a u }
   nonce @ STR@ -> nonce_u -> nonce_a
@@ -77,29 +81,76 @@ USER nonce
   signature_a signature_u payld_a payld_u protectd_a protectd_u S" {" S' {s}"protected":"{s}","payload":"{s}","signature":"{s}"}' S@ -> body_u -> body_a
   body_a body_u TYPE CR
 
-  S" POST" S" " body_a body_u S" " url_a url_u S" " POST-CUSTOM-VIAPROXY STYPE CR
-
-\ POST-CUSTOM-VIAPROXY { amethod umethod aheader uheader adata udata act uct addr u paddr pu \ h data slist coo -- str }
-\ если прокси paddr pu - непустая строка, то явно используется этот прокси
-\ curl умеет использовать переменные окружения http_proxy, ftp_proxy
-\ поэтому можно не задавать прокси явно.
-\ adata udata - передаваемые через POST (или иной метот с телом) данные.
-\ act uct - content-type; если uct=0, то остается default application/x-www-form-urlencoded
-\ если данные POST'а не текстовые, а двоичные, то CURL отправит всё, благодаря CURLOPT_POSTFIELDSIZE_LARGE
-
+  S" POST" S" " body_a body_u S" " url_a url_u S" " POST-CUSTOM-VIAPROXY STR@
 ;
 
 : (headerFunc) ( -- )
   NextWord S" Replay-Nonce:" COMPARE 0=
-  IF NextWord ." [" 2DUP TYPE ." ]" CR " {s}" nonce ! THEN
+  IF NextWord ." Replay-Nonce:[" 2DUP TYPE ." ]" CR " {s}" nonce ! THEN
+  NextWord S" Link:" COMPARE 0=
+  IF NextWord ." Link:[" 2DUP TYPE ." ]" CR " {s}" link ! THEN
 ;
 : headerFunc ( addr u -- )
   ['] (headerFunc) EVALUATE-WITH
 ;
 ' headerFunc HEADER_CB !
 
-: LE { dom_a dom_u \ bio rsa n e d privateKey_ jwkValue_u jwkValue_a jwkThumbprint_a jwkThumbprint_u headerSuffix_a headerSuffix_u payload_a payload_u }
+: ProcessHttpChallenge { token_a token_u uri_a uri_u jwkThumbprint_a jwkThumbprint_u privateKey_ headerSuffix_a headerSuffix_u dom_a dom_u \ url_a url_u keyAuthorization_a keyAuthorization_u file_a file_u h reqBio keyBio csr_a csr_u -- }
+  token_a token_u dom_a dom_u " http://{s}/.well-known/acme-challenge/{s}" STR@ -> url_u -> url_a
+  jwkThumbprint_a jwkThumbprint_u token_a token_u " {s}.{s}"  STR@ -> keyAuthorization_u -> keyAuthorization_a
+  CR ." url:" url_a url_u TYPE CR
+  ." key:" keyAuthorization_a keyAuthorization_u TYPE CR CR
+
+  token_a token_u dom_a dom_u " C:/web/{s}/.well-known/acme-challenge/{s}" STR@ -> file_u -> file_a
+  file_a file_u R/W CREATE-FILE-PATH THROW -> h
+  keyAuthorization_a keyAuthorization_u h WRITE-FILE THROW
+  h CLOSE-FILE THROW
+
+  uri_a uri_u
+  keyAuthorization_a keyAuthorization_u S" {" S' {s}"resource":"challenge","keyAuthorization":"{s}"}' S@ 2DUP TYPE CR
+  privateKey_ headerSuffix_a headerSuffix_u sendRequest TYPE CR
+  KEY DROP
+
+\  dom_a dom_u S" ac@forth.org.ru" S" IT" dom_a dom_u S" Kaliningrad" S" RU" X509MkReq -> pk -> req 
+  dom_a dom_u X509MkReq2 -> keyBio -> reqBio
+  keyBio X509ReadBio TYPE CR
+  reqBio X509ReadBio base64 urlSafeBase64Encode_str -> csr_u -> csr_a
+
+\  S" https://acme-staging.api.letsencrypt.org/acme/new-cert"
+  S" https://acme-v01.api.letsencrypt.org/acme/new-cert"
+  csr_a csr_u S" {" S' {s}"resource":"new-cert","csr":"{s}"}' S@ 2DUP TYPE CR
+  privateKey_ headerSuffix_a headerSuffix_u sendRequest TYPE CR
+\  req .
+\  0 BIO_s_mem .
+;
+: ProcessChallenge { x t jwkThumbprint_a jwkThumbprint_u privateKey_ headerSuffix_a headerSuffix_u dom_a dom_u \ t2 type token uri -- }
+  t js_object <> IF ." challenge is not object" CR EXIT THEN
+  S" type" x SEARCH-WORDLIST 
+  IF >BODY JsonVal@ -> t2 -> type
+     t2 js_string = IF ." type:" type STR@ TYPE CR THEN
+  ELSE
+     ." unknown challenge type" CR EXIT
+  THEN
+  S" token" x SEARCH-WORDLIST 
+  IF >BODY JsonVal@ -> t2 -> token
+     t2 js_string = IF ." token:" token STR@ TYPE CR THEN
+  ELSE
+     ." unknown challenge token" CR EXIT
+  THEN
+  S" uri" x SEARCH-WORDLIST 
+  IF >BODY JsonVal@ -> t2 -> uri
+     t2 js_string = IF ." uri:" uri STR@ TYPE CR THEN
+  ELSE
+     ." unknown challenge uri" CR EXIT
+  THEN
+  type STR@ S" http-01" COMPARE 0=
+  IF
+    token STR@ uri STR@ jwkThumbprint_a jwkThumbprint_u privateKey_ headerSuffix_a headerSuffix_u dom_a dom_u ProcessHttpChallenge
+  THEN
+;
+: LE { dom_a dom_u \ bio rsa n e d privateKey_ jwkValue_u jwkValue_a jwkThumbprint_a jwkThumbprint_u headerSuffix_a headerSuffix_u payload_a payload_u x t }
   "" nonce !
+  "" link !
   S" account-key.txt" FILE SWAP 2 BIO_new_mem_buf -> bio
   bio IF
     0 0 0 bio 4 PEM_read_bio_RSAPrivateKey -> rsa
@@ -116,8 +167,23 @@ USER nonce
             jwkValue_a jwkValue_u S' "alg":"RS256","jwk":{s}}' S@ 2DUP TYPE CR -> headerSuffix_u -> headerSuffix_a
 
             dom_a dom_u S" {" S" {" S' {s}"resource":"new-authz","identifier":{s}"type":"dns","value":"{s}"}}' S@ -> payload_u -> payload_a
-            S" https://acme-v01.api.letsencrypt.org/acme/new-authz" payload_a payload_u privateKey_ headerSuffix_a headerSuffix_u sendRequest
-            S" https://acme-v01.api.letsencrypt.org/acme/new-authz" payload_a payload_u privateKey_ headerSuffix_a headerSuffix_u sendRequest
+            S" https://acme-v01.api.letsencrypt.org/acme/new-authz" payload_a payload_u privateKey_ headerSuffix_a headerSuffix_u sendRequest TYPE CR
+            S" https://acme-v01.api.letsencrypt.org/acme/new-authz" payload_a payload_u privateKey_ headerSuffix_a headerSuffix_u sendRequest 2DUP TYPE CR
+\            S" https://acme-staging.api.letsencrypt.org/acme/new-authz" payload_a payload_u privateKey_ headerSuffix_a headerSuffix_u sendRequest TYPE CR
+\            S" https://acme-staging.api.letsencrypt.org/acme/new-authz" payload_a payload_u privateKey_ headerSuffix_a headerSuffix_u sendRequest 2DUP TYPE CR            
+            JsonParse 2DUP -> t -> x JsonPrint
+            t js_object = IF
+              S" challenges" x SEARCH-WORDLIST 
+              IF >BODY JsonVal@ -> t -> x
+                 t js_array = IF
+                   x @ BEGIN DUP WHILE DUP NAME> >BODY JsonVal@ 2DUP . . CR jwkThumbprint_a jwkThumbprint_u privateKey_ headerSuffix_a headerSuffix_u dom_a dom_u ProcessChallenge CDR REPEAT DROP
+                 ELSE
+                   ." 'challenges' is not array" CR
+                 THEN
+              THEN
+            ELSE
+              ." unknown reply format" CR
+            THEN
           THEN
         ELSE
           ." assign key failed" CR
@@ -132,4 +198,3 @@ USER nonce
 ;
 
 S" forth.org.ru" LE
-
