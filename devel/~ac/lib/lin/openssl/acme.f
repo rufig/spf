@@ -87,21 +87,30 @@ USER link
 : (headerFunc) ( -- )
   NextWord S" Replay-Nonce:" COMPARE 0=
   IF NextWord ." Replay-Nonce:[" 2DUP TYPE ." ]" CR " {s}" nonce ! THEN
-  NextWord S" Link:" COMPARE 0=
+  >IN 0! NextWord S" Link:" COMPARE 0=
   IF NextWord ." Link:[" 2DUP TYPE ." ]" CR " {s}" link ! THEN
+  \ варианты Link в ответах на разные запросы:
+  \ <https://acme-v01.api.letsencrypt.org/acme/authz/fQ...>;rel="up"
+  \ <https://acme-v01.api.letsencrypt.org/acme/issuer-cert>;rel="up"		
 ;
 : headerFunc ( addr u -- )
   ['] (headerFunc) EVALUATE-WITH
 ;
-' headerFunc HEADER_CB !
 
-: ProcessHttpChallenge { token_a token_u uri_a uri_u jwkThumbprint_a jwkThumbprint_u privateKey_ headerSuffix_a headerSuffix_u dom_a dom_u \ url_a url_u keyAuthorization_a keyAuthorization_u file_a file_u h reqBio keyBio csr_a csr_u -- }
+: (ParseLink) ( -- addr u )
+  [CHAR] < SKIP [CHAR] > PARSE
+;
+
+: ESERV_WEB_ROOT S" C:/web" ;
+: ESERV_CERT_DIR S" C:/E5/cert" ;
+
+: ProcessHttpChallenge { token_a token_u uri_a uri_u jwkThumbprint_a jwkThumbprint_u privateKey_ headerSuffix_a headerSuffix_u dom_a dom_u \ url_a url_u keyAuthorization_a keyAuthorization_u file_a file_u h reqBio keyBio csr_a csr_u pkey_a pkey_u -- }
   token_a token_u dom_a dom_u " http://{s}/.well-known/acme-challenge/{s}" STR@ -> url_u -> url_a
   jwkThumbprint_a jwkThumbprint_u token_a token_u " {s}.{s}"  STR@ -> keyAuthorization_u -> keyAuthorization_a
   CR ." url:" url_a url_u TYPE CR
   ." key:" keyAuthorization_a keyAuthorization_u TYPE CR CR
 
-  token_a token_u dom_a dom_u " C:/web/{s}/.well-known/acme-challenge/{s}" STR@ -> file_u -> file_a
+  token_a token_u dom_a dom_u " {ESERV_WEB_ROOT}/{s}/.well-known/acme-challenge/{s}" STR@ -> file_u -> file_a
   file_a file_u R/W CREATE-FILE-PATH THROW -> h
   keyAuthorization_a keyAuthorization_u h WRITE-FILE THROW
   h CLOSE-FILE THROW
@@ -109,17 +118,40 @@ USER link
   uri_a uri_u
   keyAuthorization_a keyAuthorization_u S" {" S' {s}"resource":"challenge","keyAuthorization":"{s}"}' S@ 2DUP TYPE CR
   privateKey_ headerSuffix_a headerSuffix_u sendRequest TYPE CR
-  KEY DROP
+  \ KEY DROP
+  3 0 DO ." ." 1000 PAUSE LOOP CR
 
 \  dom_a dom_u S" ac@forth.org.ru" S" IT" dom_a dom_u S" Kaliningrad" S" RU" X509MkReq -> pk -> req 
   dom_a dom_u X509MkReq2 -> keyBio -> reqBio
-  keyBio X509ReadBio TYPE CR
+  keyBio X509ReadBio 2DUP TYPE CR -> pkey_u -> pkey_a
   reqBio X509ReadBio base64 urlSafeBase64Encode_str -> csr_u -> csr_a
 
 \  S" https://acme-staging.api.letsencrypt.org/acme/new-cert"
   S" https://acme-v01.api.letsencrypt.org/acme/new-cert"
   csr_a csr_u S" {" S' {s}"resource":"new-cert","csr":"{s}"}' S@ 2DUP TYPE CR
-  privateKey_ headerSuffix_a headerSuffix_u sendRequest TYPE CR
+  privateKey_ headerSuffix_a headerSuffix_u sendRequest \ здесь может быть JSON-ответ с ошибкой вместо сертификата
+  ?DUP IF
+    OVER C@ [CHAR] { =
+    IF TYPE CR
+    ELSE
+      \ 2DUP S" server.der" WFILE
+      X509DER2PEM \ 2DUP S" server.pem" WFILE
+      dom_a dom_u " {ESERV_CERT_DIR}/{s}.pem" STR@ -> file_u -> file_a
+      file_a file_u R/W CREATE-FILE-PATH THROW -> h
+      ( cert ) h WRITE-FILE THROW
+      pkey_a pkey_u h WRITE-FILE THROW
+      link @ STR@ ." Link:" 2DUP TYPE CR
+      ['] (ParseLink) EVALUATE-WITH 2DUP TYPE CR
+      GET-FILE STR@ X509DER2PEM \ 2DUP S" ca.pem" WFILE
+      h WRITE-FILE THROW
+      h CLOSE-FILE THROW
+
+    THEN
+  ELSE
+     DROP ." Empty reply" CR
+  THEN
+\ -----BEGIN CERTIFICATE-----
+\ -----BEGIN PRIVATE KEY-----
 \  req .
 \  0 BIO_s_mem .
 ;
@@ -145,12 +177,14 @@ USER link
   THEN
   type STR@ S" http-01" COMPARE 0=
   IF
+    \ если status=valid, а не pending, то повторную валидацию проводить не нужно (LE и не будет делать попытку)
     token STR@ uri STR@ jwkThumbprint_a jwkThumbprint_u privateKey_ headerSuffix_a headerSuffix_u dom_a dom_u ProcessHttpChallenge
   THEN
 ;
 : LE { dom_a dom_u \ bio rsa n e d privateKey_ jwkValue_u jwkValue_a jwkThumbprint_a jwkThumbprint_u headerSuffix_a headerSuffix_u payload_a payload_u x t }
   "" nonce !
   "" link !
+  ['] headerFunc HEADER_CB !
   S" account-key.txt" FILE SWAP 2 BIO_new_mem_buf -> bio
   bio IF
     0 0 0 bio 4 PEM_read_bio_RSAPrivateKey -> rsa
@@ -195,6 +229,8 @@ USER link
   ELSE
     ." bio read failed" CR
   THEN
+  ." DONE" CR
 ;
 
-S" forth.org.ru" LE
+\ S" forth.org.ru" LE
+S" LE.exe" SAVE BYE

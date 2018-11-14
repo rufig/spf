@@ -43,7 +43,15 @@ ALSO /usr/local/lib/libssl.so.1.1
 \  reqBio X509ReadBio DUMP
   reqBio keyBio
 ;
-
+: X509DER2PEM { addr u \ derBio pemBio x509 -- addr2 u2 } \ на входе и выходе байтовые массивы
+  0 BIO_s_mem 1 BIO_new -> derBio
+  u addr derBio 3 BIO_write DROP
+  0 derBio 2 d2i_X509_bio -> x509
+  0 BIO_s_mem 1 BIO_new -> pemBio
+  x509 pemBio 2 PEM_write_bio_X509 DROP
+  pemBio X509ReadBio
+;
 PREVIOUS PREVIOUS PREVIOUS PREVIOUS
 
 \ S" forth.org.ru" X509MkReq2 X509ReadBio DUMP CR X509ReadBio DUMP
+\ S" server.der" FILE X509DER2PEM S" server.pem" WFILE
