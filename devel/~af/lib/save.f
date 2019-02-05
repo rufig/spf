@@ -78,11 +78,12 @@ TRUE VALUE ?Res
   HERE 0x1C8 + TO START-RES-TABLE
   START-RES-TABLE 0x38 ERASE
   ?Res IF
+    \ see: https://docs.microsoft.com/en-us/windows/desktop/debug/pe-format#section-table-section-headers
     S" .rsrc"             START-RES-TABLE SWAP CMOVE
     END-RES-SEG END-CODE-SEG - 0xFFF + 0x1000 / 0x1000 *
                           START-RES-TABLE 0x08 + !
-    IMAGE-SIZE BASEOFCODE +
-                          START-RES-TABLE 0x0C + !
+    IMAGE-SIZE BASEOFCODE + 0xFFF + 0x1000 TUCK / *
+                          START-RES-TABLE 0x0C + ! ( VirtualAddress  )
     END-RES-SEG END-CODE-SEG -
                           START-RES-TABLE 0x10 + !
     END-CODE-SEG IMAGE-BEGIN - SIZE-HEADER +
