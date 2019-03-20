@@ -1,6 +1,7 @@
 \ min openssl 1.1.0
 
 REQUIRE X509ServerPEM        ~ac/lib/lin/openssl/x509cer.f
+REQUIRE EVP_MD_CTX_new       ~ac/lib/lin/openssl/crypto_102.f
 REQUIRE X509MkReq2           ~ac/lib/lin/openssl/x509req2.f
 REQUIRE base64               ~ac/lib/string/conv.f 
 REQUIRE POST-CUSTOM-VIAPROXY ~ac/lib/lin/curl/curlpost.f 
