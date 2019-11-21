@@ -8,7 +8,10 @@
 
 <xsl:template match="def">
   <dl id="word:{@name}" class="def">
-    <dt class="w"><xsl:value-of select="@name"/><xsl:if test="@ds"> ( <xsl:value-of select="@ds"/> )</xsl:if></dt>
+    <dt>
+      <span class="w"><xsl:value-of select="@name"/></span>
+      <xsl:if test="@ds"><span class="ds"> ( <xsl:value-of select="@ds"/> )</span></xsl:if>
+    </dt>
     <dd><xsl:apply-templates/></dd>
   </dl>
 </xsl:template>

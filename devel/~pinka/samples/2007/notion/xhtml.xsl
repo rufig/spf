@@ -22,7 +22,8 @@
 </xsl:template>
 
 <xsl:template match="w">
-  <span class="w"><xsl:apply-templates/><xsl:if test="@ds"> ( <xsl:value-of select="@ds"/> )</xsl:if></span>
+  <span class="w"><xsl:apply-templates/></span>
+  <xsl:if test="@ds"><span class="ds"> ( <xsl:value-of select="@ds"/> )</span></xsl:if>
 </xsl:template>
 
 <xsl:template match="title">
@@ -45,13 +46,15 @@
 
 <xsl:template match="/">
 <html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
   h3 { margin-top: 3em; }
   body { padding: 1em 5em 25em 2em; font-family: sans-serif, "trebuchet ms"; line-height:150%;}
   p { margin: 0; margin-top: 0.5em; }
   ul { margin-top: 0.2em; margin-bottom: 0.2em;}
   *:target { border-bottom: 2px dotted gray;}
-  .w { white-space: nowrap; font-family: monospace; font-weight: bold; color: #000066;}
+  .w, .ds { font-family: monospace; font-weight: bold; color: #000066;}
+  .w { white-space: nowrap; }
 </style>
 <title><xsl:value-of select="(book/h2 | book/title )[1]"/></title>
 </head><body>
