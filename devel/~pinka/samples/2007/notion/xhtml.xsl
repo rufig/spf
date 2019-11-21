@@ -31,7 +31,11 @@
 </xsl:template>
 
 <xsl:template match="chapter">
-  <div><xsl:apply-templates/></div>
+  <section><xsl:apply-templates/></section>
+</xsl:template>
+
+<xsl:template match="book">
+  <article><xsl:apply-templates/></article>
 </xsl:template>
 
 <xsl:template match="toc">
