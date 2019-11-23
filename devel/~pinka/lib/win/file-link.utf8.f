@@ -22,9 +22,13 @@ WINAPI: CreateSymbolicLinkW  kernel32.dll
 )
 
 
+: R:UTF8>UTF16 ( d-txt -- d-txt2-r )
+  POSTPONE ENSURE-ASCIIZ-R POSTPONE 1+ POSTPONE DUP POSTPONE 2* POSTPONE RBUF POSTPONE UTF8>UTF16
+; IMMEDIATE
+
 : COPY-FILE-HARDLINK ( d-src d-trg -- ior )
   \ works only for regular files
-  1+ DUP 2* RBUF UTF8>UTF16 2SWAP 1+ DUP 2* RBUF UTF8>UTF16 2SWAP
+  R:UTF8>UTF16 2SWAP R:UTF8>UTF16 2SWAP
   DROP NIP \ ASCIIZ
   0 -ROT
   CreateHardLinkW ERR
@@ -32,7 +36,7 @@ WINAPI: CreateSymbolicLinkW  kernel32.dll
 
 : COPY-FILE-SYMLINK ( d-src d-trg -- ior )
   \ works only for regular files
-  1+ DUP 2* RBUF UTF8>UTF16 2SWAP 1+ DUP 2* RBUF UTF8>UTF16 2SWAP
+  R:UTF8>UTF16 2SWAP R:UTF8>UTF16 2SWAP
   DROP NIP \ ASCIIZ
   0 -ROT
   CreateSymbolicLinkW ERR
