@@ -5,7 +5,7 @@ REQUIRE base64     ~ac/lib/string/conv.f
 REQUIRE POST-FILE  ~ac/lib/lin/curl/curlpost.f 
 REQUIRE bUrlencode ~ac/lib/string/burlencode.f 
 
-ALSO libeay32.dll
+ALSO libcrypto-1_1.dll
 ALSO libssl.so.0.9.8
 
 CREATE default_p_ \ Appendix A.1. Diffie-Hellman P default value

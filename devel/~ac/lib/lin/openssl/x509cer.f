@@ -1,6 +1,6 @@
 REQUIRE X509Pk2PEM ~ac/lib/lin/openssl/x509req.f
 
-ALSO libeay32.dll
+ALSO libcrypto-1_1.dll
 ALSO libssl.so.0.9.8
 ALSO /usr/local/lib/libcrypto.so.1.1
 ALSO /usr/local/lib/libssl.so.1.1

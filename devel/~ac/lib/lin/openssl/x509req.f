@@ -15,7 +15,7 @@ REQUIRE SO              ~ac/lib/ns/so-xt.f
 REQUIRE RSA_F4          ~ac/lib/lin/openssl/x509h.f
 REQUIRE OPENSSL_Applink ~ac/lib/lin/openssl/applink.f
 
-ALSO SO NEW: libeay32.dll
+ALSO SO NEW: libcrypto-1_1.dll
 ALSO SO NEW: libssl.so.0.9.8
 ALSO SO NEW: libssl.so.10
 ALSO SO NEW: libcrypto.so.10

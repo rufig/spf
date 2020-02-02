@@ -8,7 +8,7 @@ REQUIRE POST-CUSTOM-VIAPROXY ~ac/lib/lin/curl/curlpost.f
 REQUIRE JsonParse            ~ac/lib/transl/json.f 
 REQUIRE CREATE-FILE-PATH     ~ac/lib/win/file/utils.f
 
-ALSO libeay32.dll
+ALSO libcrypto-1_1.dll
 ALSO libssl.so.0.9.8
 ALSO /usr/local/lib/libcrypto.so.1.1
 ALSO /usr/local/lib/libssl.so.1.1
@@ -86,9 +86,9 @@ USER link
 ;
 
 : (headerFunc) ( -- )
-  NextWord S" Replay-Nonce:" COMPARE 0=
+  NextWord S" Replay-Nonce:" COMPARE-U 0=
   IF NextWord ." Replay-Nonce:[" 2DUP TYPE ." ]" CR " {s}" nonce ! THEN
-  >IN 0! NextWord S" Link:" COMPARE 0=
+  >IN 0! NextWord S" Link:" COMPARE-U 0=
   IF NextWord ." Link:[" 2DUP TYPE ." ]" CR " {s}" link ! THEN
   \ варианты Link в ответах на разные запросы:
   \ <https://acme-v01.api.letsencrypt.org/acme/authz/fQ...>;rel="up"
@@ -176,7 +176,7 @@ USER link
   ELSE
      ." unknown challenge uri" CR EXIT
   THEN
-  type STR@ S" http-01" COMPARE 0=
+  type STR@ S" http-01" COMPARE-U 0=
   IF
     \ если status=valid, а не pending, то повторную валидацию проводить не нужно (LE и не будет делать попытку)
     token STR@ uri STR@ jwkThumbprint_a jwkThumbprint_u privateKey_ headerSuffix_a headerSuffix_u dom_a dom_u ProcessHttpChallenge
