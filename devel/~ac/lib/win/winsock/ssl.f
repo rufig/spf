@@ -25,11 +25,11 @@ USER uSslSinceSocketRead \ Сколько времени прошло с момента запуска чтения.
     S" ..\ext\libgnutls-openssl-13.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
     S" libgnutls-openssl-13.dll " LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
   ELSE
-    S" ..\ext\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
-    S" .\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
-    S" conf\plugins\ssl\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
-    S" ..\CommonPlugins\plugins\ssl\libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
-    S" libssl32.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+    S" ..\ext\libssl-1_1.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+    S" .\libssl-1_1.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+    S" conf\plugins\ssl\libssl-1_1.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+    S" ..\CommonPlugins\plugins\ssl\libssl-1_1.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
+    S" libssl-1_1.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
   THEN
   -2009 THROW
 ;
@@ -39,11 +39,11 @@ USER uSslSinceSocketRead \ Сколько времени прошло с момента запуска чтения.
     S" ..\ext\libgnutls-openssl-13.dll" LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
     S" libgnutls-openssl-13.dll " LoadLibEx ?DUP IF SSL_LIB ! EXIT THEN
   ELSE
-    S" ..\ext\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
-    S" .\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
-    S" conf\plugins\ssl\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
-    S" ..\CommonPlugins\plugins\ssl\libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
-    S" libeay32.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+    S" ..\ext\libcrypto-1_1.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+    S" .\libcrypto-1_1.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+    S" conf\plugins\ssl\libcrypto-1_1.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+    S" ..\CommonPlugins\plugins\ssl\libcrypto-1_1.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
+    S" libcrypto-1_1.dll" LoadLibEx ?DUP IF SSLE_LIB ! EXIT THEN
   THEN
   -2009 THROW
 ;
@@ -65,7 +65,8 @@ VARIABLE SSLAPLINK
   SSL_LIB @ 0= IF LoadSslLibrary THEN
   DUP CELL+
   [DEFINED] _WINAPI-TRACE [IF] DUP _WINAPI-TRACE [THEN]
-  COUNT DROP SSL_LIB @ GetProcAddress DUP ROT ! API-CALL
+  COUNT DROP DUP >R SSL_LIB @ GetProcAddress DUP ROT !
+  ?DUP IF API-CALL RDROP ELSE R> ASCIIZ> TYPE CR -2010 THROW THEN
 ;
 : SSLEAPI:
   >IN @ CREATE >IN ! 
@@ -76,18 +77,18 @@ VARIABLE SSLAPLINK
   SSLE_LIB @ 0= IF LoadSsleLibrary THEN
   DUP CELL+
   [DEFINED] _WINAPI-TRACE [IF] DUP _WINAPI-TRACE [THEN]
-  COUNT DROP SSLE_LIB @ GetProcAddress DUP ROT ! API-CALL
+  COUNT DROP DUP >R SSLE_LIB @ GetProcAddress DUP ROT !
+  ?DUP IF API-CALL RDROP ELSE R> ASCIIZ> TYPE CR -2010 THROW THEN
 ;
 
-SSLAPI: SSL_load_error_strings
-SSLAPI: SSL_library_init
+SSLAPI: OPENSSL_init_ssl
 SSLAPI: SSL_CTX_new
-\ SSLAPI: SSL_CTX_set_options \ #define SSL_CTX_set_options(ctx,op) SSL_CTX_ctrl((ctx),SSL_CTRL_OPTIONS,(op),NULL)
 SSLAPI: SSL_CTX_ctrl
 SSLAPI: TLSv1_method
 SSLAPI: TLSv1_client_method
 SSLAPI: TLSv1_server_method
 SSLAPI: TLSv1_1_server_method
+SSLAPI: TLS_server_method
 SSLAPI: SSLv3_method
 SSLAPI: SSLv23_method
 SSLAPI: SSL_new
@@ -105,8 +106,8 @@ SSLAPI: SSL_CTX_set_client_CA_list
 SSLAPI: SSL_CTX_load_verify_locations
 SSLAPI: SSL_CTX_use_RSAPrivateKey_file
 SSLAPI: SSL_CTX_set_default_passwd_cb
+SSLAPI: SSL_CTX_set_alpn_select_cb
 SSLAPI: SSL_set_accept_state
-SSLAPI: SSLv23_server_method
 SSLAPI: SSLv23_client_method
 SSLAPI: SSLv3_client_method
 SSLAPI: SSL_free
@@ -145,7 +146,7 @@ SSLAPI: SSL_get_servername \ (const SSL *s, const int type) ;
 SSLEAPI: X509_get_subject_name
 SSLEAPI: X509_NAME_oneline
 SSLEAPI: X509_verify_cert_error_string
-SSLEAPI: SSLeay_version
+SSLEAPI: OpenSSL_version
 
 \ SSLAPI: ERR_error_string       libssl32.dll
 \ SSLAPI: SSL_CTX_set_client_cert_cb libssl32.dll
@@ -177,8 +178,8 @@ VARIABLE vSSL_INIT
   vSSL_INIT @ 0=
   IF
     10000 SSL-MUT @ WAIT THROW DROP
-    SSL_load_error_strings DROP
-    SSL_library_init vSSL_INIT !
+\    0 0x00200000 0x00000002 OR S>D OPENSSL_init_ssl DROP 2DROP
+    0 0 0 OPENSSL_init_ssl vSSL_INIT ! DROP 2DROP
     SSL-MUT @ RELEASE-MUTEX DROP
   THEN
 ;
@@ -189,17 +190,19 @@ VECT vSslServer ' NOOP TO vSslServer
 VECT vSslSniHostName ' 2DROP TO vSslSniHostName
 
 :NONAME { srv al ssl \ ti sna snu pema ctx -- done }
-  \ ." SNI_CB:" ssl . al . srv .
   TlsIndex@ -> ti
   0 ssl SSL_get_ex_data NIP NIP TlsIndex!
+  \ ." SNI_CB:" ssl . al . srv .
 
   TLSEXT_NAMETYPE_host_name ssl SSL_get_servername NIP NIP
   ?DUP IF ASCIIZ> -> snu -> sna
-          ( ." CB SSL host name=") sna snu vSslSniHostName
+          \ ." CB SSL host name=" sna snu TYPE CR
+          sna snu vSslSniHostName
           sna uSslServer !
           sna snu vSslServer 2DUP sna snu COMPARE IF DROP -> pema
-          TLSv1_1_server_method SSL_CTX_new NIP -> ctx
-	  S" HIGH:!aNULL:!MD5:!RC4" DROP ctx SSL_CTX_set_cipher_list NIP NIP 1 <> THROW
+\          TLSv1_1_server_method SSL_CTX_new NIP -> ctx
+          TLS_server_method SSL_CTX_new NIP -> ctx
+\	  S" HIGH:!aNULL:!MD5:!RC4" DROP ctx SSL_CTX_set_cipher_list NIP NIP 1 <> THROW
           uCertType @ pema ctx SSL_CTX_use_certificate_file NIP NIP NIP 1 <> THROW
           uCertType @ pema ctx SSL_CTX_use_certificate_chain_file NIP NIP NIP 1 <> THROW
           uCertType @ pema ctx SSL_CTX_use_RSAPrivateKey_file NIP NIP NIP 1 <> THROW
@@ -214,18 +217,22 @@ VECT vSslSniHostName ' 2DROP TO vSslSniHostName
 
 ; 12 CALLBACK: SSL_SNI_CALLBACK
 
+( *** fixme
+:NONAME { arg inlen in outlen out ssl \ ti -- }
+  TlsIndex@ -> ti
+  arg TlsIndex!
+   ." ALPN_CB:" ssl . in inlen DUMP CR
+\ 2D48308   02 68 32 08  68 74 74 70  2F 31 2E 31  00 00 00 00 .h2.http/1.1....
+
+; 24 CALLBACK: SSL_ALPN_CALLBACK
+)
+
 : SslNewServerContext { pema pemu type \ c -- context }
-  SSLv23_server_method SSL_CTX_new DUP 0= THROW NIP
-\  TLSv1_1_server_method SSL_CTX_new DUP 0= THROW NIP
+  TLS_server_method SSL_CTX_new DUP 0= THROW NIP
 \ http://www.openssl.org/docs/ssl/SSL_CTX_new.html#
   -> c
   type uCertType !
   c uSSL_CONTEXT !
-
-\  SSL_OP_NO_SSLv2 c SSL_CTX_set_options NIP NIP DROP
-
-  0 SSL_OP_NO_SSLv2 SSL_OP_NO_SSLv3 OR  SSL_CTRL_OPTIONS c SSL_CTX_ctrl DROP 2DROP 2DROP
-  S" HIGH:!aNULL:!MD5:!RC4" DROP c SSL_CTX_set_cipher_list NIP NIP DROP
 
 \ сертификаты и ключи, используемые в соединении
   pemu
@@ -237,6 +244,7 @@ VECT vSslSniHostName ' 2DROP TO vSslSniHostName
 
   ['] SSL_SNI_CALLBACK SSL_CTRL_SET_TLSEXT_SERVERNAME_CB c SSL_CTX_callback_ctrl 2DROP 2DROP
 \  TlsIndex@ c SSL_CTX_set_tlsext_servername_arg DROP 2DROP
+\  TlsIndex@ ['] SSL_ALPN_CALLBACK c SSL_CTX_set_alpn_select_cb 2DROP DROP
 
   c
 ;
