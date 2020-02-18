@@ -26,3 +26,20 @@
 \     -- src/compiler/spf_wordlist.f (since 2007)
 \   FOREACH-WORDLIST-PAIR ( i*x xt wid -- j*x ) \ xt ( i*x  xt1 d-txt-name1 -- j*x )
 \     -- ~pinka/spf/compiler/native-wordlist.f
+
+
+
+\ 2017-04-23
+\ "SYNONYM" from TOOLS-EXT 2012
+
+: ENROLL-NAME ( xt d-newname -- ) \ basic factor
+  \ see also: ~pinka/spf/compiler/native-wordlist.f
+  SHEADER LAST-CFA @ !
+;
+: ENROLL-SYNONYM ( d-oldname d-newname -- ) \ postfix version of SYNONYM
+  2>R SFIND DUP 0= IF -321 THROW THEN ( xt -1|1 )
+  SWAP 2R> ENROLL-NAME 1 = IF IMMEDIATE THEN
+;
+: SYNONYM ( "<spaces>newname" "<spaces>oldname" -- ) \ 2012 TOOLS EXT
+  PARSE-NAME PARSE-NAME 2SWAP ENROLL-SYNONYM
+;
