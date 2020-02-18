@@ -4,7 +4,7 @@
 
 FALSE VALUE CREATE-XML-HELP \ generate spfhelp.xml file
 
-FALSE VALUE ARCH-P6 \ use P6 family instructions (for speed) 
+TRUE VALUE ARCH-P6 \ use P6 family instructions (for speed)
 
 TRUE VALUE BUILD-OPTIMIZER \ build optimizer into the forth system for further compilation
 TRUE VALUE USE-OPTIMIZER    \ use optimizer while building to produce a better code
@@ -20,6 +20,15 @@ FALSE VALUE UNIX-ENVIRONMENT
 
 \ build posix-spf
 FALSE VALUE TARGET-POSIX
+
+
+[DEFINED] PLATFORM [IF]
+PLATFORM S" Linux" COMPARE 0= [IF]
+\ default for Linux platform
+  TRUE TO UNIX-ENVIRONMENT
+  TRUE TO TARGET-POSIX
+[THEN] [THEN]
+
 
 S" src/compile.ini" ' INCLUDED CATCH 
  DUP 2 = [IF] CR .( No src/compile.ini - using defaults) DROP 2DROP [ELSE] THROW [THEN]
