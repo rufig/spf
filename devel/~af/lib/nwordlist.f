@@ -4,14 +4,7 @@
 
 : SEARCH-NLIST ( msg wid -- 0 | xt 1 )
   \ найти n-слово
-  BEGIN
-    @ DUP
-  WHILE
-    2DUP
-    1+ @ = IF NIP NAME> 1 EXIT THEN
-    5 +
-  REPEAT
-  2DROP 0
+  SWAP >R  RP@ 4  ROT  SEARCH-WORDLIST  RDROP
 ;
 
 : +NWORD ( n wid -> )
