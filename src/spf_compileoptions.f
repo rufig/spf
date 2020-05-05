@@ -22,6 +22,14 @@ FALSE VALUE UNIX-ENVIRONMENT
 FALSE VALUE TARGET-POSIX
 
 
+\ auto-detect environment
+LTL @ 1 =  LT C@ 0xA =  AND  [IF] \ the current mode is UNIX-LINES
+SOURCE + 1- C@ 0xD <> [IF] \ the current file has LF line ending
+  \ use UNIX-LINES mode in the target system by default (i.e., if other is not specified in compile.ini)
+  \ Otherwise done.f in the target system will not be translated correctly and the system will not be saved.
+  TRUE TO UNIX-ENVIRONMENT
+[THEN] [THEN]
+
 [DEFINED] PLATFORM [IF]
 PLATFORM S" Linux" COMPARE 0= [IF]
 \ default for Linux platform
