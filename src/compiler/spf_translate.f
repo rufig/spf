@@ -45,7 +45,7 @@ VECT ?SLITERAL
 \ результирующая строка имеет нулевую длину.
 \ В конец строки помещается пробел, не включаемый в длину строки.
 \ Программа может изменять символы в строке.
-  DUP SKIP PARSE 255 MIN
+  DUP BL = IF DROP PARSE-NAME ELSE DUP SKIP PARSE THEN 255 UMIN
   DUP SYSTEM-PAD C! SYSTEM-PAD CHAR+ SWAP CMOVE
   0 SYSTEM-PAD COUNT CHARS + C!
   SYSTEM-PAD
