@@ -7,13 +7,27 @@
 
 <export>
 
-<def name="h@" ds=" a u -- a2 u2 ">
-  obtain-value
-</def>
+<choose><rem> case sensitivity mode of the storage - static option </rem>
 
-<def name="h!" ds=" a1 u1 a2 u2 -- ">
-  store-pair
-</def>
+  0 <text>HTTPD_HEADERS_CASE_SENSITIVE</text> ENVIRONMENT? <if> StoN NIP </if>
+  <when>
+
+    <alias name="h@" ds=" a u -- a2 u2 "    word="obtain-value"/>
+    <alias name="h!" ds=" a1 u1 a2 u2 -- "  word="store-pair"/>
+
+  </when><otherwise>
+    <comment>
+      CloudFlare sends some header names in lower case.
+      Use case-insensitive storage by default.
+    </comment>
+
+    <def name="h@" ds=" a u -- a2 u2 "  > RCARBON 2DUP LOWERCASE obtain-value   </def>
+    <def name="h!" ds=" a1 u1 a2 u2 -- "> RCARBON 2DUP LOWERCASE store-pair     </def>
+
+  </otherwise>
+</choose>
+
+
 
 <def name="h!@" ds=" a1 u1 a2 u2 -- a u1 ">
   2DUP 2>R store-pair 2R> obtain-value
