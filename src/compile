@@ -3,7 +3,7 @@
 # $Id$
 #
 # Compile SP-Forth for linux
-# Need src/compile.ini with correct options
+# The default options can be overridden in ./compile.ini
 
 cd ${0%/*} # go to the itself file location
 rm spf4.o
