@@ -3,8 +3,8 @@
 @set throw=@IF ERRORLEVEL 1 EXIT /B %%ERRORLEVEL%%
 @set stct=../engine-xml/struct.xsl
 @set sxsl=../engine-xml/sxsl.xsl
-@set xtrans=call saxonB8 -novw
-@set xtrans2=call saxonB8 
+@set xtrans=call saxonhe-xslt
+@set xtrans2=call saxonhe-xslt
 
     %xtrans%  src/rules-common.f.xml     meta/rules2sxsl.xsl     >tmp/rules-common.sxsl.xml
     %throw%

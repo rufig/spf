@@ -1,8 +1,8 @@
 @set throw=@IF ERRORLEVEL 1 EXIT /B %%ERRORLEVEL%%
 @set stct=../engine-xml/struct.xsl
 @set sxsl=../engine-xml/sxsl.xsl
-@set xtrans=call saxonB8 -novw
-@set xtrans2=call saxonB8 
+@set xtrans=call saxonhe-xslt
+@set xtrans2=call saxonhe-xslt
 @rem @set xtrans=msxsl
 
 @rem ( r:* ) --> ( f:* r:m0 r:m )
