@@ -33,13 +33,13 @@
 <def name="create-process" ds=" -- ior ">
   process-info
   startup-info
-  directory     DROP
-  environment   DROP
+  directory     ENSURE-ASCIIZ-R DROP
+  environment   ENSURE-ASCIIZ-R DROP
   flags <rem> The flags that control the priority class and the creation of the process </rem>
   TRUE  <rem> inherit handles </rem>
   0 0   <rem> ProcessAttributes ThreadAttributes </rem>
-  commandline   DROP
-  application   DROP
+  commandline   ENSURE-ASCIIZ-R DROP
+  application   ENSURE-ASCIIZ-R DROP
   CreateProcessA ERR
 </def>
 
