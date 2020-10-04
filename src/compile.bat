@@ -1,3 +1,3 @@
-cd ..
+cd /d %~dp0 && cd ..
 @echo Wait a bit while compiling...
-@jpf375c.exe src\spf.f
+@jpf375c.exe src\tc-configure-lines.f src\spf.f
