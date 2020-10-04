@@ -37,7 +37,7 @@
     <exit/>
   </if>
   0. W/O open-filename <rem> NUL pseudo file</rem>
-</def>     
+</def>
 
 <def name="use-pipes-simple"  ds=" -- ">
   TRUE own-handles!
@@ -78,9 +78,16 @@
 
 <def name="start-simple" ds=" -- ">
   use-pipes-simple create-process
-    close-handles-std <rem> (!!!) </rem>
   <rem>( ior )</rem>
-  DUP <if> close-handles-own THROW </if> DROP
+  <comment>
+    Don't close the passed std handles at once for the sake of child Linux processes from WineHQ
+    (the problem was observable in the version wine-2.0.1 at the least)
+    See also: https://stackoverflow.com/a/45545068/1300170 (point 5)
+  </comment>
+  DUP <if>
+    close-handles-std <rem> (!!!) </rem>
+    close-handles-own THROW
+  </if> DROP
 </def>
 
 <def name="put" ds=" a u -- ">
@@ -90,6 +97,7 @@
   </if>
   2DROP
   close-child-in <rem> zero-length data is EOF flag </rem>
+  close-handles-std <rem> Now this handles can be closed too </rem>
 </def>
 
 <def name="transmit-stdout" ds=" -- ">
@@ -105,14 +113,19 @@
 </def>
 
 
-<def name="perform-simple-per" ds=" a-in u-in a-shell u-shell consumer-xt -- result ">
+<def name="perform-simple-noresult-per" ds=" a-in u-in a-shell u-shell consumer-xt -- ">
   consumer-out! commandline!
   start-simple
   <rem>( d-data )</rem>
-  put close-child-in
+  put  0. put  transmit-stdout
+</def>
 
-  transmit-stdout
-
+<def name="perform-simple-per" ds=" a-in u-in a-shell u-shell consumer-xt -- result ">
+  <comment>
+    This word doesn't work for child Linux process from Wine
+    since exitcode-sure tries to wait on the process handle (that is 0 in such case).
+  </comment>
+  perform-simple-noresult-per
   exitcode-sure
   <rem> the object is stayed without clear (!!!) </rem>
 </def>

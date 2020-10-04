@@ -4,7 +4,7 @@
 <slot>
   process-info
   startup-info
-  flags 
+  flags
 </slot>
 
 <slot2>
@@ -15,7 +15,7 @@
 </slot2>
 
 <comment>
-  The 'application' should be full or partial pathname (or NULL).
+  The 'application' should be a full or a partial pathname (or NULL).
   The function will not use the search path. This parameter must
   include the file name extension; no default extension is assumed.
 </comment>
@@ -26,7 +26,13 @@
 <def name="p-id"      ds=" -- id "> process-info dwProcessId  T@ </def>
 <def name="t-id"      ds=" -- id "> process-info dwThreadId   T@ </def>
 
+<comment>
+  When it is used in WineHQ and creates a Linux process, p-handle and t-handle remain 0.
+  See: https://bugs.winehq.org/show_bug.cgi?id=18335
+</comment>
+
 <def name="exitcode" ds=" -- code ">
+  p-handle <unless> 0 <exit/></unless>
   p-handle PROCESS-EXITCODE THROW
 </def>
 
