@@ -1,31 +1,87 @@
-# $Id$
 #
-# Compile SP-Forth for linux
+# Compile SP-Forth for linux or Windows
 # The default options can be overridden in ./compile.ini
+
+# An alternative host Forth translator can be passed
+# in the HOSTFORTH variable. By default it's spf4orig in Linux
+# and jpf375c.exe in Windows (and Cygwin). The default translator
+# is downloaded (via curl or wget) if it's missed .
+
 
 .POSIX:
 .DELETE_ON_ERROR:
-.PHONY: clean install
 
-target: install
+.PHONY: clean build install
 
-url_spf4orig:="https://github.com/rufig/spf4-cvs-archive/releases/download/v1.0/spf4orig"
 
-../spf4orig:
-	@ { command -v curl >/dev/null && c="curl -L -o" ; } || { command -v wget >/dev/null && c="wget -O" ; } || exit 1;\
-	cmd="$$c "$@" ${url_spf4orig}"; echo $$cmd; \
-	$$cmd
+target: build
 
-spf4.o: *.f compiler/*.f posix/*.f compile.ini  ../spf4orig
+url-binaries-base   := https://github.com/rufig/spf4-cvs-archive/releases/download/v1.0/
+
+orig-bin-lin    := spf4orig
+orig-bin-win    := jpf375c.exe
+
+define download-binary
+  @\
+  { command -v curl >/dev/null && c="curl -L -o" ; } || \
+  { command -v wget >/dev/null && c="wget --no-verbose -O" ; } || \
+  { echo "Error, cannot download $@"; exit 1; } ;\
+  cmd="$$c $@ $(url-binaries-base)$(notdir $@)";\
+  echo "$$cmd" && $$cmd && chmod +x "$@"
+endef
+
+../$(orig-bin-lin) ../$(orig-bin-win) :
+	$(download-binary)
+
+
+ifeq ($(OSTYPE),cygwin)
+  platform := win32
+else
+ifeq ($(OS),Windows_NT)
+  platform := win32
+else
+  platform := posix
+endif
+endif
+
+
+ifeq ($(platform),posix)
+  target-bin := spf4
+  orig-bin := $(orig-bin-lin)
+else
+  target-bin := spf4.exe
+  orig-bin := $(orig-bin-win)
+endif
+
+
+maybe-check-orig-bin :=
+
+ifeq ($(HOSTFORTH),)
+  maybe-check-orig-bin := ../$(orig-bin)
+  HOSTFORTH := ./$(orig-bin)
+endif
+
+common-sources := *.f compiler/*.f $(wildcard compile.ini) $(maybe-check-orig-bin)
+
+
+
+spf4.o: $(common-sources) posix/*.f
 	make -C posix
-	cd .. && echo "Wait a bit while compiling..." && ./spf4orig src/spf.f
+	cd .. && echo "Wait a bit while compiling..." && echo HALT 1 | $(HOSTFORTH) src/spf.f
 
-spf4: spf4.o forth.ld
+../spf4: spf4.o forth.ld
 	gcc -v 2>&1 | grep -F --silent -- '--enable-default-pie' && gcc_nopie="-no-pie" ; \
 	gcc -o $@ $< -Wl,forth.ld -ldl -lpthread -v -m32 -fno-pie $$gcc_nopie
 
-install: spf4
-	cp spf4 ..
+
+../spf4.exe: $(common-sources) win/*.f win/res/*
+	cd .. ; echo HALT 1 | $(HOSTFORTH) src/tc-configure-lines.f src/spf.f
+
+
+build: ../$(target-bin)
+
+install: build
+
 
 clean:
 	rm -f spf4.o
