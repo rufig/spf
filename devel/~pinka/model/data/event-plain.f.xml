@@ -40,10 +40,21 @@
 
 <r:rule match="f:handler" ds=" -- ">
   <r:m>
-    <q><r:yield/></q><r:exec-attribute name="event"/>
+    <q><r:yield/></q><r:get-name/> 2 PICK NAMING
+    <r:exec-attribute name="event"/>
     <r:get-attribute name="advice"/> ADVICE-EVENT-LIKE
   </r:m>
 </r:rule>
+
+<r:rule match="f:handler" ds=" -- ">
+  forthml-hidden::GetName NIP <if><r:exit-fail/></if>
+  <r:m>
+    <q><r:yield/></q>
+    <r:exec-attribute name="event"/>
+    <r:get-attribute name="advice"/> ADVICE-EVENT-LIKE
+  </r:m>
+</r:rule>
+
 
 <r:rule match="f:fire" ds=" -- ">
   <r:m><r:exec-attribute name="event"/> FIRE-EVENT </r:m>
