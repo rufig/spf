@@ -21,7 +21,7 @@
   HERE >R <xt-of name="NOOP"/> ,
   <const name="_{2DUP}" > R@ </const>
   <def name="{2DUP}" ><lit>R@</lit> @ EXECUTE </def>
-  <def name="{2DUP}!"><lit>R@</lit> ! </def>
+  <def name="set-{2DUP}"><lit>R@</lit> ! </def>
   RDROP 2DROP
 </def>
 
@@ -51,6 +51,13 @@
   FirstChildValue T-SLIT
   <r:mm><each-word> create-vect </each-word></r:mm>
 </r:rule>
+<comment> vect-enum is a bad idea </comment>
+
+<r:rule match="f:vect">
+  <r:m><p><r:yield/></p> ALIGN HERE <r:get-name/> create-vect ! </r:m>
+</r:rule>
+
+
 
 <comment title="the idea">
   <cell name="a"/><cell name="b"/><cell name="c"/>
