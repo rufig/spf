@@ -9,7 +9,7 @@
 
 <choose><rem> case sensitivity mode of the storage - static option </rem>
 
-  0 <text>HTTPD_HEADERS_CASE_SENSITIVE</text> ENVIRONMENT? <if> StoN NIP </if>
+  0 <text>HTTPD_HEADERS_CASE_SENSITIVE</text> ENVIRONMENT? <if> TRIM StoN NIP </if>
   <when>
 
     <alias name="h@" ds=" a u -- a2 u2 "    word="obtain-value"/>
