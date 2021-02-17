@@ -1,6 +1,5 @@
 REQUIRE [UNDEFINED] lib/include/tools.f
-REQUIRE UTF8>UTF16 ~pinka/lib/win/utf16.f
-REQUIRE RBUF       ~pinka/spf/rbuf.f
+REQUIRE R:UTF8>UTF16        ~pinka/lib/win/utf16-rbuf.f
 
 [UNDEFINED] CreateHardLinkW [IF]
 WINAPI: CreateHardLinkW  kernel32.dll
@@ -21,10 +20,6 @@ WINAPI: CreateSymbolicLinkW  kernel32.dll
   __in  DWORD dwFlags
 )
 
-
-: R:UTF8>UTF16 ( d-txt -- d-txt2-r )
-  POSTPONE ENSURE-ASCIIZ-R POSTPONE 1+ POSTPONE DUP POSTPONE 2* POSTPONE RBUF POSTPONE UTF8>UTF16
-; IMMEDIATE
 
 : COPY-FILE-HARDLINK ( d-src d-trg -- ior )
   \ works only for regular files
