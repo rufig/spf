@@ -5,9 +5,10 @@
 
 ( xt_of_readout_data -- )
 \ xt_of_readout_data ( a u1 -- a u2 ior )
+CONSTANT xt-readout-raw
 
 : readout? ( a u1 -- a u2 flag )
-  [ COMPILE, ] THROW DUP 0<>
+  [ xt-readout-raw COMPILE, ] THROW DUP 0<>
 ;
 
 VARIABLE B0  \ начало буфера
