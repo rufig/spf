@@ -79,16 +79,18 @@
 <def name="start-simple" ds=" -- ">
   use-pipes-simple create-process
   <rem>( ior )</rem>
-  <comment>
-    Don't close the passed std handles at once for the sake of child Linux processes from WineHQ
-    (the problem was observable in the version wine-2.0.1 at the least)
-    See also: https://stackoverflow.com/a/45545068/1300170 (point 5)
-  </comment>
+  close-handles-std <rem> the passed down handles should be closed in any case, regardless ior </rem>
   DUP <if>
-    close-handles-std <rem> (!!!) </rem>
     close-handles-own THROW
   </if> DROP
 </def>
+<comment>
+  In the new WineHQ versions (at least, in 5.20)
+  late closing of the passed down std handles don't help anymore in the case of a child Linux process.
+
+  And in the native case, the parent process hangs on write to the pipe beyond the pipe's buffer
+  if these handles are not closed and the child process is prematurely terminated.
+</comment>
 
 <def name="put" ds=" a u -- ">
   DUP <if>
@@ -97,7 +99,6 @@
   </if>
   2DROP
   close-child-in <rem> zero-length data is EOF flag </rem>
-  close-handles-std <rem> Now this handles can be closed too </rem>
 </def>
 
 <def name="transmit-stdout" ds=" -- ">
