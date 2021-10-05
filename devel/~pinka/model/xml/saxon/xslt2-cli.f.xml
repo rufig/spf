@@ -9,7 +9,7 @@
   NB: In WineHQ environment a program can start a Linux process,
   but cannot wait it or properly interact with it via pipes.
 
-  For example,
+  See:
 
   https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
   Creating a Child Process with Redirected Input and Output
@@ -23,6 +23,15 @@
   </citation>
 
   So, it is need to use Java for Windows to run Saxon in Wine evironemnt.
+</comment>
+
+<comment>
+  NB: on a Windows platform, use
+    exit /b %errorlevel%
+  in the batch file, to ensure that it returns the exit status
+  even in case of a script error like:
+    - (file) "is not recognized as an internal or external command, operable program or batch file" (status 9009)
+    - "The system cannot find the path specified" (status 3)
 </comment>
 
 
@@ -41,6 +50,7 @@
 <alias name="put" word="process::put"/>
 
 <def name="assume-transform" ds=" d-txt-filename -- ">
+  2DUP <logS>info, xslt2-saxon, xsl</logS>
   process::clear
   compose-commandline process::assume-commandline
   process::start-simple
@@ -51,12 +61,17 @@
   process::transmit-stdout
 </def>
 
-<def name="close" ds=" -- ">
+<handler name="log-error-maybe" event="cleanup" advice="before">
+  <rem> It's executed before other handlers to log an error (if any) before closing </rem>
   process::p-handle <unless-exit/>
   process::exitcode-sure
-  process::clear
   DUP <unless> DROP <exit/></unless>
-  <logN>error, xslt2-saxon-result</logN>
+  <logN>error, xslt2-saxon, exit-status</logN>
+</handler>
+
+<def name="close" ds=" -- ">
+  log-error-maybe
+  process::clear
 </def>
 
 </forth>
