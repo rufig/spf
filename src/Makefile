@@ -67,7 +67,7 @@ common-sources := *.f compiler/*.f $(wildcard compile.ini) $(maybe-check-orig-bi
 
 spf4.o: $(common-sources) posix/*.f
 	make -C posix
-	cd .. && echo "Wait a bit while compiling..." && echo HALT 1 | $(HOSTFORTH) src/spf.f
+	cd .. && echo "Wait a bit while compiling..." && echo 1 HALT | $(HOSTFORTH) src/spf.f
 
 ../spf4: spf4.o forth.ld
 	gcc -v 2>&1 | grep -F --silent -- '--enable-default-pie' && gcc_nopie="-no-pie" ; \
@@ -75,7 +75,7 @@ spf4.o: $(common-sources) posix/*.f
 
 
 ../spf4.exe: $(common-sources) win/*.f win/res/*
-	cd .. ; echo HALT 1 | $(HOSTFORTH) src/tc-configure-lines.f src/spf.f
+	cd .. ; echo 1 HALT | $(HOSTFORTH) src/tc-configure-lines.f src/spf.f
 
 
 build: ../$(target-bin)

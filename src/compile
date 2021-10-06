@@ -10,7 +10,7 @@ rm spf4.o
 make -C posix # generate posix/config.auto.f
 cd ..
 echo Wait a bit while compiling...
-echo HALT 1 | ./spf4orig src/spf.f
+echo 1 HALT | ./spf4orig src/spf.f
 cd src
 gcc -v 2>&1 | grep -F --silent -- '--enable-default-pie' && gcc_nopie="-no-pie"
 gcc -o spf4 spf4.o -Wl,forth.ld -ldl -lpthread -v -m32 -fno-pie $gcc_nopie
