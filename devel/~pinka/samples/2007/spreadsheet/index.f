@@ -4,16 +4,12 @@
 
 REQUIRE EMBODY ~pinka/spf/forthml/index.f
 
-: STHROW ( addr u -- )  ER-U ! ER-A ! -2 THROW ;
+REQUIRE STHROW ~pinka/spf/sthrow.f
 
-: SCATCH ( -- addr u true | false ) 
-  CATCH
-  DUP 0EQ IF EXIT THEN
-  DUP -2 NEQ IF THROW THEN
-  DROP ER-A @ ER-U @ TRUE
-;
+REQUIRE 2NIP ~pinka/lib/ext/basics.f
 
-: 2NIP 2SWAP 2DROP ;
+
+WARNING @ WARNING 0!
 
 : StoN ( c-addr u -- x )
   forthml-hidden::I-LIT IF EXIT THEN `#NaN STHROW
@@ -22,8 +18,9 @@ REQUIRE EMBODY ~pinka/spf/forthml/index.f
   S>D (D.) \ HERE OVER 2SWAP S,
 ;
 
-WARNING @ WARNING 0!
 : / ( a b -- c ) DUP 0= IF `#zerro-div STHROW THEN / ;
+
 WARNING !
+
 
 S" mini.f.xml" FIND-FULLNAME2 EMBODY
