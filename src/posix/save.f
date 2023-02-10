@@ -451,7 +451,9 @@ CREATE sections
   ( a u ) DROP >R
   (( 
     HERE
-    S" gcc %s.o -Wl,%s.ld -ldl -lpthread -m32 -v -o %s" DROP
+    S" gcc -v 2>&1 | grep -F --silent -- '--enable-default-pie' && gcc_nopie='-no-pie' ;" DROP
+    S" %s gcc %s.o -Wl,%s.ld -ldl -lpthread -m32 $gcc_nopie -v -o %s" DROP
+    SWAP
     R@ R@ R>
   )) sprintf DROP 
   HERE system
