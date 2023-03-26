@@ -1,3 +1,3 @@
-: USE ( ->bl)
-  BL PARSE ( 2DUP dlopen2) TRUE name-lookup DROP
+: USE ( "name" -- )
+  PARSE-NAME ( 2DUP dlopen2) TRUE name-lookup DROP
 ;

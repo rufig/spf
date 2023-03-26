@@ -116,14 +116,14 @@ WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
 \ --------------------------------------------
 \ Слова для компиляции вызовов внешних функций
 
-: USE ( ->bl)
-  BL PARSE 2DUP SYSTEM-PAD CZMOVE
+: USE ( "name" -- )
+  PARSE-NAME 2DUP SYSTEM-PAD CZMOVE
   SYSTEM-PAD dlopen2 TRUE name-lookup DROP
 ;
 
 \ see lib/include/facil.f
-\ : extern ( ->bl )
-\   BL PARSE 2DUP [T] SHEADER [I]
+\ : extern ( "name" -- )
+\   PARSE-NAME 2DUP [T] SHEADER [I]
 \   CREATE-CODE COMPILE,
 \   symbol-lookup ,
 \   (DOES1) (DOES2)
@@ -141,8 +141,8 @@ WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
   (__ret2) 0!
 ;
 
-: )) ( ->bl; -- )
-  BL PARSE symbol-lookup
+: )) ( "name" -- )
+  PARSE-NAME symbol-lookup
   STATE @ IF
     ['] ())) COMPILE,
     compile-call
@@ -151,8 +151,8 @@ WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
   THEN
 ; IMMEDIATE
 
-: (()) ( ->bl; -- )
-  BL PARSE symbol-lookup
+: (()) ( "name" -- )
+  PARSE-NAME symbol-lookup
   STATE @ IF
     0 [COMPILE] LITERAL
     compile-call

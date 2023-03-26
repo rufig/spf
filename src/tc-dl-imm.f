@@ -1,5 +1,5 @@
-: )) ( ->bl; -- )
-  BL PARSE symbol-lookup 
+: )) ( "name" -- )
+  PARSE-NAME symbol-lookup
   STATE @ IF
    ()))-adr COMPILE,
    TC-LIT,
@@ -14,8 +14,8 @@
   THEN
 ; IMMEDIATE
 
-: (()) ( ->bl; -- )
-  BL PARSE symbol-lookup 
+: (()) ( "name" -- )
+  PARSE-NAME symbol-lookup
   STATE @ IF
    0 TC-LIT, TC-LIT,
    (__ret2) @ IF

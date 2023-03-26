@@ -44,7 +44,7 @@ WINAPI: GetTickCount KERNEL32.DLL
 
 \ reference extern global variable
 : extern: ( "name" -- )
-  BL PARSE 2DUP CREATED
+  PARSE-NAME 2DUP CREATED
     symbol-lookup ,
   DOES>
     @  symbol-address
