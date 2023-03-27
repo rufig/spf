@@ -1,10 +1,22 @@
-Version 4.21
+27 March 2023     Version 4.29
 
+! fix bugs in QUIT OPEN-FILE-SHARED VOC-LIST WordByAddr 'C"' XSAVE GET-ORDER SFIND
+! fix bugs in ?SLITERAL ?SLITERAL2 FIND-FULLNAME ALLOCATE SAVE
+! fix THROW re ior 109 (it was not throwable)
+! a number of fixes in the optimizer
++ IS-TEMP-WORDLIST OS-API
+* "ENVIRONMENT?" searches in ENVIRONMENT-WORDLIST instead of the search order
+* optimization in SEARCH-WORDLIST
+* support files with UTF-8 BOM
+* BL WORD treats any whitespace as a delimiter
+* hide macroopt words into the separate wordlist MACROOPT-WL
+* building: support 64bit Linux host, update gcc options re no-pie, auto download binaries
+* auto detection defaults for the compile options UNIX-ENVIRONMENT and TARGET-POSIX
 * various minor tweaks
-* fixes in optimizer
-+ IS-TEMP-WORDLIST
 
 libs:
+! FS. F.
++ RENAME-FILE COPY-FILE DELETE-FOLDER TRAVERSE-WORDLIST CS-PICK CS-ROLL SYNONYM
 * ext/caseins.f doesn't depend on devel anymore
 
 

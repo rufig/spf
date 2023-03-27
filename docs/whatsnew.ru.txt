@@ -1,10 +1,22 @@
-Версия 4.21
+27 марта 2023    Версия 4.29
 
+! исправления багов в QUIT OPEN-FILE-SHARED VOC-LIST WordByAddr 'C"' XSAVE GET-ORDER SFIND
+! исправления багов в ?SLITERAL ?SLITERAL2 FIND-FULLNAME ALLOCATE SAVE
+! исправление THROW насчет кода ior 109 (он игнорировался)
+! ряд исправлений в оптимизаторе
++ IS-TEMP-WORDLIST OS-API
+* "ENVIRONMENT?" ищет в ENVIRONMENT-WORDLIST вместо порядка поиска
+* оптимизация в SEARCH-WORDLIST
+* поддержка UTF-8 BOM в начале файла
+* BL WORD трактует любой пробельный символ как разделитель
+* скрытие слов macroopt в отдельный списко слов MACROOPT-WL
+* сборка: поддержка 64bit Linux host, обновление опций gcc насчет no-pie, автоматическая загрузка бинарника
+* авто-определение умолчаний для опций сборки UNIX-ENVIRONMENT and TARGET-POSIX
 * разнообразные мелки исправления
-* фиксы оптимизатора
-+ IS-TEMP-WORDLIST
 
 libs:
+! FS. F.
++ RENAME-FILE COPY-FILE DELETE-FOLDER TRAVERSE-WORDLIST CS-PICK CS-ROLL SYNONYM
 * ext/caseins.f больше не зависит от devel
 
 
