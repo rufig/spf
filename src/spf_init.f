@@ -141,7 +141,7 @@ TARGET-POSIX [IF]
 
 : (TITLE)
   ." SP-FORTH - ANS FORTH 94 for " PLATFORM TYPE CR
-  ." Open source project at http://spf.sf.net" CR
+  ." Open source project at https://github.com/rufig/spf" CR
   ." Russian FIG at http://www.forth.org.ru ; Started by A.Cherezov" CR
   ." Version " VERSION 1000 / 0 <# # # [CHAR] . HOLD # #> TYPE
   ."  Build " VERSION 0 <# # # # #> TYPE

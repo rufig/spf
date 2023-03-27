@@ -110,38 +110,34 @@ CONTENTS
 (слово `HELP`).
 
 Если этой документации недостаточно, задавайте вопросы в
-рассылке `spf-dev`, также загляните на [Wiki](http://wiki.forth.org.ru).
+[Issue tracker](https://github.com/rufig/spf/issues).
 
 
 РАЗРАБОТКА
 ----------
 
-*   Последнюю версию всегда можно найти на SF.net
+*   Последнюю версию всегда можно найти на GitHub
 
-    <http://spf.sourceforge.net>
+    <https://github.com/rufig/spf/releases>
 
-    Вы можете получить исходники из [CVS](http://wiki.forth.org.ru/SpfCvs).
-    Репозиторий для анонимного доступа (только чтение)
-    `:pserver:anonymous@spf.cvs.sourceforge.net:/cvsroot/spf`
+    Исходоники доступны в Git репозитории.
+    URI для клонирования репозитория с доступом только для чтения
+    `https://github.com/rufig/spf.git`
 
-    Уведомления о коммитах в репозиторий идут в почтовую рассылку
-    [spf-commits](http://lists.sourceforge.net/lists/listinfo/spf-commits)
+    Подписка на уведомления о коммитах доступна на
+    [стринице проекта](https://github.com/rufig/spf)
 
-*   Для контакта с разработчиками подпишитесь на почтовую рассылку [spf-dev](http://lists.sourceforge.net/lists/listinfo/spf-dev)
-
-    Или используйте веб-зеркало рассылки
-    [SP-Forth - DEV (rus)](http://www.nabble.com/SP-Forth---DEV-(rus%29-f26012.html)
-    на [Nabble](http://www.nabble.com)
+*   Контакт с разработчиками через [Issue tracker](https://github.com/rufig/spf/issues)
+    Или через Telegram группу <https://t.me/spforthchat>.
 
 *   Багтрекер (пожелания и багрепорты)
 
-    <http://sourceforge.net/tracker/?group_id=17919>
+    <https://github.com/rufig/spf/issues>
 
     Пожалуйста приводите подробное описание ошибки и способ воспроизведения.
     Обязательно сообщайте о неточностях или неполноте документации.
 
-    Уведомления об активности на багтрекере идут в почтовую рассылку
-    [spf-tickets](http://lists.sourceforge.net/lists/listinfo/spf-tickets)
+    Уведомления об активности на багтрекере доступны через платформу GitHub.
 
 *   Проекты с использованием SPF (рекомендуем) :
 

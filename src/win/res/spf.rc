@@ -38,8 +38,8 @@ BEGIN
       VALUE "ProductVersion",    "4.21.0.0"
       VALUE "InternalName",    "SPF4"
       VALUE "OriginalFilename",    "spf4.exe"
-      VALUE "Comments",    "Open source project http://spf.sf.net/.\r\nRuFIG http://forth.org.ru/"
-      VALUE "LegalCopyright", "(C) 1992-2008 RuFIG"
+      VALUE "Comments",    "Open source project https://github.com/rufig/spf.\r\nRuFIG http://forth.org.ru/"
+      VALUE "LegalCopyright", "(C) 1992-2023 RuFIG"
     END 
   END 
   BLOCK "VarFileInfo" 

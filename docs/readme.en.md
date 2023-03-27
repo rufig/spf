@@ -89,39 +89,35 @@ now. If you need an English version, contact us, the translation will be done.
 
 SPF extension (`lib/ext/help.f`) adds help support to the interpreter with the word `HELP`.
 
-If you have more questions - ask them at `spf-dev` mailing list.
+If you have more questions - ask them in the [Issue tracker](https://github.com/rufig/spf/issues).
 
 
 DEVELOPMENT
 -----------
 
-*   The latest version can be downloaded from SF.net :
+*   The latest version can be downloaded from GitHub:
 
-    <http://spf.sourceforge.net>
+    <https://github.com/rufig/spf/releases>
 
-    You can obtain the latest sources from CVS. The repository for the anonymous
-    read-only access is
-    `:pserver:anonymous@spf.cvs.sourceforge.net:/cvsroot/spf`
+    The latest sources are available in a Git repository. The URI to clone the repository
+    for anonymous read-only access is
+    `https://github.com/rufig/spf.git`
 
-    Notifications on CVS commits go to
-    [spf-commits](http://lists.sourceforge.net/lists/listinfo/spf-commits) mailing list.
+    Subscribing on the commit notifications is available on the
+    [project webpage](https://github.com/rufig/spf).
 
-*   The first place to contact the developers is the [spf-dev](http://lists.sourceforge.net/lists/listinfo/spf-dev) mailing list
-
-    Alternatively you can use mailing list web-mirror
-    [SP-Forth - DEV (rus)](http://www.nabble.com/SP-Forth---DEV-(rus%29-f26012.html) at
-    [Nabble](http://www.nabble.com)
-    (though title has 'rus' in it, you may write english)
+*   The first place to contact the developers is the [Issue tracker](https://github.com/rufig/spf/issues).
+    Another place is the Telegram group <https://t.me/spforthchat>.
 
 *   Bugtracker (feature requests and bugreports welcome)
 
-    <http://sourceforge.net/tracker/?group_id=17919>
+    <https://github.com/rufig/spf/issues>
 
     Please provide a comprehensive description of the bug behaviour and ways
     to reproduce. Dont hesitate to report errors or omissions in the
     documentation too.
 
-    Notifications on bugtracker activity go to [spf-tickets](http://lists.sourceforge.net/lists/listinfo/spf-tickets) list
+    Notifications on bugtracker activity is available via the GitHub platform.
 
 *   Related projects (highly recommended) :
 
