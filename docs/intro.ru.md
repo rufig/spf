@@ -14,7 +14,7 @@
 
 ----
 
-[[Русский](intro.ru.html)] [[Английский](intro.en.html)]
+[[Русский](intro.ru.md)] [[Английский](intro.en.md)]
 
 ----
 

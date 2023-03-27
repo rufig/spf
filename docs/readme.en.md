@@ -54,7 +54,7 @@ directories. At startup spf will include `~/.spf4.ini`.
 CONTENTS
 --------
 
-See the [docs/whatsnew.en.txt](whatsnew.en.txt) file for the short overview of recent changes.
+See the [/docs/whatsnew.en.txt](whatsnew.en.txt) file for the short overview of recent changes.
 
 Directories:
 
@@ -69,7 +69,7 @@ Files in the root directory:
 * `help.fhlp`        - default include for the `lib/ext/help.f` extension
 * `jpf375c.exe`      - an older version of SPF used to build itself
 * `spf4.exe`         - SPF itself
-* `spf4.ini`         - This file is automatically included by SPF at startup
+* `spf4.ini`         - This file is automatically included by SPF at startup (if any)
 
 
 DOCUMENTATION
@@ -78,11 +78,11 @@ DOCUMENTATION
 See the `/docs` directory. The majority of the documentation is in Russian for
 now. If you need an English version, contact us, the translation will be done.
 
-1.  [SPF specifics](intro.en.html)
+1.  [SPF specifics](intro.en.md) ([online html](https://spf.sourceforge.net/docs/intro.en.html))
 
     If you are familiar with Forth, but not with SPF.
 
-2.  [Short overview of libraries](devel.en.html)
+2.  [Short overview of libraries](devel.en.md) ([online html](https://spf.sourceforge.net/docs/devel.en.html))
 
     Additional libraries in SPF distribution
 
@@ -140,8 +140,7 @@ DEVELOPMENT
      <http://www.forth.org.ru>
 
 
-<a id="license"/>
-LICENSE
+LICENSE <a id="license"/>
 -------
 
 You can modify and/or redistribute the core SP-Forth system (i.e. all files in `src`)

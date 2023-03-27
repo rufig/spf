@@ -14,7 +14,7 @@ Forth-system and ANS'94 standard.</i>
 
 ----
 
-[[Russian](intro.ru.html)] [[English](intro.en.html)]
+[[Russian](intro.ru.md)] [[English](intro.en.md)]
 
 ----
 
