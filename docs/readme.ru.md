@@ -4,7 +4,7 @@ SP-Forth
 
 <title>SP-Forth</title>
 
-<!-- $Revision$ -->
+<!-- Revision: 2023-02-27 -->
 
 ОПИСАНИЕ
 --------
@@ -139,11 +139,9 @@ CONTENTS
 
     Уведомления об активности на багтрекере доступны через платформу GitHub.
 
-*   Проекты с использованием SPF (рекомендуем) :
+*   Некоторые прошлые проекты с использованием SP-Forth:
 
     <http://www.eserv.ru>         - HTTP/FTP/SMTP/POP3/IMAP сервер и прокси для Win32
-
-    <http://www.delosoft.com>     - Форт системы для карманных компьютеров
 
     <http://nncron.ru>            - unix-подобный планировщик cron для Windows с поддержкой скриптов
 
@@ -155,9 +153,15 @@ CONTENTS
 
     <http://acftp.sf.net>         - ftp сервер
 
-*   Русское Форт-сообщество :
+*   Русское Форт-сообщество, разделенное на три части:
 
-    <http://www.forth.org.ru>
+    <https://t.me/ruforth> (Telegram chat)
+
+    <http://fforum.winglion.ru> (Web forum)
+
+    <http://www.forth.org.ru> (старый веб-сайт)
+
+
 
 
 ЛИЦЕНЗИЯ <a id="license"/>
@@ -189,4 +193,4 @@ CONTENTS
 
 
 ----
-Последнее обновление : $Date$
+Последнее обновление: 2023-02-27

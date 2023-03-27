@@ -4,7 +4,7 @@ SP-Forth
 
 <title>SP-Forth</title>
 
-<!-- Translation in sync with readme.ru.md r1.10 -->
+<!-- Translation in sync with readme.ru.md 2023-02-27 -->
 
 ABOUT
 -----
@@ -119,11 +119,9 @@ DEVELOPMENT
 
     Notifications on bugtracker activity is available via the GitHub platform.
 
-*   Related projects (highly recommended) :
+*   Some past projects that use SP-Forth:
 
     <http://www.eserv.ru>        - HTTP/FTP/SMTP/POP3/IMAP server and proxy for Win32
-
-    <http://www.delosoft.com>    - Forth systems for pocket computers
 
     <http://nncron.ru>           - scriptable unix-like cron scheduler for Windows
 
@@ -135,9 +133,15 @@ DEVELOPMENT
 
     <http://acftp.sf.net>        - ftp server
 
-*    Russian Forth Interest Group :
+*   Russian Forth Interest Group, separated into three parts:
 
-     <http://www.forth.org.ru>
+    <https://t.me/ruforth> (Telegram chat)
+
+    <http://fforum.winglion.ru> (Web forum)
+
+    <https://www.forth.org.ru> (old website)
+
+
 
 
 LICENSE <a id="license"/>
@@ -169,4 +173,4 @@ Russian Forth Interest Group with the help of many contributors.
 Started by Andrey Cherezov in 1992
 
 ----
-Last updated : $Date$
+Last updated: 2023-02-27
