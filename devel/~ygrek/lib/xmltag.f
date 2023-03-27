@@ -11,6 +11,8 @@ REQUIRE list-ext ~ygrek/lib/list/ext.f
 REQUIRE list-make ~ygrek/lib/list/make.f
 REQUIRE XMLSAFE ~ygrek/lib/xmlsafe.f
 
+[UNDEFINED] 1-! [IF] : 1-! ( addr -- ) DUP @ 1- SWAP ! ; [THEN]
+
 MODULE: xmltag
 
 USER indent-depth
