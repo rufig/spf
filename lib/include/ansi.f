@@ -49,64 +49,6 @@ VARIABLE SPAN  0 SPAN !
     >R DUP >R  DABS  <# #S R> SIGN #>
     R> OVER - 0 MAX SPACES  TYPE
 ;
-
-\ DPANS 3.4.1.1 Delimiters
-\
-\ If the delimiter is the _space_ _character_, hex 20 (BL), control
-\ characters may be treated as delimiters. The set of conditions,
-\ if any, under which a space delimiter matches control characters
-\ is implementation defined. 
-\
-\
-\ DPANS 11.3.6 Parsing:
-\
-\ When parsing from a text file using a space delimiter, 
-\ control characters shall be treated the same as the space character.
-\
-: IS-DELIM  ( c delim -- f )
-    DUP BL =
-    IF
-        SOURCE-ID 0>
-        IF
-            DROP BL 1+ <
-            EXIT
-        THEN
-    THEN
-    =
-;
-
-: PARSE  ( "word<c>" c -- c-addr u )
-    >R  CharAddr 0
-    BEGIN
-        GetChar
-    WHILE
-        >IN 1+!
-        R@ IS-DELIM 0=
-    WHILE
-        1+
-    REPEAT
-    0
-    THEN
-    DROP R> DROP
-;
-
-: SKIP  ( "<cccc>" c -- )
-    BEGIN   GetChar
-    WHILE   OVER IS-DELIM
-    WHILE   >IN 1+!
-    REPEAT  0
-    THEN
-    2DROP
-;
-
-DECIMAL
-: WORD  ( c "<cccc>word<c>" -- c-addr )
-    DUP SKIP  PARSE 255 MIN
-    DUP PAD C!
-    DUP 1+ CHARS PAD +  BL SWAP C!
-    PAD CHAR+ SWAP CMOVE
-    PAD
-;
     
 
 \ ANSI said: "If a system provides any standard word for accessing
