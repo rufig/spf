@@ -33,21 +33,11 @@ WARNING @  0 WARNING !
 DECIMAL
 
 : ?DUP  ?DUP ;  \ ?DUP в SP-FORTH'е state-smart, а это не по стандарту
-
-: CONVERT  ( ud1 c-addr1 -- ud2 c-addr2 )
-    \ from gforth
-    CHAR+ TRUE >NUMBER DROP
-;
-
-VARIABLE SPAN  0 SPAN !
-: EXPECT  ( a u -- )
-    \ это лучше, чем ничего
-    ACCEPT SPAN !
-;
     
 
-\ ANSI said: "If a system provides any standard word for accessing
+\ Forth-94 (ANSI) said: "If a system provides any standard word for accessing
 \ mass storage, it shall also implement the Block word set".
+\ NB: Forth-2012 does contain this requirement (see the section 3.2.5).
 \
 \ BLOCK word set
 \
@@ -63,9 +53,13 @@ VARIABLE BLK  0 BLK !
 : SAVE-BUFFERS ;
 : UPDATE ;
 
-: BIN ;
-: FILE-STATUS  2DROP  0 -21 ; \ unsupported operation
+[UNDEFINED] BIN [IF]
+: BIN ( fam1 -- fam2 ) ;
+[THEN]
 
+[UNDEFINED] FILE-STATUS [IF]
+: FILE-STATUS ( sd.filename -- x ior ) 2DROP  0 -21 ; \ unsupported operation
+[THEN]
 
 WARNING !
 BASE !
