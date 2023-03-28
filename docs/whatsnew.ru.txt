@@ -1,3 +1,8 @@
+30 октября 2023  Версия 4.30
+
+! исправления багов в D.R
+
+
 27 марта 2023    Версия 4.29
 
 ! исправления багов в QUIT OPEN-FILE-SHARED VOC-LIST WordByAddr 'C"' XSAVE GET-ORDER SFIND

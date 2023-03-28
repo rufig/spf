@@ -7,7 +7,7 @@
   CREATE  0. , ,
 ;
 : D.R ( d n -- )
-  >R <# #S #>
+  >R DUP >R DABS <# #S R> SIGN #>
   R> OVER - 0 MAX SPACES TYPE
 ;
 : D0< ( d -- flag )

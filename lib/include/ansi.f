@@ -44,11 +44,6 @@ VARIABLE SPAN  0 SPAN !
     \ это лучше, чем ничего
     ACCEPT SPAN !
 ;
-
-: D.R  ( d +n -- )
-    >R DUP >R  DABS  <# #S R> SIGN #>
-    R> OVER - 0 MAX SPACES  TYPE
-;
     
 
 \ ANSI said: "If a system provides any standard word for accessing

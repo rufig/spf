@@ -1,3 +1,8 @@
+30 October 2023   Version 4.30
+
+! fix bugs in D.R
+
+
 27 March 2023     Version 4.29
 
 ! fix bugs in QUIT OPEN-FILE-SHARED VOC-LIST WordByAddr 'C"' XSAVE GET-ORDER SFIND
