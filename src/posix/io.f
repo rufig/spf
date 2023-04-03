@@ -184,7 +184,11 @@ USER-CREATE API-BUFFER
 
 \ TRUE если существует путь addr u
 : FILE-EXIST ( addr u -- f )
+  [DEFINED] _STAT_VER [IF]
   DROP >R (( _STAT_VER R> API-BUFFER )) __xstat 0=
+  [ELSE]
+  DROP >R (( R> API-BUFFER )) stat 0=
+  [THEN]
 ;
 
 \ TRUE если путь addr u существует и не является каталогом
@@ -198,6 +202,10 @@ USER-CREATE API-BUFFER
 \ ior - определенный реализацией код результата ввода/вывода.
 \ Эта операция не влияет на значение, возвращаемое FILE-POSITION.
 \ ud неопределен, если ior не ноль.
+  [DEFINED] _STAT_VER [IF]
   >R (( _STAT_VER R> API-BUFFER )) __fxstat64
+  [ELSE]
+  >R (( R> API-BUFFER )) fstat64
+  [THEN]
   -1 = IF 0. errno ELSE API-BUFFER STAT64_ST_SIZE + 2@ SWAP 0 THEN
 ;

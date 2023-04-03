@@ -85,7 +85,22 @@ int main()
   DEFINE( S_IFREG)
   DEFINE( S_IFMT)
   DEFINE( S_IFDIR)
+#if defined _STAT_VER
   DEFINE( _STAT_VER)
+  /*
+    In some versions of glibc (since 2.33) the macro "_STAT_VER" is not available.
+    In the same time, the "stat" family functions that don't require "_STAT_VER" argument are exported.
+    So, they can be used instead of the former functions if "_STAT_VER" is not available.
+
+    -- see also
+      -- glibc: Remove stat wrapper functions, move them to exported symbols
+        -- https://sourceware.org/git/?p=glibc.git;a=commitdiff;h=8ed005daf0
+        -- https://github.com/bminor/glibc/commit/8ed005daf0ab03e142500324a34087ce179ae78e
+      -- glibc 2.33 compatibility issue
+        -- https://www.google.com/search?q=%22error+_STAT_VER+undeclared%22
+        -- https://salsa.debian.org/clint/fakeroot/-/merge_requests/10/diffs
+  */
+#endif
   CONST( STAT64_ST_SIZE, offsetof(struct stat64,st_size))
   DEFINE( O_CREAT)
   DEFINE( O_TRUNC)
