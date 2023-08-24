@@ -3,6 +3,9 @@
 ! fix bugs in D.R
 ! add compatibility with glibc 2.33+
 
+libs:
++ lib/include/ansi.f - add FILE-STATUS
+
 
 27 March 2023     Version 4.29
 

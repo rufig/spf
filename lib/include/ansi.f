@@ -33,6 +33,8 @@ WARNING !
 : BIN ( fam1 -- fam2 ) ;
 [THEN]
 
-[UNDEFINED] FILE-STATUS [IF]
-: FILE-STATUS ( sd.filename -- x ior ) 2DROP  0 -21 ; \ unsupported operation
-[THEN]
+[UNDEFINED] FILE-STATUS [IF]  [DEFINED] FILE-EXIST [IF]
+: FILE-STATUS ( sd.filename -- x ior )
+  FILE-EXIST IF 0 0 ELSE 0 -38 THEN
+;
+[THEN] [THEN]
