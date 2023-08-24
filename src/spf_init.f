@@ -179,9 +179,14 @@ TARGET-POSIX [IF]
 ;
 
 \ Scattering a Colon Definition
-: ... 0 BRANCH, >MARK DUP , 1 >RESOLVE ; IMMEDIATE 
-: ..: '  >BODY DUP @  1 >RESOLVE ] ;
-: ;..  DUP CELL+ BRANCH, >MARK SWAP ! [COMPILE] [ ; IMMEDIATE
+: (SCATTER-HOOK,) ( colon-sys     -- colon-sys     )  0 BRANCH, >MARK DUP , 1 >RESOLVE ;
+: BUILD-SCATTER   (               -- xt.scattered  )  :NONAME  (SCATTER-HOOK,)  POSTPONE ;  ;
+: UNSEAL-SCATTER  ( xt.scattered  -- sys.scattered )  >BODY DUP @  1 >RESOLVE ] ;
+: RESEAL-SCATTER  ( sys.scattered --               )  DUP CELL+ BRANCH, >MARK SWAP ! POSTPONE [ ;
+: ...  ( colon-sys -- colon-sys     )  (SCATTER-HOOK,) ; IMMEDIATE \ NB: it must be the first item in the body
+: ..:  ( "name" -- sys.scattered    )  '  UNSEAL-SCATTER ;
+: ;..  ( sys.scattered --           )  RESEAL-SCATTER ; IMMEDIATE
+
 
 TRUE VALUE SPF-INIT?
 
