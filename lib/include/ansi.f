@@ -1,14 +1,7 @@
 \ $Id$
 
-\ Originally
-\ From: "Ilya S. Potrepalov" <potrepalov@asc-ural.ru>
-\ Date: Thu, 23 Feb 2006 13:55:01 +0000 (UTC)
-\ Newsgroups: fido7.su.forth
-\ Message-ID: <dtkera$r89$93914@www.fido-online.com>
-
-\ ASNI'фикация SP-FORTH'а
-
-BASE @ DECIMAL
+\ Include all the supported optional word sets and case insensitivity
+\ Original idea: "Ilya S. Potrepalov" <potrepalov@asc-ural.ru>, 2006
 
 REQUIRE CASE         lib/ext/case.f
 REQUIRE /STRING      lib/include/string.f
@@ -28,30 +21,13 @@ REQUIRE ANSI-FILE    lib/include/ansi-file.f
 ;
 [THEN]
 
-WARNING @  0 WARNING !
 
-DECIMAL
+WARNING @  0 WARNING !
 
 : ?DUP  ?DUP ;  \ ?DUP в SP-FORTH'е state-smart, а это не по стандарту
     
+WARNING !
 
-\ Forth-94 (ANSI) said: "If a system provides any standard word for accessing
-\ mass storage, it shall also implement the Block word set".
-\ NB: Forth-2012 does contain this requirement (see the section 3.2.5).
-\
-\ BLOCK word set
-\
-\ Table 9.2 - THROW code assignments
-\
-\ -35     invalid block number
-
-VARIABLE BLK  0 BLK !
-: BLOCK   -35 THROW ;
-: BUFFER  -35 THROW ;
-: FLUSH ;
-: LOAD    -35 THROW ;
-: SAVE-BUFFERS ;
-: UPDATE ;
 
 [UNDEFINED] BIN [IF]
 : BIN ( fam1 -- fam2 ) ;
@@ -60,8 +36,3 @@ VARIABLE BLK  0 BLK !
 [UNDEFINED] FILE-STATUS [IF]
 : FILE-STATUS ( sd.filename -- x ior ) 2DROP  0 -21 ; \ unsupported operation
 [THEN]
-
-WARNING !
-BASE !
-
-\ END OF FILE
