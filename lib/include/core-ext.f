@@ -79,3 +79,27 @@
   IMAGE-SIZE
   HERE IMAGE-BASE - -
 ;
+
+
+
+: (INIT-REGION) ( a-addr.pointer -- )
+  DUP CELL+ @  ALLOCATE THROW  SWAP !
+;
+: RESERVE-REGION ( u.size -- a-addr.pointer )
+  ALIGN HERE >R 0 , ,  R@ (INIT-REGION)
+  IMAGE-BASE IMAGE-SIZE OVER + R@ WITHIN IF \ a-addr.pointer is in the base image
+    \ add allocation in the process starting actions for the saved binary (if any)
+    ['] AT-PROCESS-STARTING UNSEAL-SCATTER
+      R@ LIT, POSTPONE (INIT-REGION)
+    RESEAL-SCATTER
+  THEN R>
+;
+: REGION ( u "name" -- ) \ or BULK (?)
+  RESERVE-REGION >R  :  R> LIT, POSTPONE @  POSTPONE ;
+;
+: BUFFER: ( u "name" -- ) REGION ; \ Forth-2012 CORE EXT, 6.2.0825
+\ NB: different addresses may be returned by "name" on different runs
+\ from a saved image, see:
+\   https://forth-standard.org/standard/core/BUFFERColon#reply-706
+\ An issue with the unsuitable name "BUFFER:" was disscussed at:
+\   https://forth-standard.org/standard/core/BUFFERColon#contribution-69

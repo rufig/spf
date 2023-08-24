@@ -5,6 +5,7 @@
 
 libs:
 + lib/include/ansi.f - add FILE-STATUS
++ lib/include/core.f - add "BUFFER:"
 
 
 27 March 2023     Version 4.29
