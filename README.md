@@ -7,3 +7,4 @@ Some useful links:
   - The sources in UTF-8 encoding in the repository [spf4-utf8](https://github.com/rufig/spf4-utf8)
     (since some files in the [spf](https://github.com/rufig/spf) repository
     are shown incorrectly via the GitHub online viewer)
+  - https://github.com/yarus23/SPF.JS
