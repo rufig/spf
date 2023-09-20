@@ -4,8 +4,9 @@
 ! добавлена совместимость с glibc 2.33+
 
 libs:
-+ lib/include/ansi.f - добавлено FILE-STATUS
++ lib/include/ansi.f - добавлено FILE-STATUS facil.f
 + lib/include/core.f - добавлено "BUFFER:"
++ lib/include/facil.f - добавлено MS
 
 
 27 марта 2023    ¬ерси€ 4.29

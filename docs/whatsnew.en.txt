@@ -4,8 +4,9 @@
 ! add compatibility with glibc 2.33+
 
 libs:
-+ lib/include/ansi.f - add FILE-STATUS
++ lib/include/ansi.f - add FILE-STATUS facil.f
 + lib/include/core.f - add "BUFFER:"
++ lib/include/facil.f - add MS
 
 
 27 March 2023     Version 4.29

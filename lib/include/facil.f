@@ -8,6 +8,16 @@
 
 REQUIRE [IF] lib/include/tools.f
 
+
+\ This file is used on building spf4 via jpf3 (see src/spf_date.f)
+\ And SYNONYM is not available there.
+[DEFINED] SYNONYM [IF]
+  SYNONYM MS PAUSE  ( u -- ) \ Forth-94 FACILITY EXT
+[ELSE]
+  : MS ( u -- )  PAUSE ;
+[THEN]
+
+
 [DEFINED] WINAPI: [IF]
 
 \ _SYSTEMTIME

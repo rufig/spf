@@ -7,6 +7,8 @@ REQUIRE CASE         lib/ext/case.f
 REQUIRE /STRING      lib/include/string.f
 REQUIRE [IF]         lib/include/tools.f
 REQUIRE SAVE-INPUT   lib/include/core-ext.f
+REQUIRE SYNONYM      lib/include/wordlist-tools.f
+REQUIRE TIME&DATE    lib/include/facil.f
 REQUIRE DEFER        lib/include/defer.f
 [DEFINED] WINAPI: [IF]
 REQUIRE RENAME-FILE  lib/win/file.f
