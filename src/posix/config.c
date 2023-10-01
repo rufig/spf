@@ -19,6 +19,24 @@
 // dlopen
 #include <dlfcn.h>
 
+// mmap
+#include <sys/mman.h>
+  // e.g. https://github.com/openbsd/src/blob/master/sys/sys/mman.h
+
+// limits
+#include <limits.h>  // to obtain PAGESIZE
+  // e.g. https://pubs.opengroup.org/onlinepubs/7908799/xsh/limits.h.html
+#ifndef PAGESIZE
+  #include <unistd.h>
+  #ifdef _SC_PAGE_SIZE
+    // https://man7.org/linux/man-pages/man2/mprotect.2.html#EXAMPLES
+    #define PAGESIZE sysconf(_SC_PAGE_SIZE)
+  #else
+    #define PAGESIZE 4096
+  #endif
+#endif
+
+
 /* (glibc)
 #ifndef REG_EDI
 #define REG_EDI 4
@@ -42,6 +60,7 @@ int test()
   ENSURE(offsetof(struct sigaction,sa_restorer) - offsetof(struct sigaction, sa_flags) == CELL)
   ENSURE(sizeof(struct sigaction) == 3*CELL + sizeof(sigset_t))
   ENSURE(sizeof(mode_t) == CELL)
+  ENSURE(PAGESIZE != -1)
   return 1;
 }
 
@@ -112,6 +131,15 @@ int main()
   DEFINE( SEEK_END)
   DEFINE( RTLD_GLOBAL)
   DEFINE( RTLD_LAZY)
+
+
+  // mmap
+  DEFINE( PAGESIZE) // NB: it can be a call to sysconf
+  DEFINE( PROT_READ)
+  DEFINE( PROT_WRITE)
+  DEFINE( PROT_EXEC)
+  DEFINE( MAP_SHARED)
+  CONST( MAP_FAILED, (long)MAP_FAILED)
 
   return 0;
 }

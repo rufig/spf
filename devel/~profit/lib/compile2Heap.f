@@ -134,7 +134,7 @@ USER vc \ текущий виртуальный кодофайл
 
 \ Взятие в кодофайл нового куска кода
 : allocatePatch ( vc -- block ) >R
-R@ block @ ALLOCATE THROW ( адрес-куска R: адрес-структуры-кодофайла )
+R@ block @ ALLOCATE-RWX THROW ( адрес-куска R: адрес-структуры-кодофайла )
 \ counter 1+!  counter @ CR .  \ для контроля забора и отдачи памяти
 DUP R@ lastBlock !             \ в структуре кодофайла указываем новый последний кусок кода
 DUP R@ block @ 0x90 FILL       \ заполняем весь кусок маш. командами NOP
@@ -202,7 +202,7 @@ ON-COMPILE-START
 \ end-vc -- действие выполняемое после исполнения всего кода из всех кусков внутри кодофайла 
 \ (при условии что выход их определения EXIT не будет вызван явно)
 : _CREATE-VC ( end-vc blockSize -- vc )
-codePatches ALLOCATE THROW >R
+codePatches ALLOCATE-RWX THROW >R
 0x68 R@ rlit C!
 0xC3 R@ ret C!
 R@ block !

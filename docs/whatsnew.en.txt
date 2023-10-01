@@ -2,6 +2,8 @@
 
 ! fix bugs in D.R
 ! add compatibility with glibc 2.33+
+! dictionary memory must be RWX in Linux
++ ALLOCATE-RWX allocates executable memory region
 
 libs:
 + lib/include/ansi.f - add FILE-STATUS facil.f

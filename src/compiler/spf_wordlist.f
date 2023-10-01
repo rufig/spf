@@ -97,7 +97,7 @@ NOWADAYS ,"
 : TEMP-WORDLIST ( -- wid )
 \ создаст временный словарь (в виртуальной памяти)
 
-  WL_SIZE ALLOCATE THROW DUP >R WL_SIZE ERASE
+  WL_SIZE ALLOCATE-RWX THROW DUP >R WL_SIZE ERASE
   -1      R@ ! \ не присоединяем к VOC-LIST, заодно признак временности словаря
   R@      R@ 6 CELLS + !
   VERSION R@ 7 CELLS + !

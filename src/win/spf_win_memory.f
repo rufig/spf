@@ -73,6 +73,10 @@ DECIMAL
 
 : FIX-MEMTAG ( addr-allocated -- ) (FIX-MEMTAG) DROP ;
 
+: ADD-SIZE ( u1 u2 -- u3 0 | u1 ior )
+  2DUP 1+ NEGATE U< IF + 0 EXIT THEN DROP -24 \ "invalid numeric argument"
+;
+
 : ALLOCATE ( u -- a-addr ior ) \ 94 MEMORY
 \ Распределить u байт непрерывного пространства данных. Указатель пространства 
 \ данных не изменяется этой операцией. Первоначальное содержимое выделенного 
@@ -87,13 +91,11 @@ DECIMAL
 \ по умолчанию заполняется адресом тела процедуры, вызвавшей ALLOCATE
 
   \ Сразу возвратить ошибку, если добавление служебной ячейки даст переполнение
-  DUP [ 1 CELLS 1+ NEGATE ] LITERAL U> IF DROP 0 -300 EXIT THEN
+  CELL ADD-SIZE DUP IF EXIT THEN DROP ( u2 )
 
-  CELL+ 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
-  DUP IF R@ OVER ! CELL+ ( ~~ FIX-MEMTAG ) 0 ELSE -300 THEN
+  8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
+  DUP IF CELL+ (FIX-MEMTAG) 0 EXIT THEN -300
 ;
-
-
 : FREE ( a-addr -- ior ) \ 94 MEMORY
 \ Вернуть непрерывную область пространства данных, индицируемую a-addr, системе 
 \ для дальнейшего распределения. a-addr должен индицировать область 
@@ -120,4 +122,20 @@ DECIMAL
 \ изменяется, и ior - зависящий от реализации код ввода-вывода.
   CELL+ SWAP CELL- 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapReAlloc
   DUP IF CELL+ 0 ELSE -300 THEN
+;
+
+
+[UNDEFINED] MEMORY-PAGESIZE [IF]
+  4096 CONSTANT MEMORY-PAGESIZE
+[THEN]
+
+: ALLOCATE-RWX ( u -- a-addr 0 | x ior )
+\ Allocate a memory region that can be read, modified, and executed
+  \ add page size (to have at least one page), and one additional cell for MEMTAG
+  MEMORY-PAGESIZE 1- CELL+ ADD-SIZE DUP IF EXIT THEN DROP ( u2 )
+  \ Assertion: pagesize is a power of two, two's complement representation of signed integers
+  MEMORY-PAGESIZE NEGATE AND ( u3 ) \ align u2 down on the page size
+  8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
+  \ Windows requires no special care.
+  DUP IF CELL+ (FIX-MEMTAG) 0 EXIT THEN -300
 ;

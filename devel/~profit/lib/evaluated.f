@@ -22,7 +22,7 @@ R> SWAP ;
 : COPY-CODE ( xt dest -- ) HERE SWAP DP ! SWAP INLINE, RET, DP ! ;
 
 : EVALUATED-HEAP ( addr u -- xt ) \ компилирует строку в заводимую область в куче
-EVALUATED ALLOCATE THROW TUCK COPY-CODE ;
+EVALUATED ALLOCATE-RWX THROW TUCK COPY-CODE ;
 
 \EOF
 REQUIRE SEE lib/ext/disasm.f

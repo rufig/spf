@@ -134,7 +134,7 @@ RET, >RESOLVE1 \ закрываем код-"трафарет"
 TO OPT? \ ставим оптимизатор как было
 HERE SWAP ( ... end begin )
 2DUP - LIT, \ скомпилировали число -- длина трафарета
-POSTPONE ALLOCATE POSTPONE THROW POSTPONE >R \ компилируем действие создания на куче места под код
+POSTPONE ALLOCATE-RWX POSTPONE THROW POSTPONE >R \ компилируем действие создания на куче места под код
 DUP LIT, \ компилируем начало трафаретного кода 
 POSTPONE R@ \ адрес начала области под код выделенной из кучи
 2DUP - LIT, \ длина трафаретного кода
