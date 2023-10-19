@@ -46,7 +46,7 @@ REQUIRE NDROP   ~pinka/lib/ext/common.f
 1 CHARS CONSTANT /CHAR [THEN]
 
 
-REQUIRE EQUAL   ~pinka/spf/string-equal.f
+REQUIRE EQUALS  ~pinka/spf/string-equal.f
 
 
 [UNDEFINED] CELL-! [IF]
