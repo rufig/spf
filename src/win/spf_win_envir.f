@@ -2,7 +2,7 @@
 
 WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
   ( wid ) \ запишем адрес имени словаря
-  CELL+ LAST @ SWAP !
+  LATEST-NAME NAME>CSTRING SWAP VOC-NAME!
   \ имя слова аналогично FORTH-WORDLIST
 
 : (ENVIR?) ( addr u -- false | i*x true )

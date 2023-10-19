@@ -50,7 +50,7 @@ S" src/elf.f" INCLUDED
     ?DUP
   WHILE
     DUP NAME>C >VIRT!
-    DUP CDR SWAP
+    DUP NAME>NEXT-NAME SWAP
     NAME>L ?VIRT!
   REPEAT
 ;

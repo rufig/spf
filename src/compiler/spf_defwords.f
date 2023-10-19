@@ -15,6 +15,7 @@ VECT SHEADER
 : SHEADER1 ( addr u -- )
   HERE 0 , ( cfa )
   DUP LAST-CFA !
+  \ NB: "LAST-CFA" is not used anywhere and is left only for system-dependent backward compatibility
   0 C,     ( flags )
   -ROT WARNING @
   IF 2DUP GET-CURRENT SEARCH-WORDLIST
@@ -48,7 +49,7 @@ VECT SHEADER
 \ быть расширена с помощью DOES>.
   SHEADER
 
-  HERE DUP LAST-CFA @ !
+  HERE DUP  LATEST-NAME NAME>C !
   DOES>A ! ( для DOES )
   ['] _CREATE-CODE COMPILE,
 ;
@@ -105,7 +106,7 @@ END-CODE
   WORDLIST DUP
   CREATE
   ,
-  LATEST OVER CELL+ ! ( ссылка на имя словаря )
+  LATEST-NAME NAME>CSTRING OVER VOC-NAME! ( ссылка на имя словаря )
   GET-CURRENT SWAP PAR! ( словарь-предок )
 \  FORTH-WORDLIST SWAP CLASS! ( класс )
   VOC
@@ -216,9 +217,10 @@ USER C-SMUDGE \ 12 C,
 : SMUDGE ( -- )
   LATEST
   IF C-SMUDGE C@
-     LATEST 1+ C@ C-SMUDGE C!
-     LATEST 1+ C!
-  THEN ;
+     LATEST NAME>CSTRING CHAR+ C@ C-SMUDGE C!
+     LATEST NAME>CSTRING CHAR+ C!
+  THEN
+;
 
 : HIDE
   12 C-SMUDGE C! SMUDGE

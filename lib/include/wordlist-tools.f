@@ -4,10 +4,6 @@
 \ TRAVERSE-WORDLIST
 \ http://www.forth200x.org/traverse-wordlist.html
 
-: NAME>STRING ( nt -- addr count ) \ "name-to-string" TOOLS-EXT
-  COUNT
-;
-
 : NAME>INTERPRET ( nt -- xt ) \ "name-to-interpret" TOOLS-EXT
   NAME>
 ;
@@ -18,7 +14,10 @@
 
 : TRAVERSE-WORDLIST ( i*x xt wid -- j*x ) \ "traverse-wordlist" TOOLS-EXT
   \ xt  ( i*x nt -- j*x flag ) \ iteration stops on FALSE
-  @ BEGIN  DUP WHILE ( xt NFA ) 2DUP 2>R SWAP EXECUTE 2R> CDR ROT 0= UNTIL THEN 2DROP
+  \ NB This word is not allowed to expose the current definition or hidden definitions, if any (see "SMUDGE")
+  \ https://forth-standard.org/proposals/traverse-wordlist-does-not-find-unnamed-unfinished-definitions?hideDiff#reply-487
+  SWAP >R  LATEST-NAME-IN ( nt|0 )
+  BEGIN DUP WHILE ( nt ) R@ OVER >R EXECUTE R> SWAP WHILE NAME>NEXT-NAME REPEAT THEN DROP RDROP
 ;
 
 \ see also:
@@ -34,7 +33,7 @@
 
 : ENROLL-NAME ( xt d-newname -- ) \ basic factor
   \ see also: ~pinka/spf/compiler/native-wordlist.f
-  SHEADER LAST-CFA @ !
+  SHEADER LATEST-NAME NAME>C !
 ;
 : ENROLL-SYNONYM ( d-oldname d-newname -- ) \ postfix version of SYNONYM
   2>R SFIND DUP 0= IF -321 THROW THEN ( xt -1|1 )

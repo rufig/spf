@@ -19,8 +19,12 @@ BASE @ DECIMAL  \ since macroopt.f use HEX (!!!)
 \ Нижеследующий код транслируется один раз, и только в инструментальную систему!
 
 
+\ These words may be absent in the instrumental system
 [UNDEFINED] \EOF [IF]
 : \EOF  BEGIN REFILL 0= UNTIL POSTPONE \ ;
+[THEN]
+[UNDEFINED] NAME>NEXT-NAME [IF]
+: NAME>NEXT-NAME ( nt -- nt|0 )  CDR  ;
 [THEN]
 
 
@@ -53,7 +57,7 @@ GET-CURRENT ALSO MACROOPT-HIDING-SUPPORT DEFINITIONS
 : (NODE-PRECEDING-FROM) ( node1 node9 -- node2|0 ) \ node9--> ... -->node2-->node1
   SWAP >R
   BEGIN DUP WHILE \ ( node4 )
-  DUP CDR DUP R@ = IF ( node4 node3 ) DROP RDROP EXIT THEN
+  DUP NAME>NEXT-NAME DUP R@ = IF ( node4 node3 ) DROP RDROP EXIT THEN
   NIP REPEAT RDROP
 ;
 : (CONCAT-WORDLIST) ( node1 node9 wid -- )

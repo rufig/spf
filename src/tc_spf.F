@@ -310,6 +310,9 @@ ALIGN-BYTES-CONSTANT ALIGN-BYTES !
    PARSE-NAME SHEADER
 ;
 
+: NAME>CSTRING ( nt -- c-addr ) ;
+
+
 ALSO ASSEMBLER ALSO ASM-HIDDEN
 : CODE-ORIG
      HEADER HIDE !CSP INIT-ASM
@@ -399,6 +402,8 @@ ALSO TC DEFINITIONS PREVIOUS
        0 , \ класс словаря = wid словаря, определяющего свойства данного
        0 , \ reserved, для расширений
 ;
+
+: VOC-NAME! ( c-addr wid --   )  CELL+ ! ;
 
 : --
   [T] HEADER [I]  
@@ -507,6 +512,8 @@ PREVIOUS TC DEFINITIONS PREVIOUS
 : TC-LATEST->
   ALSO TC-WL CONTEXT @ @ ' [ ALSO TC ] EXECUTE ! [ PREVIOUS ] PREVIOUS
 ;
+
+: LATEST-NAME ( -- nt ) [T] GET-CURRENT @ [I] ; \ It's a slightly broken implementation, but it suits TC's needs.
 
 : IMMEDIATE [T] IMMEDIATE [I] ;
 

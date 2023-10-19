@@ -277,7 +277,7 @@ WARNING @ WARNING 0!
      2DROP CreateLocArray LocalsRecDoes@
    ELSE 
      CREATED
-     LATEST DUP C@ CHARS + C@
+     LATEST-NAME NAME>STRING CHARS + CHAR- C@
      [CHAR] [ =
      IF
        LocalsRecDoes@2
@@ -300,7 +300,8 @@ WARNING @ WARNING 0!
     2DUP S" }" COMPARE 0= IF 2DROP EXIT THEN
 
     CREATED LocalsDoes@ IMMEDIATE
-  AGAIN ;
+  AGAIN
+;
 
 \  uLocalsCnt  @ ?DUP 
 \  IF CELLS RLIT, ['] (LocalsExit) RLIT, THEN
@@ -316,9 +317,11 @@ WARNING !
 EXPORT
 
 : {
+  LAST @ >R
   LocalsStartup
   ParseLocals1
   CompileLocalsInit
+  R> LAST !
 ;; IMMEDIATE
 
 ;MODULE

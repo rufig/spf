@@ -7,6 +7,8 @@
   Ревизия - сентябрь 1999, март 2000
 )
 
+USER WARNING
+
 USER VOC-FOUND  \ словарь, в котором найдено слово при SFIND или WordByAddr
 \ Фраза VOC-FOUND @ в режиме интерпретации бесполезна
 \ (т.к. всегда даст словарь, в котором лежит слово "@").
@@ -146,7 +148,7 @@ CODE NAME>L ( NFA -> LFA )
      RET
 END-CODE
 
-CODE CDR ( NFA1 -> NFA2 )
+CODE CDR ( nt1|0 -- nt2|0 ) \ this word is no longer used and left for only backward compatibility
      OR EAX, EAX
      JZ SHORT @@1
       MOVZX EBX, BYTE [EAX]
@@ -154,10 +156,24 @@ CODE CDR ( NFA1 -> NFA2 )
 @@1: RET
 END-CODE
 
-: ID. ( NFA[E] -> )
-  COUNT TYPE
+CODE NAME>NEXT-NAME ( nt1 -- nt2|0 )
+    MOVZX EBX, BYTE [EAX]
+    MOV EAX, 1 [EBX] [EAX]
+    RET
+END-CODE
+
+: NAME>CSTRING ( nt -- c-addr )
+  \ In this implementation, nt is NFA, which is an address of a counted string in the header.
+  \ NB: a call to this word will be eliminated by the optimizer.
 ;
 
+: NAME>STRING ( nt -- sd.name ) \ "name-to-string" TOOLS-EXT Forth-2012
+  NAME>CSTRING COUNT
+;
+
+: IS-NAME-HIDDEN ( nt -- flag )
+  NAME>CSTRING CHAR+ C@ 12 =  \ see "SMUDGE"
+;
 : IS-IMMEDIATE ( NFA -> F )
   NAME>F C@ &IMMEDIATE AND
 ;
@@ -165,21 +181,69 @@ END-CODE
   NAME>F C@ &VOC AND
 ;
 
+: ID. ( nt -- )
+  NAME>STRING TYPE
+;
+
 \ для обратной совместимости:
 : ?IMMEDIATE ( NFA -> F ) IS-IMMEDIATE ;
 : ?VOC ( NFA -> F ) IS-VOC ;
 
 
+\ ==============================================
+\ Доступ к последнему определенному слову
+\ в словаре комиляции, и его модификация
+
+: LATEST ( -- nt|0 )
+ \ Если имеется текущее определение, и список слов компиляции
+ \ не изменился после появления этого определения,
+ \ то вернуть токен имени nt для текущего определения,
+ \ при этом некоторые поля этого токена имени (например, поле имени)
+ \ могут быть установлены некорректно.
+ \ Иначе, если список слов компиляции не пуст, то вернуть
+ \ токен имени nt для определения, которое было помещено
+ \ в этот список последним.
+ \ Иначе вернуть 0.
+  GET-CURRENT @
+;
+
+: LATEST-NAME-IN ( wid -- nt|0 )
+  \ Взять идентификатор списка слов wid. 
+  \ Если этот список слов не пуст, то вернуть токен имени nt для определения,
+  \ которое было помещено в этот список последним.
+  \ Иначе вернуть 0.
+  @ BEGIN DUP WHILE DUP IS-NAME-HIDDEN WHILE NAME>NEXT-NAME REPEAT THEN
+;
+: LATEST-NAME ( -- nt )
+  \ Если список слов компиляции не пуст, то вернуть токен имени nt
+  \ для определения, которое было помещено в этот список последним.
+  \ Иначе инициировать исключение с кодом -80.
+  GET-CURRENT LATEST-NAME-IN DUP IF EXIT THEN -80 THROW
+;
+: LATEST-NAME-XT ( -- xt ) \ NB: it never return 0
+  \ Если список слов компиляции не пуст, то вернуть токен исполнения xt
+  \ для определения, которое было помещено в этот список последним.
+  \ Иначе инициировать исключение с кодом -80.
+  LATEST-NAME NAME>
+;
+
+
 : IMMEDIATE ( -- ) \ 94
 \ Сделать последнее определение словом немедленного исполнения.
-\ Исключительная ситуация возникает, если последнее определение
-\ не имеет имени.
-  LAST @ NAME>F DUP C@ &IMMEDIATE OR SWAP C!
+\ Неопределенная ситуация возникает, если последнее определение
+\ не имеет имени, или список слов компиляции был изменен
+\ с момента начала создания этого определения (см. Forth-2012 16.3.3).
+  WARNING @ IF \ on any non zero warnings level
+    LATEST-NAME LAST @ <> IF
+      S" \ Warning: LAST does not point to LATEST-NAME when executing IMMEDIATE" TYPE CR
+    THEN
+  THEN
+  LATEST-NAME NAME>F DUP C@ &IMMEDIATE OR SWAP C!
 ;
 
 : VOC ( -- )
 \ Пометить последнее определенное слово признаком "словарь".
-  LAST @ NAME>F DUP C@ &VOC OR SWAP C!
+  LATEST-NAME NAME>F DUP C@ &VOC OR SWAP C!
 ;
 
 \ ==============================================
@@ -204,7 +268,7 @@ END-CODE
   ['] (ENUM-VOCS-FORTH) ENUM-VOCS  DROP
 ;
 : FOR-WORDLIST  ( wid xt -- ) \ xt ( nfa -- )
-  SWAP @ BEGIN  DUP WHILE ( xt NFA ) 2DUP 2>R SWAP EXECUTE 2R> CDR REPEAT  2DROP
+  SWAP LATEST-NAME-IN  BEGIN  DUP WHILE ( xt NFA ) 2DUP 2>R SWAP EXECUTE 2R> NAME>NEXT-NAME REPEAT  2DROP
 ;
 
 \ ==============================================

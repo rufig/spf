@@ -8,7 +8,7 @@ REQUIRE CASE lib/ext/case.f
 
 : REVEAL SMUDGE ;
 : COMPILE ' POSTPONE LITERAL POSTPONE COMPILE, ; IMMEDIATE
-: (;CODE) R> LATEST 5 - ! ;
+: (;CODE) R> LATEST-NAME NAME>C ! ; \ NB: the header shall be finished and revealed
 
 VECT EXIT-ASSEMBLER
 

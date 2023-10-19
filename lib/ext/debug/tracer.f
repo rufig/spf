@@ -32,7 +32,7 @@ MODULE: TRACER
       LOOP
     ;
 
-    : In ( addr u caddr2 -- )
+    : In ( addr u wid -- )
       H-STDOUT >R File TO H-STDOUT
       .Indent ." > " VOC-NAME. ."  " TYPE ."  "
       .S
@@ -42,7 +42,7 @@ MODULE: TRACER
       R> TO H-STDOUT
     ;
     
-    : Out ( addr u caddr2 -- )
+    : Out ( addr u wid -- )
       H-STDOUT >R File TO H-STDOUT
       -1 Indent +!
       .Indent ." < " VOC-NAME. ."  " TYPE ."  "
@@ -60,6 +60,11 @@ MODULE: TRACER
 
     : 3DROP 2DROP DROP ;
 
+    : postpone-name-wid ( -- )
+        \ Run-time ( -- c-addr u wid )
+        LATEST POSTPONE LITERAL  POSTPONE NAME>STRING  GET-CURRENT POSTPONE LITERAL
+        \ NB: It takes the name token of the current definition (which is unfinished)
+    ;
   ;MODULE
 
 {{ Private  
@@ -76,12 +81,12 @@ MODULE: TRACER
 {{ Private
     : DOES>
       Compile @ IF
-        LATEST POSTPONE LITERAL POSTPONE COUNT CURRENT @ POSTPONE LITERAL
+        postpone-name-wid
         POSTPONE vOut
       THEN
       POSTPONE DOES>
       Compile @ IF
-        POSTPONE DUP POSTPONE WordByAddr CURRENT @ POSTPONE LITERAL
+        POSTPONE DUP POSTPONE WordByAddr GET-CURRENT POSTPONE LITERAL
         POSTPONE vIn
       THEN
     ; IMMEDIATE
@@ -89,14 +94,14 @@ MODULE: TRACER
     _: :
       _:
       Compile @ IF
-        LATEST POSTPONE LITERAL POSTPONE COUNT CURRENT @ POSTPONE LITERAL
+        postpone-name-wid
         POSTPONE vIn
       THEN
     ;
     
     _: ;
       Compile @ IF
-        LATEST POSTPONE LITERAL POSTPONE COUNT CURRENT @ POSTPONE LITERAL
+        postpone-name-wid
         POSTPONE vOut
       THEN
       POSTPONE ;

@@ -3,9 +3,13 @@
 ! исправления багов в D.R
 ! добавлена совместимость с glibc 2.33+
 ! в Linux память для словарей должна быть RWX
+! "TRAVERSE-WORDLIST" не позволено выдавать скрытые определения
+* "IMMEDIATE" модифицирует определение возвращаемое "LATEST-NAME", вместо "LAST @"
 + ALLOCATE-RWX выделяет память, разрешенную для исполнения
++ "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 
 libs:
+! lib/ext/locals.f - определение с локальными переменными было невидимо для "IMMEDIATE" 
 + lib/include/ansi.f - добавлено FILE-STATUS facil.f
 + lib/include/core.f - добавлено "BUFFER:"
 + lib/include/facil.f - добавлено MS

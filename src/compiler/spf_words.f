@@ -10,8 +10,8 @@
 USER >OUT
 USER W-CNT
 
-: NLIST ( A -> )
-  @
+: NLIST ( wid -- )
+  LATEST-NAME-IN ( nt|0 )
   >OUT 0! CR W-CNT 0!
   BEGIN
     DUP KEY? 0= AND
@@ -22,7 +22,7 @@ USER W-CNT
     DUP ID.
     DUP C@ >OUT +!
     15 >OUT @ 15 MOD - DUP >OUT +! SPACES
-    CDR
+    NAME>NEXT-NAME
   REPEAT DROP KEY? IF KEY DROP THEN
   CR CR ." Words: " BASE @ DECIMAL W-CNT @ U. BASE ! CR
 ;

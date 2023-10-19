@@ -39,18 +39,18 @@ C" NEAR_NFA" FIND NIP 0=
 ;
 
 : NFAInVoc? ( nfa voc -- f )
-    @ \ last nfa
+    LATEST-NAME-IN ( nfa2 nfa1|0 ) \ the latest finished nfa in the word list
     BEGIN  ( nfa 'nfa )
       DUP
     WHILE
       2DUP = IF 2DROP TRUE EXIT THEN
-      CDR
+      NAME>NEXT-NAME
     REPEAT 2DROP 0
 ;
 
 : VocByNFA ( nfa -- wid | 0 )
     VOC-LIST
-    BEGIN @ DUP WHILE ( nfa voc )
+    BEGIN @ DUP WHILE ( nfa node_voc )
            2DUP CELL+ NFAInVoc?
            IF
               NIP CELL+ EXIT

@@ -3,9 +3,13 @@
 ! fix bugs in D.R
 ! add compatibility with glibc 2.33+
 ! dictionary memory must be RWX in Linux
+! "TRAVERSE-WORDLIST" is not allowed to expose hidden definitions
+* "IMMEDIATE" now changes the definition returned by "LATEST-NAME", instead of "LAST @"
 + ALLOCATE-RWX allocates executable memory region
++ "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 
 libs:
+! lib/ext/locals.f - a definition with locals was invisible for "IMMEDIATE"
 + lib/include/ansi.f - add FILE-STATUS facil.f
 + lib/include/core.f - add "BUFFER:"
 + lib/include/facil.f - add MS

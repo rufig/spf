@@ -13,6 +13,7 @@ WARNING 0!
 
 : PARSE-NAME NextWord ;
 : UMIN 2DUP U< IF DROP EXIT THEN NIP ;
+: LATEST-NAME ( -- nt ) GET-CURRENT @ ; \ It's a slightly broken implementation, but it suits the needs.
 
 S" lib/ext/spf-asm.f"            INCLUDED
 S" lib/include/tools.f"          INCLUDED

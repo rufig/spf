@@ -102,7 +102,7 @@ END-CODE
 \ ;
 
 : SEARCH-WORDLIST-NFA ( c-addr u wid -- 0 | nfa -1 )
-  @ CDR-BY-NAME NIP NIP ?DUP 0<>
+  LATEST-NAME-IN CDR-BY-NAME NIP NIP ?DUP 0<>
 ;
 
 : SEARCH-WORDLIST1
@@ -217,7 +217,7 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 
 : VOC-NAME. ( wid -- ) \ напечатать имя списка слов, если он именован
   DUP FORTH-WORDLIST = IF DROP ." FORTH" EXIT THEN
-  DUP CELL+ @ DUP IF ID. DROP ELSE DROP ." <NONAME>:" U. THEN
+  DUP VOC-NAME@ DUP IF NIP COUNT TYPE ELSE DROP ." <NONAME>:" U. THEN
 ;
 
 : ORDER ( -- ) \ 94 SEARCH EXT
@@ -230,8 +230,4 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
   GET-ORDER ." Context: "
   0 ?DO ( DUP .) VOC-NAME. SPACE LOOP CR
   ." Current: " GET-CURRENT VOC-NAME. CR
-;
-
-: LATEST ( -> NFA )
-  CURRENT @ @
 ;
