@@ -93,7 +93,7 @@ VARIABLE INTERFACES
     DUP ,               \ предок
     Methods#            \ к-во методов предка
     DUP ,               \ свои методы (к-во)
-    LATEST ,            \ своё имя
+    LATEST-NAME NAME>CSTRING ,       \ своё имя
     HERE INTERFACES @ , INTERFACES ! \ связываемся в список
 ;
 
@@ -106,7 +106,7 @@ VARIABLE METHODS
     DUP , 1+    \ номер метода в VTBL
     2DUP SWAP Methods#!
     OVER ,      \ ссылка на интерфейс, в котором определен метод
-    LATEST ,    \ имя метода
+    LATEST-NAME NAME>CSTRING , \ имя метода
     HERE METHODS @ , METHODS ! \ связываемся в список
   DOES> @ InvokeMethod
 ;

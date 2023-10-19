@@ -15,7 +15,7 @@ REQUIRE WindowSearch ~micro/autopush/core.f
 \ где <разделитель строки> является последним символом <name>
   CREATE
   IMMEDIATE
-  LATEST COUNT GetLastChar
+  LATEST-NAME NAME>STRING GetLastChar
   ,
   DOES>
   @ PARSE

@@ -7,7 +7,7 @@
  REQUIRE COMPILE  devel\~moleg\lib\util\compile.f
 
 \ òà ÷àñòü, êîòîğàÿ ğàáîòàåò îäíîâğåìåííî ñ CREATE (îáû÷íî) »
-: (DOES1) ( r: addr --> ) LATEST NAME> R> OVER - CFL - SWAP 1 + A! ;
+: (DOES1) ( r: addr --> ) LATEST-NAME-XT R> OVER - CFL - SWAP 1 + A! ;
 
 \ ıòà ÷àñòü âûïîëíÿåòñÿ âî âğåìÿ âûçîâà êîäà çà DOES> »
 : (DOES2) ( --> addr )

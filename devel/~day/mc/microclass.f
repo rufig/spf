@@ -166,7 +166,8 @@ USER-VALUE self
 \ Наследование форт слов
 : INHERIT ( -- )
    SMUDGE
-   LATEST COUNT DUP >R
+   LATEST NAME>STRING DUP >R
+   \ NB: LATEST-NAME игнорирует текущее определение
    PAD SWAP CMOVE
    HIDE PAD R>
    CONTEXT @ SEARCH-WORDLIST

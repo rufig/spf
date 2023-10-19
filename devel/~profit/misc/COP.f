@@ -10,7 +10,7 @@ MODULE: mechanisms
 \ undefined method for status, error reporting with RTTI
 
 : trigger ( addr "word" -- )
-CREATE , LATEST NAME> , DOES> 2@ ! ;
+CREATE , LATEST-NAME-XT , DOES> 2@ ! ;
 
 EXPORT
 
@@ -38,7 +38,7 @@ THEN ;
 CREATE HERE 0 , ( status )
 TO cur-status-variable
 DOES> trigger
-LATEST NAME> EXECUTE ;
+LATEST-NAME-XT EXECUTE ;
 
 : STATUS ( "word" -- )
 CREATE cur-status-variable , DOES> @ @ ;

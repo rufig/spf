@@ -16,7 +16,7 @@ REQUIRE ""   ~ac\lib\str2.f
 
 : 0str` ( -- ) \ ccc
   str`
-  "" LAST @ CDR NAME> EXECUTE !
+  "" LATEST-NAME NAME>NEXT-NAME NAME> EXECUTE !
 ;
 
 

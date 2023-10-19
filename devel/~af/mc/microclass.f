@@ -79,7 +79,8 @@ USER uObj
 \ Наследование форт слов
 : INHERIT ( -- )
   SMUDGE
-  LATEST COUNT DUP >R
+  LATEST NAME>STRING DUP >R
+  \ NB: LATEST-NAME игнорирует текущее определение
   PAD SWAP CMOVE
   HIDE PAD R>
   uObj @ SEARCH-WORDLIST
@@ -91,7 +92,7 @@ USER uObj
 
 : DO-IT-DEF ( -- wid )
   ALSO MicroClass
-  ALSO LATEST COUNT EVALUATE \ занесли новый словарь в CONTEXT
+  ALSO LATEST-NAME NAME>STRING EVALUATE \ занесли новый словарь в CONTEXT
   GET-CURRENT DEFINITIONS  \ сделали его текущим
   GET-CURRENT uObj !
 ;

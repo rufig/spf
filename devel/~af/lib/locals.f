@@ -339,7 +339,7 @@ WARNING !
     PeekChar [CHAR] [ =
     IF CreateLocArray LocalsRecDoes@
     ELSE
-      CREATE LATEST DUP C@ + C@
+      CREATE LATEST-NAME NAME>CSTRING DUP C@ + C@
       [CHAR] [ = IF  LocalsRecDoes@2  ELSE  LocalsDoes@ 1  THEN
     THEN
     uLocalsUCnt +!

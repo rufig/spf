@@ -188,7 +188,7 @@ USER _C-EXEC-HW
   TEMP-WORDLIST DUP
   CREATE
   ,
-  LATEST OVER CELL+ ! ( ссылка на имя словаря )
+  LATEST-NAME NAME>CSTRING OVER VOC-NAME! ( ссылка на имя словаря )
   GET-CURRENT SWAP PAR! ( словарь-предок )
 \  FORTH-WORDLIST SWAP CLASS! ( класс )
   VOC

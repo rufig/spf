@@ -145,10 +145,10 @@ CREATE FIRST-OBJCHAIN
    WORDLIST OVER .wl !
 
    \ make this wordlist named for better debug output
-   LATEST OVER .wl @ CELL+ !
+   LATEST-NAME NAME>CSTRING OVER .wl @ VOC-NAME!
 
    0 OVER .super !
-   LATEST OVER .nfa !
+   LATEST-NAME NAME>CSTRING OVER .nfa !
    FIRST-OBJCHAIN OVER .objchain !
    METHODS 
 ;
@@ -558,7 +558,8 @@ SET-CURRENT PREVIOUS
 
 : INHERIT ( -- )
    SMUDGE
-   LATEST COUNT 
+   LATEST NAME>STRING
+   \ NB: LATEST-NAME игнорирует текущее определение
    CLASS@ .super @ 
    ROT ROT MFIND-ERR DROP COMPILE,
    SMUDGE

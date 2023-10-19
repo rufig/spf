@@ -5,7 +5,7 @@
  REQUIRE ?DEFINED devel\~moleg\lib\util\ifdef.f
 
 \ создать слово, ассоциируемое с кодом другого слова.
-: ALIAS ( | BaseName AliasName --> ) ' NextWord SHEADER LAST-CFA @ ! ;
+: ALIAS ( | BaseName AliasName --> ) ' NextWord SHEADER LATEST-NAME NAME>C ! ;
 
 \ ALIAS - это простой заголовок слова, связанный с чужим кодом.
 \ в принципе следующие примеры аналогичны:

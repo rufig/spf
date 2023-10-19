@@ -91,14 +91,14 @@ USER-VALUE hash
 \ ( для MARKER )
 
   DUP wid-exth ?DUP 0= IF 2DROP EXIT THEN >R
-  @ ( l2  l )
+  LATEST-NAME-IN ( l2  l )
   OVER R@ .last  !
   R> .hash @ TO hash
 
   ( l2 l )          BEGIN
   2DUP <>           WHILE
-  DUP COUNT hash -HASH
-  CDR DUP 0=        UNTIL THEN 2DROP
+  DUP NAME>STRING hash -HASH
+  NAME>NEXT-NAME DUP 0= UNTIL THEN 2DROP
 ;
 
 EXPORT
@@ -141,8 +141,8 @@ EXPORT
 
 : MARKER
   WARNING @ >R WARNING 0!
-  LATEST
-  >IN @ >R  MARKER LATEST NAME>  R> >IN ! 
+  LATEST-NAME \ NB: then the compilation word list cannot be empty
+  >IN @ >R  MARKER LATEST-NAME-XT  R> >IN !
   ( last marker-xt  )
   CREATE
    , , GET-CURRENT ,

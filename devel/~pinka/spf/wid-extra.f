@@ -116,7 +116,7 @@ WARNING !
   CREATE
   HERE 0 , \ cell for wid
   WORDLIST ( addr wid )
-  LATEST OVER VOC-NAME! \ ссылка на имя словаря
+  LATEST-NAME NAME>CSTRING OVER VOC-NAME! \ ссылка на имя словаря
   GET-CURRENT OVER PAR! \ словарь-предок
   \ FORTH-WORDLIST SWAP CLASS! ( класс )
   SWAP ! \ сам wid

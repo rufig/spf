@@ -5,7 +5,7 @@
 : TVOC ( -- ) \ name
   TEMP-WORDLIST
   CREATE
-  LATEST OVER CELL+ ( VOC-NAME ) !  ,
+  LATEST-NAME NAME>CSTRING OVER VOC-NAME!  ,
   DOES> @ CONTEXT !
 ;
 : (f:) ( obj offset -- )
@@ -20,7 +20,7 @@
 : STRUCT: ( "name" -- old-current )
   TVOC
   GET-CURRENT
-  ALSO LATEST NAME> EXECUTE DEFINITIONS
+  ALSO LATEST-NAME-XT EXECUTE DEFINITIONS
   0
 ;
 : ;STRUCT ( old-current -- )

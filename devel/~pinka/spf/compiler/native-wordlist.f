@@ -22,7 +22,7 @@ REQUIRE [DEFINED] lib/include/tools.f
 
 [DEFINED] QuickSWL-Support  [IF] WARNING @  WARNING 0!
 
-: RELATE-WORDLIST DUP >R RELATE-WORDLIST LAST @ R> QuickSWL-Support::update1-wlhash ;
+: RELATE-WORDLIST DUP >R RELATE-WORDLIST LATEST-NAME R> QuickSWL-Support::update1-wlhash ;
 
 WARNING !                   [THEN]
 
@@ -59,12 +59,12 @@ WARNING !                   [THEN]
 \ И в текущий словарь добавляет слово с заданным именем,
 \ возвращающее wid
   WORDLIST DUP >R CODEGEN-WL::BEGET-CONST NAMING R> ( wid )
-  LAST @ OVER VOC-NAME! ( ссылка на имя словаря, SPF4 )
+  LATES-NAME NAME>CSTRING OVER VOC-NAME! ( ссылка на имя словаря, SPF4 )
 ;
 [ELSE]
 : WORDLIST-NAMED ( addr u -- wid )
   WORDLIST DUP >R :NONAME ( new-xt ) >R LIT, R> POSTPONE ; NAMING R> ( wid )
-  LAST @ OVER VOC-NAME! ( ссылка на имя словаря, SPF4 )
+  LATEST-NAME NAME>CSTRING OVER VOC-NAME! ( ссылка на имя словаря, SPF4 )
 ;
 [THEN]
 

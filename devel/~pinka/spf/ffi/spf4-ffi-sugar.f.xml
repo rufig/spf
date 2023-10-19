@@ -46,7 +46,7 @@
   R@ DLPOINT-NAME <def name="{}">
     <lit> R> </lit><exec> R> </exec>
   </def>
-  LATEST NAME>
+  LATEST-NAME-XT
 </def>
 
 <def name="SWL-DL-FUNC" ds=" c-addr u wid -- 0 | xt 1 | xt -1 ">
@@ -68,8 +68,8 @@
   -ROT
   WORDLIST >R <!-- voc-wrapper for ext library -->
   <def name="{}"><lit> R@ </lit> CONTEXT ! </def><!-- vocabulary -->
-  LATEST R@ VOC-NAME!
-  0 CREATED-DLPOINT  DUP LATEST COUNT ROT SET-DLPOINT-NAME <!-- dlpoint name need to be asciiz -->
+  LATEST-NAME NAME>CSTRING R@ VOC-NAME!
+  0 CREATED-DLPOINT  DUP LATEST-NAME NAME>STRING ROT SET-DLPOINT-NAME <!-- dlpoint name need to be asciiz -->
   <!-- ( xt-executer dlpoint ) -->
   WORDLIST DUP R@ VOC-ATTR ! <develop><!-- attributes -->
     <const name="parent"> R@ </const>
@@ -77,7 +77,7 @@
     <const name="executer"/>
     <alias name="SWL" word="SWL-DL-FUNC"/>
   </develop> RDROP
-  LATEST NAME> <!-- ( xt-voc ) -->
+  LATEST-NAME-XT <!-- ( xt-voc ) -->
 </def>
 
 <def name="SWL-DL-LIB" ds=" c-addr u wid -- 0 | xt 1 | xt -1 ">
@@ -108,7 +108,7 @@
     <alias name="SWL" word="SWL-DL-LIB"/>
   </wid> OVER VOC-ATTR ! -ROT
   <!-- ( wid a u ) -->
-  <def name="{}"><lit/> CONTEXT ! </def> LATEST NAME>
+  <def name="{}"><lit/> CONTEXT ! </def> LATEST-NAME-XT
 </def>
 
 <export>

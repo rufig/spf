@@ -48,7 +48,7 @@ MODULE: html
 
   : .Word
     CREATE
-    LAST @ ,
+    LATEST-NAME NAME>CSTRING ,
     DOES>
     @ COUNT TYPE
   ;

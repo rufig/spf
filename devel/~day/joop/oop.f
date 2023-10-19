@@ -127,7 +127,7 @@ DEFINITIONS
 
 
 : message, ( oid )
-  CREATE LATEST ,
+  CREATE LATEST-NAME NAME>CSTRING ,
   [ HERE TO message_does ]
   DOES> @ DUP ERR-M !
         COUNT ROT sendMessage
@@ -157,7 +157,7 @@ DEFINITIONS
 ;
 
 : pvar,
-    CREATE LATEST ,
+    CREATE LATEST-NAME NAME>CSTRING ,
     DOES> @ DUP ERR-M !
           DUP C@ 1- SWAP 2 + SWAP
           ROT sendVariable    
@@ -365,7 +365,7 @@ EXPORT
    WORDLIST DUP ALSO CONTEXT !  \ wid of variables
    WORDLIST DUP                 \ wid of methods
    CREATE
-     LATEST SWAP SET-CURRENT
+     LATEST-NAME NAME>CSTRING SWAP SET-CURRENT
      HERE >R /class ALLOT
      R@ /class ERASE
      R@ R@ !

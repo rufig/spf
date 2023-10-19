@@ -30,7 +30,7 @@ CONSTANT /cell
       .xt @ EXECUTE ;
 
 : FSM; 
-   LATEST NAME> >BODY >R 
+   LATEST-NAME-XT >BODY >R
    HERE R@ $table -
    R> #col @ /cell * MOD 0 <> IF ." Table not full!" CR ABORT THEN ;
 

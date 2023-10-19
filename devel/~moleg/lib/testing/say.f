@@ -30,7 +30,7 @@
 
 \ компилирует диагностический код в начало двоеточного определения
 : say ( --> )
-      LATEST COUNT
+      LATEST NAME>STRING
       [COMPILE] 2LITERAL
       POSTPONE ~about ;
 
