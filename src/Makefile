@@ -65,7 +65,7 @@ common-sources := *.f compiler/*.f $(wildcard compile.ini) $(maybe-check-orig-bi
 
 
 
-spf4.o: $(common-sources) posix/*.f
+spf4.o: $(common-sources) posix/*.f posix/config.h posix/config.c
 	make -C posix
 	cd .. && echo "Wait a bit while compiling..." && echo 1 HALT | $(HOSTFORTH) src/spf.f
 
