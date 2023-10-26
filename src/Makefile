@@ -20,6 +20,8 @@ url-binaries-base   := https://github.com/rufig/spf4-cvs-archive/releases/downlo
 
 orig-bin-lin    := spf4orig
 orig-bin-win    := jpf375c.exe
+shasum-bin-lin  := 3987f9b90257a0d49eda2cc39324b574e1b580dd
+shasum-bin-win  := 1b1a244c615f8838ecd1bcd8a1f7907bae60664e
 
 define download-binary
   @\
@@ -30,8 +32,13 @@ define download-binary
   echo "$$cmd" && $$cmd && chmod +x "$@"
 endef
 
-../$(orig-bin-lin) ../$(orig-bin-win) :
+../$(orig-bin-lin) :
 	$(download-binary)
+	echo 'SHA1 ($@) = $(shasum-bin-lin)' | sha1sum --warn --check -
+
+../$(orig-bin-win) :
+	$(download-binary)
+	echo 'SHA1 ($@) = $(shasum-bin-win)' | sha1sum --warn --check -
 
 
 ifeq ($(OSTYPE),cygwin)

@@ -5,6 +5,7 @@
 ! dictionary memory must be RWX in Linux
 ! "TRAVERSE-WORDLIST" is not allowed to expose hidden definitions
 * "IMMEDIATE" now changes the definition returned by "LATEST-NAME", instead of "LAST @"
+* The SHA1 sum is checked for the binaries that are automatically downloaded on building
 + ALLOCATE-RWX allocates executable memory region
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 

@@ -5,6 +5,7 @@
 ! в Linux память для словарей должна быть RWX
 ! "TRAVERSE-WORDLIST" не позволено выдавать скрытые определения
 * "IMMEDIATE" модифицирует определение возвращаемое "LATEST-NAME", вместо "LAST @"
+* Проверяется SHA1 сумма для бинарников, которые скачиваются автоматически при сборке
 + ALLOCATE-RWX выделяет память, разрешенную для исполнения
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 
