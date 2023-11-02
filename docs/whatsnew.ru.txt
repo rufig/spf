@@ -10,6 +10,7 @@
 + "ALLOCATE-RWX" и "FREE-RWX" для выделения и освобождения областей памяти, разрешенных к исполнению
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 + "2LIT," "CLIT,"
++ "FIND-NAME" "FIND-NAME-IN" "?FOUND"
 
 libs:
 ! lib/ext/locals.f - определение с локальными переменными было невидимо для "IMMEDIATE" 

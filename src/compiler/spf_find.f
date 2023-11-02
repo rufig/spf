@@ -9,6 +9,12 @@
   при исчерпании и переполнении. ~pinka
 )
 
+
+: ?FOUND ( x\0 -- x  |  0 -- never )
+  DUP IF EXIT THEN  -13 THROW \ "unrecognized lexeme"
+;
+
+
 VECT FIND
 
 VECT SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
@@ -16,6 +22,8 @@ VECT SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ 94 SEARCH
 \ wid. Если определение не найдено, вернуть ноль.
 \ Если определение найдено, вернуть выполнимый токен xt и единицу (1), если
 \ определение немедленного исполнения, иначе минус единицу (-1).
+
+VECT FIND-NAME-IN ( sd.name wid -- nt|0 ) \ 2018 TOOLS EXT
 
 
 1 [IF] \ optimized and refactored version
@@ -101,14 +109,21 @@ END-CODE
 \  REPEAT THEN
 \ ;
 
+
+\ `FIND-NAME` and `FIND-NAME-IN` were accepted in 2018
+\ https://forth-standard.org/proposals/find-name?hideDiff#reply-174
+
+: FIND-NAME-IN.SENSITIVE ( sd.name wid -- nt|0 )
+  LATEST-NAME-IN CDR-BY-NAME NIP NIP
+;
+' FIND-NAME-IN.SENSITIVE ' FIND-NAME-IN TC-VECT!
+
 : SEARCH-WORDLIST-NFA ( c-addr u wid -- 0 | nfa -1 )
-  LATEST-NAME-IN CDR-BY-NAME NIP NIP ?DUP 0<>
+  FIND-NAME-IN ?DUP 0<>
 ;
 
 : SEARCH-WORDLIST1
-   SEARCH-WORDLIST-NFA 0= IF 0 EXIT THEN
-   DUP NAME>
-   SWAP ?IMMEDIATE IF 1 EXIT THEN -1
+  FIND-NAME-IN DUP IF DUP NAME> SWAP IS-IMMEDIATE 0= 1 OR THEN
 ;
 
 ' SEARCH-WORDLIST1 ' SEARCH-WORDLIST TC-VECT!
@@ -119,6 +134,16 @@ USER-CREATE S-O| \ верхняя граница области S-O
 USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 \ CONTEXT выполняет роль указателя вершины стека контекста
 \ (данный стек растет в сторону увеличения адресов)
+
+: FIND-NAME ( sd.name -- nt|0 ) \ 2018 TOOLS EXT
+  CONTEXT >R
+  BEGIN R@ S-O U> WHILE ( sd.name )
+    2DUP R@ @ ( wid ) FIND-NAME-IN
+    DUP 0= WHILE  DROP R> CELL- >R
+  REPEAT ( sd.name nt ) NIP NIP RDROP EXIT  THEN
+  ( sd.name )
+  RDROP 2DROP 0
+;
 
 : SFIND ( addr u -- addr u 0 | xt 1 | xt -1 ) \ 94 SEARCH
 \ Расширить семантику CORE FIND следующим:
