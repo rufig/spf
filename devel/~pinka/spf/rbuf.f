@@ -1,28 +1,38 @@
 \ 2012
-\ Распределение памяти на стеке возвратов с автоматическим освобождением при выходе.
-\ $Id$
+\ Memory allocation on the return stack with automatic deallocation on exit.
 
-\ Слово RBUF ( u -- addr u ) возвращает распределеный блок памяти.
-\ Память освобождается при выходе из того слова, в котором вызвано RBUF
-\ Допускается запрашивать произвольное число блоков памяти.
-\ Если свободного пространства недостаточно, то произойдет аппаратное исключение STACK_OVERFLOW
+\ The word `RBUF ( u1\0 -- a-addr u1 ; R: -- i*x nest-sys )`
+\ returns an allocated memory region ( a-addr u1 ).
+\ The memory region is freed when the word in which `RBUF` was called completes.
+\ An arbitrary number of memory regions can be requested.
 
 
-: (FREE-RBUF) 
+: (FREE-RBUF)
   R> RFREE
 ;
-: RBUF ( u -- addr u )
+: RBUF ( u1\0 -- a-addr1 u1 ; R: -- i*x nest-sys.free-rbuf )
+  \ Only for compilation.
+  \ An ambiguous condition exists if the first input parameter is 0.
   R>
   OVER CELL+ 1- >CELLS DUP RALLOT SWAP >R  ( u r a )
   ['] (FREE-RBUF) >R
   SWAP >R
   SWAP
 ;
-: RDROP-BUF ( -- ) ( R: i*x -- )
+: RDROP-BUF ( -- ; R: i*x nest-sys.free-rbuf -- )
+  \ Only for compilation.
+  \ Run-Time semantics:
+  \   Deallocate the last memory region allocated by `RBUF`
+  \   among the regions not yet deallocated.
   R> RDROP R> RFREE >R
 ;
 
-: RCARBON ( addr u -- addr2 u )
+: RCARBON ( sd1 -- sd2 ; R: -- i*x nest-sys )
+  \ Only for compilation.
+  \ Run-Time semantics:
+  \   A character string sd2 is a copy of sd1;
+  \   sd2 is followed by a null-character in memory;
+  \   sd2 is deallocated when the caller completes.
   R>
   OVER CHAR+ CELL+ 1- >CELLS DUP RALLOT SWAP >R  ( u r a )
   ['] (FREE-RBUF) >R
@@ -31,25 +41,17 @@
   2DUP 2>R MOVE 2R> 2DUP + 0 SWAP C!
 ;
 
-: ENSURE-ASCIIZ-R ( addr u -- addr2 u ) ( R: addr -- i*x addr )
-\ если поданая строка не имеет 0 за последним символом,
-\ то создается копия строки в формате ASCIIZ на стеке возвратов
-\ которая автоматически освобождается при выходе из слова,
-\ в котором вызвано ENSURE-ASCIIZ-R
+: ENSURE-ASCIIZ-R ( sd1 -- sd1  |  sd1 -- sd2 ; R: -- i*x nest-sys )
+  \ Only for compilation.
+  \ Run-Time semantics:
+  \   - If sd1 is a null-reference string ( 0 0 ), then sd1 is returned.
+  \   - If it is confirmed that sd1 is followed by a null-character in memory,
+  \     then sd1 is returned.
+  \   - Otherwise, sd2, which is a copy of sd1, is returned;
+  \     sd2 is followed by a null-character in memory;
+  \     sd2 is deallocated when the caller completes.
   OVER 0= IF EXIT THEN
   2DUP + C@ 0= IF EXIT THEN
   R> -ROT RCARBON ROT >R
 ;
 
-\EOF
-
-: test
-    RP@ .
-  12 RBUF ( addr u )
-    OVER . DUP . 2DUP + . CR
-    RP@ . CR
-  2DUP DUMP
-  2DUP ERASE
-;
-
-  test DUMP
