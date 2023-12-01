@@ -7,6 +7,9 @@
 \ An arbitrary number of memory regions can be requested.
 
 
+REQUIRE [IF]    lib/include/tools.f
+
+
 : (FREE-RBUF)
   R> RFREE
 ;
@@ -41,6 +44,16 @@
   2DUP 2>R MOVE 2R> 2DUP + 0 SWAP C!
 ;
 
+
+MEMORY-PAGESIZE ( -- +n ) DUP 1 CELLS U<  SWAP DUP 1- AND  OR  [IF]
+  \ the page-size is not a power of two or less than the cell size
+  .( ERROR: The memory page size is not a power of too. Abort. ) CR ABORT
+[THEN]
+
+: MEMORY-PAGE-OFFSET ( u1 -- u2 )
+  [ MEMORY-PAGESIZE 1- ] LITERAL  AND
+;
+
 : ENSURE-ASCIIZ-R ( sd1 -- sd1  |  sd1 -- sd2 ; R: -- i*x nest-sys )
   \ Only for compilation.
   \ Run-Time semantics:
@@ -51,7 +64,12 @@
   \     sd2 is followed by a null-character in memory;
   \     sd2 is deallocated when the caller completes.
   OVER 0= IF EXIT THEN
-  2DUP + C@ 0= IF EXIT THEN
+  2DUP +  DUP MEMORY-PAGE-OFFSET IF \ not a memory page start
+    \ NB: to avoid a possible access violation error,
+    \ the character address followed sd1 is only read if it is
+    \ on the same memory page as the last character of the string
+    DUP C@ 0= IF DROP EXIT THEN
+  THEN DROP
   R> -ROT RCARBON ROT >R
 ;
 
