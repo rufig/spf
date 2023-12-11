@@ -29,9 +29,9 @@ WINAPI: WideCharToMultiByte     kernel32.dll
 ;
 
 : UTF16>ANSI ( sd.text-utf16 sd.buf -- sd.text-oem )
+  2 PICK 0= IF DROP NIP NIP 0 EXIT THEN
   2>R 0 0 2SWAP
   1 RSHIFT SWAP R> R@ 2SWAP
-  OVER 0= IF 2DROP 2DROP R> 0 EXIT THEN
   0 ( flags ) 0 ( CP_ACP )  WideCharToMultiByte
   DUP ERR THROW
   R> SWAP
@@ -54,9 +54,9 @@ WINAPI: WideCharToMultiByte     kernel32.dll
 ;
 
 : UTF16>UTF8 ( sd.text-utf16 sd.buf -- sd.text-utf8 )
+  2 PICK 0= IF DROP NIP NIP 0 EXIT THEN
   2>R 0 0 2SWAP
   1 RSHIFT SWAP R> R@ 2SWAP
-  OVER 0= IF 2DROP 2DROP R> 0 EXIT THEN
   0 ( flags ) 65001 ( CP_UTF8 )  WideCharToMultiByte
   DUP ERR THROW
   R> SWAP
