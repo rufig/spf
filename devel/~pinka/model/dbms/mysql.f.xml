@@ -7,7 +7,8 @@
 <slot> nport conn errno res resn  row col cols  omit-xml-declaration </slot>
 <prop name="last-err-txt"><ss/></prop>
 
-<def name="(connect)" ds=" -- ior ">
+<def name="(connect)" ds=" -- x.conn|0 ">
+  <comment>It returns: 0 on error; the connection id (the same as "conn") on success</comment>
   CLIENT_MULTI_STATEMENTS
   0 <rem> unix_socket </rem>
   nport
@@ -36,13 +37,21 @@
   conn mysql_errno DUP errno! <unless><exit/></unless>
   errno 2006 = <if><rem> MySQL server has gone away (check max_allowed_packet size in my.ini/[mysqld] )</rem> 
     (connect) DROP `#mysql-gone-away STHROW 
+    <rem>
+      In one case, making a query after this error produces Access Vilation in libmysql.dll
+      (the initial error was due to out of memory in mysqld, but not in client)
+    </rem>
   </if>
   errno 2013 = <if><rem>Lost connection to MySQL server during query</rem>
     (connect) DROP `#mysql-lost-connection STHROW
   </if>
   conn mysql_error ASCIIZ> set-last-err-txt
   errno 2003 = <if><rem>Can't connect to MySQL server</rem>
-    (close-conn) <rem> it can't reuse the connection object in this case </rem>
+    <rem>
+      There is no need to close the "conn" object, it can be reused.
+      It will try to reconnect automatically due to MYSQL_OPT_RECONNECT option.
+      OTOH, this state with empty "conn" would be inconsistent, see "clear".
+    </rem>
   </if>
   last-err-txt STHROW
 </def>
