@@ -1,11 +1,24 @@
 \ 94 Double-Number words
 
+REQUIRE SYNONYM         lib/include/wordlist-tools.f
+REQUIRE [UNDEFINED]     lib/include/tools.f
+
+[UNDEFINED] 2, [IF]
+  : 2, ( xd -- )  , , ;  \ a well-known word
+[THEN]
+
+[UNDEFINED] 2LIT, [IF]
+  SYNONYM 2LIT, DLIT,  ( xd -- ) \ a well-known word
+[THEN]
+
+
 : 2CONSTANT ( x1 x2 "<spaces>name" -- )
-  CREATE  , ,  DOES> 2@
+  2>R  :  2R> 2LIT, POSTPONE ;
 ;
 : 2VARIABLE ( "<spaces>name" -- )
-  CREATE  0. , ,
+  ALIGN HERE  0 , 0 ,  CONSTANT
 ;
+
 : D.R ( d n -- )
   >R DUP >R DABS <# #S R> SIGN #>
   R> OVER - 0 MAX SPACES TYPE
