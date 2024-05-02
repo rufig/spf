@@ -19,6 +19,18 @@ REQUIRE [UNDEFINED]     lib/include/tools.f
   ALIGN HERE  0 , 0 ,  CONSTANT
 ;
 
+: _2VALUE-CODE    ( -- xd ) R>      @ 2@ ;
+: _TO_2VALUE-CODE ( xd -- ) R> 9 -  @ 2! ;
+
+: 2VALUE ( xd "<spaces>name" -- )
+  ALIGN HERE >R  2,
+  \ see compiler/spf_defwords.f # "VALUE"
+  HEADER
+  ['] _2VALUE-CODE      _COMPILE, R> ,
+  ['] _TO_2VALUE-CODE   _COMPILE,
+  \ NB: "_COMPILE," never does inlining
+;
+
 : D.R ( d n -- )
   >R DUP >R DABS <# #S R> SIGN #>
   R> OVER - 0 MAX SPACES TYPE

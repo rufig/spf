@@ -1517,6 +1517,9 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
                    ['] _USER-VALUE-CODE OF UVAL. ENDOF
                    ['] _FLIT-CODE10   OF  FLIT10. ENDOF
                    ['] _FLIT-CODE8    OF  FLIT8. ENDOF
+                 [DEFINED] _2VALUE-CODE     [IF]
+                   ['] _2VALUE-CODE   OF  CONS. DROP RDROP ENDOF
+                 [THEN]
                     ENDCASE
                 THEN  ;
 

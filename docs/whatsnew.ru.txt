@@ -14,6 +14,7 @@ libs:
 + lib/include/ansi.f - добавлено FILE-STATUS facil.f
 + lib/include/core.f - добавлено "BUFFER:"
 + lib/include/facil.f - добавлено MS
++ lib/include/double.f - добавлено "2VALUE"
 
 
 27 марта 2023    Версия 4.29
