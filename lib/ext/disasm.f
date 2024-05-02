@@ -1520,6 +1520,9 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
                  [DEFINED] _2VALUE-CODE     [IF]
                    ['] _2VALUE-CODE   OF  CONS. DROP RDROP ENDOF
                  [THEN]
+                 [DEFINED] _FVALUE-CODE     [IF]
+                   ['] _FVALUE-CODE   OF  CONS. DROP RDROP ENDOF
+                 [THEN]
                     ENDCASE
                 THEN  ;
 

@@ -15,6 +15,7 @@ libs:
 + lib/include/core.f - добавлено "BUFFER:"
 + lib/include/facil.f - добавлено MS
 + lib/include/double.f - добавлено "2VALUE"
+* lib/include/float2.f - исправление "FVALUE" (дл€ совместимости с "TO")
 
 
 27 марта 2023    ¬ерси€ 4.29

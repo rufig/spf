@@ -535,17 +535,6 @@ USER PAD-COUNT
 : FASINH   FDUP FDUP F* 1.E F+ FSQRT F/ FATANH ;
 : FACOSH   FDUP FDUP F* 1.E F- FSQRT F+ FLN ;    
 
-: FTO 
-   BL WORD FIND
-   IF
-     STATE @ 
-     IF   >BODY LIT, ['] F! COMPILE,
-     ELSE >BODY F!
-     THEN
-   ELSE -321 THROW
-   THEN
-; IMMEDIATE
-
 \ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 (
@@ -580,16 +569,35 @@ USER PAD-COUNT
 : DFALIGNED
 ; IMMEDIATE
 
-: FVARIABLE 
-      CREATE .e F,
+: FVARIABLE ( "<spaces>name" -- )
+  ALIGN FALIGN HERE  .e F,  CONSTANT
 ;
 
-: FCONSTANT   \ *
-      CREATE F,
-      DOES>  DF@
+: FCONSTANT ( F: r  "<spaces>name" -- )
+  :  FLIT, POSTPONE ;
 ;
 
-: FVALUE FCONSTANT ;
+: _FVALUE-CODE    ( F: -- r ) R>      @ F@ ;
+: _TO_FVALUE-CODE ( F: r -- ) R> 9 -  @ F! ;
+
+: FVALUE ( F: r  "<spaces>name" -- )
+  ALIGN FALIGN HERE >R  F,
+  \ see compiler/spf_immed_transl.f # "TO"
+  \ see compiler/spf_defwords.f # "VALUE"
+  HEADER
+  ['] _FVALUE-CODE      _COMPILE, R> ,
+  ['] _TO_FVALUE-CODE   _COMPILE,
+  \ NB: "_COMPILE," never does inlining
+;
+
+: FTO ( "<spaces>name" -- ) ( run-time: F: r -- )
+  \ It's slightly more efficient than "TO" for an FVALUE child
+  '  STATE @
+  IF    >BODY @ LIT, ['] F! COMPILE,
+  ELSE  >BODY @ F!
+  THEN
+; IMMEDIATE
+
 
 WARNING @ FALSE WARNING !
 : NOTFOUND ( c-addr u -- )
