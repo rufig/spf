@@ -120,11 +120,9 @@ VARIABLE EXTRA-MEM
 ;
 
 
-[UNDEFINED] MEMORY-PAGESIZE [IF]
-  PAGESIZE CONSTANT MEMORY-PAGESIZE
+PAGESIZE CONSTANT MEMORY-PAGESIZE
   \ NB: The "PAGESIZE" word is available only during building,
   \ and it isn't availabe in the target system.
-[THEN]
 
 : ALLOCATE-RWX ( u -- a-addr 0 | x ior )
 \ Allocate a memory region that can be read, modified, and executed

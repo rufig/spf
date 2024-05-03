@@ -125,9 +125,7 @@ DECIMAL
 ;
 
 
-[UNDEFINED] MEMORY-PAGESIZE [IF]
-  4096 CONSTANT MEMORY-PAGESIZE
-[THEN]
+4096 CONSTANT MEMORY-PAGESIZE
 
 : ALLOCATE-RWX ( u -- a-addr 0 | x ior )
 \ Allocate a memory region that can be read, modified, and executed
