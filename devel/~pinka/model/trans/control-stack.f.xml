@@ -4,8 +4,8 @@
 <wordlist name="CS-WL">
   <cell name="Z0"/>
   <cell name="ZP"/>
-  <include href="../data/zstack.immutable.f.xml"/>
   <cell name="Z9"/>
+  <include href="../data/zstack.immutable.f.xml"/>
 
 <export>
   <def name="ASSUME-CS" ds=" addr u -- "> OVER CELL+ Z9 ! ZASSUME </def>
