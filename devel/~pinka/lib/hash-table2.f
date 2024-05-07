@@ -6,7 +6,8 @@
 \     + hcount, for-hash-txt
 
 REQUIRE [UNDEFINED] lib/include/tools.f
-REQUIRE EQUAL  ~pinka/lib/ext/basics.f
+REQUIRE EQUALS ~pinka/spf/string-equal.f
+REQUIRE /CELL  ~pinka/lib/ext/basics.f
 REQUIRE HASH   ~pinka/lib/hash.f
 REQUIRE SALLOC ~pinka/lib/ext/alloc.f
 REQUIRE XALLOC ~pinka/lib/xalloc.f
@@ -35,7 +36,7 @@ DEFINITIONS
 : lookup- ( h akey ukey -- last 0 | prevrec rec ) 
   2>R XCOUNT 2R@ ROT HASH CELLS + ( addr )
   BEGIN DUP @ DUP WHILE ( prevrec rec ) \ hack of ':link'
-    DUP :key @ XCOUNT 2R@ EQUAL 0= WHILE NIP
+    DUP :key @ XCOUNT 2R@ EQUALS 0= WHILE NIP
   REPEAT THEN  RDROP RDROP
 ;
 : lookup ( akey ukey h -- last 0 | prevrec rec ) -ROT lookup- ;

@@ -19,7 +19,7 @@ TESTCASES hash-table
 CR h :NONAME TYPE SPACE TYPE CR ; for-hash-txt
 
 (( h hash-count -> 3 ))
-(( `B h HASH@ `bbb EQUAL -> -1 ))
+(( `B h HASH@ `bbb EQUALS -> -1 ))
 
 `B h -HASH
 (( `B h HASH@ 0. D= -> -1 ))
