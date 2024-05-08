@@ -17,6 +17,7 @@ libs:
 + lib/include/facil.f - добавлено MS
 + lib/include/double.f - добавлено "2VALUE"
 * lib/include/float2.f - исправление "FVALUE" (дл€ совместимости с "TO")
++ lib/include/control-case.f - потокобезопасна€ реализаци€ дл€ CASE ENDCASE (в отличии от lib/ext/case.f)
 
 
 27 марта 2023    ¬ерси€ 4.29

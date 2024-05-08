@@ -17,6 +17,7 @@ libs:
 + lib/include/facil.f - add MS
 + lib/include/double.f - add "2VALUE"
 * lib/include/float2.f - fix "FVALUE" (for compatibility with "TO")
++ lib/include/control-case.f - thread-safe implementation for CASE ENDCASE (unlike lib/ext/case.f)
 
 
 27 March 2023     Version 4.29

@@ -1,5 +1,9 @@
 \ 94 CORE EXT
 
+REQUIRE CASE lib/include/control-case.f
+\ NB: the words "CASE", "OF", "ENDOF", "ENDCASE" belong to the CORE EXT word set.
+
+
 : .R ( n1 n2 -- ) \ 94 CORE EXT
 \ Вывести на экран n1 выравненным вправо в поле шириной n2 символов.
 \ Если число символов, необходимое для изображения n1, больше чем n2,

@@ -4,7 +4,7 @@
 
 REQUIRE {        lib\ext\locals.f
 REQUIRE WINCONST lib\win\const.f
-REQUIRE CASE     lib\ext\case.f
+REQUIRE CASE     lib\include\control-case.f
 REQUIRE /MSG     lib\win\spfgui\dtyps.f
 
 IMAGE-BASE CONSTANT HINST  \ Instance текущего приложения

@@ -364,7 +364,7 @@ SPF4 ForthSystem = [IF]
 
 REQUIRE .R	lib\include\core-ext.f
 REQUIRE LOCALS|	~af\lib\locals-ans.f
-REQUIRE CASE	lib\ext\case.f
+REQUIRE CASE	lib\include\control-case.f
 REQUIRE CASE-INS	lib\ext\caseins.f
 CASE-INS ON
 REQUIRE getxy	~af\lib\getxy.f

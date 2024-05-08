@@ -28,6 +28,14 @@ C" M_WL" FIND NIP 0=
 [IF] : M_WL  CS-DUP POSTPONE WHILE ; IMMEDIATE
 [THEN]
 
+\ NB: The following implementation for CASE ... ENDCASE
+\ is used by "./macroopt.f" in implementation-dependent manner.
+\ NB: this implementation has an environmental dependency:
+\ the control-flow stack is combined with the data stack.
+\ Re "SP@" -- "DEPTH" can be used instead.
+
+USER CSP
+
 : CASE 
   CSP @ SP@ CSP ! ; IMMEDIATE
 
