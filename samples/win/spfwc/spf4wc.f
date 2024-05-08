@@ -113,9 +113,9 @@ S" lang\base.txt" BaseLStrings INCLUDED-STRINGS
 : concr ( c -- )   FlushJetBuf charout1 ;
 
 : conemit1 ( c --)
-  DUP 0xD = IF concr
+  DUP 0xA = IF concr   \ move the caret on LF only
   ELSE
-    DUP 0xA = IF DROP
+    DUP 0xD = IF DROP  \ skip CR, to properly handle both CRLF and LF line terminators
     ELSE JetOut IF charout ELSE charout1 THEN
     THEN
   THEN
