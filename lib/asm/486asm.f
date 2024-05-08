@@ -2089,7 +2089,7 @@ DEFER       ;C ' _END-CODE IS       ;C
 ( UTILITY WORDS )
 : PREFIX? ( ARE WE IN PREFIX MODE? )
         ( -- FLAG )
-        DEFER@ SAVE-INST ['] NOOP = ;
+        ACTION-OF SAVE-INST ['] NOOP = ;
 
 : POSTFIX? ( ARE WE IN POSTFIX MODE? )
         ( -- FLAG )
