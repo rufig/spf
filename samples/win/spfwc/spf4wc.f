@@ -30,7 +30,7 @@ CASE-INS OFF
 S" adds.f"	INCLUDED
 REQUIRE AddToRFL	~af\lib\rfl.f
 REQUIRE STR@	~ac\lib\str2.f
-REQUIRE CASE	lib\ext\case.f
+REQUIRE CASE	lib\include\control-case.f
 REQUIRE Z\"	~af\lib\c\zstring.f
 S" debug.f"	INCLUDED
 

@@ -16,6 +16,7 @@ libs:
 + lib/include/facil.f - добавлено MS
 + lib/include/double.f - добавлено "2VALUE"
 * lib/include/float2.f - исправление "FVALUE" (для совместимости с "TO")
++ lib/include/control-case.f - потокобезопасная реализация для CASE ENDCASE
 
 
 27 марта 2023    Версия 4.29
