@@ -187,10 +187,10 @@ VARIABLE  CurrFromLru
               IncX
         ENDOF
 
-        0x0A OF
+        0x0D OF  \ skip CR, to properly handle both CRLF and LF line terminators
         ENDOF
 
-        0x0D OF  \ line feed
+        0x0A OF  \ line feed (LF)
             0 TO xCaret
             yCaret 1+ TO yCaret
             yCaret cyBuffer >
@@ -408,6 +408,8 @@ DECIMAL
     CON_BUFFER_PREPARED ResetEvent DROP
     CON_BUFFER_PREPARED INFINITE WAIT THROW DROP
     >in MIN TUCK tib SWAP ROT SWAP CMOVE  
+    Myhwnd HideCaret DROP  CR  \ see also VK_RETURN
+    \ NB: the caret still leaves a trace sometimes
 ;
 
 : TYPE-GUI ( addr u -- )

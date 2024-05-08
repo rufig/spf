@@ -19,6 +19,10 @@ libs:
 * lib/include/float2.f - fix "FVALUE" (for compatibility with "TO")
 + lib/include/control-case.f - thread-safe implementation for CASE ENDCASE (unlike lib/ext/case.f)
 
+samples:
+! lib/win/spfgui/spfgui.f - support unix-lines mode
+! samples/win/spfwc/spf4wc.f - support unix-lines mode
+
 
 27 March 2023     Version 4.29
 

@@ -19,6 +19,10 @@ libs:
 * lib/include/float2.f - исправление "FVALUE" (для совместимости с "TO")
 + lib/include/control-case.f - потокобезопасная реализация для CASE ENDCASE (в отличии от lib/ext/case.f)
 
+samples:
+! lib/win/spfgui/spfgui.f - поддержка режима unix-lines
+! samples/win/spfwc/spf4wc.f - поддержка режима unix-lines
+
 
 27 марта 2023    Версия 4.29
 
