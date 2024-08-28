@@ -5,9 +5,17 @@
 # An alternative host Forth translator can be passed
 # in the HOSTFORTH variable. By default it's spf4orig in Linux
 # and jpf375c.exe in Windows (and Cygwin). The default translator
-# is downloaded (via curl or wget) if it's missed .
+# is downloaded (using curl or wget) if it's missed.
+# Example:
+#   make HOSTFORTH=spf4 build
 
+# The variable PLATFORM can be used to explicitly specify
+# the 'win32' or 'posix' platform (otherwise it is selected automaticaly)
+# Example:
+#   make PLATFORM=win32 build
 
+MAKEFLAGS += --no-builtin-rules
+.SUFFIXES:
 .POSIX:
 .DELETE_ON_ERROR:
 
@@ -51,8 +59,9 @@ else
 endif
 endif
 
+PLATFORM ?= $(platform)
 
-ifeq ($(platform),posix)
+ifeq ($(PLATFORM),posix)
   target-bin := spf4
   orig-bin := $(orig-bin-lin)
 else
@@ -71,9 +80,10 @@ endif
 common-sources := *.f compiler/*.f $(wildcard compile.ini) $(maybe-check-orig-bin)
 
 
-
-spf4.o: $(common-sources) posix/*.f posix/config.h posix/config.c
+posix/config.auto.f : posix/config.h posix/config.c
 	make -C posix
+
+spf4.o: $(common-sources) posix/config.auto.f  posix/*.f
 	cd .. && echo "Wait a bit while compiling..." && echo 1 HALT | $(HOSTFORTH) src/spf.f
 
 ../spf4: spf4.o forth.ld

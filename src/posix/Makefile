@@ -2,6 +2,11 @@
 #
 # generate platform-specific config file
 
+MAKEFLAGS += --no-builtin-rules
+.SUFFIXES:
+.POSIX:
+.DELETE_ON_ERROR:
+
 config.auto.f: config.gen
 		./$< > $@
 
