@@ -97,6 +97,10 @@ DECIMAL
 \ —компилировать строку, заданную addr u.
   ['] _SLITERAL-CODE COMPILE,  S", 0 C,
 ;
+: CLIT, ( c-addr -- )
+  \ ( run-time: -- c-addr2 )
+  ['] _CLITERAL-CODE COMPILE,  COUNT S", 0 C,
+;
 
 : ", ( A -> )
 \ разместить в пространстве данных строку, заданную адресом A, 

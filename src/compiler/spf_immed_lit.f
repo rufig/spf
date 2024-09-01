@@ -38,12 +38,8 @@
   STATE @ IF SLIT, ELSE  2DUP CHARS + 0 SWAP C! THEN
 ; IMMEDIATE
 
-: CLITERAL ( addr -- )
-  STATE @ IF
-            ['] _CLITERAL-CODE COMPILE,
-            COUNT DUP C, CHARS
-            HERE SWAP DUP ALLOT MOVE 0 C,
-          THEN
+: CLITERAL ( compil: true ; c-addr --  |  compil: false ; c-addr -- c-addr )
+  STATE @ IF CLIT, THEN
 ; IMMEDIATE
 
 : S"   \ 94+FILE
