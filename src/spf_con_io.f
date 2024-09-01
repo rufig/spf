@@ -80,7 +80,7 @@ VECT ACCEPT
   EOLN TYPE
 ;
 
-32 VALUE BL ( -- char ) \ 94
+32 CONSTANT BL ( -- char ) \ 94
 \ char - значение символа "пробел".
 
 : SPACE ( -- ) \ 94
