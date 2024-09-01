@@ -115,7 +115,7 @@ VECT IsDelimiter
   CharAddr >IN @
   ROT SkipUpTo
   >IN @ - NEGATE
-  >IN 1+!
+  >IN @ 1+ SOURCE NIP UMIN >IN !
 ;
 
 : PSKIP ( char "ccc<char>" -- )
