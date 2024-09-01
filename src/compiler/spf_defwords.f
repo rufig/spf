@@ -72,7 +72,7 @@ CODE (DOES2)
    JMP  EBX
 END-CODE
 
-' (DOES2) ' DOES-CODE TC-VECT!
+' (DOES2) ' DOES-CODE TC-VECT! \ NB: "TC-VECT!" also applies to a word created with "VALUE"
 
 : DOES>  \ 94
 \ Интерпретация: семантика неопределена.
