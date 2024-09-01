@@ -1,14 +1,9 @@
 \ 94 Double-Number words
 
-REQUIRE SYNONYM         lib/include/wordlist-tools.f
 REQUIRE [UNDEFINED]     lib/include/tools.f
 
 [UNDEFINED] 2, [IF]
   : 2, ( xd -- )  , , ;  \ a well-known word
-[THEN]
-
-[UNDEFINED] 2LIT, [IF]
-  SYNONYM 2LIT, DLIT,  ( xd -- ) \ a well-known word
 [THEN]
 
 

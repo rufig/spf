@@ -8,7 +8,7 @@
 * ѕровер€етс€ SHA1 сумма дл€ бинарников, которые скачиваютс€ автоматически при сборке
 + ALLOCATE-RWX выдел€ет пам€ть, разрешенную дл€ исполнени€
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
-+ "CLIT,"
++ "2LIT," "CLIT,"
 
 libs:
 ! lib/ext/locals.f - определение с локальными переменными было невидимо дл€ "IMMEDIATE" 

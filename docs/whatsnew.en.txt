@@ -8,7 +8,7 @@
 * The SHA1 sum is checked for the binaries that are automatically downloaded on building
 + ALLOCATE-RWX allocates executable memory region
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
-+ "CLIT,"
++ "2LIT," "CLIT,"
 
 libs:
 ! lib/ext/locals.f - a definition with locals was invisible for "IMMEDIATE"

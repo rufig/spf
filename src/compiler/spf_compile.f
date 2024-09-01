@@ -57,8 +57,11 @@ HEX
   OPT_CLOSE
 ;
 
-: DLIT, ( D -> )
+: 2LIT, ( xd -- )
   SWAP LIT, LIT,
+;
+: DLIT, ( d|ud -- )
+  2LIT,
 ;
 
 : RLIT, ( u -- )

@@ -174,7 +174,7 @@ M\ ' DROP TO DTST
     THEN
 ;
 
-: TC-LIT,
+: TC-LIT, ( x -- )
   S" DUP" TC-FINDOUT INLINE,
   OPT_INIT
   SetOP 0B8 C,  , OPT  \ MOV EAX, #
@@ -187,7 +187,7 @@ M\ ' DROP TO DTST
   \ CR ." NEW 'DROP " CURFILE @ ASCIIZ> TYPE SPACE CURSTR @ .
   S" DROP" TC-FINDOUT >VIRT TC-LIT, ; IMMEDIATE
 
-: TC-DLIT, ( D --)
+: TC-2LIT, ( xd --)
   SWAP
   TC-LIT,
   TC-LIT,
@@ -243,7 +243,7 @@ DECIMAL
 \ ƒобавить семантику времени выполнени€, данную ниже, к текущему определению.
 \ ¬рем€ выполнени€: ( -- x1 x2 )
 \ ѕоложить пару €чеек x1 x2 на стек.
-  STATE @ IF TC-DLIT, THEN
+  STATE @ IF TC-2LIT, THEN
 ; IMMEDIATE
 
 : HEX-TC-LITERAL ( c-addr u -> ... )
