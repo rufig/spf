@@ -66,7 +66,6 @@ VARIABLE SAVED-CURRENT
 0 VALUE TOVALUE-CODE
 0 VALUE VECT-CODE
 0 VALUE NOOP-CODE
-0 VALUE ---CODE
 0 VALUE SLITERAL-CODE
 0 VALUE CLITERAL-CODE
 0 VALUE USER-CODE
@@ -405,14 +404,13 @@ ALSO TC DEFINITIONS PREVIOUS
 
 : VOC-NAME! ( c-addr wid --   )  CELL+ ! ;
 
-: --
+: -- ( u.field-offset u.field-size "field-name" -- u.next-field-offset )
+  OVER >R +
   [T] HEADER [I]  
   OPT_INIT
-  SetOP  05 C, OVER , OPT  \ add eax, # xxx 
+  SetOP  05 C, R> , OPT  \ add eax, # xxx
   OPT_CLOSE 
-  + RET,
-\  ---CODE COMPILE,
-\  OVER , +
+  RET,
 ;
 
 TARGET-POSIX [IF]
