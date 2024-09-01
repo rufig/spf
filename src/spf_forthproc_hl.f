@@ -71,7 +71,6 @@
    SWAP ?DUP IF UMOD THEN   
 ;
 
-0  VALUE  DOES-CODE
 
 HEX
 
