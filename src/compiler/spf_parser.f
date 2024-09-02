@@ -95,17 +95,28 @@ VECT IsDelimiter
 ;
 
 : NextWord ( -- c-addr u )
-  \ это слово теперь будем использовать в INTERPRET
-  \ - удобнее: не использует WORD и, соответственно, не мусорит в HERE;
-  \ и разделителями считает все что <=BL, в том числе TAB и CRLF
-
   SkipDelimiters ParseWord
 \  >IN 1+! \ пропустили разделитель за словом
   >IN @ 1+ #TIB @ MIN >IN !   \ для совместимости с spf3.16
 ;
 
+\ This implementation has 3.5 times better performance than "NextWord"
+: PLUCK-LEXEME ( -- sd )
+  SOURCE >IN @ ( OVER UMIN ) /STRING DUP 0= IF EXIT THEN  ( sd.parse-area )
+  BEGIN DUP WHILE OVER C@ BL 1+ U< WHILE 1 /STRING REPEAT THEN \ Skip delimiters
+  DUP 0= IF SOURCE NIP >IN ! EXIT THEN   OVER >R
+  BEGIN 1 /STRING DUP WHILE OVER C@ BL 1+ U< UNTIL THEN \ Skip non-delimiters
+  DUP IF 1- THEN ( addr.lexeme-end u.remainder ) NEGATE SOURCE NIP + >IN !
+  R> ( addr.lexeme-end addr.lexeme-start ) TUCK -
+;
+: ?LEXEME ( c-addr1 u1\0 -- c-addr1 u1  |  c-addr|0 0 -- naver )
+  DUP IF EXIT THEN  -16 THROW \ "attempt to use a zero-length string as a lexeme"
+;
+: TAKE-LEXEME ( -- sd.lexeme ) PLUCK-LEXEME ?LEXEME ;
+
 \ http://www.complang.tuwien.ac.at/forth/ansforth/parse-name.html
-: PARSE-NAME NextWord ;
+SYNONYM PARSE-NAME PLUCK-LEXEME ( -- sd )
+
 
 : PARSE ( char "ccc<char>" -- c-addr u ) \ 94 CORE EXT
 \ Выделить ccc, ограниченное символом char.

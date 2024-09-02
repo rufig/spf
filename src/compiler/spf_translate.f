@@ -44,7 +44,7 @@ VECT ?SLITERAL
 \ результирующая строка имеет нулевую длину.
 \ В конец строки помещается пробел, не включаемый в длину строки.
 \ Программа может изменять символы в строке.
-  DUP BL = IF DROP PARSE-NAME ELSE DUP SKIP PARSE THEN 255 UMIN
+  DUP BL = IF DROP TAKE-LEXEME ELSE DUP SKIP PARSE THEN 255 UMIN
   DUP SYSTEM-PAD C! SYSTEM-PAD CHAR+ SWAP CMOVE
   0 SYSTEM-PAD COUNT CHARS + C!
   SYSTEM-PAD
@@ -55,7 +55,7 @@ VECT ?SLITERAL
 \ и вернуть xt, выполнимый токен для name. Неопределенная ситуация возникает,
 \ если name не найдено.
 \ Во время интерпретации  ' name EXECUTE  равносильно  name.
-  PARSE-NAME
+  TAKE-LEXEME
   NON-OPT-WL PUSH-ORDER  SFIND  DROP-ORDER
   \ NB: taking NON-OPT-WL into account violates the standard #todo
   0= IF -321 THROW THEN
@@ -64,7 +64,7 @@ VECT ?SLITERAL
 : CHAR ( "<spaces>name" -- char ) \ 94
 \ Пропустить ведущие разделители. Выделить имя, органиченное пробелами.
 \ Положить код его первого символа на стек.
-  PARSE-NAME DROP C@
+  TAKE-LEXEME DROP C@
 ;
 
 : BYE ( -- ) \ 94 TOOLS EXT
@@ -105,7 +105,7 @@ VECT ?SLITERAL
     NR>  SET-ORDER
     -2011 THROW                 THEN
     2R>                  REPEAT
-  NIP 0= IF 2DROP PARSE-NAME THEN
+  NIP 0= IF 2DROP TAKE-LEXEME THEN
   ['] EVAL-WORD CATCH
   NR> SET-ORDER THROW
  ELSE RDROP RDROP THEN
@@ -113,7 +113,7 @@ VECT ?SLITERAL
 
 : INTERPRET_ ( -> ) \ интерпретировать входной поток
   BEGIN
-    PARSE-NAME DUP
+    PLUCK-LEXEME DUP
   WHILE
     SFIND ?DUP
     IF
@@ -396,7 +396,7 @@ USER INCLUDE-DEPTH
   ELSE 2DROP INCLUDED THEN
 ;
 : REQUIRE ( "word" "libpath" -- )
-  PARSE-NAME PARSE-NAME 2DUP + 0 SWAP C!
+  TAKE-LEXEME TAKE-LEXEME 2DUP + 0 SWAP C!
   REQUIRED
 ;
 

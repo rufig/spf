@@ -8,6 +8,7 @@
 ! "SLITERAL" и `S"` при интерпретации теперь не изменяют входной буфер
 * "IMMEDIATE" модифицирует определение возвращаемое "LATEST-NAME", вместо "LAST @"
 * "BL" константа (неизменяемое)
+* Проверка на отсутсвие аргумента во входном буфере в словах "'", "[CHAR]", и т.п.
 * Проверяется SHA1 сумма для бинарников, которые скачиваются автоматически при сборке
 * Переименовано "IS-IMMEDIATE" в "IS-NAME-IMMEDIATE" и "IS-VOC" в "IS-NAME-VOC" (теперь они возвращают flag)
 * Переименовано "SOURCE-NAME" в "SOURCE-FILE-PATH"
@@ -19,6 +20,7 @@
 + "FIND-NAME" "FIND-NAME-IN" "?FOUND" "SYNONYM"
 + "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
 + "S>F" "F>S"
++ "PLUCK-LEXEME" "TAKE-LEXEME"
 + "SOURCE-PATH" "SOURCE-LN" "SOURCE-BASEPATH"
 + "REQUIRED-WORD" "REQUIRE-WORD" - синонимы для "REQUIRED" и "REQUIRE" для избежания конфликта с Forth-2012
 + "SAVE-WITH-RESERVE" - сохранение системы с указанным свободным размером области данных словаря в новом исполняемом файле

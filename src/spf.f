@@ -35,13 +35,21 @@ S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
 : PARSE-NAME NextWord ;
 [THEN]
 
+[UNDEFINED] PLUCK-LEXEME  [IF]
+: PLUCK-LEXEME ( -- sd ) PARSE-NAME ;
+[THEN]
+
+[UNDEFINED] TAKE-LEXEME  [IF]
+: TAKE-LEXEME ( -- sd.lexeme ) PLUCK-LEXEME DUP IF EXIT THEN -16 THROW ;
+[THEN]
+
 [UNDEFINED] LATEST-NAME [IF]
 : LATEST-NAME ( -- nt ) GET-CURRENT @ ; \ It's a slightly broken implementation, but it suits the needs.
 [THEN]
 
 [UNDEFINED] SYNONYM [IF]
 : SYNONYM ( "<spaces>name.new" "<spaces>name.old" -- ) \ 2012 TOOLS-EXT
-  >IN @ >R PARSE-NAME 2DROP PARSE-NAME >IN @ >R
+  >IN @ >R TAKE-LEXEME 2DROP TAKE-LEXEME >IN @ >R
   SFIND DUP 0= -13 AND THROW  1 =  ( xt flag.imm )
   R> R> >IN ! HEADER >IN !  IF IMMEDIATE THEN
   \ NB: there is no `SHEADER` word in spf3 and jpf3

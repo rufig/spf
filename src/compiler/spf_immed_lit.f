@@ -99,7 +99,8 @@
 \ семантику времени выполнени€, данную ниже, к текущему определению.
 \ ¬рем€ выполнени€: ( -- char )
 \ ѕоложить char, значение первого символа name, на стек.
-  PARSE-NAME DROP C@ [COMPILE] LITERAL
+  TAKE-LEXEME ( sd.lexeme )
+  DROP C@ [COMPILE] LITERAL
 ; IMMEDIATE
 
 : ABORT"   \ 94
