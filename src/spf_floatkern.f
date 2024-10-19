@@ -253,7 +253,7 @@ CODE F1+    \ *
        RET
 END-CODE
 
-CODE D>F    \ *
+CODE D>F    ( F: -- r ;  S: d -- ) \ 94 FLOATING
        MOV EBX, [EBP]
        MOV -4 [EBP], EAX
        MOV -8 [EBP], EBX
@@ -496,24 +496,25 @@ CODE GETFPUCW ( -- u )     \ *
 END-CODE
 
 \ Push TOS to the float stack
-\ D: 2 --> F: 2e
-CODE DS>F    ( D: f -- F: f )
+CODE S>F     ( S: n -- ;  F: -- r ) \ 2012 FLOATING EXT
        MOV -4 [EBP], EAX
        FILD DWORD -4 [EBP]
        MOV EAX, [EBP]
        LEA EBP, 4 [EBP]
        RET
 END-CODE
+SYNONYM DS>F S>F  \ spf4 2001
 
 \ Pop the top float stack number to the data stack
 \ Round or truncate according to the current mode
-CODE F>DS     ( F: f -- D: [f] )
+CODE F>S      ( F: r -- ;  S: -- n ) \ 2012 FLOATING EXT
        LEA   EBP, -4 [EBP]
        MOV   [EBP], EAX
        FISTP DWORD -4 [EBP]
        MOV   EAX, -4 [EBP]
        RET
 END-CODE
+SYNONYM F>DS F>S  \ spf4 2001
 
 CODE F--DS     \ *
        LEA   EBP, -4 [EBP]
@@ -585,7 +586,7 @@ CODE F>D     \ *
        RET
 END-CODE
 
-: F>D
+: F>D  ( F: r -- ;  S: -- d ) \ 94 FLOATING
        GETFPUCW >R
        TRUNC-MODE
        F>D

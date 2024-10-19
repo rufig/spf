@@ -12,6 +12,7 @@
 + "2LIT," "CLIT,"
 + "FIND-NAME" "FIND-NAME-IN" "?FOUND" "SYNONYM"
 + "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
++ "S>F" "F>S"
 
 libs:
 ! lib/ext/locals.f - a definition with locals was invisible for "IMMEDIATE"
