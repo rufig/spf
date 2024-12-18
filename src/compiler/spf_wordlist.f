@@ -107,7 +107,7 @@ NOWADAYS ,"
   R> CELL+
 ;
 : FREE-WORDLIST ( wid -- )
-  CELL- FREE THROW
+  CELL- FREE-RWX THROW
 ;
 
 : VOC-NAME! ( c-addr wid --   )  CELL+ ! ;
