@@ -6,7 +6,7 @@
 ! "TRAVERSE-WORDLIST" не позволено выдавать скрытые определения
 * "IMMEDIATE" модифицирует определение возвращаемое "LATEST-NAME", вместо "LAST @"
 * Проверяется SHA1 сумма для бинарников, которые скачиваются автоматически при сборке
-+ ALLOCATE-RWX выделяет память, разрешенную для исполнения
++ "ALLOCATE-RWX" и "FREE-RWX" для выделения и освобождения областей памяти, разрешенных к исполнению
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 + "2LIT," "CLIT,"
 

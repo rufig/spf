@@ -124,10 +124,11 @@ PAGESIZE CONSTANT MEMORY-PAGESIZE
   \ NB: The "PAGESIZE" word is available only during building,
   \ and it isn't availabe in the target system.
 
-: ALLOCATE-RWX ( u -- a-addr 0 | x ior )
+: ALLOCATE-RWX ( +n -- a-addr 0 | x ior )
 \ Allocate a memory region that can be read, modified, and executed
   \ add page size (to have at least one page), and one additional cell for MEMTAG
-  MEMORY-PAGESIZE 1- CELL+ ADD-SIZE DUP IF EXIT THEN DROP ( u2 )
+  MEMORY-PAGESIZE 1- CELL+ ADD-SIZE DUP IF EXIT THEN DROP ( n2 )
+  DUP 0< IF -24 EXIT THEN \ "invalid numeric argument"
   \ Assertion: pagesize is a power of two, two's complement representation of signed integers
   MEMORY-PAGESIZE NEGATE AND ( u3 ) \ align u2 down on the page size
   \ Allocate a range on a pagesize-aligned address, and of pagesize-aligned size
@@ -142,3 +143,11 @@ PAGESIZE CONSTANT MEMORY-PAGESIZE
   DUP IF >R  FREE  R>  ( ior2 ior ) EXIT THEN DROP ( a-addr1 )
   CELL+ (FIX-MEMTAG) 0 ( a-addr 0 )
 ;
+
+: FREE-RWX ( a-addr -- ior )
+  \ Assertion: a-addr is aligned to MEMORY-PAGESIZE
+  DUP MEMORY-PAGESIZE NEGATE AND OVER <> IF DROP -60 EXIT THEN
+  FREE
+;
+
+: RESIZE-RWX ( a-addr -- a-addr ior ) -61 ;

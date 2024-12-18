@@ -127,13 +127,21 @@ DECIMAL
 
 4096 CONSTANT MEMORY-PAGESIZE
 
-: ALLOCATE-RWX ( u -- a-addr 0 | x ior )
+: ALLOCATE-RWX ( +n -- a-addr 0 | x ior )
 \ Allocate a memory region that can be read, modified, and executed
   \ add page size (to have at least one page), and one additional cell for MEMTAG
-  MEMORY-PAGESIZE 1- CELL+ ADD-SIZE DUP IF EXIT THEN DROP ( u2 )
+  MEMORY-PAGESIZE 1- CELL+ ADD-SIZE DUP IF EXIT THEN DROP ( n2 )
+  DUP 0< IF -24 EXIT THEN \ "invalid numeric argument"
   \ Assertion: pagesize is a power of two, two's complement representation of signed integers
   MEMORY-PAGESIZE NEGATE AND ( u3 ) \ align u2 down on the page size
   8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapAlloc
   \ Windows requires no special care.
   DUP IF CELL+ (FIX-MEMTAG) 0 EXIT THEN -300
 ;
+
+: FREE-RWX ( a-addr -- ior )
+  \ There are no checks at the moment
+  FREE
+;
+
+: RESIZE-RWX ( a-addr -- a-addr ior ) -61 ;
