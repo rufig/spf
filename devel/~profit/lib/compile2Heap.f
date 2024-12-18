@@ -170,8 +170,10 @@ EXPORT
 
 ' NOOP ->VECT ON-COMPILE-START ( xt -- xt )
 
-[DEFINED] _INLINE, [IF]
+[DEFINED] MACROOPT-WL [IF]
+MACROOPT-WL ALSO CONTEXT !
 : INLINE2, ( CFA --  ) ON-COMPILE-START  OPT_INIT  _INLINE, OPT_CLOSE ;
+PREVIOUS
 [ELSE]
 \ Если оптимизатор не будет включён в ядро (BUILD-OPTIMIZER в src/spf_compileoptions.f),
 \ то INLINE, определяется по-другому
