@@ -30,7 +30,7 @@
      WITH Test1
        /Test1 OBJECT \ [ или /Test1 NEW]
        ...
-     WITHOUT
+     ENDWITH
      
      Причем, я думаю что константу /Test1 можно даже создавать автоматически,
      простым добавление слэша в начале. Хотя будем оптимально минимальны.
@@ -103,23 +103,25 @@ USER-VALUE self
 
 : M: : POSTPONE _in ;
 
-: DO-IT-DEF
+: DO-IT-DEF ( -- wid.compilation.prev )
+  GET-CURRENT ( wid.compilation.prev )
   GET-ORDER 1+      \  ...widn n --
-   VOC-LIST @ CELL+  \ достали wid
+   LATEST-NAME NAME> XT>WID  \ достали wid
     SWAP SET-ORDER    \  widn wid n+1
   DEFINITIONS
 ;
 
-: CLASS: ( "name" -- 0 ) VOCABULARY DO-IT-DEF ;
+: CLASS: ( "name" -- wid.compilation.prev ) VOCABULARY DO-IT-DEF ;
 
-: ;CLASS  PREVIOUS FORTH-WORDLIST SET-CURRENT ;
+: ;CLASS  ( wid.compilation.prev -- ) PREVIOUS SET-CURRENT ;
 
-: CHILD: ( -- u )
-          CONTEXT @ @ PREVIOUS VOCABULARY DO-IT-DEF
-          GET-CURRENT !
+: CHILD: ( "name" -- wid.compilation.prev )
+          CONTEXT @ ( wid.parent ) PREVIOUS
+          CLASS:  SWAP ( wid.compilation.prev wid.parent )
+          GET-CURRENT CHAIN-WORDLIST \ подцепление списка слов родительского класса
 ;
 
-: WITH        ALSO ; IMMEDIATE
+: WITH ( "name.class" -- ) ALSO  PARSE-NAME EVAL-WORD ; IMMEDIATE
 : ENDWITH PREVIOUS ; IMMEDIATE
 
 : LOOK-FOR-INIT (  -- 0 | xt 1 | xt -1 )
