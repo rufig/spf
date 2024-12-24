@@ -150,4 +150,4 @@ PAGESIZE CONSTANT MEMORY-PAGESIZE
   FREE
 ;
 
-: RESIZE-RWX ( a-addr -- a-addr ior ) -61 ;
+: RESIZE-RWX ( a-addr -- a-addr ior ) -21 ; \ -21 "unsupported operation"

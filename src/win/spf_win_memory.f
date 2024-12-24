@@ -144,4 +144,6 @@ DECIMAL
   FREE
 ;
 
-: RESIZE-RWX ( a-addr -- a-addr ior ) -61 ;
+: RESIZE-RWX ( a-addr -- a-addr ior )
+  RESIZE
+;
