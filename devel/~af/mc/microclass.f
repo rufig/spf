@@ -44,18 +44,29 @@ REQUIRE {  ~af/lib/locals.f
 
 VOCABULARY MicroClass
 GET-CURRENT ALSO MicroClass DEFINITIONS
+( wid.prev-compilation )
+\ MicroClass private words
 
 USER uObj
+USER uObjMethodShadowed  \ ( xt.shadowed-method | 0 )
 
 \ Определяем поля структур объектов
 : FIELD
+  \ ( u.offset1 u.size "name" -- u.offset2 )
+  \ name Interpretation: ( -- never )
+  \ name Compilation: ( -- ; Germ: xt.method -- xt.method )
+  \ name Run-time: ( -- addr.field )
   CREATE IMMEDIATE OVER , +
-  DOES> @ LIT, S" _mc +" EVALUATE
+  DOES> ?COMP  @ LIT, S" _mc +" EVALUATE
 ;
 
 \ Так определяется метод
 : M:
+  \ ( "name" -- ; C: -- colon-sys.method ; Compilation: false -- true ; Germ: -- xt.method )
+  \ name Initiation: ( addr.obj -- )
   WARNING @ >R WARNING 0!
+  >IN @ >R  PARSE-NAME  R> >IN !
+  uObj @ SEARCH-WORDLIST 0= IF 0 THEN uObjMethodShadowed !
   :
   R> WARNING !
   S" { _mc } " EVALUATE
@@ -63,62 +74,66 @@ USER uObj
 
 : ;CLASS ( wid -- )  PREVIOUS PREVIOUS SET-CURRENT ;
 
-: LOOK-INIT (  -- 0 | xt 1 | xt -1 )
+: LOOK-INIT (  -- 0 | xt 1 | xt -1   ;  Order: wid.class -- wid.class )
   S" INIT" CONTEXT @ SEARCH-WORDLIST
 ;
 
-: LOOK-DESTROY ( wid -- 0 | xt 1 | xt -1 )
+: LOOK-DESTROY ( -- 0 | xt 1 | xt -1 ; Order: wid.class -- wid.class )
   S" DESTROY" CONTEXT @ SEARCH-WORDLIST
 ;
 
-: (NEW) ( length  -- addr )
+: (NEW) ( u.obj-size -- addr.obj )
   DUP ALLOCATE THROW
   DUP ROT ERASE
 ;
 
 \ Наследование форт слов
 : INHERIT ( -- )
-  SMUDGE
-  LATEST NAME>STRING DUP >R
-  \ NB: LATEST-NAME игнорирует текущее определение
-  PAD SWAP CMOVE
-  HIDE PAD R>
-  uObj @ SEARCH-WORDLIST
+  \ Interpretation: ( -- never )
+  \ Compilation: ( -- ; Germ: xt.method -- xt.method )
+  \ Run-time: ( any1 -- any2 ) \ the parent's method semantics ( any1 addr.obj -- any2 )
+  ?COMP
+  uObjMethodShadowed @ ?DUP
   IF
     S" _mc" EVALUATE
     COMPILE,
   THEN
 ; IMMEDIATE
 
-: DO-IT-DEF ( -- wid )
+: DO-IT-DEF ( -- wid.prev-compilation ; Order: -- wid.microclass wid.class ; Current: wid.prev-compilation -- wid.class )
   ALSO MicroClass
-  ALSO LATEST-NAME NAME>STRING EVALUATE \ занесли новый словарь в CONTEXT
+  ALSO LATEST-NAME ( nt.vocabulary ) NAME> EXECUTE \ занесли новый словарь в CONTEXT
   GET-CURRENT DEFINITIONS  \ сделали его текущим
   GET-CURRENT uObj !
 ;
 
+( wid.prev-compilation )
 SET-CURRENT
+\ MicroClass public words
 
-: CLASS: ( "name" -- 0 )
+: CLASS: ( "name" -- wid.prev-compilation ; Order: -- wid.microclass wid.class ; Current: wid.prev-compilation -- wid.class )
   VOCABULARY DO-IT-DEF
 ;
 
-: CHILD: ( -- u )
-  ALSO ' EXECUTE \ родитель
-  CONTEXT @ @ PREVIOUS
-  CLASS:
-  SWAP GET-CURRENT ! \ новый словарь начинается с хвоста родительского
+: CHILD: ( "name.parent" "name.new" -- wid.prev-compilation ; Order: -- wid.microclass wid.class ; Current: wid.prev-compilation -- wid.class )
+  '  XTVOC>WID  CLASS:  SWAP ( wid.prev-compilation wid.parent-class )
+  GET-CURRENT CHAIN-WORDLIST \ новый словарь начинается с головы родительского
 ;
 
 \ Создание объекта в словарном пространстве
-: OBJECT  ( length  -- addr )
+: OBJECT  ( any1 u.obj-size -- addr.obj ; Order: wid.class -- wid.class )
+  \ MethodOfInit: ( any1 addr.obj -- )
   HERE OVER ALLOT
   DUP ROT ERASE
   LOOK-INIT IF OVER >R EXECUTE R> THEN
 ;
 
 \ Создание объекта в куче
-: NEWOBJ ( -- addr )
+: NEWOBJ
+  \ Interpretation: ( any1 u.obj-size -- addr.obj ; Order: wid.class -- wid.class )
+  \ Compilation: ( -- ; Order: wid.class -- wid.class )
+  \ Run-time: ( any1 u.obj-size -- addr.obj )
+  \ MethodOfInit: ( any1 addr.obj -- )
   STATE @
   IF
     POSTPONE (NEW)
@@ -130,7 +145,10 @@ SET-CURRENT
 ; IMMEDIATE
 
 \ Удаление объекта
-: DELETEOBJ ( addr -- )
+: DELETEOBJ
+  \ Interpretation: ( addr.obj --  ; Order: wid.class -- wid.class )
+  \ Compilation: ( -- ; Order: wid.class -- wid.class )
+  \ Run-time: ( addr.obj -- )
   STATE @
   IF
     LOOK-DESTROY IF POSTPONE DUP COMPILE, THEN POSTPONE FREE POSTPONE THROW
@@ -139,4 +157,4 @@ SET-CURRENT
   THEN
 ; IMMEDIATE
 
-PREVIOUS PREVIOUS
+PREVIOUS  \ End of the MicroClass private scope

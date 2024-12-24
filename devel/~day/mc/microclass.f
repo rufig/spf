@@ -30,7 +30,7 @@
      WITH Test1
        /Test1 OBJECT \ [ или /Test1 NEW]
        ...
-     WITHOUT
+     ENDWITH
      
      Причем, я думаю что константу /Test1 можно даже создавать автоматически,
      простым добавление слэша в начале. Хотя будем оптимально минимальны.
@@ -104,25 +104,41 @@ USER-VALUE self
 : M: : POSTPONE _in ;
 
 : DO-IT-DEF
+  \ ( -- wid.prev-compilation ; Order: -- wid.class ; Current: wid.prev-compilation -- wid.class )
+  GET-CURRENT ( wid.prev-compilation )
   GET-ORDER 1+      \  ...widn n --
-   VOC-LIST @ CELL+  \ достали wid
+   LATEST-NAME NAME> XTVOC>WID  \ достали wid
     SWAP SET-ORDER    \  widn wid n+1
   DEFINITIONS
 ;
 
-: CLASS: ( "name" -- 0 ) VOCABULARY DO-IT-DEF ;
-
-: ;CLASS  PREVIOUS FORTH-WORDLIST SET-CURRENT ;
-
-: CHILD: ( -- u )
-          CONTEXT @ @ PREVIOUS VOCABULARY DO-IT-DEF
-          GET-CURRENT !
+: CLASS: ( "name" -- wid.prev-compilation ; Order: -- wid.class ; Current: wid.prev-compilation -- wid.class )
+  VOCABULARY   DO-IT-DEF
 ;
 
-: WITH        ALSO ; IMMEDIATE
-: ENDWITH PREVIOUS ; IMMEDIATE
+: ;CLASS ( wid.prev-compilation -- ; Order: wid.class -- ; Current: wid.prev-compilation -- wid.class )
+  PREVIOUS SET-CURRENT
+;
 
-: LOOK-FOR-INIT (  -- 0 | xt 1 | xt -1 )
+: CHILD: ( "name" -- wid.prev-compilation ; Order: wid.parent-class -- wid.class ; Current: wid.prev-compilation -- wid.class )
+          CONTEXT @ ( wid.parent-class ) PREVIOUS
+          CLASS:  SWAP ( wid.prev-compilation wid.parent-class )
+          GET-CURRENT CHAIN-WORDLIST \ подцепление списка слов родительского класса
+;
+
+: WITH
+  \ Execution:   ( "name.class" -- ; Order: -- wid.class )
+  \ Compilation: ( "name.class" -- ; Order: -- wid.class )
+  ALSO  '  EXECUTE
+; IMMEDIATE
+
+: ENDWITH
+  \ Execution:   ( Order: wid.class -- )
+  \ Compilation: ( Order: wid.class -- )
+  PREVIOUS
+; IMMEDIATE
+
+: LOOK-FOR-INIT (  -- 0 | xt 1 | xt -1  ; Order: wid.class -- wid.class )
    S" INIT" CONTEXT @ SEARCH-WORDLIST
 ;
 
@@ -131,7 +147,8 @@ USER-VALUE self
 ;
 
 \ Создание объекта в словарном пространстве
-: OBJECT  ( length  -- addr )
+: OBJECT  ( any1 u.length -- addr.obj ; Order: wid.class -- wid.class )
+  \ MethodOfInit: ( any1 addr.obj -- )
      HERE OVER ALLOT
       DUP ROT ERASE
        LOOK-FOR-INIT
@@ -140,13 +157,17 @@ USER-VALUE self
        THEN
 ;
 
-: (NEW) ( length  -- addr )
+: (NEW) ( u.length  -- addr.obj )
      DUP ALLOCATE THROW
       DUP ROT ERASE
 ;
 
 \ Создание объекта в куче
-: NEW ( -- )
+: NEW
+  \ Interpretation: ( any1 u.length -- addr.obj ; Order: wid.class -- wid.class )
+  \ Compilation: ( -- ; Order: wid.class -- wid.class )
+  \ Run-time: ( any1 u.length -- addr.obj )
+  \ MethodOfInit: ( any1 addr.obj -- )
   STATE @
   IF
     POSTPONE (NEW)
@@ -165,6 +186,10 @@ USER-VALUE self
 
 \ Наследование форт слов
 : INHERIT ( -- )
+  \ Interpretation: ( -- never )
+  \ Compilation: ( -- ; Order: wid.class -- wid.class )
+  \ Run-time: ( any1 -- any2 ) \ the parent's method semantics ( any1 addr.obj -- any2 )
+   ?COMP
    SMUDGE
    LATEST NAME>STRING DUP >R
    \ NB: LATEST-NAME игнорирует текущее определение
