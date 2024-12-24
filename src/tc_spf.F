@@ -407,6 +407,7 @@ LATEST-NAME NAME>  ALSO ASSEMBLER  IS END-CODE  PREVIOUS
 ;
 
 : WORDLIST
+  ALIGN
   HERE VOC-LIST @ , VOC-LIST !
   HERE 0 , \ здесь будет указатель на имя последнего слова списка
        0 , \ здесь будет указатель на имя списка для именованых
@@ -508,8 +509,8 @@ TARGET-POSIX [IF]
   EXECUTE  !
 ;
 
-: TC-LATEST->
-  ALSO TC-TRG CONTEXT @ @ '  EXECUTE !  PREVIOUS
+: TC-LATEST-> ( "<spaces>name.constant.wordlist" -- )
+  ALSO TC-TRG CONTEXT @  '  PREVIOUS  EXECUTE  CHAIN-WORDLIST
 ;
 
 : LATEST-NAME ( -- nt ) [T] LATEST-NAME [I] ;

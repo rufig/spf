@@ -79,7 +79,7 @@ NOWADAYS ,"
 \ списков слов или может динамически распределяться в пространстве данных.
 \ Система должна допускать создание как минимум 8 новых списков слов в 
 \ дополнение к имеющимся в системе.
-
+  ALIGN
   HERE VOC-LIST @ , VOC-LIST !
   HERE 0 , \ здесь будет указатель на имя последнего слова списка
        0 , \ здесь будет указатель на имя списка для именованых
@@ -110,6 +110,9 @@ NOWADAYS ,"
   CELL- FREE-RWX THROW
 ;
 
+: WID-HEAD@ ( wid -- nt|0 ) @ ;
+: WID-HEAD! ( nt|0 wid -- ) ! ;
+
 : VOC-NAME! ( c-addr wid --   )  CELL+ ! ;
 : VOC-NAME@ ( wid -- c-addr|0 )  CELL+ @ ;  \ c-addr is an address of a counted string
 : CLASS! ( cls wid -- ) CELL+ CELL+ CELL+ ! ;
@@ -126,22 +129,22 @@ NOWADAYS ,"
 \  1 -- name
 \  n -- LFA
 
-CODE NAME> ( NFA -> CFA )
+CODE NAME> ( nt -- xt ) \ CFA
      MOV EAX, -5 [EAX]
      RET
 END-CODE
 
-CODE NAME>C ( NFA -> 'CFA )
+CODE NAME>C ( nt -- a-addr.xt ) \ 'CFA
      LEA EAX, -5 [EAX]
      RET
 END-CODE
 
-CODE NAME>F ( NFA -> FFA )
+CODE NAME>F ( nt -- a-addr.flags ) \ FFA
      LEA EAX, -1 [EAX]
      RET
 END-CODE
 
-CODE NAME>L ( NFA -> LFA )
+CODE NAME>L ( nt -- a-addr.link ) \ LFA
      MOVZX EBX, BYTE [EAX]
      LEA EAX, [EBX] [EAX]
      LEA EAX, 1 [EAX]
@@ -171,13 +174,13 @@ END-CODE
   NAME>CSTRING COUNT
 ;
 
-: IS-NAME-HIDDEN ( nt -- flag )
+: IS-NAME-HIDDEN ( nt -- 0 | x.true\0 )
   NAME>CSTRING CHAR+ C@ 12 =  \ see "SMUDGE"
 ;
-: IS-IMMEDIATE ( NFA -> F )
+: IS-IMMEDIATE ( nt -- 0 | x.true\0 )
   NAME>F C@ &IMMEDIATE AND
 ;
-: IS-VOC ( NFA -> F )
+: IS-VOC ( nt -- 0 | x.true\0 )
   NAME>F C@ &VOC AND
 ;
 
@@ -186,8 +189,8 @@ END-CODE
 ;
 
 \ для обратной совместимости:
-: ?IMMEDIATE ( NFA -> F ) IS-IMMEDIATE ;
-: ?VOC ( NFA -> F ) IS-VOC ;
+: ?IMMEDIATE ( nt -- 0 | x.true\0 ) IS-IMMEDIATE ;
+: ?VOC ( nt -- 0 | x.true\0 ) IS-VOC ;
 
 
 \ ==============================================
@@ -204,7 +207,7 @@ END-CODE
  \ токен имени nt для определения, которое было помещено
  \ в этот список последним.
  \ Иначе вернуть 0.
-  GET-CURRENT @
+  GET-CURRENT  WID-HEAD@
 ;
 
 : LATEST-NAME-IN ( wid -- nt|0 )
@@ -212,7 +215,7 @@ END-CODE
   \ Если этот список слов не пуст, то вернуть токен имени nt для определения,
   \ которое было помещено в этот список последним.
   \ Иначе вернуть 0.
-  @ BEGIN DUP WHILE DUP IS-NAME-HIDDEN WHILE NAME>NEXT-NAME REPEAT THEN
+  WID-HEAD@  BEGIN DUP WHILE DUP IS-NAME-HIDDEN WHILE NAME>NEXT-NAME REPEAT THEN
 ;
 : LATEST-NAME ( -- nt )
   \ Если список слов компиляции не пуст, то вернуть токен имени nt
@@ -244,6 +247,19 @@ END-CODE
 : VOC ( -- )
 \ Пометить последнее определенное слово признаком "словарь".
   LATEST-NAME NAME>F DUP C@ &VOC OR SWAP C!
+;
+
+\ ==============================================
+\ Сцепление списков слов
+
+: CHAIN-WORDLIST ( wid.tail wid-empty -- ) \ wid-empty => wid
+\ Если wid-empty не пуст, то инициировать исключение -12, иначе
+\ добавить в wid-empty все слова, которые доступны в wid.tail, сохраняя порядок.
+  DUP WID-HEAD@ 0= IF >R LATEST-NAME-IN R> WID-HEAD! EXIT THEN
+  -12 THROW \ "argument type mismatch" (assuming wid-empty is a refinement subtype of wid)
+  \ NB: Если wid-empty не пуст, то это может быть второе подцепление в списка в него,
+  \ и тогда эта операция модифицирует (в данной реализации) первый добавленный в wid.tail список,
+  \ а это недопустимо.
 ;
 
 \ ==============================================

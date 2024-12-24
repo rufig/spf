@@ -15,12 +15,12 @@ USER W-CNT
   >OUT 0! CR W-CNT 0!
   BEGIN
     DUP KEY? 0= AND
-  WHILE
+  WHILE ( nt )
     W-CNT 1+! 
-    DUP C@ >OUT @ + 74 >
+    DUP NAME>STRING NIP DUP >R >OUT @ + 74 >
     IF CR >OUT 0! THEN
     DUP ID.
-    DUP C@ >OUT +!
+    R> >OUT +!
     15 >OUT @ 15 MOD - DUP >OUT +! SPACES
     NAME>NEXT-NAME
   REPEAT DROP KEY? IF KEY DROP THEN
