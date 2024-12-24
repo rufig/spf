@@ -43,19 +43,22 @@
 REQUIRE {  ~af/lib/locals.f
 
 VOCABULARY MicroClass
-GET-CURRENT ALSO MicroClass DEFINITIONS
+GET-CURRENT ALSO MicroClass DEFINITIONS  \ MicroClass private
 
 USER uObj
+USER uObjMethodShadowed
 
 \ Определяем поля структур объектов
-: FIELD
+: FIELD ( u.offset1 u.size "name" -- u.offset2 )
   CREATE IMMEDIATE OVER , +
-  DOES> @ LIT, S" _mc +" EVALUATE
+  DOES> ?COMP  @ LIT, S" _mc +" EVALUATE
 ;
 
 \ Так определяется метод
 : M:
   WARNING @ >R WARNING 0!
+  >IN @ >R  PARSE-NAME  R> >IN !
+  uObj @ SEARCH-WORDLIST 0= IF 0 THEN uObjMethodShadowed !
   :
   R> WARNING !
   S" { _mc } " EVALUATE
@@ -78,36 +81,29 @@ USER uObj
 
 \ Наследование форт слов
 : INHERIT ( -- )
-  SMUDGE
-  LATEST NAME>STRING DUP >R
-  \ NB: LATEST-NAME игнорирует текущее определение
-  PAD SWAP CMOVE
-  HIDE PAD R>
-  uObj @ SEARCH-WORDLIST
+  uObjMethodShadowed @ ?DUP
   IF
     S" _mc" EVALUATE
     COMPILE,
   THEN
 ; IMMEDIATE
 
-: DO-IT-DEF ( -- wid )
+: DO-IT-DEF ( -- wid.compilation.prev )
   ALSO MicroClass
-  ALSO LATEST-NAME NAME>STRING EVALUATE \ занесли новый словарь в CONTEXT
+  ALSO LATEST-NAME NAME> EXECUTE \ занесли новый словарь в CONTEXT
   GET-CURRENT DEFINITIONS  \ сделали его текущим
   GET-CURRENT uObj !
 ;
 
-SET-CURRENT
+SET-CURRENT  \ Export (public)
 
-: CLASS: ( "name" -- 0 )
+: CLASS: ( "name" -- wid.compilation.prev )
   VOCABULARY DO-IT-DEF
 ;
 
-: CHILD: ( -- u )
-  ALSO ' EXECUTE \ родитель
-  CONTEXT @ @ PREVIOUS
-  CLASS:
-  SWAP GET-CURRENT ! \ новый словарь начинается с хвоста родительского
+: CHILD: ( "name.parent" "name.new" -- wid.compilation.prev )
+  '  XT>WID  CLASS:  SWAP ( wid.compilation.prev wid.parent )
+  GET-CURRENT CHAIN-WORDLIST \ новый словарь начинается с головы родительского
 ;
 
 \ Создание объекта в словарном пространстве
@@ -118,7 +114,7 @@ SET-CURRENT
 ;
 
 \ Создание объекта в куче
-: NEWOBJ ( -- addr )
+: NEWOBJ  \ Run-time: ( u.obj-size -- addr.obj )
   STATE @
   IF
     POSTPONE (NEW)
@@ -130,7 +126,7 @@ SET-CURRENT
 ; IMMEDIATE
 
 \ Удаление объекта
-: DELETEOBJ ( addr -- )
+: DELETEOBJ  \ Run-time: ( addr.obj -- )
   STATE @
   IF
     LOOK-DESTROY IF POSTPONE DUP COMPILE, THEN POSTPONE FREE POSTPONE THROW
@@ -139,4 +135,4 @@ SET-CURRENT
   THEN
 ; IMMEDIATE
 
-PREVIOUS PREVIOUS
+PREVIOUS  \ End of the MicroClass private scope
