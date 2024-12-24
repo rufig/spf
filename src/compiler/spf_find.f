@@ -118,11 +118,11 @@ END-CODE
 ;
 ' FIND-NAME-IN.SENSITIVE ' FIND-NAME-IN TC-VECT!
 
-: SEARCH-WORDLIST-NFA ( c-addr u wid -- 0 | nfa -1 )
+: SEARCH-WORDLIST-NFA ( sd.name wid -- 0 | nt -1 )
   FIND-NAME-IN ?DUP 0<>
 ;
 
-: SEARCH-WORDLIST1
+: SEARCH-WORDLIST1 ( sd.name wid -- 0 | xt 1 | xt -1 )
   FIND-NAME-IN DUP IF DUP NAME> SWAP IS-IMMEDIATE 0= 1 OR THEN
 ;
 

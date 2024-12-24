@@ -21,7 +21,7 @@
 ;
 
 \ see also:
-\   FOR-WORDLIST  ( wid xt -- ) \ xt ( nfa -- )
+\   FOR-WORDLIST  ( wid xt -- ) \ xt ( nt -- )
 \     -- src/compiler/spf_wordlist.f (since 2007)
 \   FOREACH-WORDLIST-PAIR ( i*x xt wid -- j*x ) \ xt ( i*x  xt1 d-txt-name1 -- j*x )
 \     -- ~pinka/spf/compiler/native-wordlist.f

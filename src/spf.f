@@ -30,6 +30,18 @@ S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
 : LATEST-NAME ( -- nt ) GET-CURRENT @ ; \ It's a slightly broken implementation, but it suits the needs.
 [THEN]
 
+[UNDEFINED] XTVOC>WID [IF]
+: XTVOC>WID ( xt-vocabulary -- wid )
+  ALSO  EXECUTE  CONTEXT @  PREVIOUS
+;
+[THEN]
+
+[UNDEFINED] CHAIN-WORDLIST [IF]
+: CHAIN-WORDLIST ( wid.tail wid-empty -- )
+  DUP @ IF -12 THROW THEN  >R  @  R> !
+;
+[THEN]
+
 [THEN] [THEN]
 
 
