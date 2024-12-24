@@ -103,6 +103,7 @@ DECIMAL
 \ Указатель пространства данных не изменяется данной операцией.
 \ Если операция успешна, ior ноль. Если операция не прошла, ior - зависящий от 
 \ реализации код ввода-вывода.
+  DUP 0= IF DROP -12 EXIT THEN \ -12 "argument type mismatch"
   CELL- 0 THREAD-HEAP @ HeapFree ERR
 ;
 : RESIZE ( a-addr1 u -- a-addr2 ior ) \ 94 MEMORY
@@ -120,6 +121,7 @@ DECIMAL
 \ согласно операции FREE.
 \ Если операция не прошла, a-addr2 равен a-addr1, область памяти a-addr1 не 
 \ изменяется, и ior - зависящий от реализации код ввода-вывода.
+  DUP 0= IF -12 EXIT THEN \ -12 "argument type mismatch"
   CELL+ SWAP CELL- 8 ( HEAP_ZERO_MEMORY) THREAD-HEAP @ HeapReAlloc
   DUP IF CELL+ 0 ELSE -300 THEN
 ;

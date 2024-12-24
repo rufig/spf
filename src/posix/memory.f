@@ -97,6 +97,7 @@ VARIABLE EXTRA-MEM
 \ Указатель пространства данных не изменяется данной операцией.
 \ Если операция успешна, ior ноль. Если операция не прошла, ior - зависящий от 
 \ реализации код ввода-вывода.
+  DUP 0= IF DROP -12 EXIT THEN \ -12 "argument type mismatch"
   CELL- 1 <( )) free DROP 0
 ;
 
@@ -115,6 +116,7 @@ VARIABLE EXTRA-MEM
 \ согласно операции FREE.
 \ Если операция не прошла, a-addr2 равен a-addr1, область памяти a-addr1 не 
 \ изменяется, и ior - зависящий от реализации код ввода-вывода.
+  DUP 0= IF -12 EXIT THEN \ -12 "argument type mismatch"
   CELL+ SWAP CELL- SWAP 2 realloc-adr @ C-CALL
   DUP IF CELL+ 0 ELSE -300 THEN
 ;
@@ -146,6 +148,7 @@ PAGESIZE CONSTANT MEMORY-PAGESIZE
 
 : FREE-RWX ( a-addr -- ior )
   \ Assertion: a-addr is aligned to MEMORY-PAGESIZE
+  DUP 0= IF DROP -12 EXIT THEN \ -12 "argument type mismatch"
   DUP MEMORY-PAGESIZE NEGATE AND OVER <> IF DROP -60 EXIT THEN
   FREE
 ;
