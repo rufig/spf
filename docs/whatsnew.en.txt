@@ -4,6 +4,7 @@
 ! add compatibility with glibc 2.33+
 ! dictionary memory must be RWX in Linux
 ! "TRAVERSE-WORDLIST" is not allowed to expose hidden definitions
+! "SET-ORDER" did not work on input `-1` because the word "ONLY" was taken from the host system
 * "IMMEDIATE" now changes the definition returned by "LATEST-NAME", instead of "LAST @"
 * The SHA1 sum is checked for the binaries that are automatically downloaded on building
 + "ALLOCATE-RWX" and "FREE-RWX" to allocate and free executable memory regions
