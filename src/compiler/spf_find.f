@@ -176,7 +176,7 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 \ поиска.
 \ ћинимальный список поиска должен включать слова FORTH-WORDLIST и SET-ORDER.
 \ —истема должна допускать значени€ n как минимум 8.
-  DUP -1 = IF DROP ONLY EXIT THEN
+  DUP -1 = IF DROP  FORTH-WORDLIST 1  THEN \ see " ONLY " below
   DUP CELLS S-O + DUP S-O| U< IF ( n*x n sp )
     DUP TO CONTEXT SWAP
     0 ?DO TUCK ! CELL- LOOP DROP EXIT
@@ -210,6 +210,7 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 : ONLY ( -- ) \ 94 SEARCH EXT
 \ ”становить список поиска на завис€щий от реализации минимальный список поиска.
 \ ћинимальный список поиска должен включать слова FORTH-WORDLIST и SET-ORDER.
+\ NB: `-1 SET-ORDER` shall perfrom `ONLY`
   S-O TO CONTEXT
   FORTH-WORDLIST ALSO!
 ;
