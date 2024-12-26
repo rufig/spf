@@ -30,6 +30,10 @@ S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
 : LATEST-NAME ( -- nt ) GET-CURRENT @ ; \ It's a slightly broken implementation, but it suits the needs.
 [THEN]
 
+[UNDEFINED] SET-ORDER-TOP [IF]
+  S" lib/compat/the-search-order.f" INCLUDED
+[THEN]
+
 [UNDEFINED] XTVOC>WID [IF]
 : XTVOC>WID ( xt-vocabulary -- wid )
   ALSO  EXECUTE  CONTEXT @  PREVIOUS

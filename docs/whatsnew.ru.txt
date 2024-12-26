@@ -11,6 +11,7 @@
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 + "2LIT," "CLIT,"
 + "FIND-NAME" "FIND-NAME-IN" "?FOUND"
++ "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
 
 libs:
 ! lib/ext/locals.f - определение с локальными переменными было невидимо для "IMMEDIATE" 

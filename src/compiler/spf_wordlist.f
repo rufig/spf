@@ -58,7 +58,7 @@ WORDLIST VALUE FORTH-WORDLIST  ( -- wid ) \ 94 SEARCH
          \ отведением памяти по ALLOT. В машинном слове по
          \ адресу A2 расположен адрес поля имени статьи, с
          \ которой начинается поиск в этом списке.
-         \ пример: C" SP-FORTH" CONTEXT @ +WORD
+         \ пример: C" SP-FORTH" ORDER-TOP +WORD
   SWAP COUNT ROT +SWORD
 ;
 

@@ -95,11 +95,11 @@ VARIABLE BORDER
 DUP SET-CURRENT
 
 : INIT-MACROOPT-HIDING ( -- )
-  CONTEXT @ FORTH-WORDLIST = IF \ в инструментальной системе
+  ORDER-TOP FORTH-WORDLIST = IF \ в инструментальной системе
     FORTH-WORDLIST  TO TC-FORTH-WL
   ELSE \ в целевой системе
     ALSO S" TC-TRG" & EXECUTE \ it is a vocabulary
-      CONTEXT @     TO TC-FORTH-WL
+      ORDER-TOP     TO TC-FORTH-WL
     PREVIOUS
   THEN
   TC-FORTH-WL @  BORDER !
