@@ -112,7 +112,7 @@ END-CODE
   VOC
   ( DOES> не работает в этом ЦК)
   (DOES1) (DOES2) \ так сделал бы DOES>, определенный выше
-  @ CONTEXT !
+  @  SET-ORDER-TOP \ to check the search-order underflow (if any)
 ;
 
 : XT>WID ( xt-vocabulary -- wid )

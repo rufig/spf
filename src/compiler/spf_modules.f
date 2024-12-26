@@ -28,7 +28,7 @@
         DEPTH >R
         ALSO ' EXECUTE
         DEPTH R> <>             IF      \ wid on the stack?
-             CONTEXT !          THEN
+             SET-ORDER-TOP      THEN
 ; IMMEDIATE
 
 : }}

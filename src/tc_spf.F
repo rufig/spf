@@ -330,7 +330,7 @@ ALSO TC DEFINITIONS PREVIOUS
 : CODE ( "<spaces>name" -- )
   TRUE StartColonHelp
   [T] CODE-ORIG
-  CONTEXT @ PREVIOUS CONTEXT !
+  POP-ORDER SET-ORDER-TOP \ the function like `NIP-ORDER`
 ;
 : _END-CODE2
   EndColonHelp
@@ -510,7 +510,7 @@ TARGET-POSIX [IF]
 ;
 
 : TC-LATEST-> ( "<spaces>name.constant.wordlist" -- )
-  ALSO TC-TRG CONTEXT @  '  PREVIOUS  EXECUTE  CHAIN-WORDLIST
+  ALSO TC-TRG ORDER-TOP ( wid.tail )  '  PREVIOUS  EXECUTE  CHAIN-WORDLIST
 ;
 
 : LATEST-NAME ( -- nt ) [T] LATEST-NAME [I] ;
