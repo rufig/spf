@@ -120,6 +120,33 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 \ CONTEXT выполн€ет роль указател€ вершины стека контекста
 \ (данный стек растет в сторону увеличени€ адресов)
 
+: EMPTY-ORDER ( -- )
+  S-O TO CONTEXT
+;
+: ORDER-DEPTH ( -- +n ) \ or m.b. `odepth`
+  CONTEXT S-O - DUP 0< IF -50 THROW THEN  >CELLS
+;
+: ORDER-TOP  ( -- wid )
+  CONTEXT DUP S-O U> IF  @  EXIT THEN
+  -50 THROW \ "search-order underflow"
+;
+: DROP-ORDER ( -- )
+  CONTEXT DUP S-O U> IF  CELL- TO CONTEXT  EXIT THEN
+  -50 THROW \ "search-order underflow"
+;
+: POP-ORDER ( -- wid ) \ AKA " order> "
+  CONTEXT DUP S-O U> IF  DUP CELL- TO CONTEXT  @  EXIT THEN
+  -50 THROW \ "search-order underflow"
+;
+: PUSH-ORDER ( wid -- ) \ AKA " >order "
+  CONTEXT CELL+ DUP S-O| U< IF  DUP TO CONTEXT  !  EXIT THEN
+  -49 THROW \ "search-order overflow"
+;
+: SET-ORDER-TOP  ( wid -- )
+  DROP-ORDER PUSH-ORDER
+;
+
+
 : SFIND ( addr u -- addr u 0 | xt 1 | xt -1 ) \ 94 SEARCH
 \ –асширить семантику CORE FIND следующим:
 \ »скать определение с именем, заданным строкой addr u.
@@ -156,7 +183,7 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
 \ —делать списком компил€ции тот же список слов, что и первый список в пор€дке 
 \ поиска. »мена последующих определений будут помещатьс€ в список компил€ции.
 \ ѕоследующие изменени€ пор€дка поиска не вли€ют на список компил€ции.
-  CONTEXT @ SET-CURRENT
+  ORDER-TOP SET-CURRENT
 ;
 
 : GET-ORDER ( -- widn ... wid1 n ) \ 94 SEARCH
@@ -183,36 +210,33 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
   THEN -49 THROW
 ;
 
-: ALSO! ( wid -- )
-  CONTEXT CELL+ DUP S-O| U< IF DUP TO CONTEXT ! EXIT THEN
-  -49 THROW
-;
+
+: ALSO! ( wid -- ) PUSH-ORDER ; \ for backward compatibility
+
 : ALSO ( -- ) \ 94 SEARCH EXT
 \ ѕреобразовать пор€док поиска, состо€щий из widn, ...wid2, wid1 (где wid1 
 \ просматриваетс€ первым) в widn,... wid2, wid1, wid1. Ќеопределенна€ ситуаци€ 
 \ возникает, если в пор€дке поиска слишком много списков.
-  CONTEXT @ ALSO!
+  ORDER-TOP PUSH-ORDER
 ;
 : PREVIOUS ( -- ) \ 94 SEARCH EXT
 \ ѕреобразовать пор€док поиска, состо€щий из widn, ...wid2, wid1 (где wid1 
 \ просматриваетс€ первым) в widn,... wid2. Ќеопределенна€ ситуаци€ возникает,
 \ если пор€док поиска был пуст перед выполнением PREVIOUS.
-  CONTEXT DUP S-O U> IF CELL- TO CONTEXT EXIT THEN
-  -50 THROW
+  DROP-ORDER
 ;
 
 : FORTH ( -- ) \ 94 SEARCH EXT
 \ ѕреобразовать пор€док поиска, состо€щий из widn, ...wid2, wid1 (где wid1 
 \ просматриваетс€ первым) в widn,... wid2, widFORTH-WORDLIST.
-  FORTH-WORDLIST CONTEXT !
+  DROP-ORDER FORTH-WORDLIST PUSH-ORDER
 ;
 
 : ONLY ( -- ) \ 94 SEARCH EXT
 \ ”становить список поиска на завис€щий от реализации минимальный список поиска.
 \ ћинимальный список поиска должен включать слова FORTH-WORDLIST и SET-ORDER.
 \ NB: `-1 SET-ORDER` shall perfrom `ONLY`
-  S-O TO CONTEXT
-  FORTH-WORDLIST ALSO!
+  EMPTY-ORDER FORTH-WORDLIST PUSH-ORDER
 ;
 
 
