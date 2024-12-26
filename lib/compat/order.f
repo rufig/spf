@@ -1,0 +1,23 @@
+\ 2024-12-27 ruv
+
+\ see-also
+\   devel/~mlg/SrcLib/ssss.f
+
+[UNDEFINED] NDROP [IF]
+: NDROP ( +n*x +n -- ) 0 ?DO DROP LOOP ;
+[THEN]
+
+: EMPTY-ORDER ( -- ) 0 SET-ORDER ;
+: ORDER-DEPTH ( -- +n ) GET-ORDER DUP >R NDROP R> ;
+: ORDER-TOP  ( -- wid ) GET-ORDER DUP IF OVER >R NDROP R> EXIT THEN -50 THROW ;
+: DROP-ORDER ( -- ) GET-ORDER DUP IF NIP 1 - SET-ORDER EXIT THEN -50 THROW ;
+
+: POP-ORDER ( -- wid ) \ AKA " order> "
+  GET-ORDER DUP IF SWAP >R 1- SET-ORDER R> EXIT THEN -50 THROW
+;
+: PUSH-ORDER ( wid -- ) \ AKA " >order "
+  >R GET-ORDER R> SWAP 1+ SET-ORDER
+;
+: SET-ORDER-TOP  ( wid -- )
+  >R GET-ORDER DUP IF NIP R> SWAP SET-ORDER EXIT THEN -50 THROW
+;

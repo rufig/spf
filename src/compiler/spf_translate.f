@@ -55,9 +55,10 @@ VECT ?SLITERAL
 \ и вернуть xt, выполнимый токен для name. Неопределенная ситуация возникает, 
 \ если name не найдено.
 \ Во время интерпретации  ' name EXECUTE  равносильно  name.
-  ALSO NON-OPT-WL CONTEXT !
-  PARSE-NAME SFIND 0= PREVIOUS
-  IF -321 THROW THEN (  -? )
+  PARSE-NAME
+  NON-OPT-WL PUSH-ORDER  SFIND  DROP-ORDER
+  \ NB: taking NON-OPT-WL into account violates the standard #todo
+  0= IF -321 THROW THEN
 ;
 
 : CHAR ( "<spaces>name" -- char ) \ 94
@@ -98,7 +99,7 @@ VECT ?SLITERAL
     R@ - 2 - SFIND              IF
     SP@ >R
     ALSO EXECUTE SP@ R> - 0=
-    IF CONTEXT ! THEN
+    IF SET-ORDER-TOP THEN
                                 ELSE  ( a1 u' )
     RDROP RDROP
     NR>  SET-ORDER

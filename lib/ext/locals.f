@@ -170,7 +170,7 @@ BASE !
   TEMP-WORDLIST widLocals !
   GET-CURRENT uPrevCurrent !
   ALSO vocLocalsSupport
-  ALSO widLocals @ CONTEXT ! DEFINITIONS
+  widLocals @ PUSH-ORDER DEFINITIONS
   uLocalsCnt 0!
   uLocalsUCnt 0!
   uAddDepth 0!
