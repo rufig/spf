@@ -113,9 +113,6 @@ WARNING 0!
 
 ONLY FORTH DEFINITIONS
 
-: UMIN 2DUP U< IF DROP ELSE NIP THEN ;
-: UMAX 2DUP U< IF NIP ELSE DROP THEN ;
-
 \ ~mak\listing3.f
 
 HEX
@@ -324,6 +321,7 @@ VOCABULARY TC-IMM \ immediate-слова для режима компиляции при ЦК,
                   \ переопределять словами из TC-TRG
 
 ALSO TC DEFINITIONS PREVIOUS
+\ NB: TC is absent in the search order
 
 
 : CODE ( "<spaces>name" -- )
@@ -493,25 +491,25 @@ TARGET-POSIX [IF]
 : (TO)
   ALSO TC-TRG '
   9 + STATE @
-  IF COMPILE, ELSE [ ALSO TC ] EXECUTE [ PREVIOUS ] THEN
+  IF COMPILE, ELSE  EXECUTE  THEN
   PREVIOUS
 ; IMMEDIATE
 
 : TC-VECT! ( xt xt-vect -- )
   >R >VIRT R>
   9 + 
-  [ ALSO TC ] EXECUTE [ PREVIOUS ]
+  EXECUTE
 ;
 : TC-ADDR! ( addr xt-variable -- )
   >R >VIRT R>
-  [ ALSO TC ] EXECUTE [ PREVIOUS ] !
+  EXECUTE  !
 ;
 
 : TC-LATEST->
-  ALSO TC-TRG CONTEXT @ @ ' [ ALSO TC ] EXECUTE ! [ PREVIOUS ] PREVIOUS
+  ALSO TC-TRG CONTEXT @ @ '  EXECUTE !  PREVIOUS
 ;
 
-: LATEST-NAME ( -- nt ) [T] GET-CURRENT @ [I] ; \ It's a slightly broken implementation, but it suits TC's needs.
+: LATEST-NAME ( -- nt ) [T] LATEST-NAME [I] ;
 
 : IMMEDIATE [T] IMMEDIATE [I] ;
 
@@ -532,6 +530,7 @@ TARGET-POSIX [IF]
 )
 
 ALSO TC-IMM DEFINITIONS PREVIOUS
+\ NB: TC-IMM is absent in the search order
 
 : ."
   CLITERAL-CODE COMPILE,
@@ -737,6 +736,7 @@ HEX
   S" C-RDROP" TC-FINDOUT INLINE, ;   IMMEDIATE
 
   
+\ NB: this EXECUTE makes sense only when generating target code
 : EXECUTE
   S" C-EXECUTE" TC-FINDOUT INLINE, ; IMMEDIATE
 

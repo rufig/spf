@@ -11,12 +11,27 @@ WARNING 0! \ чтобы не было сообщений isn't unique
 
 WARNING 0! 
 
+S" lib/include/tools.f"          INCLUDED
+
+[UNDEFINED] UMIN        [IF] : UMIN 2DUP U< IF DROP EXIT THEN NIP   ; [THEN]
+[UNDEFINED] UMAX        [IF] : UMAX 2DUP U< IF NIP  EXIT THEN DROP  ; [THEN]
+
+
+[DEFINED] VERSION [IF]  VERSION 350000 500000 WITHIN [IF]
+\ spf4 specific implementations (if missing)
+
+[UNDEFINED] PARSE-NAME  [IF]
 : PARSE-NAME NextWord ;
-: UMIN 2DUP U< IF DROP EXIT THEN NIP ;
+[THEN]
+
+[UNDEFINED] LATEST-NAME [IF]
 : LATEST-NAME ( -- nt ) GET-CURRENT @ ; \ It's a slightly broken implementation, but it suits the needs.
+[THEN]
+
+[THEN] [THEN]
+
 
 S" lib/ext/spf-asm.f"            INCLUDED
-S" lib/include/tools.f"          INCLUDED
 S" src/spf_compileoptions.f"     INCLUDED
 
 ALSO ASSEMBLER DEFINITIONS
