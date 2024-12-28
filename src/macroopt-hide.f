@@ -88,7 +88,6 @@ GET-CURRENT ALSO MACROOPT-HIDING-SUPPORT DEFINITIONS
 
 0 VALUE TC-FORTH-WL
 0 VALUE TC-MACROOPT-WL
-\ Note that word 'TC-WL' has vocabulary behaviour, not wordlist behaviour
 
 VARIABLE BORDER
 
@@ -99,7 +98,7 @@ DUP SET-CURRENT
   CONTEXT @ FORTH-WORDLIST = IF \ в инструментальной системе
     FORTH-WORDLIST  TO TC-FORTH-WL
   ELSE \ в целевой системе
-    ALSO S" TC-WL" & EXECUTE \ it is vocabulary in real!
+    ALSO S" TC-TRG" & EXECUTE \ it is a vocabulary
       CONTEXT @     TO TC-FORTH-WL
     PREVIOUS
   THEN

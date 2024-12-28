@@ -54,10 +54,10 @@ TARGET-POSIX [IF]
   R> TO H-STDOUT 
 ;
 
-VOCABULARY TC-WL
+VOCABULARY TC-TRG
 VARIABLE SAVED-CURRENT
 
-: [T] GET-CURRENT SAVED-CURRENT ! ALSO TC-WL DEFINITIONS ;
+: [T] GET-CURRENT SAVED-CURRENT ! ALSO TC-TRG   DEFINITIONS ;
 : [I] PREVIOUS    SAVED-CURRENT @ SET-CURRENT ;
 
 0 VALUE THROW-CODE
@@ -321,7 +321,7 @@ PREVIOUS PREVIOUS
 VOCABULARY TC     \ слова, работающие в режиме интерпретации при ÷ 
 VOCABULARY TC-IMM \ immediate-слова дл€ режима компил€ции при ÷ ,
                   \ вынесены в отдельный словарь, т.к. их нельз€
-                  \ переопредел€ть словами из TC-WL
+                  \ переопредел€ть словами из TC-TRG
 
 ALSO TC DEFINITIONS PREVIOUS
 
@@ -488,11 +488,10 @@ TARGET-POSIX [IF]
   >VIRT ,
 ;
 
-: ' ALSO TC-WL ' PREVIOUS ;
-
+: ' ALSO TC-TRG ' PREVIOUS ;
 
 : (TO)
-  ALSO TC-WL '
+  ALSO TC-TRG '
   9 + STATE @
   IF COMPILE, ELSE [ ALSO TC ] EXECUTE [ PREVIOUS ] THEN
   PREVIOUS
@@ -509,7 +508,7 @@ TARGET-POSIX [IF]
 ;
 
 : TC-LATEST->
-  ALSO TC-WL CONTEXT @ @ ' [ ALSO TC ] EXECUTE ! [ PREVIOUS ] PREVIOUS
+  ALSO TC-TRG CONTEXT @ @ ' [ ALSO TC ] EXECUTE ! [ PREVIOUS ] PREVIOUS
 ;
 
 : LATEST-NAME ( -- nt ) [T] GET-CURRENT @ [I] ; \ It's a slightly broken implementation, but it suits TC's needs.
@@ -527,7 +526,7 @@ TARGET-POSIX [IF]
  представл€ет собой такой пирог:
 
   TC-IMM    \ imm-слова управлени€, которые опасно переопредел€ть
-  TC-WL     \ создаваемый целевой список слов, он же в CURRENT
+  TC-TRG     \ создаваемый целевой список слов, он же в CURRENT
   TC        \ словарь определ€ющих слов ÷  - ":", CREATE, CONSTANT, etc
   FORTH     \ основной словарь инструментальной форт-системы
 )
@@ -581,12 +580,12 @@ C" SHERE-TAB-CUR" FIND NIP
   ?SET SetOP  POSTPONE ; [I] OPT OPT_CLOSE  ; IMMEDIATE
 [THEN]
 
-: ['] ALSO TC-WL ' >VIRT TC-LIT, PREVIOUS ; IMMEDIATE
+: ['] ALSO TC-TRG ' >VIRT TC-LIT, PREVIOUS ; IMMEDIATE
 
-: TO ALSO TC-WL [COMPILE] TO PREVIOUS ; IMMEDIATE
+: TO ALSO TC-TRG [COMPILE] TO PREVIOUS ; IMMEDIATE
 
 : POSTPONE \ 94
-  ALSO TC-WL
+  ALSO TC-TRG
   ?COMP
   PARSE-NAME SFIND DUP
   0= IF -321 THROW THEN
@@ -596,7 +595,7 @@ C" SHERE-TAB-CUR" FIND NIP
 ; IMMEDIATE 
 
 : [COMPILE]  \ 94 CORE EXT
-  ALSO TC-WL ' PREVIOUS
+  ALSO TC-TRG ' PREVIOUS
   COMPILE,
 ; IMMEDIATE
 
