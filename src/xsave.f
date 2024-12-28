@@ -17,7 +17,7 @@ DECIMAL
 : +offset ( n -- ) offset + TO offset ;
 : offset,size, ( n -- ) offset , DUP , +offset ;
 
-: '' ALSO TC-WL ' PREVIOUS ;
+: '' ALSO TC-TRG ' PREVIOUS ;
 
 S" src/elf.f" INCLUDED
 
