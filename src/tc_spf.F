@@ -325,10 +325,22 @@ VOCABULARY TC-IMM \ immediate-слова для режима компиляции при ЦК,
 
 ALSO TC DEFINITIONS PREVIOUS
 
-: CODE  TRUE StartColonHelp [T] CODE-ORIG CONTEXT @ PREVIOUS CONTEXT ! ;
 
-: CODE1 \ для словаря не TC-WL
-   CODE-ORIG
+: CODE ( "<spaces>name" -- )
+  TRUE StartColonHelp
+  [T] CODE-ORIG
+  CONTEXT @ PREVIOUS CONTEXT !
+;
+: _END-CODE2
+  EndColonHelp
+  [ ALSO ASSEMBLER  ACTION-OF END-CODE  COMPILE,  PREVIOUS ]
+  [I] ALSO TC
+;
+LATEST-NAME NAME>  ALSO ASSEMBLER  IS END-CODE  PREVIOUS
+
+: CODE1 ( "<spaces>name" -- )
+  CODE-ORIG
+  \ NB: заканчивать определение через ";C"
 ;
 
 : CREATE ( "<spaces>name" -- ) \ 94
@@ -478,17 +490,6 @@ TARGET-POSIX [IF]
 
 : ' ALSO TC-WL ' PREVIOUS ;
 
-ALSO ASSEMBLER ALSO ASM-HIDDEN DEFINITIONS
-
-: _END-CODE2
-    EndColonHelp
-    _END-CODE
-     [I] ALSO TC
-;
-
-' _END-CODE2 IS END-CODE
-
-PREVIOUS TC DEFINITIONS PREVIOUS
 
 : (TO)
   ALSO TC-WL '

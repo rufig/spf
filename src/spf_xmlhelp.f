@@ -235,7 +235,7 @@ SPECIAL > &gt;
 
 : :: : ;
 
-: StartColonHelp ( primitive? )
+: StartColonHelp ( flag.is-primitive -- )
 
   \ Skip words of target compiler
   HERE TC-IMAGE-BASE < IF DROP EXIT THEN
