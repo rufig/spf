@@ -21,10 +21,13 @@ TARGET-POSIX [IF]
 : *DP@ ( -- va) DP @ >VIRT ;
 
 \ ----------------------------------------------------
+\ building-time helpers for "src/posix/save.f"
 
-: ASCIIZ" ( ->" ) [CHAR] " PARSE 
- HERE OVER ALLOT SWAP CMOVE 0 C,
-;
+: ASCIIZ" ( "ccc<quote>" -- )
+  STATE @ IF -29 THROW THEN \ "compiler nesting" since it is only for interpretation
+  [CHAR] " PARSE
+  HERE OVER ALLOT SWAP CMOVE 0 C,
+; IMMEDIATE
 
 0 VALUE elf-offset
 
