@@ -77,7 +77,7 @@ ifeq ($(HOSTFORTH),)
   HOSTFORTH := ./$(orig-bin)
 endif
 
-common-sources := *.f compiler/*.f $(wildcard compile.ini) $(maybe-check-orig-bin)
+common-sources := *.f *.F compiler/*.f $(wildcard compile.ini) $(maybe-check-orig-bin)
 
 
 posix/config.auto.f : posix/config.h posix/config.c
