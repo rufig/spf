@@ -10,11 +10,9 @@
 
 \ 0 VALUE elf-offset
 
-: ASCIIZ" ( ->" ) [CHAR] " PARSE 
- HERE OVER ALLOT SWAP CMOVE 0 C,
-;
-
 \ : offset,size, ( n -- ) elf-offset , DUP , elf-offset + TO elf-offset ;
+\ This is defined in "src/tc_spf.F"
+
 
 \ Образ файла spf4.o (формат ELF)
 \ Ю. Жиловец, 4.05.2007
