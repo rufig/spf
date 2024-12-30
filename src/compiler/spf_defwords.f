@@ -39,6 +39,14 @@ VECT SHEADER
   PARSE-NAME SHEADER
 ;
 
+: ENLIST-DEFINITION ( xt sd.name -- )
+  SHEADER LATEST-NAME NAME>C !
+;
+: ENLIST-SYNONYM ( nt sd.name -- )
+  2>R DUP IS-IMMEDIATE SWAP NAME> 2R> ENLIST-DEFINITION
+  IF IMMEDIATE THEN
+;
+
 : CREATED ( addr u -- )
 \ Создать определение для c-addr u с семантикой выполнения, описанной ниже.
 \ Если указатель пространства данных не выровнен, зарезервировать место

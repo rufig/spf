@@ -101,14 +101,17 @@ END-CODE
 \  REPEAT THEN 
 \ ;
 
-: SEARCH-WORDLIST-NFA ( c-addr u wid -- 0 | nfa -1 )
-  LATEST-NAME-IN CDR-BY-NAME NIP NIP ?DUP 0<>
+
+: FIND-NAME-IN ( sd.name wid -- nt|0 )
+  LATEST-NAME-IN CDR-BY-NAME NIP NIP
 ;
 
-: SEARCH-WORDLIST1
-   SEARCH-WORDLIST-NFA 0= IF 0 EXIT THEN
-   DUP NAME>
-   SWAP IS-IMMEDIATE IF 1 EXIT THEN -1
+: SEARCH-WORDLIST-NFA ( sd.name wid -- 0 | nfa -1 )
+  FIND-NAME-IN ?DUP 0<>
+;
+
+: SEARCH-WORDLIST1 ( sd.name wid -- 0 | xt 1 | xt -1 )
+  FIND-NAME-IN DUP IF DUP NAME> SWAP IS-IMMEDIATE 0= 1 OR THEN
 ;
 
 ' SEARCH-WORDLIST1 ' SEARCH-WORDLIST TC-VECT!
@@ -146,6 +149,15 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
   DROP-ORDER PUSH-ORDER
 ;
 
+
+: FIND-NAME ( sd.name -- nt|0 )
+  CONTEXT
+  BEGIN DUP S-O U> WHILE
+    DUP >R @ ( wid ) LATEST-NAME-IN CDR-BY-NAME
+    DUP 0= WHILE  DROP R> CELL-
+  REPEAT ( sd.name nt ) NIP NIP RDROP EXIT  THEN
+  DROP 2DROP 0
+;
 
 : SFIND ( addr u -- addr u 0 | xt 1 | xt -1 ) \ 94 SEARCH
 \ Расширить семантику CORE FIND следующим:
@@ -254,4 +266,9 @@ USER-VALUE CONTEXT    \ CONTEXT @ дает wid1
   GET-ORDER ." Context: "
   0 ?DO ( DUP .) VOC-NAME. SPACE LOOP CR
   ." Current: " GET-CURRENT VOC-NAME. CR
+;
+
+
+: ?FOUND ( x\0 -- x  |  0 -- never )
+  DUP IF EXIT THEN  -13 THROW \ "unrecognized lexeme"
 ;
