@@ -3,8 +3,6 @@
 \ Accepted at the 2005 Forth200x meeting
 
 
-REQUIRE SYNONYM lib/include/wordlist-tools.f
-
 
 : (ABORT-DEFERRED) ( -- )  TRUE ABORT" A deferred word is not initialized" ;
 

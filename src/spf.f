@@ -30,6 +30,16 @@ S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
 : LATEST-NAME ( -- nt ) GET-CURRENT @ ; \ It's a slightly broken implementation, but it suits the needs.
 [THEN]
 
+[UNDEFINED] SYNONYM [IF]
+: SYNONYM ( "<spaces>name.new" "<spaces>name.old" -- ) \ 2012 TOOLS-EXT
+  >IN @ >R PARSE-NAME 2DROP PARSE-NAME >IN @ >R
+  SFIND DUP 0= -13 AND THROW  1 =  ( xt flag.imm )
+  R> R> >IN ! HEADER >IN !  IF IMMEDIATE THEN
+  \ NB: there is no `SHEADER` word in spf3 and jpf3
+  LATEST-NAME NAME>C !
+;
+[THEN]
+
 [UNDEFINED] SET-ORDER-TOP [IF]
   S" lib/compat/the-search-order.f" INCLUDED
 [THEN]

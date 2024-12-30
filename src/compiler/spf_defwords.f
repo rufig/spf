@@ -39,6 +39,28 @@ VECT SHEADER
   PARSE-NAME SHEADER
 ;
 
+: ENLIST-XT ( xt sd.name -- )
+  \ Place a new definition into the compilation word list.
+  \ sd.name matches the definition's name string.
+  \ xt identifies the definition's execution semantics.
+  \ NB: the definition's execution token may distinct from xt.
+  SHEADER LATEST-NAME NAME>C !
+;
+: ENLIST-NT ( nt sd.name -- )
+  \ Place a new definition into the compilation word list.
+  \ sd.name matches the definition's name string.
+  \ The definition is a synonym of the definition identified by nt.
+  2>R DUP IS-IMMEDIATE SWAP NAME> 2R> ENLIST-XT
+  IF IMMEDIATE THEN
+;
+: SYNONYM ( "<spaces>name.new" "<spaces>name.old" -- ) \ 2012 TOOLS-EXT
+  \ Find a definition whose name matches the string <name.old>
+  \ Place a new definition into the compilation word list.
+  \ <name.new> matches the new definition's name string.
+  \ The new definition is a synonym of the found definition.
+  PARSE-NAME 2>R  PARSE-NAME FIND-NAME ?FOUND  2R> ENLIST-NT
+;
+
 : CREATED ( addr u -- )
 \ Создать определение для c-addr u с семантикой выполнения, описанной ниже.
 \ Если указатель пространства данных не выровнен, зарезервировать место

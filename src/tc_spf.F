@@ -513,6 +513,15 @@ TARGET-POSIX [IF]
   ALSO TC-TRG ORDER-TOP ( wid.tail )  '  PREVIOUS  EXECUTE  CHAIN-WORDLIST
 ;
 
+: SYNONYM ( "<spaces>name.new" "<spaces>name.old" -- ) \ 2012 TOOLS-EXT
+  [T]
+  PARSE-NAME 2>R
+  PARSE-NAME SFIND DUP 0= -13 AND THROW  1 =  ( xt flag.imm )
+  2R> SHEADER  IF IMMEDIATE THEN
+  LATEST-NAME NAME>C !
+  [I]
+;
+
 : LATEST-NAME ( -- nt ) [T] LATEST-NAME [I] ;
 
 : IMMEDIATE [T] IMMEDIATE [I] ;
