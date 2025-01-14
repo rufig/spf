@@ -147,9 +147,9 @@ PAGESIZE CONSTANT MEMORY-PAGESIZE
 ;
 
 : FREE-RWX ( a-addr -- ior )
-  \ Assertion: a-addr is aligned to MEMORY-PAGESIZE
   DUP 0= IF DROP -12 EXIT THEN \ -12 "argument type mismatch"
-  DUP MEMORY-PAGESIZE NEGATE AND OVER <> IF DROP -60 EXIT THEN
+  \ Assertion: the orig memory address is aligned to MEMORY-PAGESIZE
+  DUP CELL- DUP MEMORY-PAGESIZE NEGATE AND <> IF DROP -60 EXIT THEN
   FREE
 ;
 
