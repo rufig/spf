@@ -31,6 +31,15 @@ S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
 : CS-DUP 2DUP ;
 [THEN]
 
+[UNDEFINED] SET-XT-COMPILER  [IF]
+: SET-XT-COMPILER ( xt.xt-compiler -- )
+  \ Make the execution semantics of `COMPILE,` equivalent
+  \ to the execution semantics identified by xt.xt-compiler
+  0xE9 ['] COMPILE, C!
+  ['] COMPILE, 1+ CELL+ - ['] COMPILE, 1+ !
+;
+[THEN]
+
 [UNDEFINED] PARSE-NAME  [IF]
 : PARSE-NAME NextWord ;
 [THEN]

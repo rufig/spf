@@ -63,6 +63,19 @@ TARGET-POSIX [IF]
 \ Note: in this TC, target:datatype:wid is a subtype of host:datatype:wid
 VOCABULARY TC-TRG    LATEST-NAME NAME> ( xt ) XTVOC>WID  CONSTANT TC-TRG-WL
 
+
+: TC-TAKE-XT ( "<spaces>name" -- xt ) \ it is a parsing word
+  \ xt is in the real address space
+  TAKE-LEXEME  2DUP TC-TRG-WL SEARCH-WORDLIST
+  IF NIP NIP EXIT THEN
+  SFIND IF
+    DUP ['] [BUILDING-TARGET] U< INVERT IF EXIT THEN
+    TRUE ABORT" Word is found in the host system only"
+  THEN
+  -13 THROW
+;
+
+
 VARIABLE SAVED-CURRENT
 
 : [T] GET-CURRENT SAVED-CURRENT ! ALSO TC-TRG   DEFINITIONS ;
@@ -99,7 +112,8 @@ VARIABLE SAVED-CURRENT
 0 VALUE symbol-call2-adr
 
 : TC-FINDOUT
-  TC-TRG-WL SEARCH-WORDLIST 0= ABORT" Can't find - TC-FINDOUT"
+  TC-TRG-WL SEARCH-WORDLIST IF EXIT THEN
+  TRUE ABORT" Word is not found in TC-TRG-WL"
 ;
 
 VARIABLE TC-WINAPLINK
@@ -176,6 +190,8 @@ M\ ' DROP TO DTST
 ;
 
 : MCOMPILE, ( CFA -- )
+\ Note: after applying `SET-XT-COMPILER` to this word,
+\ the host `COMPILE,` uses this definition to compile an xt.
     CON>LIT
     IF INLINE?
       IF     INLINE,
@@ -494,13 +510,14 @@ TARGET-POSIX [IF]
   >VIRT ,
 ;
 
-: ' ALSO TC-TRG ' PREVIOUS ;
+: ' ( "<spaces>name" -- xt )
+  TC-TAKE-XT
+;
 
 : (TO)
-  ALSO TC-TRG '
+  TC-TAKE-XT
   9 + STATE @
   IF COMPILE, ELSE  EXECUTE  THEN
-  PREVIOUS
 ; IMMEDIATE
 
 : TC-VECT! ( xt xt-vect -- )
@@ -592,7 +609,17 @@ C" SHERE-TAB-CUR" FIND NIP
   ?SET SetOP  POSTPONE ; [I] OPT OPT_CLOSE  ; IMMEDIATE
 [THEN]
 
-: ['] ALSO TC-TRG ' >VIRT TC-LIT, PREVIOUS ; IMMEDIATE
+
+: [']  \ Search TC-TRG-WL only, return xt-virt
+  \ Interpretation: ( -- xt-virt )
+  \ Compilation: ( "<spaces>name" -- )
+  \ Runtime: ( -- xt-virt )
+  \ xt-virt is an execution token in the virtual address space
+  TAKE-LEXEME  TC-TRG-WL SEARCH-WORDLIST
+  0= ABORT" Word is not found in TC-TRG-WL"
+  >VIRT  STATE @ IF  TC-LIT,  THEN
+; IMMEDIATE
+
 
 : TO ALSO TC-TRG [COMPILE] TO PREVIOUS ; IMMEDIATE
 
@@ -600,17 +627,15 @@ C" SHERE-TAB-CUR" FIND NIP
   \ see the updated implementation in
   \   - "./compiler/spf_translate.f"
   \   - "./compiler/spf_immed_transl.f"
-  ALSO TC-TRG
   ?COMP
-  PARSE-NAME SFIND DUP
-  0= IF -321 THROW THEN
+  TAKE-LEXEME TC-TRG-WL SEARCH-WORDLIST
+  DUP 0= ABORT" Word is not found in TC-TRG-WL"
   1 = IF COMPILE,
   ELSE >VIRT TC-LIT, S" COMPILE," TC-FINDOUT COMPILE, THEN
-  PREVIOUS
 ; IMMEDIATE
 
 : [COMPILE]  \ 94 CORE EXT
-  ALSO TC-TRG ' PREVIOUS
+  TC-TAKE-XT
   COMPILE,
 ; IMMEDIATE
 
@@ -648,7 +673,7 @@ C" SHERE-TAB-CUR" FIND NIP
 ; IMMEDIATE
 
 : M_WL  2DUP [ ALSO TC-IMM ]
-  POSTPONE WHILE
+  [ ' WHILE COMPILE, ] \ Note: at this stage, `POSTPONE` from TC-IMM cannot be used.
  [ PREVIOUS ] ; IMMEDIATE
 
 : ELSE
@@ -780,6 +805,9 @@ HEX
      ELSE THROW
      THEN ; IMMEDIATE
 
+
+\ Set a translator for numbers in TC-IMM vocabulary.
+\ This way, it is only effective when translating a target definition body.
 : NOTFOUND ( a u -- )  TC-?SLITERAL ;
 
 : ... 0 TC-BRANCH, >MARK DUP >VIRT , 1 >RESOLVE ; IMMEDIATE
@@ -792,6 +820,10 @@ TARGET-POSIX [IF]
 S" src/tc-dl-imm.f" INCLUDED
 [THEN]
 
+\ ( Order: Forth ; Current: TC-IMM )
+DEFINITIONS \ End of TC-IMM definitions
+
+
 HERE 10000 + 10000 / 10000 * 2000 + DP !    \ выравнивание
 DECIMAL
 
@@ -801,9 +833,8 @@ HERE assume-image-start  \ t{ HERE >VIRT -> IMAGE-START }t
 \ *** поехали! ***
 ONLY FORTH DEFINITIONS ALSO TC
 
-' TC-?SLITERAL TO ?SLITERAL
-0xE9 ' COMPILE, C!
-' MCOMPILE,  ' COMPILE, 1+ CELL+ - ' COMPILE, 1+ !
+\ Note: TC-?LITERAL is taken into account via NOTFOUND in TC-IMM
+' MCOMPILE, SET-XT-COMPILER
 
 \ Avoid words of target compiler in spf xml help
 HERE TO TC-IMAGE-BASE
