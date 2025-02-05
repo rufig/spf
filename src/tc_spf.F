@@ -94,7 +94,7 @@ VARIABLE SAVED-CURRENT
 0 VALUE USER-VALUE-CODE
 0 VALUE USER-VECT-CODE
 0 VALUE TOUSER-VALUE-CODE
-' R>  VALUE  DOES-CODE
+0 VALUE DOES-CODE \ it is initialized in "./compiler/spf_defwords.f"
 
 0 VALUE WINAPI-CODE
 0 VALUE WNDPROC-CODE
@@ -110,11 +110,6 @@ VARIABLE SAVED-CURRENT
 0 VALUE ()))-adr
 0 VALUE symbol-call-adr
 0 VALUE symbol-call2-adr
-
-: TC-FINDOUT
-  TC-TRG-WL SEARCH-WORDLIST IF EXIT THEN
-  TRUE ABORT" Word is not found in TC-TRG-WL"
-;
 
 VARIABLE TC-WINAPLINK
 VARIABLE TC-USER-OFFS 16 TC-USER-OFFS ! \ 16 байт зарезервировано
@@ -199,6 +194,22 @@ M\ ' DROP TO DTST
       THEN
     THEN
 ;
+
+
+: TC-FINDOUT ( sd.lexeme -- xt )
+  \ xt from the target system; this xt should not be executed on the host system
+  2DUP TC-TRG-WL SEARCH-WORDLIST IF NIP NIP EXIT THEN
+  ." (Missing in TC-TRG-WL: `" TYPE ." `)" CR
+  TRUE ABORT" A word is not found in TC-TRG-WL"
+;
+
+: TC-INLINE(  ( "ccc<rparen>" -- )
+  ?COMP
+  BEGIN EXTRACT-LEXEME  2DUP S" )" COMPARE WHILE \ The lexeme is not equal to ")"
+    SLIT, POSTPONE TC-FINDOUT POSTPONE INLINE,
+  REPEAT 2DROP
+; IMMEDIATE
+
 
 : TC-LIT, ( x -- )
   S" DUP" TC-FINDOUT INLINE,
@@ -289,6 +300,8 @@ DECIMAL
        [COMPILE] TC-LITERAL
   THEN
 ;
+
+
 
 VECT VOC-LIST
 VARIABLE _VOC-LIST ' _VOC-LIST TO VOC-LIST
@@ -776,6 +789,11 @@ HEX
 : RDROP
   ?COMP
   S" C-RDROP" TC-FINDOUT INLINE, ;   IMMEDIATE
+
+
+: 2>R     ?COMP  TC-INLINE( SWAP C->R C->R )  ; IMMEDIATE
+: 2R>     ?COMP  TC-INLINE( C-R> C-R> SWAP )  ; IMMEDIATE
+: 2RDROP  ?COMP  TC-INLINE( C-RDROP C-RDROP ) ; IMMEDIATE
 
 
 : EXECUTE

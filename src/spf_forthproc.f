@@ -225,7 +225,7 @@ END-CODE
 \ Стек возвратов
 
 
-CODE 2>R   \ 94 CORE EXT
+CODE (2>R)  ( x1 x2 -- ; R: -- x1 x2 )
 \ Интерпретация: семантика неопределена.
 \ Выполнение: ( x1 x2 -- ) ( R: -- x1 x2 )
 \ Перенести пару ячеек x1 x2 на стек возвратов. Семантически
@@ -238,7 +238,7 @@ CODE 2>R   \ 94 CORE EXT
      JMP EBX
 END-CODE
 
-CODE 2R>  \ 94 CORE EXT
+CODE (2R>)  ( -- x1 x2 ; R: x1 x2 -- )
 \ Интерпретация: семантика неопределена.
 \ Выполнение: ( -- x1 x2 ) ( R: x1 x2 -- )
 \ Перенести пару ячеек x1 x2 со стека возвратов. Семантически
@@ -1259,6 +1259,14 @@ CODE C->R     \ 94
      RET
 END-CODE
 
+CODE (>R)  ( x -- ; R: -- x )
+     POP  EBX
+     PUSH EAX
+     MOV EAX, [EBP]
+     LEA EBP, 4 [EBP]
+     JMP EBX
+END-CODE
+
 CODE C-R>    \ 94
      LEA  EBP, -4 [EBP]
      MOV  [EBP],  EAX
@@ -1266,11 +1274,24 @@ CODE C-R>    \ 94
      RET
 END-CODE
 
+CODE (R>)  ( -- x ; R: x -- )
+     LEA EBP, -4 [EBP]
+     MOV [EBP], EAX
+     POP EBX
+     POP EAX
+     JMP EBX
+END-CODE
+
 CODE C-RDROP
      ADD  ESP, # 4
      RET
 END-CODE
 
+CODE (RDROP) ( -- ; R: x -- )
+     POP EBX
+     LEA ESP, 4 [ESP]
+     JMP EBX
+END-CODE
 
 CODE ?DUP ( 0 -- 0 | x1\0 -- x1 x1 )
      OR  EAX, EAX

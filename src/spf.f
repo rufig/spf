@@ -113,6 +113,17 @@ SYNONYM UNROT -ROT \ 2025 Proposal
 : C>S ( char.signed -- n )  0xFF AND [ 0x7F INVERT ] LITERAL XOR 0x80 + ;
 [THEN]
 
+[UNDEFINED] SLIT,  [IF]
+: SLIT, POSTPONE SLITERAL ;
+[THEN]
+
+[UNDEFINED] EXTRACT-LEXEME [IF]
+: EXTRACT-LEXEME ( -- sd.lexeme\zl-sd )
+  BEGIN PLUCK-LEXEME DUP IF EXIT THEN 2DROP REFILL 0= UNTIL
+  -39 THROW \ "unexpected end of input source"
+;
+[THEN]
+
 [UNDEFINED] \EOF [IF]
 : \EOF  BEGIN REFILL 0= UNTIL POSTPONE \ ;
 [THEN]
@@ -270,7 +281,6 @@ S" src/compiler/spf_read_source.f"   INCLUDED
 \ Печать словарей.
 \ Слова, к-е нельзя инлайнить.
 
-S" src/compiler/spf_nonopt.f"        INCLUDED
 S" src/compiler/spf_compile0.f"      INCLUDED
 
 : [>T]  ; IMMEDIATE
@@ -379,9 +389,6 @@ _VOC-LIST @   ' _VOC-LIST TC-ADDR! \ запись созданной цепочки словарей
 TARGET-POSIX [IF]
 
 .( VIRT offset is ) 0 >VIRT . CR
-
-\ Перемещаем в виртуальные адреса VALUE NON-OPT-WL
-' NON-OPT-WL EXECUTE      ' NON-OPT-WL      TC-VECT!
 
 \ Перемещаем в виртуальные адреса VALUE FORTH-WORDLIST
 ' FORTH-WORDLIST EXECUTE  ' FORTH-WORDLIST  TC-VECT!

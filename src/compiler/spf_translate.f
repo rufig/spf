@@ -109,9 +109,8 @@ VECT ?SLITERAL
 \ если name не найдено.
 \ Во время интерпретации  ' name EXECUTE  равносильно  name.
   TAKE-LEXEME
-  NON-OPT-WL PUSH-ORDER  SFIND  DROP-ORDER
-  \ NB: taking NON-OPT-WL into account violates the standard #todo
-  0= IF -321 THROW THEN
+  SFIND ?FOUND DROP \ use `SFIND` for backward compatibility
+  \ `SFIND` uses the vector `SEARCH-WORDLIST` (that can change)
 ;
 
 : CHAR ( "<spaces>name" -- char ) \ 94
