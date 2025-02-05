@@ -1271,13 +1271,17 @@ CODE C-RDROP
      RET
 END-CODE
 
-CODE C-?DUP
+
+CODE ?DUP ( 0 -- 0 | x1\0 -- x1 x1 )
      OR  EAX, EAX
      JZ SHORT @@1
      LEA EBP, -4 [EBP]
      MOV [EBP], EAX
 @@1: RET
 END-CODE
+
+SYNONYM C-?DUP ?DUP \ for TC only; should be inlined; see `INLINE?` and `INLINE,`
+
 
 CODE C-EXECUTE ( i*x xt -- j*x ) \ 94
 \ Убрать xt со стека и выполнить заданную им семантику.
@@ -1289,7 +1293,16 @@ CODE C-EXECUTE ( i*x xt -- j*x ) \ 94
      RET
 END-CODE
 
-CODE C-EXECUTE2 ( i*x xt -- j*x edx )
+CODE EXECUTE ( i*x xt -- j*x ) \ 94
+\ it is inlined using `C-EXECUTE`, see `INLINE?`
+     MOV EBX, EAX
+     MOV EAX, [EBP]
+     LEA EBP, 4 [EBP]
+     JMP EBX
+END-CODE
+
+
+CODE EXECUTE2 ( i*x xt -- j*x x.edx )
 \ Убрать xt со стека и выполнить заданную им семантику.
 \ Другие изменения на стеке определяются словом, которое выполняется.
 \ Кроме результата выполнения xt возвращается значение регистра EDX,
@@ -1304,6 +1317,9 @@ CODE C-EXECUTE2 ( i*x xt -- j*x edx )
      MOV  EAX, EDX
      RET
 END-CODE
+
+SYNONYM C-EXECUTE2 EXECUTE2 \ should be inlined; see `INLINE?`
+
 
 \ ================================================================
 \ Поддержка LOCALS

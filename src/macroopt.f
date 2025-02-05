@@ -4592,6 +4592,17 @@ OP2 @ W@ 4D8B XOR OR \  8B4D00            MOV     ECX , 0 [EBP]
   OPT? IF OPT_ THEN ;
 
 : INLINE?  ( CFA -- CFA FLAG )
+  [BUILDING-TARGET] [IF] \ loading macroopt in the target system
+    ['] ?DUP        OVER = IF TRUE EXIT THEN \ do not change xt, see `INLINE,`
+  [THEN]
+  [BUILDING-TARGET] [IF] \ loading macroopt in the target system
+    \ When calling external functions from DLL or SO using these words
+    \ (like in "devel/~ac/lib/ns/ns.f"),
+    \ these words must be inlined to comply with the ABI.
+    \ Do not blindly redefined them. TODO: introduce special methods.
+    ['] EXECUTE     OVER = IF DROP ['] C-EXECUTE    TRUE EXIT THEN
+    ['] EXECUTE2    OVER = IF DROP ['] C-EXECUTE2   TRUE EXIT THEN
+  [THEN]
   DUP         BEGIN
   2DUP
   MM_SIZE -   U> 0= IF  DROP FALSE  EXIT THEN
@@ -4844,7 +4855,18 @@ PREVIOUS PREVIOUS SET-CURRENT
 
 :  OPT_INIT   ?SET -EVEN-EBP  ;
 
-: INLINE, ( CFA --  )   OPT_INIT  _INLINE, OPT_CLOSE ;
+: INLINE-STRICTLY, ( CFA -- )
+  DP @  TO :-SET  \ see `HERE` in "src/compiler/spf_compile.f"
+  OPT_INIT  _INLINE,  OPT_CLOSE
+  DP @  TO :-SET
+;
+
+: INLINE, ( CFA --  )
+  [BUILDING-TARGET] [IF]
+    DUP  ['] ?DUP =  IF  INLINE-STRICTLY,  EXIT THEN
+  [THEN]
+  OPT_INIT  _INLINE,  OPT_CLOSE
+;
 
 : MACRO, INLINE, ;
 

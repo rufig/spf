@@ -30,7 +30,19 @@ CREATE OP0 HERE >T  , 0 ,  ALLOT
 : SetJP ; IMMEDIATE
 : ?SET ; IMMEDIATE
 FALSE VALUE ?C-JMP
-0 CONSTANT INLINE?
+
+: INLINE? ( xt1 -- xt2 true | xt1 false )
+  [BUILDING-TARGET] [IF] \ loading noopt in the target system
+    \ When calling external functions from DLL or SO using these words
+    \ (like in "devel/~ac/lib/ns/ns.f"),
+    \ these words must be inlined to comply with the ABI.
+    \ Do not blindly redefined them. TODO: introduce special methods.
+    ['] EXECUTE     OVER = IF DROP ['] C-EXECUTE    TRUE EXIT THEN
+    ['] EXECUTE2    OVER = IF DROP ['] C-EXECUTE2   TRUE EXIT THEN
+  [THEN]
+  FALSE
+;
+
 : OPT_CLOSE ; IMMEDIATE
 : OPT_INIT ; IMMEDIATE
 : INLINE,

@@ -90,10 +90,9 @@ USER _PAS-EXEC \ без локальных переменных неудобно ;)
   ?DUP IF N>R RDROP THEN
   0 _PAS-EXEC @ EXECUTE
 ;
-: EXECUTE2 STATE @ IF
-                  ['] C-EXECUTE2 INLINE,
-                  ELSE C-EXECUTE2
-                  THEN ; IMMEDIATE
+
+\ NB: EXECUTE2 is in the kernel since 2026-05-05 (ruv)
+
 USER _C-EXEC
 USER _C-EXEC-HW
 : C-EXEC ( ... n dll-xt -- x )

@@ -778,12 +778,14 @@ HEX
   S" C-RDROP" TC-FINDOUT INLINE, ;   IMMEDIATE
 
 
-\ NB: this EXECUTE makes sense only when generating target code
 : EXECUTE
+\ NB: This implementation is used only by TC when translating code for the target system
   S" C-EXECUTE" TC-FINDOUT INLINE, ; IMMEDIATE
 
 
-: ?DUP   STATE @
+: ?DUP ( 0 -- 0 | x1\0 -- x1 x1 )
+\ NB: This implementation is used only by TC when translating code for the target system
+  STATE @
                  IF   HERE TO :-SET
                       S" C-?DUP" TC-FINDOUT  INLINE,
                       HERE TO :-SET

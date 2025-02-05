@@ -23,13 +23,6 @@ REQUIRE ANSI-FILE    lib/include/ansi-file.f
 [THEN]
 
 
-WARNING @  0 WARNING !
-
-: ?DUP  ?DUP ;  \ ?DUP в SP-FORTH'е state-smart, а это не по стандарту
-
-WARNING !
-
-
 [UNDEFINED] BIN [IF]
 : BIN ( fam1 -- fam2 ) ;
 [THEN]
