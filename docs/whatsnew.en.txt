@@ -19,6 +19,7 @@ libs:
 + lib/include/double.f - add "2VALUE"
 * lib/include/float2.f - fix "FVALUE" (for compatibility with "TO")
 + lib/include/control-case.f - thread-safe implementation for CASE ENDCASE (unlike lib/ext/case.f)
++ lib/contrib/str6.f - fork of "~ac/lib/str5.f", can be loaded in case-insensitive mode
 
 samples:
 ! lib/win/spfgui/spfgui.f - support unix-lines mode

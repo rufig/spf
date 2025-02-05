@@ -19,6 +19,7 @@ libs:
 + lib/include/double.f - добавлено "2VALUE"
 * lib/include/float2.f - исправление "FVALUE" (для совместимости с "TO")
 + lib/include/control-case.f - потокобезопасная реализация для CASE ENDCASE (в отличии от lib/ext/case.f)
++ lib/contrib/str6.f - ветка от "~ac/lib/str5.f", загружается в режиме регистронезависимости
 
 samples:
 ! lib/win/spfgui/spfgui.f - поддержка режима unix-lines
