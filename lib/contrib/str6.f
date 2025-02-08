@@ -13,6 +13,11 @@
 
 \ See the documentation in "devel/~ac/str5.f".
 
+\ DataType: str => x\0          \ an opaque str identifier
+\ DataType: xs => a-addr        \ the address of an xcounted string
+\ DataType: sd => ( c-addr u )  \ a character string
+\ DataTypePrivate: any => i*x
+\ DataTypePrivate: str => a-addr  \ the address of an str internal structure
 
 
 REQUIRE {       lib/ext/locals.f
@@ -30,37 +35,37 @@ WARNING !
 
 USER STRLAST
 
-: S'
+: S' ( "ccc<tick>" -- ) \ RunTime: ( -- sd )
   [CHAR] ' PARSE [COMPILE] SLITERAL
 ; IMMEDIATE
 
-: XSALLOT ( addr u -- xs )
+: XSALLOT ( sd -- xs.new )
   DUP 9 + ALLOCATE THROW >R
   DUP R@ ! R@ CELL+ SWAP CMOVE R>
   0 OVER XCOUNT + C!
 ;
-: sALLOT
+: sALLOT ( sd -- str.new )
   XSALLOT CELL ALLOCATE THROW DUP >R ! R>
 ;
-: str>xs ( s -- xs )
+: str>xs ( str -- xs )
   @
 ;
-: str-xs! ( xs s -- )
+: str-xs! ( xs str -- )
   !
 ;
-: STR@ ( s -- addr u )
+: STR@ ( str -- sd )
   str>xs XCOUNT
 \  DEBUG @ IF ." STR@:" 2DUP TYPE ." |" VTH CR THEN
 ;
-: STRFREE ( s -- )
+: STRFREE ( str.free -- )
   DUP STRLAST @ = IF STRLAST 0! THEN
   DUP str>xs FREE THROW FREE THROW
 ;
-: STYPE ( s -- )
+: STYPE ( str.free -- )
   DUP STR@ TYPE
   STRFREE
 ;
-: STR+ { addr u s -- }
+: STR+ ( addr +n str -- ) { addr u s -- } \ +n is a non-negative integer
 \ DEBUG @ IF ." STR+:" addr u TYPE CR THEN
   u 0 < IF 0xC000000D THROW THEN
   u 0= IF EXIT THEN \ optimization :)
@@ -70,17 +75,17 @@ USER STRLAST
   u SWAP +!
   0 s STR@ + C!
 ;
-: STR! { addr u s -- }
+: STR! ( sd str ) { addr u s -- }
   s str>xs
   u 5 + RESIZE THROW DUP s str-xs!
   addr OVER CELL+ u CMOVE
   u SWAP !
   0 s STR@ + C!
 ;
-: S+ ( s2 s -- )
+: S+ ( str.free str -- )
   OVER STR@ ROT STR+ STRFREE
 ;
-: "" ( -- s )
+: "" ( -- str.new )
   S" " sALLOT
 ;
 
@@ -91,7 +96,7 @@ VECT {NOTFOUND} ' LAST-WORD TO {NOTFOUND}
 ;
 VECT LSTRFREE ' LSTRFREE1 TO LSTRFREE
 
-: {eval} ( ... s -- s ) { s \ orig-sp orig-base orig-state }
+: {eval} ( any str1 -- str1 ) { s \ orig-sp orig-base orig-state }
   SP@ -> orig-sp
   BASE @ -> orig-base DECIMAL
   STATE @ -> orig-state STATE 0!
@@ -119,7 +124,7 @@ VECT LSTRFREE ' LSTRFREE1 TO LSTRFREE
   orig-sp SP!
   s
 ;
-: {sn} ( ... s -- s ) { s }
+: {sn} ( any str1 -- str1 ) { s }
   TIB C@ [CHAR] s = IF s STR+ s EXIT THEN
   TIB C@ [CHAR] n = IF 0 <# #S #> s STR+ s EXIT THEN
   TIB C@ [CHAR] d = IF <# #S #> s STR+ s EXIT THEN
@@ -127,21 +132,22 @@ VECT LSTRFREE ' LSTRFREE1 TO LSTRFREE
   TIB C@ [CHAR] c = IF SP@ 1 s STR+ DROP s EXIT THEN
   s {eval}
 ;
-: ({...}) ( -- s ) { \ s }
+: ({...}) ( any -- str.new ) { \ s }
   "" -> s
   #TIB @ 1 = IF s {sn} EXIT THEN
   s {eval}
 ;
-: {...} ( addr u -- ... )
+: {...} ( any sd.placeholder -- str.new )
   ['] ({...}) EVALUATE-WITH
 ;
+
 CHAR { VALUE [CHAR]{
 CHAR } VALUE [CHAR]}
 
-: S"{" ( -- addr u )
+: S"{" ( -- sd.left-bracket )
   S" {" OVER [CHAR]{ SWAP C!
 ;
-: S"}" ( -- addr u )
+: S"}" ( -- sd.right-bracket )
   S" }" OVER [CHAR]} SWAP C!
 ;
 : "delimiters ( addr 2 -- )
@@ -151,7 +157,7 @@ CHAR } VALUE [CHAR]}
   NextWord "delimiters
 ;
 
-: ((")) ( -- s ) { \ s }
+: ((")) ( any -- str.new ) { \ s }
   "" -> s
   BEGIN
     >IN @ #TIB @ <
@@ -170,7 +176,7 @@ CHAR } VALUE [CHAR]}
 
 USER _STR_DEEP
 
-: (") ( addr u -- s ) { \ c }
+: (") ( any sd.template -- str.new ) { \ c }
   [CHAR]{ -> c
   2DUP ^ c 1 SEARCH NIP NIP
   IF
@@ -191,7 +197,7 @@ STR@ ?SLITERAL
 R0 @ RP@ - - 4 + CONSTANT LOCALS_STACK_OFFSET
 STRFREE
 
-: {STR@LOCAL} ( addr u s -- ) { s \ orig-base }
+: {STR@LOCAL} ( sd.placeholder str -- ) { s \ orig-base }
   BASE @ -> orig-base
   OVER C@ [CHAR] $ =
        IF 1- SWAP 1+ SWAP CONTEXT @ SEARCH-WORDLIST
@@ -209,7 +215,7 @@ STRFREE
        THEN
   orig-base BASE !
 ;
-: (STR@LOCAL) ( -- s ) { \ s }
+: (STR@LOCAL) ( -- str.new ) { \ s }
   "" -> s
   BEGIN
     >IN @ #TIB @ <
@@ -223,18 +229,18 @@ STRFREE
   s
 ;
 
-: STR@LOCALs ( addr u -- s )
+: STR@LOCALs ( sd.template -- str.new )
   ['] (STR@LOCAL) EVALUATE-WITH
 ;
 
-: _STRLITERAL ( -- s )
+: _STRLITERAL ( any -- str.new  ;  R: colon-sys1 -- colon-sys2 )
   R> XCOUNT 2DUP + CHAR+ >R
   (")
 ;
 \ : S, ( addr u -- )
 \   HERE SWAP DUP ALLOT CMOVE
 \ ;
-: STRLITERAL ( addr u -- )
+: STRLITERAL ( compil: false ; any sd.template -- str.new  |  compil: true ; sd.template -- ) \ RunTime: ( any -- str.new )
   \ It is similar to SLITERAL, but the length of the string is not limited to 255
   \ and the compiled string is "unrolled" by `(")` when "executed".
   STATE @ IF
@@ -247,20 +253,20 @@ STRFREE
 
 CREATE strCRLF 13 C, 10 C,
 
-: CRLF
+: CRLF ( -- addr 2 )
   strCRLF 2
 ;
 CREATE _S""" CHAR " C,
-: ''
+: '' ( -- addr 1 )
   _S""" 1
 ;
 
 USER _PARSED"
 USER _STR_LOCAL
 
-: _XSLITERAL-CODE ( -- addr u ) R> XCOUNT 2DUP + CHAR+ >R ;
+: _XSLITERAL-CODE ( -- sd ; R: colon-sys1 -- colon-sys2 ) R> XCOUNT 2DUP + CHAR+ >R ;
 
-: XSLITERAL ( addr u -- )
+: XSLITERAL ( sd -- ) \ RunTime: ( -- sd )
   STATE @ IF
              ['] _XSLITERAL-CODE COMPILE,
              DUP , S, 0 C,
@@ -269,7 +275,7 @@ USER _STR_LOCAL
           THEN
 ; IMMEDIATE
 
-: XPARSE" ( -- addr u )
+: XPARSE" ( -- sd )
   "" >R
   BEGIN
     [CHAR] " PARSE
@@ -284,7 +290,7 @@ USER _STR_LOCAL
   STR@
 ;
 
-: PARSE" ( -- addr u )
+: PARSE" ( -- sd )
   XPARSE"
   [CHAR]{ >R
   2DUP RP@ 1 SEARCH NIP NIP RDROP
@@ -293,12 +299,12 @@ USER _STR_LOCAL
 
 : _PARSED"FREE ( -- ) _PARSED" @ ?DUP IF STRFREE _PARSED" 0! THEN ;
 
-: XS" ( "ccc" -- )
+: XS" ( "ccc<quot>" -- ) \ RunTime: ( -- sd )
   XPARSE" POSTPONE XSLITERAL
   STATE @ IF _PARSED"FREE THEN
 ; IMMEDIATE
 
-: " ( "ccc" -- )
+: " ( "ccc<quot>" -- ) \ RunTime: ( any -- str.new )
   PARSE" POSTPONE STRLITERAL
   \ STATE @ IF _PARSED" @ ?DUP IF STRFREE _PARSED" 0! THEN  THEN
   _PARSED" @ ?DUP IF STRFREE _PARSED" 0! THEN
@@ -308,10 +314,10 @@ USER _STR_LOCAL
 USER _LASTFILE
 USER _LASTFILESIZE
 
-: LastFileFree _LASTFILE @ ?DUP IF FREE THROW _LASTFILE 0! _LASTFILESIZE 0! THEN ;
-: LastFileSize _LASTFILESIZE @ ;
+: LastFileFree ( -- ) _LASTFILE @ ?DUP IF FREE THROW _LASTFILE 0! _LASTFILESIZE 0! THEN ;
+: LastFileSize ( -- u ) _LASTFILESIZE @ ;
 
-: FFILE { f \ mem -- a u } \ Read the entire file and close the handle
+: FFILE ( fileid -- sd.data ) { f \ mem -- a u } \ Read the entire file and close the handle
   f FILE-SIZE THROW D>S DUP _LASTFILESIZE !
   DUP CELL+ ALLOCATE THROW DUP _LASTFILE ! -> mem
   mem SWAP f READ-FILE THROW
@@ -319,7 +325,7 @@ USER _LASTFILESIZE
   mem SWAP
 \  DUP IF OVER _LASTFILE ! THEN
 ;
-: FFILEO { f \ mem -- a u } \ Read the entire file and leave the handle open
+: FFILEO ( fileid -- sd.data ) { f \ mem -- a u } \ Read the entire file and leave the handle open
   f FILE-SIZE THROW D>S DUP _LASTFILESIZE !
   DUP CELL+ ALLOCATE THROW DUP _LASTFILE ! -> mem
   mem SWAP f READ-FILE THROW
@@ -327,40 +333,40 @@ USER _LASTFILESIZE
   mem SWAP
 \  DUP IF OVER _LASTFILE ! THEN
 ;
-: FILE ( addr u -- addr1 u1 )
+: FILE ( sd.filename -- sd.data )
   R/O OPEN-FILE-SHARED IF DROP 0 ALLOCATE THROW DUP _LASTFILE ! _LASTFILESIZE 0! 0 EXIT THEN
   FFILE
 ;
-: FILEFREE ( a -- )
+: FILEFREE ( addr.data -- )
   DUP _LASTFILE @ =
   IF _LASTFILE 0! _LASTFILESIZE 0! THEN
   FREE THROW
 ;
 
-: WFILE ( da du fa fu -- )
+: WFILE ( sd.data sd.filename-new -- )
   R/W CREATE-FILE THROW DUP >R
   WRITE-FILE THROW
   R> CLOSE-FILE THROW
 ;
 
-: S@ ( addr u -- addr2 u2 )
-\ calculate '{}' in the string ( addr u )
+: S@ ( sd.template -- sd.interpolated )
+\ calculate '{}' in the string sd.template
 \ ValidateThreadHeap<
   (") STR@
 \ ValidateThreadHeap>
 ;
-: EVAL-FILE ( addr u -- addr1 u1 )
+: EVAL-FILE ( sd.filename -- sd.interpolated )
   FILE S@
 ;
-: S! ( addr u var_addr -- )
+: S! ( sd addr.cell -- )
 \ ValidateThreadHeap<
   "" DUP ROT ! STR+
 \ ValidateThreadHeap>
 ;
 \ ~ygrek:
-: >STR ( addr u -- str ) "" >R R@ STR+ R> ;
-: STRLEN STR@ NIP ;
-: STRA STR@ DROP ;
+: >STR ( sd -- str.new ) "" >R R@ STR+ R> ;
+: STRLEN ( str -- u ) STR@ NIP ;
+: STRA ( str -- addr ) STR@ DROP ;
 
 (
 
