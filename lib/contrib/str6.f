@@ -9,6 +9,7 @@
 \           - and some local varibales.
 \       - Change comments to English.
 \       - Replace the documentation with a link to the original file.
+\       - Improve some definitions.
 
 
 \ See the documentation in "devel/~ac/str5.f".
@@ -28,7 +29,7 @@ WARNING @ WARNING 0!
 \ addr1 is the sum of xs and the cell size,
 \ u1 is the value stored at xs
 \ This word is similar to `COUNT`, but the counter is a cell, not a character.
-  DUP @ SWAP CELL+ SWAP
+  DUP CELL+ SWAP @
 ;
 WARNING !
 
@@ -55,7 +56,6 @@ USER STRLAST
 ;
 : STR@ ( str -- sd )
   str>xs XCOUNT
-\  DEBUG @ IF ." STR@:" 2DUP TYPE ." |" VTH CR THEN
 ;
 : STRFREE ( str.free -- )
   DUP STRLAST @ = IF STRLAST 0! THEN
@@ -66,8 +66,7 @@ USER STRLAST
   STRFREE
 ;
 : STR+ ( addr +n str -- ) { addr u s -- } \ +n is a non-negative integer
-\ DEBUG @ IF ." STR+:" addr u TYPE CR THEN
-  u 0 < IF 0xC000000D THROW THEN
+  u 0 < IF -24 THROW THEN \ "invalid numeric argument"
   u 0= IF EXIT THEN \ optimization :)
   s str>xs DUP @
   u + 9 + RESIZE THROW DUP DUP s str-xs!
@@ -143,7 +142,7 @@ VECT LSTRFREE ' LSTRFREE1 TO LSTRFREE
 
 CHAR { VALUE [CHAR]{
 CHAR } VALUE [CHAR]}
-
+\ NB: this approach is not thread-safe
 : S"{" ( -- sd.left-bracket )
   S" {" OVER [CHAR]{ SWAP C!
 ;
@@ -270,9 +269,11 @@ USER _STR_LOCAL
   STATE @ IF
              ['] _XSLITERAL-CODE COMPILE,
              DUP , S, 0 C,
-          ELSE
-             2DUP + 0 SWAP C!
-          THEN
+             EXIT
+  THEN
+  \ 2DUP + 0 SWAP C!
+  sALLOT STR@ ( sd )
+  \ - don't corrupt input, create a copy on the heap \ 2025-02-09 ~ruv
 ; IMMEDIATE
 
 : XPARSE" ( -- sd )
@@ -300,12 +301,12 @@ USER _STR_LOCAL
 : _PARSED"FREE ( -- ) _PARSED" @ ?DUP IF STRFREE _PARSED" 0! THEN ;
 
 : XS" ( "ccc<quot>" -- ) \ RunTime: ( -- sd )
-  XPARSE" POSTPONE XSLITERAL
+  XPARSE" [COMPILE] XSLITERAL
   STATE @ IF _PARSED"FREE THEN
 ; IMMEDIATE
 
 : " ( "ccc<quot>" -- ) \ RunTime: ( any -- str.new )
-  PARSE" POSTPONE STRLITERAL
+  PARSE" [COMPILE] STRLITERAL
   \ STATE @ IF _PARSED" @ ?DUP IF STRFREE _PARSED" 0! THEN  THEN
   _PARSED" @ ?DUP IF STRFREE _PARSED" 0! THEN
   _STR_LOCAL @ ?DUP IF STRFREE _STR_LOCAL 0! THEN
@@ -351,24 +352,31 @@ USER _LASTFILESIZE
 
 : S@ ( sd.template -- sd.interpolated )
 \ calculate '{}' in the string sd.template
+\ NB: there is an str leak.
 \ ValidateThreadHeap<
   (") STR@
 \ ValidateThreadHeap>
 ;
 : EVAL-FILE ( sd.filename -- sd.interpolated )
+\ The original file contents can be freed by `LastFileFree`
+\ sd.interpolated[addr] can be freed by `FREE`
+\ NB: there is an str leak.
   FILE S@
 ;
 : S! ( sd addr.cell -- )
 \ ValidateThreadHeap<
-  "" DUP ROT ! STR+
+  >R sALLOT R> !
 \ ValidateThreadHeap>
 ;
+
 \ ~ygrek:
-: >STR ( sd -- str.new ) "" >R R@ STR+ R> ;
+: >STR ( sd -- str.new ) sALLOT ;
 : STRLEN ( str -- u ) STR@ NIP ;
 : STRA ( str -- addr ) STR@ DROP ;
 
+
 (
+\ Examples:
 
 S" test1" sALLOT STYPE CR
 "" VALUE TEST1 S" test2" TEST1 STR+ TEST1 STYPE CR
@@ -395,7 +403,6 @@ S" test7" 7  " test7__{n}{s}__test7" STYPE CR
 
 
 \ : TEST { a b c } " 777{RP@ 180 DUMP HERE 0}888" STYPE ;
-
 \ HEX 77 88 99 TEST
 
 \ Tests:
@@ -417,12 +424,12 @@ STYPE
   9 -> n
   " abcd" -> t
   3 -> k
-  " |123|{$t}|123|{#n}|123|{#k}|{S' file1.txt' EVAL-FILE}<End of file>" STYPE
+  " |123|{$t}|123|{#n}|123|{#k}|{S' file1.txt' EVAL-FILE}<End of file>" STYPE CR
 ;
 TEST3
 
 \ TEST4:
 S" aaa" 15 CHAR z " char by code={c}=, number {n} and string:{s} - OK!" STYPE CR
 
--5 DUP " {n} : {m}" STYPE
+-5 DUP " {n} : {-}" STYPE CR
 )
