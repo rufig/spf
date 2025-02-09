@@ -10,6 +10,8 @@
 \       - Change comments to English.
 \       - Replace the documentation with a link to the original file.
 \       - Improve some definitions.
+\       - Place implementation details in a word list. Use better naming (see the `EXPORT` section at the module end).
+
 
 
 \ See the documentation in "devel/~ac/str5.f".
@@ -21,18 +23,23 @@
 \ DataTypePrivate: str => a-addr  \ the address of an str internal structure
 
 
+REQUIRE [IF]    lib/include/tools.f
+REQUIRE SYNONYM lib/include/wordlist-tools.f
 REQUIRE {       lib/ext/locals.f
 
 
-WARNING @ WARNING 0!
+[UNDEFINED] XCOUNT [IF]
 : XCOUNT ( xs -- addr1 u1 )
 \ addr1 is the sum of xs and the cell size,
 \ u1 is the value stored at xs
 \ This word is similar to `COUNT`, but the counter is a cell, not a character.
   DUP CELL+ SWAP @
 ;
-WARNING !
+[THEN]
 
+
+MODULE: support-str6
+( wid.compilation-prev )
 
 USER STRLAST
 
@@ -202,7 +209,7 @@ STRFREE
        IF 1- SWAP 1+ SWAP CONTEXT @ SEARCH-WORDLIST
           IF >BODY @ [ ALSO vocLocalsSupport ] LocalOffs [ PREVIOUS ] LOCALS_STACK_OFFSET +
              0 <# #S [CHAR]{ HOLD #> s STR+
-             S"  RP+@ STR@" s STR+ S"}" s STR+
+             S"  RP+@ str6::STR@" s STR+ S"}" s STR+
           THEN
        ELSE OVER C@ [CHAR] # =
             IF 1- SWAP 1+ SWAP CONTEXT @ SEARCH-WORDLIST
@@ -375,61 +382,88 @@ USER _LASTFILESIZE
 : STRA ( str -- addr ) STR@ DROP ;
 
 
+EXPORT
+
+SYNONYM CRLF            CRLF ( -- sd.crlf )
+SYNONYM ''              '' ( -- sd.quot )
+SYNONYM S'              S' ( "ccc<tick>" -- ) \ RunTime: ( -- sd )
+
+SYNONYM NEW-STR         "" ( -- str.new ) \ an emtpy str
+SYNONYM STR"            "  ( compil: false ; any "ccc<quot>" -- str.new  |  compil: true ; "ccc<quot>" -- ) \ RunTime: ( any -- str.new )
+SYNONYM DEL-STR         STRFREE ( str.free -- )
+SYNONYM PRINT-STR       STYPE ( str.free -- )
+SYNONYM STR>STRING      STR@ ( str -- sd )
+SYNONYM STR!            STR! ( sd str -- )
+SYNONYM STR+!           STR+ ( sd str -- )
+SYNONYM JOIN-STR        S+ ( str.free str -- )
+
+SYNONYM >STR            sALLOT      ( sd.data -- str.new )
+SYNONYM >STR!           S!          ( sd.data addr.cell -- )
+SYNONYM STREVAL         S@          ( sd.template -- sd.interpolated )
+SYNONYM STREVAL-FILE    EVAL-FILE   ( sd.filename -- sd.interpolated )
+
+' support-str6 XT>WID CONSTANT str6 \ just a wordlist
+
+( wid.compilation-prev )
+;MODULE
+
+
+
 (
 \ Examples:
 
-S" test1" sALLOT STYPE CR
-"" VALUE TEST1 S" test2" TEST1 STR+ TEST1 STYPE CR
+S" test1" >STR PRINT-STR CR
+NEW-STR VALUE TEST1  S" test2" TEST1 STR+!  TEST1 PRINT-STR CR
 
-PARSE" test3" TYPE CR
+str6::PARSE" test3" TYPE CR
 
-PARSE" test4
+str6::PARSE" test4
 test4" TYPE CR
 
-: TEST5 " test5" ; TEST5 STYPE CR
+: TEST5 STR" test5" ; TEST5 PRINT-STR CR
 
-: TEST6 " test6
+: TEST6 STR" test6
 test6
-test6" ; TEST6 STYPE CR
+test6" ; TEST6 PRINT-STR CR
 
-S" test7" 7  " test7__{n}{s}__test7" STYPE CR
+S" test7" 7  STR" test7__{n}{s}__test7" PRINT-STR CR
 
-" test8_{5}__{S' test8'}_|{ \ nothing }|__{1 2 3}__" STYPE CR
+STR" test8_{5}__{S' test8'}_|{ \ nothing }|__{1 2 3}__" PRINT-STR CR
 
-: TEST9 { \ str nn } " string" -> str 55 -> nn " __{$str}__{#nn}__" STYPE CR ;
+: TEST9 { \ str nn } STR" string" -> str  55 -> nn  STR" __{$str}__{#nn}__" PRINT-STR CR ;
  TEST9
 
-: TEST { \ s } " zzz1" -> s S" test0" s STR! s STYPE CR ; TEST
+: TEST { \ s } STR" zzz1" -> s  S" test0" s STR! s PRINT-STR CR ; TEST
 
 
-\ : TEST { a b c } " 777{RP@ 180 DUMP HERE 0}888" STYPE ;
+\ : TEST { a b c } STR" 777{RP@ 180 DUMP HERE 0}888" STRTYPE ;
 \ HEX 77 88 99 TEST
 
 \ Tests:
 : TEST S" test" ;
-" abc{TEST}123 5+5={5 5 +} Ok" STYPE CR
+STR" abc{TEST}123 5+5={5 5 +} Ok" PRINT-STR CR
 
-: TEST2 " abc{TEST}123 5+5={5 5 +} Ok {ZZZ} OK!" STYPE CR ;
+: TEST2 STR" abc{TEST}123 5+5={5 5 +} Ok {ZZZ} OK!" PRINT-STR CR ;
 TEST2
 
-"
+STR"
   abc
   def
   {TEST}
   123
 "
-STYPE
+PRINT-STR CR
 
 : TEST3  { \ n t k }
   9 -> n
-  " abcd" -> t
+  STR" abcd" -> t
   3 -> k
-  " |123|{$t}|123|{#n}|123|{#k}|{S' file1.txt' EVAL-FILE}<End of file>" STYPE CR
+  STR" |123|{$t}|123|{#n}|123|{#k}|{S' file1.txt' STREVAL-FILE}<End of file>" PRINT-STR CR
 ;
 TEST3
 
 \ TEST4:
-S" aaa" 15 CHAR z " char by code={c}=, number {n} and string:{s} - OK!" STYPE CR
+S" aaa" 15 CHAR z STR" char by code={c}=, number {n} and string:{s} - OK!" PRINT-STR CR
 
--5 DUP " {n} : {-}" STYPE CR
+-5 DUP STR" {n} : {-}" PRINT-STR CR
 )
