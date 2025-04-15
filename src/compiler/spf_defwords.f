@@ -77,9 +77,6 @@ VECT SHEADER
 \ a-addr - адрес пол€ данных name. —емантика выполнени€ name может
 \ быть расширена с помощью DOES>.
   SHEADER
-
-  HERE DUP  LATEST-NAME NAME>C !
-  DOES>A ! ( дл€ DOES )
   ['] _CREATE-CODE COMPILE,
 ;
 
@@ -87,9 +84,18 @@ VECT SHEADER
    PARSE-NAME CREATED
 ;
 
+: ?HAS-BODY ( xt1 -- xt1 )
+  \ Return control if xt1 has the data field so that
+  \ `>body` and `does>` run-time semantics are applicable to xt1.
+  \ Otherwise, throw an exception.
+  DUP CALL@ ( xt.trg xt|tca|0 ) DUP IF
+    ['] _CREATE-CODE OVER = IF DROP EXIT THEN
+    CALL@  DOES-CODE = IF EXIT THEN \ to allow multiple application of `does>`
+  THEN -31 THROW \ "`does>` is not applicable to this definition"
+;
+
 : (DOES1) \ та часть, котора€ работает одновременно с CREATE (обычно)
-  R> DOES>A @ CFL + -
-  DOES>A @ 1+ !
+  R> ( tca.call-to-does2 )  LATEST-NAME>XT ?HAS-BODY  PATCH-CALL
 ;
 
 CODE (DOES2)
@@ -207,8 +213,8 @@ END-CODE
 ;
 
 : USER-CREATE ( "<spaces>name" -- )
+  \ Note: `DOES>` does not apply to this kind of definitions.
   HEADER
-  HERE DOES>A ! ( дл€ DOES )
   ['] _USER-CODE COMPILE,
   USER-ALIGNED SWAP ,
   USER-ALLOT

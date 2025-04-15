@@ -41,6 +41,17 @@ HEX
     THEN
 ;
 
+: CALL@ ( tca1 -- xt2|tca2|0 )
+  \ DataType( xt <: tca )
+  DUP C@ 0xE8 <> IF DROP 0 EXIT THEN
+  1+ DUP @ + CELL+
+;
+: PATCH-CALL ( tca2 tca1 -- )
+  \ DataType( xt <: tca )
+  DUP C@ 0xE8 <> IF -0C THROW THEN \ -12 THROW "argument type mismatch"
+  CFL +  DUP CELL- >R  - ( n.offset ) R> !
+;
+
 : BRANCH, ( ADDR -> ) \ скомпилировать инструкцию ADDR JMP
   ?SET SetOP SetJP E9 C,
   DUP IF DP @ CELL+ - THEN ,    DP @ TO LAST-HERE

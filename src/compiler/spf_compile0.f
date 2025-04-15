@@ -11,7 +11,7 @@
 
   VARIABLE (DP)    \ переменная, содержащая HERE сегмента данных
 5 CONSTANT CFL     \ длина кода, компилируемого CREATE в сегмент CS.
-  USER     DOES>A  \ временная переменная - адрес для DOES>
+  USER     DOES>A  \ This variable used to be for `DOES>`, now it is left only for backward compatibility.
 
 
 \ Better names `DESTINATION` and `SET-DESTINATION`
