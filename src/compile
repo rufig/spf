@@ -5,8 +5,10 @@
 # Compile SP-Forth for linux
 # The default options can be overridden in ./compile.ini
 
+set -e
+
 cd ${0%/*} # go to the itself file location
-rm spf4.o
+rm spf4.o || true
 make -C posix # generate posix/config.auto.f
 cd ..
 echo Wait a bit while compiling...
