@@ -48,9 +48,20 @@ REQUIRE [UNDEFINED]     lib/include/tools.f
 : 2ROT ( x1 x2 x3 x4 x5 x6 -- x3 x4 x5 x6 x1 x2 )
   2>R 2SWAP 2R> 2SWAP
 ;
+: 2UNROT ( xd3 xd2 xd1 -- xd1 xd3 xd2 ) \ spf4 2026 non-standard
+  2SWAP 2>R 2SWAP 2R>
+;
+: 2TUCK ( xd2 xd1 -- xd1 xd2 xd1 ) \ spf4 2026 non-standard
+  2SWAP 2OVER
+;
 : DU< ( ud1 ud2 -- flag )
   ROT 2DUP = IF 2DROP U< ELSE U> NIP NIP THEN
 ;
+
+: 2RDROP ( R: xd -- ) \ non-standard
+  \ Only for compilation
+  ?COMP  POSTPONE RDROP POSTPONE RDROP
+; IMMEDIATE
 
 
 \ ===============================================

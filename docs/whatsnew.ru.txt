@@ -20,7 +20,7 @@ libs:
 + lib/include/ansi.f - добавлено FILE-STATUS facil.f
 + lib/include/core.f - добавлено "BUFFER:"
 + lib/include/facil.f - добавлено MS
-+ lib/include/double.f - добавлено "2VALUE"
++ lib/include/double.f - добавлено "2VALUE" "2TUCK" "2UNROT" "2RDROP"
 * lib/include/float2.f - исправление "FVALUE" (для совместимости с "TO")
 + lib/include/control-case.f - потокобезопасная реализация для CASE ENDCASE (в отличии от lib/ext/case.f)
 + lib/include/quotations.f - слова "[:" и ";]"
