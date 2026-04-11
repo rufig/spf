@@ -10,7 +10,7 @@
 * Rename "IS-IMMEDIATE" to "IS-NAME-IMMEDIATE" and "IS-VOC" to "IS-NAME-VOC" (they return a flag now)
 + "ALLOCATE-RWX" and "FREE-RWX" to allocate and free executable memory regions
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
-+ "2LIT," "CLIT,"
++ "2LIT," "CLIT," "UNROT"
 + "FIND-NAME" "FIND-NAME-IN" "?FOUND" "SYNONYM"
 + "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
 + "S>F" "F>S"

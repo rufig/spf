@@ -128,7 +128,7 @@ VECT symbol-not-found-error
 ;
 
 : name-lookup ( a # library? -- sym# )
-  -ROT 2DUP
+  UNROT 2DUP
   dl-first-strtab dl-first dl-first# table-lookup IF
     NIP NIP NIP EXIT
   THEN

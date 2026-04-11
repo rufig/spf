@@ -74,7 +74,7 @@
 \ пытаетс€ прочесть незаписанную часть файла.
 \ ѕосле завершени€ операции FILE-POSITION возвратит следующую позицию
 \ в файле после последнего прочитанного символа.
-  -ROT 3 <( )) read ?ERR
+  UNROT 3 <( )) read ?ERR
 ;
 
 : REPOSITION-FILE ( ud fileid -- ior ) \ 94 FILE
@@ -83,7 +83,7 @@
 \ Ќеопределенна€ ситуаци€ возникает, если позиционируетс€ вне
 \ его границ.
 \ ѕосле завершени€ операции FILE-POSITION возвращает значение ud.
-  -ROT 3 <( SEEK_SET __ret2 )) lseek64
+  UNROT 3 <( SEEK_SET __ret2 )) lseek64
   -1. D= IF errno ELSE 0 THEN
 ;
 
@@ -142,7 +142,7 @@ USER _addr
 \ позицию в файле за последним записанным в файл символом, и
 \ FILE-SIZE возвращает значение большее или равное значению,
 \ возвращаемому FILE-POSITION.
-  -ROT DUP >R
+  UNROT DUP >R
   3 write-adr @ C-CALL
   DUP -1 = IF
     R> 2DROP errno
@@ -160,7 +160,7 @@ USER _addr
 \ не записана.
 \ ѕосле завершени€ операции FILE-SIZE возвращает значение ud
 \ и FILE-POSITION возвращает неопределенное значение.
-  -ROT 3 <( )) ftruncate64 ?ERR NIP
+  UNROT 3 <( )) ftruncate64 ?ERR NIP
 ;
 
 : WRITE-LINE ( c-addr u fileid -- ior ) \ 94 FILE
