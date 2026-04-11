@@ -171,7 +171,7 @@ CODE ROT ( x1 x2 x3 -- x2 x3 x1 ) \ 94
      RET
 END-CODE
 
-CODE -ROT ( x1 x2 x3 -- x3 x1 x2 ) \ 94
+CODE UNROT ( x1 x2 x3 -- x3 x1 x2 ) \ 2025 Proposal
 \ Прокрутить три верхних элемента стека.
      MOV  EDX, 4 [EBP]
      MOV  4 [EBP], EAX
@@ -179,6 +179,7 @@ CODE -ROT ( x1 x2 x3 -- x3 x1 x2 ) \ 94
      MOV  [EBP], EDX
      RET
 END-CODE
+SYNONYM -ROT UNROT \ `-ROT` is a non-standard word
 
 CODE PICK ( xu ... x1 x0 u -- xu ... x1 x0 xu ) \ 94 CORE EXT
 \ Убрать u. Копировать xu на вершину стека. Неопределенная ситуация

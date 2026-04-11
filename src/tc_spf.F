@@ -272,9 +272,6 @@ DECIMAL
 VECT VOC-LIST
 VARIABLE _VOC-LIST ' _VOC-LIST TO VOC-LIST
 
-: -ROT ( x1 x2 x3 -- x3 x1 x2 ) \ 94
-    SWAP ROT SWAP
-;
 
 : S", ( addr u -- ) \ компил€ци€ строки, заданной addr u, в виде строки со счетчиком
   DUP C, DP @ SWAP DUP ALLOT CMOVE
@@ -296,7 +293,7 @@ ALIGN-BYTES-CONSTANT ALIGN-BYTES !
   HERE 0 , ( cfa )
 \  DUP LAST-CFA !
   0 C,     ( flags )
-  -ROT WARNING @
+  UNROT WARNING @
   IF 2DUP GET-CURRENT SEARCH-WORDLIST
      IF DROP 2DUP TYPE ."  isn't unique" CR THEN
   THEN

@@ -3,14 +3,6 @@
   4 > IF 2DROP ." Stack is underflowed" CR EXIT THEN
   DO I @ . CELL NEGATE +LOOP CR ;
 
-CODE -ROT ( x1 x2 x3 -- x3 x1 x2 ) \ 94
-\ Прокрутить три верхних элемента стека.
-     MOV  EDX, 4 [EBP]
-     MOV  4 [EBP], EAX
-     MOV  EAX, [EBP]
-     MOV  [EBP], EDX
-     RET
-END-CODE
 
 : CZMOVE ( a # z --) 2DUP + >R SWAP CMOVE R> 0 SWAP C! ;
 
@@ -71,7 +63,7 @@ VARIABLE (__ret2)  (__ret2) 0!
 ;
 
 : name-lookup ( a # library? -- sym# )
-  -ROT ( 2DUP
+  UNROT ( 2DUP
   dl-first-strtab dl-first dl-first# table-lookup IF
     NIP NIP NIP EXIT
   THEN)

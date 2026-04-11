@@ -17,7 +17,7 @@ VECT SHEADER
   DUP LAST-CFA !
   \ NB: "LAST-CFA" is not used anywhere and is left only for system-dependent backward compatibility
   0 C,     ( flags )
-  -ROT WARNING @
+  UNROT WARNING @
   IF 2DUP GET-CURRENT SEARCH-WORDLIST
      IF DROP 2DUP TYPE ."  isn't unique (" SOURCE-NAME TYPE ." )" CR THEN
   THEN

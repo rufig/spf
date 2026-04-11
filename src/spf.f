@@ -67,6 +67,16 @@ S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
 ;
 [THEN]
 
+[UNDEFINED] -ROT [IF]
+: -ROT ( x1 x2 x3 -- x3 x1 x2 ) \ a non-standard word
+    SWAP ROT SWAP
+;
+[THEN]
+
+[UNDEFINED] UNROT [IF]
+SYNONYM UNROT -ROT \ 2025 Proposal
+[THEN]
+
 \ End of portable implementations
 \ -----
 
