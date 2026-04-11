@@ -46,17 +46,16 @@ USER-VALUE LAST-HERE
 0x44 CELLS DUP CONSTANT OpBuffSize
 
 USER-CREATE OP0 2 CELLS + [DEFINED] TC [IF] TC-USER-ALLOT [ELSE] USER-ALLOT [THEN]
-0
-CELL+ DUP : OP1 OP0 LITERAL + ;
-CELL+ DUP : OP2 OP0 LITERAL + ;
-CELL+ DUP : OP3 OP0 LITERAL + ;
-CELL+ DUP : OP4 OP0 LITERAL + ;
-CELL+ DUP : OP5 OP0 LITERAL + ;
-CELL+ DUP : OP6 OP0 LITERAL + ;
-CELL+ DUP : OP7 OP0 LITERAL + ;
-CELL+ DUP : OP8 OP0 LITERAL + ;
-          : OPLast OP0 OpBuffSize + CELL- ;
-DROP
+: OP1 OP0 [ 1 CELLS ] LITERAL + ;
+: OP2 OP0 [ 2 CELLS ] LITERAL + ;
+: OP3 OP0 [ 3 CELLS ] LITERAL + ;
+: OP4 OP0 [ 4 CELLS ] LITERAL + ;
+: OP5 OP0 [ 5 CELLS ] LITERAL + ;
+: OP6 OP0 [ 6 CELLS ] LITERAL + ;
+: OP7 OP0 [ 7 CELLS ] LITERAL + ;
+: OP8 OP0 [ 8 CELLS ] LITERAL + ;
+: OPLast OP0 [ OpBuffSize CELL- ] LITERAL + ;
+
 
 : SetOP ( -- )
  DP @ OP0 @ = IF -8FD THROW THEN \ -2301 THROW \ do not alow OP1 be the same as OP0
@@ -83,12 +82,11 @@ DROP
 0x11 CELLS DUP CONSTANT JpBuffSize
 
 USER-CREATE JP0 1 CELLS +  [DEFINED] TC [IF] TC-USER-ALLOT [ELSE] USER-ALLOT [THEN]
-0
-CELL+ DUP : JP1 JP0 LITERAL + ;
-CELL+ DUP : JP2 JP0 LITERAL + ;
-CELL+ DUP : JP3 JP0 LITERAL + ;
-CELL+ DUP : JP4 JP0 LITERAL + ;
-DROP
+: JP1 JP0 [ 1 CELLS ] LITERAL + ;
+: JP2 JP0 [ 2 CELLS ] LITERAL + ;
+: JP3 JP0 [ 3 CELLS ] LITERAL + ;
+: JP4 JP0 [ 4 CELLS ] LITERAL + ;
+
 
 \ macroopt грузится дважды: вначале в инструментальную систему, а потом в целевую;
 \ и, из-за особенностей целевого компилятора, надо по разному делать USER-ALLOT.
