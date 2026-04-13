@@ -26,7 +26,7 @@
 
 : FILE-CONTENT ( h-file -- addr u ior )
   \ addr should be freed via FREE on success
-  >R 
+  >R
   R@ FILE-SIZE DUP IF RDROP EXIT THEN DROP
   ( d-size ) IF 0
                 -1005 RDROP EXIT THEN \ too big
