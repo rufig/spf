@@ -29,7 +29,7 @@
   _cs_log LEAVE-CS
   R> <unless-exit/> -6013 THROW <rem> arguments is too long </rem>
 </def>
- 
+
 <also wordlist="forthml-hidden">
 
 <r:rule match="f:log">

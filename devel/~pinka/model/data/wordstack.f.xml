@@ -30,7 +30,7 @@
 
 <def name="drop-word" ds=" -- ">
   unrelate DROP
-  sweep-dataspace 
+  sweep-dataspace
 </def>
 
 <def name="find-word" ds=" addr u -- x true | addr u false ">

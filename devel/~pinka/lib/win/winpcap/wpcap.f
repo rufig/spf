@@ -31,8 +31,8 @@ WINAPI: pcap_compile wpcap.dll
 
 : PCAP_SRC_IF_STRING S" rpcap://" DROP ;
 
-\ pcap_if 
-0 
+\ pcap_if
+0
 CELL -- pcap_if.next \ *    next, if not NULL, a pointer to the next element in the list; NULL for the last element of the list
 CELL -- pcap_if.name \ char *   name, a pointer to a string giving a name for the device to pass to pcap_open_live()
 CELL -- pcap_if.description \ char *    if not NULL, a pointer to a string giving a human-readable description of the device
@@ -41,11 +41,11 @@ CELL -- pcap_if.flags \ u_int   PCAP_IF_ interface flags. Currently the only pos
 CONSTANT /pcap_if
 
 0 \ pcap_addr
-CELL -- pcap_addr.next \  if not NULL, a pointer to the next element in the list; NULL for the last element of the list 
-CELL -- pcap_addr.addr \  a pointer to a struct sockaddr containing an address 
-CELL -- pcap_addr.netmask \  if not NULL, a pointer to a struct sockaddr that contains the netmask corresponding to the address pointed to by addr. 
-CELL -- pcap_addr.broadaddr \  if not NULL, a pointer to a struct sockaddr that contains the broadcast address corre- sponding to the address pointed to by addr; may be null if the interface doesn't support broadcasts 
-CELL -- pcap_addr.dstaddr \  if not NULL, a pointer to a struct sockaddr that contains the destination address corre- sponding to the address pointed to by addr; may be null if the interface isn't a point- to-point interface 
+CELL -- pcap_addr.next \  if not NULL, a pointer to the next element in the list; NULL for the last element of the list
+CELL -- pcap_addr.addr \  a pointer to a struct sockaddr containing an address
+CELL -- pcap_addr.netmask \  if not NULL, a pointer to a struct sockaddr that contains the netmask corresponding to the address pointed to by addr.
+CELL -- pcap_addr.broadaddr \  if not NULL, a pointer to a struct sockaddr that contains the broadcast address corre- sponding to the address pointed to by addr; may be null if the interface doesn't support broadcasts
+CELL -- pcap_addr.dstaddr \  if not NULL, a pointer to a struct sockaddr that contains the destination address corre- sponding to the address pointed to by addr; may be null if the interface isn't a point- to-point interface
 CONSTANT /pcap_addr
 
 
@@ -63,7 +63,7 @@ CONSTANT /pcap_pkthdr
 \ CONSTANT /timestamp
 
 \ pcap_stat
-0 
+0
 2 CELLS -- pcap_stat.2pkt \ Accepted Packets, 64-bit counter
 2 CELLS -- pcap_stat.2oct \ Accepted Bytes, 64-bit counter
 CONSTANT /pcap_stat
@@ -72,7 +72,7 @@ CONSTANT /pcap_stat
 
 : ENUM-IF ( xt -- ) \ xt ( if -- )
   { xt \ alldevs dev }
-  PAD  ^ alldevs 0  PCAP_SRC_IF_STRING pcap_findalldevs_ex 
+  PAD  ^ alldevs 0  PCAP_SRC_IF_STRING pcap_findalldevs_ex
   >R 2DROP 2DROP R>
   -1 = IF PAD ASCIIZ> TYPE CR  14001 THROW THEN
   alldevs TO dev
@@ -132,7 +132,7 @@ VARIABLE ADHANDLE \ last capture instance
   { h \ header data }
   ^ data ^ header h  pcap_next_ex  >R DROP 2DROP R>
   \ -1 - ошибка, -2 - EOF
-  DUP 0< IF -2 = IF -1002 ELSE 14003 THEN THROW THEN 
+  DUP 0< IF -2 = IF -1002 ELSE 14003 THEN THROW THEN
   \ 0 - таймаут, 1 - пакет принят
   1 = IF data header TRUE ELSE FALSE THEN
 ;
@@ -173,7 +173,7 @@ VARIABLE ADHANDLE \ last capture instance
 : LOOKUP-NNAME ( n -- a u ) \ ret name for adapter number n
   0 0 ['] (LOOKUP-NNAME) ENUM-IFN 0= IF 2DROP 0. THEN
 ;
-: OPEN-NIF ( n -- h|0 ) \ open N'InterFace 
+: OPEN-NIF ( n -- h|0 ) \ open N'InterFace
 \ open by ordinal number n, as from zero
   LOOKUP-NNAME OPEN-IF
 ;

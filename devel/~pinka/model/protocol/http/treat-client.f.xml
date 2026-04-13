@@ -12,7 +12,7 @@
   </if>
   http-ver-major 1 EQ <unless>
     `http-request h@ <logS>request line</logS>
-    `#505 STHROW 
+    `#505 STHROW
   </unless><!-- HTTP/1.1 only -->
 </def>
 
@@ -57,7 +57,7 @@
       <logN>client, WSAETIMEDOUT</logN>
       0
     </when>
-    
+
   </choose><rem>( ior|0 )</rem>
   </if>
   DUP
@@ -67,7 +67,7 @@
   DUP <unless> DROP <exit/></unless>
   log-error
 </def>
-   
+
 <def name="treat-request-async" ds=" -- ">
   <emit-line>treat-request-async -- to be provided</emit-line> ABORT
 </def>
@@ -77,9 +77,9 @@
   treat-request-async  <exit/></unless></unless></if>
   treat-request
 
-  <!-- 8.1.2.2 Pipelining 
+  <!-- 8.1.2.2 Pipelining
     Clients SHOULD NOT pipeline requests using non-idempotent methods
-    or non-idempotent sequences of methods 
+    or non-idempotent sequences of methods
   -->
 </def>
 

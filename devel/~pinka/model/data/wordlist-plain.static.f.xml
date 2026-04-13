@@ -5,7 +5,7 @@
 
 <cell name="_list"/><!-- is static -->
 
-<def name="reset-list" ds=" -- "><rem> It does't free any resources </rem> 
+<def name="reset-list" ds=" -- "><rem> It does't free any resources </rem>
   _list 0!
 </def>
 

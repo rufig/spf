@@ -26,13 +26,13 @@ lib.libxml2 PUSH-SCOPE
 
 : normalizeURI ( addr-z u1 -- addr u2 )
   OVER >R `: SEARCH NIP IF CHAR+ THEN \ cut out a scheme
-  1 xmlNormalizeURIPath THROW \ work for pathnames only 
+  1 xmlNormalizeURIPath THROW \ work for pathnames only
   R> ASCIIZ>
 ;
 
 : baseURI ( node -- a u )
   DUP ownerDocument  ( node doc )
-  2 xmlNodeGetBase ?ASCIIZ> 
+  2 xmlNodeGetBase ?ASCIIZ>
   \ "it does not return the document base (5.1.3), use xmlDocumentGetBase() for this"
   \ FIXME: "It's up to the caller to free the memory with xmlFree()"
   \ -- http://xmlsoft.org/html/libxml-tree.html#xmlNodeGetBase
@@ -54,7 +54,7 @@ lib.libxml2 PUSH-SCOPE
   \ [setting the doc URL]
   \ it's better to call xmlNodeSetBase()
   \ which will make sure it does a copy of the string to avoid memory crash
-  \ when freeing the document ! 
+  \ when freeing the document !
   \ -- http://mail.gnome.org/archives/xml/2003-September/msg00112.html
 ;
 
@@ -98,7 +98,7 @@ lib.libxml2 PUSH-SCOPE
 \ ;
 : LOAD-XMLDOC ( addrz u -- doc|0 )
   DROP
-  xmlParserOption 0 ROT 
+  xmlParserOption 0 ROT
   3 xmlReadFile
 ;
 : FREE-XML ( doc -- )

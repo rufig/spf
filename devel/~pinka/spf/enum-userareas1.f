@@ -14,7 +14,7 @@ REQUIRE GET-THREADCONTEXT ~pinka/lib/win/threadcontext.f
 ;
 : (ENUM-USERAREAS) ( xt thread-id -- xt ) \ xt ( addr -- )
   DUP GetCurrentThreadId = IF DROP EXIT THEN
-  SWAP >R GET-THREADCONTEXT 
+  SWAP >R GET-THREADCONTEXT
   8 CELLS + 80 + 11 CELLS + ( addr-edi )
   @ ( may-be-tls )
   DUP (IsTlsIndex) IF R@ EXECUTE ELSE DROP THEN R>
@@ -25,5 +25,5 @@ REQUIRE GET-THREADCONTEXT ~pinka/lib/win/threadcontext.f
   ( xt ) DROP
 ;
 
-\ Внутри виндовых функций EDI может быть каким угодно, 
+\ Внутри виндовых функций EDI может быть каким угодно,
 \ поэтому в такой реализации не мал шанс упустить tls или получить AV в (IsTlsIndex)

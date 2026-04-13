@@ -20,7 +20,7 @@ EXPORT
   FALSE
 ;
 : READOUT-SOURCE ( addr u1 -- addr u2 )
-\ Чтение бинарных данных из входного потока 
+\ Чтение бинарных данных из входного потока
 \ То, что уже взял REFILL, тут недоступно.
   SOURCE-ID 0 > IF READOUT EXIT THEN
   SOURCE-ID 0= IF READOUT-STDIN EXIT THEN

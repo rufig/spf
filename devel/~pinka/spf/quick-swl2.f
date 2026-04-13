@@ -13,10 +13,10 @@
     Возможна утечка, если не делать FREE-WORDLIST на каждый TEMP-WORDLIST
 )
 ( Переопределяет FREE-WORDLIST  и MARKER /если он есть/
-  Поэтому, следует подгружать quick-swl.f до того, 
+  Поэтому, следует подгружать quick-swl.f до того,
    как эти слова могут быть использованы в определениях.
   [ в том числе, до locals.f ]
-  
+
   Заменяет/перехватывает/ +SWORD  и переопределяет слова ":" ";"
 
   Заменяет вектор SEARCH-WORDLIST - метод поиска в стандартных словарях SPF
@@ -26,7 +26,7 @@
 
 REQUIRE HEAP-ID     ~pinka/spf/mem.f
 REQUIRE [UNDEFINED] lib/include/tools.f
-REQUIRE HASH!       ~pinka/lib/hash-table.f 
+REQUIRE HASH!       ~pinka/lib/hash-table.f
 
 MODULE: QuickSWL-Support
 
@@ -34,7 +34,7 @@ EXPORT
 
  256 VALUE #WL-HASH
  \ размер хэш-таблиц для вновь создаваемых словарей.
- \ При инициализации на этапе AT-PROCESS-STARTING 
+ \ При инициализации на этапе AT-PROCESS-STARTING
  \   размер таблиц берется как 3*n, где n -число слов в словаре.
 
 DEFINITIONS
@@ -93,7 +93,7 @@ USER-VALUE hash
   R> DUP            WHILE
   DUP NAME>STRING
   hash HASH!N       REPEAT DROP
-  \ добавлять в хэш-таблицу надо в том же порядке, 
+  \ добавлять в хэш-таблицу надо в том же порядке,
   \ в котором слова добавлялись в словарь
 
   R> HEAP-ID!
@@ -141,21 +141,21 @@ EXPORT
 : QuickSWL ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ SWL
   WL-HASH ( c-addr u  h )
   HASH@N            IF
-  DUP  NAME> 
+  DUP  NAME>
   SWAP NAME>F C@
   &IMMEDIATE AND
   IF 1 ELSE -1 THEN ELSE
   0                 THEN
 ;
 ( для сочетания с MARKER можно было бы в QuickSWL проверять,
-   что найденное через хэш слово находиться ниже последенего слова в словаре 
-   [ или до границы HERE ], но такая проверка криво работает 
+   что найденное через хэш слово находиться ниже последенего слова в словаре
+   [ или до границы HERE ], но такая проверка криво работает
    при сцеплении списков в порядке, отличном от их следования в ОП.
 )
 
 : REFRESH-WLHASH ( wid -- )
 \ Обновить хэш-таблицу словаря (на случай, если она стала неадекватной..)
-\ Неопределенная ситуация, если во время выполнения REFRESH-WLHASH 
+\ Неопределенная ситуация, если во время выполнения REFRESH-WLHASH
 \  происходит поиск по словарю wid.
   DUP
   HEAP-ID >R  HEAP-GLOBAL
@@ -190,7 +190,7 @@ EXPORT
      , , GET-CURRENT ,
   R> WARNING !
 
-  DOES> 
+  DOES>
     DUP 0 CELLS +  @ EXECUTE
         2 CELLS +  @ REFRESH-WLHASH
 ;
@@ -215,7 +215,7 @@ DEFINITIONS
 \ ( аналогично ERASE-IMPORTS )
 \ хэш-таблицы динамические, живут только в ОП,
 \ поэтому после запуска процесса ссылки на exth в заголовках словарей
-\ будут не действительны. Их надо обнулить. 
+\ будут не действительны. Их надо обнулить.
   VOC-LIST @ BEGIN
   DUP        WHILE
   DUP CELL+ ( a wid )

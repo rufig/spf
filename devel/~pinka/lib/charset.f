@@ -17,7 +17,7 @@
 
 \ <BODY>
 
-REQUIRE CREATED  ~pinka\lib\EXT_my.f 
+REQUIRE CREATED  ~pinka\lib\EXT_my.f
 
 
 \ 256 бит = 8 бит * 32  = 32 байта
@@ -65,7 +65,7 @@ REQUIRE CREATED  ~pinka\lib\EXT_my.f
     >R
     OVER +  SWAP ( a2 a1 )
     BEGIN
-        2DUP <> 
+        2DUP <>
     WHILE
         DUP C@ R@ set+  1+
     REPEAT 2DROP RDROP

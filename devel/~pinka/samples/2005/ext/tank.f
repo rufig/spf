@@ -5,7 +5,7 @@
 \ 12.Jul.2002 for Eproxy
 
 \ 25.Jan.2005 Tue 12:43
-\ from cvs\eserv\trafc\src\lib\ext\mouth.f 
+\ from cvs\eserv\trafc\src\lib\ext\mouth.f
 
 \ 11.May.2005
 \ mouth -> tank
@@ -19,7 +19,7 @@
 ;
 : TANK-ID! ( hfile -- )
   TO H-STDOUT
-; 
+;
 : STD-TANK ( -- )
   -11 GetStdHandle TO H-STDOUT
   ( implementation is environmental dependencies )

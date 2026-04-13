@@ -20,14 +20,14 @@ WINAPI: CopyFileA              KERNEL32.DLL
 : TOEND-FILE ( fileid -- ior )
 \ переместить указатель файла  в конец файла.
 
-  DUP >R   FILE-SIZE  ( fileid -- ud ior ) 
+  DUP >R   FILE-SIZE  ( fileid -- ud ior )
   ?DUP IF R> DROP NIP NIP EXIT THEN
-  R> REPOSITION-FILE  ( ud fileid -- ior ) 
+  R> REPOSITION-FILE  ( ud fileid -- ior )
 ;
 
 
 \ CopyFile  (  bFailIfExists:BOOL lpNewFileName  lpExistingFileName -- flag:BOOL )
-\    BOOL  bFailIfExists     // flag for operation if file exists 
+\    BOOL  bFailIfExists     // flag for operation if file exists
 \    =true - fail, if file exist
 
 \  MoveFile (  lpNewFileName  lpExistingFileName -- flag:BOOL )
@@ -45,8 +45,8 @@ WINAPI: CopyFileA              KERNEL32.DLL
 
 
 WINAPI: RemoveDirectoryA KERNEL32.DLL (
-    LPCTSTR lpPathName  // address of directory to remove  
-  -- BOOL  )   
+    LPCTSTR lpPathName  // address of directory to remove
+  -- BOOL  )
 
 : DELETE-FOLDER ( a u -- ior )
 \ will deleted only if empty
@@ -59,9 +59,9 @@ WINAPI: RemoveDirectoryA KERNEL32.DLL (
 
 WINAPI: GetFullPathNameA KERNEL32.DLL (
     LPTSTR *lpFilePart  // address of filename in path
-    LPTSTR lpBuffer,    // address of path buffer 
-    DWORD nBufferLength,    // size, in characters, of path buffer 
-    LPCTSTR lpFileName, // address of name of file to find path for 
+    LPTSTR lpBuffer,    // address of path buffer
+    DWORD nBufferLength,    // size, in characters, of path buffer
+    LPCTSTR lpFileName, // address of name of file to find path for
   -- DWORD )
 
 : ExtFilePathName ( a u -- a u1 )

@@ -4,13 +4,13 @@
 \ Ruvim,  06.01.2000
 \ 14.May.2007 добавлена установка LAST-NON дл€ RECURSE (true-grue, ygrek)
 
-REQUIRE AHEAD lib/include/tools.f 
+REQUIRE AHEAD lib/include/tools.f
 
 : LAMBDA{  ( -- )
 \ врем€ компил€ции  ( -- orig1 xt )
    LAST-NON
    POSTPONE  AHEAD
-   HERE 
+   HERE
    DUP TO LAST-NON
 ; IMMEDIATE
 

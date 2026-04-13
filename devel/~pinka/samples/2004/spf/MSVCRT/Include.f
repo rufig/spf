@@ -7,16 +7,16 @@
 
   Ограничения:
     - программа не должна полагать, что SOURCE-ID == fileid
-    - к значению, возвращаемому SOURCE-ID 
+    - к значению, возвращаемому SOURCE-ID
      нельзя применять стандартные файловые функции SPF
 )
 \ Заменяет значение вектора (INCLUDED)
 \ Все детали и интерфейс в словаре  MsvcrtIncluding
 \ В текущий словарь идет только слово MsvcrtIncluding
 
-\ some from  ~ac\lib\win\file\stream.f 
+\ some from  ~ac\lib\win\file\stream.f
 
-REQUIRE CAPI: lib\win\api-call\capi.f 
+REQUIRE CAPI: lib\win\api-call\capi.f
 
 WARNING @  WARNING 0!
 
@@ -50,7 +50,7 @@ MODULE: MsvcrtIncluding
   ['] READ-LINE SWAP RECEIVE-WITH-XT
 ;
 : INCLUDE-FILE ( i*x fileid -- j*x ) \ 94 FILE
-  BLK 0!  DUP >R  
+  BLK 0!  DUP >R
   ['] TranslateFlow RECEIVE-WITH
   R> CLOSE-FILE THROW
   THROW

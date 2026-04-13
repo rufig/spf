@@ -7,48 +7,48 @@ STRUCT: PEHeader
  \ IMAGE_FILE_HEADER
  4 -- Signature \ PE/0/0
  2 -- Machine              \ 14Ch - 386
- 2 -- NumberOfSections     
- 4 -- TimeDateStamp        
- 4 -- PointerToSymbolTable 
- 4 -- NumberOfSymbols      
- 2 -- SizeOfOptionalHeader 
- 2 -- Characteristics      
+ 2 -- NumberOfSections
+ 4 -- TimeDateStamp
+ 4 -- PointerToSymbolTable
+ 4 -- NumberOfSymbols
+ 2 -- SizeOfOptionalHeader
+ 2 -- Characteristics
  \ /IMAGE_FILE_HEADER
  \ IMAGE_OPTIONAL_HEADER
       ( Standard fields. )
- 2 -- Magic                  
- 1 -- MajorLinkerVersion     
- 1 -- MinorLinkerVersion     
- 4 -- SizeOfCode             
- 4 -- SizeOfInitializedData  
+ 2 -- Magic
+ 1 -- MajorLinkerVersion
+ 1 -- MinorLinkerVersion
+ 4 -- SizeOfCode
+ 4 -- SizeOfInitializedData
  4 -- SizeOfUninitializedData
- 4 -- AddressOfEntryPoint    
- 4 -- BaseOfCode             
- 4 -- BaseOfData             
+ 4 -- AddressOfEntryPoint
+ 4 -- BaseOfCode
+ 4 -- BaseOfData
       ( NT additional fields. )
- 4 -- ImageBase                  
- 4 -- SectionAlignment           
- 4 -- FileAlignment              
+ 4 -- ImageBase
+ 4 -- SectionAlignment
+ 4 -- FileAlignment
  2 -- MajorOperatingSystemVersion
  2 -- MinorOperatingSystemVersion
- 2 -- MajorImageVersion          
- 2 -- MinorImageVersion          
- 2 -- MajorSubsystemVersion      
- 2 -- MinorSubsystemVersion      
- 4 -- Win32VersionValue          
- 4 -- SizeOfImage                
- 4 -- SizeOfHeaders              
- 4 -- CheckSum                   
- 2 -- Subsystem                  
- 2 -- DllCharacteristics         
- 4 -- SizeOfStackReserve         
- 4 -- SizeOfStackCommit          
- 4 -- SizeOfHeapReserve          
- 4 -- SizeOfHeapCommit           
- 4 -- LoaderFlags                
- 4 -- NumberOfRvaAndSizes        
+ 2 -- MajorImageVersion
+ 2 -- MinorImageVersion
+ 2 -- MajorSubsystemVersion
+ 2 -- MinorSubsystemVersion
+ 4 -- Win32VersionValue
+ 4 -- SizeOfImage
+ 4 -- SizeOfHeaders
+ 4 -- CheckSum
+ 2 -- Subsystem
+ 2 -- DllCharacteristics
+ 4 -- SizeOfStackReserve
+ 4 -- SizeOfStackCommit
+ 4 -- SizeOfHeapReserve
+ 4 -- SizeOfHeapCommit
+ 4 -- LoaderFlags
+ 4 -- NumberOfRvaAndSizes
  ( Data Directory - 16 entrys )
- ( 00) 4 -- ExportTableRVA       
+ ( 00) 4 -- ExportTableRVA
        4 -- TotalExportDataSize
  ( 01) 4 -- ImportTableRVA
        4 -- TotalImportDataSize
@@ -108,11 +108,11 @@ STRUCT: ImageExportDirectory
  2 -- MinorVersion          \ 0
  4 -- Name                  \ RVA DLL asciiz name
  4 -- Base                  \
- 4 -- NumberOfFunctions    
- 4 -- NumberOfNames        
- 4 -- AddressOfFunctions    
- 4 -- AddressOfNames        
- 4 -- AddressOfNameOrdinals 
+ 4 -- NumberOfFunctions
+ 4 -- NumberOfNames
+ 4 -- AddressOfFunctions
+ 4 -- AddressOfNames
+ 4 -- AddressOfNameOrdinals
 ;STRUCT
                                                     HEX
 CREATE DOS-HEADER

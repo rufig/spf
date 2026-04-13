@@ -9,7 +9,7 @@ CREATE STATTBL  /STATTBL ALLOT   STATTBL  /STATTBL ERASE
 : INIT-STAT ( -- )
   STATTBL  /STATTBL ERASE
 ;
-: STAT+ ( i -- ) 
+: STAT+ ( i -- )
   #STAT UMIN  CELLS STATTBL +  1+!
 ;
 : STAT. ( -- )
@@ -18,6 +18,6 @@ CREATE STATTBL  /STATTBL ALLOT   STATTBL  /STATTBL ERASE
                             CELL +LOOP
 ;
 
-\ STAT+ ( i -- )  
+\ STAT+ ( i -- )
 \  если i < #STAT,  увеличивает значение i-го счетчика на 1
 \  иначе увеличивает значение последнего счетчика

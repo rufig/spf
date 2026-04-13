@@ -2,12 +2,12 @@
 \ for SPF
 \ (c) Ruvim Pinka
 
-\ ver 0.1 11.06.1999 
+\ ver 0.1 11.06.1999
 \ ver 0.4 18.03.2000
 \ * исправлена некорректная обработка случая  S" aaa" S" aaa*"
 \ ver 0.5
 \ + переход к locals,  небольшое улучшение алгоритма.
-\ ver 0.6  13.05.2000  
+\ ver 0.6  13.05.2000
 \ + добавлена возможность квотить метасимволы \* \? \\
 \ * где-то там еще было заюзывание временного словаря...
 
@@ -63,12 +63,12 @@ DUP ALSO CONTEXT !
 \           ?  - любой символ
 
     BEGIN
-        wclen  1 < IF   
-            strlen 0= IF  0 EXIT THEN  -1  EXIT  
+        wclen  1 < IF
+            strlen 0= IF  0 EXIT THEN  -1  EXIT
         THEN
 
         strlen 0= IF
-            wc C@ [CHAR] * =  IF 
+            wc C@ [CHAR] * =  IF
                 wc+  wclen 0= IF 0  EXIT THEN \ если * - последний.
             THEN  -1  EXIT
         THEN
@@ -89,14 +89,14 @@ DUP ALSO CONTEXT !
         DUP  quote-char = IF DROP  wc C@  wc+ THEN
             UpCase  str C@
             UpCase  2DUP  <> IF
-               > IF  -1 EXIT    ELSE   1 EXIT   THEN  
+               > IF  -1 EXIT    ELSE   1 EXIT   THEN
             THEN 2DROP
             str+
         THEN THEN
     AGAIN
 ;
 
-PREVIOUS  
+PREVIOUS
 FREE-WORDLIST
 
 ( example

@@ -2,7 +2,7 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 
 <def name="CONVERT-BASED" ds=" a u base -- x ">
-  BASE @ >R  BASE ! 
+  BASE @ >R  BASE !
     0. 2SWAP >NUMBER 2DROP D>S
   R> BASE !
 </def>
@@ -23,12 +23,12 @@
 
 <def name=".0BIN" ds=" x u -- ">
   BASE @ >R BINARY .0 R> BASE !
-</def>  
+</def>
 
 <def name=".mask" ds=" x -- "><rem>
   Вывод наших масок длиной 12 (для отладки).
 </rem>
-  12 .0BIN 
+  12 .0BIN
 </def>
 
 <def name="FIND-CELL" ds=" x addr u -- addr2 true | false ">

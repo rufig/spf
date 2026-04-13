@@ -28,7 +28,7 @@
 </also>
 
 <r:rule match="tc:import">
-  <!-- 
+  <!--
   STATE0? <f:unless> -5011 THROW </f:unless> -->
   (import-element)
 </r:rule>

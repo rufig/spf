@@ -1,5 +1,5 @@
 REQUIRE EMBODY ~pinka/spf/forthml/index.f
-REQUIRE PRO    ~profit/lib/bac4th.f 
+REQUIRE PRO    ~profit/lib/bac4th.f
 
 \ S" spf-big.exe" SAVE BYE
 

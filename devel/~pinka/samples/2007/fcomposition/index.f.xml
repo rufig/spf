@@ -27,7 +27,7 @@
   <def name="give-forth" ds=" -- ">
     GET-CURRENT target-root APPEND-WORDLIST
   </def>
-  <alias name="hcall" word="E-NATIVE-SURE"/>  
+  <alias name="hcall" word="E-NATIVE-SURE"/>
 
   <r:extend transform="transformer-fml" >
     <include href="import-words.f.xml"/>
@@ -55,10 +55,10 @@
 
   <init><rem> initiate the target system </rem>
     <rem> The host system and the target system both have the same code form! So we can execute the words from the target system as is.</rem>
-    
+
     `TC-WL::VOC-LIST       hcall    @ VOC-LIST !
     `TC-WL::SAVE-STORAGE   hcall    RESTORE-STORAGE
- 
+
     500 CELLS ALLOCATED ASSUME-CS
      32 CELLS ALLOCATED ASSUME-SCOPE
     2 1024 *  ALLOCATED ASSUME-PAD

@@ -8,7 +8,7 @@
   <def name="set-size" ds=" size -- ">
     d0 <if> d0 OVER RESIZE THROW d0! </if> size!
   </def>
-  
+
   <def name="buf" ds=" -- addr u "> d0 size </def>
 
   <def name="_close" ds=" -- ">

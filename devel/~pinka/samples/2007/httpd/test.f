@@ -24,8 +24,8 @@ WINAPI: GetCurrentThreadId KERNEL32.DLL
 `lib.f.xml FIND-FULLNAME2 EMBODY
 
 [UNDEFINED] XCOUNT [IF]
-: XCOUNT ( xaddr -- a u ) 
-  DUP 0= IF  0 EXIT THEN 
+: XCOUNT ( xaddr -- a u )
+  DUP 0= IF  0 EXIT THEN
   DUP CELL+ SWAP @
 ;
 [THEN]

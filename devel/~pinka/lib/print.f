@@ -31,7 +31,7 @@ REQUIRE [UNDEFINED] lib\include\tools.f
 CHAR , VALUE cSeparator
 
 : expand$ ( c-addr u-len c --  c-addr u-len+1 )
-\ расширить строку, сдвинув подстроку c-addr u-len вправо на один символ. 
+\ расширить строку, сдвинув подстроку c-addr u-len вправо на один символ.
 \ записать в "дырку" символ  с
     >R 2DUP
     OVER 1+ SWAP   ( a u  a a1 u )
@@ -44,19 +44,19 @@ CHAR , VALUE cSeparator
 \ разбивая по три разряда  символом "," .
 \ Если число символов, необходимое для изображения u, больше чем n,
 \ преобразовываются все цифры числа без ведущих пробелов в поле необходимой
-\ ширины. 
+\ ширины.
 
   >R <# #S #>  ( S: c-addr u-len )  ( R: n )
   2DUP  >R  + 0   ( S: a a+l 0 ) ( R: n l )
 
-\ ===  
+\ ===
   BEGIN ( a u ) \ идем справа налево
       -3 2 D+  ( a-3 u+3 )
       DUP R@  <
   WHILE ( a1 u1 )
       cSeparator expand$  RP@ 1+!
   REPEAT ( a2 u2 )  2DROP
-\ ===  
+\ ===
 
   R> ( a l )
   R> OVER -  0 MAX ( a l  n-l )

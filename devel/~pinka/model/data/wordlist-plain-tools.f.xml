@@ -11,7 +11,7 @@
 </def>
 
 <def name="APPEND-WORDLIST" ds=" h-list2 h-list -- "><rem> it saves order </rem>
-  SWAP @  0 >R  
+  SWAP @  0 >R
   <repeat> DUP <while/> DUP >R CDR </repeat> DROP
   DUP @
   <repeat> R> DUP <while/> APPENDED-WORDLIST-NODE- </repeat> DROP  SWAP !

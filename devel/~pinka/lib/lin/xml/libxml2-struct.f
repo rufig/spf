@@ -5,7 +5,7 @@ REQUIRE [UNDEFINED] lib/include/tools.f
 
 \ REQUIRE AsQName     ~pinka/samples/2006/syntax/qname.f \ понятие однословных строк в виде `abc
 \ REQUIRE [UNDEFINED] lib/include/tools.f
-\ REQUIRE libxml2.dll ~ac/lib/lin/xml/xml.f 
+\ REQUIRE libxml2.dll ~ac/lib/lin/xml/xml.f
 
 [UNDEFINED] COMMENT_NODE [IF]
  1 CONSTANT ELEMENT_NODE
@@ -80,4 +80,4 @@ CELL -- x.psvi
 CONSTANT /xmlNode
 [THEN]
 
-  
+

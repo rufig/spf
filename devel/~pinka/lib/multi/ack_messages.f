@@ -1,7 +1,7 @@
 \ 07.Jul.2001 Sat 02:13  Ruv
 \ Посылка сообщений с квитированием о начале обработки.
 
-REQUIRE GetMessageA  ~pinka\lib\Multi\messages.f 
+REQUIRE GetMessageA  ~pinka\lib\Multi\messages.f
 
 [UNDEFINED] PM_REMOVE [IF]
 1 CONSTANT PM_REMOVE
@@ -60,7 +60,7 @@ WM_USER 0x50 + CONSTANT m_receipt
    SWAP
    0 /MSG RALLOT DUP >R   GetMessageA
    -1 = IF GetLastError THROW THEN
-   R@ MSG.wparam @ SendMsgAck 
+   R@ MSG.wparam @ SendMsgAck
    R@ MSG.lparam @
    R> MSG.uint   @
    /MSG RFREE
@@ -78,17 +78,17 @@ WM_USER 0x50 + CONSTANT m_receipt
     0 0 MessageWithAck@
     ." received: " . . ." st: " .S CR
     WaitMessage DROP
-    0 0 R@ ExistMsg IF 
-      ." r2 " CR 
+    0 0 R@ ExistMsg IF
+      ." r2 " CR
       R@ MSG.wparam @  SendMsgAck
                     THEN
   AGAIN
 ;
 ' _test TASK: t
-: test 
+: test
   0 t START DROP
-;  
- test 
+;
+ test
  10 PAUSE \ чтобы поток успел стартануть и заполнить s
-: t  -11 10  s MessageWithAck! ; \ t t t t 
+: t  -11 10  s MessageWithAck! ; \ t t t t
 \ )

@@ -20,13 +20,13 @@ profile on
 profile off
 
 : CountProfile ( xt -- )
-  ResetProfiles  
+  ResetProfiles
   TO Xt ProfilingXt
   .AllStatistic
 ;
 
 : NCountProfile ( xt N -- )
-  ResetProfiles  
+  ResetProfiles
   TO N TO Xt ProfilingXtN
   .AllStatistic
 ;

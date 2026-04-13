@@ -15,13 +15,13 @@
   DROP
   xmlParserOption 0 ROT
   3 xmlReadFile
-  DUP 0= IF  60001 THROW THEN 
-; 
-: LoadXmlDoc ( a u -- doc ) 
+  DUP 0= IF  60001 THROW THEN
+;
+: LoadXmlDoc ( a u -- doc )
   2>R xmlParserOption 0 0 R> R>
   5 xmlReadMemory
-  DUP 0= IF  60005 THROW THEN 
-; 
+  DUP 0= IF  60005 THROW THEN
+;
 
 
 
@@ -46,7 +46,7 @@
   WRITE-XMLPARSER THROW
 ;
 : ClearPushParserCtxt ( ctxt -- )
-  >R 
+  >R
   0 \ encoding
   0 \ filename
   0 \ size
@@ -60,7 +60,7 @@
   \ the parsed document in ctxt->myDoc is not freed.
 ;
 : ParserCtxtDoc ( ctxt -- doc )
-  2 CELLS + @ 
+  2 CELLS + @
 ;
 : (PerParseDoc) ( ctxt xt -- )
 \ for safing throws from xt or ParseChunk

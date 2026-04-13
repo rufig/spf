@@ -33,7 +33,7 @@
 
 <def name="content-length-number" ds=" -- u ">
   content-length FINE-TAIL
-  DUP <unless> 
+  DUP <unless>
     `#501.content-length-unknown STHROW <!-- Not Implemented -->
   </unless>
   StoD 0EQ <if><exit/></if>

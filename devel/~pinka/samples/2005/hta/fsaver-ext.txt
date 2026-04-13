@@ -1,6 +1,6 @@
-\ 30.Oct.2005 
+\ 30.Oct.2005
 
-Положить 
+Положить
  fsaver-flash.hta
  и
  fsaver-hta.scr

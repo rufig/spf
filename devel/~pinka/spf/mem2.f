@@ -15,7 +15,7 @@ USER-VALUE HEAP-ID
 
 : HEAP-ID! ( heap -- ) TO HEAP-ID ;
 
-\ 8 = HEAP_ZERO_MEMORY 
+\ 8 = HEAP_ZERO_MEMORY
 \ 1 = HEAP_NO_SERIALIZE
 \ 9 = HEAP_ZERO_MEMORY HEAP_NO_SERIALIZE OR
 \ Таким образом, синхронизация при доступе из разных потоков к общему хипу
@@ -47,8 +47,8 @@ WARNING @ WARNING 0!
 [UNDEFINED] ALLOCATE1 [IF] ( создание векторов, если их не было )
 
 ' ALLOCATE  VECT ALLOCATE
-' FREE      VECT FREE    
-' RESIZE    VECT RESIZE  
+' FREE      VECT FREE
+' RESIZE    VECT RESIZE
 ( xt-orig-ALLOCATE xt-orig-FREE xt-orig-RESIZE )
 
 [THEN]

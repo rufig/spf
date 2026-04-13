@@ -28,7 +28,7 @@
 <cell name="_cnt2"/>
 
 <def name="(alloc-block)" ds=" u-min -- a1 u1 ">
-  500 + _size @ UMAX ALIGNED ALLOCATED 
+  500 + _size @ UMAX ALIGNED ALLOCATED
   _cnt @ 1 UGT <if> DUP _size +! </if>
   _cnt2 1+!
 </def>
@@ -94,7 +94,7 @@
   _cnt @ <unless><exit/></unless>
   _cnt2 @ 1 EQ <if>
     <rem> adjust size </rem>
-    block-w::unused _size0 @ UGT <if> 
+    block-w::unused _size0 @ UGT <if>
     block-w::unused _size  @ 2/ UGT <if>
       _size @ 2/ DUP 2/ + _size0 @ UMAX _size !
       free-last-block

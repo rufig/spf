@@ -8,7 +8,7 @@ REQUIRE bin2gray  ..\gray.f
 
 1 [IF]
 S" "
-: HASH { a u u1 \ h -- u2 } 
+: HASH { a u u1 \ h -- u2 }
  0 -> h    a u + -> u
  BEGIN a u < WHILE
    h 5 LSHIFT 1+ a C@ +   -> h  a 1+ -> a
@@ -22,7 +22,7 @@ S" "
 
 1 [IF]
 
-: HASH { a u u1 \ h -- u2 } 
+: HASH { a u u1 \ h -- u2 }
  0 -> h    a u + -> u
  BEGIN a u < WHILE
    h 5 LSHIFT 1+ a C@ +   -> h  a 1+ -> a
@@ -63,7 +63,7 @@ str1 COUNT hash-mod HASH  VALUE hash1
 \ просто max-(разность по модулю)
 
 : fitness ( c -- w )
-  <# HOLD 0. #> 
+  <# HOLD 0. #>
   DUP IF
     hash-mod HASH
     hash1 -  ABS NEGATE hash-mod +
@@ -99,7 +99,7 @@ str1 COUNT hash-mod HASH  VALUE hash1
 ;
 
 : tt2
-  200 0 DO  
+  200 0 DO
     I <#  DUP HOLD HOLD    S" ABC" HOLDS     0. #>
     hash-mod HASH . CR
   LOOP

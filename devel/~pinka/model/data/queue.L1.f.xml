@@ -37,7 +37,7 @@
 
 <init> CS@ <rem>( wid )</rem></init>
 <def name="log-overflow" ds=" -- ">
-  CR 
+  CR
   <emit>WARNING: The queue defined in the wordlist #</emit><lit/> DUP . VOC-NAME.
   <emit> is overflow, wait for dequeue.</emit> CR
 </def>

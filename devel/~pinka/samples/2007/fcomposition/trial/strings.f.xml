@@ -3,7 +3,7 @@
 
 <tc:import xmlns:tc="http://forth.org.ru/ForthML/TC/">
 
-/CHAR          CHAR+          CHAR-          CHARS          >CHARS         
+/CHAR          CHAR+          CHAR-          CHARS          >CHARS
 
 SEARCH         COMPARE
 

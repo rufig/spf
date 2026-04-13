@@ -9,15 +9,15 @@ WINAPI: HeapValidate                kernel32.dll ( addr-mem|0 flags heap -- bool
 \   valid --> nonzero
 \ invalid --> zero
 
-\ MSDN: If the HeapLock and HeapUnlock functions are called on a heap created 
+\ MSDN: If the HeapLock and HeapUnlock functions are called on a heap created
 \   with the HEAP_NO_SERIALIZATION flag, the results are undefined.
 
-\ The low-fragmentation heap (LFH) cannot be enabled for a heap created 
+\ The low-fragmentation heap (LFH) cannot be enabled for a heap created
 \ with this option [ HEAP_NO_SERIALIZE 0x00000001 ]
 
-\ If you want to validate the heap elements enumerated by the HeapWalk function, 
-\ you should only call HeapValidate on the elements that have PROCESS_HEAP_ENTRY_BUSY 
-\ in the wFlags member of the PROCESS_HEAP_ENTRY structure. HeapValidate returns FALSE 
+\ If you want to validate the heap elements enumerated by the HeapWalk function,
+\ you should only call HeapValidate on the elements that have PROCESS_HEAP_ENTRY_BUSY
+\ in the wFlags member of the PROCESS_HEAP_ENTRY structure. HeapValidate returns FALSE
 \ for all heap elements that do not have this bit set.
 
 
@@ -57,7 +57,7 @@ CELL -- cbData
 5 CELLS -- xOtherInfo
 CONSTANT /PROCESS_HEAP_ENTRY
 
-\ MSDN: To initiate a heap enumeration, set the lpData field 
+\ MSDN: To initiate a heap enumeration, set the lpData field
 \  of the PROCESS_HEAP_ENTRY structure to NULL.
 
 

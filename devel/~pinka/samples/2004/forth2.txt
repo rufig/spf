@@ -1,5 +1,5 @@
- 
-  Файлы forth2.hrc взят из архива 
+
+  Файлы forth2.hrc взят из архива
   http://www.forth.org.ru/~mlg/Colorer/colorer.4.mlg.rar  346,536
 
   - отличная реализация подсветки синтаксиса для Форта by mlg! :-)
@@ -13,20 +13,20 @@
     colorer\hrc\main\forthhrd.hrc
     colorer\hrd\console\MY1.HRD
 
-  В colorer\hrc\colorer.hrc  
+  В colorer\hrc\colorer.hrc
   в секции   type descr="Forth" name="forth"
   вместо
      <load name="main/forth.hrc"/>
   прописать
      <load name="main/forth2.hrc"/>
 
-  В colorer\hrc\regions.hrc 
+  В colorer\hrc\regions.hrc
   после строки
     <define name="dInverseLabel" value="121"/>
   добавлена строка
     <define name="dInverseLabel2" value="122"/>
 
-  В настройках колорера, Файл ассоциаций 
+  В настройках колорера, Файл ассоциаций
   - прописать имя цветовой схемы: console\my1.hrd
 
 
@@ -37,7 +37,7 @@
 
 ________________________________________________________________________
 
-\ 20.Jul.2004 
+\ 20.Jul.2004
 
   <block start="/\{\s/" end="/\}(\s|$)/" scheme="empty" region="fthWritten" region00="fthKeyWordC" region10="fthKeyWordC"/>
                                    ^ была опечатка.
@@ -59,7 +59,7 @@ ________________________________________________________________________
 
  и добавлен туда
    <!-- words like p[  ] -->
- 
+
 \ 26.Jul.2004 Mon 22:06
  понятие о строке синтаксисом: " ... "
 

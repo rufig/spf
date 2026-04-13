@@ -14,7 +14,7 @@ WARNING @ WARNING 0!
 : StoN ( c-addr u -- x )
   forthml-hidden::I-LIT IF EXIT THEN `#NaN STHROW
 ;
-: NtoS ( x -- a u ) 
+: NtoS ( x -- a u )
   S>D (D.) \ HERE OVER 2SWAP S,
 ;
 

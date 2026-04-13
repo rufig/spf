@@ -20,7 +20,7 @@
 
 <chapter id="intro">
 <p>Ниже представлено примерное разбиение на модули и их взаимосвязь.
-На этой плоской схеме не выражены все нюансы зависимостей (или, независимостей) отдельных модулей 
+На этой плоской схеме не выражены все нюансы зависимостей (или, независимостей) отдельных модулей
 и не приведены многие служебные слова.
 </p>
 </chapter>
@@ -39,7 +39,7 @@
 <div><h2>translater (variant of the plainForth)</h2><div>
 QUIT           (QUIT)
 EVALUATE-INTERACTIVE          ENUM-STDIN-LINES              EACH-WORD
-FOREACH-WORD   E-WORD-SURE    E-WORD         E-NATIVE       
+FOREACH-WORD   E-WORD-SURE    E-WORD         E-NATIVE
 </div>
 </div>
 
@@ -53,7 +53,7 @@ ZBFW2,         NZBFW,         ZBFW,          BFW2,          BFW,
 SLIT,          SXZ,TAKE       (BIRTH)        (CONCEIVE)     RET,
 BRANCH,        RESOLVE-BW     MARK-BW        RESOLVE-FW     MARK-FW
 NZBRANCH,      ZBRANCH,       RLIT,          2LIT,          LIT,
-CALL,          
+CALL,
 </div></div>
 
 </td><td colspan="3">
@@ -63,15 +63,15 @@ CALL,
 I-QNATIVE
 I-SLIT-FORM    I-HLIT-FORM
 I-DLIT-FORM    I-LIT          I-DLIT         VOCS           WORDS
-&amp;          
+&amp;
 
 <div><h2>search order</h2><div>
-ORDER          
+ORDER
 
 END-EXPORT     BEGIN-EXPORT   DROP-DEVELOP   POP-DEVELOP
 PUSH-DEVELOP   DROP-CURRENT   PUSH-CURRENT   CURRENT        I-NATIVE
 SCAN-SCOPE-WITH               SCOPE-TOP      DROP-SCOPE     POP-SCOPE
-PUSH-SCOPE     CLEAR-SCOPE    ASSUME-SCOPE   
+PUSH-SCOPE     CLEAR-SCOPE    ASSUME-SCOPE
 </div></div>
 
 <div><h2>wodlists</h2><div>
@@ -81,7 +81,7 @@ SEARCH-WORDLIST
 VOC-NAME.      WORDLIST-NAMED
 NAMING-WORDLIST-              NAMING-WORDLIST               WORDLIST-NAME
 WORDLIST       VOC-LIST       SET-CURRENT
-GET-CURRENT    NAMING         NAMING-        
+GET-CURRENT    NAMING         NAMING-
 
 NLIST          APPEND-WORDLIST
 APPENDED-WORDLIST-NODE-       COPY-WORDLIST-NODE            FIND-WORDLIST
@@ -105,8 +105,8 @@ UNBIND-NODE    BIND-NODE      CONCATED-      CONCATED       CDR
 
 DUMP           TYPE-SAFE      .0             U.             .
 D.             CR             SPACES         SPACE          EMIT
-DOS-LINES      UNIX-LINES     EOLN           EOLN!          
-EOLN-DOS       EOLN-UNIX      
+DOS-LINES      UNIX-LINES     EOLN           EOLN!
+EOLN-DOS       EOLN-UNIX
 
 <div><h2>number converting</h2><div>
 
@@ -122,14 +122,14 @@ ASSUME-PAD     ?HLD           PAD            HLD
 DECIMAL        HEX            >NUMBER        BASE
 </div></div>
 
-</td></tr></table>          
+</td></tr></table>
 
 </div></div>
 
 </td></tr><tr><td colspan="2" style="width: 45%;">
 
 <div><h2>storage</h2><div>
-RESTORE-STORAGE               SAVE-STORAGE   
+RESTORE-STORAGE               SAVE-STORAGE
 
 </div>
 <table><tr><td>
@@ -146,7 +146,7 @@ CLEAR-DATASPACE               DATASPACE-CONTENT             DATASPACE
 DATASPACE!     RESTORE-DATASPACE             SAVE-DATASPACE
 SCZ,           SXZ,           S,             2,             ,
 C,             B,             ALIGN          ALLOT          UNUSED
-HERE           
+HERE
 </div></div>
 
 </td></tr></table></div>
@@ -161,7 +161,7 @@ HEAD|TAIL      HEAD           TAIL           WORD|TAIL      UNBROKEN
 SPLIT-WHITE-FORCE             FINE-TAIL
 FINE-HEAD      IS-WHITE       MATCH-STARTS   MATCH-HEAD     SPLIT
 SPLIT-         SUBSTRING-BEFORE              SUBSTRING-AFTER
-ENDS-WITH      STARTS-WITH    CONTAINS       
+ENDS-WITH      STARTS-WITH    CONTAINS
 </div></div>
 
 </td><td style="width: 15%;">
@@ -182,12 +182,12 @@ OPEN-FILE CLOSE-FILE
 
 CSDROP         2CS@
 CS@            2CS>           2>CS           CS>            >CS
-?CSP           ASSUME-CS      CS-WL          
+?CSP           ASSUME-CS      CS-WL
 </div></div>
 
 <div><h2>forthporoc-ext</h2><div>
 ?STACK
-ABORT          THROW          CATCH          
+ABORT          THROW          CATCH
 EXECUTE
 NR>            N>R
 </div></div>
@@ -196,7 +196,7 @@ NR>            N>R
 
 <div><h2>forthporoc</h2><div>
 
-NDROP          SEARCH         
+NDROP          SEARCH
 EQUAL          (EQUAL)
 ERASE          BFILL          MOVE           BMOVE>         BMOVE
 

@@ -4,7 +4,7 @@
 
 REQUIRE { lib\ext\locals.f
 
-: HASH { a u u1 \ h -- u2 } 
+: HASH { a u u1 \ h -- u2 }
  0 -> h    a u + -> u
  BEGIN a u < WHILE
    h 5 LSHIFT 1+ a C@ +   -> h  a 1+ -> a

@@ -48,7 +48,7 @@
   content-rest SWAP 'read-limited-per CATCH DUP <if> NIP NIP <exit/></if> DROP
   <rem> m.b. the stack of read-limited-per is counterintuitive (?)</rem>
   DUP content-rest!
-  0EQ <if> 0 <exit/></if> -1002 
+  0EQ <if> 0 <exit/></if> -1002
 </def>
 <def name="content-per" ds=" xt -- "><rem> xt ( a u -- ) </rem>
   content-per-catch THROW
@@ -57,10 +57,10 @@
 <def name="with-content" ds=" xt -- "><rem> xt ( a u -- ) </rem>
   <rem> reads what the rest by content-rest value </rem>
   content-rest ALLOCATED OVER >R
-  <q ds=" xt a u -- "> 
+  <q ds=" xt a u -- ">
     2DUP read-exact
     0 content-rest!
-    ROT EXECUTE 
+    ROT EXECUTE
   </q> CATCH
   R> FREE SWAP THROW THROW
 </def>

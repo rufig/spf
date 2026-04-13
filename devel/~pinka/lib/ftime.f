@@ -6,9 +6,9 @@
 )
 
 \ 15.Apr.2001  ruv
-\ 16. поменял порядок значений на стеке... 
-\       чтобы 2! ( thi tlo ) записывало в формате FILETIME 
-\ 25.Jul.2001 Wed 12:37 
+\ 16. поменял порядок значений на стеке...
+\       чтобы 2! ( thi tlo ) записывало в формате FILETIME
+\ 25.Jul.2001 Wed 12:37
 \ * diffsec берет разность по модулю.
 \ + SecondsToTimeDate ( sec -- sec min hr day mt year )
 \ + TimeDateToSeconds ( sec min hr day mt year -- sec )
@@ -40,49 +40,49 @@ REQUIRE [UNDEFINED] lib\include\tools.f
 : ?WINAPI: ( -- ) \
   >IN @
   POSTPONE [UNDEFINED]
-  IF   >IN ! WINAPI: 
-  ELSE DROP NextWord 2DROP 
+  IF   >IN ! WINAPI:
+  ELSE DROP NextWord 2DROP
   THEN
 ;                    [THEN]
 
 \ reference:
-( typedef struct _FILETIME { // ft 
-    DWORD dwLowDateTime; 
-    DWORD dwHighDateTime; 
+( typedef struct _FILETIME { // ft
+    DWORD dwLowDateTime;
+    DWORD dwHighDateTime;
 } FILETIME; )
-\ 64-bit value representing the number of 100-nanosecond intervals 
-\ since January 1, 1601. 
+\ 64-bit value representing the number of 100-nanosecond intervals
+\ since January 1, 1601.
 
-( typedef struct _SYSTEMTIME {  // st 
-    WORD wYear; 
-    WORD wMonth; 
-    WORD wDayOfWeek; 
-    WORD wDay; 
-    WORD wHour; 
-    WORD wMinute; 
-    WORD wSecond; 
-    WORD wMilliseconds; 
+( typedef struct _SYSTEMTIME {  // st
+    WORD wYear;
+    WORD wMonth;
+    WORD wDayOfWeek;
+    WORD wDay;
+    WORD wHour;
+    WORD wMinute;
+    WORD wSecond;
+    WORD wMilliseconds;
 } SYSTEMTIME;  )
 
 
 ?WINAPI: GetSystemTimeAsFileTime KERNEL32.DLL
-( LPFILETIME:lpSystemTimeAsFileTime \ pointer to a file time structure  
+( LPFILETIME:lpSystemTimeAsFileTime \ pointer to a file time structure
    -- VOID )    \ возвращает ячейку какой-то фигни.
 
 ?WINAPI: SystemTimeToFileTime KERNEL32.DLL
-(   lpFileTime   \ LPFILETIME   \ address of buffer for converted file time 
-    lpSystemTime \ LPSYSTEMTIME \ address of system time to convert 
+(   lpFileTime   \ LPFILETIME   \ address of buffer for converted file time
+    lpSystemTime \ LPSYSTEMTIME \ address of system time to convert
   -- BOOL )
 
 ?WINAPI: FileTimeToSystemTime  KERNEL32.DLL
-(   lpSystemTime  \ pointer to structure to receive system time  
-    lpFileTime    \ pointer to file time to convert 
+(   lpSystemTime  \ pointer to structure to receive system time
+    lpFileTime    \ pointer to file time to convert
   -- BOOL )
 
 ?WINAPI: FileTimeToLocalFileTime KERNEL32.DLL
-(   LPFILETIME lpLocalFileTime  // pointer to converted file time 
-    CONST FILETIME *lpFileTime, // pointer to UTC file time to convert  
-  -- BOOL )   
+(   LPFILETIME lpLocalFileTime  // pointer to converted file time
+    CONST FILETIME *lpFileTime, // pointer to UTC file time to convert
+  -- BOOL )
 
 ?WINAPI: LocalFileTimeToFileTime KERNEL32.DLL
 (   LPFILETIME lpFileTime   // address of converted file time
@@ -118,7 +118,7 @@ CONSTANT /SYSTEMTIME     [THEN]
 ; \ 10 000 000
 
 : addsec ( tlo1 thi1  sec -- tlo2 thi2 )
-\ дает увеличенное ftime, на sec 
+\ дает увеличенное ftime, на sec
   10000000 UM* D+
 ;
 
@@ -156,7 +156,7 @@ FALSE TO ?C-JMP  [THEN]
 TO ?C-JMP        [THEN]
 
 
-: NowFTime ( -- tlo thi ) \ expressed in Coordinated Universal Time (UTC). 
+: NowFTime ( -- tlo thi ) \ expressed in Coordinated Universal Time (UTC).
 \ дает текущий момент времени ( ~ в формате FILETIME)
   0. SP@ ( filet )
   GetSystemTimeAsFileTime DROP SWAP

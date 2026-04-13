@@ -36,12 +36,12 @@ EXPORT
 
 ..: AT-THREAD-STARTING ?CSP ;.. ?CSP
 
-( 
+(
 `Z@ `CS@  aka
 `>Z `gtCS aka
-`>Z `>CS  aka 
+`>Z `>CS  aka
 `Z> `CSgt aka
-`Z> `CS>  aka 
+`Z> `CS>  aka
 )
 : CS@   Z@ ;
 : >CS   >Z ;

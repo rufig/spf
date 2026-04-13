@@ -7,7 +7,7 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 
 `xml-struct.f.xml EMBODY
 
-  
+
   \ startup FIRE-EVENT
   xml-struct-hidden::start
 
@@ -16,12 +16,11 @@ REQUIRE EMBODY    ~pinka/spf/forthml/index.f
 \EOF
 
 ToDo
-  В оригинале объявления xi:model локальны в пределах любого 
-  родительского элемента, а здесь -- только в пределах 
+  В оригинале объявления xi:model локальны в пределах любого
+  родительского элемента, а здесь -- только в пределах
   элементов f:forth, xi:include и xi:model (которые сохраняют
-  чистоту по эффекту на список _list). 
+  чистоту по эффекту на список _list).
   Надо бы подправить (привязать список к родительскому элементу),
   или наложить ограничение.
 
   Поддержка атрибута advice для xi:model
-  

@@ -8,12 +8,12 @@ ALSO SO NEW: libxml2.dll
 
 : normalizeURI ( addr-z u1 -- addr u2 )
   OVER >R `: SEARCH NIP IF CHAR+ THEN \ cut out a scheme
-  1 xmlNormalizeURIPath THROW \ work for pathnames only 
+  1 xmlNormalizeURIPath THROW \ work for pathnames only
   R> ASCIIZ>
 ;
 : normalizeURI ( addr-z u1 -- addr u2 )
   OVER
-  1 xmlNormalizeURIPath THROW \ work for pathnames only 
+  1 xmlNormalizeURIPath THROW \ work for pathnames only
   DROP ASCIIZ>
 ;
 

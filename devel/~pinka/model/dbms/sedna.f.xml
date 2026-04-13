@@ -11,7 +11,7 @@
 
   http://modis.ispras.ru/src/sedna/driver/scheme/sedna-api/sedna-api.scm
   http://sedna.org/gitweb/sedna.git/blob/HEAD:/driver/scheme/sedna-api/sedna-api.scm
-</comment>  
+</comment>
 
 
 <comment>
@@ -106,7 +106,7 @@
 <def name="assume-cred" ds=" d-user d-password d-db d-host d-port -- ">
   port! hostname! database! password! user!
   port StoN port-number!
-  
+
   <rem>What if the current BASE will not a DECIMAL? (!!!)</rem>
 </def>
 
@@ -179,10 +179,10 @@
 <export>
 
 <def name="set-xml-stylesheet" ds=" d-url -- ">
-  <comment> It should be set on each query. 
-    Note d-url is passing by ref (without a copy of data). 
+  <comment> It should be set on each query.
+    Note d-url is passing by ref (without a copy of data).
   </comment>
-  xml-stylesheet! 
+  xml-stylesheet!
 </def>
 
 <alias name="assume-xml-stylesheet" word="set-xml-stylesheet" />
@@ -197,8 +197,8 @@
   t 1+ t!
 </def>
 <comment>
-  The transactions within a session are strictly serial, that is one transaction ends 
-  before next one starts, there is only one active transaction per session. 
+  The transactions within a session are strictly serial, that is one transaction ends
+  before next one starts, there is only one active transaction per session.
   -- http://www.modis.ispras.ru/sedna/adminguide/AdminGuidese1.html
 </comment>
 
@@ -237,7 +237,7 @@
       close-sock
       <rem> server will make rollback automatically </rem>
       t 1- t!
-      THROW 
+      THROW
     </if> DROP
     <rem> 't' state should be balanced </rem>
   commit

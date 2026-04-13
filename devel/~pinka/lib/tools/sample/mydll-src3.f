@@ -34,7 +34,7 @@ REQUIRE {       ~ac\lib\locals.f
   2DROP DROP
   1  \ 0 to fail
 ;
-\ ' (dllinit) WNDPROC: DllMain 
+\ ' (dllinit) WNDPROC: DllMain
 
 ' (dllinit) 3 CELLS CALLBACK: DllMain
 

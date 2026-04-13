@@ -1,12 +1,12 @@
 \ 12.Jul.2001 Thu 18:59  Ruv
-\ 16.Jul.2001 Mon 14:56  - переписанно. 
+\ 16.Jul.2001 Mon 14:56  - переписанно.
 
 \ за пример брался  modem-monitor\monitor_wnd.f by AC
 
 \ InitIcons ( -- ) \ перед использованием компонента (Поток должен успеть запустится до вызова NewIconPlace)
 \ FreeIcons ( -- ) \ когда компонент больше не нужен. Удаляет все иконки из трея.
 \ NewIconPlace ( -- place ) \ место. должно быть для каждой иконки. (однопоточное слово).
-\   Нижеследующие слова можно употреблять в любом порядке и в любом количестве 
+\   Нижеследующие слова можно употреблять в любом порядке и в любом количестве
 \ IconHint! ( addr u  place -- ) \ хинт для иконки. Если иконка показана, то обновляется.
 \ IconFile! ( a u  place -- ) \ файл иконки. Если иконка есть в трее, то она обновляется.
 \ IconImage! ( hImage  place -- ) \ или любым образом полученная картинка для иконки
@@ -84,11 +84,11 @@ WM_USER 10 +  CONSTANT Icon0#
 
 : (IconTask) ( 0 -- )
   DROP
-  S" STATIC"  WS_DISABLED WS_MINIMIZE OR WS_OVERLAPPEDWINDOW OR  
+  S" STATIC"  WS_DISABLED WS_MINIMIZE OR WS_OVERLAPPEDWINDOW OR
   0  Window  TO IconWindow    IconWindow IF
   ['] IconWindowProc  IconWindow  WindowSubclass
-  IconWindow MessageLoop  
-  IconWindow WindowDelete               
+  IconWindow MessageLoop
+  IconWindow WindowDelete
           0  TO IconWindow               THEN
 ; ' (IconTask)  TASK: IconTask
 
@@ -103,7 +103,7 @@ EXPORT
 
 : ShowIcon ( place -- )  >R
   R@ p.ic_id @ IF ( \ уже показана ) RDROP EXIT THEN
-  R@ p.hint ASCIIZ>  
+  R@ p.hint ASCIIZ>
   R@ p.icon-fname @ ?DUP IF ASCIIZ> ELSE 0 0 THEN
   R@ p.msg @  IconWindow
   Create-TrayIcon  R@ p.ic_id !
@@ -149,7 +149,7 @@ EXPORT
 ;
 
 \ ===============================
-\ Initialization 
+\ Initialization
 
 : InitIcons ( -- )
   Icons IF EXIT THEN
@@ -191,7 +191,7 @@ NewIconPlace VALUE p  p . CR
 : test \ wnd event param -- \
   ." param= " . CR
   ." event= " . CR
-  ." wnd=   " . CR   
+  ." wnd=   " . CR
 ;
 
 11 ' test p IconToken!

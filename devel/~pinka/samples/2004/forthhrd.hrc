@@ -2,7 +2,7 @@
 <!DOCTYPE hrc SYSTEM "../hrc.dtd">
 <?xml-stylesheet type="text/xsl" href="../hrc.xsl"?>
 <!--
-    Set Forth colors to the colors specified in hrd 
+    Set Forth colors to the colors specified in hrd
 -->
 <hrc>
 

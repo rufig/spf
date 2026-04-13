@@ -13,12 +13,12 @@
   Особенности:
     Хэш-таблицы располагаются в общем хипе процесса
     [через механизм HEAP-ID  ~pinka/spf/mem.f]
-    Возможна утечка хипа процесса, если не делать FREE-WORDLIST 
+    Возможна утечка хипа процесса, если не делать FREE-WORDLIST
     на каждый TEMP-WORDLIST
 )
 ( Модуль переопределяет FREE-WORDLIST [если нету AT-STORAGE-DELETING ],
   вектор SHEADER и слова ":" ";" [ловит события].
-  Поэтому, его следует подгружать до того, 
+  Поэтому, его следует подгружать до того,
   как эти слова могут быть использованы в определениях
   [ в том числе, до locals.f ], но после storage.f [!!!]
 
@@ -29,7 +29,7 @@
 
 REQUIRE HEAP-ID     ~pinka/spf/mem.f
 REQUIRE [UNDEFINED] lib/include/tools.f
-REQUIRE HASH!       ~pinka/lib/hash-table2.f 
+REQUIRE HASH!       ~pinka/lib/hash-table2.f
 
 REQUIRE WidExtraSupport ~pinka/spf/wid-extra.f
 
@@ -58,7 +58,7 @@ EXPORT
 
  256 VALUE #WL-HASH
  \ размер хэш-таблиц для вновь создаваемых словарей.
- \ При инициализации на этапе AT-PROCESS-STARTING 
+ \ При инициализации на этапе AT-PROCESS-STARTING
  \   размер таблиц берется как 3*n, где n -число слов в словаре.
 
 DEFINITIONS
@@ -123,7 +123,7 @@ USER-VALUE hash
   R> DUP            WHILE
   DUP NAME>STRING
   hash HASH!N       REPEAT DROP
-  \ добавлять в хэш-таблицу надо в том же порядке, 
+  \ добавлять в хэш-таблицу надо в том же порядке,
   \ в котором слова добавлялись в словарь
 
   R> HEAP-ID!
@@ -150,16 +150,16 @@ EXPORT
 : QuickSWL ( c-addr u wid -- 0 | xt 1 | xt -1 ) \ SWL
   WL-HASH ( c-addr u  h )
   HASH@N            IF
-  DUP  NAME> 
+  DUP  NAME>
   SWAP NAME>F C@
   &IMMEDIATE AND
-  IF 1 ELSE -1 THEN 
+  IF 1 ELSE -1 THEN
   EXIT              ELSE 0 THEN
 ;
 
 : REFRESH-WLHASH ( wid -- )
 \ Обновить хэш-таблицу словаря (на случай, если она стала неадекватной..)
-\ Неопределенная ситуация, если во время выполнения REFRESH-WLHASH 
+\ Неопределенная ситуация, если во время выполнения REFRESH-WLHASH
 \  происходит поиск по словарю wid.
   DUP
   HEAP-ID >R  HEAP-GLOBAL
@@ -210,7 +210,7 @@ DEFINITIONS
 \ ( аналогично ERASE-IMPORTS )
 \ хэш-таблицы динамические, живут только в ОП,
 \ поэтому после запуска процесса ссылки на exth в заголовках словарей
-\ будут не действительны. Их надо обнулить. 
+\ будут не действительны. Их надо обнулить.
   ['] WID-CACHEA0! ENUM-VOCS-FORTH
 ;
 

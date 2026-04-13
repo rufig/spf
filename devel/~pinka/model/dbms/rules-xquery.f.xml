@@ -35,7 +35,7 @@
   <m>
     0 >R
       <yield transform="rules-ss-template"/>
-    R@ XCOUNT <m0> fml::T-LIT </m0> CATCH R> XRELEASE THROW 
+    R@ XCOUNT <m0> fml::T-LIT </m0> CATCH R> XRELEASE THROW
   </m>
   <f:rem> TODO: There is a leak if exception occurs on a template instantiation </f:rem>
 </f:def>
@@ -79,9 +79,9 @@
     `abc item-exists .
   </s:bind>
 
-  <rem> 
-    Some similar draft on JavaScript 
-      https://sites.google.com/a/monkeyscript.org/api-draft/sedna 
+  <rem>
+    Some similar draft on JavaScript
+      https://sites.google.com/a/monkeyscript.org/api-draft/sedna
   </rem>
 </comment>
 

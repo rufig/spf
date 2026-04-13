@@ -57,7 +57,7 @@ content-length-number
 <export>
 
 <def name="main" ds=" -- ">
-  startup 'FIRE-EVENT CATCH 
+  startup 'FIRE-EVENT CATCH
   DUP  <if><logN>exception at startup</logN><exit/></if>
   DROP
   my-wid PUSH-SCOPE

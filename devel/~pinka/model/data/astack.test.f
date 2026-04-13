@@ -6,7 +6,7 @@ REQUIRE STHROW    ~pinka/spf/sthrow.f
 `../data/event-plain.f.xml EMBODY
 
 \ objects
-HERE 
+HERE
 `events-common.f.xml EMBODY
 `astack.f.xml EMBODY
 HERE SWAP - .( object size: ) . CR
@@ -14,9 +14,9 @@ HERE SWAP - .( object size: ) . CR
   ( Плата за простоту в данном случае -- 3 Kb объектного кода,
   которые приходятся на ~50 Кб данных, с которыми он работает.
   Накладка 6% -- вполне сойдет ;)
- 
-  startup FIRE-EVENT 
- 
+
+  startup FIRE-EVENT
+
   `aaa `A push-pair
   `A find-pair . TYPE CR
   `B find-pair . TYPE CR
@@ -26,7 +26,6 @@ HERE SWAP - .( object size: ) . CR
   `A find-pair . TYPE CR
   drop-pair
   `A find-pair . TYPE CR
- 
-  cleanup FIRE-EVENT 
+
+  cleanup FIRE-EVENT
   `A find-pair . TYPE CR
-  

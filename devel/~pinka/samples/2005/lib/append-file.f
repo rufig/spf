@@ -6,9 +6,9 @@ REQUIRE [DEFINED] lib/include/tools.f
 : 9REPOSITION-FILE ( fileid -- ior )
 \ Reposition the file identified by fileid to end of file.
 \ see also  ~pinka\lib\FileExt.f # TOEND-FILE
-  DUP >R   FILE-SIZE  ( fileid -- ud ior ) 
+  DUP >R   FILE-SIZE  ( fileid -- ud ior )
   ?DUP IF R> DROP NIP NIP EXIT THEN
-  R> REPOSITION-FILE  ( ud fileid -- ior ) 
+  R> REPOSITION-FILE  ( ud fileid -- ior )
 ;
 
 [DEFINED] OPEN-FILE-SHARED-DELETE [IF] \ see ~ac/lib/win/file/share-delete.f
@@ -30,7 +30,7 @@ REQUIRE [DEFINED] lib/include/tools.f
 
 \ Вариант:
 \ OPEN-FILE-LOG ( a u fam -- h ior )
-\ -- хорошо согласуется по сигнатуре с другими OPEN-FILE-* 
+\ -- хорошо согласуется по сигнатуре с другими OPEN-FILE-*
 [THEN]
 
 

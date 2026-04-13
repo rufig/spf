@@ -3,7 +3,7 @@
 REQUIRE GetTimes  ~pinka\lib\Tools\profiler.f
 profile off
 
-\ tested word from  ~ac\lib\win\file\stream.f 
+\ tested word from  ~ac\lib\win\file\stream.f
 
 profile on
 : read(WinAPI) ( a u -- )
@@ -20,7 +20,7 @@ profile off
 
 MODULE: T1
 
-~ac\lib\win\file\stream.f 
+~ac\lib\win\file\stream.f
 
 
 EXPORT
@@ -44,7 +44,7 @@ profile off
 
 MODULE: T2
 
-~af\lib\stream_io.f 
+~af\lib\stream_io.f
 
 EXPORT
 

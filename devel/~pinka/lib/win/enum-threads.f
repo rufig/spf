@@ -14,8 +14,8 @@ CONSTANT /THREADENTRY32
 
 0x00000004 CONSTANT TH32CS_SNAPTHREAD \ threads
 
-\ MSDN: To identify the threads that belong to a specific process, 
-\ compare its process identifier to the th32OwnerProcessID member 
+\ MSDN: To identify the threads that belong to a specific process,
+\ compare its process identifier to the th32OwnerProcessID member
 \ of the THREADENTRY32 structure when enumerating the threads.
 
 

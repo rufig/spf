@@ -4,7 +4,7 @@
   xmlns:f="http://forth.org.ru/ForthML/"
 >
 <!-- $Id$ -->
-<!-- 
+<!--
   01.2007 on SXSL
   03.2008 on XSL
 -->
@@ -47,7 +47,7 @@
 <!--  -->
 
 
-<xsl:template match="f:def">  
+<xsl:template match="f:def">
   <xsl:text>: </xsl:text>
   <xsl:value-of select="@name"/><xsl:text> </xsl:text>
   <xsl:if test="@ds">

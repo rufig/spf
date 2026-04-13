@@ -30,10 +30,10 @@
   FALSE
 ;
 : DIAGNOSE ( ior -- addr u true | ior false )
-  S" devel/~pinka/model/trans/trans.err" +ModuleDirName 
+  S" devel/~pinka/model/trans/trans.err" +ModuleDirName
   2DUP FILE-EXIST 0= IF 2DROP FALSE EXIT THEN
   R/O OPEN-FILE-SHARED IF DROP FALSE EXIT THEN
-  OVER >R 
+  OVER >R
     DUP >R
         ( n )
         ['] (DECODE-ERROR?) RECEIVE-WITH ( x ior | d-txt true 0 | n false 0 )
@@ -94,12 +94,12 @@ DROP-SCOPE
   hint-node
     ERR-DATA err.line  /errstr_ 1 CLEFT- SEATED
   NIP
-    ERR-DATA err.line C!   
+    ERR-DATA err.line C!
   \ document-url  \ универсальный URL
   SOURCE-NAME     \ конкретный файл
     ERR-DATA err.file  /errstr_ 1 CLEFT- SEATED
   NIP
-    ERR-DATA err.file C!   
+    ERR-DATA err.file C!
   NOTSEEN-ERR
 ;
 \ see also: spf/src/compiler/spf_error.f # SAVE-ERR

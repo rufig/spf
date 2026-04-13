@@ -3,7 +3,7 @@
 ( Обертка поверх libxml2, предоставляет подмножество функций DOM,
   пока все они относятся к типу R/O.
 
-  Заметка. libxml2 зачастую предоставляет структуры как есть вместо функций 
+  Заметка. libxml2 зачастую предоставляет структуры как есть вместо функций
    -- это в нашем случае дает экономию на вызовах API-функций :]
 )
 
@@ -12,7 +12,7 @@ REQUIRE [UNDEFINED] lib/include/tools.f
 REQUIRE AsQName     ~pinka/samples/2006/syntax/qname.f \ понятие однословных строк в виде `abc
 REQUIRE EQUAL       ~pinka/lib/ext/basics.f
 
-REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f 
+REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f
 
 
 [UNDEFINED] ?ASCIIZ> [IF]
@@ -20,7 +20,7 @@ REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f
 [THEN]
 
 
-\ CREATE ArrayIsTextValues  0 C, 1 C, 
+\ CREATE ArrayIsTextValues  0 C, 1 C,
 \ : (isTextValue) ( type -- flag )
 
 : nodeNameOrig ( node -- c-addr u | 0 0 ) x.name @ ?ASCIIZ> ;
@@ -110,7 +110,7 @@ REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f
 
 \ export:
 
-: getAttributeNode ( name-a name-u node1 -- node2|0 ) 
+: getAttributeNode ( name-a name-u node1 -- node2|0 )
   x.properties @ -cdr-libxml2-name NIP NIP
 ;
 : getAttributeNodeNS ( localname-a localname-u uri-a uri-u node1 -- node2|0 )
@@ -142,7 +142,7 @@ REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f
 : firstChildByTagNameNS ( localname-a localname-u uri-a uri-u node -- node2|0 )
   firstChild -cdr-libxml2-nameNS NIP NIP NIP NIP
 ;
-: nextSiblingByTagName ( name-a name-u node1 -- node2|0 ) 
+: nextSiblingByTagName ( name-a name-u node1 -- node2|0 )
   nextSibling -cdr-libxml2-name NIP NIP
 ;
 : nextSiblingByTagNameNS ( localname-a localname-u uri-a uri-u node -- node2|0 )
@@ -189,7 +189,7 @@ REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f
     R> xns.next @
   REPEAT ( a u 0 )
 ;
-\ namespaceByPrefix | searchNamespaceURI | searchPrefixURI 
+\ namespaceByPrefix | searchNamespaceURI | searchPrefixURI
 : searchNamespace ( prefix-a prefix-u node -- ns-a ns-u TRUE | prefix-a prefix-u FALSE )
 \ libxml2: список xmlns есть только у корневого элемента,
 \ определенные локально пространства имен таким путем недоступны (кроме xmlns самого узла)
@@ -219,7 +219,7 @@ REQUIRE /xmlNs      ~pinka/lib/lin/xml/libxml2-struct.f
 : nodeLineNumber ( node -- line_in_source_file|0 )
   \ Номер строки узла в исходном файле xml-документа.
   \ Именованно по аналогии с nodeName.
-  \ libxml2: 
+  \ libxml2:
   \  для текстовых узлов всегда дает 0
   \  для узлов-комментариев номер строки, где комментарий заканчивается
   DUP nodeType DOCUMENT_NODE <> IF x.line W@ EXIT THEN

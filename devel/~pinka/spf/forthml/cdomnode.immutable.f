@@ -10,7 +10,7 @@
 TEMP-WORDLIST GET-CURRENT   OVER ALSO CONTEXT ! DEFINITIONS
 
 \ Слова wrap и wrap2 служат для создания оберток
-\ к словам,  имеющим соответственно 
+\ к словам,  имеющим соответственно
 \ сигнатуру ( i*x node -- j*x ) и ( i*x node -- j*x node|0 ).
 \ Входная строка-имя используется в режиме R/W.
 

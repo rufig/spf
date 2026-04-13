@@ -3,7 +3,7 @@
 <!-- 2005-2007 -->
 
 <def name="SLIT," ds=" c-addr u -- "><rem> counts in address unit </rem>
-  0 BRANCH, MARK-FW  >R 
+  0 BRANCH, MARK-FW  >R
     HERE OVER 2SWAP S, 0 C,
   R> RESOLVE-FW 2LIT,
 </def>

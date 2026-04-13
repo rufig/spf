@@ -1,7 +1,7 @@
 REQUIRE {         lib\ext\locals.f
 REQUIRE NEXT-PARAM ~day\common\clparam.f
 REQUIRE SetPriorityClass ~day\joop\win\wfunc.f
-REQUIRE ShowMessage ~day\joop\win\window.f 
+REQUIRE ShowMessage ~day\joop\win\window.f
 REQUIRE Wait ~pinka\lib\multi\synchr.f
 
 WINAPI: ShellExecuteA   shell32.dll
@@ -28,14 +28,14 @@ CELL  -- hwnd
 CELL  -- lpVerb \ LPCTSTR
 CELL  -- lpFile \ LPCTSTR
 CELL  -- lpParameters \ LPCTSTR
-CELL  -- lpDirectory \ LPCTSTR 
+CELL  -- lpDirectory \ LPCTSTR
 CELL  -- nShow
 CELL  -- hInstApp
 CELL  -- lpIDList \ LPVOID
 CELL  -- lpClass \ LPCTSTR
 CELL  -- hkeyClass \ HKEY
 DWORD -- dwHotKey \ DWORD
-CELL  -- DUMMYUNIONNAME ( 
+CELL  -- DUMMYUNIONNAME (
     union {
         HANDLE hIcon;
         HANDLE hMonitor;
@@ -60,7 +60,7 @@ CONSTANT /SHELLEXECUTEINFO
   SW_SHOW i nShow !
   SEE_MASK_NOCLOSEPROCESS i fMask !
 
-  i ShellExecuteExA  
+  i ShellExecuteExA
   \ ERR THROW
   0= IF EXIT THEN
   i hProcess @  -1 Wait DROP

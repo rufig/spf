@@ -16,7 +16,7 @@ REQUIRE {             lib/ext/locals.f
 \ Разбирает до разделителя sa su, разделитель пропускает.
 \ При неуспехе >IN не меняется.
   PARSE-AREA@ { sa su a u }
-  a u sa su SEARCH  IF 
+  a u sa su SEARCH  IF
   DROP a -  DUP su + >IN +!
   a SWAP TRUE  EXIT THEN
   2DROP FALSE
@@ -25,7 +25,7 @@ REQUIRE {             lib/ext/locals.f
 \ Разбирает до разделителя sa su, разделитель НЕ пропускает.
 \ При неуспехе >IN не меняется.
   PARSE-AREA@ { sa su a u }
-  a u sa su SEARCH  IF 
+  a u sa su SEARCH  IF
   DROP a -  DUP >IN +!
   a SWAP TRUE  EXIT THEN
   2DROP FALSE

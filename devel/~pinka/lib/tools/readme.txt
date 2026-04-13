@@ -4,8 +4,8 @@
 
 make_pe.f    - формирует PE сам, без обращения к заголовку spf.exe
 
-pe_struct.f  - структуры PE 
-               pe-format: pe1.zip 
+pe_struct.f  - структуры PE
+               pe-format: pe1.zip
                [http://www.wotsit.org/filezdir/pe1.zip]
 
 ---
@@ -20,7 +20,7 @@ comments-log.txt    - прокомментированный лог сообщений "Unknown difference"
 
 
 Из письма иностранцу одному в spf-dev рассылке
-( сорри за ломаный инглишь), 
+( сорри за ломаный инглишь),
 
 =================== начало цитаты
 Date: Sat, 9 Aug 2003 08:13:52 +0400
@@ -88,7 +88,7 @@ dll можно делать батником, типа такого
 ===== make-dll.cmd
 spf-2.exe %1.f S" %1-2.bin" SAVE BYE
 spf-1.exe %1.f exe2dll.f S" %1-2.bin" S" %1.dll" SAVE-DLL BYE >%1.log
-===== 
+=====
 
 и вызывать:
 make-dll.cmd  mydll

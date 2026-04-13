@@ -14,7 +14,7 @@
     <logN>error, tcp-server is not started</logN>
     <exit/>
   </if> DROP
-  
+
   startup FIRE-EVENT
   <xt-of name="(quit)"/> CATCH
   <choose>

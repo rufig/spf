@@ -24,7 +24,7 @@
   CS> ZP ! CS> Z9 ! CS> Z0 !
 </def>
 <def name="SCOPE-DEPTH" ds=" -- n ">
-  Z0 @ >CELLS  ZP @ >CELLS - 
+  Z0 @ >CELLS  ZP @ >CELLS -
 </def>
 
   </also>

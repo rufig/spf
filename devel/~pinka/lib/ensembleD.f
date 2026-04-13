@@ -1,5 +1,5 @@
 
-\ 14.Apr.2001 
+\ 14.Apr.2001
 \ добавление ensemble{}^
 \            Ensemble-ForEach
 \            Ensamble-Volume
@@ -19,7 +19,7 @@ REQUIRE  InVoc{   ~ac\lib\transl\vocab.f
 
 InVoc{ vocEnsembleD
 
-0 
+0
 4 -- 'elemcount
 4 -- 'elemcountmax
 0 --  base
@@ -31,20 +31,20 @@ CONSTANT /header
 12 CONSTANT /el
 
 \ Created-ensembleD
-\ : ensembleD-Created  ( a-name len-name -- Ens ) 
+\ : ensembleD-Created  ( a-name len-name -- Ens )
 \ ;
 
 Public{
 
 : Create-EnsembleD  ( n -- ) \ "name"
-  CREATE  
+  CREATE
   HERE >R
   DUP  /el *  /header + DUP ALLOT
   R@ SWAP ERASE
   R> 'elemcountmax !
 ;
 
-: New-EnsembleD  ( n -- Ens ) 
+: New-EnsembleD  ( n -- Ens )
   DUP  /el *  /header + DUP ALLOCATE THROW >R
   R@ SWAP ERASE
   R@ 'elemcountmax !  R>
@@ -63,8 +63,8 @@ Public{
 : []!  ( dkey i a-base -- )
   SWAP /el * + 2!
 ;
-: []^   ( i a-base -- a ) 
-  SWAP /el * + 
+: []^   ( i a-base -- a )
+  SWAP /el * +
 ;
 
 : v[]  ( i a-base -- ai@ )
@@ -73,13 +73,13 @@ Public{
 : v[]!  ( value  i a-base -- )
   SWAP /el * + 8 + !
 ;
-: v[]^   ( i a-base -- a ) 
+: v[]^   ( i a-base -- a )
   SWAP /el * + 8 +
 ;
 
 : .ensembleD ( Ens -- )    \ для отладки
   DUP base SWAP
-  'elemcount @  0 ?DO   CR 
+  'elemcount @  0 ?DO   CR
       I OVER [] SWAP . .  I OVER v[] .
   LOOP DROP
 ;
@@ -90,7 +90,7 @@ Public{
   BEGIN
     r l - 2 < IF
         l r = IF  l EXIT THEN
-        l mas []  lkey hkey 
+        l mas []  lkey hkey
         D<  IF  r EXIT THEN
         l EXIT
     THEN
@@ -112,7 +112,7 @@ Public{
 
 Public{
 
-: ensembleD+   ( value dkey  Ens \ n -- )  \ Ens-Include 
+: ensembleD+   ( value dkey  Ens \ n -- )  \ Ens-Include
   { value  lkey hkey Ens  \ n }
 
   Ens 'elemcount @   Ens 'elemcountmax @  = IF EXIT THEN
@@ -151,7 +151,7 @@ Public{
   { lkey hkey Ens \ n }
 
   lkey hkey  0  Ens 'elemcount @   Ens base   find_place -> n
-  n Ens 'elemcount @  < IF 
+  n Ens 'elemcount @  < IF
       n  Ens base  []   lkey hkey D= IF \ нашелся.
         n  Ens base  v[]^   EXIT
       THEN
@@ -169,7 +169,7 @@ Public{
   DUP 0!
 ;
 
-: EnsembleD-ForEach  ( xt Ens -- )  
+: EnsembleD-ForEach  ( xt Ens -- )
 \ xt ( a-value -- )
   DUP base 8 + ( skip dkey ) SWAP 'elemcount @   /el * OVER + SWAP ?DO ( xt )
       I @ SWAP DUP >R EXECUTE R>   ( was:  I OVER EXECUTE )
@@ -194,7 +194,7 @@ Public{
   CR  .
 ;
 0 VALUE ens
-: test  
+: test
   12  New-EnsembleD TO ens
 
   10  0 DO    I   I 0 ens ensembleD+  LOOP
@@ -208,8 +208,8 @@ Public{
  (
 ALSO vocEnsembleD  DEFINITIONS
 10 Create-EnsembleD  ens
-0 10 10 ens ensembleD+ 
-1 11 10 ens ensembleD+ 
-2 09 10 ens ensembleD+ 
+0 10 10 ens ensembleD+
+1 11 10 ens ensembleD+
+2 09 10 ens ensembleD+
 ens .ensembleD
 \ )

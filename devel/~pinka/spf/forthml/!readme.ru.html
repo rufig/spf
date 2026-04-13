@@ -16,20 +16,20 @@ li:before { content: counter(item) ") "; counter-increment: item; }
 <body>
 
 <div><h2>Особенности и ограничения</h2>
-<p>Некоторые ограничения принципиальны, 
+<p>Некоторые ограничения принципиальны,
 большинство же характерны лишь для текущей реализации или текущей версии.</p>
 
 <ol><li>
 Транслятор ForthML не различает признак немедленности слов (<small>IMMEDIATE</small>),
-не дает контекста для заглядывания вперед и доступа к входному потоку 
+не дает контекста для заглядывания вперед и доступа к входному потоку
 (таким словам как <code>PARSE-NAME SOURCE REFILL</code> и т.п.).
 Тем не менее, фрагменты входного потока полностью доступны в контексте обработчиков элементов.
 
 </li><li>
 Как следствие предыдущего пункта, в контексте ForthML нельзя использовать классические слова
-управления потоком исполения (такие как <code>EXIT</code>, <code>IF</code>, 
+управления потоком исполения (такие как <code>EXIT</code>, <code>IF</code>,
 <code>THEN</code>, <code>RECURSE</code>, и тому подобные).
-Управление же потоком исполнения через стек возвратов остается доступным, т.к. 
+Управление же потоком исполнения через стек возвратов остается доступным, т.к.
 реализуется через обычные форт-слова.
 
 </li><li>
@@ -37,11 +37,11 @@ li:before { content: counter(item) ") "; counter-increment: item; }
 ( — win-версии доступны на <a href="http://www.zlatkovic.com/libxml.en.html">zlatkovic.com</a>),
 и <a href="http://curl.haxx.se/download.html#Win32">libcurl</a>
 (см. также <a href="../../../~ac/lib/lin/xml/xml.f">~ac/lib/lin/xml/xml.f</a>).
-Вообще же, базой выступает DOM-интрерфейс (см. <a href="../../lib/lin/xml/libxml2-dom.f">libxml2-dom.f</a>), 
+Вообще же, базой выступает DOM-интрерфейс (см. <a href="../../lib/lin/xml/libxml2-dom.f">libxml2-dom.f</a>),
 поэтому будет легко перейти и на нативную реализацию XML-парсера.
 
 </li><li>
-Нет валидации (что для форта характерно). 
+Нет валидации (что для форта характерно).
 Так, например, элемент <code>while</code> должен иметь родителем
 лишь <code>repeat</code> или <code>until</code> — это нигде не проверяется.
 
@@ -50,15 +50,15 @@ li:before { content: counter(item) ") "; counter-increment: item; }
 
 </li><li>
 Значением атрибутов <code>match</code> и <code>select</code>
-элементов <code>rule</code> и <code>for-each</code> является только 
+элементов <code>rule</code> и <code>for-each</code> является только
 <a href="http://www.w3.org/TR/REC-xml-names/#ns-qualnames">QName</a>.
 
 </li><li>
 Нет элемента <code>else</code> — пользуйте <code>choose</code> (как в XSLT :).
 
 </li><li>
-Пока что элемент <code>exit</code> допустим не во всяком контексте. 
-Например, он недопустим внутри <code>times</code>. 
+Пока что элемент <code>exit</code> допустим не во всяком контексте.
+Например, он недопустим внутри <code>times</code>.
 Поддержка реализуема аналогично <code>uAddDepth</code> в <a href="../../../../lib/ext/locals.f">locals.f</a>.
 
 </li><li>

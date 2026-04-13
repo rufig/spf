@@ -72,7 +72,7 @@ With Help of
    <!-- strings -->
    <block start='/(\s+|^|\=)\"[^,"]/' end='/\"/' scheme="nnCron_string" region="forString"/>
    <block start="/(\s+|^)(\.\'\s+)/"    end="/\'/" scheme="nnCron_string" region="forString"/>
-   <block start='/(\s+|^)([SCZ\.]|(ABORT))\"\s+/' end='/"/' scheme="nnCron_string" 
+   <block start='/(\s+|^)([SCZ\.]|(ABORT))\"\s+/' end='/"/' scheme="nnCron_string"
           region00="forResWord" region10="forResWord"
           region="forMl"
    />
@@ -88,7 +88,7 @@ With Help of
    <regexp match="/(\{)(.+?)(\|?)(.+?)(\-\-)(.*?)(\})/"
            region1="dSymbol" region2="dString" region3="dStringQuote"
            region4="dString2" region5="dSymbol" region6="dString2" region7="dSymbol"/>
-   
+
    <!-- nnCron task start/end -->
    <regexp match="/#\(\s+\S+\s*$/" region0="nnTaskStartEnd"/>
    <regexp match="/\)#/" region0="nnTaskStartEnd"/>
@@ -98,10 +98,10 @@ With Help of
    <regexp match="/(^|\s+)(%>)(\s+|$)/" region2="nnExtSyntax"/>
    <regexp match="/(^|\s+)(<\()(\s+|$)/" region2="nnExtSyntax"/>
    <regexp match="/(^|\s+)(\)>)(\s+|$)/" region2="nnExtSyntax"/>
-   
+
    <!-- nnCron time specification -->
    <regexp match="/(\s+|^)(Time|Days|Minutes|Hours|Months|WeekDays|Years)\:\s+[\s\w\*\/\,\-\?]*$/" region0="forWord"/>
-           
+
    <!-- def words -->
    <regexp match="/(\s|^)(:)\s+(\S+)/"   region0="forWord" region3="forWordDefinition"/>
    <regexp match="/\s|^(WINAPI:)\s+(\S+)/"    region0="forWord" region2="forWordDefinition"/>
@@ -117,7 +117,7 @@ With Help of
 
    <!-- parse -->
    <regexp match="/(REQUIRE)\s+(\S+)\s+(\S+)/"  region0="forWord" region2="forWordDefinition"/>
-   
+
    <!-- Immediate -->
      <!--
      <regexp match="/(\['\]\s+(\S+))/"  region0="forMl" region2="forWord"/>

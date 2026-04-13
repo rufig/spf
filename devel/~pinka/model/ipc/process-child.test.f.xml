@@ -24,7 +24,7 @@ REQUIRE Wait                   ~pinka/lib/multi/Synchr.f
 <fire event="startup"/>
 
 <rem>
-  `cmd.exe p::commandline! p::create-process THROW 
+  `cmd.exe p::commandline! p::create-process THROW
   -1 p::wait . CR  cleanup FIRE-EVENT
 
   `process-child.f.xml FILENAME-CONTENT `sort 'TYPE p::perform-simple-per  CR . CR

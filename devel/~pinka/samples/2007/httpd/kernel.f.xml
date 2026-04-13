@@ -37,15 +37,15 @@
 
     <def name="start" ds=" -- ">
       UNUSED <logN>unused</logN>
-      <q> inc-workers 
+      <q> inc-workers
           workers-quan <logN>workers</logN>
-          <lit> `main &amp;</lit> CATCH 
+          <lit> `main &amp;</lit> CATCH
           dec-workers
       </q>
       LAUNCH
     </def>
     GET-CURRENT
-  </wordlist> DUP remember-worker 
+  </wordlist> DUP remember-worker
  `start OBEY-SURE-
 </def>
 

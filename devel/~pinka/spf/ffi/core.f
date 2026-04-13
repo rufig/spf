@@ -10,14 +10,14 @@ REQUIRE STHROW          ~pinka/spf/sthrow.f
 \ some code from ~pinka/model/codegen/spf4-ffi.f.xml
 \ see also ~ac/lib/ns/ns.f
 
-: DLOPEN-SURE ( a u -- h ) 
-  2DUP DLOPEN DUP IF  NIP NIP EXIT THEN 
+: DLOPEN-SURE ( a u -- h )
+  2DUP DLOPEN DUP IF  NIP NIP EXIT THEN
   DROP CR TYPE CR `#lib-not-found STHROW
-; 
-: DLSYM-SURE ( a u h -- a ) 
-  >R 2DUP R> DLSYM DUP IF  NIP NIP EXIT THEN 
+;
+: DLSYM-SURE ( a u h -- a )
+  >R 2DUP R> DLSYM DUP IF  NIP NIP EXIT THEN
   DROP CR TYPE CR `#func-not-found STHROW
-; 
+;
 : FIND-DL-LIB ( d-lib x -- d-lib FALSE | entry TRUE )
   DROP \ parameter is reserved, must be 0
   2DUP DLOPEN DUP IF  NIP NIP TRUE EXIT THEN ( a u false )
@@ -34,18 +34,18 @@ REQUIRE STHROW          ~pinka/spf/sthrow.f
 ;
 
 
-: EXEC-FOREIGN-C1 ( i*x n-in entry-point -- x ) 
-  SWAP DUP 2+ CELLS DRMOVE R> 0 R> EXECUTE (  [ n-in x ]  ) 
+: EXEC-FOREIGN-C1 ( i*x n-in entry-point -- x )
+  SWAP DUP 2+ CELLS DRMOVE R> 0 R> EXECUTE (  [ n-in x ]  )
   SWAP RFREE
-; 
-: EXEC-FOREIGN-P1 ( i*x n-in entry-point -- x ) 
-  SWAP 1+ CELLS DRMOVE 0 R> EXECUTE (  [ x ]  ) 
-; 
+;
+: EXEC-FOREIGN-P1 ( i*x n-in entry-point -- x )
+  SWAP 1+ CELLS DRMOVE 0 R> EXECUTE (  [ x ]  )
+;
 ( Этимология:
   'EXEC'        -- от фортова EXECUTE -- выполнить;
   'FOREIGN'     -- чужой токен, не свой;
   'P', 'C'      -- формат вызова и определение чужого;
-  '1'           -- на выходе одно значение [впрочем, форматы C и P иного и не подразумевают, 
+  '1'           -- на выходе одно значение [впрочем, форматы C и P иного и не подразумевают,
                    поэтому, может быть излишне].
 )
 
@@ -62,7 +62,7 @@ REQUIRE STHROW          ~pinka/spf/sthrow.f
 : DLPOINT-NAME ( p -- a u ) DLPOINT-NAME@ DUP IF COUNT EXIT THEN 0 ;
 : DLPOINT-PARENT ( p1 -- p2 ) CELL+ @ ;
 : SET-DLPOINT-NAME ( a u p -- ) ALIGN HERE SWAP DLPOINT-NAME! S", 0 C, ;
-( Здесь, 
+( Здесь,
   возможно, стоит сделать XCOUNT, со счетчиком в ячейку, вместо COUNT,
   ограничинный 255 символов [ MAX_PATH имеет значение 256, а URL -- хоть 2 Kb ]
 )
@@ -111,7 +111,7 @@ REQUIRE /TEST ~profit/lib/testing.f
 ;
 : WAPI:
   NextWord NextWord CREATE-WAPI
-;  
+;
 
 \ испытание в работе
 
@@ -129,10 +129,10 @@ todo: учесть следующее обстоятельство
   Иногда библиотека экспортирует данные а не функцию, как например
   memory management functions in the libxml2 (xmlFree & Co.)
     -- http://mail.gnome.org/archives/xml/2002-August/msg00107.html
-  
+
   или PcreFree из pcre.dll
     -- см. ~ac/lib/string/regexp.f
-  
+
   В случае xmlFree "точка входа" представляет из себя указатель на функцию,
   которая может быть вызвана следующим образом:
     ( addr-to-be-freed ) 1

@@ -17,7 +17,7 @@
 <xsl:template match="/">
   <book>
     <xsl:apply-templates select="*"/>
-  </book>  
+  </book>
 </xsl:template>
 
 <xsl:output

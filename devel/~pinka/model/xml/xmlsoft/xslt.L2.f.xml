@@ -91,7 +91,7 @@
 <def name="current-doc" ds=" -- doc|0 "> doc </def>
 
 <def name="apply-xslt" ds=" d-xslt-file -- ">
-  load-xsl (xtrans) 
+  load-xsl (xtrans)
 </def>
 <def name="apply-xslt-result" ds=" d-xslt-file -- a2 u2 ">
   apply-xslt result-xml

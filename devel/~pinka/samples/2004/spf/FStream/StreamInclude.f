@@ -25,7 +25,7 @@ WARNING @ WARNING 0!
   ['] READ-LINE SWAP RECEIVE-WITH-XT
 ;
 : INCLUDE-FILE ( i*x fileid -- j*x ) \ 94 FILE
-  BLK 0!  DUP >R  
+  BLK 0!  DUP >R
   ['] TranslateFlow RECEIVE-WITH
   R> CLOSE-FILE THROW
   THROW

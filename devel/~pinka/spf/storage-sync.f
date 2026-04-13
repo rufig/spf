@@ -10,7 +10,7 @@ CREATE-CS _CS-FORTH-STORAGE \ для последовательного доступа к базовому хранилищу
 ;
 : WITHIN-FORTH-STORAGE-EXCLUSIVE ( i*x  xt --  j*x ) \ эм.. не слишком ли длинное имя ;)
   _CS-FORTH-STORAGE ENTER-CS
-  DISMOUNT >R 
+  DISMOUNT >R
   ['] (WITHIN-FORTH-STORAGE-EXCLUSIVE) CATCH ( ior )
   R> MOUNT
   _CS-FORTH-STORAGE LEAVE-CS

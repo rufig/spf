@@ -2,7 +2,7 @@
 
 REQUIRE SPLIT- ~pinka/samples/2005/lib/split.f
 
-REQUIRE T-SLIT ~pinka\samples\2006\core\trans\common.f 
+REQUIRE T-SLIT ~pinka\samples\2006\core\trans\common.f
 
 : I-LaterSintax ( a u -- a2 u2 xt true | a u false )
   \ name1.name2

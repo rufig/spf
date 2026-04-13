@@ -6,7 +6,7 @@
 \ history
 \ 11.1999,,, 02.2000
 \ 06.07.2000  ver 0.1
-\    - сменил имя debug на profile 
+\    - сменил имя debug на profile
 \    - было LAST @ ,сделал LATEST (***) ( чтобы с locals.f правильно работало и вообще.)
 \      / profiler.f должен подключатся до locals.f, чтобы работал для слов с локальными переменными /
 \    - ведение списка слов  с таймеров
@@ -20,7 +20,7 @@
 \    * пофиксил получение timer-info - слово last_timer_info
 
 \ 19.Nov.2002 Tue 01:02
-\    * исправил ошибку в слове DU< 
+\    * исправил ошибку в слове DU<
 \     see:
 \        From: mlg 3 <m_l_g3@yahoo.com>
 \        To: spf-dev@lists.sourceforge.net
@@ -34,7 +34,7 @@
 \  timer on/off  - если вЫключено, то ничего не подсчитывается.
 \  ResetProfiles - сбросить статистику.
 \  .AllStatistic - генерирует статистику по времени выполнения каждого слова
-\  Формат  
+\  Формат
 \      Calls      Ticks      AverageTicks  Name     (Rets)
 \ Где
 \  Calls        - количество вызовов
@@ -42,25 +42,25 @@
 \  AverageTicks - среднее время за вызов
 \  Name         - имя
 \  (Rets)       - число зафиксированных возвратов, если оно отличается
-\                 от числа вызов. Суммарное и среднее время считается только 
+\                 от числа вызов. Суммарное и среднее время считается только
 \                 по зафиксированным выходам.
 \                 Выходы фиксируются по EXIT , THROW , ";"
 
 \ Данный профайлер не реентерабелен к многопоточности и рекурсии.
 \ Т.е. если слово с таймером  будет рекурсиво  вызываться или будет
-\ работать одновременно в разных потоках, то  результаты для этого слова будут 
+\ работать одновременно в разных потоках, то  результаты для этого слова будут
 \ не верны.
 
-\ Неопределенная ситуация, если значение profile меняется 
+\ Неопределенная ситуация, если значение profile меняется
 \ в процессе компиляции слова  с off  на  on
 \ Т.е. значение profile лучше не менять во время компиляции слова :)
 \  ( например, последовательностью  [ profile on ]   )
 
-\ Значение AverageTicks  занимает DWORD. 
+\ Значение AverageTicks  занимает DWORD.
 \ если результат не влезает, то выводится '-'
 \ Это может произойти, если среднее время выполнения превысит ~14 сек ( на 300 МГц)
 \ ( если бы были слова D* D/ то не было бы этого ограничения  ;)
- 
+
 
 REQUIRE [DEFINED] lib\include\tools.f
 REQUIRE U.R       lib\include\CORE-EXT.F
@@ -69,18 +69,18 @@ REQUIRE UD.RS     ~pinka\lib\print.f
 .( ----- Loading profiler...) CR
 
 : >NAME  ( CFA -- NFA )
-    4 -  1- ( зависит от реализации словарной статьи ***) 
+    4 -  1- ( зависит от реализации словарной статьи ***)
     DUP >R  ( a ) \ на стеке - адрес последнего символа имени
     BEGIN  ( a )
         1-  DUP C@   ( a b )
-        OVER + R@  =  
+        OVER + R@  =
     UNTIL   RDROP
 ;
 
 
 (  В Pentium'е разработчиками была введена команда RDTSC, возвращающая число
 тактов процесора с момента подачи на него напряжения. Код этой команды $0F $31.
-команда возвращает восьмибайтное число в регистрах EDX:EAX. 
+команда возвращает восьмибайтное число в регистрах EDX:EAX.
 )
 
 [DEFINED] TIMER@ [IF]
@@ -144,12 +144,12 @@ CONSTANT /timer_info
 
 WORDLIST CONSTANT shadows
 
-: article  ( -- a-timer_info ) \ name -- name 
+: article  ( -- a-timer_info ) \ name -- name
 ( создать словарную статью с timer_info )
 
   WARNING @  WARNING 0!
   GET-CURRENT  shadows SET-CURRENT
-  >IN @  CREATE  
+  >IN @  CREATE
          LATEST-NAME NAME>CSTRING >R
   >IN !
   SET-CURRENT
@@ -246,9 +246,9 @@ WORDLIST CONSTANT shadows
        2DROP 13 SPACES ." -" .border RDROP EXIT
      THEN
        R> UM/MOD NIP
-     
+
   THEN    14 U.RS  .border
-  RDROP 
+  RDROP
 ;
 
 : .title  ( -- )
@@ -262,7 +262,7 @@ WORDLIST CONSTANT shadows
     DUP .ticks
     DUP .average
     DUP .name
-    DUP count-in @  OVER count-out @ <>  
+    DUP count-in @  OVER count-out @ <>
     IF DUP .rets THEN
     DROP
 ;
@@ -270,7 +270,7 @@ WORDLIST CONSTANT shadows
 
 VARIABLE 'named?  \ ячейка, хранящая флаг:  было ли у последнего определения имя.
 
- PREVIOUS DEFINITIONS   
+ PREVIOUS DEFINITIONS
  ALSO vocProfiler
 
 \ ================================================================
@@ -290,7 +290,7 @@ VARIABLE 'named?  \ ячейка, хранящая флаг:  было ли у последнего определения имя
   BEGIN
   DUP WHILE >R
     0 0  R@ ticks     2!
-    0    R@ count-in  ! 
+    0    R@ count-in  !
     0    R@ count-out !
     0 0  R@ time-curr 2!
     R> next @
@@ -303,7 +303,7 @@ VARIABLE 'named?  \ ячейка, хранящая флаг:  было ли у последнего определения имя
 
 \ старый вариант. узнает слово с таймеров по идендификатору.
 \ ( вывод ограничен контекстом словарей )
-: .AllStatistic_o ( -- )  
+: .AllStatistic_o ( -- )
   .title
   GET-ORDER
   0 DO
@@ -328,11 +328,11 @@ VARIABLE 'named?  \ ячейка, хранящая флаг:  было ли у последнего определения имя
     next @
   REPEAT DROP CR
 ; ( в ver 0.2 тут можно уже просто сделать ForEach-Word
-но список через next остался в наследство с прошлой версии, 
+но список через next остался в наследство с прошлой версии,
 пусть уж работает... ;)
 
 
-: .StatisticByCFA ( CFA_last_word -- )  \ 
+: .StatisticByCFA ( CFA_last_word -- )  \
   .title
     >NAME
     BEGIN  ( NFA )
@@ -361,7 +361,7 @@ VARIABLE 'named?  \ ячейка, хранящая флаг:  было ли у последнего определения имя
     profile @  IF
           last_timer_info
           POSTPONE LITERAL   POSTPONE (THROW)
-    THEN 
+    THEN
     POSTPONE THROW
 ; IMMEDIATE
 
@@ -376,9 +376,9 @@ VARIABLE 'named?  \ ячейка, хранящая флаг:  было ли у последнего определения имя
  THEN :
 ;
 
-:: ; ( -- )  
+:: ; ( -- )
     profile @  IF
-        'named? @ IF \ чтобы пропустить :NONAME 
+        'named? @ IF \ чтобы пропустить :NONAME
           last_timer_info
           POSTPONE LITERAL   POSTPONE stop-timer
           'named? off
@@ -396,7 +396,7 @@ VARIABLE 'named?  \ ячейка, хранящая флаг:  было ли у последнего определения имя
 \ ---------------------------------------------------------------
 \ Example
 \ : test  ( -- )
-\   ResetProfiles  t1 .AllStatistic  KEY DROP  
+\   ResetProfiles  t1 .AllStatistic  KEY DROP
 \   ResetProfiles  t2 .AllStatistic  KEY DROP
 \ ;
 

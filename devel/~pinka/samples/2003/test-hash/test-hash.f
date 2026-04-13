@@ -1,7 +1,7 @@
 \ 01.Nov.2003 Sat 16:04
 
 
-1024 2* CONSTANT hash-mod 
+1024 2* CONSTANT hash-mod
 
 hash-mod CELLS  CONSTANT /table
 
@@ -45,7 +45,7 @@ REQUIRE {    lib\ext\locals.f
     I t[]  STAT+
     I t[]  ^ c +!
   LOOP
-  STAT. ." | " ccc @ .  
+  STAT. ." | " ccc @ .
   ." | " c .
 ;
 

@@ -21,7 +21,7 @@
 <def name="_perform-node-cond" ds=" i*x node -- j*x flag ">
 <rem> see also: list-plain.f.xml/PERFORM-NODE-COND </rem>
   chain-context-node @ >R
-  <repeat> DUP <while/> DUP chain-context-node ! @ EXECUTE  DUP 0EQ <while/> 
+  <repeat> DUP <while/> DUP chain-context-node ! @ EXECUTE  DUP 0EQ <while/>
     DROP chain-context-node @ CELL- @ <rem> CDR -- next node </rem>
   </repeat><!-- ( true|false ) -->
   R> chain-context-node !
@@ -67,7 +67,7 @@
   исключения бесконечной косвенной рекурсии при вложенных perform-chain-next.
 
   Теоретически, такая операция неплохо ложится на BacFORTH, но, насколько я понимаю,
-  в этом случае использование стека возвратов будет пропорционально общему числу 
+  в этом случае использование стека возвратов будет пропорционально общему числу
   узлов в дереве. А в данном решение оно пропорционально числу ветвлений.
 </comment>
 

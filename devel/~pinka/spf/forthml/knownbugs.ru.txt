@@ -22,7 +22,7 @@
     <g xmlns:fn="http://forth.org.ru/~pinka/my-functions">
 
       <emit>Lib version is </emit>  fn:version . CR
-    
+
     </g>
     </forth>
 

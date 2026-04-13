@@ -10,7 +10,7 @@ Unknown difference at 543E58  Exe offset: 2258  Word: GetFileSize
 Unknown difference at 543E59  Exe offset: 2259  Word: GetFileSize
 Unknown difference at 543E5A  Exe offset: 225A  Word: GetFileSize
 
-  WINAPI  адрес точки входа, 
+  WINAPI  адрес точки входа,
   т.к. был использован FILE-SIZE  \ ?
 
 Unknown difference at 5447CE  Exe offset: 2BCE  Word: USER-OFFS
@@ -35,7 +35,7 @@ Unknown difference at 546A2C  Exe offset: 4E2C  Word: (DP)
   значение VARIABLE (DP)
 
   т.к. locals.f подключились только в exe2dll.f
-  а они создают свой словарь (стандартный), 
+  а они создают свой словарь (стандартный),
   и его контент пишется в основное хранилище (!)
   Поэтому нельзя их там подключать.
 
@@ -45,8 +45,8 @@ Unknown difference at 546CA8  Exe offset: 50A8  Word: :-SET
 Unknown difference at 546CA9  Exe offset: 50A9  Word: :-SET
 
   0 VALUE :-SET
-  \ FALSE TO OPT?  не поможет, 
-  \   т.к. устанавливают их условные операторы, 
+  \ FALSE TO OPT?  не поможет,
+  \   т.к. устанавливают их условные операторы,
   \   через "?BRANCH," ">MARK" и т.п.
 
 

@@ -36,16 +36,16 @@ REQUIRE U.RS             ~pinka/lib/print.f
   10 U.R SPACE
 
   ." sum   " HEAP-SIZE-BUSY
-  0 10 U.R SPACE 
+  0 10 U.R SPACE
   12 U.RS CR
 ;
 : DUMP-BLOCK-FORTH ( addr u -- )
   ." entry " OVER
-  10 U.R SPACE 
+  10 U.R SPACE
   12 U.RS SPACE
   @ DUP 10 U.R SPACE WordByAddr ( d-name )
-  VOC-FOUND @ ?DUP IF 
-      VOC-NAME. 
+  VOC-FOUND @ ?DUP IF
+      VOC-NAME.
       ."  / "
   THEN
   ( d-name ) TYPE

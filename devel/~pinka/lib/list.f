@@ -9,7 +9,7 @@
 \ 14.Jan.2002 Mon 05:24
 \   * List-ForEach позволяет освобождать список.
 
-( 
+(
  0 \ struct node
  4   -- link
  ... -- body
@@ -21,7 +21,7 @@
 ;
 : ?List-ForEach  ( xt hList -- )
 \ xt ( node -- flag )  \ продолжать, пока true
-    BEGIN  @ DUP  
+    BEGIN  @ DUP
     WHILE  2DUP 2>R SWAP EXECUTE 0= IF RDROP RDROP EXIT THEN 2R>
     REPEAT 2DROP
 ;

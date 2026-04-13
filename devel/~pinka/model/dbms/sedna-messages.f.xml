@@ -34,7 +34,7 @@
 
 <def name="message-exec" ds=" xt-content-composer -- a u ">
 <q>
-  output-format B, 
+  output-format B,
   string,
 </q> 300 message <rem> see Execute </rem>
 </def>
@@ -60,14 +60,14 @@
 
 <def name="Execute" ds=" -- a u ">
 <q>
-  output-format B, 
+  output-format B,
   request sednaS,
 </q> 300 message
 </def>
 
 <def name="ExecuteLong" ds=" -- a u ">
 <q>
-  output-format B, 
+  output-format B,
   request sednaS,
 </q> 301 message
 </def>
@@ -82,7 +82,7 @@
 <def name="BulkLoadPortion" ds=" -- a u ">
 <rem> xt ( addr u1 -- addr u2 ) </rem>
 <q>
-  <q> HERE max-query-size data-emitter EXECUTE 
+  <q> HERE max-query-size data-emitter EXECUTE
     DUP ALLOT data-chunk!
   </q> string,
 </q> 410 message
@@ -148,7 +148,7 @@
   </if>
   hfile!
   <q ds="a1 u1 -- a1 u2">
-    hfile READOUT-FILE THROW 
+    hfile READOUT-FILE THROW
   </q> data-emitter!
   'send-stream-content CATCH
   hfile 0 hfile! CLOSE-FILE SWAP THROW THROW
@@ -179,7 +179,7 @@
   <text>SEDNA TransactionRollbackBeforeClose</text> STHROW
   <rem> An exception is just for info.
     Situation occurs "if the client sends the se_CloseConnection message
-    before committing the on-going transaction". 
+    before committing the on-going transaction".
     Connection is closed by server.
   </rem>
 </def>
@@ -191,7 +191,7 @@
 
     Connection must be closed by server after following errors:
       SE3053 SE3006 SE3007 SE3009 SE3012
-    -- tr.cpp # client->error 
+    -- tr.cpp # client->error
   </rem>
   throw-error <rem> propagate exception </rem>
 </def>

@@ -6,8 +6,8 @@ REQUIRE [UNDEFINED]  lib\include\tools.f
 : ?WINAPI: ( -- ) \
   >IN @
   POSTPONE [UNDEFINED]
-  IF   >IN ! WINAPI: 
-  ELSE DROP NextWord 2DROP 
+  IF   >IN ! WINAPI:
+  ELSE DROP NextWord 2DROP
   THEN
 ;                     [THEN]
 

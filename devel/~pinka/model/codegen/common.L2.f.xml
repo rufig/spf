@@ -31,7 +31,7 @@
 </def>
 
 
-<comment> 
+<comment>
   The word "GET-COMPILER?" is not defined here. The CS (control stack) is too.
 </comment>
 

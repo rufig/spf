@@ -65,7 +65,7 @@
 
 <xsl:template name="with-params" >
   <xsl:param name="yield-nodes" select="/.." />
-  
+
   <xsl:variable name="lets" select="ancestor::m:let | $yield-nodes/ancestor::m:let " />
 
   <xsl:variable name="explisits" select="xsl:with-param" />

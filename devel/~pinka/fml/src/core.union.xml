@@ -14,7 +14,7 @@
 <rule match="r:postpone">  M-INC-STATE <yield/> M-DEC-STATE </rule>
 
 </xi:model><xi:model name="transform" advice="after">
-<!-- no need, since direct|postpone don't used here directly, 
+<!-- no need, since direct|postpone don't used here directly,
 and r:m is allowable.
 -->
 </xi:model><xi:model name="native" advice="after">
@@ -55,7 +55,7 @@ and r:m is allowable.
 </xi:model><!-- /\ = = = = =  \/ -->
 <xi:model name="native" advice="after">
 
-<!-- 
+<!--
 <rule match="r:for-each">
   `select GetAttribute name-n-uri 2>R T-SLIT 2R> T-SLIT
   <m>
@@ -90,7 +90,7 @@ and r:m is allowable.
 
 </xi:model><xi:model name="transform" advice="after">
 
-<!-- no need, since we don't use 'for-each'-markup here 
+<!-- no need, since we don't use 'for-each'-markup here
      See also ../meta/trules-step2.sxsl.xml  <s:def match="r:for-each"
 -->
 
@@ -113,7 +113,7 @@ and r:m is allowable.
 
 <xsl:template match="r:rule" xmlns:fn="http://www.w3.org/2005/xpath-functions" >
   <xsl:variable name="qname" select="@match"/>
-  
+
   <f:p>
     <xsl:choose><xsl:when test="starts-with($qname, '#')">
       NodeName `<xsl:value-of select="$qname"/> CEQUAL 0= <f:if> FALSE <f:exit/></f:if>
@@ -129,7 +129,7 @@ and r:m is allowable.
 
     <xsl:apply-templates />  TRUE
   </f:p> DUP `<xsl:value-of select="$qname"/> NAMING- advice-rule-before
-  
+
 </xsl:template>
 
 </xi:model><xi:model name="native" advice="after">

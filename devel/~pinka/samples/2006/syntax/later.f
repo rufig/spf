@@ -1,8 +1,8 @@
 \ 13.Feb.2006
 
-REQUIRE enqueueNOTFOUND ~pinka\samples\2006\core\trans\nf-ext.f 
+REQUIRE enqueueNOTFOUND ~pinka\samples\2006\core\trans\nf-ext.f
 
-REQUIRE AsLaterSintax ~pinka\samples\2006\syntax\later.core.f 
+REQUIRE AsLaterSintax ~pinka\samples\2006\syntax\later.core.f
 
 ' AsLaterSintax enqueueNOTFOUND
 

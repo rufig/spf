@@ -5,7 +5,7 @@
 
 \ S" exe2.exe" S" %2" SAVE-DLL
 
-(  
+(
    ----- IMAGE-BASE
    0x1000 .reserved \ uninitialized data
    0x1000 .idata \ - импортируемые функции
@@ -36,7 +36,7 @@ IMAGE-BEGIN - VALUE ImageSize  \ not align
   CREATE DUP , 0 ?DO  , LOOP
   DOES>  \ name ( -- x1 x2 ... xk k )
   ( a )  DUP @ DUP >R
-         CELLS + 
+         CELLS +
          R@ 0 ?DO DUP @ SWAP 1 CELLS - LOOP
          DROP R>
 ;
@@ -59,7 +59,7 @@ StoreAs OrigContext&Current
   ' ' CATCH {  | 0 .( locals.f must be included at the base exe !!! ) CR CR
   DROP
 REQUIRE {       ~ac\lib\locals.f
-                                        VOC-LIST !  
+                                        VOC-LIST !
 
 ( надо фиксить VOC-LIST на старое значение.
   Потому как. даже если словарь создается во временном хранилище /во временном словаре/
@@ -68,7 +68,7 @@ REQUIRE {       ~ac\lib\locals.f
 )
 
 VARIABLE dllname-a
-VARIABLE dllname-u 
+VARIABLE dllname-u
 
 0 VALUE EDataSize     \ 0x200 alignes
 0 VALUE EDataA
@@ -112,13 +112,13 @@ VARIABLE image-offs
 
 : report1 ( -- )
   BASE @ HEX
-  ." Unknown difference at " Image1A .  
+  ." Unknown difference at " Image1A .
   ."  Exe offset: " image-offs @ 0x400 + .
   ."  Word: " Image1A  WordByAddr  TYPE CR
   BASE !
 ;
 
-: checkly-diff ( -- flag ) \ true if difference known 
+: checkly-diff ( -- flag ) \ true if difference known
   OffsToCell image-offs +!
   Image2A @
   Image1A @
@@ -129,7 +129,7 @@ VARIABLE image-offs
 ;
 
 : find-diff ( -- f ) \ true if found
-  4 image-offs +!           BEGIN 
+  4 image-offs +!           BEGIN
   image-offs @ ImageSize < 0=  IF FALSE EXIT THEN \ ABORT" end of image"
   [Image1]C@  [Image2]C@ <>    IF checkly-diff IF TRUE EXIT THEN THEN
   1 image-offs +!           AGAIN
@@ -141,7 +141,7 @@ VARIABLE image-offs
   [r]here -> h2            0  [r],   \ size
 
                                 BEGIN
-  Image1A base - 
+  Image1A base -
   DUP 0x1000 ( 4Kb) <           WHILE ( a)
   0x3000 OR [r]W,
   find-diff  0=                 UNTIL -1 ELSE DROP 0 THEN
@@ -199,15 +199,15 @@ VARIABLE image-offs
   0 , 0 , 0 ,
   0xE0000060 , \ Characteristics
 
-  S" .reloc" HERE SWAP DUP ALLOT MOVE  0 C, 0 C, 
-  RelocSize 0x1000 alignes , \ VS 
+  S" .reloc" HERE SWAP DUP ALLOT MOVE  0 C, 0 C,
+  RelocSize 0x1000 alignes , \ VS
   0x2000 IMAGE-SIZE 0x1000 alignes + , \ RVA
   o RelocSize  DUP o + -> o ,  \ size
   ,  \ offset at file
   0 , 0 , 0 ,
   0xC0000040 , \ Characteristics
 
-  S" .edata" HERE SWAP DUP ALLOT MOVE  0 C, 0 C, 
+  S" .edata" HERE SWAP DUP ALLOT MOVE  0 C, 0 C,
   EDataSize , \ VS
   0x2000  IMAGE-SIZE 0x1000 alignes +  RelocSize 0x1000 alignes + , \ RVA
   o EDataSize  DUP o + -> o ,  \ size
@@ -231,7 +231,7 @@ VARIABLE image-offs
     1 13 LSHIFT >R \ IMAGE_FILE_DLL
   HERE 0x096 + DUP W@ R> OR SWAP W!  \ dll flag
     ['] DllMain >RVA
-  HERE 0x0A8 + !  \ AddresOfEntryPoint 
+  HERE 0x0A8 + !  \ AddresOfEntryPoint
     \ 0x2000 IMAGE-SIZE + RelocSize + EDataSize +
     0x2000  IMAGE-SIZE 0x1000 alignes +  RelocSize 0x1000 alignes +  EDataSize +
   HERE 0x0D0 + !  \ SizeOfImage
@@ -247,7 +247,7 @@ VARIABLE image-offs
     \ EDataSize
     ExportDirectorySize
   HERE 0x0FC + !   \ ExportDirectory Size
-    0x2000 IMAGE-SIZE 0x1000 alignes + 
+    0x2000 IMAGE-SIZE 0x1000 alignes +
   HERE 0x120 + !   \ RelocationTableRVA
     \ RelocSize
     RelocationDataSize
@@ -267,7 +267,7 @@ VARIABLE image-offs
   IMAGE-BASE 0x2000 +  IMAGE-SIZE 0x1000 alignes +  RelocSize 0x1000 alignes +
   HERE -  TO vBase2
 
-  HERE >R 
+  HERE >R
 
   HERE >rva 0 W,                 \ NameOrdinals
   HERE 1+ >rva  S" sfind" S", 0 C, \ names itself
@@ -308,14 +308,14 @@ VARIABLE image-offs
   R> HERE  - ALLOT \ откат.
   OVER >R \ начало прочитанного заголовка файла
   DUP >R
-  hdll WRITE-FILE THROW  \ PE header 
+  hdll WRITE-FILE THROW  \ PE header
   DUP >R
   hdll WRITE-FILE THROW  \ section's headers
   HERE   0x400 2R> + - DUP 0< ABORT" unexpected EXE-header size"
   \ 2DUP 0xFF FILL
   hdll WRITE-FILE THROW \ выравнивание
-  R> 0x200 + 0x200 
-  hdll WRITE-FILE THROW \ section_01 таблица импорта  .idata 
+  R> 0x200 + 0x200
+  hdll WRITE-FILE THROW \ section_01 таблица импорта  .idata
 
   IMAGE-BEGIN ImageSize 0x200 alignes hdll WRITE-FILE THROW \ section_02 .text
   hdll WRITE-FILE THROW  \ section_03 relocations  .reloc
@@ -335,7 +335,7 @@ VARIABLE image-offs
 : dll  S" my1.dll" ;
 dll dllname-u ! dllname-a !
 
-exe2 dll  
+exe2 dll
 W/O CREATE-FILE   THROW TO hdll
 
 ReadedExe2 DROP 0x400 + TO vImage2  IMAGE-BEGIN TO vImage1  image-offs 0!

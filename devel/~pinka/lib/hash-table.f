@@ -1,12 +1,12 @@
 \ Расстановочные таблицы
 \ Ю. Жиловец, 18.12.2002, с добавлениями А. Черезова
-\ 18.Sep.2003 ruvim@forth.org.ru  версия оригинального ~yz\lib\hash.f 
+\ 18.Sep.2003 ruvim@forth.org.ru  версия оригинального ~yz\lib\hash.f
 \     распределяющая память стандартным образом ALLOCATE/FREE
 \     (по умолчанию, локальную память потока)
 \     Максимальная длина значения для 'HASH!' -- 255 байт! (т.к. через CALLOC)
-\ 22.Sep.2003  ruv, 
-\     * HASH! и т.п. к виду ( avalue nvalue akey nkey h -- ) 
-\     + for-hash 
+\ 22.Sep.2003  ruv,
+\     * HASH! и т.п. к виду ( avalue nvalue akey nkey h -- )
+\     + for-hash
 \     + clear-hash, hash-count, hash-empty? \ by "Igor Panasenko" <PanasenkoIG@lankgroup.ru> ( ~pig)
 \ 24.Sep.2003 pig,
 \     + HASH? - проверка наличия ключа в хэше
@@ -25,9 +25,9 @@ REQUIRE HASH  ~pinka/lib/hash.f
 [UNDEFINED] SALLOC [IF]
 : SALLOC ( a u -- a1 )
   DUP ALLOCATE THROW DUP >R SWAP CMOVE R>
-;                  
+;
 : CALLOC ( a u -- a1 )
-  TUCK DUP 2+ ALLOCATE THROW DUP >R 1+ SWAP CMOVE R@ C! R> 
+  TUCK DUP 2+ ALLOCATE THROW DUP >R 1+ SWAP CMOVE R@ C! R>
 ;
 : ZALLOC ( az -- a1 )
   ASCIIZ> 1+ SALLOC
@@ -40,7 +40,7 @@ MODULE: HASH-TABLES-SUPPORT
 \ +4    n cells Начала списков записей
 
 \ Формат записи
-0 
+0
 CELL -- :link   \ Указатель на следующую запись / 0
 CELL -- :key    \ указатель на строку - ключ
 CELL -- :value  \ Указатель на значение
@@ -57,7 +57,7 @@ DEFINITIONS
 : (HASH) ( akey nkey n2 -- hash )
   OVER 0= IF DROP 2DROP 0 ELSE HASH THEN ;
 
-: lookup ( akey nkey h -- last 0 / prevrec rec) 
+: lookup ( akey nkey h -- last 0 / prevrec rec)
 ( ." look" s.)
   >R 2DUP R@ @ (HASH) 1+ CELLS R> +
   DUP @  0= IF NIP NIP 0 ( ." empty" s.) EXIT THEN
@@ -106,15 +106,15 @@ EXPORT
 : HASH? ( akey ukey h -- true|false )
   lookup NIP 0<> ;
 
-: HASH@ ( akey nkey h -- avalue nvalue / 0 0) 
+: HASH@ ( akey nkey h -- avalue nvalue / 0 0)
   lookup NIP DUP IF :value @ COUNT ELSE 0 THEN ;
 
-: HASH@R ( akey nkey h -- a/0) 
+: HASH@R ( akey nkey h -- a/0)
   lookup NIP DUP IF :value @ THEN ;
 
 : HASH@Z ( akey nkey h -- a/0) HASH@R ;
 
-: HASH@N ( akey nkey h -- n TRUE / FALSE) 
+: HASH@N ( akey nkey h -- n TRUE / FALSE)
   lookup NIP DUP IF :value @ TRUE THEN ;
 
 : small-hash  ( -- h ) 32   new-hash ;
@@ -138,8 +138,8 @@ EXPORT
   DUP CELL+ SWAP @ CELLS ERASE
 ;
 : del-hash ( h -- )
-  ['] del-rec OVER traverse-hash 
-  FREE THROW 
+  ['] del-rec OVER traverse-hash
+  FREE THROW
 ;
 
 DEFINITIONS
@@ -148,10 +148,10 @@ USER cnt
 USER-VALUE do-it
 
 : (all-hash) ( rec -- nextrec )
-  >R R@ :key @ COUNT R@ :value @  R> :link @ >R do-it EXECUTE R> 
+  >R R@ :key @ COUNT R@ :value @  R> :link @ >R do-it EXECUTE R>
 ;
 : (for-hash) ( rec -- nextrec )
-  >R R@ :value @  R@ :key @ COUNT R> :link @ >R do-it EXECUTE R> 
+  >R R@ :value @  R@ :key @ COUNT R> :link @ >R do-it EXECUTE R>
 ;
 
 : (hash-empty?) ( rec -- nextrec )  cnt 1+! DROP 0 ;
@@ -163,21 +163,21 @@ EXPORT
 : all-hash ( xt h -- )
 \ xt ( akey ukey a|value   -- )
   do-it >R
-  >R TO do-it ['] (all-hash) R> traverse-hash 
+  >R TO do-it ['] (all-hash) R> traverse-hash
   R> TO do-it
 ;
 : for-hash ( h xt -- )
 \ xt ( a|value  akey ukey -- )
   do-it >R
-  TO do-it ['] (for-hash) SWAP traverse-hash 
+  TO do-it ['] (for-hash) SWAP traverse-hash
   R> TO do-it
 ;
 
 : hash-empty? ( h -- flag )    \ проверяет, пуст хэш или нет
-  cnt 0! ['] (hash-empty?) SWAP traverse-hash cnt @ 0= 
+  cnt 0! ['] (hash-empty?) SWAP traverse-hash cnt @ 0=
 ;
 : hash-count ( h -- n )    \ подсчитывает число элементов в хэше
-  cnt 0! ['] (hash-count) SWAP traverse-hash cnt @ 
+  cnt 0! ['] (hash-count) SWAP traverse-hash cnt @
 ;
 
 ;MODULE

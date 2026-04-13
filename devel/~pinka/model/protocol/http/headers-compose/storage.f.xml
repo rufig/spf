@@ -9,7 +9,7 @@
 </g>
 
 <def name="space,"><text> </text> S, </def>
-  
+
 <slot> finalized </slot>
 <export>
 
@@ -45,7 +45,7 @@
 <def name="set-request-full" ds=" d-uri d-method d-version -- ">
   clear
   2>R
-  S, space, S, space, 
+  S, space, S, space,
   `HTTP/ S, 2R> S, CRLF S,
 </def>
 

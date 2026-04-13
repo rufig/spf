@@ -45,7 +45,7 @@ WINAPI: CreateDirectoryA   KERNEL32.DLL
   LAY-PATH-CATCH THROW
 ;
 : FORCE-PATH ( a u -- a u )
-  2DUP LAY-PATH 
+  2DUP LAY-PATH
 ;
 
 
@@ -53,7 +53,7 @@ WINAPI: CreateDirectoryA   KERNEL32.DLL
 \EOF
 \ ===
 
-\ Another decision, not so pretty, like previous ;) 
+\ Another decision, not so pretty, like previous ;)
 \ Другое решение
 
 [UNDEFINED] path_delimiter  [IF] CHAR \  VALUE path_delimiter    [THEN]

@@ -16,9 +16,9 @@ REQUIRE ""   ~ac\lib\str2.f
 WARNING  0!
 
 hs hash-r2.f
-hs hash-day3.f 
+hs hash-day3.f
 hs hash-core.f
-hs hash-day2.f 
+hs hash-day2.f
 hs hash-Elf.f
 \ hs hash-r1.f
 \ hs hash-day.f

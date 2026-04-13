@@ -7,7 +7,7 @@
   В этом запросе DELETE слово FROM обязательно.
 )
 
-REQUIRE COMPARE-U   ~ac\lib\string\compare-u.f 
+REQUIRE COMPARE-U   ~ac\lib\string\compare-u.f
 REQUIRE STR@        ~ac\lib\str2.f
 REQUIRE ExecSQL     ~ac\lib\win\odbc\ODBC.F
 REQUIRE ExistTable  ~ac\lib\win\odbc\odbc2.f

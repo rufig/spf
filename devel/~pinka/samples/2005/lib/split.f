@@ -15,7 +15,7 @@ REQUIRE [UNDEFINED] lib/include/tools.f
 
   2R> 2DROP FALSE
 ;
-\ Без локальных переменных. 
+\ Без локальных переменных.
 \ С ними проще сделать, а работает на 15-20% медленней (см. split-test.f)
 
 : SPLIT ( a u a-key u-key -- a-left u-left  a-right u-right  true  |  a u false )
@@ -49,7 +49,7 @@ REQUIRE [UNDEFINED] lib/include/tools.f
   ROT UMIN 2DUP 2>R MOVE 2R>
 ;
 
-\ see also  ~mak\place.f 
+\ see also  ~mak\place.f
 
 
 \ 01.Dec.2006 added:

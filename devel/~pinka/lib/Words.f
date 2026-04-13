@@ -3,7 +3,7 @@
 \ for SPForth3*
 
 : ForEach-Word  ( xt wid -- )
-\ выполнить xt над каждым словом словаря wid 
+\ выполнить xt над каждым словом словаря wid
 \ ( практически, wid @ - дает NFA последнего слова )
 \ xt ( i*x NFA - j*x )
     @
@@ -23,7 +23,7 @@
 \ ===========================================================================
 \ 09.05.2000
 
-REQUIRE LAMBDA{  ~pinka\lib\lambda.f 
+REQUIRE LAMBDA{  ~pinka\lib\lambda.f
 
 : ReversLink ( nfa -- ) \  реверсировать связь данного и предыдущего ( следующего в списке) слов
     DUP                 \ неопределенная ситуация, если в списке больше нет слов (за данным).
@@ -31,7 +31,7 @@ REQUIRE LAMBDA{  ~pinka\lib\lambda.f
     NAME>L DUP @ R> ! ( nfa lfa2 ) !
 ;
 : ReversWL ( wid -- ) \  реверсировать список слов
-    >R  0 
+    >R  0
     LAMBDA{ SWAP 1+ } R@ ForEach-Word ( i*x i )
     ?DUP IF 1- SWAP R> !   \ первым в списке становится первое описанное слово (нормально - последнее)
     ELSE RDROP EXIT  THEN  \ выход, если список пуст.

@@ -92,7 +92,7 @@ USER-VALUE -HoldEnum? \ не остановить итерацию?
   ItNode ItEntry 2>R
   @ BEGIN ( xt node )
   -HoldEnum? WHILE
-    DUP WHILE 2DUP @ 2>R DUP TO ItNode CELL+ @ TO ItEntry EXECUTE 2R> REPEAT 
+    DUP WHILE 2DUP @ 2>R DUP TO ItNode CELL+ @ TO ItEntry EXECUTE 2R> REPEAT
   THEN 2DROP
   2R> TO ItEntry TO ItNode
   R> TO -HoldEnum?

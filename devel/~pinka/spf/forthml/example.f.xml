@@ -2,7 +2,7 @@
 <forth xmlns="http://forth.org.ru/ForthML/">
 <!-- run with:
 REQUIRE EMBODY ~pinka/spf/forthml/index.f
-`example.f.xml EMBODY 
+`example.f.xml EMBODY
 -->
 
 10 <repeat> DUP <while/> DUP . 1- </repeat> DROP CR
@@ -49,7 +49,7 @@ quote-the-5steps EXECUTE
 <wordlist name="mnames">
  ORDER
  `A 5 <times ds=" a u -- a u">
-  
+
     <def name="word-{ 2DUP }--"><slit> 2DUP </slit> TYPE <emit> ok </emit> </def>
     OVER 1+!
 

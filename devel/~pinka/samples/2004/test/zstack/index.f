@@ -1,6 +1,6 @@
-\ 02.Sep.2004 
+\ 02.Sep.2004
 
-REQUIRE >CELLS  ~pinka\lib\core-ext.f 
+REQUIRE >CELLS  ~pinka\lib\core-ext.f
 
 S" common.f" INCLUDED
 S" zstack.f" INCLUDED

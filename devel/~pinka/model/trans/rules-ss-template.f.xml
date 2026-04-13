@@ -16,11 +16,11 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
     FirstChildValue T-SLIT <m> R> XENCLOSED >R </m>
   </rule>
   <rule match="#text">
-    NodeValue 
+    NodeValue
     <f:choose> 2DUP FINE-HEAD NIP <f:when>
       T-SLIT <m> R> XENCLOSED >R </m>
     </f:when><f:otherwise><!-- skip whitespace-node -->
-      2DROP 
+      2DROP
     </f:otherwise></f:choose>
   </rule>
   <rule match="f:ss">
@@ -102,7 +102,7 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 </def>
 
 <def name="create-prop-setter" ds=" d-txt-name xt --  ">
-  >R 2DUP  
+  >R 2DUP
     <alias name="{}!"   > R@ </alias>
     <alias name="set-{}"> R@ </alias>
     RDROP

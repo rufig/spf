@@ -15,7 +15,7 @@
   <xi:include href="#codegen"/>
   <xi:include href="#interpreter"/>
   </g>
-  
+
   <g xml:base="http://forth.org.ru/~pinka/model/trans/">
   <wordlist name="translater-plain">
     <include href="tcode.f.xml"/>
@@ -23,7 +23,7 @@
     <include href="ttext.f.xml"/>
     <xi:include href="#tc-guard"/><!-- if any -->
   </wordlist>
-  
+
   <r:transform name="transformer-fml" xmlns:r="http://forth.org.ru/ForthML/Rules/">
     <also wordlist="translater-plain"><!-- TC case -->
       <g xml:base="http://forth.org.ru/~pinka/fml/src/">
@@ -35,7 +35,7 @@
     <r:import transform="transformer-xmlstruct"/>
   </r:transform>
   </g>
-  
+
 </wordlist>
 </also></also>
 

@@ -3,7 +3,7 @@
 
 REQUIRE [IF] lib\include\tools.f
 
-REQUIRE XML_READ_DOC ~ac\lib\lin\xml\xml.f 
+REQUIRE XML_READ_DOC ~ac\lib\lin\xml\xml.f
 
 \ REQUIRE XML_DOC ~ac\lib\ns\xml.f
 

@@ -10,7 +10,7 @@
  nix/linux/Ubuntu
  nix/bsd/OpenBSD
  nix/bsd/MacOSX
- 
+
  [branch]/[family]/[short-name]
 
  Factor approach:
@@ -57,7 +57,7 @@ BEGIN-EXPORT
     >CELLS 1+ DUP RALLOT SWAP >R ( size  addr ) ( R: cells-cnt )
   DUP >R T!
   R@ GetVersionExA ERR THROW
-  <# 
+  <#
     R@ dwBuildNumber  T@ 0 #S 2DROP
     [CHAR] . HOLD
     R@ dwMinorVersion T@ 0 #S 2DROP
@@ -91,7 +91,7 @@ BEGIN-EXPORT
 : OS-BRANCH   ( -- d-txt-root   ) `nix   ;
 : OS-FAMILY   ( -- d-txt-family ) `linux ; \ not sure
 : OS-VERSION  ( -- d-version    ) 0 0    ; \ not implemented yet
-: OS-VERSION-NUMBER  ( -- u-minor u-major ) 0 2 ; \ implemented yet 
+: OS-VERSION-NUMBER  ( -- u-minor u-major ) 0 2 ; \ implemented yet
 : OS-NAME  ( -- d-txt-name    )
   `OSTYPE ENVIRONMENT? IF EXIT THEN 0.
 ;

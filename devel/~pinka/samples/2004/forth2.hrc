@@ -45,7 +45,7 @@ With Help of
   For example, now we do not highlight numbers, because
   numbers are no different from constants or words
   that return one value.
-  OTOH, in some future version we probably will 
+  OTOH, in some future version we probably will
   highlight numbers according to the current base.
 
 
@@ -60,7 +60,7 @@ With Help of
   to the beginning of the current input line.
   Since in the beginning of this line is this code,
   the interpreter enters an endless loop.)
-  
+
 -->
 <!-- TECHNICAL NOTE
 
@@ -190,7 +190,7 @@ With Help of
   <regexp match='/(c\")(\s)([^\"]*)(\")/i'      region1="fthWordStr" region2="fthSkippedStr" region3="fthParsedStr" region4="fthDelimStr"/>
   <block start='/(\")(\s|$)/' end='/(\")/' scheme="macrostring" region01="fthWordStr" region02="fthSkippedStr" region11="fthDelimStr"/>
 
-  
+
   <!-- words like S$ { } -->
   <!-- error: these words allow long sequences-->
   <regexp match='/((s|c|\.|(please))\$)($|(\s.?$)|(\s\s\s))/i' region0="fthWrong"/>
@@ -258,7 +258,7 @@ With Help of
   <regexp match='/(abort\")(\s)([^\"]*)(\")/i'  region1="fthWordStr" region2="fthSkippedStr" region3="fthParsedStr" region4="fthDelimStr"/>
   <regexp match='/(\.\")(\s)([^\"]*)(\")/i'     region1="fthWordStr" region2="fthSkippedStr" region3="fthParsedStr" region4="fthDelimStr"/>
   <regexp match='/(please\")(\s)([^\"]*)(\")/i' region1="fthWordStr" region2="fthSkippedStr" region3="fthParsedStr" region4="fthDelimStr"/>
-  
+
   <!-- error if no delimiter   -->
   <regexp match='/(((s)|(abort)|(c)|(\.))\")((\s)([^\"]*))?($)/i' region0="fthWrong"/>
 
@@ -281,7 +281,7 @@ With Help of
 
 <scheme name="macrostring">
   <!-- strings, like this: " ccc {Forth_Code} ccc "  -->
-  <!-- 
+  <!--
   <block start="/(\{)/" end="/(\})/" scheme="forthinterpreter0" region01="fthColon" region11="fthSemi"/>
   <!-- -->
   <regexp match='/([^\"\{]*)/i' region1="fthParsedStr" />
@@ -338,9 +338,9 @@ With Help of
   <!--            1        2   3    4    5         -->
   <regexp match="/(include)(\s)(\s*)(\S+)(\s|$)/i" region1="fthColon" region2="fthSkippedNew" region3="fthWarn" region4="fthParsedNew" region5="fthDelimNew"/>
   <!--            1        2   3    4    5   6    7    8     -->
-  <regexp match="/(require)(\s)(\s*)(\S+)(\s)(\s*)(\S+)(\s|$)/i" 
-    region1="fthColon" region2="fthSkippedNew" 
-    region3="fthParsed" region4="fthParsedNew" region5="fthSkippedNew" 
+  <regexp match="/(require)(\s)(\s*)(\S+)(\s)(\s*)(\S+)(\s|$)/i"
+    region1="fthColon" region2="fthSkippedNew"
+    region3="fthParsed" region4="fthParsedNew" region5="fthSkippedNew"
     region6="fthParsed" region7="fthParsedNew" region8="fthDelimNew"
   />
 

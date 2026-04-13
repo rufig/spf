@@ -30,7 +30,7 @@
 
 <def name="M/MOD" ds=" d n -- r q ">
   DUP 0LT  DUP >R
-  <if> NEGATE >R DNEGATE R> </if> 
+  <if> NEGATE >R DNEGATE R> </if>
   >R DUP 0LT <if> R@ + </if> R> UM/MOD R>
   <if> SWAP NEGATE SWAP </if>
 </def>

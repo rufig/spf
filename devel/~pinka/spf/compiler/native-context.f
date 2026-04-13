@@ -24,13 +24,13 @@ REQUIRE >CS ~pinka/spf/compiler/control-stack.f \ управл€ющий стек
 ;
 \ see also: model/data/list-plain.f.xml # DISPLACE-SUBLIST
 
-: PUSH-CURRENT ( wid -- ) 
+: PUSH-CURRENT ( wid -- )
   GET-CURRENT >CS SET-CURRENT
 ;
-: DROP-CURRENT ( -- ) 
+: DROP-CURRENT ( -- )
   CS> SET-CURRENT
 ;
-: POP-CURRENT ( -- wid ) 
+: POP-CURRENT ( -- wid )
   CURRENT @ DROP-CURRENT
 ;
 : SCOPE-DEPTH ( -- u )

@@ -5,17 +5,17 @@
 
 \ S" lib\EXT\SPF-ASM.F" INCLUDED
 
-(  
+(
    ----- IMAGE-BASE
    0x1000 .reserved \ uninitialized data
    0x1000 .idata \ - импортируемые функции
    ----- IMAGE-BEGIN  \ ORG-ADDR
    .text \ основное хранилище форт-системы
-     первая команда: CALL INIT 
+     первая команда: CALL INIT
    ----- IMAGE-END    \ HERE
 )
 
-HERE 
+HERE
                     TEMP-WORDLIST  DUP SET-CURRENT ALSO CONTEXT !
  CONSTANT IMAGE-END
 
@@ -83,7 +83,7 @@ BASE !
  IMAGE-BEGIN >RVA ,         \ 4 -- AddresOfEntryPoint ( offs 0A8)  \ RVA of  CALL INIT
  IMAGE-BEGIN >RVA ,         \ 4 -- BaseOfCode
  IMAGE-BASE  >RVA ,         \ 4 -- BaseOfData \ is 0
-    \ The data section (IMAGE_SCN_CNT_INITIALIZED_DATA), or sections, will be 
+    \ The data section (IMAGE_SCN_CNT_INITIALIZED_DATA), or sections, will be
     \   in the range 'BaseOfData' up to 'BaseOfData'+'SizeOfInitializedData'.
 
  \ NT Additional fields
@@ -97,7 +97,7 @@ BASE !
  04 W,                      \ 2 -- SubsysMajor
  00 W,                      \ 2 -- SubsysMinor
  0 ,                        \ 4 -- Reserved1 \ Win32VersionValue
- IMAGE-BEGIN IMAGE-BASE - 
+ IMAGE-BEGIN IMAGE-BASE -
  IMAGE-SIZE + ,             \ 4 -- ImageSize  ( offs D0) \ SizeOfImage - sum of all headers' and sections' lengths if aligned to 'SectionAlignment'.
  0200 ,                     \ 4 -- HeaderSize ( offs D4) \ SizeOfHeaders - the offset from the beginning of the file to the first section's raw data.
  0 ,                        \ 4 -- FileChecksum ( offs D8)
@@ -141,7 +141,7 @@ BASE !
  0 ,                        \       4 -- TotalDelayImportDataSize
  \ 14 описали, дальше просто ALLOT
  0 , 0 , 0 , 0 ,            \ 2 8 * -- ReservedSections
- 
+
 \ /IMAGE_OPTIONAL_HEADER
 \ /PE-HEADER
 \ /EXE-HEADER
@@ -150,7 +150,7 @@ BASE !
   \ Section headers
   \ Sections raw data
 
-\ IMAGE_SECTION_HEADER  
+\ IMAGE_SECTION_HEADER
   \ Characteristics
     \ If bit 05 (IMAGE_SCN_CNT_CODE) is set, the section contains executable code.
     \ If bit 06 (IMAGE_SCN_CNT_INITIALIZED_DATA)
@@ -198,16 +198,16 @@ BASE !
 \ 0x080000 , \ ***
 \ 0 ,
  IMAGE-SIZE ,
-\ IMAGE-END IMAGE-BASE - 1FF + 200 / 200 * , 
+\ IMAGE-END IMAGE-BASE - 1FF + 200 / 200 * ,
 
  IMAGE-BEGIN >RVA ,         \ VirtualAddress
- IMAGE-END IMAGE-BEGIN - 
+ IMAGE-END IMAGE-BEGIN -
  1FF + 200 / 200 * ,        \ SiziOfRawData  \ align by FileAlignment
  400 ,                      \ PointerToRawData
  0 ,                        \ PointerToRelocations
  0 ,                        \ PointerToLinenumbers
- 0 W,                       \ NumberOfRelocations 
- 0 W,                       \ NumberOfLinenumbers 
+ 0 W,                       \ NumberOfRelocations
+ 0 W,                       \ NumberOfLinenumbers
 BASE @ 2 BASE !
  \ 10987654321098765432109876543210
    11100000000000000000000001100000 ( 0xE0000060 )
@@ -237,7 +237,7 @@ HERE EXE-HEADER -   CONSTANT /EXE-HEADER
 
   HERE 200 +           200  R@ WRITE-FILE THROW  \ первая секция - таблица импорта
 
-  IMAGE-BEGIN IMAGE-END OVER - 
+  IMAGE-BEGIN IMAGE-END OVER -
   1FF + 200 / 200 *       R@ WRITE-FILE THROW  \ вторая секция - код.
   R> CLOSE-FILE THROW
 \  ERASED-CNT 1+!

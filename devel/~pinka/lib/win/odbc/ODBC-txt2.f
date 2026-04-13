@@ -1,4 +1,4 @@
-\ 25.Feb.2004 ruv 
+\ 25.Feb.2004 ruv
 \ 25.Mar.2004 ODBC-txt2.f - переделал, тк. под Win2003 не работало..
 \ $Id$
 ( Слово ExecSQLTxt  аналогично ExecSQL из ODBC.F,
@@ -88,7 +88,7 @@ PREVIOUS SET-CURRENT
   R@ STR@  DELETE-FILE THROW  THEN
   R> STRFREE
 ;
-: CheckTbl ( -- ) 
+: CheckTbl ( -- )
 \ THROW, if table not exist
   " {TableName}" >R
   R@ STR@ FILE-EXIST 0=
@@ -209,7 +209,7 @@ USER-VALUE h-tbl
 \ for UPDATE
 
 : StoreCol ( a u i -- )
-( если в HashT есть ключ a u, то сохраняет 
+( если в HashT есть ключ a u, то сохраняет
   его значение под ключем i )
   >R
   2DUP HashT HASH?  IF
@@ -219,7 +219,7 @@ USER-VALUE h-tbl
   RDROP
 ;
 : HasValue ( i -- a u true | false )
-  >R 
+  >R
   RP@ 4 HashT HASH? IF
   RP@ 4 HashT HASH@
   TRUE              ELSE
@@ -253,7 +253,7 @@ USER-VALUE h-tbl
 ;
 : WriteOtherRows ( -- )
 \ записать идущие подряд не совпадающие(другие) строки.
-  BEGIN  
+  BEGIN
     REFILL
   WHILE
     CmpRow

@@ -18,19 +18,19 @@
 \       \* -> *
 \       \? -> ?
 \       \q -> " ( предложение ~pig )
-\  Особенности: для ускорения работы бэктрекинг сведен к минимуму 
+\  Особенности: для ускорения работы бэктрекинг сведен к минимуму
 \  и сделан через обычный цикл; используется SEARCH и COMPARE
 
-REQUIRE SALLOC      ~pinka/lib/ext/alloc.f 
+REQUIRE SALLOC      ~pinka/lib/ext/alloc.f
 REQUIRE PARSE-AREA@ ~pinka/lib/ext/parse.f
-REQUIRE UPPERCASE   ~ac/lib/string/uppercase.f 
+REQUIRE UPPERCASE   ~ac/lib/string/uppercase.f
 
 : SEARCH&SKIP ( a u  a-subs u-subs -- a2 u2 true | a u false )
 \ искать в строке  a u  подстроку  a-subs u-subs
 \ если найдена, вернуть часть строки после найденного образа и true
 \ иначе вернуть  a u false.
     DUP >R   SEARCH         IF
-    SWAP R@ +  
+    SWAP R@ +
     SWAP R@ -       TRUE    ELSE
 
     FALSE                   THEN
@@ -40,7 +40,7 @@ REQUIRE UPPERCASE   ~ac/lib/string/uppercase.f
 \ сопоставить  apat upat  c  a upat
 \ если совпадает, вернуть  a+upat u-upat true,
 \ иначе  a u  false
-  DUP >R 
+  DUP >R
   2OVER ROT U< IF 2DROP RDROP FALSE EXIT THEN
   R@ TUCK COMPARE IF RDROP FALSE EXIT THEN
   SWAP R@ + SWAP R> -  TRUE
@@ -147,7 +147,7 @@ CHAR \ VALUE quote-char
   REPEAT 2DROP
   PAD TUCK -
 ;
-: LIKE-MASK1  ( a1 u1 -- flag ) 
+: LIKE-MASK1  ( a1 u1 -- flag )
 \ только within EVALUATE-WITH
 \ в PARSE-AREA - маска
   translate-mask SOURCE!

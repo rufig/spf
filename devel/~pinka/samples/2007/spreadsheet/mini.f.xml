@@ -57,9 +57,9 @@
 
 <def name="build-sscell-current" ds=" a u -- ">
   sscells-wl PUSH-DEVELOP
-    
+
     HERE 0 ,
-    
+
     _row @ _col @  2DUP store-max
     calc-name
 

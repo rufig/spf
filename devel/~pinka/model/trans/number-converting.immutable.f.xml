@@ -4,10 +4,10 @@
 <!-- $Id$ -->
 
 <def name="HOLD" ds=" char -- ">
-  ?HLD  HLD @ CHAR-  DUP HLD ! C! 
+  ?HLD  HLD @ CHAR-  DUP HLD ! C!
 </def>
 <def name="BEGIN-HOLD" ds=" -- "><!-- need a better name -->
-  PAD DUP HLD ! ?HLD 0! 
+  PAD DUP HLD ! ?HLD 0!
 </def>
 <def name="END-HOLD" ds=" -- c-addr u "><!-- need a better name -->
   HLD @ PAD OVER -
@@ -18,7 +18,7 @@
 
 <def name="#" ds=" ud1 -- ud2 ">
   0 BASE @ UM/MOD >R BASE @ UM/MOD R>
-  ROT DUP 10 ULT <unless> 7 + </unless> 48 + 
+  ROT DUP 10 ULT <unless> 7 + </unless> 48 +
   HOLD
 </def>
 
@@ -34,7 +34,7 @@
 <comment>
   Возвращаемая строка располагается во внутреннем буфере и действительна
   только до следующего вызова функций преобразования чисел.
-  
+
   (аналогично тому, как строка, возвращаемая Windows API-функций inet_ntoa —
   "The string returned is guaranteed to be valid only until the next Windows Sockets function call is made within the same thread" :)
 </comment>

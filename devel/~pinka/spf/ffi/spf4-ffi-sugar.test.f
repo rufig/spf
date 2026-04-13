@@ -22,13 +22,13 @@ CR `GetTickCount= TYPE 0 GetTickCount . CR CR
 DLL ORDER WORDS PREVIOUS
 
 
-ALSO SO 
+ALSO SO
   `libxml2.dll MAYBE
   `libxml2.so  MAYBE
 
 : normalizeURI ( addr-z u1 -- addr u2 )
   OVER
-  1 xmlNormalizeURIPath THROW \ work for pathnames only 
+  1 xmlNormalizeURIPath THROW \ work for pathnames only
   DROP ASCIIZ>
 ;
 

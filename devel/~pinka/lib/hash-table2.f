@@ -33,7 +33,7 @@ EXPORT
 ;
 DEFINITIONS
 
-: lookup- ( h akey ukey -- last 0 | prevrec rec ) 
+: lookup- ( h akey ukey -- last 0 | prevrec rec )
   2>R XCOUNT 2R@ ROT HASH CELLS + ( addr )
   BEGIN DUP @ DUP WHILE ( prevrec rec ) \ hack of ':link'
     DUP :key @ XCOUNT 2R@ EQUALS 0= WHILE NIP
@@ -45,7 +45,7 @@ DEFINITIONS
   DUP :free C@ IF DUP :value @ FREE THROW THEN DROP
 ;
 : del-rec ( rec -- )
-  DUP :key @ FREE THROW DUP del-value  FREE THROW 
+  DUP :key @ FREE THROW DUP del-value  FREE THROW
 ;
 : (rec-in-hash) ( akey ukey h -- rec )
   -ROT 2DUP 2>R lookup- DUP IF NIP DUP del-value RDROP RDROP EXIT THEN DROP
@@ -74,15 +74,15 @@ EXPORT
 : HASH? ( akey ukey h -- true|false )
   lookup NIP 0<>
 ;
-: HASH@ ( akey ukey h -- avalue uvalue | 0 0 ) 
+: HASH@ ( akey ukey h -- avalue uvalue | 0 0 )
   lookup NIP DUP IF :value @ XCOUNT ELSE 0 THEN
 ;
-: HASH@R ( akey ukey h -- a|0 ) 
+: HASH@R ( akey ukey h -- a|0 )
   lookup NIP DUP IF :value @ THEN
 ;
 : HASH@Z ( akey ukey h -- a|0 ) HASH@R ;
 
-: HASH@N ( akey ukey h -- n TRUE | FALSE ) 
+: HASH@N ( akey ukey h -- n TRUE | FALSE )
   lookup NIP DUP IF :value @ TRUE THEN
 ;
 : small-hash  ( -- h ) 32   new-hash ;
@@ -102,7 +102,7 @@ EXPORT
 ;
 : del-hash ( h -- )
   DUP ['] del-rec for-hash-rec
-  FREE THROW 
+  FREE THROW
 ;
 
 DEFINITIONS

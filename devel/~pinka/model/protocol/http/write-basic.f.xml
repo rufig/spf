@@ -3,7 +3,7 @@
 
 <slot> cnt-put mode-head </slot>
 
-<slot2> stat-w </slot2> 
+<slot2> stat-w </slot2>
 
 <handler event="cleanup"> 0 cnt-put! 0. stat-w!  0 mode-head! </handler>
 
@@ -47,7 +47,7 @@
 </def>
 
 <def name="put-file" ds=" h -- ">
-  DUP FILE-SIZE THROW 
+  DUP FILE-SIZE THROW
   2DUP add-header-length-number
   0. put <rem> for headers </rem>
   (put-file-raw)

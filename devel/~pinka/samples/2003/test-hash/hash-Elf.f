@@ -4,12 +4,12 @@ REQUIRE { lib\ext\locals.f
 
 32 CONSTANT BITS_LEN
 
-: HASH { a u u1 \ h -- u2 } 
+: HASH { a u u1 \ h -- u2 }
  0 -> h    a u + -> u
  BEGIN a u < WHILE
    h 4 LSHIFT 1+ a C@ +   -> h  a 1+ -> a
    \ h  ?DUP IF BITS_LEN 1- RSHIFT h XOR -> h THEN
-  
+
      h 0xF0000000 AND
      DUP IF TUCK 24 RSHIFT XOR  SWAP THEN
      -1 XOR  AND

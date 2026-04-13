@@ -2,7 +2,7 @@
 \ $Id$
 
 REQUIRE HEAP-ID! ~pinka\spf\mem.f
-REQUIRE WITH-HEAP ~pinka\samples\2005\ext\mem.f 
+REQUIRE WITH-HEAP ~pinka\samples\2005\ext\mem.f
 
 REQUIRE HASH@ ~pinka\lib\hash-table.f
 REQUIRE /CELL ~pinka\samples\2005\ext\size.f

@@ -34,7 +34,7 @@ WINAPI: FindClose               kernel32.dll
   DUP -1 = IF GetLastError THROW THEN ( h )
   2R@ (TREAT-HARDLINK)
   BEGIN ( h )
-    DUP R@ ( h h a-buf ) 
+    DUP R@ ( h h a-buf )
     (BUF-PAIR) ROT ( h a-buf a-n-buf h )
     FindNextFileNameW
   WHILE ( h )

@@ -1,7 +1,7 @@
 \ 22.10.99г. Ruv - WaitAny, WaitAll, Wait
 \ 01.04.2001 выделил  в отдельную либу  в связи с наличием semaphore.f.
 \  * Wait и Release* не возвращают ior. При ошибке вызывают THROW внутри.
-\    (просмотр исходников показал, что эти ошибки не обрабатывается 
+\    (просмотр исходников показал, что эти ошибки не обрабатывается
 \    иначе, чем DROP или THROW почти всегда).
 
 REQUIRE [UNDEFINED] lib\include\tools.f
@@ -89,7 +89,7 @@ REQUIRE CreateMut ~pinka\lib\Multi\Mutex.f
 0 0 TRUE CreateMut THROW VALUE m1
 0 0 TRUE CreateMut THROW VALUE m2
 : z
-  DROP 
+  DROP
   ." Stack: " .S CR
   BEGIN
     m1 m2 2 -1 WaitAll .

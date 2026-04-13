@@ -24,7 +24,7 @@
 
 <def name="(DLSHIFT)" ds=" d1 u -- d2 ">
   <rem> ( lo hi  u ) </rem>
-  TUCK LSHIFT >R 
+  TUCK LSHIFT >R
   2DUP NEGATE BIC + RSHIFT >R
   LSHIFT 2R> OR
 </def>
@@ -32,7 +32,7 @@
   DUP <unless> DROP <exit/></unless>
   DUP BIC2 UGT <if> DROP 2DROP 0. <exit/></if>
   DUP BIC1 UGT <if> NIP BIC - LSHIFT 0 SWAP <exit/></if>
-  (DLSHIFT) 
+  (DLSHIFT)
 </def>
 <def name="(DRSHIFT)" ds=" d1 u -- d2 ">
   <rem> ( lo hi  u ) </rem>
@@ -44,7 +44,7 @@
   DUP <unless> DROP <exit/></unless>
   DUP BIC2 UGT <if> DROP 2DROP 0. <exit/></if>
   DUP BIC1 UGT <if> >R NIP R> BIC - RSHIFT 0 <exit/></if>
-  (DRSHIFT) 
+  (DRSHIFT)
 </def>
 
 <def name="LOGARITHM2" ds=" x -- u ">
@@ -56,7 +56,7 @@
 <def name="/CELL-DEGREE">
   <lit> 2 CELLS  LOGARITHM2 </lit> 0
 </def>
-  
+
 <def name="/CHAR-DEGREE">
   <lit> 1 CHARS  LOGARITHM2 </lit> 0
 </def>
@@ -77,7 +77,7 @@
 
 <def name="ALIGNED"> >R ALIGNED R> </def>
 <comment>
-  Align for 64 bytes: 
+  Align for 64 bytes:
   DUP 0x3F AND <if> 0x40 + 0xFFFFFFC0 AND </if>
 </comment>
 

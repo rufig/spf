@@ -33,7 +33,7 @@ REQUIRE {       ~ac\lib\locals.f
 
 
 
-VARIABLE _CNT 
+VARIABLE _CNT
 
 : PROCESS-INIT-ONCE ( n -- )
   _CNT @ 0= IF PROCESS-INIT ELSE DROP THEN _CNT 1+!

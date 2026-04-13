@@ -1,5 +1,5 @@
 \ 13.Jul.2001 Fri 20:30  Ruv
-\ оригинал - ~ac\lib\win\window\notify_icon.f 
+\ оригинал - ~ac\lib\win\window\notify_icon.f
 \ расширил для возможности управлять несколькими иконками в терее одновременно.
 \ Изменил имена.
 
@@ -43,7 +43,7 @@ IconID IconData uID !
 NIF_MESSAGE NIF_ICON OR NIF_TIP OR IconData uFlags !
 )
 
-SET-CURRENT  \ EXPORT \ PUBLIC \ 
+SET-CURRENT  \ EXPORT \ PUBLIC \
 
 : Delete-TrayIcon ( ic_id -- )
   DUP NIM_DELETE Shell_NotifyIcon DROP
@@ -113,7 +113,7 @@ PREVIOUS
 0 VALUE w
 : test
 S" STATIC" 0 0 Window TO w
-S" Это пример" S" MODEM16.ICO" 1997  w Create-TrayIcon 
+S" Это пример" S" MODEM16.ICO" 1997  w Create-TrayIcon
  KEY DROP Delete-TrayIcon
 ;
 \ )

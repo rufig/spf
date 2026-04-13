@@ -25,7 +25,7 @@
 </def>
 
 <def name="compose-new-list" ds=" -- node-as-list ">
-  0 
+  0
   <q ds=" n1 node -- n2 "><rem> put an other nodes to the new list </rem>
     <choose> DUP @ cnode NEQ <when> APPENDED-WORDLIST-NODE- </when> DROP </choose>
   </q> _list @ FOREACH-NODE

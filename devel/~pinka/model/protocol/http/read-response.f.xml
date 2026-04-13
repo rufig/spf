@@ -20,7 +20,7 @@
   parse-status-line
   http-ver-major 1 EQ <unless>
     `http-status h@ <logS>status-line</logS>
-    `#505 STHROW 
+    `#505 STHROW
   </unless><!-- HTTP/1.x only -->
   TRUE
 </def>

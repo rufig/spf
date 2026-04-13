@@ -8,7 +8,7 @@ REQUIRE AsQName   ~pinka/samples/2006/syntax/qname.f \ понятие однословных строк
 
 MODULE: fix-inlines-support
 
-REQUIRE BIND-NODE ~pinka/samples/2006/lib/plain-list.f 
+REQUIRE BIND-NODE ~pinka/samples/2006/lib/plain-list.f
 
 VARIABLE h-compilers
 
@@ -36,7 +36,7 @@ EXPORT
 `R>      SFIND 0= THROW ' R>      ADVICE-COMPILER
 `>R      SFIND 0= THROW ' >R      ADVICE-COMPILER
 
-\ hint: ' (тик) ищет c NON-OPT-WL на вершине, 
+\ hint: ' (тик) ищет c NON-OPT-WL на вершине,
 \ поэтому здесь имена разрешаются через SFIND
 
 \ I-NATIVE не ищет в NON-OPT-WL, с учетом этого

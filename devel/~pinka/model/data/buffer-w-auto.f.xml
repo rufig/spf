@@ -7,5 +7,5 @@
   <handler event="cleanup"                >  clear  </handler>
   <handler event="startup"  advice="after">  clear  </handler>
   <handler event="shutdown" advice="after">  0 dp!  </handler>
-  
+
 </forth>

@@ -1,5 +1,5 @@
 
-\ 14.Apr.2001 
+\ 14.Apr.2001
 \ добавление ensemble{}^
 \            Ensemble-ForEach
 \            Ensamble-Volume
@@ -10,7 +10,7 @@
 
 ( реализация множеств произвольных элементов.
 
-  Элемент состоит из ключа [1 CELLS] и значения [1 CELLS] 
+  Элемент состоит из ключа [1 CELLS] и значения [1 CELLS]
   элементы идендифицируются ключом.
   элементы во множестве не повторяются.
 
@@ -45,7 +45,7 @@
 \ создать множесто на n элементов в области словаря
 \ name ( -- Ens )  - дает идендификатор множества
 
-\ New-Ensemble  ( n -- Ens ) 
+\ New-Ensemble  ( n -- Ens )
 \ создать множесто на n элементов в динамически распределяемой памяти.
 
 \ Del-Ensemble ( Ens -- )
@@ -69,7 +69,7 @@ REQUIRE  InVoc{   ~ac\lib\transl\vocab.f
 
 InVoc{ vocEnsemble
 
-0 
+0
 4 -- 'elemcount
 4 -- 'elemcountmax
 0 --  base
@@ -81,20 +81,20 @@ CONSTANT /header
 8 CONSTANT /el
 
 \ Created-Ensemble
-\ : Ensemble-Created  ( a-name len-name -- Ens ) 
+\ : Ensemble-Created  ( a-name len-name -- Ens )
 \ ;
 
 Public{
 
 : Create-Ensemble  ( n -- ) \ "name"
-  CREATE  
+  CREATE
   HERE >R
   DUP  /el *  /header + DUP ALLOT
   R@ SWAP ERASE
   R> 'elemcountmax !
 ;
 
-: New-Ensemble  ( n -- Ens ) 
+: New-Ensemble  ( n -- Ens )
   DUP  /el *  /header + DUP ALLOCATE THROW >R
   R@ SWAP ERASE
   R@ 'elemcountmax !  R>
@@ -113,8 +113,8 @@ Public{
 : []!  ( key i a-base -- )
   SWAP /el * + !
 ;
-: []^   ( i a-base -- a ) 
-  SWAP /el * + 
+: []^   ( i a-base -- a )
+  SWAP /el * +
 ;
 
 : v[]  ( i a-base -- ai@ )
@@ -123,13 +123,13 @@ Public{
 : v[]!  ( value  i a-base -- )
   SWAP /el * + CELL+ !
 ;
-: v[]^   ( i a-base -- a ) 
+: v[]^   ( i a-base -- a )
   SWAP /el * + CELL+
 ;
 
 : .ensemble ( Ens -- )    \ для отладки
   DUP base SWAP ( a-base Ens )
-  'elemcount @  0 ?DO   CR 
+  'elemcount @  0 ?DO   CR
       I OVER [] .  I OVER v[] .
   LOOP DROP
 ;
@@ -159,7 +159,7 @@ Public{
 
 Public{
 
-: ensemble+   { value key Ens \ n -- }  \ Ens-Include 
+: ensemble+   { value key Ens \ n -- }  \ Ens-Include
   Ens 'elemcount @   Ens 'elemcountmax @  = IF EXIT THEN
   key  0  Ens 'elemcount @   Ens base   find_place -> n
   n Ens 'elemcount @  U< IF
@@ -192,7 +192,7 @@ Public{
 
 : ensemble{}^  { key Ens \ n -- a  } \ делает вставку пустого, если нету.
   key  0  Ens 'elemcount @   Ens base   find_place -> n
-  n Ens 'elemcount @  U< IF 
+  n Ens 'elemcount @  U< IF
       n  Ens base  []   key = IF \ нашелся.
         n  Ens base  v[]^   EXIT
       THEN
@@ -210,13 +210,13 @@ Public{
   DUP 0!
 ;
 
-: Ensemble-ForEach  ( xt Ens -- )  
+: Ensemble-ForEach  ( xt Ens -- )
 \ xt ( value -- )
   DUP base CELL+ ( skip key ) SWAP 'elemcount @   /el * OVER + SWAP ?DO  ( xt )
       I @ SWAP DUP >R EXECUTE R>
   /el +LOOP  DROP
 ;
-        
+
 : Ensemble-Volume ( Ens -- volume )  \ Ensemble-Power \?
   'elemcount @
 ;
@@ -239,11 +239,11 @@ Public{
  ( example:
 REQUIRE .S lib\include\tools.f
 : .el  \ a -- \
-\  CR .S DUP CELL- @ . @ .  
+\  CR .S DUP CELL- @ . @ .
    CR .S .
 ;
-: test  
-  12  New-Ensemble 
+: test
+  12  New-Ensemble
   10  0 DO DUP I 2/   I ROT ensemble+  LOOP
   11 -2 DO CR I . I OVER ensemble{} IF . ELSE ." not found" THEN LOOP
   11 -2 DO CR I . I OVER ensemble{}^ ?DUP IF @ . ELSE ." out of band" THEN  LOOP
@@ -255,7 +255,7 @@ REQUIRE .S lib\include\tools.f
  (
 ALSO vocEnsemble  DEFINITIONS
 10 Create-Ensemble  ens
-0 10  ens ensemble+ 
-1 11  ens ensemble+ 
-2 09  ens ensemble+ 
+0 10  ens ensemble+
+1 11  ens ensemble+
+2 09  ens ensemble+
 \ )

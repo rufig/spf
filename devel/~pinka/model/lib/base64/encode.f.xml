@@ -51,7 +51,7 @@
   TUCK B! 1+
   TUCK B! 1+
   TUCK B! 1+
-  TUCK B! 1+  
+  TUCK B! 1+
 </def>
 
 <def name="ENCODE-TAIL-1" ds=" a-src1 a-dst1 -- a-dst2 ">

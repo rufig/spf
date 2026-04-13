@@ -14,7 +14,7 @@ half-dozen.f.xml -- решение задачи о шести кон€х
 
 half-dozen.f -- запускаемый файл (о шести кон€х)
 
-default.xsl -- раскраска ForthML-исходника. 
+default.xsl -- раскраска ForthML-исходника.
   ќткройте half-dozen.f.xml в браузере
     (чтобы локальный файл стил€ быд доступен в Google Chrome, ему требуетс€ ключик --allow-file-access-from-files)
   Ѕлоки выдел€ютс€ по активации, -- до свертки (folding) недалеко :)

@@ -1,7 +1,7 @@
 \ 04.2007
 
 REQUIRE [UNDEFINED] lib/include/tools.f
-REQUIRE CreatePipe ~ac/lib/win/process/pipes.f 
+REQUIRE CreatePipe ~ac/lib/win/process/pipes.f
 
 [UNDEFINED] PeekNamedPipe [IF]
 WINAPI: PeekNamedPipe kernel32.dll

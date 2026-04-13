@@ -5,8 +5,8 @@
 ; IMMEDIATE
 
 : AT
-  STATE @ 0=  
-  IF      ' >BODY  \ ! 
+  STATE @ 0=
+  IF      ' >BODY  \ !
   ELSE    POSTPONE [AT]
   THEN
 ; IMMEDIATE
@@ -15,7 +15,7 @@
 \ for example:
 
 : MyDef1
-  CREATE 
+  CREATE
     1 ,
   DOES>
     @ . \ ...

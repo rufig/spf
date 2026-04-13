@@ -34,8 +34,8 @@ REQUIRE OPEN-FILE-SHARED-DELETE ~ac/lib/win/file/share-delete.f
 : WRITE-SOCK-FILE ( h sock -- ior ) WRITE-SOCKET-FILE ;
 \   file (data to send) should not be larger than 2,147,483,646 bytes
 \ TODO:
-\   Workstation and client versions of Windows [...] limiting the number of concurrent TransmitFile operations 
-\   allowed on the system to a maximum of two. 
+\   Workstation and client versions of Windows [...] limiting the number of concurrent TransmitFile operations
+\   allowed on the system to a maximum of two.
 
 : WRITE-SOCK-FILENAME ( d-filename sock -- ior )
   >R

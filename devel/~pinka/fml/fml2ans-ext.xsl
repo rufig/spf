@@ -78,7 +78,7 @@
 
 <xsl:template match="f:def//f:const">
   <xsl:apply-templates/>
-  <xsl:text> MAKE-LIT `</xsl:text><xsl:value-of select="@name"/> 
+  <xsl:text> MAKE-LIT `</xsl:text><xsl:value-of select="@name"/>
   <xsl:text> NAMING- </xsl:text>
 </xsl:template>
 

@@ -21,7 +21,7 @@ REQUIRE HASH!     ~pinka\lib\hash-table.f
   BEGIN DUP WHILE DECODE-URN-CHAR R> DUP CHAR+ >R  C! REPEAT 2DROP
   2R> OVER -
 ;
-: PARSE-URN-PARAMS-INPLACE ( addr u -- hash ) 
+: PARSE-URN-PARAMS-INPLACE ( addr u -- hash )
   small-hash >R
   S" ?" SPLIT- IF 2DROP THEN
   BEGIN
@@ -32,7 +32,7 @@ REQUIRE HASH!     ~pinka\lib\hash-table.f
   UNTIL
   R>
 ;
-: PARSE-URN-PARAMS ( addr u -- hash ) 
+: PARSE-URN-PARAMS ( addr u -- hash )
   \ [...?]z_on&a=x%3Dy%3F&b=2+3&c=%AF_
   \ will be parsed as: z_on='', a='x=y?', b='2 3', c='ï_'
   TUCK SALLOC DUP >R SWAP

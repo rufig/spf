@@ -48,7 +48,7 @@ xmlns:r="http://forth.org.ru/ForthML/Rules/"
 
 
 <f:g>
-  <f:rem> Shortcuts. Ideas. 
+  <f:rem> Shortcuts. Ideas.
     <if-exit/><unless-exit/>
     <return-true/><return-false/>
   </f:rem>

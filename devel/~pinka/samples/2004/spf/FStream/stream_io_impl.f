@@ -30,7 +30,7 @@ REQUIRE PAllocSupport  devel\~af\lib\pallocate.f
 WINAPI: FlushFileBuffers              KERNEL32.DLL  [THEN]
 
 
-WARNING @ 
+WARNING @
 
 MODULE: FStreamSupport
 
@@ -186,13 +186,13 @@ EXPORT
     SWAP R> + SWAP _#tib R> .srpos !
   ELSE
     2DROP 2R> SWAP OVER SWAP .srpos +! 0
-  THEN 
+  THEN
 ;
 : READ-LINE ( c-addr u1 s -- u2 flag ior ) \ 94 FILE
    TO _s 2>R
    _s .srbuf @ TO _buf
    _s .sr#tib @ DUP TO _#tib
-   _s .srpos @ DUP TO _pos 
+   _s .srpos @ DUP TO _pos
    =
    IF \ буфер кончился
      _s REFILL-STREAM ?DUP IF 0 SWAP RDROP RDROP EXIT THEN

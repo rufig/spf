@@ -1,4 +1,4 @@
-\ Oct.2006, Feb.2007, 
+\ Oct.2006, Feb.2007,
 \ Jan.2008 something extracted from xt.immutable.f
 \ Ќативные списки форт-слов
 
@@ -32,7 +32,7 @@ WARNING !                   [THEN]
 ;
 
 : NAMING- ( xt c-addr u -- )
-\ ƒобавить слово, заданное семантикой xt, 
+\ ƒобавить слово, заданное семантикой xt,
 \ под именем, заданным строкой c-addr u, в текущий список.
   \ CHECK-UNIQUENESS
   GET-CURRENT RELATE-WORDLIST
@@ -70,13 +70,13 @@ WARNING !                   [THEN]
 
 
 
-: (FOREACH-WORDLIST-PAIR) ( i*x xt nfa -- j*x xt ) 
+: (FOREACH-WORDLIST-PAIR) ( i*x xt nfa -- j*x xt )
   SWAP >R DUP NAME> ( xt ) SWAP COUNT R@ EXECUTE R>
-; 
+;
 
 : FOREACH-WORDLIST-PAIR ( i*x xt wid -- j*x ) \ xt ( i*x  xt1 d-txt-name1 -- j*x )
   ['] (FOREACH-WORDLIST-PAIR) FOR-WORDLIST DROP
-; 
+;
 
 
 \EOF

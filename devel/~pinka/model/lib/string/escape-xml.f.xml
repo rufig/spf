@@ -29,22 +29,22 @@
 </def>
 
 <!--
-The right angle bracket (>) ... MUST, for compatibility, be escaped 
-using either "&gt;" or a character reference 
+The right angle bracket (>) ... MUST, for compatibility, be escaped
+using either "&gt;" or a character reference
 when it appears in the string "]]>" in content,
 when that string is not marking the end of a CDATA section.
   -  http://www.w3.org/TR/REC-xml/
 
-  ... well-formed documents need not declare any 
+  ... well-formed documents need not declare any
 of the following entities: amp, lt, gt, apos, quot.
 -->
 
 <def name="RESOLVE-ENTITY" ds=" a1 u1 -- a2 u2 ">
   2DUP `amp   EQUAL <if> 2DROP `&amp;   <exit/></if>
   2DUP `lt    EQUAL <if> 2DROP `&lt;    <exit/></if>
-  2DUP `gt    EQUAL <if> 2DROP `&gt;    <exit/></if>  
-  2DUP `apos  EQUAL <if> 2DROP `&apos;  <exit/></if>  
-  2DUP `quot  EQUAL <if> 2DROP `&quot;  <exit/></if>  
+  2DUP `gt    EQUAL <if> 2DROP `&gt;    <exit/></if>
+  2DUP `apos  EQUAL <if> 2DROP `&apos;  <exit/></if>
+  2DUP `quot  EQUAL <if> 2DROP `&quot;  <exit/></if>
   <!-- other not supported yet -->
 </def>
 

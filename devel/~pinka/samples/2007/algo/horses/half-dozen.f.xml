@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="Windows-1251"?>
 <?xml-stylesheet type="text/xsl" href="default.xsl"?>
-<forth xmlns="http://forth.org.ru/ForthML/" 
+<forth xmlns="http://forth.org.ru/ForthML/"
   xmlns:i="http://forth.org.ru/ForthML/Struct/"
   xmlns:r="http://forth.org.ru/ForthML/Rules/"
   xmlns:h="http://www.w3.org/1999/xhtml"
@@ -13,7 +13,7 @@
 <comment>
 Задача: поменять местами белых и черных коней по шахматным правилам
 на доске 3x4 (см. <h:a href="http://fforum.winglion.ru/viewtopic.php?t=740">fforum</h:a>).
-Найти все решения с учетом верхних ограничений 
+Найти все решения с учетом верхних ограничений
 на число ходов и количество найденных вариантов.
 
 Введем следующую адресацию полей (клеток), начиная с 0 по 11:
@@ -27,8 +27,8 @@
 Для каждого поля найдем число, биты которого будут установлены
 в позициях, которые бьет конь, находящейся на данном поле.
 
-Если логически соединить строку в кольцо, то не трудно заметить, 
-что конь бьет поля, отстоящие от него на 5 единиц в принятой адресации, 
+Если логически соединить строку в кольцо, то не трудно заметить,
+что конь бьет поля, отстоящие от него на 5 единиц в принятой адресации,
 но есть и исключения; как их коротко формализовать -- пока непонятно, поэтому
 зададим эти отношения прямым текстом в виде матрицы.
 </comment>
@@ -59,7 +59,7 @@
 <def name="beaten[]" ds=" i -- board "><rem>
   Возвращает битовый образ доски с отметками полей, пробиваемых из поля i
 </rem>
-  CELLS matrix-beaten + @ 
+  CELLS matrix-beaten + @
 </def>
 
 <const name="BASE-BIT"><rem> базовый "адрес" </rem> 1  12 1-  LSHIFT </const>
@@ -86,7 +86,7 @@
 </def>
 
 <def name="obtainable" ds=" enemy-position position -- obtainable"><rem>
-  Доступные для хода поля вычисляются через побитовый AND 
+  Доступные для хода поля вычисляются через побитовый AND
   всех возможных для хода со свободными от боя противника и свободными от любых фигур.
 </rem>
   2DUP OR INVERT -ROT  <rem ds=" empty-fileds enemy-position position "/>
@@ -123,7 +123,7 @@
 </rem>
   PRO
   Z@ obtainable _ob <let>
-  Z@ <l:for-fields> DUP Z@ up _half <let><g ds=" i -- ">  
+  Z@ <l:for-fields> DUP Z@ up _half <let><g ds=" i -- ">
     beaten[] _ob @ AND
     <l:for-fields><g ds=" j --">
       _half @ down new-position?

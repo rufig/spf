@@ -4,7 +4,7 @@
 
 <include href="../data/chain-cond.f.xml"/>
 
-<cell name="rules-default"/> 
+<cell name="rules-default"/>
 <init> rules-default DUP chain-current ! chain-context ! </init>
 
 <def name="advice-rule-after" ds=" xt -- ">

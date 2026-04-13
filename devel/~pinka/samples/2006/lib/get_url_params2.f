@@ -12,7 +12,7 @@
 
 REQUIRE ""                ~ac\lib\str5.f
 REQUIRE PARSE-URN-PARAMS  ~pinka\samples\2006\lib\parse-urn.f
-REQUIRE AsLaterSintax     ~pinka\samples\2006\syntax\later.f 
+REQUIRE AsLaterSintax     ~pinka\samples\2006\syntax\later.f
 
 USER uPARAMS-TBL
 

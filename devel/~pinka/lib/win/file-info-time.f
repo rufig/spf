@@ -10,7 +10,7 @@ REQUIRE BHFI ~pinka/lib/win/file-information.f
   GetFileInformationByHandle IF ( addr-buf )
   BHFI::ftCreationTime Q@ 0  ELSE
   DROP 0 0 GetLastError      THEN
-  R> RFREE    
+  R> RFREE
 ;
 : FILE-FILETIME-W ( h -- ftime-lo ftime-hi ior )
   \ Write time
@@ -19,7 +19,7 @@ REQUIRE BHFI ~pinka/lib/win/file-information.f
   GetFileInformationByHandle IF ( addr-buf )
   BHFI::ftLastWriteTime Q@ 0 ELSE
   DROP 0 0 GetLastError      THEN
-  R> RFREE    
+  R> RFREE
 ;
 : FILE-FILETIME-A ( h -- ftime-lo ftime-hi ior )
   \ Access time
@@ -28,5 +28,5 @@ REQUIRE BHFI ~pinka/lib/win/file-information.f
   GetFileInformationByHandle IF ( addr-buf )
   BHFI::ftLastAccessTime Q@ 0 ELSE
   DROP 0 0 GetLastError      THEN
-  R> RFREE    
+  R> RFREE
 ;

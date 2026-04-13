@@ -63,8 +63,8 @@ REQUIRE ENUM-HEAPS ~pinka/lib/win/enum-heaps.f
 \EOF
 
 
-: t1 ( addr u -- ) SWAP . . CR ; 
-: T1 ( heap -- ) ['] t1 FOR-HEAP-FORTH CR ; 
+: t1 ( addr u -- ) SWAP . . CR ;
+: T1 ( heap -- ) ['] t1 FOR-HEAP-FORTH CR ;
 
   ' T1 ENUM-HEAPS-FORTH
 

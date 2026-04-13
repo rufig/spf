@@ -6,8 +6,8 @@ REQUIRE [UNDEFINED]  lib\include\tools.f
 \ транслировать слово с именем  a u из словаря wid
   SEARCH-WORDLIST  DUP IF
     STATE @ =  IF
-    COMPILE,   ELSE 
-    EXECUTE    THEN 
+    COMPILE,   ELSE
+    EXECUTE    THEN
     TRUE               THEN
 ;
 

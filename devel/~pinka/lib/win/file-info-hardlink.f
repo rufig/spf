@@ -9,7 +9,7 @@ REQUIRE BHFI ~pinka/lib/win/file-information.f
   GetFileInformationByHandle IF ( addr-buf )
   BHFI::nNumberOfLinks T@ 0  ELSE
   DROP 0 GetLastError        THEN
-  R> RFREE    
+  R> RFREE
 ;
 
 : FILENAME-HARDLINK ( d-txt-filename -- u )

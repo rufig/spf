@@ -48,15 +48,15 @@
   res DUP <if> mysql_fetch_row </if> DUP row!  -1 col!
 </def>
 <def name="next-col?" ds=" -- flag ">
-  col 1+ DUP col! cols ULT 
+  col 1+ DUP col! cols ULT
 </def>
 <def name="get-value" ds=" -- a u ">
   col cols ULT <unless> 0. <exit/></unless>
-  col row res mysql_get_value 
+  col row res mysql_get_value
 </def>
 <def name="get-name" ds=" -- a u ">
   col cols ULT <unless> 0. <exit/></unless>
-  col res mysql_field_name 
+  col res mysql_field_name
 </def>
 
 <def name="fetch-value" ds=" d-name -- d-value ">

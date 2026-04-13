@@ -13,7 +13,7 @@ REQUIRE [UNDEFINED]  lib\include\tools.f
 
 [UNDEFINED] INCLUDED-WITH [IF]
 
-\  по аналогии со словами INCLUDED и EVALUATE-WITH 
+\  по аналогии со словами INCLUDED и EVALUATE-WITH
 
 : INCLUDED-WITH ( a u  xt  -- )
 \ Сохранить спецификации текущие входного потока.
@@ -48,7 +48,7 @@ REQUIRE [UNDEFINED]  lib\include\tools.f
 
 [UNDEFINED] INCLUDE-FILE-WITH [IF]
 
-\ по аналогии со словом INCLUDE-FILE 
+\ по аналогии со словом INCLUDE-FILE
 
 : INCLUDE-FILE-WITH ( i*x fileid xt -- j*x )
   OVER >R  RECEIVE-WITH
@@ -59,7 +59,7 @@ REQUIRE [UNDEFINED]  lib\include\tools.f
 
 \ ===
 \ поддержка старых имен этих слов  (discouraged words)
-\ - только для совместимости! 
+\ - только для совместимости!
 
 [UNDEFINED] INCLUDE-WITH [IF]
 : INCLUDE-WITH INCLUDED-WITH ;

@@ -4,9 +4,9 @@
 0x0400 CONSTANT WM_USER
 WM_USER CONSTANT WM_WA_IPC
 
-122 CONSTANT IPC_SETVOLUME 
+122 CONSTANT IPC_SETVOLUME
 
-\ also see [http://download.nullsoft.com/winamp/client/wa502_sdk.zip]/winamp/wa_ipc.h 
+\ also see [http://download.nullsoft.com/winamp/client/wa502_sdk.zip]/winamp/wa_ipc.h
 
 : winamp-vol! ( n -- )
   >R
@@ -15,7 +15,7 @@ WM_USER CONSTANT WM_WA_IPC
   IPC_SETVOLUME R@ WM_WA_IPC WIN-HWND SendMessageA DROP
 
   THEN
-  
+
   RDROP
 ;
 

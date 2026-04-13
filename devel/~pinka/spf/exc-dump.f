@@ -5,7 +5,7 @@
   - подправлена эвристика вычисления значения ESP на момент исключения,
   - позволяет выводить дополнительную информацию, привязываясь к AT-EXC-DUMP.
 
-  Модуль определяет заново WordByAddr, 
+  Модуль определяет заново WordByAddr,
   предоставляет ENUM-STORAGES, ставит <EXC-DUMP> на EXC-DUMP2
 
   Подключать после storage.f
@@ -103,7 +103,7 @@ WARNING !
 
 : AT-EXC-DUMP ( -- ) ... ;
 
-: EXC-DUMP2 ( exc-info -- ) 
+: EXC-DUMP2 ( exc-info -- )
   \ см. первоначальную реализацию в сырцах SPF3 и SPF4.
   IN-EXCEPTION @ IF DROP EXIT THEN   TRUE IN-EXCEPTION !  BASE @ >R HEX
 

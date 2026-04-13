@@ -3,7 +3,7 @@
 
 ( Расширение SPF
     Быстрое подключение файлов за счет использования
-    функций MSVCRT.DLL 
+    функций MSVCRT.DLL
 
   Переопределяет все необходимые слова работы с файлами,
   первоначальный вариант доступен через словарь OLD-IO
@@ -16,9 +16,9 @@
 \ Заменяет значение вектора (INCLUDED)
 \ Детали в словаре MsvcrtIO-Support
 
-\ some from  ~ac\lib\win\file\stream.f 
+\ some from  ~ac\lib\win\file\stream.f
 
-REQUIRE CAPI: lib\win\api-call\capi.f 
+REQUIRE CAPI: lib\win\api-call\capi.f
 
 VOCABULARY OLD-IO   ALSO OLD-IO   FORTH-WORDLIST @  CONTEXT @ ! PREVIOUS
 
@@ -73,7 +73,7 @@ EXPORT
   SWAP ROT fgets  ( res )
   DUP IF chop TRUE 0 EXIT THEN
   DROP 0 FALSE 0
-  \ 0 0 id ferror 
+  \ 0 0 id ferror
   \ 0 0 -1
 ;
 : WRITE-FILE ( c-addr u fileid -- ior ) \ 94 FILE
@@ -113,7 +113,7 @@ EXPORT
   ['] READ-LINE SWAP RECEIVE-WITH-XT
 ;
 : INCLUDE-FILE ( i*x fileid -- j*x ) \ 94 FILE
-  BLK 0!  DUP >R  
+  BLK 0!  DUP >R
   ['] TranslateFlow RECEIVE-WITH
   R> CLOSE-FILE THROW
   THROW

@@ -4,7 +4,7 @@
 <!-- $Id$ -->
 
 <!-- Note
-  The stack notation (signature) of the words FIND-NODE and FIND-LIST 
+  The stack notation (signature) of the words FIND-NODE and FIND-LIST
   differ from the signature of the same words in the ~pinka/samples/2006/lib/plain-list.f
 
   Which is better? It is a question.
@@ -123,7 +123,7 @@
   >R >R
   DUP @  DUP R@ EQ <if> RDROP RDROP 2DROP <exit/></if>
   R@ ROT ! <!-- boundary to list-src -->
-  
+
   0 OVER <g ds=" 0 node2 -- node1|0 " rs=" node-boundary -- " >
   <until> DUP <while/> NIP DUP CELL- @  DUP R@ EQ </until> DROP RDROP
   </g>

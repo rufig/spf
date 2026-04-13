@@ -11,13 +11,13 @@ S" samples\bench\bubble.f" INCLUDED
 .( ----- bubble: )
 ' MAIN N NCountProfile CR
 
-S" index.f" INCLUDED 
+S" index.f" INCLUDED
 CR
 
 s" samples\bench\queens.f" INCLUDED
 s" samples\bench\bubble.f" INCLUDED
 
-ONLY  
+ONLY
     .( ----- ZVM: queens: )
     ZOP:: ' test ZS>  N NCountProfile CR
     .( ----- ZVM: bubble: )

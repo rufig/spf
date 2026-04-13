@@ -18,7 +18,7 @@
 \ перебор только обычных форт-словарей (у которых CLASS равен 0 или FORTH-WORDLIST )
 \ xt ( wid -- )
   >R VOC-LIST @ BEGIN DUP WHILE
-    DUP CELL+ ( a wid ) 
+    DUP CELL+ ( a wid )
     DUP IS-CLASS-FORTH
     IF R@ ROT >R  EXECUTE R> ELSE DROP THEN
     @

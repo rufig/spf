@@ -1,4 +1,4 @@
-\ 20.Jan.2004 
+\ 20.Jan.2004
 
 
  Calls       Ticks              AverageTicks     Name     (Rets)

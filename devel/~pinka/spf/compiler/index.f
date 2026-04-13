@@ -3,7 +3,7 @@
 ( Лексикон кодогенератора:
 
     -- запись данных /в область данных/
-    HERE ALLOT , C, S, 
+    HERE ALLOT , C, S,
     SXZ, SCZ,
     CARBON
 
@@ -46,13 +46,13 @@ REQUIRE Require   ~pinka/lib/ext/requ.f
   HERE OVER 2SWAP S,
 ;
 
-\ Некоторые слова в SPF4 имеют специальную процедуру 
+\ Некоторые слова в SPF4 имеют специальную процедуру
 \ для откладывания их исполнения (компиляции), -- как например inlines.
 Require ADVICE-COMPILER inlines.f \ все особые слова SPF4 обработанны
 
 \ Слово ADVICE-COMPILER ( xt-compiler xt -- ) позволяет навесить
 \ необходимую семантику компиляции на xt
-\ а слово GET-COMPILER? ( xt -- xt-compiler true | xt false ) 
+\ а слово GET-COMPILER? ( xt -- xt-compiler true | xt false )
 \ дает эту семантику, если она имеется.
 \ Слово "EXEC," (отложить исполнение) использует специфичный компилятор,
 \ если он задан для данного xt.

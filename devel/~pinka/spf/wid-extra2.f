@@ -13,7 +13,7 @@ MODULE: WidExtraSupport
 ;
 
 : WID-CACHEA ( wid -- a )
-  WID-EXTRA @ 
+  WID-EXTRA @
 ;
 : WID-STORAGEA ( wid -- a )
   WID-EXTRA @ CELL+

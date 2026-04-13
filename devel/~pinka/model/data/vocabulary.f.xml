@@ -45,7 +45,7 @@
 </def>
 
 <def name="WORDLIST-NAMED" ds=" addr u -- wid ">
-  2DUP WORDLIST  DUP >R  
+  2DUP WORDLIST  DUP >R
   BEGET-CONST NAMING  R@ NAMING-WORDLIST  R>
 </def>
 

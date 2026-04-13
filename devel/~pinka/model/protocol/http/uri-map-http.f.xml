@@ -23,7 +23,7 @@
 </def>
 
 <def name="reply-by-method-wl" ds=" wid -- ">
-  DUP >R http-method OBEY- <if> RDROP <exit/></if> 2DROP 
+  DUP >R http-method OBEY- <if> RDROP <exit/></if> 2DROP
   R> nlist-txt Reply405Methods
 </def>
 <def name="reply-method-by-voc" ds=" wid -- ">

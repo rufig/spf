@@ -2,46 +2,46 @@
 
 \ { ====================================================================
 \ (C) Copyright 1999 FORTH, Inc.   www.forth.com
-\ 
+\
 \ RATIONAL APPROXIMATIONS
 \ ==================================================================== }
-\ 
+\
 \ { --------------------------------------------------------------------
 \ Given a number expressed as a ratio of 63-bit unsigned integers,
 \ calculates a ratio of 31-bit numbers that very closely approximates the
 \ original ratio.  Such 31-bit ratios may then be used with */ for
 \ accurate multiplication by "real" constants.
-\ 
+\
 \ These routines will reproduce, or improve upon, the ratios used in
 \ STARTING FORTH, Leo Brodie, p.122. For best results, use the largest
 \ values (with the most sig- nificant bits) possible, as in these
 \ examples:
-\ 
+\
 \ 18.84955592 6.00000000 RATIO . . ( Pi, gives 235619449/75000000 )
 \ 19.02797280 7.00000000 RATIO . . ( e, gives 11892483/4375000 )
-\ 
+\
 \ Dependencies: Double Number Operators
-\ 
+\
 \ Exports: D* DU/MOD RATIO
 \ -------------------------------------------------------------------- }
-\ 
+\
 \ { ---------------------------------------------------------------------
 \ Double Number Arithmetic by Wil Baden
-\ 
+\
 \ For a full copy of the source for his article send e-mail to
 \ WilBaden@Netcom.com requesting Stretching Forth #19: Double Number
 \ Arithmetic.
-\ 
+\
 \ TUM* TUM/ triple Unsigned Mixed Multiply and Divide.
-\ 
+\
 \ T+ T- triple Add and Subtract.
-\ 
+\
 \ DU/MOD Double Unsigned Division with Remainder.  Given an unsigned
 \ 2-cell dividend and an unsigned 2-cell divisor,  return a 2-cell
 \ remainder and a 2-cell quotient.  The algorithm is based on Knuth’s
 \ algorithm in volume 2 of his Art of Computer Programming, simplified
 \ for two-cell dividend and two-cell divisor.
-\ 
+\
 \ --------------------------------------------------------------------- }
 
 \ addeded 07.03.2001 by ruv
@@ -98,14 +98,14 @@
 \ Richmond, VA and is far better than the exhaustive searches that were
 \ used earlier. In all cases it will produce the same or better ratios for
 \ the examples in Starting Forth.  Method derives from Euclid.
-\ 
+\
 \ RATIO requires that both of its arguments be 63-bit unsigned numbers.
 \ It returns a pair of 31-bit unsigned numbers in the same order that are
 \ a darned good approximation to the first pair.  Data management will
 \ some day be cleaned up if we ever get a  D/  that's fast enough to make
 \ this whole procedure attractive for application rather than design time
 \ use.
-\ 
+\
 \ --------------------------------------------------------------------- }
 
 : ARRAY ( n -- ) \ Usage <n> ARRAY <name>
