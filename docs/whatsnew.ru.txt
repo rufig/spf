@@ -14,7 +14,7 @@
 + "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
 
 libs:
-! lib/ext/locals.f - определение с локальными переменными было невидимо для "IMMEDIATE" 
+! lib/ext/locals.f - определение с локальными переменными было невидимо для "IMMEDIATE"
 + lib/include/ansi.f - добавлено FILE-STATUS facil.f
 + lib/include/core.f - добавлено "BUFFER:"
 + lib/include/facil.f - добавлено MS
