@@ -36,7 +36,7 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ Добавить char к началу форматной числовой строки.
 \ Исключительная ситуация возникает, если использовать HOLD
 \ вне <# и #>, ограничивающивающих преобразование чисел.
-  HLD @ CHAR- 
+  HLD @ CHAR-
   DUP SYSTEM-PAD U< IF -17 THROW THEN
   DUP HLD ! C!
 ;
@@ -58,7 +58,7 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 \ Исключительная ситуация возникает, если использовать #
 \ вне <# и #>, ограничивающивающих преобразование чисел.
   0 BASE @ UM/MOD >R BASE @ UM/MOD R>
-  ROT DUP 10 < 0= IF 7 + THEN 48 + 
+  ROT DUP 10 < 0= IF 7 + THEN 48 +
   HOLD
 ;
 
@@ -107,9 +107,9 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 ;
 
 : .0
-  >R 0 <# #S #> R> OVER - 0 MAX DUP 
+  >R 0 <# #S #> R> OVER - 0 MAX DUP
     IF 0 DO [CHAR] 0 EMIT LOOP
-    ELSE DROP THEN TYPE 
+    ELSE DROP THEN TYPE
 ;
 
 : .TO-LOG ( n -- )
@@ -142,7 +142,7 @@ USER-CREATE PAD ( -- c-addr ) \ 94 CORE EXT
 ;
 ' (.") TO (.")-CODE
 
-\ : DIGIT ( C, N1 -> N2, TF / FF ) 
+\ : DIGIT ( C, N1 -> N2, TF / FF )
 \ N2 - значение литеры C как
 \ цифры в системе счисления по основанию N1
 (  SWAP

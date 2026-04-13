@@ -9,7 +9,7 @@
 DECIMAL
 DUP        VALUE ORG-ADDR      \ адрес компиляции кода
 DUP        VALUE IMAGE-BEGIN   \ адрес загрузки кода
-512 1024 * VALUE IMAGE-SIZE    \ сколько места резервировать при 
+512 1024 * VALUE IMAGE-SIZE    \ сколько места резервировать при
                                \ загрузке секции кода
 DUP 8 1024 * - CONSTANT IMAGE-BASE \ адрес загрузки первой секции
 

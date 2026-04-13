@@ -26,7 +26,7 @@
   0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
   CREATE_ALWAYS
   0 ( secur )
-  0 ( share )  
+  0 ( share )
   R> ( access=fam )
   R> ( filename )
   CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
@@ -39,7 +39,7 @@ CREATE SA 12 , 0 , 1 ,
   0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
   CREATE_ALWAYS
   SA ( secur )
-  3 ( share )  
+  3 ( share )
   R> ( access=fam )
   R> ( filename )
   CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
@@ -51,7 +51,7 @@ CREATE SA 12 , 0 , 1 ,
   SA ( secur )
   7 ( FILE_SHARE_READ FILE_SHARE_WRITE OR FILE_SHARE_DELETE OR )
   2R@ ( access=fam , filename )
-  CreateFileA DUP -1 = 
+  CreateFileA DUP -1 =
   IF GetLastError DUP 87 =
      IF
        2DROP
@@ -106,7 +106,7 @@ USER lpDistanceToMoveHigh
   0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
   OPEN_EXISTING
   0 ( secur )
-  0 ( share )  
+  0 ( share )
   R> ( access=fam )
   R> ( filename )
   CreateFileA DUP -1 = IF GetLastError ELSE 0 THEN
@@ -236,7 +236,7 @@ USER lpNumberOfBytesWritten  \ not used by core more
 ;
 
 : WRITE-LINE ( c-addr u fileid -- ior ) \ 94 FILE
-\ Записать u символов от c-addr с последующим зависящим от реализации концом 
+\ Записать u символов от c-addr с последующим зависящим от реализации концом
 \ строки в файл, идентифицируемый fileid, начиная с текущей позиции.
 \ ior - определенный реализацией код результата ввода-вывода.
 \ После завершения операции FILE-POSITION возвращает следующую

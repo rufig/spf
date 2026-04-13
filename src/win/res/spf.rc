@@ -9,7 +9,7 @@
 #endif
 
 1 ICON "spf.ico"
-1 RT_MANIFEST "spf.manifest" 
+1 RT_MANIFEST "spf.manifest"
 
 //#include <windows.h>
 
@@ -17,7 +17,7 @@
 #define VOS_DOS_WINDOWS32 0x10004L
 #define VFT_APP 0x1L
 
-1 VERSIONINFO MOVEABLE IMPURE LOADONCALL DISCARDABLE 
+1 VERSIONINFO MOVEABLE IMPURE LOADONCALL DISCARDABLE
   FILEVERSION     4,29,0,0
   PRODUCTVERSION  4,29,0,0
   FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
@@ -25,12 +25,12 @@
   FILEOS          VOS_DOS_WINDOWS32
   FILETYPE        VFT_APP
   FILESUBTYPE     0
-BEGIN 
-  BLOCK "StringFileInfo" 
-  BEGIN 
-    BLOCK "040904E4" 
-    //language ID = U.S. English, char set = Windows, Multilingual 
-    BEGIN 
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    //language ID = U.S. English, char set = Windows, Multilingual
+    BEGIN
       VALUE "FileDescription", "SP-Forth - ANS Forth compiler"
       VALUE "CompanyName",    "RuFIG"
       VALUE "ProductName",    "SP-Forth"
@@ -40,10 +40,10 @@ BEGIN
       VALUE "OriginalFilename",    "spf4.exe"
       VALUE "Comments",    "Open source project https://github.com/rufig/spf.\r\nRuFIG http://forth.org.ru/"
       VALUE "LegalCopyright", "(C) 1992-2023 RuFIG"
-    END 
-  END 
-  BLOCK "VarFileInfo" 
-  BEGIN 
-    VALUE "Translation", 0x0409, 1252 
-  END 
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 1252
+  END
 END

@@ -33,7 +33,7 @@
   DESTROY-HEAP
   -1 ExitThread
 ;
-: THREAD-ID ( -- n ) 
+: THREAD-ID ( -- n )
   \ идентификатор потока
-  36 FS@ 
+  36 FS@
 ;

@@ -9,7 +9,7 @@ WARNING 0! \ чтобы не было сообщений isn't unique
 
 \ S" lib\ext\disasm.f"             INCLUDED
 
-WARNING 0! 
+WARNING 0!
 
 S" 0 0 ' [IF] 0=  ' [DEFINED] 0=  OR THROW" ' EVALUATE CATCH NIP NIP 0<> ( flag )
 S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
@@ -53,24 +53,24 @@ C" M_WL" FIND NIP 0=
 
 USER CSP
 
-: CASE 
+: CASE
   CSP @ SP@ CSP ! ; IMMEDIATE
 
-: ?OF 
+: ?OF
   POSTPONE IF POSTPONE DROP ; IMMEDIATE
 
-: OF 
+: OF
   POSTPONE OVER POSTPONE = POSTPONE ?OF ; IMMEDIATE
 
-: ENDOF 
+: ENDOF
   POSTPONE ELSE ; IMMEDIATE
 
 : DUPENDCASE
   BEGIN SP@ CSP @ <> WHILE POSTPONE THEN REPEAT
   CSP ! ; IMMEDIATE
 
-: ENDCASE 
-  POSTPONE DROP   POSTPONE DUPENDCASE 
+: ENDCASE
+  POSTPONE DROP   POSTPONE DUPENDCASE
 ; IMMEDIATE
 
 : ," ( addr u -- )
@@ -78,7 +78,7 @@ USER CSP
     SWAP CMOVE 0 C, ;
 
 512 1024 * TO IMAGE-SIZE
-0x8050000 CONSTANT IMAGE-START 
+0x8050000 CONSTANT IMAGE-START
 
 0 VALUE .forth
 0 VALUE .forth#
@@ -246,7 +246,7 @@ S" src\win\spf_win_cgi.f"            INCLUDED
 \ Сохранение системы в exe-файле.
 
 S" src\win\spf_pe_save.f"            INCLUDED
-: DONE 
+: DONE
   CR ." DONE"
   S" src/done.f" INCLUDED
 ;
@@ -304,7 +304,7 @@ S" src/xsave.f" 		  INCLUDED
 
 TC-WINAPLINK @ ' WINAPLINK TC-ADDR!
 
-CR  
+CR
 \ HERE U.
 \ DUP  HERE OVER - S" spf.bin" R/W CREATE-FILE THROW WRITE-FILE THROW
 

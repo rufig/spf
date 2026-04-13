@@ -165,7 +165,7 @@ CODE   FSINCOS
        RET
 END-CODE
 
-CODE FABS   
+CODE FABS
        FABS
        RET
 END-CODE
@@ -216,7 +216,7 @@ CODE FINT
 END-CODE
 
 CODE FSWAP \ *
-       FXCH  
+       FXCH
        RET
 END-CODE
 
@@ -265,7 +265,7 @@ END-CODE
 
 
 \ Extension words
- 
+
 CODE DF!
        FSTP  QWORD [EAX]
        MOV   EAX, [EBP]
@@ -288,7 +288,7 @@ CODE F!
 END-CODE
 
 \ Move the number from float to the data stack
-\ The number is not converted to integer, instead the bits of the float number 
+\ The number is not converted to integer, instead the bits of the float number
 \ are transfered "as is" (8 bytes) \ = 2 CELLS) BTW 64 bit issue! FIXME
 CODE FLOAT>DATA ( F: f -- D: du )
        LEA  EBP, -8 [EBP]
@@ -396,7 +396,7 @@ END-CODE
 
 CODE FEXPM1
        CALL ' FEXP
-       FLD1 
+       FLD1
        FSUBP ST(1), ST
        RET
 END-CODE
@@ -458,7 +458,7 @@ END-CODE
 
 DECIMAL
 CODE F>DEG
-     MOV  DWORD -4 [EBP], # 180 
+     MOV  DWORD -4 [EBP], # 180
      FIMUL DWORD -4 [EBP]
      FLDPI
      FDIVP ST(1), ST
@@ -466,9 +466,9 @@ CODE F>DEG
 END-CODE
 
 CODE F>RAD
-     FLDPI 
+     FLDPI
      FMULP ST(1), ST
-     MOV  DWORD -4 [EBP], # 180 
+     MOV  DWORD -4 [EBP], # 180
      FIDIV DWORD -4 [EBP]
      RET
 END-CODE
@@ -666,7 +666,7 @@ END-CODE
 
 CODE _FLIT-CODE8
      POP  EBX
-     FLD  QWORD [EBX]  
+     FLD  QWORD [EBX]
      ADD  EBX, # 8
      JMP  EBX
 END-CODE

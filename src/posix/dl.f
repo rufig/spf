@@ -1,5 +1,5 @@
 \ $Id$
-\ 
+\
 \ Подключение динамических библиотек
 \ Ю. Жиловец, 22.04.2007
 
@@ -43,7 +43,7 @@ VECT symbol-not-found-error
 ;
 
 ' write-dlerror DUP
-    ' library-not-found-error TC-VECT!   
+    ' library-not-found-error TC-VECT!
     ' symbol-not-found-error  TC-VECT!
 
 : dlopen2 ( file -- )
@@ -119,7 +119,7 @@ VECT symbol-not-found-error
 : table-enter ( library? a # -- sym# )
   dl-second# 100 MOD 0= IF
     \ расширяем таблицу еще на 100 записей
-    dl-second dl-second# 100 + dl-rec# * 
+    dl-second dl-second# 100 + dl-rec# *
     dlrealloc TO dl-second
   THEN
   dl-second-strtab enter-into-strtab SWAP IF NEGATE THEN
@@ -128,7 +128,7 @@ VECT symbol-not-found-error
 ;
 
 : name-lookup ( a # library? -- sym# )
-  -ROT 2DUP 
+  -ROT 2DUP
   dl-first-strtab dl-first dl-first# table-lookup IF
     NIP NIP NIP EXIT
   THEN
@@ -142,7 +142,7 @@ VECT symbol-not-found-error
 : symbol-lookup ( a # -- sym# )
   FALSE name-lookup
 ;
- 
+
 \ ------------------------------
 
 : get-symbol-record ( sym# -- strtab dlrec)
@@ -150,7 +150,7 @@ VECT symbol-not-found-error
     dl-first-strtab dl-first
   ELSE
     dl-first# - dl-second-strtab dl-second
-  THEN 
+  THEN
   ROT dl-rec# * +
 ;
 
@@ -177,16 +177,16 @@ VECT symbol-not-found-error
 
 \ ------------------------------
 
-\ Загружает все библиотеки, описанные 
+\ Загружает все библиотеки, описанные
 \ в статической таблице компоновки dl-first
 \ и очищает адреса функций
 
 : load-libraries
   dl-first dl-first# dl-rec# * OVER + SWAP ?DO
-    I @ 0< IF 
-      I @ NEGATE dl-first-strtab + dlopen2 
-    ELSE 
-      I CELL+ 0! 
+    I @ 0< IF
+      I @ NEGATE dl-first-strtab + dlopen2
+    ELSE
+      I CELL+ 0!
     THEN
   dl-rec# +LOOP
 ;
@@ -203,7 +203,7 @@ VECT symbol-not-found-error
 \ ------------------------------------
 
 USER ((-stack
-USER (__ret2) 
+USER (__ret2)
 
 : (( ( -- ) SP@ ((-stack !  (__ret2) 0! ;
 : <( ( n -- ) 1+ CELLS SP@ + ((-stack !  (__ret2) 0! ;

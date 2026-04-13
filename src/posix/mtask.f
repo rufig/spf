@@ -1,5 +1,5 @@
 \ $Id$
-\ 
+\
 \ Работа с потоками
 \ Ю. Жиловец, 20.05.2007
 
@@ -31,10 +31,10 @@ CR .( FIXME: man pthread_detach)
   \ приостановить поток на ms миллисекунд (1000=1сек)
   \ вызывается самим потоком
   BEGIN
-  DUP 
+  DUP
   U>D 1000 UM/MOD SWAP 1000000 * >R >R
   (( RP@ 0 )) nanosleep DROP RDROP RDROP
-  DUP -1 <> UNTIL 
+  DUP -1 <> UNTIL
   DROP
 ;
 : TERMINATE ( -- )
@@ -43,5 +43,5 @@ CR .( FIXME: man pthread_detach)
 ;
 : THREAD-ID ( -- tid )
   \ идентификатор потока
-  (()) pthread_self 
+  (()) pthread_self
 ;

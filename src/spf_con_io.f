@@ -17,19 +17,19 @@ S" src/win/spf_win_con_io.f" INCLUDED
     H-STDLOG
     IF
       H-STDLOG CLOSE-FILE
-      0 TO H-STDLOG 
-      THROW 
+      0 TO H-STDLOG
+      THROW
     THEN
-; 
+;
 
 : STARTLOG ( -- )
 \ Создать файл spf.log. Начать лог ввода/вывода.
 \ Если лог уже открыт, очистить и начать заново
   ENDLOG
-  S" spf.log" W/O     ( S: addr count attr -- )            
-  CREATE-FILE-SHARED  ( S: addr count attr -- handle ior ) 
-  THROW                                                    
-  TO H-STDLOG                                              
+  S" spf.log" W/O     ( S: addr count attr -- )
+  CREATE-FILE-SHARED  ( S: addr count attr -- handle ior )
+  THROW
+  TO H-STDLOG
 ;
 
 : TO-LOG ( addr u -- )
@@ -48,10 +48,10 @@ VECT ACCEPT
 \ +n2 - длина строки, записанной по адресу c-addr.
   OVER SWAP
   H-STDIN READ-LINE
-  
+
   DUP 109 = IF DROP -1002 THEN THROW ( ~ruv)
   0= IF -1002 THROW THEN ( ~ac)
-  
+
   TUCK TO-LOG
   EOLN TO-LOG \ Если ввод с user-device записать cr в лог, то есть нажали Enter
 ;

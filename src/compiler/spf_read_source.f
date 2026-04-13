@@ -17,16 +17,16 @@ USER CURSTR \ номер строки
 FALSE VALUE ?GUI
 FALSE VALUE ?CONSOLE
 
-TARGET-POSIX [IF] 
-: CONSOLE-HANDLES ; 
+TARGET-POSIX [IF]
+: CONSOLE-HANDLES ;
 [ELSE]
 : CONSOLE-HANDLES
 \  0 TO SOURCE-ID
-  -10 GetStdHandle TO H-STDIN 
+  -10 GetStdHandle TO H-STDIN
   -11 GetStdHandle TO H-STDOUT
   -12 GetStdHandle TO H-STDERR
 
- \ ~day На случай печати в GUI приложении запущеным из под Explorer  
+ \ ~day На случай печати в GUI приложении запущеным из под Explorer
   ?GUI
   IF
     H-STDOUT 65537 = IF -1 TO H-STDOUT THEN \ Invalid handle
@@ -91,7 +91,7 @@ VECT REFILL ( -- flag )
 ;
 ' REFILL-SOURCE ' REFILL TC-VECT!   ( -- flag ) \ SPF EXT
 \ Расширить семантику выполнения FILE EXT REFILL следующим:
-\ Если  SOURCE-ID-XT возвращает не ноль, то, считая это 
+\ Если  SOURCE-ID-XT возвращает не ноль, то, считая это
 \ значение xt-ом для слова, подобного READ-LINE,
 \ попытаться прочитать им строку из SOURCE-ID.
 \  Если успешно, сделать результат входным буфером,

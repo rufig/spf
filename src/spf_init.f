@@ -34,7 +34,7 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
 : ERR-EXIT ( xt -- )
   CATCH
   ?DUP IF ['] ERROR CATCH IF 4 ELSE 3 THEN HALT THEN
-  \ выходим с кодом ошибки 3, если обычная ошибка при инициализации 
+  \ выходим с кодом ошибки 3, если обычная ошибка при инициализации
   \ 4 - если вложенная
 ;
 
@@ -43,8 +43,8 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
 
 : STACK-ADDR. ( addr -- addr )
       DUP ADDR. ." :  "
-      DUP ['] @ CATCH 
-      IF DROP 
+      DUP ['] @ CATCH
+      IF DROP
       ELSE DUP ADDR. WordByAddrSilent TYPE CR THEN
 ;
 
@@ -68,12 +68,12 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
 : DUMP-EXCEPTION-HEADER ( addr num -- )
   ." EXCEPTION!  CODE:" ADDR.
   ."  ADDRESS:" DUP ADDR.
-  ."  WORD:" WordByAddr TYPE 
+  ."  WORD:" WordByAddr TYPE
   CR
   ." USER DATA: " TlsIndex@ ADDR.
   ." THREAD ID: " THREAD-ID ADDR.
-  ." HANDLER: " HANDLER @ ADDR. 
-  CR 
+  ." HANDLER: " HANDLER @ ADDR.
+  CR
 ;
 
 : DUMP-TRACE-USING-REGS ( esp eax ebp -- )
@@ -85,19 +85,19 @@ TC-USER-HERE ALIGNED ' USER-OFFS EXECUTE !
   ( esp )
 
   ." RETURN STACK:" CR
-  R0 @ 
-  
+  R0 @
+
   2DUP U<
   IF ( top bottom )
     2DUP HANDLER @ WITHIN IF
       >R HANDLER @ SWAP DUMP-TRACE-SHRUNKEN
-      HANDLER @ CELL+ R> 
+      HANDLER @ CELL+ R>
     THEN
     2DUP  TRACE-HEAD-SIZE TRACE-TAIL-SIZE + CELLS - 10 CELLS -
     U< IF 10 CELLS - THEN \ skip early bottom
     SWAP DUMP-TRACE-SHRUNKEN
-  ELSE ( esp bottom ) 
-    NIP DUP 50 CELLS - DUMP-TRACE 
+  ELSE ( esp bottom )
+    NIP DUP 50 CELLS - DUMP-TRACE
     \ при несогласованности предпочтение отдается R0
   THEN
 ;
@@ -163,7 +163,7 @@ TARGET-POSIX [IF]
   S" HOME" ENVIRONMENT? 0= IF EXIT THEN
   SYSTEM-PAD DUP >R /SYSTEM-PAD CROP S" /" CROP- CROP ( a2-rest u2-rest )
   DROP 0 OVER C! R> TUCK -
-  
+
   \ Данное определение нельзя поместить в spf_module.f
   \ т.к. должно быть после определения "ENVIRONMENT?"
 ;
@@ -197,7 +197,7 @@ TARGET-POSIX [IF]
 : (INIT) ( env argv argc -- )
   TO ARGC TO ARGV
   \ concat argv for COMMANDLINE-OPTIONS
-  HERE 
+  HERE
   ARGC 1 ?DO
    BL C,
    ARGV I CELLS + @ ASCIIZ> S,

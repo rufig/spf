@@ -11,7 +11,7 @@ HEX
 
 : HERE ( -- addr ) \ 94
 \ addr - указатель пространства данных.
-  DP @ 
+  DP @
   DUP TO :-SET
   DUP TO J-SET
 ;
@@ -33,7 +33,7 @@ HEX
 \ Выполнение: ( xt -- )
 \ Добавить семантику выполнения определения, представленого xt, к
 \ семантике выполнения текущего определения.
-    CON>LIT 
+    CON>LIT
     IF  INLINE?
       IF     INLINE,
       ELSE   _COMPILE,
@@ -47,7 +47,7 @@ HEX
 ;
 
 : RET, ( -> ) \ скомпилировать инструкцию RET
-  ?SET SetOP 0xC3 C, OPT OPT_CLOSE 
+  ?SET SetOP 0xC3 C, OPT OPT_CLOSE
 ;
 
 : LIT, ( W -> )
@@ -89,14 +89,14 @@ DECIMAL
   CHARS DP @ SWAP DUP ALLOT MOVE
 ;
 
-: S", ( addr u -- ) 
-\ Разместить в пространстве данных строку, заданную addr u, 
+: S", ( addr u -- )
+\ Разместить в пространстве данных строку, заданную addr u,
 \ в виде строки со счетчиком.
   DUP 255 U> IF -18 THROW THEN
   DUP C, S,
 ;
 
-: SLIT, ( a u -- ) 
+: SLIT, ( a u -- )
 \ Скомпилировать строку, заданную addr u.
   ['] _SLITERAL-CODE COMPILE,  S", 0 C,
 ;
@@ -106,7 +106,7 @@ DECIMAL
 ;
 
 : ", ( A -> )
-\ разместить в пространстве данных строку, заданную адресом A, 
+\ разместить в пространстве данных строку, заданную адресом A,
 \ в виде строки со счетчиком
   COUNT S",
 ;
@@ -115,7 +115,7 @@ DECIMAL
 \ dest - a, 3
 
 : >MARK ( -> A )
-  DP @ DUP TO :-SET 4 - 
+  DP @ DUP TO :-SET 4 -
 ;
 
 : <MARK ( -> A )

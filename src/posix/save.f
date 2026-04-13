@@ -1,5 +1,5 @@
 \ $Id$
-\ 
+\
 \ Сохранение наработанной Форт-системы в объектный файл формата ELF
 \ Ю. Жиловец, 28.05.07
 
@@ -23,7 +23,7 @@
 \ Таблица секций:
 \   0. Нулевая секция
 \   1. Таблица имен секций
-\   2. Таблица имен 
+\   2. Таблица имен
 \   3. Таблица символов
 \   4. Таблица перемещений
 \   5. Форт-система
@@ -42,10 +42,10 @@ ASCIIZ" .rel.forth"
 ASCIIZ" .space"
 ASCIIZ" .dltable"
 ASCIIZ" .dlstrings"
- 
+
 HERE ' .shstrtab EXECUTE - CONSTANT .shstrtab#
 
-\ ----------------------------------- 
+\ -----------------------------------
 
 CREATE .strtab
 0 C,
@@ -56,10 +56,10 @@ ASCIIZ" realloc"
 ASCIIZ" write"
 ASCIIZ" calloc"
 ASCIIZ" dlerror"
- 
+
 HERE ' .strtab EXECUTE - CONSTANT .strtab#
 
-\ ----------------------------------- 
+\ -----------------------------------
 
 CREATE .symtab
 
@@ -212,7 +212,7 @@ CREATE elf-header
 1 ,           \ ev_current (текущая версия)
 0 ,           \ точка входа
 \ смещение таблицы сегментов
-0 ,  
+0 ,
 \ смещение таблицы секций
 ' elf-header-size  EXECUTE ,
 0 ,     \ флаги
@@ -239,7 +239,7 @@ CREATE sections
 0 ,    \ дополнительная информация
 0 ,    \ выравнивание
 0 ,    \ размер записи
- 
+
  \ Секция 1: Таблица имен секций
 1 ,    \ имя .shstrtab
 3 ,    \ тип = sht_strtab
@@ -251,7 +251,7 @@ CREATE sections
 0 ,    \ дополнительная информация
 1 ,    \ выравнивание
 0 ,    \ размер записи
- 
+
 \ Секция 2: .strtab
 
 11 ,   \ имя .strtab
@@ -344,8 +344,8 @@ CREATE sections
 : reloc-dl-second-strings ( off -- )
   dl-second# 0 ?DO
     dl-second I dl-rec# * +
-    DUP >R @ DUP 0< IF 
-      NEGATE OVER + NEGATE 
+    DUP >R @ DUP 0< IF
+      NEGATE OVER + NEGATE
     ELSE
       OVER +
     THEN R> !
@@ -375,7 +375,7 @@ CREATE sections
   R/W CREATE-FILE IF DROP 2DROP R> TO H-STDOUT EXIT THEN TO H-STDOUT
   ( a u ) (forth.ld)
   H-STDOUT CLOSE-FILE DROP
-  R> TO H-STDOUT 
+  R> TO H-STDOUT
 ;
 
 \ needs default.ld file placed near spf binary
@@ -383,12 +383,12 @@ CREATE sections
   ( создание ld скрипта )
   2DUP forth.ld
   ( сохранение наработанной форт-системы в объектном файле ELF )
-  2DUP 
+  2DUP
   <# S" .o" HOLDS HOLDS 0 0 #>
   R/W CREATE-FILE THROW >R
   elf-header elf-header-size R@ WRITE-FILE THROW
 
-  HERE FORTH-START - DUP 
+  HERE FORTH-START - DUP
   sections 5 elf-section-size * + 5 CELLS + !
 
   sections 5 elf-section-size * + 4 CELLS + @ ( смещение секции .forth)
@@ -400,7 +400,7 @@ CREATE sections
   DUP sections 7 elf-section-size * + 4 CELLS + !
   dl-first# dl-second# + dl-rec# * DUP
   sections 7 elf-section-size * + 5 CELLS + !
-  + 
+  +
 
   sections 8 elf-section-size * + 4 CELLS + !
   dl-first-strtab @ dl-second-strtab @ + CELL -
@@ -419,7 +419,7 @@ CREATE sections
   dl-first#  DUP dl-second# + TO dl-first#
 
   dlopen-adr  @  dlsym-adr  @   dlerror-adr @
-  realloc-adr @  calloc-adr @   write-adr @ 
+  realloc-adr @  calloc-adr @   write-adr @
 
   dlopen-adr  0!  dlsym-adr  0!  dlerror-adr 0!
   realloc-adr 0!  calloc-adr 0!  write-adr   0!
@@ -446,12 +446,12 @@ CREATE sections
   R> CLOSE-FILE THROW
 
   ( a u ) DROP >R
-  (( 
+  ((
     HERE
     S" gcc -v 2>&1 | grep -F --silent -- '--enable-default-pie' && gcc_nopie='-no-pie' ;" DROP
     S" %s gcc %s.o -Wl,%s.ld -ldl -lpthread -m32 $gcc_nopie -v -o %s" DROP
     SWAP
     R@ R@ R>
-  )) sprintf DROP 
+  )) sprintf DROP
   HERE system
 ;

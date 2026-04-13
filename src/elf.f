@@ -8,7 +8,7 @@
 \ Таблица секций:
 \   0. Нулевая секция
 \   1. Таблица имен секций
-\   2. Таблица имен 
+\   2. Таблица имен
 \   3. Таблица символов
 \   4. Таблица перемещений
 \   5. Форт-система
@@ -29,10 +29,10 @@ ASCIIZ" .rel.forth"
 ASCIIZ" .space"
 ASCIIZ" .dltable"
 ASCIIZ" .dlstrings"
- 
+
 HERE .shstrtab - CONSTANT .shstrtab#
 
-\ ----------------------------------- 
+\ -----------------------------------
 
 CREATE .strtab
 0 C,
@@ -43,10 +43,10 @@ ASCIIZ" realloc"
 ASCIIZ" write"
 ASCIIZ" calloc"
 ASCIIZ" dlerror"
- 
+
 HERE .strtab - CONSTANT .strtab#
 
-\ ----------------------------------- 
+\ -----------------------------------
 
 CREATE .symtab
 
@@ -194,7 +194,7 @@ dl-second# dl-rec# * CONSTANT .dltable#
 dl-second# '' dl-first# 5 + !
 
 \ ====================================
- 
+
 CREATE sections
 \ Секция 0: нулевая
 0 ,    \ имя
@@ -207,7 +207,7 @@ CREATE sections
 0 ,    \ дополнительная информация
 0 ,    \ выравнивание
 0 ,    \ размер записи
- 
+
  \ Секция 1: Таблица имен секций
 1 ,    \ имя .shstrtab
 3 ,    \ тип = sht_strtab
@@ -219,7 +219,7 @@ CREATE sections
 0 ,    \ дополнительная информация
 1 ,    \ выравнивание
 0 ,    \ размер записи
- 
+
 \ Секция 2: .strtab
 11 ,   \ имя .strtab
 3 ,    \ тип = sht_strtab
@@ -308,7 +308,7 @@ IMAGE-SIZE ,
 0 ,             \ размер записи
 
 HERE sections - CONSTANT total-sections-size
- 
+
 total-sections-size section-size / CONSTANT sections#
 
 CREATE segments
@@ -332,11 +332,11 @@ IMAGE-SIZE ,      \ размер в памяти
 7 ,               \ флаги: pf_x pf_r pf_w
 0 ,               \ выравнивание
 )
- 
+
 HERE segments - CONSTANT total-segments-size
- 
+
 total-segments-size segment-size / CONSTANT segments#
- 
+
 header-size total-sections-size + total-segments-size + CONSTANT data-offset
 
 CREATE elf-header

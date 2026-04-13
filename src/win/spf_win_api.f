@@ -36,10 +36,10 @@ A; HERE 4 - ' AOGPA EXECUTE !
       OR   EAX, EAX
       JZ   @@2
       RET
-      
+
 @@2:  MOV   EAX, EBX \ здесь нам уже дела нет до EAX
       JMP ' PROC-ERROR \ can't find a proc
-@@1:  MOV   EAX, EBX      
+@@1:  MOV   EAX, EBX
       JMP ' LIB-ERROR \ can't find a library
 END-CODE
 

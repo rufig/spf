@@ -17,7 +17,7 @@ WINAPI: ReadFile                      KERNEL32.DLL
 WINAPI: WriteFile                     KERNEL32.DLL
 WINAPI: SetEndOfFile                  KERNEL32.DLL
 WINAPI: ExitProcess                   KERNEL32.DLL
-WINAPI: ExitThread                    KERNEL32.DLL     
+WINAPI: ExitThread                    KERNEL32.DLL
 WINAPI: GetNumberOfConsoleInputEvents KERNEL32.DLL
 WINAPI: ReadConsoleInputA             KERNEL32.DLL
 WINAPI: GetProcessHeap                KERNEL32.DLL

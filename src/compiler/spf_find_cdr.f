@@ -4,7 +4,7 @@
   Оптимизировано by day, 29.10.2000
   Оптимизировано by mak July 26th, 2001 - 15:45
   Код наследован от SEARCH-WORDLIST, by ~ygrek Nov.2006
-  Исправлен баг "Access Violation" и рефакторинг by ~ruv, Sep.2008 
+  Исправлен баг "Access Violation" и рефакторинг by ~ruv, Sep.2008
 
   $Id$
 )
@@ -77,7 +77,7 @@ CODE CDR-BY-NAME3 ( c-addr u nfa1|0 -- c-addr u nfa1|nfa2|0 )
     AND EDX, # 0xFF
     MOV EAX, 1 [EDX] [EAX]
 @@1:
-    OR EAX, EAX  
+    OR EAX, EAX
     JZ SHORT @@9    \ конец списка
     MOV EDX, [EAX]
     CMP EDX, EBX
@@ -96,7 +96,7 @@ CODE CDR-BY-NAME ( c-addr u nfa1|0 -- c-addr u nfa1|nfa2|0 )
     JE   ' CDR-BY-NAME3 \ u = 3
     CMP EDX, # 1
     JG   ' CDR-BY-NAME2 \ u = 2
-    JE   ' CDR-BY-NAME1 \ u = 1 
+    JE   ' CDR-BY-NAME1 \ u = 1
     JMP  ' CDR-BY-NAME0 \ u = 0 or u < 0
 @@1: \ u > 3
     CALL ' CDR-BY-NAME3
@@ -113,7 +113,7 @@ CODE CDR-BY-NAME ( c-addr u nfa1|0 -- c-addr u nfa1|nfa2|0 )
 @@2:
     AND EDX, # 0xFF
     MOV EAX, 1 [EDX] [EAX]
-    OR EAX, EAX  
+    OR EAX, EAX
     JZ SHORT @@8    \ конец списка
     MOV EDX, [EAX]
     CMP EDX, EBX

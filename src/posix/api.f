@@ -1,5 +1,5 @@
 \ $Id$
-\ 
+\
 \ Интерфейс с внешними функциями
 \ Вызовы и обратные вызовы
 \ Ю. Жиловец, 5.05.07
@@ -13,7 +13,7 @@ CODE C-CALL ( x1 ... xn n adr -- res)
      MOV ESI, # 4
 @@1: OR EBX, EBX
      JZ @@2
-\     PUSH [EBP] [ESI] 
+\     PUSH [EBP] [ESI]
 A;   0xFF C, 0x74 C, 0x35 C, 0x00 C,
      LEA ESI, 4 [ESI]
      DEC EBX
@@ -29,7 +29,7 @@ END-CODE
 
 CODE C-CALL2 ( x1 ... xn n adr -- dres)
   CALL ' C-CALL
-  LEA EBP, -4 [EBP] 
+  LEA EBP, -4 [EBP]
   MOV [EBP], EAX
   MOV EAX, EDX
   RET

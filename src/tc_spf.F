@@ -14,7 +14,7 @@ TARGET-POSIX [IF]
 : VIRT> ( va -- a) virt-offset - ;
 : >VIRT! ( a -- ) virt-offset SWAP +! ;
 [ELSE]
-: >VIRT ; 
+: >VIRT ;
 [THEN]
 
 : virtual-address ( va -- ) HERE - TO virt-offset ;
@@ -39,14 +39,14 @@ TARGET-POSIX [IF]
 TARGET-POSIX [IF]
   S" src/tc-dl.f" INCLUDED
 [ELSE]
-  HEX 
+  HEX
   IMAGE-BASE 1034 + CONSTANT AddrOfLoadLibrary      \ адреса процедур в spf-stub.exe
   IMAGE-BASE 1038 + CONSTANT AddrOfGetProcAddress
   DECIMAL
 [THEN]
 
 : LOAD-BUILD-NUMBER ( -- n )
-  S" src/version.spf" ['] INCLUDED CATCH IF 2DROP 0 THEN 
+  S" src/version.spf" ['] INCLUDED CATCH IF 2DROP 0 THEN
 ;
 
 : SAVE-BUILD-NUMBER ( n -- )
@@ -54,7 +54,7 @@ TARGET-POSIX [IF]
   S" src/version.spf" R/W CREATE-FILE THROW TO H-STDOUT
   . CR
   H-STDOUT CLOSE-FILE THROW
-  R> TO H-STDOUT 
+  R> TO H-STDOUT
 ;
 
 VOCABULARY TC-TRG
@@ -165,8 +165,8 @@ M\ ' DROP TO DTST
 ;
 
 : MCOMPILE, ( CFA -- )
-    CON>LIT 
-    IF INLINE? 
+    CON>LIT
+    IF INLINE?
       IF     INLINE,
       ELSE   TC-CALL,
       THEN
@@ -253,7 +253,7 @@ DECIMAL
 
 : TC-?SLITERAL ( c-addr u -> ... )
   \ преобразовать строку в число
-  2DUP 2 MIN S" 0x" COMPARE 0= 
+  2DUP 2 MIN S" 0x" COMPARE 0=
   IF HEX-TC-LITERAL EXIT THEN
 
   0. 2SWAP
@@ -419,10 +419,10 @@ LATEST-NAME NAME>  ALSO ASSEMBLER  IS END-CODE  PREVIOUS
 
 : -- ( u.field-offset u.field-size "field-name" -- u.next-field-offset )
   OVER >R +
-  [T] HEADER [I]  
+  [T] HEADER [I]
   OPT_INIT
   SetOP  05 C, R> , OPT  \ add eax, # xxx
-  OPT_CLOSE 
+  OPT_CLOSE
   RET,
 ;
 
@@ -455,7 +455,7 @@ PREVIOUS
 
 [THEN]
 
-(  Отличие от WNDPROC - на выходе не вызываем USER-EXIT, 
+(  Отличие от WNDPROC - на выходе не вызываем USER-EXIT,
    потому что при завершении процесса нет необходимости вызывать AT-THREAD-FINISHING,
    AT-PROCESS-FINISHING вызовется в BYE в конце INIT
    ~day  )
@@ -464,11 +464,11 @@ TARGET-POSIX [IF]
 : PROCESSPROC: ( xt "name" -- )
   HERE
   2 CELLS LIT,
-[ELSE]  
+[ELSE]
 : PROCESSPROC: ( xt "name" -- )
   HERE
   0 CELLS LIT,
-[THEN]  
+[THEN]
   TC-FORTH-INSTANCE> COMPILE,
   SWAP COMPILE,
   RET,
@@ -500,7 +500,7 @@ TARGET-POSIX [IF]
 
 : TC-VECT! ( xt xt-vect -- )
   >R >VIRT R>
-  9 + 
+  9 +
   EXECUTE
 ;
 : TC-ADDR! ( addr xt-variable -- )
@@ -594,7 +594,7 @@ C" SHERE-TAB-CUR" FIND NIP
   1 = IF COMPILE,
       ELSE LIT, S" COMPILE," TC-FINDOUT COMPILE, THEN
   PREVIOUS
-; IMMEDIATE 
+; IMMEDIATE
 
 : [COMPILE]  \ 94 CORE EXT
   ALSO TC-TRG ' PREVIOUS
@@ -637,7 +637,7 @@ C" SHERE-TAB-CUR" FIND NIP
   POSTPONE WHILE
  [ PREVIOUS ] ; IMMEDIATE
 
-: ELSE 
+: ELSE
   ?COMP 0 TC-BRANCH,
   TC>RESOLVE
   >MARK 2
@@ -645,7 +645,7 @@ C" SHERE-TAB-CUR" FIND NIP
 
 : THEN  ?COMP  TC>RESOLVE ; IMMEDIATE
 
-: REPEAT 
+: REPEAT
 \ Продолжить выполнение с позиции, заданной dest.
   ?COMP
   3 <> IF -2005 THROW THEN \ ABORT" REPEAT без BEGIN !"
@@ -688,7 +688,7 @@ HEX
   042444FF , \ inc dword 4 [esp]
   HERE 2+ - DUP SHORT?   SetOP SetJP
   IF
-    71 C, C, \ jno short 
+    71 C, C, \ jno short
   ELSE
     4 - 0F C, 81 C, , \ jno near
   THEN    SetOP
@@ -699,11 +699,11 @@ HEX
 : +LOOP    \ 94
   ?COMP
   1 C, 4 C, 24 C, SetOP \ ADD     [ESP], EAX
-  04244401 , \ ADD     4 [ESP] , EAX 
+  04244401 , \ ADD     4 [ESP] , EAX
   'DROP INLINE,
   HERE 2+ - DUP SHORT?   SetOP SetJP
   IF
-    71 C, C, \ jno short 
+    71 C, C, \ jno short
   ELSE
     4 - 0F C, 81 C, , \ jno near
   THEN    SetOP
@@ -738,7 +738,7 @@ HEX
   ?COMP
   S" C-RDROP" TC-FINDOUT INLINE, ;   IMMEDIATE
 
-  
+
 \ NB: this EXECUTE makes sense only when generating target code
 : EXECUTE
   S" C-EXECUTE" TC-FINDOUT INLINE, ; IMMEDIATE
@@ -757,7 +757,7 @@ HEX
      IF  0xE9 C,              \ машинная команда JMP
          THROW-CODE  DP @ CELL+ - ,
 \          DP @ TO LAST-HERE
-         EXIT 
+         EXIT
      THEN
      OPT_CLOSE
      0x850FC00B , \  or eax, eax \  jnz near
@@ -768,7 +768,7 @@ HEX
 
 : NOTFOUND ( a u -- )  TC-?SLITERAL ;
 
-: ... 0 TC-BRANCH, >MARK DUP >VIRT , 1 >RESOLVE ; IMMEDIATE 
+: ... 0 TC-BRANCH, >MARK DUP >VIRT , 1 >RESOLVE ; IMMEDIATE
 : ..: '  >BODY DUP @  1 >RESOLVE ] ;
 : ;..  DUP CELL+ TC-BRANCH, >MARK SWAP ! [COMPILE] [ ; IMMEDIATE
 

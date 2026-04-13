@@ -1,5 +1,5 @@
 \ $Id$
-\ 
+\
 
 TARGET-POSIX [IF]
 S" src/posix/module.f" INCLUDED
@@ -17,7 +17,7 @@ USER CURFILE
 ;
 
 : CUT-PATH ( a u -- a u1 )
-\ Из строки a u выделить часть от начала до последнего 
+\ Из строки a u выделить часть от начала до последнего
 \ символа разделителя каталогов (включительно)
 \ "some/path/name" -> "some/path/"
 \ "some/path/" -> "some/path/"
@@ -36,7 +36,7 @@ USER CURFILE
 \ Добавить addr u к "полный_путь_приложения/"
   2>R
   ModuleDirName 2DUP +
-  2R> DUP >R ROT SWAP CHAR+ CHARS MOVE 
+  2R> DUP >R ROT SWAP CHAR+ CHARS MOVE
   R> +
 ;
 
@@ -46,7 +46,7 @@ USER CURFILE
   ModuleDirName 2DUP +
   S" devel/" ROT SWAP CHARS MOVE
   6 + 2DUP +
-  2R> DUP >R ROT SWAP CHAR+ CHARS MOVE 
+  2R> DUP >R ROT SWAP CHAR+ CHARS MOVE
   R> +
 ;
 

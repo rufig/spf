@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Generate forth code with system-specific numeric constants
  */
 

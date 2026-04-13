@@ -25,21 +25,21 @@ WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
   \ расширение spf370: если в windows environment есть
   \ запрашиваемая строка, то возвращаем её - c-addr u true
 
-  2DUP ENVIRONMENT-WORDLIST 
+  2DUP ENVIRONMENT-WORDLIST
   SEARCH-WORDLIST IF NIP NIP EXECUTE TRUE EXIT THEN
 
 
-  S" lib/ENVIR.SPF" +ModuleDirName 2DUP FILE-EXIST 0= 
+  S" lib/ENVIR.SPF" +ModuleDirName 2DUP FILE-EXIST 0=
   IF
     2DROP
     S" ENVIR.SPF" +ModuleDirName
   THEN
 
   R/O OPEN-FILE-SHARED 0=
-  IF  DUP >R  
+  IF  DUP >R
       ['] (ENVIR?) RECEIVE-WITH  IF 0 THEN
-      R> CLOSE-FILE THROW 
-  ELSE 
+      R> CLOSE-FILE THROW
+  ELSE
     2DROP DROP 0 THEN
 ;
 
@@ -88,7 +88,7 @@ WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
   DUP -2 = IF   DROP LAST-WORD
                 ER-A @ ER-U @ TYPE
            ELSE
-  LAST-WORD  
+  LAST-WORD
   BASE @ >R DECIMAL
   FORTH_ERROR DECODE-ERROR TYPE
   R> BASE !
@@ -96,7 +96,7 @@ WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
 ;
 
 : LIB-ERROR1 ( addr_winapi_structure )
-    CELL+ @ ASCIIZ> 
+    CELL+ @ ASCIIZ>
     <# HOLDS S" Forth: Can't load a library " HOLDS 0. #>
     DUP ER-U !
     SYSTEM-PAD SWAP CHARS MOVE
@@ -116,7 +116,7 @@ WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
 ;
 
 : ANSI>OEM ( addr u -- addr u )
-  DUP NUMERIC-OUTPUT-LENGTH > 
+  DUP NUMERIC-OUTPUT-LENGTH >
   IF
     S" Buffer overrun in ANSI>OEM" ER-U !
     ER-A ! -2 THROW
@@ -127,7 +127,7 @@ WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
 ;
 
 : OEM>ANSI ( addr u -- addr u )
-  DUP NUMERIC-OUTPUT-LENGTH > 
+  DUP NUMERIC-OUTPUT-LENGTH >
   IF
     S" Buffer overrun in OEM>ANSI" ER-U !
     ER-A ! -2 THROW

@@ -98,7 +98,7 @@ USER-CREATE ERR-DATA [T] /err-data [I] TC-USER-ALLOT
 ;
 
 : SAVE-ERR ( err-num -- )
-\ сохранить текущую PARSE-AREA (строка by SOURCE ) 
+\ сохранить текущую PARSE-AREA (строка by SOURCE )
 \ и параметры входного потока CURFILE, CURSTR  в область ERR-DATA
 \ Цель - дальнейшая индикация  места,  вызвавшего исключение.
 
@@ -106,7 +106,7 @@ USER-CREATE ERR-DATA [T] /err-data [I] TC-USER-ALLOT
   CURSTR @   ERR-DATA err.line# !
   >IN @      ERR-DATA err.in#   !
   SOURCE /errstr_ >CHARS UMIN  DUP
-             ERR-DATA err.line C!   
+             ERR-DATA err.line C!
              ERR-DATA err.line CHAR+ SWAP  CMOVE
           0  ERR-DATA err.line COUNT CHARS + C!
   CURFILE @ ?DUP IF ASCIIZ> ELSE S" H-STDIN" THEN

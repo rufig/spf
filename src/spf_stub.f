@@ -24,9 +24,9 @@ HEX
  4 -- NumberOfSymbols
  2 -- NTHDRsize
  2 -- Flags
- 
+
  \ Standart fields
- 
+
  2 -- Magic
  1 -- MajorLinkedVersion
  1 -- MinorLinkedVersion
@@ -36,9 +36,9 @@ HEX
  4 -- AddresOfEntryPoint
  4 -- BaseOfCode
  4 -- BaseOfData
- 
+
  \ NT Additional fields
- 
+
  4 -- ImageBase
  4 -- SectionAlignment
  4 -- FileAlignment
@@ -60,9 +60,9 @@ HEX
  4 -- HeapCommitSize
  4 -- LoaderFlags
  4 -- NumberOfRvaAndSizes
- 
+
  \ IMAGE_DATA_DIRECTORY - всего 16 entries
- 
+
  4 -- ExportTableRVA
  4 -- TotalExportDataSize
  4 -- ImportTableRVA
@@ -91,10 +91,10 @@ HEX
  4 -- TotalIATDataSize
  4 -- DelayImportTableRVA
  4 -- TotalDelayImportDataSize
-  
+
  \ 14 описали, дальше просто ALLOT
  2 8 * -- ReservedSections
- 
+
 CONSTANT /PE-HEADER
 
 \ структура - таблица объектов (идёт вслед за PE-header)
@@ -167,7 +167,7 @@ HERE ImportDirectory - CONSTANT /ID-SIZE
 CREATE EXE-HEADER
 
 \ DOS-HEADER
-        
+
        CHAR M C, CHAR Z C, 30090 , 40000 , FFFF0000 , B80000 , 0 , 400000 ,
        HERE 22 DUP ALLOT ERASE
        80 , 0EBA1F0E , CD09B400 , 4C01B821 , 0CD C, 21 C,
@@ -183,13 +183,13 @@ HERE /PE-HEADER DUP ALLOT ERASE
          2 PE-HEADER NumberOfSections      W!
   311CBDC5 PE-HEADER TimeDateStamp !
 
-IMAGE_FILE_32BIT_MACHINE  
+IMAGE_FILE_32BIT_MACHINE
 IMAGE_FILE_DEBUG_STRIPPED      OR
 IMAGE_FILE_EXECUTABLE_IMAGE    OR
 IMAGE_FILE_LINE_NUMS_STRIPPED  OR
 IMAGE_FILE_LOCAL_SYMS_STRIPPED OR
 IMAGE_FILE_MACHINE_I386        OR
-IMAGE_FILE_RELOCS_STRIPPED     OR  
+IMAGE_FILE_RELOCS_STRIPPED     OR
            PE-HEADER Flags         W!
        10B PE-HEADER Magic         W!
         02 PE-HEADER MajorLinkedVersion        C!
@@ -240,7 +240,7 @@ HERE DUP /ObjectTable DUP ALLOT ERASE DUP S" .text" ROT OT.ObjectName SWAP MOVE 
  2000 OVER OT.RVA !              \ относительный виртуальный адрес
   200 OVER OT.PhisicalSize !     \
   400 OVER OT.PhisicalOffset !   \ смещение в exe-файле
-  IMAGE_SCN_CNT_CODE  
+  IMAGE_SCN_CNT_CODE
   IMAGE_SCN_MEM_READ     OR
   IMAGE_SCN_MEM_WRITE    OR
   OVER OT.ObjectFlags !  \ 60000020h=readable excutable code (E0000060h=-"-+writeable data)
@@ -264,15 +264,15 @@ INIT-ASM
 
     PUSH # 100000       \ Z" USER32.DLL"
      A; HERE 4 - ADDROFUSER32 !
- 
+
     CALL EAX                  \ HINST of USER32
- 
+
     PUSH # 200000       \ Z" MessageBoxA"
      A; HERE 4 - ADDROFMESSAGEBOX !
- 
+
     PUSH EAX                  \ HINST of USER32
     MOV  EAX , 401038             \ addr of GetProcAddress
-    CALL EAX 
+    CALL EAX
 
     PUSH # 0
     PUSH # 300000       \ Z" OK"
@@ -293,7 +293,7 @@ HERE OVER - 402000 +  ADDROFALL @ !        S" Это шаблон EXE-файла формата PE," 
                                            S" используемый JP-Фортом 1.0 для"   HERE SWAP DUP ALLOT MOVE 0D C,
                                            S" формирования выполнимых файлов."  HERE SWAP DUP ALLOT MOVE 0D C, 0D C,
                                            S" Copyright (C) 1995-96 Черезов А.Ю." HERE SWAP DUP ALLOT MOVE 0D C,
-                                           S" Модификация 19.06.2000 Якимов Д.А." HERE SWAP DUP ALLOT MOVE 0 C,                                           
+                                           S" Модификация 19.06.2000 Якимов Д.А." HERE SWAP DUP ALLOT MOVE 0 C,
 
 HERE CONSTANT TEST-MSG-END
      CONSTANT TEST-MSG-BEGIN

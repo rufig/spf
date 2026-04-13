@@ -3,13 +3,13 @@
 : PARSE-NAME NextWord ;
 
 : S, ( addr u -- )
-\ Зарезервировать u байт пространства данных 
+\ Зарезервировать u байт пространства данных
 \ и поместить туда содержимое u байт из addr.
   CHARS DP @ SWAP DUP ALLOT MOVE
 ;
 
-: S", ( addr u -- ) 
-\ Разместить в пространстве данных строку, заданную addr u, 
+: S", ( addr u -- )
+\ Разместить в пространстве данных строку, заданную addr u,
 \ в виде строки со счетчиком.
   DUP C, S,
 ;
@@ -90,7 +90,7 @@ VARIABLE CHAINS
 
 : CHAIN ( "name" -- )
    CREATE
-       CHAINS LINK,    
+       CHAINS LINK,
        0 ,
    DOES> CELL+
 ;
@@ -99,9 +99,9 @@ VARIABLE CHAINS
 : ITERATE-LIST2 ( list xt -- f )
     >R
     BEGIN @ ?DUP
-    WHILE DUP CELL+ R@ 
+    WHILE DUP CELL+ R@
           ROT >R
-          EXECUTE IF 2R> 2DROP TRUE EXIT 
+          EXECUTE IF 2R> 2DROP TRUE EXIT
                   ELSE R>
                   THEN
     REPEAT RDROP 0
@@ -133,9 +133,9 @@ SPECIAL > &gt;
    BASE @ >R DECIMAL
    DUP BL <
    IF
-     DROP BL 0 
+     DROP BL 0
      \ S>D <# [CHAR] ; HOLD # # # [CHAR] # HOLD [CHAR] & HOLD #> TRUE
-   ELSE  
+   ELSE
      SPECIAL-CHARS ['] (special) ITERATE-LIST2
    THEN
    R> BASE !
@@ -169,7 +169,7 @@ SPECIAL > &gt;
 
 : \
    comment? moduleComment? OR
-   IF 
+   IF
       BL SKIP BL HELP-EMIT
       0 PARSE HandleSpecialChars (HELP-OUT)
    ELSE
@@ -200,7 +200,7 @@ SPECIAL > &gt;
     THEN
 
     EndModuleComment
-  
+
     S" module" OPEN-TAG
     2DUP S" name" ATTRIBUTE-OUT
     CLOSE-TAG
@@ -247,8 +247,8 @@ SPECIAL > &gt;
   S" colon" OPEN-TAG
   PARSE-NAME S" name" ATTRIBUTE-OUT
 
-  GET-CURRENT DUP FORTH-WORDLIST = 
-  IF DROP S" FORTH" 
+  GET-CURRENT DUP FORTH-WORDLIST =
+  IF DROP S" FORTH"
   ELSE CELL+ @ DUP IF COUNT ELSE DROP S" UNKNOWN" THEN
   THEN
 
@@ -257,14 +257,14 @@ SPECIAL > &gt;
 
   S" vocabulary" ATTRIBUTE-OUT
 
-  IF 
+  IF
      S" true" S" primitive" ATTRIBUTE-OUT
   THEN
 
   BASE @ HEX
   HERE S>D <# #S #> S" id" ATTRIBUTE-OUT
   BASE !
-  
+
   BASE @ DECIMAL
   CURSTR @ S>D <# #S #> S" line" ATTRIBUTE-OUT
   BASE !
@@ -272,8 +272,8 @@ SPECIAL > &gt;
   PARSE-NAME S" (" COMPARE 0=
   IF
      S"  params=" (HELP-OUT) "h
-     [CHAR] ) PARSE HandleSpecialChars HELP-OUT() "h 
-  THEN   
+     [CHAR] ) PARSE HandleSpecialChars HELP-OUT() "h
+  THEN
 
   CLOSE-TAG
   StartComment
@@ -290,7 +290,7 @@ XMLHELP-OFF
    comment?
    IF
       crh S" </comment>" HELP-OUT crh
-      -indent 
+      -indent
       S" </colon>" HELP-OUT crh
       0 TO comment?
    THEN

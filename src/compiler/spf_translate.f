@@ -23,7 +23,7 @@ VECT ?SLITERAL
 \ +n - число одинарных ячеек, находящихся на стеке данных перед
 \ тем как туда было помещено +n.
   SP@ S0 @ - NEGATE  1 CELLS /
-\ значение может быть отрицательным, поэтому '>CELLS' вместо '/' нельзя  
+\ значение может быть отрицательным, поэтому '>CELLS' вместо '/' нельзя
 ;
 : ?STACK ( -> ) \ выдать ошибку "исчерпание стека", если он более чем пуст
   SP@ S0 @ SWAP U< IF S0 @ SP! -4 THROW THEN
@@ -51,8 +51,8 @@ VECT ?SLITERAL
 ;
 
 : ' ( "<spaces>name" -- xt ) \ 94
-\ Пропустить ведущие пробелы. Выделить name, ограниченное пробелом. Найти name 
-\ и вернуть xt, выполнимый токен для name. Неопределенная ситуация возникает, 
+\ Пропустить ведущие пробелы. Выделить name, ограниченное пробелом. Найти name
+\ и вернуть xt, выполнимый токен для name. Неопределенная ситуация возникает,
 \ если name не найдено.
 \ Во время интерпретации  ' name EXECUTE  равносильно  name.
   ALSO NON-OPT-WL CONTEXT !
@@ -68,15 +68,15 @@ VECT ?SLITERAL
 
 : BYE ( -- ) \ 94 TOOLS EXT
 \ Вернуть управление операционной системе, если она есть.
-  0 
+  0
   HALT
 ;
 
 : EVAL-WORD ( a u -- )
 \ интерпретировать ( транслировать) слово с именем  a u
     SFIND ?DUP    IF
-    STATE @ =  IF 
-    COMPILE,   ELSE 
+    STATE @ =  IF
+    COMPILE,   ELSE
     EXECUTE    THEN
                   ELSE
     -2003 THROW THEN
@@ -119,7 +119,7 @@ VECT ?SLITERAL
          STATE @ =
          IF COMPILE, ELSE EXECUTE THEN
     ELSE
-         S" NOTFOUND" SFIND 
+         S" NOTFOUND" SFIND
          IF EXECUTE
          ELSE 2DROP ?SLITERAL THEN
     THEN
@@ -143,7 +143,7 @@ VARIABLE   &INTERPRET
    >R BEGIN
          R@
       WHILE
-        SP@ R@ 1- CELLS + @ DUP 0< 
+        SP@ R@ 1- CELLS + @ DUP 0<
         IF DUP U>D (D.) TYPE <# S>D #(SIGNED) #> TYPE SPACE
         ELSE . THEN
         R> 1- >R
@@ -199,7 +199,7 @@ VARIABLE   &INTERPRET
     0 TO SOURCE-ID
     0 TO SOURCE-ID-XT
     ATIB 0 SOURCE! \ на случай, если QUIT вызыван из EVALUATE
-    \ SOURCE! устанавливает так же #TIB и >IN 
+    \ SOURCE! устанавливает так же #TIB и >IN
     \ А иначе, при неуспешном чтении они останутся без изменений и будут указывать на мусор
     [COMPILE] [
     ['] MAIN1 CATCH         DUP SOURCE NIP 2>R
@@ -224,7 +224,7 @@ VARIABLE   &INTERPRET
 
 : EVALUATE-WITH ( ( i*x c-addr u xt -- j*x )
 \ Считая c-addr u входным потоком, вычислить её интерпретатором xt.
-  SAVE-SOURCE N>R 
+  SAVE-SOURCE N>R
   >R  SOURCE!  -1 TO SOURCE-ID
   R> ( ['] INTERPRET) CATCH
   NR> RESTORE-SOURCE
@@ -325,7 +325,7 @@ VECT FIND-FULLNAME \ найти указанный файл и вернуть его с полным путем
 \ место неопределенная ситуация, статус (открыт или закрыт) любых
 \ интерпретируемых файлов зависит от реализации.
   BLK 0!
-  DUP >R  
+  DUP >R
   ['] TranslateFlow RECEIVE-WITH
   R> CLOSE-FILE THROW
   THROW
@@ -350,13 +350,13 @@ USER INCLUDE-DEPTH
 : INCLUDED_STD ( i*x c-addr u -- j*x )
   CURFILE @ >R
   2DUP HEAP-COPY CURFILE !
-  
+
   INCLUDE-DEPTH 1+!
   INCLUDE-DEPTH @ 64 > IF -27 THROW THEN
   ['] (INCLUDED) CATCH
-  INCLUDE-DEPTH @ 1- 0 MAX 
+  INCLUDE-DEPTH @ 1- 0 MAX
   INCLUDE-DEPTH !
-  
+
   CURFILE @ FREE THROW
   R> CURFILE !
   THROW

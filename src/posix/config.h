@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Common words to generate forth code with system-specific numeric constants
  */
 

@@ -12,7 +12,7 @@ FALSE VALUE OPTIMIZE-BY-SIZE \ without align literals, may decrease speed, TODO 
 
 FALSE VALUE WIDE-CHAR \ 2-byte CHARS
 
-FALSE VALUE SMALLEST-SPF 
+FALSE VALUE SMALLEST-SPF
 
 \ set to TRUE if you are building spf in the environment with unix line endings in files
 \ it will set the default EOLN for the target system
@@ -38,7 +38,7 @@ PLATFORM S" Linux" COMPARE 0= [IF]
 [THEN] [THEN]
 
 
-S" src/compile.ini" ' INCLUDED CATCH 
+S" src/compile.ini" ' INCLUDED CATCH
  DUP 2 = [IF] CR .( No src/compile.ini - using defaults) DROP 2DROP [ELSE] THROW [THEN]
 
 SMALLEST-SPF [IF]
@@ -55,9 +55,9 @@ OPTIMIZE-BY-SIZE [IF]
 
 : O: NextWord DUP 20 SWAP - SPACES 2DUP TYPE ."  : " EVALUATE IF ." TRUE" ELSE ." FALSE" THEN CR ;
 
-CR 
+CR
 .( Build options : ) CR
-O: CREATE-XML-HELP 
+O: CREATE-XML-HELP
 O: ARCH-P6
 O: BUILD-OPTIMIZER
 O: USE-OPTIMIZER

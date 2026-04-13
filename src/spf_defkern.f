@@ -76,7 +76,7 @@ CODE _TOVALUE-CODE
      MOV [EBX], EAX
      MOV EAX, [EBP]
      LEA EBP, 4 [EBP]
-     RET             
+     RET
 END-CODE
 
 ' _TOVALUE-CODE TO TOVALUE-CODE
@@ -89,7 +89,7 @@ CODE _TOUSER-VALUE-CODE
      MOV [EBX], EAX
      MOV EAX, [EBP]
      LEA EBP, 4 [EBP]
-     RET             
+     RET
 END-CODE
 
 ' _TOUSER-VALUE-CODE TO TOUSER-VALUE-CODE

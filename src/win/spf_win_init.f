@@ -9,7 +9,7 @@
   CREATE-HEAP
   <SET-EXC-HANDLER>
   POOL-INIT
-  AT-THREAD-STARTING  
+  AT-THREAD-STARTING
 ;
 
 \ один раз на процесс
@@ -41,7 +41,7 @@ VARIABLE IN-EXCEPTION
   IN-EXCEPTION @ IF DROP EXIT THEN
   TRUE IN-EXCEPTION !
 
-  DUP 3 CELLS + @ OVER @ ( addr num ) DUMP-EXCEPTION-HEADER 
+  DUP 3 CELLS + @ OVER @ ( addr num ) DUMP-EXCEPTION-HEADER
 
   ( DispatcherContext ContextRecord EstablisherFrame ExceptionRecord  ExceptionRecord )
   DROP 2 PICK

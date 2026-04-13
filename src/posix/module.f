@@ -11,7 +11,7 @@
 : ModuleName ( -- addr u )
   (( S" /proc/self/exe" DROP SYSTEM-PAD 1024 )) readlink
   DUP -1 = IF DROP 0 THEN
-  SYSTEM-PAD SWAP 
+  SYSTEM-PAD SWAP
   \ NB: not asciiz!
   \ 2DUP + 0 SWAP C!
 ;

@@ -29,7 +29,7 @@ CREATE INPUT_RECORD ( /INPUT_RECORD) 20 2 * CHARS ALLOT
 : EKEY ( -- u ) \ 93 FACILITY EXT
 \ Принять одно клавиатурное событие u. Кодирование клавиатурных событий
 \ зависит от реализации.
-\ В данной реализации 
+\ В данной реализации
 \ byte  value
 \    0  AsciiChar
 \    2  ScanCod

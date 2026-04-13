@@ -1,8 +1,8 @@
 \ $Id$
-\ 
-\ Интерфейсы с Linux - определения в словаре экспортируемых функций 
+\
+\ Интерфейсы с Linux - определения в словаре экспортируемых функций
 \ [callback, wndproc и т.п.]
-(  
+(
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org
   Преобразование из 16-разрядного в 32-разрядный код - 1995-96гг
   Ревизия - сентябрь 1999
@@ -35,16 +35,16 @@
   TASK CONSTANT
 ;
 
-VARIABLE WINAPLINK 	 
+VARIABLE WINAPLINK
 \ Хоть WINAPLINK и виндовое имя, но ERASE-IMPORTS портабельное слово,
 \ используется при dll-xt.f/so-xt.f-стиле подключения dll/so.
-	  	 
-: ERASE-IMPORTS 	 
-\ обнуление адресов импортируемых процедур 	 
-  WINAPLINK 	 
-  BEGIN 	 
-    @ DUP 	 
-  WHILE 	 
-    DUP 4 CELLS - 0! 	 
-  REPEAT DROP 	 
+
+: ERASE-IMPORTS
+\ обнуление адресов импортируемых процедур
+  WINAPLINK
+  BEGIN
+    @ DUP
+  WHILE
+    DUP 4 CELLS - 0!
+  REPEAT DROP
 ;

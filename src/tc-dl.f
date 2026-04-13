@@ -1,5 +1,5 @@
-: s.  SP@ S0 @ CELL - 2DUP - 
-  DUP 4 = IF DROP 2DROP ." Stack is empty" CR EXIT THEN 
+: s.  SP@ S0 @ CELL - 2DUP -
+  DUP 4 = IF DROP 2DROP ." Stack is empty" CR EXIT THEN
   4 > IF 2DROP ." Stack is underflowed" CR EXIT THEN
   DO I @ . CELL NEGATE +LOOP CR ;
 
@@ -62,7 +62,7 @@ VARIABLE (__ret2)  (__ret2) 0!
 : table-enter ( library? a # -- sym# )
 (  dl-second# 100 MOD 0= IF
     \ расширяем таблицу еще на 100 записей
-    dl-second dl-second# 100 + dl-rec# * 
+    dl-second dl-second# 100 + dl-rec# *
     dlrealloc TO dl-second
   THEN)
   dl-second-strtab enter-into-strtab SWAP IF NEGATE THEN
@@ -71,7 +71,7 @@ VARIABLE (__ret2)  (__ret2) 0!
 ;
 
 : name-lookup ( a # library? -- sym# )
-  -ROT ( 2DUP 
+  -ROT ( 2DUP
   dl-first-strtab dl-first dl-first# table-lookup IF
     NIP NIP NIP EXIT
   THEN)
@@ -85,7 +85,7 @@ VARIABLE (__ret2)  (__ret2) 0!
 : symbol-lookup ( a # -- sym# )
   FALSE name-lookup
 ;
- 
+
 \ ------------------------------
 
 : get-symbol-record ( sym# -- strtab dlrec)
@@ -93,7 +93,7 @@ VARIABLE (__ret2)  (__ret2) 0!
     dl-first-strtab dl-first
   ELSE
     dl-first# - dl-second-strtab dl-second
-  THEN 
+  THEN
   ROT dl-rec# * +
 ;
 

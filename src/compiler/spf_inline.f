@@ -16,5 +16,5 @@ HEX
                   ['] C-EXECUTE INLINE,
                   ELSE EXECUTE
                   THEN ; IMMEDIATE
-                                    
+
 DECIMAL

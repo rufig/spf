@@ -19,7 +19,7 @@ TEMP-WORDLIST DUP ALSO CONTEXT ! DEFINITIONS
 TRUE VALUE ?Res
 0 VALUE START-RES-TABLE
 
-: relocate ( adr xt -- ) 
+: relocate ( adr xt -- )
 \ применить ко всем элементам каталога adr слово xt
   >R
   DUP 12 + W@ ( именованные записи) OVER 14 + W@ ( неименованные записи) +
