@@ -1,5 +1,5 @@
 \ $Id$
-\ 
+\
 \ orig ~pinka/lib/FileExt.f
 
 REQUIRE [UNDEFINED]           lib/include/tools.f
@@ -11,7 +11,7 @@ REQUIRE [UNDEFINED]           lib/include/tools.f
 \ Rename the file named by the character string c-addr1 u1 to the name
 \ in the character string c-addr2 u2. ior is the implementation-defined
 \ I/O result code. )
-  
+
   DROP NIP 2 <( )) rename ?ERR NIP
 ;
 
@@ -19,9 +19,9 @@ REQUIRE [UNDEFINED]           lib/include/tools.f
 : TOEND-FILE ( fileid -- ior )
 \ переместить указатель файла  в конец файла.
 
-  DUP >R   FILE-SIZE  ( fileid -- ud ior ) 
+  DUP >R   FILE-SIZE  ( fileid -- ud ior )
   ?DUP IF R> DROP NIP NIP EXIT THEN
-  R> REPOSITION-FILE  ( ud fileid -- ior ) 
+  R> REPOSITION-FILE  ( ud fileid -- ior )
 ;
 
 : COPY-FILE ( src-a src-u  dst-a dst-u -- ior )
@@ -44,9 +44,9 @@ REQUIRE [UNDEFINED]           lib/include/tools.f
 
 WINAPI: GetFullPathNameA KERNEL32.DLL (
     LPTSTR *lpFilePart  // address of filename in path
-    LPTSTR lpBuffer,    // address of path buffer 
-    DWORD nBufferLength,    // size, in characters, of path buffer 
-    LPCTSTR lpFileName, // address of name of file to find path for 
+    LPTSTR lpBuffer,    // address of path buffer
+    DWORD nBufferLength,    // size, in characters, of path buffer
+    LPCTSTR lpFileName, // address of name of file to find path for
   -- DWORD )
 
 : ExtFilePathName ( a u -- a u1 )

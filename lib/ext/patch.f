@@ -1,19 +1,19 @@
 \ $Id$
 
-\ : REL@ DUP @ + ; 
+\ : REL@ DUP @ + ;
 
-: REPLACE-WORD ( by-xt what-xt ) 
+: REPLACE-WORD ( by-xt what-xt )
     \ http://n2.nabble.com/Прямая-компиляция-векторных-вызовов-td672884.html
-    DUP B@ 0xE8 = IF \ if we're replacing defer'red word 
-        DUP 1+ DUP @ + CELL+ ['] _VECT-CODE = IF 
-            >BODY ! EXIT 
-        THEN 
-    THEN 
+    DUP B@ 0xE8 = IF \ if we're replacing defer'red word
+        DUP 1+ DUP @ + CELL+ ['] _VECT-CODE = IF
+            >BODY ! EXIT
+        THEN
+    THEN
 
-    0xE9 OVER B!  \ JMP ... 
-    1+ DUP >R 
-    CELL+ - 
-    R> ! 
+    0xE9 OVER B!  \ JMP ...
+    1+ DUP >R
+    CELL+ -
+    R> !
 ;
 
 \ from gforth

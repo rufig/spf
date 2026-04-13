@@ -59,7 +59,7 @@ TO OPT?
 : ONLY  ONLY FORTH ;
 
 WARNING !
-        
+
 ONLY S" lib/ext/spf-asm.f" INCLUDED
 ONLY O_FORTH DEFINITIONS
 [THEN]

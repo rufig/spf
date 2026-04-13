@@ -1,11 +1,11 @@
 \ ~day 20.Feb.2001
 \ Run Length Encoding, PalmOS format
 \ DragonFly project
-\ (0x80 + n)   b_0 ... b_n n+1 bytes of literal data (n <= 127) 
-\ (0x40 + n)   n+1 repetitions of 0x00 (n <= 63) 
-\ (0x20 + n)   b n+2 repetitions of b (n <= 31) 
-\ (0x10 + n)   n+1 repetitions of 0xFF (n <= 15) 
-\  0x00        end compressed data 
+\ (0x80 + n)   b_0 ... b_n n+1 bytes of literal data (n <= 127)
+\ (0x40 + n)   n+1 repetitions of 0x00 (n <= 63)
+\ (0x20 + n)   b n+2 repetitions of b (n <= 31)
+\ (0x10 + n)   n+1 repetitions of 0xFF (n <= 15)
+\  0x00        end compressed data
 
 USER rle.pbData
 USER rle.pbComp
@@ -38,7 +38,7 @@ USER DbPtr
      OVER 16 < AND
      OVER rle.cbData @ < AND
    WHILE
-     1+ 
+     1+
    REPEAT DUP 1- 0x10 +
    rle.pbComp @ DBC!
    rle.pbComp 1+!
@@ -68,7 +68,7 @@ USER DbPtr
      OVER 64 < AND
      OVER rle.cbData @ < AND
    WHILE
-     1+ 
+     1+
    REPEAT DUP 1- 0x40 +
    rle.pbComp @ DBC!
    rle.pbComp 1+!
@@ -79,13 +79,13 @@ USER DbPtr
    Next@
    DUP 0= IF DROP 0x40
              rle.pbComp @ DBC!
-             1 IncCounts 
+             1 IncCounts
              rle.pbComp 1+!
              -1 EXIT
           ELSE
              0xFF = IF 0x10
              rle.pbComp @ DBC!
-             1 IncCounts 
+             1 IncCounts
              rle.pbComp 1+!
              -1 EXIT
                     THEN
@@ -96,15 +96,15 @@ USER DbPtr
    1 Next+@ DUP 0= SWAP 0xFF = OR
    IF 0x80 rle.pbComp @ DBC!
       Next@ rle.pbComp @ 1+ DBC!
-      1 IncCounts 
+      1 IncCounts
       2 rle.pbComp +!
       EXIT
    THEN
    Next@ DUP >R
    rle.pbComp @ TUCK 1+ DBC!
    1 \ первый байт уже отправили
-   BEGIN           
-     DUP Next+@  
+   BEGIN
+     DUP Next+@
      R> OVER >R <>
      R@ 0 <> AND
      R@ 0xFF <> AND
@@ -113,7 +113,7 @@ USER DbPtr
    WHILE
      1+ DUP
      rle.pbComp @ +
-     R@ SWAP DBC! 
+     R@ SWAP DBC!
    REPEAT DUP 2- 0x80 +
    ROT DBC! RDROP
    DUP rle.pbComp +!
@@ -131,11 +131,11 @@ USER DbPtr
 
 : PackRep ( -- )
    rle.cbData @ 1 = IF PackLast EXIT THEN
-   Next@ 
+   Next@
    DUP 0= IF DROP Pack40 EXIT THEN
    DUP 0xFF = IF DROP Pack10 EXIT THEN
    1 Next+@
-   = IF Pack20 
+   = IF Pack20
      ELSE Pack80
      THEN
 ;
@@ -156,7 +156,7 @@ USER DbPtr
 \EOF
 (
 STARTLOG
-HEX 
+HEX
 
 \ 80 71 40 10
 CREATE from 1C C, 8A C, 71 C, FF C, 0D C, 00 C, 36 C, 2A C,

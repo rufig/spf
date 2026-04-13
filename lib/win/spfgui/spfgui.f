@@ -291,7 +291,7 @@ VARIABLE  CurrFromLru
         VK_END OF
               yCaret 0 BUFFER cxBuffer -TRAILING
               TO xCaret DROP
-              SetCaretPos1  
+              SetCaretPos1
         ENDOF
 
         VK_UP OF
@@ -301,7 +301,7 @@ VARIABLE  CurrFromLru
               SetCaretPos1
         ENDOF
 
-        VK_DOWN OF 
+        VK_DOWN OF
               yCaret 0 BUFFER cxBuffer BL FILL
               DownLru DUP TO xCaret yCaret 0 BUFFER SWAP CMOVE
               hwnd OutCurrentLine
@@ -319,12 +319,12 @@ VARIABLE  CurrFromLru
         VK_CANCEL OF
              BYE
         ENDOF
-                
+
         [CHAR] C OF
              VK_CONTROL GetKeyState 15 RSHIFT
              IF BYE THEN
         ENDOF
-        
+
      ENDCASE
 
      0
@@ -337,7 +337,7 @@ VARIABLE  CurrFromLru
         wpar hwnd OneCharOut
         KEY_EVENT_GUI SetEvent DROP
       LOOP
-      0 
+      0
    ENDOF
 
    TYPE-MESSAGE OF
@@ -407,7 +407,7 @@ DECIMAL
     0 0 ACCEPT-MESSAGE Myhwnd SendMessageA DROP
     CON_BUFFER_PREPARED ResetEvent DROP
     CON_BUFFER_PREPARED INFINITE WAIT THROW DROP
-    >in MIN TUCK tib SWAP ROT SWAP CMOVE  
+    >in MIN TUCK tib SWAP ROT SWAP CMOVE
     Myhwnd HideCaret DROP  CR  \ see also VK_RETURN
     \ NB: the caret still leaves a trace sometimes
 ;
@@ -446,7 +446,7 @@ EXPORT \ ---------------------------------------
  \ заполнение структуры
   /winclass                   ТЕСТ_ окна.размер_структ !
   CS_HREDRAW CS_VREDRAW OR
-  CS_OWNDC OR  
+  CS_OWNDC OR
                               ТЕСТ_ окна.стиль         !
   [']  ConsoleWndProc         ТЕСТ_ окна.процедура     !
   0                           ТЕСТ_ окна.класс+        !
@@ -486,7 +486,7 @@ EXPORT \ ---------------------------------------
   Myhwnd UpdateWindow  DROP
   5 Myhwnd ShowWindow  DROP        \ вывести окно на экран
   TITLE
-  ." Use ESC to clear the window, Ctrl-c or Ctrl-break to exit" CR 
+  ." Use ESC to clear the window, Ctrl-c or Ctrl-break to exit" CR
   START_EVENT SET-EVENT
   MessageLoop                      \ войти в цикл обработки сообщений
 ;

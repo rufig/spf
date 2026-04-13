@@ -2,7 +2,7 @@
  * $Id$
  */
 
-#define _BSD_SOURCE 
+#define _BSD_SOURCE
 
 /* use config.h from SPF src */
 #include "../../../src/posix/config.h"

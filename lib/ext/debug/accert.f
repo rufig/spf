@@ -49,7 +49,7 @@ VARIABLE ACCERT-LEVEL
 
 2 ACCERT-LEVEL !
 : test
-  ACCERT3( _FILE_ TYPE [CHAR] : EMIT _LINE_ TYPE 
+  ACCERT3( _FILE_ TYPE [CHAR] : EMIT _LINE_ TYPE
   SPACE S" hi, this is accertion!" TYPE )
 ;
  test

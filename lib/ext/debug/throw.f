@@ -22,7 +22,7 @@
    0 <# #S S"  line: " HOLDS 2R> HOLDS S"  file: " HOLDS #> TO-LOG
    LT 2 TO-LOG
        ELSE
-           2R> 2DROP DROP      
+           2R> 2DROP DROP
        THEN
   R> BASE !
 ;
@@ -30,7 +30,7 @@
 : THROW STATE @ IF
                   CURSTR @ LIT, CURFILE @ ?DUP
                   IF
-                    ASCIIZ> 
+                    ASCIIZ>
                   ELSE PAD 0
                   THEN [COMPILE] SLITERAL
                   -1 LIT,
@@ -44,7 +44,7 @@
                   POSTPONE CATCH
                   CURSTR @ LIT, CURFILE @ ?DUP
                   IF
-                    ASCIIZ> 
+                    ASCIIZ>
                   ELSE PAD 0
                   THEN [COMPILE] SLITERAL
                   0 LIT,
@@ -59,11 +59,11 @@
   IF
      CURSTR @ LIT, CURFILE @ ?DUP
      IF
-       ASCIIZ> 
+       ASCIIZ>
      ELSE PAD 0
      THEN [COMPILE] SLITERAL
      POSTPONE TYPE
-  THEN 
+  THEN
   POSTPONE ABORT"
 ; IMMEDIATE
 

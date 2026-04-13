@@ -3,10 +3,10 @@
 \ [c] Dmitry Yakimov [ftech@tula.net]
 \ 64 битная арифметика по умолчанию!
 
-\ + FABORT заменен FNOP 
+\ + FABORT заменен FNOP
 \ ! исправлен FINIT, автоматическая реинициализация при исключении
 \ ! новый необрезающий REPRESENT
-\ ! исправлена бесконечность ~yGREK 
+\ ! исправлена бесконечность ~yGREK
 
 \ ! переписан F. ,рефакторинг ( 9.03.2005 ~day )
 \ ! пофиксен FS. ( 9.03.2005 ~day )
@@ -16,8 +16,8 @@
 
 \ ~day\float\floatkern.f
 USER-CREATE FLOAT-PAD ( -- c-addr ) \ 94 CORE EXT
- \ c-addr - адрес области для формирования строкового представления float 
- \ числа 
+ \ c-addr - адрес области для формирования строкового представления float
+ \ числа
 0xFF USER-ALLOT
 
 USER FFORM
@@ -58,12 +58,12 @@ VARIABLE FCON-E
 
 : FSTATE  \ *
   FLOAT-PAD DUP F>ENV
-  8 + W@ 
+  8 + W@
   ." FPU registers usage:" CR
   8 0 DO
-        ." reg " 8 I - . ." :" 
-        DUP DUP 1 AND 
-        SWAP 2 AND 
+        ." reg " 8 I - . ." :"
+        DUP DUP 1 AND
+        SWAP 2 AND
         0= IF 1 = IF ."  zero" ELSE ."  valid number" THEN
            ELSE 1 = IF ."  empty" ELSE ."  invalid or infinity" THEN
            THEN
@@ -81,7 +81,7 @@ HEX
      FDEPTH 0= IF
                   C0000092 THROW
               ELSE
-                 HERE 8 ALLOT  DF! 
+                 HERE 8 ALLOT  DF!
               THEN
 ;
 
@@ -89,7 +89,7 @@ HEX
      FDEPTH 0= IF
                  C0000092 THROW
               ELSE
-                 HERE 4 ALLOT   SF! 
+                 HERE 4 ALLOT   SF!
               THEN
 ;
 
@@ -101,7 +101,7 @@ DECIMAL
 : -FINF FINF FNEGATE ;
 
 \ Младшие шесть бит маскируют ошибки #I #D #Z #O #U #P
-: ERROR-MODE \ Включает ошибки сопроцессора кроме #P 
+: ERROR-MODE \ Включает ошибки сопроцессора кроме #P
              \ потому что #P реагирует на ноль
    GETFPUCW
    127 INVERT AND
@@ -174,7 +174,7 @@ WARNING !
   IF                    \ addr u
     >R CHAR+ DUP C@        \ addr1 c
     DUP [CHAR] - =
-    IF DROP CHAR+ R> 2 - TNUM DNEGATE   
+    IF DROP CHAR+ R> 2 - TNUM DNEGATE
     ELSE [CHAR] + = IF CHAR+ R> 2 - TNUM ELSE R> 1- TNUM THEN
     THEN
   ELSE
@@ -189,10 +189,10 @@ WARNING !
   CHARS OVER + SWAP
   DO
     ?IS-COMMA @ IF PAST-COMMA 1+! THEN
-    I C@ DUP [CHAR] 0 1- > 
+    I C@ DUP [CHAR] 0 1- >
     OVER [CHAR] 9 1+ < AND
-    IF [CHAR] 0 - DS>F F+ F10* 
-    ELSE [CHAR] . = IF TRUE ?IS-COMMA ! 
+    IF [CHAR] 0 - DS>F F+ F10*
+    ELSE [CHAR] . = IF TRUE ?IS-COMMA !
                          ELSE LEAVE
                          THEN
     THEN
@@ -201,18 +201,18 @@ WARNING !
 
 : >FLOAT-ABS  ( addr u -- F: r D:  bool )
    BASE @ >R DECIMAL
-   GETFPUCW >R UP-MODE 
+   GETFPUCW >R UP-MODE
    2DUP GET-EXP DROP         \  addr u u2 - экспонента
    ROT ROT FRAC>F             \ u2
    ?IS-COMMA @ 0= IF PAST-COMMA 1+! THEN
-   PAST-COMMA @ - F10X  F*  ?OE ?IE OR 
+   PAST-COMMA @ - F10X  F*  ?OE ?IE OR
    DUP IF FDROP THEN INVERT
    R> SETFPUCW
    R> BASE !
 ;
 
 ( : SKIP1
-   1- SWAP CHAR+ SWAP 
+   1- SWAP CHAR+ SWAP
 ;)
 
 \ Simple BNF parser ( ver. 2.2)
@@ -230,8 +230,8 @@ WARNING !
     WHILE
       OVER R@ CHARS + C@
       2 CELLS RP+@
-      3 CELLS RP+@       
-      ROT 
+      3 CELLS RP+@
+      ROT
       >R RP@ 1 SEARCH RDROP NIP NIP
       0= IF     \ первый несовпавший символ
            DROP SWAP
@@ -241,7 +241,7 @@ WARNING !
       R> 1+ >R
     REPEAT
     CHARS + SWAP R@ -
-    2R> 1+ < RDROP RDROP 
+    2R> 1+ < RDROP RDROP
 ;
 
 : <SIGN> ( addr u max min -- addr2 u2 bool )
@@ -313,7 +313,7 @@ DECIMAL
 ;
 
 \ Дает число знаков целой части числа
-: #EXP ( -- n ) ( r -- r )  
+: #EXP ( -- n ) ( r -- r )
    FDUP F0=  IF PRECISION  ELSE
    FDUP FABS FLOG FLOOR F>D DROP THEN
 ;
@@ -350,7 +350,7 @@ CREATE EXP 0 , 0 ,  \ exponent & sign
      2DUP <# #S #>  DUP R@ - EXP +!
      2R>  ROT MIN 1 MAX CMOVE
      D0=  EXP 2@ SWAP  ROT IF 2DROP 1 0 THEN  \ 0.0E fix-up
-     TRUE 
+     TRUE
 ;
 
 VECT FTYPE
@@ -364,7 +364,7 @@ VECT FEMIT
 
 : FDISPLAY ( n -- )
    DUP 1 <
-   IF \ число < 1      
+   IF \ число < 1
       DUP 1 < IF [CHAR] 0 FEMIT THEN
       [CHAR] . FEMIT
       ABS DUP 0 ?DO [CHAR] 0 FEMIT LOOP
@@ -378,7 +378,7 @@ VECT FEMIT
      (T0)
      \ DUP 0= IF [CHAR] 0 FEMIT THEN
      FTYPE
-     THEN   
+     THEN
 ;
 
 : format-exp ( ud1 -- ud2 ) \ *
@@ -425,14 +425,14 @@ VECT FEMIT
 : G. ( r)
    PrintFInf IF EXIT THEN
    (F.) IF  [CHAR] - FEMIT THEN
-   DUP ABS PRECISION > 
-   IF 
+   DUP ABS PRECISION >
+   IF
       1 FDISPLAY 1- .EXP
    ELSE FDISPLAY
    THEN
    BL FEMIT
 ;
-   
+
 : Adjust ( n - n' 1|2|3 )
    S>D 3 FM/MOD 3 * SWAP 1+  ;
 
@@ -517,11 +517,11 @@ USER PAD-COUNT
 ;
 
 : FALOG  \ *
-         10.E FSWAP F** 
+         10.E FSWAP F**
 ;
 
 : FSINH \ *
-         FEXP FDUP 1.E FSWAP F/ F- 2.E F/ 
+         FEXP FDUP 1.E FSWAP F/ F- 2.E F/
 ;
 
 : FCOSH    FEXP FDUP 1.E FSWAP F/ F+ 2.E F/ ;
@@ -533,7 +533,7 @@ USER PAD-COUNT
 
 
 : FASINH   FDUP FDUP F* 1.E F+ FSQRT F/ FATANH ;
-: FACOSH   FDUP FDUP F* 1.E F- FSQRT F+ FLN ;    
+: FACOSH   FDUP FDUP F* 1.E F- FSQRT F+ FLN ;
 
 \ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -558,7 +558,7 @@ USER PAD-COUNT
 
 : FALIGN
 ; IMMEDIATE
-: FALIGNED 
+: FALIGNED
 ; IMMEDIATE
 : SFALIGN
 ; IMMEDIATE

@@ -1,5 +1,5 @@
 \ $Id$
-\ 
+\
 \ Interactive part of disassembler
 
 REQUIRE NEXT-INST lib/ext/disasm.f
@@ -47,7 +47,7 @@ VARIABLE  COUNT-LINE
                         \ We do not look for JMP's because there may be
                          \ a jump in a forth word
                         CR
-                        OVER 0= IF  NEXT-INST C@ 0xC3 <> 
+                        OVER 0= IF  NEXT-INST C@ 0xC3 <>
                                 ELSE 2DUP < INVERT
                                 THEN
                 WHILE   INST

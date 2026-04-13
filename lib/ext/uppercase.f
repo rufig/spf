@@ -1,5 +1,5 @@
 
-\ Convert given char to uppercase. 
+\ Convert given char to uppercase.
 \ Behaviour for values above 128 is implementation-defined.
 : CHAR-UPPERCASE ( c -- c1 )
   DUP [CHAR] a [CHAR] z 1+ WITHIN IF 32 - EXIT THEN

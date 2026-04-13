@@ -1,13 +1,13 @@
 \ orig 2001 ~pinka/lib/FileExt.f
-\ 
+\
 
 REQUIRE [UNDEFINED]           lib\include\tools.f
 
-WINAPI: RemoveDirectoryA      KERNEL32.DLL ( lpPathName  -- bool  )   
+WINAPI: RemoveDirectoryA      KERNEL32.DLL ( lpPathName  -- bool  )
 WINAPI: MoveFileA             KERNEL32.DLL ( lpNew lpExisting -- bool )
 WINAPI: CopyFileA             KERNEL32.DLL
 \ CopyFile  (  bFailIfExists:BOOL lpNewFileName  lpExistingFileName -- bool )
-\    BOOL  bFailIfExists     // flag for operation if file exists 
+\    BOOL  bFailIfExists     // flag for operation if file exists
 \    =true - fail, if file exist
 
 
@@ -21,9 +21,9 @@ WINAPI: CopyFileA             KERNEL32.DLL
 
 : TOEND-FILE ( fileid -- ior )
 \ Move file pointer to the end of the file
-  DUP >R   FILE-SIZE  ( fileid -- ud ior ) 
+  DUP >R   FILE-SIZE  ( fileid -- ud ior )
   ?DUP IF R> DROP NIP NIP EXIT THEN
-  R> REPOSITION-FILE  ( ud fileid -- ior ) 
+  R> REPOSITION-FILE  ( ud fileid -- ior )
 ;
 
 : COPY-FILE ( src-a src-u  dst-a dst-u -- ior )

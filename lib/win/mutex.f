@@ -4,16 +4,16 @@ WINAPI: WaitForSingleObject KERNEL32.DLL
 
 ( CreateMutex
   LPSECURITY_ATTRIBUTES lpMutexAttributes,
-                        // pointer to security attributes 
-  BOOL bInitialOwner,	// flag for initial ownership 
-  LPCTSTR lpName 	// pointer to mutex-object name  
+                        // pointer to security attributes
+  BOOL bInitialOwner,	// flag for initial ownership
+  LPCTSTR lpName 	// pointer to mutex-object name
 )
 ( BOOL ReleaseMutex
-  HANDLE hMutex 	// handle of mutex object  
+  HANDLE hMutex 	// handle of mutex object
 )
 ( DWORD WaitForSingleObject
-  HANDLE hHandle,	// handle of object to wait for 
-  DWORD dwMilliseconds 	// time-out interval in milliseconds  
+  HANDLE hHandle,	// handle of object to wait for
+  DWORD dwMilliseconds 	// time-out interval in milliseconds
 )
 HEX
   0 CONSTANT WAIT_OBJECT_0

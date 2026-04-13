@@ -1,5 +1,5 @@
 \ $Id$
-\  
+\
 \ http://www.opengroup.org/pubs/online/7908799/xbd/termios.html
 
 REQUIRE ADD-CONST-VOC lib/ext/const.f
@@ -23,8 +23,8 @@ CREATE otios SIZEOF_TERMIOS ALLOT
 : prepare-terminal ( -- )
   H-STDIN tios tcgetattr 0 <> ABORT" tcgetattr failed"
   tios otios SIZEOF_TERMIOS MOVE \ save
-  tios c_lflag @ 
-    [ TE_ICANON TE_ECHO OR INVERT ] LITERAL AND 
+  tios c_lflag @
+    [ TE_ICANON TE_ECHO OR INVERT ] LITERAL AND
   tios c_lflag !
 
   \ not sure why it is needed
@@ -45,6 +45,6 @@ CREATE otios SIZEOF_TERMIOS ALLOT
   0 SP@ 1 H-STDIN READ-FILE DROP DROP
   restore-terminal ;
 
-' KEY-TERMIOS TO KEY  
+' KEY-TERMIOS TO KEY
 
 ;MODULE

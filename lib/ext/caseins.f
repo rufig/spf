@@ -28,7 +28,7 @@ CASE-INS ON
 
 ' USEARCH-WORDLIST TO SEARCH-WORDLIST
 
-: UDIGIT ( C N1 -- N2 -1|0 ) 
+: UDIGIT ( C N1 -- N2 -1|0 )
 \ N2 - значение литеры C как
 \ цифры в системе счисления по основанию N1
 \ hex-цифры могут быть строчными
@@ -39,8 +39,8 @@ CASE-INS ON
   ELSE
      DUP [CHAR] A 1- >
      IF
-       DUP [CHAR] a 1- > 
-       IF 
+       DUP [CHAR] a 1- >
+       IF
          CASE-INS @ IF [CHAR] a ELSE 2DROP 0 EXIT THEN
        ELSE [CHAR] A THEN
        - 10 +

@@ -10,7 +10,7 @@ WINAPI: SetLastError     KERNEL32.DLL
 ..: DECODE-ERROR ( n u -- c-addr u )
      DUP WIN_ERROR =
      IF DROP
-        >R 0 1024 PAD 0 
+        >R 0 1024 PAD 0
         R> 0 0x1000
         FormatMessageA PAD SWAP
         EXIT
@@ -27,7 +27,7 @@ WINAPI: SetLastError     KERNEL32.DLL
   ?DUP 0= IF
     GetLastError ?DUP
     IF
-      WIN_ERROR DECODE-ERROR 
+      WIN_ERROR DECODE-ERROR
       ANSI>OEM
       SABORT
     THEN

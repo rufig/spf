@@ -41,7 +41,7 @@ MODULE: TRACER
       Flush @ IF File FLUSH-FILE THROW THEN
       R> TO H-STDOUT
     ;
-    
+
     : Out ( addr u wid -- )
       H-STDOUT >R File TO H-STDOUT
       -1 Indent +!
@@ -67,7 +67,7 @@ MODULE: TRACER
     ;
   ;MODULE
 
-{{ Private  
+{{ Private
   : TraceON    ['] In    TO vIn   ['] Out   TO vOut   ;
   : TraceOFF   ['] 3DROP TO vIn   ['] 3DROP TO vOut   ;
 
@@ -98,7 +98,7 @@ MODULE: TRACER
         POSTPONE vIn
       THEN
     ;
-    
+
     _: ;
       Compile @ IF
         postpone-name-wid
@@ -172,7 +172,7 @@ child
 < FORTH parent [0]           (**)
 ---------------------
 (*) Имя порождённого слова выводится только если в него родителем что-то
-    было скомпилировано, иначе "<not in image>". Имя слова определяется словом 
+    было скомпилировано, иначе "<not in image>". Имя слова определяется словом
     WordByAddr, следовательно скорость работы невелика.
 (**) При выходе из порождённого слова выводится имя слова-родителя.
 
@@ -200,5 +200,5 @@ Colons:
   File: ( "файл" -- ) создать файл, хэндл сохранить в File
   TraceON (по умолчанию) начать вывод трассы
   TraceOFF прекратить вывод трассы
-  T: ("существующее слово" -- ) переопределяет существующее слово, предоставляя 
+  T: ("существующее слово" -- ) переопределяет существующее слово, предоставляя
      возможность отслеживать вход в него и выход.

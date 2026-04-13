@@ -1,5 +1,5 @@
 \ $Id$
-\ 
+\
 \ Get current local date and time
 \
 \ TIME&DATE ( -- sec min hour day month year )
@@ -93,8 +93,8 @@ CONSTANT /TM
 USER-CREATE TM /TM USER-ALLOT
 
 : TIME&DATE ( -- sec min hr day mt year )
-  (( 0 )) time 
-  (( SP@ TM )) localtime_r DROP 
+  (( 0 )) time
+  (( SP@ TM )) localtime_r DROP
   DROP
   TM tm_sec @
   TM tm_min @

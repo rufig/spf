@@ -26,7 +26,7 @@ REQUIRE ANSI-FILE    lib/include/ansi-file.f
 WARNING @  0 WARNING !
 
 : ?DUP  ?DUP ;  \ ?DUP в SP-FORTH'е state-smart, а это не по стандарту
-    
+
 WARNING !
 
 

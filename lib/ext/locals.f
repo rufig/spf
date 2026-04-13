@@ -12,7 +12,7 @@
 
   Объявление временных переменных, видимых только внутри
   текущего слова и ограниченных временем вызова данного
-  слова выполняется с помощью слова "{". Внутри определения 
+  слова выполняется с помощью слова "{". Внутри определения
   слова используется конструкция, подобная стековой нотации Форта
   { список_инициализированных_локалов \ сп.неиниц.локалов -- что угодно }
   Например:
@@ -27,7 +27,7 @@
   Или { a b c d \ e [ 12 ] f -- i j }
   Это значит что для переменной f будет выделен на стеке возвратов участок
   памяти длиной 12 байт. Использование переменной f даст адрес начала этого
-  участка. 
+  участка.
 
   Часть "\ сп.неиниц.локалов" может отсутствовать, например:
 
@@ -122,10 +122,10 @@ BASE @ HEX
   uPrevCurrent @ SET-CURRENT
   uLocalsCnt  @ uLocalsUCnt @ - ?DUP IF CELLS LIT, POSTPONE DRMOVE THEN
   uLocalsUCnt @ ?DUP
-  IF 
+  IF
      LIT, POSTPONE (RALLOT)
   THEN
-  uLocalsCnt  @ ?DUP 
+  uLocalsCnt  @ ?DUP
   IF CELLS RLIT, ['] (LocalsExit) RLIT, THEN
 ;
 
@@ -212,8 +212,8 @@ BASE !
 : ;; POSTPONE ; ; IMMEDIATE
 
 
-: ^ 
-  ' >BODY @ 
+: ^
+  ' >BODY @
   CompileLocalRec
 ; IMMEDIATE
 
@@ -272,17 +272,17 @@ WARNING @ WARNING 0!
    DUP 0= ABORT" Locals bad syntax (2)"
    2DUP S" --" COMPARE 0= IF 2DROP ParseLocals3 EXIT THEN
    2DUP S" }" COMPARE 0= IF 2DROP EXIT THEN
-   2DUP S" [" COMPARE 0= 
-   IF 
+   2DUP S" [" COMPARE 0=
+   IF
      2DROP CreateLocArray LocalsRecDoes@
-   ELSE 
+   ELSE
      CREATED
      LATEST-NAME NAME>STRING CHARS + CHAR- C@
      [CHAR] [ =
      IF
        LocalsRecDoes@2
      ELSE
-       LocalsDoes@ 1 
+       LocalsDoes@ 1
      THEN
    THEN
    uLocalsUCnt +! IMMEDIATE
@@ -303,7 +303,7 @@ WARNING @ WARNING 0!
   AGAIN
 ;
 
-\  uLocalsCnt  @ ?DUP 
+\  uLocalsCnt  @ ?DUP
 \  IF CELLS RLIT, ['] (LocalsExit) RLIT, THEN
 
 : ;  LocalsCleanup

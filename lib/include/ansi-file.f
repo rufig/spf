@@ -1,13 +1,13 @@
 \ $Id$
-\ 
+\
 \ Ansifying SPF file i/o
-\ 
-\ By default spf kernel FILE words expect file names 
+\
+\ By default spf kernel FILE words expect file names
 \ to end with zero byte and ignore the length param.
-\ This extension redefines those words to get rid of that 
+\ This extension redefines those words to get rid of that
 \ limitation
 \ (If the file name is zero-ended it is used "as is", else
-\ it is copied to additional buffer PFILENAME and zero byte 
+\ it is copied to additional buffer PFILENAME and zero byte
 \ is appended)
 \
 \ Just include this lib

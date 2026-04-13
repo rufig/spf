@@ -29,14 +29,14 @@ USER ?Topic
               15 > IF HelpCounter 0! CR ." more?" KEY
                       DUP [CHAR] q =
                       OVER [CHAR] Q = OR
-                      SWAP 27 = OR IF -1 THROW THEN 
+                      SWAP 27 = OR IF -1 THROW THEN
                    THEN
            HelpCounter 1+!
         THEN
   REPEAT R> 2DROP
 ;
 
-: *** 
+: ***
    NextWord HelpWord-A @ HelpWord-U @
    COMPARE 0= DUP
    IF   TRUE ?HelpFound !
@@ -61,7 +61,7 @@ USER ?Topic
 
 : (HELP) ( "name" -- )
    ?HelpFound 0!
-   HelpCounter 0! 
+   HelpCounter 0!
    NextWord TUCK HEAP-COPY HelpWord-A !
    HelpWord-U !
    S" help.fhlp" +ModuleDirName
@@ -85,7 +85,7 @@ USER ?Topic
 
 : CLR
 \ Очистить экран
-  50 0 DO CR LOOP 
+  50 0 DO CR LOOP
 ;
 
 .( Type HELP for help) CR

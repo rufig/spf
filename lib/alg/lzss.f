@@ -19,7 +19,7 @@
 : carray        CREATE  CHARS ALLOT     DOES>   + ;
 
 
-: read-char                             ( file -- char ) 
+: read-char                             ( file -- char )
         0 >R RP@ 1 ROT READ-FILE THROW IF
                 RP@ C@ 0
         ELSE
@@ -213,7 +213,7 @@ N 1 +        array dad
       VARIABLE    mask
 
 : Encode ( -- )
-      
+
       textsize 0!    codesize 0!
 
       InitTree    ( Initialize trees. )

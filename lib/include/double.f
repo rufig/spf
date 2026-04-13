@@ -93,7 +93,7 @@ REQUIRE [UNDEFINED]     lib/include/tools.f
         THEN
     THEN
 ;
-     
+
 \ ut/
 \ Divide a tri number by an integer.
 : UT/   ( utlo utmid uthi n -- d1 )
@@ -103,11 +103,11 @@ REQUIRE [UNDEFINED]     lib/include/tools.f
 
 
 \ ANS 8.6.1.1820 M*/
-: M*/  ( d1 n1 +n2 -- d2 ) \ 94 DOUBLE 
-\ Multiply d1 by n1 producing the triple-cell intermediate result t. 
-\ Divide t by +n2 giving the double-cell quotient d2. 
-\ An ambiguous condition exists if +n2 is zero or negative, 
-\ or the quotient lies outside of the range of a double-precision 
+: M*/  ( d1 n1 +n2 -- d2 ) \ 94 DOUBLE
+\ Multiply d1 by n1 producing the triple-cell intermediate result t.
+\ Divide t by +n2 giving the double-cell quotient d2.
+\ An ambiguous condition exists if +n2 is zero or negative,
+\ or the quotient lies outside of the range of a double-precision
 \ signed integer.
     >R MT* DUP 0< IF
         TNEGATE R> UT/ DNEGATE

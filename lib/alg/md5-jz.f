@@ -1,7 +1,7 @@
 REQUIRE [DEFINED]  lib/include/tools.f
 REQUIRE ms@ lib/include/facil.f
 
-HERE 
+HERE
 
 MODULE: MD5-MODULE
 
@@ -289,7 +289,7 @@ EXPORT
       REPEAT R@ SWAP MD5FINAL
       CLOSE-FILE DROP MD5STRING
   ELSE S" "
-  THEN 
+  THEN
   R> FREE THROW
 ;
 
@@ -329,7 +329,7 @@ ALSO MD5-MODULE
   md5-jz.f CR CR ;
 
 \ SPF SPECIFIC PERFORMANCE TEST
- 
+
 100000 VALUE N#
 
 : UTIMER

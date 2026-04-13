@@ -1534,15 +1534,15 @@ OPS  LOK ??? RPZ REP  HLT CMC F6. F6.  CLC STC CLI STI  CLD STD FE. FF.  \ F
                         \ We do not look for JMP's because there may be
                          \ a jump in a forth word
                         CR
-                        OVER 0= IF  NEXT-INST C@ 0xC3 <> 
+                        OVER 0= IF  NEXT-INST C@ 0xC3 <>
                                 ELSE 2DUP < INVERT
                                 THEN
                 WHILE   INST
                 REPEAT  2DROP ." END-CODE  "
                 ;
 
-VECT REST-AREA                
-' (REST-AREA) TO REST-AREA 
+VECT REST-AREA
+' (REST-AREA) TO REST-AREA
 
 : REST ( addr -- )
     DUP HERE U> 0=  HERE 1- AND REST-AREA
