@@ -9,7 +9,7 @@
 ;
 
 : NAME>COMPILE   ( nt -- w xt ) \ "name-to-compile" TOOLS-EXT
-  DUP NAME> SWAP IS-IMMEDIATE IF ['] EXECUTE ELSE ['] COMPILE, THEN
+  DUP NAME> SWAP IS-NAME-IMMEDIATE IF ['] EXECUTE ELSE ['] COMPILE, THEN
 ;
 
 : TRAVERSE-WORDLIST ( i*x xt wid -- j*x ) \ "traverse-wordlist" TOOLS-EXT

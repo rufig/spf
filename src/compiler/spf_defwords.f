@@ -50,7 +50,7 @@ VECT SHEADER
   \ Place a new definition into the compilation word list.
   \ sd.name matches the definition's name string.
   \ The definition is a synonym of the definition identified by nt.
-  2>R DUP IS-IMMEDIATE SWAP NAME> 2R> ENLIST-XT
+  2>R DUP IS-NAME-IMMEDIATE SWAP NAME> 2R> ENLIST-XT
   IF IMMEDIATE THEN
 ;
 : SYNONYM ( "<spaces>name.new" "<spaces>name.old" -- ) \ 2012 TOOLS-EXT

@@ -177,23 +177,26 @@ END-CODE
   NAME>CSTRING COUNT
 ;
 
-: IS-NAME-HIDDEN ( nt -- 0 | x.true\0 )
+: IS-NAME-HIDDEN ( nt -- flag )
   NAME>CSTRING CHAR+ C@ 12 =  \ see "SMUDGE"
 ;
-: IS-IMMEDIATE ( nt -- 0 | x.true\0 )
-  NAME>F C@ &IMMEDIATE AND
+: IS-NAME-IMMEDIATE ( nt -- flag )
+  NAME>F C@ &IMMEDIATE AND 0<>
 ;
-: IS-VOC ( nt -- 0 | x.true\0 )
-  NAME>F C@ &VOC AND
+: IS-NAME-VOC ( nt -- flag )
+  NAME>F C@ &VOC AND 0<>
 ;
+\ Names for words that return a value (not a proper flag)
+\   NAME>IMMEDIATE ( nt -- 0 | x.bit\0 )
+\   NAME>VOC ( nt -- 0 | x.bit\0 )
 
 : ID. ( nt -- )
   NAME>STRING TYPE
 ;
 
 \ для обратной совместимости:
-: ?IMMEDIATE ( nt -- 0 | x.true\0 ) IS-IMMEDIATE ;
-: ?VOC ( nt -- 0 | x.true\0 ) IS-VOC ;
+: ?IMMEDIATE ( nt -- 0 | x.true\0 ) IS-NAME-IMMEDIATE ;
+: ?VOC ( nt -- 0 | x.true\0 ) IS-NAME-VOC ;
 
 
 \ ==============================================
