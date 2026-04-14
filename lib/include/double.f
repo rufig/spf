@@ -97,7 +97,7 @@ REQUIRE [UNDEFINED]     lib/include/tools.f
 \ ut/
 \ Divide a tri number by an integer.
 : UT/   ( utlo utmid uthi n -- d1 )
-    DUP >R UM/MOD -ROT R> UM/MOD
+    DUP >R UM/MOD UNROT R> UM/MOD
     NIP SWAP
 ;
 

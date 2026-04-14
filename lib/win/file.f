@@ -29,12 +29,12 @@ WINAPI: CopyFileA             KERNEL32.DLL
 : COPY-FILE ( src-a src-u  dst-a dst-u -- ior )
   DROP NIP SWAP
   1 \ fail if exists
-  -ROT CopyFileA ERR
+  UNROT CopyFileA ERR
 ;
 
 : COPY-FILE-OVER ( src-a src-u  dst-a dst-u -- ior )
   DROP NIP
-  SWAP FALSE -ROT CopyFileA ERR
+  SWAP FALSE UNROT CopyFileA ERR
 ;
 
 : DELETE-FOLDER ( a u -- ior )
