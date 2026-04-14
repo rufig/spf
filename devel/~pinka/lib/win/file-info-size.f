@@ -3,12 +3,14 @@
 
 \ 2015-08-05
 
+REQUIRE [:                      lib/include/quotations.f
+
 REQUIRE FILENAME-SYMLINK ~pinka/lib/win/file-info-symlink.f
 
 : FILENAME-SIZE ( sd-filename-full -- d-size | 0 0 )
   \ it may throw ERROR_ACCESS_DENIED at the least
   0. 2OVER \ size is zero if the file is not exists
-  LAMBDA{ ( sd-filename-full 0 0 sd-filename-no-path data -- sd-filename x x )
+  [: ( sd-filename-full 0 0 sd-filename-no-path data -- sd-filename x x )
     \ NB: sd-filename-no-path doesn't contain a path and so cannot be used here as is.
     >R 2DROP 2DROP
     R@ nFileSizeLow   T@
@@ -21,7 +23,7 @@ REQUIRE FILENAME-SYMLINK ~pinka/lib/win/file-info-symlink.f
       2DUP R/O OPEN-FILE-SHARED THROW DUP >R FILE-SIZE THROW R> CLOSE-FILE THROW
     THEN THEN THEN
     RDROP
-  } FOR-FILE1-PROPS  2NIP
+  ;] FOR-FILE1-PROPS  2NIP
 ;
 \ TODO: throw error in case of the file is not found #maybe
 
