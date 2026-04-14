@@ -391,6 +391,14 @@ USER INCLUDE-DEPTH
   PARSE-NAME PARSE-NAME 2DUP + 0 SWAP C!
   REQUIRED
 ;
+
+\ The words `REQUIRED` and `REQUIRE` in spf4 (since 2001) conflict
+\ with `REQUIRED` and `REQUIRE` in Forth Standard (since 2012).
+\ The synonyms for spf4 words allow new programs to comply with the standard.
+SYNONYM REQUIRED-WORD     REQUIRED
+SYNONYM REQUIRE-WORD      REQUIRE
+
+
 : INCLUDED-EXISTING ( i*x  a u -- j*x true | i*x  a u  false )
   2DUP FILE-EXISTS IF INCLUDED TRUE ELSE FALSE THEN
 ;
