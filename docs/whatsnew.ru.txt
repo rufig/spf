@@ -14,6 +14,7 @@
 + "FIND-NAME" "FIND-NAME-IN" "?FOUND" "SYNONYM"
 + "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
 + "S>F" "F>S"
++ "REQUIRED-WORD" "REQUIRE-WORD" - синонимы дл€ "REQUIRED" и "REQUIRE" дл€ избежани€ конфликта с Forth-2012
 
 libs:
 ! lib/ext/locals.f - определение с локальными переменными было невидимо дл€ "IMMEDIATE"
