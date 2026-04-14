@@ -21,7 +21,7 @@ VECT SHEADER
   IF 2DUP GET-CURRENT SEARCH-WORDLIST
      IF DROP 2DUP TYPE ."  isn't unique (" SOURCE-NAME TYPE ." )" CR THEN
   THEN
-  CURRENT @ +SWORD
+  GET-CURRENT +SWORD
 
   ALIGN
   ( сдвигаем указатель кода так, чтобы при компиляции переменных и векторов )
