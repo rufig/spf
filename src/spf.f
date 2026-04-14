@@ -19,8 +19,13 @@ S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
 [UNDEFINED] UMAX        [IF] : UMAX 2DUP U< IF NIP  EXIT THEN DROP  ; [THEN]
 
 
+
 [DEFINED] VERSION [IF]  VERSION 350000 500000 WITHIN [IF]
 \ spf4 specific implementations (if missing)
+
+[UNDEFINED] CS-DUP  [IF]
+: CS-DUP 2DUP ;
+[THEN]
 
 [UNDEFINED] PARSE-NAME  [IF]
 : PARSE-NAME NextWord ;
@@ -40,23 +45,31 @@ S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
 ;
 [THEN]
 
-[UNDEFINED] SET-ORDER-TOP [IF]
-  S" lib/compat/the-search-order.f" INCLUDED
-[THEN]
-
-[UNDEFINED] XTVOC>WID [IF]
-: XTVOC>WID ( xt-vocabulary -- wid )
-  ALSO  EXECUTE  CONTEXT @  PREVIOUS
-;
-[THEN]
-
 [UNDEFINED] CHAIN-WORDLIST [IF]
 : CHAIN-WORDLIST ( wid.tail wid-empty -- )
   DUP @ IF -12 THROW THEN  >R  @  R> !
 ;
 [THEN]
 
-[THEN] [THEN]
+[THEN] [THEN] \ End of spf4 specific implementations
+
+
+\ -----
+\ Portable implementations
+
+[UNDEFINED] SET-ORDER-TOP [IF]
+  S" lib/compat/the-search-order.f" INCLUDED
+[THEN]
+
+[UNDEFINED] XTVOC>WID [IF]
+: XTVOC>WID ( xt-vocabulary -- wid )
+  ALSO  EXECUTE  ORDER-TOP  PREVIOUS
+;
+[THEN]
+
+\ End of portable implementations
+\ -----
+
 
 
 S" lib/ext/spf-asm.f"            INCLUDED
@@ -65,7 +78,6 @@ S" src/spf_compileoptions.f"     INCLUDED
 ALSO ASSEMBLER DEFINITIONS
 PREVIOUS DEFINITIONS
 
-: CS-DUP 2DUP ;
 
 C" M_WL" FIND NIP 0=
 [IF] : M_WL  CS-DUP POSTPONE WHILE ; IMMEDIATE
