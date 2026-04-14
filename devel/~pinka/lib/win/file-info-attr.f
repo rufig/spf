@@ -1,9 +1,9 @@
 \ Determining file attributes
 
 REQUIRE lexicon.basics-aligned  ~pinka/lib/ext/basics.f  \ to access fields via Q@ and T@
+REQUIRE [:                      lib/include/quotations.f
 
 REQUIRE FOR-FILE1-PROPS ~ac/lib/win/file/fileprop.f
-REQUIRE LAMBDA{         ~pinka/lib/lambda.f
 
 
 \ http://msdn.microsoft.com/en-us/library/gg258117.aspx
@@ -14,10 +14,10 @@ REQUIRE LAMBDA{         ~pinka/lib/lambda.f
 
 : FILENAME-ATTRIBUTES ( d-txt-filename -- flags )
   0 -ROT \ 0 if the file is not exists
-  LAMBDA{ ( 0 addr u data -- flag )
+  [: ( 0 addr u data -- flag )
     >R 2DROP DROP
     R> dwFileAttributes T@
-  } FOR-FILE1-PROPS
+  ;] FOR-FILE1-PROPS
 ;
 
 : FILENAME-SYSTEM ( d-txt-filename -- flag )
