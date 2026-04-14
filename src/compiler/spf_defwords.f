@@ -12,6 +12,12 @@ USER-VALUE LAST-NON
 
 VECT SHEADER
 
+: ALIGN-CODE-DATAFIELD ( -- )
+  \ Ensure that the data field will be aligned
+  \ Note: the "CALL *-CODE" instruction takes 5 bytes
+  HERE 5 +  DUP ALIGNED - NEGATE ALLOT
+;
+
 : SHEADER1 ( addr u -- )
   HERE 0 , ( cfa )
   DUP LAST-CFA !
@@ -23,13 +29,8 @@ VECT SHEADER
   THEN
   GET-CURRENT +SWORD
 
-  ALIGN
-  ( сдвигаем указатель кода так, чтобы при компиляции переменных и векторов )
-  ( следующая ячейка данных, находящаяся после CALL *-CODE была выровнена:  )
-  ALIGNMENT DUP 4 >
-  IF 5 - ALLOT
-  ELSE 1 - ALLOT
-  THEN
+  ALIGN-CODE-DATAFIELD
+  \ TODO: use this aligning only in `CREATE` and similar words, and use it in TC too.
 
   HERE SWAP ! ( заполнили cfa )
 ;
