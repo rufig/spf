@@ -11,6 +11,9 @@ REQUIRE R:UTF8>UTF16        ~pinka/lib/win/utf16-rbuf.f
 [UNDEFINED] INVALID_FILE_ATTRIBUTES     [IF] -1 CONSTANT INVALID_FILE_ATTRIBUTES    [THEN]
 
 
+TRUE CONSTANT utf8.file-core.win.lib.spf4  \ a fairly unique identifier for this library file
+
+
 \ The original definitions are taken from: spf4/src/win/spf_win_io.f
 
 : CREATE-FILE-SHARED ( c-addr u fam -- fileid ior )
@@ -66,14 +69,27 @@ REQUIRE R:UTF8>UTF16        ~pinka/lib/win/utf16-rbuf.f
   DUP INVALID_FILE_ATTRIBUTES <> IF 0 EXIT THEN
   DROP 0 GetLastError
 ;
-: FILE-EXIST ( addr u -- f )
+
+
+
+\ Non-standard words
+\ In contrast to "*FILE*" words, "*FILENAME*" words do not return ior
+
+: FILENAME-EXISTING ( sd.filename -- flag )
   R:UTF8>UTF16
   DROP GetFileAttributesW -1 <>
 ;
-: FILE-EXISTS ( addr u -- f )
+: FILENAME-REGULAR ( sd.filename -- flag )
   R:UTF8>UTF16
   DROP GetFileAttributesW INVERT 16 ( FILE_ATTRIBUTE_DIRECTORY) AND 0<>
 ;
+
+\ for backward compatibility
+SYNONYM FILE-EXIST            FILENAME-EXISTING
+SYNONYM FILE-EXISTS           FILENAME-REGULAR
+
+\ m.b.
+\ SYNONYM PATH-EXISTS           FILENAME-EXISTING \ any file (including a directory)
 
 
 \ #eof
