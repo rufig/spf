@@ -25,7 +25,7 @@ WINAPI: CreateSymbolicLinkW  kernel32.dll
   \ works only for regular files
   R:UTF8>UTF16 2SWAP R:UTF8>UTF16 2SWAP
   DROP NIP \ ASCIIZ
-  0 -ROT
+  0 UNROT
   CreateHardLinkW ERR
 ;
 
@@ -33,7 +33,7 @@ WINAPI: CreateSymbolicLinkW  kernel32.dll
   \ works only for regular files
   R:UTF8>UTF16 2SWAP R:UTF8>UTF16 2SWAP
   DROP NIP \ ASCIIZ
-  0 -ROT
+  0 UNROT
   CreateSymbolicLinkW ERR
 ;
 

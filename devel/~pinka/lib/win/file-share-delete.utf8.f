@@ -8,7 +8,7 @@ REQUIRE R:UTF8>UTF16        ~pinka/lib/win/utf16-rbuf.f
 \ The original definitions are taken from: ~ac/lib/win/file/share-delete.f
 
 : OPEN-FILE-SHARED-DELETE ( c-addr u fam -- fileid ior )
-  -ROT R:UTF8>UTF16 ROT
+  UNROT R:UTF8>UTF16 ROT
   SWAP DROP SWAP >R >R
   0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
   OPEN_EXISTING
@@ -19,7 +19,7 @@ REQUIRE R:UTF8>UTF16        ~pinka/lib/win/utf16-rbuf.f
   CreateFileW DUP -1 = IF GetLastError ELSE 0 THEN
 ;
 : CREATE-FILE-SHARED-DELETE ( c-addr u fam -- fileid ior )
-  -ROT R:UTF8>UTF16 ROT
+  UNROT R:UTF8>UTF16 ROT
   SWAP DROP SWAP >R >R
   0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
   CREATE_ALWAYS
@@ -32,7 +32,7 @@ REQUIRE R:UTF8>UTF16        ~pinka/lib/win/utf16-rbuf.f
 0x04000000 CONSTANT FILE_FLAG_DELETE_ON_CLOSE
 
 : CREATE-FILE-SHARED-DELETE-ON-CLOSE ( c-addr u fam -- fileid ior )
-  -ROT R:UTF8>UTF16 ROT
+  UNROT R:UTF8>UTF16 ROT
   SWAP DROP SWAP >R >R
   0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
     FILE_FLAG_DELETE_ON_CLOSE OR

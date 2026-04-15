@@ -13,7 +13,7 @@ REQUIRE FOR-FILE1-PROPS ~ac/lib/win/file/fileprop.f
 
 
 : FILENAME-ATTRIBUTES ( d-txt-filename -- flags )
-  0 -ROT \ 0 if the file is not exists
+  0 UNROT \ 0 if the file is not exists
   [: ( 0 addr u data -- flag )
     >R 2DROP DROP
     R> dwFileAttributes T@

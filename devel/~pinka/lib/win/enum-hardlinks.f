@@ -26,7 +26,7 @@ WINAPI: FindClose               kernel32.dll
 
 
 : FOR-FILENAME-HARDLINKS ( c-addr u xt -- ) \ xt ( i*x addr u -- j*x )
-  -ROT
+  UNROT
   1+ DUP 2* RBUF ANSI>UTF16 DROP \ convert including zero at the end
   MAX_PATH 2* CELL+ RBUF DROP CELL+ (BUF-PAIR) OVER >R ( xt a-txt  a-buf a-n-buf )
   2SWAP SWAP R> 2>R 0 SWAP ( a-buf a-n-buf flags a-filename ) ( R: xt a-buf )

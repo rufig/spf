@@ -19,13 +19,13 @@ WINAPI: CreateSymbolicLinkA  kernel32.dll
 
 : COPY-FILE-HARDLINK ( d-src d-trg -- ior )
   DROP NIP \ ASCIIZ
-  0 -ROT
+  0 UNROT
   CreateHardLinkA ERR
 ;
 
 : COPY-FILE-SYMLINK ( d-src d-trg -- ior )
   DROP NIP \ ASCIIZ
-  0 -ROT
+  0 UNROT
   CreateSymbolicLinkA ERR
 ;
 
