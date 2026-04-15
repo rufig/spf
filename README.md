@@ -1,3 +1,20 @@
+## About
+
+SP-Forth/4 is a highly extended, 32bit, Forth-94 compatible Forth system.
+It generates optimized [IA-32](https://en.wikipedia.org/wiki/IA-32) (i686)
+native code for Windows and Linux platforms.
+
+### Key features
+  - Access external functions from DLL and SO libraries.
+  - Create callbacks that can be called from external functions.
+  - Handle [SEH](https://en.wikipedia.org/wiki/Microsoft-specific_exception_handling_mechanisms) exceptions
+    and [Signals](https://en.wikipedia.org/wiki/Signal_(IPC))
+    by automatically converting them to exceptions in Forth (catchable by `CATCH`).
+  - Provide Forth multitasking based on the operation system's preemptive multithreading.
+  - Export the Forth system dictionary into a standalone executable file.
+
+
+
 ## Some useful links
 
   - A set of documentaion files in [/docs/](https://github.com/rufig/spf/tree/master/docs), particularly:
@@ -37,3 +54,8 @@ dpkg --add-architecture i386
 apt update
 apt install  coreutils ca-certificates git wget build-essential gcc-multilib
 ```
+
+### In Cygwin
+
+In the sub-directory `src/`, run `make` — it will build `spf4.exe`
+in the _spf4 working tree root_.
