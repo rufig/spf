@@ -13,6 +13,15 @@ native code for Windows and Linux platforms.
   - Provide Forth multitasking based on the operation system's preemptive multithreading.
   - Export the Forth system dictionary into a standalone executable file.
 
+### Executable files
+  - `spf4` is a basic executable file with case-sensitive dictionary search.
+  - `spf4e` is an extended executable file that includes all available standard words and performs case-insensitive dictionary search.
+
+The command line arguments may contain file names and Forth code to evaluate:
+```shell
+spf4e myprogram.fth 2 3 + . bye
+```
+
 
 
 ## Some useful links
@@ -45,7 +54,8 @@ Prerequisites: `powershell` to download the initial binary.
 
 ### In Linux
 
-In the sub-directory `src/` run `make` — it will build `spf4` in the _spf4 working tree root_
+In the sub-directory `src/` run `make` — it will build `spf4` and `spf4e`
+in the _spf4 working tree root_
 (near to the directorory `src`).
 
 Prerequisites (in Debian or Ubuntu, as an example):
@@ -57,5 +67,5 @@ apt install  coreutils ca-certificates git wget build-essential gcc-multilib
 
 ### In Cygwin
 
-In the sub-directory `src/`, run `make` — it will build `spf4.exe`
+In the sub-directory `src/`, run `make` — it will build `spf4.exe` and `spf4e.exe`
 in the _spf4 working tree root_.

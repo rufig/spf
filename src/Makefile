@@ -73,9 +73,11 @@ PLATFORM ?= $(platform)
 
 ifeq ($(PLATFORM),posix)
   target-bin := spf4
+  target-bin-e := spf4e
   orig-bin := $(orig-bin-lin)
 else
   target-bin := spf4.exe
+  target-bin-e := spf4e.exe
   orig-bin := $(orig-bin-win)
 endif
 
@@ -86,9 +88,9 @@ ifeq ($(origin CC),default)
 endif
 
 ifeq ($(platform),posix)
-  ../spf4.exe : export HOSTWRAPPER ?= wine
+  ../spf4e.exe  ../spf4.exe       : export HOSTWRAPPER ?= wine
 else ifeq ($(platform),win32)
-  ../spf4 spf4.o : export HOSTWRAPPER ?= wsl
+  ../spf4e      ../spf4 spf4.o    : export HOSTWRAPPER ?= wsl
 endif
 
 common-sources := *.f *.F compiler/*.f $(wildcard compile.ini)
@@ -113,11 +115,20 @@ spf4.o: $(common-sources) posix/config.auto.f  posix/*.f  $(if $(HOSTFORTH),,../
 	cd .. ; echo 1 HALT | $(HOSTFORTH) src/tc-configure-lines.f src/spf.f
 
 
-build: ../$(target-bin)
+# Building of the extended executable "spf4e" with more libs and 10 MiB free space in the dictionary
+define build-spf4e
+  echo '10 1024 * 1024 * S" $@" SAVE-WITH-RESERVE BYE' | $(HOSTWRAPPER) $< lib/ext/spf4e.f
+endef
+spf4e-sources = ../lib/include/*.f ../lib/ext/*.f
+../spf4e.exe  : ../spf4.exe   $(spf4e-sources) ; $(build-spf4e)
+../spf4e      : ../spf4       $(spf4e-sources) ; $(build-spf4e)
+
+
+build: ../$(target-bin) ../$(target-bin-e)
 
 install: build
 
 
 clean:
-	rm -f spf4.o ../spf4 ../spf4.exe
+	rm -f spf4.o ../spf4 ../spf4.exe ../spf4e ../spf4e.exe
 	$(MAKE) -C posix clean
