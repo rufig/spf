@@ -15,7 +15,7 @@ REQUIRE FOR-FILE1-PROPS ~ac/lib/win/file/fileprop.f
 \ http://msdn.microsoft.com/en-us/library/dd541667.aspx
 
 : FILENAME-REPARSE-TAG ( d-txt-filename -- 0|u )
-  0 -ROT \ 0 if the file is not exists
+  0 UNROT \ 0 if the file is not exists
   [: ( 0 addr u data -- flag )
     >R 2DROP DROP
     R@ dwFileAttributes T@ FILE_ATTRIBUTE_REPARSE_POINT AND 0= IF RDROP 0 EXIT THEN

@@ -17,7 +17,7 @@ TRUE CONSTANT utf8.file-core.win.lib.spf4  \ a fairly unique identifier for this
 \ The original definitions are taken from: spf4/src/win/spf_win_io.f
 
 : CREATE-FILE-SHARED ( c-addr u fam -- fileid ior )
-  -ROT R:UTF8>UTF16 ROT
+  UNROT R:UTF8>UTF16 ROT
   NIP SWAP >R >R
   0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
   CREATE_ALWAYS
@@ -28,7 +28,7 @@ TRUE CONSTANT utf8.file-core.win.lib.spf4  \ a fairly unique identifier for this
   CreateFileW DUP -1 = IF GetLastError ELSE 0 THEN
 ;
 : OPEN-FILE-SHARED ( c-addr u fam -- fileid ior )
-  -ROT R:UTF8>UTF16 ROT
+  UNROT R:UTF8>UTF16 ROT
   NIP SWAP 2>R
   0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
   OPEN_EXISTING
@@ -53,7 +53,7 @@ TRUE CONSTANT utf8.file-core.win.lib.spf4  \ a fairly unique identifier for this
   CreateFileW DUP -1 = IF GetLastError ELSE 0 THEN
 ;
 : OPEN-FILE ( c-addr u fam -- fileid ior ) \ 94 FILE
-  -ROT R:UTF8>UTF16 ROT
+  UNROT R:UTF8>UTF16 ROT
   NIP SWAP >R >R
   0 FILE_ATTRIBUTE_ARCHIVE ( template attrs )
   OPEN_EXISTING

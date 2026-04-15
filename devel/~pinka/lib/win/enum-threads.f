@@ -39,7 +39,7 @@ WINAPI: GetCurrentProcessId         kernel32.dll ( -- id )
   Thread32First ( ... flag ) DUP 0= IF ERR R> CloseHandle DROP THROW ABORT THEN
   BEGIN ( xt own-id flag ) WHILE ( xt  own-id )
     DUP R@ th32OwnerProcessID T@ = IF
-      R@ th32ThreadID T@ -ROT >R DUP >R ( thread-id xt ) EXECUTE R> R>
+      R@ th32ThreadID T@ UNROT >R DUP >R ( thread-id xt ) EXECUTE R> R>
     THEN
     2R@ SWAP Thread32Next
   REPEAT 2DROP
