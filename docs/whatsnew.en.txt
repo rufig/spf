@@ -15,6 +15,7 @@
 + "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
 + "S>F" "F>S"
 + "REQUIRED-WORD" "REQUIRE-WORD" - synonyms for "REQUIRED" and "REQUIRE" to avoid conflict with Forth-2012
++ "SAVE-WITH-RESERVE" - save the system with a specified unused dictionary data space in the new executable file
 
 libs:
 ! lib/ext/locals.f - a definition with locals was invisible for "IMMEDIATE"

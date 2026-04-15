@@ -310,6 +310,17 @@ TARGET-POSIX [IF]
 S" src/posix/save.f"                 INCLUDED
 [THEN]
 
+: SAVE-WITH-RESERVE ( u.target-dict-unused  sd.filename-executable )
+  \ Save the running system to a new executable file.
+  \ When starting from the new executable, the system has
+  \ at least u bytes of unused dictionary space.
+  IMAGE-SIZE >R  2>R
+  HERE IMAGE-BASE - ( u.dict-used )
+  ( u.target-dict-unused u.dict-used ) + TO IMAGE-SIZE
+  2R> SAVE
+  R> TO IMAGE-SIZE
+;
+
 \ ==============================================================
 
 CR .( Dummy B, B@ B! and /CHAR )

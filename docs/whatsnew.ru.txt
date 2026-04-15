@@ -15,6 +15,7 @@
 + "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
 + "S>F" "F>S"
 + "REQUIRED-WORD" "REQUIRE-WORD" - синонимы для "REQUIRED" и "REQUIRE" для избежания конфликта с Forth-2012
++ "SAVE-WITH-RESERVE" - сохранение системы с указанным свободным размером области данных словаря в новом исполняемом файле
 
 libs:
 ! lib/ext/locals.f - определение с локальными переменными было невидимо для "IMMEDIATE"
