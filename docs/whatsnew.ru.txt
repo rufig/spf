@@ -31,6 +31,7 @@ libs:
 * lib/include/float2.f - исправление "FVALUE" (для совместимости с "TO")
 + lib/include/control-case.f - потокобезопасная реализация для CASE ENDCASE (в отличии от lib/ext/case.f)
 + lib/include/quotations.f - слова "[:" и ";]"
++ lib/ext/spf4e.f - расширенная версия spf4, включает все доступные стандартные слова и регистро-независимый поиск в словаре
 
 samples:
 ! lib/win/spfgui/spfgui.f - поддержка режима unix-lines

@@ -31,6 +31,7 @@ libs:
 * lib/include/float2.f - fix "FVALUE" (for compatibility with "TO")
 + lib/include/control-case.f - thread-safe implementation for CASE ENDCASE (unlike lib/ext/case.f)
 + lib/include/quotations.f - the words "[:" and ";]"
++ lib/ext/spf4e.f - extended version of spf4, includes all available standard words and case-insensitive search in the dictionary
 
 samples:
 ! lib/win/spfgui/spfgui.f - support unix-lines mode
