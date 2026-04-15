@@ -1,4 +1,4 @@
-( addr_exe u_exe addr_fres u_fres -- )
+( sd.filename-exe sd.section-resources -- )
 \ Сохраняет текущюю форт систему в exe с ресурсами из fres файла;
 \ если ресурсы не нужны, то u_fres = 0.
 \ Особенность tsave - либа работает во временном словаре и не
@@ -47,7 +47,7 @@ TRUE VALUE ?Res
   THEN
 ;
 
-: SAVE ( offset c-addr u -- )
+: (SAVE-WITH-RESOURCES) ( u.offset.section-resources sd.filename-exe -- )
   ( сохранение наработанной форт-системы в EXE-файле формата PE - Win32 )
   R/W CREATE-FILE THROW >R
   ModuleName R/O OPEN-FILE-SHARED THROW >R
@@ -111,8 +111,8 @@ ALIGN-BYTES @ 512 ALIGN-BYTES ! ALIGN ALIGN-BYTES !
 HERE TO END-RES-SEG
 
 HERE -
-
-2SWAP SAVE
+( sd.filename-exe wid.new.tmp u.offset.section-resources )
+2SWAP (SAVE-WITH-RESOURCES)
 PREVIOUS
 ( wid.new.tmp )
 FREE-WORDLIST
