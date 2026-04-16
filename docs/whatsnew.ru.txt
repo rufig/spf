@@ -5,11 +5,13 @@
 ! в Linux память для словарей должна быть RWX
 ! "TRAVERSE-WORDLIST" не позволено выдавать скрытые определения
 ! "SET-ORDER" не работало на входе `-1`, т.к. слово "ONLY" бралось из хост-системы
+! "SLITERAL" и `S"` при интерпретации теперь не изменяют входной буфер
 * "IMMEDIATE" модифицирует определение возвращаемое "LATEST-NAME", вместо "LAST @"
 * Проверяется SHA1 сумма для бинарников, которые скачиваются автоматически при сборке
 * Переименовано "IS-IMMEDIATE" в "IS-NAME-IMMEDIATE" и "IS-VOC" в "IS-NAME-VOC" (теперь они возвращают flag)
 * Переименовано "SOURCE-NAME" в "SOURCE-FILE-PATH"
 * Переименовано "LAST-WORD" (существительное) в "PRINT-LAST-WORD" (глагол)
+* Следующие слова при интерпретации работают как ожидается: "[']" "[CHAR]" `."` `ABORT"`
 + "ALLOCATE-RWX" и "FREE-RWX" для выделения и освобождения областей памяти, разрешенных к исполнению
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 + "2LIT," "CLIT," "UNROT" "THROW-ERRMSG" "LAST-ERRMSG"

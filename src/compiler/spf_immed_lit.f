@@ -34,8 +34,10 @@
 \ Возвратить c-addr2 u, описывающие строку, состоящую из символов, заданных
 \ c-addr1 u во время компиляции. Программа не может менять возвращенную
 \ строку.
-
-  STATE @ IF SLIT, ELSE  2DUP CHARS + 0 SWAP C! THEN
+  STATE @ IF SLIT, EXIT THEN
+  OVER  SOURCE OVER + WITHIN 0= IF EXIT THEN
+  \ Make a copy only if the string is in the input buffer.
+  ALLOCATE-STRING THROW ( c-addr2 u ) \ NB: the string is intentionally leaked
 ; IMMEDIATE
 
 : CLITERAL ( compil: true ; c-addr --  |  compil: false ; c-addr -- c-addr )
@@ -82,9 +84,10 @@
 \ выполнения, данную ниже, к текущему определению.
 \ Время выполнения: ( -- )
 \ Вывести ccc на экран.
-  ?COMP
+  [CHAR] " PARSE
+  STATE @ 0= IF TYPE EXIT THEN
   ['] _CLITERAL-CODE COMPILE,
-  [CHAR] " PARSE DUP C, CHARS
+  DUP C, CHARS
   HERE SWAP DUP ALLOT MOVE 0 C,
   ['] (.") COMPILE,
 ; IMMEDIATE
@@ -96,7 +99,6 @@
 \ семантику времени выполнения, данную ниже, к текущему определению.
 \ Время выполнения: ( -- char )
 \ Положить char, значение первого символа name, на стек.
-  ?COMP
   PARSE-NAME DROP C@ [COMPILE] LITERAL
 ; IMMEDIATE
 
@@ -117,9 +119,10 @@
 \ Время выполнения: ( i*x x1 -- | i*x ) ( R: j*x -- | j*x )
 \ Убрать x1 со стека. Если любой бит x1 ненулевой, выполнить функцию
 \ -2 THROW, выводя ccc, если на стеке исключений нет кадра исключений.
-  ?COMP
+  [CHAR] " PARSE
+  STATE @ 0= IF ROT IF THROW-ERRMSG ( never ) THEN 2DROP EXIT THEN
   ['] _CLITERAL-CODE COMPILE,
-  [CHAR] " PARSE DUP C, CHARS
+  DUP C, CHARS
   HERE SWAP DUP ALLOT MOVE 0 C,
   ['] (ABORT") COMPILE,
 ; IMMEDIATE
@@ -135,6 +138,6 @@
 \ Положить выполнимый токен имени xt на стек. Выполнимый токен, возвращаемый
 \ скомпилированной фразой "['] X" является тем же значением, что и возвращаемое
 \ "' X" вне состояния компиляции.
-  ?COMP
-  ' LIT,
+  '  ( xt )
+  STATE @ IF LIT, THEN
 ; IMMEDIATE
