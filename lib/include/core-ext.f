@@ -18,6 +18,16 @@ REQUIRE CASE lib/include/control-case.f
   0 >
 ;
 
+: @+ ( a-addr1 -- a-addr2 x.value )  \ AKA `1@NEXT`, AKA `XCOUNT` (which is a bad name)
+  DUP CELL+ SWAP @
+;
+: 2@+ ( a-addr1 -- a-addr2 xd.value ) \ AKA `2@NEXT`
+  DUP CELL+ CELL+ SWAP 2@
+;
+: C@+ ( a-addr1 -- a-addr2 char.value ) \ AKA `C@NEXT`, AKA `COUNT`
+  DUP CHAR+ SWAP C@
+;
+
 : MARKER ( "<spaces>name" -- ) \ 94 CORE EXT
 \ ѕропустить ведущие пробелы. ¬ыделить name, ограниченное пробелами.
 \ —оздать определение с семантикой выполнени€, описанной ниже.
@@ -29,19 +39,34 @@ REQUIRE CASE lib/include/control-case.f
 \ могут быть св€заны с удаленными определени€ми или освобожденным
 \ пространством данных. Ќикака€ друга€ контекстуальна€ информаци€,
 \ как основание системы счислени€, не измен€етс€.
-  HERE
+  DESTINATION-STATIC INVERT ABORT" `MARKER` is not supported for a temporary storage"
+  \ Note: it does not save/restore the state of temporary wordlists
+  \ since there is no a list of such wordlists in the kernel.
+  GET-CURRENT DUP WID>HEAD SWAP ( nt|0 wid.destination )
+  HERE ( addr.here )
+  CREATE
+  DP ,
+  VOC-LIST ,
+  ( addr.here ) , \ original HERE
 \  [C]HERE , [E]HERE ,
-  GET-CURRENT ,
-  GET-ORDER DUP , 0 ?DO DUP , @ , LOOP
-  CREATE ,
-  DOES> @ DUP \ ONLY
+  VOC-LIST @ ,
+  \ the search order
+  GET-ORDER DUP , DUP 0 ?DO DUP ROLL , 1- LOOP DROP
+  \ the state of each static wordlist
+  VOC-LIST @ BEGIN DUP WHILE @+ ( wid a-addr.next|0 ) SWAP DUP WID>HEAD SWAP , , REPEAT ( 0 ) 0 , ,
+  ( nt|0 wid.destination ) , , \ 2, \ the compilation word list wid and its state
+  \ it must be restored last since its state from VOC-LIST (if any) is taken after creation of the marker child
+  DOES>
+  @+ DP <> ABORT" The current storage is not static (DP slot is different)"
+  @+ VOC-LIST <> ABORT" The current storage is not static (VOC-LIST slot is different)"
+  @+ DP !  \ restore HERE
 \  DUP @ [C]DP ! CELL+
 \  DUP @ [E]DP ! CELL+
-  DUP @ SET-CURRENT CELL+
-  DUP @ >R R@ CELLS 2* + 1 CELLS - R@ 0
-  ?DO DUP DUP @ SWAP CELL+ @ OVER ! SWAP 2 CELLS - LOOP
-  DROP R> SET-ORDER
-  DP !
+  @+ VOC-LIST !  \ restore the list of wordlists
+  @+ EMPTY-ORDER 0 ?DO @+ PUSH-ORDER LOOP \ restore the search order
+  BEGIN 2@+ DUP WHILE ( a-addr.next nt|0 wid ) FIX-WID-HEAD REPEAT 2DROP
+  2@+ DUP SET-CURRENT FIX-WID-HEAD
+  DROP
 ;
 
 : SAVE-INPUT ( -- xn ... x1 n )  \ 94 CORE EXT
