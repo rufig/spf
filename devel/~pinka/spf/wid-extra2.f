@@ -30,12 +30,6 @@ WARNING @  WARNING 0!
 
 ..: AT-WORDLIST-CREATING DUP MAKE-EXTR ;..
 
-\ TEMP-WORDLIST не использует WORDLIST (нет события AT-WORDLIST-CREATING)
-\ и само не используется в ядре. Поэтому, необходимо и достаточно переопределить:
-: TEMP-WORDLIST ( -- wid )
-  TEMP-WORDLIST GET-CURRENT >R  DUP SET-CURRENT DUP MAKE-EXTR R> SET-CURRENT
-  \ расширение заголовка этого словря должно идти в его же временное хранилище
-;
 
 ' MAKE-EXTR ENUM-VOCS-FORTH \ фикс существующих словарей (!!!)
 

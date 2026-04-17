@@ -214,6 +214,10 @@ EXPORT
   PUSH-MOUNT AT-STORAGE-DELETING POP-MOUNT FREE-RWX THROW
 ;
 
+
+:NONAME TRUE ABORT" The kernel `TEMP-WORDLIST` word can no longer be used" ;
+' TEMP-WORDLIST REPLACE-WORD
+
 : TEMP-WORDLIST ( -- wid )
 \ создаст временное хранилище в текущей куче (хипе)
 \ и в нем словарь

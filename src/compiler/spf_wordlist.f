@@ -95,6 +95,9 @@ NOWADAYS ,"
 \       0 , \ верси€ €дра, которой скомпилирован временный словарь
 \       0 , \ DP временного словар€ (текущий размер)
 
+: TEMPWID>DP ( wid.temporary -- a-addr[addr.here] )
+  7 CELLS +
+;
 
 : TEMP-WORDLIST ( -- wid )
 \ создаст временный словарь (в виртуальной пам€ти)
@@ -105,6 +108,9 @@ NOWADAYS ,"
   VERSION R@ 7 CELLS + !
   R@ 9 CELLS + DUP CELL- !
   R> CELL+
+  DUP EXCHANGE-COMPLIST >R ( wid1 )
+  AT-WORDLIST-CREATING ( wid1 )
+  R> EXCHANGE-COMPLIST DROP
 ;
 : FREE-WORDLIST ( wid -- )
   CELL- FREE-RWX THROW
@@ -124,6 +130,12 @@ NOWADAYS ,"
 : PAR@   ( wid -- Pwid ) CELL+ CELL+ @ ;
 : WID-EXTRA ( wid -- addr )  4 CELLS + ; \ свободна€ дл€ расширений €чейка
 \  аждое расширение переопредел€ет это слово, чтобы даваема€ €чейка была свободна.
+
+
+: [CORE]DP ( -- a-addr[ addr.here ] )
+  GET-CURRENT DUP IS-TEMP-WORDLIST IF TEMPWID>DP ELSE DROP (DP) THEN
+;
+' [CORE]DP  ' DP  TC-VECT! \ the vect is defined in "./spf_compile0.f"
 
 
 \ -5 -- cfa

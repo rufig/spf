@@ -70,12 +70,7 @@ VECT SET-COMPLIST
 
 VECT DP \ ( -- a-addr[ addr.here ] )
 \ Data Pointer - the address of a cell containing HERE
-
-: [CORE]DP ( -- a-addr[ addr.here ] )
-  IS-TEMP-WL
-  IF GET-CURRENT 7 CELLS + ELSE (DP) THEN
-;
-' [CORE]DP  ' DP  TC-VECT!
+\ The vect is initialized in "./spf_wordlist.f"
 
 : COMPLIST-STATIC ( -- flag ) \ or maybe "DICTIONARY-STATIC"
   \ Note: it is a forward compatibile definition
