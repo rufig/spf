@@ -37,7 +37,6 @@
     FREE-WORDLIST -- освобождающее хранилище, в котором расположен словарь.
     ORDER выдает вершину контекста справа!
     SAVE -- вызывает AT-SAVING-BEFORE и AT-SAVING-AFTER
-    SET-CURRENT и DEFINITIONS -- учитывают новый локальный для потока DP.
 
     Важно: нельзя освобождать словарь, если он используется; т.е.
     делать FREE-WORDLIST, когда этот словарь в CURRENT или CONTEXT,
@@ -61,11 +60,9 @@ REQUIRE NDROP    ~pinka/lib/ext/common.f
 
 WARNING @  WARNING 0!
 
-' DP
-USER DP ( -- a-addr[+ addr.here | 0 ] ) \ переменная, содержащая HERE сегмента данных
-
-DUP EXECUTE @ DP !  ' DP SWAP REPLACE-WORD
-\ заменили старое DP, чтобы не переопределять все откладывающие слова
+\ Make `DP` thread-local (that is, the returned address depends on the current thread)
+USER [STORAGE]DP ( -- a-addr[+ addr.here|0 ] )
+DP @ [STORAGE]DP !  ' [STORAGE]DP TO DP
 
 USER STORAGE \ текущее хранилище.
               \ Для вновь созданного потока будет неопределеным.
@@ -97,13 +94,18 @@ S" storage-core.f" Included
 ;..
 
 ..: AT-DISMOUNTING ( -- )
-  STORAGE-EXTRA @  CURRENT @ OVER !  4 CELLS + 0!  CURRENT 0!
+  STORAGE-EXTRA @ ( a-addr.extra )
+  COMPLIST-MAYBE OVER ! \ save complist
+  ( a-addr.extra ) 4 CELLS + 0! \ unbusy
+  0 \ no compilation wordlist
+  [ ' SET-COMPLIST BEHAVIOR COMPILE, ] \ see `[STORAGE]SET-COMPLIST`
 ;..
 
 ..: AT-MOUNTING ( -- )
   STORAGE-EXTRA @  DUP
   4 CELLS +  DUP  @ IF -2012 THROW THEN -1 SWAP !
-  @ CURRENT !
+  @ ( wid.complist )
+  [ ' SET-COMPLIST BEHAVIOR COMPILE, ]
 ;..
 
 : DEFAULT-WORDLIST ( -- wid )
@@ -182,36 +184,21 @@ EXPORT
 ;MODULE
 
 
-\ Переопределяем все слова, завязанные на SET-CURRENT
-\ (т.к. оптимизатор делал подстановку, и перехвата только причинного слова недостаточно)
+\ `SET-COMPLIST` (and its synonym `SET-CURRENT`) must switch the current storage as well.
 
-: SET-CURRENT ( wid -- )
-  DUP IF DUP WL-STORAGE MOUNT  CURRENT ! EXIT THEN
-  CURRENT ! DISMOUNT DROP
+: [STORAGE]SET-COMPLIST ( wid|0 -- )
+  DUP 0= IF DROP DISMOUNT DROP EXIT THEN
+  DUP WL-STORAGE MOUNT ( wid ) [ ' SET-COMPLIST BEHAVIOR COMPILE, ]
 ;
+' [STORAGE]SET-COMPLIST TO SET-COMPLIST
 
-..: AT-THREAD-STARTING STORAGE-ID 0= IF CURRENT 0! THEN ;..
+..: AT-THREAD-STARTING STORAGE-ID 0= IF 0 [CORE]SET-COMPLIST THEN ;..
 \ из дочернего потока нельзя писать в занятое основным потоком базовое хранилище
-
-: DEFINITIONS ( -- ) \ 94 SEARCH
-  CONTEXT @ SET-CURRENT
-;
-
-: MODULE: ( "name" -- wid.old-current )
-  >IN @
-  ['] ' CATCH
-  IF >IN ! VOCABULARY LATEST-NAME-XT ELSE NIP THEN
-  GET-CURRENT SWAP ALSO EXECUTE DEFINITIONS
-;
-: ;MODULE ( wid.old-current -- )
-  SET-CURRENT PREVIOUS
-;
-
 
 : ORDER ( -- ) \ 94 SEARCH EXT
   GET-ORDER ." Context>: "
   DUP >R BEGIN DUP WHILE DUP PICK VOC-NAME. SPACE 1- REPEAT DROP R> NDROP CR
-  ." Current: " GET-CURRENT DUP IF VOC-NAME. ELSE DROP ." <not mounted>" THEN CR
+  ." Current: " COMPLIST? IF VOC-NAME. ELSE ." <not mounted>" THEN CR
 ;
 
 \ =====

@@ -13,15 +13,49 @@
 5 CONSTANT CFL     \ длина кода, компилируемого CREATE в сегмент CS.
   USER     DOES>A  \ временна€ переменна€ - адрес дл€ DOES>
 
+
+\ Instead of `GET-CURRENT` and `SET-CURRENT`,
+\ the better names are `COMPLIST` and `SET-COMPLIST`
+\ ("complist" is an abbreviation from "compilation-wordlist").
+\ Rationale: The meaning of the English word "current" should not be narrowed down
+\ to refer specifically to a term denoting the compliation word list in Forth.
+
+VECT COMPLIST-MAYBE  ( -- wid|0 )
+: [CORE]COMPLIST-MAYBE ( -- wid|0 )
+  CURRENT @
+;
+' [CORE]COMPLIST-MAYBE  ' COMPLIST-MAYBE  TC-VECT!
+
+: COMPLIST? ( -- wid true | false )
+  COMPLIST-MAYBE DUP IF TRUE THEN
+;
+: COMPLIST ( -- wid )
+  COMPLIST-MAYBE DUP IF EXIT THEN
+  -2014 THROW \ "No compilation wordlist is set"  \ see-also: -47 "compilation word list deleted"
+;
+
+
+VECT SET-COMPLIST
+: [CORE]SET-COMPLIST ( wid|0 -- ) CURRENT ! ;
+' [CORE]SET-COMPLIST  ' SET-COMPLIST  TC-VECT!
+
+: EXCHANGE-COMPLIST ( wid1|0 -- wid2|0 )
+  COMPLIST-MAYBE  SWAP  SET-COMPLIST
+;
+
 : SET-CURRENT ( wid -- ) \ 94 SEARCH
 \ ”становить список компил€ции на список, идентифицируемый wid.
-  CURRENT !
+  DUP IF SET-COMPLIST EXIT THEN
+  -12 THROW \ "argument type mismatch"
 ;
 
 : GET-CURRENT ( -- wid ) \ 94 SEARCH
 \ ¬озвращает wid - идентификатор списка компил€ции.
-  CURRENT @
+  COMPLIST
 ;
+
+\ Maybe this name is better
+\ : IS-WORDLIST-TEMPORARY ( wid -- flag )  CELL- @ -1 = ;
 
 : IS-TEMP-WORDLIST ( wid -- flag )
 \ провер€ет, €вл€етс€ ли словарь wid временным (внешним)
@@ -30,10 +64,22 @@
 : IS-TEMP-WL ( -- flag )
 \ провер€ет, €вл€етс€ ли текущий словарь компил€ции временным (внешним)
   GET-CURRENT IS-TEMP-WORDLIST
+  \ This implementation might not work as expected for temporary storage/dictionary,
+  \ so it should be redefined for backward compatibility.
 ;
-: DP ( -- addr ) \ переменна€, содержаща€ HERE сегмента данных
+
+VECT DP \ ( -- a-addr[ addr.here ] )
+\ Data Pointer - the address of a cell containing HERE
+
+: [CORE]DP ( -- a-addr[ addr.here ] )
   IS-TEMP-WL
   IF GET-CURRENT 7 CELLS + ELSE (DP) THEN
+;
+' [CORE]DP  ' DP  TC-VECT!
+
+: COMPLIST-STATIC ( -- flag ) \ or maybe "DICTIONARY-STATIC"
+  \ Note: it is a forward compatibile definition
+  DP @  IMAGE-BASE IMAGE-SIZE OVER +  WITHIN
 ;
 
 : ALLOT ( n -- ) \ 94
