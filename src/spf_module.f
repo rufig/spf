@@ -27,6 +27,8 @@ USER CURFILE
   BEGIN 2DUP <> WHILE CHAR- DUP C@ is_path_delimiter UNTIL CHAR+ THEN
   OVER - >CHARS
 ;
+\ A better name for the above word:
+SYNONYM PATH-PREFIX CUT-PATH
 
 : ModuleDirName ( -- addr u )
   ModuleName CUT-PATH
@@ -50,6 +52,9 @@ USER CURFILE
   R> +
 ;
 
-: SOURCE-NAME ( -- a u )
+: SOURCE-PATH ( -- sd.path )
   CURFILE @ DUP IF ASCIIZ> ELSE 0 THEN
 ;
+\ Given words like `NAME>` and `FIND-NAME`, where "NAME" stands for "nt" (name token, a single-cell id),
+\ `SOURCE-NAME` is an unfortunate name for the above word. Provide this name for backward compatibility only.
+SYNONYM SOURCE-NAME SOURCE-PATH
