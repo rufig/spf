@@ -163,6 +163,7 @@
 -2011 Unknown vocabulary
 -2012 The wordlist is in use
 -2014 No compilation wordlist is set
+-2015 Cannot create a regular wordlist in a temporary storage
 -2301 macroopt: unacceptable OP0 before executing SetOP
 0xC0000001L UNSUCCESSFUL
 0x00000000L WAIT_0

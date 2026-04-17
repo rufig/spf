@@ -80,6 +80,15 @@ NOWADAYS ,"
 \ Система должна допускать создание как минимум 8 новых списков слов в
 \ дополнение к имеющимся в системе.
   ALIGN
+  COMPLIST-STATIC INVERT IF \ the current storage/dictionary is temporary
+  VOC-LIST _VOC-LIST =  IF \ no new VOC-LIST is provided for the current storage
+    \ A temporary storage provided by the kernel does not yet suport regular wordlists
+    \ (since the contents of a regular wordlist are always placed in the static storage).
+    \ Also, this word shall not include a wordlist from a temporary storage in the list of static wordlists.
+    \ Note: the check above assumes that an external implementation of the storage subsystem
+    \ makes the list of wordlists storage-local and modifies the behavior of `VOC-LIST` accordingly.
+    -2015 THROW \ "Cannot create a regular wordlist in a temporary storage"
+  THEN THEN
   HERE VOC-LIST @ , VOC-LIST !
   HERE 0 , \ здесь будет указатель на имя последнего слова списка
        0 , \ здесь будет указатель на имя списка для именованых
