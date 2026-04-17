@@ -80,6 +80,15 @@ NOWADAYS ,"
 \ Система должна допускать создание как минимум 8 новых списков слов в
 \ дополнение к имеющимся в системе.
   ALIGN
+  DESTINATION-STATIC INVERT IF \ the current storage/dictionary is temporary
+  VOC-LIST _VOC-LIST =  IF \ no new VOC-LIST is provided for the current storage
+    \ A temporary storage provided by the kernel does not yet suport regular wordlists
+    \ (since the contents of a regular wordlist are always placed in the static storage).
+    \ Also, this word shall not include a wordlist from a temporary storage in the list of static wordlists.
+    \ Note: the check above assumes that an external implementation of the storage subsystem
+    \ makes the list of wordlists local to the current storage and redefines `VOC-LIST` to return this list.
+    -2012 THROW
+  THEN THEN
   HERE VOC-LIST @ , VOC-LIST !
   HERE 0 , \ здесь будет указатель на имя последнего слова списка
        0 , \ здесь будет указатель на имя списка для именованых
@@ -105,6 +114,7 @@ NOWADAYS ,"
   VERSION R@ 7 CELLS + !
   R@ 9 CELLS + DUP CELL- !
   R> CELL+
+  AT-WORDLIST-CREATING
 ;
 : FREE-WORDLIST ( wid -- )
   CELL- FREE-RWX THROW
