@@ -17,7 +17,7 @@ VARIABLE WINAPLINK
   0 , \ address of library name
   0 , \ address of function name
   , \ # of parameters
-  IS-TEMP-WL 0=
+  DESTINATION-STATIC
   IF
     HERE WINAPLINK @ , WINAPLINK ! ( סגÿחü )
   THEN

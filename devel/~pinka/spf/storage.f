@@ -171,36 +171,31 @@ EXPORT
 ;MODULE
 
 
-\ Переопределяем все слова, завязанные на SET-CURRENT
-\ (т.к. оптимизатор делал подстановку, и перехвата только причинного слова недостаточно)
+\ `SET-CURRENT` (via `SET-DESTINATION`) must switch the current storage as well.
 
-: SET-CURRENT ( wid -- )
-  DUP IF DUP WL-STORAGE MOUNT  CURRENT ! EXIT THEN
-  CURRENT ! DISMOUNT DROP
+: SET-DESTINATION.STORAGE ( wid -- )
+  DUP 0= IF -12 THROW THEN
+  DUP WL-STORAGE MOUNT  ( wid ) [ ' SET-DESTINATION BEHAVIOR COMPILE, ]
 ;
+' SET-DESTINATION.STORAGE TO SET-DESTINATION
+
+: DESTINATION-MAYBE ( -- wid|0 )
+  [ ' DESTINATION BEHAVIOR COMPILE, ]
+;
+: DESTINATION.STORAGE ( -- wid )
+  DESTINATION-MAYBE  DUP IF EXIT THEN
+  TRUE ABORT" No mounted storage"
+;
+' DESTINATION.STORAGE TO DESTINATION
+
 
 ..: AT-THREAD-STARTING STORAGE-ID 0= IF CURRENT 0! THEN ;..
 \ из дочернего потока нельзя писать в занятое основным потоком базовое хранилище
 
-: DEFINITIONS ( -- ) \ 94 SEARCH
-  CONTEXT @ SET-CURRENT
-;
-
-: MODULE: ( "name" -- old-current )
-  >IN @
-  ['] ' CATCH
-  IF >IN ! VOCABULARY LATEST-NAME-XT ELSE NIP THEN
-  GET-CURRENT SWAP ALSO EXECUTE DEFINITIONS
-;
-: ;MODULE ( old-current -- )
-  SET-CURRENT PREVIOUS
-;
-
-
 : ORDER ( -- ) \ 94 SEARCH EXT
   GET-ORDER ." Context>: "
   DUP >R BEGIN DUP WHILE DUP PICK VOC-NAME. SPACE 1- REPEAT DROP R> NDROP CR
-  ." Current: " GET-CURRENT DUP IF VOC-NAME. ELSE DROP ." <not mounted>" THEN CR
+  ." Current: " DESTINATION-MAYBE DUP IF VOC-NAME. ELSE DROP ." <not mounted>" THEN CR
 ;
 
 \ =====

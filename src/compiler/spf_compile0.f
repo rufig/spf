@@ -13,15 +13,30 @@
 5 CONSTANT CFL     \ длина кода, компилируемого CREATE в сегмент CS.
   USER     DOES>A  \ временна€ переменна€ - адрес дл€ DOES>
 
+
+\ Better names `DESTINATION` and `SET-DESTINATION`
+\ instead of `GET-CURRENT` and `SET-CURRENT`
+
+VECT DESTINATION
+: DESTINATION.CORE ( -- wid ) CURRENT @ ;
+' DESTINATION.CORE  ' DESTINATION  TC-VECT!
+
+VECT SET-DESTINATION
+: SET-DESTINATION.CORE ( wid -- ) CURRENT ! ;
+' SET-DESTINATION.CORE  ' SET-DESTINATION  TC-VECT!
+
 : SET-CURRENT ( wid -- ) \ 94 SEARCH
 \ ”становить список компил€ции на список, идентифицируемый wid.
-  CURRENT !
+  SET-DESTINATION
 ;
 
 : GET-CURRENT ( -- wid ) \ 94 SEARCH
 \ ¬озвращает wid - идентификатор списка компил€ции.
-  CURRENT @
+  DESTINATION
 ;
+
+\ Maybe this name is better
+: IS-WORDLIST-TEMPORARY ( wid -- flag )  CELL- @ -1 = ;
 
 : IS-TEMP-WORDLIST ( wid -- flag )
 \ провер€ет, €вл€етс€ ли словарь wid временным (внешним)
@@ -31,9 +46,15 @@
 \ провер€ет, €вл€етс€ ли текущий словарь компил€ции временным (внешним)
   GET-CURRENT IS-TEMP-WORDLIST
 ;
+
 : DP ( -- addr ) \ переменна€, содержаща€ HERE сегмента данных
-  IS-TEMP-WL
+  GET-CURRENT IS-WORDLIST-TEMPORARY
   IF GET-CURRENT 7 CELLS + ELSE (DP) THEN
+;
+
+: DESTINATION-STATIC ( -- flag )
+  \ Note: it is a forward compatibile definition
+  DP @  IMAGE-BASE IMAGE-SIZE OVER +  WITHIN
 ;
 
 : ALLOT ( n -- ) \ 94
