@@ -86,7 +86,7 @@ WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
 : ERROR2 ( ERR-NUM -> ) \ показать расшифровку ошибки
   DUP 0= IF DROP EXIT THEN
   DUP -2 = IF   DROP LAST-WORD
-                ER-A @ ER-U @ TYPE
+                LAST-ERRMSG TYPE
            ELSE
   LAST-WORD
   BASE @ >R DECIMAL
@@ -97,29 +97,24 @@ WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
 
 : LIB-ERROR1 ( addr_winapi_structure )
     CELL+ @ ASCIIZ>
-    <# HOLDS S" Forth: Can't load a library " HOLDS 0. #>
-    DUP ER-U !
-    SYSTEM-PAD SWAP CHARS MOVE
-    SYSTEM-PAD ER-A ! -2 THROW
+    S" Forth: Can't load a library " (PREPEND-ERRMSG)
+    THROW-ERRMSG
 ;
 
 
 : PROC-ERROR1 ( addr_winapi_structure )
     DUP
     CELL+ @ ASCIIZ> ROT
-    CELL+ CELL+ @ ASCIIZ> 2SWAP
-    <# HOLDS S"  in a library " HOLDS HOLDS
-       S" Forth: Can't find a proc " HOLDS 0. #>
-    DUP ER-U !
-    SYSTEM-PAD SWAP CHARS MOVE
-    SYSTEM-PAD ER-A ! -2 THROW
+    CELL+ CELL+ @ ASCIIZ>
+    S" Forth: Can't find a proc " (PREPEND-ERRMSG)
+    S"  in a library " 2SWAP (PREPEND-ERRMSG) (PREPEND-ERRMSG)
+    THROW-ERRMSG
 ;
 
 : ANSI>OEM ( addr u -- addr u )
   DUP NUMERIC-OUTPUT-LENGTH >
   IF
-    S" Buffer overrun in ANSI>OEM" ER-U !
-    ER-A ! -2 THROW
+    S" Buffer overrun in ANSI>OEM" THROW-ERRMSG
   THEN
   DUP ROT ( u u addr )
   SYSTEM-PAD SWAP CharToOemBuffA DROP
@@ -129,8 +124,7 @@ WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
 : OEM>ANSI ( addr u -- addr u )
   DUP NUMERIC-OUTPUT-LENGTH >
   IF
-    S" Buffer overrun in OEM>ANSI" ER-U !
-    ER-A ! -2 THROW
+    S" Buffer overrun in OEM>ANSI" THROW-ERRMSG
   THEN
 
   DUP ROT ( u u addr )

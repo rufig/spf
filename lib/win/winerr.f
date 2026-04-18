@@ -19,7 +19,7 @@ WINAPI: SetLastError     KERNEL32.DLL
 
 : SABORT ( flag addr u -- )
 \ Кстати, это слово тоже полезно может быть. У меня были случаи.
-  ROT IF ER-U ! ER-A ! -2 THROW ELSE 2DROP THEN
+  ROT IF THROW-ERRMSG ELSE 2DROP THEN
 ;
 
 : WTHROW ( 0 -- ) \ exception
