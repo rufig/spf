@@ -4,7 +4,9 @@
 
 REQUIRE REPLACE-WORD lib/ext/patch.f
 REQUIRE ON           lib/ext/onoff.f
-REQUIRE CEQUAL-U     lib/ext/uppercase.f
+
+REQUIRE string-ascii-ci  lib/ext/string/comparison-ascii-ci.f
+\ It is case-insensitive only within ASCII charset (to avoid breaking UTF-8)
 
 VARIABLE CASE-INS \ switcher
 CASE-INS ON
@@ -18,7 +20,7 @@ CASE-INS ON
     DUP
   WHILE
     >R 2DUP
-    R@ NAME>STRING CEQUAL-U
+    R@ NAME>STRING string-ascii-ci::equals
     IF 2DROP R> EXIT THEN
     R> NAME>NEXT-NAME
   REPEAT NIP NIP
@@ -26,10 +28,7 @@ CASE-INS ON
 
 ' FIND-NAME-IN.MAYBE-INSENSITIVE TO FIND-NAME-IN
 
-: UDIGIT ( C N1 -- N2 -1|0 )
-\ N2 - значение литеры C как
-\ цифры в системе счисления по основанию N1
-\ hex-цифры могут быть строчными
+: UDIGIT ( char.digit u.base -- u.digit true | false )
   SWAP
   DUP [CHAR] 0 [CHAR] 9 1+ WITHIN
   IF \ within 0..9
