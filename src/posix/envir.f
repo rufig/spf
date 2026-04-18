@@ -5,18 +5,13 @@
 
 : dl-no-library ( z )
     DROP
-    <# DLERROR ASCIIZ> HOLDS 0. #>
-    DUP ER-U !
-    SYSTEM-PAD SWAP CHARS MOVE
-    SYSTEM-PAD ER-A ! -2 THROW
+    DLERROR ASCIIZ> THROW-ERRMSG
 ;
 
 : dl-no-symbol ( z -- )
     ASCIIZ>
-    <# S" : undefined symbol" HOLDS HOLDS 0. #>
-    DUP ER-U !
-    SYSTEM-PAD SWAP CHARS MOVE
-    SYSTEM-PAD ER-A ! -2 THROW
+    S" : undefined symbol" 2SWAP
+    (PREPEND-ERRMSG) THROW-ERRMSG
 ;
 
 
@@ -104,7 +99,7 @@ WORDLIST DUP >VIRT CONSTANT ENVIRONMENT-WORDLIST
 : ERROR2 ( ERR-NUM -> ) \ показать расшифровку ошибки
   DUP 0= IF DROP EXIT THEN
   DUP -2 = IF   DROP LAST-WORD
-                ER-A @ ER-U @ TYPE
+                LAST-ERRMSG TYPE
            ELSE
   LAST-WORD
   BASE @ >R DECIMAL

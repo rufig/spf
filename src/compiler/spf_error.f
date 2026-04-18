@@ -8,6 +8,17 @@ VECT (ABORT")
 USER ER-A
 USER ER-U
 
+: LAST-ERRMSG ( -- sd ) \ or "THROWN-ERRMSG"
+  ER-A @ ER-U @
+;
+: THROW-ERRMSG ( sd -- )
+  ER-U ! ER-A ! -2 THROW
+;
+: (PREPEND-ERRMSG) ( sd.tail sd.head -- sd.result )
+  SYSTEM-PAD /SYSTEM-PAD CROP CROP DROP
+  SYSTEM-PAD TUCK -
+;
+
 128 CHARS CONSTANT /errstr_
 0 \
 1 CELLS     -- err.number
@@ -94,7 +105,7 @@ USER-CREATE ERR-DATA [T] /err-data [I] TC-USER-ALLOT
 ;
 
 : (ABORT1") ( flag c-addr -- )
-  SWAP IF COUNT ER-U ! ER-A ! -2 THROW ELSE DROP THEN
+  SWAP IF COUNT THROW-ERRMSG ELSE DROP THEN
 ;
 
 : SAVE-ERR ( err-num -- )
