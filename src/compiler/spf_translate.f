@@ -271,12 +271,20 @@ VECT PROCESS-ERR ( ior -- ior ) \ обработать ошибку трансл€ции (файла).
   0 SWAP RECEIVE-WITH-XT
 ;
 
+: ALLOCATE-STRING ( sd1 -- sd2 0 | sd1 ior\0 )
+  \ A character string sd2 is a copy of sd1.
+  \ sd2 is followed by a null-character in memory.
+  \ sd2 can be deallocated by applying FREE to its start address.
+  \ Rationale: it should return an ior, similar to other ALLOCATE* words.
+  DUP CHAR+ ALLOCATE DUP IF NIP EXIT THEN DROP
+  SWAP 2DUP 2>R MOVE 2R>
+  2DUP + 0 SWAP C!  0 \ return ior=0
+;
+
 : HEAP-COPY ( addr u -- addr1 )
 \ скопировать строку в хип и вернуть еЄ адрес в хипе
   DUP 0< IF 8 THROW THEN
-  DUP CHAR+ ALLOCATE THROW DUP >R
-  SWAP DUP >R CHARS MOVE
-  0 R> R@ + C! R>
+  ALLOCATE-STRING THROW DROP
 ;
 
 VECT FIND-FULLNAME \ найти указанный файл и вернуть его с полным путем
