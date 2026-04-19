@@ -28,43 +28,27 @@
   HERE BRANCH, >MARK 2
 ; IMMEDIATE
 
-: [ELSE]   \ 94 TOOLS EXT
-\ Компиляция: Выполнить семантику выполнения, данную ниже.
-\ Выполнение: ( "<spaces>name..." -- )
-\ Пропустить ведущие пробелы, выделить и отбросить ограниченные пробелами
-\ слова из разбираемой области, включая вложенные [IF]...[THEN] и
-\ [IF]...[ELSE]...[THEN], до выделения и отбрасывания слова [THEN].
-\ Если разбираемая область опустошается, она снова заполняется по REFILL.
-\ [ELSE] - слово немедленного исполнения.
-    1
-    BEGIN
-      NextWord DUP
-      IF
-         2DUP S" [IF]"   COMPARE 0= IF 2DROP 1+                 ELSE
-         2DUP S" [ELSE]" COMPARE 0= IF 2DROP 1- DUP  IF 1+ THEN ELSE
-              S" [THEN]" COMPARE 0= IF       1-                 THEN
-                                    THEN  THEN
-      ELSE 2DROP REFILL  AND \   SOURCE TYPE
-      THEN DUP 0=
-    UNTIL  DROP ;  IMMEDIATE
 
-: [IF] \ 94 TOOLS EXT
-\ Компиляция: Выполнить семантику выполнения, данную ниже.
-\ Выполнение: ( flag | flag "<spaces>name..." -- )
-\ Если флаг "истина", ничего не делать. Иначе, пропустив ведущие пробелы,
-\ выделять и отбрасывать ограниченные пробелами слова из разбираемой области,
-\ включая вложенные [IF]...[THEN] и [IF]...[ELSE]...[THEN], до тех пор, пока не
-\ будет выделено и отброшено слово [ELSE] или [THEN].
-\ Если разбираемая область опустошается, она снова заполняется по REFILL.
-\ [ELSE] - слово немедленного исполнения.
-  0= IF POSTPONE [ELSE] THEN
-; IMMEDIATE
 
-: [THEN] \ 94 TOOLS EXT
-\ Компиляция: Выполнить семантику выполнения, данную ниже.
-\ Выполнение: ( -- )
-\ Ничего не делать. [THEN] - слово немедленного исполнения.
+\ [IF] [ELSE] [THEN] implementation that follows the system's cases-sensitivity mode
+\ (Note that in this implementation, we do not directly use string comparison operations)
+\ see: https://forth-standard.org/standard/tools/BracketELSE#contribution-121
+WORDLIST DUP CONSTANT BRACKET-FLOW-WL GET-CURRENT SWAP SET-CURRENT
+: [IF]   ( u.level1 -- u.level2 ) 1+ ;
+: [ELSE] ( u.level1 -- u.level2 ) DUP 1 = IF 1- THEN ;
+: [THEN] ( u.level1 -- u.level2 ) 1- ;
+SET-CURRENT
+: [ELSE] ( -- )
+  1 BEGIN BEGIN NextWord DUP WHILE \ spf3/jpf3 does not provide PARSE-NAME
+    BRACKET-FLOW-WL SEARCH-WORDLIST IF
+      EXECUTE DUP 0= IF DROP EXIT THEN
+    THEN
+  REPEAT 2DROP REFILL 0= UNTIL DROP
+  WARNING @ IF ."  ( WARNING: missing [THEN] ) " THEN
 ; IMMEDIATE
+: [IF] ( flag -- ) 0= IF  ['] [ELSE]  EXECUTE  THEN ; IMMEDIATE
+: [THEN] ( -- ) ; IMMEDIATE
+
 
 
 : CS-PICK ( C: destu ... orig0|dest0 -- destu ... orig0|dest0 destu ) ( S: u -- ) \ 94 TOOLS EXT

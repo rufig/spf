@@ -1,12 +1,10 @@
-\ $Id$
 ( Case insensitivity for SP-FORTH )
 ( CASE-INS - case sensitivity switcher )
 ( just include this lib :)
 
 REQUIRE REPLACE-WORD lib/ext/patch.f
 REQUIRE ON           lib/ext/onoff.f
-REQUIRE [IF]         lib/include/tools.f \ должно быть подключено до caseins-варианта
-REQUIRE [else]       lib/ext/caseins-tools.f
+REQUIRE CEQUAL-U     lib/ext/uppercase.f
 
 VARIABLE CASE-INS \ switcher
 CASE-INS ON
