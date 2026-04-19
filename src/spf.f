@@ -51,6 +51,15 @@ S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
 ;
 [THEN]
 
+[UNDEFINED] SOURCE-FILE-LN [IF]
+: SOURCE-FILE-LN ( -- u ) CURSTR @ ;
+[THEN]
+
+[UNDEFINED] SOURCE-FILE-PATH [IF]
+: SOURCE-FILE-PATH ( -- sd.path ) CURFILE @ DUP IF ASCIIZ> ELSE 0 THEN ;
+[THEN]
+
+
 [THEN] [THEN] \ End of spf4 specific implementations
 
 
