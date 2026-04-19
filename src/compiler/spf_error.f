@@ -61,7 +61,7 @@ USER-CREATE ERR-DATA [T] /err-data [I] TC-USER-ALLOT
   ERR-DATA err.file COUNT
 ;
 : ERR-STRING ( -- a u )
-\ формирует строку для LAST-WORD  по ERR-DATA
+\ формирует строку для PRINT-LAST-WORD  по ERR-DATA
   BASE @ DECIMAL
   <#
   ERR-LINE HOLDS
@@ -86,7 +86,7 @@ USER-CREATE ERR-DATA [T] /err-data [I] TC-USER-ALLOT
   LOOP
 ;
 
-: LAST-WORD ( -- )
+: PRINT-LAST-WORD ( -- )
   SEEN-ERR?
   IF
     SOURCE OVER >IN @ SCREEN-LENGTH
