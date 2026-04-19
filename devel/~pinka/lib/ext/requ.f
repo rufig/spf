@@ -19,12 +19,6 @@ REQUIRE [DEFINED] lib/include/tools.f
 
 \ WARNING @ WARNING 0!
 
-[UNDEFINED] SOURCE-NAME! [IF]
-
-: SOURCE-NAME! ( addr u -- )
-  HEAP-COPY CURFILE !
-;
-[THEN]
 [UNDEFINED] path_delimiter [IF]
 
 CHAR \ VALUE path_delimiter
@@ -39,7 +33,7 @@ CHAR \ VALUE path_delimiter
   2DUP + 0!
 ;
 : +SourcePath ( addr u -- addr2 u2 )
-  SOURCE-NAME CUT-PATH +Path
+  SOURCE-PATH PATH-PREFIX +Path
 ;
 : FIND-FULLNAME2 ( a1 u1 -- a u )
   2DUP +SourcePath      2DUP FILE-EXIST IF 2SWAP 2DROP EXIT THEN 2DROP
