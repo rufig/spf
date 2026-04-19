@@ -9,6 +9,7 @@
 * The SHA1 sum is checked for the binaries that are automatically downloaded on building
 * Rename "IS-IMMEDIATE" to "IS-NAME-IMMEDIATE" and "IS-VOC" to "IS-NAME-VOC" (they return a flag now)
 * Rename "SOURCE-NAME" to "SOURCE-FILE-PATH"
+* Rename "LAST-WORD" (a noun) to "PRINT-LAST-WORD" (a verb)
 + "ALLOCATE-RWX" and "FREE-RWX" to allocate and free executable memory regions
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 + "2LIT," "CLIT," "UNROT" "THROW-ERRMSG" "LAST-ERRMSG"

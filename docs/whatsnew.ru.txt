@@ -9,6 +9,7 @@
 * Проверяется SHA1 сумма для бинарников, которые скачиваются автоматически при сборке
 * Переименовано "IS-IMMEDIATE" в "IS-NAME-IMMEDIATE" и "IS-VOC" в "IS-NAME-VOC" (теперь они возвращают flag)
 * Переименовано "SOURCE-NAME" в "SOURCE-FILE-PATH"
+* Переименовано "LAST-WORD" (существительное) в "PRINT-LAST-WORD" (глагол)
 + "ALLOCATE-RWX" и "FREE-RWX" для выделения и освобождения областей памяти, разрешенных к исполнению
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 + "2LIT," "CLIT," "UNROT" "THROW-ERRMSG" "LAST-ERRMSG"
