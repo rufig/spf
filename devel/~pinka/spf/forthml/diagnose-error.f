@@ -96,7 +96,7 @@ DROP-SCOPE
   NIP
     ERR-DATA err.line C!
   \ document-url  \ универсальный URL
-  SOURCE-NAME     \ конкретный файл
+  SOURCE-PATH     \ конкретный файл
     ERR-DATA err.file  /errstr_ 1 CLEFT- SEATED
   NIP
     ERR-DATA err.file C!
@@ -112,7 +112,7 @@ DROP-SCOPE
 0 PUSH-WARNING
 
 : EMBODY ( i*x url-a url-u -- j*x )
-  CURFILE @ >R   2DUP translate-uri HEAP-COPY CURFILE ! \ for SOURCE-NAME
+  CURFILE @ >R   2DUP translate-uri HEAP-COPY CURFILE ! \ for SOURCE-PATH
     ['] EMBODY CATCH
     DUP -5003 <> IF SAVED-ERR-FML-SURE THEN
 
@@ -120,7 +120,7 @@ DROP-SCOPE
 
     DUP -5003 =  IF SAVED-ERR-FML-SURE THEN
     \ в этом случае сохраняем место ошибки уже после отката CURFILE
-    \ -- чтобы был правильный SOURCE-NAME в диагностике
+    \ -- чтобы был правильный SOURCE-PATH в диагностике
 
     THROW
 ;
