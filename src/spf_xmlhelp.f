@@ -266,7 +266,7 @@ SPECIAL > &gt;
   BASE !
 
   BASE @ DECIMAL
-  CURSTR @ S>D <# #S #> S" line" ATTRIBUTE-OUT
+  SOURCE-FILE-LN S>D <# #S #> S" line" ATTRIBUTE-OUT
   BASE !
 
   PARSE-NAME S" (" COMPARE 0=

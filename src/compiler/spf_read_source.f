@@ -12,6 +12,53 @@ USER-VALUE SOURCE-ID-XT \ если не равен нулю, то содержит заполняющее
 
 VECT <PRE>
 USER CURSTR \ номер строки
+USER (BASEPATH) \ it contains a cstring for the current base path, or 0
+
+
+: SOURCE-FILE-PATH ( -- sd.path )
+  \ The path to the nearest ancestor-or-self source that is a file, or an empty string
+  CURFILE @ DUP IF ASCIIZ> ELSE 0 THEN
+\ NB: The synonym `SOURCE-NAME` (the old name) for this word was removed.
+\ Given words like `NAME>` and `FIND-NAME`, where "NAME" stands for "nt" (a name token, a single-cell id),
+\ `SOURCE-NAME` is an unfortunate name for this word.
+;
+: SOURCE-FILE-LN ( -- u.linenumber|0 )
+  \ The line number in the nearest ancestor-or-self source that is a file, or 0
+  CURSTR @
+;
+
+: SOURCE-PATH ( -- sd.path )
+  \ If the input source is a file, this file is accessible by the path (file name)
+  \ in the character string sd.path
+  \ TODO: sd.path must be either an absolute path or a full IRI/URI/URL.
+  SOURCE-ID 0=    IF S" about:input-stdin" EXIT THEN
+  SOURCE-ID -1 =  IF S" about:input-string" EXIT THEN
+  SOURCE-FILE-PATH
+;
+
+: SOURCE-LN ( -- u.linenumber|0 )
+  SOURCE-ID -1 = IF 0 EXIT THEN \ It is not yet supported in evaluated strings and blocks
+  SOURCE-FILE-LN
+;
+
+: SOURCE-BASEPATH ( -- sd.path )
+  \ TODO: sd.path must be either an absolute path or a full IRI/URI/URL.
+  \ A path resolved against sd.path must be suitable for `INCLUDED`.
+  \ See: https://www.rfc-editor.org/rfc/rfc3986.html#section-5.1
+  \ See: https://www.rfc-editor.org/rfc/rfc3986.html#section-5.2
+  \ - The initial basepath of an input source that is:
+  \   - a user input device (maybe from `quit`),
+  \   - an evaluated string,
+  \   - a block,
+  \   is equal to the basepath of the nearest ancestor source that is a file, if it exists,
+  \   otherwise it is an IRI or absolute path (ending with '/') to the current working directory.
+  \ - The initial basepath of an input source that is a file is the path that was passed to `INCLUDED`,
+  \   expanded to an absolute path or IRI. This base path must identify the file uniquely.
+  (BASEPATH) @ DUP IF COUNT EXIT THEN DROP
+  SOURCE-FILE-PATH DUP IF EXIT THEN 2DROP
+  0 0 \ TODO: instead of an empty string, it must fall back to the path
+  \ of the current working directory (which must end with '/').
+;
 
 
 FALSE VALUE ?GUI

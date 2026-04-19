@@ -8,12 +8,14 @@
 * "IMMEDIATE" now changes the definition returned by "LATEST-NAME", instead of "LAST @"
 * The SHA1 sum is checked for the binaries that are automatically downloaded on building
 * Rename "IS-IMMEDIATE" to "IS-NAME-IMMEDIATE" and "IS-VOC" to "IS-NAME-VOC" (they return a flag now)
+* Rename "SOURCE-NAME" to "SOURCE-FILE-PATH"
 + "ALLOCATE-RWX" and "FREE-RWX" to allocate and free executable memory regions
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 + "2LIT," "CLIT," "UNROT"
 + "FIND-NAME" "FIND-NAME-IN" "?FOUND" "SYNONYM"
 + "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
 + "S>F" "F>S"
++ "SOURCE-PATH" "SOURCE-LN" "SOURCE-BASEPATH"
 + "REQUIRED-WORD" "REQUIRE-WORD" - synonyms for "REQUIRED" and "REQUIRE" to avoid conflict with Forth-2012
 + "SAVE-WITH-RESERVE" - save the system with a specified unused dictionary data space in the new executable file
 

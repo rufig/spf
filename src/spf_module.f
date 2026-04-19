@@ -52,9 +52,3 @@ SYNONYM PATH-PREFIX CUT-PATH
   R> +
 ;
 
-: SOURCE-PATH ( -- sd.path )
-  CURFILE @ DUP IF ASCIIZ> ELSE 0 THEN
-;
-\ Given words like `NAME>` and `FIND-NAME`, where "NAME" stands for "nt" (name token, a single-cell id),
-\ `SOURCE-NAME` is an unfortunate name for the above word. Provide this name for backward compatibility only.
-SYNONYM SOURCE-NAME SOURCE-PATH
