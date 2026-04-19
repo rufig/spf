@@ -55,6 +55,7 @@
 ; IMMEDIATE
 
 : ABORT"
+  \ Run-time: ( x\0 -- never | 0 -- )
   STATE  @
   IF
      CURSTR @ LIT, CURFILE @ ?DUP
@@ -62,9 +63,11 @@
        ASCIIZ>
      ELSE PAD 0
      THEN [COMPILE] SLITERAL
-     POSTPONE TYPE
+     \ Run-time: ( x  u.linenumber sd.filename )
+     -1 LIT,
+     POSTPONE (DEBUG-EXC)
   THEN
-  POSTPONE ABORT"
+  [COMPILE] ABORT" \ keep the interpretation semantics
 ; IMMEDIATE
 
 STARTLOG
