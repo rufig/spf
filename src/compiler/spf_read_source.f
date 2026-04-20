@@ -32,6 +32,8 @@ USER (BASEPATH) \ it contains a cstring for the current base path, or 0
   \ If the input source is a file, this file is accessible by the path (file name)
   \ in the character string sd.path
   \ TODO: sd.path must be either an absolute path or a full IRI/URI/URL.
+  \ TODO: a file passed to INCLUDE-FILE can be an anonymous pipe "about:input-pipe"
+  \ TODO: check also BLK "about:input-block"
   SOURCE-ID 0=    IF S" about:input-stdin" EXIT THEN
   SOURCE-ID -1 =  IF S" about:input-string" EXIT THEN
   SOURCE-FILE-PATH
@@ -43,18 +45,27 @@ USER (BASEPATH) \ it contains a cstring for the current base path, or 0
 ;
 
 : SOURCE-BASEPATH ( -- sd.path )
+  \ sd.path is an absolute path or IRI against which
+  \ a relative path should be resolved.
+  \ See: https://github.com/ruv/fep-baseuri/blob/master/glossary.adoc
+  \
+  \ TODO: `execute-with-basepath ( any1 sd.path xt[ any1 -- any2 ] -- any2 )` (or alike)
   \ TODO: sd.path must be either an absolute path or a full IRI/URI/URL.
   \ A path resolved against sd.path must be suitable for `INCLUDED`.
   \ See: https://www.rfc-editor.org/rfc/rfc3986.html#section-5.1
   \ See: https://www.rfc-editor.org/rfc/rfc3986.html#section-5.2
-  \ - The initial basepath of an input source that is:
+  \
+  \ - The initial basepath of an input source whose location is known
+  \   (e.g. from `INCLUDED`) is its location (an absolute path to the file or IRI).
+  \   Note: if the path passed to `INCLUDED` starts with `./`, it shall be resolved
+  \   against the basepath of the current input source.
+  \ - Otherwise, the initial basepath of an input source is the basepath of its
+  \   ancestor input source.
+  \ - Effectively, the initial basepath is inherited if the input source is:
+  \   - a file from `INCLUDE-FILE`,
   \   - a user input device (maybe from `quit`),
   \   - an evaluated string,
-  \   - a block,
-  \   is equal to the basepath of the nearest ancestor source that is a file, if it exists,
-  \   otherwise it is an IRI or absolute path (ending with '/') to the current working directory.
-  \ - The initial basepath of an input source that is a file is the path that was passed to `INCLUDED`,
-  \   expanded to an absolute path or IRI. This base path must identify the file uniquely.
+  \   - a block.
   (BASEPATH) @ DUP IF COUNT EXIT THEN DROP
   SOURCE-FILE-PATH DUP IF EXIT THEN 2DROP
   0 0 \ TODO: instead of an empty string, it must fall back to the path
