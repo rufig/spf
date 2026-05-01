@@ -126,7 +126,7 @@ USER (CS-FENCE)
     SWAP CMOVE 0 C, ;
 
 512 1024 * TO IMAGE-SIZE
-0x8050000 CONSTANT IMAGE-START
+0x8050000 CONSTANT IMAGE-START ( -- v-addr ) \ it is used only in POSIX target
 
 0 VALUE .forth
 0 VALUE .forth#
@@ -151,6 +151,7 @@ WARNING 0! \ чтобы не было сообщений isn't unique
 HERE  DUP HEX .( Base address of the image 0x) U.
 TARGET-POSIX [IF]
 TO .forth
+.forth >VIRT IMAGE-START <> [IF] .( #Error, assertion failed: `.forth` does not match `IMAGE-START` ) CR ABORT [THEN]
 [ELSE]
 HERE TC-CALL,
 [THEN]

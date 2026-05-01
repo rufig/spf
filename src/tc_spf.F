@@ -17,7 +17,7 @@ TARGET-POSIX [IF]
 : >VIRT ;
 [THEN]
 
-: virtual-address ( va -- ) HERE - TO virt-offset ;
+: assume-image-start ( addr -- ) NEGATE IMAGE-START +  TO virt-offset ;
 : *DP@ ( -- va) DP @ >VIRT ;
 
 \ ----------------------------------------------------
@@ -789,7 +789,8 @@ S" src/tc-dl-imm.f" INCLUDED
 HERE 10000 + 10000 / 10000 * 2000 + DP !    \ выравнивание
 DECIMAL
 
-IMAGE-START virtual-address
+HERE assume-image-start  \ t{ HERE >VIRT -> IMAGE-START }t
+\ Note: this should match the `.forth` setting in "./spf.f"
 
 \ *** поехали! ***
 ONLY FORTH DEFINITIONS ALSO TC
