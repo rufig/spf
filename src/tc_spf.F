@@ -57,7 +57,10 @@ TARGET-POSIX [IF]
   R> TO H-STDOUT
 ;
 
-VOCABULARY TC-TRG
+\ The root wordlist of the target system.
+\ Note: in this TC, target:datatype:wid is a subtype of host:datatype:wid
+VOCABULARY TC-TRG    LATEST-NAME NAME> ( xt ) XTVOC>WID  CONSTANT TC-TRG-WL
+
 VARIABLE SAVED-CURRENT
 
 : [T] GET-CURRENT SAVED-CURRENT ! ALSO TC-TRG   DEFINITIONS ;
@@ -404,6 +407,8 @@ LATEST-NAME NAME>  ALSO ASSEMBLER  IS END-CODE  PREVIOUS
 ;
 
 : WORDLIST
+\ This definition must match the definition in "./compiler/spf_wordlist.f"
+\ Note: in this TC, target:datatype:wid must be a subtype of host:datatype:wid
   ALIGN
   HERE VOC-LIST @ , VOC-LIST !
   HERE 0 , \ здесь будет указатель на имя последнего слова списка
@@ -504,10 +509,6 @@ TARGET-POSIX [IF]
 : TC-ADDR! ( addr xt-variable -- )
   >R >VIRT R>
   EXECUTE  !
-;
-
-: TC-LATEST-> ( "<spaces>name.constant.wordlist" -- )
-  ALSO TC-TRG ORDER-TOP ( wid.tail )  '  PREVIOUS  EXECUTE  CHAIN-WORDLIST
 ;
 
 : SYNONYM ( "<spaces>name.new" "<spaces>name.old" -- ) \ 2012 TOOLS-EXT

@@ -331,7 +331,12 @@ CR .( Done. Saving the system.)
 CR .( =============================================================)
 CR
 
-TC-LATEST-> FORTH-WORDLIST  \ запись созданной цепочки слов в словарь (реальный адрес)
+\ ( Order: wid.host.forth wid.host.tc )
+\ Note: Tick "'" from TC searches TC-TRG at the first, regardless of the search order.
+
+\ Fix FORTH-WORDLIST wid in the target system image.
+\ Note: target:datatype:wid is a subtype of host:datatype:wid
+TC-TRG-WL  ' FORTH-WORDLIST EXECUTE  CHAIN-WORDLIST \ real address
 
 HERE          ' (DP)      TC-ADDR! \ запись указателя пространства кода/данных
 _VOC-LIST @   ' _VOC-LIST TC-ADDR! \ запись созданной цепочки словарей

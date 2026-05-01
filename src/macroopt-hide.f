@@ -98,9 +98,7 @@ DUP SET-CURRENT
   ORDER-TOP FORTH-WORDLIST = IF \ в инструментальной системе
     FORTH-WORDLIST  TO TC-FORTH-WL
   ELSE \ в целевой системе
-    ALSO S" TC-TRG" & EXECUTE \ it is a vocabulary
-      ORDER-TOP     TO TC-FORTH-WL
-    PREVIOUS
+    S" TC-TRG-WL" & EXECUTE  TO TC-FORTH-WL
   THEN
   TC-FORTH-WL @  BORDER !
 ;
