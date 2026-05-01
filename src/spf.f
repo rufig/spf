@@ -102,33 +102,24 @@ C" M_WL" FIND NIP 0=
 [IF] : M_WL  CS-DUP POSTPONE WHILE ; IMMEDIATE
 [THEN]
 
-\ NB: The following implementation for CASE ... ENDCASE
-\ is used by "./macroopt.f" in implementation-dependent manner.
-\ NB: this implementation has an environmental dependency:
-\ the control-flow stack is combined with the data stack.
-\ Re "SP@" -- "DEPTH" can be used instead.
 
-USER CSP
+\ An implementation for COND ... THENS
+\ This control-flow structure was suggested by Wil Baden in 1997
+\ https://groups.google.com/g/comp.lang.forth/c/iQBnN-Dp_2I/m/YbSAzG__ZVYJ
+\
+\ (at the moment, it is used by "./macroopt.f" only).
 
-: CASE
-  CSP @ SP@ CSP ! ; IMMEDIATE
+USER (CS-FENCE)
 
-: ?OF
-  POSTPONE IF POSTPONE DROP ; IMMEDIATE
-
-: OF
-  POSTPONE OVER POSTPONE = POSTPONE ?OF ; IMMEDIATE
-
-: ENDOF
-  POSTPONE ELSE ; IMMEDIATE
-
-: DUPENDCASE
-  BEGIN SP@ CSP @ <> WHILE POSTPONE THEN REPEAT
-  CSP ! ; IMMEDIATE
-
-: ENDCASE
-  POSTPONE DROP   POSTPONE DUPENDCASE
+: COND ( C: -- cond-sys )
+  (CS-FENCE) @  DEPTH (CS-FENCE) !
 ; IMMEDIATE
+
+: THENS ( C: cond-sys i*orig -- )
+  BEGIN DEPTH (CS-FENCE) @ <> WHILE POSTPONE THEN REPEAT
+  (CS-FENCE) !
+; IMMEDIATE
+
 
 : ," ( addr u -- )
     DUP C, CHARS HERE OVER ALLOT

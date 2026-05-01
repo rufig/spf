@@ -199,16 +199,16 @@ TC-TRG ALSO TC-IMM
    C>S OFF-EBP + TO OFF-EBP ;
 
 : ADD|XOR|OR|AND=  ( W -- FLAG )
-   CASE
+   COND
   DUP 4503 <> IF   \ ADD EAX, X2 [EBP]
   DUP 450B <> IF   \  OR
   DUP 4523 <> IF   \ AND
   DUP 4533 <> IF   \ XOR
              DROP FALSE EXIT
-  DUPENDCASE DROP TRUE ;
+  THENS DROP TRUE ;
 
 : DUP3B?[EBP]  ( W -- W FLAG )
-   CASE
+   COND
   DUP 0E7C4 AND 04500 <> IF      \ 010X.X101 00XX.X0XX
 \ ADD|OR|ADC|SBB|AND|SUB|XOR|CMP  _L | E_X | X [EBP]  , _L | E_X | X [EBP]
 
@@ -224,10 +224,10 @@ TC-TRG ALSO TC-IMM
   DUP            6DF7 <> IF  \ IMUL  X [EBP]
   DUP           04587 <> IF  \ XCHG EAX , X [EBP]
              FALSE EXIT
-  DUPENDCASE TRUE ;
+  THENS TRUE ;
 
 : DUP3B?      ( W -- W FLAG )
-   CASE
+   COND
 \  11XX.X000 1000.0011
    DUP C7FF AND  C083 <> IF \ ADD|OR|ADC|SBB|AND|SUB|XOR|CMP  EAX, # X
 
@@ -243,10 +243,10 @@ TC-TRG ALSO TC-IMM
 
 
              FALSE EXIT
-  DUPENDCASE TRUE ;
+  THENS TRUE ;
 
 : DUP2B?      ( W -- W FLAG )
-   CASE
+   COND
   DUP 0E4C5 AND 0C001 <> IF
 \ ADD|OR|ADC|SBB|AND|SUB|XOR|CMP  E_X , E_X
 
@@ -303,10 +303,10 @@ TC-TRG ALSO TC-IMM
   DUP           0F1F7 <> IF \  DIV ECX
   DUP           0F9F7 <> IF \ IDIV ECX
              FALSE EXIT
-  DUPENDCASE TRUE ;
+  THENS TRUE ;
 
 : DUP6B?      ( W -- W FLAG )
-   CASE
+   COND
   DUP E7FC AND 0588 <> IF  \ MOV     E(ABCD)X , X |  MOV   X ,  E(ABCD)X
   DUP C4FF AND C081 <> IF \ ADD|OR|ADC|SBB|AND|SUB|XOR|CMP  E(ABCD)X, # X
   DUP E4F7 AND 8085 <> IF \ LEA|TEST  E(ABCD)X , [E(ABCD)X+80000000H]
@@ -324,7 +324,7 @@ TC-TRG ALSO TC-IMM
 
 \  DUP  FCFF AND C0C7 <> IF \ MOV EAX|EBX|ECX|EDX, # X
              FALSE EXIT
-  DUPENDCASE TRUE ;
+  THENS TRUE ;
 
 : DUP5B?      ( C -- C FLAG )
 
@@ -348,7 +348,7 @@ TC-TRG ALSO TC-IMM
 \ 0 VALUE ZZZZ \ VECT VVV
 
 : ?ChEAX  ( ADDR --  FALSE | TRUE )
-   CASE
+   COND
    DUP C@
    DUP       B8 <> IF   \  MOV  EAX, # X
    DUP       A1 <> IF   \  MOV  EAX,   X
@@ -367,7 +367,7 @@ TC-TRG ALSO TC-IMM
    DUP  02048D <> IF   \  LEA  EAX, [EDX] [EAX]
 
              2DROP TRUE EXIT
-  DUPENDCASE 2DROP FALSE ;
+  THENS 2DROP FALSE ;
 
 : ^?EAX=  ( ADDR --  FALSE | TRUE )
 \ FALSE
@@ -376,7 +376,7 @@ TC-TRG ALSO TC-IMM
    DUP  00F9
    AND  0089 <> IF 2DROP FALSE EXIT THEN
 \ LEA MOV
-   CASE
+   COND
    FF00 AND
    DUP 0100 AND
        0100 <> IF   \  MOV  EAX,
@@ -390,7 +390,7 @@ TC-TRG ALSO TC-IMM
    DUP   244400 <> IF   \  MOV  EAX, X [ESP]
    DUP   95048B <> IF   \ 8B0495F0065A00        MOV     EAX , 5A06F0 [EDX*4]
              2DROP TRUE EXIT
-  DUPENDCASE 2DROP FALSE ;
+  THENS 2DROP FALSE ;
 
 \   DUP   8B00 =     \  MOV  EAX, [EAX]
 
@@ -434,7 +434,7 @@ TC-TRG ALSO TC-IMM
      DUP @
      DUP  :-SET U< IF 2DROP FALSE TRUE EXIT THEN
      C@
-   CASE
+   COND
      DUP 3D <> IF   \ CMP EAX, # X
      DUP 3B <> IF   \ CMP E_X , X
      DUP A3 <> IF   \ MOV X , EAX
@@ -473,7 +473,7 @@ TC-TRG ALSO TC-IMM
        THEN
      2DROP
      FALSE TRUE EXIT
-  DUPENDCASE  DROP CELL+ FALSE ;
+  THENS  DROP CELL+ FALSE ;
 
 : ?EDX_[EBP]   ( OPX -  FLAG )
   DUP @   @ FFFFFF AND
@@ -608,7 +608,7 @@ USER SAVE-?~EAX
            THEN      EXIT
         THEN
 
-   CASE
+   COND
   DUP 083B <> \         CMP     ECX , [EAX]
         IF
   DUP C83B <> \         CMP     ECX , EAX
@@ -682,7 +682,7 @@ TRUE ?~EAX !
         IF
 
   2DROP FALSE  TRUE EXIT
-  DUPENDCASE  DROP CELL+ FALSE ;
+  THENS  DROP CELL+ FALSE ;
 
 : EAX>EBX0  ( OPX - OPX' FLAG )
 
@@ -940,7 +940,7 @@ HEX  U. U. ." EAX>EBX" ABORT
            THEN      EXIT
         THEN
 
-   CASE
+   COND
  0 ?~EAX !
 
 \ 8B00          MOV     EAX , [EAX]
@@ -1077,7 +1077,7 @@ TRUE ?~EAX !
   DUP 24548B <>    \ MOV     EDX , C [ESP]
         IF
   2DROP FALSE  TRUE EXIT
-  DUPENDCASE  DROP CELL+ FALSE ;
+  THENS  DROP CELL+ FALSE ;
 
 : EAX>ECX0  ( OPX - OPX' FLAG )
 
@@ -1524,7 +1524,7 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
         IF  DROP TRUE TRUE      EXIT
         THEN
 
-   CASE
+   COND
 
   DUP 878B <>      \ MOV     EAX , 38 [EDI]
         IF
@@ -1547,7 +1547,7 @@ HEX  U. DUP @ @ U.  U. ." EAX>ECX0" ABORT
         IF
 
   2DROP FALSE  TRUE EXIT
-  DUPENDCASE  DROP CELL+ FALSE ;
+  THENS  DROP CELL+ FALSE ;
 
 : EAX2EDX0  ( OPX - OPX' FLAG )
   DUP OP0 = IF  TRUE EXIT THEN
