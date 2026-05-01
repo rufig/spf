@@ -13,12 +13,21 @@ S" lib/include/ansi.f" INCLUDED
 MODULE: disasm-voc
   REQUIRE-WORD SEE            lib/ext/disasm.f
 EXPORT
-  SYNONYM SEE SEE
+  SYNONYM VOCS VOCS
+ALSO DISASSEMBLER
+  : SEE-CODE-WITHIN ( addr1 addr2 -- )  REST-AREA ;
+  : DUMP-CODE ( addr u -- ) OVER + SEE-CODE-WITHIN ;
+  : SEE-XT ( xt -- )  DUP FIND-REST-END ( xt addr|0 )  ['] SEE-CODE-WITHIN CATCH IF 2DROP THEN ;
+  : SEE-NAME ( name -- )  NAME> SEE-XT ;
+  : SEE ( "name" -- )  TAKE-NAME SEE-NAME ;
+PREVIOUS
 ;MODULE
 
 
 REQUIRE-WORD FCONSTANT      lib/include/float2.f
 REQUIRE-WORD [:             lib/include/quotations.f
+
+
 REQUIRE-WORD CASE-INS       lib/ext/caseins.f
 
 
@@ -47,9 +56,9 @@ REQUIRE-WORD CASE-INS       lib/ext/caseins.f
 ;
 [then]
 
-[undefined] filename-existent [if]
-\ or, maybe `is-filename-existent`, but it is too close to "is filename-existent"
-synonym filename-existent file-exists
+[undefined] filename-existing [if]
+\ or, maybe `is-filename-existing`
+synonym filename-existing file-exist
 [then]
 
 
@@ -61,6 +70,6 @@ synonym filename-existent file-exists
     ( sd1 sd.basepath )
     path-prefix (prepend-errmsg) 2dup + 0 swap c!
   then
-  2dup filename-existent if exit then -38 throw \ "non-existent file"
+  2dup filename-existing if exit then -38 throw \ "non-existent file"
 ; is find-fullname \ spf4-specific
 
