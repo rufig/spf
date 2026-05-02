@@ -87,8 +87,8 @@ VARIABLE BORDER
 DUP SET-CURRENT
 
 : INIT-MACROOPT-HIDING ( -- )
-  ORDER-TOP FORTH-WORDLIST = IF \ в инструментальной системе
-    FORTH-WORDLIST  TO TC-FORTH-WL
+  ['] [BUILDING-TARGET] EXECUTE 0= IF \ в инструментальной системе
+    GET-CURRENT  TO TC-FORTH-WL
   ELSE \ в целевой системе
     S" TC-TRG-WL" & EXECUTE  TO TC-FORTH-WL
   THEN
@@ -167,6 +167,6 @@ BASE !
 
   WORDLIST VALUE MACROOPT-WL  \ после INIT, т.к должно попасть в перемещаемую цепочку слов
   \ Создаем тут, т.к. этот список не создается в macroopt.f при трансляции в инструментальную систему,
-  \ см. macroopt.f # [DEFINED] [TTO]
+  \ см. macroopt.f # [BUILDING-TARGET]
 
 [THEN] \ for skipping if USE-OPTIMIZER is 0

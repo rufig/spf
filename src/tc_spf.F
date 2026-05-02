@@ -7,6 +7,8 @@
 
 \ ----------------------------------------------------
 
+0 VALUE [BUILDING-TARGET] IMMEDIATE  ( -- flag ) \  are we building the target system
+
 0 VALUE virt-offset
 
 TARGET-POSIX [IF]
@@ -17,7 +19,7 @@ TARGET-POSIX [IF]
 : >VIRT ;
 [THEN]
 
-: assume-image-start ( addr -- ) NEGATE IMAGE-START +  TO virt-offset ;
+: assume-image-start ( addr -- ) NEGATE IMAGE-START +  TO virt-offset  TRUE TO [BUILDING-TARGET] ;
 : *DP@ ( -- va) DP @ >VIRT ;
 
 \ ----------------------------------------------------
@@ -155,7 +157,7 @@ S" src/noopt.f"                      INCLUDED
 TRUE TO ?C-JMP
 0    TO ?C-JMP
 
-: [TTO] TRUE TO OPT? ; IMMEDIATE
+\ : [TTO] TRUE TO OPT? ; IMMEDIATE   \ only for debugging macroopt
 M\ ' DROP TO DTST
 
 : TC-CALL, ( addr -- )
