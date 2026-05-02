@@ -23,8 +23,7 @@ CODE DUP ( x -- x x ) \ 94
      MOV [EBP], EAX
      RET
 END-CODE
-
-' DUP TO 'DUP_V
+' DUP TO 'DUP_V \ it is used by TC for inlining
 
 CODE 2DUP ( x1 x2 -- x1 x2 x1 x2 ) \ 94
 \ Продублировать пару ячеек x1 x2.
@@ -41,7 +40,7 @@ CODE DROP ( x -- ) \ 94
      LEA EBP, 4 [EBP]
      RET
 END-CODE
-' DROP TO 'DROP_V
+' DROP TO 'DROP_V \ it is used by TC for inlining
 
 CODE MAX ( n1 n2 -- n3 ) \ 94
 \ n3 - большее из n1 и n2.

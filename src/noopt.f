@@ -2,6 +2,16 @@
 \ Заглушка/отключение оптимизатора
 \ http://www.fforum.winglion.ru/viewtopic.php?p=1929#1929
 
+
+[BUILDING-TARGET] [IF] \ loading noopt in the target system
+\ Define `'DUP' and `'DROP` using `DUP` and `DROP` from the target system
+' DUP  >VIRT CONSTANT  'DUP
+' DROP >VIRT CONSTANT 'DROP
+[ELSE] \ loading noopt for TC in the host system
+\ Use `'DUP` and `'DROP` from TC
+[THEN]
+
+
 : SHORT? ( n -- -129 < n < 128 )
   0x80 + 0x100 U< ;
 

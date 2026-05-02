@@ -132,13 +132,15 @@ HEX
   OVER - DUP ALLOT 90 FILL
 ;
 
+
+\ -----
+\ Helpers for macroopt
+
+\ These values are initialized in "./spf_forthproc.f"
 0 VALUE  'DUP_V
 0 VALUE 'DROP_V
-
-\ : H. BASE @ >R HEX . R> BASE ! ;
-
-:  'DUP  'DUP_V ;
-: 'DROP 'DROP_V ;
+:  'DUP  ( -- xt ) 'DUP_V ;
+: 'DROP  ( -- xt ) 'DROP_V ;
 
 : M\  POSTPONE \ ; IMMEDIATE
 : OS\ POSTPONE \ ; IMMEDIATE
@@ -159,6 +161,10 @@ TRUE TO ?C-JMP
 
 \ : [TTO] TRUE TO OPT? ; IMMEDIATE   \ only for debugging macroopt
 M\ ' DROP TO DTST
+
+\ End of helpers for macroopt
+\ -----
+
 
 : TC-CALL, ( addr -- )
   \ так компилируется вызов слова в СП-Форте 3.0
@@ -184,12 +190,6 @@ M\ ' DROP TO DTST
   SetOP 0B8 C,  , OPT  \ MOV EAX, #
   OPT_CLOSE ;
 
-: 'DUP
-  S" DUP" TC-FINDOUT TC-LIT, ; IMMEDIATE
-
-: 'DROP
-  \ ." NEW `'DROP` used at " SOURCE-FILE-PATH TYPE SPACE SOURCE-FILE-LN  BASE @ >R DECIMAL .  R> BASE !  CR
-  S" DROP" TC-FINDOUT >VIRT TC-LIT, ; IMMEDIATE
 
 : TC-2LIT, ( xd --)
   SWAP

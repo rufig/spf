@@ -100,6 +100,8 @@ SYNONYM UNROT -ROT \ 2025 Proposal
 : \EOF  BEGIN REFILL 0= UNTIL POSTPONE \ ;
 [THEN]
 
+\ : H. ( n -- ) BASE @ >R HEX . R> BASE ! ;
+
 \ End of portable implementations
 \ -----
 

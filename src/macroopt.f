@@ -10,8 +10,13 @@ LATEST-NAME NAME>CSTRING SWAP VOC-NAME!
 [ELSE] ( wid ) DROP [THEN]
 
 
+[BUILDING-TARGET] [IF] \ loading macroopt in the target system
+\ Define `'DUP' and `'DROP` using `DUP` and `DROP` from the target system
 ' DUP  >VIRT CONSTANT  'DUP
 ' DROP >VIRT CONSTANT 'DROP
+[ELSE] \ loading macroopt for TC in the host system
+\ Use `'DUP` and `'DROP` from TC
+[THEN]
 
 
 BASE @ HEX
