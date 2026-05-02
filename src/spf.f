@@ -86,6 +86,12 @@ S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
 SYNONYM UNROT -ROT \ 2025 Proposal
 [THEN]
 
+[UNDEFINED] C>S [IF]
+\ see-also: https://forth-standard.org/proposals/special-memory-access-words?hideDiff#reply-1531
+\ Sign-extend the low-order 8 bits in x to the full cell width.
+: C>S ( char.signed -- n )  0xFF AND [ 0x7F INVERT ] LITERAL XOR 0x80 + ;
+[THEN]
+
 \ End of portable implementations
 \ -----
 

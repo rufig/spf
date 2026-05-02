@@ -7,10 +7,6 @@ S" src/macroopt-hide.f" INCLUDED \ перенос всех нижеследующих имен в MACROOPT-WL
 ' DUP  >VIRT CONSTANT  'DUP
 ' DROP >VIRT CONSTANT 'DROP
 
-[UNDEFINED] C>S
-[IF]
-: C>S ( c -- n )  0xFF AND [ 0x7F INVERT ] LITERAL XOR 0x80 + ;
-[THEN]
 
 BASE @ HEX
 
