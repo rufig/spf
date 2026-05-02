@@ -367,7 +367,8 @@ TARGET-POSIX [IF]
 \ Перемещаем в виртуальные адреса VALUE FORTH-WORDLIST
 ' FORTH-WORDLIST EXECUTE  ' FORTH-WORDLIST  TC-VECT!
 
-[T] [DEFINED] MACROOPT-WL [I] [IF] \ может отсутствовать в случе noopt.f
+S" MACROOPT-WL" TC-TRG-WL SEARCH-WORDLIST DUP [IF] NIP [THEN] ( 0|xt )
+[IF] \ может отсутствовать в случе noopt.f
 \ Перемещаем в виртуальные адреса VALUE MACROOPT-WL
 ' MACROOPT-WL    EXECUTE  ' MACROOPT-WL     TC-VECT!
 \ Если уж это значение в системе есть, то должно быть корректным ;)

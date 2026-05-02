@@ -165,8 +165,4 @@ BASE !
 
   INIT-MACROOPT-HIDING  \ (!!!)
 
-  WORDLIST VALUE MACROOPT-WL  \ после INIT, т.к должно попасть в перемещаемую цепочку слов
-  \ Создаем тут, т.к. этот список не создается в macroopt.f при трансляции в инструментальную систему,
-  \ см. macroopt.f # [BUILDING-TARGET]
-
 [THEN] \ for skipping if USE-OPTIMIZER is 0

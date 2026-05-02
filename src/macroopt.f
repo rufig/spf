@@ -4,6 +4,12 @@
 
 S" src/macroopt-hide.f" INCLUDED \ перенос всех нижеследующих имен в MACROOPT-WL
 
+WORDLIST DUP VALUE MACROOPT-WL ( wid )
+[DEFINED] NAME>CSTRING [IF] \ they are defined in TC at the least
+LATEST-NAME NAME>CSTRING SWAP VOC-NAME!
+[ELSE] ( wid ) DROP [THEN]
+
+
 ' DUP  >VIRT CONSTANT  'DUP
 ' DROP >VIRT CONSTANT 'DROP
 
@@ -141,17 +147,10 @@ M\ VECT DTST
 \ \\\\\\\\\\
 
 [BUILDING-TARGET]
+FALSE AND \ turn off this section since it does not work as intended (2026-05-02 ruv)
 [IF] \ целевая система
 
 GET-CURRENT
-
-WORDLIST VALUE MACROOPT-WL
-\   -- адрес не виртуальный (!)
-
-
-\ запишем адрес имени словаря
-' MACROOPT-WL EXECUTE ( wid )
-LATEST-NAME NAME>CSTRING SWAP VOC-NAME!
 
 ' MACROOPT-WL EXECUTE PUSH-ORDER DEFINITIONS
 TC-TRG ALSO TC-IMM
@@ -4830,6 +4829,7 @@ OS\ DUP CD = M_WL   2_,_STEP  REPEAT  \ INTX
     THEN  XOR TO J_COD ;
 
 [BUILDING-TARGET]
+FALSE AND \ turn off this section since it does not work as intended (2026-05-02 ruv)
 [IF]
 PREVIOUS PREVIOUS SET-CURRENT
 [THEN]
