@@ -47,10 +47,10 @@ EXPORT
 : ONTRUE ( f -- ) NOT IF RDROP THEN ; \ Откат если f=false
 
 \ : R@ENTER, SetOP 0xFF C, 0x14 C, 0x24 C, ; ( \ CALL [ESP]
-: R@ENTER, ['] R@ COMPILE, ['] EXECUTE COMPILE, ; \ )
+: R@ENTER,  POSTPONE R@  POSTPONE EXECUTE ; \ )
 
 \ : R>ENTER, SetOP 0x5B C, SetOP 0xFF C, 0xD3 C, ; ( \ POP EBX    CALL EBX
-: R>ENTER, ['] R> COMPILE, ['] EXECUTE COMPILE, ;  \ )
+: R>ENTER,  POSTPONE R>  POSTPONE EXECUTE ;  \ )
 
 : PRO R> R> >L ['] LDROP >R >R ;      \ Делает текущий исполняемый код откатным, ставится в начало
 \ : PRO R> R> >L ENTER [ HERE PRO1 ! ] LDROP ;

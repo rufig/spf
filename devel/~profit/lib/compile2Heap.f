@@ -255,7 +255,13 @@ HERE MM_SIZE CELL+ 2 CELLS MAX 0x90 FILL \ лом против оптимизатора которые "схло
 HERE vc @ there ! ; \ сохранение HERE виртуального кодофайла после компил€ции в него
 
 : VC-COMPILE, ( xt vc -- ) VC- COMPILE, ;
-: VC-POSTPONE ( vc "word" -- ) ?COMP ' LIT, POSTPONE SWAP POSTPONE VC-COMPILE, ; IMMEDIATE
+: VC-COMPILE-NAME ( nt vc -- ) VC- COMPILE-NAME ;
+: VC-POSTPONE
+  \ Interpretation: ( -- never )
+  \ Compilation: ( "wordname" -- )
+  \ RunTime: ( any vc -- any )
+  ?COMP  TAKE-NAME ( nt ) LIT,  POSTPONE SWAP POSTPONE VC-COMPILE-NAME
+; IMMEDIATE
 : VC-, ( n vc -- ) VC- , ;
 : VC-LIT, ( n vc -- ) VC- LIT, ;
 : VC-DLIT, ( du vc -- ) >R SWAP R@ VC-LIT, R> VC-LIT, ;
