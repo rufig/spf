@@ -29,6 +29,17 @@ VECT ?SLITERAL
   SP@ S0 @ SWAP U< IF S0 @ SP! -4 THROW THEN
 ;
 
+: COMPILATION ( -- flag ) STATE @ 0<> ;
+: ENTER-COMPILATION ( -- ; Compilation: flag -- true  ) TRUE  STATE ! ;
+: LEAVE-COMPILATION ( -- ; Compilation: flag -- false ) FALSE STATE ! ;
+
+: EXECUTE-COMPILING ( any1 xt -- any2 )
+  \ ( Compilation: false -- false  |  Compilation: true -- flag )
+  \ xt ( any1 -- any2 ; Compilation: true -- flag )
+  COMPILATION IF  EXECUTE EXIT  THEN
+  ENTER-COMPILATION  EXECUTE  LEAVE-COMPILATION
+;
+
 : ?COMP ( -> )
   STATE @ 0= IF -312 THROW THEN ( Только для режима компиляции )
 ;

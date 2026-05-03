@@ -1,8 +1,9 @@
-30 October 2023   Version 4.30
+03 May 2026   Version 4.30
 
 ! fix bugs in D.R
 ! add compatibility with glibc 2.33+
 ! dictionary memory must be RWX in Linux
+! "POSTPONE" strictly follows the Forth-94 standard specification (and newer)
 ! "TRAVERSE-WORDLIST" is not allowed to expose hidden definitions
 ! "SET-ORDER" did not work on input `-1` because the word "ONLY" was taken from the host system
 ! "SLITERAL" and `S"` now do not modify the input buffer when used interpretively
@@ -17,6 +18,7 @@
 + "ALLOCATE-RWX" and "FREE-RWX" to allocate and free executable memory regions
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 + "2LIT," "CLIT," "UNROT" "THROW-ERRMSG" "LAST-ERRMSG"
++ "COMPILATION" "ENTER-COMPILATION" "LEAVE-COMPILATION" "EXECUTE-COMPILING"
 + "FIND-NAME" "FIND-NAME-IN" "?FOUND" "SYNONYM"
 + "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
 + "S>F" "F>S"

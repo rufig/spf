@@ -1,8 +1,9 @@
-30 октября 2023  Версия 4.30
+03 мая 2026  Версия 4.30
 
 ! исправления багов в D.R
 ! добавлена совместимость с glibc 2.33+
 ! в Linux память для словарей должна быть RWX
+! "POSTPONE" строго следует спецификации стандарта Forth-94 (и более новым)
 ! "TRAVERSE-WORDLIST" не позволено выдавать скрытые определения
 ! "SET-ORDER" не работало на входе `-1`, т.к. слово "ONLY" бралось из хост-системы
 ! "SLITERAL" и `S"` при интерпретации теперь не изменяют входной буфер
@@ -17,6 +18,7 @@
 + "ALLOCATE-RWX" и "FREE-RWX" для выделения и освобождения областей памяти, разрешенных к исполнению
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 + "2LIT," "CLIT," "UNROT" "THROW-ERRMSG" "LAST-ERRMSG"
++ "COMPILATION" "ENTER-COMPILATION" "LEAVE-COMPILATION" "EXECUTE-COMPILING"
 + "FIND-NAME" "FIND-NAME-IN" "?FOUND" "SYNONYM"
 + "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
 + "S>F" "F>S"

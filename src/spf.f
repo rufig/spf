@@ -1,6 +1,6 @@
 \ $Id$
 
-429 CONSTANT SPF-KERNEL-VERSION
+430 CONSTANT SPF-KERNEL-VERSION
 
 WARNING 0! \ чтобы не было сообщений isn't unique
 
