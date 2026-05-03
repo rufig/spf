@@ -163,13 +163,13 @@ VARIABLE   &INTERPRET
 \ Компиляция: Выполнить семантику выполнения, данную ниже.
 \ Выполнение: ( -- )
 \ Установить состояние интерпретации. [ слово немедленного выполнения.
-  STATE 0!
+  LEAVE-COMPILATION
 ; IMMEDIATE
 
 
 : ] ( -- ) \ 94 CORE
 \ Установить состояние компиляции.
-  TRUE STATE !
+  ENTER-COMPILATION
 ;
 
 : MAIN1 ( -- )
@@ -196,7 +196,7 @@ VARIABLE   &INTERPRET
     ATIB 0 SOURCE! \ на случай, если QUIT вызыван из EVALUATE
     \ SOURCE! устанавливает так же #TIB и >IN
     \ А иначе, при неуспешном чтении они останутся без изменений и будут указывать на мусор
-    [COMPILE] [
+    LEAVE-COMPILATION \ (if any)
     ['] MAIN1 CATCH         DUP SOURCE NIP 2>R
     ['] ERROR CATCH DROP    2R> 0= IF HALT THEN DROP
     \ Пустой входной буфер здесь говорит о том, что исключение произошло

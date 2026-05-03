@@ -80,7 +80,9 @@
 ; IMMEDIATE
 
 : ; ( -- )
-  RET, [COMPILE] [ SMUDGE
+  RET,
+  LEAVE-COMPILATION
+  SMUDGE
   ClearJpBuff
   0 TO LAST-NON
 ; IMMEDIATE

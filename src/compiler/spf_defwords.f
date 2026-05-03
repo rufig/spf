@@ -274,7 +274,8 @@ USER C-SMUDGE \ 12 C,
 \ ¬ыполнить определение, заданное xt. Ёлементы стека i*x и j*x
 \ представл€ют аргументы и результаты xt соответственно.
   LATEST ?DUP IF 1+ C@ C-SMUDGE C! SMUDGE THEN
-  HERE DUP TO LAST-NON [COMPILE] ]
+  HERE DUP TO LAST-NON
+  ENTER-COMPILATION
 ;
 
 
@@ -293,6 +294,6 @@ USER C-SMUDGE \ 12 C,
 \ ¬ыполнить определение имени. —осто€ни€ стека i*x и j*x представл€ют
 \ аргументы и результаты имени соответственно.
   HEADER
-  ]
   HIDE
+  ENTER-COMPILATION
 ;
