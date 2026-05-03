@@ -44,6 +44,58 @@ VECT ?SLITERAL
   STATE @ 0= IF -312 THROW THEN ( Только для режима компиляции )
 ;
 
+
+\ Regarding `TRANSLATE-NAME`, see:
+\ - A comp.lang.forth message on 2020-10-23 22:21:23 UTC
+\     Subject: "ANN: STATE-smartness: Applications, Pitfalls, Alternatives"
+\     Message-Id: <rn0333$ice$1@dont-email.me>
+\     <https://groups.google.com/g/comp.lang.forth/c/GyzL0wIENUw/m/A0IsgKU9AgAJ>
+\ - A comp.lang.forth discussion on 2023-11-15
+\     on the topic "WINTERPRET":
+\     <https://groups.google.com/g/comp.lang.forth/c/y-HGlOTpf48/m/O0RVTnz0BgAJ>
+
+: COMPILE-LIT ( x -- ) LIT, ;
+: COMPILE-XT ( xt -- ) COMPILE, ;
+
+: TRANSLATE-LIT ( x -- x ; Compilation: false ;  |  x -- ; Compilation: true )
+  \ If interpretation, do nothing.
+  \ Otherwise, perfrom the compilation semantics of `LITERAL`.
+  COMPILATION IF  COMPILE-LIT  THEN
+;
+
+: TRANSLATE-XT ( any xt -- any ; Compilation: false -- flag ;  |  xt -- ; Compilation: true )
+  \ If interpretation, perform the execution semantics identified by xt.
+  \ Otherwise, append the execution semantics identified by xt to the current definition.
+  COMPILATION IF  COMPILE-XT  EXIT THEN  EXECUTE
+;
+
+: TRANSLATE-NAME ( any nt -- any )
+  \ If interpretation, perform the interpretation semantics of the word identified by nt.
+  \ Otherwise, perform the compilation semantics of the word identified by nt.
+  DUP NAME> SWAP ( xt nt ) IS-NAME-IMMEDIATE IF  EXECUTE EXIT  THEN
+  TRANSLATE-XT
+;
+
+: COMPILE-NAME ( any nt -- any )
+  \ ( Compilation: false -- false  |  Compilation: true -- flag )
+  \ Perform the compilation semantics of the word identified by nt.
+  ['] TRANSLATE-NAME EXECUTE-COMPILING
+;
+
+: (POSTPONE-WORD) ( xt flag.imm -- )
+  SWAP LIT,
+  IF  ['] EXECUTE-COMPILING  ELSE  ['] COMPILE,  THEN
+  COMPILE,
+;
+
+: POSTPONE-NAME ( nt -- )
+  \ Append the compilation semantics of the word identified by nt to the current definition.
+  DUP NAME> ( nt xt ) SWAP IS-NAME-IMMEDIATE  (POSTPONE-WORD)
+  \ An alternative implementation (shorter but slightly less efficient):
+  \   LIT,  ['] COMPILE-NAME COMPILE, \ append the nt compilation semantics
+;
+
+
 : ' ( "<spaces>name" -- xt ) \ 94
 \ Пропустить ведущие пробелы. Выделить name, ограниченное пробелом. Найти name
 \ и вернуть xt, выполнимый токен для name. Неопределенная ситуация возникает,

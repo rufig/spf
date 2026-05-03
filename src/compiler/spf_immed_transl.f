@@ -26,15 +26,12 @@
 ; IMMEDIATE
 
 : POSTPONE \ 94
-\ Интерпретация: семантика не определена.
-\ Компиляция: ( "<spaces>name" -- )
-\ Пропустить ведущие разделители. Выделить имя, ограниченное пробелами.
-\ Найти имя. Добавить семантику компиляции имени в текущее определение.
-  ?COMP
-  PARSE-NAME SFIND DUP
-  0= IF -321 THROW THEN
-  1 = IF LIT, ['] EXECUTE-COMPILING COMPILE,
-      ELSE LIT, ['] COMPILE, COMPILE, THEN
+\ Interpretation: ( any "<spaces>name" -- any )
+\   Perform the compilation semantics for "name".
+\ Compilation: ( "<spaces>name" -- )
+\   Append the "name" compilation semantics to the current definition.
+  TAKE-LEXEME FIND-NAME ?FOUND
+  COMPILATION IF  POSTPONE-NAME  EXIT THEN  COMPILE-NAME
 ; IMMEDIATE
 
 : \   \ 94 CORE EXT

@@ -14,11 +14,11 @@
 * Rename "IS-IMMEDIATE" to "IS-NAME-IMMEDIATE" and "IS-VOC" to "IS-NAME-VOC" (they return a flag now)
 * Rename "SOURCE-NAME" to "SOURCE-FILE-PATH"
 * Rename "LAST-WORD" (a noun) to "PRINT-LAST-WORD" (a verb)
-* The following words behave as expected when used interpretively: "[']" "[CHAR]" `."` `ABORT"`
+* The following words behave as expected when used interpretively: "[']" "[CHAR]" `."` `ABORT"` `POSTPONE`
 + "ALLOCATE-RWX" and "FREE-RWX" to allocate and free executable memory regions
 + "NAME>NEXT-NAME" "NAME>STRING" "NAME>CSTRING"  "LATEST-NAME-IN" "LATEST-NAME" "LATEST-NAME-XT"
 + "2LIT," "CLIT," "UNROT" "THROW-ERRMSG" "LAST-ERRMSG"
-+ "COMPILATION" "ENTER-COMPILATION" "LEAVE-COMPILATION" "EXECUTE-COMPILING"
++ "COMPILATION" "ENTER-COMPILATION" "LEAVE-COMPILATION" "EXECUTE-COMPILING" "TRANSLATE-NAME" "COMPILE-NAME" "POSTPONE-NAME"
 + "FIND-NAME" "FIND-NAME-IN" "?FOUND" "SYNONYM"
 + "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
 + "S>F" "F>S"

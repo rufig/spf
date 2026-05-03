@@ -597,6 +597,9 @@ C" SHERE-TAB-CUR" FIND NIP
 : TO ALSO TC-TRG [COMPILE] TO PREVIOUS ; IMMEDIATE
 
 : POSTPONE \ 94
+  \ see the updated implementation in
+  \   - "./compiler/spf_translate.f"
+  \   - "./compiler/spf_immed_transl.f"
   ALSO TC-TRG
   ?COMP
   PARSE-NAME SFIND DUP
