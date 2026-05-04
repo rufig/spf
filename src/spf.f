@@ -23,6 +23,10 @@ S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
 [DEFINED] VERSION [IF]  VERSION 350000 500000 WITHIN [IF]
 \ spf4 specific implementations (if missing)
 
+[UNDEFINED] NAME>NEXT-NAME [IF]
+: NAME>NEXT-NAME ( nt -- nt|0 )  CDR  ;
+[THEN]
+
 [UNDEFINED] CS-DUP  [IF]
 : CS-DUP 2DUP ;
 [THEN]
@@ -90,6 +94,10 @@ SYNONYM UNROT -ROT \ 2025 Proposal
 \ see-also: https://forth-standard.org/proposals/special-memory-access-words?hideDiff#reply-1531
 \ Sign-extend the low-order 8 bits in x to the full cell width.
 : C>S ( char.signed -- n )  0xFF AND [ 0x7F INVERT ] LITERAL XOR 0x80 + ;
+[THEN]
+
+[UNDEFINED] \EOF [IF]
+: \EOF  BEGIN REFILL 0= UNTIL POSTPONE \ ;
 [THEN]
 
 \ End of portable implementations

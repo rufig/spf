@@ -19,14 +19,6 @@ BASE @ DECIMAL  \ since macroopt.f use HEX (!!!)
 \ Нижеследующий код транслируется один раз, и только в инструментальную систему!
 
 
-\ These words may be absent in the instrumental system
-[UNDEFINED] \EOF [IF]
-: \EOF  BEGIN REFILL 0= UNTIL POSTPONE \ ;
-[THEN]
-[UNDEFINED] NAME>NEXT-NAME [IF]
-: NAME>NEXT-NAME ( nt -- nt|0 )  CDR  ;
-[THEN]
-
 
 VOCABULARY MACROOPT-HIDING-SUPPORT
 GET-CURRENT ALSO MACROOPT-HIDING-SUPPORT DEFINITIONS
