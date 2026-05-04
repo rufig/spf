@@ -22,7 +22,7 @@
 + "FIND-NAME" "FIND-NAME-IN" "?FOUND" "SYNONYM"
 + "PUSH-ORDER" "POP-ORDER" "DROP-ORDER" "EMPTY-ORDER" "ORDER-DEPTH" "ORDER-TOP" "SET-ORDER-TOP"
 + "S>F" "F>S"
-+ "PLUCK-LEXEME" "TAKE-LEXEME"
++ "PLUCK-LEXEME" "TAKE-LEXEME" "TRANSLATE-LEXEME"
 + "SOURCE-PATH" "SOURCE-LN" "SOURCE-BASEPATH"
 + "REQUIRED-WORD" "REQUIRE-WORD" - синонимы дл€ "REQUIRED" и "REQUIRE" дл€ избежани€ конфликта с Forth-2012
 + "SAVE-WITH-RESERVE" - сохранение системы с указанным свободным размером области данных словар€ в новом исполн€емом файле

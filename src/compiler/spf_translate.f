@@ -69,11 +69,14 @@ VECT ?SLITERAL
   COMPILATION IF  COMPILE-XT  EXIT THEN  EXECUTE
 ;
 
+: TRANSLATE-WORD ( any xt flag.imm -- any )
+  IF  EXECUTE EXIT  THEN  TRANSLATE-XT
+;
+
 : TRANSLATE-NAME ( any nt -- any )
   \ If interpretation, perform the interpretation semantics of the word identified by nt.
   \ Otherwise, perform the compilation semantics of the word identified by nt.
-  DUP NAME> SWAP ( xt nt ) IS-NAME-IMMEDIATE IF  EXECUTE EXIT  THEN
-  TRANSLATE-XT
+  DUP NAME> SWAP ( xt nt ) IS-NAME-IMMEDIATE  TRANSLATE-WORD
 ;
 
 : COMPILE-NAME ( any nt -- any )
@@ -119,14 +122,10 @@ VECT ?SLITERAL
   HALT
 ;
 
-: EVAL-WORD ( a u -- )
-\ интерпретировать ( транслировать) слово с именем  a u
-    SFIND ?DUP    IF
-    STATE @ =  IF
-    COMPILE,   ELSE
-    EXECUTE    THEN
-                  ELSE
-    -2003 THROW THEN
+: EVAL-WORD ( any sd.lexeme -- any )
+\ Translate a word whose name matches the string sd.lexeme
+\ Note: a changed `SEARCH-WORDLIST` (if any) is not taken into account
+  FIND-NAME ?FOUND TRANSLATE-NAME
 ;
 
 : NOTFOUND ( a u -- )
@@ -157,19 +156,33 @@ VECT ?SLITERAL
  ELSE RDROP RDROP THEN
 ;
 
+: TRANSLATE-NOTFOUND ( any sd.lexeme -- any )
+  S" NOTFOUND" SFIND IF EXECUTE EXIT THEN 2DROP
+  ?SLITERAL
+;
+
+: FIND-NAME? ( sd.lexeme -- nt true | sd.lexeme false )
+  2DUP FIND-NAME DUP IF  NIP NIP  TRUE THEN
+;
+
+: TRANSLATE-LEXEME ( any sd.lexeme -- any )
+  FIND-NAME? IF  TRANSLATE-NAME  EXIT THEN
+  TRANSLATE-NOTFOUND
+;
+
+: TRANSLATE-LEXEME-SWL ( any sd.lexeme -- any )
+  \ Note: some extensions extend the behavior of `search-wordlist`,
+  \ so the system should continue to use it (via `sfind`) in `interpret`
+  \ for backward compatibility.
+  SFIND DUP IF  -1 <>  TRANSLATE-WORD  EXIT THEN  DROP
+  TRANSLATE-NOTFOUND
+;
+
 : INTERPRET_ ( -> ) \ интерпретировать входной поток
   BEGIN
     PLUCK-LEXEME DUP
   WHILE
-    SFIND ?DUP
-    IF
-         STATE @ =
-         IF COMPILE, ELSE EXECUTE THEN
-    ELSE
-         S" NOTFOUND" SFIND
-         IF EXECUTE
-         ELSE 2DROP ?SLITERAL THEN
-    THEN
+    TRANSLATE-LEXEME-SWL
     ?STACK
   REPEAT 2DROP
 ;
