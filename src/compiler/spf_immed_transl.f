@@ -76,7 +76,10 @@
   COMPILE,
 ; IMMEDIATE
 
-: ; ( -- )
+: ; ( colon-sys -- )
+  \ Interpretation: undefined
+  \ Compilation: ( C: colon-sys -- ; Germ: xt -- )
+  \ RunTime: ( -- ; R: nest-sys -- )
   RET,
   LEAVE-COMPILATION
   SMUDGE
@@ -85,6 +88,9 @@
 ; IMMEDIATE
 
 : EXIT
+  \ Interpretation: undefined
+  \ Compilation: ( -- ; Germ: xt )
+  \ RunTime: ( -- never ; R: nest-sys -- )
   RET,
 ; IMMEDIATE
 

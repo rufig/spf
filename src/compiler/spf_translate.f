@@ -120,7 +120,7 @@ VECT ?SLITERAL
   TAKE-LEXEME DROP C@
 ;
 
-: BYE ( -- ) \ 94 TOOLS EXT
+: BYE ( -- never ) \ 94 TOOLS EXT
 \ Вернуть управление операционной системе, если она есть.
   0
   HALT
@@ -132,7 +132,7 @@ VECT ?SLITERAL
   FIND-NAME ?FOUND TRANSLATE-NAME
 ;
 
-: NOTFOUND ( a u -- )
+: NOTFOUND ( any sd.lexeme -- any )
 \ обращение к словам в словарях в виде  vocname1::wordname
 \ или vocname1::vocname2::wordname и т.п.
 \ или vocname1:: wordname
@@ -182,7 +182,7 @@ VECT ?SLITERAL
   TRANSLATE-NOTFOUND
 ;
 
-: INTERPRET_ ( -> ) \ интерпретировать входной поток
+: INTERPRET_ ( any -- any ) \ interpret (translate) the parse area of the input buffer
   BEGIN
     PLUCK-LEXEME DUP
   WHILE
@@ -241,7 +241,7 @@ VARIABLE   &INTERPRET
   ENTER-COMPILATION
 ;
 
-: MAIN1 ( -- )
+: MAIN1 ( any -- never )
   BEGIN
     REFILL
   WHILE
@@ -249,7 +249,7 @@ VARIABLE   &INTERPRET
   REPEAT BYE
 ;
 
-: QUIT ( -- ) ( R: i*x ) \ CORE 94
+: QUIT ( any -- never ; R: i*x -- ) \ CORE 94
 \ Сбросить стек возвратов, записать ноль в SOURCE-ID.
 \ Установить стандартный входной поток и состояние интерпретации.
 \ Не выводить сообщений. Повторять следующее:
@@ -277,16 +277,16 @@ VARIABLE   &INTERPRET
   AGAIN
 ;
 
-: SAVE-SOURCE ( -- i*x i )
+: SAVE-SOURCE ( -- i*x u.i )
   SOURCE-ID-XT  SOURCE-ID   >IN @   SOURCE   CURSTR @   6
 ;
 
-: RESTORE-SOURCE ( i*x i  -- )
+: RESTORE-SOURCE ( i*x u.i  -- )
   6 <> IF ABORT THEN
   CURSTR !    SOURCE!  >IN !  TO SOURCE-ID   TO SOURCE-ID-XT
 ;
 
-: EVALUATE-WITH ( ( i*x c-addr u xt -- j*x )
+: EVALUATE-WITH ( i*x c-addr u xt -- j*x )
 \ Считая c-addr u входным потоком, вычислить её интерпретатором xt.
   SAVE-SOURCE N>R
   >R  SOURCE!  -1 TO SOURCE-ID
@@ -313,7 +313,7 @@ VECT PROCESS-ERR ( ior -- ior ) \ обработать ошибку трансляции (файла).
 ;
 ' PROCESS-ERR1 ' PROCESS-ERR TC-VECT!
 
-: RECEIVE-WITH-XT  ( i*x source source-xt xt -- j*x ior )
+: RECEIVE-WITH-XT  ( i*x fileid.source 0|xt.readline xt.translate -- j*x ior )
 \ сохранить спецификации входного потока
 \ установить входной поток на source, слово для чтения строки в source-xt
 \ выполнить xt
@@ -327,7 +327,7 @@ VECT PROCESS-ERR ( ior -- ior ) \ обработать ошибку трансляции (файла).
   NR> RESTORE-SOURCE
 ;
 
-: RECEIVE-WITH  ( i*x source xt -- j*x ior )
+: RECEIVE-WITH  ( i*x fileid.source xt.translate -- j*x ior )
 \ сохранить спецификации входного потока
 \ установить входной поток на source, выполнить xt
 \ восстановить спецификации входного потока
@@ -453,7 +453,7 @@ USER INCLUDE-DEPTH
 \ интерпретируемых файлов зависит от реализации.
   FIND-FULLNAME INCLUDED_STD
 ;
-: REQUIRED ( waddr wu laddr lu -- )
+: REQUIRED ( sd.wordname sd.filename -- )
   2SWAP SFIND
   IF DROP 2DROP
   ELSE 2DROP INCLUDED THEN
@@ -470,6 +470,6 @@ SYNONYM REQUIRED-WORD     REQUIRED
 SYNONYM REQUIRE-WORD      REQUIRE
 
 
-: INCLUDED-EXISTING ( i*x  a u -- j*x true | i*x  a u  false )
+: INCLUDED-EXISTING ( i*x  sd.filename -- j*x true | i*x  sd.filename  false )
   2DUP FILE-EXISTS IF INCLUDED TRUE ELSE FALSE THEN
 ;
