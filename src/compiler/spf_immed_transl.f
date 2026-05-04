@@ -30,7 +30,7 @@
 \   Perform the compilation semantics for "name".
 \ Compilation: ( "<spaces>name" -- )
 \   Append the "name" compilation semantics to the current definition.
-  TAKE-LEXEME FIND-NAME ?FOUND
+  TAKE-NAME
   COMPILATION IF  POSTPONE-NAME  EXIT THEN  COMPILE-NAME
 ; IMMEDIATE
 

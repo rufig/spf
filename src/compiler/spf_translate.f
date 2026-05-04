@@ -99,6 +99,10 @@ VECT ?SLITERAL
 ;
 
 
+: TAKE-NAME ( "<space>name" -- nt )
+  TAKE-LEXEME FIND-NAME ?FOUND
+;
+
 : ' ( "<spaces>name" -- xt ) \ 94
 \ Пропустить ведущие пробелы. Выделить name, ограниченное пробелом. Найти name
 \ и вернуть xt, выполнимый токен для name. Неопределенная ситуация возникает,
