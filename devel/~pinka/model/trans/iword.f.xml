@@ -44,7 +44,7 @@
 <def name="I-NATIVE" ds=" c-addr u -- xt true | c-addr u false ">
   2DUP >R >R
   SFIND DUP 1 EQ <unless> RDROP RDROP <exit/></unless>
-  DROP DUP GET-COMPILER? NIP <if> TRUE RDROP RDROP <exit/></if>
+  DROP DUP OBTAIN-COMPILER? NIP <if> TRUE RDROP RDROP <exit/></if>
   DROP R> R> FALSE <!-- won't find immediate words -->
 </def>
 

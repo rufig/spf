@@ -32,12 +32,12 @@
 
 
 <comment>
-  The word "GET-COMPILER?" is not defined here. The CS (control stack) is too.
+  The word "OBTAIN-COMPILER?" is not defined here. The CS (control stack) is too.
 </comment>
 
 
 <def name="EXEC," ds=" xt -- ">
-  GET-COMPILER? <unless> CALL, <exit/></unless> EXECUTE
+  OBTAIN-COMPILER? <unless> CALL, <exit/></unless> EXECUTE
 </def>
 
 <def name="EXIT," ds=" -- ">

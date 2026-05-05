@@ -48,14 +48,14 @@ REQUIRE Require   ~pinka/lib/ext/requ.f
 
 \ Некоторые слова в SPF4 имеют специальную процедуру
 \ для откладывания их исполнения (компиляции), -- как например inlines.
-Require ADVICE-COMPILER inlines.f \ все особые слова SPF4 обработанны
+Require OBTAIN-COMPILER? inlines.f \ все особые слова SPF4 обработанны
 
-\ Слово ADVICE-COMPILER ( xt-compiler xt -- ) позволяет навесить
-\ необходимую семантику компиляции на xt
-\ а слово GET-COMPILER? ( xt -- xt-compiler true | xt false )
-\ дает эту семантику, если она имеется.
+\ Слово `ADVISE-COMPILER` ( xt.compiler xt.target -- ) позволяет указать
+\ *реализацию* для семантики компиляции xt.target (кодогенератор).
+\ а слово `OBTAIN-COMPILER?` ( xt.target -- xt.compiler true | xt.target false )
+\ дает эту реализацию, если она имеется.
 \ Слово "EXEC," (отложить исполнение) использует специфичный компилятор,
-\ если он задан для данного xt.
+\ если он задан для данного xt.target.
 
 \ Дискуссионный вопрос о сигнатуре xt-compiler.
 \ Пока принято, что это слово замкнуто на xt и имеет стек ( -- )

@@ -3,6 +3,8 @@
 \ see also src/compiler/spf_inline.f
 \ NON-OPT-WL contains five words: EXECUTE  ?DUP  R>  >R  RDROP
 
+\ NB: `ADVICE-COMPILER` (a noun) was renamed to `ADVISE-COMPILER` (a verb).
+
 
 REQUIRE AsQName   ~pinka/samples/2006/syntax/qname.f \ пон€тие однословных строк в виде `abc
 
@@ -14,14 +16,15 @@ VARIABLE h-compilers
 
 EXPORT
 
-: ADVICE-COMPILER ( xt-compiler xt -- )
+: ADVISE-COMPILER ( xt.compiler xt.target -- )
   0 , HERE SWAP , SWAP , h-compilers BIND-NODE
 ;
-: GET-COMPILER? ( xt -- xt-compiler true | xt false )
+: OBTAIN-COMPILER? ( xt.target -- xt.compiler true | xt.target false )
   DUP h-compilers FIND-NODE IF NIP CELL+ @ TRUE EXIT THEN FALSE
 ;
 \ да, вот так :)  » не надо вводить дополнительных полей в старые заголовки.
 \ -----
+
 
 : COMPILE(?DUP)
   HERE TO :-SET ['] C-?DUP  INLINE, HERE TO :-SET \ нужно как в THEN
@@ -30,11 +33,11 @@ EXPORT
   ['] C-EXECUTE INLINE,
 ;
 
-' COMPILE(?DUP)         ' ?DUP    ADVICE-COMPILER
-' COMPILE(EXECUTE)      ' EXECUTE ADVICE-COMPILER
-`RDROP   SFIND 0= THROW ' RDROP   ADVICE-COMPILER
-`R>      SFIND 0= THROW ' R>      ADVICE-COMPILER
-`>R      SFIND 0= THROW ' >R      ADVICE-COMPILER
+' COMPILE(?DUP)         ' ?DUP    ADVISE-COMPILER
+' COMPILE(EXECUTE)      ' EXECUTE ADVISE-COMPILER
+`RDROP   SFIND 0= THROW ' RDROP   ADVISE-COMPILER
+`R>      SFIND 0= THROW ' R>      ADVISE-COMPILER
+`>R      SFIND 0= THROW ' >R      ADVISE-COMPILER
 
 \ hint: ' (тик) ищет c NON-OPT-WL на вершине,
 \ поэтому здесь имена разрешаютс€ через SFIND
@@ -42,13 +45,13 @@ EXPORT
 \ I-NATIVE не ищет в NON-OPT-WL, с учетом этого
 \ пропишем компил€торы дл€ эти слов из словар€ FORTH:
 
-' COMPILE(?DUP)         `?DUP    SFIND 0= THROW ADVICE-COMPILER
-' COMPILE(EXECUTE)      `EXECUTE SFIND 0= THROW ADVICE-COMPILER
+' COMPILE(?DUP)         `?DUP    SFIND 0= THROW ADVISE-COMPILER
+' COMPILE(EXECUTE)      `EXECUTE SFIND 0= THROW ADVISE-COMPILER
 
 \ "сами себе" компил€торы:
-`RDROP   SFIND 0= THROW  DUP  ADVICE-COMPILER
-`R>      SFIND 0= THROW  DUP  ADVICE-COMPILER
-`>R      SFIND 0= THROW  DUP  ADVICE-COMPILER
+`RDROP   SFIND 0= THROW  DUP  ADVISE-COMPILER
+`R>      SFIND 0= THROW  DUP  ADVISE-COMPILER
+`>R      SFIND 0= THROW  DUP  ADVISE-COMPILER
 
 
 \ «аглушки-пустышки с флагом immediate
@@ -69,6 +72,6 @@ WARNING !
   HERE TO :-SET
 ;
 
-' COMPILE(2R>) ' 2R> ADVICE-COMPILER
+' COMPILE(2R>) ' 2R> ADVISE-COMPILER
 
 ;MODULE

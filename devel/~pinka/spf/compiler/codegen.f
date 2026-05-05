@@ -35,7 +35,7 @@ S" ALLOT" GET-CURRENT SEARCH-WORDLIST [IF] DROP [ELSE]
   HERE 3 - CELL-
 ;
 : EXEC, ( xt -- )
-  GET-COMPILER? IF EXECUTE EXIT THEN CALL,
+  OBTAIN-COMPILER? IF EXECUTE EXIT THEN CALL,
 ;
 \ Ѕыл выбор между парами имен "EXEC,", <exec/> и  "CALL," <call/>
 \ ¬озможно, стоит мигрировать на второй вариант.
