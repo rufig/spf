@@ -22,6 +22,7 @@ REQUIRE +METHODS ~ygrek/lib/hype/ext.f
 : (DO-PRINT-VARIABLE) ( a u addr -- ) -ROT TYPE ."  = " @ . ;
 
 : PRINT: ( "name" -- )
+   ?COMP
    PARSE-NAME
    2DUP
    POSTPONE SLITERAL

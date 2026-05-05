@@ -1,6 +1,6 @@
 
 : DEFER VECT ;
-: IS POSTPONE TO ; IMMEDIATE
+: IS [COMPILE] TO ; IMMEDIATE \ this should work interpretively too
 
 : M+ SWAP >R + R> OVER 0= IF 1+ THEN ;
 

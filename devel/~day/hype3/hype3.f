@@ -520,19 +520,19 @@ SET-CURRENT PREVIOUS
 ; IMMEDIATE
 
 \ Export some needed words
-: OBJ-SIZE OBJ-SIZE ;
+SYNONYM OBJ-SIZE OBJ-SIZE
 
-: ^ POSTPONE ^ ; IMMEDIATE
+SYNONYM ^ ^
 
 \ ^ is used in SPF4 locals
-: => POSTPONE ^ ; IMMEDIATE
+SYNONYM => ^
 
-: SUPER POSTPONE SUPER ; IMMEDIATE
+SYNONYM SUPER SUPER
 
 : init: init: ;
 : dispose: dispose: ;
 
-: SELF POSTPONE SELF ; IMMEDIATE
+SYNONYM SELF SELF
 
 : NewObj ( ta -- addr )
     ['] ALLOCATE NewObjWith

@@ -180,6 +180,7 @@ MODULE: OPG_Formula_Translation
    : SUCCESS S" TRUE EXIT " EVALUATE ; IMMEDIATE
 
    : ??                ( x "word" -- )
+       ?COMP
        POSTPONE IF
        BL WORD COUNT EVALUATE
        POSTPONE THEN

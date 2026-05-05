@@ -200,7 +200,7 @@ endtable
   THEN remove-stack-block
 ;
 
-: -name ( ->bl; -- ) POSTPONE this [COMPILE] TO ; IMMEDIATE
+: -name ( ->bl; -- ) ?COMP POSTPONE this [COMPILE] TO ; IMMEDIATE
 
 : ctlshow DROP ;
 : ctlhide DROP ;

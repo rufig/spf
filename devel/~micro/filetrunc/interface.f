@@ -1,6 +1,7 @@
 S" ~micro/filetrunc/core.f" INCLUDED
 
 : trunc
+  ?COMP
   NextWord POSTPONE SLITERAL
   POSTPONE TruncFile
 ; IMMEDIATE

@@ -975,12 +975,12 @@ EXPORT
     '' R@ STR+
    REPEAT
    R@ STR+
-   R@ STR@ POSTPONE BUILD-REGEX-HERE
+   R@ STR@ [COMPILE] BUILD-REGEX-HERE
    R> STRFREE ; IMMEDIATE
 
 \ Выделить строку до символа конца строки, скомпилировать в RE
 \ Во время исполнения положит RE на стек
-: EOLRE: ( -- re ) -1 PARSE POSTPONE BUILD-REGEX-HERE ; IMMEDIATE
+: EOLRE: ( -- re ) -1 PARSE [COMPILE] BUILD-REGEX-HERE ; IMMEDIATE
 
 \ короткие названия для карманов - \0 \1 ... \10
 :NONAME 10 0 DO I DUP " : \{n} {n} get-group ;" DUP STR@ EVALUATE STRFREE LOOP ; EXECUTE

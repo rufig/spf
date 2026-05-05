@@ -46,7 +46,7 @@ CREATE russian   \ сообщения на русском языке
             THEN ;
 
 \ зря этого слова нет в СПФ
-: IS POSTPONE TO ; IMMEDIATE
+: IS [COMPILE] TO ; IMMEDIATE \ this should work interpretively too
 
 \ ---------------------------------------------------------------------------
 

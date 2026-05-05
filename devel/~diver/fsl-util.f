@@ -354,7 +354,7 @@ VARIABLE print-width      6 print-width !
 : defines   ' >BODY STATE @ IF POSTPONE LITERAL POSTPONE !
             ELSE ! THEN ;   IMMEDIATE
 : use(  STATE @ IF POSTPONE ['] ELSE ' THEN ;  IMMEDIATE
-: &     POSTPONE use( ; IMMEDIATE
+: &     [COMPILE] use( ; IMMEDIATE  \ this should work interpretively too
 
 (
   Code for local fvariables, loosely based upon Wil Baden's idea presented

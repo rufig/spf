@@ -22,10 +22,10 @@ MODULE: A-STR
  REQUIRE replace-str- ~pinka/samples/2005/lib/replace-str.f
 EXPORT
  : replace-str- replace-str- ;
- : A" POSTPONE " ; IMMEDIATE
+ : A" [COMPILE] " ; IMMEDIATE  \ this should work interpretively too
  : STR@ STR@ ;
  : '' '' ;
- : A"" POSTPONE "" ; IMMEDIATE
+ : A"" [COMPILE] "" ; IMMEDIATE  \ this should work interpretively too
  : STRFREE STRFREE ;
  : STR! STR! ;
 ;MODULE

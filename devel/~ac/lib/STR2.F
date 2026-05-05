@@ -364,7 +364,7 @@ STRFREE
   s STR@ STR@LOCAL
 ;
 : " ( "ccc" -- )
-  PARSE" POSTPONE STRLITERAL
+  PARSE" [COMPILE] STRLITERAL  \ this should work interpretively too
 ; IMMEDIATE
 
 : STYPE

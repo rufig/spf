@@ -10,8 +10,8 @@ REQUIRE S$ ~pinka/samples/2005/lib/s-dollar.f
 MODULE: XHTML
 
 \ shortcuts
-: << POSTPONE START{ ; IMMEDIATE
-: >> POSTPONE }EMERGE ; IMMEDIATE
+: << ?COMP POSTPONE START{ ; IMMEDIATE
+: >> ?COMP POSTPONE }EMERGE ; IMMEDIATE
 
 : :span ( `class -- ) PRO %[ `class $$ ]% `span atag CONT ;
 : span: ( "class" -- ) PARSE-NAME PRO :span CONT ;

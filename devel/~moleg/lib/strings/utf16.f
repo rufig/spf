@@ -5,7 +5,7 @@
  REQUIRE ?DEFINED  devel\~moleg\lib\util\ifdef.f
  REQUIRE /chartype devel\~moleg\lib\strings\chars.f
 
-?DEFINED IS : IS POSTPONE TO ; IMMEDIATE
+?DEFINED IS : IS [COMPILE] TO ; IMMEDIATE \ this should work interpretively too
 
 \ ------------------------------------------------------------------------------
 

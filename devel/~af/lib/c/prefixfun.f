@@ -32,7 +32,7 @@ USER curfunc
 
 \ выполняет слово, освобождает память
 : ) ( -- )
-  POSTPONE ,
+  [COMPILE] ,
   curfunc @
   DUP >R 2 CELLS + COUNT EVALUATE
   R> DUP @ curfunc !
@@ -42,17 +42,17 @@ USER curfunc
 
 \ чтобы не писать DROP после вызова каждой функции
 : )) ( -- )
-  POSTPONE )
+  [COMPILE] )
   STATE @ IF POSTPONE DROP ELSE DROP THEN
 ; IMMEDIATE
 
 \ для слов без аргументов
 : () ( -- )
-  -1 curfunc @ CELL+ ! POSTPONE )
+  -1 curfunc @ CELL+ ! [COMPILE] )
 ; IMMEDIATE
 
 : ()) ( -- )
-  POSTPONE ()
+  [COMPILE] ()
   STATE @ IF POSTPONE DROP ELSE DROP THEN
 ; IMMEDIATE
 

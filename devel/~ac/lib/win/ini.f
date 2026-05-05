@@ -114,10 +114,10 @@ USER _fskKEY
   ['] (IniS!) EVALUATE-WITH
 ;
 : ""@ { a u -- str }
-  >IN @ u - 0 MAX >IN ! POSTPONE "
+  >IN @ u - 0 MAX >IN ! [COMPILE] "
 ;
 : "S"@ { a u -- str }
-  >IN @ u 1- - 0 MAX >IN ! POSTPONE S"
+  >IN @ u 1- - 0 MAX >IN ! [COMPILE] S"
 ;
 : NOTFOUND { a u -- ... }
   a u S" [" SEARCH NIP NIP

@@ -16,7 +16,7 @@ REQUIRE CONT ~profit/lib/bac4th.f
 
 \ Определить идентификатор словаря
 \ Если vocname не словарь - результат не определен
-: [WID] ( "vocname" -- wid ) ' VOC> POSTPONE LITERAL ; IMMEDIATE
+: [WID] ( "vocname" -- wid ) ' VOC> [COMPILE] LITERAL ; IMMEDIATE
 
 \EOF
 

@@ -4,10 +4,10 @@
   COMPILE,
 ;
 : T-LIT ( x -- | x )
-  POSTPONE LITERAL
+  [COMPILE] LITERAL \ it is specific to the Forth system implementation
 ;
 : T-SLIT ( addr u -- | addr u )
-  POSTPONE SLITERAL
+  [COMPILE] SLITERAL \ it is specific to the Forth system implementation
 ;
 : T-XT ( i*x xt -- j*x )
   STATE @ IF XT, EXIT THEN
