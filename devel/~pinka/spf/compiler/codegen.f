@@ -49,10 +49,8 @@ S" ALLOT" GET-CURRENT SEARCH-WORDLIST [IF] DROP [ELSE]
 ;
 
 
-\ В spf4 отложенное выражение "POSTPONE EXECUTE"
-\ работает по разному в режиме исполнения и в режиме компиляции.
-\ Следующее слово работает однозначно:
-
+\ `POSTPONE EXECUTE` correctly works in spf4 since v4.30
+\ This word is no longer needed.
 : EXECUTE, ( -- )
   ['] EXECUTE EXEC,
 ;
