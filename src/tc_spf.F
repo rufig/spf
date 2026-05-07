@@ -212,7 +212,7 @@ M\ ' DROP TO DTST
 
 
 : TC-LIT, ( x -- )
-  S" DUP" TC-FINDOUT INLINE,
+  TC-INLINE( DUP )
   OPT_INIT
   SetOP 0B8 C,  , OPT  \ MOV EAX, #
   OPT_CLOSE ;
@@ -717,7 +717,7 @@ HEX
 
 : DO   \ 94
   ?COMP
-  S" C-DO" TC-FINDOUT INLINE,
+  TC-INLINE( C-DO )
   SetOP  0x68 C, DP @ 4 ALLOT  \ PUSH #
   SetOP  0x52 C,               \ PUSH EDX
   SetOP  0x53 C,               \ PUSH EBX
@@ -728,9 +728,9 @@ HEX
 : ?DO   \ 94 CORE EXT
   ?COMP
   OP0 @ :-SET  UMAX TO :-SET
-  S" NIP" TC-FINDOUT DUP INLINE, INLINE,
+  TC-INLINE( NIP NIP )
   0xBB C, DP @ 4 ALLOT
-  S" C-?DO" TC-FINDOUT INLINE,
+  TC-INLINE( C-?DO )
   DP @ DUP TO :-SET
 ; IMMEDIATE
 
@@ -763,9 +763,7 @@ HEX
   *DP@ SWAP !
 ; IMMEDIATE
 
-: I   \ 94
-  ?COMP S" C-I" TC-FINDOUT INLINE,
-; IMMEDIATE
+: I  ?COMP TC-INLINE( C-I ) ;  IMMEDIATE
 
 : UNLOOP  \ 94
   ?COMP
@@ -778,18 +776,9 @@ HEX
   SetOP C3 C,  \ ret
 ; IMMEDIATE
 
-: >R   \ 94
-  ?COMP
-  S" C->R" TC-FINDOUT INLINE, ;   IMMEDIATE
-
-: R>
-  ?COMP
-  S" C-R>" TC-FINDOUT INLINE, ;   IMMEDIATE
-
-: RDROP
-  ?COMP
-  S" C-RDROP" TC-FINDOUT INLINE, ;   IMMEDIATE
-
+: >R      ?COMP  TC-INLINE( C->R ) ;  IMMEDIATE
+: R>      ?COMP  TC-INLINE( C-R> ) ;  IMMEDIATE
+: RDROP   ?COMP  TC-INLINE( C-RDROP ) ;  IMMEDIATE
 
 : 2>R     ?COMP  TC-INLINE( SWAP C->R C->R )  ; IMMEDIATE
 : 2R>     ?COMP  TC-INLINE( C-R> C-R> SWAP )  ; IMMEDIATE
@@ -798,14 +787,15 @@ HEX
 
 : EXECUTE
 \ NB: This implementation is used only by TC when translating code for the target system
-  S" C-EXECUTE" TC-FINDOUT INLINE, ; IMMEDIATE
+  TC-INLINE( C-EXECUTE )
+; IMMEDIATE
 
 
 : ?DUP ( 0 -- 0 | x1\0 -- x1 x1 )
 \ NB: This implementation is used only by TC when translating code for the target system
   STATE @
                  IF   HERE TO :-SET
-                      S" C-?DUP" TC-FINDOUT  INLINE,
+                      TC-INLINE( C-?DUP )
                       HERE TO :-SET
                  ELSE ?DUP
                  THEN ;   IMMEDIATE
