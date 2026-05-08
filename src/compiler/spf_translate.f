@@ -376,8 +376,9 @@ VECT FIND-FULLNAME \ найти указанный файл и вернуть его с полным путем
 ;
 
 : TranslateFlow ( -- )
-  REFILL 0= IF EXIT THEN SkipBomUtf8 INTERPRET
-  BEGIN REFILL WHILE INTERPRET REPEAT
+  \ Note: it does not output any prompt.
+  SOURCE-FOLLOWING NIP 0= IF   REFILL IF SkipBomUtf8 ELSE EXIT THEN   THEN
+  BEGIN INTERPRET REFILL INVERT UNTIL
 ;
 
 : INCLUDE-FILE ( i*x fileid -- j*x ) \ 94 FILE

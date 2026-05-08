@@ -32,6 +32,11 @@ USER-CREATE ATIB
 \ установить  c-addr u входным буфером (точнее, областью разбора - PARSE-AREA)
   #TIB ! TO TIB >IN 0!
 ;
+: SOURCE-FOLLOWING ( -- sd )
+  \ Return the parse area
+  \ TODO: maybe we should choose a better name
+  SOURCE >IN @ /STRING
+;
 
 : EndOfChunk ( -- flag )
   >IN @ SOURCE NIP < 0=        \ >IN не меньше, чем длина чанка
