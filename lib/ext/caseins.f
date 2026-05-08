@@ -8,11 +8,22 @@ REQUIRE ON           lib/ext/onoff.f
 REQUIRE string-ascii-ci  lib/ext/string/comparison-ascii-ci.f
 \ It is case-insensitive only within ASCII charset (to avoid breaking UTF-8)
 
-VARIABLE CASE-INS \ switcher
-CASE-INS ON
+USER CASE-INS \ switcher  (do not use it directly, use the the getter and setters instead)
+
+: sensitivity-mode ( -- flag ) CASE-INS @ 0= ; \ flag is true iff case-sensitive mode is active
+: enter-sensitivity-mode ( -- ) CASE-INS OFF ;
+: leave-sensitivity-mode ( -- ) CASE-INS ON ;
+
+
+\ After loading this module, sensitivity-mode is turned off by default.
+
+leave-sensitivity-mode \ Initialize: switch to the case-insensitive mode
+
+..: AT-THREAD-STARTING leave-sensitivity-mode ;..
+
 
 : FIND-NAME-IN.MAYBE-INSENSITIVE ( sd.name wid -- nt|0 )
-  CASE-INS @ 0= IF
+  sensitivity-mode IF
     [ ' FIND-NAME-IN BEHAVIOR COMPILE, ] EXIT
   THEN
   LATEST-NAME-IN ( sd.name nt|0 )
@@ -47,3 +58,22 @@ CASE-INS ON
 ;
 
 ' UDIGIT ' DIGIT REPLACE-WORD
+
+
+
+\ Helper that can be used to load a file in a specific mode
+
+: execute-sensitively ( any1 xt[ any1 -- any2 ] -- any2 )
+  \ Execute xt in case-sensitive mode.
+  sensitivity-mode >r enter-sensitivity-mode
+  ( xt ) catch
+  r> invert if leave-sensitivity-mode then
+  throw
+;
+: execute-insensitively ( any1 xt[ any1 -- any2 ] -- any2 )
+  \ Execute xt in case-insensitive mode.
+  sensitivity-mode >r leave-sensitivity-mode
+  ( xt ) catch
+  r> if enter-sensitivity-mode then
+  throw
+;
