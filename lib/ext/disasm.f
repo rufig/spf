@@ -317,7 +317,12 @@ CREATE S-BUF MAXSTRING ALLOT
           THEN ;
 
 
-: R/M8      0 TO SIZE MOD-R/M ;
+: R/M8 ( addr1 x.operand -- addr2 )
+  DUP 6 RSHIFT 3 <> IF \ a memory operand (not a register)
+     .S" BYTE PTR "
+  THEN
+  0 TO SIZE  MOD-R/M
+;
 : R/M16/32  1 TO SIZE MOD-R/M ;
 : R/M16     TRUE TO 16-BIT-DATA R/M16/32 ;
 
