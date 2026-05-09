@@ -248,7 +248,7 @@ CREATE S-BUF MAXSTRING ALLOT
                               ENDCASE
                         THEN DROP ;
 
-: DISP8  ( ADR -- ADR' )  COUNT H.>S ;
+: DISP8  ( ADR -- ADR' )  COUNT C>S  DUP 0< IF .S" -"  ABS THEN  H.>S ;
 : DISP16 ( ADR -- ADR' )  W@+ SHOW-NAME ;
 : DISP32 ( ADR -- ADR' ) @+ ( BODY> ) SHOW-NAME ;
 : DISP16/32 ( ADR -- ADR' )
