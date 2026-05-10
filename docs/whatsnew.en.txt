@@ -29,6 +29,7 @@
 
 libs:
 ! lib/ext/locals.f - a definition with locals was invisible for "IMMEDIATE"
+! lib/ext/disasm.f - some fixes and features
 + lib/include/ansi.f - add FILE-STATUS facil.f
 + lib/include/core.f - add "BUFFER:"
 + lib/include/facil.f - add MS
