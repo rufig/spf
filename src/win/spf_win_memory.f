@@ -7,6 +7,10 @@
 )
 \ 94 MEMORY
 
+0 VALUE IMAGE-SIZE \ the main section size, will be initialized in "src/win/spf_pe_save.f"
+0 VALUE IMAGE-BASE \ this will be initialized in "src/win/spf_pe_save.f"
+
+
 USER THREAD-HEAP   \ хэндл хипа текущего потока
 
 VARIABLE USER-OFFS \ смещение в области данных потока,
