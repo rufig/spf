@@ -80,8 +80,11 @@ REQUIRE CASE lib/include/control-case.f
 : UNUSED ( -- u ) \ 94 CORE EXT
 \ u - объем памяти, оставшейся в области, адресуемой HERE,
 \ в байтах.
-  IMAGE-SIZE
-  HERE IMAGE-BASE - -
+  DESTINATION-STATIC IF
+    IMAGE-SIZE  HERE IMAGE-BASE -  -
+    EXIT
+  THEN
+  TRUE ABORT" `UNUSED` is not supported for a temporary storage in the kernel"
 ;
 
 
