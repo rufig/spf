@@ -223,7 +223,7 @@ CREATE elf-header
 9                W,  \ число записей в таблице секций
 1	         W,  \ номер секции таблицы строк
 
-' elf-header-size EXECUTE 9 ' elf-section-size EXECUTE * + (TO) elf-offset
+' elf-header-size EXECUTE 9 ' elf-section-size EXECUTE * + TC-TO( elf-offset )
 
 \ Таблица секций
 

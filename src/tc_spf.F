@@ -528,10 +528,11 @@ TARGET-POSIX [IF]
   TC-TAKE-XT
 ;
 
-: (TO)
+: TC-TO( ( "<sp>name<sp><rparen>" ) ( x -- ; Compil: false ; | -- ; Compil: true ; )
   TC-TAKE-XT
   9 + STATE @
   IF COMPILE, ELSE  EXECUTE  THEN
+  TAKE-LEXEME S" )" COMPARE ABORT" Expected ')'"
 ; IMMEDIATE
 
 : TC-VECT! ( xt xt-vect -- )

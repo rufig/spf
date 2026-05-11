@@ -404,12 +404,12 @@ TARGET-POSIX [IF]
 .( VIRT offset is ) 0 >VIRT . CR
 
 \ Перемещаем в виртуальные адреса VALUE FORTH-WORDLIST
-' FORTH-WORDLIST EXECUTE  ' FORTH-WORDLIST  TC-VECT!
+' FORTH-WORDLIST EXECUTE   >VIRT TC-TO( FORTH-WORDLIST )
 
 S" MACROOPT-WL" TC-TRG-WL SEARCH-WORDLIST DUP [IF] NIP [THEN] ( 0|xt )
 [IF] \ может отсутствовать в случе noopt.f
 \ Перемещаем в виртуальные адреса VALUE MACROOPT-WL
-' MACROOPT-WL    EXECUTE  ' MACROOPT-WL     TC-VECT!
+' MACROOPT-WL    EXECUTE   >VIRT TC-TO( MACROOPT-WL )
 \ Если уж это значение в системе есть, то должно быть корректным ;)
 [THEN]
 
