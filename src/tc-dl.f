@@ -1,3 +1,6 @@
+\ Access external functions from dynamically loaded libraries (DL)
+\ A part of the target compiler (TC), for the POSIX target
+
 : s.  SP@ S0 @ CELL - 2DUP -
   DUP 4 = IF DROP 2DROP ." Stack is empty" CR EXIT THEN
   4 > IF 2DROP ." Stack is underflowed" CR EXIT THEN

@@ -1,3 +1,4 @@
+\ Pictured-numeric output
 ( Слова форматной печати чисел.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org
   Преобразование из 16-разрядного в 32-разрядный код - 1995-96гг

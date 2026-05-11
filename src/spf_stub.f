@@ -1,3 +1,6 @@
+\ Manual creation of a minimal PE file (Windows Portable Executable, 32-bit)
+\ This file is not used anymore, but it is kept for reference
+
 \ в exe файле:
 \ 512 - заголовок
 \ по 512 на каждую из секций

@@ -1,3 +1,4 @@
+\ Target compiler
 ( Целевой компилятор для компиляции SP-Forth v3.7x
   Copyright [C] 1992-2000 A.Cherezov ac@forth.org
 

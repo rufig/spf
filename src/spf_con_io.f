@@ -1,3 +1,4 @@
+\ Console input-output: words that read from stdin or write to stdout
 ( Консольный ввод-вывод.
   ОС-независимые слова [относительно...].
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org

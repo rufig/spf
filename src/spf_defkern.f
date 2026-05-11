@@ -1,3 +1,4 @@
+\ Run-time subprograms for CONSTANT, VARIABLE, etc.
 ( Процедуры времени выполнения для CONSTANT, VARIABLE, etc.
   ОС-независимые слова.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org

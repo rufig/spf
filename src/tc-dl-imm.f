@@ -1,3 +1,6 @@
+\ Special syntax (markup) to access external functions from dynamically loaded libraries (DL)
+\ A part of the target compiler (TC), for the POSIX target
+
 : )) ( "name" -- )
   PARSE-NAME symbol-lookup
   STATE @ IF

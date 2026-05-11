@@ -1,3 +1,4 @@
+\ The search order management and words to find words in word lists.
 ( Поиск слов в словарях и управление порядком поиска.
   ОС-независимые определения.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org

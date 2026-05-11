@@ -1,3 +1,4 @@
+\ Low-level VFM words defined in Forth language
 ( Оставшиеся слова "форт-процессора" в виде высокоуровневых определений.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org
   Преобразование из 16-разрядного в 32-разрядный код - 1995-96гг

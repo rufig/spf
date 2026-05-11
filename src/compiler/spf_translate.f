@@ -1,3 +1,4 @@
+\ Translation of tokens and text from the input source, strings and files
 ( Трансляция исходных текстов программ.
   ОС-независимые определения.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org

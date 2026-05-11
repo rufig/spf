@@ -1,3 +1,4 @@
+\ Words to read text from the input source
 ( Чтение строки исходного текста из входного потока: консоли или файла.
   Copyright [C] 1992-1999 A.Cherezov ac@forth.org
   Ревизия: Сентябрь 1999
