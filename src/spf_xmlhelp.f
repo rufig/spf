@@ -130,6 +130,7 @@ SPECIAL > &gt;
 ;
 
 : special? ( c -- c 0 | addr u -1 )
+   DUP 0x0A = IF FALSE EXIT THEN
    BASE @ >R DECIMAL
    DUP BL <
    IF
@@ -171,9 +172,18 @@ SPECIAL > &gt;
    comment? moduleComment? OR
    IF
       BL SKIP BL HELP-EMIT
-      0 PARSE HandleSpecialChars (HELP-OUT)
+      SOURCE-FOLLOWING DROP ( c-addr1 )
+      [COMPILE] \  \ Do not use `0 PARSE` to be forward compatibile
+      SOURCE-FOLLOWING DROP ( c-addr1 c-addr2 )
+      \ Keep a line terminator (if any) in the result
+      DUP CHAR- C@ 0x0A <> IF \ it is not already present
+         DUP C@ 0x0D = IF CHAR+ THEN
+         DUP C@ 0x0A = IF CHAR+ THEN
+      THEN
+      OVER - ( c-addr1 u )
+      HandleSpecialChars (HELP-OUT)
    ELSE
-      POSTPONE \
+      [COMPILE] \
    THEN
 ; IMMEDIATE
 
@@ -284,6 +294,7 @@ SPECIAL > &gt;
 XMLHELP-OFF
 
 : : FALSE StartColonHelp : ;
+\ This works since TC uses `:` and `;` available in the host system
 
 
 : EndColonHelp
