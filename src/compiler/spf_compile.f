@@ -133,7 +133,7 @@ DECIMAL
 
 : >ORESOLVE ( A, N -- )
   DUP 1 = IF   DROP >ORESOLVE1
-          ELSE 2 <> IF -2007 THROW THEN \ ABORT" Conditionals not paired"
+          ELSE 2 <> IF -2007 THROW THEN \ ABORT" Control structures are not paired" \ It should be `-22 THROW`
                >ORESOLVE1
           THEN
 ;
@@ -145,7 +145,7 @@ DECIMAL
 
 : >RESOLVE ( A, N -- )
   DUP 1 = IF   DROP >RESOLVE1
-          ELSE 2 <> IF -2007 THROW THEN \ ABORT" Conditionals not paired"
+          ELSE 2 <> IF -2007 THROW THEN \ ABORT" Control structures are not paired" \ It should be `-22 THROW`
                >RESOLVE1
           THEN
 ;

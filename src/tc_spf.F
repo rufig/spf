@@ -253,7 +253,7 @@ M\ ' DROP TO DTST
 
 : TC>RESOLVE ( A, N -- )
   DUP 1 = IF   DROP TC>RESOLVE1
-          ELSE 2 <> IF -2007 THROW THEN \ ABORT" Conditionals not paired"
+          ELSE 2 <> IF -2007 THROW THEN \ ABORT" Control structures mismatch" \ It should be `-22 THROW`
                TC>RESOLVE1
           THEN
 ;
@@ -674,7 +674,7 @@ C" SHERE-TAB-CUR" FIND NIP
 ; IMMEDIATE
 
 : UNTIL \ 94
-  ?COMP 3 <> IF -2004 THROW THEN \ ABORT" UNTIL без BEGIN !"
+  ?COMP 3 <> IF -2004 THROW THEN \ ABORT" `UNTIL` does not match `BEGIN`"
   TC-?BRANCH,
   0xFFFFFF80  DP @ 4 - @  U<
   IF  DP @ 5 - W@ 0x3F0 + DP @ 6 - W!   -4 ALLOT
@@ -701,7 +701,7 @@ C" SHERE-TAB-CUR" FIND NIP
 : REPEAT
 \ ѕродолжить выполнение с позиции, заданной dest.
   ?COMP
-  3 <> IF -2005 THROW THEN \ ABORT" REPEAT без BEGIN !"
+  3 <> IF -2005 THROW THEN \ ABORT" `REPEAT` does not match `BEGIN`"
   DUP DP @ 2+ - DUP
   SHORT?
   IF SetJP 0xEB C, C, DROP

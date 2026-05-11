@@ -66,7 +66,7 @@
 \ –азрешить ссылку назад dest.
 \ ¬рем€ выполнени€: ( x -- )
 \ ≈сли все биты x нулевые, продолжать выполнение с позиции, заданной dest.
-  ?COMP 3 <> IF -2004 THROW THEN \ ABORT" UNTIL без BEGIN !"
+  ?COMP 3 <> IF -2004 THROW THEN \ ABORT" `UNTIL` does not match `BEGIN`"
   ?BRANCH,
   0xFFFFFF80  DP @ 4 - @  U<
   IF  DP @ 5 - W@ 0x3F0 + DP @ 6 - W!   -4 ALLOT
@@ -96,7 +96,7 @@
 \ ¬рем€ выполнени€: ( -- )
 \ ѕродолжить выполнение с позиции, заданной dest.
   ?COMP
-  3 <> IF -2005 THROW THEN \ ABORT" REPEAT без BEGIN !"
+  3 <> IF -2005 THROW THEN \ ABORT" `REPEAT` does not match `BEGIN`"
   DUP DP @ 2+ - DUP
   SHORT?
   IF SetJP 0xEB C, C, DROP
@@ -112,7 +112,7 @@
 \ ¬рем€ выполнени€: ( -- )
 \ ѕродолжить выполнение с позиции, заданной dest. ≈сли другие управл€ющие слова
 \ не используютс€, то любой программный код после AGAIN не будет выполн€тьс€.
-  ?COMP 3 <> IF -2006 THROW THEN \ ABORT" AGAIN без BEGIN !"
+  ?COMP 3 <> IF -2006 THROW THEN \ ABORT" `AGAIN` does not match `BEGIN`"
   DUP DP @ 2+ - DUP
   SHORT?
   IF SetJP 0xEB C, C, DROP

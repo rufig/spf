@@ -15,7 +15,7 @@ VARIABLE (__ret2)  (__ret2) 0!
   >R
   R@ @ 1000 MOD 0= IF
 \ во время компиляции должно хватить 1000 символов
-  ABORT" Больше 1000 байтов для имен внешних функций"
+  ABORT" External functions table is overflowed"
 (    R> DUP @ 1000 + dlrealloc >R)
   THEN
   R@ @ 2DUP + 1+ R@ !
@@ -93,7 +93,7 @@ VARIABLE (__ret2)  (__ret2) 0!
 ;
 
 : symbol-address ( sym# -- adr)
-ABORT" Вызов symbol-address"
+ABORT" TC `symbol-address` is called"
 (  get-symbol-record >R
   R@ CELL+ @ ?DUP 0= IF
     R@ @ + dlsym2 DUP R@ CELL+ !
