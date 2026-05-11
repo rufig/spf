@@ -27,7 +27,7 @@ TODO:
 
 0 VALUE docHandle
 VARIABLE xmlIndent
-0 VALUE moduleComment?
+0 VALUE moduleCommentHere  \ ( addr.here | 0 )
 0 VALUE includeBody?
 0 VALUE generateHelp?
 0 VALUE comment?
@@ -168,8 +168,8 @@ SPECIAL > &gt;
     TRUE TO comment?
 ;
 
-: \
-   comment? moduleComment? OR
+: process-line-comment ( -- )
+   comment? moduleCommentHere OR
    IF
       BL SKIP BL HELP-EMIT
       SOURCE-FOLLOWING DROP ( c-addr1 )
@@ -185,22 +185,46 @@ SPECIAL > &gt;
    ELSE
       [COMPILE] \
    THEN
-; IMMEDIATE
+;
 
 : StartModuleComment
     +indent
     S" <comment>" HELP-OUT
-    TRUE TO moduleComment?
+    HERE TO moduleCommentHere
 ;
 
 : EndModuleComment
-   moduleComment?
+   moduleCommentHere
    IF
      S" </comment>" HELP-OUT crh
      -indent
-     FALSE TO moduleComment?
+     0 TO moduleCommentHere
    THEN
 ;
+
+: ?EndModuleComment ( -- )
+\ NB: This word may refill the input buffer,
+\ so it must be called after the input buffer is processed.
+   moduleCommentHere 0= IF EXIT THEN
+   moduleCommentHere HERE = IF \ There was no definition yet
+      BL SKIP SOURCE-FOLLOWING NIP IF EXIT THEN
+      \ the parse area is empty
+      REFILL DROP
+      BL SKIP SOURCE-FOLLOWING NIP IF EXIT THEN
+      \ the next line is empty
+   THEN \ a new definition or an empty line appeared
+   EndModuleComment
+;
+
+: \
+   process-line-comment
+   ?EndModuleComment
+; IMMEDIATE
+
+: (
+   [COMPILE] (
+   ?EndModuleComment
+; IMMEDIATE
 
 \ Таким образом мы знаем какой модуль в каком подключается
 : INCLUDED ( addr u )
@@ -322,7 +346,7 @@ XMLHELP-OFF
     CLOSE-TAG
     0 xmlIndent !
     0 TO comment?
-    0 TO moduleComment?
+    0 TO moduleCommentHere
 
     XMLHELP-ON
     S" <forthsourcecode>" HELP-OUT +indent
