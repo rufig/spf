@@ -277,7 +277,7 @@ offset TO .forth-offset
 0 ,             \ адрес
 \ смещение и размер
 offset ,
-IMAGE-SIZE ,
+TC-IMAGE-SIZE ,
 0 ,             \ информация
 0 ,             \ локальных символов
 4 ,             \ выравнивание
@@ -325,10 +325,10 @@ CREATE segments
 \ Сегмент 1: .forth
 1 ,               \ тип: pt_load
 .forth-offset ,   \ смещение в файле
-IMAGE-START ,     \ виртуальный адрес
+TC-IMAGE-START ,     \ виртуальный адрес
 0 ,               \ физический адрес
 .forth# ,         \ размер в файле
-IMAGE-SIZE ,      \ размер в памяти
+TC-IMAGE-SIZE ,      \ размер в памяти
 7 ,               \ флаги: pf_x pf_r pf_w
 0 ,               \ выравнивание
 )

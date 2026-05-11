@@ -352,8 +352,6 @@ CREATE sections
   LOOP DROP
 ;
 
-: IMAGE-BASE FORTH-START ;
-
 : (forth.ld) ( a u -- )
   ." SECTIONS" CR
   ." {" CR
@@ -388,7 +386,7 @@ CREATE sections
   R/W CREATE-FILE THROW >R
   elf-header elf-header-size R@ WRITE-FILE THROW
 
-  HERE FORTH-START - DUP
+  HERE IMAGE-BASE - DUP
   sections 5 elf-section-size * + 5 CELLS + !
 
   sections 5 elf-section-size * + 4 CELLS + @ ( смещение секции .forth)
@@ -424,7 +422,7 @@ CREATE sections
   dlopen-adr  0!  dlsym-adr  0!  dlerror-adr 0!
   realloc-adr 0!  calloc-adr 0!  write-adr   0!
 
-  R@ FORTH-START HERE OVER - 3 4 PICK C-CALL DROP
+  R@ IMAGE-BASE HERE OVER - 3 4 PICK C-CALL DROP
 
   write-adr   !  calloc-adr !  realloc-adr !
   dlerror-adr !  dlsym-adr  !  dlopen-adr  !

@@ -20,7 +20,13 @@ TARGET-POSIX [IF]
 : >VIRT ;
 [THEN]
 
-: assume-image-start ( addr -- ) NEGATE IMAGE-START +  TO virt-offset  TRUE TO [BUILDING-TARGET] ;
+: assume-image-start ( a-addr -- )
+  \ TODO: refactor this definition, the input a-addr is redundant
+  DUP HERE <> ABORT" Assertion failed: `HERE` does not match `TC-IMAGE-BASE`"
+  DUP TO TC-IMAGE-BASE
+  NEGATE TC-IMAGE-START +  TO virt-offset
+  TRUE TO [BUILDING-TARGET]
+;
 : *DP@ ( -- va) DP @ >VIRT ;
 
 \ ----------------------------------------------------
@@ -188,6 +194,7 @@ M\ ' DROP TO DTST
 : MCOMPILE, ( CFA -- )
 \ Note: after applying `SET-XT-COMPILER` to this word,
 \ the host `COMPILE,` uses this definition to compile an xt.
+    DUP 0= ABORT" Invalid xt is passed to `MCOMPILE,`" \ CFA cannot be 0
     CON>LIT
     IF INLINE?
       IF     INLINE,
@@ -839,7 +846,7 @@ DEFINITIONS \ End of TC-IMM definitions
 HERE 10000 + 10000 / 10000 * 2000 + DP !    \ выравнивание
 DECIMAL
 
-HERE assume-image-start  \ t{ HERE >VIRT -> IMAGE-START }t
+HERE assume-image-start  \ t{ HERE >VIRT -> TC-IMAGE-START }t
 \ Note: this should match the `.forth` setting in "./spf.f"
 
 \ *** поехали! ***
@@ -847,6 +854,3 @@ ONLY FORTH DEFINITIONS ALSO TC
 
 \ Note: TC-?LITERAL is taken into account via NOTFOUND in TC-IMM
 ' MCOMPILE, SET-XT-COMPILER
-
-\ Avoid words of target compiler in spf xml help
-HERE TO TC-IMAGE-BASE

@@ -182,8 +182,24 @@ USER (CS-FENCE)
     DUP C, CHARS HERE OVER ALLOT
     SWAP CMOVE 0 C, ;
 
-512 1024 * TO IMAGE-SIZE
-0x8050000 CONSTANT IMAGE-START ( -- v-addr ) \ it is used only in POSIX target
+
+
+0 VALUE TC-IMAGE-SIZE \ it includes the unused dictionary space
+0 VALUE TC-IMAGE-BASE \ actual memory address
+0 VALUE TC-IMAGE-START \ virtual address
+
+: SET-TC-IMAGE-START ( u.virtual-address -- ) TO TC-IMAGE-START ;
+: SET-TC-IMAGE-SIZE ( u.size -- ) TO TC-IMAGE-SIZE ;
+
+
+512 1024 *  SET-TC-IMAGE-SIZE ( -- u.size ) \ it includes the unused dictionary space
+
+TARGET-POSIX [IF]
+  0x8050000 SET-TC-IMAGE-START ( -- u.virtual-address ) \ it is used only in POSIX target
+[ELSE]
+  TC-IMAGE-BASE SET-TC-IMAGE-START
+[THEN]
+
 
 0 VALUE .forth
 0 VALUE .forth#
@@ -208,8 +224,9 @@ WARNING 0! \ чтобы не было сообщений isn't unique
 HERE  DUP HEX .( Base address of the image 0x) U.
 TARGET-POSIX [IF]
 TO .forth
-.forth >VIRT IMAGE-START <> [IF] .( #Error, assertion failed: `.forth` does not match `IMAGE-START` ) CR ABORT [THEN]
+.forth >VIRT TC-IMAGE-START <> [IF] .( #Error, assertion failed: `.forth` does not match `TC-IMAGE-START` ) CR ABORT [THEN]
 [ELSE]
+DUP TO .forth
 HERE TC-CALL,
 [THEN]
 

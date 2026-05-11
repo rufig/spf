@@ -7,10 +7,11 @@
 \ 94 MEMORY
 
 
-0 CONSTANT FORTH-START
-.forth >VIRT ' FORTH-START >BODY !
+.forth >VIRT VALUE IMAGE-BASE
 
-0x80000 VALUE IMAGE-SIZE
+TC-IMAGE-SIZE VALUE IMAGE-SIZE \ the main section size, 0x80000 by default
+
+
 
 VARIABLE THREAD-HEAP \ для совместимости с windows-версией, значение никакой нагрузки не несёт
 

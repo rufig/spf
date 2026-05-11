@@ -9,9 +9,17 @@
 DECIMAL
 DUP        VALUE ORG-ADDR      \ адрес компил€ции кода
 DUP        VALUE IMAGE-BEGIN   \ адрес загрузки кода
-512 1024 * VALUE IMAGE-SIZE    \ сколько места резервировать при
-                               \ загрузке секции кода
-DUP 8 1024 * - CONSTANT IMAGE-BASE \ адрес загрузки первой секции
+
+( a-addr )
+
+\ Set the loading address of  of the main section
+DUP 8 1024 * - TC-TO( IMAGE-BASE  )
+
+\ Set the size of the main section
+TC-IMAGE-SIZE  TC-TO( IMAGE-SIZE )
+
+( a-addr )
+
 
 VARIABLE RESOURCES-RVA
 VARIABLE RESOURCES-SIZE

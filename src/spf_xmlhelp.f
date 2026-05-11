@@ -31,7 +31,6 @@ VARIABLE xmlIndent
 0 VALUE includeBody?
 0 VALUE generateHelp?
 0 VALUE comment?
-0x1FFFFFFF VALUE TC-IMAGE-BASE
 
 : XMLHELP-ON
     TRUE TO generateHelp?
@@ -272,7 +271,8 @@ SPECIAL > &gt;
 : StartColonHelp ( flag.is-primitive -- )
 
   \ Skip words of target compiler
-  HERE TC-IMAGE-BASE < IF DROP EXIT THEN
+  TC-IMAGE-BASE 0= IF DROP EXIT THEN
+  HERE  TC-IMAGE-BASE TC-IMAGE-SIZE OVER +  WITHIN INVERT IF DROP EXIT THEN
 
   EndModuleComment
   generateHelp? 0= IF DROP EXIT THEN
