@@ -31,6 +31,7 @@
 libs:
 ! lib/ext/locals.f - определение с локальными переменными было невидимо для "IMMEDIATE"
 ! lib/ext/disasm.f - некоторые исправления и дополнения
+! lib/include/core-ext.f - исправление "UNUSED" когда текущее хранилище временное
 + lib/include/ansi.f - добавлено FILE-STATUS facil.f
 + lib/include/core.f - добавлено "BUFFER:"
 + lib/include/facil.f - добавлено MS

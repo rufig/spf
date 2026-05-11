@@ -42,8 +42,8 @@
     делать FREE-WORDLIST, когда этот словарь в CURRENT или CONTEXT,
     тоже самое и дл€ хранилищ.
 
-  ћодуль определ€ет слово UNUSED, учитывающее текущее хранилище, поэтому
-  при использовании lib/include/core-ext.f оно должно быть до storage.f,
+  ћодуль переопредел€ет слово UNUSED, чтобы учитывалось текущее хранилище,
+  поэтому подключает lib/include/core-ext.f чтобы исключить перекрытие,
   т.к. в нем UNUSED тоже определ€етс€.
   ¬ остальном же, storage.f должен быть подключен на самой ранней стадии.
 
@@ -54,6 +54,7 @@
   Cовместимо с quick-swl3.f, который следует подгружать после данного модул€.
 )
 
+REQUIRE UNUSED lib/include/core-ext.f
 REQUIRE Included ~pinka/lib/ext/requ.f
 REQUIRE REPLACE-WORD lib/ext/patch.f
 REQUIRE NDROP    ~pinka/lib/ext/common.f
