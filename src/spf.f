@@ -113,6 +113,10 @@ SYNONYM UNROT -ROT \ 2025 Proposal
 : C>S ( char.signed -- n )  0xFF AND [ 0x7F INVERT ] LITERAL XOR 0x80 + ;
 [THEN]
 
+[UNDEFINED] CHAR- [IF]
+: CHAR- 1- ;
+[THEN]
+
 [UNDEFINED] SLIT,  [IF]
 : SLIT, POSTPONE SLITERAL ;
 [THEN]
@@ -122,6 +126,15 @@ SYNONYM UNROT -ROT \ 2025 Proposal
   BEGIN PLUCK-LEXEME DUP IF EXIT THEN 2DROP REFILL 0= UNTIL
   -39 THROW \ "unexpected end of input source"
 ;
+[THEN]
+
+[UNDEFINED] /STRING [IF]
+: /STRING ( sd1 n -- sd2 ) TUCK - >R + R> ;
+[THEN]
+
+[UNDEFINED] SOURCE-FOLLOWING [IF]
+: SOURCE-FOLLOWING ( -- sd ) SOURCE >IN @  OVER UMIN  /STRING ;
+\ `OVER UMIN` is a workaround for a known bug in old versions of spf3/spf4
 [THEN]
 
 [UNDEFINED] \EOF [IF]
