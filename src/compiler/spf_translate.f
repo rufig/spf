@@ -73,15 +73,12 @@ VECT ?SLITERAL
 : TRANSLATE-XTIMM ( any xt -- any )
   EXECUTE
 ;
-: TRANSLATE-WORD ( any xt flag.imm -- any )
-  IF   TRANSLATE-XTIMM EXIT  THEN   TRANSLATE-XT
-;
 
 : TRANSLATE-NAME ( any nt -- any )
   \ If interpretation, perform the interpretation semantics of the word identified by nt.
   \ Otherwise, perform the compilation semantics of the word identified by nt.
   DUP NAME> SWAP ( xt nt ) IS-NAME-IMMEDIATE
-  TRANSLATE-WORD
+  IF   TRANSLATE-XTIMM EXIT  THEN   TRANSLATE-XT
 ;
 
 : COMPILE-NAME ( any nt -- any )
@@ -132,14 +129,17 @@ VECT ?SLITERAL
   2DUP FIND-NAME DUP IF  NIP NIP  TRUE THEN
 ;
 
+\ Recognizer Core API
+S" src/compiler/recognizer-core.f" INCLUDED
+
 
 : TAKE-NAME ( "<space>name" -- nt )
-  TAKE-LEXEME FIND-NAME ?FOUND
+  TAKE-LEXEME
+  ['] PERCEIVE EXECUTE-ASKINGLY-NAME ?FOUND  QANY>NT
 ;
 : TAKE-NAME>XT ( "<space>name" -- xt )
   TAKE-LEXEME
-  SFIND ?FOUND DROP \ use `SFIND` for backward compatibility
-  \ `SFIND` uses the vector `SEARCH-WORDLIST` (that can change)
+  PERCEIVE ?FOUND  QANY>XT
 ;
 
 : ' ( "<spaces>name" -- xt ) \ 94
@@ -165,6 +165,7 @@ VECT ?SLITERAL
 : EVAL-WORD ( any sd.lexeme -- any )
 \ Translate a word whose name matches the string sd.lexeme
 \ Note: a changed `SEARCH-WORDLIST` (if any) is not taken into account
+\ Note: `PERCEIVE` is deliberately not used in this old word.
   FIND-NAME ?FOUND TRANSLATE-NAME
 ;
 
@@ -208,7 +209,7 @@ VECT TRANSLATE-LEXEME ( any sd.lexeme -- any )
   \ Note: some extensions extend the behavior of `search-wordlist`,
   \ so the system should continue to use it (via `sfind`) in `interpret`
   \ for backward compatibility.
-  SFIND DUP IF  -1 <>  TRANSLATE-WORD  EXIT THEN  DROP
+  PERCEIVE? IF  EXECUTE EXIT THEN ( sd.lexeme )
   TRANSLATE-NOTFOUND
 ;
 
