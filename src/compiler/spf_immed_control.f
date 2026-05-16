@@ -54,7 +54,7 @@
 \ Время выполнения: ( -- )
 \ Продолжить выполнение.
   ?COMP
-  ALIGN-BYTES @ ALIGN-NOP
+  ALIGNMENT ALIGN-CODE-TO
 \  HERE TO :-SET
   <MARK 3
 ; IMMEDIATE
