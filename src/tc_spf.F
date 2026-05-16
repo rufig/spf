@@ -538,6 +538,17 @@ TARGET-POSIX [IF]
   TC-TAKE-XT
 ;
 
+\ This word is placed in the TC vocabulary to allow its use outside of definitions
+: [']  \ Search TC-TRG-WL only, return xt-virt
+  \ Interpretation: ( -- xt-virt )
+  \ Compilation: ( "<spaces>name" -- )
+  \ Runtime: ( -- xt )
+  \ xt-virt is an execution token in the virtual address space
+  TAKE-LEXEME  TC-TRG-WL SEARCH-WORDLIST
+  0= ABORT" Word is not found in TC-TRG-WL"
+  >VIRT  STATE @ IF  TC-LIT,  THEN
+; IMMEDIATE
+
 : TC-TO( ( "<sp>name<sp><rparen>" ) ( x -- ; Compil: false ; | -- ; Compil: true ; )
   TC-TAKE-XT
   >BODY CELL+
@@ -558,8 +569,9 @@ TARGET-POSIX [IF]
 
 : SYNONYM ( "<spaces>name.new" "<spaces>name.old" -- ) \ 2012 TOOLS-EXT
   [T]
-  PARSE-NAME 2>R
-  PARSE-NAME SFIND DUP 0= -13 AND THROW  1 =  ( xt flag.imm )
+  TAKE-LEXEME 2>R
+  TAKE-LEXEME TC-TRG-WL SEARCH-WORDLIST  DUP 0= ABORT" Word is not found in TC-TRG-WL"
+  1 =  ( xt flag.imm )
   2R> SHEADER  IF IMMEDIATE THEN
   LATEST-NAME NAME>C !
   [I]
@@ -636,15 +648,11 @@ C" SHERE-TAB-CUR" FIND NIP
 [THEN]
 
 
-: [']  \ Search TC-TRG-WL only, return xt-virt
-  \ Interpretation: ( -- xt-virt )
-  \ Compilation: ( "<spaces>name" -- )
-  \ Runtime: ( -- xt-virt )
-  \ xt-virt is an execution token in the virtual address space
-  TAKE-LEXEME  TC-TRG-WL SEARCH-WORDLIST
-  0= ABORT" Word is not found in TC-TRG-WL"
-  >VIRT  STATE @ IF  TC-LIT,  THEN
-; IMMEDIATE
+' SYNONYM \ Use the word from the host system instead of the word from the TC vocabulary
+ALSO TC
+\ SYNONYM ['] [']  \ this will work incorrectly
+EXECUTE ['] [']  \ A synonym of `[']` in the TC-IMM vocabulary from the TC vocabulary
+PREVIOUS
 
 
 : TO ALSO TC-TRG [COMPILE] TO PREVIOUS ; IMMEDIATE
