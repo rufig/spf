@@ -60,7 +60,7 @@ VECT SHEADER
   \ Place a new definition into the compilation word list.
   \ <name.new> matches the new definition's name string.
   \ The new definition is a synonym of the found definition.
-  PARSE-NAME 2>R  PARSE-NAME FIND-NAME ?FOUND  2R> ENLIST-SYNONYM
+  TAKE-LEXEME 2>R  TAKE-NAME ( nt )  2R> ENLIST-SYNONYM
 ;
 : ENLIST-IN ( xt sd.name wid -- )
   GET-CURRENT >R  SET-CURRENT  ENLIST  R> SET-CURRENT

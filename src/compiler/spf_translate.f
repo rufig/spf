@@ -129,15 +129,18 @@ VECT ?SLITERAL
 : TAKE-NAME ( "<space>name" -- nt )
   TAKE-LEXEME FIND-NAME ?FOUND
 ;
+: TAKE-NAME>XT ( "<space>name" -- xt )
+  TAKE-LEXEME
+  SFIND ?FOUND DROP \ use `SFIND` for backward compatibility
+  \ `SFIND` uses the vector `SEARCH-WORDLIST` (that can change)
+;
 
 : ' ( "<spaces>name" -- xt ) \ 94
 \ Пропустить ведущие пробелы. Выделить name, ограниченное пробелом. Найти name
 \ и вернуть xt, выполнимый токен для name. Неопределенная ситуация возникает,
 \ если name не найдено.
 \ Во время интерпретации  ' name EXECUTE  равносильно  name.
-  TAKE-LEXEME
-  SFIND ?FOUND DROP \ use `SFIND` for backward compatibility
-  \ `SFIND` uses the vector `SEARCH-WORDLIST` (that can change)
+  TAKE-NAME>XT
 ;
 
 : CHAR ( "<spaces>name" -- char ) \ 94

@@ -18,7 +18,7 @@ DECIMAL
 : offset,size, ( n -- ) offset , DUP , +offset ;
 \ see-also: `elf-offset` and `+elf-offset` in "./tc_spf.F"
 
-: '' ALSO TC-TRG ' PREVIOUS ;
+: '' ( "<spaces>name" -- xt )  TC-TAKE-XT ;
 
 S" src/elf.f" INCLUDED
 
