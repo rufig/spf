@@ -7,10 +7,10 @@
 : MODULE: ( "name" -- old-current )
 \ start a forth module
 \ Если такой модуль уже существует, продолжить компиляцию в него
-  >IN @
-  ['] ' CATCH
-  IF >IN ! VOCABULARY LATEST-NAME>XT ELSE NIP THEN
-  GET-CURRENT SWAP ALSO EXECUTE DEFINITIONS ;
+  TAKE-LEXEME FIND-NAME? IF NAME> ( xt.voc )
+  ELSE ['] VOCABULARY EVALUATE-WITH LATEST-NAME>XT ( xt.voc )
+  THEN XTVOC>WID  GET-CURRENT SWAP PUSH-ORDER  DEFINITIONS
+;
 
 : EXPORT ( old-current -- old-current )
 \ export some module definitions
@@ -26,7 +26,7 @@
 \ Кладет в ORDER wordlist, к-ый даст "name"
 \ или vocabulary если "name" - vocabulary
         DEPTH >R
-        ALSO ' EXECUTE
+        TAKE-NAME>XT  ALSO  EXECUTE
         DEPTH R> <>             IF      \ wid on the stack?
              SET-ORDER-TOP      THEN
 ; IMMEDIATE
