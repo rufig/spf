@@ -26,7 +26,7 @@ VECT SHEADER
   ALIGN
   ( сдвигаем указатель кода так, чтобы при компиляции переменных и векторов )
   ( следующая ячейка данных, находящаяся после CALL *-CODE была выровнена:  )
-  ALIGN-BYTES @ DUP 4 >
+  ALIGNMENT DUP 4 >
   IF 5 - ALLOT
   ELSE 1 - ALLOT
   THEN

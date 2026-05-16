@@ -154,9 +154,13 @@ DECIMAL
 \ Слова для выравнивания (ALIGN*) в SPF используются для выравнивания
 \ кода форт-слов и данных после CREATE
 
-USER ALIGN-BYTES
+USER (ALIGNMENT-SLOT)
 
-: ALIGN-TO ( addr u -- addr1 )
+: ALIGNMENT ( -- u.alignment ) (ALIGNMENT-SLOT) @ ; \ alignment boundary (local to thread)
+
+: SET-ALIGNMENT ( u.alignment -- ) (ALIGNMENT-SLOT) ! ; \ set alignment boundary (local to thread)
+
+: ALIGNED-TO ( addr u.alignment -- addr1 )
   DUP 16 =
   IF
     \ Try to avoid slow division, 16 is a default align value
@@ -166,9 +170,13 @@ USER ALIGN-BYTES
   THEN
 ;
 
+\ old unfortunate names
+SYNONYM ALIGN-BYTES (ALIGNMENT-SLOT) ( -- a-addr ) \ for backward compatibility
+SYNONYM ALIGN-TO  ALIGNED-TO  ( addr1 u.alignment -- addr2 ) \ for backward compatibility
+
 : ALIGNED ( addr -- a-addr ) \ 94
 \ a-addr - первый выровненный адрес, больший или равный addr.
-  ALIGN-BYTES @ ALIGN-TO
+  ALIGNMENT ALIGNED-TO
 ;
 
 : ALIGN ( -- ) \ 94
@@ -177,8 +185,8 @@ USER ALIGN-BYTES
   DP @ ALIGNED DP @ - ALLOT
 ;
 
-: ALIGN-NOP ( n -- )
+: ALIGN-CODE-TO ( u.alignment -- )
 \ выровнять HERE на n и заполнить NOP
-  HERE DUP ROT ALIGN-TO
+  HERE DUP ROT ALIGNED-TO
   OVER - DUP ALLOT 0x90 FILL
 ;

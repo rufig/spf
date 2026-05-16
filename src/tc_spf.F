@@ -141,7 +141,7 @@ ONLY FORTH DEFINITIONS
 
 HEX
 
-: ALIGN-NOP ( n -- )
+: ALIGN-CODE-TO ( u.alignment -- )
 \ выровнять на n и заполнить NOP
   DP @ DUP ROT 2DUP
   MOD ?DUP IF - + ELSE DROP THEN
@@ -328,7 +328,7 @@ VARIABLE _VOC-LIST ' _VOC-LIST TO VOC-LIST
 ;
 
 
-ALIGN-BYTES-CONSTANT ALIGN-BYTES !
+TC-ALIGNMENT  SET-ALIGNMENT
 
 
 : SHEADER ( addr u -- )
@@ -730,7 +730,7 @@ HEX
   SetOP  0x68 C, DP @ 4 ALLOT  \ PUSH #
   SetOP  0x52 C,               \ PUSH EDX
   SetOP  0x53 C,               \ PUSH EBX
-  4 ALIGN-NOP
+  4 ALIGN-CODE-TO
   DP @ DUP TO :-SET
 ; IMMEDIATE
 

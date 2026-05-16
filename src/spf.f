@@ -80,6 +80,11 @@ S" lib/include/tools.f" ROT DUP ' INCLUDED AND  SWAP 0= ' 2DROP AND  OR EXECUTE
 : SOURCE-FILE-PATH ( -- sd.path ) CURFILE @ DUP IF ASCIIZ> ELSE 0 THEN ;
 [THEN]
 
+[UNDEFINED] SET-ALIGNMENT [IF]
+: SET-ALIGNMENT ( u.alignment -- ) ALIGN-BYTES ! ;
+: ALIGNMENT ( -- u.alignment ) ALIGN-BYTES @ ;
+[THEN]
+
 
 [THEN] [THEN] \ End of spf4 specific implementations
 
