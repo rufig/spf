@@ -70,14 +70,18 @@ VECT ?SLITERAL
   COMPILATION IF  COMPILE-XT  EXIT THEN  EXECUTE
 ;
 
+: TRANSLATE-XTIMM ( any xt -- any )
+  EXECUTE
+;
 : TRANSLATE-WORD ( any xt flag.imm -- any )
-  IF  EXECUTE EXIT  THEN  TRANSLATE-XT
+  IF   TRANSLATE-XTIMM EXIT  THEN   TRANSLATE-XT
 ;
 
 : TRANSLATE-NAME ( any nt -- any )
   \ If interpretation, perform the interpretation semantics of the word identified by nt.
   \ Otherwise, perform the compilation semantics of the word identified by nt.
-  DUP NAME> SWAP ( xt nt ) IS-NAME-IMMEDIATE  TRANSLATE-WORD
+  DUP NAME> SWAP ( xt nt ) IS-NAME-IMMEDIATE
+  TRANSLATE-WORD
 ;
 
 : COMPILE-NAME ( any nt -- any )
@@ -124,6 +128,9 @@ VECT ?SLITERAL
   ?HAS-SETTER   COMPILATION IF COMPILE-SETTER ELSE EXECUTE-SETTER THEN
 ;
 
+: FIND-NAME? ( sd.lexeme -- nt true | sd.lexeme false )
+  2DUP FIND-NAME DUP IF  NIP NIP  TRUE THEN
+;
 
 
 : TAKE-NAME ( "<space>name" -- nt )
@@ -194,16 +201,10 @@ VECT ?SLITERAL
   ?SLITERAL
 ;
 
-: FIND-NAME? ( sd.lexeme -- nt true | sd.lexeme false )
-  2DUP FIND-NAME DUP IF  NIP NIP  TRUE THEN
-;
 
-: TRANSLATE-LEXEME ( any sd.lexeme -- any )
-  FIND-NAME? IF  TRANSLATE-NAME  EXIT THEN
-  TRANSLATE-NOTFOUND
-;
+VECT TRANSLATE-LEXEME ( any sd.lexeme -- any )
 
-: TRANSLATE-LEXEME-SWL ( any sd.lexeme -- any )
+: SPF4.TRANSLATE-LEXEME ( any sd.lexeme -- any )
   \ Note: some extensions extend the behavior of `search-wordlist`,
   \ so the system should continue to use it (via `sfind`) in `interpret`
   \ for backward compatibility.
@@ -211,11 +212,14 @@ VECT ?SLITERAL
   TRANSLATE-NOTFOUND
 ;
 
+' SPF4.TRANSLATE-LEXEME  ' TRANSLATE-LEXEME TC-VECT!
+
+
 : INTERPRET_ ( any -- any ) \ interpret (translate) the parse area of the input buffer
   BEGIN
     PLUCK-LEXEME DUP
   WHILE
-    TRANSLATE-LEXEME-SWL
+    TRANSLATE-LEXEME
     ?STACK
   REPEAT 2DROP
 ;
