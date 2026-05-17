@@ -166,11 +166,11 @@ HERE ' .symtab EXECUTE - CONSTANT .symtab#
 CREATE .rel.forth
 
 \ Секция .dltable
-' dl-first 5 + .forth - ,  \ адрес
+' dl-first >BODY .forth - ,  \ адрес
 3 8 LSHIFT 1 OR , \ тип r386_32
 
 \ Секция .dlstrings
-' dl-first-strtab 5 + .forth - ,  \ адрес
+' dl-first-strtab >BODY .forth - ,  \ адрес
 4 8 LSHIFT 1 OR , \ тип r386_32
 
 \ Символ dlopen

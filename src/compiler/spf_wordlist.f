@@ -41,7 +41,7 @@ WORDLIST VALUE FORTH-WORDLIST  ( -- wid ) \ 94 SEARCH
 \ Исключительная ситуация возникает, если xt не от слова,
 \ определенного через CREATE.
 (  1+ @ было в версии 2.5 )
-  5 +
+  CFL + ( xt.having-data-field -- a-addr.data-field )
 ;
 
 : +SWORD ( addr u wid -> ) \ добавление заголовка статьи с именем,

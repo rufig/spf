@@ -155,11 +155,11 @@ HERE .symtab - CONSTANT .symtab#
 CREATE .rel.forth
 
 \ Секция .dltable
-'' dl-first 5 + .forth - ,  \ адрес
+'' dl-first >BODY .forth - ,  \ адрес
 3 8 LSHIFT 1 OR , \ тип r386_32
 
 \ Секция .dlstrings
-'' dl-first-strtab 5 + .forth - ,  \ адрес
+'' dl-first-strtab >BODY .forth - ,  \ адрес
 4 8 LSHIFT 1 OR , \ тип r386_32
 
 \ Символ dlopen
@@ -191,7 +191,7 @@ HERE .rel.forth - CONSTANT .rel.forth#
 dl-second-strtab @ CONSTANT .dlstrings#
 dl-second# dl-rec# * CONSTANT .dltable#
 
-dl-second# '' dl-first# 5 + !
+dl-second# '' dl-first# >BODY !
 
 \ ====================================
 

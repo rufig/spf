@@ -9,7 +9,8 @@
 
 VARIABLE AOLL
 VARIABLE AOGPA
-0 VALUE ST-RES
+0 VALUE ST-RES ( -- addr.of-stack-reserve )
+\ the cell at addr.of-stack-reserve contains the data stack size in bytes for callbacks
 
 \ обработчики ненахождения ф-ии/либы
 VECT PROC-ERROR
@@ -21,7 +22,7 @@ CODE AO_INI \ в EAX структура WINAPI:
       PUSH EAX
       A; 0xA1 C,  AddrOfLoadLibrary
       ALSO FORTH , PREVIOUS \   MOV  EAX, AddrOfLoadLibrary
-A; HERE 4 - ' AOLL EXECUTE !
+A; HERE CELL- ' AOLL EXECUTE !
       CALL EAX
       OR   EAX, EAX
       JZ   @@1
@@ -31,7 +32,7 @@ A; HERE 4 - ' AOLL EXECUTE !
       PUSH EAX
       A; 0xA1 C,  AddrOfGetProcAddress
       ALSO FORTH , PREVIOUS \    MOV  EAX, AddrOfGetProcAddress
-A; HERE 4 - ' AOGPA EXECUTE !
+A; HERE CELL- ' AOGPA EXECUTE !
       CALL EAX
       OR   EAX, EAX
       JZ   @@2
@@ -88,7 +89,7 @@ END-CODE
 CODE _WNDPROC-CODE
      MOV  EAX, ESP
      SUB  ESP, # 3968
-A;   HERE 4 - ' ST-RES 9 + EXECUTE
+A;   HERE CELL- >VIRT TC-TO( ST-RES )
      PUSH EBP
      MOV  EBP, 4 [EAX] ( адрес возврата из CALLBACK )
      PUSH EBP
