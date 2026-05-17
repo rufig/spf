@@ -180,6 +180,10 @@ END-CODE
 \  LIT, RET,
   ['] _CONSTANT-CODE COMPILE, ,
 ;
+
+
+\ See-also: `EXECUTE-SETTER`, `COMPILE-SETTER`, `TRANSLATE-SETTER`.
+
 : VALUE ( x "<spaces>name" -- ) \ 94 CORE EXT
 \ ѕропустить ведущие пробелы. ¬ыделить name, ограниченное пробелом. —оздать
 \ определение дл€ name с семантикой выполнени€, определенной ниже, с начальным

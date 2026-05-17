@@ -21,9 +21,7 @@
 \ Примечание: Неопределенная ситуация возникает, если POSTPONE или [COMPILE]
 \ применяются к TO.
   '
-  >BODY CELL+
-  STATE @
-  IF COMPILE, ELSE EXECUTE THEN
+  TRANSLATE-SETTER
 ; IMMEDIATE
 
 : POSTPONE \ 94
