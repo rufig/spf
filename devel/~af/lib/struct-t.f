@@ -20,7 +20,7 @@
 : STRUCT: ( "name" -- old-current )
   TVOC
   GET-CURRENT
-  ALSO LATEST-NAME-XT EXECUTE DEFINITIONS
+  ALSO LATEST-NAME>XT EXECUTE DEFINITIONS
   0
 ;
 : ;STRUCT ( old-current -- )

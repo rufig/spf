@@ -142,7 +142,7 @@ EXPORT
 : MARKER
   WARNING @ >R WARNING 0!
   LATEST-NAME \ NB: then the compilation word list cannot be empty
-  >IN @ >R  MARKER LATEST-NAME-XT  R> >IN !
+  >IN @ >R  MARKER LATEST-NAME>XT  R> >IN !
   ( last marker-xt  )
   CREATE
    , , GET-CURRENT ,
