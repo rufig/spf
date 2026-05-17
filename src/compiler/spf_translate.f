@@ -100,6 +100,32 @@ VECT ?SLITERAL
 ;
 
 
+\ DataType( xtval <: xt )
+\ An execution token xtval is associated with its own "setter" semantics.
+\ Note that the system is not required to provide an xt that identifies these semantics.
+\ See: `VALUE`, `VECT`, `USER-VECT`, `USER-VALUE`, `2VALUE`, `FVALUE`.
+
+: ?HAS-SETTER ( xt\xtval -- never | xtval -- xtval )
+  \ A rought check whether the top paramenter can be an xtval.
+  DUP CALL@ 0<> IF DUP >BODY CELL+ CALL@ 0<> IF EXIT THEN THEN
+  -32 THROW
+;
+: EXECUTE-SETTER ( any xtval -- )
+  \ Perform the "setter" semantics associated with xtval.
+  >BODY CELL+ ( tca ) EXECUTE
+;
+: COMPILE-SETTER ( xtval -- )
+  \ Append the "setter" semanitcs associated with xtval to the current definition.
+  >BODY CELL+ ( tca ) COMPILE,
+;
+: TRANSLATE-SETTER ( any xtval -- ; Compilation: false ;  |  xtval -- ; Compilation: true )
+  \ If in interpretation state, perform the "setter" semantics associated with xtval.
+  \ Otherwise, append these semantics to the current definition.
+  ?HAS-SETTER   COMPILATION IF COMPILE-SETTER ELSE EXECUTE-SETTER THEN
+;
+
+
+
 : TAKE-NAME ( "<space>name" -- nt )
   TAKE-LEXEME FIND-NAME ?FOUND
 ;
