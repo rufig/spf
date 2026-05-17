@@ -21,7 +21,8 @@
 \ Примечание: Неопределенная ситуация возникает, если POSTPONE или [COMPILE]
 \ применяются к TO.
   '
-  9 + STATE @
+  >BODY CELL+
+  STATE @
   IF COMPILE, ELSE EXECUTE THEN
 ; IMMEDIATE
 

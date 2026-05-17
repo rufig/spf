@@ -15,7 +15,8 @@ VECT SHEADER
 : ALIGN-CODE-DATAFIELD ( -- )
   \ Ensure that the data field will be aligned
   \ Note: the "CALL *-CODE" instruction takes 5 bytes
-  HERE 5 +  DUP ALIGNED - NEGATE ALLOT
+  \ The word `CFL` returns this size. See also `>BODY`.
+  HERE CFL +  DUP ALIGNED - NEGATE ALLOT
 ;
 
 : SHEADER1 ( addr u -- )

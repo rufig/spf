@@ -32,6 +32,8 @@ VARIABLE (__ret2)  (__ret2) 0!
 
 2 CELLS CONSTANT dl-rec#
 
+\ Note: these values are used in implementation specific ways in "./elf.f" and "./posix/save.f",
+\ namely, it is assumed that `>BODY` returns the address of a cell where the value is stored.
 0 VALUE dl-first
 0 VALUE dl-first#
 0 VALUE dl-first-strtab

@@ -35,7 +35,8 @@ CODE C-CALL2 ( x1 ... xn n adr -- dres)
   RET
 END-CODE
 
-0 VALUE ST-RES
+0 VALUE ST-RES ( -- addr.of-stack-reserve )
+\ the cell at addr.of-stack-reserve contains the data stack size in bytes for callbacks
 
 \ обработчики ненахождения ф-ии/либы
 VECT PROC-ERROR
@@ -44,7 +45,7 @@ VECT LIB-ERROR
 CODE _WNDPROC-CODE
      MOV  EAX, ESP
      SUB  ESP, # 3968
-A;   HERE 4 - ' ST-RES 9 + EXECUTE
+A;   HERE CELL- >VIRT TC-TO( ST-RES )
      PUSH EBP
      MOV  EBP, 4 [EAX] ( адрес возврата из CALLBACK )
      PUSH EBP

@@ -251,11 +251,10 @@ M\ ' DROP TO DTST
 : TC>RESOLVE1 ( A -> )
   DUP
     DP @ DUP TO :-SET
-    OVER - 4 -
+    OVER - CELL-
     SWAP !
 \   J_OPT? IF ." R=" BASE @ HEX LAST-HERE U. DP @ U. BASE ! THEN
- RESOLVE_OPT
-
+  RESOLVE_OPT
 ;
 
 : TC>RESOLVE ( A, N -- )
@@ -382,6 +381,10 @@ LATEST-NAME NAME>  ALSO ASSEMBLER  IS END-CODE  PREVIOUS
   CODE-ORIG
   \ NB: заканчивать определение через ";C"
 ;
+
+5 CONSTANT CFL \ Code Field Length - the length of a "call" element of a threaded code element
+
+: >BODY ( xt.having-data-field -- a-addr.data-field ) CFL + ;
 
 : CREATE ( "<spaces>name" -- ) \ 94
   [T] HEADER [I]
@@ -537,14 +540,15 @@ TARGET-POSIX [IF]
 
 : TC-TO( ( "<sp>name<sp><rparen>" ) ( x -- ; Compil: false ; | -- ; Compil: true ; )
   TC-TAKE-XT
-  9 + STATE @
+  >BODY CELL+
+  STATE @
   IF COMPILE, ELSE  EXECUTE  THEN
   TAKE-LEXEME S" )" COMPARE ABORT" Expected ')'"
 ; IMMEDIATE
 
 : TC-VECT! ( xt xt-vect -- )
   >R >VIRT R>
-  9 +
+  >BODY CELL+
   EXECUTE
 ;
 : TC-ADDR! ( addr xt-variable -- )

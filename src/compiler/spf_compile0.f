@@ -10,7 +10,7 @@
   USER CURRENT     \ дает wid текущего словар€ компил€ции
 
   VARIABLE (DP)    \ переменна€, содержаща€ HERE сегмента данных
-5 CONSTANT CFL     \ длина кода, компилируемого CREATE в сегмент CS.
+5 CONSTANT CFL     \ Code Field Length - the length of a "call" threaded code element
   USER     DOES>A  \ This variable used to be for `DOES>`, now it is left only for backward compatibility.
 
 
