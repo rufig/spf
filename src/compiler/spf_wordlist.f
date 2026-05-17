@@ -239,7 +239,7 @@ END-CODE
   \ Иначе инициировать исключение с кодом -80.
   GET-CURRENT LATEST-NAME-IN DUP IF EXIT THEN -80 THROW
 ;
-: LATEST-NAME-XT ( -- xt ) \ NB: it never return 0
+: LATEST-NAME>XT ( -- xt ) \ NB: it never returns 0
   \ Если список слов компиляции не пуст, то вернуть токен исполнения xt
   \ для определения, которое было помещено в этот список последним.
   \ Иначе инициировать исключение с кодом -80.

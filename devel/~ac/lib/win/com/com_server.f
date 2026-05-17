@@ -98,5 +98,5 @@ CONSTANT /COM_OBJ \ вдруг когда-нибудь придетс€ добавл€ть служ.инф.
   ELSE -321 THROW THEN
 ;
 : METHOD ( class_int -- class_int )
-  LATEST-NAME-XT TASK ToVtable
+  LATEST-NAME>XT TASK ToVtable
 ;
