@@ -4,14 +4,20 @@ REQUIRE HEAP-COPY ~ac/lib/ns/heap-copy.f
 REQUIRE DLOPEN    ~ac/lib/ns/dlopen.f
 REQUIRE NOTFOUND  ~ac/lib/ns/notfound.f
 
+REQUIRE WidExtraSupport  devel/~pinka/spf/wid-extra.f
+\ DataType( oid <: wid )  \ 'oid' is a subtype of 'wid'
+\ Since 'oid' instances are placed in the search order, 'oid' must be a subtype of 'wid'.
+\ Therefore, do not use a slot intdended for other purposes (such as storing the last word)
+\ within the wordlist structure as an OBJ-DATA slot. Instead, use a separate slot for this
+\ purpose, which is accessed via `WID-OBJA`.
+
 : OBJ-DATA@ ( oid -- data )
 \ Данные объекта (instance).
-\ Для форт-словарей возвращает указатель на имя последнего слова в списке (канон),
 \ для dll - хэндл от LoadLibrary
-  @
+  WidExtraSupport::WID-OBJA @
 ;
 : OBJ-DATA! ( data oid -- )
-  !
+  WidExtraSupport::WID-OBJA !
 ;
 : OBJ-NAME@ ( oid -- addr-u )
 \ "Родное" имя объекта, присвоенное VOCABULARY (в других namespaces может быть

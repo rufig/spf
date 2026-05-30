@@ -4,7 +4,7 @@
 
 MODULE: WidExtraSupport
 
-3 CELLS CONSTANT /THIS-EXTR   \ DataTypeLayout( cache-for-wid = x.cache-id x.storage-id x.reserved )
+4 CELLS CONSTANT /THIS-EXTR   \ DataTypeLayout( cache-for-wid = x.cache-id x.storage-id x.obj-data x.reserved )
 
 : MAKE-EXTR ( wid -- )
   ALIGN
@@ -19,13 +19,17 @@ MODULE: WidExtraSupport
 : WID-STORAGEA ( wid -- a-addr[+ x.storage-id] )
   WID-EXTRA @ CELL+
 ;
+: WID-OBJA ( wid -- a-addr[+ x.obj-data ] )
+  \ a slot for `OBJ-DATA` in "devel/~ac/lib/ns/ns.f"
+  WID-EXTRA @ 2 CELLS +
+;
 
 EXPORT
 
 WARNING @  WARNING 0!
 
 : WID-EXTRA ( wid -- a-addr[+ x.reserved] )  \ будет свободна€ дл€ других расширений €чейка
-  WID-EXTRA @ 2 CELLS +  \ оптимизатор тут все правильно сделает :)
+  WID-EXTRA @ 3 CELLS +  \ оптимизатор тут все правильно сделает :)
 ;
 
 ..: AT-WORDLIST-CREATING DUP MAKE-EXTR ;..
