@@ -4,14 +4,30 @@ REQUIRE HEAP-COPY ~ac/lib/ns/heap-copy.f
 REQUIRE DLOPEN    ~ac/lib/ns/dlopen.f
 REQUIRE NOTFOUND  ~ac/lib/ns/notfound.f
 
+\ DataType( oid <: wid )  \ 'oid' is a subtype of 'wid'
+
+WARNING @  WARNING 0!
+: (EXTEND-WID) ( wid -- )
+  GET-CURRENT >R   DUP SET-CURRENT
+  ALIGN HERE 0 , 0 ,  SWAP (WID-EXTRA) !
+  R> SET-CURRENT
+;
+..: AT-WORDLIST-CREATING ( wid1 -- wid1 )
+  DUP (EXTEND-WID)
+;.. ' (EXTEND-WID) ENUM-VOCS
+
+: (OBJ-DATA-ADDR) ( oid -- a-addr ) (WID-EXTRA) @  DUP IF EXIT THEN  -12 THROW ; \ -12 "argument type mismatch"
+: (WID-EXTRA) ( oid -- a-addr ) (OBJ-DATA-ADDR) CELL+ ;
+WARNING !
+
+
 : OBJ-DATA@ ( oid -- data )
 \ Данные объекта (instance).
-\ Для форт-словарей возвращает указатель на имя последнего слова в списке (канон),
 \ для dll - хэндл от LoadLibrary
-  @
+  (OBJ-DATA-ADDR) @
 ;
 : OBJ-DATA! ( data oid -- )
-  !
+  (OBJ-DATA-ADDR) !
 ;
 : OBJ-NAME@ ( oid -- addr-u )
 \ "Родное" имя объекта, присвоенное VOCABULARY (в других namespaces может быть
