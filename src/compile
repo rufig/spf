@@ -17,3 +17,5 @@ cd src
 gcc -v 2>&1 | grep -F --silent -- '--enable-default-pie' && gcc_nopie="-no-pie"
 gcc -o spf4 spf4.o -Wl,forth.ld -ldl -lpthread -v -m32 -fno-pie $gcc_nopie
 mv spf4 ..
+cd ..
+echo '10 1024 * 1024 * S" spf4e" SAVE-WITH-RESERVE BYE' | ./spf4 lib/ext/spf4e.f

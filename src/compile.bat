@@ -19,4 +19,6 @@ if not exist "%hostforth%" (
 if %ERRORLEVEL% neq 0  exit /b %ERRORLEVEL%
 echo Wait a bit while compiling...
 echo 1 HALT  | %hostforth% src/tc-configure-lines.f src/spf.f
+if %ERRORLEVEL% neq 0  exit /b %ERRORLEVEL%
+echo 10 1024 * 1024 * S" spf4e.exe" SAVE-WITH-RESERVE BYE | spf4.exe lib/ext/spf4e.f
 endlocal

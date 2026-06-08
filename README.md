@@ -48,7 +48,9 @@ and unpack it into your arbitrary _spf4 working tree root_ forlder.
 
 ### In Windows
 
-Run `src/compile.bat` — it will build `spf4.exe` in the _spf4 working tree root_.
+Run `src/compile.bat` — it will build
+`spf4.exe` and `spf4e.exe`
+in the _spf4 working tree root_.
 
 Prerequisites: `powershell` to download the initial binary.
 
