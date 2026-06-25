@@ -211,8 +211,8 @@ USER CONNECT-INTERFACE
 : GetHostIP ( addr u -- IP ior )
   v>IDN
   DUP 0= IF NIP 11004 EXIT THEN \ иначе пустой хост S" " дает 0 0
-  OVER inet_addr DUP -1 <> IF NIP NIP 0 EXIT ELSE DROP THEN
-  DROP gethostbyname DUP IF 3 CELLS + @ @ @ 0
+  OVER inet_addr DUP -1 <> IF [ HEX ] FFFFFFFF [ DECIMAL ] AND NIP NIP 0 EXIT ELSE DROP THEN
+  DROP gethostbyname DUP IF 3 CELLS + @ @ @ [ HEX ] FFFFFFFF [ DECIMAL ] AND 0
                          ELSE WSAGetLastError THEN
 ;
 \ CREATE sock_addr2 HERE /sockaddr_in DUP ALLOT ERASE
@@ -300,17 +300,17 @@ CREATE SINLEN /sockaddr_in ,
   SOCKET_ERROR = IF WSAGetLastError EXIT THEN
   AcceptSocket
 ;
-USER _GetHostIPs
+USER-CREATE _GetHostIPs 2 CELLS USER-ALLOT
 
 : GetHostIPs ( addr u -- IPab IPae ior )
 \ Получить список IP multihomed-хоста
 \ IPab IPae возвращаются в формате для последующего цикла DO, см. ConnectHost
   DUP 0= IF 11004 EXIT THEN \ иначе пустой хост S" " дает ior=0
-  OVER inet_addr DUP -1 <> IF NIP NIP _GetHostIPs ! _GetHostIPs DUP CELL+ SWAP 
+  OVER inet_addr DUP -1 <> IF [ HEX ] FFFFFFFF [ DECIMAL ] AND _GetHostIPs CELL+ ! _GetHostIPs CELL+ _GetHostIPs ! 2DROP _GetHostIPs DUP CELL+ SWAP 
                               0 EXIT
                            ELSE DROP THEN
   v>IDN
-  DROP gethostbyname DUP IF DUP @ SWAP 3 CELLS + @ @ 0
+  DROP gethostbyname DUP IF 3 CELLS + @ DUP BEGIN DUP @ WHILE CELL+ REPEAT SWAP 0
                          ELSE 0 WSAGetLastError THEN
 ;
 
@@ -331,13 +331,13 @@ USER uLastCH_IP
   0 ROT ROT
   CreateSocketWithTimeout ?DUP IF 2SWAP 2DROP ROT DROP RDROP EXIT THEN
   R> SWAP 2SWAP DO ( ior port socket )
-    2DUP I @       ( ior port socket port socket ip )
+    2DUP I @ @ [ HEX ] FFFFFFFF [ DECIMAL ] AND       ( ior port socket port socket ip )
     DUP uLastCH_IP !
     ROT ROT ConnectSocket ?DUP 
     IF ( ior1 port socket ior )
        >R ROT DROP R> ROT ROT
     ELSE NIP NIP 0 UNLOOP EXIT THEN
-  4 +LOOP CloseSocket THROW DROP 0 SWAP
+  CELL +LOOP CloseSocket THROW DROP 0 SWAP
 ;
 
 \ ~pinka/lib/sockets-ext.f 

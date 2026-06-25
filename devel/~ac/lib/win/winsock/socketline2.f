@@ -8,9 +8,9 @@ REQUIRE CreateSocket ~ac/lib/win/winsock/sockets.f
 10000 VALUE LINE_BUFF_SIZE         \ размер буфера
 
 0                                  \ структура "строчный сокет"
-4 -- sl_socket                     \ читаемый сокет
-4 -- sl_point                      \ смещение в буфере текущей позиции чтения
-4 -- sl_last                       \ адрес в буфере текущей позиции выборки
+CELL -- sl_socket                     \ читаемый сокет
+CELL -- sl_point                      \ смещение в буфере текущей позиции чтения
+CELL -- sl_last                       \ адрес в буфере текущей позиции выборки
 CONSTANT /sl
 
 
