@@ -372,7 +372,7 @@ STRFREE
 ;                                  
 
 : _STRLITERAL ( -- s )
-  R> XCOUNT 2DUP + CHAR+ >R
+  R> XCOUNT 2DUP + CHAR+ ALIGNED >R
   (")
 ;
 \ : S, ( addr u -- )
@@ -383,7 +383,7 @@ STRFREE
   \ и компилируемая строка при выполнении "разворачивается" по (")
   STATE @ IF
              ['] _STRLITERAL COMPILE,
-             DUP , S, 0 C,
+             DUP , S, 0 C, ALIGN
           ELSE
              (")
           THEN
@@ -402,12 +402,12 @@ CREATE _S""" CHAR " C,
 USER _PARSED"
 USER _STR_LOCAL
 
-: _XSLITERAL-CODE ( -- addr u ) R> XCOUNT 2DUP + CHAR+ >R ;
+: _XSLITERAL-CODE ( -- addr u ) R> XCOUNT 2DUP + CHAR+ ALIGNED >R ;
 
 : XSLITERAL ( addr u -- )
   STATE @ IF
              ['] _XSLITERAL-CODE COMPILE,
-             DUP , S, 0 C,
+             DUP , S, 0 C, ALIGN
           ELSE
              2DUP + 0 SWAP C!
           THEN
