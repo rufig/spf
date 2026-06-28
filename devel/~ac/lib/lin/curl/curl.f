@@ -52,7 +52,7 @@ USER uCurlTimeout
     uCurlRes @ STR@ NIP CURL-MAX-SIZE > IF DROP 0 THEN
   THEN
   ti TlsIndex!
-; 16 CALLBACK: CURL_CALLBACK
+; 4 CELLS CALLBACK: CURL_CALLBACK
 
 : CURL-SETOPT ( value opt h -- ) 3 curl_easy_setopt THROW ;
 
