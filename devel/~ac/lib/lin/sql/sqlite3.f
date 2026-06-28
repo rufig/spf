@@ -16,6 +16,7 @@ REQUIRE ms@           lib/include/facil.f
 ALSO SO NEW: sqlite3.dll
 ALSO SO NEW: libsqlite3.so.0
 ALSO SO NEW: /usr/local/lib/libsqlite3.so
+ALSO SO NEW: libsqlite3.dylib
 
   0 CONSTANT SQLITE_STATIC
   5 CONSTANT SQLITE_BUSY
@@ -401,12 +402,16 @@ USER _db3_get_64 4 USER-ALLOT
 \  1 1 sqlite3_soft_heap_limit DROP \ недоступно
   0 sqlite3_thread_cleanup DROP     \ ничего не делает...
 ;
+[DEFINED] sqlite3_enable_load_extension [IF]
 : (db3_enable_extensions) ( sqh -- )
   TRUE SWAP 2 sqlite3_enable_load_extension DROP
 ;
 : db3_enable_extensions ( sqh -- ) \ попадаются .so без расширений
   ['] (db3_enable_extensions) CATCH IF ." can't enable sqlite extensions" CR DROP THEN
 ;
+[ELSE]
+: db3_enable_extensions ( sqh -- )  DROP ;   \ macOS system sqlite has no load-extension (SQLITE_OMIT_LOAD_EXTENSION)
+[THEN]
 : db3_changes ( sqh -- n ) 1 sqlite3_changes ; \ for ~dandy
 
 : db3_table_col_type { cnamea cnameu tnamea tnameu sqh \ ai pk nn cs dt -- typea typeu }
