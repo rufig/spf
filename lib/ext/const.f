@@ -3,6 +3,8 @@
 
 \ Ветка от ~day/wincons/wc.f v1.5
 
+[UNDEFINED] L@ [IF] : L@ @ ; [THEN]   \ .const is a fixed 32-bit file: spf4 @ is 32-bit; spf64 has seed L@
+
 MODULE: WINCONST
 
 USER-VALUE CURRENT-VOC
@@ -11,11 +13,11 @@ USER-VALUE SOURCE-LEN
 VARIABLE ChainOfConst
 
 : compare_const ( n-const -- u 0 | -1 | 1 )
-  CELLS
-  CURRENT-VOC + 2 CELLS + @
-  CURRENT-VOC + DUP CELL+ COUNT
+  4 *
+  CURRENT-VOC + 8 + L@
+  CURRENT-VOC + DUP 4 + COUNT
   SOURCE-CONST SOURCE-LEN COMPARE
-  DUP IF NIP ELSE DROP @ 0 THEN
+  DUP IF NIP ELSE DROP L@ 0 THEN
 ;
 
 : _SEARCH-CONST ( lo hi -- u -1 | 0 )
@@ -37,7 +39,7 @@ EXPORT
   BEGIN @ ?DUP
   WHILE
     DUP CELL+ @ TO CURRENT-VOC
-    0 CURRENT-VOC 2 CELLS + @
+    0 CURRENT-VOC 8 + L@
     DUP 0 = ABORT" The file is corrupted or contains zero constants"
     _SEARCH-CONST IF NIP -1 EXIT THEN
   REPEAT
