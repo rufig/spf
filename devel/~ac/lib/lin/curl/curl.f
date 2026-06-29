@@ -16,6 +16,7 @@ ALSO SO NEW: libcurl.dll
 ALSO SO NEW: libcurl.so
 ALSO SO NEW: libcurl.so.3
 ALSO SO NEW: libcurl.so.4
+ALSO SO NEW: libcurl.4.dylib
 
 \ Global libcurl initialization
 \ ~ac 01.01.2008: эта инициализация с каждой следующей версией curl
