@@ -143,6 +143,14 @@ USER uAddDepth
 
 : в POSTPONE -> ; IMMEDIATE
 
+' TO CONSTANT 'GLOBAL-TO  \ исходный TO (захват до переопределения: без самовызова)
+
+: TO ( "name" -- )  \ spf4 locals: вместо -> можно использовать TO (виден только внутри { }-определения)
+  >IN @ PARSE-NAME widLocals @ SEARCH-WORDLIST
+  IF >BODY @ LocalOffs LIT, POSTPONE RP+!  DROP EXIT THEN
+  >IN !  'GLOBAL-TO EXECUTE
+; IMMEDIATE
+
 WARNING @ WARNING 0!
 \ ===
 \ переопределение соответствующих слов для возможности использовать
