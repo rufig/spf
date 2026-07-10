@@ -1,10 +1,13 @@
+\ locals.f -- portable spf4 named-locals { } parser (the POSTPONE RP+@ implementation),
+\ copied from devel/~ac/lib/locals.f with its line-1 "lib/ext/locals.f \EOF" redirect removed.
+\ Baked resident (bake.f) so REQUIRE { ... skips loading -- the current spf4 lib/ext/locals.f
+\ emits inline x86 and cannot run on the native x64/ARM seed.  cp1251 comments below.13 10
 ( 28.Mar.2000 Andrey Cherezov  Copyright [C] RU FIG
-
   Использованы идеи следующих авторов:
   Ruvim Pinka; Dmitry Yakimov; Oleg Shalyopa; Yuriy Zhilovets;
-  Konstantin Tarasov; Michail Maximov.
+  Konstantin Tarasov
 
-  !! Работает только в SPF4.
+  !! Работает, только начиная с 30 билда SPF/3.75: VERSION . 375030  Ok
 )
 
 ( Простое расширение СП-Форта локальными переменными.
@@ -12,22 +15,12 @@
 
   Объявление временных переменных, видимых только внутри
   текущего слова и ограниченных временем вызова данного
-  слова выполняется с помощью слова "{". Внутри определения
+  слова выполняется с помощью слова "{". Внутри определения 
   слова используется конструкция, подобная стековой нотации Форта
   { список_инициализированных_локалов \ сп.неиниц.локалов -- что угодно }
   Например:
 
   { a b c d \ e f -- i j }
-
-  Или { a b c d \ e f[ EVALUATE_выражение ] -- i j }
-  Это значит что для переменной f[ будет выделен на стеке возвратов участок
-  памяти длиной n байт. Использование переменной f[ даст адрес начала этого
-  участка. \В стиле MPE\
-
-  Или { a b c d \ e [ 12 ] f -- i j }
-  Это значит что для переменной f будет выделен на стеке возвратов участок
-  памяти длиной 12 байт. Использование переменной f даст адрес начала этого
-  участка.
 
   Часть "\ сп.неиниц.локалов" может отсутствовать, например:
 
@@ -38,12 +31,7 @@
   и автоматически освобождать место при выходе из него.
 
   Обращение к таким локальным переменным - как к VALUE-переменным
-  по имени. Если нужен адрес переменной, то используется "^ имя"
-  или "AT имя".
-
-
-  Вместо \ можно использовать |
-  Вместо -> можно использовать TO
+  по имени. Если нужен адрес переменной, то используется "^ имя".
 
   Примеры:
 
@@ -102,7 +90,10 @@
   не рекомендуется.
 )
 
-MODULE: vocLocalsSupport
+
+VOCABULARY vocLocalsSupport
+
+GET-CURRENT ALSO vocLocalsSupport DEFINITIONS
 
 USER widLocals
 USER uLocalsCnt
@@ -116,61 +107,21 @@ USER uAddDepth
 : LocalOffs ( n -- offs )
   uLocalsCnt @ SWAP - CELLS CELL+ uAddDepth @ +
 ;
-
-BASE @ HEX
 : CompileLocalsInit
   uPrevCurrent @ SET-CURRENT
   uLocalsCnt  @ uLocalsUCnt @ - ?DUP IF CELLS LIT, POSTPONE DRMOVE THEN
-  uLocalsUCnt @ ?DUP
-  IF
-     LIT, POSTPONE (RALLOT)
-  THEN
-  uLocalsCnt  @ ?DUP
-  IF CELLS RLIT, ['] (LocalsExit) RLIT, THEN
+  uLocalsUCnt @ ?DUP IF LIT, POSTPONE (RALLOT) THEN
+  uLocalsCnt  @ ?DUP 
+  IF CELLS LIT, POSTPONE >R  ['] (LocalsExit) LIT, POSTPONE >R THEN
 ;
-
 : CompileLocal@ ( n -- )
-  ['] DUP MACRO,
-  LocalOffs DUP  SHORT?
-  OPT_INIT SetOP
-  IF    8B B, 44 B, 24 B, B, \ mov eax, offset [esp]
-  ELSE  8B B, 84 B, 24 B,  , \ mov eax, offset [esp]
-  THEN  OPT
-  OPT_CLOSE
+  LocalOffs LIT, POSTPONE RP+@
 ;
-
-\ : CompileLocal@ ( n -- )
-\   LocalOffs LIT, POSTPONE RP+@
-\ ;
-
-: CompileLocal! ( n -- )
-  LocalOffs DUP  SHORT?
-  OPT_INIT SetOP
-  IF    89 B, 44 B, 24 B, B, \ mov  offset [esp], eax
-  ELSE  89 B, 84 B, 24 B,  , \ mov  offset [esp], eax
-  THEN  OPT
-  OPT_CLOSE
-  ['] DROP MACRO,
-;
-
-: CompileLocalRec ( u -- )
-  LocalOffs DUP
-  ['] DUP MACRO,
-  SHORT?
-  OPT_INIT SetOP
-  IF    8D B, 44 B, 24 B, B, \ lea eax, offset [esp]
-  ELSE  8D B, 84 B, 24 B,  , \ lea eax, offset [esp]
-  THEN  OPT
-  OPT_CLOSE
-;
-
-BASE !
-
 : LocalsStartup
   TEMP-WORDLIST widLocals !
   GET-CURRENT uPrevCurrent !
   ALSO vocLocalsSupport
-  widLocals @ PUSH-ORDER DEFINITIONS
+  ALSO widLocals @ CONTEXT ! DEFINITIONS
   uLocalsCnt 0!
   uLocalsUCnt 0!
   uAddDepth 0!
@@ -179,61 +130,16 @@ BASE !
   PREVIOUS PREVIOUS
   widLocals @ FREE-WORDLIST
 ;
-
-: ProcessLocRec ( "name" -- u )
-  [CHAR] ] PARSE
-  STATE 0!
-  EVALUATE CELL 1- + CELL / \ делаем кратным 4
-  -1 STATE !
-  DUP uLocalsCnt +!
-  uLocalsCnt @ 1-
-;
-
-: CreateLocArray
-  ProcessLocRec
-  CREATE ,
-;
-
-: LocalsRecDoes@ ( -- u )
-  DOES> @ CompileLocalRec
-;
-
-: LocalsRecDoes@2 ( -- u )
-  ProcessLocRec ,
-  DOES> @ CompileLocalRec
-;
-
 : LocalsDoes@
   uLocalsCnt @ ,
   uLocalsCnt 1+!
   DOES> @ CompileLocal@
 ;
-
 : ;; POSTPONE ; ; IMMEDIATE
 
+: ^ ' >BODY @ LocalOffs LIT, POSTPONE RP+ ; IMMEDIATE
 
-: ^
-  ' >BODY @
-  CompileLocalRec
-; IMMEDIATE
-
-
-: -> ' >BODY @ CompileLocal!  ; IMMEDIATE
-
-WARNING DUP @ SWAP 0!
-
-: AT
-  [COMPILE] ^
-; IMMEDIATE
-
-: TO ( "name" -- )
-  >IN @ NextWord widLocals @ SEARCH-WORDLIST 1 =
-  IF >BODY @ CompileLocal! DROP
-  ELSE >IN ! [COMPILE] TO
-  THEN
-; IMMEDIATE
-
-WARNING !
+: -> ' >BODY @ LocalOffs LIT, POSTPONE RP+! ; IMMEDIATE
 
 : в POSTPONE -> ; IMMEDIATE
 
@@ -250,78 +156,40 @@ WARNING @ WARNING 0!
 : >R    POSTPONE >R     [  1 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
 : R>    POSTPONE R>     [ -1 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
 : RDROP POSTPONE RDROP  [ -1 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
-: 2>R   POSTPONE 2>R    [  2 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
-: 2R>   POSTPONE 2R>    [ -2 CELLS ] LITERAL  uAddDepth +! ; IMMEDIATE
 
 \ ===
 
-\ { ... | ... -- _____ }
-: ParseLocals3
-  BEGIN
-   PARSE-NAME
-   DUP 0= ABORT" Locals bad syntax (3)"
-   2DUP S" }" COMPARE 0= IF 2DROP EXIT THEN
-   2DROP
-  AGAIN
-;
-
-\ { ... | _____ -- ... }
-: ParseLocals2
-  BEGIN
-   PARSE-NAME
-   DUP 0= ABORT" Locals bad syntax (2)"
-   2DUP S" --" COMPARE 0= IF 2DROP ParseLocals3 EXIT THEN
-   2DUP S" }" COMPARE 0= IF 2DROP EXIT THEN
-   2DUP S" [" COMPARE 0=
-   IF
-     2DROP CreateLocArray LocalsRecDoes@
-   ELSE
-     CREATED
-     LATEST-NAME NAME>STRING CHARS + CHAR- C@
-     [CHAR] [ =
-     IF
-       LocalsRecDoes@2
-     ELSE
-       LocalsDoes@ 1
-     THEN
-   THEN
-   uLocalsUCnt +! IMMEDIATE
-  AGAIN
-;
-
-\ { _____ | ... -- ... }
-: ParseLocals1
-  BEGIN
-    PARSE-NAME
-    DUP 0= ABORT" Locals bad syntax (1)"
-    2DUP S" |" COMPARE 0= IF 2DROP ParseLocals2 EXIT THEN
-    2DUP S" \" COMPARE 0= IF 2DROP ParseLocals2 EXIT THEN
-    2DUP S" --" COMPARE 0= IF 2DROP ParseLocals3 EXIT THEN
-    2DUP S" }" COMPARE 0= IF 2DROP EXIT THEN
-
-    CREATED LocalsDoes@ IMMEDIATE
-  AGAIN
-;
-
-\  uLocalsCnt  @ ?DUP
-\  IF CELLS RLIT, ['] (LocalsExit) RLIT, THEN
-
-: ;  LocalsCleanup
-     S" ;" EVAL-WORD
-; IMMEDIATE
+: ;  LocalsCleanup POSTPONE ; ; IMMEDIATE
 
 WARNING !
 
 \ =====================================================================
-
-EXPORT
+SET-CURRENT
 
 : {
-  LAST @ >R
   LocalsStartup
-  ParseLocals1
+  BEGIN
+    BL SKIP PeekChar DUP [CHAR] \ <> 
+                    OVER [CHAR] - <> AND
+                    SWAP [CHAR] } <> AND
+  WHILE
+    CREATE LocalsDoes@ IMMEDIATE
+  REPEAT
+
+  PeekChar >IN 1+! DUP [CHAR] } <>
+  IF
+    [CHAR] \ =
+    IF
+      BEGIN
+        BL SKIP PeekChar DUP [CHAR] - <> SWAP [CHAR] } <> AND
+      WHILE
+        CREATE LocalsDoes@ IMMEDIATE
+        uLocalsUCnt 1+!
+      REPEAT
+    THEN
+    [CHAR] } PARSE 2DROP
+  ELSE DROP THEN
   CompileLocalsInit
-  R> LAST !
 ;; IMMEDIATE
 
-;MODULE
+PREVIOUS
