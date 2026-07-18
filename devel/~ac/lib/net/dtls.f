@@ -1,0 +1,153 @@
+\ ~ac/lib/net/dtls.f -- DTLS (TLS over UDP) via OpenSSL, for authenticated swarm connections.
+\ Discovery (DHT) yields UNTRUSTED ip:port; this layer does the actual trust: a DTLS handshake with
+\ MUTUAL certificate verification against the swarm CA.  For IH-GROUP the peer's cert must chain to the
+\ CA; for IH-SELF it must additionally hash (SHA1(SPKI)) to the expected value from the registry.
+\ Binds OpenSSL 3.x through the SO/dlsym FFI, same pattern as acWEB64 src/acTCP/tls.f (args pushed in
+\ reverse, arg-count last).  This file: OpenSSL init; DTLS context construction (cert/key/CA + a verify
+\ hook); the memory-BIO handshake pump; and network-facing wrappers (incl. the verify-callback helpers)
+\ so the multiplex layer (dtls-net.f) never has to touch the SO namespace itself.  CRLF.
+REQUIRE { ~ac/lib/locals.f
+DECIMAL
+
+1 CONSTANT SSL_FILETYPE_PEM
+1 CONSTANT SSL_VERIFY_PEER
+2 CONSTANT SSL_VERIFY_FAIL_IF_NO_PEER_CERT
+3 CONSTANT VERIFY_MUTUAL                     \ PEER | FAIL_IF_NO_PEER_CERT
+
+\ ---- load OpenSSL (libcrypto must load before libssl; OpenSSL_version forces it) ----
+NS-ON
+[DEFINED] WINAPI64: [IF]
+   ALSO SO NEW: ext/libcrypto-3-x64.dll
+   : CRYPTO-PRELOAD ( -- )  0 1 OpenSSL_version DROP ;
+   ALSO SO NEW: ext/libssl-3-x64.dll
+[ELSE]
+   ALSO SO NEW: libcrypto.so.3
+   : CRYPTO-PRELOAD ( -- )  0 1 OpenSSL_version DROP ;
+   ALSO SO NEW: libssl.so.3
+[THEN]
+\ NB: SO stays in the search order (as in tls.f) so the OpenSSL symbols below resolve as lib exports.
+
+VARIABLE DTLS-INITED
+: DTLS-INIT ( -- )
+   DTLS-INITED @ IF EXIT THEN
+   CRYPTO-PRELOAD  0 0 2 OPENSSL_init_ssl 1 <> IF -3200 THROW THEN
+   TRUE DTLS-INITED ! ;
+
+\ Verify-callback trampoline (0 = none).  Set to SWARM-VERIFY-CB below, once it (and the SO wrappers
+\ it needs) are defined -- DTLS-CTX reads this VALUE, so no forward reference.
+0 VALUE DTLS-VERIFY-CB
+
+\ ---- context construction: load our identity cert+key, trust the CA, require peer certs ----
+\ cert-c / key-c / ca-c are NUL-terminated C strings (spf4 S" ... DROP gives one).
+\ Calls follow the tls.f style: reversed args + arg-count, e.g. `TYPE file ctx 3 SSL_CTX_use_...`.
+: DTLS-CTX { srv? cert-c key-c ca-c \ ctx -- ctx }
+   DTLS-INIT
+   srv? IF 0 DTLS_server_method ELSE 0 DTLS_client_method THEN
+   1 SSL_CTX_new  DUP 0= IF -3210 THROW THEN  -> ctx
+   SSL_FILETYPE_PEM cert-c ctx 3 SSL_CTX_use_certificate_file  1 <> IF -3211 THROW THEN
+   SSL_FILETYPE_PEM key-c  ctx 3 SSL_CTX_use_PrivateKey_file   1 <> IF -3212 THROW THEN
+   ctx 1 SSL_CTX_check_private_key                             1 <> IF -3213 THROW THEN
+   0 ca-c ctx 3 SSL_CTX_load_verify_locations                 1 <> IF -3214 THROW THEN
+   DTLS-VERIFY-CB VERIFY_MUTUAL ctx 3 SSL_CTX_set_verify DROP  \ verdict unchanged; cb only logs
+   ctx ;
+: DTLS-SERVER-CTX ( cert-c key-c ca-c -- ctx )  >R >R >R TRUE  R> R> R> DTLS-CTX ;
+: DTLS-CLIENT-CTX ( cert-c key-c ca-c -- ctx )  >R >R >R FALSE R> R> R> DTLS-CTX ;
+
+\ ===== handshake over memory BIOs (single socket / loopback) ================================
+2 CONSTANT SSL_ERROR_WANT_READ    3 CONSTANT SSL_ERROR_WANT_WRITE
+1 CONSTANT SSL_ERROR_SSL          5 CONSTANT SSL_ERROR_SYSCALL
+0 CONSTANT X509_V_OK
+130 CONSTANT BIO_C_SET_BUF_MEM_EOF_RETURN     \ BIO_set_mem_eof_return
+120 CONSTANT DTLS_CTRL_SET_LINK_MTU
+HEX 1000 CONSTANT SSL_OP_NO_QUERY_MTU   FFFFFFFF CONSTANT MASK32  DECIMAL
+1400 VALUE DTLS-MTU
+2048 CONSTANT /DTLS-BUF   CREATE DTLS-BUF /DTLS-BUF ALLOT
+4096 CONSTANT /PEER-DER   CREATE PEER-DER /PEER-DER ALLOT   VARIABLE PEER-DER-PTR
+
+: I32 ( n -- n )  MASK32 AND ;
+
+: DTLS-WRAP { ctx server? \ ssl rbio wbio -- ssl rbio wbio }   \ SSL + a mem-BIO pair for pumping
+   ctx 1 SSL_new DUP 0= IF -3220 THROW THEN -> ssl
+   TlsIndex@ 0 ssl 3 SSL_set_ex_data DROP     \ stash our USER base so the verify-cb can restore it
+   0 BIO_s_mem 1 BIO_new DUP 0= IF -3221 THROW THEN -> rbio
+   0 BIO_s_mem 1 BIO_new DUP 0= IF -3221 THROW THEN -> wbio
+   0 -1 BIO_C_SET_BUF_MEM_EOF_RETURN rbio 4 BIO_ctrl DROP    \ empty read -> retry, not EOF
+   0 -1 BIO_C_SET_BUF_MEM_EOF_RETURN wbio 4 BIO_ctrl DROP
+   wbio rbio ssl 3 SSL_set_bio                               \ SSL owns both BIOs now
+   SSL_OP_NO_QUERY_MTU ssl 2 SSL_set_options DROP            \ don't query the mem BIO for MTU
+   0 DTLS-MTU DTLS_CTRL_SET_LINK_MTU ssl 4 SSL_ctrl DROP
+   server? IF ssl 1 SSL_set_accept_state ELSE ssl 1 SSL_set_connect_state THEN
+   ssl rbio wbio ;
+
+: DRAIN { from to \ n -- }                                  \ move all pending bytes from `from` to `to`
+   BEGIN from 1 BIO_ctrl_pending 0> WHILE
+      /DTLS-BUF DTLS-BUF from 3 BIO_read I32 -> n
+      n 0> 0= IF EXIT THEN
+      n DTLS-BUF to 3 BIO_write DROP
+   REPEAT ;
+
+: DTLS-HANDSHAKE { c-ssl c-w s-r  s-ssl s-w c-r \ cnt -- ok? }  \ pump client<->server to completion
+   0 -> cnt
+   BEGIN cnt 60 < WHILE
+      c-ssl 1 SSL_do_handshake I32
+      c-w s-r DRAIN
+      s-ssl 1 SSL_do_handshake I32
+      s-w c-r DRAIN
+      1 =  SWAP 1 = AND IF TRUE EXIT THEN                    \ both handshakes returned 1
+      cnt 1+ -> cnt
+   REPEAT FALSE ;
+
+: DTLS-VERIFIED? ( ssl -- f )  1 SSL_get_verify_result  X509_V_OK = ;   \ chain-to-CA ok?
+
+: DTLS-PEER-DER { ssl \ x509 len -- a u }                   \ peer cert as DER (into PEER-DER); 0 0 if none
+   ssl 1 SSL_get1_peer_certificate DUP 0= IF DROP 0 0 EXIT THEN -> x509
+   0 x509 2 i2d_X509 I32 -> len
+   len /PEER-DER > IF x509 1 X509_free 0 0 EXIT THEN
+   PEER-DER PEER-DER-PTR !
+   PEER-DER-PTR x509 2 i2d_X509 DROP
+   x509 1 X509_free
+   PEER-DER len ;
+
+\ ---- network-oriented wrappers (so the multiplex layer never touches the SO namespace itself) ----
+: DTLS-WRAP1 ( ctx server? -- ssl rbio wbio )  DTLS-WRAP ;   \ re-export under a stable name
+: DTLS-HS1     ( ssl -- ret )        1 SSL_do_handshake I32 ;      \ one handshake step
+: DTLS-READ    { ssl a u -- n }      u a ssl 3 SSL_read  I32 ;     \ app data in
+: DTLS-WRITE   { ssl a u -- n }      u a ssl 3 SSL_write I32 ;     \ app data out
+74 CONSTANT DTLS_CTRL_HANDLE_TIMEOUT             \ DTLSv1_handle_timeout is a macro -> SSL_ctrl
+: DTLS-TIMEOUT { ssl -- r }  0 0 DTLS_CTRL_HANDLE_TIMEOUT ssl 4 SSL_ctrl I32 ;  \ retransmit if due (no-op if none)
+: DTLS-ERR     ( ssl ret -- err )    SWAP 2 SSL_get_error I32 ;
+: BIO-PENDING  ( bio -- n )          1 BIO_ctrl_pending ;
+: WBIO-READ    { bio a u -- n }      u a bio 3 BIO_read  I32 ;     \ pull ready output bytes to send
+: RBIO-WRITE   { bio a u -- n }      u a bio 3 BIO_write I32 ;     \ push a received datagram in
+: SSL-FREE     ( ssl -- )            ?DUP IF 1 SSL_free DROP THEN ;
+: CTX-FREE     ( ctx -- )            ?DUP IF 1 SSL_CTX_free DROP THEN ;
+
+\ ===== helpers for the verify-callback (the callback itself is in dtls-net.f) ===================
+\ These wrappers keep the SO namespace INSIDE dtls.f.  The callback body cannot live here: it needs
+\ CERT-SPKI/SHA1/.HASH (swarm.f Forth words), but here SHA1 still resolves to the libcrypto EXPORT
+\ (SO is in scope until PREVIOUS PREVIOUS below) -- calling that C SHA1 as a bare word == 0xC0000005.
+\ So dtls-net.f defines SWARM-VERIFY-CB (SO-free) and does `' SWARM-VERIFY-CB TO DTLS-VERIFY-CB`.
+4096 CONSTANT /CB-DER   CREATE CB-DER /CB-DER ALLOT   VARIABLE CB-DER-PTR
+512  CONSTANT /CB-SUB   CREATE CB-SUB /CB-SUB ALLOT
+
+: SCTX-CERT   ( sctx -- x509 )  1 X509_STORE_CTX_get_current_cert ;
+: SCTX-ERR    ( sctx -- n )     1 X509_STORE_CTX_get_error I32 ;
+: SCTX-DEPTH  ( sctx -- n )     1 X509_STORE_CTX_get_error_depth I32 ;
+: SCTX>SSL    { sctx \ idx -- ssl }                       \ the SSL* this store-ctx belongs to
+   0 SSL_get_ex_data_X509_STORE_CTX_idx I32 -> idx
+   idx sctx 2 X509_STORE_CTX_get_ex_data ;
+: SSL>BASE    ( ssl -- base )   0 SWAP 2 SSL_get_ex_data ;         \ our USER base (stashed in DTLS-WRAP)
+: VERR-STR    ( code -- a u )   1 X509_verify_cert_error_string ASCIIZ> ;
+: X509-SUBJECT { x509 -- a u }                            \ subject DN as text, into CB-SUB
+   /CB-SUB CB-SUB  x509 1 X509_get_subject_name  3 X509_NAME_oneline DROP
+   CB-SUB ASCIIZ> ;
+: X509>DER { x509 \ len -- a u }                          \ DER of a BORROWED cert (no free); 0 0 on error
+   0 x509 2 i2d_X509 I32 -> len
+   len 1 < len /CB-DER > OR IF 0 0 EXIT THEN
+   CB-DER CB-DER-PTR !
+   CB-DER-PTR x509 2 i2d_X509 DROP
+   CB-DER len ;
+
+\ Restore the search order: remove the two SO (libcrypto/libssl) wordlists so that names like SHA1
+\ (a libcrypto export!) resolve to the normal Forth words in code loaded/compiled after this file.
+PREVIOUS PREVIOUS
