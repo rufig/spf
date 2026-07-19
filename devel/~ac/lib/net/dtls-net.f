@@ -30,7 +30,7 @@ CREATE CB-IDBUF 20 ALLOT
    ." ~~~ peer cert  depth=" sctx SCTX-DEPTH .  ." preverify=" preverify .
    x509 0= IF ." (no cert)" CR EXIT THEN
    x509 X509-SUBJECT ." subj=" TYPE
-   x509 X509>DER DUP IF DROP CERT-SPKI CB-IDBUF SHA1  ."  SPKI=" CB-IDBUF .HASH
+   x509 X509>DER DUP IF CERT-SPKI CB-IDBUF SHA1  ."  SPKI=" CB-IDBUF .HASH
                   ELSE 2DROP THEN
    preverify 0= IF ."  REJECT(" sctx SCTX-ERR VERR-STR TYPE ." )" THEN
    CR ;
@@ -160,7 +160,7 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    ssl DTLS-VERIFIED? 0= IF idx S" cert not signed by our CA" NCACHE-BAD-TTL PR-FAIL EXIT THEN
    ssl DTLS-PEER-DER  DUP 0= IF                                     \ 0 0 = no cert, or cert > /PEER-DER (4096)
       2DROP idx S" peer cert missing/too large" NCACHE-BAD-TTL PR-FAIL EXIT THEN
-   DROP CERT-SPKI PEER-IDBUF SHA1                                   \ the peer's real SPKI hash
+   CERT-SPKI PEER-IDBUF SHA1                                        \ the peer's real SPKI hash
    idx PR-EXPECT@ ?DUP IF                                           \ a specific server was expected
       PEER-IDBUF SWAP 20 MEM= 0= IF idx S" identity hash mismatch" NCACHE-BAD-TTL PR-FAIL EXIT THEN
    THEN

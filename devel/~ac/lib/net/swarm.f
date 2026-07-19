@@ -15,28 +15,22 @@ REQUIRE .TORRENT-PEERS ~ac/lib/net/torrent.f     \ SLURP (read file) + SHA1 + .H
 REQUIRE WATCH-INFOHASH ~ac/lib/net/dht-serve.f   \ announce machinery (DO-ANNOUNCE, BIND-PORT, ...)
 DECIMAL
 
-\ ===== minimal DER/ASN.1 walk (single-byte tags; enough for the X.509 cert path) ===========
-: DER@ { a \ lp b n -- val-a val-len next-a }     \ parse one TLV at a; content span + addr past it
-   a 1+ -> lp                                      \ length field
-   lp C@ -> b
-   b 128 < IF
-      lp 1+  b                                     \ short form: content at lp+1, length b
-   ELSE
-      b 127 AND -> n                               \ long form: n length octets follow
-      lp 1+ -> lp
-      0  n 0 DO 8 LSHIFT lp C@ + lp 1+ -> lp LOOP  \ big-endian length
-      lp SWAP
-   THEN
-   2DUP + ;
-: DER-INTO ( a -- content-a )  DER@ 2DROP ;        \ descend into a constructed TLV
-: DER-NEXT ( a -- next-a )      DER@ NIP NIP ;      \ advance past a TLV
+\ ===== SubjectPublicKeyInfo out of an X.509 certificate =====================================
+\ Certificates arrive from peers we have NOT authenticated yet, so the parser sees hostile input.
+\ Two implementations, chosen at run time:
+\   SPKI-VIA-OPENSSL? TRUE  (default) -- OpenSSL parses the certificate (dtls.f installs the xt)
+\   SPKI-VIA-OPENSSL? FALSE           -- our own bounded reader, ~ac/lib/asn1/der.f
+\ Both must yield the SAME bytes: the fleet identity is SHA1 over this span, so a disagreement
+\ would split the fleet into two groups that never recognise each other.
+REQUIRE DER-SPKI ~ac/lib/asn1/der.f
 
-: CERT-SPKI { ca -- spki-a spki-len }              \ locate SubjectPublicKeyInfo TLV in a DER cert
-   ca DER-INTO                                      \ Certificate SEQUENCE -> tbsCertificate TLV
-   DER-INTO                                         \ tbsCertificate SEQUENCE -> its first field
-   DUP C@ 160 = IF DER-NEXT THEN                    \ skip [0] EXPLICIT version (0xA0) if present
-   5 0 DO DER-NEXT LOOP                             \ skip serial, sigAlg, issuer, validity, subject
-   DUP DER-NEXT OVER - ;                            \ next field = SubjectPublicKeyInfo; return its TLV
+TRUE VALUE SPKI-VIA-OPENSSL?                       \ set FALSE to exercise our own parser
+0    VALUE SPKI-OPENSSL-XT                         \ ( a u -- spki-a spki-u f ) -- filled in by dtls.f
+
+: CERT-SPKI { a u -- spki-a spki-u }               \ locate SubjectPublicKeyInfo; THROWs on a bad cert
+   SPKI-VIA-OPENSSL? SPKI-OPENSSL-XT 0<> AND       \ (before dtls.f loads there is no OpenSSL xt yet)
+   IF a u SPKI-OPENSSL-XT EXECUTE ELSE a u DER-SPKI THEN
+   0= IF ." swarm: certificate is not parseable DER" CR -1006 THROW THEN ;
 
 \ PEM tolerance: cert files may be DER (.cer, starts 0x30) OR PEM (.crt, "-----BEGIN...", base64).
 \ CERT-SPKI walks DER, so a PEM body must be base64-decoded first -- else it yields a SILENTLY WRONG
@@ -65,7 +59,7 @@ DECIMAL
    DUP IF ." swarm: cannot open " a u TYPE CR  -1005 THROW THEN DROP
    -> len -> buf
    buf C@ [CHAR] - = IF buf len PEM>DER -> len -> buf THEN   \ PEM? decode to DER first
-   buf CERT-SPKI                                    ( spki-a spki-len )
+   buf len CERT-SPKI                                ( spki-a spki-len )
    dest SHA1
    buf FREE THROW ;
 

@@ -148,6 +148,26 @@ HEX 1000 CONSTANT SSL_OP_NO_QUERY_MTU   FFFFFFFF CONSTANT MASK32  DECIMAL
    CB-DER-PTR x509 2 i2d_X509 DROP
    CB-DER len ;
 
+4096 CONSTANT /CB-SPKI
+CREATE CB-SPKI /CB-SPKI ALLOT   VARIABLE CB-SPKI-PTR   VARIABLE D2I-PTR
+: (DER>SPKI) { a u \ x pk len -- spki-a spki-u true | false }
+   \ Let OpenSSL do the parsing: it decodes the whole certificate, so a malformed one fails HERE
+   \ rather than inside a hand-rolled walk.  This is what CERT-SPKI uses unless SPKI-VIA-OPENSSL?
+   \ is turned off.  d2i_X509 gives us a cert we own; the pubkey inside it is borrowed.
+   a D2I-PTR !                                            \ d2i advances the pointer it is given
+   u D2I-PTR 0  3 d2i_X509 -> x
+   x 0= IF FALSE EXIT THEN
+   x 1 X509_get_X509_PUBKEY -> pk
+   pk 0= IF x 1 X509_free DROP FALSE EXIT THEN
+   0 pk 2 i2d_X509_PUBKEY I32 -> len
+   len 1 < len /CB-SPKI > OR IF x 1 X509_free DROP FALSE EXIT THEN
+   CB-SPKI CB-SPKI-PTR !
+   CB-SPKI-PTR pk 2 i2d_X509_PUBKEY DROP
+   x 1 X509_free DROP
+   CB-SPKI len TRUE ;
+
 \ Restore the search order: remove the two SO (libcrypto/libssl) wordlists so that names like SHA1
 \ (a libcrypto export!) resolve to the normal Forth words in code loaded/compiled after this file.
 PREVIOUS PREVIOUS
+
+' (DER>SPKI) TO SPKI-OPENSSL-XT                    \ CERT-SPKI now prefers OpenSSL (see swarm.f)
