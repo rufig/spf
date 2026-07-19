@@ -256,6 +256,41 @@ CREATE OUTQ  /OUTQ /OQ *  ALLOT   OUTQ /OUTQ /OQ *  ERASE
       I OQ oq.expire @ now U>  I OQ oq.sent @ QUERY-TIMEOUT + now U>  AND IF n 1+ -> n THEN
    LOOP n ;
 
+\ ---- P1.4: announce to the K CLOSEST responders, not to everyone who answers --------------------
+\ A wide announce wastes traffic and stores us on nodes FAR from the target, where later lookups never
+\ look.  Collect (responder id, endpoint, token) from correlated replies during the round; when the
+\ round closes, announce only to the K closest to TARGET.
+8  CONSTANT ANNOUNCE-K
+32 CONSTANT /AQ-TOK
+0
+IDLEN   -- aq.id                   \ responder node id (for the XOR-distance choice)
+CELL    -- aq.ip
+CELL    -- aq.port
+CELL    -- aq.tlen
+/AQ-TOK -- aq.tok
+CONSTANT /AQ
+CREATE ANNQ  ANNOUNCE-K /AQ *  ALLOT
+VARIABLE ANNQ-N   0 ANNQ-N !
+: AQ ( i -- a )  /AQ *  ANNQ + ;
+: ANNQ-RESET ( -- )  0 ANNQ-N ! ;
+: AQ-FARTHEST ( -- idx )           \ collected slot farthest from TARGET
+   0  ANNQ-N @ 1 ?DO  DUP AQ aq.id  I AQ aq.id  TARGET XOR-CLOSER? IF DROP I THEN  LOOP ;
+: ANNQ-ADD { ida ip port toka toku \ idx -- }     \ keep the K closest responders that gave us a token
+   toku /AQ-TOK > IF EXIT THEN
+   ANNQ-N @ ANNOUNCE-K < IF  ANNQ-N @ -> idx  1 ANNQ-N +!
+   ELSE  AQ-FARTHEST -> idx
+      ida  idx AQ aq.id  TARGET XOR-CLOSER? 0= IF EXIT THEN     \ not closer than the farthest -> drop it
+   THEN
+   ida idx AQ aq.id IDLEN MOVE
+   ip idx AQ aq.ip !  port idx AQ aq.port !
+   toka idx AQ aq.tok toku MOVE  toku idx AQ aq.tlen ! ;
+: ANNQ-FLUSH ( -- )                \ announce ourselves to the K closest collected responders
+   ANNQ-N @ 0 ?DO
+      ." > announce " CUR-IH @ .IHPFX ."  -> " I AQ aq.ip @ I AQ aq.port @ .IPPORT ."  (K-closest)" CR
+      I AQ aq.ip @  I AQ aq.port @   I AQ aq.tok  I AQ aq.tlen @  ANNOUNCE-MSG  DHT-SOCK @ UDP-SEND
+      TXBUF TID@  I AQ aq.ip @  I AQ aq.port @  OQ-ADD
+   LOOP  ANNQ-RESET ;
+
 : SEED-SEND { \ rip -- }
    RESOLVE-ROUTERS
    3 0 DO ROUTER-IPS I CELLS + @ ?DUP IF -> rip
@@ -278,7 +313,7 @@ CREATE OUTQ  /OUTQ /OQ *  ALLOT   OUTQ /OUTQ /OQ *  ERASE
    REPEAT ;
 : ANN-START ( ih-a -- )                              \ start a lookup round; keep the CONVERGING shortlist
    DUP TARGET IDLEN MOVE  CUR-IH !                    \ + accumulated PEERS across rounds (real-DHT style)
-   SL-REQUERY  0 ANN-QUERIES !  SEED-SEND             \ re-probe every known node + pull fresh router nodes
+   SL-REQUERY  0 ANN-QUERIES !  ANNQ-RESET  SEED-SEND             \ re-probe every known node + pull fresh router nodes
    TRUE ANN-ACTIVE !  NOW-MS LOOKUP-WINDOW + ANN-DEADLINE !
    ." swarm: fleet lookup round started (SL=" SL-N @ .  ." nodes PEERS=" PEERS-N @ .  ." )" CR ;
 : RESP-CLOSE? ( ra -- f )          \ responder id's first byte == TARGET's (i.e. near the infohash)
@@ -303,12 +338,11 @@ VARIABLE OQ-HIT   VARIABLE OQ-MISS                \ correlated vs uncorrelated r
    THEN
    ra S" nodes" B-DFIND IF DROP TRUE ELSE ra S" values" B-DFIND IF DROP TRUE ELSE FALSE THEN THEN
    0= IF EXIT THEN                                 \ must be a get_peers reply (nodes/values), not a bare ping (P1.1)
-   ra S" token" B-DFIND IF                         \ (reply is correlated by now) token -> announce ourselves
-      B-STR@ ROT DROP -> tu -> ta
-      ." > announce " CUR-IH @ .IHPFX ."  -> " ip port .IPPORT CR
-      ip port  ta tu ANNOUNCE-MSG  DHT-SOCK @ UDP-SEND
-      TXBUF TID@ ip port OQ-ADD                    \ track OUR announce transaction too: its reply is
-                                                   \ legitimate and must correlate (else it looks like a miss)
+   ra S" token" B-DFIND IF                         \ (correlated) token -> remember as an announce candidate;
+      B-STR@ ROT DROP -> tu -> ta                  \ the K closest are announced to when the round closes
+      ra S" id" DFIND-STR IF                       ( id-a id-u )
+         20 = IF ip port ta tu ANNQ-ADD ELSE DROP THEN
+      THEN
    THEN
    ra HARVEST  LOOKUP-PUMP ;
 0 VALUE ROUND-END-XT               \ hook run once a lookup round closes: dial+verify harvested peers
@@ -316,6 +350,7 @@ VARIABLE OQ-HIT   VARIABLE OQ-MISS                \ correlated vs uncorrelated r
    ANN-ACTIVE @ IF
       NOW-MS ANN-DEADLINE @ U< 0= IF
          FALSE ANN-ACTIVE !  NOW-MS REANNOUNCE-EVERY + ANN-NEXT !
+         ANNQ-FLUSH                                              \ P1.4: announce to the K closest found
          ROUND-END-XT ?DUP IF EXECUTE THEN                       \ verify the fleet peers this round found
       ELSE LOOKUP-PUMP                                           \ round still open: keep ALPHA in flight
       THEN
