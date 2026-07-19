@@ -62,6 +62,7 @@ VARIABLE PSTORE-N
    vu 1 >= IF va C@ .PRCH THEN
    vu 2 >= IF va 1+ C@ .PRCH THEN
    vu 4 >= IF [CHAR] . EMIT  va 2 + C@ 8 LSHIFT va 3 + C@ +  BASE @ >R DECIMAL .# R> BASE ! THEN ;
+: .CLIENT ( -- )  ."  client=" .V-CLIENT ;       \ tail of every incoming-packet log line; '?' if no 'v'
 
 \ ---- KRPC reply builders (y=r; echo the query's transaction id t) ----
 : REPLY-PING { ta tu -- a u }                     \ also the announce_peer reply
@@ -134,7 +135,7 @@ CREATE QNODE 26 ALLOT
    S" info_hash" DFIND-STR 0= IF EXIT THEN  DROP  -> iha         ( drop u, keep iha )
    iha TARGET ID= -> ours
    ." <<< get_peers from " ip port .IPPORT ."  ih=" iha .IHPFX
-   ours IF 1 Q-HIT +! ."  (OURS) client=" .V-CLIENT ELSE ."  (foreign)" THEN CR
+   ours IF 1 Q-HIT +! ."  (OURS)" ELSE ."  (foreign)" THEN  .CLIENT CR
    ta tu ip ours iha REPLY-GETPEERS  ip port SEND-REPLY ;
 : SERVE-ANNOUNCE { ip port ta tu \ ad iha aport -- }
    RX-BUF S" a" B-DFIND 0= IF ta tu REPLY-PING ip port SEND-REPLY EXIT THEN -> ad
@@ -143,9 +144,9 @@ CREATE QNODE 26 ALLOT
    IF port ELSE ad S" port" B-DFIND IF B-INT@ NIP ELSE port THEN THEN -> aport
    ." <<< announce_peer from " ip aport .IPPORT ."  ih=" iha .IHPFX
    iha TARGET ID= IF
-      ad ip TOKEN-OK? IF ip aport PSTORE-ADD  1 Q-HIT +! ."  (OURS) client=" .V-CLIENT
+      ad ip TOKEN-OK? IF ip aport PSTORE-ADD  1 Q-HIT +! ."  (OURS)"
                      ELSE ."  (OURS, bad/missing token -- not stored)" THEN
-   ELSE ."  (foreign)" THEN CR
+   ELSE ."  (foreign)" THEN  .CLIENT CR
    ta tu REPLY-PING ip port SEND-REPLY ;
 
 : SERVE-1 { size ip port \ ta tu qa qu b0 -- }     \ handle one datagram already in RX-BUF
@@ -163,14 +164,14 @@ CREATE QNODE 26 ALLOT
    RX-BUF S" t" DFIND-STR 0= IF EXIT THEN -> tu -> ta
    RX-BUF S" q" DFIND-STR 0= IF EXIT THEN -> qu -> qa
    ip port LEARN-QUERIER                           \ a live node just contacted us: remember it (routing table)
-   qa qu S" ping"          STR= IF 1 Q-PING +!  ." <<< ping from " ip port .IPPORT CR
+   qa qu S" ping"          STR= IF 1 Q-PING +!  ." <<< ping from " ip port .IPPORT .CLIENT CR
                                     ta tu REPLY-PING     ip port SEND-REPLY EXIT THEN
    qa qu S" find_node"     STR= IF 1 Q-FIND +!  ." <<< find_node from " ip port .IPPORT
-                                    ."  target=" S" target" .RX-A-IH CR
+                                    ."  target=" S" target" .RX-A-IH .CLIENT CR
                                     ta tu REPLY-FINDNODE ip port SEND-REPLY EXIT THEN
    qa qu S" get_peers"     STR= IF 1 Q-GET  +!  ip port ta tu SERVE-GETPEERS  EXIT THEN
    qa qu S" announce_peer" STR= IF 1 Q-ANN  +!  ip port ta tu SERVE-ANNOUNCE  EXIT THEN
-   ." <<< query '" qa qu TYPE ." ' from " ip port .IPPORT CR ;   \ unrecognised query type
+   ." <<< query '" qa qu TYPE ." ' from " ip port .IPPORT .CLIENT CR ;   \ unrecognised query type
 
 \ ---- our own announce_peer (outgoing) ----
 : EXTRACT-TOKEN ( rlen -- tok-a tok-u | 0 0 )      \ pull 'r'.'token' from a get_peers reply in RX-BUF
