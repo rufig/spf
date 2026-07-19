@@ -82,7 +82,11 @@ CREATE IH-GROUP 20 ALLOT                            \ SHA1(SPKI of CA cert)
    RND SECRET !
    UDP-OPEN DHT-SOCK !
    DHT-SOCK @ BIND-PORT DUP MY-PORT !
-   ?DUP IF ." swarm: bound UDP port " . CR ELSE ." swarm: using ephemeral UDP port" CR THEN ;
+   ?DUP IF ." swarm: bound UDP port " . CR
+   ELSE                                            \ NEVER run on an OS-assigned ephemeral port: we would
+      ." swarm: FATAL -- could not bind 6881..6890" CR   \ announce ourselves at an address nobody can
+      -3300 THROW                                  \ reach, and that stale entry then haunts the DHT for
+   THEN ;                                          \ its whole TTL.  Fail loudly; the supervisor retries.
 
 : ANNOUNCE-KEY ( ih-a -- )                         \ locate nodes near ih, then announce ourselves for it
    DUP TARGET IDLEN MOVE  CUR-IH !
