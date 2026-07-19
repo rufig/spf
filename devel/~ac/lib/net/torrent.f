@@ -78,6 +78,7 @@ CREATE SH-W 80 CELLS ALLOT                \ message schedule
 CREATE IH20 20 ALLOT                                \ the extracted infohash
 
 : TORRENT-INFOHASH { buf len dest -- ior }          \ SHA-1 of the info dict -> dest(20); 0 = ok
+   buf len BE-SETEND DROP                            \ bound the bencode parser to the file contents
    buf S" info" B-DFIND 0= IF -1 EXIT THEN           ( info-a = the value addr, at its 'd' )
    DUP B-SKIP OVER -                                 ( info-a span )
    dest SHA1  0 ;

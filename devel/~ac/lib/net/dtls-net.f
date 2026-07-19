@@ -69,7 +69,8 @@ CONSTANT /PR
 CREATE PEERTAB  MAXPEERS /PR *  ALLOT   PEERTAB MAXPEERS /PR * ERASE
 25000 VALUE PING-INTERVAL          \ NAT-keepalive interval, ms (<30s: UDP mappings often expire ~30-60s)
 8000  VALUE CONNECT-TIMEOUT        \ ms for a candidate to reach ST-UP before we give up
-30000 VALUE NCACHE-TTL             \ ms to remember a rejected/failed peer (skip re-verifying)
+600000 VALUE NCACHE-BAD-TTL        \ ms to shun a peer whose cert was REJECTED (won't become ours; cache long)
+90000  VALUE NCACHE-SLOW-TTL       \ ms before re-dialing a peer that TIMED OUT (> round period, but keep retrying: maybe NAT)
 16384 CONSTANT /DNET-BUF   CREATE DNET-BUF /DNET-BUF ALLOT   \ big enough to send a whole flight in one datagram (don't split DTLS records)
 16384 CONSTANT /RXBIG      CREATE RXBIG /RXBIG ALLOT          \ receive buffer (DTLS flights exceed the 2048 DHT RX-BUF)
 CREATE PEER-IDBUF 20 ALLOT
@@ -90,11 +91,11 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
          I NC nc.ip @ ip = I NC nc.port @ port = AND IF TRUE UNLOOP EXIT THEN
       THEN
    LOOP FALSE ;
-: NCACHE-ADD { ip port \ now slot -- }
+: NCACHE-ADD { ip port ttl \ now slot -- }
    NOW-MS -> now  -1 -> slot
    /NCACHE 0 ?DO I NC nc.expire @ now U< IF I -> slot LEAVE THEN LOOP  \ reuse an expired slot
    slot 0< IF 0 -> slot THEN                                 \ none free: overwrite slot 0
-   ip slot NC nc.ip !  port slot NC nc.port !  now NCACHE-TTL + slot NC nc.expire ! ;
+   ip slot NC nc.ip !  port slot NC nc.port !  now ttl + slot NC nc.expire ! ;
 
 : PR       ( idx -- a )     /PR * PEERTAB + ;
 : PR-IP    ( idx -- ip )    PR pr.ip @ ;
@@ -145,16 +146,16 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
       idx PR-IP idx PR-PORT p rl DHT-SOCK @ UDP-SEND
       p rl + -> p
    REPEAT ;
-: PR-FAIL { idx reason-a reason-u -- }            \ reject a peer: log, negative-cache, free its SSL
+: PR-FAIL { idx reason-a reason-u ttl -- }        \ reject a peer: log, negative-cache for ttl ms, free its SSL
    ." >>> REJECTED " idx PR-IP idx PR-PORT .IPPORT ."  (" reason-a reason-u TYPE ." )" CR
-   idx PR-IP idx PR-PORT NCACHE-ADD
+   idx PR-IP idx PR-PORT ttl NCACHE-ADD
    idx PR-SSL SSL-FREE   ST-FREE idx PR-STATE! ;
 : PR-UP { idx \ ssl -- }                          \ handshake done: verify identity, keep or reject
    idx PR-SSL -> ssl
-   ssl DTLS-VERIFIED? 0= IF idx S" cert not signed by our CA" PR-FAIL EXIT THEN
+   ssl DTLS-VERIFIED? 0= IF idx S" cert not signed by our CA" NCACHE-BAD-TTL PR-FAIL EXIT THEN
    ssl DTLS-PEER-DER DROP CERT-SPKI PEER-IDBUF SHA1                  \ the peer's real SPKI hash
    idx PR-EXPECT@ ?DUP IF                                           \ a specific server was expected
-      PEER-IDBUF SWAP 20 MEM= 0= IF idx S" identity hash mismatch" PR-FAIL EXIT THEN
+      PEER-IDBUF SWAP 20 MEM= 0= IF idx S" identity hash mismatch" NCACHE-BAD-TTL PR-FAIL EXIT THEN
    THEN
    ." <<< MEMBER verified " idx PR-IP idx PR-PORT .IPPORT ."  SPKI=" PEER-IDBUF .HASH CR ;
 : PR-ADVANCE { idx \ ret -- }
@@ -163,7 +164,7 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
       ret 1 = IF  ST-UP idx PR-STATE!  idx PR-UP                       \ PR-UP may reject -> ST-FREE
       ELSE  idx PR-SSL ret DTLS-ERR                                    \ not done: fatal, or just WANT_READ?
             DUP SSL_ERROR_WANT_READ = SWAP SSL_ERROR_WANT_WRITE = OR 0= IF
-               idx S" DTLS handshake failed (bad/foreign cert)" PR-FAIL   \ fatal alert -> reject fast
+               idx S" DTLS handshake failed (bad/foreign cert)" NCACHE-BAD-TTL PR-FAIL   \ fatal alert -> reject fast
             THEN
       THEN
    THEN
@@ -260,6 +261,18 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
    ." <-> dial-back to swarm querier " ip port .IPPORT CR
    ip port 0 SWARM-DTLS-CONNECT DROP ;                   \ outbound DTLS, any CA-signed member is fine
 
+\ ---- DTLS admission control: only a genuine initial ClientHello from an unknown source may create
+\ state, and no more than HS-MAX unfinished handshakes at once -- so stray alert/app records and a
+\ flood of 0x14..0x17 bytes can't allocate SSL/peer slots.  (Full anti-amplification against SPOOFED-
+\ source ClientHellos still needs a stateless cookie / HelloVerifyRequest -- a later step.)
+: CLIENTHELLO? ( a len -- f )                     \ a fresh initial DTLS ClientHello record?
+   14 < IF DROP FALSE EXIT THEN                    \ need 13-byte record header + >=1 handshake byte
+   DUP C@ 22 <> IF DROP FALSE EXIT THEN            \ content_type = handshake (0x16)
+   DUP 3 + C@ OVER 4 + C@ OR IF DROP FALSE EXIT THEN   \ epoch == 0 (initial flight)
+   13 + C@ 1 = ;                                   \ handshake msg_type = client_hello (1)
+16 VALUE HS-MAX                                    \ cap on concurrent unfinished inbound handshakes
+: HS-COUNT ( -- n )  0  MAXPEERS 0 ?DO I PR-STATE ST-HS = IF 1+ THEN LOOP ;
+
 \ ---- receive dispatch on the shared socket (datagram already in RX-BUF, length = len) ----
 : SWARM-RX { len ip port \ b0 idx -- }
    len 0= IF EXIT THEN
@@ -273,11 +286,15 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
    b0 20 24 WITHIN IF                                        \ 0x14..0x17 = DTLS record
       ip port PR-FIND -> idx
       idx 0< 0= IF                                           \ existing peer for this address?
-         b0 22 =  RXBIG 3 + C@ RXBIG 4 + C@ OR 0= AND  idx PR-STATE ST-UP = AND IF
+         RXBIG len CLIENTHELLO?  idx PR-STATE ST-UP = AND IF
             idx PR-SSL SSL-FREE  ST-FREE idx PR-STATE!  -1 -> idx   \ fresh ClientHello to a live peer -> reconnect
          THEN
       THEN
-      idx 0< IF ip port TRUE PR-NEW -> idx THEN              \ new inbound -> accept as server
+      idx 0< IF                                              \ no peer for this source address:
+         RXBIG len CLIENTHELLO?  HS-COUNT HS-MAX < AND IF    \ ONLY a real ClientHello, and only if we have room,
+            ip port TRUE PR-NEW -> idx                       \ allocates accept-side state (drop stray/flood records)
+         THEN
+      THEN
       idx 0< 0= IF idx RXBIG len PR-DELIVER THEN
       EXIT
    THEN ;                                                    \ else (uTP/junk): ignore
@@ -293,7 +310,7 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
    MAXPEERS 0 ?DO
       I PR-STATE ST-FREE <> IF
          I PR-STATE ST-HS =  NOW-MS I PR-DL@ U>  AND IF        \ still handshaking past its deadline
-            I S" handshake timeout (no valid DTLS response)" PR-FAIL
+            I S" handshake timeout (no valid DTLS response)" NCACHE-SLOW-TTL PR-FAIL
          ELSE
             I PR-SSL DTLS-TIMEOUT DROP     \ retransmit a lost flight if its timer is due
             I PR-PUMP-OUT

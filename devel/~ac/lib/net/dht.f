@@ -208,7 +208,8 @@ VARIABLE PEERS-N
       ADD-NODES
    THEN ;
 : PARSE-RESP ( rlen -- )
-   0= IF EXIT THEN
+   DUP 0= IF DROP EXIT THEN
+   RX-BUF SWAP BE-SETEND DROP                    \ bound the parser to the received reply
    RX-BUF C@ [CHAR] d <> IF EXIT THEN
    RX-BUF S" r" B-DFIND IF HARVEST THEN ;
 

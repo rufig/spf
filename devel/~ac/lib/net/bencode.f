@@ -9,14 +9,25 @@ REQUIRE { ~ac/lib/locals.f
 DECIMAL
 
 \ ===== encoder ==============================================================================
+\ BE-C,/BE-A, are BOUNDED: they never write past BE-BUF.  On overflow they drop the excess and set
+\ BE-OVER, so a too-large message is truncated (and detectable) instead of corrupting the dictionary
+\ (BE-PTR sits right after BE-BUF).  Producers of variable-length messages must ALSO cap their content
+\ up front (e.g. the values[] list in a get_peers reply) so the wire message stays well-formed.
 1024 CONSTANT /BE-BUF
 CREATE BE-BUF /BE-BUF ALLOT
+BE-BUF /BE-BUF + CONSTANT BE-BUF-END          \ one past the encode buffer
 VARIABLE BE-PTR
+VARIABLE BE-OVER                              \ TRUE if an encode hit the buffer limit (message truncated)
 
-: BE-RESET ( -- )        BE-BUF BE-PTR ! ;
+: BE-RESET ( -- )        BE-BUF BE-PTR !  FALSE BE-OVER ! ;
 : BE-LEN   ( -- u )      BE-PTR @ BE-BUF - ;
-: BE-C,    ( c -- )      BE-PTR @ C!  1 BE-PTR +! ;
-: BE-A,    ( a u -- )    BE-PTR @ SWAP DUP >R MOVE  R> BE-PTR +! ;   \ append u raw bytes
+: BE-C,    ( c -- )                           \ append one byte, bounded
+   BE-PTR @ DUP BE-BUF-END U< IF C! 1 BE-PTR +! ELSE 2DROP TRUE BE-OVER ! THEN ;
+: BE-A,    ( a u -- )                         \ append u raw bytes, clamped to the space left
+   BE-BUF-END BE-PTR @ -  0 MAX               ( a u room )
+   2DUP > IF TRUE BE-OVER ! THEN              ( a u room )   \ u > room -> overflow, clamp below
+   MIN                                        ( a u' )
+   BE-PTR @ SWAP DUP >R MOVE  R> BE-PTR +! ;
 : BE-#     ( n -- )      \ append a signed integer as ASCII decimal (bencode is always base-10)
    BASE @ >R DECIMAL   DUP >R ABS 0 <# #S R> SIGN #> BE-A,  R> BASE ! ;
 : BE-STR   ( a u -- )    DUP BE-#  [CHAR] : BE-C,  BE-A, ;      \ <len>:<bytes>
@@ -26,14 +37,26 @@ VARIABLE BE-PTR
 : BE-L[    ( -- )        [CHAR] l BE-C, ;                       \ open a list
 : BE-}     ( -- )        [CHAR] e BE-C, ;                       \ close a dict or list
 
-\ ===== decoder (zero-copy walk) =============================================================
-\ Each B-*@ word takes the address of a bencoded value and returns the address just past it.
+\ ===== decoder (BOUNDED zero-copy walk) =====================================================
+\ Each B-*@ word takes the address of a bencoded value and returns the address just past it.  Every
+\ read is confined to [start, BE-END): arm it with BE-SETEND ( a u -- a ) once per received message.
+\ A read past the end, an over-long string length, or nesting deeper than BE-MAXDEPTH sets BE-BAD and
+\ the walk unwinds safely -- cursors clamp to BE-END so loops terminate and nothing reads outside the
+\ datagram.  Trusting callers still get their value; network-facing callers should honour BE-OK?.
+VARIABLE BE-END                              \ one past the last byte of the message being parsed
+VARIABLE BE-BAD                              \ TRUE after any out-of-bounds / over-long / too-deep event
+32 CONSTANT BE-MAXDEPTH
+: BE-SETEND ( a u -- a )   OVER + BE-END !  FALSE BE-BAD !  ;   \ arm for [a, a+u); return the cursor a
+: BE-OK?    ( -- f )       BE-BAD @ 0= ;
+: IN?       ( a -- f )     BE-END @ U< ;                        \ cursor strictly inside the message?
+: @IN       ( a -- c )     DUP IN? IF C@ ELSE DROP TRUE BE-BAD ! 0 THEN ;   \ bounded read (0 past end)
+
 : DIGIT? ( c -- f )   [CHAR] 0 [CHAR] 9 1+ WITHIN ;
 
-: B-NUM ( a -- a' n )                        \ parse [-]<digits>; a' points at the first non-digit
-   DUP C@ [CHAR] - = >R
+: B-NUM ( a -- a' n )                        \ parse [-]<digits>; a' at the first non-digit (bounded)
+   DUP @IN [CHAR] - = >R
    R@ IF 1+ THEN   0                         ( a acc )
-   BEGIN OVER C@ DIGIT? WHILE
+   BEGIN OVER IN? IF OVER C@ DIGIT? ELSE FALSE THEN WHILE
       10 *  OVER C@ [CHAR] 0 - +  SWAP 1+ SWAP
    REPEAT
    R> IF NEGATE THEN ;
@@ -41,22 +64,34 @@ VARIABLE BE-PTR
 : B-INT@ ( a -- a' n )                       \ a at 'i' : i<n>e  -> value, past the 'e'
    1+ B-NUM  SWAP 1+ SWAP ;
 
-: B-STR@ ( a -- a' s-a s-u )                 \ a at a length digit : <len>:<bytes> -> bytes span, past them
-   B-NUM  SWAP 1+  SWAP  2DUP + -ROT ;
-
-: B-SKIP ( a -- a' )                         \ skip one whole value of any type (self-recursive)
-   DUP C@ [CHAR] i = IF B-INT@ DROP EXIT THEN
-   DUP C@ [CHAR] l = IF 1+ BEGIN DUP C@ [CHAR] e <> WHILE RECURSE         REPEAT 1+ EXIT THEN
-   DUP C@ [CHAR] d = IF 1+ BEGIN DUP C@ [CHAR] e <> WHILE RECURSE RECURSE REPEAT 1+ EXIT THEN
-   B-STR@ 2DROP ;                            \ else a string: keep a', drop the span
+: B-STR@ ( a -- a' s-a s-u )                 \ <len>:<bytes>; len clamped to the bytes left in the message
+   B-NUM  SWAP 1+  SWAP                       ( s-a s-u )
+   OVER BE-END @ SWAP -  0 MAX                ( s-a s-u avail )   \ bytes from s-a to BE-END
+   2DUP SWAP < IF TRUE BE-BAD ! THEN          ( s-a s-u avail )   \ declared len > avail -> malformed
+   MIN                                        ( s-a s-u' )        \ clamp so the span never exits
+   2DUP + -ROT ;                              ( a' s-a s-u' )
 
 : STR= { a1 u1 a2 u2 -- f }
    u1 u2 <> IF FALSE EXIT THEN
    u1 0 DO  a1 I + C@ a2 I + C@ <> IF FALSE UNLOOP EXIT THEN  LOOP  TRUE ;
 
+: (B-SKIP) { a depth -- a' }                 \ skip one value; recursion depth-bounded
+   depth BE-MAXDEPTH > IF TRUE BE-BAD !  BE-END @ EXIT THEN   \ too deep: jump to end so every loop unwinds
+   a @IN [CHAR] i = IF a B-INT@ DROP EXIT THEN
+   a @IN [CHAR] l = IF  a 1+ -> a
+      BEGIN a IN? IF a @IN [CHAR] e <> ELSE FALSE THEN WHILE  a depth 1+ RECURSE -> a  REPEAT
+      a 1+ EXIT THEN
+   a @IN [CHAR] d = IF  a 1+ -> a
+      BEGIN a IN? IF a @IN [CHAR] e <> ELSE FALSE THEN WHILE
+         a depth 1+ RECURSE -> a   a depth 1+ RECURSE -> a
+      REPEAT
+      a 1+ EXIT THEN
+   a B-STR@ 2DROP ;                           \ else a string -> a' past its bytes
+: B-SKIP ( a -- a' )   0 (B-SKIP) ;
+
 : B-DFIND ( dict-a key-a key-u -- val-a true | false )   \ find a key in a dict, return its value addr
    2>R  1+                                   ( p ; R: key-a key-u )
-   BEGIN DUP C@ [CHAR] e <> WHILE
+   BEGIN DUP IN? IF DUP @IN [CHAR] e <> ELSE FALSE THEN WHILE
       B-STR@                                 ( p' k-a k-u )
       2R@ STR= IF  2R> 2DROP  TRUE EXIT  THEN
       B-SKIP                                 ( p'' )
@@ -65,7 +100,7 @@ VARIABLE BE-PTR
 
 : B-LIST ( list-a xt -- )                    \ call xt ( elem-a -- ) for each element (xt must be stack-neutral)
    SWAP 1+ SWAP                              ( p xt )
-   BEGIN OVER C@ [CHAR] e <> WHILE
+   BEGIN OVER IN? IF OVER @IN [CHAR] e <> ELSE FALSE THEN WHILE
       2DUP EXECUTE  SWAP B-SKIP SWAP
    REPEAT 2DROP ;
 

@@ -23,6 +23,7 @@ VARIABLE ANN-TOK  VARIABLE ANN-ACK               \ our-announce diagnostics: tok
 
 \ ---- peer store for the ONE watched infohash (compact 6-byte ip4+port entries) ----
 256 CONSTANT PSTORE-MAX
+100 CONSTANT MAX-REPLY-VALUES                      \ cap values[] in one get_peers reply (< BE-BUF / safe MTU)
 CREATE PSTORE  PSTORE-MAX 6 * ALLOT
 VARIABLE PSTORE-N
 : PSTORE-ADD { ip port \ p -- }
@@ -80,14 +81,16 @@ CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact pee
    MY-EXT-IP @ 16 RSHIFT 255 AND CP-BUF 2 + C!  MY-EXT-IP @ 24 RSHIFT 255 AND CP-BUF 3 + C!
    MY-PORT @ 8 RSHIFT 255 AND CP-BUF 4 + C!  MY-PORT @ 255 AND CP-BUF 5 + C!
    CP-BUF 6 BE-STR ;
-: REPLY-GETPEERS { ta tu ip -- a u }              \ token + values (self if announcing, then our peer store)
+: REPLY-GETPEERS { ta tu ip ours? -- a u }        \ token; values (self + peer store) ONLY for our TARGET
    BE-RESET  BE-D{
       S" r" BE-KEY  BE-D{
          S" id" BE-KEY MY-ID IDLEN BE-STR
          S" token" BE-KEY ip MK-TOKEN BE-STR
          S" values" BE-KEY BE-L[
-            DHT-ANNOUNCE? IF MY-EXT-IP @ IF BE-SELF THEN THEN   \ advertise ourselves as a peer
-            PSTORE-N @ 0 ?DO PSTORE I 6 * + 6 BE-STR LOOP
+            ours? IF                                           \ a foreign infohash gets EMPTY values --
+               DHT-ANNOUNCE? IF MY-EXT-IP @ IF BE-SELF THEN THEN   \ never leak our swarm / advertise self for it
+               PSTORE-N @ MAX-REPLY-VALUES MIN 0 ?DO PSTORE I 6 * + 6 BE-STR LOOP
+            THEN
          BE-}
       BE-}
       S" t" BE-KEY  ta tu BE-STR
@@ -95,25 +98,38 @@ CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact pee
       S" y" BE-KEY  S" r" BE-STR
    BE-}  BE-BUF BE-LEN ;
 
+\ ---- verbose incoming-query logging (diagnostics: see EVERY DHT query the swarm node receives) ----
+: .NIB   ( n -- )   15 AND DUP 10 < IF [CHAR] 0 + ELSE 10 - [CHAR] A + THEN EMIT ;
+: .HEXB  ( c -- )   DUP 4 RSHIFT .NIB .NIB ;
+: .IHPFX ( a -- )   4 0 DO DUP I + C@ .HEXB LOOP DROP ." .." ;   \ first 4 bytes of an infohash/target
+: TOKEN-OK? { ad ip \ ka ku ta tu -- f }          \ ad.token == the opaque token we'd have issued to ip?
+   ad S" token" DFIND-STR 0= IF FALSE EXIT THEN -> ku -> ka
+   ip MK-TOKEN -> tu -> ta
+   ka ku ta tu STR= ;
+
 \ ---- request dispatch ----
-: SERVE-GETPEERS { ip port ta tu -- }
+: SERVE-GETPEERS { ip port ta tu \ iha ours -- }
    RX-BUF S" a" B-DFIND 0= IF EXIT THEN                          ( a-dict )
-   S" info_hash" DFIND-STR 0= IF EXIT THEN  DROP                 ( drop u, keep iha )
-   TARGET ID= IF  1 Q-HIT +!
-      ." <<< get_peers  for OUR file from " ip port .IPPORT ."  client=" .V-CLIENT CR  THEN
-   ta tu ip REPLY-GETPEERS  ip port SEND-REPLY ;
+   S" info_hash" DFIND-STR 0= IF EXIT THEN  DROP  -> iha         ( drop u, keep iha )
+   iha TARGET ID= -> ours
+   ." <<< get_peers from " ip port .IPPORT ."  ih=" iha .IHPFX
+   ours IF 1 Q-HIT +! ."  (OURS) client=" .V-CLIENT ELSE ."  (foreign)" THEN CR
+   ta tu ip ours REPLY-GETPEERS  ip port SEND-REPLY ;
 : SERVE-ANNOUNCE { ip port ta tu \ ad iha aport -- }
    RX-BUF S" a" B-DFIND 0= IF ta tu REPLY-PING ip port SEND-REPLY EXIT THEN -> ad
    ad S" info_hash" DFIND-STR 0= IF EXIT THEN DROP -> iha        ( keep addr )
    ad S" implied_port" B-DFIND IF B-INT@ NIP ELSE 0 THEN
    IF port ELSE ad S" port" B-DFIND IF B-INT@ NIP ELSE port THEN THEN -> aport
+   ." <<< announce_peer from " ip aport .IPPORT ."  ih=" iha .IHPFX
    iha TARGET ID= IF
-      ip aport PSTORE-ADD  1 Q-HIT +!
-      ." <<< announce_peer for OUR file from " ip aport .IPPORT ."  client=" .V-CLIENT CR  THEN
+      ad ip TOKEN-OK? IF ip aport PSTORE-ADD  1 Q-HIT +! ."  (OURS) client=" .V-CLIENT
+                     ELSE ."  (OURS, bad/missing token -- not stored)" THEN
+   ELSE ."  (foreign)" THEN CR
    ta tu REPLY-PING ip port SEND-REPLY ;
 
 : SERVE-1 { size ip port \ ta tu qa qu b0 -- }     \ handle one datagram already in RX-BUF
    size 0= IF EXIT THEN
+   RX-BUF size BE-SETEND DROP                       \ bound the bencode parser to this datagram
    RX-BUF C@ -> b0
    b0 [CHAR] d <> IF                               \ not bencoded DHT -> peer-wire (uTP) or junk; log it
       1 Q-UTP +!
@@ -125,14 +141,18 @@ CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact pee
    RX-BUF S" y" DFIND-STR 0= IF EXIT THEN  S" q" STR= 0= IF EXIT THEN   \ queries only
    RX-BUF S" t" DFIND-STR 0= IF EXIT THEN -> tu -> ta
    RX-BUF S" q" DFIND-STR 0= IF EXIT THEN -> qu -> qa
-   qa qu S" ping"          STR= IF 1 Q-PING +!  ta tu REPLY-PING     ip port SEND-REPLY EXIT THEN
-   qa qu S" find_node"     STR= IF 1 Q-FIND +!  ta tu REPLY-FINDNODE ip port SEND-REPLY EXIT THEN
+   qa qu S" ping"          STR= IF 1 Q-PING +!  ." <<< ping from " ip port .IPPORT CR
+                                    ta tu REPLY-PING     ip port SEND-REPLY EXIT THEN
+   qa qu S" find_node"     STR= IF 1 Q-FIND +!  ." <<< find_node from " ip port .IPPORT CR
+                                    ta tu REPLY-FINDNODE ip port SEND-REPLY EXIT THEN
    qa qu S" get_peers"     STR= IF 1 Q-GET  +!  ip port ta tu SERVE-GETPEERS  EXIT THEN
-   qa qu S" announce_peer" STR= IF 1 Q-ANN  +!  ip port ta tu SERVE-ANNOUNCE  EXIT THEN ;
+   qa qu S" announce_peer" STR= IF 1 Q-ANN  +!  ip port ta tu SERVE-ANNOUNCE  EXIT THEN
+   ." <<< query '" qa qu TYPE ." ' from " ip port .IPPORT CR ;   \ unrecognised query type
 
 \ ---- our own announce_peer (outgoing) ----
 : EXTRACT-TOKEN ( rlen -- tok-a tok-u | 0 0 )      \ pull 'r'.'token' from a get_peers reply in RX-BUF
-   0= IF 0 0 EXIT THEN
+   DUP 0= IF DROP 0 0 EXIT THEN
+   RX-BUF SWAP BE-SETEND DROP                       \ bound the parser to the received reply
    RX-BUF C@ [CHAR] d <> IF 0 0 EXIT THEN
    RX-BUF S" r" B-DFIND 0= IF 0 0 EXIT THEN
    S" token" DFIND-STR 0= IF 0 0 EXIT THEN ;
@@ -155,7 +175,9 @@ CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact pee
    ta 0= IF EXIT THEN
    1 ANN-TOK +!
    ip port  ta tu ANNOUNCE-MSG  DHT-QUERY          \ send announce, read the ack
-   IF RX-BUF C@ [CHAR] d = IF RX-BUF S" r" B-DFIND IF 1 ANN-ACK +! THEN THEN THEN ;
+   DUP IF RX-BUF SWAP BE-SETEND DROP
+      RX-BUF C@ [CHAR] d = IF RX-BUF S" r" B-DFIND IF 1 ANN-ACK +! THEN THEN
+   ELSE DROP THEN ;
 8 CONSTANT ANNOUNCE-K
 : DO-ANNOUNCE ( -- )                               \ announce to the K closest nodes in the shortlist
    0 ANN-TOK !  0 ANN-ACK !
