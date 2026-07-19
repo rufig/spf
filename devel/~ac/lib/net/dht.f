@@ -102,6 +102,33 @@ VARIABLE RNGSTATE
    DUP RNGSTATE ! ;
 : RAND-BYTES ( dest u -- )  0 DO  RND 255 AND  OVER I + C!  LOOP DROP ;
 
+\ ===== BEP 42 secure node id: derive MY-ID from our external IP so strict nodes accept us ========
+\ id[0..2] top 21 bits = crc32c( ip masked per-byte, with (r&7)<<5 in byte0 ); id[19]=r; rest random.
+HEX
+CREATE CRCBUF 4 ALLOT
+: CRC32C { a u \ crc -- crc }            \ CRC-32C (Castagnoli), reflected poly 82F63B78
+   FFFFFFFF -> crc
+   u 0 DO
+      crc  a I + C@ XOR -> crc
+      8 0 DO  crc 1 AND IF crc 1 RSHIFT 82F63B78 XOR ELSE crc 1 RSHIFT THEN -> crc  LOOP
+   LOOP
+   crc FFFFFFFF XOR ;
+: BEP42-CRC { ip r -- crc }              \ crc32c of the masked 4 bytes (ip = C-IP little-endian int)
+   ip          03 AND  r 7 AND 5 LSHIFT OR   CRCBUF    C!    \ byte0: ip[0]&0x03 | (r&7)<<5
+   ip  8 RSHIFT 0F AND                        CRCBUF 1+ C!   \ byte1: ip[1]&0x0f
+   ip 10 RSHIFT 3F AND                        CRCBUF 2 + C!  \ byte2: ip[2]&0x3f
+   ip 18 RSHIFT FF AND                        CRCBUF 3 + C!  \ byte3: ip[3]
+   CRCBUF 4 CRC32C ;
+: BEP42-NODE-ID { ip \ r crc -- }        \ fill MY-ID(20) per BEP 42 from external ip
+   RND 7 AND -> r
+   ip r BEP42-CRC -> crc
+   crc 18 RSHIFT FF AND                MY-ID    C!           \ id[0] = crc>>24
+   crc 10 RSHIFT FF AND                MY-ID 1+ C!           \ id[1] = crc>>16
+   crc  8 RSHIFT F8 AND  RND 7 AND OR  MY-ID 2 + C!          \ id[2] = ((crc>>8)&0xf8) | (rand&7)
+   MY-ID 3 + 10 RAND-BYTES                                   \ id[3..18] random
+   r                                   MY-ID 13 + C! ;       \ id[19] = r
+DECIMAL
+
 \ ===== transaction id (2 bytes, big-endian counter) =========================================
 VARIABLE TXN
 CREATE TXBUF 2 ALLOT

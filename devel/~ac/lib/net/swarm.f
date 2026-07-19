@@ -74,8 +74,11 @@ CREATE IH-SELF  20 ALLOT                            \ SHA1(SPKI of own cert)
 CREATE IH-GROUP 20 ALLOT                            \ SHA1(SPKI of CA cert)
 
 \ ===== DHT session + announce ===============================================================
-: SWARM-OPEN ( -- )                                \ open the UDP socket with a RANDOM node id, bind a port
-   SOCK-START  RNG-SEED  MY-ID IDLEN RAND-BYTES  0 TXN !
+: SWARM-OPEN ( -- )                                \ open the UDP socket + pick a node id, bind a port
+   SOCK-START  RNG-SEED
+   MY-EXT-IP @ ?DUP IF BEP42-NODE-ID ." swarm: node id via BEP42 (external IP)" CR
+              ELSE MY-ID IDLEN RAND-BYTES ." swarm: node id RANDOM (no external IP set)" CR THEN
+   0 TXN !
    RND SECRET !
    UDP-OPEN DHT-SOCK !
    DHT-SOCK @ BIND-PORT DUP MY-PORT !
