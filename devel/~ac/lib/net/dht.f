@@ -112,7 +112,8 @@ CREATE TXBUF 2 ALLOT
 \ ===== KRPC message builders ================================================================
 \ Dict keys are emitted in ascending byte order, as bencode requires.
 CREATE V-STR  65 C, 67 C, 0 C, 7 C,      \ BEP 20 client id: "AC" + version 0x0007 -> peers log us as "AC.7"
-: BE-V ( -- )  S" v" BE-KEY  V-STR 4 BE-STR ;   \ our client-version key (goes between 't' and 'y')
+FALSE VALUE DHT-SEND-V?                   \ emit our 'v' client-version key?  DEFAULT OFF -- some nodes deprioritise
+: BE-V ( -- )  DHT-SEND-V? IF  S" v" BE-KEY  V-STR 4 BE-STR  THEN ;   \ unknown clients; `TRUE TO DHT-SEND-V?` to send it
 : PING-MSG ( -- a u )
    BE-RESET  BE-D{
       S" a" BE-KEY  BE-D{  S" id" BE-KEY  MY-ID IDLEN BE-STR  BE-}
@@ -196,11 +197,59 @@ VARIABLE PEERS-N
    pa  PEERS-N @ 6 * PEERS +  6 MOVE
    1 PEERS-N +! ;
 
+\ ===== routing table: keep good contacts + answer find_node/get_peers with the closest we know =====
+\ Without a routing table we return empty `nodes`, so other nodes drop us and never query us (no DHT
+\ presence -- the "no incoming" diagnostic).  A flat table of compact nodes (id+ip+port) with last-seen;
+\ populated from replies AND from the nodes that query us; when full, the stalest entry is evicted.
+160 CONSTANT RTAB-MAX
+8   CONSTANT RT-K
+CREATE RTAB       RTAB-MAX NODELEN * ALLOT
+CREATE RTAB-SEEN  RTAB-MAX CELLS   ALLOT
+CREATE RT-PICK    RTAB-MAX         ALLOT
+CREATE RT-OUT     RT-K NODELEN *   ALLOT
+VARIABLE RTAB-N   0 RTAB-N !
+: RT-NODE ( idx -- a )  NODELEN * RTAB + ;
+: RT-SEEN ( idx -- a )  CELLS RTAB-SEEN + ;
+: XOR-CLOSER? { ida idb tgt \ da db -- f }         \ ida strictly closer to tgt than idb (XOR distance)?
+   IDLEN 0 DO
+      ida I + C@ tgt I + C@ XOR -> da
+      idb I + C@ tgt I + C@ XOR -> db
+      da db <> IF da db < UNLOOP EXIT THEN
+   LOOP FALSE ;
+: RT-ID= { a b -- f }  IDLEN 0 DO a I + C@ b I + C@ <> IF FALSE UNLOOP EXIT THEN LOOP TRUE ;
+: RT-FIND-ID { na -- idx }  RTAB-N @ 0 ?DO na I RT-NODE RT-ID= IF I UNLOOP EXIT THEN LOOP -1 ;
+: RT-STALEST ( -- idx )
+   0  RTAB-N @ 1 ?DO  DUP RT-SEEN @  I RT-SEEN @  U> IF DROP I THEN  LOOP ;
+: RT-ADD { na \ idx -- }                           \ add/refresh a compact node (skip garbage: 0 ip)
+   na NODE-IP 0= IF EXIT THEN
+   na RT-FIND-ID -> idx
+   idx 0< IF
+      RTAB-N @ RTAB-MAX < IF RTAB-N @ -> idx  1 RTAB-N +!  ELSE RT-STALEST -> idx THEN
+      na idx RT-NODE NODELEN MOVE
+   THEN
+   NOW-MS idx RT-SEEN ! ;
+: RT-CLOSEST-NODES { tgt \ out n best -- a u }      \ compact string of the K closest table nodes to tgt
+   RTAB-N @ 0 ?DO 0 I RT-PICK + C! LOOP
+   RT-OUT -> out  0 -> n
+   RT-K 0 DO
+      -1 -> best
+      RTAB-N @ 0 ?DO
+         I RT-PICK + C@ 0= IF
+            best 0< IF I -> best
+            ELSE I RT-NODE best RT-NODE tgt XOR-CLOSER? IF I -> best THEN THEN
+         THEN
+      LOOP
+      best 0< IF LEAVE THEN
+      1 best RT-PICK + C!
+      best RT-NODE out NODELEN MOVE  out NODELEN + -> out  n 1+ -> n
+   LOOP
+   RT-OUT  n NODELEN * ;
+
 \ ===== response parsing =====================================================================
 : ADD-PEER ( elem-a -- )                 \ a values[] element: a bencoded 6-byte compact peer
    B-STR@ { a1 pa pu }  pu 6 >= IF pa STORE-PEER THEN ;
-: ADD-NODES { sa su -- }                 \ the nodes string: su/26 compact nodes
-   su 26 / 0 ?DO  sa I NODELEN * +  SL-ADD  LOOP ;
+: ADD-NODES { sa su -- }                 \ the nodes string: su/26 compact nodes -> shortlist AND routing table
+   su 26 / 0 ?DO  sa I NODELEN * +  DUP SL-ADD  RT-ADD  LOOP ;
 : HARVEST { r -- }                       \ r = the 'r' response dict: pull values[] and nodes
    r S" values" B-DFIND IF  ['] ADD-PEER B-LIST  THEN
    r S" nodes"  B-DFIND IF

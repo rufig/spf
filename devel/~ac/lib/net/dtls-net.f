@@ -200,12 +200,16 @@ CREATE ROUTER-IPS 3 CELLS ALLOT   VARIABLE ROUTERS-RESOLVED
    TRUE ROUTERS-RESOLVED ! ;
 : SEED-SEND ( -- )
    RESOLVE-ROUTERS
-   3 0 DO ROUTER-IPS I CELLS + @ ?DUP IF 6881 GETPEERS-MSG DHT-SOCK @ UDP-SEND THEN LOOP ;
+   3 0 DO ROUTER-IPS I CELLS + @ ?DUP IF
+      ." > get_peers " CUR-IH @ .IHPFX ."  -> " DUP 6881 .IPPORT CR
+      6881 GETPEERS-MSG DHT-SOCK @ UDP-SEND THEN LOOP ;
 : LOOKUP-SEND-NEXT ( -- )          \ get_peers to the next closest un-queried node (send-only)
    ANN-QUERIES @ MAX-QUERIES >= IF EXIT THEN
    SL-PICK DUP 0< IF DROP EXIT THEN
    DUP 1 SWAP SL-Q + C!
-   SL-NODE DUP NODE-IP SWAP NODE-PORT  GETPEERS-MSG DHT-SOCK @ UDP-SEND
+   SL-NODE DUP NODE-IP SWAP NODE-PORT
+   ." > get_peers " CUR-IH @ .IHPFX ."  -> " 2DUP .IPPORT CR
+   GETPEERS-MSG DHT-SOCK @ UDP-SEND
    1 ANN-QUERIES +! ;
 : ANN-START ( ih-a -- )                              \ start a lookup round; keep the CONVERGING shortlist
    DUP TARGET IDLEN MOVE  CUR-IH !                    \ + accumulated PEERS across rounds (real-DHT style)
@@ -223,6 +227,7 @@ CREATE ROUTER-IPS 3 CELLS ALLOT   VARIABLE ROUTERS-RESOLVED
    0= IF EXIT THEN                                 \ must be a get_peers reply (nodes/values), not a bare ping (P1.1)
    ra S" token" B-DFIND IF                         \ a token present -> announce ourselves to this responder (wide)
       B-STR@ ROT DROP -> tu -> ta
+      ." > announce " CUR-IH @ .IHPFX ."  -> " ip port .IPPORT CR
       ip port  ta tu ANNOUNCE-MSG  DHT-SOCK @ UDP-SEND
    THEN
    ra HARVEST  LOOKUP-SEND-NEXT ;

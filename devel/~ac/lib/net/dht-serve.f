@@ -40,6 +40,9 @@ VARIABLE PSTORE-N
 \ ---- helpers ----
 : DFIND-STR ( dict-a key-a key-u -- s-a s-u true | false )
    B-DFIND IF  B-STR@ >R >R DROP R> R>  TRUE  ELSE  FALSE  THEN ;
+: RX-A-STR { ka ku -- sa su true | false }        \ a.<key> as a string from the query in RX-BUF
+   RX-BUF S" a" B-DFIND 0= IF FALSE EXIT THEN
+   ka ku DFIND-STR ;
 : .IPPORT { ip port -- }
    BASE @ >R DECIMAL
    ip 255 AND .#  [CHAR] . EMIT  ip 8 RSHIFT 255 AND .#  [CHAR] . EMIT
@@ -68,9 +71,13 @@ VARIABLE PSTORE-N
       BE-V
       S" y" BE-KEY  S" r" BE-STR
    BE-}  BE-BUF BE-LEN ;
-: REPLY-FINDNODE { ta tu -- a u }
+: REPLY-FINDNODE { ta tu \ na nu -- a u }          \ answer with the K nodes closest to a.target
+   0 -> na  0 -> nu
+   S" target" RX-A-STR IF
+      20 = IF RT-CLOSEST-NODES -> nu -> na ELSE DROP THEN
+   THEN
    BE-RESET  BE-D{
-      S" r" BE-KEY  BE-D{ S" id" BE-KEY MY-ID IDLEN BE-STR  S" nodes" BE-KEY 0 0 BE-STR BE-}
+      S" r" BE-KEY  BE-D{ S" id" BE-KEY MY-ID IDLEN BE-STR  S" nodes" BE-KEY na nu BE-STR BE-}
       S" t" BE-KEY  ta tu BE-STR
       BE-V
       S" y" BE-KEY  S" r" BE-STR
@@ -81,17 +88,20 @@ CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact pee
    MY-EXT-IP @ 16 RSHIFT 255 AND CP-BUF 2 + C!  MY-EXT-IP @ 24 RSHIFT 255 AND CP-BUF 3 + C!
    MY-PORT @ 8 RSHIFT 255 AND CP-BUF 4 + C!  MY-PORT @ 255 AND CP-BUF 5 + C!
    CP-BUF 6 BE-STR ;
-: REPLY-GETPEERS { ta tu ip ours? -- a u }        \ token; values (self + peer store) ONLY for our TARGET
+: REPLY-GETPEERS { ta tu ip ours? iha \ na nu -- a u }   \ our TARGET -> values; foreign hash -> closest nodes
+   ours? IF 0 0 ELSE iha RT-CLOSEST-NODES THEN -> nu -> na
    BE-RESET  BE-D{
       S" r" BE-KEY  BE-D{
          S" id" BE-KEY MY-ID IDLEN BE-STR
          S" token" BE-KEY ip MK-TOKEN BE-STR
-         S" values" BE-KEY BE-L[
-            ours? IF                                           \ a foreign infohash gets EMPTY values --
-               DHT-ANNOUNCE? IF MY-EXT-IP @ IF BE-SELF THEN THEN   \ never leak our swarm / advertise self for it
+         ours? IF
+            S" values" BE-KEY BE-L[                            \ our infohash: our own peers
+               DHT-ANNOUNCE? IF MY-EXT-IP @ IF BE-SELF THEN THEN
                PSTORE-N @ MAX-REPLY-VALUES MIN 0 ?DO PSTORE I 6 * + 6 BE-STR LOOP
-            THEN
-         BE-}
+            BE-}
+         ELSE
+            S" nodes" BE-KEY na nu BE-STR                      \ foreign: the closest nodes we know (never our swarm)
+         THEN
       BE-}
       S" t" BE-KEY  ta tu BE-STR
       BE-V
@@ -102,10 +112,21 @@ CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact pee
 : .NIB   ( n -- )   15 AND DUP 10 < IF [CHAR] 0 + ELSE 10 - [CHAR] A + THEN EMIT ;
 : .HEXB  ( c -- )   DUP 4 RSHIFT .NIB .NIB ;
 : .IHPFX ( a -- )   4 0 DO DUP I + C@ .HEXB LOOP DROP ." .." ;   \ first 4 bytes of an infohash/target
+: .RX-A-IH { ka ku -- }   ka ku RX-A-STR IF DROP .IHPFX ELSE ." ?" THEN ;   \ print a.<key> hash prefix, or ?
 : TOKEN-OK? { ad ip \ ka ku ta tu -- f }          \ ad.token == the opaque token we'd have issued to ip?
    ad S" token" DFIND-STR 0= IF FALSE EXIT THEN -> ku -> ka
    ip MK-TOKEN -> tu -> ta
    ka ku ta tu STR= ;
+CREATE QNODE 26 ALLOT
+: LEARN-QUERIER { ip port \ ida idu -- }          \ add the querying node (a.id + its src ip:port) to the routing table
+   RX-BUF S" a" B-DFIND 0= IF EXIT THEN
+   S" id" DFIND-STR 0= IF EXIT THEN -> idu -> ida
+   idu 20 <> IF EXIT THEN
+   ida QNODE 20 MOVE
+   ip 255 AND QNODE 20 + C!  ip 8 RSHIFT 255 AND QNODE 21 + C!
+   ip 16 RSHIFT 255 AND QNODE 22 + C!  ip 24 RSHIFT 255 AND QNODE 23 + C!
+   port 8 RSHIFT 255 AND QNODE 24 + C!  port 255 AND QNODE 25 + C!
+   QNODE RT-ADD ;
 
 \ ---- request dispatch ----
 : SERVE-GETPEERS { ip port ta tu \ iha ours -- }
@@ -114,7 +135,7 @@ CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact pee
    iha TARGET ID= -> ours
    ." <<< get_peers from " ip port .IPPORT ."  ih=" iha .IHPFX
    ours IF 1 Q-HIT +! ."  (OURS) client=" .V-CLIENT ELSE ."  (foreign)" THEN CR
-   ta tu ip ours REPLY-GETPEERS  ip port SEND-REPLY ;
+   ta tu ip ours iha REPLY-GETPEERS  ip port SEND-REPLY ;
 : SERVE-ANNOUNCE { ip port ta tu \ ad iha aport -- }
    RX-BUF S" a" B-DFIND 0= IF ta tu REPLY-PING ip port SEND-REPLY EXIT THEN -> ad
    ad S" info_hash" DFIND-STR 0= IF EXIT THEN DROP -> iha        ( keep addr )
@@ -141,9 +162,11 @@ CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact pee
    RX-BUF S" y" DFIND-STR 0= IF EXIT THEN  S" q" STR= 0= IF EXIT THEN   \ queries only
    RX-BUF S" t" DFIND-STR 0= IF EXIT THEN -> tu -> ta
    RX-BUF S" q" DFIND-STR 0= IF EXIT THEN -> qu -> qa
+   ip port LEARN-QUERIER                           \ a live node just contacted us: remember it (routing table)
    qa qu S" ping"          STR= IF 1 Q-PING +!  ." <<< ping from " ip port .IPPORT CR
                                     ta tu REPLY-PING     ip port SEND-REPLY EXIT THEN
-   qa qu S" find_node"     STR= IF 1 Q-FIND +!  ." <<< find_node from " ip port .IPPORT CR
+   qa qu S" find_node"     STR= IF 1 Q-FIND +!  ." <<< find_node from " ip port .IPPORT
+                                    ."  target=" S" target" .RX-A-IH CR
                                     ta tu REPLY-FINDNODE ip port SEND-REPLY EXIT THEN
    qa qu S" get_peers"     STR= IF 1 Q-GET  +!  ip port ta tu SERVE-GETPEERS  EXIT THEN
    qa qu S" announce_peer" STR= IF 1 Q-ANN  +!  ip port ta tu SERVE-ANNOUNCE  EXIT THEN
