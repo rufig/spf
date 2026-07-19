@@ -65,10 +65,12 @@ CELL -- pr.state
 CELL -- pr.ping
 CELL -- pr.expect          \ expected SPKI-hash addr, or 0
 CELL -- pr.dl              \ connect deadline
+CELL -- pr.rx              \ last time ANY datagram arrived from this peer (liveness)
 CONSTANT /PR
 CREATE PEERTAB  MAXPEERS /PR *  ALLOT   PEERTAB MAXPEERS /PR * ERASE
 25000 VALUE PING-INTERVAL          \ NAT-keepalive interval, ms (<30s: UDP mappings often expire ~30-60s)
 8000  VALUE CONNECT-TIMEOUT        \ ms for a candidate to reach ST-UP before we give up
+90000 VALUE PEER-IDLE              \ ms of total silence before an established peer is reclaimed (> 3 pings)
 600000 VALUE NCACHE-BAD-TTL        \ ms to shun a peer whose cert was REJECTED (won't become ours; cache long)
 90000  VALUE NCACHE-SLOW-TTL       \ ms before re-dialing a peer that TIMED OUT (> round period, but keep retrying: maybe NAT)
 16384 CONSTANT /DNET-BUF   CREATE DNET-BUF /DNET-BUF ALLOT   \ big enough to send a whole flight in one datagram (don't split DTLS records)
@@ -111,6 +113,8 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
 : PR-EXPECT! ( a idx -- )   PR pr.expect ! ;
 : PR-DL@ ( idx -- ms )      PR pr.dl @ ;
 : PR-DL! ( ms idx -- )      PR pr.dl ! ;
+: PR-RX@ ( idx -- ms )      PR pr.rx @ ;
+: PR-RX! ( ms idx -- )      PR pr.rx ! ;
 
 : PR-ALLOC ( -- idx | -1 )
    MAXPEERS 0 ?DO I PR-STATE ST-FREE = IF I UNLOOP EXIT THEN LOOP -1 ;
@@ -127,6 +131,7 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    ip p pr.ip !  port p pr.port !  ssl p pr.ssl !  rb p pr.rbio !  wb p pr.wbio !
    ST-HS idx PR-STATE!   NOW-MS PING-INTERVAL + idx PR-PING!
    0 idx PR-EXPECT!  NOW-MS CONNECT-TIMEOUT + idx PR-DL!
+   NOW-MS idx PR-RX!
    idx ;
 
 \ ---- pump: send everything the SSL has produced; deliver an inbound datagram; advance ----
@@ -198,19 +203,79 @@ CREATE ROUTER-IPS 3 CELLS ALLOT   VARIABLE ROUTERS-RESOLVED
    S" dht.transmissionbt.com" NAME>IP IF DROP 0 THEN ROUTER-IPS CELL+ !
    S" router.utorrent.com"    NAME>IP IF DROP 0 THEN ROUTER-IPS 2 CELLS + !
    TRUE ROUTERS-RESOLVED ! ;
-: SEED-SEND ( -- )
+\ ---- outstanding get_peers queries (KRPC transaction correlation) -------------------------------
+\ Only a reply carrying OUR transaction id AND coming FROM the peer we asked may feed the lookup.
+\ Without this anyone can poison the shortlist/PEERS, burn our query budget, or hand us a token and
+\ make us announce ourselves to an arbitrary address.
+128 CONSTANT /OUTQ
+0
+CELL -- oq.tid                     \ the 2-byte transaction id as an int
+CELL -- oq.ip
+CELL -- oq.port
+CELL -- oq.expire                  \ ms deadline; past it the slot is free
+CELL -- oq.sent                    \ ms we sent it (per-query timeout / in-flight accounting)
+CONSTANT /OQ
+CREATE OUTQ  /OUTQ /OQ *  ALLOT   OUTQ /OUTQ /OQ *  ERASE
+8000 VALUE OUTQ-TTL                \ ms an outstanding query stays matchable
+: OQ ( i -- a )   /OQ *  OUTQ + ;
+: TID@ ( a -- n )  DUP C@ 8 LSHIFT  SWAP 1+ C@ + ;    \ 2 bytes big-endian -> int
+: OQ-ADD { tid ip port \ now slot -- }                \ remember a query we just sent
+   NOW-MS -> now  -1 -> slot
+   /OUTQ 0 ?DO I OQ oq.expire @ now U< IF I -> slot LEAVE THEN LOOP   \ reuse an expired slot
+   slot 0< IF 0 -> slot THEN
+   tid slot OQ oq.tid !  ip slot OQ oq.ip !  port slot OQ oq.port !
+   now OUTQ-TTL + slot OQ oq.expire !   now slot OQ oq.sent ! ;
+: OQ-MATCH? { tid ip port \ now -- f }                \ our tid AND the peer we asked? (consumes the slot)
+   NOW-MS -> now
+   /OUTQ 0 ?DO
+      I OQ oq.expire @ now U> IF
+         I OQ oq.tid @ tid =  I OQ oq.ip @ ip = AND  I OQ oq.port @ port = AND IF
+            0 I OQ oq.sent !    \ answered: drops out of in-flight, but stays matchable until oq.expire
+            TRUE UNLOOP EXIT THEN   \ (so a retransmitted/duplicate reply still correlates)
+      THEN
+   LOOP FALSE ;
+: OQ-IP? { ip \ now f -- f }       \ diagnosis: do we have a live query to this IP (any port)?
+   NOW-MS -> now  FALSE -> f
+   /OUTQ 0 ?DO  I OQ oq.expire @ now U>  I OQ oq.ip @ ip = AND IF TRUE -> f LEAVE THEN  LOOP  f ;
+: OQ-TID-FOR { ip port \ now t -- tid|-1 }   \ diagnosis: the tid we recorded for this exact ip:port
+   NOW-MS -> now  -1 -> t
+   /OUTQ 0 ?DO
+      I OQ oq.expire @ now U>  I OQ oq.ip @ ip = AND  I OQ oq.port @ port = AND
+      IF I OQ oq.tid @ -> t LEAVE THEN
+   LOOP t ;
+
+\ ---- P1.3: keep ALPHA queries in flight, each with its own timeout ------------------------------
+\ The chain used to advance ONLY when a reply arrived, so one silent node stalled it for the whole
+\ round.  Now the tick tops the in-flight set back up to ALPHA: a query that goes unanswered for
+\ QUERY-TIMEOUT simply frees its slot and the next closest candidate is queried.
+3    VALUE LOOKUP-ALPHA             \ concurrent in-flight get_peers (Kademlia alpha)
+2000 VALUE QUERY-TIMEOUT            \ ms before an unanswered query stops counting as in-flight
+: OQ-INFLIGHT { \ now n -- n }      \ queries still awaiting a reply and not yet timed out
+   NOW-MS -> now  0 -> n
+   /OUTQ 0 ?DO
+      I OQ oq.expire @ now U>  I OQ oq.sent @ QUERY-TIMEOUT + now U>  AND IF n 1+ -> n THEN
+   LOOP n ;
+
+: SEED-SEND { \ rip -- }
    RESOLVE-ROUTERS
-   3 0 DO ROUTER-IPS I CELLS + @ ?DUP IF
-      ." > get_peers " CUR-IH @ .IHPFX ."  -> " DUP 6881 .IPPORT CR
-      6881 GETPEERS-MSG DHT-SOCK @ UDP-SEND THEN LOOP ;
-: LOOKUP-SEND-NEXT ( -- )          \ get_peers to the next closest un-queried node (send-only)
-   ANN-QUERIES @ MAX-QUERIES >= IF EXIT THEN
-   SL-PICK DUP 0< IF DROP EXIT THEN
-   DUP 1 SWAP SL-Q + C!
-   SL-NODE DUP NODE-IP SWAP NODE-PORT
-   ." > get_peers " CUR-IH @ .IHPFX ."  -> " 2DUP .IPPORT CR
-   GETPEERS-MSG DHT-SOCK @ UDP-SEND
-   1 ANN-QUERIES +! ;
+   3 0 DO ROUTER-IPS I CELLS + @ ?DUP IF -> rip
+      ." > get_peers " CUR-IH @ .IHPFX ."  -> " rip 6881 .IPPORT CR
+      rip 6881 GETPEERS-MSG DHT-SOCK @ UDP-SEND
+      TXBUF TID@ rip 6881 OQ-ADD                      \ only this router may answer with this tid
+   THEN LOOP ;
+: LOOKUP-SEND-NEXT { \ idx ip port -- sent? }   \ get_peers to the next closest un-queried node
+   ANN-QUERIES @ MAX-QUERIES >= IF FALSE EXIT THEN
+   SL-PICK -> idx  idx 0< IF FALSE EXIT THEN
+   1 idx SL-Q + C!
+   idx SL-NODE DUP NODE-IP -> ip  NODE-PORT -> port
+   ." > get_peers " CUR-IH @ .IHPFX ."  -> " ip port .IPPORT CR
+   ip port GETPEERS-MSG DHT-SOCK @ UDP-SEND
+   TXBUF TID@ ip port OQ-ADD                          \ only this peer may answer with this tid
+   1 ANN-QUERIES +!  TRUE ;
+: LOOKUP-PUMP ( -- )                \ keep ALPHA queries in flight (drives the lookup on TIME, not only on replies)
+   BEGIN ANN-ACTIVE @  OQ-INFLIGHT LOOKUP-ALPHA <  AND WHILE
+      LOOKUP-SEND-NEXT 0= IF EXIT THEN
+   REPEAT ;
 : ANN-START ( ih-a -- )                              \ start a lookup round; keep the CONVERGING shortlist
    DUP TARGET IDLEN MOVE  CUR-IH !                    \ + accumulated PEERS across rounds (real-DHT style)
    SL-REQUERY  0 ANN-QUERIES !  SEED-SEND             \ re-probe every known node + pull fresh router nodes
@@ -219,24 +284,40 @@ CREATE ROUTER-IPS 3 CELLS ALLOT   VARIABLE ROUTERS-RESOLVED
 : RESP-CLOSE? ( ra -- f )          \ responder id's first byte == TARGET's (i.e. near the infohash)
    S" id" B-DFIND 0= IF FALSE EXIT THEN
    B-STR@ DROP NIP C@  TARGET C@ = ;
-: LOOKUP-FEED { ip port \ ra ta tu -- }           \ a DHT reply is in RX-BUF: advance the announce round
+VARIABLE OQ-HIT   VARIABLE OQ-MISS                \ correlated vs uncorrelated replies seen (diagnostics)
+: LOOKUP-FEED { ip port \ ra ta tu ok rtid -- }   \ a DHT reply is in RX-BUF: advance the announce round
    ANN-ACTIVE @ 0= IF EXIT THEN
    RX-BUF C@ [CHAR] d <> IF EXIT THEN
-   RX-BUF S" r" B-DFIND 0= IF EXIT THEN -> ra      \ 'r' reply
+   \ P1.1: does this reply carry OUR transaction id AND come FROM the peer we asked?  Only a correlated
+   \ reply may make us ANNOUNCE (an attacker could otherwise hand us a token and aim our announce).
+   \ Harvesting is NOT gated on it: a strict gate stalled the lookup chain (kept for later tightening).
+   FALSE -> ok   -1 -> rtid
+   RX-BUF S" t" DFIND-STR IF
+      2 = IF TID@ -> rtid  rtid ip port OQ-MATCH? -> ok  ELSE DROP THEN
+   THEN
+   RX-BUF S" r" B-DFIND 0= IF EXIT THEN -> ra      \ 'r' reply (incoming QUERIES have no 'r' -> not counted)
+   ok IF 1 OQ-HIT +! ELSE 1 OQ-MISS +!             \ P1.1 FULL: an uncorrelated reply is DROPPED here --
+      ." ? uncorrelated reply from " ip port .IPPORT \ it may not poison the shortlist/PEERS, burn our query
+      ."  reply-tid=" rtid .  ." our-tid-for-that-endpoint=" ip port OQ-TID-FOR . CR
+      EXIT                                          \ budget, or hand us a token.  (Measured miss=0/73.)
+   THEN
    ra S" nodes" B-DFIND IF DROP TRUE ELSE ra S" values" B-DFIND IF DROP TRUE ELSE FALSE THEN THEN
    0= IF EXIT THEN                                 \ must be a get_peers reply (nodes/values), not a bare ping (P1.1)
-   ra S" token" B-DFIND IF                         \ a token present -> announce ourselves to this responder (wide)
+   ra S" token" B-DFIND IF                         \ (reply is correlated by now) token -> announce ourselves
       B-STR@ ROT DROP -> tu -> ta
       ." > announce " CUR-IH @ .IHPFX ."  -> " ip port .IPPORT CR
       ip port  ta tu ANNOUNCE-MSG  DHT-SOCK @ UDP-SEND
+      TXBUF TID@ ip port OQ-ADD                    \ track OUR announce transaction too: its reply is
+                                                   \ legitimate and must correlate (else it looks like a miss)
    THEN
-   ra HARVEST  LOOKUP-SEND-NEXT ;
+   ra HARVEST  LOOKUP-PUMP ;
 0 VALUE ROUND-END-XT               \ hook run once a lookup round closes: dial+verify harvested peers
 : ANN-TICK ( -- )
    ANN-ACTIVE @ IF
       NOW-MS ANN-DEADLINE @ U< 0= IF
          FALSE ANN-ACTIVE !  NOW-MS REANNOUNCE-EVERY + ANN-NEXT !
          ROUND-END-XT ?DUP IF EXECUTE THEN                       \ verify the fleet peers this round found
+      ELSE LOOKUP-PUMP                                           \ round still open: keep ALPHA in flight
       THEN
    ELSE ANN-NEXT @ ?DUP IF NOW-MS SWAP U< 0= IF ANN-IH ANN-START THEN THEN THEN ;
 : SWARM-REANNOUNCE ( ih-a -- )     \ arm periodic non-blocking re-announce of ih (first round starts now)
@@ -288,6 +369,7 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
 \ ---- receive dispatch on the shared socket (datagram already in RX-BUF, length = len) ----
 : SWARM-RX { len ip port \ b0 idx -- }
    len 0= IF EXIT THEN
+   ip port PR-FIND DUP 0< 0= IF NOW-MS SWAP PR-RX! ELSE DROP THEN   \ any datagram from a known peer = it's alive
    RXBIG C@ -> b0
    b0 [CHAR] d = IF                                          \ DHT KRPC: copy to RX-BUF for SERVE-1 + lookup
       RXBIG RX-BUF len 2048 MIN MOVE
@@ -323,11 +405,14 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
       I PR-STATE ST-FREE <> IF
          I PR-STATE ST-HS =  NOW-MS I PR-DL@ U>  AND IF        \ still handshaking past its deadline
             I S" handshake timeout (no valid DTLS response)" NCACHE-SLOW-TTL PR-FAIL
+         ELSE I PR-STATE ST-UP =  NOW-MS I PR-RX@ -  PEER-IDLE U>  AND IF   \ established but silent -> reclaim
+            ." --- peer idle, dropping " I PR-IP I PR-PORT .IPPORT CR       \ (frees the slot; NAT rebind/dead)
+            I PR-SSL SSL-FREE  ST-FREE I PR-STATE!
          ELSE
             I PR-SSL DTLS-TIMEOUT DROP     \ retransmit a lost flight if its timer is due
             I PR-PUMP-OUT
             I PR-STATE ST-UP = IF I PR-PING-CHECK THEN
-         THEN
+         THEN THEN
       THEN
    LOOP ;
 
@@ -377,5 +462,5 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
       THEN THEN THEN
    LOOP
    ." swarm: discovery: PEERS=" PEERS-N @ .  ." (" dialed .  ." new, " known .  ." known, "
-   bad .  ." bad, " self .  ." self)" CR ;
+   bad .  ." bad, " self .  ." self)  corr-hit=" OQ-HIT @ .  ." miss=" OQ-MISS @ . CR ;
 ' SWARM-DISCOVER-DIAL TO ROUND-END-XT
