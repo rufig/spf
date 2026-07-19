@@ -153,7 +153,9 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
 : PR-UP { idx \ ssl -- }                          \ handshake done: verify identity, keep or reject
    idx PR-SSL -> ssl
    ssl DTLS-VERIFIED? 0= IF idx S" cert not signed by our CA" NCACHE-BAD-TTL PR-FAIL EXIT THEN
-   ssl DTLS-PEER-DER DROP CERT-SPKI PEER-IDBUF SHA1                  \ the peer's real SPKI hash
+   ssl DTLS-PEER-DER  DUP 0= IF                                     \ 0 0 = no cert, or cert > /PEER-DER (4096)
+      2DROP idx S" peer cert missing/too large" NCACHE-BAD-TTL PR-FAIL EXIT THEN
+   DROP CERT-SPKI PEER-IDBUF SHA1                                   \ the peer's real SPKI hash
    idx PR-EXPECT@ ?DUP IF                                           \ a specific server was expected
       PEER-IDBUF SWAP 20 MEM= 0= IF idx S" identity hash mismatch" NCACHE-BAD-TTL PR-FAIL EXIT THEN
    THEN
@@ -216,10 +218,12 @@ CREATE ROUTER-IPS 3 CELLS ALLOT   VARIABLE ROUTERS-RESOLVED
 : LOOKUP-FEED { ip port \ ra ta tu -- }           \ a DHT reply is in RX-BUF: advance the announce round
    ANN-ACTIVE @ 0= IF EXIT THEN
    RX-BUF C@ [CHAR] d <> IF EXIT THEN
-   RX-BUF S" r" B-DFIND 0= IF EXIT THEN -> ra      \ only 'r' replies
-   ra S" token" B-DFIND IF                         \ ANY responder with a token -> announce ourselves (wide:
-      B-STR@ ROT DROP -> tu -> ta                  \ the old id[0]==target[0] gate almost never fired, so we
-      ip port  ta tu ANNOUNCE-MSG  DHT-SOCK @ UDP-SEND   \ were never stored -> nobody ever returned us in values)
+   RX-BUF S" r" B-DFIND 0= IF EXIT THEN -> ra      \ 'r' reply
+   ra S" nodes" B-DFIND IF DROP TRUE ELSE ra S" values" B-DFIND IF DROP TRUE ELSE FALSE THEN THEN
+   0= IF EXIT THEN                                 \ must be a get_peers reply (nodes/values), not a bare ping (P1.1)
+   ra S" token" B-DFIND IF                         \ a token present -> announce ourselves to this responder (wide)
+      B-STR@ ROT DROP -> tu -> ta
+      ip port  ta tu ANNOUNCE-MSG  DHT-SOCK @ UDP-SEND
    THEN
    ra HARVEST  LOOKUP-SEND-NEXT ;
 0 VALUE ROUND-END-XT               \ hook run once a lookup round closes: dial+verify harvested peers
@@ -251,6 +255,9 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
       ih-a  I IDLEN *  DBKEYS +  IDLEN MEM= IF TRUE UNLOOP EXIT THEN
    LOOP FALSE ;
 : RX-QUERY-IH ( -- ih-a true | false ) \ info_hash of a get_peers/announce_peer query in RX-BUF
+   RX-BUF S" y" DFIND-STR 0= IF FALSE EXIT THEN  S" q" STR= 0= IF FALSE EXIT THEN   \ must be a QUERY (y=q)
+   RX-BUF S" q" DFIND-STR 0= IF FALSE EXIT THEN          ( qa qu )                  \ q in {get_peers, announce_peer}
+   2DUP S" get_peers" STR=  >R  S" announce_peer" STR=  R> OR 0= IF FALSE EXIT THEN
    RX-BUF S" a" B-DFIND 0= IF FALSE EXIT THEN            \ the 'a' arguments dict
    S" info_hash" B-DFIND 0= IF FALSE EXIT THEN
    B-STR@ ROT DROP 20 = IF TRUE ELSE DROP FALSE THEN ;   \ 20-byte info_hash -> ( ih-a true )
