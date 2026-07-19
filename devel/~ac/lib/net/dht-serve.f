@@ -19,6 +19,7 @@ TRUE VALUE DHT-ANNOUNCE?                            \ FALSE = do NOT advertise o
 CREATE SECRET 8 ALLOT                              \ per-run token secret
 CREATE TOKBUF 8 ALLOT                              \ scratch for the 4-byte token
 VARIABLE Q-PING  VARIABLE Q-FIND  VARIABLE Q-GET  VARIABLE Q-ANN  VARIABLE Q-HIT  VARIABLE Q-UTP
+VARIABLE Q-SAMPLE                                 \ BEP 51 crawlers asking us to enumerate our store
 VARIABLE ANN-TOK  VARIABLE ANN-ACK               \ our-announce diagnostics: tokens got / acks received
 
 \ ---- peer store for the ONE watched infohash (compact 6-byte ip4+port entries) ----
@@ -72,6 +73,17 @@ VARIABLE PSTORE-N
       BE-V
       S" y" BE-KEY  S" r" BE-STR
    BE-}  BE-BUF BE-LEN ;
+: REPLY-ERROR { ta tu code msga msgu -- a u }      \ KRPC error: {"e":[code,msg],"t":<tid>,"y":"e"}
+   BE-RESET  BE-D{
+      S" e" BE-KEY  BE-L[  code BE-INT  msga msgu BE-STR  BE-}
+      S" t" BE-KEY  ta tu BE-STR
+      BE-V
+      S" y" BE-KEY  S" e" BE-STR
+   BE-}  BE-BUF BE-LEN ;
+: REPLY-UNKNOWN ( ta tu -- a u )   204 S" Method Unknown" REPLY-ERROR ;
+\ Answering 204 rather than staying silent: it discloses nothing, and a node that never replies at all
+\ eventually gets counted as unresponsive and dropped from other nodes' routing tables, which costs us
+\ the very reachability we need to be found.
 : REPLY-FINDNODE { ta tu \ na nu -- a u }          \ answer with the K nodes closest to a.target
    0 -> na  0 -> nu
    S" target" RX-A-STR IF
@@ -171,7 +183,17 @@ CREATE QNODE 26 ALLOT
                                     ta tu REPLY-FINDNODE ip port SEND-REPLY EXIT THEN
    qa qu S" get_peers"     STR= IF 1 Q-GET  +!  ip port ta tu SERVE-GETPEERS  EXIT THEN
    qa qu S" announce_peer" STR= IF 1 Q-ANN  +!  ip port ta tu SERVE-ANNOUNCE  EXIT THEN
-   ." <<< query '" qa qu TYPE ." ' from " ip port .IPPORT .CLIENT CR ;   \ unrecognised query type
+   \ BEP 51 sample_infohashes asks us to hand out a sample of the infohashes we store.  We REFUSE, and
+   \ this branch exists so the refusal stays deliberate: our peer store holds essentially one infohash --
+   \ IH-GROUP, the SHA1 of our CA's public key -- so answering would hand a crawler the exact key that
+   \ identifies the fleet.  It could then get_peers that key and map every member's address.  Joining
+   \ would still fail (DTLS + our CA), but the membership map would be public.  Never implement this.
+   qa qu S" sample_infohashes" STR= IF 1 Q-SAMPLE +!
+                                    ." <<< sample_infohashes from " ip port .IPPORT .CLIENT
+                                    ."  (refused: would leak IH-GROUP)" CR
+                                    ta tu REPLY-UNKNOWN ip port SEND-REPLY EXIT THEN
+   ." <<< query '" qa qu TYPE ." ' from " ip port .IPPORT .CLIENT ."  -> 204" CR
+   ta tu REPLY-UNKNOWN ip port SEND-REPLY ;                            \ unrecognised query type
 
 \ ---- our own announce_peer (outgoing) ----
 : EXTRACT-TOKEN ( rlen -- tok-a tok-u | 0 0 )      \ pull 'r'.'token' from a get_peers reply in RX-BUF
