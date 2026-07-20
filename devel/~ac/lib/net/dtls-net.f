@@ -442,6 +442,42 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
 16 VALUE HS-MAX                                    \ cap on concurrent unfinished inbound handshakes
 : HS-COUNT ( -- n )  0  MAXPEERS 0 ?DO I PR-STATE ST-HS = IF 1+ THEN LOOP ;
 
+\ ---- P0.5: cookie-gated admission ------------------------------------------------------------
+\ A ClientHello from an unknown source is no longer trusted to allocate a slot.  It is fed to a single
+\ persistent listener SSL and DTLSv1_listen runs the RFC 6347 cookie round: return 0 means "answered
+\ with a HelloVerifyRequest, allocated nothing"; return 1 means the sender echoed a cookie bound to its
+\ own endpoint, proving it is not spoofed, and only THEN is a peer slot created.  The listener uses a
+\ memory BIO like every other SSL here -- our cookie callbacks bind to CK-IP/CK-PORT that we set from
+\ the real UDP source, not to the BIO's (absent) peer address, which is what lets it work off-socket.
+VARIABLE LISTEN-SSL   VARIABLE LISTEN-RB   VARIABLE LISTEN-WB
+: NEW-LISTENER ( -- )   NODE-SCTX @ TRUE DTLS-WRAP1  LISTEN-WB !  LISTEN-RB !  LISTEN-SSL ! ;
+: ENSURE-LISTENER ( -- )   LISTEN-SSL @ 0= IF NEW-LISTENER THEN ;
+: PR-ADOPT { ip port ssl rb wb \ idx p -- idx }   \ install an already-cookie-verified SSL into a slot
+   ip port PR-FIND -> idx                          \ reconnect reuses the slot; a new peer allocates one
+   idx 0< 0= IF idx PR-SSL SSL-FREE THEN           \ reconnect: free the LIVE SSL we replace.  Only on an
+                                                   \ active slot -- PR-FAIL leaves a dangling pr.ssl on a
+                                                   \ freed slot, and PR-ALLOC'd slots are overwritten, not
+   idx 0< IF PR-ALLOC -> idx THEN                  \ freed (same as PR-NEW), so never SSL-FREE those.
+   idx 0< IF ssl SSL-FREE  -1 EXIT THEN            \ no room even after the cookie: discard, don't leak
+   idx PR -> p
+   ip p pr.ip !  port p pr.port !  ssl p pr.ssl !  rb p pr.rbio !  wb p pr.wbio !
+   ST-HS idx PR-STATE!   NOW-MS PING-INTERVAL + idx PR-PING!
+   0 idx PR-EXPECT!   NOW-MS CONNECT-TIMEOUT + idx PR-DL!
+   NOW-MS idx PR-RX!
+   idx ;
+: SWARM-ACCEPT { ip port a u \ r idx -- }         \ run one ClientHello through the cookie round
+   ENSURE-LISTENER
+   LISTEN-RB @ a u RBIO-WRITE DROP
+   LISTEN-SSL @ ip port DTLS-LISTEN -> r
+   r 0< IF LISTEN-SSL @ SSL-FREE  0 LISTEN-SSL !  EXIT THEN      \ listen error: drop it, remade lazily
+   r 0= IF                                                      \ cookie demanded: send the HVR, allocate 0
+      LISTEN-WB @ DNET-BUF /DNET-BUF WBIO-READ -> idx           \ (idx reused as byte count)
+      idx 0> IF ip port DNET-BUF idx DHT-SOCK @ UDP-SEND THEN
+      EXIT THEN
+   ip port  LISTEN-SSL @ LISTEN-RB @ LISTEN-WB @  PR-ADOPT -> idx   \ r=1: verified -> adopt this SSL
+   NEW-LISTENER                                                 \ the old listener IS the peer now; make one
+   idx 0< 0= IF idx PR-ADVANCE THEN ;                           \ flush the ServerHello flight
+
 \ ---- receive dispatch on the shared socket (datagram already in RX-BUF, length = len) ----
 : SWARM-RX { len ip port \ b0 idx -- }
    len 0= IF EXIT THEN
@@ -456,16 +492,15 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
    b0 20 24 WITHIN IF                                        \ 0x14..0x17 = DTLS record
       ip port PR-FIND -> idx
       idx 0< 0= IF                                           \ existing peer for this address?
-         RXBIG len CLIENTHELLO?  idx PR-STATE ST-UP = AND IF
-            idx PR-SSL SSL-FREE  ST-FREE idx PR-STATE!  -1 -> idx   \ fresh ClientHello to a live peer -> reconnect
-         THEN
+         RXBIG len CLIENTHELLO?  idx PR-STATE ST-UP = AND IF \ fresh ClientHello to a LIVE peer = reconnect:
+            ip port RXBIG len SWARM-ACCEPT                   \ cookie-gate it, so a spoof cannot reset the
+         ELSE idx RXBIG len PR-DELIVER THEN                  \ live peer; else a handshake/app record (or a
+                                                             \ ClientHello retransmit): just deliver it.
+      ELSE                                                   \ no peer for this source address:
+         RXBIG len CLIENTHELLO?  HS-COUNT HS-MAX < AND IF    \ only a genuine ClientHello, only if room:
+            ip port RXBIG len SWARM-ACCEPT                   \ a slot is created only after the cookie round
+         THEN                                                \ (stray alert/app records allocate nothing)
       THEN
-      idx 0< IF                                              \ no peer for this source address:
-         RXBIG len CLIENTHELLO?  HS-COUNT HS-MAX < AND IF    \ ONLY a real ClientHello, and only if we have room,
-            ip port TRUE PR-NEW -> idx                       \ allocates accept-side state (drop stray/flood records)
-         THEN
-      THEN
-      idx 0< 0= IF idx RXBIG len PR-DELIVER THEN
       EXIT
    THEN ;                                                    \ else (uTP/junk): ignore
 
