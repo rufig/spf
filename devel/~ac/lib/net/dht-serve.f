@@ -55,6 +55,13 @@ VARIABLE EXTIP-N   0 EXTIP-N !
    EXTIP-N @ 0 ?DO
       ip I XI xi.ip @ =  port I XI xi.port @ = AND IF TRUE -> f LEAVE THEN
    LOOP  f ;
+: SELF-EP? { ip port -- f }
+   \ Is this endpoint US?  Behind NAT the pair (MY-EXT-IP, MY-PORT) never matches what peers see -- we
+   \ bind 6881 and appear as :1357 -- so the discovered endpoints are the only usable answer.  Must be
+   \ an EXACT pair, not just the address: a neighbour behind the same router (u24) shares our external
+   \ address, and matching on address alone would strike a real fleet peer off the list as "ourselves".
+   ip port EXTEP-OURS? IF TRUE EXIT THEN
+   ip MY-EXT-IP @ =  port MY-PORT @ = AND ;         \ the configured pair, for before anything is observed
 : EP-ID-FOR { ip \ a -- id-a | 0 }                  \ identity already bound to this ADDRESS, 0 if new
    0 -> a
    EXTIP-N @ 0 ?DO  ip I XI xi.ip @ = IF I XI xi.id -> a LEAVE THEN  LOOP  a ;

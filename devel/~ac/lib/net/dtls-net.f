@@ -320,6 +320,15 @@ VARIABLE ANNQ-N   0 ANNQ-N !
    S" id" B-DFIND 0= IF FALSE EXIT THEN
    B-STR@ DROP NIP C@  TARGET C@ = ;
 VARIABLE OQ-HIT   VARIABLE OQ-MISS                \ correlated vs uncorrelated replies seen (diagnostics)
+TRUE VALUE IP-ECHO-LOG?                           \ log EVERY reported endpoint, not just the first sighting
+VARIABLE IP-ECHO-N                                \ how many replies carried an 'ip' key at all
+: IP-ECHO { pip pport eip eport -- }              \ peer pip:pport reports it saw us as eip:eport
+   1 IP-ECHO-N +!
+   eip eport EXTIP-SEEN
+   IP-ECHO-LOG? IF                                \ silence here is ambiguous otherwise: "nobody reports a
+      ." ip-echo: " pip pport .IPPORT             \ second address" and "we drop it" look identical when we
+      ."  sees us as " eip .IP4 [CHAR] : EMIT eport .# CR   \ only log first sightings.  This also IS the
+   THEN ;                                         \ per-destination map the identity choice will need.
 : LOOKUP-FEED { ip port \ ra ta tu ok rtid -- }   \ a DHT reply is in RX-BUF: advance the announce round
    ANN-ACTIVE @ 0= IF EXIT THEN
    RX-BUF C@ [CHAR] d <> IF EXIT THEN
@@ -333,8 +342,10 @@ VARIABLE OQ-HIT   VARIABLE OQ-MISS                \ correlated vs uncorrelated r
    RX-BUF S" r" B-DFIND 0= IF EXIT THEN -> ra      \ 'r' reply (incoming QUERIES have no 'r' -> not counted)
    ok IF 1 OQ-HIT +!
       RX-BUF S" ip" DFIND-STR IF                    \ BEP 42: the peer echoes the SOCKADDR it saw us at
-         DUP 6 >= IF DROP DUP C-IP  SWAP 4 + C-PORT  EXTIP-SEEN   \ 4 addr + 2 port: the whole endpoint
-         ELSE DUP 4 >= IF DROP C-IP 0 EXTIP-SEEN                  \ address only (some nodes send 4)
+         DUP 6 >= IF DROP DUP C-IP  SWAP 4 + C-PORT   ( eip eport )  \ 4 addr + 2 port: the whole endpoint
+            ip port 2SWAP IP-ECHO
+         ELSE DUP 4 >= IF DROP C-IP 0                               \ address only (some nodes send 4)
+                 ip port 2SWAP IP-ECHO
               ELSE 2DROP THEN
          THEN                                       \ correlated only -- see the note in dht-serve.f
       THEN
@@ -392,7 +403,7 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
    S" info_hash" B-DFIND 0= IF FALSE EXIT THEN
    B-STR@ ROT DROP 20 = IF TRUE ELSE DROP FALSE THEN ;   \ 20-byte info_hash -> ( ih-a true )
 : SWARM-DIAL-BACK { ip port -- }       \ dial an unknown swarm querier (skip self / known / cached-bad)
-   ip MY-EXT-IP @ = port MY-PORT @ = AND IF EXIT THEN
+   ip port SELF-EP? IF EXIT THEN
    ip port PR-FIND 0< 0= IF EXIT THEN
    ip port NCACHE-HAS? IF EXIT THEN
    ." <-> dial-back to swarm querier " ip port .IPPORT CR
@@ -480,7 +491,7 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
    PEERS-N @ 0 ?DO
       PEERS I 6 * + -> e
       e C-IP -> ip   e 4 + C-PORT -> port
-      ip MY-EXT-IP @ = port MY-PORT @ = AND IF
+      ip port SELF-EP? IF
          ." swarm:   skip self       " ip port .IPPORT CR
       ELSE ip port PR-FIND 0< 0= IF
          ." swarm:   skip known peer  " ip port .IPPORT CR
@@ -502,7 +513,7 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
    0 -> dialed  0 -> known  0 -> bad  0 -> self
    PEERS-N @ 0 ?DO
       PEERS I 6 * + -> e   e C-IP -> ip   e 4 + C-PORT -> port
-      ip MY-EXT-IP @ = port MY-PORT @ = AND IF self 1+ -> self
+      ip port SELF-EP? IF self 1+ -> self
       ELSE ip port PR-FIND 0< 0= IF known 1+ -> known
       ELSE ip port NCACHE-HAS? IF bad 1+ -> bad
       ELSE ." swarm:   dial new peer " ip port .IPPORT CR
