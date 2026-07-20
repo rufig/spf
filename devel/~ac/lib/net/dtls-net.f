@@ -331,10 +331,19 @@ VARIABLE OQ-HIT   VARIABLE OQ-MISS                \ correlated vs uncorrelated r
       2 = IF TID@ -> rtid  rtid ip port OQ-MATCH? -> ok  ELSE DROP THEN
    THEN
    RX-BUF S" r" B-DFIND 0= IF EXIT THEN -> ra      \ 'r' reply (incoming QUERIES have no 'r' -> not counted)
-   ok IF 1 OQ-HIT +! ELSE 1 OQ-MISS +!             \ P1.1 FULL: an uncorrelated reply is DROPPED here --
+   ok IF 1 OQ-HIT +!
+      RX-BUF S" ip" DFIND-STR IF                    \ BEP 42: the peer echoes the SOCKADDR it saw us at
+         DUP 6 >= IF DROP DUP C-IP  SWAP 4 + C-PORT  EXTIP-SEEN   \ 4 addr + 2 port: the whole endpoint
+         ELSE DUP 4 >= IF DROP C-IP 0 EXTIP-SEEN                  \ address only (some nodes send 4)
+              ELSE 2DROP THEN
+         THEN                                       \ correlated only -- see the note in dht-serve.f
+      THEN
+   ELSE 1 OQ-MISS +!                                \ P1.1 FULL: an uncorrelated reply is DROPPED here --
       ." ? uncorrelated reply from " ip port .IPPORT \ it may not poison the shortlist/PEERS, burn our query
-      ."  reply-tid=" rtid .  ." our-tid-for-that-endpoint=" ip port OQ-TID-FOR . CR
-      EXIT                                          \ budget, or hand us a token.  (Measured miss=0/73.)
+      ."  reply-tid=" rtid .  ." our-tid-for-that-endpoint=" ip port OQ-TID-FOR .
+      ip OQ-IP? IF ."  [live query to that IP on ANOTHER port -> NAT remap?]" THEN
+      ip EXTIP-OURS? IF ."  [source is one of OUR OWN external addresses]" THEN  CR
+      EXIT                                          \ budget, or hand us a token.
    THEN
    ra S" nodes" B-DFIND IF DROP TRUE ELSE ra S" values" B-DFIND IF DROP TRUE ELSE FALSE THEN THEN
    0= IF EXIT THEN                                 \ must be a get_peers reply (nodes/values), not a bare ping (P1.1)

@@ -15,6 +15,58 @@ DECIMAL
 
 VARIABLE MY-PORT                                   \ our bound UDP port (announced)
 VARIABLE MY-EXT-IP                                  \ our external IP (0 = unknown); used to advertise self in values
+
+\ The DHT can see us under MORE THAN ONE address, and the ADDRESS INCLUDES THE PORT.  With split-tunnel
+\ routing some peers are reached through the VPN and the rest directly, so each peer reports a different
+\ source address for us; and what any of them sees is the NAT translation, not the port we bound.
+\ BEP 42 has every response echo an 'ip' key holding a SOCKADDR -- 4 bytes of address AND 2 of port --
+\ i.e. the replies themselves report the whole set of endpoints we appear under.  We record the pairs.
+\ Whether "our external port" is even a well-defined thing depends on the NAT:
+\   - cone NAT: one translation per local socket, so every peer sees the same port -- worth announcing;
+\   - symmetric NAT: a translation per destination, so the port p10 sees is useless to anyone else and
+\     no single port can be announced at all.
+\ These counts are what tells the two apart: several peers reporting the SAME port at the SAME time
+\ means cone; different peers reporting different ports concurrently means symmetric.
+\ Two rules that must survive into the multi-id work:
+\   - only a CORRELATED reply may feed this table (our tid, from the peer we actually asked), otherwise
+\     anyone could hand us an endpoint and later steer the node id we derive from it;
+\   - one peer's word is still not proof -- require several independent peers to agree before deriving
+\     an identity from an endpoint.  That is what xi.n is for.
+8 CONSTANT /EXTIP
+0 CELL -- xi.ip  CELL -- xi.port  CELL -- xi.n  CELL -- xi.last  CONSTANT /XI
+CREATE EXTIPS  /EXTIP /XI *  ALLOT
+VARIABLE EXTIP-N   0 EXTIP-N !
+: XI ( i -- a )   /XI *  EXTIPS + ;
+: .IP4 ( ip -- )
+   DUP        255 AND .# [CHAR] . EMIT   DUP  8 RSHIFT 255 AND .# [CHAR] . EMIT
+   DUP 16 RSHIFT 255 AND .# [CHAR] . EMIT      24 RSHIFT 255 AND .# ;
+: EXTIP-OURS? { ip \ f -- f }                       \ an ADDRESS the DHT has reported us at (any port)?
+   FALSE -> f   ip 0= IF f EXIT THEN
+   EXTIP-N @ 0 ?DO  ip I XI xi.ip @ = IF TRUE -> f LEAVE THEN  LOOP  f ;
+: EXTEP-OURS? { ip port \ f -- f }                  \ an exact ENDPOINT we have been reported at?
+   FALSE -> f   ip 0= IF f EXIT THEN
+   EXTIP-N @ 0 ?DO
+      ip I XI xi.ip @ =  port I XI xi.port @ = AND IF TRUE -> f LEAVE THEN
+   LOOP  f ;
+: EXTIP-SEEN { ip port \ idx -- }                   \ a peer reported our query reached it from ip:port
+   ip 0= IF EXIT THEN
+   EXTIP-N @ 0 ?DO
+      ip I XI xi.ip @ =  port I XI xi.port @ = AND IF
+         1 I XI xi.n +!  NOW-MS I XI xi.last !  UNLOOP EXIT THEN
+   LOOP
+   EXTIP-N @ /EXTIP < IF
+      EXTIP-N @ -> idx
+      ip idx XI xi.ip !  port idx XI xi.port !  1 idx XI xi.n !  NOW-MS idx XI xi.last !
+      1 EXTIP-N +!
+      ." swarm: NEW external endpoint observed: " ip .IP4 [CHAR] : EMIT port .#
+      ."  (bound locally on " MY-PORT @ .# ." ; now " EXTIP-N @ . ." known)" CR
+   THEN ;
+: .EXTIPS ( -- )
+   ." swarm: external endpoints seen (local port " MY-PORT @ .# ." ): "
+   EXTIP-N @ 0= IF ." none yet" CR EXIT THEN
+   EXTIP-N @ 0 ?DO
+      I XI xi.ip @ .IP4 [CHAR] : EMIT I XI xi.port @ .# ." x" I XI xi.n @ .# SPACE
+   LOOP CR ;
 TRUE VALUE DHT-ANNOUNCE?                            \ FALSE = do NOT advertise ourselves as a peer (id=infohash only)
 CREATE SECRET 8 ALLOT                              \ per-run token secret
 CREATE TOKBUF 8 ALLOT                              \ scratch for the 4-byte token
