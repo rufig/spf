@@ -66,6 +66,22 @@ HEX 1000 CONSTANT SSL_OP_NO_QUERY_MTU   FFFFFFFF CONSTANT MASK32  DECIMAL
 
 : I32 ( n -- n )  MASK32 AND ;
 
+\ ===== why a STREAM memory BIO and not a datagram one (P1.10) ================================
+\ DTLS wants datagram semantics, and OpenSSL grew BIOs that provide them -- BIO_s_dgram_mem and
+\ BIO_s_dgram_pair.  We deliberately do NOT use them: both appeared in OpenSSL 3.2, and the fleet's
+\ Linux nodes run 3.0.13 (checked with nm on their libcrypto.so.3 -- the symbols are absent; Windows
+\ has 3.6.3).  Calling them would make the node fail to load on exactly the machines that run
+\ unattended.  Selecting the BIO per platform is worse than either choice: it splits the code that
+\ frames the handshake into two paths, each exercised on only half the fleet.
+\ So datagram semantics are supplied by hand, and the three pieces that matter are all here:
+\   * record framing on the way out -- PR-PUMP-OUT in dtls-net.f sends each DTLS record as its own
+\     datagram and carries an unfinished record across reads (P1.9);
+\   * the MTU is set explicitly instead of being queried from a BIO that has none (SSL_OP_NO_QUERY_MTU
+\     + DTLS_CTRL_SET_LINK_MTU below), so OpenSSL fragments handshake messages itself;
+\   * an empty read returns "retry" rather than EOF (BIO_C_SET_BUF_MEM_EOF_RETURN -1), without which
+\     an idle association would look like a closed one.
+\ REVISIT when the minimum supported OpenSSL across all five targets reaches 3.2: switching to
+\ BIO_s_dgram_mem then lets PR-PUMP-OUT lose its framing loop entirely.
 : DTLS-WRAP { ctx server? \ ssl rbio wbio -- ssl rbio wbio }   \ SSL + a mem-BIO pair for pumping
    ctx 1 SSL_new DUP 0= IF -3220 THROW THEN -> ssl
    TlsIndex@ 0 ssl 3 SSL_set_ex_data DROP     \ stash our USER base so the verify-cb can restore it

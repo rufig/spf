@@ -144,9 +144,10 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    \ P1.9: the flight is drained INCREMENTALLY and a record that straddles a read boundary is carried
    \ over, not dropped.  The old code took one 16 KB bite and stopped at the first record that ran past
    \ the end -- with small EC fixtures the flight always fitted, but a real certificate chain would have
-   \ silently truncated the handshake.  A datagram BIO would make the framing OpenSSL's problem, but
-   \ BIO_s_dgram_mem needs OpenSSL 3.2 and the fleet's Linux boxes ship 3.0 (see P1.10 in the review),
-   \ so the framing stays here -- correct rather than convenient.
+   \ silently truncated the handshake.
+   \ This framing loop exists because we use a stream memory BIO; a datagram BIO would hand the job to
+   \ OpenSSL.  That is not an oversight -- see the P1.10 note above DTLS-WRAP in dtls.f for why
+   \ BIO_s_dgram_mem is off the table (OpenSSL 3.2+, fleet runs 3.0.13) and when to revisit it.
    idx PR-WBIO -> wbio
    0 -> n                                           \ bytes currently held in DNET-BUF
    BEGIN
