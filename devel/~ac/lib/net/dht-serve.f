@@ -38,9 +38,16 @@ VARIABLE MY-EXT-IP                                  \ our external IP (0 = unkno
 \   - one peer's word is still not proof -- require several independent peers to agree before deriving
 \     an identity from an endpoint.  That is what xi.n is for.
 8 CONSTANT /EXTIP
-0 CELL -- xi.ip  CELL -- xi.port  CELL -- xi.n  CELL -- xi.last
-  IDLEN -- xi.id                                    \ the BEP42 identity bound to THIS endpoint
+0 CELL -- xi.ip  CELL -- xi.port  CELL -- xi.n
+  CELL -- xi.first                                  \ when this endpoint first appeared
+  CELL -- xi.last                                   \ when a peer last confirmed it
+  IDLEN -- xi.id                                    \ the BEP42 identity bound to this ADDRESS
 CONSTANT /XI
+900000 VALUE EXTIP-TTL   \ 15 min.  An address nobody has reported for this long is no longer ours.
+   \ Ageing, not vote-counting, is the right cure here.  A rare-but-real route can have a single witness
+   \ (the tailscale one did), so demanding several would throw away a genuine address.  But a made-up
+   \ address is never seen again, so it ages out by itself -- and the same rule follows a MOBILE node
+   \ whose external address changes when it switches access points or providers.
 CREATE EXTIPS  /EXTIP /XI *  ALLOT
 VARIABLE EXTIP-N   0 EXTIP-N !
 : XI ( i -- a )   /XI *  EXTIPS + ;
@@ -73,7 +80,8 @@ VARIABLE EXTIP-N   0 EXTIP-N !
    LOOP
    EXTIP-N @ /EXTIP < IF
       EXTIP-N @ -> idx
-      ip idx XI xi.ip !  port idx XI xi.port !  1 idx XI xi.n !  NOW-MS idx XI xi.last !
+      ip idx XI xi.ip !  port idx XI xi.port !  1 idx XI xi.n !
+      NOW-MS idx XI xi.first !   NOW-MS idx XI xi.last !
       ip EP-ID-FOR ?DUP IF idx XI xi.id IDLEN CMOVE \ BEP 42 binds the id to the ADDRESS, so a second NAT
       ELSE ip idx XI xi.id BEP42-ID> THEN           \ port on an address we already know must reuse that
       1 EXTIP-N +!                                  \ address's identity -- issuing a fresh id per port
@@ -90,12 +98,26 @@ VARIABLE EXTIP-N   0 EXTIP-N !
 : EP-ID { ip \ a -- id-a }                          \ the identity bound to the endpoint at this address
    MY-ID -> a
    EXTIP-N @ 0 ?DO  ip I XI xi.ip @ = IF I XI xi.id -> a LEAVE THEN  LOOP  a ;
+: EXTIP-EXPIRE { \ i now last -- }                  \ forget endpoints nobody has confirmed lately
+   NOW-MS -> now   0 -> i
+   BEGIN i EXTIP-N @ < WHILE
+      i XI xi.last @ -> last
+      now last - EXTIP-TTL U> IF
+         ." swarm: endpoint aged out: " i XI xi.ip @ .IP4 [CHAR] : EMIT i XI xi.port @ .#
+         ."  (unseen " now last - 1000 / .# ." s, held " now i XI xi.first @ - 1000 / .# ." s)" CR
+         EXTIP-N @ 1-  DUP i <> IF DUP XI  i XI  /XI CMOVE THEN DROP   \ compact: last entry fills the hole
+         -1 EXTIP-N +!                                                 \ (order carries no meaning here)
+      ELSE i 1+ -> i THEN
+   REPEAT ;
 : .EXTIPS ( -- )
    ." swarm: routes out (local port " MY-PORT @ .# ." ): "
    EXTIP-N @ 0= IF ." none observed yet" CR EXIT THEN
    EXTIP-N @ 0 ?DO
       I XI xi.ip @ .IP4 [CHAR] : EMIT I XI xi.port @ .#
-      ." x" I XI xi.n @ .#  ." /" I XI xi.id .IHPFX  SPACE
+      ." x" I XI xi.n @ .#  ." /" I XI xi.id .IHPFX
+      ." age" NOW-MS I XI xi.first @ - 1000 / .#     \ how long we have held it ...
+      ." seen" NOW-MS I XI xi.last @ - 1000 / .#     \ ... and how stale the last confirmation is
+      SPACE
    LOOP CR ;
 TRUE VALUE DHT-ANNOUNCE?                            \ FALSE = do NOT advertise ourselves as a peer (id=infohash only)
 CREATE SECRET 8 ALLOT                              \ per-run token secret
