@@ -441,7 +441,11 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
 : PR-PING-CHECK { idx -- }
    NOW-MS  idx PR-PING@  U< 0= IF                            \ NOW-MS >= next-ping deadline
       idx PR-IP idx PR-PORT  PING-MSG  DHT-SOCK @ UDP-SEND   \ a DHT ping keeps the NAT 4-tuple open
-      NOW-MS PING-INTERVAL + idx PR-PING!
+      TXBUF TID@  idx PR-IP  idx PR-PORT  OQ-ADD             \ register it like every other query we send:
+      NOW-MS PING-INTERVAL + idx PR-PING!                    \ nobody consumes the pong, but leaving it
+                                                             \ unregistered made our own keepalives count
+                                                             \ as uncorrelated replies -- and miss=0 is
+                                                             \ exactly the signal we judge the gate by
       ." (NAT keepalive ping -> " idx PR-IP idx PR-PORT .IPPORT ." )" CR
    THEN ;
 : PR-TICK ( -- )
