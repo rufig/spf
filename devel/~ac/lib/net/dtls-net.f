@@ -510,5 +510,6 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
       THEN THEN THEN
    LOOP
    ." swarm: discovery: PEERS=" PEERS-N @ .  ." (" dialed .  ." new, " known .  ." known, "
-   bad .  ." bad, " self .  ." self)  corr-hit=" OQ-HIT @ .  ." miss=" OQ-MISS @ . CR ;
+   bad .  ." bad, " self .  ." self)  corr-hit=" OQ-HIT @ .  ." miss=" OQ-MISS @ . CR
+   .EXTIPS ;                                       \ our routes out, so a second one is visible when it appears
 ' SWARM-DISCOVER-DIAL TO ROUND-END-XT

@@ -16,6 +16,11 @@ DECIMAL
 VARIABLE MY-PORT                                   \ our bound UDP port (announced)
 VARIABLE MY-EXT-IP                                  \ our external IP (0 = unknown); used to advertise self in values
 
+\ Hex printers live up here because the endpoint table below logs node ids.
+: .NIB   ( n -- )   15 AND DUP 10 < IF [CHAR] 0 + ELSE 10 - [CHAR] A + THEN EMIT ;
+: .HEXB  ( c -- )   DUP 4 RSHIFT .NIB .NIB ;
+: .IHPFX ( a -- )   4 0 DO DUP I + C@ .HEXB LOOP DROP ." .." ;   \ first 4 bytes of an infohash/target
+
 \ The DHT can see us under MORE THAN ONE address, and the ADDRESS INCLUDES THE PORT.  With split-tunnel
 \ routing some peers are reached through the VPN and the rest directly, so each peer reports a different
 \ source address for us; and what any of them sees is the NAT translation, not the port we bound.
@@ -33,7 +38,9 @@ VARIABLE MY-EXT-IP                                  \ our external IP (0 = unkno
 \   - one peer's word is still not proof -- require several independent peers to agree before deriving
 \     an identity from an endpoint.  That is what xi.n is for.
 8 CONSTANT /EXTIP
-0 CELL -- xi.ip  CELL -- xi.port  CELL -- xi.n  CELL -- xi.last  CONSTANT /XI
+0 CELL -- xi.ip  CELL -- xi.port  CELL -- xi.n  CELL -- xi.last
+  IDLEN -- xi.id                                    \ the BEP42 identity bound to THIS endpoint
+CONSTANT /XI
 CREATE EXTIPS  /EXTIP /XI *  ALLOT
 VARIABLE EXTIP-N   0 EXTIP-N !
 : XI ( i -- a )   /XI *  EXTIPS + ;
@@ -57,15 +64,25 @@ VARIABLE EXTIP-N   0 EXTIP-N !
    EXTIP-N @ /EXTIP < IF
       EXTIP-N @ -> idx
       ip idx XI xi.ip !  port idx XI xi.port !  1 idx XI xi.n !  NOW-MS idx XI xi.last !
-      1 EXTIP-N +!
-      ." swarm: NEW external endpoint observed: " ip .IP4 [CHAR] : EMIT port .#
-      ."  (bound locally on " MY-PORT @ .# ." ; now " EXTIP-N @ . ." known)" CR
+      ip idx XI xi.id BEP42-ID>                     \ each endpoint carries its OWN identity: BEP 42 ties
+      1 EXTIP-N +!                                  \ the id to the address, so one id per address, and
+      ." swarm: NEW external endpoint observed: " ip .IP4 [CHAR] : EMIT port .#   \ the (ip:port) pair is
+      ."  (bound locally on " MY-PORT @ .# ." ) id=" idx XI xi.id .IHPFX          \ what stays stable for it
+      ."  -- now " EXTIP-N @ . ." endpoint(s)" CR
    THEN ;
+: ID-OURS? { ida \ f -- f }                         \ is this 20-byte node id any of ours?
+   FALSE -> f
+   ida MY-ID IDLEN MEM= IF TRUE EXIT THEN           \ the primary identity we currently sign with
+   EXTIP-N @ 0 ?DO  ida I XI xi.id IDLEN MEM= IF TRUE -> f LEAVE THEN  LOOP  f ;
+: EP-ID { ip \ a -- id-a }                          \ the identity bound to the endpoint at this address
+   MY-ID -> a
+   EXTIP-N @ 0 ?DO  ip I XI xi.ip @ = IF I XI xi.id -> a LEAVE THEN  LOOP  a ;
 : .EXTIPS ( -- )
-   ." swarm: external endpoints seen (local port " MY-PORT @ .# ." ): "
-   EXTIP-N @ 0= IF ." none yet" CR EXIT THEN
+   ." swarm: routes out (local port " MY-PORT @ .# ." ): "
+   EXTIP-N @ 0= IF ." none observed yet" CR EXIT THEN
    EXTIP-N @ 0 ?DO
-      I XI xi.ip @ .IP4 [CHAR] : EMIT I XI xi.port @ .# ." x" I XI xi.n @ .# SPACE
+      I XI xi.ip @ .IP4 [CHAR] : EMIT I XI xi.port @ .#
+      ." x" I XI xi.n @ .#  ." /" I XI xi.id .IHPFX  SPACE
    LOOP CR ;
 TRUE VALUE DHT-ANNOUNCE?                            \ FALSE = do NOT advertise ourselves as a peer (id=infohash only)
 CREATE SECRET 8 ALLOT                              \ per-run token secret
@@ -148,11 +165,20 @@ VARIABLE PSTORE-N
       S" y" BE-KEY  S" r" BE-STR
    BE-}  BE-BUF BE-LEN ;
 CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact peer (ip4+port)
-: BE-SELF ( -- )                                  \ emit our own (MY-EXT-IP:MY-PORT) as a compact 6-byte value
-   MY-EXT-IP @ 255 AND CP-BUF C!  MY-EXT-IP @ 8 RSHIFT 255 AND CP-BUF 1+ C!
-   MY-EXT-IP @ 16 RSHIFT 255 AND CP-BUF 2 + C!  MY-EXT-IP @ 24 RSHIFT 255 AND CP-BUF 3 + C!
-   MY-PORT @ 8 RSHIFT 255 AND CP-BUF 4 + C!  MY-PORT @ 255 AND CP-BUF 5 + C!
+: BE-EP { ip port -- }                            \ one endpoint as a compact 6-byte peer value
+   ip        255 AND CP-BUF    C!   ip  8 RSHIFT 255 AND CP-BUF 1+ C!
+   ip 16 RSHIFT 255 AND CP-BUF 2 + C!   ip 24 RSHIFT 255 AND CP-BUF 3 + C!
+   port 8 RSHIFT 255 AND CP-BUF 4 + C!  port 255 AND CP-BUF 5 + C!
    CP-BUF 6 BE-STR ;
+: BE-SELF ( -- )   \ Advertise every endpoint we have actually been OBSERVED at, not the port we bound:
+                   \ behind NAT the local port is unreachable from outside (u24 binds 6882 and appears
+                   \ as :3138), and with split-tunnel routing there is more than one route out, each
+                   \ with its own stable pair.  The asker tries them and keeps whichever it can reach.
+   EXTIP-N @ 0= IF MY-EXT-IP @ MY-PORT @ BE-EP EXIT THEN     \ nothing observed yet -> the configured guess
+   EXTIP-N @ 0 ?DO
+      I XI xi.port @ ?DUP 0= IF MY-PORT @ THEN               \ some nodes report only the 4 address bytes
+      I XI xi.ip @ SWAP BE-EP
+   LOOP ;
 : REPLY-GETPEERS { ta tu ip ours? iha \ na nu -- a u }   \ our TARGET -> values; foreign hash -> closest nodes
    ours? IF 0 0 ELSE iha RT-CLOSEST-NODES THEN -> nu -> na
    BE-RESET  BE-D{
@@ -174,9 +200,6 @@ CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact pee
    BE-}  BE-BUF BE-LEN ;
 
 \ ---- verbose incoming-query logging (diagnostics: see EVERY DHT query the swarm node receives) ----
-: .NIB   ( n -- )   15 AND DUP 10 < IF [CHAR] 0 + ELSE 10 - [CHAR] A + THEN EMIT ;
-: .HEXB  ( c -- )   DUP 4 RSHIFT .NIB .NIB ;
-: .IHPFX ( a -- )   4 0 DO DUP I + C@ .HEXB LOOP DROP ." .." ;   \ first 4 bytes of an infohash/target
 : .RX-A-IH { ka ku -- }   ka ku RX-A-STR IF DROP .IHPFX ELSE ." ?" THEN ;   \ print a.<key> hash prefix, or ?
 : TOKEN-OK? { ad ip \ ka ku ta tu -- f }          \ ad.token == the opaque token we'd have issued to ip?
    ad S" token" DFIND-STR 0= IF FALSE EXIT THEN -> ku -> ka

@@ -119,14 +119,15 @@ CREATE CRCBUF 4 ALLOT
    ip 10 RSHIFT 3F AND                        CRCBUF 2 + C!  \ byte2: ip[2]&0x3f
    ip 18 RSHIFT FF AND                        CRCBUF 3 + C!  \ byte3: ip[3]
    CRCBUF 4 CRC32C ;
-: BEP42-NODE-ID { ip \ r crc -- }        \ fill MY-ID(20) per BEP 42 from external ip
+: BEP42-ID> { ip dest \ r crc -- }       \ fill dest(20) per BEP 42 from an external ip
    RND 7 AND -> r
    ip r BEP42-CRC -> crc
-   crc 18 RSHIFT FF AND                MY-ID    C!           \ id[0] = crc>>24
-   crc 10 RSHIFT FF AND                MY-ID 1+ C!           \ id[1] = crc>>16
-   crc  8 RSHIFT F8 AND  RND 7 AND OR  MY-ID 2 + C!          \ id[2] = ((crc>>8)&0xf8) | (rand&7)
-   MY-ID 3 + 10 RAND-BYTES                                   \ id[3..18] random
-   r                                   MY-ID 13 + C! ;       \ id[19] = r
+   crc 18 RSHIFT FF AND                dest    C!            \ id[0] = crc>>24
+   crc 10 RSHIFT FF AND                dest 1+ C!            \ id[1] = crc>>16
+   crc  8 RSHIFT F8 AND  RND 7 AND OR  dest 2 + C!           \ id[2] = ((crc>>8)&0xf8) | (rand&7)
+   dest 3 + 10 RAND-BYTES                                    \ id[3..18] random
+   r                                   dest 13 + C! ;        \ id[19] = r
+: BEP42-NODE-ID ( ip -- )   MY-ID BEP42-ID> ;                \ the identity we sign our queries with
 DECIMAL
 
 \ ===== transaction id (2 bytes, big-endian counter) =========================================
