@@ -128,6 +128,10 @@ CREATE CRCBUF 4 ALLOT
    dest 3 + 10 RAND-BYTES                                    \ id[3..18] random
    r                                   dest 13 + C! ;        \ id[19] = r
 : BEP42-NODE-ID ( ip -- )   MY-ID BEP42-ID> ;                \ the identity we sign our queries with
+VARIABLE CUR-ID   MY-ID CUR-ID !
+   \ The identity the message being built is signed with.  BEP 42 ties an id to the ADDRESS the packet
+   \ leaves from, and the route -- hence the address -- is chosen per DESTINATION.  So the id is a
+   \ property of who we are talking TO, like picking the right interface's MAC.  SIGN-FOR sets it.
 DECIMAL
 
 \ ===== transaction id (2 bytes, big-endian counter) =========================================
@@ -144,7 +148,7 @@ FALSE VALUE DHT-SEND-V?                   \ emit our 'v' client-version key?  DE
 : BE-V ( -- )  DHT-SEND-V? IF  S" v" BE-KEY  V-STR 4 BE-STR  THEN ;   \ unknown clients; `TRUE TO DHT-SEND-V?` to send it
 : PING-MSG ( -- a u )
    BE-RESET  BE-D{
-      S" a" BE-KEY  BE-D{  S" id" BE-KEY  MY-ID IDLEN BE-STR  BE-}
+      S" a" BE-KEY  BE-D{  S" id" BE-KEY  CUR-ID @ IDLEN BE-STR  BE-}
       S" q" BE-KEY  S" ping" BE-STR
       S" t" BE-KEY  NEW-TXN BE-STR
       BE-V

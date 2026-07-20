@@ -287,6 +287,7 @@ VARIABLE ANNQ-N   0 ANNQ-N !
 : ANNQ-FLUSH ( -- )                \ announce ourselves to the K closest collected responders
    ANNQ-N @ 0 ?DO
       ." > announce " CUR-IH @ .IHPFX ."  -> " I AQ aq.ip @ I AQ aq.port @ .IPPORT ."  (K-closest)" CR
+      I AQ aq.ip @ SIGN-FOR
       I AQ aq.ip @  I AQ aq.port @   I AQ aq.tok  I AQ aq.tlen @  ANNOUNCE-MSG  DHT-SOCK @ UDP-SEND
       TXBUF TID@  I AQ aq.ip @  I AQ aq.port @  OQ-ADD
    LOOP  ANNQ-RESET ;
@@ -295,7 +296,7 @@ VARIABLE ANNQ-N   0 ANNQ-N !
    RESOLVE-ROUTERS
    3 0 DO ROUTER-IPS I CELLS + @ ?DUP IF -> rip
       ." > get_peers " CUR-IH @ .IHPFX ."  -> " rip 6881 .IPPORT CR
-      rip 6881 GETPEERS-MSG DHT-SOCK @ UDP-SEND
+      rip SIGN-FOR  rip 6881 GETPEERS-MSG DHT-SOCK @ UDP-SEND
       TXBUF TID@ rip 6881 OQ-ADD                      \ only this router may answer with this tid
    THEN LOOP ;
 : LOOKUP-SEND-NEXT { \ idx ip port -- sent? }   \ get_peers to the next closest un-queried node
@@ -304,7 +305,7 @@ VARIABLE ANNQ-N   0 ANNQ-N !
    1 idx SL-Q + C!
    idx SL-NODE DUP NODE-IP -> ip  NODE-PORT -> port
    ." > get_peers " CUR-IH @ .IHPFX ."  -> " ip port .IPPORT CR
-   ip port GETPEERS-MSG DHT-SOCK @ UDP-SEND
+   ip SIGN-FOR  ip port GETPEERS-MSG DHT-SOCK @ UDP-SEND
    TXBUF TID@ ip port OQ-ADD                          \ only this peer may answer with this tid
    1 ANN-QUERIES +!  TRUE ;
 : LOOKUP-PUMP ( -- )                \ keep ALPHA queries in flight (drives the lookup on TIME, not only on replies)
@@ -325,6 +326,7 @@ VARIABLE IP-ECHO-N                                \ how many replies carried an 
 : IP-ECHO { pip pport eip eport -- }              \ peer pip:pport reports it saw us as eip:eport
    1 IP-ECHO-N +!
    eip eport EXTIP-SEEN
+   pip eip PEERMAP-SET                            \ remember which of our addresses THIS peer reaches
    IP-ECHO-LOG? IF                                \ silence here is ambiguous otherwise: "nobody reports a
       ." ip-echo: " pip pport .IPPORT             \ second address" and "we drop it" look identical when we
       ."  sees us as " eip .IP4 [CHAR] : EMIT eport .# CR   \ only log first sightings.  This also IS the
@@ -451,6 +453,7 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
 \ ---- per-tick timers: DTLS retransmit + NAT-keepalive ping ----
 : PR-PING-CHECK { idx -- }
    NOW-MS  idx PR-PING@  U< 0= IF                            \ NOW-MS >= next-ping deadline
+      idx PR-IP SIGN-FOR
       idx PR-IP idx PR-PORT  PING-MSG  DHT-SOCK @ UDP-SEND   \ a DHT ping keeps the NAT 4-tuple open
       TXBUF TID@  idx PR-IP  idx PR-PORT  OQ-ADD             \ register it like every other query we send:
       NOW-MS PING-INTERVAL + idx PR-PING!                    \ nobody consumes the pong, but leaving it

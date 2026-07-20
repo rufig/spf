@@ -32,11 +32,9 @@ VARIABLE MY-EXT-IP                                  \ our external IP (0 = unkno
 \     no single port can be announced at all.
 \ These counts are what tells the two apart: several peers reporting the SAME port at the SAME time
 \ means cone; different peers reporting different ports concurrently means symmetric.
-\ Two rules that must survive into the multi-id work:
-\   - only a CORRELATED reply may feed this table (our tid, from the peer we actually asked), otherwise
-\     anyone could hand us an endpoint and later steer the node id we derive from it;
-\   - one peer's word is still not proof -- require several independent peers to agree before deriving
-\     an identity from an endpoint.  That is what xi.n is for.
+\ Only a CORRELATED reply may feed this table (our tid, from the peer we actually asked).  Beyond that we
+\ do NOT demand corroboration: a rare-but-real route legitimately has a single witness, and ageing (see
+\ EXTIP-TTL) retires anything nobody keeps confirming, made-up addresses included.  xi.n is a diagnostic.
 8 CONSTANT /EXTIP
 0 CELL -- xi.ip  CELL -- xi.port  CELL -- xi.n
   CELL -- xi.first                                  \ when this endpoint first appeared
@@ -98,6 +96,32 @@ VARIABLE EXTIP-N   0 EXTIP-N !
 : EP-ID { ip \ a -- id-a }                          \ the identity bound to the endpoint at this address
    MY-ID -> a
    EXTIP-N @ 0 ?DO  ip I XI xi.ip @ = IF I XI xi.id -> a LEAVE THEN  LOOP  a ;
+\ ---- which of our addresses does a given peer reach us at? -----------------------------------
+\ The route -- and therefore the address a peer sees -- is chosen per DESTINATION, so this is a property
+\ of the pair.  Filled in from the 'ip' each peer echoes back.  It is what makes the reply behave like a
+\ network interface: answer a peer with the address IT can reach, signed with that address's identity.
+64 CONSTANT /PEERMAP
+0 CELL -- pm.ip  CELL -- pm.xip  CELL -- pm.last  CONSTANT /PM
+CREATE PEERMAP  /PEERMAP /PM *  ALLOT
+VARIABLE PEERMAP-N   0 PEERMAP-N !
+: PM ( i -- a )   /PM *  PEERMAP + ;
+: PEERMAP-SET { pip xip \ idx -- }                  \ peer pip reported reaching us at our address xip
+   pip 0= xip 0= OR IF EXIT THEN
+   PEERMAP-N @ 0 ?DO
+      pip I PM pm.ip @ = IF xip I PM pm.xip !  NOW-MS I PM pm.last !  UNLOOP EXIT THEN
+   LOOP
+   PEERMAP-N @ /PEERMAP < IF  PEERMAP-N @ -> idx   1 PEERMAP-N +!
+   ELSE 0 -> idx                                    \ full: drop the least recently confirmed entry
+      PEERMAP-N @ 1 ?DO  I PM pm.last @  idx PM pm.last @ U< IF I -> idx THEN  LOOP
+   THEN
+   pip idx PM pm.ip !  xip idx PM pm.xip !  NOW-MS idx PM pm.last ! ;
+: PEERMAP-GET { pip \ x -- xip | 0 }
+   0 -> x
+   PEERMAP-N @ 0 ?DO  pip I PM pm.ip @ = IF I PM pm.xip @ -> x LEAVE THEN  LOOP  x ;
+: SIGN-FOR ( destip -- )                            \ sign the next message with the id this peer expects
+   PEERMAP-GET ?DUP IF EP-ID ELSE MY-ID THEN  CUR-ID ! ;
+: SIGN-DEFAULT ( -- )   MY-ID CUR-ID ! ;
+
 : EXTIP-EXPIRE { \ i now last -- }                  \ forget endpoints nobody has confirmed lately
    NOW-MS -> now   0 -> i
    BEGIN i EXTIP-N @ < WHILE
@@ -172,7 +196,7 @@ VARIABLE PSTORE-N
 \ ---- KRPC reply builders (y=r; echo the query's transaction id t) ----
 : REPLY-PING { ta tu -- a u }                     \ also the announce_peer reply
    BE-RESET  BE-D{
-      S" r" BE-KEY  BE-D{ S" id" BE-KEY MY-ID IDLEN BE-STR BE-}
+      S" r" BE-KEY  BE-D{ S" id" BE-KEY CUR-ID @ IDLEN BE-STR BE-}
       S" t" BE-KEY  ta tu BE-STR
       BE-V
       S" y" BE-KEY  S" r" BE-STR
@@ -194,7 +218,7 @@ VARIABLE PSTORE-N
       20 = IF RT-CLOSEST-NODES -> nu -> na ELSE DROP THEN
    THEN
    BE-RESET  BE-D{
-      S" r" BE-KEY  BE-D{ S" id" BE-KEY MY-ID IDLEN BE-STR  S" nodes" BE-KEY na nu BE-STR BE-}
+      S" r" BE-KEY  BE-D{ S" id" BE-KEY CUR-ID @ IDLEN BE-STR  S" nodes" BE-KEY na nu BE-STR BE-}
       S" t" BE-KEY  ta tu BE-STR
       BE-V
       S" y" BE-KEY  S" r" BE-STR
@@ -214,15 +238,28 @@ CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact pee
       I XI xi.port @ ?DUP 0= IF MY-PORT @ THEN               \ some nodes report only the 4 address bytes
       I XI xi.ip @ SWAP BE-EP
    LOOP ;
+: BE-SELF-FOR { askerip \ x n -- }
+   \ Answer on the interface the question arrived on: hand this asker only the address IT reaches us at.
+   \ That also contains a forged endpoint -- if a peer feeds us a bogus 'ip', we only ever quote it back
+   \ to that same peer, which learnt nothing it did not invent.  Unknown asker: offer everything.
+   askerip PEERMAP-GET -> x
+   x 0= IF BE-SELF EXIT THEN
+   0 -> n
+   EXTIP-N @ 0 ?DO
+      I XI xi.ip @ x = IF
+         I XI xi.ip @   I XI xi.port @ ?DUP 0= IF MY-PORT @ THEN   BE-EP   n 1+ -> n
+      THEN
+   LOOP
+   n 0= IF BE-SELF THEN ;                           \ that address has aged out -> fall back to all
 : REPLY-GETPEERS { ta tu ip ours? iha \ na nu -- a u }   \ our TARGET -> values; foreign hash -> closest nodes
    ours? IF 0 0 ELSE iha RT-CLOSEST-NODES THEN -> nu -> na
    BE-RESET  BE-D{
       S" r" BE-KEY  BE-D{
-         S" id" BE-KEY MY-ID IDLEN BE-STR
+         S" id" BE-KEY CUR-ID @ IDLEN BE-STR
          S" token" BE-KEY ip MK-TOKEN BE-STR
          ours? IF
             S" values" BE-KEY BE-L[                            \ our infohash: our own peers
-               DHT-ANNOUNCE? IF MY-EXT-IP @ IF BE-SELF THEN THEN
+               DHT-ANNOUNCE? IF ip BE-SELF-FOR THEN
                PSTORE-N @ MAX-REPLY-VALUES MIN 0 ?DO PSTORE I 6 * + 6 BE-STR LOOP
             BE-}
          ELSE
@@ -273,6 +310,8 @@ CREATE QNODE 26 ALLOT
 
 : SERVE-1 { size ip port \ ta tu qa qu b0 -- }     \ handle one datagram already in RX-BUF
    size 0= IF EXIT THEN
+   ip SIGN-FOR                                     \ reply as the identity bound to the address
+                                                   \ THIS querier reaches us at
    RX-BUF size BE-SETEND DROP                       \ bound the bencode parser to this datagram
    RX-BUF C@ -> b0
    b0 [CHAR] d <> IF                               \ not bencoded DHT -> peer-wire (uTP) or junk; log it
@@ -315,7 +354,7 @@ CREATE QNODE 26 ALLOT
 : ANNOUNCE-MSG { ta tu -- a u }                    \ announce_peer for CUR-IH, our MY-PORT, implied_port
    BE-RESET  BE-D{
       S" a" BE-KEY  BE-D{
-         S" id" BE-KEY MY-ID IDLEN BE-STR
+         S" id" BE-KEY CUR-ID @ IDLEN BE-STR
          S" implied_port" BE-KEY 1 BE-INT
          S" info_hash" BE-KEY CUR-IH @ IDLEN BE-STR
          S" port" BE-KEY MY-PORT @ BE-INT
