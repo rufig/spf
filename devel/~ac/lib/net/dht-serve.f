@@ -55,6 +55,9 @@ VARIABLE EXTIP-N   0 EXTIP-N !
    EXTIP-N @ 0 ?DO
       ip I XI xi.ip @ =  port I XI xi.port @ = AND IF TRUE -> f LEAVE THEN
    LOOP  f ;
+: EP-ID-FOR { ip \ a -- id-a | 0 }                  \ identity already bound to this ADDRESS, 0 if new
+   0 -> a
+   EXTIP-N @ 0 ?DO  ip I XI xi.ip @ = IF I XI xi.id -> a LEAVE THEN  LOOP  a ;
 : EXTIP-SEEN { ip port \ idx -- }                   \ a peer reported our query reached it from ip:port
    ip 0= IF EXIT THEN
    EXTIP-N @ 0 ?DO
@@ -64,8 +67,11 @@ VARIABLE EXTIP-N   0 EXTIP-N !
    EXTIP-N @ /EXTIP < IF
       EXTIP-N @ -> idx
       ip idx XI xi.ip !  port idx XI xi.port !  1 idx XI xi.n !  NOW-MS idx XI xi.last !
-      ip idx XI xi.id BEP42-ID>                     \ each endpoint carries its OWN identity: BEP 42 ties
-      1 EXTIP-N +!                                  \ the id to the address, so one id per address, and
+      ip EP-ID-FOR ?DUP IF idx XI xi.id IDLEN CMOVE \ BEP 42 binds the id to the ADDRESS, so a second NAT
+      ELSE ip idx XI xi.id BEP42-ID> THEN           \ port on an address we already know must reuse that
+      1 EXTIP-N +!                                  \ address's identity -- issuing a fresh id per port
+                                                    \ would advertise us as several nodes at one address,
+                                                    \ which is what a sybil looks like, for no gain
       ." swarm: NEW external endpoint observed: " ip .IP4 [CHAR] : EMIT port .#   \ the (ip:port) pair is
       ."  (bound locally on " MY-PORT @ .# ." ) id=" idx XI xi.id .IHPFX          \ what stays stable for it
       ."  -- now " EXTIP-N @ . ." endpoint(s)" CR
