@@ -45,6 +45,8 @@ CREATE CB-IDBUF 20 ALLOT
 2 CELLS CALLBACK: SWARM-VERIFY-CB
 ' SWARM-VERIFY-CB TO DTLS-VERIFY-CB                        \ DTLS-CTX now arms verify WITH logging
 
+0 VALUE MEMBER-UP-XT   \ ( hash-a ip port -- ) called when a fleet member is verified; persist.f sets it
+
 \ ---- our node identity: one server ctx (accept inbound) + one client ctx (dial outbound) ----
 VARIABLE NODE-SCTX   VARIABLE NODE-CCTX
 : SWARM-DTLS-CONFIG { cert-c key-c ca-c -- }
@@ -183,7 +185,8 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    idx PR-EXPECT@ ?DUP IF                                           \ a specific server was expected
       PEER-IDBUF SWAP 20 MEM= 0= IF idx S" identity hash mismatch" NCACHE-BAD-TTL PR-FAIL EXIT THEN
    THEN
-   ." <<< MEMBER verified " idx PR-IP idx PR-PORT .IPPORT ."  SPKI=" PEER-IDBUF .HASH CR ;
+   ." <<< MEMBER verified " idx PR-IP idx PR-PORT .IPPORT ."  SPKI=" PEER-IDBUF .HASH CR
+   MEMBER-UP-XT IF PEER-IDBUF idx PR-IP idx PR-PORT MEMBER-UP-XT EXECUTE THEN ;  \ persist.f saves the address
 : PR-ADVANCE { idx \ ret -- }
    idx PR-STATE ST-HS = IF
       idx PR-SSL DTLS-HS1 -> ret
