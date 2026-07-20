@@ -36,6 +36,8 @@ VARIABLE DTLS-INITED
 \ Verify-callback trampoline (0 = none).  Set to SWARM-VERIFY-CB below, once it (and the SO wrappers
 \ it needs) are defined -- DTLS-CTX reads this VALUE, so no forward reference.
 0 VALUE DTLS-VERIFY-CB
+0 VALUE DTLS-COOKIE-GEN     \ filled in below, once SSL>BASE exists (same late-binding as the verify cb)
+0 VALUE DTLS-COOKIE-VER
 
 \ ---- context construction: load our identity cert+key, trust the CA, require peer certs ----
 \ cert-c / key-c / ca-c are NUL-terminated C strings (spf4 S" ... DROP gives one).
@@ -70,6 +72,10 @@ HEX FEFD CONSTANT DTLS1_2_VERSION DECIMAL
    ctx 1 SSL_CTX_check_private_key                             1 <> IF -3213 THROW THEN
    0 ca-c ctx 3 SSL_CTX_load_verify_locations                 1 <> IF -3214 THROW THEN
    DTLS-VERIFY-CB VERIFY_MUTUAL ctx 3 SSL_CTX_set_verify DROP  \ verdict unchanged; cb only logs
+   srv? DTLS-COOKIE-GEN 0<> AND IF                             \ P0.5: cookie exchange, server side only
+      DTLS-COOKIE-GEN ctx 2 SSL_CTX_set_cookie_generate_cb DROP
+      DTLS-COOKIE-VER ctx 2 SSL_CTX_set_cookie_verify_cb   DROP
+   THEN
    ctx ;
 : DTLS-SERVER-CTX ( cert-c key-c ca-c -- ctx )  >R >R >R TRUE  R> R> R> DTLS-CTX ;
 : DTLS-CLIENT-CTX ( cert-c key-c ca-c -- ctx )  >R >R >R FALSE R> R> R> DTLS-CTX ;
@@ -182,6 +188,62 @@ HEX 1000 CONSTANT SSL_OP_NO_QUERY_MTU   FFFFFFFF CONSTANT MASK32  DECIMAL
 : X509-SUBJECT { x509 -- a u }                            \ subject DN as text, into CB-SUB
    /CB-SUB CB-SUB  x509 1 X509_get_subject_name  3 X509_NAME_oneline DROP
    CB-SUB ASCIIZ> ;
+\ ===== P0.5: stateless cookie / HelloVerifyRequest ==========================================
+\ Before this, ANY datagram whose first byte looked like a DTLS record could make us allocate an SSL and
+\ a peer slot.  A flood from forged source addresses would then hold every slot until CONNECT-TIMEOUT,
+\ and we would answer a certificate flight to an address that never asked -- an amplifier.
+\ The cure is RFC 6347's cookie round: answer a first ClientHello with a HelloVerifyRequest carrying a
+\ cookie derived from the sender's own endpoint, and allocate NOTHING.  Only a client that can receive
+\ at that address can echo the cookie back, so a forged source never gets past this point.  The reply is
+\ SMALLER than the ClientHello that triggered it, so there is nothing to amplify either.
+\ We drive it with DTLSv1_listen rather than emitting the HelloVerifyRequest ourselves: after a cookie
+\ round the client's second ClientHello carries message_seq=1, and a server that never saw the exchange
+\ would still be waiting for seq 0.  OpenSSL keeps that bookkeeping inside the listener SSL.
+\ The cookie binds to (secret, ip, port); the secret is per-run, like the DHT token secret.
+16 CONSTANT /COOKIE
+CREATE COOKIE-SECRET 16 ALLOT
+CREATE COOKIE-MAT    22 ALLOT                             \ secret(16) + ip(4) + port(2)
+CREATE COOKIE-MD     20 ALLOT
+VARIABLE CK-IP   VARIABLE CK-PORT                         \ endpoint to bind to; set before DTLSv1_listen
+: COOKIE-INIT ( -- )   16 COOKIE-SECRET 2 RAND_bytes DROP ;
+: (COOKIE-CALC) ( -- )                                    \ COOKIE-MD = SHA1(secret || ip || port)
+   COOKIE-SECRET COOKIE-MAT 16 CMOVE
+   CK-IP @         255 AND COOKIE-MAT 16 + C!   CK-IP @  8 RSHIFT 255 AND COOKIE-MAT 17 + C!
+   CK-IP @ 16 RSHIFT 255 AND COOKIE-MAT 18 + C!  CK-IP @ 24 RSHIFT 255 AND COOKIE-MAT 19 + C!
+   CK-PORT @ 8 RSHIFT 255 AND COOKIE-MAT 20 + C!  CK-PORT @ 255 AND COOKIE-MAT 21 + C!
+   COOKIE-MD 22 COOKIE-MAT 3 SHA1 DROP ;                  \ the libcrypto SHA1, SO is in scope here
+: U32! { x a -- }                                         \ store exactly 4 bytes (an unsigned int*)
+   x 255 AND a C!  x 8 RSHIFT 255 AND a 1+ C!
+   x 16 RSHIFT 255 AND a 2 + C!  x 24 RSHIFT 255 AND a 3 + C! ;
+
+:NONAME { lenp ck ssl \ tls base -- ret }                 \ cookie_generate_cb(SSL*, uchar*, uint*)
+   \ locals are the C arguments REVERSED, exactly like the verify cb above ({ sctx preverify } for
+   \ verify_callback(preverify, ctx)).  Getting this backwards made ssl hold the length pointer and
+   \ SSL>BASE dereference garbage -- a segfault the moment a real ClientHello arrived.
+   TlsIndex@ -> tls
+   ssl IF ssl SSL>BASE -> base  base IF base TlsIndex! THEN THEN
+   ['] (COOKIE-CALC) CATCH DROP
+   COOKIE-MD ck /COOKIE CMOVE   /COOKIE lenp U32!
+   tls TlsIndex!   1 ;
+3 CELLS CALLBACK: SWARM-COOKIE-GEN
+:NONAME { len ck ssl \ tls base ok -- ret }               \ cookie_verify_cb(SSL*, const uchar*, uint) -- reversed
+   TlsIndex@ -> tls
+   ssl IF ssl SSL>BASE -> base  base IF base TlsIndex! THEN THEN
+   FALSE -> ok
+   len /COOKIE = IF ['] (COOKIE-CALC) CATCH DROP  ck COOKIE-MD /COOKIE MEM= -> ok THEN
+   tls TlsIndex!   ok IF 1 ELSE 0 THEN ;
+3 CELLS CALLBACK: SWARM-COOKIE-VER
+' SWARM-COOKIE-GEN TO DTLS-COOKIE-GEN
+' SWARM-COOKIE-VER TO DTLS-COOKIE-VER
+
+VARIABLE CK-ADDR                                          \ one BIO_ADDR, reused (we know the peer already)
+VARIABLE COOKIE-SEEDED                                    \ DTLS-INIT is declared above this block, so the
+: DTLS-LISTEN { ssl ip port -- r }                        \ secret is seeded on first use instead
+   COOKIE-SEEDED @ 0= IF COOKIE-INIT TRUE COOKIE-SEEDED ! THEN
+   ip CK-IP !  port CK-PORT !                             \ 1 = cookie ok (adopt ssl), 0 = HVR queued, <0
+   CK-ADDR @ 0= IF 0 BIO_ADDR_new CK-ADDR ! THEN
+   CK-ADDR @ ssl 2 DTLSv1_listen I32 ;
+
 : X509>DER { x509 \ len -- a u }                          \ DER of a BORROWED cert (no free); 0 0 on error
    0 x509 2 i2d_X509 I32 -> len
    len 1 < len /CB-DER > OR IF 0 0 EXIT THEN
