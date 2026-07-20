@@ -336,7 +336,8 @@ VARIABLE ANNQ-N   0 ANNQ-N !
    REPEAT ;
 : ANN-START ( ih-a -- )                              \ start a lookup round; keep the CONVERGING shortlist
    DUP TARGET IDLEN MOVE  CUR-IH !                    \ + accumulated PEERS across rounds (real-DHT style)
-   SL-REQUERY  0 ANN-QUERIES !  ANNQ-RESET  SEED-SEND             \ re-probe every known node + pull fresh router nodes
+   SL-REQUERY  0 ANN-QUERIES !  ANNQ-RESET
+   SEED-FROM-RTAB  SEED-SEND        \ seed the shortlist from persisted/known nodes, THEN top up from routers
    TRUE ANN-ACTIVE !  NOW-MS LOOKUP-WINDOW + ANN-DEADLINE !
    ." swarm: fleet lookup round started (SL=" SL-N @ .  ." nodes PEERS=" PEERS-N @ .  ." )" CR ;
 : RESP-CLOSE? ( ra -- f )          \ responder id's first byte == TARGET's (i.e. near the infohash)

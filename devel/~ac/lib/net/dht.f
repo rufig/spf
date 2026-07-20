@@ -277,6 +277,14 @@ VARIABLE RTAB-N   0 RTAB-N !
    LOOP
    RT-OUT  n NODELEN * ;
 
+: SEED-FROM-RTAB ( -- )                   \ inject the routing table into the lookup shortlist (TARGET set)
+   \ Warm start: without this, loaded nodes sit in RTAB (used only to ANSWER others) and never seed OUR
+   \ lookups -- which start empty and depend on the bootstrap routers/DNS.  Feeding RTAB to SL-ADD (which
+   \ keeps the SL-MAX closest to TARGET) makes a restarted node query its persisted peers directly, so
+   \ the mesh can come up even with the bootstrap domains unreachable.  Harmless in steady state: SL-ADD
+   \ dedups and keeps the closest, so nodes already there via replies are not disturbed.
+   RTAB-N @ 0 ?DO  I RT-NODE SL-ADD  LOOP ;
+
 \ ===== response parsing =====================================================================
 : ADD-PEER ( elem-a -- )                 \ a values[] element: a bencoded 6-byte compact peer
    B-STR@ { a1 pa pu }  pu 6 >= IF pa STORE-PEER THEN ;
