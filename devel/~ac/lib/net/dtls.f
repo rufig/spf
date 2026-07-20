@@ -40,11 +40,32 @@ VARIABLE DTLS-INITED
 \ ---- context construction: load our identity cert+key, trust the CA, require peer certs ----
 \ cert-c / key-c / ca-c are NUL-terminated C strings (spf4 S" ... DROP gives one).
 \ Calls follow the tls.f style: reversed args + arg-count, e.g. `TYPE file ctx 3 SSL_CTX_use_...`.
+\ ---- explicit DTLS policy, modelled on what browsers negotiate for WebRTC (RFC 8827) ----
+\ Without this we inherit whatever the local OpenSSL defaults to, and the fleet spans 3.0.13 to 3.6.3 --
+\ i.e. the policy would differ per node and drift silently on the next distribution upgrade.
+\ RFC 8827: DTLS 1.2 is the floor, ECDHE only (forward secrecy -- no static RSA/DH), and
+\ TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 must be supported.  Everything here is AEAD; the CBC suites
+\ browsers still carry for legacy peers are left out, since every peer that matters is our own fleet.
+\ AES-GCM first (hardware AES), ChaCha20 after it for machines without AES-NI -- the browser ordering.
+123 CONSTANT SSL_CTRL_SET_MIN_PROTO_VERSION
+ 92 CONSTANT SSL_CTRL_SET_GROUPS_LIST
+HEX FEFD CONSTANT DTLS1_2_VERSION DECIMAL
+: DTLS-POLICY { ctx -- }
+   0 DTLS1_2_VERSION SSL_CTRL_SET_MIN_PROTO_VERSION ctx 4 SSL_CTX_ctrl  1 <> IF -3215 THROW THEN
+   S" ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305" DROP
+   ctx 2 SSL_CTX_set_cipher_list                                        1 <> IF -3216 THROW THEN
+   S" X25519:P-256:P-384" DROP  0 SSL_CTRL_SET_GROUPS_LIST ctx 4 SSL_CTX_ctrl  1 <> IF -3217 THROW THEN ;
+
 : DTLS-CTX { srv? cert-c key-c ca-c \ ctx -- ctx }
    DTLS-INIT
    srv? IF 0 DTLS_server_method ELSE 0 DTLS_client_method THEN
    1 SSL_CTX_new  DUP 0= IF -3210 THROW THEN  -> ctx
-   SSL_FILETYPE_PEM cert-c ctx 3 SSL_CTX_use_certificate_file  1 <> IF -3211 THROW THEN
+   ctx DTLS-POLICY
+   \ chain_file, not certificate_file: identical for our single self-signed-CA-issued leaf, but if the
+   \ fleet ever moves to an offline root + intermediate, dropping the intermediate into the same .crt
+   \ just works.  With the plain loader it would silently not be sent, and peers would fail with
+   \ "unable to get local issuer certificate" while the files all look present and correct.
+   cert-c ctx 2 SSL_CTX_use_certificate_chain_file             1 <> IF -3211 THROW THEN
    SSL_FILETYPE_PEM key-c  ctx 3 SSL_CTX_use_PrivateKey_file   1 <> IF -3212 THROW THEN
    ctx 1 SSL_CTX_check_private_key                             1 <> IF -3213 THROW THEN
    0 ca-c ctx 3 SSL_CTX_load_verify_locations                 1 <> IF -3214 THROW THEN
@@ -114,6 +135,10 @@ HEX 1000 CONSTANT SSL_OP_NO_QUERY_MTU   FFFFFFFF CONSTANT MASK32  DECIMAL
    REPEAT FALSE ;
 
 : DTLS-VERIFIED? ( ssl -- f )  1 SSL_get_verify_result  X509_V_OK = ;   \ chain-to-CA ok?
+: DTLS-SUITE { ssl \ c -- va vu ca cu }    \ what was actually negotiated -- so the policy above can be
+   ssl 1 SSL_get_version ASCIIZ>           \ checked against reality instead of assumed to have applied
+   ssl 1 SSL_get_current_cipher -> c
+   c 0= IF S" (none)" ELSE c 1 SSL_CIPHER_get_name ASCIIZ> THEN ;
 
 : DTLS-PEER-DER { ssl \ x509 len -- a u }                   \ peer cert as DER (into PEER-DER); 0 0 if none
    ssl 1 SSL_get1_peer_certificate DUP 0= IF DROP 0 0 EXIT THEN -> x509
