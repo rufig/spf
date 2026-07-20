@@ -73,7 +73,10 @@ CREATE PEERTAB  MAXPEERS /PR *  ALLOT   PEERTAB MAXPEERS /PR * ERASE
 90000 VALUE PEER-IDLE              \ ms of total silence before an established peer is reclaimed (> 3 pings)
 600000 VALUE NCACHE-BAD-TTL        \ ms to shun a peer whose cert was REJECTED (won't become ours; cache long)
 90000  VALUE NCACHE-SLOW-TTL       \ ms before re-dialing a peer that TIMED OUT (> round period, but keep retrying: maybe NAT)
-16384 CONSTANT /DNET-BUF   CREATE DNET-BUF /DNET-BUF ALLOT   \ big enough to send a whole flight in one datagram (don't split DTLS records)
+16384 CONSTANT DNET-CAP    CREATE DNET-BUF DNET-CAP ALLOT
+DNET-CAP VALUE /DNET-BUF   \ read window into the write-BIO.  A VALUE, not a constant, so a test can
+                           \ shrink it and force the carry-over path a real certificate chain would hit;
+                           \ the buffer itself always stays DNET-CAP, so shrinking it is safe.
 16384 CONSTANT /RXBIG      CREATE RXBIG /RXBIG ALLOT          \ receive buffer (DTLS flights exceed the 2048 DHT RX-BUF)
 CREATE PEER-IDBUF 20 ALLOT
 
@@ -137,19 +140,34 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
 \ ---- pump: send everything the SSL has produced; deliver an inbound datagram; advance ----
 \ A DTLS record = 13-byte header (type/version/epoch/seq/length) + `length` bytes; length @ offset 11-12.
 : DTLS-RECLEN ( rec-a -- total )  11 + DUP C@ 8 LSHIFT SWAP 1+ C@ +  13 + ;
-: PR-PUMP-OUT { idx \ wbio total p end rl -- }     \ send each DTLS RECORD as its own datagram (MTU-safe)
+: PR-PUMP-OUT { idx \ wbio rl n got -- }           \ send each DTLS RECORD as its own datagram (MTU-safe)
+   \ P1.9: the flight is drained INCREMENTALLY and a record that straddles a read boundary is carried
+   \ over, not dropped.  The old code took one 16 KB bite and stopped at the first record that ran past
+   \ the end -- with small EC fixtures the flight always fitted, but a real certificate chain would have
+   \ silently truncated the handshake.  A datagram BIO would make the framing OpenSSL's problem, but
+   \ BIO_s_dgram_mem needs OpenSSL 3.2 and the fleet's Linux boxes ship 3.0 (see P1.10 in the review),
+   \ so the framing stays here -- correct rather than convenient.
    idx PR-WBIO -> wbio
-   wbio BIO-PENDING 0= IF EXIT THEN
-   wbio DNET-BUF /DNET-BUF WBIO-READ -> total       \ pull the whole queued flight at once
-   total 0> 0= IF EXIT THEN
-   DNET-BUF -> p   DNET-BUF total + -> end
-   BEGIN p end U< WHILE
-      p 13 + end U> IF EXIT THEN                     \ not even a full record header left
-      p DTLS-RECLEN -> rl
-      rl 13 < IF EXIT THEN                           \ malformed -> stop
-      p rl + end U> IF EXIT THEN                     \ record runs past buffer -> stop
-      idx PR-IP idx PR-PORT p rl DHT-SOCK @ UDP-SEND
-      p rl + -> p
+   0 -> n                                           \ bytes currently held in DNET-BUF
+   BEGIN
+      wbio BIO-PENDING 0>  /DNET-BUF n >  AND IF     \ top up whenever there is room and data pending
+         wbio  DNET-BUF n +  /DNET-BUF n -  WBIO-READ -> got
+         got 0> IF n got + -> n THEN
+      THEN
+      n 13 >=                                        \ enough for a record header?
+   WHILE
+      DNET-BUF DTLS-RECLEN -> rl
+      rl 13 <  rl /DNET-BUF >  OR IF EXIT THEN       \ malformed, or can never fit: give up on the rest
+                                                     \ NB /DNET-BUF must exceed the largest record we can
+                                                     \ emit (i.e. > DTLS-MTU) or whole flights are dropped
+                                                     \ here in silence -- measured: 100 kills the handshake
+      rl n > IF                                      \ record still incomplete ...
+         wbio BIO-PENDING 0= IF EXIT THEN            \ ... and nothing more is coming
+      ELSE
+         idx PR-IP idx PR-PORT  DNET-BUF rl  DHT-SOCK @ UDP-SEND
+         rl n < IF DNET-BUF rl +  DNET-BUF  n rl -  CMOVE THEN   \ keep the tail for the next round
+         n rl - -> n
+      THEN
    REPEAT ;
 : PR-FAIL { idx reason-a reason-u ttl -- }        \ reject a peer: log, negative-cache for ttl ms, free its SSL
    ." >>> REJECTED " idx PR-IP idx PR-PORT .IPPORT ."  (" reason-a reason-u TYPE ." )" CR
