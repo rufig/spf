@@ -272,7 +272,8 @@ CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact pee
    BE-}  BE-BUF BE-LEN ;
 
 \ ---- verbose incoming-query logging (diagnostics: see EVERY DHT query the swarm node receives) ----
-: .RX-A-IH { ka ku -- }   ka ku RX-A-STR IF DROP .IHPFX ELSE ." ?" THEN ;   \ print a.<key> hash prefix, or ?
+: .RX-A-IH { ka ku -- }   \ print a.<key> hash prefix (4 bytes), or ? -- guard the fixed-width .IHPFX read
+   ka ku RX-A-STR IF  4 < IF DROP ." ?" ELSE .IHPFX THEN  ELSE ." ?" THEN ;
 : TOKEN-OK? { ad ip \ ka ku ta tu -- f }          \ ad.token == the opaque token we'd have issued to ip?
    ad S" token" DFIND-STR 0= IF FALSE EXIT THEN -> ku -> ka
    ip MK-TOKEN -> tu -> ta
@@ -291,14 +292,14 @@ CREATE QNODE 26 ALLOT
 \ ---- request dispatch ----
 : SERVE-GETPEERS { ip port ta tu \ iha ours -- }
    RX-BUF S" a" B-DFIND 0= IF EXIT THEN                          ( a-dict )
-   S" info_hash" DFIND-STR 0= IF EXIT THEN  DROP  -> iha         ( drop u, keep iha )
+   S" info_hash" DFIND-STR 0= IF EXIT THEN  20 <> IF DROP EXIT THEN  -> iha   \ P0.3: must be exactly 20 bytes
    iha TARGET ID= -> ours
    ." <<< get_peers from " ip port .IPPORT ."  ih=" iha .IHPFX
    ours IF 1 Q-HIT +! ."  (OURS)" ELSE ."  (foreign)" THEN  .CLIENT CR
    ta tu ip ours iha REPLY-GETPEERS  ip port SEND-REPLY ;
 : SERVE-ANNOUNCE { ip port ta tu \ ad iha aport -- }
    RX-BUF S" a" B-DFIND 0= IF ta tu REPLY-PING ip port SEND-REPLY EXIT THEN -> ad
-   ad S" info_hash" DFIND-STR 0= IF EXIT THEN DROP -> iha        ( keep addr )
+   ad S" info_hash" DFIND-STR 0= IF EXIT THEN 20 <> IF DROP EXIT THEN -> iha   \ P0.3: exactly 20 bytes
    ad S" implied_port" B-DFIND IF B-INT@ NIP ELSE 0 THEN
    IF port ELSE ad S" port" B-DFIND IF B-INT@ NIP ELSE port THEN THEN -> aport
    ." <<< announce_peer from " ip aport .IPPORT ."  ih=" iha .IHPFX
@@ -324,6 +325,7 @@ CREATE QNODE 26 ALLOT
    RX-BUF S" y" DFIND-STR 0= IF EXIT THEN  S" q" STR= 0= IF EXIT THEN   \ queries only
    RX-BUF S" t" DFIND-STR 0= IF EXIT THEN -> tu -> ta
    RX-BUF S" q" DFIND-STR 0= IF EXIT THEN -> qu -> qa
+   BE-OK? 0= IF EXIT THEN                          \ P0.2/P0.3: drop a datagram that tripped the bounds guard
    ip port LEARN-QUERIER                           \ a live node just contacted us: remember it (routing table)
    qa qu S" ping"          STR= IF 1 Q-PING +!  ." <<< ping from " ip port .IPPORT .CLIENT CR
                                     ta tu REPLY-PING     ip port SEND-REPLY EXIT THEN

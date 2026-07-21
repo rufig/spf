@@ -158,7 +158,7 @@ FALSE VALUE DHT-SEND-V?                   \ emit our 'v' client-version key?  DE
 : GETPEERS-MSG ( -- a u )                \ info_hash = CUR-IH @
    BE-RESET  BE-D{
       S" a" BE-KEY  BE-D{
-         S" id" BE-KEY         MY-ID  IDLEN BE-STR
+         S" id" BE-KEY         CUR-ID @ IDLEN BE-STR   \ per-destination identity (SIGN-FOR), like ping/announce
          S" info_hash" BE-KEY  CUR-IH @ IDLEN BE-STR
       BE-}
       S" q" BE-KEY  S" get_peers" BE-STR

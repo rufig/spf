@@ -44,12 +44,14 @@ VARIABLE BE-OVER                              \ TRUE if an encode hit the buffer
 \ the walk unwinds safely -- cursors clamp to BE-END so loops terminate and nothing reads outside the
 \ datagram.  Trusting callers still get their value; network-facing callers should honour BE-OK?.
 VARIABLE BE-END                              \ one past the last byte of the message being parsed
+VARIABLE BE-START                            \ first byte of the message: the LOWER bound (a bad length
+                                             \ could otherwise drive a cursor before the buffer -- P0.2)
 VARIABLE BE-BAD                              \ TRUE after any out-of-bounds / over-long / too-deep event
 32 CONSTANT BE-MAXDEPTH
-: BE-SETEND ( a u -- a )   OVER + BE-END !  FALSE BE-BAD !  ;   \ arm for [a, a+u); return the cursor a
+: BE-SETEND ( a u -- a )   OVER BE-START !  OVER + BE-END !  FALSE BE-BAD !  ;   \ arm for [a, a+u); return a
 : BE-OK?    ( -- f )       BE-BAD @ 0= ;
-: IN?       ( a -- f )     BE-END @ U< ;                        \ cursor strictly inside the message?
-: @IN       ( a -- c )     DUP IN? IF C@ ELSE DROP TRUE BE-BAD ! 0 THEN ;   \ bounded read (0 past end)
+: IN?       ( a -- f )     DUP BE-START @ U< IF DROP FALSE EXIT THEN  BE-END @ U< ;   \ BE-START <= a < BE-END
+: @IN       ( a -- c )     DUP IN? IF C@ ELSE DROP TRUE BE-BAD ! 0 THEN ;   \ bounded read (0 outside)
 
 : DIGIT? ( c -- f )   [CHAR] 0 [CHAR] 9 1+ WITHIN ;
 
@@ -64,11 +66,22 @@ VARIABLE BE-BAD                              \ TRUE after any out-of-bounds / ov
 : B-INT@ ( a -- a' n )                       \ a at 'i' : i<n>e  -> value, past the 'e'
    1+ B-NUM  SWAP 1+ SWAP ;
 
-: B-STR@ ( a -- a' s-a s-u )                 \ <len>:<bytes>; len clamped to the bytes left in the message
-   B-NUM  SWAP 1+  SWAP                       ( s-a s-u )
-   OVER BE-END @ SWAP -  0 MAX                ( s-a s-u avail )   \ bytes from s-a to BE-END
+: B-ULEN { a \ acc nd -- a' n }              \ a bencoded string length: UNSIGNED, >=1 digit, no overflow.
+   0 -> acc  0 -> nd                          \ (B-NUM stays for i<n>e integers, where '-' is legal.)
+   BEGIN a IN? IF a C@ DIGIT? ELSE FALSE THEN WHILE
+      acc 10 *  a C@ [CHAR] 0 - +  -> acc
+      acc 0< IF TRUE BE-BAD ! THEN            \ wrapped into the sign bit -> reject (never a huge length)
+      a 1+ -> a   nd 1+ -> nd
+   REPEAT
+   nd 0= IF TRUE BE-BAD ! THEN                \ no digits (e.g. a leading '-' or ':') -> malformed
+   a acc ;
+: B-STR@ ( a -- a' s-a s-u )                 \ <len>:<bytes>; len UNSIGNED, ':' required, clamped to message
+   B-ULEN                                     ( c-a n )
+   OVER @IN [CHAR] : <> IF TRUE BE-BAD ! THEN \ the length must be followed by a colon
+   SWAP 1+  SWAP                              ( s-a s-u )         \ s-a just past the ':'
+   OVER BE-END @ SWAP -  0 MAX                ( s-a s-u avail )   \ bytes from s-a to BE-END (>= 0)
    2DUP SWAP < IF TRUE BE-BAD ! THEN          ( s-a s-u avail )   \ declared len > avail -> malformed
-   MIN                                        ( s-a s-u' )        \ clamp so the span never exits
+   MIN                                        ( s-a s-u' )        \ clamp so the span never exits (fwd only)
    2DUP + -ROT ;                              ( a' s-a s-u' )
 
 : STR= { a1 u1 a2 u2 -- f }

@@ -187,6 +187,20 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    THEN
    ." <<< MEMBER verified " idx PR-IP idx PR-PORT .IPPORT ."  SPKI=" PEER-IDBUF .HASH CR
    MEMBER-UP-XT IF PEER-IDBUF idx PR-IP idx PR-PORT MEMBER-UP-XT EXECUTE THEN ;  \ persist.f saves the address
+32 VALUE DRAIN-MAX                                 \ cap SSL_read calls per pass (one datagram's worth of records)
+: PR-DRAIN-IN { idx \ ssl n e i -- }              \ P0.1: consume inbound records once ST-UP, so nothing an
+   idx PR-SSL -> ssl   0 -> i                      \ authenticated (or endpoint-spoofing) peer sends can pile
+   BEGIN i DRAIN-MAX < WHILE                       \ up unread in the receive mem-BIO and grow it without bound
+      ssl RXBIG /RXBIG DTLS-READ -> n
+      n 0> IF
+         NOW-MS idx PR-RX!                          \ only DECRYPTED bytes refresh liveness (P1.6 direction)
+      ELSE
+         ssl n DTLS-ERR -> e
+         e SSL_ERROR_WANT_READ = e SSL_ERROR_WANT_WRITE = OR IF EXIT THEN   \ drained: nothing left to read
+         idx S" DTLS closed/alert after handshake" NCACHE-SLOW-TTL PR-FAIL  EXIT   \ close-notify/fatal alert
+      THEN
+      i 1+ -> i
+   REPEAT ;
 : PR-ADVANCE { idx \ ret -- }
    idx PR-STATE ST-HS = IF
       idx PR-SSL DTLS-HS1 -> ret
@@ -197,6 +211,7 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
             THEN
       THEN
    THEN
+   idx PR-STATE ST-UP = IF idx PR-DRAIN-IN THEN                        \ P0.1: empty the receive BIO
    idx PR-STATE ST-FREE <> IF idx PR-PUMP-OUT THEN ;
 : PR-DELIVER { idx a u -- }
    idx PR-RBIO a u RBIO-WRITE DROP
