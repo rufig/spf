@@ -213,7 +213,11 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    THEN
    idx PR-STATE ST-UP = IF idx PR-DRAIN-IN THEN                        \ P0.1: empty the receive BIO
    idx PR-STATE ST-FREE <> IF idx PR-PUMP-OUT THEN ;
-: PR-DELIVER { idx a u -- }
+65536 VALUE RBIO-CAP                              \ absolute receive-BIO backlog cap: past this the peer is
+: PR-DELIVER { idx a u -- }                       \ sending records faster than we can read them -> drop it
+   idx PR-RBIO BIO-PENDING  u +  RBIO-CAP U> IF   \ P0 (3rd review): bound the mem-BIO absolutely, not just
+      idx S" DTLS receive backlog over cap" NCACHE-SLOW-TTL PR-FAIL  EXIT   \ DRAIN-MAX reads per pass
+   THEN
    idx PR-RBIO a u RBIO-WRITE DROP
    idx PR-ADVANCE ;
 
@@ -545,7 +549,8 @@ VARIABLE LISTEN-SSL   VARIABLE LISTEN-RB   VARIABLE LISTEN-WB
             I PR-SSL SSL-FREE  ST-FREE I PR-STATE!
          ELSE
             I PR-SSL DTLS-TIMEOUT DROP     \ retransmit a lost flight if its timer is due
-            I PR-PUMP-OUT
+            I PR-STATE ST-UP = IF I PR-DRAIN-IN THEN    \ keep draining any RBIO backlog left after DRAIN-MAX
+            I PR-STATE ST-FREE <> IF I PR-PUMP-OUT THEN \ (drain may PR-FAIL -> re-check before touching idx)
             I PR-STATE ST-UP = IF I PR-PING-CHECK THEN
          THEN THEN
       THEN

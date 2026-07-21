@@ -304,8 +304,9 @@ CREATE QNODE 26 ALLOT
    IF port ELSE ad S" port" B-DFIND IF B-INT@ NIP ELSE port THEN THEN -> aport
    ." <<< announce_peer from " ip aport .IPPORT ."  ih=" iha .IHPFX
    iha TARGET ID= IF
-      ad ip TOKEN-OK? IF ip aport PSTORE-ADD  1 Q-HIT +! ."  (OURS)"
-                     ELSE ."  (OURS, bad/missing token -- not stored)" THEN
+      ad ip TOKEN-OK?  BE-OK? AND  aport 1 65536 WITHIN AND   \ P1(3rd): token ok, integers well-formed,
+      IF ip aport PSTORE-ADD  1 Q-HIT +! ."  (OURS)"          \ and port in 1..65535 -- else do not store
+      ELSE ."  (OURS, bad token / port -- not stored)" THEN
    ELSE ."  (foreign)" THEN  .CLIENT CR
    ta tu REPLY-PING ip port SEND-REPLY ;
 

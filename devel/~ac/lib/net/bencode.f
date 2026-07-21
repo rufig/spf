@@ -55,34 +55,45 @@ VARIABLE BE-BAD                              \ TRUE after any out-of-bounds / ov
 
 : DIGIT? ( c -- f )   [CHAR] 0 [CHAR] 9 1+ WITHIN ;
 
-: B-NUM ( a -- a' n )                        \ parse [-]<digits>; a' at the first non-digit (bounded)
-   DUP @IN [CHAR] - = >R
-   R@ IF 1+ THEN   0                         ( a acc )
-   BEGIN OVER IN? IF OVER C@ DIGIT? ELSE FALSE THEN WHILE
-      10 *  OVER C@ [CHAR] 0 - +  SWAP 1+ SWAP
-   REPEAT
-   R> IF NEGATE THEN ;
+: BE-CLAMP  ( a -- a' )    BE-END @ MIN ;     \ a returned cursor NEVER points past the message end
 
-: B-INT@ ( a -- a' n )                       \ a at 'i' : i<n>e  -> value, past the 'e'
-   1+ B-NUM  SWAP 1+ SWAP ;
-
-: B-ULEN { a \ acc nd -- a' n }              \ a bencoded string length: UNSIGNED, >=1 digit, no overflow.
-   0 -> acc  0 -> nd                          \ (B-NUM stays for i<n>e integers, where '-' is legal.)
+\ A bencoded string length: UNSIGNED, >= 1 digit.  Overflow is impossible by construction -- the value is
+\ capped to the message size the moment it would exceed it (a length longer than the whole datagram is
+\ malformed anyway), so acc*10 can never wrap a cell.  This replaces the earlier `acc 0<` overflow test,
+\ which missed 2^64 wrapping cleanly to 0.
+: B-ULEN { a \ acc nd cap -- a' n }
+   0 -> acc  0 -> nd   BE-END @ BE-START @ - -> cap
    BEGIN a IN? IF a C@ DIGIT? ELSE FALSE THEN WHILE
       acc 10 *  a C@ [CHAR] 0 - +  -> acc
-      acc 0< IF TRUE BE-BAD ! THEN            \ wrapped into the sign bit -> reject (never a huge length)
+      acc cap U> IF cap -> acc  TRUE BE-BAD ! THEN   \ longer than the whole message -> malformed, clamp
       a 1+ -> a   nd 1+ -> nd
    REPEAT
-   nd 0= IF TRUE BE-BAD ! THEN                \ no digits (e.g. a leading '-' or ':') -> malformed
+   nd 0= IF TRUE BE-BAD ! THEN                       \ at least one digit required
    a acc ;
-: B-STR@ ( a -- a' s-a s-u )                 \ <len>:<bytes>; len UNSIGNED, ':' required, clamped to message
+: B-STR@ ( a -- a' s-a s-u )                 \ <len>:<bytes>; ':' required, span AND cursor bounded to BE-END
    B-ULEN                                     ( c-a n )
    OVER @IN [CHAR] : <> IF TRUE BE-BAD ! THEN \ the length must be followed by a colon
    SWAP 1+  SWAP                              ( s-a s-u )         \ s-a just past the ':'
    OVER BE-END @ SWAP -  0 MAX                ( s-a s-u avail )   \ bytes from s-a to BE-END (>= 0)
    2DUP SWAP < IF TRUE BE-BAD ! THEN          ( s-a s-u avail )   \ declared len > avail -> malformed
-   MIN                                        ( s-a s-u' )        \ clamp so the span never exits (fwd only)
-   2DUP + -ROT ;                              ( a' s-a s-u' )
+   MIN                                        ( s-a s-u' )        \ clamp the span
+   2DUP + BE-CLAMP  -ROT ;                    ( a' s-a s-u' )     \ and clamp the cursor (never BE-END+1)
+
+18 CONSTANT B-INT-MAXDIG                      \ 10^18 < 2^63; more digits than this is treated as overflow
+: B-INT@ { a \ n neg nd -- a' n }            \ i<digits>e ; require 'i', >=1 digit (opt '-'), and 'e'
+   a @IN [CHAR] i <> IF TRUE BE-BAD !  BE-END @ 0 EXIT THEN
+   a 1+ -> a
+   a @IN [CHAR] - = -> neg   neg IF a 1+ -> a THEN
+   0 -> n  0 -> nd
+   BEGIN a IN? IF a C@ DIGIT? ELSE FALSE THEN WHILE
+      nd B-INT-MAXDIG < IF  n 10 *  a C@ [CHAR] 0 - +  -> n  ELSE TRUE BE-BAD ! THEN   \ overflow guard
+      a 1+ -> a   nd 1+ -> nd
+   REPEAT
+   nd 0= IF TRUE BE-BAD ! THEN                \ at least one digit
+   a @IN [CHAR] e <> IF TRUE BE-BAD ! THEN    \ closing 'e' required
+   a 1+ BE-CLAMP -> a
+   neg IF n NEGATE -> n THEN
+   a n ;
 
 : STR= { a1 u1 a2 u2 -- f }
    u1 u2 <> IF FALSE EXIT THEN
@@ -93,12 +104,13 @@ VARIABLE BE-BAD                              \ TRUE after any out-of-bounds / ov
    a @IN [CHAR] i = IF a B-INT@ DROP EXIT THEN
    a @IN [CHAR] l = IF  a 1+ -> a
       BEGIN a IN? IF a @IN [CHAR] e <> ELSE FALSE THEN WHILE  a depth 1+ RECURSE -> a  REPEAT
-      a 1+ EXIT THEN
+      a IN? IF a 1+ BE-CLAMP ELSE TRUE BE-BAD !  BE-END @ THEN  EXIT THEN   \ ran off end w/o 'e' -> malformed
    a @IN [CHAR] d = IF  a 1+ -> a
       BEGIN a IN? IF a @IN [CHAR] e <> ELSE FALSE THEN WHILE
          a depth 1+ RECURSE -> a   a depth 1+ RECURSE -> a
       REPEAT
-      a 1+ EXIT THEN
+      a IN? IF a 1+ BE-CLAMP ELSE TRUE BE-BAD !  BE-END @ THEN  EXIT THEN   \ unterminated dict -> malformed
+   a @IN DIGIT? 0= IF TRUE BE-BAD !  BE-END @ EXIT THEN   \ not i/l/d and not a string length -> malformed
    a B-STR@ 2DROP ;                           \ else a string -> a' past its bytes
 : B-SKIP ( a -- a' )   0 (B-SKIP) ;
 
