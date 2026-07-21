@@ -502,14 +502,17 @@ VARIABLE LISTEN-SSL   VARIABLE LISTEN-RB   VARIABLE LISTEN-WB
    idx 0< 0= IF idx PR-ADVANCE THEN ;                           \ flush the ServerHello flight
 
 \ ---- receive dispatch on the shared socket (datagram already in RX-BUF, length = len) ----
-: SWARM-RX { len ip port \ b0 idx -- }
+: SWARM-RX { len ip port \ b0 idx n -- }
    len 0= IF EXIT THEN
    ip port PR-FIND DUP 0< 0= IF NOW-MS SWAP PR-RX! ELSE DROP THEN   \ any datagram from a known peer = it's alive
    RXBIG C@ -> b0
    b0 [CHAR] d = IF                                          \ DHT KRPC: copy to RX-BUF for SERVE-1 + lookup
-      RXBIG RX-BUF len 2048 MIN MOVE
-      len 2048 MIN ip port SERVE-1                           \ y=q queries: answer + log (value to the DHT)
-      ip port LOOKUP-FEED                                    \ y=r replies: advance our re-announce round
+      len 2048 MIN -> n
+      RXBIG RX-BUF n MOVE
+      BADPKT-WANT? IF RX-BUF n BE-SETEND B-SKIP DROP  BE-OK? 0=   \ a datagram that isn't valid bencode is
+                      IF RX-BUF n ip port SAVE-BADPKT THEN THEN   \ captured as a sample (until the corpus fills)
+      n ip port SERVE-1                                     \ y=q queries: answer + log (value to the DHT)
+      ip port LOOKUP-FEED                                   \ y=r replies: advance our re-announce round
       RX-QUERY-IH IF DBKEY-MATCH? IF ip port SWARM-DIAL-BACK THEN THEN  \ swarm querier -> reverse DTLS
       EXIT THEN
    b0 20 24 WITHIN IF                                        \ 0x14..0x17 = DTLS record

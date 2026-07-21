@@ -289,6 +289,35 @@ CREATE QNODE 26 ALLOT
    port 8 RSHIFT 255 AND QNODE 24 + C!  port 255 AND QNODE 25 + C!
    QNODE RT-ADD ;
 
+\ ---- capture malformed incoming datagrams as binary samples for later study ----
+\ A datagram the bencode parser rejects (BE-BAD) is appended to a file as a self-describing record:
+\   ip(4 bytes, C-IP order) | port(2, big-endian) | len(2, big-endian) | len raw bytes.
+\ Bounded by BADPKT-MAX records so a flood can't fill the disk.  Offline: read the 8-byte header, then
+\ `len` bytes, repeat.  These accumulate a real-world corpus for the bencode fuzz/regression tests.
+TRUE VALUE BADPKT-ON?
+256  VALUE BADPKT-MAX
+2048 CONSTANT BADPKT-MAXLEN
+VARIABLE BADPKT-N   0 BADPKT-N !
+CREATE BADPKT-NAME 2 CELLS ALLOT   S" swarm-badpkt.bin" BADPKT-NAME 2!   \ relative to node cwd; override via SET
+: SET-BADPKT-FILE ( a u -- )  BADPKT-NAME 2! ;
+CREATE BADPKT-HDR 8 ALLOT
+: BADPKT-WANT? ( -- f )  BADPKT-ON?  BADPKT-N @ BADPKT-MAX < AND ;   \ still collecting? (skip the probe once full)
+: SAVE-BADPKT { a u ip port \ fid ior -- }
+   BADPKT-ON? 0= IF EXIT THEN
+   BADPKT-N @ BADPKT-MAX >= IF EXIT THEN
+   u 0= u BADPKT-MAXLEN > OR IF EXIT THEN
+   BADPKT-NAME 2@ R/W BIN OPEN-FILE -> ior -> fid                    \ append to an existing file, else create
+   ior IF BADPKT-NAME 2@ R/W BIN CREATE-FILE -> ior -> fid  ior IF EXIT THEN THEN
+   fid FILE-SIZE DROP  fid REPOSITION-FILE DROP                      \ seek to end
+   ip        255 AND BADPKT-HDR    C!   ip  8 RSHIFT 255 AND BADPKT-HDR 1+ C!
+   ip 16 RSHIFT 255 AND BADPKT-HDR 2 + C!  ip 24 RSHIFT 255 AND BADPKT-HDR 3 + C!
+   port 8 RSHIFT 255 AND BADPKT-HDR 4 + C!  port 255 AND BADPKT-HDR 5 + C!
+   u  8 RSHIFT 255 AND BADPKT-HDR 6 + C!  u  255 AND BADPKT-HDR 7 + C!
+   BADPKT-HDR 8 fid WRITE-FILE DROP
+   a u fid WRITE-FILE DROP
+   fid CLOSE-FILE DROP
+   1 BADPKT-N +! ;
+
 \ ---- request dispatch ----
 : SERVE-GETPEERS { ip port ta tu \ iha ours -- }
    RX-BUF S" a" B-DFIND 0= IF EXIT THEN                          ( a-dict )
