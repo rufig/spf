@@ -301,21 +301,28 @@ VARIABLE BADPKT-N   0 BADPKT-N !
 CREATE BADPKT-NAME 2 CELLS ALLOT   S" swarm-badpkt.bin" BADPKT-NAME 2!   \ relative to node cwd; override via SET
 : SET-BADPKT-FILE ( a u -- )  BADPKT-NAME 2! ;
 CREATE BADPKT-HDR 8 ALLOT
-: BADPKT-WANT? ( -- f )  BADPKT-ON?  BADPKT-N @ BADPKT-MAX < AND ;   \ still collecting? (skip the probe once full)
-: SAVE-BADPKT { a u ip port \ fid ior -- }
+FALSE VALUE BADPKT-WARNED?
+VARIABLE BADPKT-FID   0 BADPKT-FID !              \ file kept OPEN for the run: WRITE-FILE advances the
+: BADPKT-CLOSE ( -- )                            \ position, so we never need FILE-SIZE/REPOSITION-FILE
+   BADPKT-FID @ IF BADPKT-FID @ CLOSE-FILE DROP  0 BADPKT-FID ! THEN ;   \ (both are broken on spf64: FILE-SIZE
+: BADPKT-WANT? ( -- f )  BADPKT-ON?  BADPKT-N @ BADPKT-MAX < AND ;       \ leaves garbage cells on the stack)
+: SAVE-BADPKT { a u ip port -- }
    BADPKT-ON? 0= IF EXIT THEN
    BADPKT-N @ BADPKT-MAX >= IF EXIT THEN
    u 0= u BADPKT-MAXLEN > OR IF EXIT THEN
-   BADPKT-NAME 2@ R/W BIN OPEN-FILE -> ior -> fid                    \ append to an existing file, else create
-   ior IF BADPKT-NAME 2@ R/W BIN CREATE-FILE -> ior -> fid  ior IF EXIT THEN THEN
-   fid FILE-SIZE DROP  fid REPOSITION-FILE DROP                      \ seek to end
+   BADPKT-FID @ 0= IF                            \ first capture this run: create the file fresh, keep it open
+      BADPKT-NAME 2@ R/W BIN CREATE-FILE         ( fid ior )   \ NB a RELATIVE path fails to create on Linux;
+      0= IF BADPKT-FID !                                       \ the boot script sets an ABSOLUTE path
+      ELSE DROP  BADPKT-WARNED? 0= IF  TRUE TO BADPKT-WARNED?
+              ." swarm: badpkt capture DISABLED -- cannot create " BADPKT-NAME 2@ TYPE ."  (absolute path?)" CR
+           THEN  EXIT THEN
+   THEN
    ip        255 AND BADPKT-HDR    C!   ip  8 RSHIFT 255 AND BADPKT-HDR 1+ C!
    ip 16 RSHIFT 255 AND BADPKT-HDR 2 + C!  ip 24 RSHIFT 255 AND BADPKT-HDR 3 + C!
    port 8 RSHIFT 255 AND BADPKT-HDR 4 + C!  port 255 AND BADPKT-HDR 5 + C!
    u  8 RSHIFT 255 AND BADPKT-HDR 6 + C!  u  255 AND BADPKT-HDR 7 + C!
-   BADPKT-HDR 8 fid WRITE-FILE DROP
-   a u fid WRITE-FILE DROP
-   fid CLOSE-FILE DROP
+   BADPKT-HDR 8  BADPKT-FID @ WRITE-FILE DROP
+   a u  BADPKT-FID @ WRITE-FILE DROP
    1 BADPKT-N +! ;
 
 \ ---- request dispatch ----
