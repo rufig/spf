@@ -509,8 +509,8 @@ VARIABLE LISTEN-SSL   VARIABLE LISTEN-RB   VARIABLE LISTEN-WB
    b0 [CHAR] d = IF                                          \ DHT KRPC: copy to RX-BUF for SERVE-1 + lookup
       len 2048 MIN -> n
       RXBIG RX-BUF n MOVE
-      BADPKT-WANT? IF RX-BUF n BE-SETEND B-SKIP DROP  BE-OK? 0=   \ a datagram that isn't valid bencode is
-                      IF RX-BUF n ip port SAVE-BADPKT THEN THEN   \ captured as a sample (until the corpus fills)
+      BADPKT-ON? IF RX-BUF n BE-SETEND B-SKIP DROP  BE-OK? 0=     \ a datagram that isn't valid bencode goes to
+                    IF RX-BUF n ip port SAVE-BADPKT THEN THEN     \ SAVE-BADPKT (a file under the cap, else a log)
       n ip port SERVE-1                                     \ y=q queries: answer + log (value to the DHT)
       ip port LOOKUP-FEED                                   \ y=r replies: advance our re-announce round
       RX-QUERY-IH IF DBKEY-MATCH? IF ip port SWARM-DIAL-BACK THEN THEN  \ swarm querier -> reverse DTLS

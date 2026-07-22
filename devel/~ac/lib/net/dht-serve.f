@@ -290,39 +290,43 @@ CREATE QNODE 26 ALLOT
    QNODE RT-ADD ;
 
 \ ---- capture malformed incoming datagrams as binary samples for later study ----
-\ A datagram the bencode parser rejects (BE-BAD) is appended to a file as a self-describing record:
-\   ip(4 bytes, C-IP order) | port(2, big-endian) | len(2, big-endian) | len raw bytes.
-\ Bounded by BADPKT-MAX records so a flood can't fill the disk.  Offline: read the 8-byte header, then
-\ `len` bytes, repeat.  These accumulate a real-world corpus for the bencode fuzz/regression tests.
+\ A datagram the bencode parser rejects (BE-BAD) is written to its OWN small file, one packet per file:
+\   <prefix><N>.bin  =  ip(4 bytes, C-IP order) | port(2, big-endian) | len(2, big-endian) | len raw bytes.
+\ One-file-per-packet sidesteps an spf64 quirk (WRITE-FILE into a REOPENED file is a silent no-op, so
+\ append-to-existing does not work -- a fresh CREATE-FILE per packet always does).  Capped at
+\ BADPKT-MAX=100 files per session (enough for analysis); past that, only a one-line log, no file, so a
+\ flood can neither fill the disk nor spam.  Offline: read the 8-byte header, then `len` bytes.
 TRUE VALUE BADPKT-ON?
-256  VALUE BADPKT-MAX
+100  VALUE BADPKT-MAX
 2048 CONSTANT BADPKT-MAXLEN
 VARIABLE BADPKT-N   0 BADPKT-N !
-CREATE BADPKT-NAME 2 CELLS ALLOT   S" swarm-badpkt.bin" BADPKT-NAME 2!   \ relative to node cwd; override via SET
-: SET-BADPKT-FILE ( a u -- )  BADPKT-NAME 2! ;
+CREATE BADPKT-PFX 2 CELLS ALLOT   S" swarm-badpkt-" BADPKT-PFX 2!   \ filename PREFIX; boot sets an absolute one
+: SET-BADPKT-FILE ( a u -- )  BADPKT-PFX 2! ;                       \ e.g.  S" /root/dht/badpkt-" SET-BADPKT-FILE
 CREATE BADPKT-HDR 8 ALLOT
+256 CONSTANT /BADPKT-FN   CREATE BADPKT-FN /BADPKT-FN ALLOT   VARIABLE FNP
+: FN{ ( -- )       BADPKT-FN FNP ! ;
+: FN+ ( a u -- )   DUP >R  FNP @ SWAP MOVE  R> FNP +! ;
+: FN# ( n -- )     DECIMAL 0 <# #S #> FN+ ;                          \ DECIMAL: guard against a stray BASE
+: FN$ ( -- a u )   BADPKT-FN  FNP @ BADPKT-FN - ;
 FALSE VALUE BADPKT-WARNED?
-VARIABLE BADPKT-FID   0 BADPKT-FID !              \ file kept OPEN for the run: WRITE-FILE advances the
-: BADPKT-CLOSE ( -- )                            \ position, so we never need FILE-SIZE/REPOSITION-FILE
-   BADPKT-FID @ IF BADPKT-FID @ CLOSE-FILE DROP  0 BADPKT-FID ! THEN ;   \ (both are broken on spf64: FILE-SIZE
-: BADPKT-WANT? ( -- f )  BADPKT-ON?  BADPKT-N @ BADPKT-MAX < AND ;       \ leaves garbage cells on the stack)
-: SAVE-BADPKT { a u ip port -- }
+: SAVE-BADPKT { a u ip port \ fid ior -- }       \ one malformed datagram -> one file <prefix><N>.bin
    BADPKT-ON? 0= IF EXIT THEN
-   BADPKT-N @ BADPKT-MAX >= IF EXIT THEN
    u 0= u BADPKT-MAXLEN > OR IF EXIT THEN
-   BADPKT-FID @ 0= IF                            \ first capture this run: create the file fresh, keep it open
-      BADPKT-NAME 2@ R/W BIN CREATE-FILE         ( fid ior )   \ NB a RELATIVE path fails to create on Linux;
-      0= IF BADPKT-FID !                                       \ the boot script sets an ABSOLUTE path
-      ELSE DROP  BADPKT-WARNED? 0= IF  TRUE TO BADPKT-WARNED?
-              ." swarm: badpkt capture DISABLED -- cannot create " BADPKT-NAME 2@ TYPE ."  (absolute path?)" CR
-           THEN  EXIT THEN
-   THEN
+   BADPKT-N @ BADPKT-MAX >= IF                                   \ past the session cap: log only, no file
+      DECIMAL ." swarm: malformed datagram from " ip port .IPPORT ."  len=" u .  ." (over cap, not saved)" CR
+      EXIT THEN
+   FN{ BADPKT-PFX 2@ FN+  BADPKT-N @ FN#  S" .bin" FN+           \ build <prefix><N>.bin
+   FN$ R/W BIN CREATE-FILE -> ior -> fid                        \ a FRESH file every time
+   ior IF BADPKT-WARNED? 0= IF  TRUE TO BADPKT-WARNED?          \ don't swallow the error silently
+          ." swarm: badpkt capture DISABLED -- cannot create " BADPKT-PFX 2@ TYPE ." <N>.bin" CR THEN
+       EXIT THEN
    ip        255 AND BADPKT-HDR    C!   ip  8 RSHIFT 255 AND BADPKT-HDR 1+ C!
    ip 16 RSHIFT 255 AND BADPKT-HDR 2 + C!  ip 24 RSHIFT 255 AND BADPKT-HDR 3 + C!
    port 8 RSHIFT 255 AND BADPKT-HDR 4 + C!  port 255 AND BADPKT-HDR 5 + C!
    u  8 RSHIFT 255 AND BADPKT-HDR 6 + C!  u  255 AND BADPKT-HDR 7 + C!
-   BADPKT-HDR 8  BADPKT-FID @ WRITE-FILE DROP
-   a u  BADPKT-FID @ WRITE-FILE DROP
+   BADPKT-HDR 8  fid WRITE-FILE DROP
+   a u  fid WRITE-FILE DROP
+   fid CLOSE-FILE DROP
    1 BADPKT-N +! ;
 
 \ ---- request dispatch ----
