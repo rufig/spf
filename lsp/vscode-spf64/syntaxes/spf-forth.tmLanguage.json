@@ -1,0 +1,60 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "SP-Forth (spf64)",
+  "scopeName": "source.spf-forth",
+  "patterns": [
+    { "include": "#line-comment" },
+    { "include": "#paren-comment" },
+    { "include": "#definition" },
+    { "include": "#string" },
+    { "include": "#number" },
+    { "include": "#control" },
+    { "include": "#compile-words" },
+    { "include": "#locals" }
+  ],
+  "repository": {
+    "line-comment": {
+      "match": "(?<=^|\\s)\\\\(\\s.*)?$",
+      "name": "comment.line.backslash.spf-forth"
+    },
+    "paren-comment": {
+      "begin": "(?<=^|\\s)\\.?\\((?=\\s|$)",
+      "end": "\\)",
+      "name": "comment.block.spf-forth"
+    },
+    "string": {
+      "begin": "(?<=^|\\s)([^\\s\"]*\")",
+      "beginCaptures": { "1": { "name": "keyword.operator.string.spf-forth" } },
+      "end": "\"|$",
+      "name": "string.quoted.double.spf-forth"
+    },
+    "number": {
+      "match": "(?<=^|\\s)[-+]?(0[xX][0-9A-Fa-f]+|[0-9]+\\.?|'[^']')(?=\\s|$)",
+      "name": "constant.numeric.spf-forth"
+    },
+    "definition": {
+      "match": "(?<=^|\\s)(:|CODE|M:|T:|:T|2?VARIABLE|2?CONSTANT|2?VALUE|DEFER|VECT|USER-CREATE|USER-VALUE|USER|CREATED?|VOCABULARY|MODULE:|WINAPI:|WINAPI64:|WINAPI64P:|DLFN:)(\\s+)([^\\s]+)",
+      "captures": {
+        "1": { "name": "storage.type.spf-forth" },
+        "3": { "name": "entity.name.function.spf-forth" }
+      }
+    },
+    "control": {
+      "match": "(?<=^|\\s)(IF|ELSE|THEN|BEGIN|WHILE|REPEAT|UNTIL|AGAIN|DO|\\?DO|LOOP|\\+LOOP|LEAVE|UNLOOP|EXIT|CASE|OF|ENDOF|ENDCASE|RECURSE|DOES>|;|\\\\EOF)(?=\\s|$)",
+      "name": "keyword.control.spf-forth"
+    },
+    "compile-words": {
+      "match": "(?<=^|\\s)(POSTPONE|IMMEDIATE|COMPILE,|LITERAL|\\['\\]|'|\\[CHAR\\]|CHAR|TO|->|REQUIRE|INCLUDE[D]?|\\[IF\\]|\\[ELSE\\]|\\[THEN\\]|\\[DEFINED\\]|\\[UNDEFINED\\]|\\[|\\])(?=\\s|$)",
+      "name": "keyword.other.spf-forth"
+    },
+    "locals": {
+      "begin": "(?<=^|\\s)\\{(?=\\s)",
+      "end": "(?<=^|\\s)\\}(?=\\s|$)|\\}$",
+      "name": "meta.locals.spf-forth",
+      "patterns": [
+        { "match": "(?<=^|\\s)(--|\\\\)(?=\\s)", "name": "keyword.operator.locals.spf-forth" },
+        { "match": "[^\\s{}]+", "name": "variable.parameter.spf-forth" }
+      ]
+    }
+  }
+}

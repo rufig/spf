@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>spf64 — подсветка Форта из wasm-словаря</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem;
+         background: #1e1e1e; color: #d4d4d4; }
+  @media (prefers-color-scheme: light) { body { background: #fff; color: #222; } }
+  pre { background: rgba(128,128,128,.12); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+  h1 { font-size: 1.4rem; }
+  .status { font-size: .9rem; opacity: .7; }
+</style>
+</head>
+<body>
+<h1>Подсветка SP-Forth словарём wasm-Форта</h1>
+<p class="status" id="status">загрузка spf-min.wasm…</p>
+<p>Раскраска токенов ниже определяется <em>живым словарём</em> spf64-wasm:
+immediate-слова (управление) — одним цветом, обычные слова словаря — другим,
+неизвестные — подчёркнуты. Комментарии, строки, числа, определения и локалы —
+по правилам поверхности spf4.</p>
+
+<pre class="forth">
+\ пример: факториал и локалы
+: FACT ( n -- n! )
+  DUP 2 < IF DROP 1 EXIT THEN
+  DUP 1- RECURSE * ;
+
+: GREET { name-a name-u \ cnt -- }
+  S" Hello, " TYPE name-a name-u TYPE
+  0x2A EMIT CR ;
+
+VARIABLE COUNTER
+: BUMP ( -- ) COUNTER 1+! FROBNICATE ;   \ FROBNICATE словарь не знает
+7 FACT . CR
+</pre>
+
+<script src="spf64-hl.js" data-wasm="spf-min.wasm"></script>
+<script>
+  const t0 = performance.now();
+  const timer = setInterval(() => {
+    if (window.spf64hl && spf64hl.ready) {
+      clearInterval(timer);
+      document.getElementById('status').textContent =
+        spf64hl.live
+          ? 'словарь wasm-Форта: ' + spf64hl.dict.size + ' слов, ' + Math.round(performance.now() - t0) + ' мс'
+          : 'wasm-словарь недоступен (нужны COOP/COEP) — статическая подсветка';
+    }
+  }, 50);
+</script>
+</body>
+</html>

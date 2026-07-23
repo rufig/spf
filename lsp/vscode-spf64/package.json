@@ -1,0 +1,70 @@
+{
+  "name": "spf64-forth",
+  "displayName": "SP-Forth spf64",
+  "description": "Language support for SP-Forth (spf64): diagnostics, completion, hover, go-to-definition, outline -- powered by an LSP server written in spf64 itself.",
+  "version": "0.1.0",
+  "publisher": "spf64",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/ac/spf" },
+  "engines": { "vscode": "^1.82.0" },
+  "categories": ["Programming Languages"],
+  "activationEvents": ["onLanguage:spf-forth"],
+  "main": "./extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "spf-forth",
+        "aliases": ["SP-Forth (spf64)", "spf-forth"],
+        "extensions": [".f", ".spf"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "spf-forth",
+        "scopeName": "source.spf-forth",
+        "path": "./syntaxes/spf-forth.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "spf64",
+      "properties": {
+        "spf64.serverPath": {
+          "type": "string",
+          "default": "D:\\PRO\\spf\\spf64.exe",
+          "description": "Path to the spf64 executable that runs the LSP server."
+        },
+        "spf64.serverScript": {
+          "type": "string",
+          "default": "D:\\PRO\\spf\\lsp\\lsp-server.f",
+          "description": "Path to lsp-server.f (the server is started as: spf64 <serverScript>)."
+        },
+        "spf64.spfx64Root": {
+          "type": "string",
+          "default": "D:\\PRO\\spf-x64",
+          "description": "spf-x64 (dsForth64) checkout: used to resolve .wdb source locations of baked words."
+        },
+        "spf64.wdb": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Extra .wdb files (word TAB addr TAB voc TAB file TAB line). Empty = <spf64>.wdb + the spfx64Root defaults."
+        },
+        "spf64.scanRoots": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Directories to index for definitions. Empty = the workspace root + <exedir>\\devel."
+        }
+      }
+    },
+    "configurationDefaults": {
+      "[spf-forth]": {
+        "files.encoding": "windows1251"
+      }
+    }
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  }
+}
