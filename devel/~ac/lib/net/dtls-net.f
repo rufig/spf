@@ -75,6 +75,10 @@ CREATE PEERTAB  MAXPEERS /PR *  ALLOT   PEERTAB MAXPEERS /PR * ERASE
 90000 VALUE PEER-IDLE              \ ms of total silence before an established peer is reclaimed (> 3 pings)
 600000 VALUE NCACHE-BAD-TTL        \ ms to shun a peer whose cert was REJECTED (won't become ours; cache long)
 90000  VALUE NCACHE-SLOW-TTL       \ ms before re-dialing a peer that TIMED OUT (> round period, but keep retrying: maybe NAT)
+600000 VALUE NCACHE-DEAD-TTL       \ ms to shun an address that has timed out NCACHE-ESCALATE-AFTER times RUNNING:
+                                   \ not a NAT'd member (those answer within a few punches) but dead junk the DHT
+                                   \ keeps returning as `values` for IH-GROUP -- stop re-dialing it every round
+3      VALUE NCACHE-ESCALATE-AFTER \ consecutive handshake timeouts before an address is treated as dead, not NAT'd
 16384 CONSTANT DNET-CAP    CREATE DNET-BUF DNET-CAP ALLOT
 DNET-CAP VALUE /DNET-BUF   \ read window into the write-BIO.  A VALUE, not a constant, so a test can
                            \ shrink it and force the carry-over path a real certificate chain would hit;
@@ -83,11 +87,12 @@ DNET-CAP VALUE /DNET-BUF   \ read window into the write-BIO.  A VALUE, not a con
 CREATE PEER-IDBUF 20 ALLOT
 
 \ ---- negative cache: (ip port expire-ms) so we don't re-DTLS impostors/dead peers every lookup ----
-128 CONSTANT /NCACHE
+256 CONSTANT /NCACHE       \ >= the junk `values` count/round, so escalating fail-counts survive across rounds
 0                          \ negative-cache record fields
 CELL -- nc.ip
 CELL -- nc.port
 CELL -- nc.expire
+CELL -- nc.fails          \ consecutive handshake timeouts for this address (escalating backoff)
 CONSTANT /NC
 CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
 : NC ( i -- a )  /NC *  NCACHE + ;
@@ -102,7 +107,24 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    NOW-MS -> now  -1 -> slot
    /NCACHE 0 ?DO I NC nc.expire @ now U< IF I -> slot LEAVE THEN LOOP  \ reuse an expired slot
    slot 0< IF 0 -> slot THEN                                 \ none free: overwrite slot 0
-   ip slot NC nc.ip !  port slot NC nc.port !  now ttl + slot NC nc.expire ! ;
+   ip slot NC nc.ip !  port slot NC nc.port !  0 slot NC nc.fails !  now ttl + slot NC nc.expire ! ;
+: NCACHE-FIND { ip port \ i -- slot | -1 }                   \ any record for ip:port (expired or not), or -1
+   /NCACHE 0 ?DO I NC nc.ip @ ip = I NC nc.port @ port = AND IF I UNLOOP EXIT THEN LOOP -1 ;
+: NCACHE-CLEAR { ip port \ slot -- }                         \ forget ip:port (a member verified OK on this address)
+   ip port NCACHE-FIND -> slot
+   slot 0< 0= IF 0 slot NC nc.expire !  0 slot NC nc.fails ! THEN ;
+: NCACHE-TIMEOUT { ip port \ now slot fails ttl -- fails ttl }  \ escalating backoff for an address that never
+   NOW-MS -> now                                             \ completes a handshake: the first NCACHE-ESCALATE-AFTER
+   ip port NCACHE-FIND -> slot                               \ timeouts keep the short SLOW-TTL (maybe a NAT'd member
+   slot 0< IF                                                \ we still want to punch); after that it is dead junk.
+      0 -> fails                                             \ no live/stale record: take an expired/free slot, else 0
+      /NCACHE 0 ?DO I NC nc.expire @ now U< IF I -> slot LEAVE THEN LOOP
+      slot 0< IF 0 -> slot THEN
+   ELSE slot NC nc.fails @ -> fails THEN
+   fails 1+ -> fails
+   fails NCACHE-ESCALATE-AFTER U> IF NCACHE-DEAD-TTL ELSE NCACHE-SLOW-TTL THEN -> ttl
+   ip slot NC nc.ip !  port slot NC nc.port !  fails slot NC nc.fails !  now ttl + slot NC nc.expire !
+   fails ttl ;
 
 : PR       ( idx -- a )     /PR * PEERTAB + ;
 : PR-IP    ( idx -- ip )    PR pr.ip @ ;
@@ -176,6 +198,11 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    ." >>> REJECTED " idx PR-IP idx PR-PORT .IPPORT ."  (" reason-a reason-u TYPE ." )" CR
    idx PR-IP idx PR-PORT ttl NCACHE-ADD
    idx PR-SSL SSL-FREE   ST-FREE idx PR-STATE! ;
+: PR-TIMEOUT { idx \ fails ttl -- }               \ handshake never completed: escalating negative-cache, then free
+   idx PR-IP idx PR-PORT NCACHE-TIMEOUT -> ttl -> fails
+   ." >>> REJECTED " idx PR-IP idx PR-PORT .IPPORT ."  (handshake timeout, attempt " fails .
+   ttl NCACHE-SLOW-TTL U> IF ." -- dead, backoff " ttl 60000 / . ." min" THEN ." )" CR
+   idx PR-SSL SSL-FREE   ST-FREE idx PR-STATE! ;
 : PR-UP { idx \ ssl -- }                          \ handshake done: verify identity, keep or reject
    idx PR-SSL -> ssl
    ssl DTLS-VERIFIED? 0= IF idx S" cert not signed by our CA" NCACHE-BAD-TTL PR-FAIL EXIT THEN
@@ -186,6 +213,7 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
       PEER-IDBUF SWAP 20 MEM= 0= IF idx S" identity hash mismatch" NCACHE-BAD-TTL PR-FAIL EXIT THEN
    THEN
    ." <<< MEMBER verified " idx PR-IP idx PR-PORT .IPPORT ."  SPKI=" PEER-IDBUF .HASH CR
+   idx PR-IP idx PR-PORT NCACHE-CLEAR                               \ recovered here: reset its timeout backoff
    MEMBER-UP-XT IF PEER-IDBUF idx PR-IP idx PR-PORT MEMBER-UP-XT EXECUTE THEN ;  \ persist.f saves the address
 32 VALUE DRAIN-MAX                                 \ cap SSL_read calls per pass (one datagram's worth of records)
 : PR-DRAIN-IN { idx \ ssl n e i -- }              \ P0.1: consume inbound records once ST-UP, so nothing an
@@ -546,7 +574,7 @@ VARIABLE LISTEN-SSL   VARIABLE LISTEN-RB   VARIABLE LISTEN-WB
    MAXPEERS 0 ?DO
       I PR-STATE ST-FREE <> IF
          I PR-STATE ST-HS =  NOW-MS I PR-DL@ U>  AND IF        \ still handshaking past its deadline
-            I S" handshake timeout (no valid DTLS response)" NCACHE-SLOW-TTL PR-FAIL
+            I PR-TIMEOUT                                        \ escalating backoff: dead junk stops re-dialing
          ELSE I PR-STATE ST-UP =  NOW-MS I PR-RX@ -  PEER-IDLE U>  AND IF   \ established but silent -> reclaim
             ." --- peer idle, dropping " I PR-IP I PR-PORT .IPPORT CR       \ (frees the slot; NAT rebind/dead)
             I PR-SSL SSL-FREE  ST-FREE I PR-STATE!
