@@ -2,9 +2,9 @@
 ( ѕоддержка экстра-€чейки дл€ списков слов
   с целью их расширени€.  од вынесен из quick-swl3.f
 
-  —лово WID-EXTRA [ wid -- addr ] дает свободую €чейку дл€ использовани€.
+  —лово `(WID-EXTRA)` [ wid -- a-addr ] дает свободую €чейку дл€ использовани€.
    аждый модуль расширени€, который берет эту €чейку дл€ своих нужд,
-  должен переопределить слово WID-EXTRA с тем, чтобы оно продолжало
+  должен переопределить слово `(WID-EXTRA)` с тем, чтобы оно продолжало
   давать свободную €чейку.
 
   ћодуль предоставл€ет цепочку AT-WORDLIST-CREATING [ wid -- wid ]
@@ -18,7 +18,7 @@
 REQUIRE [UNDEFINED] lib/include/tools.f
 REQUIRE Included ~pinka/lib/ext/requ.f
 
-[DEFINED] WID-EXTRA [IF] Include wid-extra2.f \EOF [THEN]
+[DEFINED] (WID-EXTRA) [IF] Include wid-extra2.f \EOF [THEN]
 
 \ Note the below implementation is no more used in the new builds.
 
@@ -47,7 +47,7 @@ Require ENUM-VOCS enum-vocs.f
 
 EXPORT
 
-: WID-EXTRA ( wid -- a )  \ будет свободна€ дл€ других расширений €чейка
+: (WID-EXTRA) ( wid -- a )  \ будет свободна€ дл€ других расширений €чейка
   3 CELLS + \ an old "class of vocabulary" cell
   @  3 CELLS +  \ оптимизатор тут все правильно сделает :)
 ;
@@ -55,15 +55,15 @@ EXPORT
 DEFINITIONS
 
 : WID-CLASSA ( wid -- a )
-  WID-EXTRA CELL-
+  (WID-EXTRA) CELL-
 ;
 
 : WID-STORAGEA ( wid -- a )
-  WID-EXTRA CELL- CELL-
+  (WID-EXTRA) CELL- CELL-
 ;
 
 : WID-CACHEA ( wid -- a )
-  WID-EXTRA 3 CELLS -  \ и тут оптимизатор все правильно сделает :)
+  (WID-EXTRA) 3 CELLS -  \ и тут оптимизатор все правильно сделает :)
 ;
 
 

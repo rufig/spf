@@ -1,6 +1,6 @@
 \ 26.Jul.2007
 \ ѕоддержка экстра-€чеек hash-table и storage-id
-\ (¬ариант, использующий WID-EXTRA из €дра)
+\ (¬ариант, использующий `(WID-EXTRA)` из €дра)
 
 MODULE: WidExtraSupport
 
@@ -9,22 +9,22 @@ MODULE: WidExtraSupport
 : MAKE-EXTR ( wid -- )
   HERE DUP /THIS-EXTR DUP ALLOT ERASE
   ( wid here )
-  SWAP WID-EXTRA !
+  SWAP (WID-EXTRA) !
 ;
 
 : WID-CACHEA ( wid -- a )
-  WID-EXTRA @
+  (WID-EXTRA) @
 ;
 : WID-STORAGEA ( wid -- a )
-  WID-EXTRA @ CELL+
+  (WID-EXTRA) @ CELL+
 ;
 
 EXPORT
 
 WARNING @  WARNING 0!
 
-: WID-EXTRA ( wid -- a )  \ будет свободна€ дл€ других расширений €чейка
-  WID-EXTRA @ 2 CELLS +  \ оптимизатор тут все правильно сделает :)
+: (WID-EXTRA) ( wid -- a-addr )  \ будет свободна€ дл€ других расширений €чейка
+  (WID-EXTRA) @ 2 CELLS +  \ оптимизатор тут все правильно сделает :)
 ;
 
 ..: AT-WORDLIST-CREATING DUP MAKE-EXTR ;..

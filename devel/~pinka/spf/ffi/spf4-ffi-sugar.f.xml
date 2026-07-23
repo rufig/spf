@@ -18,7 +18,7 @@
 
 <wordlist name="ffi-sugar-hidden">
 
-<def name="VOC-ATTR" ds=" wid -- a "> WID-EXTRA </def><!-- temporary -->
+<def name="VOC-ATTR" ds=" wid -- a-addr "> (WID-EXTRA) </def><!-- temporary -->
 
 <alias name="SWL-ORIGINAL"><xt-of name="SEARCH-WORDLIST"/> BEHAVIOR </alias>
 

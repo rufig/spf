@@ -132,8 +132,10 @@ NOWADAYS ,"
 : CLASS@ ( wid -- cls ) CELL+ CELL+ CELL+ @ ;
 : PAR!   ( Pwid wid -- ) CELL+ CELL+ ! ;
 : PAR@   ( wid -- Pwid ) CELL+ CELL+ @ ;
-: WID-EXTRA ( wid -- addr )  4 CELLS + ; \ свободна€ дл€ расширений €чейка
-\  аждое расширение переопредел€ет это слово, чтобы даваема€ €чейка была свободна.
+
+: (WID-EXTRA) ( wid -- a-addr )  4 CELLS + ; \ A free cell for the next extension.
+  \ Each extension of the wordlist structure must redefine this word so that it returns the address of a free cell.
+  \ This word must not be used in APIs (only in their implementations; that's why its name is enclosed in parentheses).
 
 
 \ -5 -- cfa
