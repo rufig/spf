@@ -290,25 +290,75 @@ CREATE CBUF 1024 ALLOT
   FALSE
 ;
 
-: CTX-GROW { d pa pu \ n ra ru da du -- } \ add a file + everything it REQUIREs
-  d pa pu CTX-ADD? 0= IF EXIT THEN
-  pa pu CUT-PATH -> du -> da
+: EDGE-TARGET { n \ ta tu -- ta tu | 0 0 }    \ resolve an edge's path once, cache in the node
+  n 5 CELLS + @ -> ta
+  ta -1 = IF 0 0 EXIT THEN
+  ta IF ta n 6 CELLS + @ EXIT THEN
+  n CELL+ @ n 2 CELLS + @ CUT-PATH        \ base = the requiring file's dir
+  n 3 CELLS + @ n 4 CELLS + @ CTX-RESOLVE IF
+    -> tu -> ta
+    ta n 5 CELLS + !  tu n 6 CELLS + !
+    ta tu
+  ELSE
+    -1 n 5 CELLS + !  0 0
+  THEN
+;
+
+: CTX-GROW { d pa pu kind \ n ta tu -- }  \ add a file + everything it includes, transitively
+  d pa pu kind CTX-ADD? 0= IF EXIT THEN
   REQS-HEAD @ -> n
   BEGIN n WHILE
     n CELL+ @ pa = IF                     \ an edge of this file (canonical ptr)
-      n 3 CELLS + @  n 4 CELLS + @ -> ru -> ra
-      da du ra ru CTX-RESOLVE IF d -ROT RECURSE THEN
+      n EDGE-TARGET -> tu -> ta
+      ta IF d ta tu kind RECURSE THEN
     THEN
     n @ -> n
   REPEAT
 ;
 
-: DOC-BUILD-CTX { d \ n da du -- }
-  d DOC-URI URI>PATH CUT-PATH -> du -> da
+: IN-PLIST? { pa head \ n -- flag }       \ [next][pa][pu] chain membership by ptr
+  head -> n
+  BEGIN n WHILE
+    n CELL+ @ pa = IF TRUE EXIT THEN
+    n @ -> n
+  REPEAT FALSE
+;
+
+: DOC-BUILD-CTX { d \ n da du fa fu anc changed ta tu e -- }
+  d DOC-URI URI>PATH -> fu -> fa          \ full path of the doc (PBUF)
+  fa fu CUT-PATH -> du -> da
   d doc.arena da du ARENA-S, -> du -> da  \ own copy: PBUF is scratch
+  \ phase 1: what THIS text pulls in via REQUIRE/INCLUDE
   d doc.reqs @ -> n
   BEGIN n WHILE
-    da du  n CELL+ @  n 2 CELLS + @  CTX-RESOLVE IF d -ROT CTX-GROW THEN
+    da du  n CELL+ @  n 2 CELLS + @  CTX-RESOLVE IF d -ROT CK-REQ CTX-GROW THEN
+    n @ -> n
+  REPEAT
+  \ phase 2: the BUILD closure -- ancestors that include this file (transitively)
+  \ see the metacompiler/TC words a seed file is built with
+  fa fu IFILE-FIND-CI 0= IF EXIT THEN
+  -> fu -> fa                             \ the doc's canonical index entry
+  d doc.arena 3 CELLS ARENA-ALLOC -> anc  \ ancestor list, seeded with the doc itself
+  0 anc !  fa anc CELL+ !  fu anc 2 CELLS + !
+  BEGIN                                   \ fixpoint: src -> anc when its target is in anc
+    FALSE -> changed
+    REQS-HEAD @ -> n
+    BEGIN n WHILE
+      n EDGE-TARGET -> tu -> ta
+      ta IF
+        ta anc IN-PLIST?  n CELL+ @ anc IN-PLIST? 0=  AND IF
+          d doc.arena 3 CELLS ARENA-ALLOC -> e
+          anc e !  n CELL+ @ e CELL+ !  n 2 CELLS + @ e 2 CELLS + !
+          e -> anc  TRUE -> changed
+        THEN
+      THEN
+      n @ -> n
+    REPEAT
+    changed 0=
+  UNTIL
+  anc -> n                                \ every ancestor's downward closure = the build context
+  BEGIN n WHILE
+    d  n CELL+ @  n 2 CELLS + @  CK-BUILD CTX-GROW
     n @ -> n
   REPEAT
 ;
@@ -482,7 +532,7 @@ VARIABLE HV-LIVE   \ live entry found for the hovered word (0 if none)
     +HOVER-RESULT-END EXIT
   THEN
   \ 2) files REQUIREd/INCLUDEd by this one (the real interpretation context)
-  d wa wu FIND-DEF-CTX -> e
+  d wa wu CK-REQ FIND-DEF-CTXK -> e
   e IF
     +HOVER-RESULT-BEGIN
     S" **" +S e DE-NAME +J1251 S" **" +S
@@ -514,7 +564,19 @@ VARIABLE HV-LIVE   \ live entry found for the hovered word (0 if none)
     THEN
     +HOVER-RESULT-END EXIT
   THEN
-  \ 4) the rest of the index: exists somewhere, but NOT in this file's context
+  \ 4) the BUILD context: not in the kernel, but this file is built/included
+  \ together with its definition (metacompiler words: T: T; TC-CELL, ...)
+  d wa wu CK-BUILD FIND-DEF-CTXK -> e
+  e IF
+    +HOVER-RESULT-BEGIN
+    S" **" +S e DE-NAME +J1251 S" **" +S
+    S"  — " +S e de.kind @ DK-NAME +JESC
+    S" , build context: included together with this file" +S
+    e DE-TEXT +MD-CODE-1251
+    S" \n*" +S e DE-FILE +J1251 S" :" +S e de.line @ 1+ +NUM S" *" +S
+    +HOVER-RESULT-END EXIT
+  THEN
+  \ 5) the rest of the index: exists somewhere, but NOT in this file's context
   wa wu FIND-DEF DUP 0= IF DROP wa wu FIND-DEF-CI THEN -> e
   e 0= IF +NULL EXIT THEN
   +HOVER-RESULT-BEGIN
@@ -540,7 +602,7 @@ VARIABLE HV-LIVE   \ live entry found for the hovered word (0 if none)
     e de.line @ e de.col @ e DE-NAME U16-LEN +RANGE" +}
     EXIT
   THEN
-  d wa wu FIND-DEF-CTX -> e               \ the real context: REQUIREd files first
+  d wa wu CK-REQ FIND-DEF-CTXK -> e       \ the real context: REQUIREd files first
   e IF
     +{ S" uri" +KEY +Q e DE-FILE +PATH>URI +Q +,
     e de.line @ e de.col @ e DE-NAME U16-LEN +RANGE" +}
@@ -554,6 +616,12 @@ VARIABLE HV-LIVE   \ live entry found for the hovered word (0 if none)
       e we.line @ 1- 0 MAX  0  1  +RANGE" +}
       EXIT
     THEN
+  THEN
+  d wa wu CK-BUILD FIND-DEF-CTXK -> e     \ the build context (metacompiler/TC words)
+  e IF
+    +{ S" uri" +KEY +Q e DE-FILE +PATH>URI +Q +,
+    e de.line @ e de.col @ e DE-NAME U16-LEN +RANGE" +}
+    EXIT
   THEN
   wa wu FIND-LIVE IF +NULL EXIT THEN      \ baked but no .wdb source: never jump to a stranger
   wa wu FIND-DEF -> e                     \ last resort: somewhere in the index (not loaded here)
@@ -756,6 +824,9 @@ VARIABLE CI-N  VARIABLE CI-DOC
   #SCAN-ROOTS @ 0= IF
     ROOT-A @ IF ROOT-A @ ROOT-U @ +SCAN-ROOT THEN
     W0 ModuleDirName W+ S" devel" W+ W$ +SCAN-ROOT
+    SPFX64-A @ IF                         \ seed/runtime sources: TC words + wdb hover targets
+      W0 SPFX64-A @ SPFX64-U @ W+ S" \src" W+ W$ +SCAN-ROOT
+    THEN
   THEN
   DEFS-INIT
   0 #SCANNED !

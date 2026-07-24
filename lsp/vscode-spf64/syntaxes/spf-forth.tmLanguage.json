@@ -40,7 +40,7 @@
       }
     },
     "control": {
-      "match": "(?<=^|\\s)(IF|ELSE|THEN|BEGIN|WHILE|REPEAT|UNTIL|AGAIN|DO|\\?DO|LOOP|\\+LOOP|LEAVE|UNLOOP|EXIT|CASE|OF|ENDOF|ENDCASE|RECURSE|DOES>|;|\\\\EOF)(?=\\s|$)",
+      "match": "(?<=^|\\s)(IF|ELSE|THEN|BEGIN|WHILE|REPEAT|UNTIL|AGAIN|DO|\\?DO|LOOP|\\+LOOP|LEAVE|UNLOOP|EXIT|CASE|OF|ENDOF|ENDCASE|RECURSE|DOES>|;|T;|;T|T-IMMEDIATE|\\\\EOF)(?=\\s|$)",
       "name": "keyword.control.spf-forth"
     },
     "compile-words": {

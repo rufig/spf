@@ -168,9 +168,28 @@ const mainUri = toUri(path.join(FIXTURE, 'main.f'));
   const diag2 = await waitFor(m => m.method === 'textDocument/publishDiagnostics' && m !== diag1);
   check(diag2.params.diagnostics.length === 0, 'rediag', diag2.params.diagnostics);
 
+  // --- build context: part.f is included by driver.f together with tc.f, so
+  // the "metacompiler" word TC-HELPER must resolve even though part.f never
+  // REQUIREs tc.f itself (the T:/T;/TC-CELL, case of the real seed build)
+  const fs = require('fs');
+  const partUri = toUri(path.join(FIXTURE, 'part.f'));
+  const partText = fs.readFileSync(path.join(FIXTURE, 'part.f'), 'utf8');
+  notify('textDocument/didOpen', { textDocument: { uri: partUri, languageId: 'spf-forth', version: 1, text: partText } });
+  const diagP = await waitFor(m => m.method === 'textDocument/publishDiagnostics' && m.params.uri === partUri);
+  check(diagP.params.diagnostics.length === 0, 'build-diag-clean', diagP.params.diagnostics);
+
+  const hovT = await request('textDocument/hover', { textDocument: { uri: partUri }, position: { line: 1, character: 13 } });
+  const hvT = hovT.result && hovT.result.contents && hovT.result.contents.value || '';
+  check(hvT.includes('**TC-HELPER**') && hvT.includes('build context'), 'hover-build-ctx', hvT);
+  check(hvT.includes('tc.f'), 'hover-build-file', hvT);
+
+  const defT = await request('textDocument/definition', { textDocument: { uri: partUri }, position: { line: 1, character: 13 } });
+  check(defT.result && /fixture\/tc\.f$/i.test(defT.result.uri || '') && defT.result.range.start.line === 1, 'definition-build-ctx', defT.result);
+  notify('textDocument/didClose', { textDocument: { uri: partUri } });
+
   // didClose -> empty diagnostics
   notify('textDocument/didClose', { textDocument: { uri: mainUri } });
-  const diag3 = await waitFor(m => m.method === 'textDocument/publishDiagnostics' && m !== diag1 && m !== diag2);
+  const diag3 = await waitFor(m => m.method === 'textDocument/publishDiagnostics' && m.params.uri === mainUri && m !== diag1 && m !== diag2);
   check(diag3.params.diagnostics.length === 0, 'close-clears', diag3.params);
 
   // unknown request -> error

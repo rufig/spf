@@ -127,6 +127,9 @@ VARIABLE CUR-DOC
   n d doc.reqs !
 ;
 
+0 CONSTANT CK-REQ                         \ reached via this file's own REQUIRE/INCLUDE chain
+1 CONSTANT CK-BUILD                       \ included TOGETHER with this file by a common ancestor
+
 : CTX-HAS-PTR? { d pa \ n -- flag }       \ pa = a canonical (pooled) path address
   d doc.ctx @ -> n
   BEGIN n WHILE
@@ -135,25 +138,39 @@ VARIABLE CUR-DOC
   REPEAT FALSE
 ;
 
-: CTX-ADD? { d pa pu \ n -- added? }      \ FALSE if already present
+: CTX-KIND@ { d pa \ n -- kind|-1 }
+  d doc.ctx @ -> n
+  BEGIN n WHILE
+    n CELL+ @ pa = IF n 3 CELLS + @ EXIT THEN
+    n @ -> n
+  REPEAT -1
+;
+
+: CTX-ADD? { d pa pu kind \ n -- added? } \ FALSE if already present
   d pa CTX-HAS-PTR? IF FALSE EXIT THEN
-  d doc.arena 3 CELLS ARENA-ALLOC -> n
+  d doc.arena 4 CELLS ARENA-ALLOC -> n
   d doc.ctx @ n !
-  pa n CELL+ !  pu n 2 CELLS + !
+  pa n CELL+ !  pu n 2 CELLS + !  kind n 3 CELLS + !
   n d doc.ctx !
   TRUE
 ;
 
-: FIND-DEF-CTX { d a u \ e -- e|0 }       \ like FIND-DEF, but only files in d's context
+: FIND-DEF-CTXK { d a u kind \ e k -- e|0 }  \ FIND-DEF limited to d's context (kind -1 = any)
   d 0= IF 0 EXIT THEN
   HTAB @ 0= IF 0 EXIT THEN
   a u HSLOT @ -> e
   BEGIN e WHILE
-    a u e DE-NAME COMPARE 0=
-    d e de.file-a @ CTX-HAS-PTR? AND IF e EXIT THEN
+    a u e DE-NAME COMPARE 0= IF
+      d e de.file-a @ CTX-KIND@ -> k
+      k 0 < 0= IF
+        kind 0 < kind k = OR IF e EXIT THEN
+      THEN
+    THEN
     e de.hnext @ -> e
   REPEAT 0
 ;
+
+: FIND-DEF-CTX ( d a u -- e|0 )  -1 FIND-DEF-CTXK ;
 
 \ locals scope (pass 2): names collected from { }, cleared at ;
 VARIABLE LOC-HEAD                          \ chain of [next][a][u] in the doc arena

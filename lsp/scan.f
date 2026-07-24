@@ -314,10 +314,11 @@ VARIABLE REQS-HEAD     0 REQS-HEAD !
 ;
 
 : REQ-ADD { fa fu pa pu \ n -- }          \ fa = the requiring file's CANONICAL ptr
-  5 CELLS POOL-ALLOC -> n
+  7 CELLS POOL-ALLOC -> n                 \ [5][6] = resolved-target cache (0 = not yet, -1 = failed)
   REQS-HEAD @ n !
   fa n CELL+ !  fu n 2 CELLS + !
   pa pu POOL-S, n 4 CELLS + ! n 3 CELLS + !
+  0 n 5 CELLS + !  0 n 6 CELLS + !
   n REQS-HEAD !
 ;
 
