@@ -259,6 +259,60 @@ CREATE U8TMP 8 ALLOT
   2DUP S" line" J-N@ -ROT S" character" J-N@
 ;
 
+\ ======================== document REQUIRE context ========================
+\ Mirror of real interpretation: what THIS file would see = the baked image
+\ plus everything reachable via REQUIRE/INCLUDE/S"..."-INCLUDED, transitively.
+\ Paths resolve spf4-style: against the requiring file's dir, then <exedir>,
+\ <exedir>\devel, then the scan roots -- but only files that are actually in
+\ the index count (membership by canonical pooled pointer).
+
+CREATE CBUF 1024 ALLOT
+
+: CAND! { ba bu ra ru \ n c -- a u }      \ "<base>\<req>" ('/'->'\') in CBUF, NUL-terminated
+  ba CBUF bu MOVE  bu -> n
+  n IF CBUF n + 1- C@ [CHAR] \ <> IF [CHAR] \ CBUF n + C! n 1+ -> n THEN THEN
+  ru 0 ?DO
+    ra I + C@ -> c
+    c [CHAR] / = IF [CHAR] \ -> c THEN
+    c CBUF n + C!  n 1+ -> n
+  LOOP
+  0 CBUF n + C!
+  CBUF n
+;
+
+: CTX-RESOLVE { da du ra ru -- pa pu true | false }   \ req path -> canonical indexed file
+  du IF da du ra ru CAND! IFILE-FIND-CI IF TRUE EXIT THEN THEN
+  W0 ModuleDirName W+ S" devel" W+ W$ ra ru CAND! IFILE-FIND-CI IF TRUE EXIT THEN
+  ModuleDirName ra ru CAND! IFILE-FIND-CI IF TRUE EXIT THEN
+  #SCAN-ROOTS @ 0 ?DO
+    I NTH-ROOT ra ru CAND! IFILE-FIND-CI IF TRUE UNLOOP EXIT THEN
+  LOOP
+  FALSE
+;
+
+: CTX-GROW { d pa pu \ n ra ru da du -- } \ add a file + everything it REQUIREs
+  d pa pu CTX-ADD? 0= IF EXIT THEN
+  pa pu CUT-PATH -> du -> da
+  REQS-HEAD @ -> n
+  BEGIN n WHILE
+    n CELL+ @ pa = IF                     \ an edge of this file (canonical ptr)
+      n 3 CELLS + @  n 4 CELLS + @ -> ru -> ra
+      da du ra ru CTX-RESOLVE IF d -ROT RECURSE THEN
+    THEN
+    n @ -> n
+  REPEAT
+;
+
+: DOC-BUILD-CTX { d \ n da du -- }
+  d DOC-URI URI>PATH CUT-PATH -> du -> da
+  d doc.arena da du ARENA-S, -> du -> da  \ own copy: PBUF is scratch
+  d doc.reqs @ -> n
+  BEGIN n WHILE
+    da du  n CELL+ @  n 2 CELLS + @  CTX-RESOLVE IF d -ROT CTX-GROW THEN
+    n @ -> n
+  REPEAT
+;
+
 \ ======================== diagnostics publishing ========================
 
 : (+DIAG) { g first \ na nu -- }
@@ -310,6 +364,7 @@ CREATE U8TMP 8 ALLOT
   dx dt S" uri" J-S@
   dx dt S" text" J-S@ -> tu -> ta
   ta tu DOC-OPEN -> d
+  d DOC-BUILD-CTX
   d PUBLISH-DIAGS
 ;
 
@@ -325,6 +380,7 @@ CREATE U8TMP 8 ALLOT
   ELSE
     ua uu ta tu DOC-OPEN -> d
   THEN
+  d DOC-BUILD-CTX
   d PUBLISH-DIAGS
 ;
 
@@ -425,36 +481,49 @@ VARIABLE HV-LIVE   \ live entry found for the hovered word (0 if none)
     e DE-TEXT +MD-CODE-U8
     +HOVER-RESULT-END EXIT
   THEN
-  \ 2) the workspace/library index
-  wa wu FIND-DEF DUP 0= IF DROP wa wu FIND-DEF-CI THEN -> e
+  \ 2) files REQUIREd/INCLUDEd by this one (the real interpretation context)
+  d wa wu FIND-DEF-CTX -> e
   e IF
     +HOVER-RESULT-BEGIN
     S" **" +S e DE-NAME +J1251 S" **" +S
     S"  — " +S e de.kind @ DK-NAME +JESC
+    S" , loaded here via REQUIRE/INCLUDE" +S
     le IF le +LIVE-NOTE THEN
     e DE-TEXT +MD-CODE-1251
     S" \n*" +S e DE-FILE +J1251 S" :" +S e de.line @ 1+ +NUM S" *" +S
     +HOVER-RESULT-END EXIT
   THEN
-  \ 3) the live dictionary (+ .wdb location if known)
+  \ 3) the live dictionary (+ .wdb location if known): baked words beat far libraries
   le 0= IF wa wu FIND-WDB-CI ELSE wa wu FIND-WDB THEN -> e
-  le e OR 0= IF +NULL EXIT THEN
-  +HOVER-RESULT-BEGIN
-  S" **" +S
-  le IF le WE-NAME ELSE e WE-NAME THEN +J1251
-  S" **" +S
-  S"  — a word of the running spf64 image" +S
-  le IF le +LIVE-NOTE THEN
-  e IF
-    e WDB-RESOLVE -> pu -> pa
-    pu IF
-      S" \n```forth\n" +S
-      pa pu e we.line @ +FILE-LINE
-      S" \n```\n" +S
+  le e OR IF
+    +HOVER-RESULT-BEGIN
+    S" **" +S
+    le IF le WE-NAME ELSE e WE-NAME THEN +J1251
+    S" **" +S
+    S"  — a word of the running spf64 image" +S
+    le IF le +LIVE-NOTE THEN
+    e IF
+      e WDB-RESOLVE -> pu -> pa
+      pu IF
+        S" \n```forth\n" +S
+        pa pu e we.line @ +FILE-LINE
+        S" \n```\n" +S
+      THEN
+      S" \n*" +S e WE-FILE +J1251 S" :" +S e we.line @ +NUM
+      S"  (baked into spf64)*" +S
     THEN
-    S" \n*" +S e WE-FILE +J1251 S" :" +S e we.line @ +NUM
-    S"  (baked into spf64)*" +S
+    +HOVER-RESULT-END EXIT
   THEN
+  \ 4) the rest of the index: exists somewhere, but NOT in this file's context
+  wa wu FIND-DEF DUP 0= IF DROP wa wu FIND-DEF-CI THEN -> e
+  e 0= IF +NULL EXIT THEN
+  +HOVER-RESULT-BEGIN
+  S" **" +S e DE-NAME +J1251 S" **" +S
+  S"  — " +S e de.kind @ DK-NAME +JESC
+  S" \n\n**not loaded in this file** — neither baked into spf64 nor reachable" +S
+  S"  via this file's REQUIRE/INCLUDE; found elsewhere in the index:" +S
+  e DE-TEXT +MD-CODE-1251
+  S" \n*" +S e DE-FILE +J1251 S" :" +S e de.line @ 1+ +NUM S" *" +S
   +HOVER-RESULT-END
 ;
 
@@ -471,13 +540,13 @@ VARIABLE HV-LIVE   \ live entry found for the hovered word (0 if none)
     e de.line @ e de.col @ e DE-NAME U16-LEN +RANGE" +}
     EXIT
   THEN
-  wa wu FIND-DEF -> e
+  d wa wu FIND-DEF-CTX -> e               \ the real context: REQUIREd files first
   e IF
     +{ S" uri" +KEY +Q e DE-FILE +PATH>URI +Q +,
     e de.line @ e de.col @ e DE-NAME U16-LEN +RANGE" +}
     EXIT
   THEN
-  wa wu FIND-WDB -> e
+  wa wu FIND-WDB -> e                     \ then the baked image (.wdb -> spf-x64 sources)
   e IF
     e WDB-RESOLVE -> pu -> pa
     pu IF
@@ -485,6 +554,13 @@ VARIABLE HV-LIVE   \ live entry found for the hovered word (0 if none)
       e we.line @ 1- 0 MAX  0  1  +RANGE" +}
       EXIT
     THEN
+  THEN
+  wa wu FIND-LIVE IF +NULL EXIT THEN      \ baked but no .wdb source: never jump to a stranger
+  wa wu FIND-DEF -> e                     \ last resort: somewhere in the index (not loaded here)
+  e IF
+    +{ S" uri" +KEY +Q e DE-FILE +PATH>URI +Q +,
+    e de.line @ e de.col @ e DE-NAME U16-LEN +RANGE" +}
+    EXIT
   THEN
   +NULL
 ;
@@ -549,22 +625,29 @@ VARIABLE CI-N  VARIABLE CI-DOC
   DROP
 ;
 
-: (CI-WS) ( e -- )
-  DUP DE-NAME CP-MATCH? 0= IF DROP EXIT THEN
-  CI-DOC @ OVER DE-NAME FIND-DOC-DEF IF DROP EXIT THEN   \ shadowed by the open doc
+: (CI-WS) { e \ ce -- }
+  e DE-NAME CP-MATCH? 0= IF EXIT THEN
+  CI-DOC @ e DE-NAME FIND-DOC-DEF IF EXIT THEN           \ shadowed by the open doc
+  CI-DOC @ e DE-NAME FIND-DEF-CTX -> ce
+  ce IF
+    ce e <> IF EXIT THEN                                 \ a context def exists: emit only it
+  ELSE
+    e DE-NAME FIND-DEF e <> IF EXIT THEN                 \ else one canonical entry per name
+    e DE-NAME FIND-LIVE IF EXIT THEN                     \ ...and the baked word wins over strangers
+  THEN
   ITEM-BEGIN
-  DUP DE-NAME +J1251
-  DUP de.kind @ DK>CIK ITEM-MID
-  DUP DE-FILE BASENAME +J1251
-  S" :" +JESC DUP de.line @ 1+ 0 <# #S #> +JESC
+  e DE-NAME +J1251
+  e de.kind @ DK>CIK ITEM-MID
+  ce 0= IF S" not loaded: " +JESC THEN
+  e DE-FILE BASENAME +J1251
+  S" :" +JESC e de.line @ 1+ 0 <# #S #> +JESC
   ITEM-END
-  DROP
 ;
 
 : (CI-LIVE) ( e -- )
   DUP WE-NAME CP-MATCH? 0= IF DROP EXIT THEN
-  DUP WE-NAME FIND-DEF IF DROP EXIT THEN                 \ already emitted from the index
   CI-DOC @ OVER WE-NAME FIND-DOC-DEF IF DROP EXIT THEN
+  CI-DOC @ OVER WE-NAME FIND-DEF-CTX IF DROP EXIT THEN   \ a REQUIREd redefinition shadows it
   ITEM-BEGIN
   DUP WE-NAME +J1251
   3 ITEM-MID

@@ -30,6 +30,11 @@ CREATE LAST-DEF-NAME 64 ALLOT  VARIABLE LAST-DEF-NAME-U
 : (T-WORD) ( a u line col -- ) 2DROP 2DROP #W 1+! ;
 : (T-LOCAL) ( a u -- ) 2DROP #L 1+! ;
 
+CREATE LAST-REQ 128 ALLOT  VARIABLE LAST-REQ-U  VARIABLE #REQ
+: (T-REQ) { a u -- }
+  a LAST-REQ u MOVE  u LAST-REQ-U !  #REQ 1+!
+;
+
 : T-WALK
   0 TSRC-U !
   S" \ comment REQUIRE junk" +T +TNL
@@ -38,17 +43,25 @@ CREATE LAST-DEF-NAME 64 ALLOT  VARIABLE LAST-DEF-NAME-U
   S" S:bad" +T +TNL
   S" VARIABLE BAR \ trailing" +T +TNL
   S" S~ ABORT" +T [CHAR] " TSRC TSRC-U @ + C! 1 TSRC-U +! S"  msg inside" +T [CHAR] " TSRC TSRC-U @ + C! 1 TSRC-U +! +TNL
-  0 #W ! 0 #D ! 0 #L !
+  [CHAR] S TSRC TSRC-U @ + C! 1 TSRC-U +!
+  [CHAR] " TSRC TSRC-U @ + C! 1 TSRC-U +!
+  S"  sub.f" +T
+  [CHAR] " TSRC TSRC-U @ + C! 1 TSRC-U +!
+  S"  INCLUDED" +T +TNL
+  0 #W ! 0 #D ! 0 #L ! 0 #REQ ! 0 LAST-REQ-U !
   ['] (T-DEF) TO ON-DEF
   ['] (T-WORD) TO ON-WORD
   ['] (T-LOCAL) TO ON-LOCAL
   ['] NOOP TO ON-ENDDEF
+  ['] (T-REQ) TO ON-REQUIRE
   TSRC TSRC-U @ WALK-F
   #D @ 2 = S" walk-defs" CHECK              \ FOO + BAR
   #L @ 3 = S" walk-locals" CHECK            \ a b t
   LAST-DEF-NAME LAST-DEF-NAME-U @ S" BAR" COMPARE 0= S" walk-lastdef" CHECK
   LAST-DEF-LINE @ 4 = S" walk-defline" CHECK
   LAST-DEF-KIND @ DK-VAR = S" walk-defkind" CHECK
+  #REQ @ 2 = S" walk-reqs" CHECK            \ REQUIRE path + S"..."-INCLUDED
+  LAST-REQ LAST-REQ-U @ S" sub.f" COMPARE 0= S" walk-req-incl" CHECK
 ;
 
 \ --- definer table ---
@@ -73,6 +86,9 @@ CREATE LAST-DEF-NAME 64 ALLOT  VARIABLE LAST-DEF-NAME-U
     e DE-TEXT S" WDB-LOAD" SEARCH NIP NIP S" tree-text" CHECK
   ELSE FALSE S" tree-file" CHECK FALSE S" tree-kind" CHECK FALSE S" tree-text" CHECK THEN
   S" no-such-def-xyz" FIND-DEF 0= S" tree-miss" CHECK
+  S" d:\pro\SPF\lsp\DICT.F" IFILE-FIND-CI IF S" dict.f" SEARCH NIP NIP ELSE FALSE THEN
+  S" ifile-ci" CHECK
+  REQS-HEAD @ 0<> S" req-edges" CHECK       \ lsp/*.f REQUIRE each other
 ;
 
 \ --- cp1251 -> utf8 ---

@@ -68,6 +68,7 @@ VECT ON-DEF     \ ( a u line col kind -- )
 VECT ON-WORD    \ ( a u line col -- )
 VECT ON-LOCAL   \ ( a u -- )
 VECT ON-ENDDEF  \ ( -- )
+VECT ON-REQUIRE \ ( a u -- )              \ path argument of REQUIRE/INCLUDE/S"..."-INCLUDED
 
 : (NOOP-DEF)    ( a u line col kind -- ) DROP 2DROP 2DROP ;
 : (NOOP-WORD)   ( a u line col -- ) 2DROP 2DROP ;
@@ -76,6 +77,7 @@ VECT ON-ENDDEF  \ ( -- )
 ' (NOOP-WORD)  TO ON-WORD
 ' (NOOP-LOCAL) TO ON-LOCAL
 ' NOOP         TO ON-ENDDEF
+' (NOOP-LOCAL) TO ON-REQUIRE
 
 VARIABLE wk-a   VARIABLE wk-u   VARIABLE wk-pos
 VARIABLE wk-line   VARIABLE wk-col
@@ -103,8 +105,13 @@ VARIABLE wk-line   VARIABLE wk-col
 : WK-SKIP-WS   ( -- )  BEGIN WK-EOF? 0= WK-CH WS? AND WHILE WK-ADV REPEAT ;
 : WK-SKIP-LINE ( -- )  BEGIN WK-EOF? 0= WK-CH 10 <> AND WHILE WK-ADV REPEAT ;
 : WK-SKIP-)    ( -- )  BEGIN WK-EOF? 0= WK-CH [CHAR] ) <> AND WHILE WK-ADV REPEAT WK-EOF? 0= IF WK-ADV THEN ;
-: WK-SKIP-STR  ( -- )                     \ to the closing " (or EOL: spf4 strings are one-line)
+VARIABLE wk-str-a   VARIABLE wk-str-u     \ the last string literal's content span
+
+: WK-SKIP-STR  { \ s -- }                 \ to the closing " (or EOL: spf4 strings are one-line)
+  WK-CH 32 = IF WK-ADV THEN               \ the single delimiter blank after S"/."/ABORT"
+  wk-a @ wk-pos @ + -> s
   BEGIN WK-EOF? 0=  WK-CH [CHAR] " <> AND  WK-CH 10 <> AND WHILE WK-ADV REPEAT
+  s wk-str-a !  wk-a @ wk-pos @ + s - wk-str-u !
   WK-CH [CHAR] " = IF WK-ADV THEN
 ;
 
@@ -128,16 +135,33 @@ VARIABLE wk-line   VARIABLE wk-col
   2DROP FALSE
 ;
 
-: WALK-F { buf len \ a u line col brace dash pend skipn kind -- }
+: REQ2-WORD? ( a u -- flag )              \ <word> <path> follow
+  2DUP S" REQUIRE" S= IF 2DROP TRUE EXIT THEN
+  S" Require" S=
+;
+: REQ1-WORD? ( a u -- flag )              \ <path> follows
+  2DUP S" INCLUDE" S= IF 2DROP TRUE EXIT THEN
+  S" Include" S=
+;
+: INCL$-WORD? ( a u -- flag )             \ takes the S" ..." string before it
+  2DUP S" INCLUDED" S= IF 2DROP TRUE EXIT THEN
+  S" Included" S=
+;
+
+: WALK-F { buf len \ a u line col brace dash pend skipn reqn kind -- }
   buf wk-a !  len wk-u !
   0 wk-pos !  0 wk-line !  0 wk-col !
-  0 -> brace  0 -> dash  0 -> pend  0 -> skipn
+  0 wk-str-u !
+  0 -> brace  0 -> dash  0 -> pend  0 -> skipn  0 -> reqn
   BEGIN
     WK-TOKEN -> col -> line -> u -> a
     u 0<>
   WHILE
     skipn 0> IF
       skipn 1- -> skipn
+    ELSE reqn 0> IF
+      reqn 1- -> reqn
+      reqn 0= IF a u ON-REQUIRE THEN      \ the path token of REQUIRE/INCLUDE
     ELSE brace IF
       a u S" }" S= IF 0 -> brace
       ELSE a u S" --" S= IF 1 -> dash
@@ -157,8 +181,13 @@ VARIABLE wk-line   VARIABLE wk-col
         1 -> brace  0 -> dash
       ELSE a u S" ;" S= IF
         a u line col ON-WORD  ON-ENDDEF
-      ELSE a u S" REQUIRE" S= IF
-        a u line col ON-WORD  2 -> skipn
+      ELSE a u REQ2-WORD? IF
+        a u line col ON-WORD  2 -> reqn
+      ELSE a u REQ1-WORD? IF
+        a u line col ON-WORD  1 -> reqn
+      ELSE a u INCL$-WORD? wk-str-u @ 0<> AND IF
+        a u line col ON-WORD
+        wk-str-a @ wk-str-u @ ON-REQUIRE  0 wk-str-u !
       ELSE a u SKIP1-WORD? IF
         a u line col ON-WORD  1 -> skipn
       ELSE a u DEFINER-KIND -> kind kind IF
@@ -167,8 +196,8 @@ VARIABLE wk-line   VARIABLE wk-col
         a u line col ON-WORD  WK-SKIP-STR
       ELSE
         a u line col ON-WORD
-      THEN THEN THEN THEN THEN THEN THEN THEN THEN THEN
-    THEN THEN
+      THEN THEN THEN THEN THEN THEN THEN THEN THEN THEN THEN THEN
+    THEN THEN THEN
   REPEAT
 ;
 
@@ -258,6 +287,40 @@ VARIABLE DEFS-HEAD   VARIABLE #DEFS
   REPEAT 2DROP
 ;
 
+\ ======================== indexed files + REQUIRE edges ========================
+\ IFILES: every indexed file's canonical (pooled) path -- all de.file-a of one
+\ file point at THE SAME pooled string, so context membership is pointer-equal.
+\ REQS: (file, required-path) edges harvested from REQUIRE/INCLUDE/S"..."-INCLUDED.
+
+VARIABLE IFILES-HEAD   0 IFILES-HEAD !
+VARIABLE REQS-HEAD     0 REQS-HEAD !
+
+: IFILE-ADD ( pa pu -- )                  \ pa = pooled canonical path
+  3 CELLS POOL-ALLOC
+  IFILES-HEAD @ OVER !
+  TUCK 2 CELLS + !
+  TUCK CELL+ !
+  IFILES-HEAD !
+;
+
+: IFILE-FIND-CI { a u \ n -- pa pu TRUE | FALSE }   \ canonical path by CI compare
+  IFILES-HEAD @ -> n
+  BEGIN n WHILE
+    a u n CELL+ @ n 2 CELLS + @ S-CI= IF
+      n CELL+ @ n 2 CELLS + @ TRUE EXIT
+    THEN
+    n @ -> n
+  REPEAT FALSE
+;
+
+: REQ-ADD { fa fu pa pu \ n -- }          \ fa = the requiring file's CANONICAL ptr
+  5 CELLS POOL-ALLOC -> n
+  REQS-HEAD @ n !
+  fa n CELL+ !  fu n 2 CELLS + !
+  pa pu POOL-S, n 4 CELLS + ! n 3 CELLS + !
+  n REQS-HEAD !
+;
+
 \ ======================== indexing one file ========================
 
 VARIABLE IDX-FILE-A   VARIABLE IDX-FILE-U   \ pooled full path of the file being walked
@@ -282,23 +345,29 @@ VARIABLE IDX-FILE-A   VARIABLE IDX-FILE-U   \ pooled full path of the file being
   DEF-ADD
 ;
 
+: (IDX-REQ) ( a u -- )
+  IDX-FILE-A @ IDX-FILE-U @ 2SWAP REQ-ADD
+;
+
 : INDEX-BUFFER ( buf len path-a path-u -- )     \ path must be pooled already
   IDX-FILE-U ! IDX-FILE-A !
   ['] (IDX-DEF) TO ON-DEF
   ['] (NOOP-WORD) TO ON-WORD
   ['] (NOOP-LOCAL) TO ON-LOCAL
   ['] NOOP TO ON-ENDDEF
+  ['] (IDX-REQ) TO ON-REQUIRE
   WALK-F
 ;
 
 2097152 CONSTANT MAX-IDX-FILE
 
-: INDEX-FILE { pa pu \ ba bu -- }         \ slurp + index one .f file
+: INDEX-FILE { pa pu \ ba bu ca cu -- }   \ slurp + index one .f file
   pa pu FILE-SLURP -> bu -> ba
   bu 0= IF EXIT THEN
   bu MAX-IDX-FILE > IF ba FREE DROP EXIT THEN
-  pa pu POOL-S, ( ppa pu )
-  ba bu 2SWAP INDEX-BUFFER
+  pa pu POOL-S, -> cu -> ca               \ the canonical path copy
+  ca cu IFILE-ADD
+  ba bu ca cu INDEX-BUFFER
   ba FREE DROP
 ;
 

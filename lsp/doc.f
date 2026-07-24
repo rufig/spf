@@ -55,6 +55,8 @@ DECIMAL
 : doc.#defs   ( d -- a ) 9 CELLS + ;
 : doc.diags   ( d -- a ) 10 CELLS + ;
 : doc.#diags  ( d -- a ) 11 CELLS + ;
+: doc.reqs    ( d -- a ) 12 CELLS + ;     \ [next][a][u] chain: REQUIRE/INCLUDE paths as written
+: doc.ctx     ( d -- a ) 13 CELLS + ;     \ [next][pa][pu] chain: canonical files in this doc's context
 
 : DOC-URI  ( d -- a u )  DUP doc.uri-a @ SWAP doc.uri-u @ ;
 : DOC-TEXT ( d -- a u )  DUP doc.text-a @ SWAP doc.text-u @ ;
@@ -112,6 +114,44 @@ VARIABLE CUR-DOC
   BEGIN e WHILE
     a u e DE-NAME COMPARE 0= IF e EXIT THEN
     e de.next @ -> e
+  REPEAT 0
+;
+
+\ ---- the document's REQUIRE context: files reachable via REQUIRE/INCLUDE ----
+
+: (DOC-REQ) { a u \ d n -- }              \ pass-1 hook: remember the path as written
+  CUR-DOC @ -> d
+  d doc.arena 3 CELLS ARENA-ALLOC -> n
+  d doc.reqs @ n !
+  d doc.arena a u ARENA-S, n 2 CELLS + ! n CELL+ !
+  n d doc.reqs !
+;
+
+: CTX-HAS-PTR? { d pa \ n -- flag }       \ pa = a canonical (pooled) path address
+  d doc.ctx @ -> n
+  BEGIN n WHILE
+    n CELL+ @ pa = IF TRUE EXIT THEN
+    n @ -> n
+  REPEAT FALSE
+;
+
+: CTX-ADD? { d pa pu \ n -- added? }      \ FALSE if already present
+  d pa CTX-HAS-PTR? IF FALSE EXIT THEN
+  d doc.arena 3 CELLS ARENA-ALLOC -> n
+  d doc.ctx @ n !
+  pa n CELL+ !  pu n 2 CELLS + !
+  n d doc.ctx !
+  TRUE
+;
+
+: FIND-DEF-CTX { d a u \ e -- e|0 }       \ like FIND-DEF, but only files in d's context
+  d 0= IF 0 EXIT THEN
+  HTAB @ 0= IF 0 EXIT THEN
+  a u HSLOT @ -> e
+  BEGIN e WHILE
+    a u e DE-NAME COMPARE 0=
+    d e de.file-a @ CTX-HAS-PTR? AND IF e EXIT THEN
+    e de.hnext @ -> e
   REPEAT 0
 ;
 
@@ -194,13 +234,15 @@ VARIABLE LOC-HEAD                          \ chain of [next][a][u] in the doc ar
   d doc.arena ARENA-FREE
   0 d doc.defs !  0 d doc.#defs !
   0 d doc.diags !  0 d doc.#diags !
+  0 d doc.reqs !  0 d doc.ctx !
   d DOC-LINES!
   d CUR-DOC !
-  \ pass 1: definitions
+  \ pass 1: definitions + REQUIRE list
   ['] (DOC-DEF)     TO ON-DEF
   ['] (NOOP-WORD)   TO ON-WORD
   ['] (NOOP-LOCAL)  TO ON-LOCAL
   ['] NOOP          TO ON-ENDDEF
+  ['] (DOC-REQ)     TO ON-REQUIRE
   d DOC-TEXT WALK-F
   \ pass 2: diagnostics
   0 LOC-HEAD !
@@ -208,6 +250,7 @@ VARIABLE LOC-HEAD                          \ chain of [next][a][u] in the doc ar
   ['] (DIAG-WORD)   TO ON-WORD
   ['] (DIAG-LOCAL)  TO ON-LOCAL
   ['] (DIAG-ENDDEF) TO ON-ENDDEF
+  ['] (NOOP-LOCAL)  TO ON-REQUIRE
   d DOC-TEXT WALK-F
 ;
 
