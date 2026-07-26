@@ -45,13 +45,49 @@
     return /^[-+]?[0-9]+\.?$/.test(tok) || /^0[xX][0-9A-Fa-f]+$/.test(tok) || /^'.'$/.test(tok);
   }
 
+  // spf-min.wasm imports a SHARED memory (for real threads).  Without
+  // cross-origin isolation (file://, plain http) SharedArrayBuffer does not
+  // exist -- so flip the import's limits flag to non-shared in the module
+  // bytes.  The highlighter stubs thread_spawn anyway, and the kernel's only
+  // atomics are cmpxchg/store, which are valid on non-shared memory too.
+  function unshareMemory(bytes) {
+    const u = new Uint8Array(bytes.slice(0));
+    const pat = [0x03, 0x65, 0x6E, 0x76, 0x06, 0x6D, 0x65, 0x6D, 0x6F, 0x72, 0x79, 0x02]; // \3env\6memory\2
+    for (let i = 0; i + pat.length < u.length; i++) {
+      let hit = true;
+      for (let k = 0; k < pat.length; k++) if (u[i + k] !== pat[k]) { hit = false; break; }
+      if (hit) {
+        const f = i + pat.length;
+        if (u[f] === 0x03) u[f] = 0x01;       // shared min+max -> min+max
+        else if (u[f] === 0x02) u[f] = 0x00;  // shared min -> min
+        return u.buffer;
+      }
+    }
+    return u.buffer;
+  }
+
+  function wasmBytes(wasmUrl) {
+    if (window.SPF64_WASM_B64) {              // embedded (works from file://)
+      const s = atob(window.SPF64_WASM_B64);
+      const u = new Uint8Array(s.length);
+      for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+      return Promise.resolve(u.buffer);
+    }
+    return fetch(wasmUrl).then(r => r.arrayBuffer());
+  }
+
   async function init(opts) {
     opts = opts || {};
     const wasmUrl = opts.wasm || 'spf-min.wasm';
     try {
-      const bytes = await (await fetch(wasmUrl)).arrayBuffer();
+      let bytes = await wasmBytes(wasmUrl);
+      const isolated = typeof SharedArrayBuffer !== 'undefined' &&
+        (typeof crossOriginIsolated === 'undefined' || crossOriginIsolated);
+      if (!isolated) bytes = unshareMemory(bytes);
       const mod = await WebAssembly.compile(bytes);
-      const memory = new WebAssembly.Memory({ initial: 48, maximum: 512, shared: true });
+      const memory = isolated
+        ? new WebAssembly.Memory({ initial: 48, maximum: 512, shared: true })
+        : new WebAssembly.Memory({ initial: 48, maximum: 512 });
       const dv = () => new DataView(memory.buffer);
       const u8 = () => new Uint8Array(memory.buffer);
       let out = '';

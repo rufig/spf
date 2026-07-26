@@ -15,7 +15,7 @@ LSP-сервер для spf64, работающий **на самом spf64**: �
 | `doc.f` | открытые документы: полный текст, таблица строк, два прохода WALK-F (определения → диагностика неизвестных слов), слово-по-позиции (колонки в UTF-16) |
 | `lsp-server.f` | Content-Length-фрейминг на `H-STDIN`/`H-STDOUT` (stdout стерилен, лог в stderr), dispatch, обработчики |
 | `vscode-spf64/` | расширение VS Code: LanguageClient + язык `spf-forth` (`.f`, `.spf`) + TextMate-грамматика + cp1251 по умолчанию |
-| `web/` | браузерная подсветка: `spf64-hl.js` грузит `spf-min.wasm`, Forth-драйвер печатает весь словарь (`!`=immediate), токены красятся по живому словарю |
+| `web/` | браузерная подсветка: `spf64-hl.js` грузит `spf-min.wasm` (или вшитый `spf-min-wasm.js` — работает с file://), Forth-драйвер печатает весь словарь (`!`=immediate), токены красятся по живому словарю |
 | `tests/` | юнит-тесты (`spf64.exe lsp\tests\*-test.f`) и e2e (`node lsp\tests\e2e.js`) |
 
 ## Возможности LSP
@@ -86,15 +86,26 @@ cd lsp\vscode-spf64 && npm install && npx @vscode/vsce package
 
 ## Браузерная подсветка (wasm)
 
-```bash
-node lsp\web\serve.js        # http://localhost:8642/  (COOP/COEP для shared memory)
-```
+Работает **прямо с диска**: открыть `lsp\web\demo.html` двойным щелчком — сервер не
+нужен. Два препятствия file:// обойдены так:
+
+- `fetch()` соседнего `.wasm` с file:// блокируется CORS → wasm вшит base64 в
+  `spf-min-wasm.js` (обычный `<script src>` с диска работает); генерация:
+  `node lsp\web\mkwasmjs.js` (перезапускать после пересборки `spf-min.wasm`);
+- модуль импортирует **shared**-память (для настоящих тредов), а без
+  cross-origin isolation `SharedArrayBuffer` недоступен → при отсутствии изоляции
+  `spf64-hl.js` патчит в байтах модуля флаг импорта памяти (0x03→0x01, non-shared).
+  Треды подсветке не нужны (`thread_spawn` заглушен), а единственные атомики ядра —
+  `cmpxchg`/`store` — валидны и на обычной памяти.
+
+Вариант с сервером остаётся (истинно shared-память, как в проде):
+`node lsp\web\serve.js` → http://localhost:8642/ (отдаёт COOP/COEP).
 
 `spf64-hl.js` инстанцирует `spf-min.wasm` (сборка spf64→WASM), скармливает ему на
 stdin Forth-драйвер, который обходит `_VOC-LIST` и печатает каждое слово с флагом
 immediate; далее токены `<pre class="forth">` красятся по этому словарю: управление
 (immediate) / слова словаря / определения / локалы / числа / строки / комментарии,
-неизвестные — подчёркиваются. Без cross-origin isolation модуль честно деградирует
+неизвестные — подчёркиваются. Если wasm не завёлся вовсе, модуль честно деградирует
 до статической подсветки. `spf-min.wasm` здесь — копия из
 `spf-x64/src/wasm` (пересборка: `build-wasm.bat` там же).
 
