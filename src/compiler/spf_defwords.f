@@ -61,6 +61,12 @@ VECT SHEADER
   \ The new definition is a synonym of the found definition.
   PARSE-NAME 2>R  PARSE-NAME FIND-NAME ?FOUND  2R> ENLIST-SYNONYM
 ;
+: ENLIST-IN ( xt sd.name wid -- )
+  GET-CURRENT >R  SET-CURRENT  ENLIST  R> SET-CURRENT
+;
+: ENLIST-SYNONYM-IN ( nt sd.name wid -- )
+  GET-CURRENT >R  SET-CURRENT  ENLIST-SYNONYM  R> SET-CURRENT
+;
 
 : CREATED ( addr u -- )
 \ Создать определение для c-addr u с семантикой выполнения, описанной ниже.
