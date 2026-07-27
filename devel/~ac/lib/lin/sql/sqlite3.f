@@ -25,6 +25,9 @@ ALSO SO NEW: libsqlite3.dylib
     VARIABLE DB3_MAX_WAIT       1000 DB3_MAX_WAIT !
     USER     DB3_CONN_CNT
     USER     DB3_STMT_CNT
+    USER     DB3-ERROR-SQL-A
+    USER     DB3-ERROR-SQL-U
+    USER     DB3-ERROR-STR
 
 (
 #define SQLITE_OK           0   /* Successful result */
@@ -64,14 +67,56 @@ ALSO SO NEW: libsqlite3.dylib
 #define SQLITE_NULL     5
 )
 
-: db3_error? { ior addr u sqh -- }
-  ior IF DB3_DEBUG @ IF CR addr u TYPE ."  failed: " ior . THEN
-         sqh 1 sqlite3_errmsg ASCIIZ> DB3_DEBUG @ IF 2DUP TYPE CR THEN
-         " {s}" STR@ ER-U ! ER-A !
-         sqh 1 sqlite3_errcode DUP 1 = IF DROP -2 ELSE 30000 + THEN ( ior )
+: DB3-ERROR-SQL! ( addr u -- )
+  DB3-ERROR-SQL-U ! DB3-ERROR-SQL-A !
+;
+
+: DB3-ERROR-SQL@ ( -- addr u )
+  DB3-ERROR-SQL-A @ DB3-ERROR-SQL-U @
+;
+
+: DB3-ERROR-SQL-CLEAR ( -- )
+  0 DB3-ERROR-SQL-A ! 0 DB3-ERROR-SQL-U !
+;
+
+: DB3-ERROR-STR-CLEAR ( -- )
+  DB3-ERROR-STR @ ?DUP IF STRFREE THEN
+  0 DB3-ERROR-STR !
+;
+
+: DB3-ERROR@ ( -- addr u )
+  DB3-ERROR-STR @ ?DUP IF STR@ ELSE 0 0 THEN
+;
+
+: DB3-ERROR-MESSAGE! { ior op-a op-u msg-a msg-u \ s -- }
+  DB3-ERROR-STR-CLEAR
+  "" -> s
+  op-a op-u s STR+
+  S"  failed (" s STR+
+  ior 0 <# #S #> s STR+
+  S" ): " s STR+
+  msg-a msg-u s STR+
+  DB3-ERROR-SQL@ NIP IF
+    S"  | SQL: " s STR+
+    DB3-ERROR-SQL@ s STR+
+  THEN
+  s DB3-ERROR-STR !
+  s STR@ ER-U ! ER-A !
+;
+
+: db3_error? { ior addr u sqh \ msg-a msg-u code -- }
+  ior IF
+         DB3_DEBUG @ IF CR addr u TYPE ."  failed: " ior . THEN
+         sqh 1 sqlite3_errmsg ASCIIZ> -> msg-u -> msg-a
+         DB3_DEBUG @ IF msg-a msg-u TYPE CR THEN
+         ior addr u msg-a msg-u DB3-ERROR-MESSAGE!
+         DB3-ERROR-SQL-CLEAR
+         sqh 1 sqlite3_errcode -> code
+         code 1 = IF -2 ELSE code 30000 + THEN ( ior )
 	 DUP 30000 = IF DROP EXIT THEN \ и sqlite3_errmsg говорит "not an error"
          THROW
       THEN
+  DB3-ERROR-SQL-CLEAR
 \  ior THROW ( ior почти всегда 1 в случае ошибки)
 ;
 : (db3_version) ( -- n ) \ например 3006003
@@ -159,6 +204,7 @@ ALSO SO NEW: libsqlite3.dylib
   REPEAT
   \ waitcnt DB3_MAX_WAIT @ = IF ." db3_prepare:maxwait:" addr u TYPE CR 30114 THROW THEN
 
+  addr u DB3-ERROR-SQL!
   S" DB3_PREPARE" sqh db3_error?
   ppStmt
   0= IF 30112 THROW THEN \ при подаче пустой команды sqlite не возвращает
@@ -223,6 +269,7 @@ USER db3_exec_TICKS
         DUP 1 SQLITE_ROW WITHIN 
         IF ppStmt ['] db3_fin CATCH ?DUP IF NIP NIP DB3_DEBUG @ IF ." DB3_FIN_failed" DUP . THEN THEN 
            DUP DB3_DEBUG @ AND IF ." DB3_STEP_failed (" addr u TYPE ." )" THEN
+           addr u DB3-ERROR-SQL!
            S" DB3_STEP" sqh db3_error?
         THEN
 
