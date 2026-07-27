@@ -1,4 +1,6 @@
-lib/ext/locals.f \EOF
+\ locals.f -- portable spf4 named-locals { } parser (the POSTPONE RP+@ implementation),
+\ copied from devel/~ac/lib/locals.f with its line-1 "lib/ext/locals.f \EOF" redirect removed.
+\ Current spf4 lib/ext/locals.f emits inline x86 and cannot run on the native x64/ARM seed.
 
 ( 28.Mar.2000 Andrey Cherezov  Copyright [C] RU FIG
   Использованы идеи следующих авторов:
