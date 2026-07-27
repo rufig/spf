@@ -4,6 +4,7 @@
 \   WriteSocket ReadSocket ConnectHost   (+ FdRead / FdWrite = read()/write() для файлов и сокетов).
 \ От архитектуры не зависит; Linux и macOS различаются лишь первыми двумя байтами sockaddr_in (BSD
 \ sin_len), числами SOL_SOCKET / SO_REUSEADDR, раскладкой struct addrinfo и именем errno-функции -- по [DEFINED] DLFN:.
+REQUIRE {   lib/ext/locals.f
 DECIMAL
 [DEFINED] DLFN: [IF]   528 [ELSE]   2 [THEN] CONSTANT AF-INIT       \ mac sin_len|AF_INET=0x0210 ; Linux 0x0002
 [DEFINED] DLFN: [IF] 65535 [ELSE]   1 [THEN] CONSTANT SOL-SOCKET    \ mac SOL_SOCKET=0xffff ; Linux 1
