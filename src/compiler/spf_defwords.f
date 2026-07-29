@@ -153,8 +153,9 @@ END-CODE
 : XTVOC>WID ( xt-vocabulary -- wid )
   \ xt-vocabulary is the xt of a word created with `VOCABULARY`
   DUP ['] FORTH = IF DROP FORTH-WORDLIST EXIT THEN
-  >BODY DUP -64 + SWAP DUP @ DUP >R WITHIN IF \ several heuristics
-    R@ VOC-NAME@  DUP IF C@ 1 64 WITHIN IF R> EXIT THEN THEN
+  ?HAS-BODY DUP >BODY @ ( xt wid )
+  TUCK VOC-NAME@ ( wid xt nt ) NAME> = IF
+    EXIT
   THEN -12 THROW \ "argument type mismatch"
 ;
 
