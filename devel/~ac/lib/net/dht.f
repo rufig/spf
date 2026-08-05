@@ -46,8 +46,8 @@ DECIMAL
    : NOW-MS ( -- u )  GetTickCount ;
 [ELSE]                                                    \ ===== POSIX (Linux/macOS) =====
    \ UDP via libc recvfrom/sendto (the ~ac/lib/lin/net/sockets.f SO idiom: aN..a1 N name, args reversed).
-   REQUIRE CreateSocket ~ac/lib/lin/net/sockets.f         \ sock_addr/(sockaddr!)/getaddrinfo machinery + NS-ON
-   NS-ON  ALSO SO NEW: libc.so.6
+   REQUIRE CreateSocket ~ac/lib/lin/net/sockets.f         \ sock_addr/(sockaddr!)/getaddrinfo machinery
+   ALSO SO NEW: libc.so.6
    : (u-socket)     ( proto type domain -- fd )                 3 socket ;
    : (u-setsockopt) ( optlen optval optname level fd -- r )     5 setsockopt ;
    : (u-sendto)     ( tolen toaddr flags len buf fd -- n )      6 sendto ;

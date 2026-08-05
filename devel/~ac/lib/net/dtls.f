@@ -15,7 +15,6 @@ DECIMAL
 3 CONSTANT VERIFY_MUTUAL                     \ PEER | FAIL_IF_NO_PEER_CERT
 
 \ ---- load OpenSSL (libcrypto must load before libssl; OpenSSL_version forces it) ----
-NS-ON
 [DEFINED] WINAPI64: [IF]
    ALSO SO NEW: ext/libcrypto-3-x64.dll
    : CRYPTO-PRELOAD ( -- )  0 1 OpenSSL_version DROP ;

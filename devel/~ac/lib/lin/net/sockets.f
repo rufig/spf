@@ -19,7 +19,6 @@ CREATE sockopt-one 8 ALLOT   1 sockopt-one !  \ optval=1 (только чтение) для set
 CREATE gai-hints  48 ALLOT   gai-hints 48 0 FILL   AF_INET gai-hints 4 + !   1 gai-hints 8 + !  \ подсказка: AF_INET, SOCK_STREAM
 
 \ ---- вызовы libc через виртуальный словарь SO (порядок как в spf4: aN..a1 N имя) ----
-NS-ON
 [DEFINED] DLFN: [IF] ALSO SO NEW: libSystem.B.dylib [ELSE] ALSO SO NEW: libc.so.6 [THEN]
 \ (errno) ( -- n ) : errno текущего потока (macOS __error / Linux __errno_location -- обе возвращают &errno)
 [DEFINED] DLFN: [IF]   : (errno)   0 __error L@ ;
