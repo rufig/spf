@@ -28,7 +28,7 @@ DECIMAL
 : FS    ( a u field buf -- )    >R  2 R@ TAG  DUP R@ V+  R> S+ ;   \ string (wire 2)
 : FF    ( x field buf -- )      >R  5 R@ TAG  R> 32+ ;             \ fixed32 / float (wire 5)
 : FRAME! ( pbuf type fbuf -- )  DUP RST  0 OVER C+  >R  OVER PLEN R@ V+  R@ V+  DUP PDATA SWAP PLEN R@ S+  R> DROP ;
-: FSEND ( fbuf sock -- )        >R  DUP PDATA SWAP PLEN R> WriteSocket DROP ;
+: FSEND ( fbuf sock -- )        >R  DUP PDATA SWAP PLEN R> WriteSocket  0< IF -8 THROW THEN ;   \ send err -> drop conn
 : TX    ( pbuf type fbuf sock -- )  >R  DUP >R  FRAME!  R> R> FSEND ;
 
 \ ==== integer <-> IEEE-754 float32 ====
@@ -233,7 +233,7 @@ DECIMAL
          ESP-GOT @ 0= IF EXIT THEN
          ESP-IDLE @ 4 MOD 0= IF SEND-PING THEN
          ESP-IDLE @ 10 MOD 0= IF ESP-SUB @ IF PUBLISH THEN THEN   \ proactively push states ~every 30s (HA history)
-         ESP-IDLE @ 30 > IF EXIT THEN
+         ESP-IDLE @ 16 > IF EXIT THEN
       ELSE
          1 ESP-GOT !  0 ESP-IDLE !  RLEN +!
          RBUF C@ IF EXIT THEN
