@@ -42,6 +42,13 @@ DECIMAL
    DUP 23 RSHIFT 255 AND 127 -  DUP 0< IF 2DROP 0 EXIT THEN
    SWAP 8388607 AND 8388608 OR  SWAP 23 -
    DUP 0< IF NEGATE RSHIFT ELSE LSHIFT THEN ;
+\ fixed-point n/den -> IEEE-754 float32 (normalize into [1,2), 23-bit mantissa) -- lets sensors carry a decimal
+: U/F32 ( num den -- bits )
+   OVER 0= IF 2DROP 0 EXIT THEN  0 >R
+   BEGIN 2DUP U< WHILE  SWAP 2* SWAP  R> 1- >R  REPEAT
+   BEGIN 2DUP 2* U< 0= WHILE  2*  R> 1+ >R  REPEAT
+   2DUP - 8388608 ROT */  NIP  R> 127 + 23 LSHIFT OR ;
+: N/F32 ( num den -- bits )  OVER 0< IF SWAP NEGATE SWAP U/F32 1 31 LSHIFT OR ELSE U/F32 THEN ;
 : @LE32 ( a -- x )  DUP C@  OVER 1+ C@ 8 LSHIFT OR  OVER 2 + C@ 16 LSHIFT OR  SWAP 3 + C@ 24 LSHIFT OR ;
 : SKIP-VARINT ( a -- a' )  BEGIN DUP C@ 128 AND WHILE 1+ REPEAT 1+ ;
 : V@ ( a -- val nbytes )
@@ -68,6 +75,12 @@ DECIMAL
       7 AND DUP 5 = IF DROP 5 + ELSE 0= IF 1+ SKIP-VARINT ELSE 1+ THEN THEN
    REPEAT  2DROP 0 FALSE ;
 
+: PB-FIX32 ( a u field -- x found? )   \ read a wire-5 (fixed32) value at the given field#
+   >R  OVER + SWAP
+   BEGIN 2DUP U> WHILE
+      DUP C@ DUP 3 RSHIFT R@ = OVER 7 AND 5 = AND IF DROP NIP 1+ @LE32 R> DROP TRUE EXIT THEN
+      7 AND DUP 5 = IF DROP 5 + ELSE 0= IF 1+ SKIP-VARINT ELSE 1+ THEN THEN
+   REPEAT  2DROP R> DROP 0 FALSE ;
 \ ==== response builders (HP payload, HF frame) ; platform hooks supply the device-specific text ====
 : SEND-HELLO ( -- )
    HP RST  1 1 HP FU  13 2 HP FU  HELLO-NAME 3 HP FS  DEV-NAME 4 HP FS  HP 2 HF ESP-CLIENT @ TX ;
@@ -87,19 +100,41 @@ DECIMAL
    HP RST  S" blink_freq" 1 HP FS  4 2 HP FF  S" Blink frequency" 3 HP FS
       1 U>F32 6 HP FF  10 U>F32 7 HP FF  1 U>F32 8 HP FF  S" Hz" 11 HP FS   HP 49 HF ESP-CLIENT @ TX
    HP RST  S" text" 1 HP FS  5 2 HP FF  S" Text" 3 HP FS  TEXT-MAX 9 HP FU  0 11 HP FU   HP 97 HF ESP-CLIENT @ TX
+   [DEFINED] S-CO2 [IF]
+      HP RST  S" co2"  1 HP FS  6 2 HP FF  S" CO2" 3 HP FS  S" ppm" 6 HP FS   HP 16 HF ESP-CLIENT @ TX
+      HP RST  S" temp" 1 HP FS  7 2 HP FF  S" Temperature" 3 HP FS  S" C" 6 HP FS   HP 16 HF ESP-CLIENT @ TX
+      HP RST  S" hum"  1 HP FS  8 2 HP FF  S" Humidity" 3 HP FS  S" %" 6 HP FS   HP 16 HF ESP-CLIENT @ TX
+   [THEN]
+   [DEFINED] SET-RGB [IF]
+      HP RST  S" led_r" 1 HP FS  9  2 HP FF  S" LED R" 3 HP FS  0 U>F32 6 HP FF  255 U>F32 7 HP FF  1 U>F32 8 HP FF  HP 49 HF ESP-CLIENT @ TX
+      HP RST  S" led_g" 1 HP FS  10 2 HP FF  S" LED G" 3 HP FS  0 U>F32 6 HP FF  255 U>F32 7 HP FF  1 U>F32 8 HP FF  HP 49 HF ESP-CLIENT @ TX
+      HP RST  S" led_b" 1 HP FS  11 2 HP FF  S" LED B" 3 HP FS  0 U>F32 6 HP FF  255 U>F32 7 HP FF  1 U>F32 8 HP FF  HP 49 HF ESP-CLIENT @ TX
+   [THEN]
    HP RST  HP 19 HF ESP-CLIENT @ TX ;
 
 \ ==== state pushers ====
 : STATE-1 ( key fbits -- )  HP RST  SWAP 1 HP FF  2 HP FF  HP 25 HF ESP-CLIENT @ TX ;
 : NUM-STATE ( -- )          HP RST  4 1 HP FF  HB-FREQ U>F32 2 HP FF  HP 50 HF ESP-CLIENT @ TX ;
+: NSTATE ( key fbits -- )   HP RST  SWAP 1 HP FF  2 HP FF  HP 50 HF ESP-CLIENT @ TX ;   \ a number state for any key
 : TEXT-STATE ( -- )         HP RST  5 1 HP FF  TXTBUF TXT-N @ 2 HP FS  HP 98 HF ESP-CLIENT @ TX ;
 : DO-TEXT-CMD ( a u -- )    2 PB-FIELD 0= IF  TXTBUF 0  THEN  SET-TEXT  TEXT-STATE ;
+[DEFINED] SET-RGB [IF]
+: PUB-RGB ( -- )   9 RGB@ 16 RSHIFT 255 AND U>F32 NSTATE  10 RGB@ 8 RSHIFT 255 AND U>F32 NSTATE  11 RGB@ 255 AND U>F32 NSTATE
+   RGB@ ESP-RGB-LAST ! ;                                  \ push R/G/B states + remember (console->HA change detection)
+[THEN]
 : PUBLISH ( -- )
    1  S-UPTIME U>F32  STATE-1
    2  S-HEAP   U>F32  STATE-1
    3  S-RSSI   I>F32  STATE-1
-   NUM-STATE  TEXT-STATE ;
-: DO-NUMBER-CMD ( a u -- )  PB-STATE IF  F32>U HB-SET  NUM-STATE  ELSE DROP THEN ;
+   NUM-STATE  TEXT-STATE
+   [DEFINED] S-CO2 [IF]  S-SENSE  6 S-CO2 U>F32 STATE-1  7 S-TEMP 10 N/F32 STATE-1  8 S-HUM 10 U/F32 STATE-1  [THEN]
+   [DEFINED] SET-RGB [IF]  PUB-RGB  [THEN] ;
+: DO-NUMBER-CMD ( a u -- )   \ route the NumberCommand by key: 4 = blink ; 9/10/11 = LED R/G/B
+   2DUP 1 PB-FIX32 0= IF 2DROP DROP EXIT THEN
+   -ROT 2 PB-FIX32 0= IF 2DROP EXIT THEN                        ( key fbits )
+   OVER 4 = IF  NIP F32>U HB-SET  NUM-STATE  EXIT THEN
+   [DEFINED] SET-RGB [IF]  OVER 9 12 WITHIN IF  OVER 9 -  OVER F32>U  SET-RGB  NSTATE  EXIT THEN  [THEN]
+   2DROP ;
 
 \ ==== HA entity-state import ====
 : HA-SUBSCRIBE ( a u xt -- )
@@ -147,12 +182,14 @@ DECIMAL
    0 RLEN !  0 ESP-GOT !  0 ESP-IDLE !
    BEGIN
       ESP-RESUB @ ESP-SUB @ AND IF  HA-SUB-ALL  0 ESP-RESUB !  THEN
+      [DEFINED] SET-RGB [IF]  ESP-SUB @ IF  RGB@ ESP-RGB-LAST @ <> IF  PUB-RGB  THEN  THEN  [THEN]   \ console/blink -> HA
       RBUF RLEN @ +  RCAP RLEN @ -  ESP-CLIENT @ ReadSocket  DROP
       DUP 0= IF DROP EXIT THEN
       DUP 0< IF
          DROP  1 ESP-IDLE +!
          ESP-GOT @ 0= IF EXIT THEN
          ESP-IDLE @ 4 MOD 0= IF SEND-PING THEN
+         ESP-IDLE @ 10 MOD 0= IF ESP-SUB @ IF PUBLISH THEN THEN   \ proactively push states ~every 30s (HA history)
          ESP-IDLE @ 30 > IF EXIT THEN
       ELSE
          1 ESP-GOT !  0 ESP-IDLE !  RLEN +!
