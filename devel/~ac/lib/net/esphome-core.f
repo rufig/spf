@@ -81,6 +81,12 @@ DECIMAL
       DUP C@ DUP 3 RSHIFT R@ = OVER 7 AND 5 = AND IF DROP NIP 1+ @LE32 R> DROP TRUE EXIT THEN
       7 AND DUP 5 = IF DROP 5 + ELSE 0= IF 1+ SKIP-VARINT ELSE 1+ THEN THEN
    REPEAT  2DROP R> DROP 0 FALSE ;
+: PB-VARINT ( a u field -- val found? )   \ read a wire-0 (varint) value at the given field#
+   >R  OVER + SWAP
+   BEGIN 2DUP U> WHILE
+      DUP C@ DUP 3 RSHIFT R@ = OVER 7 AND 0= AND IF DROP NIP 1+ V@ DROP R> DROP TRUE EXIT THEN
+      7 AND DUP 5 = IF DROP 5 + ELSE 0= IF 1+ SKIP-VARINT ELSE 1+ THEN THEN
+   REPEAT  2DROP R> DROP 0 FALSE ;
 \ ==== response builders (HP payload, HF frame) ; platform hooks supply the device-specific text ====
 : SEND-HELLO ( -- )
    HP RST  1 1 HP FU  13 2 HP FU  HELLO-NAME 3 HP FS  DEV-NAME 4 HP FS  HP 2 HF ESP-CLIENT @ TX ;
@@ -109,6 +115,7 @@ DECIMAL
       HP RST  S" led_r" 1 HP FS  9  2 HP FF  S" LED R" 3 HP FS  0 U>F32 6 HP FF  255 U>F32 7 HP FF  1 U>F32 8 HP FF  HP 49 HF ESP-CLIENT @ TX
       HP RST  S" led_g" 1 HP FS  10 2 HP FF  S" LED G" 3 HP FS  0 U>F32 6 HP FF  255 U>F32 7 HP FF  1 U>F32 8 HP FF  HP 49 HF ESP-CLIENT @ TX
       HP RST  S" led_b" 1 HP FS  11 2 HP FF  S" LED B" 3 HP FS  0 U>F32 6 HP FF  255 U>F32 7 HP FF  1 U>F32 8 HP FF  HP 49 HF ESP-CLIENT @ TX
+      HP RST  S" rgb" 1 HP FS  12 2 HP FF  S" RGB LED" 3 HP FS  35 12 HP FU  HP 15 HF ESP-CLIENT @ TX   \ ListEntitiesLight: ColorMode RGB=35
    [THEN]
    HP RST  HP 19 HF ESP-CLIENT @ TX ;
 
@@ -118,9 +125,24 @@ DECIMAL
 : NSTATE ( key fbits -- )   HP RST  SWAP 1 HP FF  2 HP FF  HP 50 HF ESP-CLIENT @ TX ;   \ a number state for any key
 : TEXT-STATE ( -- )         HP RST  5 1 HP FF  TXTBUF TXT-N @ 2 HP FS  HP 98 HF ESP-CLIENT @ TX ;
 : DO-TEXT-CMD ( a u -- )    2 PB-FIELD 0= IF  TXTBUF 0  THEN  SET-TEXT  TEXT-STATE ;
-[DEFINED] SET-RGB [IF]
+: MX2 ( a b -- m )  2DUP < IF SWAP THEN DROP ;
+: MX3 ( a b c -- m )  MX2 MX2 ;
+[DEFINED] SET-RGB [IF]                                    \ NanoC6: RGB LED also exposed as an HA light (key 12)
+: F255 ( bits -- u )   \ trunc(f*255), f in [0,1] : light colour/brightness float -> 0..255
+   DUP 23 RSHIFT 255 AND  DUP 0= IF 2DROP 0 EXIT THEN
+   127 -  SWAP 8388607 AND 8388608 OR  255 *
+   SWAP 23 SWAP -  DUP 0< IF NEGATE LSHIFT ELSE RSHIFT THEN  255 MIN ;
+: LIGHT-STATE ( -- )   \ LightStateResponse(24): on/off + brightness + rgb, decomposed from RGB@ (mx>=0 -> IF tests >0)
+   RGB@ DUP 16 RSHIFT 255 AND LC-R !  DUP 8 RSHIFT 255 AND LC-G !  255 AND LC-B !
+   LC-R @ LC-G @ LC-B @ MX3 LC-MX !
+   HP RST  12 1 HP FF  LC-MX @ 0= 0= 1 AND 2 HP FU  LC-MX @ 255 U/F32 3 HP FF
+   1 U>F32 10 HP FF  35 11 HP FU
+   LC-MX @ IF LC-R @ LC-MX @ U/F32 ELSE 0 THEN 4 HP FF
+   LC-MX @ IF LC-G @ LC-MX @ U/F32 ELSE 0 THEN 5 HP FF
+   LC-MX @ IF LC-B @ LC-MX @ U/F32 ELSE 0 THEN 6 HP FF
+   HP 24 HF ESP-CLIENT @ TX ;
 : PUB-RGB ( -- )   9 RGB@ 16 RSHIFT 255 AND U>F32 NSTATE  10 RGB@ 8 RSHIFT 255 AND U>F32 NSTATE  11 RGB@ 255 AND U>F32 NSTATE
-   RGB@ ESP-RGB-LAST ! ;                                  \ push R/G/B states + remember (console->HA change detection)
+   LIGHT-STATE  RGB@ ESP-RGB-LAST ! ;                     \ push R/G/B numbers + the light state + remember (change detect)
 [THEN]
 : PUBLISH ( -- )
    1  S-UPTIME U>F32  STATE-1
@@ -136,6 +158,26 @@ DECIMAL
    [DEFINED] SET-RGB [IF]  OVER 9 12 WITHIN IF  OVER 9 -  OVER F32>U  SET-RGB  NSTATE  EXIT THEN  [THEN]
    2DROP ;
 
+[DEFINED] SET-RGB [IF]
+: DO-LIGHT-CMD ( a u -- )   \ LightCommandRequest(32): state/brightness/rgb -> RGB!  (payload kept in LC-PA/LC-PU)
+   LC-PU !  LC-PA !                                       \ save payload -> scratch (working stack stays clean)
+   RGB@ DUP 16 RSHIFT 255 AND LC-R !  DUP 8 RSHIFT 255 AND LC-G !  255 AND LC-B !
+   LC-R @ LC-G @ LC-B @ MX3 LC-MX !
+   LC-PA @ LC-PU @ 2 PB-VARINT NIP IF                     \ has_state present
+      LC-PA @ LC-PU @ 3 PB-VARINT DROP 0= IF  0 0 0 RGB!  LIGHT-STATE PUB-RGB EXIT  THEN
+   THEN
+   LC-PA @ LC-PU @ 4 PB-VARINT NIP IF  LC-PA @ LC-PU @ 5 PB-FIX32 DROP F255  ELSE  LC-MX @  THEN  LC-BM !
+   LC-PA @ LC-PU @ 6 PB-VARINT NIP IF                     \ has_rgb: sent colour * brightness
+      LC-PA @ LC-PU @ 7 PB-FIX32 DROP F255  LC-BM @ * 255 /
+      LC-PA @ LC-PU @ 8 PB-FIX32 DROP F255  LC-BM @ * 255 /
+      LC-PA @ LC-PU @ 9 PB-FIX32 DROP F255  LC-BM @ * 255 /
+   ELSE                                                   \ no rgb: rescale current colour to the new brightness
+      LC-MX @ 0= IF  LC-BM @ DUP DUP  ELSE
+         LC-R @ LC-BM @ * LC-MX @ /  LC-G @ LC-BM @ * LC-MX @ /  LC-B @ LC-BM @ * LC-MX @ /
+      THEN
+   THEN
+   RGB!  LIGHT-STATE PUB-RGB ;
+[THEN]
 \ ==== HA entity-state import ====
 : HA-SUBSCRIBE ( a u xt -- )
    HA-N @ HA-MAX < 0= IF 2DROP DROP EXIT THEN
@@ -161,6 +203,7 @@ DECIMAL
    DUP 20 = IF DROP 1 ESP-SUB !  PUBLISH  HA-SUB-ALL  EXIT THEN
    DUP 38 = IF DROP HA-SUB-ALL  EXIT THEN
    DUP 51 = IF DROP PLA @ PLU @ DO-NUMBER-CMD  EXIT THEN
+   DUP 32 = IF DROP [DEFINED] DO-LIGHT-CMD [IF] PLA @ PLU @ DO-LIGHT-CMD [THEN] EXIT THEN
    DUP 99 = IF DROP PLA @ PLU @ DO-TEXT-CMD    EXIT THEN
    DUP 40 = IF DROP HA-STATE-IN  EXIT THEN
    DROP ;
