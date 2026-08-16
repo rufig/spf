@@ -100,16 +100,16 @@ DECIMAL
    S" n/a" 5 HP FS  DEV-MODEL 6 HP FS  DEV-PROJ 12 HP FS  HELLO-NAME 13 HP FS
    HP 10 HF ESP-CLIENT @ TX ;
 : SEND-ENTITIES ( -- )                                    \ 3 sensors(16) + number(49) + text(97) + Done(19)
-   HP RST  S" uptime" 1 HP FS  1 2 HP FF  S" Uptime"    3 HP FS  S" s"     6 HP FS   HP 16 HF ESP-CLIENT @ TX
-   HP RST  S" heap"   1 HP FS  2 2 HP FF  S" Free heap" 3 HP FS  S" bytes" 6 HP FS   HP 16 HF ESP-CLIENT @ TX
-   HP RST  S" rssi"   1 HP FS  3 2 HP FF  S" WiFi RSSI" 3 HP FS  S" dBm"   6 HP FS   HP 16 HF ESP-CLIENT @ TX
+   HP RST  S" uptime" 1 HP FS  1 2 HP FF  S" Uptime"    3 HP FS  S" s"     6 HP FS  S" duration" 9 HP FS  1 10 HP FU   HP 16 HF ESP-CLIENT @ TX
+   HP RST  S" heap"   1 HP FS  2 2 HP FF  S" Free heap" 3 HP FS  S" bytes" 6 HP FS  1 10 HP FU   HP 16 HF ESP-CLIENT @ TX
+   HP RST  S" rssi"   1 HP FS  3 2 HP FF  S" WiFi RSSI" 3 HP FS  S" dBm"   6 HP FS  S" signal_strength" 9 HP FS  1 10 HP FU   HP 16 HF ESP-CLIENT @ TX
    HP RST  S" blink_freq" 1 HP FS  4 2 HP FF  S" Blink frequency" 3 HP FS
       1 U>F32 6 HP FF  10 U>F32 7 HP FF  1 U>F32 8 HP FF  S" Hz" 11 HP FS   HP 49 HF ESP-CLIENT @ TX
    HP RST  S" text" 1 HP FS  5 2 HP FF  S" Text" 3 HP FS  TEXT-MAX 9 HP FU  0 11 HP FU   HP 97 HF ESP-CLIENT @ TX
    [DEFINED] S-CO2 [IF]
-      HP RST  S" co2"  1 HP FS  6 2 HP FF  S" CO2" 3 HP FS  S" ppm" 6 HP FS   HP 16 HF ESP-CLIENT @ TX
-      HP RST  S" temp" 1 HP FS  7 2 HP FF  S" Temperature" 3 HP FS  S" C" 6 HP FS   HP 16 HF ESP-CLIENT @ TX
-      HP RST  S" hum"  1 HP FS  8 2 HP FF  S" Humidity" 3 HP FS  S" %" 6 HP FS   HP 16 HF ESP-CLIENT @ TX
+      HP RST  S" co2"  1 HP FS  6 2 HP FF  S" CO2" 3 HP FS  S" ppm" 6 HP FS  S" carbon_dioxide" 9 HP FS  1 10 HP FU   HP 16 HF ESP-CLIENT @ TX
+      HP RST  S" temp" 1 HP FS  7 2 HP FF  S" Temperature" 3 HP FS  S" °C" 6 HP FS  1 7 HP FU  S" temperature" 9 HP FS  1 10 HP FU   HP 16 HF ESP-CLIENT @ TX
+      HP RST  S" hum"  1 HP FS  8 2 HP FF  S" Humidity" 3 HP FS  S" %" 6 HP FS  1 7 HP FU  S" humidity" 9 HP FS  1 10 HP FU   HP 16 HF ESP-CLIENT @ TX
    [THEN]
    [DEFINED] SET-RGB [IF]
       HP RST  S" led_r" 1 HP FS  9  2 HP FF  S" LED R" 3 HP FS  0 U>F32 6 HP FF  255 U>F32 7 HP FF  1 U>F32 8 HP FF  HP 49 HF ESP-CLIENT @ TX
