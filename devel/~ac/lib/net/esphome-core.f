@@ -6,7 +6,7 @@
 \
 \ The platform file MUST have already defined, before INCLUDE:
 \   state buffers : HP HF RBUF TXTBUF  HA-LENS HA-XTS HA-ENTS  ( + accessors HA-ENT/HA-LEN/HA-XT )
-\   state cells   : ESP-LSOCK ESP-CLIENT ESP-SUB RLEN PLA PLU ESP-GOT ESP-IDLE TXT-N HA-N ESP-RESUB PB-F  HA-TVAL-N HA-TVAL
+\   state cells   : ESP-LSOCK ESP-CLIENT ESP-SUB RLEN PLA PLU ESP-GOT ESP-IDLE TXT-N HA-N ESP-RESUB PB-F  HA-TVAL-N HA-TVAL ESP-LASTPUB
 \   consts        : HA-MAX RCAP TEXT-MAX
 \   sockets       : WriteSocket ReadSocket  (RecvTimeoutSocket/NoDelaySocket used by the platform accept loop)
 \   hooks         : HELLO-NAME ( -- a u )  DEV-NAME DEV-MAC DEV-VER DEV-MODEL DEV-PROJ ( -- a u )  device info
@@ -150,7 +150,7 @@ DECIMAL
    3  S-RSSI   I>F32  STATE-1
    NUM-STATE  TEXT-STATE
    [DEFINED] S-CO2 [IF]  S-SENSE  6 S-CO2 U>F32 STATE-1  7 S-TEMP 10 N/F32 STATE-1  8 S-HUM 10 U/F32 STATE-1  [THEN]
-   [DEFINED] SET-RGB [IF]  PUB-RGB  [THEN] ;
+   [DEFINED] SET-RGB [IF]  PUB-RGB  [THEN]  S-UPTIME ESP-LASTPUB ! ;   \ stamp the proactive-publish timer
 : DO-NUMBER-CMD ( a u -- )   \ route the NumberCommand by key: 4 = blink ; 9/10/11 = LED R/G/B
    2DUP 1 PB-FIX32 0= IF 2DROP DROP EXIT THEN
    -ROT 2 PB-FIX32 0= IF 2DROP EXIT THEN                        ( key fbits )
@@ -222,9 +222,10 @@ DECIMAL
    RLEN @ OVER < IF DROP 2DROP TRUE EXIT THEN
    SWAP DISPATCH  NIP SHIFT-BUF  FALSE ;
 : RECV-LOOP ( -- )
-   0 RLEN !  0 ESP-GOT !  0 ESP-IDLE !
+   0 RLEN !  0 ESP-GOT !  0 ESP-IDLE !  S-UPTIME ESP-LASTPUB !
    BEGIN
       ESP-RESUB @ ESP-SUB @ AND IF  HA-SUB-ALL  0 ESP-RESUB !  THEN
+      ESP-SUB @ IF  S-UPTIME ESP-LASTPUB @ -  29 >  IF  PUBLISH  THEN  THEN   \ time-based proactive push (~30s), RX-independent: HA keeps the link alive by ponging our pings, which resets ESP-IDLE, so the idle counter alone never fires
       [DEFINED] SET-RGB [IF]  ESP-SUB @ IF  RGB@ ESP-RGB-LAST @ <> IF  PUB-RGB  THEN  THEN  [THEN]   \ console/blink -> HA
       RBUF RLEN @ +  RCAP RLEN @ -  ESP-CLIENT @ ReadSocket  DROP
       DUP 0= IF DROP EXIT THEN
@@ -232,7 +233,6 @@ DECIMAL
          DROP  1 ESP-IDLE +!
          ESP-GOT @ 0= IF EXIT THEN
          ESP-IDLE @ 4 MOD 0= IF SEND-PING THEN
-         ESP-IDLE @ 10 MOD 0= IF ESP-SUB @ IF PUBLISH THEN THEN   \ proactively push states ~every 30s (HA history)
          ESP-IDLE @ 16 > IF EXIT THEN
       ELSE
          1 ESP-GOT !  0 ESP-IDLE !  RLEN +!
