@@ -104,7 +104,7 @@ DECIMAL
    HP RST  S" heap"   1 HP FS  2 2 HP FF  S" Free heap" 3 HP FS  S" bytes" 6 HP FS  1 10 HP FU   HP 16 HF ESP-CLIENT @ TX
    HP RST  S" rssi"   1 HP FS  3 2 HP FF  S" WiFi RSSI" 3 HP FS  S" dBm"   6 HP FS  S" signal_strength" 9 HP FS  1 10 HP FU   HP 16 HF ESP-CLIENT @ TX
    HP RST  S" blink_freq" 1 HP FS  4 2 HP FF  S" Blink frequency" 3 HP FS
-      1 U>F32 6 HP FF  10 U>F32 7 HP FF  1 U>F32 8 HP FF  S" Hz" 11 HP FS   HP 49 HF ESP-CLIENT @ TX
+      0 U>F32 6 HP FF  50 U>F32 7 HP FF  1 U>F32 8 HP FF  S" Hz" 11 HP FS   HP 49 HF ESP-CLIENT @ TX
    HP RST  S" text" 1 HP FS  5 2 HP FF  S" Text" 3 HP FS  TEXT-MAX 9 HP FU  0 11 HP FU   HP 97 HF ESP-CLIENT @ TX
    [DEFINED] S-CO2 [IF]
       HP RST  S" co2"  1 HP FS  6 2 HP FF  S" CO2" 3 HP FS  S" ppm" 6 HP FS  S" carbon_dioxide" 9 HP FS  1 10 HP FU   HP 16 HF ESP-CLIENT @ TX

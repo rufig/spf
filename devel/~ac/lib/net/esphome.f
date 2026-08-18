@@ -58,7 +58,7 @@ VARIABLE T0
 : S-RSSI   ( -- n )  -50 ;                                 \ no WiFi -- fixed demo dBm
 VARIABLE BLINK-HZ   1 BLINK-HZ !
 : HB-FREQ  ( -- hz )  BLINK-HZ @ ;
-: HB-SET   ( hz -- )  ?DUP 0= IF 1 THEN  DUP 10 > IF DROP 10 THEN  BLINK-HZ ! ;
+: HB-SET   ( hz -- )  DUP 50 > IF DROP 50 THEN  BLINK-HZ ! ;   \ 0..50 (desktop stores the value; 0 = off on the C3)
 : SET-TEXT ( a u -- )  127 MIN DUP TXT-N !  TXTBUF SWAP CMOVE
    ." [esphome text] " TXTBUF TXT-N @ TYPE CR ;            \ desktop: echo to console instead of an OLED
 : HA-TEMP! ( a u -- )  63 MIN DUP HA-TVAL-N !  HA-TVAL SWAP CMOVE
