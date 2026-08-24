@@ -62,7 +62,7 @@ REQUIRE NDROP    ~pinka/lib/ext/common.f
 WARNING @  WARNING 0!
 
 ' DP
-USER DP ( -- addr ) \ переменная, содержащая HERE сегмента данных
+USER DP ( -- a-addr[+ addr.here | 0 ] ) \ переменная, содержащая HERE сегмента данных
 
 DUP EXECUTE @ DP !  ' DP SWAP REPLACE-WORD
 \ заменили старое DP, чтобы не переопределять все откладывающие слова
@@ -74,6 +74,14 @@ S" storage-core.f" Included
 
 \ расширение простейшего хранилища:
 
+\ DataTypeLayout( storage-extension = wid.complist x.reserved wid.default voclist-next flag.is-busy )
+\
+\ DataType( voclist-next = ?a-addr[+ voclist-entry] )
+\ DataTypeLayout( voclist-entry = voclist-next wordlist-header )
+\ DataType( wid = a-addr[+ wordlist-header ][- voclist-next ] )
+\ NB: `DataType` defines a shape on the stack, while `DataTypeLayout` defines a shape in memory.
+\     `?T` is equvalent to `T | u1*0`, where u1 is the size of T on the stack.
+
 ..: AT-FORMATING ( -- )
   ( ALIGN) HERE STORAGE-EXTRA !
   HERE 0 ,  \ 0, current wid
@@ -81,6 +89,7 @@ S" storage-core.f" Included
   HERE 0 ,  \ 2, default wid
   0 ,       \ 3, voc-list
   0 ,       \ 4, isBusy -- for debug
+  ( a-addr[+ ?wid.complist ] a-addr[+ ?wid.default ] )
   WORDLIST DUP ROT ! \ to default
   SWAP !             \ to current
 ;..
@@ -100,35 +109,35 @@ S" storage-core.f" Included
 ;
 
 VOC-LIST @
-( old-voc-list@ )
+( voclist-next.old )
 
 CREATE _VOC-LIST-EMPTY 0 ,
 \ если кто-то захочет перебирать словари без подключения хранилища.
 
-: VOC-LIST2 ( -- addr )
+: VOC-LIST2 ( -- a-addr[+ voclist-next] )
   STORAGE-ID IF STORAGE-EXTRA @ 3 CELLS + EXIT THEN _VOC-LIST-EMPTY
 ;
 ' VOC-LIST2 TO VOC-LIST
 
-: STORAGE-EXTRA ( -- a ) \ свободная ячейка
+: STORAGE-EXTRA ( -- a-addr[+ x.reserved ] ) \ свободная ячейка
   STORAGE-EXTRA @ CELL+
 ;
 
-( old-voc-list@ )
+( voclist-next.old )
 ALIGN HERE IMAGE-SIZE HERE IMAGE-BASE - - ( addr u ) \ see  lib/include/core-ext.f
 FORMAT
   DUP MOUNT \ (!!!)
   FORTH-WORDLIST SET-CURRENT
 CONSTANT FORTH-STORAGE  \ базовое хранилище форт-системы
 
-( old-voc-list@ ) VOC-LIST !  \ список словарей базового хранилища
+( voclist-next.old ) VOC-LIST !  \ список словарей базового хранилища
 
 ..: AT-PROCESS-STARTING  FORTH-STORAGE MOUNT ;..
 
 : AT-SAVING-BEFORE ... ;
 : AT-SAVING-AFTER ... ;
 
-: CODESPACE-CONTENT ( -- addr u )
+: CODESPACE-CONTENT ( -- a-addr[+ u1*byte ] u1 )
   STORAGE-ID FORTH-STORAGE <> IF CODESPACE-CONTENT EXIT THEN
   IMAGE-BASE DP @ OVER -
 ;
@@ -136,7 +145,7 @@ CONSTANT FORTH-STORAGE  \ базовое хранилище форт-системы
   STORAGE-ID FORTH-STORAGE = IF IMAGE-BASE IMAGE-SIZE +  STORAGE-ID 3 CELLS + ! THEN
   FLUSH-STORAGE
 ;
-: SAVE ( addr u -- )
+: SAVE ( sd.filename -- )
   STORAGE-ID FORTH-STORAGE <> ABORT" Current storage is not FORTH-STORAGE"
   AT-SAVING-BEFORE
   FLUSH-STORAGE STORAGE-EXTRA 3 CELLS + DUP >R 0! \ сохранить надо с флагом "незанято"
@@ -186,13 +195,13 @@ EXPORT
   CONTEXT @ SET-CURRENT
 ;
 
-: MODULE: ( "name" -- old-current )
+: MODULE: ( "name" -- wid.old-current )
   >IN @
   ['] ' CATCH
   IF >IN ! VOCABULARY LATEST-NAME-XT ELSE NIP THEN
   GET-CURRENT SWAP ALSO EXECUTE DEFINITIONS
 ;
-: ;MODULE ( old-current -- )
+: ;MODULE ( wid.old-current -- )
   SET-CURRENT PREVIOUS
 ;
 
@@ -208,11 +217,11 @@ EXPORT
 
 : AT-STORAGE-DELETING ( -- ) ... ;
 
-: NEW-STORAGE ( size -- h )
+: NEW-STORAGE ( size -- h-storage )
   DUP ALLOCATE-RWX THROW (FIX-MEMTAG) SWAP
   2DUP ERASE FORMAT
 ;
-: DEL-STORAGE ( h -- )
+: DEL-STORAGE ( h-storage -- )
   PUSH-MOUNT AT-STORAGE-DELETING POP-MOUNT FREE-RWX THROW
 ;
 

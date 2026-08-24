@@ -4,18 +4,18 @@
 
 MODULE: WidExtraSupport
 
-3 CELLS CONSTANT /THIS-EXTR   \ [ hash-table | storage-id | free cell ]
+3 CELLS CONSTANT /THIS-EXTR   \ DataTypeLayout( cache-for-wid = x.cache-id x.storage-id x.reserved )
 
 : MAKE-EXTR ( wid -- )
   HERE DUP /THIS-EXTR DUP ALLOT ERASE
-  ( wid here )
+  ( wid addr[+ cache-for-wid ] )
   SWAP WID-EXTRA !
 ;
 
-: WID-CACHEA ( wid -- a )
+: WID-CACHEA ( wid -- a-addr[+ x.cache-id] )
   WID-EXTRA @
 ;
-: WID-STORAGEA ( wid -- a )
+: WID-STORAGEA ( wid -- a-addr[+ x.storage-id] )
   WID-EXTRA @ CELL+
 ;
 
@@ -23,7 +23,7 @@ EXPORT
 
 WARNING @  WARNING 0!
 
-: WID-EXTRA ( wid -- a )  \ будет свободна€ дл€ других расширений €чейка
+: WID-EXTRA ( wid -- a-addr[+ x.reserved] )  \ будет свободна€ дл€ других расширений €чейка
   WID-EXTRA @ 2 CELLS +  \ оптимизатор тут все правильно сделает :)
 ;
 

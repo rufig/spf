@@ -30,16 +30,21 @@
 \ целевое хранилище еще|уже является текущим.
 
 
-: STORAGE-ID ( -- h )
+\ DataType( h-storage = a-addr[+ storage-header ] )
+\ DataTypeLayout( storage-header = addr.here  x.reserved  x.pushed[h-storage|0]  addr.border )
+
+
+: STORAGE-ID ( -- h-storage|0 )
   STORAGE @
 ;
-: (DISMOUNT) ( -- h dp )
+: (DISMOUNT) ( -- h-storage addr.here|0  ||  -- 0 0 )
   STORAGE @  DP @
 ;
-: (MOUNT) ( h dp -- )
+: (MOUNT) ( h-storage addr.here|0 --  ||  0 0 -- )
   DP !  STORAGE !
 ;
-: (FORMAT) ( addr u -- h )
+
+: (FORMAT) ( a-addr1[+ u1*byte] u1 -- a-addr1[h-storage] )
   DUP 64 CELLS U< ABORT" storage too small to format"
   OVER 4 CELLS 2DUP ERASE
   OVER + SWAP !           \ <!-- 0, dp   -->
@@ -47,49 +52,50 @@
                           \ <!-- 2, dstack -->
   OVER + OVER 3 CELLS + ! \ <!-- 3, bound -->
 ;
-: FORMAT ( addr u -- h )
+: FORMAT ( a-addr1[+ u1*byte] u1 -- a-addr1[h-storage] )
   (DISMOUNT) 2>R
-  (FORMAT) DUP @ (MOUNT)  AT-FORMATING   (DISMOUNT) OVER ! ( h )
+  (FORMAT) DUP @ (MOUNT)  AT-FORMATING   (DISMOUNT)  ( a-addr1 addr.here )
+  OVER !   ( a-addr1[h-storage] )
   2R> (MOUNT)
 ;
-: DISMOUNT ( -- h )
+: DISMOUNT ( -- h-storage|0 )
   STORAGE @ DUP IF
     DP @ 255 U> IF AT-DISMOUNTING  (DISMOUNT) SWAP ! THEN
     DP 0! STORAGE 0!
   THEN
 ;
-: MOUNT ( h -- )
+: MOUNT ( h-storage|0 -- )
   DUP STORAGE-ID = IF DROP EXIT THEN
   DISMOUNT DROP
   DUP IF DUP @  (MOUNT)  AT-MOUNTING  EXIT THEN DROP
 ;
-: MOUNT-RO ( h -- ) \ mounts for read-only
+: MOUNT-RO ( h-storage|0 -- ) \ mounts for read-only
 \ it skips AT-MOUNTING and then AT-DISMOUNTING for given storage
   DISMOUNT DROP
   DUP IF 0 (MOUNT) EXIT THEN DROP
 ;
-: PUSH-MOUNT ( h -- ) \ применять к одному хранилищу не более чем единыжды
+: PUSH-MOUNT ( h-storage -- ) \ применять к одному хранилищу не более чем единыжды
   DISMOUNT OVER CELL+ CELL+ !
   MOUNT
 ;
-: POP-MOUNT ( -- h )
+: POP-MOUNT ( -- h-storate )
   DISMOUNT DUP CELL+ CELL+ @ MOUNT
 ;
 : UNUSED ( -- u ) \ 94 CORE EXT
   STORAGE-ID DUP IF 3 CELLS + @   DP @ - THEN
 ;
-: STORAGE-REST ( -- a u ) \ free space
+: STORAGE-REST ( -- addr[+ u1*byte] u1 ) \ free space
   DP @ UNUSED
 ;
-: STORAGE-CONTENT ( -- a u ) \ busy space
+: STORAGE-CONTENT ( -- a-addr[+ u1*byte] u1 ) \ busy space
   STORAGE-ID DP @ OVER -
 ;
-: CODESPACE-CONTENT ( -- a u )
+: CODESPACE-CONTENT ( -- a-addr[+ u1*byte] u1 )
   STORAGE-CONTENT
 ;
 : FLUSH-STORAGE ( -- )
   DISMOUNT MOUNT
 ;
-: STORAGE-EXTRA ( -- a ) \ для расширений; переопределяется каждым следующим расширением.
+: STORAGE-EXTRA ( -- a-addr[+ x.reserved] ) \ для расширений; переопределяется каждым следующим расширением.
   STORAGE-ID CELL+
 ;
