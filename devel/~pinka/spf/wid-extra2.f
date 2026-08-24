@@ -7,8 +7,9 @@ MODULE: WidExtraSupport
 3 CELLS CONSTANT /THIS-EXTR   \ DataTypeLayout( cache-for-wid = x.cache-id x.storage-id x.reserved )
 
 : MAKE-EXTR ( wid -- )
+  ALIGN
   HERE DUP /THIS-EXTR DUP ALLOT ERASE
-  ( wid addr[+ cache-for-wid ] )
+  ( wid a-addr[+ cache-for-wid ] )
   SWAP WID-EXTRA !
 ;
 

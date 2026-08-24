@@ -83,7 +83,7 @@ S" storage-core.f" Included
 \     `?T` is equvalent to `T | u1*0`, where u1 is the size of T on the stack.
 
 ..: AT-FORMATING ( -- )
-  ( ALIGN) HERE STORAGE-EXTRA !
+  ALIGN HERE STORAGE-EXTRA !
   HERE 0 ,  \ 0, current wid
   0 ,       \ 1, extra
   HERE 0 ,  \ 2, default wid
@@ -91,6 +91,8 @@ S" storage-core.f" Included
   0 ,       \ 4, isBusy -- for debug
   ( a-addr[+ ?wid.complist ] a-addr[+ ?wid.default ] )
   WORDLIST DUP ROT ! \ to default
+  ( a-addr[+ ?wid.complist ] wid )
+  0 OVER PAR! \ the first wordlist in the storage does not have a parent
   SWAP !             \ to current
 ;..
 
