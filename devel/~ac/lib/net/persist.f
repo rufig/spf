@@ -97,3 +97,18 @@ CREATE NDBUF 26 ALLOT
       0 ppStmt db3_col DQ>IP  1 ppStmt db3_coli  xt EXECUTE  n 1+ -> n
       ppStmt db3_cdr -> ppStmt
    REPEAT  n ;
+
+\ ---- keep reconnecting to saved members (not just once at boot) ----
+\ Warm-start dials each saved member ONCE.  If that dial missed (a transient timeout, or the member came
+\ up after us) the node never retries it, and if discovery is starved it can stay disconnected until a
+\ restart.  Wired into the DTLS layer's per-round hook, this re-dials saved members that are not currently
+\ connected -- guarded by SELF-EP?/PR-FIND/NCACHE so a live or backed-off member is left alone.
+[DEFINED] MEMBER-REDIAL-XT [IF]                         \ only when loaded over dtls-net.f
+: (REDIAL-ONE) { ip port -- }
+   ip port SELF-EP? IF EXIT THEN                        \ never dial ourselves
+   ip port PR-FIND 0< 0= IF EXIT THEN                   \ already connecting or connected
+   ip port NCACHE-HAS? IF EXIT THEN                     \ rejected/backed-off: respect the NCACHE window
+   ip port 0 SWARM-DTLS-CONNECT DROP ;
+: SWARM-REDIAL-MEMBERS ( -- )  ['] (REDIAL-ONE) SWARM-DB-LOAD-MEMBERS DROP ;
+' SWARM-REDIAL-MEMBERS TO MEMBER-REDIAL-XT
+[THEN]

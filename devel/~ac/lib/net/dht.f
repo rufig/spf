@@ -228,6 +228,10 @@ VARIABLE PEERS-N
    PEERS-N @ PEERS-MAX >= IF EXIT THEN
    pa  PEERS-N @ 6 * PEERS +  6 MOVE
    1 PEERS-N +! ;
+0 VALUE PEER-BAD?-XT                       \ ( pa -- f ) set by the DTLS layer: an already dead/backed-off peer.
+   \ Values[] is an open, pollutable list -- without this a flood of junk announces fills PEERS-MAX and
+   \ crowds the real member's value out (it is dropped as the 257th).  Skipping peers we already know are
+   \ dead keeps the PEERS slots for live candidates, so a member is never starved by DHT junk.
 
 \ ===== routing table: keep good contacts + answer find_node/get_peers with the closest we know =====
 \ Without a routing table we return empty `nodes`, so other nodes drop us and never query us (no DHT
@@ -287,7 +291,10 @@ VARIABLE RTAB-N   0 RTAB-N !
 
 \ ===== response parsing =====================================================================
 : ADD-PEER ( elem-a -- )                 \ a values[] element: a bencoded 6-byte compact peer
-   B-STR@ { a1 pa pu }  pu 6 >= IF pa STORE-PEER THEN ;
+   B-STR@ { a1 pa pu }
+   pu 6 < IF EXIT THEN
+   PEER-BAD?-XT ?DUP IF  pa SWAP EXECUTE IF EXIT THEN  THEN    \ don't let known-dead junk crowd out members
+   pa STORE-PEER ;
 : ADD-NODES { sa su -- }                 \ the nodes string: su/26 compact nodes -> shortlist AND routing table
    su 26 / 0 ?DO  sa I NODELEN * +  DUP SL-ADD  RT-ADD  LOOP ;
 : HARVEST { r -- }                       \ r = the 'r' response dict: pull values[] and nodes

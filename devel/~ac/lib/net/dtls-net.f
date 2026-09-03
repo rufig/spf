@@ -126,6 +126,9 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    ip slot NC nc.ip !  port slot NC nc.port !  fails slot NC nc.fails !  now ttl + slot NC nc.expire !
    fails ttl ;
 
+: (PEER-NCACHED?) { pa -- f }  pa C-IP  pa 4 + C-PORT  NCACHE-HAS? ;   \ compact peer already dead/backed-off?
+' (PEER-NCACHED?) TO PEER-BAD?-XT              \ so HARVEST skips known-dead junk instead of storing it in PEERS
+
 : PR       ( idx -- a )     /PR * PEERTAB + ;
 : PR-IP    ( idx -- ip )    PR pr.ip @ ;
 : PR-PORT  ( idx -- port )  PR pr.port @ ;
@@ -438,6 +441,10 @@ VARIABLE IP-ECHO-N                                \ how many replies carried an 
    THEN
    ra HARVEST  LOOKUP-PUMP ;
 0 VALUE ROUND-END-XT               \ hook run once a lookup round closes: dial+verify harvested peers
+0 VALUE MEMBER-REDIAL-XT           \ hook run at each round's end: re-dial saved members not currently connected
+   \ (set by persist.f).  Warm-start dials saved members ONCE; a member whose one boot dial missed (transient
+   \ timeout) or who came up after us would never be retried.  This keeps trying them -- guarded by the same
+   \ NCACHE backoff, so a stale/dead saved address is not hammered.
 : ANN-TICK ( -- )
    ANN-ACTIVE @ IF
       NOW-MS ANN-DEADLINE @ U< 0= IF
@@ -634,5 +641,6 @@ VARIABLE LISTEN-SSL   VARIABLE LISTEN-RB   VARIABLE LISTEN-WB
    LOOP
    ." swarm: discovery: PEERS=" PEERS-N @ .  ." (" dialed .  ." new, " known .  ." known, "
    bad .  ." bad, " self .  ." self)  corr-hit=" OQ-HIT @ .  ." miss=" OQ-MISS @ . CR
-   EXTIP-EXPIRE  .EXTIPS ;                         \ our routes out, so a second one is visible when it appears
+   EXTIP-EXPIRE  .EXTIPS                           \ our routes out, so a second one is visible when it appears
+   MEMBER-REDIAL-XT ?DUP IF EXECUTE THEN ;         \ retry saved members that drifted / missed the boot dial
 ' SWARM-DISCOVER-DIAL TO ROUND-END-XT
