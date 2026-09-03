@@ -88,6 +88,10 @@ VARIABLE EXTIP-N   0 EXTIP-N !
       ." swarm: NEW external endpoint observed: " ip .IP4 [CHAR] : EMIT port .#   \ the (ip:port) pair is
       ."  (bound locally on " MY-PORT @ .# ." ) id=" idx XI xi.id .IHPFX          \ what stays stable for it
       ."  -- now " EXTIP-N @ . ." endpoint(s)" CR
+      MY-EXT-IP @ 0= IF                             \ no external IP was configured -> adopt the one the DHT
+         ip MY-EXT-IP !  ip BEP42-NODE-ID           \ reports, so MY-ID becomes the BEP42 id for our real IP
+         ." swarm: adopted external IP as node identity (from DHT): " ip .IP4 CR  \ (no hardcode needed; a
+      THEN                                          \ moved VPS / changed IP self-corrects instead of going stale)
    THEN ;
 : ID-OURS? { ida \ f -- f }                         \ is this 20-byte node id any of ours?
    FALSE -> f
