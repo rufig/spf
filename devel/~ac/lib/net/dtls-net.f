@@ -25,6 +25,31 @@ DECIMAL
 \ SHA1/CERT-SPKI/.HASH here are the swarm.f Forth words (dtls.f already did PREVIOUS PREVIOUS).
 CREATE CB-IDBUF 20 ALLOT
 
+\ ---- foreign-cert tripwire: a DTLS peer that ANSWERS but presents a cert NOT signed by our CA is not a
+\ plain DHT node (those never speak DTLS) -- it is an impostor / stray DTLS service / prober.  Rare and
+\ interesting, so we log it in full AND keep the DER for offline analysis (openssl x509 -inform DER -text).
+0 VALUE FCERT-EP-XT                        \ ( ssl -- ip port f ) resolve a handshaking SSL to its endpoint; set below
+TRUE VALUE FCERT-ON?    50 VALUE FCERT-MAX    8192 CONSTANT FCERT-MAXLEN
+VARIABLE FCERT-N   0 FCERT-N !
+CREATE FCERT-PFX 2 CELLS ALLOT   S" swarm-foreigncert-" FCERT-PFX 2!
+: SET-FCERT-FILE ( a u -- )  FCERT-PFX 2! ;               \ e.g. S" /root/dht/foreigncert-" SET-FCERT-FILE
+256 CONSTANT /FCN   CREATE FCN /FCN ALLOT   VARIABLE FCNP
+: FC{ ( -- )       FCN FCNP ! ;
+: FC+ { a u -- }   u 0 ?DO a I + C@ FCNP @ C!  1 FCNP +! LOOP ;
+: FC# ( n -- )     DECIMAL 0 <# #S #> FC+ ;
+: FC$ ( -- a u )   FCN  FCNP @ FCN - ;
+FALSE VALUE FCERT-WARNED?
+: SAVE-FCERT { a u \ fid ior -- }          \ DER bytes -> one file <prefix><N>.der (one cert/file, session-capped)
+   FCERT-ON? 0= IF EXIT THEN
+   u 0= u FCERT-MAXLEN > OR IF EXIT THEN
+   FCERT-N @ FCERT-MAX >= IF EXIT THEN
+   FC{ FCERT-PFX 2@ FC+ FCERT-N @ FC# S" .der" FC+
+   FC$ R/W BIN CREATE-FILE -> ior -> fid
+   ior IF FCERT-WARNED? 0= IF TRUE TO FCERT-WARNED?                 \ never swallow the error silently
+          ." swarm: foreign-cert capture DISABLED -- cannot create " FCERT-PFX 2@ TYPE ." <N>.der (ior=" ior . ." )" CR THEN
+       EXIT THEN
+   a u fid WRITE-FILE DROP  fid CLOSE-FILE DROP  1 FCERT-N +! ;
+
 : (VERIFY-LOG) { sctx preverify \ x509 -- }               \ base already restored; print the presented cert
    sctx SCTX-CERT -> x509
    ." ~~~ peer cert  depth=" sctx SCTX-DEPTH .  ." preverify=" preverify .
@@ -33,7 +58,15 @@ CREATE CB-IDBUF 20 ALLOT
    x509 X509>DER DUP IF CERT-SPKI CB-IDBUF SHA1  ."  SPKI=" CB-IDBUF .HASH
                   ELSE 2DROP THEN
    preverify 0= IF ."  REJECT(" sctx SCTX-ERR VERR-STR TYPE ." )" THEN
-   CR ;
+   CR
+   preverify 0= IF                                        \ NON-our-CA cert -> detail it loudly + keep the DER
+      ." !!! FOREIGN DTLS cert -- from "
+      FCERT-EP-XT ?DUP IF  sctx SCTX>SSL SWAP EXECUTE IF .IPPORT ELSE 2DROP ." <handshaking>" THEN
+                    ELSE ." <handshaking>" THEN
+      ."  depth=" sctx SCTX-DEPTH .  ." issuer=" x509 X509-ISSUER TYPE
+      ."  err=" sctx SCTX-ERR VERR-STR TYPE CR                          \ subj/SPKI already on the ~~~ line above
+      x509 X509>DER DUP IF SAVE-FCERT ELSE 2DROP THEN                   \ full cert for offline forensics
+   THEN ;
 
 :NONAME { sctx preverify \ tls ssl base -- ret }          \ C callback: (preverify_ok, X509_STORE_CTX*)
    TlsIndex@ -> tls                                       \ save the base the C caller left (garbage)
@@ -145,6 +178,12 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
 : PR-DL! ( ms idx -- )      PR pr.dl ! ;
 : PR-RX@ ( idx -- ms )      PR pr.rx @ ;
 : PR-RX! ( ms idx -- )      PR pr.rx ! ;
+: PR-FIND-BY-SSL { ssl -- idx }                          \ which active peer slot owns this SSL* (for the verify cb)
+   MAXPEERS 0 ?DO  I PR-STATE ST-FREE <>  ssl I PR-SSL = AND IF I UNLOOP EXIT THEN  LOOP  -1 ;
+: (FCERT-EP) { ssl \ idx -- ip port f }                  \ endpoint of a handshaking SSL, for the foreign-cert log
+   ssl PR-FIND-BY-SSL -> idx
+   idx 0< IF 0 0 FALSE ELSE idx PR-IP idx PR-PORT TRUE THEN ;
+' (FCERT-EP) TO FCERT-EP-XT
 
 : PR-ALLOC ( -- idx | -1 )
    MAXPEERS 0 ?DO I PR-STATE ST-FREE = IF I UNLOOP EXIT THEN LOOP -1 ;

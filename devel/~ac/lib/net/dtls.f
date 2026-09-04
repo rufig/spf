@@ -187,6 +187,10 @@ HEX 1000 CONSTANT SSL_OP_NO_QUERY_MTU   FFFFFFFF CONSTANT MASK32  DECIMAL
 : X509-SUBJECT { x509 -- a u }                            \ subject DN as text, into CB-SUB
    /CB-SUB CB-SUB  x509 1 X509_get_subject_name  3 X509_NAME_oneline DROP
    CB-SUB ASCIIZ> ;
+CREATE CB-ISS /CB-SUB ALLOT
+: X509-ISSUER { x509 -- a u }                            \ issuer DN as text, into CB-ISS (who SIGNED the cert)
+   /CB-SUB CB-ISS  x509 1 X509_get_issuer_name  3 X509_NAME_oneline DROP
+   CB-ISS ASCIIZ> ;
 \ ===== P0.5: stateless cookie / HelloVerifyRequest ==========================================
 \ Before this, ANY datagram whose first byte looked like a DTLS record could make us allocate an SSL and
 \ a peer slot.  A flood from forged source addresses would then hold every slot until CONNECT-TIMEOUT,
