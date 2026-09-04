@@ -223,15 +223,18 @@ VARIABLE PEERS-N
 : MEM= { a b u -- f }  u 0 DO a I + C@ b I + C@ <> IF FALSE UNLOOP EXIT THEN LOOP TRUE ;
 : PEER-DUP? { pa -- f }                   \ is this 6-byte compact peer already collected?
    PEERS-N @ 0 ?DO  pa  PEERS I 6 * +  6 MEM= IF TRUE UNLOOP EXIT THEN  LOOP  FALSE ;
-: STORE-PEER { pa -- }
-   pa PEER-DUP? IF EXIT THEN
-   PEERS-N @ PEERS-MAX >= IF EXIT THEN
-   pa  PEERS-N @ 6 * PEERS +  6 MOVE
-   1 PEERS-N +! ;
 0 VALUE PEER-BAD?-XT                       \ ( pa -- f ) set by the DTLS layer: an already dead/backed-off peer.
    \ Values[] is an open, pollutable list -- without this a flood of junk announces fills PEERS-MAX and
-   \ crowds the real member's value out (it is dropped as the 257th).  Skipping peers we already know are
-   \ dead keeps the PEERS slots for live candidates, so a member is never starved by DHT junk.
+   \ crowds the real member's value out.  Two uses: HARVEST skips a KNOWN-dead peer at add time (ADD-PEER),
+   \ and STORE-PEER gives a full table's first dead slot to a live newcomer instead of turning it away.
+: STORE-PEER { pa -- }
+   pa PEER-DUP? IF EXIT THEN
+   PEERS-N @ PEERS-MAX < IF                                   \ room: append
+      pa  PEERS-N @ 6 * PEERS +  6 MOVE  1 PEERS-N +!  EXIT THEN
+   PEER-BAD?-XT 0= IF EXIT THEN                               \ full + can't tell dead from live -> drop the newcomer
+   PEERS-MAX 0 ?DO                                            \ full: hand the first dead/backed-off slot to this live peer
+      PEERS I 6 * +  PEER-BAD?-XT EXECUTE IF  pa  PEERS I 6 * +  6 MOVE  UNLOOP EXIT THEN
+   LOOP ;                                                     \ every slot still live/pending -> legitimately full, drop it
 
 \ ===== routing table: keep good contacts + answer find_node/get_peers with the closest we know =====
 \ Without a routing table we return empty `nodes`, so other nodes drop us and never query us (no DHT
