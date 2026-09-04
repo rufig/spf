@@ -70,6 +70,7 @@ VARIABLE EXTIP-N   0 EXTIP-N !
 : EP-ID-FOR { ip \ a -- id-a | 0 }                  \ identity already bound to this ADDRESS, 0 if new
    0 -> a
    EXTIP-N @ 0 ?DO  ip I XI xi.ip @ = IF I XI xi.id -> a LEAVE THEN  LOOP  a ;
+: ADOPT-EXTIP ( ip -- )   DUP MY-EXT-IP !  BEP42-NODE-ID ;   \ primary external IP -> MY-EXT-IP + BEP42 MY-ID
 : EXTIP-SEEN { ip port \ idx -- }                   \ a peer reported our query reached it from ip:port
    ip 0= IF EXIT THEN
    EXTIP-N @ 0 ?DO
@@ -89,7 +90,7 @@ VARIABLE EXTIP-N   0 EXTIP-N !
       ."  (bound locally on " MY-PORT @ .# ." ) id=" idx XI xi.id .IHPFX          \ what stays stable for it
       ."  -- now " EXTIP-N @ . ." endpoint(s)" CR
       MY-EXT-IP @ 0= IF                             \ no external IP was configured -> adopt the one the DHT
-         ip MY-EXT-IP !  ip BEP42-NODE-ID           \ reports, so MY-ID becomes the BEP42 id for our real IP
+         ip ADOPT-EXTIP                             \ reports, so MY-ID becomes the BEP42 id for our real IP
          ." swarm: adopted external IP as node identity (from DHT): " ip .IP4 CR  \ (no hardcode needed; a
       THEN                                          \ moved VPS / changed IP self-corrects instead of going stale)
    THEN ;
@@ -126,6 +127,17 @@ VARIABLE PEERMAP-N   0 PEERMAP-N !
    PEERMAP-GET ?DUP IF EP-ID ELSE MY-ID THEN  CUR-ID ! ;
 : SIGN-DEFAULT ( -- )   MY-ID CUR-ID ! ;
 
+: EXTIP-HAS-IP? { ip -- f }                         \ is ip still one of our live observed endpoints?
+   EXTIP-N @ 0 ?DO  ip I XI xi.ip @ = IF TRUE UNLOOP EXIT THEN  LOOP  FALSE ;
+: EXTIP-BEST ( -- idx | -1 )                        \ the most-confirmed live endpoint (xi.n), -1 if none
+   EXTIP-N @ 0= IF -1 EXIT THEN
+   0  EXTIP-N @ 1 ?DO  I XI xi.n @  OVER XI xi.n @  U> IF DROP I THEN  LOOP ;
+: EXTIP-READOPT ( -- )                              \ the endpoint MY-ID was derived from is gone -> re-derive it
+   MY-EXT-IP @ 0= IF EXIT THEN                      \ never adopted yet -> next observation adopts
+   MY-EXT-IP @ EXTIP-HAS-IP? IF EXIT THEN           \ our primary IP is still live -> keep the identity (no thrash)
+   EXTIP-BEST DUP 0< IF DROP 0 MY-EXT-IP ! EXIT THEN   \ no endpoints left -> forget; re-adopt on next observation
+   XI xi.ip @  DUP ." swarm: external IP drifted -- re-adopting node identity: " .IP4 CR
+   ADOPT-EXTIP ;                                     \ new BEP42 MY-ID; the periodic re-announce republishes us under it
 : EXTIP-EXPIRE { \ i now last -- }                  \ forget endpoints nobody has confirmed lately
    NOW-MS -> now   0 -> i
    BEGIN i EXTIP-N @ < WHILE
@@ -136,7 +148,8 @@ VARIABLE PEERMAP-N   0 PEERMAP-N !
          EXTIP-N @ 1-  DUP i <> IF DUP XI  i XI  /XI CMOVE THEN DROP   \ compact: last entry fills the hole
          -1 EXTIP-N +!                                                 \ (order carries no meaning here)
       ELSE i 1+ -> i THEN
-   REPEAT ;
+   REPEAT
+   EXTIP-READOPT ;                                  \ if the aged-out one was our identity's IP, adopt a live one
 : .EXTIPS ( -- )
    ." swarm: routes out (local port " MY-PORT @ .# ." ): "
    EXTIP-N @ 0= IF ." none observed yet" CR EXIT THEN
