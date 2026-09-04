@@ -135,7 +135,9 @@ VARIABLE PEERMAP-N   0 PEERMAP-N !
 : EXTIP-READOPT ( -- )                              \ the endpoint MY-ID was derived from is gone -> re-derive it
    MY-EXT-IP @ 0= IF EXIT THEN                      \ never adopted yet -> next observation adopts
    MY-EXT-IP @ EXTIP-HAS-IP? IF EXIT THEN           \ our primary IP is still live -> keep the identity (no thrash)
-   EXTIP-BEST DUP 0< IF DROP 0 MY-EXT-IP ! EXIT THEN   \ no endpoints left -> forget; re-adopt on next observation
+   EXTIP-BEST DUP 0< IF DROP EXIT THEN              \ table emptied by ageing (no CONFIRMATIONS != IP changed):
+      \ keep the last-known IP + id, so BE-SELF still advertises a real address, not 0.0.0.0.  A genuine drift
+      \ is caught the moment a DIFFERENT endpoint is observed -- the next EXTIP-EXPIRE re-adopts to it below.
    XI xi.ip @  DUP ." swarm: external IP drifted -- re-adopting node identity: " .IP4 CR
    ADOPT-EXTIP ;                                     \ new BEP42 MY-ID; the periodic re-announce republishes us under it
 : EXTIP-EXPIRE { \ i now last -- }                  \ forget endpoints nobody has confirmed lately
