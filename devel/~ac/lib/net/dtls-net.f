@@ -22,7 +22,7 @@ DECIMAL
 \ OpenSSL's frame, so USER vars (BASE, ...) are garbage until restored.  Like acWEB64 tls.f's SNI
 \ callback we stashed our base in the SSL ex_data (DTLS-WRAP) and recover it here via the
 \ X509_STORE_CTX -> SSL link, then run the body under CATCH so no Forth THROW unwinds through C.
-\ SHA1/CERT-SPKI/.HASH here are the swarm.f Forth words (dtls.f already did PREVIOUS PREVIOUS).
+\ Use SWARM-SHA1 explicitly: an embedding application may retain libcrypto in its search order.
 CREATE CB-IDBUF 20 ALLOT
 
 \ ---- foreign-cert tripwire: a DTLS peer that ANSWERS but presents a cert NOT signed by our CA is not a
@@ -55,7 +55,7 @@ FALSE VALUE FCERT-WARNED?
    ." ~~~ peer cert  depth=" sctx SCTX-DEPTH .  ." preverify=" preverify .
    x509 0= IF ." (no cert)" CR EXIT THEN
    x509 X509-SUBJECT ." subj=" TYPE
-   x509 X509>DER DUP IF CERT-SPKI CB-IDBUF SHA1  ."  SPKI=" CB-IDBUF .HASH
+   x509 X509>DER DUP IF CERT-SPKI CB-IDBUF SWARM-SHA1  ."  SPKI=" CB-IDBUF .HASH
                   ELSE 2DROP THEN
    preverify 0= IF ."  REJECT(" sctx SCTX-ERR VERR-STR TYPE ." )" THEN
    CR
@@ -101,7 +101,17 @@ CELL -- pr.ping
 CELL -- pr.expect          \ expected SPKI-hash addr, or 0
 CELL -- pr.dl              \ connect deadline
 CELL -- pr.rx              \ last time ANY datagram arrived from this peer (liveness)
-CONSTANT /PR
+CELL -- pr.generation      \ changes whenever this slot is reused
+CELL -- pr.verified        \ application hooks only see authenticated lifetimes
+CELL -- pr.app-u           \ pending SSL_write; same bytes/address until it completes
+1024 -- pr.app-data
+20 -- pr.identity          \ verified SPKI hash; valid only in ST-UP
+ALIGNED CONSTANT /PR
+VARIABLE PR-GENERATION
+0 VALUE APP-UP-XT          \ ( identity-a idx generation -- ); no SQLite/network calls
+0 VALUE APP-DATA-XT        \ ( a u idx generation -- ); borrowed bytes, copy before return
+0 VALUE APP-DOWN-XT        \ ( idx generation -- ); hooks run on the one network owner
+VARIABLE APP-HOOK-ERRORS
 CREATE PEERTAB  MAXPEERS /PR *  ALLOT   PEERTAB MAXPEERS /PR * ERASE
 25000 VALUE PING-INTERVAL          \ NAT-keepalive interval, ms (<30s: UDP mappings often expire ~30-60s)
 8000  VALUE CONNECT-TIMEOUT        \ ms for a candidate to reach ST-UP before we give up
@@ -201,6 +211,8 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    ST-HS idx PR-STATE!   NOW-MS PING-INTERVAL + idx PR-PING!
    0 idx PR-EXPECT!  NOW-MS CONNECT-TIMEOUT + idx PR-DL!
    NOW-MS idx PR-RX!
+   1 PR-GENERATION +! PR-GENERATION @ p pr.generation !
+   0 p pr.app-u ! 0 p pr.verified ! p pr.identity 20 ERASE
    idx ;
 
 \ ---- pump: send everything the SSL has produced; deliver an inbound datagram; advance ----
@@ -236,27 +248,66 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
          n rl - -> n
       THEN
    REPEAT ;
+: PR-APP-UP { idx -- ior }
+   APP-UP-XT 0= IF 0 EXIT THEN
+   idx PR pr.identity idx idx PR pr.generation @ APP-UP-XT CATCH
+   DUP IF >R DROP 2DROP R> 1 APP-HOOK-ERRORS +! THEN ;
+: PR-APP-DATA { a u idx -- ior }
+   APP-DATA-XT 0= IF 0 EXIT THEN
+   a u idx idx PR pr.generation @ APP-DATA-XT CATCH
+   DUP IF >R 2DROP 2DROP R> 1 APP-HOOK-ERRORS +! THEN ;
+: PR-RELEASE { idx \ was-up -- }
+   idx PR pr.verified @ -> was-up 0 idx PR pr.verified !
+   ST-FREE idx PR-STATE! 0 idx PR pr.app-u !
+   was-up APP-DOWN-XT 0<> AND IF
+      idx idx PR pr.generation @ APP-DOWN-XT CATCH
+      ?DUP IF >R 2DROP R> ." swarm: app down hook ior=" . CR 1 APP-HOOK-ERRORS +! THEN
+   THEN
+   idx PR-SSL SSL-FREE 0 idx PR pr.ssl ! ;
 : PR-FAIL { idx reason-a reason-u ttl -- }        \ reject a peer: log, negative-cache for ttl ms, free its SSL
    ." >>> REJECTED " idx PR-IP idx PR-PORT .IPPORT ."  (" reason-a reason-u TYPE ." )" CR
    idx PR-IP idx PR-PORT ttl NCACHE-ADD
-   idx PR-SSL SSL-FREE   ST-FREE idx PR-STATE! ;
+   idx PR-RELEASE ;
 : PR-TIMEOUT { idx \ fails ttl -- }               \ handshake never completed: escalating negative-cache, then free
    idx PR-IP idx PR-PORT NCACHE-TIMEOUT -> ttl -> fails
    ." >>> REJECTED " idx PR-IP idx PR-PORT .IPPORT ."  (handshake timeout, attempt " fails .
    ttl NCACHE-SLOW-TTL U> IF ." -- dead, backoff " ttl 60000 / . ." min" THEN ." )" CR
-   idx PR-SSL SSL-FREE   ST-FREE idx PR-STATE! ;
+   idx PR-RELEASE ;
+\ Queueing copies bytes, so WANT_READ/WRITE never refers to an expired caller buffer.
+\ 0 = queued (not delivered); -3218 = stale/invalid peer; -3219 = queue occupied.
+: PR-APP-SEND { a u idx generation -- ior }
+   idx 0 MAXPEERS WITHIN 0= IF -3218 EXIT THEN
+   idx PR-STATE ST-UP <> idx PR pr.generation @ generation <> OR
+   idx PR pr.verified @ 0= OR IF -3218 EXIT THEN
+   u 0> 0= u 1024 > OR IF -3218 EXIT THEN
+   idx PR pr.app-u @ IF -3219 EXIT THEN
+   a idx PR pr.app-data u MOVE u idx PR pr.app-u ! 0 ;
+: PR-APP-FLUSH { idx \ n u e -- }
+   idx PR-STATE ST-UP <> IF EXIT THEN
+   idx PR pr.app-u @ -> u u 0= IF EXIT THEN
+   idx PR-SSL idx PR pr.app-data u DTLS-WRITE -> n
+   n u = IF 0 idx PR pr.app-u ! EXIT THEN
+   idx PR-SSL n DTLS-ERR -> e
+   e SSL_ERROR_WANT_READ = e SSL_ERROR_WANT_WRITE = OR IF EXIT THEN
+   idx S" DTLS application write failed" NCACHE-SLOW-TTL PR-FAIL ;
 : PR-UP { idx \ ssl -- }                          \ handshake done: verify identity, keep or reject
    idx PR-SSL -> ssl
    ssl DTLS-VERIFIED? 0= IF idx S" cert not signed by our CA" NCACHE-BAD-TTL PR-FAIL EXIT THEN
    ssl DTLS-PEER-DER  DUP 0= IF                                     \ 0 0 = no cert, or cert > /PEER-DER (4096)
       2DROP idx S" peer cert missing/too large" NCACHE-BAD-TTL PR-FAIL EXIT THEN
-   CERT-SPKI PEER-IDBUF SHA1                                        \ the peer's real SPKI hash
+   CERT-SPKI PEER-IDBUF SWARM-SHA1                                  \ the peer's real SPKI hash
    idx PR-EXPECT@ ?DUP IF                                           \ a specific server was expected
       PEER-IDBUF SWAP 20 MEM= 0= IF idx S" identity hash mismatch" NCACHE-BAD-TTL PR-FAIL EXIT THEN
    THEN
    ." <<< MEMBER verified " idx PR-IP idx PR-PORT .IPPORT ."  SPKI=" PEER-IDBUF .HASH CR
    idx PR-IP idx PR-PORT NCACHE-CLEAR                               \ recovered here: reset its timeout backoff
-   MEMBER-UP-XT IF PEER-IDBUF idx PR-IP idx PR-PORT MEMBER-UP-XT EXECUTE THEN ;  \ persist.f saves the address
+   PEER-IDBUF idx PR pr.identity 20 MOVE
+   TRUE idx PR pr.verified !
+   MEMBER-UP-XT IF PEER-IDBUF idx PR-IP idx PR-PORT MEMBER-UP-XT EXECUTE THEN
+   idx PR-APP-UP ?DUP IF
+      ." swarm: app up hook ior=" . CR
+      idx S" application up hook failed" NCACHE-SLOW-TTL PR-FAIL
+   THEN ;
 32 VALUE DRAIN-MAX                                 \ cap SSL_read calls per pass (one datagram's worth of records)
 : PR-DRAIN-IN { idx \ ssl n e i -- }              \ P0.1: consume inbound records once ST-UP, so nothing an
    idx PR-SSL -> ssl   0 -> i                      \ authenticated (or endpoint-spoofing) peer sends can pile
@@ -264,6 +315,11 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
       ssl RXBIG /RXBIG DTLS-READ -> n
       n 0> IF
          NOW-MS idx PR-RX!                          \ only DECRYPTED bytes refresh liveness (P1.6 direction)
+         RXBIG n idx PR-APP-DATA ?DUP IF
+            ." swarm: app data hook ior=" . CR
+            idx S" application data hook failed" NCACHE-SLOW-TTL PR-FAIL EXIT
+         THEN
+         idx PR-STATE ST-UP <> IF EXIT THEN
       ELSE
          ssl n DTLS-ERR -> e
          e SSL_ERROR_WANT_READ = e SSL_ERROR_WANT_WRITE = OR IF EXIT THEN   \ drained: nothing left to read
@@ -282,6 +338,7 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
       THEN
    THEN
    idx PR-STATE ST-UP = IF idx PR-DRAIN-IN THEN                        \ P0.1: empty the receive BIO
+   idx PR-APP-FLUSH
    idx PR-STATE ST-FREE <> IF idx PR-PUMP-OUT THEN ;
 65536 VALUE RBIO-CAP                              \ absolute receive-BIO backlog cap: past this the peer is
 : PR-DELIVER { idx a u -- }                       \ sending records faster than we can read them -> drop it
@@ -623,10 +680,11 @@ VARIABLE LISTEN-SSL   VARIABLE LISTEN-RB   VARIABLE LISTEN-WB
             I PR-TIMEOUT                                        \ escalating backoff: dead junk stops re-dialing
          ELSE I PR-STATE ST-UP =  NOW-MS I PR-RX@ -  PEER-IDLE U>  AND IF   \ established but silent -> reclaim
             ." --- peer idle, dropping " I PR-IP I PR-PORT .IPPORT CR       \ (frees the slot; NAT rebind/dead)
-            I PR-SSL SSL-FREE  ST-FREE I PR-STATE!
+            I PR-RELEASE
          ELSE
             I PR-SSL DTLS-TIMEOUT DROP     \ retransmit a lost flight if its timer is due
             I PR-STATE ST-UP = IF I PR-DRAIN-IN THEN    \ keep draining any RBIO backlog left after DRAIN-MAX
+            I PR-APP-FLUSH
             I PR-STATE ST-FREE <> IF I PR-PUMP-OUT THEN \ (drain may PR-FAIL -> re-check before touching idx)
             I PR-STATE ST-UP = IF I PR-PING-CHECK THEN
          THEN THEN

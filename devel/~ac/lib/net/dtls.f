@@ -115,10 +115,10 @@ HEX 1000 CONSTANT SSL_OP_NO_QUERY_MTU   FFFFFFFF CONSTANT MASK32  DECIMAL
    0 BIO_s_mem 1 BIO_new DUP 0= IF -3221 THROW THEN -> wbio
    0 -1 BIO_C_SET_BUF_MEM_EOF_RETURN rbio 4 BIO_ctrl DROP    \ empty read -> retry, not EOF
    0 -1 BIO_C_SET_BUF_MEM_EOF_RETURN wbio 4 BIO_ctrl DROP
-   wbio rbio ssl 3 SSL_set_bio                               \ SSL owns both BIOs now
+   wbio rbio ssl 3 SSL_set_bio DROP                          \ SSL owns both BIOs now
    SSL_OP_NO_QUERY_MTU ssl 2 SSL_set_options DROP            \ don't query the mem BIO for MTU
    0 DTLS-MTU DTLS_CTRL_SET_LINK_MTU ssl 4 SSL_ctrl DROP
-   server? IF ssl 1 SSL_set_accept_state ELSE ssl 1 SSL_set_connect_state THEN
+   server? IF ssl 1 SSL_set_accept_state ELSE ssl 1 SSL_set_connect_state THEN DROP
    ssl rbio wbio ;
 
 : DRAIN { from to \ n -- }                                  \ move all pending bytes from `from` to `to`
@@ -148,10 +148,10 @@ HEX 1000 CONSTANT SSL_OP_NO_QUERY_MTU   FFFFFFFF CONSTANT MASK32  DECIMAL
 : DTLS-PEER-DER { ssl \ x509 len -- a u }                   \ peer cert as DER (into PEER-DER); 0 0 if none
    ssl 1 SSL_get1_peer_certificate DUP 0= IF DROP 0 0 EXIT THEN -> x509
    0 x509 2 i2d_X509 I32 -> len
-   len /PEER-DER > IF x509 1 X509_free 0 0 EXIT THEN
+   len /PEER-DER > IF x509 1 X509_free DROP 0 0 EXIT THEN
    PEER-DER PEER-DER-PTR !
    PEER-DER-PTR x509 2 i2d_X509 DROP
-   x509 1 X509_free
+   x509 1 X509_free DROP
    PEER-DER len ;
 
 \ ---- network-oriented wrappers (so the multiplex layer never touches the SO namespace itself) ----

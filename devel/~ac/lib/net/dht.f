@@ -61,7 +61,7 @@ DECIMAL
    : SOCK-START ( -- ) ;
    : UDP-OPEN ( -- sock )                                       \ socket(AF_INET,SOCK_DGRAM,0) + 2s recv timeout
       0 2 2 (u-socket) SX  DUP 0< IF (errno) THROW THEN
-      DUP >R  16 U-TV 20 1 R@ (u-setsockopt) DROP  R> ;         \ SO_RCVTIMEO=20, SOL_SOCKET=1
+      >R  16 U-TV 20 1 R@ (u-setsockopt) DROP  R> ;             \ SO_RCVTIMEO=20, SOL_SOCKET=1
    : UDP-CLOSE ( sock -- )  CloseSocket DROP ;
    : UDP-SEND { ip port a u sock -- }                           \ sendto(sock,a,u,0,&sock_addr,16)
       ip port (sockaddr!)  16 sock_addr 0 u a sock (u-sendto) DROP ;

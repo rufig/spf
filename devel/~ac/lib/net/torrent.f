@@ -47,7 +47,7 @@ CREATE SH-W 80 CELLS ALLOT                \ message schedule
    SH-H 3 CELLS + @ d + SH-U32 SH-H 3 CELLS + !
    SH-H 4 CELLS + @ e + SH-U32 SH-H 4 CELLS + ! ;
 
-: SHA1 { addr u dest \ total msg -- }             \ 20-byte SHA-1 digest of (addr,u) -> dest
+: SWARM-SHA1 { addr u dest \ total msg -- }       \ never collide with the libcrypto export
    u 9 + 63 + 64 / 64 *  -> total                 \ padded length (multiple of 64)
    total ALLOCATE THROW  -> msg
    msg total ERASE
@@ -64,6 +64,7 @@ CREATE SH-W 80 CELLS ALLOT                \ message schedule
    SH-H 3 CELLS + @ dest 12 + SH-BE!
    SH-H 4 CELLS + @ dest 16 + SH-BE!
    msg FREE THROW ;
+: SHA1 ( addr u dest -- ) SWARM-SHA1 ;            \ compatibility for standalone callers
 
 \ ===== .torrent -> infohash -> peers ========================================================
 : SLURP { a u \ fid sz buf n ior -- buf len ior }   \ read a whole file; buf via ALLOCATE (caller FREEs)
@@ -81,7 +82,7 @@ CREATE IH20 20 ALLOT                                \ the extracted infohash
    buf len BE-SETEND DROP                            \ bound the bencode parser to the file contents
    buf S" info" B-DFIND 0= IF -1 EXIT THEN           ( info-a = the value addr, at its 'd' )
    DUP B-SKIP OVER -                                 ( info-a span )
-   dest SHA1  0 ;
+   dest SWARM-SHA1  0 ;
 
 : .HASH ( a -- )  BASE @ >R HEX  20 0 DO DUP I + C@ 0 <# # # #> TYPE LOOP DROP  R> BASE ! ;
 

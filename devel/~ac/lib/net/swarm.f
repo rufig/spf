@@ -60,7 +60,7 @@ TRUE VALUE SPKI-VIA-OPENSSL?                       \ set FALSE to exercise our o
    -> len -> buf
    buf C@ [CHAR] - = IF buf len PEM>DER -> len -> buf THEN   \ PEM? decode to DER first
    buf len CERT-SPKI                                ( spki-a spki-len )
-   dest SHA1
+   dest SWARM-SHA1
    buf FREE THROW ;
 
 \ ===== the two fleet keys ===================================================================
