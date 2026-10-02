@@ -74,7 +74,7 @@ CONSTANT /MimePart
 ;
 
 : ParseHeaderLineNew
-  /MimeHeader ALLOCATE THROW DUP CurrentHeader @ mhNextHeader !
+  /MimeHeader ALLOCATE THROW DUP /MimeHeader ERASE DUP CurrentHeader @ mhNextHeader !
   CurrentHeader !
   TIB CurrentHeader @ mhNameAddr !
   [CHAR] : PARSE CurrentHeader @ mhNameLen ! DROP
@@ -83,7 +83,7 @@ CONSTANT /MimePart
   1 PARSE CurrentHeader @ mhValueLen ! DROP
 ;
 : ParseHeaderLineCont
-  SOURCE NIP LTL @ + CurrentHeader @ mhValueLen +!
+  SOURCE + CurrentHeader @ mhValueAddr @ - CurrentHeader @ mhValueLen !
 ;
 : ParseHeaderLine  ( -- ) \ на входе в TIB строка заголовка
   TIB C@ IsDelimiter
@@ -95,14 +95,16 @@ GET-CURRENT CP-PARAMS SET-CURRENT
 : boundary MimePart @ mpBoundaryLen ! MimePart @ mpBoundaryAddr ! ;
 : name MimePart @ mpNameLen ! MimePart @ mpNameAddr ! ;
 : filename MimePart @ mpFnameLen ! MimePart @ mpFnameAddr ! ;
-: Charset CP-PARAMS::charset ;
-: Boundary CP-PARAMS::boundary ;
-: Name CP-PARAMS::name ;
-: Filename CP-PARAMS::filename ;
-: CHARSET CP-PARAMS::charset ;
-: BOUNDARY CP-PARAMS::boundary ;
-: NAME CP-PARAMS::name ;
-: FILENAME CP-PARAMS::filename ;
+GET-ORDER CP-PARAMS SWAP 1+ SET-ORDER
+: Charset charset ;
+: Boundary boundary ;
+: Name name ;
+: Filename filename ;
+: CHARSET charset ;
+: BOUNDARY boundary ;
+: NAME name ;
+: FILENAME filename ;
+PREVIOUS
 SET-CURRENT
 
 : EvalParams ( valuea valueu namea nameu -- )
@@ -169,7 +171,7 @@ USER uPhParamNum
   ParseHeaderWith
 ;
 : ParseHeader
-  /MimePart ALLOCATE THROW 
+  /MimePart ALLOCATE THROW DUP /MimePart ERASE
   DUP MimePart !
   mpHeaderList CurrentHeader ! \ псевдозаголовок, указатель на список
   NestingLevel @ MimePart @ mpLevel !
@@ -304,6 +306,59 @@ USER uPhParamNum
   MimePart @
 ;
 ' ParseMime TO vParseMime
+
+\ Bounded header-only entry point; body/multipart bytes are never parsed or changed.
+\ Returned fields borrow the input buffer, which must outlive the returned part.
+-12120 CONSTANT MIME-INVALID-HEADERS
+-12121 CONSTANT MIME-HEADERS-LIMIT
+
+: FreeMimeHeaders { mp \ header next -- }
+  mp 0= IF EXIT THEN mp mpHeaderList @ -> header
+  BEGIN header WHILE
+    header mhNextHeader @ -> next header FREE THROW next -> header
+  REPEAT mp FREE THROW
+;
+: MimeHeaderName? { a u \ n -- }
+  a u S" :" SEARCH 0= IF 2DROP MIME-INVALID-HEADERS THROW THEN
+  DROP a - -> n n 0= IF MIME-INVALID-HEADERS THROW THEN
+  n 0 ?DO a I + C@ 33 127 WITHIN 0= IF MIME-INVALID-HEADERS THROW THEN LOOP
+;
+: (ParseMessageHeaders) { a u \ start len line line-u count -- }
+  a -> start a MimePart @ mpPartAddr ! u MimePart @ mpPartLen !
+  a MimePart @ mpHeaderAddr ! 1 MimePart @ mpIndex ! 0 -> count
+  BEGIN u WHILE
+    a -> line 0 -> len
+    BEGIN len u < IF a len + C@ 10 <> ELSE FALSE THEN WHILE
+      len 1000 < 0= IF MIME-HEADERS-LIMIT THROW THEN len 1+ -> len
+    REPEAT
+    len u = IF MIME-INVALID-HEADERS THROW THEN
+    a len 1+ + -> a u len 1+ - -> u
+    a start - 65536 > IF MIME-HEADERS-LIMIT THROW THEN
+    len -> line-u line-u IF line line-u + 1- C@ 13 = IF line-u 1- -> line-u THEN THEN
+    line-u 998 > IF MIME-HEADERS-LIMIT THROW THEN
+    line-u 0= IF
+      a start - MimePart @ mpHeaderLen ! a MimePart @ mpBodyAddr ! u MimePart @ mpBodyLen ! EXIT
+    THEN
+    line-u 0 ?DO
+      line I + C@ DUP 32 < OVER 9 <> AND SWAP 127 = OR IF MIME-INVALID-HEADERS THROW THEN
+    LOOP
+    line C@ DUP 32 = SWAP 9 = OR IF
+      MimePart @ mpHeaderList @ 0= IF MIME-INVALID-HEADERS THROW THEN
+    ELSE
+      line line-u MimeHeaderName? count 1+ -> count
+      count 2048 > IF MIME-HEADERS-LIMIT THROW THEN
+    THEN
+    line line-u ['] ParseHeaderLine EVALUATE-WITH
+  REPEAT MIME-INVALID-HEADERS THROW
+;
+: ParseMessageHeaders { a u \ old-mp old-header mp ior -- mp }
+  MimePart @ -> old-mp CurrentHeader @ -> old-header
+  /MimePart ALLOCATE THROW -> mp mp /MimePart ERASE
+  mp MimePart ! mp mpHeaderList CurrentHeader !
+  a u ['] (ParseMessageHeaders) CATCH -> ior ior IF 2DROP THEN
+  old-mp MimePart ! old-header CurrentHeader !
+  ior IF mp FreeMimeHeaders ior THROW THEN mp
+;
 
 : ParseMessageText ( addr u -- mp )
 
