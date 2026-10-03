@@ -203,9 +203,7 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
          I PR-IP ip = I PR-PORT port = AND IF I UNLOOP EXIT THEN
       THEN
    LOOP -1 ;
-: PR-NEW { ip port server? \ idx ssl rb wb p -- idx }
-   PR-ALLOC DUP 0< IF EXIT THEN -> idx
-   server? IF NODE-SCTX @ ELSE NODE-CCTX @ THEN  server? DTLS-WRAP1  -> wb -> rb -> ssl
+: PR-INIT { ip port ssl rb wb idx \ p -- }
    idx PR -> p
    ip p pr.ip !  port p pr.port !  ssl p pr.ssl !  rb p pr.rbio !  wb p pr.wbio !
    ST-HS idx PR-STATE!   NOW-MS PING-INTERVAL + idx PR-PING!
@@ -213,6 +211,11 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    NOW-MS idx PR-RX!
    1 PR-GENERATION +! PR-GENERATION @ p pr.generation !
    0 p pr.app-u ! 0 p pr.verified ! p pr.identity 20 ERASE
+;
+: PR-NEW { ip port server? \ idx ssl rb wb -- idx }
+   PR-ALLOC DUP 0< IF EXIT THEN -> idx
+   server? IF NODE-SCTX @ ELSE NODE-CCTX @ THEN  server? DTLS-WRAP1  -> wb -> rb -> ssl
+   ip port ssl rb wb idx PR-INIT
    idx ;
 
 \ ---- pump: send everything the SSL has produced; deliver an inbound datagram; advance ----
@@ -606,18 +609,13 @@ CREATE DBKEYS  /DBKEYS IDLEN *  ALLOT   VARIABLE DBKEYS-N
 VARIABLE LISTEN-SSL   VARIABLE LISTEN-RB   VARIABLE LISTEN-WB
 : NEW-LISTENER ( -- )   NODE-SCTX @ TRUE DTLS-WRAP1  LISTEN-WB !  LISTEN-RB !  LISTEN-SSL ! ;
 : ENSURE-LISTENER ( -- )   LISTEN-SSL @ 0= IF NEW-LISTENER THEN ;
-: PR-ADOPT { ip port ssl rb wb \ idx p -- idx }   \ install an already-cookie-verified SSL into a slot
+: PR-ADOPT { ip port ssl rb wb \ idx -- idx }   \ install an already-cookie-verified SSL into a slot
    ip port PR-FIND -> idx                          \ reconnect reuses the slot; a new peer allocates one
-   idx 0< 0= IF idx PR-SSL SSL-FREE THEN           \ reconnect: free the LIVE SSL we replace.  Only on an
-                                                   \ active slot -- PR-FAIL leaves a dangling pr.ssl on a
-                                                   \ freed slot, and PR-ALLOC'd slots are overwritten, not
-   idx 0< IF PR-ALLOC -> idx THEN                  \ freed (same as PR-NEW), so never SSL-FREE those.
+   \ Notify the old application's generation before replacing a live connection.
+   idx 0< 0= IF idx PR-RELEASE THEN
+   idx 0< IF PR-ALLOC -> idx THEN
    idx 0< IF ssl SSL-FREE  -1 EXIT THEN            \ no room even after the cookie: discard, don't leak
-   idx PR -> p
-   ip p pr.ip !  port p pr.port !  ssl p pr.ssl !  rb p pr.rbio !  wb p pr.wbio !
-   ST-HS idx PR-STATE!   NOW-MS PING-INTERVAL + idx PR-PING!
-   0 idx PR-EXPECT!   NOW-MS CONNECT-TIMEOUT + idx PR-DL!
-   NOW-MS idx PR-RX!
+   ip port ssl rb wb idx PR-INIT
    idx ;
 : SWARM-ACCEPT { ip port a u \ r idx -- }         \ run one ClientHello through the cookie round
    ENSURE-LISTENER
