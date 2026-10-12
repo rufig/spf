@@ -175,6 +175,8 @@ VARIABLE ANN-TOK  VARIABLE ANN-ACK               \ our-announce diagnostics: tok
 CREATE PSTORE  PSTORE-MAX 6 * ALLOT
 VARIABLE PSTORE-N
 : PSTORE-ADD { ip port \ p -- }
+   ip 0= port 0= OR IF EXIT THEN
+   DHT-PUBLIC-ONLY? IF ip DHT-PUBLIC-IP? 0= IF EXIT THEN THEN
    PSTORE-N @ PSTORE-MAX >= IF EXIT THEN
    PSTORE-N @ 6 * PSTORE +  -> p
    ip 255 AND p C!  ip 8 RSHIFT 255 AND p 1+ C!
@@ -252,7 +254,7 @@ CREATE CP-BUF 6 ALLOT                             \ scratch: our own compact pee
                    \ behind NAT the local port is unreachable from outside (u24 binds 6882 and appears
                    \ as :3138), and with split-tunnel routing there is more than one route out, each
                    \ with its own stable pair.  The asker tries them and keeps whichever it can reach.
-   EXTIP-N @ 0= IF MY-EXT-IP @ MY-PORT @ BE-EP EXIT THEN     \ nothing observed yet -> the configured guess
+   EXTIP-N @ 0= IF MY-EXT-IP @ ?DUP IF MY-PORT @ BE-EP THEN EXIT THEN
    EXTIP-N @ 0 ?DO
       I XI xi.port @ ?DUP 0= IF MY-PORT @ THEN               \ some nodes report only the 4 address bytes
       I XI xi.ip @ SWAP BE-EP

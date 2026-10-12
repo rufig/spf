@@ -175,6 +175,14 @@ FALSE VALUE DHT-SEND-V?                   \ emit our 'v' client-version key?  DE
 : C-PORT ( a -- port )  DUP C@ 8 LSHIFT SWAP 1+ C@ + ;
 : NODE-IP   ( node-a -- ip )    20 + C-IP ;
 : NODE-PORT ( node-a -- port )  24 + C-PORT ;
+FALSE VALUE DHT-PUBLIC-ONLY? \ opt-in: LAN discovery must not populate public DHT tables
+: DHT-PUBLIC-IP? { ip \ first second -- flag }
+   ip 255 AND -> first ip 8 RSHIFT 255 AND -> second
+   first 0= first 10 = OR first 127 = OR first 224 >= OR IF FALSE EXIT THEN
+   first 169 = second 254 = AND IF FALSE EXIT THEN
+   first 172 = second 16 32 WITHIN AND IF FALSE EXIT THEN
+   first 192 = second 168 = AND IF FALSE EXIT THEN
+   first 100 = second 64 128 WITHIN AND IF FALSE EXIT THEN TRUE ;
 
 \ ===== shortlist (candidate nodes) + XOR distance to TARGET ==================================
 CREATE SL    SL-MAX NODELEN * ALLOT
@@ -199,6 +207,7 @@ VARIABLE SL-N
       DUP SL-NODE  I SL-NODE CLOSER? IF DROP I THEN   \ current closer than I -> I is farther -> keep I
    LOOP ;
 : SL-ADD { na -- }                       \ keep the SL-MAX nodes CLOSEST to TARGET (evict the farthest)
+   DHT-PUBLIC-ONLY? IF na NODE-IP DHT-PUBLIC-IP? 0= IF EXIT THEN THEN
    na SL-DUP? IF EXIT THEN
    SL-N @ SL-MAX < IF                     \ room: append
       na  SL-N @ SL-NODE  NODELEN MOVE
@@ -228,6 +237,8 @@ VARIABLE PEERS-N
    \ crowds the real member's value out.  Two uses: HARVEST skips a KNOWN-dead peer at add time (ADD-PEER),
    \ and STORE-PEER gives a full table's first dead slot to a live newcomer instead of turning it away.
 : STORE-PEER { pa -- }
+   pa C-IP 0= pa 4 + C-PORT 0= OR IF EXIT THEN
+   DHT-PUBLIC-ONLY? IF pa C-IP DHT-PUBLIC-IP? 0= IF EXIT THEN THEN
    pa PEER-DUP? IF EXIT THEN
    PEERS-N @ PEERS-MAX < IF                                   \ room: append
       pa  PEERS-N @ 6 * PEERS +  6 MOVE  1 PEERS-N +!  EXIT THEN
@@ -261,6 +272,7 @@ VARIABLE RTAB-N   0 RTAB-N !
    0  RTAB-N @ 1 ?DO  DUP RT-SEEN @  I RT-SEEN @  U> IF DROP I THEN  LOOP ;
 : RT-ADD { na \ idx -- }                           \ add/refresh a compact node (skip garbage: 0 ip)
    na NODE-IP 0= IF EXIT THEN
+   DHT-PUBLIC-ONLY? IF na NODE-IP DHT-PUBLIC-IP? 0= IF EXIT THEN THEN
    na RT-FIND-ID -> idx
    idx 0< IF
       RTAB-N @ RTAB-MAX < IF RTAB-N @ -> idx  1 RTAB-N +!  ELSE RT-STALEST -> idx THEN

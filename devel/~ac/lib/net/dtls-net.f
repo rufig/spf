@@ -496,6 +496,7 @@ VARIABLE OQ-HIT   VARIABLE OQ-MISS                \ correlated vs uncorrelated r
 TRUE VALUE IP-ECHO-LOG?                           \ log EVERY reported endpoint, not just the first sighting
 VARIABLE IP-ECHO-N                                \ how many replies carried an 'ip' key at all
 : IP-ECHO { pip pport eip eport -- }              \ peer pip:pport reports it saw us as eip:eport
+   DHT-PUBLIC-ONLY? IF eip DHT-PUBLIC-IP? 0= IF EXIT THEN THEN
    1 IP-ECHO-N +!
    eip eport EXTIP-SEEN
    pip eip PEERMAP-SET                            \ remember which of our addresses THIS peer reaches
@@ -631,8 +632,10 @@ VARIABLE LISTEN-SSL   VARIABLE LISTEN-RB   VARIABLE LISTEN-WB
    idx 0< 0= IF idx PR-ADVANCE THEN ;                           \ flush the ServerHello flight
 
 \ ---- receive dispatch on the shared socket (datagram already in RX-BUF, length = len) ----
+0 VALUE SWARM-LOCAL-RX-XT \ optional local discovery: ( len ip port -- consumed? )
 : SWARM-RX { len ip port \ b0 idx n -- }
    len 0= IF EXIT THEN
+   SWARM-LOCAL-RX-XT IF len ip port SWARM-LOCAL-RX-XT EXECUTE IF EXIT THEN THEN
    ip port PR-FIND DUP 0< 0= IF NOW-MS SWAP PR-RX! ELSE DROP THEN   \ any datagram from a known peer = it's alive
    RXBIG C@ -> b0
    b0 [CHAR] d = IF                                          \ DHT KRPC: copy to RX-BUF for SERVE-1 + lookup
