@@ -385,22 +385,50 @@ CELL -- oq.ip
 CELL -- oq.port
 CELL -- oq.expire                  \ ms deadline; past it the slot is free
 CELL -- oq.sent                    \ ms we sent it (per-query timeout / in-flight accounting)
+CELL -- oq.lookup                  \ unanswered lookup, not an announce acknowledgement
 CONSTANT /OQ
 CREATE OUTQ  /OUTQ /OQ *  ALLOT   OUTQ /OUTQ /OQ *  ERASE
 8000 VALUE OUTQ-TTL                \ ms an outstanding query stays matchable
 : OQ ( i -- a )   /OQ *  OUTQ + ;
 : TID@ ( a -- n )  DUP C@ 8 LSHIFT  SWAP 1+ C@ + ;    \ 2 bytes big-endian -> int
-: OQ-ADD { tid ip port \ now slot -- }                \ remember a query we just sent
+: (OQ-ADD) { tid ip port lookup \ now slot -- }       \ remember a query we just sent
    NOW-MS -> now  -1 -> slot
    /OUTQ 0 ?DO I OQ oq.expire @ now U< IF I -> slot LEAVE THEN LOOP   \ reuse an expired slot
    slot 0< IF 0 -> slot THEN
    tid slot OQ oq.tid !  ip slot OQ oq.ip !  port slot OQ oq.port !
-   now OUTQ-TTL + slot OQ oq.expire !   now slot OQ oq.sent ! ;
+   now OUTQ-TTL + slot OQ oq.expire !   now slot OQ oq.sent !
+   lookup slot OQ oq.lookup ! ;
+: OQ-ADD ( tid ip port -- ) FALSE (OQ-ADD) ;
+: OQ-LOOKUP-ADD ( tid ip port -- ) TRUE (OQ-ADD) ;
+
+\ Keep unanswered endpoints out of subsequent short rounds, including referrals
+\ that reinsert the same node into SL/RTAB. A correlated late reply clears the pause.
+128 CONSTANT /LRETRY
+120000 VALUE LOOKUP-RETRY-MS
+0
+CELL -- lr.ip
+CELL -- lr.port
+CELL -- lr.until
+CONSTANT /LR
+CREATE LRETRY /LRETRY /LR * ALLOT LRETRY /LRETRY /LR * ERASE
+: LR ( i -- a ) /LR * LRETRY + ;
+: LR-FIND { ip port -- idx }
+   /LRETRY 0 DO I LR lr.ip @ ip = I LR lr.port @ port = AND IF I UNLOOP EXIT THEN LOOP -1 ;
+: LR-CLEAR ( ip port -- ) LR-FIND DUP 0< IF DROP ELSE 0 SWAP LR lr.until ! THEN ;
+: LR-WAIT? ( ip port -- flag )
+   LR-FIND DUP 0< IF DROP FALSE ELSE LR lr.until @ NOW-MS U> THEN ;
+: LR-FAIL { ip port \ idx -- }
+   ip port LR-FIND -> idx
+   idx 0< IF
+      0 -> idx /LRETRY 1 DO I LR lr.until @ idx LR lr.until @ U< IF I -> idx THEN LOOP
+   THEN
+   ip idx LR lr.ip ! port idx LR lr.port ! NOW-MS LOOKUP-RETRY-MS + idx LR lr.until ! ;
 : OQ-MATCH? { tid ip port \ now -- f }                \ our tid AND the peer we asked? (consumes the slot)
    NOW-MS -> now
    /OUTQ 0 ?DO
       I OQ oq.expire @ now U> IF
          I OQ oq.tid @ tid =  I OQ oq.ip @ ip = AND  I OQ oq.port @ port = AND IF
+            ip port LR-CLEAR FALSE I OQ oq.lookup !
             0 I OQ oq.sent !    \ answered: drops out of in-flight, but stays matchable until oq.expire
             TRUE UNLOOP EXIT THEN   \ (so a retransmitted/duplicate reply still correlates)
       THEN
@@ -421,10 +449,19 @@ CREATE OUTQ  /OUTQ /OQ *  ALLOT   OUTQ /OUTQ /OQ *  ERASE
 \ QUERY-TIMEOUT simply frees its slot and the next closest candidate is queried.
 3    VALUE LOOKUP-ALPHA             \ concurrent in-flight get_peers (Kademlia alpha)
 2000 VALUE QUERY-TIMEOUT            \ ms before an unanswered query stops counting as in-flight
+: OQ-TIMEOUTS { \ now -- }
+   NOW-MS -> now /OUTQ 0 DO
+      I OQ oq.lookup @ I OQ oq.sent @ 0<> AND IF
+         I OQ oq.sent @ QUERY-TIMEOUT + now U> 0= IF
+            I OQ oq.ip @ I OQ oq.port @ LR-FAIL FALSE I OQ oq.lookup !
+         THEN
+      THEN
+   LOOP ;
 : OQ-INFLIGHT { \ now n -- n }      \ queries still awaiting a reply and not yet timed out
    NOW-MS -> now  0 -> n
    /OUTQ 0 ?DO
-      I OQ oq.expire @ now U>  I OQ oq.sent @ QUERY-TIMEOUT + now U>  AND IF n 1+ -> n THEN
+      I OQ oq.lookup @ I OQ oq.sent @ 0<> AND
+      I OQ oq.expire @ now U> AND I OQ oq.sent @ QUERY-TIMEOUT + now U> AND IF n 1+ -> n THEN
    LOOP n ;
 
 \ ---- P1.4: announce to the K CLOSEST responders, not to everyone who answers --------------------
@@ -465,25 +502,30 @@ VARIABLE ANNQ-N   0 ANNQ-N !
 
 : SEED-SEND { \ rip -- }
    RESOLVE-ROUTERS
-   3 0 DO ROUTER-IPS I CELLS + @ ?DUP IF -> rip
+   3 0 DO ROUTER-IPS I CELLS + @ ?DUP IF -> rip rip 6881 LR-WAIT? 0= IF
       ." > get_peers " CUR-IH @ .IHPFX ."  -> " rip 6881 .IPPORT CR
       rip SIGN-FOR  rip 6881 GETPEERS-MSG DHT-SOCK @ UDP-SEND
-      TXBUF TID@ rip 6881 OQ-ADD                      \ only this router may answer with this tid
-   THEN LOOP ;
+      TXBUF TID@ rip 6881 OQ-LOOKUP-ADD
+   THEN THEN LOOP ;
 : LOOKUP-SEND-NEXT { \ idx ip port -- sent? }   \ get_peers to the next closest un-queried node
    ANN-QUERIES @ MAX-QUERIES >= IF FALSE EXIT THEN
-   SL-PICK -> idx  idx 0< IF FALSE EXIT THEN
-   1 idx SL-Q + C!
-   idx SL-NODE DUP NODE-IP -> ip  NODE-PORT -> port
+   BEGIN
+      SL-PICK -> idx idx 0< IF FALSE EXIT THEN
+      1 idx SL-Q + C!
+      idx SL-NODE DUP NODE-IP -> ip NODE-PORT -> port
+      ip port LR-WAIT? 0=
+   UNTIL
    ." > get_peers " CUR-IH @ .IHPFX ."  -> " ip port .IPPORT CR
    ip SIGN-FOR  ip port GETPEERS-MSG DHT-SOCK @ UDP-SEND
-   TXBUF TID@ ip port OQ-ADD                          \ only this peer may answer with this tid
+   TXBUF TID@ ip port OQ-LOOKUP-ADD
    1 ANN-QUERIES +!  TRUE ;
 : LOOKUP-PUMP ( -- )                \ keep ALPHA queries in flight (drives the lookup on TIME, not only on replies)
+   OQ-TIMEOUTS
    BEGIN ANN-ACTIVE @  OQ-INFLIGHT LOOKUP-ALPHA <  AND WHILE
       LOOKUP-SEND-NEXT 0= IF EXIT THEN
    REPEAT ;
 : ANN-START ( ih-a -- )                              \ start a lookup round; keep the CONVERGING shortlist
+   OQ-TIMEOUTS
    DUP TARGET IDLEN MOVE  CUR-IH !                    \ + accumulated PEERS across rounds (real-DHT style)
    SL-REQUERY  0 ANN-QUERIES !  ANNQ-RESET
    SEED-FROM-RTAB  SEED-SEND        \ seed the shortlist from persisted/known nodes, THEN top up from routers
