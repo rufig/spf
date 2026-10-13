@@ -128,6 +128,11 @@ CREATE CRCBUF 4 ALLOT
    dest 3 + 10 RAND-BYTES                                    \ id[3..18] random
    r                                   dest 13 + C! ;        \ id[19] = r
 : BEP42-NODE-ID ( ip -- )   MY-ID BEP42-ID> ;                \ the identity we sign our queries with
+: BEP42-ID? { ida ip \ crc -- f }
+   ip ida 13 + C@ BEP42-CRC -> crc
+   ida C@ crc 18 RSHIFT FF AND =
+   ida 1+ C@ crc 10 RSHIFT FF AND = AND
+   ida 2 + C@ F8 AND crc 8 RSHIFT F8 AND = AND ;
 VARIABLE CUR-ID   MY-ID CUR-ID !
    \ The identity the message being built is signed with.  BEP 42 ties an id to the ADDRESS the packet
    \ leaves from, and the route -- hence the address -- is chosen per DESTINATION.  So the id is a

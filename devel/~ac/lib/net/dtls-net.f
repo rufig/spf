@@ -485,6 +485,7 @@ VARIABLE ANNQ-N   0 ANNQ-N !
    0  ANNQ-N @ 1 ?DO  DUP AQ aq.id  I AQ aq.id  TARGET XOR-CLOSER? IF DROP I THEN  LOOP ;
 : ANNQ-ADD { ida ip port toka toku \ idx -- }     \ keep the K closest responders that gave us a token
    toku /AQ-TOK > IF EXIT THEN
+   DHT-PUBLIC-ONLY? IF ida ip BEP42-ID? 0= IF EXIT THEN THEN
    ANNQ-N @ ANNOUNCE-K < IF  ANNQ-N @ -> idx  1 ANNQ-N +!
    ELSE  AQ-FARTHEST -> idx
       ida  idx AQ aq.id  TARGET XOR-CLOSER? 0= IF EXIT THEN     \ not closer than the farthest -> drop it
@@ -535,6 +536,10 @@ VARIABLE ANNQ-N   0 ANNQ-N !
    S" id" B-DFIND 0= IF FALSE EXIT THEN
    B-STR@ DROP NIP C@  TARGET C@ = ;
 VARIABLE OQ-HIT   VARIABLE OQ-MISS                \ correlated vs uncorrelated replies seen (diagnostics)
+VARIABLE OQ-INSECURE
+: RESP-SECURE? { ra ip -- f }
+   ra S" id" DFIND-STR 0= IF FALSE EXIT THEN
+   20 <> IF DROP FALSE EXIT THEN ip BEP42-ID? ;
 TRUE VALUE IP-ECHO-LOG?                           \ log EVERY reported endpoint, not just the first sighting
 VARIABLE IP-ECHO-N                                \ how many replies carried an 'ip' key at all
 : IP-ECHO { pip pport eip eport -- }              \ peer pip:pport reports it saw us as eip:eport
@@ -551,7 +556,7 @@ VARIABLE IP-ECHO-N                                \ how many replies carried an 
    RX-BUF C@ [CHAR] d <> IF EXIT THEN
    \ P1.1: does this reply carry OUR transaction id AND come FROM the peer we asked?  Only a correlated
    \ reply may make us ANNOUNCE (an attacker could otherwise hand us a token and aim our announce).
-   \ Harvesting is NOT gated on it: a strict gate stalled the lookup chain (kept for later tightening).
+   \ Uncorrelated replies cannot introduce candidates or announce tokens.
    FALSE -> ok   -1 -> rtid
    RX-BUF S" t" DFIND-STR IF
       2 = IF TID@ -> rtid  rtid ip port OQ-MATCH? -> ok  ELSE DROP THEN
@@ -575,6 +580,11 @@ VARIABLE IP-ECHO-N                                \ how many replies carried an 
    THEN
    ra S" nodes" B-DFIND IF DROP TRUE ELSE ra S" values" B-DFIND IF DROP TRUE ELSE FALSE THEN THEN
    0= IF EXIT THEN                                 \ must be a get_peers reply (nodes/values), not a bare ping (P1.1)
+   DHT-PUBLIC-ONLY? IF ra ip RESP-SECURE? 0= IF
+      \ BEP 42 limits storage targets, not discovery hints. Legacy replies
+      \ still supply candidates; ANNQ-ADD rejects their announce tokens.
+      1 OQ-INSECURE +!
+   THEN THEN
    ra S" token" B-DFIND IF                         \ (correlated) token -> remember as an announce candidate;
       B-STR@ ROT DROP -> tu -> ta                  \ the K closest are announced to when the round closes
       ra S" id" DFIND-STR IF                       ( id-a id-u )
