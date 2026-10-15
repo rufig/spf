@@ -90,6 +90,7 @@ VARIABLE NODE-SCTX   VARIABLE NODE-CCTX
 \ expect = addr of the 20-byte SPKI hash this candidate must present (0 = any CA-signed member is fine)
 64 CONSTANT MAXPEERS
 0 CONSTANT ST-FREE   1 CONSTANT ST-HS   2 CONSTANT ST-UP   3 CONSTANT ST-FAIL
+16384 CONSTANT DNET-CAP
 0                          \ peer record fields
 CELL -- pr.ip
 CELL -- pr.port
@@ -104,6 +105,8 @@ CELL -- pr.rx              \ last time ANY datagram arrived from this peer (live
 CELL -- pr.generation      \ changes whenever this slot is reused
 CELL -- pr.verified        \ application hooks only see authenticated lifetimes
 CELL -- pr.app-u           \ pending SSL_write; same bytes/address until it completes
+CELL -- pr.out-u           \ encrypted records retained across UDP backpressure
+CELL -- pr.out-data        \ owned lazy buffer, freed with the peer
 1024 -- pr.app-data
 20 -- pr.identity          \ verified SPKI hash; valid only in ST-UP
 ALIGNED CONSTANT /PR
@@ -122,7 +125,7 @@ CREATE PEERTAB  MAXPEERS /PR *  ALLOT   PEERTAB MAXPEERS /PR * ERASE
                                    \ not a NAT'd member (those answer within a few punches) but dead junk the DHT
                                    \ keeps returning as `values` for IH-GROUP -- stop re-dialing it every round
 3      VALUE NCACHE-ESCALATE-AFTER \ consecutive handshake timeouts before an address is treated as dead, not NAT'd
-16384 CONSTANT DNET-CAP    CREATE DNET-BUF DNET-CAP ALLOT
+CREATE DNET-BUF DNET-CAP ALLOT
 DNET-CAP VALUE /DNET-BUF   \ read window into the write-BIO.  A VALUE, not a constant, so a test can
                            \ shrink it and force the carry-over path a real certificate chain would hit;
                            \ the buffer itself always stays DNET-CAP, so shrinking it is safe.
@@ -210,7 +213,8 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    0 idx PR-EXPECT!  NOW-MS CONNECT-TIMEOUT + idx PR-DL!
    NOW-MS idx PR-RX!
    1 PR-GENERATION +! PR-GENERATION @ p pr.generation !
-   0 p pr.app-u ! 0 p pr.verified ! p pr.identity 20 ERASE
+   0 p pr.app-u ! 0 p pr.out-u ! 0 p pr.out-data !
+   0 p pr.verified ! p pr.identity 20 ERASE
 ;
 : PR-NEW { ip port server? \ idx ssl rb wb -- idx }
    PR-ALLOC DUP 0< IF EXIT THEN -> idx
@@ -221,7 +225,8 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
 \ ---- pump: send everything the SSL has produced; deliver an inbound datagram; advance ----
 \ A DTLS record = 13-byte header (type/version/epoch/seq/length) + `length` bytes; length @ offset 11-12.
 : DTLS-RECLEN ( rec-a -- total )  11 + DUP C@ 8 LSHIFT SWAP 1+ C@ +  13 + ;
-: PR-PUMP-OUT { idx \ wbio rl n got -- }           \ send each DTLS RECORD as its own datagram (MTU-safe)
+' UDP-SEND-IOR VALUE DTLS-SEND-XT \ ( ip port a u socket -- ior ); injectable for transport tests
+: PR-PUMP-OUT { idx \ wbio rl n got buf -- }       \ send each DTLS RECORD as its own datagram (MTU-safe)
    \ P1.9: the flight is drained INCREMENTALLY and a record that straddles a read boundary is carried
    \ over, not dropped.  The old code took one 16 KB bite and stopped at the first record that ran past
    \ the end -- with small EC fixtures the flight always fitted, but a real certificate chain would have
@@ -230,27 +235,31 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    \ OpenSSL.  That is not an oversight -- see the P1.10 note above DTLS-WRAP in dtls.f for why
    \ BIO_s_dgram_mem is off the table (OpenSSL 3.2+, fleet runs 3.0.13) and when to revisit it.
    idx PR-WBIO -> wbio
-   0 -> n                                           \ bytes currently held in DNET-BUF
+   idx PR pr.out-u @ -> n
+   n wbio BIO-PENDING OR 0= IF EXIT THEN
+   idx PR pr.out-data @ -> buf
+   buf 0= IF DNET-CAP ALLOCATE THROW -> buf buf idx PR pr.out-data ! THEN
    BEGIN
       wbio BIO-PENDING 0>  /DNET-BUF n >  AND IF     \ top up whenever there is room and data pending
-         wbio  DNET-BUF n +  /DNET-BUF n -  WBIO-READ -> got
+         wbio  buf n +  /DNET-BUF n -  WBIO-READ -> got
          got 0> IF n got + -> n THEN
       THEN
       n 13 >=                                        \ enough for a record header?
    WHILE
-      DNET-BUF DTLS-RECLEN -> rl
+      buf DTLS-RECLEN -> rl
       rl 13 <  rl /DNET-BUF >  OR IF EXIT THEN       \ malformed, or can never fit: give up on the rest
                                                      \ NB /DNET-BUF must exceed the largest record we can
                                                      \ emit (i.e. > DTLS-MTU) or whole flights are dropped
                                                      \ here in silence -- measured: 100 kills the handshake
       rl n > IF                                      \ record still incomplete ...
-         wbio BIO-PENDING 0= IF EXIT THEN            \ ... and nothing more is coming
+         wbio BIO-PENDING 0= IF n idx PR pr.out-u ! EXIT THEN
       ELSE
-         idx PR-IP idx PR-PORT  DNET-BUF rl  DHT-SOCK @ UDP-SEND
-         rl n < IF DNET-BUF rl +  DNET-BUF  n rl -  CMOVE THEN   \ keep the tail for the next round
+         idx PR-IP idx PR-PORT buf rl DHT-SOCK @ DTLS-SEND-XT EXECUTE
+         UDP-SEND-RETRY? IF n idx PR pr.out-u ! EXIT THEN
+         rl n < IF buf rl + buf n rl - CMOVE THEN
          n rl - -> n
       THEN
-   REPEAT ;
+   REPEAT n idx PR pr.out-u ! ;
 : PR-APP-UP { idx -- ior }
    APP-UP-XT 0= IF 0 EXIT THEN
    idx PR pr.identity idx idx PR pr.generation @ APP-UP-XT CATCH
@@ -261,7 +270,8 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    DUP IF >R 2DROP 2DROP R> 1 APP-HOOK-ERRORS +! THEN ;
 : PR-RELEASE { idx \ was-up -- }
    idx PR pr.verified @ -> was-up 0 idx PR pr.verified !
-   ST-FREE idx PR-STATE! 0 idx PR pr.app-u !
+   ST-FREE idx PR-STATE! 0 idx PR pr.app-u ! 0 idx PR pr.out-u !
+   idx PR pr.out-data @ ?DUP IF FREE DROP 0 idx PR pr.out-data ! THEN
    was-up APP-DOWN-XT 0<> AND IF
       idx idx PR pr.generation @ APP-DOWN-XT CATCH
       ?DUP IF >R 2DROP R> ." swarm: app down hook ior=" . CR 1 APP-HOOK-ERRORS +! THEN
@@ -287,6 +297,8 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
    a idx PR pr.app-data u MOVE u idx PR pr.app-u ! 0 ;
 : PR-APP-FLUSH { idx \ n u e -- }
    idx PR-STATE ST-UP <> IF EXIT THEN
+   \ Do not grow the write BIO while the socket cannot accept the previous flight.
+   idx PR pr.out-u @ idx PR-WBIO BIO-PENDING OR IF EXIT THEN
    idx PR pr.app-u @ -> u u 0= IF EXIT THEN
    idx PR-SSL idx PR pr.app-data u DTLS-WRITE -> n
    n u = IF 0 idx PR pr.app-u ! EXIT THEN

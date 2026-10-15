@@ -90,7 +90,8 @@ HEX 1000 CONSTANT SSL_OP_NO_QUERY_MTU   FFFFFFFF CONSTANT MASK32  DECIMAL
 2048 CONSTANT /DTLS-BUF   CREATE DTLS-BUF /DTLS-BUF ALLOT
 4096 CONSTANT /PEER-DER   CREATE PEER-DER /PEER-DER ALLOT   VARIABLE PEER-DER-PTR
 
-: I32 ( n -- n )  MASK32 AND ;
+\ OpenSSL int results are signed; zero-extending -1 fabricates a 4 GiB read.
+: I32 ( n -- n ) MASK32 AND DUP 2147483648 AND IF MASK32 INVERT OR THEN ;
 
 \ ===== why a STREAM memory BIO and not a datagram one (P1.10) ================================
 \ DTLS wants datagram semantics, and OpenSSL grew BIOs that provide them -- BIO_s_dgram_mem and
@@ -148,7 +149,7 @@ HEX 1000 CONSTANT SSL_OP_NO_QUERY_MTU   FFFFFFFF CONSTANT MASK32  DECIMAL
 : DTLS-PEER-DER { ssl \ x509 len -- a u }                   \ peer cert as DER (into PEER-DER); 0 0 if none
    ssl 1 SSL_get1_peer_certificate DUP 0= IF DROP 0 0 EXIT THEN -> x509
    0 x509 2 i2d_X509 I32 -> len
-   len /PEER-DER > IF x509 1 X509_free DROP 0 0 EXIT THEN
+   len 1 < len /PEER-DER > OR IF x509 1 X509_free DROP 0 0 EXIT THEN
    PEER-DER PEER-DER-PTR !
    PEER-DER-PTR x509 2 i2d_X509 DROP
    x509 1 X509_free DROP

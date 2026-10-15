@@ -20,6 +20,10 @@
 REQUIRE [IF] lib/include/tools.f          \ spf4: [DEFINED]/[IF]/[ELSE]/[THEN] (already resident on spf64)
 REQUIRE {    ~ac/lib/locals.f             \ define { } early so the POSIX sockets.f REQUIRE { skips
 DECIMAL
+\ Per-thread diagnostics: UDP remains best-effort, but failures are observable.
+USER UDP-SEND-FAILURES
+USER UDP-SEND-LAST-IOR
+: UDP-SEND-FAILED ( ior -- ) UDP-SEND-LAST-IOR ! 1 UDP-SEND-FAILURES +! ;
 
 \ ===== per-OS UDP + name-resolution backend ================================================
 \ Windows (spf4 OR spf64): spf4 winsock (SOCKETS.F + SOCKNAME.F -> WriteTo/ReadFrom = sendto/recvfrom).
@@ -39,7 +43,13 @@ DECIMAL
    : SOCK-START ( -- )       SocketsStartup DROP ;
    : UDP-OPEN ( -- sock )    CreateUdpSocket THROW  DUP UDP-TIMEOUT-MS SWAP SetUdpSocketTimeout THROW ;
    : UDP-CLOSE ( sock -- )   CloseSocket DROP ;
-   : UDP-SEND ( ip port a u sock -- )  ['] WriteTo CATCH IF 2DROP 2DROP DROP THEN ;   \ ignore send errors
+   : UDP-SEND-IOR ( ip port a u sock -- ior )
+      ['] WriteTo CATCH DUP IF
+         DUP UDP-SEND-FAILED >R 2DROP 2DROP DROP R>
+      THEN ;
+   : UDP-SEND ( ip port a u sock -- ) UDP-SEND-IOR DROP ;
+   : UDP-SEND-RETRY? ( ior -- f )
+      DUP 10035 = OVER 10055 = OR SWAP 10004 = OR ;
    : UDP-RECV ( a u sock -- len ip port )
       ['] ReadFrom CATCH IF  DROP 2DROP  0 0 0  THEN ;    \ timeout/error -> len 0
    : NAME>IP ( a u -- ip ior )  GetHostIP ;
@@ -63,8 +73,12 @@ DECIMAL
       0 2 2 (u-socket) SX  DUP 0< IF (errno) THROW THEN
       >R  16 U-TV 20 1 R@ (u-setsockopt) DROP  R> ;             \ SO_RCVTIMEO=20, SOL_SOCKET=1
    : UDP-CLOSE ( sock -- )  CloseSocket DROP ;
-   : UDP-SEND { ip port a u sock -- }                           \ sendto(sock,a,u,0,&sock_addr,16)
-      ip port (sockaddr!)  16 sock_addr 0 u a sock (u-sendto) DROP ;
+   : UDP-SEND-IOR { ip port a u sock -- ior }                   \ sendto(sock,a,u,0,&sock_addr,16)
+      ip port (sockaddr!)  16 sock_addr 0 u a sock (u-sendto) SX
+      0< IF (errno) DUP UDP-SEND-FAILED ELSE 0 THEN ;
+   : UDP-SEND ( ip port a u sock -- ) UDP-SEND-IOR DROP ;
+   : UDP-SEND-RETRY? ( ior -- f )
+      DUP 11 = OVER 35 = OR OVER 4 = OR OVER 105 = OR SWAP 55 = OR ;
    : UDP-RECV { a u sock -- len ip port }                       \ recvfrom(sock,a,u,0,&from,&fromlen)
       16 U-FROMLEN !
       U-FROMLEN U-FROM 0 u a sock (u-recvfrom) SX
