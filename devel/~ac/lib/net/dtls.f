@@ -18,10 +18,12 @@ DECIMAL
 [DEFINED] WINAPI64: [IF]
    ALSO SO NEW: ext/libcrypto-3-x64.dll
    : CRYPTO-PRELOAD ( -- )  0 1 OpenSSL_version DROP ;
+   : DTLS-CLEAR-ERRORS ( -- )  0 ERR_clear_error DROP ;
    ALSO SO NEW: ext/libssl-3-x64.dll
 [ELSE]
    ALSO SO NEW: libcrypto.so.3
    : CRYPTO-PRELOAD ( -- )  0 1 OpenSSL_version DROP ;
+   : DTLS-CLEAR-ERRORS ( -- )  0 ERR_clear_error DROP ;
    ALSO SO NEW: libssl.so.3
 [THEN]
 \ NB: SO stays in the search order (as in tls.f) so the OpenSSL symbols below resolve as lib exports.
@@ -132,9 +134,9 @@ HEX 1000 CONSTANT SSL_OP_NO_QUERY_MTU   FFFFFFFF CONSTANT MASK32  DECIMAL
 : DTLS-HANDSHAKE { c-ssl c-w s-r  s-ssl s-w c-r \ cnt -- ok? }  \ pump client<->server to completion
    0 -> cnt
    BEGIN cnt 60 < WHILE
-      c-ssl 1 SSL_do_handshake I32
+      DTLS-CLEAR-ERRORS c-ssl 1 SSL_do_handshake I32
       c-w s-r DRAIN
-      s-ssl 1 SSL_do_handshake I32
+      DTLS-CLEAR-ERRORS s-ssl 1 SSL_do_handshake I32
       s-w c-r DRAIN
       1 =  SWAP 1 = AND IF TRUE EXIT THEN                    \ both handshakes returned 1
       cnt 1+ -> cnt
@@ -157,11 +159,13 @@ HEX 1000 CONSTANT SSL_OP_NO_QUERY_MTU   FFFFFFFF CONSTANT MASK32  DECIMAL
 
 \ ---- network-oriented wrappers (so the multiplex layer never touches the SO namespace itself) ----
 : DTLS-WRAP1 ( ctx server? -- ssl rbio wbio )  DTLS-WRAP ;   \ re-export under a stable name
-: DTLS-HS1     ( ssl -- ret )        1 SSL_do_handshake I32 ;      \ one handshake step
-: DTLS-READ    { ssl a u -- n }      u a ssl 3 SSL_read  I32 ;     \ app data in
-: DTLS-WRITE   { ssl a u -- n }      u a ssl 3 SSL_write I32 ;     \ app data out
+\ SSL_get_error inspects the thread's queue, not just this SSL object.
+\ A rejected peer must not poison the next operation on another connection.
+: DTLS-HS1     ( ssl -- ret )        DTLS-CLEAR-ERRORS 1 SSL_do_handshake I32 ;
+: DTLS-READ    { ssl a u -- n }      DTLS-CLEAR-ERRORS u a ssl 3 SSL_read  I32 ;
+: DTLS-WRITE   { ssl a u -- n }      DTLS-CLEAR-ERRORS u a ssl 3 SSL_write I32 ;
 74 CONSTANT DTLS_CTRL_HANDLE_TIMEOUT             \ DTLSv1_handle_timeout is a macro -> SSL_ctrl
-: DTLS-TIMEOUT { ssl -- r }  0 0 DTLS_CTRL_HANDLE_TIMEOUT ssl 4 SSL_ctrl I32 ;  \ retransmit if due (no-op if none)
+: DTLS-TIMEOUT { ssl -- r }  DTLS-CLEAR-ERRORS 0 0 DTLS_CTRL_HANDLE_TIMEOUT ssl 4 SSL_ctrl I32 ;
 : DTLS-ERR     ( ssl ret -- err )    SWAP 2 SSL_get_error I32 ;
 : BIO-PENDING  ( bio -- n )          1 BIO_ctrl_pending ;
 : WBIO-READ    { bio a u -- n }      u a bio 3 BIO_read  I32 ;     \ pull ready output bytes to send
