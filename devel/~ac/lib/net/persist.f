@@ -7,15 +7,38 @@
 \ dotted-quad TEXT string, port/seen as INTEGER.  That decouples the on-disk format from NODELEN / the
 \ compact-node byte layout (a source change can't silently misread old rows), keeps both tables shaped
 \ the same, and pins the ip's byte order to the codebase's canonical C-IP/.IP4 form instead of a column
-\ word size.  Uses ONLY stock sqlite3.f words (that library is cp1251 -- never edit it with ASCII tools).
+\ word size.  Uses sqlite3.f plus bounded SQLite calls below (sqlite3.f is cp1251).
 \ dht.f is REQUIREd first so `{` (~ac/lib/locals.f) is resident before sqlite3.f pulls in str5.f.  CRLF.
 REQUIRE RT-ADD   ~ac/lib/net/dht.f
 REQUIRE db3_open ~ac/lib/lin/sql/sqlite3.f
 DECIMAL
 
+[DEFINED] WINAPI: [DEFINED] WINAPI64: OR [IF]
+  ALSO SO NEW: sqlite3.dll
+[ELSE]
+  [DEFINED] DLFN: [IF]
+    ALSO SO NEW: libsqlite3.dylib
+  [ELSE]
+    [DEFINED] ?BIONIC [IF]
+      ALSO SO NEW: libsqlite3_acweb.so
+    [ELSE]
+      ALSO SO NEW: libsqlite3.so.0
+    [THEN]
+  [THEN]
+[THEN]
+: PERSIST-SQL-EXEC ( errmsg data callback sql db -- rc ) 5 sqlite3_exec ;
+: PERSIST-SQL-PREPARE ( tail stmt u a db -- rc ) 5 sqlite3_prepare_v2 ;
+: PERSIST-SQL-STEP ( stmt -- rc ) 1 sqlite3_step ;
+: PERSIST-SQL-FINALIZE ( stmt -- rc ) 1 sqlite3_finalize ;
+: PERSIST-SQL-TIMEOUT ( ms db -- rc ) 2 sqlite3_busy_timeout ;
+PREVIOUS
+
 VARIABLE SWARM-DB   0 SWARM-DB !
 : DB?  ( -- f )    SWARM-DB @ 0<> ;
-: DBX  ( a u -- )  SWARM-DB @ db3_exec_ ;                 \ run a no-result statement on the open DB
+: DBX { a u \ sql rc -- }
+   a u >STR -> sql
+   0 0 0 sql STR@ DROP SWARM-DB @ PERSIST-SQL-EXEC -> rc
+   sql STRFREE rc THROW ;
 
 \ ---- a tiny SQL string builder (NUL-terminated, as db3_exec expects) ----
 512 CONSTANT /SQLBUF   CREATE SQLBUF /SQLBUF ALLOT   VARIABLE SQLP
@@ -43,25 +66,58 @@ VARIABLE SWARM-DB   0 SWARM-DB !
    LOOP
    byte sh LSHIFT ip OR ;                                \ fold in the last octet
 
+: PERSIST-IP? { a u \ octets digits byte c -- flag }
+   1 -> octets 0 -> digits 0 -> byte
+   u 7 16 WITHIN 0= IF FALSE EXIT THEN
+   u 0 DO a I + C@ -> c c [CHAR] . = IF
+      digits 0= IF FALSE UNLOOP EXIT THEN
+      octets 1+ -> octets 0 -> digits 0 -> byte
+   ELSE
+      c [CHAR] 0 [CHAR] 9 1+ WITHIN 0= IF FALSE UNLOOP EXIT THEN
+      byte 10 * c [CHAR] 0 - + -> byte digits 1+ -> digits
+      byte 255 > digits 3 > OR IF FALSE UNLOOP EXIT THEN
+   THEN LOOP octets 4 = digits 0<> AND ;
+: PERSIST-HEX? { a u -- flag }
+   u 40 <> IF FALSE EXIT THEN
+   u 0 DO a I + C@ DUP [CHAR] 0 [CHAR] 9 1+ WITHIN
+      SWAP 32 OR [CHAR] a [CHAR] f 1+ WITHIN OR 0= IF FALSE UNLOOP EXIT THEN
+   LOOP TRUE ;
+VARIABLE persist-stmt
+: PERSIST-FINALIZE ( -- )
+   persist-stmt @ ?DUP IF PERSIST-SQL-FINALIZE DROP 0 persist-stmt ! THEN ;
+: PERSIST-PREPARE { a u \ rc tail -- }
+   0 persist-stmt ! ^ tail persist-stmt u a SWARM-DB @ PERSIST-SQL-PREPARE -> rc
+   rc IF PERSIST-FINALIZE rc THROW THEN ;
+: PERSIST-STEP ( -- flag )
+   persist-stmt @ PERSIST-SQL-STEP DUP 100 = IF DROP TRUE EXIT THEN
+   DUP 101 = IF DROP FALSE EXIT THEN THROW FALSE ;
+: PERSIST-WITH { a u xt \ ior -- }
+   a u PERSIST-PREPARE xt CATCH -> ior PERSIST-FINALIZE ior THROW ;
+
 : SWARM-DB-OPEN { a u -- f }                             \ open/create the DB + schema; f = opened
    a u db3_open  DUP SWARM-DB !  0= IF FALSE EXIT THEN
+   100 SWARM-DB @ PERSIST-SQL-TIMEOUT DROP
    S" CREATE TABLE IF NOT EXISTS dht_nodes(id TEXT PRIMARY KEY, ip TEXT, port INTEGER, seen INTEGER)" DBX
    S" CREATE TABLE IF NOT EXISTS members(hash TEXT PRIMARY KEY, ip TEXT, port INTEGER, seen INTEGER)" DBX
    TRUE ;
-: SWARM-DB-CLOSE ( -- )   DB? IF SWARM-DB @ db3_close  0 SWARM-DB ! THEN ;
+: SWARM-DB-CLOSE ( -- )
+   PERSIST-FINALIZE DB? IF SWARM-DB @ db3_close 0 SWARM-DB ! THEN ;
 
 \ ---- routing table <-> dht_nodes ----
 : SAVE-ONE-NODE { na -- }                                \ id hex, ip dotted-quad, port int -- columns
    SQL{ S" INSERT OR REPLACE INTO dht_nodes(id,ip,port,seen) VALUES('" SQL+
         na IDLEN SQLB  S" ','" SQL+  na NODE-IP IP>SQL  S" '," SQL+  na NODE-PORT SQL#
         S" ,strftime('%s','now'))" SQL+  SQL$ DBX ;
-: SWARM-DB-SAVE-NODES ( -- )                            \ replace the stored table with the live one
-   DB? 0= IF EXIT THEN
-   S" BEGIN"                DBX
+: (SWARM-DB-SAVE-NODES) ( -- )
    S" DELETE FROM dht_nodes" DBX
    RTAB-N @ 0 ?DO I RT-NODE SAVE-ONE-NODE LOOP
+   S" DELETE FROM members WHERE seen < strftime('%s','now')-2592000 OR hash NOT IN (SELECT hash FROM members ORDER BY seen DESC LIMIT 256)" DBX
    S" COMMIT" DBX ;
-: HEXV  ( c -- n )  DUP 57 > IF 55 - ELSE 48 - THEN ;   \ '0'..'9','A'..'F' -> 0..15
+: SWARM-DB-SAVE-NODES { \ ior -- }
+   DB? 0= IF EXIT THEN S" BEGIN IMMEDIATE" DBX
+   ['] (SWARM-DB-SAVE-NODES) CATCH -> ior
+   ior IF S" ROLLBACK" ['] DBX CATCH IF 2DROP THEN ior THROW THEN ;
+: HEXV  ( c -- n ) DUP 57 > IF 32 OR 87 - ELSE 48 - THEN ;
 CREATE NDBUF 26 ALLOT
 : BUILD-NODE { ida ip port -- }                          \ id hex + ip int + port -> compact node -> RT-ADD
    NDBUF 26 ERASE
@@ -70,16 +126,21 @@ CREATE NDBUF 26 ALLOT
    ip 16 RSHIFT 255 AND NDBUF 22 + C!  ip 24 RSHIFT 255 AND NDBUF 23 + C!
    port 8 RSHIFT 255 AND NDBUF 24 + C!  port 255 AND NDBUF 25 + C!         \ C-PORT layout (big-endian)
    NDBUF RT-ADD ;
-: SWARM-DB-LOAD-NODES { \ ppStmt n ida ip port -- n }   \ seed RTAB from storage; returns rows added
-   DB? 0= IF 0 EXIT THEN  0 -> n
-   S" SELECT id,ip,port FROM dht_nodes" SWARM-DB @ db3_car -> ppStmt
-   BEGIN ppStmt WHILE
-      0 ppStmt db3_col DROP -> ida                        \ id hex (col0 text ptr stays valid across cols)
-      1 ppStmt db3_col DQ>IP -> ip                        \ ip dotted-quad -> integer
-      2 ppStmt db3_coli -> port
-      ida ip port BUILD-NODE  n 1+ -> n
-      ppStmt db3_cdr -> ppStmt
-   REPEAT  n ;
+VARIABLE persist-count
+: PERSIST-ROW? ( -- flag )
+   0 persist-stmt @ db3_col PERSIST-HEX?
+   1 persist-stmt @ db3_col PERSIST-IP? AND
+   2 persist-stmt @ db3_coli 1 65536 WITHIN AND ;
+: (SWARM-DB-LOAD-NODES) ( -- )
+   BEGIN PERSIST-STEP WHILE PERSIST-ROW? IF
+      0 persist-stmt @ db3_col DROP
+      1 persist-stmt @ db3_col DQ>IP 2 persist-stmt @ db3_coli BUILD-NODE
+      1 persist-count +!
+   THEN REPEAT ;
+: SWARM-DB-LOAD-NODES ( -- n )
+   DB? 0= IF 0 EXIT THEN 0 persist-count !
+   S" SELECT id,ip,port FROM dht_nodes WHERE seen>=strftime('%s','now')-604800 ORDER BY seen DESC LIMIT 160"
+   ['] (SWARM-DB-LOAD-NODES) PERSIST-WITH persist-count @ ;
 
 \ ---- verified fleet members (same shape: hash hex, ip dotted-quad, port) ----
 : SWARM-DB-SAVE-MEMBER { hash-a ip port -- }            \ remember where a member was last verified
@@ -90,13 +151,22 @@ CREATE NDBUF 26 ALLOT
 [DEFINED] MEMBER-UP-XT [IF]                              \ when loaded over dtls-net.f, persist every
    ' SWARM-DB-SAVE-MEMBER TO MEMBER-UP-XT                \ MEMBER-verified event; loadable standalone too
 [THEN]
-: SWARM-DB-LOAD-MEMBERS { xt \ ppStmt n -- n }          \ xt: ( ip port -- ) -- caller dials each; count
-   DB? 0= IF 0 EXIT THEN  0 -> n
-   S" SELECT ip,port FROM members ORDER BY seen DESC" SWARM-DB @ db3_car -> ppStmt
-   BEGIN ppStmt WHILE
-      0 ppStmt db3_col DQ>IP  1 ppStmt db3_coli  xt EXECUTE  n 1+ -> n
-      ppStmt db3_cdr -> ppStmt
-   REPEAT  n ;
+VARIABLE persist-member-xt
+CREATE persist-member-key 20 ALLOT
+: (SWARM-DB-LOAD-MEMBERS) ( -- )
+   BEGIN PERSIST-STEP WHILE PERSIST-ROW? IF
+      0 persist-stmt @ db3_col persist-member-key HEX>ID
+      1 persist-stmt @ db3_col DQ>IP 2 persist-stmt @ db3_coli
+      persist-member-key persist-member-xt @ EXECUTE 1 persist-count +!
+   THEN REPEAT ;
+: SWARM-DB-LOAD-MEMBERS-KEY ( xt -- n ) \ xt: ( ip port key-a -- ); key borrowed during callback
+   DB? 0= IF DROP 0 EXIT THEN persist-member-xt ! 0 persist-count !
+   S" SELECT hash,ip,port FROM members WHERE seen>=strftime('%s','now')-2592000 ORDER BY seen DESC LIMIT 256"
+   ['] (SWARM-DB-LOAD-MEMBERS) PERSIST-WITH persist-count @ ;
+VARIABLE persist-legacy-xt
+: PERSIST-LEGACY-MEMBER ( ip port key -- ) DROP persist-legacy-xt @ EXECUTE ;
+: SWARM-DB-LOAD-MEMBERS ( xt -- n ) \ compatibility: callback takes ( ip port -- )
+   persist-legacy-xt ! ['] PERSIST-LEGACY-MEMBER SWARM-DB-LOAD-MEMBERS-KEY ;
 
 \ ---- keep reconnecting to saved members (not just once at boot) ----
 \ Warm-start dials each saved member ONCE.  If that dial missed (a transient timeout, or the member came

@@ -377,7 +377,9 @@ CREATE NCACHE  /NCACHE /NC *  ALLOT   NCACHE /NCACHE /NC *  ERASE
 \ next round starts.  All sends are fire-and-forget -- no blocking recv anywhere.
 CREATE ANN-IH 20 ALLOT
 VARIABLE ANN-ACTIVE   VARIABLE ANN-DEADLINE   VARIABLE ANN-NEXT   VARIABLE ANN-QUERIES
-CREATE ROUTER-IPS 3 CELLS ALLOT   VARIABLE ROUTERS-RESOLVED
+4 CONSTANT /DHT-ROUTERS
+CREATE ROUTER-IPS /DHT-ROUTERS CELLS ALLOT   VARIABLE ROUTERS-RESOLVED
+: ROUTER-PORT ( index -- port ) 3 = IF 25401 ELSE 6881 THEN ;
 30000 VALUE REANNOUNCE-EVERY       \ ms between re-announce rounds
 8000  VALUE LOOKUP-WINDOW          \ ms each round runs before it stops
 : RESOLVE-ROUTERS ( -- )           \ resolve the bootstrap routers ONCE (the only blocking bit, at startup)
@@ -385,6 +387,7 @@ CREATE ROUTER-IPS 3 CELLS ALLOT   VARIABLE ROUTERS-RESOLVED
    S" router.bittorrent.com"  NAME>IP IF DROP 0 THEN ROUTER-IPS !
    S" dht.transmissionbt.com" NAME>IP IF DROP 0 THEN ROUTER-IPS CELL+ !
    S" router.utorrent.com"    NAME>IP IF DROP 0 THEN ROUTER-IPS 2 CELLS + !
+   S" dht.libtorrent.org"     NAME>IP IF DROP 0 THEN ROUTER-IPS 3 CELLS + !
    TRUE ROUTERS-RESOLVED ! ;
 \ ---- outstanding get_peers queries (KRPC transaction correlation) -------------------------------
 \ Only a reply carrying OUR transaction id AND coming FROM the peer we asked may feed the lookup.
@@ -498,6 +501,9 @@ VARIABLE ANNQ-N   0 ANNQ-N !
 : ANNQ-ADD { ida ip port toka toku \ idx -- }     \ keep the K closest responders that gave us a token
    toku /AQ-TOK > IF EXIT THEN
    DHT-PUBLIC-ONLY? IF ida ip BEP42-ID? 0= IF EXIT THEN THEN
+   ANNQ-N @ 0 ?DO I AQ aq.ip @ ip = I AQ aq.port @ port = AND IF
+      toka I AQ aq.tok toku MOVE toku I AQ aq.tlen ! UNLOOP EXIT
+   THEN LOOP
    ANNQ-N @ ANNOUNCE-K < IF  ANNQ-N @ -> idx  1 ANNQ-N +!
    ELSE  AQ-FARTHEST -> idx
       ida  idx AQ aq.id  TARGET XOR-CLOSER? 0= IF EXIT THEN     \ not closer than the farthest -> drop it
@@ -513,17 +519,20 @@ VARIABLE ANNQ-N   0 ANNQ-N !
       TXBUF TID@  I AQ aq.ip @  I AQ aq.port @  OQ-ADD
    LOOP  ANNQ-RESET ;
 
-: SEED-SEND { \ rip -- }
+: SEED-SEND { \ rip port -- }
    RESOLVE-ROUTERS
-   3 0 DO ROUTER-IPS I CELLS + @ ?DUP IF -> rip rip 6881 LR-WAIT? 0= IF
-      ." > get_peers " CUR-IH @ .IHPFX ."  -> " rip 6881 .IPPORT CR
-      rip SIGN-FOR  rip 6881 GETPEERS-MSG DHT-SOCK @ UDP-SEND
-      TXBUF TID@ rip 6881 OQ-LOOKUP-ADD
+   /DHT-ROUTERS 0 DO ROUTER-IPS I CELLS + @ ?DUP IF -> rip
+      I ROUTER-PORT -> port rip port LR-WAIT? 0= IF
+      ." > get_peers " CUR-IH @ .IHPFX ."  -> " rip port .IPPORT CR
+      rip SIGN-FOR  rip port GETPEERS-MSG DHT-SOCK @ UDP-SEND
+      TXBUF TID@ rip port OQ-LOOKUP-ADD
    THEN THEN LOOP ;
 : LOOKUP-SEND-NEXT { \ idx ip port -- sent? }   \ get_peers to the next closest un-queried node
    ANN-QUERIES @ MAX-QUERIES >= IF FALSE EXIT THEN
    BEGIN
-      SL-PICK -> idx idx 0< IF FALSE EXIT THEN
+      DHT-PUBLIC-ONLY? IF
+         ANN-QUERIES @ 4 MOD 3 <> SL-PICK-CLASS DUP 0< IF DROP SL-PICK THEN
+      ELSE SL-PICK THEN -> idx idx 0< IF FALSE EXIT THEN
       1 idx SL-Q + C!
       idx SL-NODE DUP NODE-IP -> ip NODE-PORT -> port
       ip port LR-WAIT? 0=

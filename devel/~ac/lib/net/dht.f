@@ -225,9 +225,27 @@ VARIABLE SL-N
    0  SL-N @ 1 ?DO
       DUP SL-NODE  I SL-NODE CLOSER? IF DROP I THEN   \ current closer than I -> I is farther -> keep I
    LOOP ;
-: SL-ADD { na -- }                       \ keep the SL-MAX nodes CLOSEST to TARGET (evict the farthest)
+: NODE-SECURE? ( na -- flag ) DUP NODE-IP BEP42-ID? ;
+: SL-CLASS-COUNT { secure -- n }
+   0 SL-N @ 0 ?DO I SL-NODE NODE-SECURE? secure = IF 1+ THEN LOOP ;
+: SL-CLASS-FARTHEST { secure \ best -- idx }
+   -1 -> best SL-N @ 0 ?DO I SL-NODE NODE-SECURE? secure = IF
+      best 0< IF I -> best ELSE best SL-NODE I SL-NODE CLOSER? IF I -> best THEN THEN
+   THEN LOOP best ;
+: SL-ADD { na \ secure idx -- }
    DHT-PUBLIC-ONLY? IF na NODE-IP DHT-PUBLIC-IP? 0= IF EXIT THEN THEN
    na SL-DUP? IF EXIT THEN
+   \ Unbound IDs can be chosen arbitrarily close to TARGET. Reserve three
+   \ quarters for IP-bound IDs, but retain a bounded legacy discovery lane.
+   DHT-PUBLIC-ONLY? IF
+      na NODE-SECURE? -> secure
+      secure SL-CLASS-COUNT secure IF SL-MAX 4 / 3 * ELSE SL-MAX 4 / THEN >= IF
+         secure SL-CLASS-FARTHEST -> idx
+         na idx SL-NODE CLOSER? IF
+            na idx SL-NODE NODELEN MOVE 0 idx SL-Q + C!
+         THEN EXIT
+      THEN
+   THEN
    SL-N @ SL-MAX < IF                     \ room: append
       na  SL-N @ SL-NODE  NODELEN MOVE
       0 SL-N @ SL-Q + C!   1 SL-N +!  EXIT THEN
@@ -243,6 +261,12 @@ VARIABLE SL-N
          ELSE  I SL-NODE OVER SL-NODE CLOSER? IF DROP I THEN  THEN
       THEN
    LOOP ;
+: SL-PICK-CLASS { secure \ best -- idx }
+   -1 -> best SL-N @ 0 ?DO
+      I SL-Q + C@ 0= I SL-NODE NODE-SECURE? secure = AND IF
+         best 0< IF I -> best ELSE I SL-NODE best SL-NODE CLOSER? IF I -> best THEN THEN
+      THEN
+   LOOP best ;
 
 \ ===== collected peers ======================================================================
 CREATE PEERS  PEERS-MAX 6 * ALLOT
@@ -289,12 +313,22 @@ VARIABLE RTAB-N   0 RTAB-N !
 : RT-FIND-ID { na -- idx }  RTAB-N @ 0 ?DO na I RT-NODE RT-ID= IF I UNLOOP EXIT THEN LOOP -1 ;
 : RT-STALEST ( -- idx )
    0  RTAB-N @ 1 ?DO  DUP RT-SEEN @  I RT-SEEN @  U> IF DROP I THEN  LOOP ;
-: RT-ADD { na \ idx -- }                           \ add/refresh a compact node (skip garbage: 0 ip)
+: RT-CLASS-SLOT { secure \ n best -- n idx }
+   0 -> n -1 -> best RTAB-N @ 0 ?DO I RT-NODE NODE-SECURE? secure = IF
+      n 1+ -> n best 0< IF I -> best ELSE I RT-SEEN @ best RT-SEEN @ U< IF I -> best THEN THEN
+   THEN LOOP n best ;
+: RT-ADD { na \ idx count secure -- }              \ add/refresh a compact node (skip garbage: 0 ip)
    na NODE-IP 0= IF EXIT THEN
    DHT-PUBLIC-ONLY? IF na NODE-IP DHT-PUBLIC-IP? 0= IF EXIT THEN THEN
    na RT-FIND-ID -> idx
    idx 0< IF
+      DHT-PUBLIC-ONLY? IF
+         na NODE-SECURE? -> secure secure RT-CLASS-SLOT -> idx -> count
+         count secure IF RTAB-MAX 4 / 3 * ELSE RTAB-MAX 4 / THEN < IF -1 -> idx THEN
+      THEN
+      idx 0< IF
       RTAB-N @ RTAB-MAX < IF RTAB-N @ -> idx  1 RTAB-N +!  ELSE RT-STALEST -> idx THEN
+      THEN
       na idx RT-NODE NODELEN MOVE
    THEN
    NOW-MS idx RT-SEEN ! ;
